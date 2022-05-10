@@ -2,113 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C524DC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4FD9C433EF
 	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 07:30:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237499AbiEJHeo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 03:34:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51496 "EHLO
+        id S237349AbiEJHea (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 03:34:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238730AbiEJHJV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 03:09:21 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC4728FEAA;
-        Tue, 10 May 2022 00:05:25 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24A6hQn1024939;
-        Tue, 10 May 2022 07:05:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=dv74yVCTxJWMrGmc+xkj7P21G7PTlAbLvXX/vB7xbco=;
- b=aKzn50qNAi93z9l5BAcZ9RyGBKRmYChBibarp6pSNjr4wk8uPl3NN2qs68/jRLZG071Z
- h6xHNVKMKoT8oCb+T+o0a6EUt4sEWUYydBGovhr3OHzk3r4uj536TM4LjP35Q44YEdN1
- BYRB1EozozNY6oRIOCrnxZCCpzlTOg9W9wfvmnsu5Db+V3ToVsOo7t//2uAS3omclGyf
- M57DKezXyQairnH0UO1jqKRIE4+c7D4nq/bE9k1jMDtN8Kw+tY4MdTn7jR/eUy1X4CHJ
- f1YmFGrsyBNVJvIJv6bmnP6q/BC3V1clBR/iR3geiPlNHGLKLDrWob+DYsaFtShpGjHW rA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyk18rdun-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 07:05:21 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24A72UW4029090;
-        Tue, 10 May 2022 07:05:18 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3fwgd8uka5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 07:05:18 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24A75FnV37552606
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 May 2022 07:05:15 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ECFC3AE051;
-        Tue, 10 May 2022 07:05:14 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DB071AE045;
-        Tue, 10 May 2022 07:05:14 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 10 May 2022 07:05:14 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-        id 9C220E78E9; Tue, 10 May 2022 09:05:14 +0200 (CEST)
-From:   Alexandra Winter <wintera@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>
-Subject: [PATCH net 3/3] s390/lcs: fix variable dereferenced before check
-Date:   Tue, 10 May 2022 09:05:08 +0200
-Message-Id: <20220510070508.334726-4-wintera@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220510070508.334726-1-wintera@linux.ibm.com>
-References: <20220510070508.334726-1-wintera@linux.ibm.com>
+        with ESMTP id S237471AbiEJHBT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 03:01:19 -0400
+Received: from conssluserg-01.nifty.com (conssluserg-01.nifty.com [210.131.2.80])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31EFC7485B;
+        Mon,  9 May 2022 23:57:17 -0700 (PDT)
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175]) (authenticated)
+        by conssluserg-01.nifty.com with ESMTP id 24A6v5AW020352;
+        Tue, 10 May 2022 15:57:05 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-01.nifty.com 24A6v5AW020352
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1652165826;
+        bh=PV2VZBmSw1vDAIYTzEMhuv3Dcr29T/TFTi8FpUXKvKs=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=TUwfcbJvXyEvqS8U11pqWqNmRgJzRZaBOGmPCphF+IP2bpDlMx0L9NSHPo3LizD+b
+         ELmgfisgYc9Dkdfvq4jo1FzJ1HT3wtSW1w2WlGbqLoHqey20jM14N6UUlxyj/mqBYA
+         AX/7/fcgrEQKWf4o2Zv+TXLqUdtc6CF5huKQGAPLIQ13xqP42a7sMHmvWBHcUd/52y
+         JT8vHBu7Mujdb7nuqsZriXtv80/x/2pyM6DL4/oZWrEoTN/1Q96Wh7GOpeZL/rATQL
+         5wBCqpzWAUMi+noWjumXUHN2+1tdLCI8yrM0t16SPITEcCss048Fs238DeWc/mEgKv
+         dRLJIW9zg0/lQ==
+X-Nifty-SrcIP: [209.85.214.175]
+Received: by mail-pl1-f175.google.com with SMTP id d17so15983766plg.0;
+        Mon, 09 May 2022 23:57:05 -0700 (PDT)
+X-Gm-Message-State: AOAM532+bBKE4On1YzhYdFxIOjgwVyBIsN1qCcdz5QyhzROXdItt9Ugc
+        5cv7j7RqgQ9VTPjBqmYZA0XcfXG2VqFG3NBmv8E=
+X-Google-Smtp-Source: ABdhPJyUsO6qgOPcuwMWkhoVbg96fdtrT2KcjbMF4Q1DKsxKckAJcwFdS+O5hh4okyU+VxKrQY62LHgpgdtJmiFstPc=
+X-Received: by 2002:a17:90a:e517:b0:1d7:5bbd:f9f0 with SMTP id
+ t23-20020a17090ae51700b001d75bbdf9f0mr21441512pjy.77.1652165824961; Mon, 09
+ May 2022 23:57:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QjBhA2ZkHKUSZyduHqVxFCGjKjmDnGDa
-X-Proofpoint-ORIG-GUID: QjBhA2ZkHKUSZyduHqVxFCGjKjmDnGDa
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-09_06,2022-05-09_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- adultscore=0 spamscore=0 clxscore=1015 mlxlogscore=720 priorityscore=1501
- impostorscore=0 bulkscore=0 mlxscore=0 phishscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205100028
+References: <20220508190631.2386038-1-masahiroy@kernel.org>
+ <20220508190631.2386038-4-masahiroy@kernel.org> <CAKwvOd=LR=UNOeWJDmM-McJ=FrCWTo8w1ox+KGMQCwCVpiUyFg@mail.gmail.com>
+In-Reply-To: <CAKwvOd=LR=UNOeWJDmM-McJ=FrCWTo8w1ox+KGMQCwCVpiUyFg@mail.gmail.com>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Tue, 10 May 2022 15:55:53 +0900
+X-Gmail-Original-Message-ID: <CAK7LNARGNEDzPPUsPjDXsXUUUPSFK2erQRuyPocR_v5hTYRihg@mail.gmail.com>
+Message-ID: <CAK7LNARGNEDzPPUsPjDXsXUUUPSFK2erQRuyPocR_v5hTYRihg@mail.gmail.com>
+Subject: Re: [PATCH v4 03/14] modpost: split the section mismatch checks into section-check.c
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nicolas Schier <nicolas@fjasle.eu>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-modules <linux-modules@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        clang-built-linux <llvm@lists.linux.dev>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-smatch complains about
-drivers/s390/net/lcs.c:1741 lcs_get_control() warn: variable dereferenced before check 'card->dev' (see line 1739)
+On Tue, May 10, 2022 at 2:20 AM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
+>
+> On Sun, May 8, 2022 at 12:10 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
+> >
+> > modpost.c is too big, and the half of the code is for section checks.
+> > Split it.
+> >
+> > I fixed some style issues in the moved code.
+>
+> It would be helpful for review if the split and restyle were distinct
+> patches.  Otherwise I can't tell what has changed.
+>
+> This does lose the ability to use git blame to get more context on
+> some of the oddities in modpost (which I have found useful in the
+> past).  I don't feel strongly though.
 
-Fixes: 27eb5ac8f015 ("[PATCH] s390: lcs driver bug fixes and improvements [1/2]")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
----
- drivers/s390/net/lcs.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
-index bab9b34926c6..84c8981317b4 100644
---- a/drivers/s390/net/lcs.c
-+++ b/drivers/s390/net/lcs.c
-@@ -1736,10 +1736,11 @@ lcs_get_control(struct lcs_card *card, struct lcs_cmd *cmd)
- 			lcs_schedule_recovery(card);
- 			break;
- 		case LCS_CMD_STOPLAN:
--			pr_warn("Stoplan for %s initiated by LGW\n",
--				card->dev->name);
--			if (card->dev)
-+			if (card->dev) {
-+				pr_warn("Stoplan for %s initiated by LGW\n",
-+					card->dev->name);
- 				netif_carrier_off(card->dev);
-+			}
- 			break;
- 		default:
- 			LCS_DBF_TEXT(5, trace, "noLGWcmd");
--- 
-2.32.0
+OK, I will just move the code in v5.
 
+
+
+
+
+> > diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+> > index a78b75f0eeb0..e7e2c70a98f5 100644
+> > --- a/scripts/mod/modpost.c
+> > +++ b/scripts/mod/modpost.c
+> > @@ -31,7 +31,7 @@ static bool external_module;
+> >  /* Only warn about unresolved symbols */
+> >  static bool warn_unresolved;
+> >
+> > -static int sec_mismatch_count;
+> > +int sec_mismatch_count;
+>
+> ^ this should go in modpost.h if it is to be used in two translation
+> units, rather than forward declaring it in section-check.c.  You did
+> this for the functions.
+
+
+Sorry, I do not understand.
+
+
+In modpost.h, I put the declaration:
+
+  extern int sec_mismatch_count;
+
+If I moved it to the header without 'extern'
+I would get multiple definitions.
+
+
+
+
+
+
+
+--
+Best Regards
+Masahiro Yamada
