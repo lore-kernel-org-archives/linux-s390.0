@@ -2,47 +2,47 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E000C43217
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 15:44:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53ACFC4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 15:46:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346221AbiEJPsk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 11:48:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60208 "EHLO
+        id S1346222AbiEJPud (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 11:50:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346200AbiEJPsI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 11:48:08 -0400
+        with ESMTP id S1346204AbiEJPuZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 11:50:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D10927EBA0;
-        Tue, 10 May 2022 08:44:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFB8E285AF7;
+        Tue, 10 May 2022 08:44:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E63561329;
-        Tue, 10 May 2022 15:43:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD84C385CA;
-        Tue, 10 May 2022 15:43:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B3076142F;
+        Tue, 10 May 2022 15:44:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C915DC385A6;
+        Tue, 10 May 2022 15:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197439;
-        bh=b0MSQg/xz/grIABZ0lxzMrKqf4HNvVAqziQ+8pd1GZA=;
+        s=k20201202; t=1652197483;
+        bh=D10GPRbEwKJfKsKN2QwvZzhLZ1ISe1aCW6XloW6wvuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAROzsk7xYn7c3gBbPk3cYrzH0Qf1zO5goFhM3hWA6QwQejYDiCO7FQdEwzns82eV
-         clpem7tCCOAHP0oIAM+a81cm/TUpZ0ZdsYHpyHehjayUomaOZAcNdCaWEm9CYO9edF
-         YR5oO1ccyJ1z5fWmyPNJm4IlZUgaMe/Pz4OPrzmQH9bbRgS9vCT3LZEN7Jx1Tb5sVP
-         UeikHmBUU03HVN5VxtNx5Tpqg6KZyTOD2pY+T4gRRnq+5IsQvGPHU0lL9H6aZUEBFq
-         C/0/T7MR0zIQSYpGOQaseoxEcwWTjRiZBtg5hPqOr0/aElB3VHRW6pNZo9lZ7ksw3q
-         31qOhbp5ItfoQ==
+        b=MjQ8B0R5lDY7zJRYPAQVZ0nIV0PiC7FkM9JJ3Yoqk7cYXkBD8U1OIQvsXpVuffYgj
+         hcFD0eoZFs5BTMRy6bGlRVTZNrHjjdn5m85+ZaXfX8X2doWZFmwXCrD2HSI3lR9Cll
+         3zji3ds5lWUwxM/c7h6d/fGG4ntFYRGmg/bD07zoqZr+sor4heMtEN4ElrighfK3Km
+         xSfAFj8231m2ztgdwNhybqVwQkZn6WO2JNMbvPlKHS06b0zlaI56amIP9Mv/Lc+rc+
+         FWbMmlkZFr0JGQA6CBz1fV1lD1cPlqn5kiC//Aw28V9gUxC+9EyNnWFr/YS7LKbaMU
+         jArcXkrSRhOOg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Sven Schnelle <svens@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
         agordeev@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 08/21] s390: disable -Warray-bounds
-Date:   Tue, 10 May 2022 11:43:27 -0400
-Message-Id: <20220510154340.153400-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 07/19] s390: disable -Warray-bounds
+Date:   Tue, 10 May 2022 11:44:17 -0400
+Message-Id: <20220510154429.153677-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220510154340.153400-1-sashal@kernel.org>
-References: <20220510154340.153400-1-sashal@kernel.org>
+In-Reply-To: <20220510154429.153677-1-sashal@kernel.org>
+References: <20220510154429.153677-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -77,10 +77,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 10 insertions(+)
 
 diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index 609e3697324b..6e42252214dd 100644
+index d4fd1426a822..c7b7a60f6405 100644
 --- a/arch/s390/Makefile
 +++ b/arch/s390/Makefile
-@@ -30,6 +30,16 @@ KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
+@@ -32,6 +32,16 @@ KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
  KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
  KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
  KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
