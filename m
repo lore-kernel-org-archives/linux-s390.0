@@ -2,189 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 201A3C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 09:30:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15656C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 10:38:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238723AbiEJJeY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 05:34:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34764 "EHLO
+        id S238488AbiEJKmV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 06:42:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234466AbiEJJeW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 05:34:22 -0400
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E936928C9D3;
-        Tue, 10 May 2022 02:30:24 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R361e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VCqS5tH_1652175021;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VCqS5tH_1652175021)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 10 May 2022 17:30:22 +0800
-Date:   Tue, 10 May 2022 17:30:21 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net 2/2] net/smc: align the connect behaviour with TCP
-Message-ID: <Ynowrcnqb/wv1iNt@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20220509115837.94911-1-guangguan.wang@linux.alibaba.com>
- <20220509115837.94911-3-guangguan.wang@linux.alibaba.com>
+        with ESMTP id S239830AbiEJKmV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 06:42:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402EB26820C;
+        Tue, 10 May 2022 03:38:24 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7725B81CB7;
+        Tue, 10 May 2022 10:38:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DEE5C385C6;
+        Tue, 10 May 2022 10:38:17 +0000 (UTC)
+Date:   Tue, 10 May 2022 11:38:13 +0100
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Josh Poimboeuf <jpoimboe@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH] bug: Use normal relative pointers in 'struct bug_entry'
+Message-ID: <YnpAlYUsUJAL1fFu@arm.com>
+References: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220509115837.94911-3-guangguan.wang@linux.alibaba.com>
+In-Reply-To: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 09, 2022 at 07:58:37PM +0800, Guangguan Wang wrote:
-> Connect with O_NONBLOCK will not be completed immediately
-> and returns -EINPROGRESS. It is possible to use selector/poll
-> for completion by selecting the socket for writing. After select
-> indicates writability, a second connect function call will return
-> 0 to indicate connected successfully as TCP does, but smc returns
-
-If the connection is established successfully, the following up call of
-connect() returns -EISCONN (SS_CONNECTED), which is expected and SMC
-does it, same as TCP.
-
-In case of misunderstanding, could you append more detailed information?
-
-Thanks,
-Tony Lu
-
-> -EISCONN. Use socket state for smc to indicate connect state, which
-> can help smc aligning the connect behaviour with TCP.
+On Thu, May 05, 2022 at 06:09:45PM -0700, Josh Poimboeuf wrote:
+> With CONFIG_GENERIC_BUG_RELATIVE_POINTERS, the addr/file relative
+> pointers are calculated weirdly: based on the beginning of the bug_entry
+> struct address, rather than their respective pointer addresses.
 > 
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> Make the relative pointers less surprising to both humans and tools by
+> calculating them the normal way.
+> 
+> Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 > ---
->  net/smc/af_smc.c | 53 ++++++++++++++++++++++++++++++++++++++++++++----
->  1 file changed, 49 insertions(+), 4 deletions(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index fce16b9d6e1a..45f9f7c6e776 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -1544,9 +1544,32 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
->  		goto out_err;
->  
->  	lock_sock(sk);
-> +	switch (sock->state) {
-> +	default:
-> +		rc = -EINVAL;
-> +		goto out;
-> +	case SS_CONNECTED:
-> +		rc = sk->sk_state == SMC_ACTIVE ? -EISCONN : -EINVAL;
-> +		goto out;
-> +	case SS_CONNECTING:
-> +		if (sk->sk_state == SMC_ACTIVE) {
-> +			sock->state = SS_CONNECTED;
-> +			rc = 0;
-> +			goto out;
-> +		}
-> +		break;
-> +	case SS_UNCONNECTED:
-> +		sock->state = SS_CONNECTING;
-> +		break;
-> +	}
-> +
->  	switch (sk->sk_state) {
->  	default:
->  		goto out;
-> +	case SMC_CLOSED:
-> +		rc = sock_error(sk) ? : -ECONNABORTED;
-> +		sock->state = SS_UNCONNECTED;
-> +		goto out;
->  	case SMC_ACTIVE:
->  		rc = -EISCONN;
->  		goto out;
-> @@ -1565,18 +1588,22 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
->  		goto out;
->  
->  	sock_hold(&smc->sk); /* sock put in passive closing */
-> -	if (smc->use_fallback)
-> +	if (smc->use_fallback) {
-> +		sock->state = SS_CONNECTED;
->  		goto out;
-> +	}
->  	if (flags & O_NONBLOCK) {
->  		if (queue_work(smc_hs_wq, &smc->connect_work))
->  			smc->connect_nonblock = 1;
->  		rc = -EINPROGRESS;
->  	} else {
->  		rc = __smc_connect(smc);
-> -		if (rc < 0)
-> +		if (rc < 0) {
->  			goto out;
-> -		else
-> +		} else {
->  			rc = 0; /* success cases including fallback */
-> +			sock->state = SS_CONNECTED;
-> +		}
->  	}
->  
->  out:
-> @@ -1693,6 +1720,7 @@ struct sock *smc_accept_dequeue(struct sock *parent,
->  		}
->  		if (new_sock) {
->  			sock_graft(new_sk, new_sock);
-> +			new_sock->state = SS_CONNECTED;
->  			if (isk->use_fallback) {
->  				smc_sk(new_sk)->clcsock->file = new_sock->file;
->  				isk->clcsock->file->private_data = isk->clcsock;
-> @@ -2424,7 +2452,7 @@ static int smc_listen(struct socket *sock, int backlog)
->  
->  	rc = -EINVAL;
->  	if ((sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) ||
-> -	    smc->connect_nonblock)
-> +	    smc->connect_nonblock || sock->state != SS_UNCONNECTED)
->  		goto out;
->  
->  	rc = 0;
-> @@ -2716,6 +2744,17 @@ static int smc_shutdown(struct socket *sock, int how)
->  
->  	lock_sock(sk);
->  
-> +	if (sock->state == SS_CONNECTING) {
-> +		if (sk->sk_state == SMC_ACTIVE)
-> +			sock->state = SS_CONNECTED;
-> +		else if (sk->sk_state == SMC_PEERCLOSEWAIT1 ||
-> +			 sk->sk_state == SMC_PEERCLOSEWAIT2 ||
-> +			 sk->sk_state == SMC_APPCLOSEWAIT1 ||
-> +			 sk->sk_state == SMC_APPCLOSEWAIT2 ||
-> +			 sk->sk_state == SMC_APPFINCLOSEWAIT)
-> +			sock->state = SS_DISCONNECTING;
-> +	}
-> +
->  	rc = -ENOTCONN;
->  	if ((sk->sk_state != SMC_ACTIVE) &&
->  	    (sk->sk_state != SMC_PEERCLOSEWAIT1) &&
-> @@ -2729,6 +2768,7 @@ static int smc_shutdown(struct socket *sock, int how)
->  		sk->sk_shutdown = smc->clcsock->sk->sk_shutdown;
->  		if (sk->sk_shutdown == SHUTDOWN_MASK) {
->  			sk->sk_state = SMC_CLOSED;
-> +			sk->sk_socket->state = SS_UNCONNECTED;
->  			sock_put(sk);
->  		}
->  		goto out;
-> @@ -2754,6 +2794,10 @@ static int smc_shutdown(struct socket *sock, int how)
->  	/* map sock_shutdown_cmd constants to sk_shutdown value range */
->  	sk->sk_shutdown |= how + 1;
->  
-> +	if (sk->sk_state == SMC_CLOSED)
-> +		sock->state = SS_UNCONNECTED;
-> +	else
-> +		sock->state = SS_DISCONNECTING;
->  out:
->  	release_sock(sk);
->  	return rc ? rc : rc1;
-> @@ -3139,6 +3183,7 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
->  
->  	rc = -ENOBUFS;
->  	sock->ops = &smc_sock_ops;
-> +	sock->state = SS_UNCONNECTED;
->  	sk = smc_sock_alloc(net, sock, protocol);
->  	if (!sk)
->  		goto out;
-> -- 
-> 2.24.3 (Apple Git-128)
+>  arch/arm64/include/asm/asm-bug.h |  4 ++--
+
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
