@@ -2,128 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DE70C4167D
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 16:18:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BEC0C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 17:13:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347248AbiEJQV6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 12:21:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36120 "EHLO
+        id S243328AbiEJRRW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 13:17:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347193AbiEJQVr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 12:21:47 -0400
-Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21D428ED28;
-        Tue, 10 May 2022 09:17:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=DG+kC/U+ySej5D6tfV4OCa8YH0d8ESpuNC4bFJt4RU8=; b=C2KkFYKUIxmXZpa9w2+Tc0j2Ea
-        RFFr76ch465vsOUiMZW1uqZNDnhRYy0QqpFeaougTFG9GOX2EvcKO8NnFtvJdvaTDSvmTGm5I6bLE
-        gx/SYLZAEuVfjx7NJeu1tB8cieKdzixVjql/phg2ZRqRsu9xZgqdP1nbzw6Nv7UUXN3Dua0weQYl6
-        +N3ACyNpHY020LPMtgokauBK3/rzBv0qIzP0VJEueNDPsJdk0Noe60ugWXyfyRTapgsSXBPVXAg4/
-        oobDhrEfQYteiYAwrodL1TGkVGLJREzPqDYfYYN3sh0JBT6vnlq6trf1vxZCJI19NPJiA+YiSFKJe
-        qkMs6K7A==;
-Received: from [177.183.162.244] (helo=[192.168.0.5])
-        by fanzine2.igalia.com with esmtpsa 
-        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-        id 1noSY8-0008UD-Jz; Tue, 10 May 2022 18:17:24 +0200
-Message-ID: <244a412c-4589-28d1-bb77-d3648d4f0b12@igalia.com>
-Date:   Tue, 10 May 2022 13:16:54 -0300
+        with ESMTP id S239349AbiEJRRV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 13:17:21 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A52AC1F2C0A;
+        Tue, 10 May 2022 10:13:21 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24AH1vdF020553;
+        Tue, 10 May 2022 17:13:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=yHbXdpGx3oYPB6yPLWlIq1cBObBxBVu+pIAiZ3VjDMU=;
+ b=OhqXDtSrdsSAbu+P/zZTd41j0XGzcno48GMYJDIkcPpY3YxE+ioCVcy1NN2KaTCjl75t
+ 1ZSH4gk+RanKeJZhkGCLCafaBtUOpY3aVwUCwzhColQ2ke0o+iUi+1YqYRjK7vnsaQLp
+ Ch+6QMHRL/3OoGEKNxDhqpvhe9hHGuTVN9pkMpL777PhzIW4lnpDhGo1Y8TVoxPB3BzH
+ 8lAvcpMs0GiloeLZDjWpfzOeMxXpdWaIResiu373JqT/URz9br2Fn4JVgNxvVVNGaxHA
+ 9cNG7/DJ0l1GxX3yUJaJklANsiDUdsJx2hpIaN526GsnfJ/NdurTBXop+/0GixxXPoJK UA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyv3gg8uy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 17:13:21 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24AH53R2001693;
+        Tue, 10 May 2022 17:13:20 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyv3gg8ua-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 17:13:20 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24AHD5wV006752;
+        Tue, 10 May 2022 17:13:18 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04fra.de.ibm.com with ESMTP id 3fwgd8ud2t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 17:13:18 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24AHDES640894924
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 May 2022 17:13:14 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 96B58A405F;
+        Tue, 10 May 2022 17:13:14 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 09A6DA4054;
+        Tue, 10 May 2022 17:13:14 +0000 (GMT)
+Received: from [9.145.38.155] (unknown [9.145.38.155])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 10 May 2022 17:13:13 +0000 (GMT)
+Message-ID: <ff77e8df-cf67-6ee2-8a9f-7f79a5d90622@linux.ibm.com>
+Date:   Tue, 10 May 2022 19:13:13 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH 14/30] panic: Properly identify the panic event to the
- notifiers' callbacks
+ Thunderbird/91.8.0
+Subject: Re: [kvm-unit-tests PATCH 1/3] s390x: Fix sclp facility bit numbers
 Content-Language: en-US
-To:     Petr Mladek <pmladek@suse.com>
-Cc:     akpm@linux-foundation.org, bhe@redhat.com,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
-        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
-        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
-        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
-        halves@canonical.com, fabiomirmar@gmail.com,
-        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
-        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
-        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
-        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-15-gpiccoli@igalia.com> <YnqBsXBImU64PAOL@alley>
-From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-In-Reply-To: <YnqBsXBImU64PAOL@alley>
-Content-Type: text/plain; charset=UTF-8
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220505124656.1954092-1-scgl@linux.ibm.com>
+ <20220505124656.1954092-2-scgl@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220505124656.1954092-2-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: R5-S0Z1jS7RRV3GoxB2aWh5qbvwjZUKs
+X-Proofpoint-GUID: qKFsjEj8ARNAQuTliqLE-21hkBlTbP7F
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-10_05,2022-05-10_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ lowpriorityscore=0 malwarescore=0 phishscore=0 mlxlogscore=999 spamscore=0
+ adultscore=0 impostorscore=0 priorityscore=1501 mlxscore=0 clxscore=1015
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205100074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/05/2022 12:16, Petr Mladek wrote:
-> [...]
-> Hmm, this looks like a hack. PANIC_UNUSED will never be used.
-> All notifiers will be always called with PANIC_NOTIFIER.
+On 5/5/22 14:46, Janis Schoetterl-Glausch wrote:
+> sclp_feat_check takes care of adjusting the bit numbering such that they
+> can be defined as they are in the documentation.
 > 
-> The @val parameter is normally used when the same notifier_list
-> is used in different situations.
+> Fixes: 4dd649c8 ("lib: s390x: sclp: Extend feature probing")
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+
+The fixing part of this is:
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+
+But please add the (E)SOP bits in the other patches.
+
+> ---
+>   lib/s390x/sclp.h | 16 +++++++++-------
+>   1 file changed, 9 insertions(+), 7 deletions(-)
 > 
-> But you are going to use it when the same notifier is used
-> in more lists. This is normally distinguished by the @nh
-> (atomic_notifier_head) parameter.
-> 
-> IMHO, it is a bad idea. First, it would confuse people because
-> it does not follow the original design of the parameters.
-> Second, the related code must be touched anyway when
-> the notifier is moved into another list so it does not
-> help much.
-> 
-> Or do I miss anything, please?
-> 
-> Best Regards,
-> Petr
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index fead007a..4ce2209f 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -134,13 +134,15 @@ struct sclp_facilities {
+>   };
+>   
+>   /* bit number within a certain byte */
+> -#define SCLP_FEAT_85_BIT_GSLS		7
+> -#define SCLP_FEAT_98_BIT_KSS		0
+> -#define SCLP_FEAT_116_BIT_64BSCAO	7
+> -#define SCLP_FEAT_116_BIT_CMMA		6
+> -#define SCLP_FEAT_116_BIT_ESCA		3
+> -#define SCLP_FEAT_117_BIT_PFMFI		6
+> -#define SCLP_FEAT_117_BIT_IBS		5
+> +#define SCLP_FEAT_80_BIT_SOP		2
+> +#define SCLP_FEAT_85_BIT_GSLS		0
+> +#define SCLP_FEAT_85_BIT_ESOP		6
+> +#define SCLP_FEAT_98_BIT_KSS		7
+> +#define SCLP_FEAT_116_BIT_64BSCAO	0
+> +#define SCLP_FEAT_116_BIT_CMMA		1
+> +#define SCLP_FEAT_116_BIT_ESCA		4
+> +#define SCLP_FEAT_117_BIT_PFMFI		1
+> +#define SCLP_FEAT_117_BIT_IBS		2
+>   
+>   typedef struct ReadInfo {
+>   	SCCBHeader h;
 
-Hi Petr, thanks for the review.
-
-I'm not strong attached to this patch, so we could drop it and refactor
-the code of next patches to use the @nh as identification - but
-personally, I feel this parameter could be used to identify the list
-that called such function, in other words, what is the event that
-triggered the callback. Some notifiers are even declared with this
-parameter called "ev", like the event that triggers the notifier.
-
-
-You mentioned 2 cases:
-
-(a) Same notifier_list used in different situations;
-
-(b) Same *notifier callback* used in different lists;
-
-Mine is case (b), right? Can you show me an example of case (a)? You can
-see in the following patches (or grep the kernel) that people are using
-this identification parameter to determine which kind of OOPS trigger
-the callback to condition the execution of the function to specific
-cases. IIUIC, this is more or less what I'm doing, but extending the
-idea for panic notifiers.
-
-Again, as a personal preference, it makes sense to me using id's VS
-comparing pointers to differentiate events/callers.
-
-Cheers,
-
-
-Guilherme
