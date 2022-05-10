@@ -2,191 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C546C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 06:56:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C524DC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 07:30:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237431AbiEJHAu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 03:00:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49300 "EHLO
+        id S237499AbiEJHeo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 03:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237417AbiEJHAr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 03:00:47 -0400
-Received: from conssluserg-03.nifty.com (conssluserg-03.nifty.com [210.131.2.82])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532787485B;
-        Mon,  9 May 2022 23:56:48 -0700 (PDT)
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46]) (authenticated)
-        by conssluserg-03.nifty.com with ESMTP id 24A6uWPt006909;
-        Tue, 10 May 2022 15:56:33 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-03.nifty.com 24A6uWPt006909
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1652165793;
-        bh=fEURvXR77OoRUwAby4ssOCC2y+9cYzZS2BTBBdHY5s4=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=wCwaSRXELTeXaq2guIuReTuZg7U66E7IGNEBvRfkfezGlyZXsSMCiDdUr9QEJxarS
-         XrfMKl2ilUNX5U21uZSXL6zLwnIp0vZsPMbwwzeaW+huMjJN0lDJ6x9fPRe4b3ioLX
-         d1CWYofvXhCGeTNOH4b2zCthanuoTTMVhHVGhU/G+RblgSvtBBoQY1q8W0F5FwtyK8
-         pFbA+pcE2bpadKfX8PQAdO+AHk9AEs+Qvcqfz+EpBxXnZR+DExiobCnjj/rrTS0tnx
-         CZPaFmdEMVXzwdp/7Jw3Kyv3btpFQ7MhJ18jWwmea1L+fCMHlCb2QwIfpTWtpSAEz9
-         0NOjUjI1wdR0w==
-X-Nifty-SrcIP: [209.85.216.46]
-Received: by mail-pj1-f46.google.com with SMTP id iq10so15115325pjb.0;
-        Mon, 09 May 2022 23:56:33 -0700 (PDT)
-X-Gm-Message-State: AOAM530Yx4NqOCrZWxlmZ6whAaURMPWAefNzWF9V/GNdyNORuj3wUXlF
-        /LFU6ldwJ4z2CmT+9xRoarpYmzRcrA+ynNgI9jQ=
-X-Google-Smtp-Source: ABdhPJyEgi0eqH+b8oqMunpHr855g62eqCOt9y9rnuZ3PqXxdNPec+4B1Ab1EtAdW8GXjXd92AJ/4rFTNMbUFO627GA=
-X-Received: by 2002:a17:90a:e7cd:b0:1dc:74eb:7526 with SMTP id
- kb13-20020a17090ae7cd00b001dc74eb7526mr21753943pjb.144.1652165792292; Mon, 09
- May 2022 23:56:32 -0700 (PDT)
+        with ESMTP id S238730AbiEJHJV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 03:09:21 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC4728FEAA;
+        Tue, 10 May 2022 00:05:25 -0700 (PDT)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24A6hQn1024939;
+        Tue, 10 May 2022 07:05:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=dv74yVCTxJWMrGmc+xkj7P21G7PTlAbLvXX/vB7xbco=;
+ b=aKzn50qNAi93z9l5BAcZ9RyGBKRmYChBibarp6pSNjr4wk8uPl3NN2qs68/jRLZG071Z
+ h6xHNVKMKoT8oCb+T+o0a6EUt4sEWUYydBGovhr3OHzk3r4uj536TM4LjP35Q44YEdN1
+ BYRB1EozozNY6oRIOCrnxZCCpzlTOg9W9wfvmnsu5Db+V3ToVsOo7t//2uAS3omclGyf
+ M57DKezXyQairnH0UO1jqKRIE4+c7D4nq/bE9k1jMDtN8Kw+tY4MdTn7jR/eUy1X4CHJ
+ f1YmFGrsyBNVJvIJv6bmnP6q/BC3V1clBR/iR3geiPlNHGLKLDrWob+DYsaFtShpGjHW rA== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyk18rdun-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 07:05:21 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24A72UW4029090;
+        Tue, 10 May 2022 07:05:18 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3fwgd8uka5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 07:05:18 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24A75FnV37552606
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 May 2022 07:05:15 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ECFC3AE051;
+        Tue, 10 May 2022 07:05:14 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DB071AE045;
+        Tue, 10 May 2022 07:05:14 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 10 May 2022 07:05:14 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+        id 9C220E78E9; Tue, 10 May 2022 09:05:14 +0200 (CEST)
+From:   Alexandra Winter <wintera@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Subject: [PATCH net 3/3] s390/lcs: fix variable dereferenced before check
+Date:   Tue, 10 May 2022 09:05:08 +0200
+Message-Id: <20220510070508.334726-4-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220510070508.334726-1-wintera@linux.ibm.com>
+References: <20220510070508.334726-1-wintera@linux.ibm.com>
 MIME-Version: 1.0
-References: <20220508190631.2386038-1-masahiroy@kernel.org>
- <CAK7LNAQtedww_RiemfTV7Ls=M01iKJhY14G3TiuAg=C3bvJjww@mail.gmail.com> <YnmSCNDBlMMJCbjj@dev-arch.thelio-3990X>
-In-Reply-To: <YnmSCNDBlMMJCbjj@dev-arch.thelio-3990X>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Tue, 10 May 2022 15:55:21 +0900
-X-Gmail-Original-Message-ID: <CAK7LNATkm+GzqNLgpbh4F+M=U8LU48p2NH9MyqeO6uA_KYJFaQ@mail.gmail.com>
-Message-ID: <CAK7LNATkm+GzqNLgpbh4F+M=U8LU48p2NH9MyqeO6uA_KYJFaQ@mail.gmail.com>
-Subject: Re: [PATCH v4 00/14] kbuild: yet another series of cleanups (modpost,
- LTO, MODULE_REL_CRCS, export.h)
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-modules <linux-modules@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: QjBhA2ZkHKUSZyduHqVxFCGjKjmDnGDa
+X-Proofpoint-ORIG-GUID: QjBhA2ZkHKUSZyduHqVxFCGjKjmDnGDa
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-09_06,2022-05-09_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ adultscore=0 spamscore=0 clxscore=1015 mlxlogscore=720 priorityscore=1501
+ impostorscore=0 bulkscore=0 mlxscore=0 phishscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205100028
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 10, 2022 at 7:13 AM Nathan Chancellor <nathan@kernel.org> wrote:
->
-> On Mon, May 09, 2022 at 01:24:33PM +0900, Masahiro Yamada wrote:
-> > On Mon, May 9, 2022 at 4:09 AM Masahiro Yamada <masahiroy@kernel.org> wrote:
-> > >
-> > > This is the third batch of cleanups in this development cycle.
-> > >
-> > > Major changes in v4:
-> > >  - Move static EXPORT_SYMBOL check to a script
-> > >  - Some refactoring
-> > >
-> > > Major changes in v3:
-> > >
-> > >  - Generate symbol CRCs as C code, and remove CONFIG_MODULE_REL_CRCS.
-> > >
-> > > Major changes in v2:
-> > >
-> > >  - V1 did not work with CONFIG_MODULE_REL_CRCS.
-> > >    I fixed this for v2.
-> > >
-> > >  - Reflect some review comments in v1
-> > >
-> > >  - Refactor the code more
-> > >
-> > >  - Avoid too long argument error
-> >
-> > This series is available at
-> > git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild.git
-> > lto-cleanup-v4
->
-> Hi Masahiro,
->
-> I checked this out and went to run it through my QEMU tests but I see
-> two new errors.
->
-> Failure #1:
->
-> In file included from scripts/mod/section-check.c:3:
-> scripts/mod/modpost.h:15:10: fatal error: 'elfconfig.h' file not found
-> #include "elfconfig.h"
->          ^~~~~~~~~~~~~
-> 1 error generated.
->
-> I was able to get past that with
->
-> diff --git a/scripts/mod/Makefile b/scripts/mod/Makefile
-> index ca739c6c68a1..c33b83bfbcad 100644
-> --- a/scripts/mod/Makefile
-> +++ b/scripts/mod/Makefile
-> @@ -16,7 +16,7 @@ targets += $(devicetable-offsets-file) devicetable-offsets.s
->
->  # dependencies on generated files need to be listed explicitly
->
-> -$(obj)/modpost.o $(obj)/file2alias.o $(obj)/sumversion.o: $(obj)/elfconfig.h
-> +$(obj)/modpost.o $(obj)/file2alias.o $(obj)/sumversion.o $(obj)/section-check.o: $(obj)/elfconfig.h
->  $(obj)/file2alias.o: $(obj)/$(devicetable-offsets-file)
->
+smatch complains about
+drivers/s390/net/lcs.c:1741 lcs_get_control() warn: variable dereferenced before check 'card->dev' (see line 1739)
 
-Thanks for testing.
+Fixes: 27eb5ac8f015 ("[PATCH] s390: lcs driver bug fixes and improvements [1/2]")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+---
+ drivers/s390/net/lcs.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index bab9b34926c6..84c8981317b4 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -1736,10 +1736,11 @@ lcs_get_control(struct lcs_card *card, struct lcs_cmd *cmd)
+ 			lcs_schedule_recovery(card);
+ 			break;
+ 		case LCS_CMD_STOPLAN:
+-			pr_warn("Stoplan for %s initiated by LGW\n",
+-				card->dev->name);
+-			if (card->dev)
++			if (card->dev) {
++				pr_warn("Stoplan for %s initiated by LGW\n",
++					card->dev->name);
+ 				netif_carrier_off(card->dev);
++			}
+ 			break;
+ 		default:
+ 			LCS_DBF_TEXT(5, trace, "noLGWcmd");
+-- 
+2.32.0
 
-I will slightly refactor the code as follows.
-
-
-
-
-@@ -16,7 +16,7 @@ targets += $(devicetable-offsets-file) devicetable-offsets.s
-
- # dependencies on generated files need to be listed explicitly
-
--$(obj)/modpost.o $(obj)/file2alias.o $(obj)/sumversion.o: $(obj)/elfconfig.h
-+$(addprefix $(obj)/, $(modpost-objs)): $(obj)/elfconfig.h
-
- $(obj)/file2alias.o: $(obj)/$(devicetable-offsets-file)
-
- quiet_cmd_elfconfig = MKELF   $@
-
-
-
-
-
-
-
-
->  quiet_cmd_elfconfig = MKELF   $@
->
-> Failure #2:
->
->   GEN     .version
->   CHK     include/generated/compile.h
->   GEN     .tmp_initcalls.lds
->   LTO     vmlinux.o
->   OBJTOOL vmlinux.o
->   MODPOST vmlinux.symvers
->   MODINFO modules.builtin.modinfo
->   GEN     modules.builtin
->   LD      .tmp_vmlinux.btf
-> ld.lld: error: cannot open .vmlinux.export.o: No such file or directory
->   BTF     .btf.vmlinux.bin.o
-> pahole: .tmp_vmlinux.btf: No such file or directory
->   CC      .vmlinux.export.c
->   LD      .tmp_vmlinux.kallsyms1
-> ld.lld: error: .btf.vmlinux.bin.o: unknown file type
-> make[1]: *** [Makefile:1159: vmlinux] Error 1
->
-> I was not really able to see what is going wrong here. Attached is the
-> configuration that I ran into this with. If you need any other
-> information, please let me know!
-
-Ah, OK.
-This is because .vmlinux.export.o is compiled after gen_btf.
-
-I will swap the order in v5.
-
-
-
-
-
-> Cheers,
-> Nathan
-
-
-
---
-Best Regards
-Masahiro Yamada
