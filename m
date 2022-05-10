@@ -2,87 +2,95 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9635EC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 03:23:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 491F0C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 03:46:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230317AbiEJD1c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 May 2022 23:27:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56758 "EHLO
+        id S235661AbiEJDub (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 May 2022 23:50:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230358AbiEJD1c (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 23:27:32 -0400
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9343E54F95;
-        Mon,  9 May 2022 20:23:34 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VCofv7V_1652153011;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VCofv7V_1652153011)
+        with ESMTP id S229500AbiEJDu3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 23:50:29 -0400
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA8781838C;
+        Mon,  9 May 2022 20:46:30 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=baolin.wang@linux.alibaba.com;NM=1;PH=DS;RN=32;SR=0;TI=SMTPD_---0VCohuDm_1652154383;
+Received: from localhost(mailfrom:baolin.wang@linux.alibaba.com fp:SMTPD_---0VCohuDm_1652154383)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 10 May 2022 11:23:32 +0800
-Date:   Tue, 10 May 2022 11:23:30 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net 1/2] net/smc: non blocking recvmsg() return -EAGAIN
- when no data and signal_pending
-Message-ID: <YnnaskOKyCqN4o6i@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20220509115837.94911-1-guangguan.wang@linux.alibaba.com>
- <20220509115837.94911-2-guangguan.wang@linux.alibaba.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220509115837.94911-2-guangguan.wang@linux.alibaba.com>
+          Tue, 10 May 2022 11:46:24 +0800
+From:   Baolin Wang <baolin.wang@linux.alibaba.com>
+To:     akpm@linux-foundation.org, mike.kravetz@oracle.com,
+        catalin.marinas@arm.com, will@kernel.org
+Cc:     songmuchun@bytedance.com, tsbogend@alpha.franken.de,
+        James.Bottomley@HansenPartnership.com, deller@gmx.de,
+        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net,
+        arnd@arndb.de, baolin.wang@linux.alibaba.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: [PATCH v3 0/3] Fix CONT-PTE/PMD size hugetlb issue when unmapping or migrating
+Date:   Tue, 10 May 2022 11:45:57 +0800
+Message-Id: <cover.1652147571.git.baolin.wang@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 09, 2022 at 07:58:36PM +0800, Guangguan Wang wrote:
-> Non blocking sendmsg will return -EAGAIN when any signal pending
-> and no send space left, while non blocking recvmsg return -EINTR
-> when signal pending and no data received. This may makes confused.
-> As TCP returns -EAGAIN in the conditions descriped above. Align the
+Hi,
 
-A little typo descriped -> described.
+Now migrating a hugetlb page or unmapping a poisoned hugetlb page, we'll
+use ptep_clear_flush() and set_pte_at() to nuke the page table entry
+and remap it, and this is incorrect for CONT-PTE or CONT-PMD size hugetlb
+page, which will cause potential data consistent issue. This patch set
+will change to use hugetlb related APIs to fix this issue, please find
+details in each patch. Thanks.
 
-> behavior of smc with TCP.
+Note: Mike pointed out the huge_ptep_get() will only return the one specific
+value, and it would not take into account the dirty or young bits of CONT-PTE/PMDs
+like the huge_ptep_get_and_clear() [1]. This inconsistent issue is not introduced
+by this patch set, and will address this issue in another thread [2]. Meanwhile
+the uffd for hugetlb case [3] pointed by Gerald also need another patch to address.
 
-I also agree with the behavior of aligning TCP.
- 
-Fixes tag is preferred:
+[1] https://lore.kernel.org/linux-mm/85bd80b4-b4fd-0d3f-a2e5-149559f2f387@oracle.com/
+[2] https://lore.kernel.org/all/cover.1651998586.git.baolin.wang@linux.alibaba.com/
+[3] https://lore.kernel.org/linux-mm/20220503120343.6264e126@thinkpad/
 
-Fixes: 846e344eb722 ("net/smc: add receive timeout check")
+Changes from v2:
+ - Collect reviewed tags from Muchun and Mike.
+ - Drop the unnecessary casting in hugetlb.c.
+ - Fix building errors with adding dummy functions for !CONFIG_HUGETLB_PAGE.
 
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Changes from v1:
+ - Add acked tag from Mike.
+ - Update some commit message.
+ - Add VM_BUG_ON in try_to_unmap() for hugetlb case.
+ - Add an explict void casting for huge_ptep_clear_flush() in hugetlb.c.
 
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Baolin Wang (3):
+  mm: change huge_ptep_clear_flush() to return the original pte
+  mm: rmap: Fix CONT-PTE/PMD size hugetlb issue when migration
+  mm: rmap: Fix CONT-PTE/PMD size hugetlb issue when unmapping
 
-Thanks,
-Tony Lu
+ arch/arm64/include/asm/hugetlb.h   |  4 +--
+ arch/arm64/mm/hugetlbpage.c        | 12 +++-----
+ arch/ia64/include/asm/hugetlb.h    |  4 +--
+ arch/mips/include/asm/hugetlb.h    |  9 ++++--
+ arch/parisc/include/asm/hugetlb.h  |  4 +--
+ arch/powerpc/include/asm/hugetlb.h |  9 ++++--
+ arch/s390/include/asm/hugetlb.h    |  6 ++--
+ arch/sh/include/asm/hugetlb.h      |  4 +--
+ arch/sparc/include/asm/hugetlb.h   |  4 +--
+ include/asm-generic/hugetlb.h      |  4 +--
+ include/linux/hugetlb.h            | 11 +++++++
+ mm/rmap.c                          | 63 ++++++++++++++++++++++++--------------
+ 12 files changed, 83 insertions(+), 51 deletions(-)
 
-> ---
->  net/smc/smc_rx.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-> index 51e8eb2933ff..338b9ef806e8 100644
-> --- a/net/smc/smc_rx.c
-> +++ b/net/smc/smc_rx.c
-> @@ -355,12 +355,12 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
->  				}
->  				break;
->  			}
-> +			if (!timeo)
-> +				return -EAGAIN;
->  			if (signal_pending(current)) {
->  				read_done = sock_intr_errno(timeo);
->  				break;
->  			}
-> -			if (!timeo)
-> -				return -EAGAIN;
->  		}
->  
->  		if (!smc_rx_data_available(conn)) {
-> -- 
-> 2.24.3 (Apple Git-128)
+-- 
+1.8.3.1
+
