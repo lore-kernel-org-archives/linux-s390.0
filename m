@@ -2,70 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15656C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 10:38:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5C7EC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 10:58:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238488AbiEJKmV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 06:42:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52058 "EHLO
+        id S240449AbiEJLC0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 07:02:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239830AbiEJKmV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 06:42:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402EB26820C;
-        Tue, 10 May 2022 03:38:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7725B81CB7;
-        Tue, 10 May 2022 10:38:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DEE5C385C6;
-        Tue, 10 May 2022 10:38:17 +0000 (UTC)
-Date:   Tue, 10 May 2022 11:38:13 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Josh Poimboeuf <jpoimboe@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] bug: Use normal relative pointers in 'struct bug_entry'
-Message-ID: <YnpAlYUsUJAL1fFu@arm.com>
-References: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
+        with ESMTP id S240475AbiEJLCX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 07:02:23 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A92EF230201;
+        Tue, 10 May 2022 03:58:21 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24A8ovKD002063;
+        Tue, 10 May 2022 10:58:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Svvn9kdiwgi/wx/oDegVNwry4KcScA6NcYcUhnrao9s=;
+ b=fqjPn4sLNM8PL0DK8srkS28wfa4OVRTDTJerSNDA4Vd1PxuuMb/oC+w8WWW+Qpa30sx2
+ MVyW4pGecaK5KoU7ILDWgRnxZ36gGNRkuZ0tVKh7U48rHvTv0vay5vQUZx+b/wnNMfOh
+ y41E/d19P+POcNMgq3WaC6zoFYMVET5PmlurDEeJ2jxR75XidUqOOja4fLN7M/gkmCQG
+ 9Z7ihCGEU/Ur6Lo5Ppkwkrz7UoWEsujwzZTEG+C2GAQ8wReFtxjKRsB7HpWZMos40rYc
+ Kk/yAPqVnPRzfy2+JmCIcafuOR+y6aSJxO4tSNjEBxtCP/QpPwRFOSnQxqCLMix3QEXn DA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fymwbje37-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 10:58:21 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24AAfeYQ009561;
+        Tue, 10 May 2022 10:58:20 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fymwbje2n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 10:58:20 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24AAvbAu001006;
+        Tue, 10 May 2022 10:58:18 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3fwgd8uxbt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 10:58:18 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24AAwFEf9765160
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 May 2022 10:58:15 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 55E1142047;
+        Tue, 10 May 2022 10:58:15 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0DB0142045;
+        Tue, 10 May 2022 10:58:15 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.91.115])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 10 May 2022 10:58:14 +0000 (GMT)
+Message-ID: <aaf93deff51ccac5d17d8a6d38c399745ecf30c1.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 0/2] s390x: add migration test for CMM
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, thuth@redhat.com
+Date:   Tue, 10 May 2022 12:58:14 +0200
+In-Reply-To: <20220509160009.3d90cbe4@p-imbrenda>
+References: <20220509120805.437660-1-nrb@linux.ibm.com>
+         <20220509160009.3d90cbe4@p-imbrenda>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: oycbTW7wK16bF0CE-zrKLLt2Dvx8Yc2s
+X-Proofpoint-ORIG-GUID: nTvq_2BfD0I5jErV0tvtFX58dd0XNNLy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-10_01,2022-05-10_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ spamscore=0 priorityscore=1501 mlxscore=0 mlxlogscore=999 phishscore=0
+ suspectscore=0 malwarescore=0 clxscore=1015 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205100046
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 05, 2022 at 06:09:45PM -0700, Josh Poimboeuf wrote:
-> With CONFIG_GENERIC_BUG_RELATIVE_POINTERS, the addr/file relative
-> pointers are calculated weirdly: based on the beginning of the bug_entry
-> struct address, rather than their respective pointer addresses.
+On Mon, 2022-05-09 at 16:00 +0200, Claudio Imbrenda wrote:
+> I wonder if we are going to have more of these "split" tests.
 > 
-> Make the relative pointers less surprising to both humans and tools by
-> calculating them the normal way.
-> 
-> Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-> ---
->  arch/arm64/include/asm/asm-bug.h |  4 ++--
+> is there a way to make sure migration prerequisites are always
+> present?
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+We could not run _any_ tests if netcat is not installed, which seems
+like a bad idea. 
+
+> or rewrite things so that we don't need them?
+
+We need ncat to communicate with the QEMU QMP over unix socket. I am
+not aware of a way to use unix sockets in Bash, but no expert either.
+
+We could ship our own version of netcat and build it for the host,
+which adds additional complexity and maintenance burden. 
+
+I honestly can't think of a good way.
+
+Or we just put all cmm tests in a single file and accept the fact that
+if you don't have all the migration related requirements installed, you
+don't get all the tests - even some which are not at all related to
+migration. I did not like that so I went with the extra file.
