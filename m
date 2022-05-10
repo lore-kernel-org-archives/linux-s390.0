@@ -2,109 +2,157 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FA47C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 12:14:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD4AFC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 12:36:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241611AbiEJMSX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 08:18:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47148 "EHLO
+        id S241829AbiEJMkS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 08:40:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241592AbiEJMSS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 08:18:18 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBE1B244F2E;
-        Tue, 10 May 2022 05:14:20 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 6756A21B7F;
-        Tue, 10 May 2022 12:14:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1652184859; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=z0qCXGbgchboCgbitrJZObbFnXC/YqP7fhEXmnIw2vY=;
-        b=OcxDFXmKKoVdDJUxSKREkD35h3cfh7L/UHzdGP/cbflejeipwrciY4AbOjnQu6DKNCs7aq
-        Tea2QFXBj209QcyaHp7BuefH2IIusivsxr3vlgfi6p9lZaMFpVOppWn8lIP/+rweBZrcrm
-        +Lwt8IUC7jK6VwI0ouYkElgPt01wPwE=
-Received: from suse.cz (unknown [10.100.208.146])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 552522C141;
-        Tue, 10 May 2022 12:14:16 +0000 (UTC)
-Date:   Tue, 10 May 2022 14:14:16 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc:     akpm@linux-foundation.org, bhe@redhat.com,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
-        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
-        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
-        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
-        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
-        dave.hansen@linux.intel.com, dyoung@redhat.com,
-        feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mihai Carabas <mihai.carabas@oracle.com>,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        zhenwei pi <pizhenwei@bytedance.com>
-Subject: Re: [PATCH 05/30] misc/pvpanic: Convert regular spinlock into
- trylock on panic path
-Message-ID: <YnpXGOXicwdy1E6n@alley>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-6-gpiccoli@igalia.com>
+        with ESMTP id S241563AbiEJMkR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 08:40:17 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E44031D7375;
+        Tue, 10 May 2022 05:36:20 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24AC6BY0033111;
+        Tue, 10 May 2022 12:36:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=T5Z22MTCRiUPWcFJJ/2U8ekxLY6TkTtRANd6EsIWawU=;
+ b=lCLdNG9pSfRhsdiiM0ucvwzSG/EGkvmV3tnQN+kTSbmTJY72WQMnxn04bFKh1y3yvShr
+ +7eQbAxi74R0GmaZeBBUivxHX3+Ip9/rfX46Favfa/VHz08lkXWN6mGC0wiwTm9K3c+M
+ 1IKl5ED446sgDRQQF+X2vXBwu8asSZL6kasyLINgsUkXyQMxucB/9GdhWT7g8bWHTdis
+ 6VXcSxkDX9uWXbih2p9DXfJYjSijCaqVdoClLnFsgaq56+wT3NgOYd9GqcS2fQrmFFF7
+ FKB54Iz3+iMpp8Z8+daUT4kWKwQ83c5sIszgFvU/Yv2KZlxffR7qD/v/NiDIIDVkp1m9 xQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyp3btqbx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 12:36:20 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24ACXDin026315;
+        Tue, 10 May 2022 12:36:18 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3fwg1j432h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 12:36:17 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24ACaEG357410004
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 May 2022 12:36:14 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BA156A405C;
+        Tue, 10 May 2022 12:36:14 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 84307A4054;
+        Tue, 10 May 2022 12:36:14 +0000 (GMT)
+Received: from [9.145.38.155] (unknown [9.145.38.155])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 10 May 2022 12:36:14 +0000 (GMT)
+Message-ID: <7f50d80f-2508-59f6-cb2d-cc6bc1f3b551@linux.ibm.com>
+Date:   Tue, 10 May 2022 14:36:14 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220427224924.592546-6-gpiccoli@igalia.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 5/9] KVM: s390: pv: Add query dump information
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@linux.ibm.com
+References: <20220428130102.230790-1-frankja@linux.ibm.com>
+ <20220428130102.230790-6-frankja@linux.ibm.com>
+ <20220509172844.1195585b@p-imbrenda>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220509172844.1195585b@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lJnwN0jkA1zN4vYQ2xXzJ7tgVRsH6sya
+X-Proofpoint-GUID: lJnwN0jkA1zN4vYQ2xXzJ7tgVRsH6sya
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-10_01,2022-05-10_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 phishscore=0 mlxscore=0 suspectscore=0 mlxlogscore=999
+ impostorscore=0 adultscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205100057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed 2022-04-27 19:48:59, Guilherme G. Piccoli wrote:
-> The pvpanic driver relies on panic notifiers to execute a callback
-> on panic event. Such function is executed in atomic context - the
-> panic function disables local IRQs, preemption and all other CPUs
-> that aren't running the panic code.
+On 5/9/22 17:28, Claudio Imbrenda wrote:
+> On Thu, 28 Apr 2022 13:00:58 +0000
+> Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
-> With that said, it's dangerous to use regular spinlocks in such path,
-> as introduced by commit b3c0f8774668 ("misc/pvpanic: probe multiple instances").
-> This patch fixes that by replacing regular spinlocks with the trylock
-> safer approach.
+>> The dump API requires userspace to provide buffers into which we will
+>> store data. The dump information added in this patch tells userspace
+>> how big those buffers need to be.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   arch/s390/kvm/kvm-s390.c | 11 +++++++++++
+>>   include/uapi/linux/kvm.h | 12 +++++++++++-
+>>   2 files changed, 22 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 23352d45a386..e327a5b8ef78 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -2255,6 +2255,17 @@ static ssize_t kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
+>>   
+>>   		return len_min;
+>>   	}
+>> +	case KVM_PV_INFO_DUMP: {
+>> +		len_min =  sizeof(info->header) + sizeof(info->dump);
+> 
+> so the output will have some zero-padded stuff at the end?
 
-It seems that the lock is used just to manipulating a list. A super
-safe solution would be to use the rcu API: rcu_add_rcu() and
-list_del_rcu() under rcu_read_lock(). The spin lock will not be
-needed and the list will always be valid.
+In which situation?
 
-The advantage would be that it will always call members that
-were successfully added earlier. That said, I am not familiar
-with pvpanic and am not sure if it is worth it.
+> 
+>> +
+>> +		if (info->header.len_max < len_min)
+>> +			return -EINVAL;
+>> +
+>> +		info->dump.dump_cpu_buffer_len = uv_info.guest_cpu_stor_len;
+>> +		info->dump.dump_config_mem_buffer_per_1m = uv_info.conf_dump_storage_state_len;
+>> +		info->dump.dump_config_finalize_len = uv_info.conf_dump_finalize_len;
+>> +		return len_min;
+>> +	}
+>>   	default:
+>>   		return -EINVAL;
+>>   	}
+>> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+>> index 59e4fb6c7a34..2eba89d7ec29 100644
+>> --- a/include/uapi/linux/kvm.h
+>> +++ b/include/uapi/linux/kvm.h
+>> @@ -1647,6 +1647,13 @@ struct kvm_s390_pv_unp {
+>>   
+>>   enum pv_cmd_info_id {
+>>   	KVM_PV_INFO_VM,
+>> +	KVM_PV_INFO_DUMP,
+>> +};
+>> +
+>> +struct kvm_s390_pv_info_dump {
+>> +	__u64 dump_cpu_buffer_len;
+>> +	__u64 dump_config_mem_buffer_per_1m;
+>> +	__u64 dump_config_finalize_len;
+>>   };
+>>   
+>>   struct kvm_s390_pv_info_vm {
+>> @@ -1666,7 +1673,10 @@ struct kvm_s390_pv_info_header {
+>>   
+>>   struct kvm_s390_pv_info {
+>>   	struct kvm_s390_pv_info_header header;
+>> -	struct kvm_s390_pv_info_vm vm;
+>> +	union {
+>> +		struct kvm_s390_pv_info_dump dump;
+>> +		struct kvm_s390_pv_info_vm vm;
+>> +	};
+>>   };
+>>   
+>>   enum pv_cmd_id {
+> 
 
-> It also fixes an old comment (about a long gone framebuffer code) and
-> the notifier priority - we should execute hypervisor notifiers early,
-> deferring this way the panic action to the hypervisor, as expected by
-> the users that are setting up pvpanic.
-
-This should be done in a separate patch. It changes the behavior.
-Also there might be a discussion whether it really should be
-the maximal priority.
-
-Best Regards,
-Petr
