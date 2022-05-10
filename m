@@ -2,74 +2,79 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1156CC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E51CEC4167B
 	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 13:35:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243534AbiEJNjf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 09:39:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56520 "EHLO
+        id S241748AbiEJNjg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 09:39:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245182AbiEJNih (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 09:38:37 -0400
+        with ESMTP id S244122AbiEJNgv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 09:36:51 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B5F2670B7;
-        Tue, 10 May 2022 06:28:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14C622D625B;
+        Tue, 10 May 2022 06:25:25 -0700 (PDT)
 Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24ACfJiV018771;
-        Tue, 10 May 2022 13:28:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=F6bJcTV9eB83tOUFL6x5qFJe3qyLaTFRnURpGj3hbtg=;
- b=OsHPrjzRxbGv/ZF3CHlNqaxhVOS6cAFMsLPyVdMxCKTRUpo2v8KWiLuPA1dLMHKNaoZS
- qhemfGaLCXchRgVR0xtV9vLG5tdai5ZzAhymhji/tpj00aMSHleF+cd1Z2VhpIezVjVQ
- gsyhK35VfVd2nmz7+rsnXKXqh4UPVCkoayzdxv70EzeE1dT12Z0Mf4tY/pu7UxJpy3z0
- S3LP67ehjC+GnqZmzpA5jTQPJfB9pAE8tqY0F++Q5uvThfIhrg0GlcZjsDXTswASlkC+
- 5pkw0l4C8RPWG2V0TI/hvR9Si5wlZiskAayHr8Rs+f3Ks0LKaaSuasM562GE+IIKpOgI 6A== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyncevgcu-1
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24ACfalb019066;
+        Tue, 10 May 2022 13:25:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=ZKuJhZQQuq6V768XjVGu5HUJKjxgMf1arVRizgrdFHc=;
+ b=c83CGJpO1Sv58+hCMuhALQmgSVx1+e8j9aFrx5Lr7enTTbcc9jd+4Kf2rUtEf+pxKyn9
+ /hblLio/NPJv2XscnQnfycCoovJ3ahhTTEz76JJsmdBp4EQwqvfsuiS+Eiz0XrZnBb5R
+ 39M+ckw9ZNlGN3WjnYu7Iz9V+fwkdxo8CIeddkoYOuif+41NbTlYCgpn9RPhh9DWlf33
+ 1GmFHllUbolJQ5DQASNA6tDgdoZx7NI++suh/bnCe4QKTQ2z0jT2di9+puTfBkFT18fX
+ Prs+WgUN9EnpGcOMKDLeCIAcoqYbCUThDdjav4mqQL37yOFNy3R/TedvKQy2OeusWn9x Ug== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyncevehd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 13:28:11 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24ADDELE019145;
-        Tue, 10 May 2022 13:28:10 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3fwgd8v4qq-1
+        Tue, 10 May 2022 13:25:15 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24ADFe1A019023;
+        Tue, 10 May 2022 13:25:15 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyncevegt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 13:28:10 +0000
+        Tue, 10 May 2022 13:25:15 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24ADDr0o013009;
+        Tue, 10 May 2022 13:25:13 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3fwgd8u718-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 13:25:13 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24ADS7VR37945854
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24ADPAcx50856382
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 May 2022 13:28:07 GMT
+        Tue, 10 May 2022 13:25:10 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 11995A404D;
-        Tue, 10 May 2022 13:28:07 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E4F14A4053;
+        Tue, 10 May 2022 13:25:09 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BB85DA4051;
-        Tue, 10 May 2022 13:28:06 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.15.58])
+        by IMSVA (Postfix) with ESMTP id A4D2AA4040;
+        Tue, 10 May 2022 13:25:09 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.29.124])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 10 May 2022 13:28:06 +0000 (GMT)
-Date:   Tue, 10 May 2022 15:28:04 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
+        Tue, 10 May 2022 13:25:09 +0000 (GMT)
+Message-ID: <d87472c1556d8503bdda9e1cec26b5d910468cbc.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 2/2] s390x: add cmm migration test
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@linux.ibm.com
-Subject: Re: [PATCH 5/9] KVM: s390: pv: Add query dump information
-Message-ID: <20220510152804.3a886761@p-imbrenda>
-In-Reply-To: <7f50d80f-2508-59f6-cb2d-cc6bc1f3b551@linux.ibm.com>
-References: <20220428130102.230790-1-frankja@linux.ibm.com>
-        <20220428130102.230790-6-frankja@linux.ibm.com>
-        <20220509172844.1195585b@p-imbrenda>
-        <7f50d80f-2508-59f6-cb2d-cc6bc1f3b551@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        frankja@linux.ibm.com, thuth@redhat.com
+Date:   Tue, 10 May 2022 15:25:09 +0200
+In-Reply-To: <20220509155821.07279b39@p-imbrenda>
+References: <20220509120805.437660-1-nrb@linux.ibm.com>
+         <20220509120805.437660-3-nrb@linux.ibm.com>
+         <20220509155821.07279b39@p-imbrenda>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ElMezD9iwtBUPIVFQcktMDYBgLdJoQM9
-X-Proofpoint-ORIG-GUID: ElMezD9iwtBUPIVFQcktMDYBgLdJoQM9
+X-Proofpoint-GUID: MXsa_cEVXrShH0-A0vrRaLZHsV3_XbI-
+X-Proofpoint-ORIG-GUID: RZRy3GDQrfpaDFJdhP6U2TlHpboJzeFT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-10_01,2022-05-10_01,2022-02-23_01
@@ -82,84 +87,80 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 10 May 2022 14:36:14 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> On 5/9/22 17:28, Claudio Imbrenda wrote:
-> > On Thu, 28 Apr 2022 13:00:58 +0000
-> > Janosch Frank <frankja@linux.ibm.com> wrote:
-> >   
-> >> The dump API requires userspace to provide buffers into which we will
-> >> store data. The dump information added in this patch tells userspace
-> >> how big those buffers need to be.
-> >>
-> >> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> >> ---
-> >>   arch/s390/kvm/kvm-s390.c | 11 +++++++++++
-> >>   include/uapi/linux/kvm.h | 12 +++++++++++-
-> >>   2 files changed, 22 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> >> index 23352d45a386..e327a5b8ef78 100644
-> >> --- a/arch/s390/kvm/kvm-s390.c
-> >> +++ b/arch/s390/kvm/kvm-s390.c
-> >> @@ -2255,6 +2255,17 @@ static ssize_t kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
-> >>   
-> >>   		return len_min;
-> >>   	}
-> >> +	case KVM_PV_INFO_DUMP: {
-> >> +		len_min =  sizeof(info->header) + sizeof(info->dump);  
-> > 
-> > so the output will have some zero-padded stuff at the end?  
+On Mon, 2022-05-09 at 15:58 +0200, Claudio Imbrenda wrote:
+> > +       for (i = 0; i < NUM_PAGES; i++) {
+> > +               switch(i % 4) {
+> > +                       case 0:
+> > +                               essa(ESSA_SET_STABLE, (unsigned
+> > long)pagebuf[i]);
+> > +                       break;
+> > +                       case 1:
+> > +                               essa(ESSA_SET_UNUSED, (unsigned
+> > long)pagebuf[i]);
+> > +                       break;
+> > +                       case 2:
+> > +                               essa(ESSA_SET_VOLATILE, (unsigned
+> > long)pagebuf[i]);
+> > +                       break;
+> > +                       case 3:
+> > +                               essa(ESSA_SET_POT_VOLATILE,
+> > (unsigned long)pagebuf[i]);
+> > +                       break;
 > 
-> In which situation?
-
-for example when I don't read the patch correctly (oops)
-
+> const int essa_commands[4] = {ESSA_SET_STABLE, ESSA_SET_UNUSED, ...
 > 
-> >   
-> >> +
-> >> +		if (info->header.len_max < len_min)
-> >> +			return -EINVAL;
-> >> +
-> >> +		info->dump.dump_cpu_buffer_len = uv_info.guest_cpu_stor_len;
-> >> +		info->dump.dump_config_mem_buffer_per_1m = uv_info.conf_dump_storage_state_len;
-> >> +		info->dump.dump_config_finalize_len = uv_info.conf_dump_finalize_len;
-> >> +		return len_min;
-> >> +	}
-> >>   	default:
-> >>   		return -EINVAL;
-> >>   	}
-> >> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-> >> index 59e4fb6c7a34..2eba89d7ec29 100644
-> >> --- a/include/uapi/linux/kvm.h
-> >> +++ b/include/uapi/linux/kvm.h
-> >> @@ -1647,6 +1647,13 @@ struct kvm_s390_pv_unp {
-> >>   
-> >>   enum pv_cmd_info_id {
-> >>   	KVM_PV_INFO_VM,
-> >> +	KVM_PV_INFO_DUMP,
-> >> +};
-> >> +
-> >> +struct kvm_s390_pv_info_dump {
-> >> +	__u64 dump_cpu_buffer_len;
-> >> +	__u64 dump_config_mem_buffer_per_1m;
-> >> +	__u64 dump_config_finalize_len;
-> >>   };
-> >>   
-> >>   struct kvm_s390_pv_info_vm {
-> >> @@ -1666,7 +1673,10 @@ struct kvm_s390_pv_info_header {
-> >>   
-> >>   struct kvm_s390_pv_info {
-> >>   	struct kvm_s390_pv_info_header header;
-> >> -	struct kvm_s390_pv_info_vm vm;
-> >> +	union {
-> >> +		struct kvm_s390_pv_info_dump dump;
-> >> +		struct kvm_s390_pv_info_vm vm;
-> >> +	};
-> >>   };
-> >>   
-> >>   enum pv_cmd_id {  
-> >   
+> for (i = 0; i < NUM_PAGES; i++)
+>         essa(essa_commands[i % 4], ...
 > 
+> I think it would look more compact and more readable
 
+I like your idea a lot, but the compiler doesn't :-(:
+
+/home/nrb/kvm-unit-tests/lib/asm/cmm.h: In function ‘main’:
+/home/nrb/kvm-unit-tests/lib/asm/cmm.h:32:9: error: ‘asm’ operand 2
+probably does not match constraints [-Werror]
+   32 |         asm volatile(".insn
+rrf,0xb9ab0000,%[extr_state],%[addr],%[new_state],0" \
+      |         ^~~
+/home/nrb/kvm-unit-tests/lib/asm/cmm.h:32:9: error: impossible
+constraint in ‘asm’
+
+To satify the "i" constraint, new_state needs to be a compile time
+constant, which it won't be any more with your suggestion
+unfortunately. 
+
+We can do crazy stuff like this in cmm.h:
+
+#define __essa(state) \
+	asm volatile(".insn
+rrf,0xb9ab0000,%[extr_state],%[addr],%[new_state],0" \
+			: [extr_state] "=d" (extr_state) \
+			: [addr] "a" (paddr), [new_state] "i"
+(state));
+static unsigned long essa(uint8_t state, unsigned long paddr)
+{
+	uint64_t extr_state = 0;
+
+	switch(state) {
+		case ESSA_SET_STABLE:
+			__essa(ESSA_SET_STABLE);
+		break;
+		case ESSA_SET_UNUSED:
+			__essa(ESSA_SET_UNUSED);
+		break;
+		case ESSA_SET_VOLATILE:
+			__essa(ESSA_SET_VOLATILE);
+		break;
+		case ESSA_SET_POT_VOLATILE:
+			__essa(ESSA_SET_POT_VOLATILE);
+		break;
+	}
+
+	return (unsigned long)extr_state;
+}
+
+But that essentially just shifts the readability problem to a different
+file. What do you think?
+
+Or we make essa a marco, which doesn't sound like a particularily
+attractive alternative either.
