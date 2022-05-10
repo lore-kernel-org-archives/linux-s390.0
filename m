@@ -2,110 +2,226 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5C7EC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 10:58:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAEF4C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 11:05:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240449AbiEJLC0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 07:02:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47256 "EHLO
+        id S240617AbiEJLJa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 07:09:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240475AbiEJLCX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 07:02:23 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A92EF230201;
-        Tue, 10 May 2022 03:58:21 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24A8ovKD002063;
-        Tue, 10 May 2022 10:58:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=Svvn9kdiwgi/wx/oDegVNwry4KcScA6NcYcUhnrao9s=;
- b=fqjPn4sLNM8PL0DK8srkS28wfa4OVRTDTJerSNDA4Vd1PxuuMb/oC+w8WWW+Qpa30sx2
- MVyW4pGecaK5KoU7ILDWgRnxZ36gGNRkuZ0tVKh7U48rHvTv0vay5vQUZx+b/wnNMfOh
- y41E/d19P+POcNMgq3WaC6zoFYMVET5PmlurDEeJ2jxR75XidUqOOja4fLN7M/gkmCQG
- 9Z7ihCGEU/Ur6Lo5Ppkwkrz7UoWEsujwzZTEG+C2GAQ8wReFtxjKRsB7HpWZMos40rYc
- Kk/yAPqVnPRzfy2+JmCIcafuOR+y6aSJxO4tSNjEBxtCP/QpPwRFOSnQxqCLMix3QEXn DA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fymwbje37-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 10:58:21 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24AAfeYQ009561;
-        Tue, 10 May 2022 10:58:20 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fymwbje2n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 10:58:20 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24AAvbAu001006;
-        Tue, 10 May 2022 10:58:18 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3fwgd8uxbt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 10:58:18 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24AAwFEf9765160
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 May 2022 10:58:15 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 55E1142047;
-        Tue, 10 May 2022 10:58:15 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0DB0142045;
-        Tue, 10 May 2022 10:58:15 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.91.115])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 10 May 2022 10:58:14 +0000 (GMT)
-Message-ID: <aaf93deff51ccac5d17d8a6d38c399745ecf30c1.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 0/2] s390x: add migration test for CMM
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com
-Date:   Tue, 10 May 2022 12:58:14 +0200
-In-Reply-To: <20220509160009.3d90cbe4@p-imbrenda>
-References: <20220509120805.437660-1-nrb@linux.ibm.com>
-         <20220509160009.3d90cbe4@p-imbrenda>
+        with ESMTP id S240609AbiEJLJ3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 07:09:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0EEDD2AC6D0
+        for <linux-s390@vger.kernel.org>; Tue, 10 May 2022 04:05:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652180731;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=L879vTuOytFC1BBKCpJazjTgxv9uvQMbOkHnTde3iP0=;
+        b=WRNPmTvXSmdZj7Oi3LWKikJRGJmjeROC8AzM1qHd1l9Jkr6T8NzJ3hZnGWfBhWRm4V/7VO
+        zxyvW1t/DyEgbQZtT9+hgK5j/8sU23qWfVQ3VkiFPR8bQxQGdj+z6vaCUHznFZCLn/fYof
+        S+SksCtC92/SIt4ClJp7OBIdM2I/H3I=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-636-mAF6RhDEMKekkuectUa46Q-1; Tue, 10 May 2022 07:05:30 -0400
+X-MC-Unique: mAF6RhDEMKekkuectUa46Q-1
+Received: by mail-qk1-f198.google.com with SMTP id u129-20020a372e87000000b0069f8a79378eso10450948qkh.5
+        for <linux-s390@vger.kernel.org>; Tue, 10 May 2022 04:05:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=L879vTuOytFC1BBKCpJazjTgxv9uvQMbOkHnTde3iP0=;
+        b=4+dQ3xbvifJs0O6JuCQClB5gciThuSEtgvP9WL9t28Y0DOQvCJtfIfaNp6bSd+9bVp
+         hV6oSgiHUfnePrU5SO5lgCrkjeU5Ssl9PMkBvRkn7CL4fq3mXZ3rzhVvqC6SxDrMXyLQ
+         rGRcf3obV4cAmWY0sIeq4fGbGWiCgqUbBerbwkvlCog6vLFh93PuQZmSrQUmW0strN2a
+         fm+YRrVq+e0Vi1hkYfAh6wPYPaBgWZOLl5P9u960MYcijyx/rcZdjLh4lD3ShmV0sb3N
+         /kBly6ss/f7qAxwqOylh8jGIDj29syl0KBvqOA6PuTIUL6en33L1HzDATuUysEcg4VPD
+         EXKA==
+X-Gm-Message-State: AOAM530vCa2OmFF7t70mCh/EdzW3Dmt+mccPErpxN20t2NoBwZ9U2jNK
+        2eBL0pKPVP7z4Xtoyf46pBI95/3avw1ByWfwA+dRcpTCNdOEHZHMsKAfsPdqwTAKpK2RaOcnpHM
+        uRMOofisnl/dTgC3HI6MZTw==
+X-Received: by 2002:ac8:7f04:0:b0:2f3:d6d6:8406 with SMTP id f4-20020ac87f04000000b002f3d6d68406mr10162344qtk.509.1652180729597;
+        Tue, 10 May 2022 04:05:29 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzoeC9I1S6EUIH6D3Ol16trgj7nqKgi4NXn76Y6uUPXMSnfTiJrPdzyZM7KNtUGJxzuqRQjUQ==
+X-Received: by 2002:ac8:7f04:0:b0:2f3:d6d6:8406 with SMTP id f4-20020ac87f04000000b002f3d6d68406mr10162321qtk.509.1652180729321;
+        Tue, 10 May 2022 04:05:29 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-113-89.dyn.eolo.it. [146.241.113.89])
+        by smtp.gmail.com with ESMTPSA id g12-20020ac842cc000000b002f39b99f678sm9342697qtm.18.2022.05.10.04.05.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 May 2022 04:05:27 -0700 (PDT)
+Message-ID: <b826a78efa5e015b93038f5f8564ca7e98e1240a.camel@redhat.com>
+Subject: Re: [PATCH net 2/2] net/smc: align the connect behaviour with TCP
+From:   Paolo Abeni <pabeni@redhat.com>
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Tue, 10 May 2022 13:05:24 +0200
+In-Reply-To: <20220509115837.94911-3-guangguan.wang@linux.alibaba.com>
+References: <20220509115837.94911-1-guangguan.wang@linux.alibaba.com>
+         <20220509115837.94911-3-guangguan.wang@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
 User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oycbTW7wK16bF0CE-zrKLLt2Dvx8Yc2s
-X-Proofpoint-ORIG-GUID: nTvq_2BfD0I5jErV0tvtFX58dd0XNNLy
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-10_01,2022-05-10_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- spamscore=0 priorityscore=1501 mlxscore=0 mlxlogscore=999 phishscore=0
- suspectscore=0 malwarescore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205100046
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2022-05-09 at 16:00 +0200, Claudio Imbrenda wrote:
-> I wonder if we are going to have more of these "split" tests.
+On Mon, 2022-05-09 at 19:58 +0800, Guangguan Wang wrote:
+> Connect with O_NONBLOCK will not be completed immediately
+> and returns -EINPROGRESS. It is possible to use selector/poll
+> for completion by selecting the socket for writing. After select
+> indicates writability, a second connect function call will return
+> 0 to indicate connected successfully as TCP does, but smc returns
+> -EISCONN. Use socket state for smc to indicate connect state, which
+> can help smc aligning the connect behaviour with TCP.
 > 
-> is there a way to make sure migration prerequisites are always
-> present?
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> ---
+>  net/smc/af_smc.c | 53 ++++++++++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 49 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index fce16b9d6e1a..45f9f7c6e776 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -1544,9 +1544,32 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+>  		goto out_err;
+>  
+>  	lock_sock(sk);
+> +	switch (sock->state) {
+> +	default:
+> +		rc = -EINVAL;
+> +		goto out;
+> +	case SS_CONNECTED:
+> +		rc = sk->sk_state == SMC_ACTIVE ? -EISCONN : -EINVAL;
+> +		goto out;
+> +	case SS_CONNECTING:
+> +		if (sk->sk_state == SMC_ACTIVE) {
+> +			sock->state = SS_CONNECTED;
+> +			rc = 0;
+> +			goto out;
+> +		}
+> +		break;
+> +	case SS_UNCONNECTED:
+> +		sock->state = SS_CONNECTING;
+> +		break;
+> +	}
+> +
+>  	switch (sk->sk_state) {
+>  	default:
+>  		goto out;
+> +	case SMC_CLOSED:
+> +		rc = sock_error(sk) ? : -ECONNABORTED;
+> +		sock->state = SS_UNCONNECTED;
+> +		goto out;
+>  	case SMC_ACTIVE:
+>  		rc = -EISCONN;
+>  		goto out;
+> @@ -1565,18 +1588,22 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+>  		goto out;
+>  
+>  	sock_hold(&smc->sk); /* sock put in passive closing */
+> -	if (smc->use_fallback)
+> +	if (smc->use_fallback) {
+> +		sock->state = SS_CONNECTED;
+>  		goto out;
+> +	}
+>  	if (flags & O_NONBLOCK) {
+>  		if (queue_work(smc_hs_wq, &smc->connect_work))
+>  			smc->connect_nonblock = 1;
+>  		rc = -EINPROGRESS;
+>  	} else {
+>  		rc = __smc_connect(smc);
+> -		if (rc < 0)
+> +		if (rc < 0) {
+>  			goto out;
+> -		else
+> +		} else {
+>  			rc = 0; /* success cases including fallback */
+> +			sock->state = SS_CONNECTED;
 
-We could not run _any_ tests if netcat is not installed, which seems
-like a bad idea. 
+'else' is not needed here, you can keep the above 2 statements dropping
+an indentation level.
 
-> or rewrite things so that we don't need them?
+> +		}
+>  	}
+>  
 
-We need ncat to communicate with the QEMU QMP over unix socket. I am
-not aware of a way to use unix sockets in Bash, but no expert either.
+You can avoid a little code duplication adding here the following:
 
-We could ship our own version of netcat and build it for the host,
-which adds additional complexity and maintenance burden. 
+connected:
+   sock->state = SS_CONNECTED;
 
-I honestly can't think of a good way.
+and using the new label where appropriate.
 
-Or we just put all cmm tests in a single file and accept the fact that
-if you don't have all the migration related requirements installed, you
-don't get all the tests - even some which are not at all related to
-migration. I did not like that so I went with the extra file.
+>  out:
+> @@ -1693,6 +1720,7 @@ struct sock *smc_accept_dequeue(struct sock *parent,
+>  		}
+>  		if (new_sock) {
+>  			sock_graft(new_sk, new_sock);
+> +			new_sock->state = SS_CONNECTED;
+>  			if (isk->use_fallback) {
+>  				smc_sk(new_sk)->clcsock->file = new_sock->file;
+>  				isk->clcsock->file->private_data = isk->clcsock;
+> @@ -2424,7 +2452,7 @@ static int smc_listen(struct socket *sock, int backlog)
+>  
+>  	rc = -EINVAL;
+>  	if ((sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) ||
+> -	    smc->connect_nonblock)
+> +	    smc->connect_nonblock || sock->state != SS_UNCONNECTED)
+>  		goto out;
+>  
+>  	rc = 0;
+> @@ -2716,6 +2744,17 @@ static int smc_shutdown(struct socket *sock, int how)
+>  
+>  	lock_sock(sk);
+>  
+> +	if (sock->state == SS_CONNECTING) {
+> +		if (sk->sk_state == SMC_ACTIVE)
+> +			sock->state = SS_CONNECTED;
+> +		else if (sk->sk_state == SMC_PEERCLOSEWAIT1 ||
+> +			 sk->sk_state == SMC_PEERCLOSEWAIT2 ||
+> +			 sk->sk_state == SMC_APPCLOSEWAIT1 ||
+> +			 sk->sk_state == SMC_APPCLOSEWAIT2 ||
+> +			 sk->sk_state == SMC_APPFINCLOSEWAIT)
+> +			sock->state = SS_DISCONNECTING;
+> +	}
+> +
+>  	rc = -ENOTCONN;
+>  	if ((sk->sk_state != SMC_ACTIVE) &&
+>  	    (sk->sk_state != SMC_PEERCLOSEWAIT1) &&
+> @@ -2729,6 +2768,7 @@ static int smc_shutdown(struct socket *sock, int how)
+>  		sk->sk_shutdown = smc->clcsock->sk->sk_shutdown;
+>  		if (sk->sk_shutdown == SHUTDOWN_MASK) {
+>  			sk->sk_state = SMC_CLOSED;
+> +			sk->sk_socket->state = SS_UNCONNECTED;
+>  			sock_put(sk);
+>  		}
+>  		goto out;
+> @@ -2754,6 +2794,10 @@ static int smc_shutdown(struct socket *sock, int how)
+>  	/* map sock_shutdown_cmd constants to sk_shutdown value range */
+>  	sk->sk_shutdown |= how + 1;
+>  
+> +	if (sk->sk_state == SMC_CLOSED)
+> +		sock->state = SS_UNCONNECTED;
+> +	else
+> +		sock->state = SS_DISCONNECTING;
+>  out:
+>  	release_sock(sk);
+>  	return rc ? rc : rc1;
+> @@ -3139,6 +3183,7 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
+>  
+>  	rc = -ENOBUFS;
+>  	sock->ops = &smc_sock_ops;
+> +	sock->state = SS_UNCONNECTED;
+>  	sk = smc_sock_alloc(net, sock, protocol);
+>  	if (!sk)
+>  		goto out;
+
