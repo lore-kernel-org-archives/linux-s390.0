@@ -2,208 +2,96 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC8E7C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 08:57:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76507C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 08:59:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239635AbiEKI5E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 04:57:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60922 "EHLO
+        id S237841AbiEKI75 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 May 2022 04:59:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229865AbiEKI5B (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 04:57:01 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F1C37ABB;
-        Wed, 11 May 2022 01:57:00 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24B8U05c031027;
-        Wed, 11 May 2022 08:56:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=/joKcMJqjLn1UfupxB2NYEbV+dPD5/1QLhXHcigNd/4=;
- b=j7a/0z+YqEwrWvqlt6ZLLinWmoCReGlMxHBlIgoIS+IOTXX8+vXdnrOnbox8T1nOPbip
- Gau8cdyci+/Lo/l1GqsM6d390SrOVjgkZmAjTLzxN9P88vEyiddKPIwl7W0N2qv8XvWP
- 2TEvk4XzgOeOiYf5CDu0xawdFkU+hUaYse+hyZd0ksQiDWnG52oGeIBQtIoX1XbiomZ2
- OUEeofxO21ykjj52I6OK4F2nPNW0pK9Ae3ahYmBGzsNJIKThENEmR9J7+nUblETSL22U
- jzhj5ajVN1RHMRNeEd271ED2obZqkFzaJgdKACCcJUH/WRQ2QsbpYU0TkVBW0XTo9eof 3Q== 
+        with ESMTP id S235806AbiEKI7z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 04:59:55 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A9A712FC2D;
+        Wed, 11 May 2022 01:59:54 -0700 (PDT)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24B8FBYh032013;
+        Wed, 11 May 2022 08:59:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=FboDNicWqvp09ib4HNyfSfVjC4/hJ/gxLv7VkT4/4/o=;
+ b=DyjeNwa988nm8MxYQW3hsPrM8fmos/MaYduT9Ma1sDIhpNDnk4s88GxkaQiZHK4iHRyQ
+ 3JDQntgqNjKk9Mee5gIZJIjqlrdJYvPZ5en1SoI/tKbErDiF1BOZOmnlbnKrSad8Z3kA
+ zkM5WfZTr/rvqGFGoVoIt3lHkEJCCj7AB4R9gv+UqG7aMyWKjuWVNtF71rwqWMP3gaky
+ AGL0URP3aSHPobE+aT7lg9FgIGva5LxhEoFfZwJBDUt0st9KFsNCMkbHGwzTw+GS+SQ4
+ r3XnzRzkdmuQ5liIUjqjjtrfKhMUP74Y+S45tONkJhLyegUpj2WoZanJCL6v5vb9VWC8 Fw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g09pfrdtb-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g09fk8prr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 08:56:59 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24B8VHp3003037;
-        Wed, 11 May 2022 08:56:59 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g09pfrdsr-1
+        Wed, 11 May 2022 08:59:53 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24B8lA9w026697;
+        Wed, 11 May 2022 08:59:52 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g09fk8pr6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 08:56:59 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24B8qTwl002013;
-        Wed, 11 May 2022 08:56:56 GMT
+        Wed, 11 May 2022 08:59:52 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24B8qVD8021020;
+        Wed, 11 May 2022 08:59:50 GMT
 Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma02fra.de.ibm.com with ESMTP id 3fwgd8v1w7-1
+        by ppma03ams.nl.ibm.com with ESMTP id 3fwgd8w6wj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 08:56:56 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24B8urlm21168614
+        Wed, 11 May 2022 08:59:50 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24B8xlq042860984
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 11 May 2022 08:56:53 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 752735204F;
-        Wed, 11 May 2022 08:56:53 +0000 (GMT)
-Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 3F64A52051;
-        Wed, 11 May 2022 08:56:53 +0000 (GMT)
+        Wed, 11 May 2022 08:59:47 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 332B142047;
+        Wed, 11 May 2022 08:59:47 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EA13D4203F;
+        Wed, 11 May 2022 08:59:46 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.152.224.44])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 11 May 2022 08:59:46 +0000 (GMT)
+Message-ID: <1feb731f4c9c3429ab672ae2abe8a763ff8cc3cf.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 0/2] s390x: add migration test for CMM
 From:   Nico Boehr <nrb@linux.ibm.com>
-To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v2 1/2] lib: s390x: add header for CMM related defines
-Date:   Wed, 11 May 2022 10:56:51 +0200
-Message-Id: <20220511085652.823371-2-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220511085652.823371-1-nrb@linux.ibm.com>
-References: <20220511085652.823371-1-nrb@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com
+Date:   Wed, 11 May 2022 10:59:46 +0200
+In-Reply-To: <9ab646da-c104-b7a1-70f8-fbd8a6e74150@linux.ibm.com>
+References: <20220509120805.437660-1-nrb@linux.ibm.com>
+         <20220509160009.3d90cbe4@p-imbrenda>
+         <aaf93deff51ccac5d17d8a6d38c399745ecf30c1.camel@linux.ibm.com>
+         <9ab646da-c104-b7a1-70f8-fbd8a6e74150@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Z6XEDkO10WugUfGVK8R2FNWqVl6IO0MA
-X-Proofpoint-ORIG-GUID: jOXKQdfQn1RKRta-DFLTlKjsYlHK-W6s
+X-Proofpoint-GUID: l9NMbVQcVmNYuX0zQjYeYjnDt8QP37jA
+X-Proofpoint-ORIG-GUID: 8nc9S254fKwaihYk-RI-fHR55y_j1XNX
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-11_02,2022-05-10_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- spamscore=0 mlxlogscore=847 malwarescore=0 adultscore=0 lowpriorityscore=0
- bulkscore=0 impostorscore=0 phishscore=0 clxscore=1015 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205110037
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=986 impostorscore=0 phishscore=0 bulkscore=0 adultscore=0
+ spamscore=0 clxscore=1015 malwarescore=0 mlxscore=0 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205110037
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Since we're going to need the definitions in an upcoming migration test for CMM,
-add a header for CMM related defines. It is based on
-arch/s390/include/asm/page-states.h from linux.
+On Tue, 2022-05-10 at 14:47 +0200, Janosch Frank wrote:
+> Having them separate is fine. I'd change the file name to 
+> migration-cmm.elf though. We might also want to change the name of
+> the 
+> first migration test in the future to make the name more specific.
 
-While at it, use the constants in existing calls to CMM related functions.
-
-Also move essa() and test_availability() there to be able to use it outside
-cmm.c.
-
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
- lib/s390x/asm/cmm.h | 50 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/cmm.c         | 25 +++--------------------
- 2 files changed, 53 insertions(+), 22 deletions(-)
- create mode 100644 lib/s390x/asm/cmm.h
-
-diff --git a/lib/s390x/asm/cmm.h b/lib/s390x/asm/cmm.h
-new file mode 100644
-index 000000000000..554a60031fbf
---- /dev/null
-+++ b/lib/s390x/asm/cmm.h
-@@ -0,0 +1,50 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ *    Copyright IBM Corp. 2017, 2022
-+ *    Author(s): Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
-+ *               Nico Boehr <nrb@linux.ibm.com>
-+ */
-+#include <asm/interrupt.h>
-+
-+#ifndef PAGE_STATES_H
-+#define PAGE_STATES_H
-+
-+#define ESSA_GET_STATE			0
-+#define ESSA_SET_STABLE			1
-+#define ESSA_SET_UNUSED			2
-+#define ESSA_SET_VOLATILE		3
-+#define ESSA_SET_POT_VOLATILE		4
-+#define ESSA_SET_STABLE_RESIDENT	5
-+#define ESSA_SET_STABLE_IF_RESIDENT	6
-+#define ESSA_SET_STABLE_NODAT		7
-+
-+#define ESSA_MAX	ESSA_SET_STABLE_NODAT
-+
-+#define ESSA_USAGE_STABLE		0
-+#define ESSA_USAGE_UNUSED		1
-+#define ESSA_USAGE_POT_VOLATILE		2
-+#define ESSA_USAGE_VOLATILE		3
-+
-+static unsigned long essa(uint8_t state, unsigned long paddr)
-+{
-+	uint64_t extr_state;
-+
-+	asm volatile(".insn rrf,0xb9ab0000,%[extr_state],%[addr],%[new_state],0" \
-+			: [extr_state] "=d" (extr_state) \
-+			: [addr] "a" (paddr), [new_state] "i" (state));
-+
-+	return (unsigned long)extr_state;
-+}
-+
-+/*
-+ * Unfortunately the availability is not indicated by stfl bits, but
-+ * we have to try to execute it and test for an operation exception.
-+ */
-+static inline bool check_essa_available(void)
-+{
-+	expect_pgm_int();
-+	essa(ESSA_GET_STATE, 0);
-+	return clear_pgm_int() == 0;
-+}
-+
-+#endif
-diff --git a/s390x/cmm.c b/s390x/cmm.c
-index c3f0c931ae36..af852838851e 100644
---- a/s390x/cmm.c
-+++ b/s390x/cmm.c
-@@ -12,19 +12,10 @@
- #include <asm/asm-offsets.h>
- #include <asm/interrupt.h>
- #include <asm/page.h>
-+#include <asm/cmm.h>
- 
- static uint8_t pagebuf[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
- 
--static unsigned long essa(uint8_t state, unsigned long paddr)
--{
--	uint64_t extr_state;
--
--	asm volatile(".insn rrf,0xb9ab0000,%[extr_state],%[addr],%[new_state],0"
--			: [extr_state] "=d" (extr_state)
--			: [addr] "a" (paddr), [new_state] "i" (state));
--	return (unsigned long)extr_state;
--}
--
- static void test_params(void)
- {
- 	report_prefix_push("invalid ORC 8");
-@@ -39,24 +30,14 @@ static void test_priv(void)
- 	report_prefix_push("privileged");
- 	expect_pgm_int();
- 	enter_pstate();
--	essa(0, (unsigned long)pagebuf);
-+	essa(ESSA_GET_STATE, (unsigned long)pagebuf);
- 	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
- 	report_prefix_pop();
- }
- 
--/* Unfortunately the availability is not indicated by stfl bits, but
-- * we have to try to execute it and test for an operation exception.
-- */
--static bool test_availability(void)
--{
--	expect_pgm_int();
--	essa(0, (unsigned long)pagebuf);
--	return clear_pgm_int() == 0;
--}
--
- int main(void)
- {
--	bool has_essa = test_availability();
-+	bool has_essa = check_essa_available();
- 
- 	report_prefix_push("cmm");
- 	if (!has_essa) {
--- 
-2.31.1
-
+Yes, good thought. I have it on my TODO.
