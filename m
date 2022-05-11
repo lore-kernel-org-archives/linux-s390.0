@@ -2,119 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09913C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 19:29:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 804FBC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 19:40:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240901AbiEKT3M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 15:29:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58270 "EHLO
+        id S1347045AbiEKTkY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 May 2022 15:40:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229566AbiEKT3M (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 15:29:12 -0400
-Received: from conssluserg-06.nifty.com (conssluserg-06.nifty.com [210.131.2.91])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A319DF1367;
-        Wed, 11 May 2022 12:29:08 -0700 (PDT)
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52]) (authenticated)
-        by conssluserg-06.nifty.com with ESMTP id 24BJSoZ9018134;
-        Thu, 12 May 2022 04:28:50 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com 24BJSoZ9018134
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1652297330;
-        bh=EaTId7H8QGxZ4wR/UutapdHBioVSBlwASrI8kZas40s=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=S17erul53RNIeBjJYir+J8mpHUWqK7sXKHJMWRa/l2xSCxZgrdV1dU3+5hX9DFRPB
-         CxgugLFeqTZ4qkrOp/w8aAs9LC1q5WTQ18lo39qoonMr7iIjV8mWFGdEhV4ZCcs80q
-         2791ONW4kWbmvpu0bg8Ie6WMg2pBrWyRDmAD0TVba9wY0wF1xKvLuuao/XsCXNDByB
-         38FzgA8r7So3M8VePGduejUpewfBieSKGIXseq+GW7ZP4YbOEsCZ9Y+Cm76syaoNJ6
-         t7jCNxWrBvLyml46hUxkvSFtyWpcS1C/UwFi4wohFk8Ysn7VrS2i2PxIpRBTLc+/r3
-         YjPePFoJdPHHA==
-X-Nifty-SrcIP: [209.85.216.52]
-Received: by mail-pj1-f52.google.com with SMTP id l20-20020a17090a409400b001dd2a9d555bso2975792pjg.0;
-        Wed, 11 May 2022 12:28:50 -0700 (PDT)
-X-Gm-Message-State: AOAM530Sk2S5gpR8eoR0AEnHcHmWIS8+HImf5ur29pRT6pczkG3LLJcl
-        +WzvlT0pUi+j8EBsjQ41t0G7SEzyQ1Br31/6EfI=
-X-Google-Smtp-Source: ABdhPJxpFvdEXgne/7yspfTVFpO5mJeb/64Ugd7xcTnf7hLoDN02lbCll4CkYvhtMmE1NpBHpwbzLRyJwjcVkvMYkaw=
-X-Received: by 2002:a17:903:1205:b0:15e:8cbc:fd2b with SMTP id
- l5-20020a170903120500b0015e8cbcfd2bmr26952485plh.99.1652297329721; Wed, 11
- May 2022 12:28:49 -0700 (PDT)
+        with ESMTP id S1347065AbiEKTkX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 15:40:23 -0400
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DE72219F69
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:40:21 -0700 (PDT)
+Received: by mail-lj1-x230.google.com with SMTP id o22so3013326ljp.8
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:40:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=s0WHnwC/LKH7P9lNbxHLOT0Ey/YFu5D9xNYFJTYtZ1Q=;
+        b=Fvz5uPtJHUorCw5qkY372eQ60ClhKlpeLwO1xjhAL9PQHj9vflc26CO74tkzg7EmAI
+         FEHbyF3V9YbZQYUmxvm1RNGhLDcIjYqTBqP4pZiVRnOpH7gUtNFeTmFleqdhViv3AS3i
+         q3If8KCbEwTyPf7Uo6YzYZ1DgplKvn07+Q5FTK3v4nApvYHZxE1K0C9zkXE0CAEZsylG
+         /vV6IuLMlkcjNQ0IVy3QsNh5mor400xpsLkIzUSChrp4HwfNkleiWjE/UsdexJvxUSKo
+         7XcpLaapmKfq6RqUk63VDmyq5ZCSDITSYlTLQDsqe8Nq/YlTdnTooSQfbfWhq1VOhG6a
+         uP7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=s0WHnwC/LKH7P9lNbxHLOT0Ey/YFu5D9xNYFJTYtZ1Q=;
+        b=nhh3eGXCQsMJwkn5g3xs64N5vg1/3trynxWyEkW00wX+cbzEM/SxxQ/Ur9K/mjH5NZ
+         eKmkgWOyifyaqzRzGD0D4V2rUEaYXt8b5sw5PIKqqd706YB9QYqB8AzNhYLMsQyGy63v
+         eYM+mzQdRcDoGe/k5VhOzrjijp9qd4cyAzWAv4pTbOdv0v/5RrBZBrgLOE/YsNM+d7IT
+         3upahJhCCsn8A84za3lz+4NAERETFrcbNNSl1KSgy52x/iV+xstyY5JpcBkBP5T9HD1W
+         ny+fzZ59MNWMpAiFfS57FWBNUIaQC/YDtL2P/WSINz2fh32Xe/F0jBJnby70eKMlUxa2
+         +FHg==
+X-Gm-Message-State: AOAM533T8oFX3rH+OHUZUlvdqam4XHaLGUrIomGkt7nK6SYeYquvCoZ/
+        wB5jSXZA6a7LMxBynZlo9X7AX2lmfpy4mxiNx3LHLw==
+X-Google-Smtp-Source: ABdhPJz0NVpIZePVvZ3oOx6+FO7jLpzyA7B8CJCC9CbYcQngiEhIKV2dTdoUVdm176erPVni03DBhy5q0Zs/JvZO3y4=
+X-Received: by 2002:a05:651c:101:b0:250:896d:f870 with SMTP id
+ a1-20020a05651c010100b00250896df870mr17878467ljb.235.1652298019389; Wed, 11
+ May 2022 12:40:19 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220508190631.2386038-1-masahiroy@kernel.org>
- <20220508190631.2386038-4-masahiroy@kernel.org> <CAKwvOd=LR=UNOeWJDmM-McJ=FrCWTo8w1ox+KGMQCwCVpiUyFg@mail.gmail.com>
- <CAK7LNARGNEDzPPUsPjDXsXUUUPSFK2erQRuyPocR_v5hTYRihg@mail.gmail.com> <CAKwvOdmK4oH0t8Q6F19sWKX1fT=AgS=kfvn05FT01HffLJwgMQ@mail.gmail.com>
-In-Reply-To: <CAKwvOdmK4oH0t8Q6F19sWKX1fT=AgS=kfvn05FT01HffLJwgMQ@mail.gmail.com>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Thu, 12 May 2022 04:27:37 +0900
-X-Gmail-Original-Message-ID: <CAK7LNAR5preB59HJH1-F_ZfEmoF3N8b9z4eRhYzsEVwu_XUH4Q@mail.gmail.com>
-Message-ID: <CAK7LNAR5preB59HJH1-F_ZfEmoF3N8b9z4eRhYzsEVwu_XUH4Q@mail.gmail.com>
-Subject: Re: [PATCH v4 03/14] modpost: split the section mismatch checks into section-check.c
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-modules <linux-modules@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        clang-built-linux <llvm@lists.linux.dev>
+References: <20220511120532.2228616-1-hca@linux.ibm.com> <20220511120532.2228616-8-hca@linux.ibm.com>
+In-Reply-To: <20220511120532.2228616-8-hca@linux.ibm.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Wed, 11 May 2022 12:40:07 -0700
+Message-ID: <CAKwvOdn3Mdn9ek-7EotHmd6Wb7C5rzZnOxAQVtbQEd2LBBZGRg@mail.gmail.com>
+Subject: Re: [PATCH 7/8] s390/boot: do not emit debug info for assembly with
+ llvm's IAS
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
+        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andreas Krebbel <krebbel@linux.ibm.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 12, 2022 at 3:48 AM Nick Desaulniers
-<ndesaulniers@google.com> wrote:
+On Wed, May 11, 2022 at 5:05 AM Heiko Carstens <hca@linux.ibm.com> wrote:
 >
-> On Mon, May 9, 2022 at 11:57 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
-> >
-> > > > diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-> > > > index a78b75f0eeb0..e7e2c70a98f5 100644
-> > > > --- a/scripts/mod/modpost.c
-> > > > +++ b/scripts/mod/modpost.c
-> > > > @@ -31,7 +31,7 @@ static bool external_module;
-> > > >  /* Only warn about unresolved symbols */
-> > > >  static bool warn_unresolved;
-> > > >
-> > > > -static int sec_mismatch_count;
-> > > > +int sec_mismatch_count;
-> > >
-> > > ^ this should go in modpost.h if it is to be used in two translation
-> > > units, rather than forward declaring it in section-check.c.  You did
-> > > this for the functions.
-> >
-> >
-> > Sorry, I do not understand.
-> >
-> >
-> > In modpost.h, I put the declaration:
-> >
-> >   extern int sec_mismatch_count;
-> >
-> > If I moved it to the header without 'extern'
-> > I would get multiple definitions.
+> Commit ee6d777d3e93 ("s390/decompressor: support extra debug flags")
+> added extra debug flags, in particular debug info is created,
+> depending on config options.
 >
-> Yeah, you need to _declare_ it w/ extern in the header, then _define_
-> it in one source file.
+> With llvm's IAS this causes this compile warning:
 >
-> That way, if the type ever changes, the sources will agree on type in
-> all source files. You will get a redefinition error if the definition
-> changes the type of the variable since the last declaration.
+> arch/s390/boot/head.S:38:1: warning: DWARF2 only supports one section per compilation unit
+> .section ".head.text","ax"
+> ^
 >
-> What you're doing is forward declaring, which works, and is a common
-> pattern for (bloated) C++, but is less type safe than sharing a single
-> common declaration between multiple source files via a single common
-> shared header. (Sorry I didn't respond before you sent v5)
+> This is a known problem and was addressed with a commit b8a9092330da
+> ("Kbuild: do not emit debug info for assembly with LLVM_IAS=1").
+> Just do the same for s390 to get rid of this warning.
+>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/Makefile | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+> index c59efc83f020..d73611b35164 100644
+> --- a/arch/s390/Makefile
+> +++ b/arch/s390/Makefile
+> @@ -20,7 +20,9 @@ LDFLAGS_vmlinux       := -pie
+>  endif
+>  aflags_dwarf   := -Wa,-gdwarf-2
 
-Sorry, I still do not understand your suggestion.
+^ or can we use a more modern variant of dwarf, like at least dwarf-4?
 
-
-Could you provide me with a code diff
-showing how to do this better?
-
+>  KBUILD_AFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -D__ASSEMBLY__
+> +ifndef CONFIG_AS_IS_LLVM
+>  KBUILD_AFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),$(aflags_dwarf))
+> +endif
+>  KBUILD_CFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -O2 -mpacked-stack
+>  KBUILD_CFLAGS_DECOMPRESSOR += -DDISABLE_BRANCH_PROFILING -D__NO_FORTIFY
+>  KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float -mbackchain
+> --
+> 2.32.0
+>
 
 
 -- 
-Best Regards
-Masahiro Yamada
+Thanks,
+~Nick Desaulniers
