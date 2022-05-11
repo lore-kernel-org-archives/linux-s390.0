@@ -2,116 +2,131 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16B2EC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 17:02:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D638C4321E
+	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 17:28:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239492AbiEKRCO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 13:02:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57736 "EHLO
+        id S237350AbiEKR2H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 May 2022 13:28:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237247AbiEKRCO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 13:02:14 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F4862BC8;
-        Wed, 11 May 2022 10:02:13 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24BESnxr027991;
-        Wed, 11 May 2022 17:02:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=8s5rkaVXoRu/HCmOcYXClgG+6sD0OJWx7GGHwkIIgm0=;
- b=f9UzhAhf+kHnRKGIdlG11bHT9Npf9wMLUhNwQAWXuxDqiQCyIlC69cblQpSJXllQeM1T
- QeIPZ2ohqV4tS1PP92x5ve6DgN/oA4Iaykvn6UjHF9/YEkTafZlQ0RvG/0mFkQDrd4c0
- g6FaXBlB0Ht2PH8R2J8Z+j8FvxzL47auuU6eCAHxacoLjy5c+DSTgIOW+ZDOsV3nn8RD
- fwpRo9Nz7jXrLe0y2pEiSPiSvqdEKo7IJUNPRxSQq3sd5g6PC0cZCRiHJNF8eNj4nBBI
- Z707lwpWWTKrhXc7Dhgb0jz0eZGP1lqhss+wNslMcUmEkgYMfgnsH0Neg8gvgJi80NSs 9Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g0etx3e1e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 17:02:10 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24BGSjap012046;
-        Wed, 11 May 2022 17:02:09 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g0etx3e07-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 17:02:09 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24BGpT1q031504;
-        Wed, 11 May 2022 17:02:06 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3fyrkk1p4w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 17:02:06 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24BH22nM42991896
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 11 May 2022 17:02:02 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 214A611C052;
-        Wed, 11 May 2022 17:02:02 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 989BF11C04C;
-        Wed, 11 May 2022 17:02:01 +0000 (GMT)
-Received: from osiris (unknown [9.145.80.150])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed, 11 May 2022 17:02:01 +0000 (GMT)
-Date:   Wed, 11 May 2022 19:02:00 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
-        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/8] s390/alternatives: remove padding generation code
-Message-ID: <YnvsCPIXmCmzlDlX@osiris>
-References: <20220511120532.2228616-1-hca@linux.ibm.com>
- <20220511120532.2228616-3-hca@linux.ibm.com>
+        with ESMTP id S1345549AbiEKR2F (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 13:28:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F0BC352B10
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 10:28:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652290081;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cS5E6UtIkG/hFuUJaz85MfZ3xWqLO1I63lqGQCOfSNw=;
+        b=h9Kkg6bxy6vsZ5MkHmLGhdoNjLqMKp0k5xsGMQWAyZL8wEgrXXK9eX34YqTfjfFletoHAx
+        10tf88VX+oMKhtdyw/C2fyk0EPTowCJAglo2aNb8kqUvrKRwrw34IcFuQEXoDSSrVZTWAq
+        H+BkTL9nsIB0CRdf8ZnFAjvtJzCDVHs=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-403-AqYX-NLkNFuY9WNkpgTRMA-1; Wed, 11 May 2022 13:27:58 -0400
+X-MC-Unique: AqYX-NLkNFuY9WNkpgTRMA-1
+Received: by mail-wr1-f69.google.com with SMTP id s16-20020adfeb10000000b0020cc4e5e683so1104144wrn.6
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 10:27:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=cS5E6UtIkG/hFuUJaz85MfZ3xWqLO1I63lqGQCOfSNw=;
+        b=GsGD7YQE12ldb8s9yP+ry9l0Y5BMIo6Vy8CGPwShj9p+EKuHn0DbmDmEEco2lBOOvu
+         66+QtmA3poLx1Gnd+/1WpbQlHLGMnwCv+LGh3BP+zM7W8lDenayCaeaavnQY+3TyyUQH
+         pk292VoXRaNW4B397gBieF4UcljLP2k9Fm8ryB0SQuVxm3HPGVtKO41aSymYCK+tpctg
+         WuZmHU9KFLp+CUgTRN4uudN9/d08dO1g1vP9xAk0rRRX+lStnN1OAIeJ2Yu/LB/Pkgl6
+         jwczHmGFyf35I5QTFcFzDRkELQkGRk95vK1r/U0jN7zozLKxrVFehhZUG+egVBl02HRj
+         THIQ==
+X-Gm-Message-State: AOAM533hTjHkXgm8NawHiify7J7S8SxYNgSsXCBxgB2Lm0DSQmrJSSZ6
+        S1xhkqhUChyk5KwBebXqXy5JndPbGH76dO/krkxBOJx2nx9yeL5H339y5UsMkaF5imKBt8WNC0X
+        19rrrVs06ayPRyfJXqhjRYg==
+X-Received: by 2002:a7b:c4d8:0:b0:393:fecd:2718 with SMTP id g24-20020a7bc4d8000000b00393fecd2718mr6012824wmk.23.1652290077484;
+        Wed, 11 May 2022 10:27:57 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzBTzXKBES23B3psLkzxI9cGRRJgtAEIRhBp8LvQHOEvCQMFPcLMWgEwEKr1C169Li1EVKAzw==
+X-Received: by 2002:a7b:c4d8:0:b0:393:fecd:2718 with SMTP id g24-20020a7bc4d8000000b00393fecd2718mr6012790wmk.23.1652290077160;
+        Wed, 11 May 2022 10:27:57 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c701:700:2393:b0f4:ef08:bd51? (p200300cbc70107002393b0f4ef08bd51.dip0.t-ipconnect.de. [2003:cb:c701:700:2393:b0f4:ef08:bd51])
+        by smtp.gmail.com with ESMTPSA id r12-20020a5d694c000000b0020c5253d8c3sm2174483wrw.15.2022.05.11.10.27.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 11 May 2022 10:27:55 -0700 (PDT)
+Message-ID: <55e85b3e-dd6a-1dc2-719d-c6be9d5124c0@redhat.com>
+Date:   Wed, 11 May 2022 19:27:53 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220511120532.2228616-3-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: y3pLf4oX4VlR0d1A5vV4-CIkXXhZXjdl
-X-Proofpoint-ORIG-GUID: SsEsAkTMGBmucMXo4udQSFa5IEc14j85
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-11_07,2022-05-11_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 malwarescore=0 phishscore=0 mlxscore=0 adultscore=0
- suspectscore=0 mlxlogscore=703 bulkscore=0 impostorscore=0
- priorityscore=1501 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2205110078
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH v4 2/3] mm: rmap: Fix CONT-PTE/PMD size hugetlb issue when
+ migration
+Content-Language: en-US
+To:     Baolin Wang <baolin.wang@linux.alibaba.com>,
+        akpm@linux-foundation.org, mike.kravetz@oracle.com
+Cc:     catalin.marinas@arm.com, will@kernel.org, songmuchun@bytedance.com,
+        tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
+        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, arnd@arndb.de,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org
+References: <cover.1652270205.git.baolin.wang@linux.alibaba.com>
+ <a4baca670aca637e7198d9ae4543b8873cb224dc.1652270205.git.baolin.wang@linux.alibaba.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <a4baca670aca637e7198d9ae4543b8873cb224dc.1652270205.git.baolin.wang@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 11, 2022 at 02:05:26PM +0200, Heiko Carstens wrote:
-> clang fails to handle ".if" statements in inline assembly which are heavily
-> used in the alternatives code.
+On 11.05.22 14:04, Baolin Wang wrote:
+> On some architectures (like ARM64), it can support CONT-PTE/PMD size
+> hugetlb, which means it can support not only PMD/PUD size hugetlb:
+> 2M and 1G, but also CONT-PTE/PMD size: 64K and 32M if a 4K page
+> size specified.
+> 
+> When migrating a hugetlb page, we will get the relevant page table
+> entry by huge_pte_offset() only once to nuke it and remap it with
+> a migration pte entry. This is correct for PMD or PUD size hugetlb,
+> since they always contain only one pmd entry or pud entry in the
+> page table.
+> 
+> However this is incorrect for CONT-PTE and CONT-PMD size hugetlb,
+> since they can contain several continuous pte or pmd entry with
+> same page table attributes. So we will nuke or remap only one pte
+> or pmd entry for this CONT-PTE/PMD size hugetlb page, which is
+> not expected for hugetlb migration. The problem is we can still
+> continue to modify the subpages' data of a hugetlb page during
+> migrating a hugetlb page, which can cause a serious data consistent
+> issue, since we did not nuke the page table entry and set a
+> migration pte for the subpages of a hugetlb page.
+> 
+> To fix this issue, we should change to use huge_ptep_clear_flush()
+> to nuke a hugetlb page table, and remap it with set_huge_pte_at()
+> and set_huge_swap_pte_at() when migrating a hugetlb page, which
+> already considered the CONT-PTE or CONT-PMD size hugetlb.
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+> Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 
-FWIW, I missed to add error message(s) to the changelog:
+Makes sense to me.
 
-In file included from ./include/linux/spinlock.h:93:
-./arch/s390/include/asm/spinlock.h:81:3: error: expected absolute expression
-                ALTERNATIVE("", ".insn rre,0xb2fa0000,7,0", 49) /* NIAI 7 */
-                ^
-./arch/s390/include/asm/alternative.h:118:2: note: expanded from macro 'ALTERNATIVE'
-        ALTINSTR_REPLACEMENT(altinstr, 1)                               \
-        ^
-./arch/s390/include/asm/alternative.h:113:2: note: expanded from macro 'ALTINSTR_REPLACEMENT'
-        INSTR_LEN_SANITY_CHECK(altinstr_len(num))
-        ^
-./arch/s390/include/asm/alternative.h:62:3: note: expanded from macro 'INSTR_LEN_SANITY_CHECK'
-        ".if " len " > 254\n"                                           \
-         ^
-<inline asm>:5:5: note: instantiated into assembly here
-.if 6651b-6641b > 254
-    ^
+Acked-by: David Hildenbrand <david@redhat.com>
+
+
+-- 
+Thanks,
+
+David / dhildenb
+
