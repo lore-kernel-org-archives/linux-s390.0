@@ -2,114 +2,199 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63350C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 17:30:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7115CC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 17:36:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240098AbiEKRaM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 13:30:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40288 "EHLO
+        id S1345697AbiEKRgL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 May 2022 13:36:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239654AbiEKRaL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 13:30:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 561387890B;
-        Wed, 11 May 2022 10:30:10 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 115C0B82529;
-        Wed, 11 May 2022 17:30:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3B52C340EE;
-        Wed, 11 May 2022 17:30:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652290207;
-        bh=WvIKEZHgEn+Dq25Zw6Rksrl5jKHKzLQEMQqd1N3j2Ko=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GFN6k71AHMTgNwJwkH1IqkuKUozdUKqDNTuKbJ2jJ+BaNtNcV4i/l9n1TSzaUH6oA
-         p/Q/MWNZfRv99aOZ6I/p8457maoeuz7iUx+Xqb3/SXGTny37hRQe+jY+b5uN+n/CC5
-         RJRhLeHl7oPmsIVTDDiQzUpKWmeeOPyuB+dGUw3lMqZZSlBCF9zk9hVsAq7ITXs2G4
-         +RzhJFL77Q2N/y/VqzXgO3evkSHPIg7MDkPRSI2vgwPYBFLNeLds8AScgtCLxzamRl
-         /EKA49IJd5x/zajQO1DbTb3+bM5me72u1MHoxpoaNVufOZcVhJuhl9r8mCTdkG1/DU
-         r3DcvRmJDTG7g==
-Date:   Wed, 11 May 2022 10:30:05 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
-        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/8] s390/entry: workaround llvm's IAS limitations
-Message-ID: <YnvynSZfF/8I8vmT@dev-arch.thelio-3990X>
-References: <20220511120532.2228616-1-hca@linux.ibm.com>
- <20220511120532.2228616-5-hca@linux.ibm.com>
+        with ESMTP id S1345632AbiEKRf6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 13:35:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ED49D62CD5
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 10:35:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652290556;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RHJ9jDCm2aZov2g6klEdi92ZsrYHfyKzIwTmWcp9UH8=;
+        b=NGJbLnGGiDFyIX+Hl7BzT6EPOfvGrBeehd963Ns6mcWO1tiZ/pbENRbDTeSbBEdUJe3l31
+        xvDggPY0LDlNY5FKZAsSpzoBxgaQPD/FQ+WmbS7AajKtAgDLLiPogHzmMZyzeYkK1jWisx
+        KbZYFLhum9M/aQYDBM2DPlQbE7AzZ+s=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-448-q49ZKyQwP2mvhmd_-V2k9w-1; Wed, 11 May 2022 13:35:55 -0400
+X-MC-Unique: q49ZKyQwP2mvhmd_-V2k9w-1
+Received: by mail-wm1-f70.google.com with SMTP id p24-20020a1c5458000000b003945d2ffc6eso929196wmi.5
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 10:35:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=RHJ9jDCm2aZov2g6klEdi92ZsrYHfyKzIwTmWcp9UH8=;
+        b=mlA0r8F4rHRE/R0PHcni3z18geg+ri/wZIIW5smgnBmmN5vdw7y3ixQNgutEI91M+u
+         lkcC26Ozsupbo/rwa20nAchqKhAmoOYRiF7ULq/h6OvSwWUKms6FHqiS7NqE/YL7EHY3
+         yNTRSRJF/0cy+rhno/7IABen2vWSrKbC83Eeu13UGTDLXPzBGCpHzvx8w0FAx6t6K/Fa
+         J8gafzKFlMwHG8+Ox8qrzfGgiMR8ygWXYTflubbqTBMUNHhK3n1nNWyVGSAh2F2y7p01
+         anOfxProcz9P+83iDgMYxUpUWKuyIYxZReGKhE9sf/zV8OF311i1L45j2Ur5hQla+pGy
+         AiMg==
+X-Gm-Message-State: AOAM530EmHmnr0vApWTmN0jbDed53o+rxOODTRx5qOI2/L2J6egHnbtb
+        iTVcBQ/7CEuEfPe0jKd6sKwVwGS5biRRZSfbDRVewVQgp/8SlLn7IlGA1hXYKaGCipbwovHGV91
+        MrzxnMZ2df+h0ZTLvjmyJSg==
+X-Received: by 2002:a05:6000:1f0f:b0:20c:87b6:df9d with SMTP id bv15-20020a0560001f0f00b0020c87b6df9dmr25088283wrb.115.1652290553806;
+        Wed, 11 May 2022 10:35:53 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxowLcNuhjX33XV+v3YeRfpwZS/+uKcfuTSz0ColENR5G1SBprMZ1XzQiN/ReI3dYYeeSg9JA==
+X-Received: by 2002:a05:6000:1f0f:b0:20c:87b6:df9d with SMTP id bv15-20020a0560001f0f00b0020c87b6df9dmr25088227wrb.115.1652290553449;
+        Wed, 11 May 2022 10:35:53 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c701:700:2393:b0f4:ef08:bd51? (p200300cbc70107002393b0f4ef08bd51.dip0.t-ipconnect.de. [2003:cb:c701:700:2393:b0f4:ef08:bd51])
+        by smtp.gmail.com with ESMTPSA id u12-20020a7bc04c000000b003942a244ed6sm387130wmc.27.2022.05.11.10.35.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 11 May 2022 10:35:52 -0700 (PDT)
+Message-ID: <f1c904e7-0b16-2893-eb25-0b968817fb8c@redhat.com>
+Date:   Wed, 11 May 2022 19:35:50 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220511120532.2228616-5-hca@linux.ibm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH v4 3/3] mm: rmap: Fix CONT-PTE/PMD size hugetlb issue when
+ unmapping
+Content-Language: en-US
+To:     Baolin Wang <baolin.wang@linux.alibaba.com>,
+        akpm@linux-foundation.org, mike.kravetz@oracle.com
+Cc:     catalin.marinas@arm.com, will@kernel.org, songmuchun@bytedance.com,
+        tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
+        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, arnd@arndb.de,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org
+References: <cover.1652270205.git.baolin.wang@linux.alibaba.com>
+ <0a2e547238cad5bc153a85c3e9658cb9d55f9cac.1652270205.git.baolin.wang@linux.alibaba.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <0a2e547238cad5bc153a85c3e9658cb9d55f9cac.1652270205.git.baolin.wang@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Heiko,
-
-On Wed, May 11, 2022 at 02:05:28PM +0200, Heiko Carstens wrote:
-> llvm's integrated assembler cannot handle immediate values which are
-> calculated with two local labels:
+On 11.05.22 14:04, Baolin Wang wrote:
+> On some architectures (like ARM64), it can support CONT-PTE/PMD size
+> hugetlb, which means it can support not only PMD/PUD size hugetlb:
+> 2M and 1G, but also CONT-PTE/PMD size: 64K and 32M if a 4K page
+> size specified.
 > 
-> <instantiation>:3:13: error: invalid operand for instruction
->  clgfi %r14,.Lsie_done - .Lsie_gmap
+> When unmapping a hugetlb page, we will get the relevant page table
+> entry by huge_pte_offset() only once to nuke it. This is correct
+> for PMD or PUD size hugetlb, since they always contain only one
+> pmd entry or pud entry in the page table.
 > 
-> Workaround this by adding clang specific code which reads the specific
-> value from memory. Since this code is within the hot paths of the kernel
-> and adds an additional memory reference, keep the original code, and add
-> ifdef'ed code.
+> However this is incorrect for CONT-PTE and CONT-PMD size hugetlb,
+> since they can contain several continuous pte or pmd entry with
+> same page table attributes, so we will nuke only one pte or pmd
+> entry for this CONT-PTE/PMD size hugetlb page.
 > 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> And now try_to_unmap() is only passed a hugetlb page in the case
+> where the hugetlb page is poisoned. Which means now we will unmap
+> only one pte entry for a CONT-PTE or CONT-PMD size poisoned hugetlb
+> page, and we can still access other subpages of a CONT-PTE or CONT-PMD
+> size poisoned hugetlb page, which will cause serious issues possibly.
+> 
+> So we should change to use huge_ptep_clear_flush() to nuke the
+> hugetlb page table to fix this issue, which already considered
+> CONT-PTE and CONT-PMD size hugetlb.
+> 
+> We've already used set_huge_swap_pte_at() to set a poisoned
+> swap entry for a poisoned hugetlb page. Meanwhile adding a VM_BUG_ON()
+> to make sure the passed hugetlb page is poisoned in try_to_unmap().
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+> Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 > ---
->  arch/s390/kernel/entry.S | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+>  mm/rmap.c | 39 ++++++++++++++++++++++-----------------
+>  1 file changed, 22 insertions(+), 17 deletions(-)
 > 
-> diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-> index e1664b45090f..ff7a75078e93 100644
-> --- a/arch/s390/kernel/entry.S
-> +++ b/arch/s390/kernel/entry.S
-> @@ -171,8 +171,19 @@ _LPP_OFFSET	= __LC_LPP
->  	.macro OUTSIDE reg,start,end,outside_label
->  	larl	%r14,\start
->  	slgrk	%r14,\reg,%r14
-> +#ifdef CONFIG_CC_IS_CLANG
-
-I intend to put this series through my build and boot test matrix later
-today but one fly by comment in the meantime. Should this be
-CONFIG_AS_IS_LLVM if this is an integrated assembler limitation, rather
-than a clang one?
-
-> +	clgfrl	%r14,.Lrange_size\@
-> +#else
->  	clgfi	%r14,\end - \start
-> +#endif
->  	jhe	\outside_label
-> +#ifdef CONFIG_CC_IS_CLANG
-> +	.section .rodata, "a"
-> +	.align 4
-> +.Lrange_size\@:
-> +	.long	\end - \start
-> +	.previous
-> +#endif
->  	.endm
+> diff --git a/mm/rmap.c b/mm/rmap.c
+> index 4e96daf..219e287 100644
+> --- a/mm/rmap.c
+> +++ b/mm/rmap.c
+> @@ -1528,6 +1528,11 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
 >  
->  	.macro SIEEXIT
-> -- 
-> 2.32.0
-> 
-> 
+>  		if (folio_test_hugetlb(folio)) {
+>  			/*
+> +			 * The try_to_unmap() is only passed a hugetlb page
+> +			 * in the case where the hugetlb page is poisoned.
+> +			 */
+> +			VM_BUG_ON_PAGE(!PageHWPoison(subpage), subpage);
+> +			/*
+>  			 * huge_pmd_unshare may unmap an entire PMD page.
+>  			 * There is no way of knowing exactly which PMDs may
+>  			 * be cached for this mm, so we must flush them all.
+> @@ -1562,28 +1567,28 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
+>  					break;
+>  				}
+>  			}
+> +			pteval = huge_ptep_clear_flush(vma, address, pvmw.pte);
+>  		} else {
+>  			flush_cache_page(vma, address, pte_pfn(*pvmw.pte));
+> -		}
+> -
+> -		/*
+> -		 * Nuke the page table entry. When having to clear
+> -		 * PageAnonExclusive(), we always have to flush.
+> -		 */
+> -		if (should_defer_flush(mm, flags) && !anon_exclusive) {
+>  			/*
+> -			 * We clear the PTE but do not flush so potentially
+> -			 * a remote CPU could still be writing to the folio.
+> -			 * If the entry was previously clean then the
+> -			 * architecture must guarantee that a clear->dirty
+> -			 * transition on a cached TLB entry is written through
+> -			 * and traps if the PTE is unmapped.
+> +			 * Nuke the page table entry. When having to clear
+> +			 * PageAnonExclusive(), we always have to flush.
+>  			 */
+> -			pteval = ptep_get_and_clear(mm, address, pvmw.pte);
+> +			if (should_defer_flush(mm, flags) && !anon_exclusive) {
+> +				/*
+> +				 * We clear the PTE but do not flush so potentially
+> +				 * a remote CPU could still be writing to the folio.
+> +				 * If the entry was previously clean then the
+> +				 * architecture must guarantee that a clear->dirty
+> +				 * transition on a cached TLB entry is written through
+> +				 * and traps if the PTE is unmapped.
+> +				 */
+> +				pteval = ptep_get_and_clear(mm, address, pvmw.pte);
+>  
+> -			set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
+> -		} else {
+> -			pteval = ptep_clear_flush(vma, address, pvmw.pte);
+> +				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
+> +			} else {
+> +				pteval = ptep_clear_flush(vma, address, pvmw.pte);
+> +			}
+>  		}
+>  
+>  		/*
 
-Cheers,
-Nathan
+LGTM
+
+Acked-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
+
