@@ -2,130 +2,173 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75B83C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 19:51:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B318EC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 19:55:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347258AbiEKTvr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 15:51:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51176 "EHLO
+        id S1347317AbiEKTy7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 May 2022 15:54:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347313AbiEKTvm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 15:51:42 -0400
-Received: from alexa-out-sd-01.qualcomm.com (alexa-out-sd-01.qualcomm.com [199.106.114.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6196655340;
-        Wed, 11 May 2022 12:51:39 -0700 (PDT)
+        with ESMTP id S1347303AbiEKTy4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 15:54:56 -0400
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68E4679802
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:54:54 -0700 (PDT)
+Received: by mail-lf1-x136.google.com with SMTP id bq30so5430175lfb.3
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:54:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1652298699; x=1683834699;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=tJUoH32r2DhYogH9Td6X47AQDJfM19sTpFtOpSyDiTg=;
-  b=xJNFQx4anUWODkse2PIp4TXEzmu5fCpfF/pOUoH6JRC+a01WEBpL2mAu
-   mG9LIfKRCCSWQU0Jn2gm+H9BD5PdyiZSx8LswtDJvPV/cB/sHjDtaLYVn
-   YajV+PiTZgLc+5qlcRxrJvD0HC0LwGtFfYZsjtNw0kBaRuyFbwv2ndKOP
-   4=;
-Received: from unknown (HELO ironmsg03-sd.qualcomm.com) ([10.53.140.143])
-  by alexa-out-sd-01.qualcomm.com with ESMTP; 11 May 2022 12:51:39 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg03-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 May 2022 12:51:38 -0700
-Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Wed, 11 May 2022 12:51:38 -0700
-Received: from [10.110.84.131] (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Wed, 11 May
- 2022 12:51:37 -0700
-Message-ID: <8babc23b-5e24-f662-6c4a-eb1c30e0e6da@quicinc.com>
-Date:   Wed, 11 May 2022 12:51:36 -0700
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=2Qb1M+JmVqidyh+GcY2AVrkjW3SfrjqMOoV1GmxoVTk=;
+        b=aNqlCDjSlQAd5Mkgx9/ZjT6A3I6OWm4d++cBnww6hEPmMfrBMTKVPsD/1CUt1mcZoX
+         FKcLAr/gRpPKKPPep48fSb6xq4ggxDJONXdvVJHAZrBuiluQK/Ynrxm9YvW0KHU2fgGj
+         TiRJbIM7X79t91zZCCuEypIdirxM7C/m4vmPji5m2EgzfU3QrbDfeKMdKM/zPobP8xMp
+         SupwiG77x1WnILjbHZUv7laC8VunueEaZHxeQkgAsw8U8onVelHw8ZaX/GYYUW6NQ9z5
+         JIrDS3puH0QxD2pqiwkVF78OyB0PQfib9zYepB2Vs61A1xBTMgN5RTEiO5dEIZqQObc5
+         re8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2Qb1M+JmVqidyh+GcY2AVrkjW3SfrjqMOoV1GmxoVTk=;
+        b=6876E2KBEROBBsjDwWPC47kkHfvEwsiuPzszPKVSZPxlph/7T/8Puhw6J/FgUo3Cfb
+         TQa58E5WwazkJXniWTTRUYDq8DkvCFZ8YY4yYgMLBxpz1Hebk3Qblf+IVxnkZBCm/yKU
+         TF4oB0LqGQSnLVVkp6FCk8VJJpS12MrXXVFO2qkMMZi+kyJWMGUiVglqs617n8qC0hOF
+         0zb3mhvZJrdYNGuIehVyc/PMXkuc01hML3IAou95iLir1s0qZleS5l6Letwav52hwfzU
+         0THVkvuUE8lOP1nQTtYEgQCudaW7kyk6jnb9zdt6fewsOknSJkJcSBA4pQy1URky+TlI
+         UkwQ==
+X-Gm-Message-State: AOAM532U2grADQXQQ/kmVkEichcnwNUg2cR1xotSnyUtXG50shg/B8Fa
+        zAb8FCI6OsWd6KGN8iGFYvYxzXlMda5+HFOtJVPi6Q==
+X-Google-Smtp-Source: ABdhPJyv+rsZDchbo4bbs51p7N/3mDFXD5dB/xCj/WH1juB/LdvdRHX77SRuTlb0XXqG1KUKBYTfafEXBGS1FNyaTNg=
+X-Received: by 2002:ac2:4646:0:b0:472:108e:51af with SMTP id
+ s6-20020ac24646000000b00472108e51afmr21415635lfo.184.1652298892520; Wed, 11
+ May 2022 12:54:52 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH v4 03/14] modpost: split the section mismatch checks into
- section-check.c
-Content-Language: en-US
-To:     Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-CC:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-modules <linux-modules@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Sami Tolvanen" <samitolvanen@google.com>,
-        clang-built-linux <llvm@lists.linux.dev>
-References: <20220508190631.2386038-1-masahiroy@kernel.org>
- <20220508190631.2386038-4-masahiroy@kernel.org>
- <CAKwvOd=LR=UNOeWJDmM-McJ=FrCWTo8w1ox+KGMQCwCVpiUyFg@mail.gmail.com>
- <CAK7LNARGNEDzPPUsPjDXsXUUUPSFK2erQRuyPocR_v5hTYRihg@mail.gmail.com>
- <CAKwvOdmK4oH0t8Q6F19sWKX1fT=AgS=kfvn05FT01HffLJwgMQ@mail.gmail.com>
- <CAK7LNAR5preB59HJH1-F_ZfEmoF3N8b9z4eRhYzsEVwu_XUH4Q@mail.gmail.com>
-From:   Jeff Johnson <quic_jjohnson@quicinc.com>
-In-Reply-To: <CAK7LNAR5preB59HJH1-F_ZfEmoF3N8b9z4eRhYzsEVwu_XUH4Q@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
+References: <20220511120532.2228616-1-hca@linux.ibm.com> <20220511120532.2228616-6-hca@linux.ibm.com>
+In-Reply-To: <20220511120532.2228616-6-hca@linux.ibm.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Wed, 11 May 2022 12:54:41 -0700
+Message-ID: <CAKwvOdm3P+c0W+oZ9wtgMyxcP3KYX0UkYxO4o=7DLLyMdKdnPg@mail.gmail.com>
+Subject: Re: [PATCH 5/8] s390/purgatory: workaround llvm's IAS limitations
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Jonas Paulsson <paulsson@linux.vnet.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andreas Krebbel <krebbel@linux.ibm.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/11/2022 12:27 PM, Masahiro Yamada wrote:
-> On Thu, May 12, 2022 at 3:48 AM Nick Desaulniers
-> <ndesaulniers@google.com> wrote:
->>
->> On Mon, May 9, 2022 at 11:57 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
->>>
->>>>> diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
->>>>> index a78b75f0eeb0..e7e2c70a98f5 100644
->>>>> --- a/scripts/mod/modpost.c
->>>>> +++ b/scripts/mod/modpost.c
->>>>> @@ -31,7 +31,7 @@ static bool external_module;
->>>>>   /* Only warn about unresolved symbols */
->>>>>   static bool warn_unresolved;
->>>>>
->>>>> -static int sec_mismatch_count;
->>>>> +int sec_mismatch_count;
->>>>
->>>> ^ this should go in modpost.h if it is to be used in two translation
->>>> units, rather than forward declaring it in section-check.c.  You did
->>>> this for the functions.
->>>
->>>
->>> Sorry, I do not understand.
->>>
->>>
->>> In modpost.h, I put the declaration:
->>>
->>>    extern int sec_mismatch_count;
->>>
->>> If I moved it to the header without 'extern'
->>> I would get multiple definitions.
->>
->> Yeah, you need to _declare_ it w/ extern in the header, then _define_
->> it in one source file.
->>
->> That way, if the type ever changes, the sources will agree on type in
->> all source files. You will get a redefinition error if the definition
->> changes the type of the variable since the last declaration.
->>
->> What you're doing is forward declaring, which works, and is a common
->> pattern for (bloated) C++, but is less type safe than sharing a single
->> common declaration between multiple source files via a single common
->> shared header. (Sorry I didn't respond before you sent v5)
-> 
-> Sorry, I still do not understand your suggestion.
-> 
-> 
-> Could you provide me with a code diff
-> showing how to do this better?
+On Wed, May 11, 2022 at 5:05 AM Heiko Carstens <hca@linux.ibm.com> wrote:
+>
+> llvm's integrated assembler cannot handle immediate values which are
+> calculated with two local labels:
+>
+> arch/s390/purgatory/head.S:139:11: error: invalid operand for instruction
+>  aghi %r8,-(.base_crash-purgatory_start)
 
-I think you are doing exactly what he's asking for:
-declare it with extern in the header (modpost.h change)
-define it in one source file (modpost.c change)
+I thought this was fixed in
+https://github.com/ClangBuiltLinux/linux/issues/1420
+https://reviews.llvm.org/D113341
+(clang-14)
+?
 
+>
+> Workaround this by partially rewriting the code.
+>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/purgatory/head.S | 29 ++++++++++++++++++++++-------
+>  1 file changed, 22 insertions(+), 7 deletions(-)
+>
+> diff --git a/arch/s390/purgatory/head.S b/arch/s390/purgatory/head.S
+> index 3d1c31e0cf3d..ac1a27a20b66 100644
+> --- a/arch/s390/purgatory/head.S
+> +++ b/arch/s390/purgatory/head.S
+> @@ -44,11 +44,14 @@
+>  .endm
+>
+>  .macro MEMSWAP dst,src,buf,len
+> -10:    cghi    \len,bufsz
+> +10:    larl    %r0,purgatory_end
+> +       larl    %r1,stack
+> +       slgr    %r0,%r1
+> +       cgr     \len,%r0
+>         jh      11f
+>         lgr     %r4,\len
+>         j       12f
+> -11:    lghi    %r4,bufsz
+> +11:    lgr     %r4,%r0
+>
+>  12:    MEMCPY  \buf,\dst,%r4
+>         MEMCPY  \dst,\src,%r4
+> @@ -135,12 +138,18 @@ ENTRY(purgatory_start)
+>
+>  .start_crash_kernel:
+>         /* Location of purgatory_start in crash memory */
+> +       larl    %r0,.base_crash
+> +       larl    %r1,purgatory_start
+> +       slgr    %r0,%r1
+>         lgr     %r8,%r13
+> -       aghi    %r8,-(.base_crash-purgatory_start)
+> +       sgr     %r8,%r0
+>
+>         /* Destination for this code i.e. end of memory to be swapped. */
+> +       larl    %r0,purgatory_end
+> +       larl    %r1,purgatory_start
+> +       slgr    %r0,%r1
+>         lg      %r9,crash_size-.base_crash(%r13)
+> -       aghi    %r9,-(purgatory_end-purgatory_start)
+> +       sgr     %r9,%r0
+>
+>         /* Destination in crash memory, i.e. same as r9 but in crash memory. */
+>         lg      %r10,crash_start-.base_crash(%r13)
+> @@ -149,15 +158,19 @@ ENTRY(purgatory_start)
+>         /* Buffer location (in crash memory) and size. As the purgatory is
+>          * behind the point of no return it can re-use the stack as buffer.
+>          */
+> -       lghi    %r11,bufsz
+> +       larl    %r11,purgatory_end
+>         larl    %r12,stack
+> +       slgr    %r11,%r12
+>
+>         MEMCPY  %r12,%r9,%r11   /* dst  -> (crash) buf */
+>         MEMCPY  %r9,%r8,%r11    /* self -> dst */
+>
+>         /* Jump to new location. */
+>         lgr     %r7,%r9
+> -       aghi    %r7,.jump_to_dst-purgatory_start
+> +       larl    %r0,.jump_to_dst
+> +       larl    %r1,purgatory_start
+> +       slgr    %r0,%r1
+> +       agr     %r7,%r0
+>         br      %r7
+>
+>  .jump_to_dst:
+> @@ -169,7 +182,9 @@ ENTRY(purgatory_start)
+>
+>         /* Load new buffer location after jump */
+>         larl    %r7,stack
+> -       aghi    %r10,stack-purgatory_start
+> +       larl    %r0,purgatory_start
+> +       slgrk   %r0,%r7,%r0
+> +       agr     %r10,%r0
+>         MEMCPY  %r10,%r7,%r11   /* (new) buf -> (crash) buf */
+>
+>         /* Now the code is set up to run from its designated location. Start
+> --
+> 2.32.0
+>
+
+
+-- 
+Thanks,
+~Nick Desaulniers
