@@ -2,136 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 836D3C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 20:01:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BAE5C41535
+	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 20:05:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347478AbiEKUBe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 16:01:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57050 "EHLO
+        id S1347555AbiEKUFP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 May 2022 16:05:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347502AbiEKUBa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 16:01:30 -0400
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D2A1D48C7
-        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 13:01:27 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id p10so5389506lfa.12
-        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 13:01:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=aIr7kufHqh1aklBFT48PcfwiGgRwuFks7DI5SiM+9Q0=;
-        b=aDFV+CNgCaB8HAuXCMaTOeqfz3Euqlc9UfykqEg/M7trT+lMOcwb6NTqEGZJ7SsVNZ
-         wKPGERgQdDUkJumgL37urxFlDsGkmX7PqdKJaBJZ9MZbdtLV8cQTIpE0yfVn6cMSgZyZ
-         GDcUvdJSKIpdCHdovd/rPOddBCdGdf7Tcs7gNO1JNMXTpaAKmIBz3TFWivhPzhsqWiWP
-         vJ/31TdyTBLQqry7t/YKe6QWlgU/ihp+YfVohSDDCIs1NWIXVc6t8SiZYJv7SQNHxS8u
-         uvm0zjVSH3yCGxEApXJnHd78LwJfVPsGlD2n86/VBo9AQNLgEv62rjfzxd444XLv3wC4
-         k+Ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=aIr7kufHqh1aklBFT48PcfwiGgRwuFks7DI5SiM+9Q0=;
-        b=SgCMMe5EklLIt+aeu9ZBIC3RYmmb1SrcG6ta9SX79FbxsuBzwmglBnTnJWHkbOBLUl
-         65rMVrwhfiQ48ZhbxZI9lWtntlk33OdOXYKcdIZva3gLblVxvNzGvE+xJvvs+Bxxvdci
-         Q/kAa4hhA9XtsKQ/Nf9oImlSOYQwqrCkepsD39th0D2Zhx41/XotmmpSNG1cC/qJUl/e
-         Fs9PeaQf2jm1CgS1GSXkoQ9TBlWYeega51Lad0b2OwXsux++umI5LvjkUm+e6i06EQ9Q
-         /hmKCn3CMpLRbQZkn9d/QXTkA0ZixfKSnwG0cmsNG6iZye+apdbiJDp/qRKK3mS0jAHK
-         rK1Q==
-X-Gm-Message-State: AOAM533ALJhDho75lno+7XQk4M+wibpMKxn/OeUhMK6q1tbWsUDUmc8A
-        Ywa9jJHrDzxWVOb6BN4hq4IbuGYaIoWoZMIeV2YaAQ==
-X-Google-Smtp-Source: ABdhPJyw+NM/b0aVOHtc066BYz2oDYf2ffAEKshIqZZZ77ExFAqpVJecq3d8qHUAeYUdPNE/gr7l7Cdi4Emgrt5UzVw=
-X-Received: by 2002:a19:4303:0:b0:473:f5fb:27b2 with SMTP id
- q3-20020a194303000000b00473f5fb27b2mr20127658lfa.626.1652299285108; Wed, 11
- May 2022 13:01:25 -0700 (PDT)
+        with ESMTP id S229667AbiEKUFN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 16:05:13 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C86FA2317E8;
+        Wed, 11 May 2022 13:05:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=cfPMnwRmX7h9FC5zogrRSwPWC8hDFfBXdcAc10BCDXg=; b=PNZaBGeXFsuAaBpHuaMdvRY4/s
+        9D5MPz4xTVgTuRGWrB/KEfGG5tVa1JqSC/LT3Rso5sabWhCAduFdYhflwDt6bgTFq6qWGSH0+ncvk
+        oTm6f/w8sOzZYRkq+1JkZmdb25beje8r1H2EX6HM4WVyQEo/2Q4CTK9pG4z28p8fSDjazKpN99+TQ
+        EpXC0JAykc5ZUnUcVTqfleYx6Z4fPGlU4RkoA5IfJGN2tN+4XLZXjyd3oEcuP2YNdEgKXaQFpZZnR
+        Vejz8nGO8jKYtblRG3YNO8+SxkagQsqAK3ZztXb4IgRQ6EnIjofQ7r4kch6g3mJv37QTO/U/Hn9jn
+        eVwzVLtQ==;
+Received: from [177.183.162.244] (helo=[192.168.0.5])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1nosZy-0009Kz-VC; Wed, 11 May 2022 22:05:03 +0200
+Message-ID: <c8818906-f113-82b6-b58b-d47ae0c16b4f@igalia.com>
+Date:   Wed, 11 May 2022 17:03:51 -0300
 MIME-Version: 1.0
-References: <20220508190631.2386038-1-masahiroy@kernel.org>
- <20220508190631.2386038-4-masahiroy@kernel.org> <CAKwvOd=LR=UNOeWJDmM-McJ=FrCWTo8w1ox+KGMQCwCVpiUyFg@mail.gmail.com>
- <CAK7LNARGNEDzPPUsPjDXsXUUUPSFK2erQRuyPocR_v5hTYRihg@mail.gmail.com>
- <CAKwvOdmK4oH0t8Q6F19sWKX1fT=AgS=kfvn05FT01HffLJwgMQ@mail.gmail.com>
- <CAK7LNAR5preB59HJH1-F_ZfEmoF3N8b9z4eRhYzsEVwu_XUH4Q@mail.gmail.com> <8babc23b-5e24-f662-6c4a-eb1c30e0e6da@quicinc.com>
-In-Reply-To: <8babc23b-5e24-f662-6c4a-eb1c30e0e6da@quicinc.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 11 May 2022 13:01:13 -0700
-Message-ID: <CAKwvOdk1z6jnTA79W8qyy1sWuoa29YxppU1gAkHkQ=g6UiVvCw@mail.gmail.com>
-Subject: Re: [PATCH v4 03/14] modpost: split the section mismatch checks into section-check.c
-To:     Jeff Johnson <quic_jjohnson@quicinc.com>
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-modules <linux-modules@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        clang-built-linux <llvm@lists.linux.dev>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 23/30] printk: kmsg_dump: Introduce helper to inform
+ number of dumpers
+Content-Language: en-US
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, senozhatsky@chromium.org,
+        stern@rowland.harvard.edu, tglx@linutronix.de, vgoyal@redhat.com,
+        vkuznets@redhat.com, will@kernel.org
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-24-gpiccoli@igalia.com>
+ <20220510134014.3923ccba@gandalf.local.home>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <20220510134014.3923ccba@gandalf.local.home>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 11, 2022 at 12:51 PM Jeff Johnson <quic_jjohnson@quicinc.com> wrote:
->
-> On 5/11/2022 12:27 PM, Masahiro Yamada wrote:
-> > On Thu, May 12, 2022 at 3:48 AM Nick Desaulniers
-> > <ndesaulniers@google.com> wrote:
-> >>
-> >> On Mon, May 9, 2022 at 11:57 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
-> >>>
-> >>>>> diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-> >>>>> index a78b75f0eeb0..e7e2c70a98f5 100644
-> >>>>> --- a/scripts/mod/modpost.c
-> >>>>> +++ b/scripts/mod/modpost.c
-> >>>>> @@ -31,7 +31,7 @@ static bool external_module;
-> >>>>>   /* Only warn about unresolved symbols */
-> >>>>>   static bool warn_unresolved;
-> >>>>>
-> >>>>> -static int sec_mismatch_count;
-> >>>>> +int sec_mismatch_count;
-> >>>>
-> >>>> ^ this should go in modpost.h if it is to be used in two translation
-> >>>> units, rather than forward declaring it in section-check.c.  You did
-> >>>> this for the functions.
-> >>>
-> >>>
-> >>> Sorry, I do not understand.
-> >>>
-> >>>
-> >>> In modpost.h, I put the declaration:
-> >>>
-> >>>    extern int sec_mismatch_count;
-> >>>
-> >>> If I moved it to the header without 'extern'
-> >>> I would get multiple definitions.
-> >>
-> >> Yeah, you need to _declare_ it w/ extern in the header, then _define_
-> >> it in one source file.
-> >>
-> >> That way, if the type ever changes, the sources will agree on type in
-> >> all source files. You will get a redefinition error if the definition
-> >> changes the type of the variable since the last declaration.
-> >>
-> >> What you're doing is forward declaring, which works, and is a common
-> >> pattern for (bloated) C++, but is less type safe than sharing a single
-> >> common declaration between multiple source files via a single common
-> >> shared header. (Sorry I didn't respond before you sent v5)
-> >
-> > Sorry, I still do not understand your suggestion.
-> >
-> >
-> > Could you provide me with a code diff
-> > showing how to do this better?
->
-> I think you are doing exactly what he's asking for:
-> declare it with extern in the header (modpost.h change)
-> define it in one source file (modpost.c change)
->
+On 10/05/2022 14:40, Steven Rostedt wrote:
+> On Wed, 27 Apr 2022 19:49:17 -0300
+> "Guilherme G. Piccoli" <gpiccoli@igalia.com> wrote:
+> 
+>> Currently we don't have a way to check if there are dumpers set,
+>> except counting the list members maybe. This patch introduces a very
+>> simple helper to provide this information, by just keeping track of
+>> registered/unregistered kmsg dumpers. It's going to be used on the
+>> panic path in the subsequent patch.
+> 
+> FYI, it is considered "bad form" to reference in the change log "this
+> patch". We know this is a patch. The change log should just talk about what
+> is being done. So can you reword your change logs (you do this is almost
+> every patch). Here's what I would reword the above to be:
+> 
+>  Currently we don't have a way to check if there are dumpers set, except
+>  perhaps by counting the list members. Introduce a very simple helper to
+>  provide this information, by just keeping track of registered/unregistered
+>  kmsg dumpers. This will simplify the refactoring of the panic path.
 
-Oh! Indeed, sorry, I'm getting lost here in the review. Sorry for the
-noise then.
--- 
-Thanks,
-~Nick Desaulniers
+Thanks for the hint, you're right - it's almost in all of my patches.
+I'll reword all of them (except the ones already merged) to remove this
+"bad form".
+
+Cheers,
+
+
+Guilherme
