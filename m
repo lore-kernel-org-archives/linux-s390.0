@@ -2,59 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B318EC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 19:55:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34F4AC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 19:57:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347317AbiEKTy7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 15:54:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36532 "EHLO
+        id S1347399AbiEKT5C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 May 2022 15:57:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347303AbiEKTy4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 15:54:56 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68E4679802
-        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:54:54 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id bq30so5430175lfb.3
-        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:54:54 -0700 (PDT)
+        with ESMTP id S1347512AbiEKT4m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 15:56:42 -0400
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263E81F7E1D
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:56:41 -0700 (PDT)
+Received: by mail-lj1-x231.google.com with SMTP id 16so3912230lju.13
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:56:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=2Qb1M+JmVqidyh+GcY2AVrkjW3SfrjqMOoV1GmxoVTk=;
-        b=aNqlCDjSlQAd5Mkgx9/ZjT6A3I6OWm4d++cBnww6hEPmMfrBMTKVPsD/1CUt1mcZoX
-         FKcLAr/gRpPKKPPep48fSb6xq4ggxDJONXdvVJHAZrBuiluQK/Ynrxm9YvW0KHU2fgGj
-         TiRJbIM7X79t91zZCCuEypIdirxM7C/m4vmPji5m2EgzfU3QrbDfeKMdKM/zPobP8xMp
-         SupwiG77x1WnILjbHZUv7laC8VunueEaZHxeQkgAsw8U8onVelHw8ZaX/GYYUW6NQ9z5
-         JIrDS3puH0QxD2pqiwkVF78OyB0PQfib9zYepB2Vs61A1xBTMgN5RTEiO5dEIZqQObc5
-         re8Q==
+        bh=4nav3zqBTONgwlQKkoQjO7boVlk/kox8wJwi0Xj/n8I=;
+        b=ic/D5CKG2LyVrqw4wvCxxA6OLn57RU3DCA8VBOtixUNoN24i8HfMU1HXyuPrX8rWY7
+         9a4GzrCJDGSGxlEUCziaqhFiwRK0oy+kn8UTP5elQBBPa1c4/12eKVIPOQN1gKSwS6Il
+         G72397sWxrnK8ZkEd3tWWg3rJfpGFj7Kg5RnjIayGMpPPfFG+LQ3HK+Nq3tdUcmBa8wp
+         UNOFQfQfw3fH4X1YkYR1SHrNjFET2bC0S6eNMZYShxraJX1+EOwfBEbp66sth9vidqwt
+         5ndTtZ290g8yXXU06GWXVAb2gf3brP8aaoKozX4+gQ9MPoVEVSUkFaoWNtjLPCm5L7Wt
+         2ntg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=2Qb1M+JmVqidyh+GcY2AVrkjW3SfrjqMOoV1GmxoVTk=;
-        b=6876E2KBEROBBsjDwWPC47kkHfvEwsiuPzszPKVSZPxlph/7T/8Puhw6J/FgUo3Cfb
-         TQa58E5WwazkJXniWTTRUYDq8DkvCFZ8YY4yYgMLBxpz1Hebk3Qblf+IVxnkZBCm/yKU
-         TF4oB0LqGQSnLVVkp6FCk8VJJpS12MrXXVFO2qkMMZi+kyJWMGUiVglqs617n8qC0hOF
-         0zb3mhvZJrdYNGuIehVyc/PMXkuc01hML3IAou95iLir1s0qZleS5l6Letwav52hwfzU
-         0THVkvuUE8lOP1nQTtYEgQCudaW7kyk6jnb9zdt6fewsOknSJkJcSBA4pQy1URky+TlI
-         UkwQ==
-X-Gm-Message-State: AOAM532U2grADQXQQ/kmVkEichcnwNUg2cR1xotSnyUtXG50shg/B8Fa
-        zAb8FCI6OsWd6KGN8iGFYvYxzXlMda5+HFOtJVPi6Q==
-X-Google-Smtp-Source: ABdhPJyv+rsZDchbo4bbs51p7N/3mDFXD5dB/xCj/WH1juB/LdvdRHX77SRuTlb0XXqG1KUKBYTfafEXBGS1FNyaTNg=
-X-Received: by 2002:ac2:4646:0:b0:472:108e:51af with SMTP id
- s6-20020ac24646000000b00472108e51afmr21415635lfo.184.1652298892520; Wed, 11
- May 2022 12:54:52 -0700 (PDT)
+        bh=4nav3zqBTONgwlQKkoQjO7boVlk/kox8wJwi0Xj/n8I=;
+        b=53MS5DuebsaSOnTs0kPbxTcps5pWygO28V6Gdns7HLCO9Rf4mDYF7go1yolMNDLW8A
+         7PWXfgr99m2/wA4D8ciOrE0dSOVjZVEZRC6TIVHv6Nckyd87/qbJGldvRBq4Hpd1TCpT
+         SRORvObf7yQmL/dcdUEiIIbtI9F+NsHXYww2NkKNKX2bJrN8qWpo956Mgk9x01Zo/yXn
+         TYHboebdGq/ahhJUxlo1HvjGpsQI4gs7f8Y1eKZBXXGcVV0IspBriqPEofjoPn12hagY
+         NSo2aDmOtP7SUnBg/bt1KxAlTwbEezYBqbJmGC+uep99oSIFe6dndPfZ+QnkHrEDm9Ip
+         zjuA==
+X-Gm-Message-State: AOAM531R9Q++34wKCuyX7jvwhKh1GUzxnBys+S8CL9ki1ZsS8d56S/dg
+        6PBEWc7idbgOge599y3b0yzgdDK39vwAISrfnDYVxA==
+X-Google-Smtp-Source: ABdhPJyfR5tpRmHvf0W0smFj5zTGn2GPW75XC4VbTwtu6gw8q649ATaXEfp3GanjzSqmQcNTQL/2MvVi/IKK2CcD5Vg=
+X-Received: by 2002:a2e:91cf:0:b0:24f:11ea:d493 with SMTP id
+ u15-20020a2e91cf000000b0024f11ead493mr17680560ljg.408.1652298999315; Wed, 11
+ May 2022 12:56:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220511120532.2228616-1-hca@linux.ibm.com> <20220511120532.2228616-6-hca@linux.ibm.com>
-In-Reply-To: <20220511120532.2228616-6-hca@linux.ibm.com>
+References: <20220511120532.2228616-1-hca@linux.ibm.com> <20220511120532.2228616-9-hca@linux.ibm.com>
+ <CAKwvOd=EQa9tyWUi-ZfKrK-AABDRG7=TErHK+yb+_Z_dkjrmfQ@mail.gmail.com>
+In-Reply-To: <CAKwvOd=EQa9tyWUi-ZfKrK-AABDRG7=TErHK+yb+_Z_dkjrmfQ@mail.gmail.com>
 From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 11 May 2022 12:54:41 -0700
-Message-ID: <CAKwvOdm3P+c0W+oZ9wtgMyxcP3KYX0UkYxO4o=7DLLyMdKdnPg@mail.gmail.com>
-Subject: Re: [PATCH 5/8] s390/purgatory: workaround llvm's IAS limitations
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Jonas Paulsson <paulsson@linux.vnet.ibm.com>
+Date:   Wed, 11 May 2022 12:56:27 -0700
+Message-ID: <CAKwvOd=T5bd69-pduh8OnYdzGuBdJmF692VYP833ZG3BfGUA+A@mail.gmail.com>
+Subject: Re: [PATCH 8/8] scripts/min-tool-version.sh: raise minimum clang
+ version to 14.0.0 for s390
+To:     Heiko Carstens <hca@linux.ibm.com>
 Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
         Ulrich Weigand <ulrich.weigand@de.ibm.com>,
         Masahiro Yamada <masahiroy@kernel.org>,
         Alexander Egorenkov <egorenar@linux.ibm.com>,
@@ -67,106 +69,73 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 11, 2022 at 5:05 AM Heiko Carstens <hca@linux.ibm.com> wrote:
+On Wed, May 11, 2022 at 12:27 PM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
 >
-> llvm's integrated assembler cannot handle immediate values which are
-> calculated with two local labels:
+> On Wed, May 11, 2022 at 5:05 AM Heiko Carstens <hca@linux.ibm.com> wrote:
+> >
+> > Before version 14.0.0 llvm's integrated assembler fails to handle some
+> > displacement variants:
+> >
+> > arch/s390/purgatory/head.S:108:10: error: invalid operand for instruction
+> >  lg %r11,kernel_type-.base_crash(%r13)
+> >
+> > Instead of working around this and given that this is already fixed
+> > raise the minimum clang version from 13.0.0 to 14.0.0.
 >
-> arch/s390/purgatory/head.S:139:11: error: invalid operand for instruction
->  aghi %r8,-(.base_crash-purgatory_start)
+> Do you have the commit in LLVM that fixed this? Might be nice to link
 
-I thought this was fixed in
-https://github.com/ClangBuiltLinux/linux/issues/1420
-https://reviews.llvm.org/D113341
-(clang-14)
-?
+Maybe it's
+https://reviews.llvm.org/D113341?
 
+Also, these are the open issues we had for the integrated assembler.
+https://github.com/ClangBuiltLinux/linux/issues?q=is%3Aopen+is%3Aissue+label%3A%22%5BARCH%5D+s390%22+label%3A%22%5BTOOL%5D+integrated-as%22
+
+Any chance you could include relevant Link tags on your commit
+messages for patches that address these? It makes it easier to track
+when/where things land if we ever intend to backport anything to
+stable.
+
+Or can any of those be closed out?
+
+> to the particular commit in the commit message. Either way:
+> Acked-by: Nick Desaulniers <ndesaulniers@google.com>
 >
-> Workaround this by partially rewriting the code.
+> (Thanks for the series, will pull down and test!)
 >
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  arch/s390/purgatory/head.S | 29 ++++++++++++++++++++++-------
->  1 file changed, 22 insertions(+), 7 deletions(-)
+> If you have a github account, let me know it if you'd like to be cc'ed
+> when we wire this up in our CI.
 >
-> diff --git a/arch/s390/purgatory/head.S b/arch/s390/purgatory/head.S
-> index 3d1c31e0cf3d..ac1a27a20b66 100644
-> --- a/arch/s390/purgatory/head.S
-> +++ b/arch/s390/purgatory/head.S
-> @@ -44,11 +44,14 @@
->  .endm
+> >
+> > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> > ---
+> >  scripts/min-tool-version.sh | 3 +--
+> >  1 file changed, 1 insertion(+), 2 deletions(-)
+> >
+> > diff --git a/scripts/min-tool-version.sh b/scripts/min-tool-version.sh
+> > index 53fe64856015..f1e8358ec19a 100755
+> > --- a/scripts/min-tool-version.sh
+> > +++ b/scripts/min-tool-version.sh
+> > @@ -24,9 +24,8 @@ icc)
+> >         echo 16.0.3
+> >         ;;
+> >  llvm)
+> > -       # https://lore.kernel.org/r/YMtib5hKVyNknZt3@osiris/
+> >         if [ "$SRCARCH" = s390 ]; then
+> > -               echo 13.0.0
+> > +               echo 14.0.0
+> >         else
+> >                 echo 11.0.0
+> >         fi
+> > --
+> > 2.32.0
+> >
 >
->  .macro MEMSWAP dst,src,buf,len
-> -10:    cghi    \len,bufsz
-> +10:    larl    %r0,purgatory_end
-> +       larl    %r1,stack
-> +       slgr    %r0,%r1
-> +       cgr     \len,%r0
->         jh      11f
->         lgr     %r4,\len
->         j       12f
-> -11:    lghi    %r4,bufsz
-> +11:    lgr     %r4,%r0
 >
->  12:    MEMCPY  \buf,\dst,%r4
->         MEMCPY  \dst,\src,%r4
-> @@ -135,12 +138,18 @@ ENTRY(purgatory_start)
->
->  .start_crash_kernel:
->         /* Location of purgatory_start in crash memory */
-> +       larl    %r0,.base_crash
-> +       larl    %r1,purgatory_start
-> +       slgr    %r0,%r1
->         lgr     %r8,%r13
-> -       aghi    %r8,-(.base_crash-purgatory_start)
-> +       sgr     %r8,%r0
->
->         /* Destination for this code i.e. end of memory to be swapped. */
-> +       larl    %r0,purgatory_end
-> +       larl    %r1,purgatory_start
-> +       slgr    %r0,%r1
->         lg      %r9,crash_size-.base_crash(%r13)
-> -       aghi    %r9,-(purgatory_end-purgatory_start)
-> +       sgr     %r9,%r0
->
->         /* Destination in crash memory, i.e. same as r9 but in crash memory. */
->         lg      %r10,crash_start-.base_crash(%r13)
-> @@ -149,15 +158,19 @@ ENTRY(purgatory_start)
->         /* Buffer location (in crash memory) and size. As the purgatory is
->          * behind the point of no return it can re-use the stack as buffer.
->          */
-> -       lghi    %r11,bufsz
-> +       larl    %r11,purgatory_end
->         larl    %r12,stack
-> +       slgr    %r11,%r12
->
->         MEMCPY  %r12,%r9,%r11   /* dst  -> (crash) buf */
->         MEMCPY  %r9,%r8,%r11    /* self -> dst */
->
->         /* Jump to new location. */
->         lgr     %r7,%r9
-> -       aghi    %r7,.jump_to_dst-purgatory_start
-> +       larl    %r0,.jump_to_dst
-> +       larl    %r1,purgatory_start
-> +       slgr    %r0,%r1
-> +       agr     %r7,%r0
->         br      %r7
->
->  .jump_to_dst:
-> @@ -169,7 +182,9 @@ ENTRY(purgatory_start)
->
->         /* Load new buffer location after jump */
->         larl    %r7,stack
-> -       aghi    %r10,stack-purgatory_start
-> +       larl    %r0,purgatory_start
-> +       slgrk   %r0,%r7,%r0
-> +       agr     %r10,%r0
->         MEMCPY  %r10,%r7,%r11   /* (new) buf -> (crash) buf */
->
->         /* Now the code is set up to run from its designated location. Start
 > --
-> 2.32.0
->
+> Thanks,
+> ~Nick Desaulniers
+
 
 
 -- 
