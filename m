@@ -2,118 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 079B2C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 19:28:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09913C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 19:29:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346811AbiEKT17 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 15:27:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54054 "EHLO
+        id S240901AbiEKT3M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 May 2022 15:29:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346835AbiEKT15 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 15:27:57 -0400
-Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F613818A
-        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:27:53 -0700 (PDT)
-Received: by mail-lj1-x231.google.com with SMTP id g16so3898561lja.3
-        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 12:27:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SW6iq+qYhyOT6jikrCxFTwADR0TMZdkkRDPETazGaSM=;
-        b=nB3Xvk21FevH9/hA9Yk7i5EiWu5T7wG775A1abZsEReiLLe3bbhxjmdCJPypSFradb
-         cFh5Gp4yTjPKn9AaewWZ/cnRXM3lpD1ZJfEq+C2UO7zBZ8d9EccVMseanvn4dga9Wu1t
-         VPzaF/qFDbZQqFB1CaIWIXSzVB1K9OkNxjty5qGxMCBa0C0Y6lvequVJsxLt6qMJOrpr
-         Pxuib0rhCsTJUsdyArRGSYyQOpbdWLQqEDdIqWh/RtIEfieUrbha3yEGRWYWj3W68NHV
-         3R7XHUO0/HGijPUcjkbZtAATUyb7CrfyPk5orQ70v0A8YyGJ0bd/Jd7GmtiPm6uygzfp
-         CIHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SW6iq+qYhyOT6jikrCxFTwADR0TMZdkkRDPETazGaSM=;
-        b=SiYXYPLlGf2pyF4Ddatac+9HI9ts0aFNMH6xzUC4361ERe5ZZgrkwW0zovT32WwfH/
-         +Y+hTEwBDQEkg/Qejem5F3rmCHlNxo9daF8ZpxWWzBV3lWitjLLadOW90lMiunipCL5i
-         bX8MWGYrnmYcLM5e6kc3YQbPZCEyhTO5p+FifDTEYJ88vuX6WO2C/gqsj1TbaFGppWyu
-         A4RQwacQeMq9VEBJh7Dw00eU8QvNEqzLpzD1Vp9l2Jaz7EFbQHOMgCHFBpdum2xajZN1
-         6upWFwhQGHduD+qlR4rZzrIrULdwrw0zyikuJJUWdIH0+oiid5WDfCGXyBAMiqqm5DQi
-         gvTw==
-X-Gm-Message-State: AOAM5316xmo/ss0qi4uJ5uCmh852fMeMKOkwKOLdpHkvP+H6J5H9BjXK
-        tkmDxEOHGbwo2rtQ0pDFbjqnI9Qz597ceyjbkjK7zw==
-X-Google-Smtp-Source: ABdhPJydB8FVx07Gzpsea2mcu0GzM5Al7+CTg9CTEqkX8nYWBBx0ISM+XN60+ObYsYrs9KAMSUaYIZ1zXLZ2/xAGu8o=
-X-Received: by 2002:a2e:a7c8:0:b0:24f:700a:4df5 with SMTP id
- x8-20020a2ea7c8000000b0024f700a4df5mr17838500ljp.472.1652297271133; Wed, 11
- May 2022 12:27:51 -0700 (PDT)
+        with ESMTP id S229566AbiEKT3M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 15:29:12 -0400
+Received: from conssluserg-06.nifty.com (conssluserg-06.nifty.com [210.131.2.91])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A319DF1367;
+        Wed, 11 May 2022 12:29:08 -0700 (PDT)
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52]) (authenticated)
+        by conssluserg-06.nifty.com with ESMTP id 24BJSoZ9018134;
+        Thu, 12 May 2022 04:28:50 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com 24BJSoZ9018134
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1652297330;
+        bh=EaTId7H8QGxZ4wR/UutapdHBioVSBlwASrI8kZas40s=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=S17erul53RNIeBjJYir+J8mpHUWqK7sXKHJMWRa/l2xSCxZgrdV1dU3+5hX9DFRPB
+         CxgugLFeqTZ4qkrOp/w8aAs9LC1q5WTQ18lo39qoonMr7iIjV8mWFGdEhV4ZCcs80q
+         2791ONW4kWbmvpu0bg8Ie6WMg2pBrWyRDmAD0TVba9wY0wF1xKvLuuao/XsCXNDByB
+         38FzgA8r7So3M8VePGduejUpewfBieSKGIXseq+GW7ZP4YbOEsCZ9Y+Cm76syaoNJ6
+         t7jCNxWrBvLyml46hUxkvSFtyWpcS1C/UwFi4wohFk8Ysn7VrS2i2PxIpRBTLc+/r3
+         YjPePFoJdPHHA==
+X-Nifty-SrcIP: [209.85.216.52]
+Received: by mail-pj1-f52.google.com with SMTP id l20-20020a17090a409400b001dd2a9d555bso2975792pjg.0;
+        Wed, 11 May 2022 12:28:50 -0700 (PDT)
+X-Gm-Message-State: AOAM530Sk2S5gpR8eoR0AEnHcHmWIS8+HImf5ur29pRT6pczkG3LLJcl
+        +WzvlT0pUi+j8EBsjQ41t0G7SEzyQ1Br31/6EfI=
+X-Google-Smtp-Source: ABdhPJxpFvdEXgne/7yspfTVFpO5mJeb/64Ugd7xcTnf7hLoDN02lbCll4CkYvhtMmE1NpBHpwbzLRyJwjcVkvMYkaw=
+X-Received: by 2002:a17:903:1205:b0:15e:8cbc:fd2b with SMTP id
+ l5-20020a170903120500b0015e8cbcfd2bmr26952485plh.99.1652297329721; Wed, 11
+ May 2022 12:28:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220511120532.2228616-1-hca@linux.ibm.com> <20220511120532.2228616-9-hca@linux.ibm.com>
-In-Reply-To: <20220511120532.2228616-9-hca@linux.ibm.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 11 May 2022 12:27:39 -0700
-Message-ID: <CAKwvOd=EQa9tyWUi-ZfKrK-AABDRG7=TErHK+yb+_Z_dkjrmfQ@mail.gmail.com>
-Subject: Re: [PATCH 8/8] scripts/min-tool-version.sh: raise minimum clang
- version to 14.0.0 for s390
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
-        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220508190631.2386038-1-masahiroy@kernel.org>
+ <20220508190631.2386038-4-masahiroy@kernel.org> <CAKwvOd=LR=UNOeWJDmM-McJ=FrCWTo8w1ox+KGMQCwCVpiUyFg@mail.gmail.com>
+ <CAK7LNARGNEDzPPUsPjDXsXUUUPSFK2erQRuyPocR_v5hTYRihg@mail.gmail.com> <CAKwvOdmK4oH0t8Q6F19sWKX1fT=AgS=kfvn05FT01HffLJwgMQ@mail.gmail.com>
+In-Reply-To: <CAKwvOdmK4oH0t8Q6F19sWKX1fT=AgS=kfvn05FT01HffLJwgMQ@mail.gmail.com>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Thu, 12 May 2022 04:27:37 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAR5preB59HJH1-F_ZfEmoF3N8b9z4eRhYzsEVwu_XUH4Q@mail.gmail.com>
+Message-ID: <CAK7LNAR5preB59HJH1-F_ZfEmoF3N8b9z4eRhYzsEVwu_XUH4Q@mail.gmail.com>
+Subject: Re: [PATCH v4 03/14] modpost: split the section mismatch checks into section-check.c
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nicolas Schier <nicolas@fjasle.eu>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-modules <linux-modules@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        clang-built-linux <llvm@lists.linux.dev>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 11, 2022 at 5:05 AM Heiko Carstens <hca@linux.ibm.com> wrote:
+On Thu, May 12, 2022 at 3:48 AM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
 >
-> Before version 14.0.0 llvm's integrated assembler fails to handle some
-> displacement variants:
+> On Mon, May 9, 2022 at 11:57 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
+> >
+> > > > diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+> > > > index a78b75f0eeb0..e7e2c70a98f5 100644
+> > > > --- a/scripts/mod/modpost.c
+> > > > +++ b/scripts/mod/modpost.c
+> > > > @@ -31,7 +31,7 @@ static bool external_module;
+> > > >  /* Only warn about unresolved symbols */
+> > > >  static bool warn_unresolved;
+> > > >
+> > > > -static int sec_mismatch_count;
+> > > > +int sec_mismatch_count;
+> > >
+> > > ^ this should go in modpost.h if it is to be used in two translation
+> > > units, rather than forward declaring it in section-check.c.  You did
+> > > this for the functions.
+> >
+> >
+> > Sorry, I do not understand.
+> >
+> >
+> > In modpost.h, I put the declaration:
+> >
+> >   extern int sec_mismatch_count;
+> >
+> > If I moved it to the header without 'extern'
+> > I would get multiple definitions.
 >
-> arch/s390/purgatory/head.S:108:10: error: invalid operand for instruction
->  lg %r11,kernel_type-.base_crash(%r13)
+> Yeah, you need to _declare_ it w/ extern in the header, then _define_
+> it in one source file.
 >
-> Instead of working around this and given that this is already fixed
-> raise the minimum clang version from 13.0.0 to 14.0.0.
+> That way, if the type ever changes, the sources will agree on type in
+> all source files. You will get a redefinition error if the definition
+> changes the type of the variable since the last declaration.
+>
+> What you're doing is forward declaring, which works, and is a common
+> pattern for (bloated) C++, but is less type safe than sharing a single
+> common declaration between multiple source files via a single common
+> shared header. (Sorry I didn't respond before you sent v5)
 
-Do you have the commit in LLVM that fixed this? Might be nice to link
-to the particular commit in the commit message. Either way:
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Sorry, I still do not understand your suggestion.
 
-(Thanks for the series, will pull down and test!)
 
-If you have a github account, let me know it if you'd like to be cc'ed
-when we wire this up in our CI.
+Could you provide me with a code diff
+showing how to do this better?
 
->
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  scripts/min-tool-version.sh | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/scripts/min-tool-version.sh b/scripts/min-tool-version.sh
-> index 53fe64856015..f1e8358ec19a 100755
-> --- a/scripts/min-tool-version.sh
-> +++ b/scripts/min-tool-version.sh
-> @@ -24,9 +24,8 @@ icc)
->         echo 16.0.3
->         ;;
->  llvm)
-> -       # https://lore.kernel.org/r/YMtib5hKVyNknZt3@osiris/
->         if [ "$SRCARCH" = s390 ]; then
-> -               echo 13.0.0
-> +               echo 14.0.0
->         else
->                 echo 11.0.0
->         fi
-> --
-> 2.32.0
->
 
 
 -- 
-Thanks,
-~Nick Desaulniers
+Best Regards
+Masahiro Yamada
