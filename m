@@ -2,98 +2,82 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 346CDC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 11:32:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E5ADC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 11 May 2022 11:40:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239662AbiEKLcS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 07:32:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54866 "EHLO
+        id S232812AbiEKLkR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 May 2022 07:40:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239460AbiEKLcO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 07:32:14 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5175A08C;
-        Wed, 11 May 2022 04:32:11 -0700 (PDT)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24BAbQr9016936;
-        Wed, 11 May 2022 11:32:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=Ke0W5Kae+F0Ex4s0W9qA6BLgMeuZPg9PC+xRVT4arIM=;
- b=RzNvsVmeCl3HDt8dgTe/WNbaUj2J4rEDTkzM0AfEolXSqEE1zPeKTPGSY5q4Xgf+68EI
- eQIUbkMD97AurPcN+wOkud2f5tiqzEbew135fOEAz5Mu33uRg9+X/YlG2zFDZvkjScx5
- K5AS+TLSVf+wuQEKLmaHegXoHJdXmzveA4KHHtMpparP12pQ2ZkYWyWtt5+eH9uPs1Mq
- f4J+/JksXF/TBVnOxP5NwMH2FNXs6F8odkma1iCDVYC8BxwSnGGFtx43JS4rrpJHnV2R
- 9TqDXdRV7ToO3mZHWtJYx+boYFhY89emxNoZJ31morm/OxOtNQko5/wtnbjAcOYNcSo5 Og== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g0a6ytb0r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 11:32:10 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24BBWAJ2027787;
-        Wed, 11 May 2022 11:32:10 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g0a6ytb0b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 11:32:10 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24BBDPIx025946;
-        Wed, 11 May 2022 11:32:08 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3fwgd8wcja-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 11:32:08 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24BBVkVZ23789896
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 11 May 2022 11:31:46 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6A625A405B;
-        Wed, 11 May 2022 11:32:05 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2D360A4054;
-        Wed, 11 May 2022 11:32:05 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.152.224.44])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 11 May 2022 11:32:05 +0000 (GMT)
-Message-ID: <fda492b4645a343ef612320f3694b45ea4875f20.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 2/2] s390x: add cmm migration test
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com
-Date:   Wed, 11 May 2022 13:32:05 +0200
-In-Reply-To: <20220511131414.63edc473@p-imbrenda>
-References: <20220511085652.823371-1-nrb@linux.ibm.com>
-         <20220511085652.823371-3-nrb@linux.ibm.com>
-         <20220511131414.63edc473@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        with ESMTP id S229975AbiEKLkR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 07:40:17 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08018243107;
+        Wed, 11 May 2022 04:40:15 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6CC3DCE238F;
+        Wed, 11 May 2022 11:40:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id AE8C7C34100;
+        Wed, 11 May 2022 11:40:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1652269212;
+        bh=ZQbUUO8Y4AZVrR3mzv/zDquTt/wkFaDsgqrr/ygzt84=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=Px+dw1LCvLNY4XT7pIfdjcpfLTmthQOKECoSt0CcKimhwarlDLWEg2CGjB5Q9jp4r
+         A1v5QRWjR6QQ8Sp7jp14Fkwh/4yf/44o2s4W+BSM6UGVK36V/x9MyBjrodXSGURkZr
+         QVW+izpepesUQt8oj8YjHkHIv8dZ6WJ1lVZzDT/mNGigLt4onaVk4Y08DDkAlamLEa
+         telmn8/s3sz9U/3tbjtml4sjgJd+BUv7FoiEd5q0LKFCpFzZLn/VibAoFwS8gmrm1Y
+         uAaKjUzh1baB+HmtNFLDsBsBVOebpb0sqR0qKZgrP2aSfR+a1M4sJzeQHUM9ZD8IXN
+         rWVUxz7z3wzgg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 901CDF03931;
+        Wed, 11 May 2022 11:40:12 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: cLmivH95e3cvzNwFhy4dHnqZ2XrP14hy
-X-Proofpoint-GUID: H94I9I2SBFXbhQjej_Or_Hdjq7AAw7vq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-11_03,2022-05-11_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- clxscore=1015 impostorscore=0 malwarescore=0 suspectscore=0
- lowpriorityscore=0 mlxlogscore=818 adultscore=0 mlxscore=0 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205110051
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 0/3] s390/net: Cleanup some code checker findings
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <165226921258.16940.11518826783364912077.git-patchwork-notify@kernel.org>
+Date:   Wed, 11 May 2022 11:40:12 +0000
+References: <20220510070508.334726-1-wintera@linux.ibm.com>
+In-Reply-To: <20220510070508.334726-1-wintera@linux.ibm.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-05-11 at 13:14 +0200, Claudio Imbrenda wrote:
-> do we actually need this include?
+Hello:
+
+This series was applied to netdev/net.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Tue, 10 May 2022 09:05:05 +0200 you wrote:
+> clean up smatch findings in legacy code. I was not able to provoke
+> any real failures on my systems, but other hardware reactions,
+> timing conditions or compiler output, may cause failures.
+> 
+> There are still 2 smatch warnings left in s390/net:
+> 
+> drivers/s390/net/ctcm_main.c:1326 add_channel() warn: missing error code 'rc'
+> This one is a false positive.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net,1/3] s390/ctcm: fix variable dereferenced before check
+    https://git.kernel.org/netdev/net/c/2c50c6867c85
+  - [net,2/3] s390/ctcm: fix potential memory leak
+    https://git.kernel.org/netdev/net/c/0c0b20587b9f
+  - [net,3/3] s390/lcs: fix variable dereferenced before check
+    https://git.kernel.org/netdev/net/c/671bb35c8e74
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
-It is not needed, removed.
-
-> if not, remove it, then you can add:
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-Thanks.
