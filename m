@@ -2,223 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76B05C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 06:31:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A51D9C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 07:01:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350403AbiELGa7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 02:30:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42176 "EHLO
+        id S1350642AbiELHBw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 03:01:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350425AbiELGay (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 02:30:54 -0400
-Received: from mail.nfschina.com (unknown [IPv6:2400:dd01:100f:2:72e2:84ff:fe10:5f45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7E147B7C3;
-        Wed, 11 May 2022 23:30:44 -0700 (PDT)
-Received: from localhost (unknown [127.0.0.1])
-        by mail.nfschina.com (Postfix) with ESMTP id 83DB51E80D04;
-        Thu, 12 May 2022 14:25:10 +0800 (CST)
-X-Virus-Scanned: amavisd-new at test.com
-Received: from mail.nfschina.com ([127.0.0.1])
-        by localhost (mail.nfschina.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id SAyNUW6O05i9; Thu, 12 May 2022 14:25:07 +0800 (CST)
-Received: from localhost.localdomain (unknown [219.141.250.2])
-        (Authenticated sender: kunyu@nfschina.com)
-        by mail.nfschina.com (Postfix) with ESMTPA id 4E9E91E80D22;
-        Thu, 12 May 2022 14:25:07 +0800 (CST)
-From:   Li kunyu <kunyu@nfschina.com>
-To:     rostedt@goodmis.org, mingo@redhat.com, linux@armlinux.org.uk,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, tglx@linutronix.de, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        Li kunyu <kunyu@nfschina.com>
-Subject: [PATCH] kernel: Ftrace seems to have functions to improve performance through optimization
-Date:   Thu, 12 May 2022 14:30:17 +0800
-Message-Id: <20220512063017.57412-1-kunyu@nfschina.com>
-X-Mailer: git-send-email 2.18.2
+        with ESMTP id S1350654AbiELHBp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 03:01:45 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1506C4A3FF
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 00:01:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652338900;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
+        b=iL08WrcDmWnPSBuKr8caEa5TegpmPAWZ3ptXRRWyehnefQCwOm5xml6gQ0gFEKQhacTJQN
+        1EoENhwrVx+Q2XcgK+UWaJtSdtf+CAWLMKaNRAFY/UqStcfUdoW3cHkww158qdPJevjmfY
+        P3oa1hTmMsHSlQ4LGvajfChKrC2FBUo=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-225-t9-OxL_eOIWanfSWtj_6zg-1; Thu, 12 May 2022 03:01:39 -0400
+X-MC-Unique: t9-OxL_eOIWanfSWtj_6zg-1
+Received: by mail-pg1-f197.google.com with SMTP id q143-20020a632a95000000b003c1c3490dfbso2189845pgq.20
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 00:01:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
+        b=rL7C6WtT/NtFrx8cYgbrVN/PMNkiTflryFzvkIYWzX9EhSejxLjZOjstgQeeFqm2ka
+         DxiV7pglFbMYT8r8xhV4k3BaW/MFOl68DvA7GNDmIg9NJ0HsO6txeHVOazzkddSzkxhn
+         iS0PSDM34FhftaAelCAJj4eOg+lY8V/dIrkVsRWcFTpQLS/cqEhgZb2VBYiaeia4C7gw
+         S+Mj5V6r0iJw+5lcOZu+zjYIes7Qq9xV0VIWgAsYZECNloGRJFABM8a8knqHYYZaSotj
+         OXotW7GwhUUWGOA4bXoI500XBOHG7HnO/Aaapityz2Re79NCfr2L7h067yaddMu+PEZ+
+         IFhA==
+X-Gm-Message-State: AOAM530NTE2MP3BH5umsU8zyZYzd9P26yxEFa0S2QFdXLgJSE76XFD4c
+        J8Up+usMFTKC//o3z9mxBawT+14nyQ2FhW38Cu0p3dcQcu7raIGkSFei6HieW4wOWT8NhbpraRX
+        pNlGZnid3sh3hm37yN4JN0A==
+X-Received: by 2002:a63:db17:0:b0:3c1:dc15:7a6e with SMTP id e23-20020a63db17000000b003c1dc157a6emr24702562pgg.107.1652338898845;
+        Thu, 12 May 2022 00:01:38 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw5+8KvrmgP6uU2JLw0pBjP/QRQb39IFWj7HXL3olAtsPY86WH+mgk5ysySAIY64jPtk9fAOQ==
+X-Received: by 2002:a63:db17:0:b0:3c1:dc15:7a6e with SMTP id e23-20020a63db17000000b003c1dc157a6emr24702527pgg.107.1652338898566;
+        Thu, 12 May 2022 00:01:38 -0700 (PDT)
+Received: from localhost ([240e:3a1:2e9:efa0:e73c:e550:ac9e:58fd])
+        by smtp.gmail.com with ESMTPSA id q9-20020a170902a3c900b0015e8d4eb22fsm3060866plb.121.2022.05.12.00.01.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 May 2022 00:01:38 -0700 (PDT)
+From:   Coiby Xu <coxu@redhat.com>
+To:     kexec@lists.infradead.org
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Michal Suchanek <msuchanek@suse.de>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        Will Deacon <will@kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Mimi Zohar <zohar@linux.ibm.com>, Chun-Yi Lee <jlee@suse.com>,
+        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
+        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        linux-s390@vger.kernel.org (open list:S390),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v8 4/4] kexec, KEYS, s390: Make use of built-in and secondary keyring for signature verification
+Date:   Thu, 12 May 2022 15:01:23 +0800
+Message-Id: <20220512070123.29486-5-coxu@redhat.com>
+X-Mailer: git-send-email 2.35.3
+In-Reply-To: <20220512070123.29486-1-coxu@redhat.com>
+References: <20220512070123.29486-1-coxu@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-At present, it is found that two functions could be optimized, and the
-performance may be improved.
+From: Michal Suchanek <msuchanek@suse.de>
 
-Signed-off-by: Li kunyu <kunyu@nfschina.com>
+commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+adds support for KEXEC_SIG verification with keys from platform keyring
+but the built-in keys and secondary keyring are not used.
+
+Add support for the built-in keys and secondary keyring as x86 does.
+
+Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+Cc: stable@vger.kernel.org
+Cc: Philipp Rudo <prudo@linux.ibm.com>
+Cc: kexec@lists.infradead.org
+Cc: keyrings@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Coiby Xu <coxu@redhat.com>
 ---
- arch/arm/kernel/ftrace.c   |  6 ++----
- arch/riscv/kernel/ftrace.c |  6 ++----
- arch/s390/kernel/ftrace.c  |  3 +--
- arch/x86/kernel/ftrace.c   |  6 ++----
- include/linux/ftrace.h     |  4 ++--
- kernel/trace/ftrace.c      | 16 ++++------------
- 6 files changed, 13 insertions(+), 28 deletions(-)
+ arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
-index 83cc068586bc..a0b6d1e3812f 100644
---- a/arch/arm/kernel/ftrace.c
-+++ b/arch/arm/kernel/ftrace.c
-@@ -79,16 +79,14 @@ static unsigned long __ref adjust_address(struct dyn_ftrace *rec,
- 	return (unsigned long)&ftrace_regs_caller_from_init;
+diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+index 8f43575a4dd3..fc6d5f58debe 100644
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -31,6 +31,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
+ 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
+ 	struct module_signature *ms;
+ 	unsigned long sig_len;
++	int ret;
+ 
+ 	/* Skip signature verification when not secure IPLed. */
+ 	if (!ipl_secure_flag)
+@@ -65,11 +66,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
+ 		return -EBADMSG;
+ 	}
+ 
+-	return verify_pkcs7_signature(kernel, kernel_len,
+-				      kernel + kernel_len, sig_len,
+-				      VERIFY_USE_PLATFORM_KEYRING,
+-				      VERIFYING_MODULE_SIGNATURE,
+-				      NULL, NULL);
++	ret = verify_pkcs7_signature(kernel, kernel_len,
++				     kernel + kernel_len, sig_len,
++				     VERIFY_USE_SECONDARY_KEYRING,
++				     VERIFYING_MODULE_SIGNATURE,
++				     NULL, NULL);
++	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
++		ret = verify_pkcs7_signature(kernel, kernel_len,
++					     kernel + kernel_len, sig_len,
++					     VERIFY_USE_PLATFORM_KEYRING,
++					     VERIFYING_MODULE_SIGNATURE,
++					     NULL, NULL);
++	return ret;
  }
+ #endif /* CONFIG_KEXEC_SIG */
  
--int ftrace_arch_code_modify_prepare(void)
-+void ftrace_arch_code_modify_prepare(void)
- {
--	return 0;
- }
- 
--int ftrace_arch_code_modify_post_process(void)
-+void ftrace_arch_code_modify_post_process(void)
- {
- 	/* Make sure any TLB misses during machine stop are cleared. */
- 	flush_tlb_all();
--	return 0;
- }
- 
- static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr,
-diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
-index 4716f4cdc038..2086f6585773 100644
---- a/arch/riscv/kernel/ftrace.c
-+++ b/arch/riscv/kernel/ftrace.c
-@@ -12,16 +12,14 @@
- #include <asm/patch.h>
- 
- #ifdef CONFIG_DYNAMIC_FTRACE
--int ftrace_arch_code_modify_prepare(void) __acquires(&text_mutex)
-+void ftrace_arch_code_modify_prepare(void) __acquires(&text_mutex)
- {
- 	mutex_lock(&text_mutex);
--	return 0;
- }
- 
--int ftrace_arch_code_modify_post_process(void) __releases(&text_mutex)
-+void ftrace_arch_code_modify_post_process(void) __releases(&text_mutex)
- {
- 	mutex_unlock(&text_mutex);
--	return 0;
- }
- 
- static int ftrace_check_current_call(unsigned long hook_pos,
-diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-index 1852d46babb1..416b5a94353d 100644
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -225,14 +225,13 @@ void arch_ftrace_update_code(int command)
- 	ftrace_modify_all_code(command);
- }
- 
--int ftrace_arch_code_modify_post_process(void)
-+void ftrace_arch_code_modify_post_process(void)
- {
- 	/*
- 	 * Flush any pre-fetched instructions on all
- 	 * CPUs to make the new code visible.
- 	 */
- 	text_poke_sync_lock();
--	return 0;
- }
- 
- #ifdef CONFIG_MODULES
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 1e31c7d21597..73d2719ed12c 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -37,7 +37,7 @@
- 
- static int ftrace_poke_late = 0;
- 
--int ftrace_arch_code_modify_prepare(void)
-+void ftrace_arch_code_modify_prepare(void)
-     __acquires(&text_mutex)
- {
- 	/*
-@@ -47,10 +47,9 @@ int ftrace_arch_code_modify_prepare(void)
- 	 */
- 	mutex_lock(&text_mutex);
- 	ftrace_poke_late = 1;
--	return 0;
- }
- 
--int ftrace_arch_code_modify_post_process(void)
-+void ftrace_arch_code_modify_post_process(void)
-     __releases(&text_mutex)
- {
- 	/*
-@@ -61,7 +60,6 @@ int ftrace_arch_code_modify_post_process(void)
- 	text_poke_finish();
- 	ftrace_poke_late = 0;
- 	mutex_unlock(&text_mutex);
--	return 0;
- }
- 
- static const char *ftrace_nop_replace(void)
-diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
-index 4816b7e11047..a5f74f6e7e4e 100644
---- a/include/linux/ftrace.h
-+++ b/include/linux/ftrace.h
-@@ -449,8 +449,8 @@ static inline void stack_tracer_enable(void) { }
- 
- #ifdef CONFIG_DYNAMIC_FTRACE
- 
--int ftrace_arch_code_modify_prepare(void);
--int ftrace_arch_code_modify_post_process(void);
-+void ftrace_arch_code_modify_prepare(void);
-+void ftrace_arch_code_modify_post_process(void);
- 
- enum ftrace_bug_type {
- 	FTRACE_BUG_UNKNOWN,
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 4f1d2f5e7263..35a899f136fe 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -2707,18 +2707,16 @@ ftrace_nop_initialize(struct module *mod, struct dyn_ftrace *rec)
-  * archs can override this function if they must do something
-  * before the modifying code is performed.
-  */
--int __weak ftrace_arch_code_modify_prepare(void)
-+void __weak ftrace_arch_code_modify_prepare(void)
- {
--	return 0;
- }
- 
- /*
-  * archs can override this function if they must do something
-  * after the modifying code is performed.
-  */
--int __weak ftrace_arch_code_modify_post_process(void)
-+void __weak ftrace_arch_code_modify_post_process(void)
- {
--	return 0;
- }
- 
- void ftrace_modify_all_code(int command)
-@@ -2804,12 +2802,7 @@ void __weak arch_ftrace_update_code(int command)
- 
- static void ftrace_run_update_code(int command)
- {
--	int ret;
--
--	ret = ftrace_arch_code_modify_prepare();
--	FTRACE_WARN_ON(ret);
--	if (ret)
--		return;
-+	ftrace_arch_code_modify_prepare();
- 
- 	/*
- 	 * By default we use stop_machine() to modify the code.
-@@ -2819,8 +2812,7 @@ static void ftrace_run_update_code(int command)
- 	 */
- 	arch_ftrace_update_code(command);
- 
--	ret = ftrace_arch_code_modify_post_process();
--	FTRACE_WARN_ON(ret);
-+	ftrace_arch_code_modify_post_process();
- }
- 
- static void ftrace_run_modify_code(struct ftrace_ops *ops, int command,
 -- 
-2.18.2
+2.35.3
 
