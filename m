@@ -2,121 +2,206 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEEBFC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 13:22:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E6A5C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 13:42:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354324AbiELNWZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 09:22:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44988 "EHLO
+        id S1354536AbiELNmm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 09:42:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354317AbiELNWY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 09:22:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7AE6F541B5
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 06:22:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652361741;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=iGoOIUCJGa4SaOfudTG7yQQEUS0BOq99bUpZYAujLo0=;
-        b=WOjP8MdPqu3LOsfahT82zc8xugEfFIT7nCLCVDa+gNXt75X+itV3ea4MPbXhUbiGFqNn1R
-        gopb+V303EGReu1GRKgJA866a/gKyvlz3Iaduty4afXgHptcI2kUeRUl/c+y6typ1h2tzH
-        ac7lB01acVU5UNs6HuDLMrlR6EY+rR8=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-121-T_nAhSk3NPWilPckr5RXCQ-1; Thu, 12 May 2022 09:22:20 -0400
-X-MC-Unique: T_nAhSk3NPWilPckr5RXCQ-1
-Received: by mail-wm1-f72.google.com with SMTP id g14-20020a1c4e0e000000b0039425ef54d6so1661166wmh.9
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 06:22:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:organization:subject
-         :in-reply-to:content-transfer-encoding;
-        bh=iGoOIUCJGa4SaOfudTG7yQQEUS0BOq99bUpZYAujLo0=;
-        b=M2JcGHXpRHHOsWdDT4nptPPoTcnmzNWdEe+pTUWvZA4YoPmbY0AOEeR62THQ7mE4wj
-         RZoO3L18Ptfo53bZzeeT+/FyXy84l+z/nF22jDp4TAsdCv0XINGnl/MwB7JB0Hh6N8M1
-         9e71boT+EpOnJDyL3pUCIPReIOZuX4fHvtYZixftIcpSI27W5IRGLwdlR2Rf82rWQwZn
-         Yq2dkOqAKtYLh8x0V4vVweH6SzIF4PNE0z3RzfrcbDAZueaEW4lorpv7sMywvmUFt+0T
-         cFhk3Eie6g/ijf/7VKSJ8HoyyuvGUNgs4b6G2+umcuOm2yAcoEBD9o3ly5tZD7YZtv61
-         shzA==
-X-Gm-Message-State: AOAM532F0pqwBIBs4pQNFdm7G1vJor3HNO3YLBYd4+L/vU8tYu9JCDvQ
-        74JA/QhatZer8E8AHJUWcrmdIk9ADoI6eKOFCqEaOazQwFZ4WoZgf+MpOekK0rsv+d+vWNCX10b
-        xFdhrDcEdFFrnK/cP3WPZaw==
-X-Received: by 2002:a5d:5746:0:b0:20c:dbc2:397d with SMTP id q6-20020a5d5746000000b0020cdbc2397dmr7981049wrw.658.1652361739078;
-        Thu, 12 May 2022 06:22:19 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx+hXYu6vzpLOJq39B+H7C8rDVvQP/gQANCQfbt9DiMWxcg2qD5+fl3H5Fdy+4EFw8qj6gfWw==
-X-Received: by 2002:a5d:5746:0:b0:20c:dbc2:397d with SMTP id q6-20020a5d5746000000b0020cdbc2397dmr7981034wrw.658.1652361738823;
-        Thu, 12 May 2022 06:22:18 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c701:d200:ee5d:1275:f171:136d? (p200300cbc701d200ee5d1275f171136d.dip0.t-ipconnect.de. [2003:cb:c701:d200:ee5d:1275:f171:136d])
-        by smtp.gmail.com with ESMTPSA id o11-20020a5d408b000000b0020c9520a940sm4946313wrp.54.2022.05.12.06.22.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 May 2022 06:22:18 -0700 (PDT)
-Message-ID: <77f6f5e7-5945-c478-0e41-affed62252eb@redhat.com>
-Date:   Thu, 12 May 2022 15:22:17 +0200
+        with ESMTP id S1354531AbiELNml (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 09:42:41 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E418A5DE40;
+        Thu, 12 May 2022 06:42:40 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24CD0ffJ003817;
+        Thu, 12 May 2022 13:42:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=o/oadjg0hpWL9ly1/xwx2LKIszNBdUCQMsCQr530u/w=;
+ b=VA5tHPK4gE2bKLLlThu2INWqIpkz3OIx9NvE6sXQcMb0UtOp0AOgZXUoUwpYDhcSZ9Le
+ JTKx5IIEE6xqxlRx+aX2bTVhdzRkUQXORhdCR4S3JveNKWzfYHqp9Qt1fMfOTTKyOhIF
+ 0/ACLJ53V0z8pl8hR/PuJNFp3VJPMLWeTgGk2XMjK4CqmtcNbkTJbeeVIqkmceiZPiFr
+ 3efNS/svyNBvqsUb3immn7voGm42k+2bnZsWsbCqVnb3sKNSN3LCIQHBYod2nrObs6x9
+ h5rsp3U1dRxFaHLN2EQU7cjJ7pCiPMyGr6jTFD6lccHEz8QvVDe4JaDj3PlmeJz/IUtu OA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g12rds665-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 May 2022 13:42:40 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24CDI3jQ028863;
+        Thu, 12 May 2022 13:42:40 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g12rds65h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 May 2022 13:42:39 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24CDcl8x028571;
+        Thu, 12 May 2022 13:42:37 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3fwgd8y4c3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 May 2022 13:42:37 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24CDgYV848038148
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 May 2022 13:42:34 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B02C84C044;
+        Thu, 12 May 2022 13:42:34 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 79F7D4C046;
+        Thu, 12 May 2022 13:42:34 +0000 (GMT)
+Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 12 May 2022 13:42:34 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v3 2/2] s390x: add cmm migration test
+Date:   Thu, 12 May 2022 15:42:33 +0200
+Message-Id: <20220512134233.1416490-3-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20220512134233.1416490-1-nrb@linux.ibm.com>
+References: <20220512134233.1416490-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20220512131019.2594948-1-scgl@linux.ibm.com>
- <20220512131019.2594948-2-scgl@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v3 1/2] KVM: s390: Don't indicate suppression on dirtying,
- failing memop
-In-Reply-To: <20220512131019.2594948-2-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: AMbMxyrkFRuDmnR3d47wf8zGev49HaKn
+X-Proofpoint-GUID: K_lK2AXs2i508gPDZHGazOUpx-i_wCLw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-12_10,2022-05-12_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ impostorscore=0 spamscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0
+ bulkscore=0 clxscore=1015 priorityscore=1501 mlxscore=0 mlxlogscore=941
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205120065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12.05.22 15:10, Janis Schoetterl-Glausch wrote:
-> If user space uses a memop to emulate an instruction and that
-> memop fails, the execution of the instruction ends.
-> Instruction execution can end in different ways, one of which is
-> suppression, which requires that the instruction execute like a no-op.
-> A writing memop that spans multiple pages and fails due to key
-> protection may have modified guest memory, as a result, the likely
-> correct ending is termination. Therefore, do not indicate a
-> suppressing instruction ending in this case.
+When a VM is migrated, we expect the page states to be preserved. Add a test
+which checks for that.
 
-I think that is possibly problematic handling.
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ s390x/Makefile        |  1 +
+ s390x/migration-cmm.c | 77 +++++++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg   |  4 +++
+ 3 files changed, 82 insertions(+)
+ create mode 100644 s390x/migration-cmm.c
 
-In TCG we stumbled in similar issues in the past for MVC when crossing
-page boundaries. Failing after modifying the first page already
-seriously broke some user space, because the guest would retry the
-instruction after fixing up the fault reason on the second page: if
-source and destination operands overlap, you'll be in trouble because
-the input parameters already changed.
-
-For this reason, in TCG we make sure that all accesses are valid before
-starting modifications.
-
-See target/s390x/tcg/mem_helper.c:do_helper_mvc with access_prepare()
-and friends as an example.
-
-Now, I don't know how to tackle that for KVM, I just wanted to raise
-awareness that injecting an interrupt after modifying page content is
-possible dodgy and dangerous.
-
+diff --git a/s390x/Makefile b/s390x/Makefile
+index a8e04aa6fe4d..1877c8a6e86e 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -32,6 +32,7 @@ tests += $(TEST_DIR)/epsw.elf
+ tests += $(TEST_DIR)/adtl-status.elf
+ tests += $(TEST_DIR)/migration.elf
+ tests += $(TEST_DIR)/pv-attest.elf
++tests += $(TEST_DIR)/migration-cmm.elf
+ 
+ pv-tests += $(TEST_DIR)/pv-diags.elf
+ 
+diff --git a/s390x/migration-cmm.c b/s390x/migration-cmm.c
+new file mode 100644
+index 000000000000..aa7910ca76bf
+--- /dev/null
++++ b/s390x/migration-cmm.c
+@@ -0,0 +1,77 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * CMM migration tests (ESSA)
++ *
++ * Copyright IBM Corp. 2022
++ *
++ * Authors:
++ *  Nico Boehr <nrb@linux.ibm.com>
++ */
++
++#include <libcflat.h>
++#include <asm/interrupt.h>
++#include <asm/page.h>
++#include <asm/cmm.h>
++#include <bitops.h>
++
++#define NUM_PAGES 128
++static uint8_t pagebuf[NUM_PAGES][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
++
++static void test_migration(void)
++{
++	int i, state_mask, actual_state;
++	/*
++	 * Maps ESSA actions to states the page is allowed to be in after the
++	 * respective action was executed.
++	 */
++	int allowed_essa_state_masks[4] = {
++		BIT(ESSA_USAGE_STABLE),					/* ESSA_SET_STABLE */
++		BIT(ESSA_USAGE_UNUSED),					/* ESSA_SET_UNUSED */
++		BIT(ESSA_USAGE_VOLATILE),				/* ESSA_SET_VOLATILE */
++		BIT(ESSA_USAGE_VOLATILE) | BIT(ESSA_USAGE_POT_VOLATILE) /* ESSA_SET_POT_VOLATILE */
++	};
++
++	assert(NUM_PAGES % 4 == 0);
++	for (i = 0; i < NUM_PAGES; i += 4) {
++		essa(ESSA_SET_STABLE, (unsigned long)pagebuf[i]);
++		essa(ESSA_SET_UNUSED, (unsigned long)pagebuf[i + 1]);
++		essa(ESSA_SET_VOLATILE, (unsigned long)pagebuf[i + 2]);
++		essa(ESSA_SET_POT_VOLATILE, (unsigned long)pagebuf[i + 3]);
++	}
++
++	puts("Please migrate me, then press return\n");
++	(void)getchar();
++
++	for (i = 0; i < NUM_PAGES; i++) {
++		actual_state = essa(ESSA_GET_STATE, (unsigned long)pagebuf[i]);
++		/* extract the usage state in bits 60 and 61 */
++		actual_state = (actual_state >> 2) & 0x3;
++		state_mask = allowed_essa_state_masks[i % ARRAY_SIZE(allowed_essa_state_masks)];
++		report(BIT(actual_state) & state_mask, "page %d state: expected_mask=0x%x actual_mask=0x%lx", i, state_mask, BIT(actual_state));
++	}
++}
++
++int main(void)
++{
++	bool has_essa = check_essa_available();
++
++	report_prefix_push("migration-cmm");
++	if (!has_essa) {
++		report_skip("ESSA is not available");
++
++		/*
++		 * If we just exit and don't ask migrate_cmd to migrate us, it
++		 * will just hang forever. Hence, also ask for migration when we
++		 * skip this test alltogether.
++		 */
++		puts("Please migrate me, then press return\n");
++		(void)getchar();
++
++		goto done;
++	}
++
++	test_migration();
++done:
++	report_prefix_pop();
++	return report_summary();
++}
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index b456b2881448..9b97d0471bcf 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -176,3 +176,7 @@ extra_params = -cpu qemu,gs=off,vx=off
+ file = migration.elf
+ groups = migration
+ smp = 2
++
++[migration-cmm]
++file = migration-cmm.elf
++groups = migration
 -- 
-Thanks,
-
-David / dhildenb
+2.31.1
 
