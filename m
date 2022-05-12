@@ -2,63 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1681C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 03:51:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AB29C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 04:37:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237704AbiELDva (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 May 2022 23:51:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50854 "EHLO
+        id S1347344AbiELEhY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 00:37:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235557AbiELDv3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 May 2022 23:51:29 -0400
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21BF30553;
-        Wed, 11 May 2022 20:51:25 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VCyplkM_1652327482;
-Received: from 30.43.105.60(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VCyplkM_1652327482)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 12 May 2022 11:51:23 +0800
-Message-ID: <9be49a5a-c87d-1630-3ff3-90e6a233d38b@linux.alibaba.com>
-Date:   Thu, 12 May 2022 11:51:22 +0800
+        with ESMTP id S233429AbiELEhX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 00:37:23 -0400
+Received: from conssluserg-06.nifty.com (conssluserg-06.nifty.com [210.131.2.91])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0861126135;
+        Wed, 11 May 2022 21:37:21 -0700 (PDT)
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51]) (authenticated)
+        by conssluserg-06.nifty.com with ESMTP id 24C4b545004064;
+        Thu, 12 May 2022 13:37:06 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com 24C4b545004064
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1652330226;
+        bh=tkmfQXshct+rM5sNv86ojAR4iOGgSUB8H7eo3J48fKg=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=UDf+KO+3kbwc37QIFSTV9bWAie+41gj2MeWrvLn98PFJeT68eleeY1AM7wSMxRyjU
+         pPRvHVuTnkFix5D9kRIO45SdX/nvQQK1u5W7hb+YlXwaIc0eeRvA9RwDQSylp1+Rw0
+         tSiITqUwWvLrx8H7s02aElsbROkTZEgun44WETgkYURxTeWPvY7S+12mOG+cdcCD7G
+         q5xMLcI5JElKBcX3fWFRmxP+H0bOsKaLY1zOYZ3TWa6HI+pXOIz+m8XJYQLmoHFdl1
+         lqNwhC1lG914gG/BmaAp50Ceg3Mk0V74KjqxzZzakr8LRAdYV/3YtH2W2wFjIN4Xeu
+         pZDKO9J8l2e7Q==
+X-Nifty-SrcIP: [209.85.216.51]
+Received: by mail-pj1-f51.google.com with SMTP id l20-20020a17090a409400b001dd2a9d555bso3865616pjg.0;
+        Wed, 11 May 2022 21:37:06 -0700 (PDT)
+X-Gm-Message-State: AOAM5316uxQIGld6VZmgJkqr2jA820EYKMY4fmV4O6TMMr7NeQ4ohFYR
+        zgqVBTtSfXRFdYWZfQNFiHgzG2oU6HOm/VNVMs4=
+X-Google-Smtp-Source: ABdhPJzNzRosrbp98/vX8YbqZjlsEylacSahmJ3sX4Wd7I5BkGLdD5OHiq8O2NX6qWNfI9oi2eO8MzjRgcclDO8j9pE=
+X-Received: by 2002:a17:902:7891:b0:15e:cae9:7620 with SMTP id
+ q17-20020a170902789100b0015ecae97620mr28744958pll.136.1652330225331; Wed, 11
+ May 2022 21:37:05 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.8.1
-Subject: Re: [PATCH net-next v2 1/2] net/smc: non blocking recvmsg() return
- -EAGAIN when no data and signal_pending
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220512031156.74054-1-guangguan.wang@linux.alibaba.com>
- <20220512031156.74054-2-guangguan.wang@linux.alibaba.com>
- <YnyCblJuPf+UAvjY@TonyMac-Alibaba>
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <YnyCblJuPf+UAvjY@TonyMac-Alibaba>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220508190631.2386038-1-masahiroy@kernel.org> <20220508190631.2386038-2-masahiroy@kernel.org>
+In-Reply-To: <20220508190631.2386038-2-masahiroy@kernel.org>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Thu, 12 May 2022 13:35:52 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAT3+rZTzt1Ed-V_pjA8wEFEVj7Uxo8PTtEhdyzFcqqM+g@mail.gmail.com>
+Message-ID: <CAK7LNAT3+rZTzt1Ed-V_pjA8wEFEVj7Uxo8PTtEhdyzFcqqM+g@mail.gmail.com>
+Subject: Re: [PATCH v4 01/14] modpost: remove left-over cross_compile declaration
+To:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nicolas Schier <nicolas@fjasle.eu>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-modules <linux-modules@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, May 9, 2022 at 4:09 AM Masahiro Yamada <masahiroy@kernel.org> wrote:
+>
+> This is a remnant of commit 6543becf26ff ("mod/file2alias: make
+> modalias generation safe for cross compiling").
+>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> ---
+
+Applied to linux-kbuild.
 
 
-On 2022/5/12 11:43, Tony Lu wrote:
-> On Thu, May 12, 2022 at 11:11:55AM +0800, Guangguan Wang wrote:
->> Non blocking sendmsg will return -EAGAIN when any signal pending
->> and no send space left, while non blocking recvmsg return -EINTR
->> when signal pending and no data received. This may makes confused.
->> As TCP returns -EAGAIN in the conditions described above. Align the
->> behavior of smc with TCP.
->>
->> Fixes: 846e344eb722 ("net/smc: add receive timeout check")
->> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
->> Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-> 
-> I see that you have already sent this patch to net, so this patch is a
-> duplicate. There is no need to send it again to net-next.
-> 
-> Thanks,
-> Tony Lu
+>
+> Changes in v4:
+>   - New patch
+>
+>  scripts/mod/modpost.h | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/scripts/mod/modpost.h b/scripts/mod/modpost.h
+> index cfa127d2bb8f..d9daeff07b83 100644
+> --- a/scripts/mod/modpost.h
+> +++ b/scripts/mod/modpost.h
+> @@ -174,7 +174,6 @@ static inline unsigned int get_secindex(const struct elf_info *info,
+>  }
+>
+>  /* file2alias.c */
+> -extern unsigned int cross_build;
+>  void handle_moddevtable(struct module *mod, struct elf_info *info,
+>                         Elf_Sym *sym, const char *symname);
+>  void add_moddevtable(struct buffer *buf, struct module *mod);
+> --
+> 2.32.0
+>
+> --
+> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
+> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20220508190631.2386038-2-masahiroy%40kernel.org.
 
-Ok, just ignore it. Thanks！
+
+
+-- 
+Best Regards
+Masahiro Yamada
