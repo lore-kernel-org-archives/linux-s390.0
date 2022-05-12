@@ -2,133 +2,255 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 780F8C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 13:51:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26C99C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 13:57:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354613AbiELNvh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 09:51:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59724 "EHLO
+        id S1354790AbiELN5G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 09:57:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344474AbiELNve (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 09:51:34 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B9366541F;
-        Thu, 12 May 2022 06:51:33 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24CDN8Td010744;
-        Thu, 12 May 2022 13:51:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=s2kDKq2rLM1QKEd3r2BYZiAh3eI78iqwpoQJAzLbmug=;
- b=N5ukWU/a1bDmPjOpAOcmyMcVvxTf4WvSKOrzF4G7nHP75Y9xm/toK1a4/jZR7JgYNWzO
- 4zWMz5dHiLI3hGPTgTNSKLtS++zxuIkSOmWfp5pPp8eJitck6Q1/QtFG/KCSa4iXTPGz
- hkDG/7h2N99Zs1X5o4kjasEbgJlebyqqpE/BTjV6NpEaNZcnGGu3/nbladVOIfo5WACv
- by1xL4yJchTehXzBcHf1oTs72Y56OsIRW6UtQRn7NO1fx+UsnEqVDtaNM68bt9Y8r2EF
- 5XvsCUC228Z13JBtXLNTp7zuxIYvnFLTjXbIG1C9Og80QykjHv5qyzsLys5b9+/1/jK0 Tw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g132urt66-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 13:51:31 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24CDlU3N015069;
-        Thu, 12 May 2022 13:51:30 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g132urt5k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 13:51:30 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24CDlp2l020747;
-        Thu, 12 May 2022 13:51:28 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3g0ma1gw8u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 13:51:28 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24CDpPxG50397490
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 May 2022 13:51:25 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3929352059;
-        Thu, 12 May 2022 13:51:25 +0000 (GMT)
-Received: from [9.152.224.232] (unknown [9.152.224.232])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id BC2FD52050;
-        Thu, 12 May 2022 13:51:24 +0000 (GMT)
-Message-ID: <4a06e3e8-4453-9204-eb66-d435860c5714@linux.ibm.com>
-Date:   Thu, 12 May 2022 15:51:24 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v3 1/2] KVM: s390: Don't indicate suppression on dirtying,
- failing memop
-Content-Language: en-US
-To:     David Hildenbrand <david@redhat.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        with ESMTP id S1354780AbiELN46 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 09:56:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAA381C6C81;
+        Thu, 12 May 2022 06:56:55 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58465B82834;
+        Thu, 12 May 2022 13:56:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E3BFC385B8;
+        Thu, 12 May 2022 13:56:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1652363813;
+        bh=u0smFFjUMhTt/JBgvJi9NyfEjj+cWk3ypDQeMQ3aJQ4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=YQSjZ/8qzkUrg4jBFbJ0ShB7zfZdd5+Vz6ERJ0AfwP1CsLwbxnsUyOX0WZD2QZwxz
+         enYTZorYc+5wR27nsoX76nz3wjw9qNHrybHqm70Egb09wnOWMNPaOIju7I5C17wS01
+         0M31Rt/yoGjKYDvuxrs63VwAGhB8Hk06yMZthHINx7MuNheHwm11UqpzlWdKIwBheo
+         Wd2zR0EUPDgxWoHybXb6WkgP+1bMa/emh8qjnaKvZg4MHPB8Ax3I0g53tTvoGx8iyv
+         EhKLYRmTy5cdCN7xbt3MV3/Xkk/O0d0cmknxF2lmDTsTMGMibQ8+z9XkpZCB4kdUuq
+         YJ0E29+vf9nOg==
+From:   Josh Poimboeuf <jpoimboe@kernel.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
         linux-s390@vger.kernel.org
-References: <20220512131019.2594948-1-scgl@linux.ibm.com>
- <20220512131019.2594948-2-scgl@linux.ibm.com>
- <77f6f5e7-5945-c478-0e41-affed62252eb@redhat.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <77f6f5e7-5945-c478-0e41-affed62252eb@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kq_VLsc2Cch67QIG5wsRW5eoIlK90DKA
-X-Proofpoint-ORIG-GUID: AeBPgQQ8VBajH6WfXZ2xqDRCkTTHhqVR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-12_10,2022-05-12_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
- bulkscore=0 mlxscore=0 clxscore=1015 adultscore=0 spamscore=0
- mlxlogscore=846 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2205120065
+Subject: [PATCH v2] bug: Use normal relative pointers in 'struct bug_entry'
+Date:   Thu, 12 May 2022 06:56:23 -0700
+Message-Id: <f0e05be797a16f4fc2401eeb88c8450dcbe61df6.1652362951.git.jpoimboe@kernel.org>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+With CONFIG_GENERIC_BUG_RELATIVE_POINTERS, the addr/file relative
+pointers are calculated weirdly: based on the beginning of the bug_entry
+struct address, rather than their respective pointer addresses.
 
+Make the relative pointers less surprising to both humans and tools by
+calculating them the normal way.
 
-Am 12.05.22 um 15:22 schrieb David Hildenbrand:
-> On 12.05.22 15:10, Janis Schoetterl-Glausch wrote:
->> If user space uses a memop to emulate an instruction and that
->> memop fails, the execution of the instruction ends.
->> Instruction execution can end in different ways, one of which is
->> suppression, which requires that the instruction execute like a no-op.
->> A writing memop that spans multiple pages and fails due to key
->> protection may have modified guest memory, as a result, the likely
->> correct ending is termination. Therefore, do not indicate a
->> suppressing instruction ending in this case.
-> 
-> I think that is possibly problematic handling.
-> 
-> In TCG we stumbled in similar issues in the past for MVC when crossing
-> page boundaries. Failing after modifying the first page already
-> seriously broke some user space, because the guest would retry the
-> instruction after fixing up the fault reason on the second page: if
-> source and destination operands overlap, you'll be in trouble because
-> the input parameters already changed.
-> 
-> For this reason, in TCG we make sure that all accesses are valid before
-> starting modifications.
-> 
-> See target/s390x/tcg/mem_helper.c:do_helper_mvc with access_prepare()
-> and friends as an example.
-> 
-> Now, I don't know how to tackle that for KVM, I just wanted to raise
-> awareness that injecting an interrupt after modifying page content is
-> possible dodgy and dangerous.
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Sven Schnelle <svens@linux.ibm.com> # s390
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Mark Rutland <mark.rutland@arm.com> [arm64]
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+---
+v2:
+- fix ppc64le C macros (and actually test them)
 
-this is really special and only for key protection crossing pages.
-Its been done since the 70ies in that way on z/VM. The architecture
-is and was always written in a way to allow termination for this
-case for hypervisors.
+ arch/arm64/include/asm/asm-bug.h |  4 ++--
+ arch/powerpc/include/asm/bug.h   | 14 ++++++++------
+ arch/riscv/include/asm/bug.h     |  4 ++--
+ arch/s390/include/asm/bug.h      |  5 +++--
+ arch/x86/include/asm/bug.h       |  2 +-
+ lib/bug.c                        | 15 +++++++--------
+ 6 files changed, 23 insertions(+), 21 deletions(-)
+
+diff --git a/arch/arm64/include/asm/asm-bug.h b/arch/arm64/include/asm/asm-bug.h
+index 03f52f84a4f3..c762038ba400 100644
+--- a/arch/arm64/include/asm/asm-bug.h
++++ b/arch/arm64/include/asm/asm-bug.h
+@@ -14,7 +14,7 @@
+ 	14472:	.string file;					\
+ 		.popsection;					\
+ 								\
+-		.long 14472b - 14470b;				\
++		.long 14472b - .;				\
+ 		.short line;
+ #else
+ #define _BUGVERBOSE_LOCATION(file, line)
+@@ -25,7 +25,7 @@
+ #define __BUG_ENTRY(flags) 				\
+ 		.pushsection __bug_table,"aw";		\
+ 		.align 2;				\
+-	14470:	.long 14471f - 14470b;			\
++	14470:	.long 14471f - .;			\
+ _BUGVERBOSE_LOCATION(__FILE__, __LINE__)		\
+ 		.short flags; 				\
+ 		.popsection;				\
+diff --git a/arch/powerpc/include/asm/bug.h b/arch/powerpc/include/asm/bug.h
+index ecbae1832de3..61a4736355c2 100644
+--- a/arch/powerpc/include/asm/bug.h
++++ b/arch/powerpc/include/asm/bug.h
+@@ -13,7 +13,8 @@
+ #ifdef CONFIG_DEBUG_BUGVERBOSE
+ .macro __EMIT_BUG_ENTRY addr,file,line,flags
+ 	 .section __bug_table,"aw"
+-5001:	 .4byte \addr - 5001b, 5002f - 5001b
++5001:	 .4byte \addr - .
++	 .4byte 5002f - .
+ 	 .short \line, \flags
+ 	 .org 5001b+BUG_ENTRY_SIZE
+ 	 .previous
+@@ -24,7 +25,7 @@
+ #else
+ .macro __EMIT_BUG_ENTRY addr,file,line,flags
+ 	 .section __bug_table,"aw"
+-5001:	 .4byte \addr - 5001b
++5001:	 .4byte \addr - .
+ 	 .short \flags
+ 	 .org 5001b+BUG_ENTRY_SIZE
+ 	 .previous
+@@ -49,15 +50,16 @@
+ #ifdef CONFIG_DEBUG_BUGVERBOSE
+ #define _EMIT_BUG_ENTRY				\
+ 	".section __bug_table,\"aw\"\n"		\
+-	"2:\t.4byte 1b - 2b, %0 - 2b\n"		\
+-	"\t.short %1, %2\n"			\
++	"2:	.4byte 1b - .\n"		\
++	"	.4byte %0 - .\n"		\
++	"	.short %1, %2\n"		\
+ 	".org 2b+%3\n"				\
+ 	".previous\n"
+ #else
+ #define _EMIT_BUG_ENTRY				\
+ 	".section __bug_table,\"aw\"\n"		\
+-	"2:\t.4byte 1b - 2b\n"			\
+-	"\t.short %2\n"				\
++	"2:	.4byte 1b - .\n"		\
++	"	.short %2\n"			\
+ 	".org 2b+%3\n"				\
+ 	".previous\n"
+ #endif
+diff --git a/arch/riscv/include/asm/bug.h b/arch/riscv/include/asm/bug.h
+index d3804a2f9aad..1aaea81fb141 100644
+--- a/arch/riscv/include/asm/bug.h
++++ b/arch/riscv/include/asm/bug.h
+@@ -30,8 +30,8 @@
+ typedef u32 bug_insn_t;
+ 
+ #ifdef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
+-#define __BUG_ENTRY_ADDR	RISCV_INT " 1b - 2b"
+-#define __BUG_ENTRY_FILE	RISCV_INT " %0 - 2b"
++#define __BUG_ENTRY_ADDR	RISCV_INT " 1b - ."
++#define __BUG_ENTRY_FILE	RISCV_INT " %0 - ."
+ #else
+ #define __BUG_ENTRY_ADDR	RISCV_PTR " 1b"
+ #define __BUG_ENTRY_FILE	RISCV_PTR " %0"
+diff --git a/arch/s390/include/asm/bug.h b/arch/s390/include/asm/bug.h
+index 0b25f28351ed..aebe1e22c7be 100644
+--- a/arch/s390/include/asm/bug.h
++++ b/arch/s390/include/asm/bug.h
+@@ -15,7 +15,8 @@
+ 		"1:	.asciz	\""__FILE__"\"\n"		\
+ 		".previous\n"					\
+ 		".section __bug_table,\"awM\",@progbits,%2\n"	\
+-		"2:	.long	0b-2b,1b-2b\n"			\
++		"2:	.long	0b-.\n"				\
++		"	.long	1b-.\n"				\
+ 		"	.short	%0,%1\n"			\
+ 		"	.org	2b+%2\n"			\
+ 		".previous\n"					\
+@@ -30,7 +31,7 @@
+ 	asm_inline volatile(					\
+ 		"0:	mc	0,0\n"				\
+ 		".section __bug_table,\"awM\",@progbits,%1\n"	\
+-		"1:	.long	0b-1b\n"			\
++		"1:	.long	0b-.\n"				\
+ 		"	.short	%0\n"				\
+ 		"	.org	1b+%1\n"			\
+ 		".previous\n"					\
+diff --git a/arch/x86/include/asm/bug.h b/arch/x86/include/asm/bug.h
+index aaf0cb0db4ae..a3ec87d198ac 100644
+--- a/arch/x86/include/asm/bug.h
++++ b/arch/x86/include/asm/bug.h
+@@ -18,7 +18,7 @@
+ #ifdef CONFIG_X86_32
+ # define __BUG_REL(val)	".long " __stringify(val)
+ #else
+-# define __BUG_REL(val)	".long " __stringify(val) " - 2b"
++# define __BUG_REL(val)	".long " __stringify(val) " - ."
+ #endif
+ 
+ #ifdef CONFIG_DEBUG_BUGVERBOSE
+diff --git a/lib/bug.c b/lib/bug.c
+index 45a0584f6541..c223a2575b72 100644
+--- a/lib/bug.c
++++ b/lib/bug.c
+@@ -6,8 +6,7 @@
+ 
+   CONFIG_BUG - emit BUG traps.  Nothing happens without this.
+   CONFIG_GENERIC_BUG - enable this code.
+-  CONFIG_GENERIC_BUG_RELATIVE_POINTERS - use 32-bit pointers relative to
+-	the containing struct bug_entry for bug_addr and file.
++  CONFIG_GENERIC_BUG_RELATIVE_POINTERS - use 32-bit relative pointers for bug_addr and file
+   CONFIG_DEBUG_BUGVERBOSE - emit full file+line information for each BUG
+ 
+   CONFIG_BUG and CONFIG_DEBUG_BUGVERBOSE are potentially user-settable
+@@ -53,10 +52,10 @@ extern struct bug_entry __start___bug_table[], __stop___bug_table[];
+ 
+ static inline unsigned long bug_addr(const struct bug_entry *bug)
+ {
+-#ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
+-	return bug->bug_addr;
++#ifdef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
++	return (unsigned long)&bug->bug_addr_disp + bug->bug_addr_disp;
+ #else
+-	return (unsigned long)bug + bug->bug_addr_disp;
++	return bug->bug_addr;
+ #endif
+ }
+ 
+@@ -131,10 +130,10 @@ void bug_get_file_line(struct bug_entry *bug, const char **file,
+ 		       unsigned int *line)
+ {
+ #ifdef CONFIG_DEBUG_BUGVERBOSE
+-#ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
+-	*file = bug->file;
++#ifdef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
++	*file = (const char *)&bug->file_disp + bug->file_disp;
+ #else
+-	*file = (const char *)bug + bug->file_disp;
++	*file = bug->file;
+ #endif
+ 	*line = bug->line;
+ #else
+-- 
+2.34.1
+
