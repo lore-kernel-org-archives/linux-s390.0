@@ -2,176 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7191FC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 16:46:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60194C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 17:22:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356413AbiELQqT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 12:46:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56576 "EHLO
+        id S1344991AbiELRWH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 13:22:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356659AbiELQqA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 12:46:00 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA3A5FDA;
-        Thu, 12 May 2022 09:45:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652373956; x=1683909956;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=aSoD9A65PeW90ZHA6KeiB1hT1IPWY6t/5WyFpaRGgNg=;
-  b=HLMRkUeFcDBwnFtG7mnPZjvOrOBkIx5kEjMIHp6gaBD/xHjW4OqLOCHR
-   3MixoC9hhxOQf7x5W0rjvL0FLi8tu1/SG8KGEa49y8FTH7reGzNxxSUeg
-   M0ixu5jiBhF2xN/CttK2kTMCHnRG1nB49MtyxWdjCK6PMvQbU7dQCHinN
-   JcH7rAb3as07TINOtnphLjda2eLn8N1H8ihZ7VTUu5leuMrGEQsg/jA4I
-   EREp4P3rEzATAIORLX3jPTK5w7aiFIRdsmUtNjjgw978UZq6y75kTulig
-   StrmvW/da2VDPHlE54ipYX1lxx+lPeI8L5edzwXsgzN/iZb6DQ/3Gw2DD
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10345"; a="268888929"
-X-IronPort-AV: E=Sophos;i="5.91,220,1647327600"; 
-   d="scan'208";a="268888929"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2022 09:21:40 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,220,1647327600"; 
-   d="scan'208";a="670909190"
-Received: from lkp-server01.sh.intel.com (HELO 5056e131ad90) ([10.239.97.150])
-  by fmsmga002.fm.intel.com with ESMTP; 12 May 2022 09:21:37 -0700
-Received: from kbuild by 5056e131ad90 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1npBZI-000Kfo-LM;
-        Thu, 12 May 2022 16:21:36 +0000
-Date:   Fri, 13 May 2022 00:20:53 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S1356981AbiELRWF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 13:22:05 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C2866AF6;
+        Thu, 12 May 2022 10:22:02 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24CHKUCa011895;
+        Thu, 12 May 2022 17:21:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=bPdVCnCIWEacY7fSG/XOyHejYZbwJTakmHy8ZHlj6KQ=;
+ b=sl5sAl+grzkLS/TtP37trAfs/O/bVjd6/xDCiIqd0b2ByQZDR5Jz1pZLzuv0zGIMpCAM
+ w5X7TJ8Rc75DhFp/IXJsXoS9UHv7T8i/ElTAQJSFvNf+BqYrUFD50J/LQKRjm00gcTth
+ 7PxU/HNJOtKDgixWCkln3EGteKVMvm42zXRvRCX3rQAIBlHVgQtq5G3E9UuTyftEvAjl
+ nPz/3jnM5Mu6ETZGD3IEOFNto/CfdUT1Zrzhs7+rEs3b3Lvf06PXXmx0EtSptHXuyeZE
+ 2Fuk0qudvFiBomz/+GRRe5+SjP1dpg0Jm+PErnp9hp2NcBOpL5z+fWXE3A7ySbNP8D46 aw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g16af8b0r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 May 2022 17:21:59 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24CHLxZt015470;
+        Thu, 12 May 2022 17:21:59 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g16af8b08-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 May 2022 17:21:58 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24CHIhAh005251;
+        Thu, 12 May 2022 17:21:57 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3fwgd8ycqw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 May 2022 17:21:56 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24CHLUpY32506244
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 May 2022 17:21:30 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C99CBA4040;
+        Thu, 12 May 2022 17:21:51 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 53708A404D;
+        Thu, 12 May 2022 17:21:51 +0000 (GMT)
+Received: from osiris (unknown [9.145.44.123])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu, 12 May 2022 17:21:51 +0000 (GMT)
+Date:   Thu, 12 May 2022 19:21:49 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
         Ulrich Weigand <ulrich.weigand@de.ibm.com>,
         Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>
-Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Andreas Krebbel <krebbel@linux.ibm.com>,
         Nathan Chancellor <natechancellor@gmail.com>,
         Nick Desaulniers <ndesaulniers@google.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Subject: Re: [PATCH 3/8] s390/entry: shorten OUTSIDE macro
-Message-ID: <202205130050.x6Is9kJO-lkp@intel.com>
-References: <20220511120532.2228616-4-hca@linux.ibm.com>
+Message-ID: <Yn1CLcsu9I0M8IEM@osiris>
+References: <20220511120532.2228616-1-hca@linux.ibm.com>
+ <20220511120532.2228616-4-hca@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20220511120532.2228616-4-hca@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Nv5aANPpoAXu9r5rKH9n_HXnkoxomRFS
+X-Proofpoint-ORIG-GUID: tWPU1_D1ocZkUH4-iG6iv5zAjWzFoWus
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-12_14,2022-05-12_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ mlxlogscore=630 lowpriorityscore=0 clxscore=1015 malwarescore=0
+ bulkscore=0 adultscore=0 phishscore=0 suspectscore=0 priorityscore=1501
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205120079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Heiko,
+On Wed, May 11, 2022 at 02:05:27PM +0200, Heiko Carstens wrote:
+> Since the minimum architecture level has been raised to z10 a shorter
+> instruction sequence can be used to implement the OUTSIDE macro. This
+> also reduces the number of used registers within that macro to one.
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/kernel/entry.S | 8 +++-----
+>  1 file changed, 3 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+> index a6b45eaa3450..e1664b45090f 100644
+> --- a/arch/s390/kernel/entry.S
+> +++ b/arch/s390/kernel/entry.S
+> @@ -169,11 +169,9 @@ _LPP_OFFSET	= __LC_LPP
+>  	 * @outside_label: jump here if @reg is outside of [@start..@end)
+>  	 */
+>  	.macro OUTSIDE reg,start,end,outside_label
+> -	lgr	%r14,\reg
+> -	larl	%r13,\start
+> -	slgr	%r14,%r13
+> -	lghi	%r13,\end - \start
+> -	clgr	%r14,%r13
+> +	larl	%r14,\start
+> +	slgrk	%r14,\reg,%r14
+> +	clgfi	%r14,\end - \start
 
-I love your patch! Yet something to improve:
-
-[auto build test ERROR on s390/features]
-[also build test ERROR on tip/locking/core masahiroy-kbuild/for-next linus/master v5.18-rc6 next-20220512]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Heiko-Carstens/s390-allow-to-build-with-llvm-s-integrated-assembler/20220511-201054
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-config: s390-randconfig-r003-20220512 (https://download.01.org/0day-ci/archive/20220513/202205130050.x6Is9kJO-lkp@intel.com/config)
-compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project 18dd123c56754edf62c7042dcf23185c3727610f)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # install s390 cross compiling tool for clang build
-        # apt-get install binutils-s390x-linux-gnu
-        # https://github.com/intel-lab-lkp/linux/commit/ad8a0a6488ba252aaa84b813dee2c949ae59d88a
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Heiko-Carstens/s390-allow-to-build-with-llvm-s-integrated-assembler/20220511-201054
-        git checkout ad8a0a6488ba252aaa84b813dee2c949ae59d88a
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All errors (new ones prefixed by >>):
-
->> <instantiation>:2:2: error: instruction requires: distinct-ops
-    slgrk %r14,%r9,%r14
-    ^
-   arch/s390/kernel/entry.S:378:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_gmap,.Lsie_done,1f
-    ^
-   <instantiation>:3:13: error: invalid operand for instruction
-    clgfi %r14,.Lsie_done - .Lsie_gmap
-               ^
-   arch/s390/kernel/entry.S:378:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_gmap,.Lsie_done,1f
-    ^
->> <instantiation>:2:2: error: instruction requires: distinct-ops
-    slgrk %r14,%r9,%r14
-    ^
-   <instantiation>:12:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_gmap,.Lsie_done,0f
-    ^
-   arch/s390/kernel/entry.S:488:1: note: while in macro instantiation
-   INT_HANDLER ext_int_handler,304,do_ext_irq
-   ^
-   <instantiation>:3:13: error: invalid operand for instruction
-    clgfi %r14,.Lsie_done - .Lsie_gmap
-               ^
-   <instantiation>:12:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_gmap,.Lsie_done,0f
-    ^
-   arch/s390/kernel/entry.S:488:1: note: while in macro instantiation
-   INT_HANDLER ext_int_handler,304,do_ext_irq
-   ^
->> <instantiation>:2:2: error: instruction requires: distinct-ops
-    slgrk %r14,%r9,%r14
-    ^
-   <instantiation>:12:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_gmap,.Lsie_done,0f
-    ^
-   arch/s390/kernel/entry.S:489:1: note: while in macro instantiation
-   INT_HANDLER io_int_handler,368,do_io_irq
-   ^
-   <instantiation>:3:13: error: invalid operand for instruction
-    clgfi %r14,.Lsie_done - .Lsie_gmap
-               ^
-   <instantiation>:12:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_gmap,.Lsie_done,0f
-    ^
-   arch/s390/kernel/entry.S:489:1: note: while in macro instantiation
-   INT_HANDLER io_int_handler,368,do_io_irq
-   ^
->> <instantiation>:2:2: error: instruction requires: distinct-ops
-    slgrk %r14,%r9,%r14
-    ^
-   arch/s390/kernel/entry.S:554:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_gmap,.Lsie_done,6f
-    ^
-   <instantiation>:3:13: error: invalid operand for instruction
-    clgfi %r14,.Lsie_done - .Lsie_gmap
-               ^
-   arch/s390/kernel/entry.S:554:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_gmap,.Lsie_done,6f
-    ^
->> <instantiation>:2:2: error: instruction requires: distinct-ops
-    slgrk %r14,%r9,%r14
-    ^
-   arch/s390/kernel/entry.S:555:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_entry,.Lsie_skip,4f
-    ^
-   <instantiation>:3:13: error: invalid operand for instruction
-    clgfi %r14,.Lsie_skip - .Lsie_entry
-               ^
-   arch/s390/kernel/entry.S:555:2: note: while in macro instantiation
-    OUTSIDE %r9,.Lsie_entry,.Lsie_skip,4f
-    ^
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+Clever me.. slgrk was added with z196, and not z10.
+So dropping this patch.
