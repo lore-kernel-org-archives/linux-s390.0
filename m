@@ -2,146 +2,102 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A51D9C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 07:01:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C99EC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 09:08:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350642AbiELHBw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 03:01:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35986 "EHLO
+        id S1347283AbiELJIK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 05:08:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350654AbiELHBp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 03:01:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1506C4A3FF
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 00:01:41 -0700 (PDT)
+        with ESMTP id S243585AbiELJIJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 05:08:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5BEDC6622D
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 02:08:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652338900;
+        s=mimecast20190719; t=1652346487;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=iL08WrcDmWnPSBuKr8caEa5TegpmPAWZ3ptXRRWyehnefQCwOm5xml6gQ0gFEKQhacTJQN
-        1EoENhwrVx+Q2XcgK+UWaJtSdtf+CAWLMKaNRAFY/UqStcfUdoW3cHkww158qdPJevjmfY
-        P3oa1hTmMsHSlQ4LGvajfChKrC2FBUo=
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
- [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=y/j2DLJTcGndHtvQqB0oEoKz+UbynhWSX4BfSSQ/pzc=;
+        b=BU67vvRMQAyOPBTHxHb9jiz672yYv6hcyn3vwpOVHDbHtfW4ABXI+D6uCNTShKRVVMPL2L
+        PCoReYlFqun1gcSlTj7Hxdjpu1Lo4u6TynnYG0MJxYWWNQLTcBJSwdm6I5GHjqxkfyv4PM
+        zHp0Wwpz4AkK0d6G0VD4gS8Ni1bH/Ro=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-225-t9-OxL_eOIWanfSWtj_6zg-1; Thu, 12 May 2022 03:01:39 -0400
-X-MC-Unique: t9-OxL_eOIWanfSWtj_6zg-1
-Received: by mail-pg1-f197.google.com with SMTP id q143-20020a632a95000000b003c1c3490dfbso2189845pgq.20
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 00:01:39 -0700 (PDT)
+ us-mta-70-cFmSb4ePN0-tbg8ubImRxg-1; Thu, 12 May 2022 05:08:05 -0400
+X-MC-Unique: cFmSb4ePN0-tbg8ubImRxg-1
+Received: by mail-wr1-f69.google.com with SMTP id p10-20020adfaa0a000000b0020c4829af5fso1814922wrd.16
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 02:08:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=rL7C6WtT/NtFrx8cYgbrVN/PMNkiTflryFzvkIYWzX9EhSejxLjZOjstgQeeFqm2ka
-         DxiV7pglFbMYT8r8xhV4k3BaW/MFOl68DvA7GNDmIg9NJ0HsO6txeHVOazzkddSzkxhn
-         iS0PSDM34FhftaAelCAJj4eOg+lY8V/dIrkVsRWcFTpQLS/cqEhgZb2VBYiaeia4C7gw
-         S+Mj5V6r0iJw+5lcOZu+zjYIes7Qq9xV0VIWgAsYZECNloGRJFABM8a8knqHYYZaSotj
-         OXotW7GwhUUWGOA4bXoI500XBOHG7HnO/Aaapityz2Re79NCfr2L7h067yaddMu+PEZ+
-         IFhA==
-X-Gm-Message-State: AOAM530NTE2MP3BH5umsU8zyZYzd9P26yxEFa0S2QFdXLgJSE76XFD4c
-        J8Up+usMFTKC//o3z9mxBawT+14nyQ2FhW38Cu0p3dcQcu7raIGkSFei6HieW4wOWT8NhbpraRX
-        pNlGZnid3sh3hm37yN4JN0A==
-X-Received: by 2002:a63:db17:0:b0:3c1:dc15:7a6e with SMTP id e23-20020a63db17000000b003c1dc157a6emr24702562pgg.107.1652338898845;
-        Thu, 12 May 2022 00:01:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw5+8KvrmgP6uU2JLw0pBjP/QRQb39IFWj7HXL3olAtsPY86WH+mgk5ysySAIY64jPtk9fAOQ==
-X-Received: by 2002:a63:db17:0:b0:3c1:dc15:7a6e with SMTP id e23-20020a63db17000000b003c1dc157a6emr24702527pgg.107.1652338898566;
-        Thu, 12 May 2022 00:01:38 -0700 (PDT)
-Received: from localhost ([240e:3a1:2e9:efa0:e73c:e550:ac9e:58fd])
-        by smtp.gmail.com with ESMTPSA id q9-20020a170902a3c900b0015e8d4eb22fsm3060866plb.121.2022.05.12.00.01.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 May 2022 00:01:38 -0700 (PDT)
-From:   Coiby Xu <coxu@redhat.com>
-To:     kexec@lists.infradead.org
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Michal Suchanek <msuchanek@suse.de>,
-        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Mimi Zohar <zohar@linux.ibm.com>, Chun-Yi Lee <jlee@suse.com>,
-        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
-        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        linux-s390@vger.kernel.org (open list:S390),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v8 4/4] kexec, KEYS, s390: Make use of built-in and secondary keyring for signature verification
-Date:   Thu, 12 May 2022 15:01:23 +0800
-Message-Id: <20220512070123.29486-5-coxu@redhat.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220512070123.29486-1-coxu@redhat.com>
-References: <20220512070123.29486-1-coxu@redhat.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=y/j2DLJTcGndHtvQqB0oEoKz+UbynhWSX4BfSSQ/pzc=;
+        b=TS3cIjrTfF9oT+SGQjBUBqPWCGEx9DI/iELOHdrmUI6LhVw5grV4Xrr7U1yX8ytBTX
+         WfjsuJJjKx4DKccJE5Jj7qrUKmazgIjIHfGZqHUQp90FOlm4SBIPcR42k738ugmJCitK
+         zxJZjuJXZyJt2bODCyTjIPxeCF9uNmhMjDXJqGJl2W4z5yJBxJByvVtZrkPIAcOgSVqG
+         +uzbH/ywkzle8RSC2jb0TXy9Sjo7e+ZJLD6U5SFe2amBDDRHI0oSNr/l6lDr1rmhvzjI
+         aRoWFolpb7ZH7+oxuWk++dQ6EwclSmpR/fzsFmWpAB/Q2pDXQ5mpeGbLn1B4UgYwSIu2
+         WUWg==
+X-Gm-Message-State: AOAM532D+i6bCIpQ8aY9eEOhFMH9Zdg6Fe4XmDkKcCRVEoJitbBecKyF
+        r8pCIIAX+bX9XMTyQD07X3dP+2q7SNZOavDh6KwVTApLN3m5VdBsx5gK/MzoGpBKxfxi/M4amYD
+        dYE3lg4gbmf6PRbAPO98C0w==
+X-Received: by 2002:a05:600c:2e12:b0:395:b6ae:f551 with SMTP id o18-20020a05600c2e1200b00395b6aef551mr7210538wmf.36.1652346484324;
+        Thu, 12 May 2022 02:08:04 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwUQEGT0+VpyQO5wHnlhPG2R7sv8wC84gKC8UIrDB+7/35B8+9BWk8Lk8wiU9+qsxrKMLibQA==
+X-Received: by 2002:a05:600c:2e12:b0:395:b6ae:f551 with SMTP id o18-20020a05600c2e1200b00395b6aef551mr7210512wmf.36.1652346484044;
+        Thu, 12 May 2022 02:08:04 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c701:d200:ee5d:1275:f171:136d? (p200300cbc701d200ee5d1275f171136d.dip0.t-ipconnect.de. [2003:cb:c701:d200:ee5d:1275:f171:136d])
+        by smtp.gmail.com with ESMTPSA id i25-20020a7bc959000000b003942a244ee4sm2390056wml.41.2022.05.12.02.08.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 May 2022 02:08:03 -0700 (PDT)
+Message-ID: <e23160b6-2d3c-ebdb-ac5a-c71311e7e5ec@redhat.com>
+Date:   Thu, 12 May 2022 11:08:02 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH v9 1/3] s390x: KVM: ipte lock for SCA access should be
+ contained in KVM
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, wintera@linux.ibm.com, seiden@linux.ibm.com,
+        nrb@linux.ibm.com
+References: <20220506092403.47406-1-pmorel@linux.ibm.com>
+ <20220506092403.47406-2-pmorel@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20220506092403.47406-2-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
+On 06.05.22 11:24, Pierre Morel wrote:
+> The former check to chose between SIIF or not SIIF can be done
+> using the sclp.has_siif instead of accessing per vCPU structures
+> 
+> When accessing the SCA, ipte lock and ipte_unlock do not need
+> to access any vcpu structures but only the KVM structure.
+> 
+> Let's simplify the ipte handling.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 
-commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-adds support for KEXEC_SIG verification with keys from platform keyring
-but the built-in keys and secondary keyring are not used.
+Much better
 
-Add support for the built-in keys and secondary keyring as x86 does.
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-Cc: stable@vger.kernel.org
-Cc: Philipp Rudo <prudo@linux.ibm.com>
-Cc: kexec@lists.infradead.org
-Cc: keyrings@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Coiby Xu <coxu@redhat.com>
----
- arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 8f43575a4dd3..fc6d5f58debe 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -31,6 +31,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
- 	struct module_signature *ms;
- 	unsigned long sig_len;
-+	int ret;
- 
- 	/* Skip signature verification when not secure IPLed. */
- 	if (!ipl_secure_flag)
-@@ -65,11 +66,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 		return -EBADMSG;
- 	}
- 
--	return verify_pkcs7_signature(kernel, kernel_len,
--				      kernel + kernel_len, sig_len,
--				      VERIFY_USE_PLATFORM_KEYRING,
--				      VERIFYING_MODULE_SIGNATURE,
--				      NULL, NULL);
-+	ret = verify_pkcs7_signature(kernel, kernel_len,
-+				     kernel + kernel_len, sig_len,
-+				     VERIFY_USE_SECONDARY_KEYRING,
-+				     VERIFYING_MODULE_SIGNATURE,
-+				     NULL, NULL);
-+	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
-+		ret = verify_pkcs7_signature(kernel, kernel_len,
-+					     kernel + kernel_len, sig_len,
-+					     VERIFY_USE_PLATFORM_KEYRING,
-+					     VERIFYING_MODULE_SIGNATURE,
-+					     NULL, NULL);
-+	return ret;
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
 -- 
-2.35.3
+Thanks,
+
+David / dhildenb
 
