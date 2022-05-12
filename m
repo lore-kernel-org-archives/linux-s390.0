@@ -2,359 +2,277 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 878ABC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 04:38:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CBFFC4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 04:47:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347647AbiELEh6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 00:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36182 "EHLO
+        id S1348169AbiELErq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 00:47:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347548AbiELEh5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 00:37:57 -0400
-Received: from conssluserg-05.nifty.com (conssluserg-05.nifty.com [210.131.2.90])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5C52286C0;
-        Wed, 11 May 2022 21:37:53 -0700 (PDT)
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170]) (authenticated)
-        by conssluserg-05.nifty.com with ESMTP id 24C4bPuo022955;
-        Thu, 12 May 2022 13:37:26 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-05.nifty.com 24C4bPuo022955
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1652330246;
-        bh=IUVNjJxNI8Y2N6J08VzVrWq/34IrVEKJXOQ5ZZINgIk=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=xXD+m8oSWbCTXA/qPnGHaiS/QVg/PxSHsr4fIhcqjOlaZsP1KJqpZNwCpRKJ4KH2S
-         pCHiA69DicaE9dMqlpi9Lj88GUELYSKbzkpXSmyIESxuhMReVp3jIoaO+lKFMk97gI
-         xctCZYMzFOZewSVp4xOsU2bELYT0AkGcMSyubPfRkaReQxW15ssceEaoYRb9yxmH90
-         FhS1gpSkMSK50KWjOWLoFWZyA6hzoKZmA/7W7dEPf1CdpWk2lk8qT9Gww/6r0PNsZy
-         0XL5fnSft5EpmOVuLcLCkAczz4fmjDSGFh/LVYhPsnoVdZZtVFlb9PWQs9wQ5qb9y9
-         3rd3eU5/5oh+g==
-X-Nifty-SrcIP: [209.85.214.170]
-Received: by mail-pl1-f170.google.com with SMTP id n8so3810905plh.1;
-        Wed, 11 May 2022 21:37:25 -0700 (PDT)
-X-Gm-Message-State: AOAM530kUR2RqxuX8FKPX08kollimai+u5yQfMS377XRYRxuqHKqIQSk
-        OIwT/tveA7pnQxG1pqErs1S2dbZr8wCgL7SsUGA=
-X-Google-Smtp-Source: ABdhPJxIUnQ07JXrHxlmHeRUWu09ufIC94QEfhLUzNSqT72tmaZ5IS17kMlGKNSvGNHedylj1IZCjWj5ZROsWHhla+w=
-X-Received: by 2002:a17:902:9887:b0:151:6e1c:7082 with SMTP id
- s7-20020a170902988700b001516e1c7082mr27988770plp.162.1652330245039; Wed, 11
- May 2022 21:37:25 -0700 (PDT)
+        with ESMTP id S1348239AbiELErj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 00:47:39 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A1A2B27E
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 21:47:37 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id n18so3812806plg.5
+        for <linux-s390@vger.kernel.org>; Wed, 11 May 2022 21:47:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=mu0oeSRdhbh9VeZjyF6ZLYtewD09HIHqh0x41OUf5r4=;
+        b=qnE+4npLf7k/552JUhxPioA2V3oZwkdvutxLoX/n6XSuqRN7fIBAHvmd53SRC1gfco
+         rzzLHz3zgQAJDwh2IFamU7U2v5I3rRTL8xwlFFlTuF+kBCUIew/y0SfK5rHvdwXr90wR
+         xn0+PpzAPDTbU/Kg/E8MP0GcLWP3e51IvM4fId1s0w2zJstOZt3rcXs6ZdSVEULGPIYf
+         7Y+tv4cAwzZ9E+P3NfR1YGOqdD5fPgADfJMaid5eRiVUMgWKVLWcs4IF8hPC43IAsqtd
+         Ecjws63bHi/APHivVWVCT4UWPSPT4Ji/V32qShK/kqf/IzZGjtw1W/l1ZZxR0bgT8LkX
+         kikw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=mu0oeSRdhbh9VeZjyF6ZLYtewD09HIHqh0x41OUf5r4=;
+        b=jM+DjP9nSz4ac8Iy6EPAytfsawhAzdKhINdk4fL/6IRJVJaIhjB1SBMlgktBvxTIm4
+         oEqiRy5uRJNA12Sogm3WdNM1r4Gr0AWkfX7wRvyOdoG6yGWT92QVXnJRVzQC/VbPr6mF
+         FV88imwHV9lFd0/Y1z7amnKCDLC/CEFsEMzQvTWa+Y9ieN9i5olV5XMYX6DVGFG/fEka
+         QmO3dhV8/g6kj+j0rSpg1grm7lIapwmSTMOmt5P/8Pcwkl9kFEu9VsiEFgY+37zi8oYB
+         RHoRByBCwr3E53f0qnowQuJi/ByJv8U/lkfQplUz3X9CoerASJRfcyJnvu93sLdgxipD
+         1l1Q==
+X-Gm-Message-State: AOAM5308yphQMlLkzUv2Yeu7DmZXyzmMsncTQyhmYjigVPq4rs9EQVtL
+        ihn3a39gQYtkb6lcFhzVsnKK0Q==
+X-Google-Smtp-Source: ABdhPJzUuiCelUq6G3b+1zXrlgNS09+gkvww/VC4mZYDFyo1AFj5M1cF8Up8xWtVli0E/gbLSTNFag==
+X-Received: by 2002:a17:902:9a4c:b0:158:b6f0:4aa2 with SMTP id x12-20020a1709029a4c00b00158b6f04aa2mr28430242plv.163.1652330857366;
+        Wed, 11 May 2022 21:47:37 -0700 (PDT)
+Received: from localhost.localdomain ([139.177.225.253])
+        by smtp.gmail.com with ESMTPSA id 5-20020a170902e9c500b0015edc07dcf3sm2790824plk.21.2022.05.11.21.47.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 May 2022 21:47:36 -0700 (PDT)
+From:   Gang Li <ligang.bdlg@bytedance.com>
+To:     akpm@linux-foundation.org
+Cc:     songmuchun@bytedance.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ebiederm@xmission.com, keescook@chromium.org,
+        viro@zeniv.linux.org.uk, rostedt@goodmis.org, mingo@redhat.com,
+        peterz@infradead.org, acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, david@redhat.com, imbrenda@linux.ibm.com,
+        apopple@nvidia.com, adobriyan@gmail.com,
+        stephen.s.brennan@oracle.com, ohoono.kwon@samsung.com,
+        haolee.swjtu@gmail.com, kaleshsingh@google.com,
+        zhengqi.arch@bytedance.com, peterx@redhat.com, shy828301@gmail.com,
+        surenb@google.com, ccross@google.com, vincent.whitchurch@axis.com,
+        tglx@linutronix.de, bigeasy@linutronix.de, fenghua.yu@intel.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org,
+        Gang Li <ligang.bdlg@bytedance.com>
+Subject: [PATCH 2/5 v1] mm: add numa_count field for rss_stat
+Date:   Thu, 12 May 2022 12:46:31 +0800
+Message-Id: <20220512044634.63586-3-ligang.bdlg@bytedance.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220512044634.63586-1-ligang.bdlg@bytedance.com>
+References: <20220512044634.63586-1-ligang.bdlg@bytedance.com>
 MIME-Version: 1.0
-References: <20220508190631.2386038-1-masahiroy@kernel.org> <20220508190631.2386038-3-masahiroy@kernel.org>
-In-Reply-To: <20220508190631.2386038-3-masahiroy@kernel.org>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Thu, 12 May 2022 13:36:13 +0900
-X-Gmail-Original-Message-ID: <CAK7LNARhgfkSP+jmoTF2nVJtd=amPTNsNRjgaV+H7NhgjV+6Bw@mail.gmail.com>
-Message-ID: <CAK7LNARhgfkSP+jmoTF2nVJtd=amPTNsNRjgaV+H7NhgjV+6Bw@mail.gmail.com>
-Subject: Re: [PATCH v4 02/14] modpost: change the license of EXPORT_SYMBOL to
- bool type
-To:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-modules <linux-modules@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 9, 2022 at 4:09 AM Masahiro Yamada <masahiroy@kernel.org> wrote:
->
-> There were more EXPORT_SYMBOL types in the past. The following commits
-> removed unused ones.
->
->  - f1c3d73e973c ("module: remove EXPORT_SYMBOL_GPL_FUTURE")
->  - 367948220fce ("module: remove EXPORT_UNUSED_SYMBOL*")
->
-> There are 3 remaining in enum export, but export_unknown does not make
-> any sense because we never expect such a situation like "we do not know
-> how it was exported".
->
-> If the symbol name starts with "__ksymtab_", but the section name
-> does not start with "___ksymtab+" or "___ksymtab_gpl+", it is not an
-> exported symbol.
->
-> It occurs when a variable starting with "__ksymtab_" is directly defined:
->
->    int __ksymtab_foo;
->
-> Presumably, there is no practical issue for using such a weird variable
-> name (but there is no good reason for doing so, either).
->
-> Anyway, that is not an exported symbol. Setting export_unknown is not
-> the right thing to do. Do not call sym_add_exported() in this case.
->
-> With pointless export_unknown removed, the export type finally becomes
-> boolean (either EXPORT_SYMBOL or EXPORT_SYMBOL_GPL).
->
-> I renamed the field name to is_gpl_only. EXPORT_SYMBOL_GPL sets it true.
-> Only GPL-compatible modules can use it.
->
-> I removed the orphan comment, "How a symbol is exported", which is
-> unrelated to sec_mismatch_count. It is about enum export.
-> See commit bd5cbcedf446 ("kbuild: export-type enhancement to modpost.c")
->
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
-> Tested-by: Nathan Chancellor <nathan@kernel.org>
-> ---
+This patch add new fields `numa_count` for mm_rss_stat and
+task_rss_stat.
 
-Applied to linux-kbuild.
+`numa_count` are in the size of `sizeof(long) * num_possible_numa()`.
+To reduce mem consumption, they only contain the sum of rss which is
+needed by `oom_badness` instead of recording different kinds of rss
+sepratly.
 
+Signed-off-by: Gang Li <ligang.bdlg@bytedance.com>
+---
+ include/linux/mm_types_task.h |  6 +++
+ kernel/fork.c                 | 70 +++++++++++++++++++++++++++++++++--
+ 2 files changed, 73 insertions(+), 3 deletions(-)
 
->
-> Changes in v4:
->   - Rebase again because I dropped
->      https://patchwork.kernel.org/project/linux-kbuild/patch/20220501084032.1025918-11-masahiroy@kernel.org/
->   - Remove warning message because I plan to change this hunk again in a later commit
->   - Remove orphan comment
->
-> Changes in v3:
->   - New patch
->
->  scripts/mod/modpost.c | 108 ++++++++++++------------------------------
->  1 file changed, 30 insertions(+), 78 deletions(-)
->
-> diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-> index d9efbd5b31a6..a78b75f0eeb0 100644
-> --- a/scripts/mod/modpost.c
-> +++ b/scripts/mod/modpost.c
-> @@ -30,7 +30,7 @@ static bool all_versions;
->  static bool external_module;
->  /* Only warn about unresolved symbols */
->  static bool warn_unresolved;
-> -/* How a symbol is exported */
-> +
->  static int sec_mismatch_count;
->  static bool sec_mismatch_warn_only = true;
->  /* ignore missing files */
-> @@ -47,12 +47,6 @@ static bool error_occurred;
->  #define MAX_UNRESOLVED_REPORTS 10
->  static unsigned int nr_unresolved;
->
-> -enum export {
-> -       export_plain,
-> -       export_gpl,
-> -       export_unknown
-> -};
-> -
->  /* In kernel, this size is defined in linux/module.h;
->   * here we use Elf_Addr instead of long for covering cross-compile
->   */
-> @@ -219,7 +213,7 @@ struct symbol {
->         bool crc_valid;
->         bool weak;
->         bool is_static;         /* true if symbol is not global */
-> -       enum export  export;       /* Type of export */
-> +       bool is_gpl_only;       /* exported by EXPORT_SYMBOL_GPL */
->         char name[];
->  };
->
-> @@ -316,34 +310,6 @@ static void add_namespace(struct list_head *head, const char *namespace)
->         }
->  }
->
-> -static const struct {
-> -       const char *str;
-> -       enum export export;
-> -} export_list[] = {
-> -       { .str = "EXPORT_SYMBOL",            .export = export_plain },
-> -       { .str = "EXPORT_SYMBOL_GPL",        .export = export_gpl },
-> -       { .str = "(unknown)",                .export = export_unknown },
-> -};
-> -
-> -
-> -static const char *export_str(enum export ex)
-> -{
-> -       return export_list[ex].str;
-> -}
-> -
-> -static enum export export_no(const char *s)
-> -{
-> -       int i;
-> -
-> -       if (!s)
-> -               return export_unknown;
-> -       for (i = 0; export_list[i].export != export_unknown; i++) {
-> -               if (strcmp(export_list[i].str, s) == 0)
-> -                       return export_list[i].export;
-> -       }
-> -       return export_unknown;
-> -}
-> -
->  static void *sym_get_data_by_offset(const struct elf_info *info,
->                                     unsigned int secindex, unsigned long offset)
->  {
-> @@ -374,18 +340,6 @@ static const char *sec_name(const struct elf_info *info, int secindex)
->
->  #define strstarts(str, prefix) (strncmp(str, prefix, strlen(prefix)) == 0)
->
-> -static enum export export_from_secname(struct elf_info *elf, unsigned int sec)
-> -{
-> -       const char *secname = sec_name(elf, sec);
-> -
-> -       if (strstarts(secname, "___ksymtab+"))
-> -               return export_plain;
-> -       else if (strstarts(secname, "___ksymtab_gpl+"))
-> -               return export_gpl;
-> -       else
-> -               return export_unknown;
-> -}
-> -
->  static void sym_update_namespace(const char *symname, const char *namespace)
->  {
->         struct symbol *s = find_symbol(symname);
-> @@ -405,7 +359,7 @@ static void sym_update_namespace(const char *symname, const char *namespace)
->  }
->
->  static struct symbol *sym_add_exported(const char *name, struct module *mod,
-> -                                      enum export export)
-> +                                      bool gpl_only)
->  {
->         struct symbol *s = find_symbol(name);
->
-> @@ -417,7 +371,7 @@ static struct symbol *sym_add_exported(const char *name, struct module *mod,
->
->         s = alloc_symbol(name);
->         s->module = mod;
-> -       s->export    = export;
-> +       s->is_gpl_only = gpl_only;
->         list_add_tail(&s->list, &mod->exported_symbols);
->         hash_add_symbol(s);
->
-> @@ -689,8 +643,6 @@ static void handle_modversion(const struct module *mod,
->  static void handle_symbol(struct module *mod, struct elf_info *info,
->                           const Elf_Sym *sym, const char *symname)
->  {
-> -       const char *name;
-> -
->         switch (sym->st_shndx) {
->         case SHN_COMMON:
->                 if (strstarts(symname, "__gnu_lto_")) {
-> @@ -724,12 +676,15 @@ static void handle_symbol(struct module *mod, struct elf_info *info,
->         default:
->                 /* All exported symbols */
->                 if (strstarts(symname, "__ksymtab_")) {
-> -                       enum export export;
-> +                       const char *name, *secname;
->
->                         name = symname + strlen("__ksymtab_");
-> -                       export = export_from_secname(info,
-> -                                                    get_secindex(info, sym));
-> -                       sym_add_exported(name, mod, export);
-> +                       secname = sec_name(info, get_secindex(info, sym));
-> +
-> +                       if (strstarts(secname, "___ksymtab_gpl+"))
-> +                               sym_add_exported(name, mod, true);
-> +                       else if (strstarts(secname, "___ksymtab+"))
-> +                               sym_add_exported(name, mod, false);
->                 }
->                 if (strcmp(symname, "init_module") == 0)
->                         mod->has_init = true;
-> @@ -2140,20 +2095,6 @@ void buf_write(struct buffer *buf, const char *s, int len)
->         buf->pos += len;
->  }
->
-> -static void check_for_gpl_usage(enum export exp, const char *m, const char *s)
-> -{
-> -       switch (exp) {
-> -       case export_gpl:
-> -               error("GPL-incompatible module %s.ko uses GPL-only symbol '%s'\n",
-> -                     m, s);
-> -               break;
-> -       case export_plain:
-> -       case export_unknown:
-> -               /* ignore */
-> -               break;
-> -       }
-> -}
-> -
->  static void check_exports(struct module *mod)
->  {
->         struct symbol *s, *exp;
-> @@ -2192,8 +2133,9 @@ static void check_exports(struct module *mod)
->                         add_namespace(&mod->missing_namespaces, exp->namespace);
->                 }
->
-> -               if (!mod->is_gpl_compatible)
-> -                       check_for_gpl_usage(exp->export, basename, exp->name);
-> +               if (!mod->is_gpl_compatible && exp->is_gpl_only)
-> +                       error("GPL-incompatible module %s.ko uses GPL-only symbol '%s'\n",
-> +                             basename, exp->name);
->         }
->  }
->
-> @@ -2437,6 +2379,7 @@ static void read_dump(const char *fname)
->                 unsigned int crc;
->                 struct module *mod;
->                 struct symbol *s;
-> +               bool gpl_only;
->
->                 if (!(symname = strchr(line, '\t')))
->                         goto fail;
-> @@ -2454,12 +2397,22 @@ static void read_dump(const char *fname)
->                 crc = strtoul(line, &d, 16);
->                 if (*symname == '\0' || *modname == '\0' || *d != '\0')
->                         goto fail;
-> +
-> +               if (!strcmp(export, "EXPORT_SYMBOL_GPL")) {
-> +                       gpl_only = true;
-> +               } else if (!strcmp(export, "EXPORT_SYMBOL")) {
-> +                       gpl_only = false;
-> +               } else {
-> +                       error("%s: unknown license %s. skip", symname, export);
-> +                       continue;
-> +               }
-> +
->                 mod = find_module(modname);
->                 if (!mod) {
->                         mod = new_module(modname);
->                         mod->from_dump = true;
->                 }
-> -               s = sym_add_exported(symname, mod, export_no(export));
-> +               s = sym_add_exported(symname, mod, gpl_only);
->                 s->is_static = false;
->                 sym_set_crc(symname, crc);
->                 sym_update_namespace(symname, namespace);
-> @@ -2481,9 +2434,9 @@ static void write_dump(const char *fname)
->                 if (mod->from_dump)
->                         continue;
->                 list_for_each_entry(sym, &mod->exported_symbols, list) {
-> -                       buf_printf(&buf, "0x%08x\t%s\t%s\t%s\t%s\n",
-> +                       buf_printf(&buf, "0x%08x\t%s\t%s\tEXPORT_SYMBOL%s\t%s\n",
->                                    sym->crc, sym->name, mod->name,
-> -                                  export_str(sym->export),
-> +                                  sym->is_gpl_only ? "_GPL" : "",
->                                    sym->namespace ?: "");
->                 }
->         }
-> @@ -2604,9 +2557,8 @@ int main(int argc, char **argv)
->
->                 for (s = symbolhash[n]; s; s = s->next) {
->                         if (s->is_static)
-> -                               error("\"%s\" [%s] is a static %s\n",
-> -                                     s->name, s->module->name,
-> -                                     export_str(s->export));
-> +                               error("\"%s\" [%s] is a static EXPORT_SYMBOL\n",
-> +                                     s->name, s->module->name);
->                 }
->         }
->
-> --
-> 2.32.0
->
-> --
-> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20220508190631.2386038-3-masahiroy%40kernel.org.
-
-
-
+diff --git a/include/linux/mm_types_task.h b/include/linux/mm_types_task.h
+index 3e7da8c7ab95..c1ac2a33b697 100644
+--- a/include/linux/mm_types_task.h
++++ b/include/linux/mm_types_task.h
+@@ -64,11 +64,17 @@ enum {
+ struct task_rss_stat {
+ 	int events;	/* for synchronization threshold */
+ 	int count[NR_MM_COUNTERS];
++#ifdef CONFIG_NUMA
++	int *numa_count;
++#endif
+ };
+ #endif /* USE_SPLIT_PTE_PTLOCKS */
+ 
+ struct mm_rss_stat {
+ 	atomic_long_t count[NR_MM_COUNTERS];
++#ifdef CONFIG_NUMA
++	atomic_long_t *numa_count;
++#endif
+ };
+ 
+ struct page_frag {
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 9796897560ab..e549e0b30e2b 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -141,6 +141,10 @@ DEFINE_PER_CPU(unsigned long, process_counts) = 0;
+ 
+ __cacheline_aligned DEFINE_RWLOCK(tasklist_lock);  /* outer */
+ 
++#if (defined SPLIT_RSS_COUNTING) && (defined CONFIG_NUMA)
++#define SPLIT_RSS_NUMA_COUNTING
++#endif
++
+ #ifdef CONFIG_PROVE_RCU
+ int lockdep_tasklist_lock_is_held(void)
+ {
+@@ -765,6 +769,16 @@ static void check_mm(struct mm_struct *mm)
+ 				 mm, resident_page_types[i], x);
+ 	}
+ 
++#ifdef CONFIG_NUMA
++	for (i = 0; i < num_possible_nodes(); i++) {
++		long x = atomic_long_read(&mm->rss_stat.numa_count[i]);
++
++		if (unlikely(x))
++			pr_alert("BUG: Bad rss-counter state mm:%p node:%d val:%ld\n",
++				 mm, i, x);
++	}
++#endif
++
+ 	if (mm_pgtables_bytes(mm))
+ 		pr_alert("BUG: non-zero pgtables_bytes on freeing mm: %ld\n",
+ 				mm_pgtables_bytes(mm));
+@@ -777,6 +791,29 @@ static void check_mm(struct mm_struct *mm)
+ #define allocate_mm()	(kmem_cache_alloc(mm_cachep, GFP_KERNEL))
+ #define free_mm(mm)	(kmem_cache_free(mm_cachep, (mm)))
+ 
++#ifdef CONFIG_NUMA
++static inline void mm_free_rss_stat(struct mm_struct *mm)
++{
++	kfree(mm->rss_stat.numa_count);
++}
++
++static inline int mm_init_rss_stat(struct mm_struct *mm)
++{
++	memset(&mm->rss_stat.count, 0, sizeof(mm->rss_stat.count));
++	mm->rss_stat.numa_count = kcalloc(num_possible_nodes(), sizeof(atomic_long_t), GFP_KERNEL);
++	if (unlikely(!mm->rss_stat.numa_count))
++		return -ENOMEM;
++	return 0;
++}
++#else
++static inline void mm_free_rss_stat(struct mm_struct *mm) {}
++static inline int mm_init_rss_stat(struct mm_struct *mm)
++{
++	memset(&mm->rss_stat.count, 0, sizeof(mm->rss_stat.count));
++	return 0;
++}
++#endif
++
+ /*
+  * Called when the last reference to the mm
+  * is dropped: either by a lazy thread or by
+@@ -791,6 +828,7 @@ void __mmdrop(struct mm_struct *mm)
+ 	destroy_context(mm);
+ 	mmu_notifier_subscriptions_destroy(mm);
+ 	check_mm(mm);
++	mm_free_rss_stat(mm);
+ 	put_user_ns(mm->user_ns);
+ 	free_mm(mm);
+ }
+@@ -831,12 +869,22 @@ static inline void put_signal_struct(struct signal_struct *sig)
+ 		free_signal_struct(sig);
+ }
+ 
++#ifdef SPLIT_RSS_NUMA_COUNTING
++void rss_stat_free(struct task_struct *p)
++{
++	kfree(p->rss_stat.numa_count);
++}
++#else
++void rss_stat_free(struct task_struct *p) {}
++#endif
++
+ void __put_task_struct(struct task_struct *tsk)
+ {
+ 	WARN_ON(!tsk->exit_state);
+ 	WARN_ON(refcount_read(&tsk->usage));
+ 	WARN_ON(tsk == current);
+ 
++	rss_stat_free(tsk);
+ 	io_uring_free(tsk);
+ 	cgroup_free(tsk);
+ 	task_numa_free(tsk, true);
+@@ -963,6 +1011,7 @@ void set_task_stack_end_magic(struct task_struct *tsk)
+ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
+ {
+ 	struct task_struct *tsk;
++	int *numa_count __maybe_unused;
+ 	int err;
+ 
+ 	if (node == NUMA_NO_NODE)
+@@ -984,9 +1033,16 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
+ #endif
+ 	account_kernel_stack(tsk, 1);
+ 
++#ifdef SPLIT_RSS_NUMA_COUNTING
++	numa_count = kcalloc(num_possible_nodes(), sizeof(int), GFP_KERNEL);
++	if (!numa_count)
++		goto free_stack;
++	tsk->rss_stat.numa_count = numa_count;
++#endif
++
+ 	err = scs_prepare(tsk, node);
+ 	if (err)
+-		goto free_stack;
++		goto free_rss_stat;
+ 
+ #ifdef CONFIG_SECCOMP
+ 	/*
+@@ -1047,6 +1103,10 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
+ #endif
+ 	return tsk;
+ 
++free_rss_stat:
++#ifdef SPLIT_RSS_NUMA_COUNTING
++	kfree(numa_count);
++#endif
+ free_stack:
+ 	exit_task_stack_account(tsk);
+ 	free_thread_stack(tsk);
+@@ -1117,7 +1177,6 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
+ 	mm->map_count = 0;
+ 	mm->locked_vm = 0;
+ 	atomic64_set(&mm->pinned_vm, 0);
+-	memset(&mm->rss_stat, 0, sizeof(mm->rss_stat));
+ 	spin_lock_init(&mm->page_table_lock);
+ 	spin_lock_init(&mm->arg_lock);
+ 	mm_init_cpumask(mm);
+@@ -1144,6 +1203,9 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
+ 	if (mm_alloc_pgd(mm))
+ 		goto fail_nopgd;
+ 
++	if (mm_init_rss_stat(mm))
++		goto fail_nocontext;
++
+ 	if (init_new_context(p, mm))
+ 		goto fail_nocontext;
+ 
+@@ -2139,7 +2201,9 @@ static __latent_entropy struct task_struct *copy_process(
+ 	p->io_uring = NULL;
+ #endif
+ 
+-#if defined(SPLIT_RSS_COUNTING)
++#ifdef SPLIT_RSS_NUMA_COUNTING
++	memset(&p->rss_stat, 0, sizeof(p->rss_stat) - sizeof(p->rss_stat.numa_count));
++#else
+ 	memset(&p->rss_stat, 0, sizeof(p->rss_stat));
+ #endif
+ 
 -- 
-Best Regards
-Masahiro Yamada
+2.20.1
+
