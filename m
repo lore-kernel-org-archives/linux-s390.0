@@ -2,135 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F1C1C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 19:25:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65E9CC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 22:31:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352238AbiELTZQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 15:25:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39714 "EHLO
+        id S1359189AbiELWbt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 18:31:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243370AbiELTZP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 15:25:15 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A84822764ED
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 12:25:14 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id i10so10776668lfg.13
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 12:25:14 -0700 (PDT)
+        with ESMTP id S1359177AbiELWbr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 18:31:47 -0400
+Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EA1956FA9
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 15:31:46 -0700 (PDT)
+Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-2f7b815ac06so73030477b3.3
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 15:31:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=6mcqHVCTOADxT4nWVQOUHhwOqrmkthTN0rJ4nqx8rlI=;
-        b=fKCnjktwaZsXbw/hdsBSxLZqoXSDDmhQvbTlTr5AYZ8Oy9oDUyxGAllTgPTTqFT04O
-         m3sldOJGdC7gWeyAiRqa6IJQGSutRiFPDgOfJHVXCK9s083fVPgxQPUY77Arc5Iw8i2M
-         bzjk6gJ2wHqyIN4IC25rZeTcE6tYu32CyQFwUYh9yoERE+bORr/w4KbFaYi4udwHmUr1
-         OV+KCPvty4O2N28zK2+oGjyyDLNkBRxkRphYt3yx6lcqqjQciRkriZ38J7/aLAmLkaWX
-         TP3pdlbT3G+gvU7KLn0XzLasIlbneDcjX60j2vXak3HjF2T4saXxRHcBR7/nrnjawfyJ
-         qNnQ==
+        bh=AJGrVRrH+dOEhiElDtPJnom+nsrzVSlx3m1P3MXcyt8=;
+        b=HKHBQnUdowSNLBhbkOBsBEX5C+iK1w0Yf+bcFPhOqlRiMP6A0Mz5ltaYanBi+i05iG
+         cin6l4liXxnPvewh1T7T7VdF/b2gZubu8BFpF1WFRdvGC4vbHWLBnyEHMDVH+/ycYupI
+         sjKR4L02x/5+BSW+jam05AzZ2NmQlqkBhti6Uq78H0zr3uNSRVTWjzYDMTHeVMumdU/f
+         6Swv4843WGA/Mnd9MNpjok50X0vmtCH9JqfJWCHJy2aQ5P6XU2iRMYw+xQW3GDRas9BS
+         PaouOeajWzpDJoWV+wRBWGsBQvWe3KgQtzreixaQBUYxzKZaZERpu/imjAsk5CAWC9cB
+         OUbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=6mcqHVCTOADxT4nWVQOUHhwOqrmkthTN0rJ4nqx8rlI=;
-        b=Ijd2bxFlaDmrhEVCl51R4jKfLfYbDftfZMfYF+IayfNWok4HyHwnWda6Kdez6QXGJ9
-         yKZ4F50VsrjSP1D6IHD6crkmkLxo4HNf9ShjvD6wNZzKUcsjXfF821Q3iGyhk1DF+mXe
-         abPZ1+0Xg81NrsKfaJYPA6KQfoftkGtOa5H/CbIP3Udb91TWfekXI3acrrst5NtCaRZ3
-         A0MNo0YBlXk7YoQ+ZNe/6uv7wKO/OY14CQZ3CZCnNGicBYJ/BhnPw0c7ImpVoZw2/e7k
-         j7/BloZ5qsc0izsixRq4clzVqqXF2oAGaWdFsEr00b5weziuaudr48JrLK7l96SB8WVq
-         Y5Bg==
-X-Gm-Message-State: AOAM533/cl/MzL5JOOXLwnWxiwE3N1gQIL9e6os9xCVbYic4KWxPV7Tg
-        9pZRTMaN5Oc2Ro3gC5G58DwoXiGavETLQDxQUlWbvw==
-X-Google-Smtp-Source: ABdhPJwheBuGcaGgIIU/pM/BIG++IJsDiYIDUzck0xktR1ebk4IiEg3VfSwDzPBi50vdfq6jUaJJBc2HMtWkYUaWDT4=
-X-Received: by 2002:a05:6512:1291:b0:473:b522:ef58 with SMTP id
- u17-20020a056512129100b00473b522ef58mr908856lfs.190.1652383512824; Thu, 12
- May 2022 12:25:12 -0700 (PDT)
+        bh=AJGrVRrH+dOEhiElDtPJnom+nsrzVSlx3m1P3MXcyt8=;
+        b=w8AawpTgG7p20xYFOUWSpUIk5QBFLlfiegZ81mxyBccvcjDi82lrR0mIP6XnwfuiH6
+         BI5g9sAhNrm95nVBOPEXmOKmUInzmrPutcz14WrjO8UMh0Ur9bdt+q8ut79/l4cPsgfE
+         UC0i9kuCBf1WkSpU4LcvIjh+IzxjbIKqyNJdsdmPNH7nWZHy5QpPb3Adw2gjKFuEfyOu
+         0rc9mFQQbsaoK6yo+57GmfNdcH+WyC2pao/JPImB8VgxZ4gsT9QK6Sa7fnt7OqR4FxsJ
+         JjRAqkERGTxXcF0IZLpsOAB7Vo25KIHfw+pw+ZosWaBD0qgtcFh8Dpjb1MwVDdQrByqc
+         TdSA==
+X-Gm-Message-State: AOAM530Xdpb2czeyi2RiQTmCozcmkxSV7YeB+l4h4CImGZR/aaM9pG7X
+        zAdUz+x6UaUb8W12+2SX+oYIFV4zv6vuinfd3qrGPA==
+X-Google-Smtp-Source: ABdhPJwzefOUbhnD4vlu7+gan+V9STOahhU9EhcwGhhFaV8YI/mjlx7OYk8OXREHs4uUiLanalOYjb8ajWHHjC3d7gc=
+X-Received: by 2002:a81:4fd0:0:b0:2fb:2c3e:6cbc with SMTP id
+ d199-20020a814fd0000000b002fb2c3e6cbcmr2716004ywb.180.1652394705360; Thu, 12
+ May 2022 15:31:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220511120532.2228616-1-hca@linux.ibm.com> <20220511120532.2228616-4-hca@linux.ibm.com>
- <Yn1CLcsu9I0M8IEM@osiris> <CAKwvOdmSBNsA7C2ZCGDEmuxCituSQ=HPJx=9+AsBAOYfkSZRPA@mail.gmail.com>
- <Yn1ctPDjPaU2wsor@osiris>
-In-Reply-To: <Yn1ctPDjPaU2wsor@osiris>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Thu, 12 May 2022 12:25:01 -0700
-Message-ID: <CAKwvOdkwamvuCFkj-uFA_uT+gLNr8-v-zuGYLYb-pV8TOTxDSw@mail.gmail.com>
-Subject: Re: [PATCH 3/8] s390/entry: shorten OUTSIDE macro
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
-        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220512044634.63586-1-ligang.bdlg@bytedance.com>
+In-Reply-To: <20220512044634.63586-1-ligang.bdlg@bytedance.com>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Thu, 12 May 2022 15:31:34 -0700
+Message-ID: <CAJuCfpGDamD6P6Tgz=Y59fpj1NgFL0wjKe+y42-mCQ2x-asx3A@mail.gmail.com>
+Subject: Re: [PATCH 0/5 v1] mm, oom: Introduce per numa node oom for CONSTRAINT_MEMORY_POLICY
+To:     Gang Li <ligang.bdlg@bytedance.com>, Michal Hocko <mhocko@suse.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Muchun Song <songmuchun@bytedance.com>, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>, acme@kernel.org,
+        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
+        jolsa@kernel.org, namhyung@kernel.org,
+        David Hildenbrand <david@redhat.com>, imbrenda@linux.ibm.com,
+        apopple@nvidia.com, Alexey Dobriyan <adobriyan@gmail.com>,
+        stephen.s.brennan@oracle.com, ohoono.kwon@samsung.com,
+        haolee.swjtu@gmail.com, Kalesh Singh <kaleshsingh@google.com>,
+        zhengqi.arch@bytedance.com, Peter Xu <peterx@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Colin Cross <ccross@google.com>, vincent.whitchurch@axis.com,
+        Thomas Gleixner <tglx@linutronix.de>, bigeasy@linutronix.de,
+        fenghua.yu@intel.com, linux-s390@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-perf-users@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 12, 2022 at 12:15 PM Heiko Carstens <hca@linux.ibm.com> wrote:
+On Wed, May 11, 2022 at 9:47 PM Gang Li <ligang.bdlg@bytedance.com> wrote:
 >
-> On Thu, May 12, 2022 at 11:00:31AM -0700, Nick Desaulniers wrote:
-> > On Thu, May 12, 2022 at 10:22 AM Heiko Carstens <hca@linux.ibm.com> wrote:
-> > >
-> > > On Wed, May 11, 2022 at 02:05:27PM +0200, Heiko Carstens wrote:
-> > > > Since the minimum architecture level has been raised to z10 a shorter
-> > > > instruction sequence can be used to implement the OUTSIDE macro. This
-> > > > also reduces the number of used registers within that macro to one.
-> > > >
-> > > > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> > > > ---
-> > > >  arch/s390/kernel/entry.S | 8 +++-----
-> > > >  1 file changed, 3 insertions(+), 5 deletions(-)
-> > > >
-> > > > diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-> > > > index a6b45eaa3450..e1664b45090f 100644
-> > > > --- a/arch/s390/kernel/entry.S
-> > > > +++ b/arch/s390/kernel/entry.S
-> > > > @@ -169,11 +169,9 @@ _LPP_OFFSET      = __LC_LPP
-> > > >        * @outside_label: jump here if @reg is outside of [@start..@end)
-> > > >        */
-> > > >       .macro OUTSIDE reg,start,end,outside_label
-> > > > -     lgr     %r14,\reg
-> > > > -     larl    %r13,\start
-> > > > -     slgr    %r14,%r13
-> > > > -     lghi    %r13,\end - \start
-> > > > -     clgr    %r14,%r13
-> > > > +     larl    %r14,\start
-> > > > +     slgrk   %r14,\reg,%r14
-> > > > +     clgfi   %r14,\end - \start
-> > >
-> > > Clever me.. slgrk was added with z196, and not z10.
-> > > So dropping this patch.
-> >
-> > How do the version numbers work for SystemZ? Is there a list/reference
-> > you could link me to?  If it's too deep a rabbit hole, then nevermind,
-> > but I would like to learn a little more about the architecture.
+> TLDR:
+> If a mempolicy is in effect(oc->constraint == CONSTRAINT_MEMORY_POLICY), out_of_memory() will
+> select victim on specific node to kill. So that kernel can avoid accidental killing on NUMA system.
 >
-> If it is only for the machine generations the following links might help:
+> Problem:
+> Before this patch series, oom will only kill the process with the highest memory usage.
+> by selecting process with the highest oom_badness on the entire system to kill.
 >
-> https://www.ibm.com/support/pages/ibm-mainframe-life-cycle-history
-> (see linked pdf for list of machine names)
+> This works fine on UMA system, but may have some accidental killing on NUMA system.
 >
-> https://en.wikipedia.org/wiki/IBM_Z
+> As shown below, if process c.out is bind to Node1 and keep allocating pages from Node1,
+> a.out will be killed first. But killing a.out did't free any mem on Node1, so c.out
+> will be killed then.
 >
-> There might be better sources, but that's all I could find right now.
+> A lot of our AMD machines have 8 numa nodes. In these systems, there is a greater chance
+> of triggering this problem.
+>
+> OOM before patches:
+> ```
+> Per-node process memory usage (in MBs)
+> PID             Node 0        Node 1      Total
+> ----------- ---------- ------------- ----------
+> 3095 a.out     3073.34          0.11    3073.45(Killed first. Maximum memory consumption)
+> 3199 b.out      501.35       1500.00    2001.35
+> 3805 c.out        1.52 (grow)2248.00    2249.52(Killed then. Node1 is full)
+> ----------- ---------- ------------- ----------
+> Total          3576.21       3748.11    7324.31
+> ```
+>
+> Solution:
+> We store per node rss in mm_rss_stat for each process.
+>
+> If a page allocation with mempolicy in effect(oc->constraint == CONSTRAINT_MEMORY_POLICY)
+> triger oom. We will calculate oom_badness with rss counter for the corresponding node. Then
+> select the process with the highest oom_badness on the corresponding node to kill.
+>
+> OOM after patches:
+> ```
+> Per-node process memory usage (in MBs)
+> PID             Node 0        Node 1     Total
+> ----------- ---------- ------------- ----------
+> 3095 a.out     3073.34          0.11    3073.45
+> 3199 b.out      501.35       1500.00    2001.35
+> 3805 c.out        1.52 (grow)2248.00    2249.52(killed)
+> ----------- ---------- ------------- ----------
+> Total          3576.21       3748.11    7324.31
+> ```
 
-Interesting! Thanks for the links.
-I'm guessing in our CI that we should probably pursue testing some of
-the newer revisions. Wasn't defconfig updated from z10 to z12 not too
-long ago?
-So probably
-CONFIG_MARCH_Z13
-CONFIG_MARCH_Z14
-CONFIG_MARCH_Z15
-CONFIG_MARCH_Z16
+You included lots of people but missed Michal Hocko. CC'ing him and
+please include him in the future postings.
 
-All look like they're still "supported" (and I'm guessing
-CONFIG_MARCH_Z10 and CONFIG_MARCH_Z196 are not too much burden to
-continue to maintain kernel support for), with a higher emphasis
-perhaps on z15+z16?
--- 
-Thanks,
-~Nick Desaulniers
+>
+> Gang Li (5):
+>   mm: add a new parameter `node` to `get/add/inc/dec_mm_counter`
+>   mm: add numa_count field for rss_stat
+>   mm: add numa fields for tracepoint rss_stat
+>   mm: enable per numa node rss_stat count
+>   mm, oom: enable per numa node oom for CONSTRAINT_MEMORY_POLICY
+>
+>  arch/s390/mm/pgtable.c        |   4 +-
+>  fs/exec.c                     |   2 +-
+>  fs/proc/base.c                |   6 +-
+>  fs/proc/task_mmu.c            |  14 ++--
+>  include/linux/mm.h            |  59 ++++++++++++-----
+>  include/linux/mm_types_task.h |  16 +++++
+>  include/linux/oom.h           |   2 +-
+>  include/trace/events/kmem.h   |  27 ++++++--
+>  kernel/events/uprobes.c       |   6 +-
+>  kernel/fork.c                 |  70 +++++++++++++++++++-
+>  mm/huge_memory.c              |  13 ++--
+>  mm/khugepaged.c               |   4 +-
+>  mm/ksm.c                      |   2 +-
+>  mm/madvise.c                  |   2 +-
+>  mm/memory.c                   | 116 ++++++++++++++++++++++++----------
+>  mm/migrate.c                  |   2 +
+>  mm/migrate_device.c           |   2 +-
+>  mm/oom_kill.c                 |  59 ++++++++++++-----
+>  mm/rmap.c                     |  16 ++---
+>  mm/swapfile.c                 |   4 +-
+>  mm/userfaultfd.c              |   2 +-
+>  21 files changed, 317 insertions(+), 111 deletions(-)
+>
+> --
+> 2.20.1
+>
