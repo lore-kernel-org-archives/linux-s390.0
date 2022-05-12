@@ -2,118 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C94AC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 14:57:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59EAEC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 15:07:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354907AbiELO5K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 10:57:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46464 "EHLO
+        id S1345514AbiELPHf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 11:07:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355261AbiELO46 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 10:56:58 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F5C62110;
-        Thu, 12 May 2022 07:56:54 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24CDEieF013709;
-        Thu, 12 May 2022 14:56:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=OMTehq1XmIz0jvyyrlNCokWf0qJnSvtY2n6I6yV8cJU=;
- b=NCTUgIcBSMWOc7AaVGbIEUo6PV5zTQvVZ+74j7YKZaPgFzNz/WPkC8zumY/vxFaWuz8G
- uJUKseaWoMzbGLjzF5zPTK46VFvbynTDjs3dnsMhy1di8NjbE2VuXVFTioIHdmPcRDtX
- bjr8mUaMCPjHz7q6cmBtJ4KmDyi7TipfQ3Qfxpk3GahiqOQXR/aVO3Hs7UtHrPbi4pVL
- NdUQucyBR6Hg/XcvTI/ickt4bF89EwwN5khFPVDcDozThdtJphafNiHIHXyfleGkUWj4
- fo7JcpokzedK+t0kK7CczxAwLLjLOmJqd6pqlwerucEzG6F1KntfIjKVgwexe+XyOYws 5Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g12xytts5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 14:56:50 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24CEmPGL016086;
-        Thu, 12 May 2022 14:56:50 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g12xyttrc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 14:56:50 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24CEnoCX013435;
-        Thu, 12 May 2022 14:56:47 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04fra.de.ibm.com with ESMTP id 3g0ma1gyjg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 14:56:47 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24CEuijo47776016
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 May 2022 14:56:44 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6440611C04C;
-        Thu, 12 May 2022 14:56:44 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7E1B11C04A;
-        Thu, 12 May 2022 14:56:43 +0000 (GMT)
-Received: from sig-9-145-9-18.uk.ibm.com (unknown [9.145.9.18])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 12 May 2022 14:56:43 +0000 (GMT)
-Message-ID: <f34130034637278c9999cf6d430be558cb0c2318.camel@linux.ibm.com>
-Subject: Re: [PATCH RESEND v5 1/4] PCI: Clean up pci_scan_slot()
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Bjorn Helgaas <bhelgaas@google.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
-Date:   Thu, 12 May 2022 16:56:42 +0200
-In-Reply-To: <20220505083839.1315705-2-schnelle@linux.ibm.com>
-References: <20220505083839.1315705-1-schnelle@linux.ibm.com>
-         <20220505083839.1315705-2-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
+        with ESMTP id S1355404AbiELPHd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 11:07:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4549149A8C;
+        Thu, 12 May 2022 08:07:31 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A8AEB828B1;
+        Thu, 12 May 2022 15:07:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EE97C385B8;
+        Thu, 12 May 2022 15:07:26 +0000 (UTC)
+Date:   Thu, 12 May 2022 11:07:25 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Li kunyu <kunyu@nfschina.com>
+Cc:     agordeev@linux.ibm.com, aou@eecs.berkeley.edu,
+        borntraeger@linux.ibm.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, gor@linux.ibm.com, hca@linux.ibm.com,
+        hpa@zytor.com, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux@armlinux.org.uk,
+        mingo@redhat.com, palmer@dabbelt.com, paul.walmsley@sifive.com,
+        svens@linux.ibm.com, tglx@linutronix.de, x86@kernel.org
+Subject: Re: [PATCH] kernel: Ftrace seems to have functions to improve
+ performance through optimization
+Message-ID: <20220512110725.22e69e3c@gandalf.local.home>
+In-Reply-To: <20220512144533.58085-1-kunyu@nfschina.com>
+References: <20220512101229.7886a798@gandalf.local.home>
+        <20220512144533.58085-1-kunyu@nfschina.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fOs3S_ad3T-Zy_kK72KB4445G0h2S1dR
-X-Proofpoint-ORIG-GUID: e6GeGN562Lkekf1wksfaStG8ZKiR2OpF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-12_10,2022-05-12_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- priorityscore=1501 suspectscore=0 lowpriorityscore=0 adultscore=0
- mlxlogscore=473 spamscore=0 malwarescore=0 clxscore=1015 mlxscore=0
- impostorscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2205120067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2022-05-05 at 10:38 +0200, Niklas Schnelle wrote:
-> While determining the next PCI function is factored out of
-> pci_scan_slot() into next_fn() the former still handles the first
-> function as a special case. This duplicates the code from the scan loop.
-> 
-> Furthermore the non ARI branch of next_fn() is generally hard to
-> understand and especially the check for multifunction devices is hidden
-> in the handling of NULL devices for non-contiguous multifunction. It
-> also signals that no further functions need to be scanned by returning
-> 0 via wraparound and this is a valid function number.
-> 
-> Improve upon this by transforming the conditions in next_fn() to be
-> easier to understand.
-> 
-> By changing next_fn() to return -ENODEV instead of 0 when there is no
-> next function we can then handle the initial function inside the loop
-> and deduplicate the shared handling. This also makes it more explicit
-> that only function 0 must exist.
-> 
-> No functional change is intended.
-> 
-> Cc: Jan Kiszka <jan.kiszka@siemens.com>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
+On Thu, 12 May 2022 22:45:32 +0800
+Li kunyu <kunyu@nfschina.com> wrote:
 
-Friendly ping :-)
+> I'm glad you're willing to reply to me. 
+> My current English level is limited, and I may not describe it correctly. 
+> I consider that these functions may not be modified in a short time,
+> which may bring advantages in function performance. I could only submit
+> it by inquiry.
+
+The performance improvement is negligible, and not worth the churn (changes
+to the code). And if that is the reason for the change, it is not worth
+adding it.
+
+Now if the reason for the change is to clean up the code to remove
+something that is not used, then it may be something to add if it is not
+too intrusive.
+
+-- Steve
 
