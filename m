@@ -2,105 +2,190 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C7BDC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 12:08:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE46CC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 13:10:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353551AbiELMIi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 08:08:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40700 "EHLO
+        id S1354191AbiELNKf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 09:10:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351652AbiELMIh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 08:08:37 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72E6033E9A;
-        Thu, 12 May 2022 05:08:36 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24CBuOU2027358;
-        Thu, 12 May 2022 12:08:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=UpinVejisDsY3s3pfI6xdVEtuuplzdK+4Ga9n1LdEpw=;
- b=I5hyYD+hL9952MKtiyBfQQdIHpJM4wRw+VJMKoQ4ONnB75gP3FHy8QwzJCWDrrVxXibT
- aG7YOXRwhYHlaXEFYyb2jsZP/oMrns+a35nGTaEdWVmGkNEd2hppJMlaCIKgYavMFJzz
- BQhZc8xMEQIFver8w/QkBDg0YN/MxHSbW7stWpWLcfp66s4ZAZqcnm3KPIioK4qyILZ8
- BRFvgo+gGWzad+ZknbKGpX5zSPdwlh8nhSCTPIwwz8i4+D/e5ize/XvrwYIF+2gGurvV
- rWtHPnxqFQpc28ZqjS3w/0MSNbfoEopCghkhagzNH1/jarStaQQjkKDE6+rDGI616SNx cQ== 
+        with ESMTP id S1354188AbiELNKe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 09:10:34 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C803C24F223;
+        Thu, 12 May 2022 06:10:32 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24CC1wOV004224;
+        Thu, 12 May 2022 13:10:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=IsYIoKJ9cEQwxoyHMoaEW3qJ9wQum8a1pqagyIatf7I=;
+ b=bY1XzxCjtTHN1lAuSJpR3dW07pLQKYr849yu8TzHRiUMGcBA1DrybVJWzKQ7F/Yv7m4C
+ mKX6L3VNiQlMhWhk2VXYpKS0hIaxbw+JcMFKwDwe7BPwfUYFbMKYZXo++v/lIks8gO/U
+ eMTTAVtOmykk50SjXm6yAKg7ZXrUSC0sbw+8VobuHlDl7gWVBAUceqnYTEe52phI0IJv
+ eH64gnahYACOxZUb292EX/x4a9EukgQJD0MEsQgyyIUQBMDGEFU3dPtu6CtmY4459Fap
+ dPe6lWXkjxl3CvF+1+eeklOVyqW/VrpsIGYzX1nu2WMoS2upyzDsDEKRZdn1T16g0vOK zw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g11t9087q-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g11vr1r10-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 12:08:26 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24CBxSWc005111;
-        Thu, 12 May 2022 12:08:26 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g11t9086r-1
+        Thu, 12 May 2022 13:10:32 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24CC244p004665;
+        Thu, 12 May 2022 13:10:31 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g11vr1qys-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 12:08:26 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24CC7QCO009910;
-        Thu, 12 May 2022 12:08:24 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3fwgd8y08c-1
+        Thu, 12 May 2022 13:10:31 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24CD3Uki028511;
+        Thu, 12 May 2022 13:10:29 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3g0kn78w47-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 12:08:24 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24CC80gH35193266
+        Thu, 12 May 2022 13:10:28 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24CDAP8m33685908
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 May 2022 12:08:00 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EE4115204F;
-        Thu, 12 May 2022 12:08:21 +0000 (GMT)
-Received: from [9.152.222.250] (unknown [9.152.222.250])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id A772452050;
-        Thu, 12 May 2022 12:08:21 +0000 (GMT)
-Message-ID: <ba81cf0c-08c5-76e9-bfc8-369887454e52@linux.ibm.com>
-Date:   Thu, 12 May 2022 14:08:23 +0200
+        Thu, 12 May 2022 13:10:25 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C4999AE056;
+        Thu, 12 May 2022 13:10:25 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5E228AE04D;
+        Thu, 12 May 2022 13:10:25 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 12 May 2022 13:10:25 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH v3 1/2] KVM: s390: Don't indicate suppression on dirtying, failing memop
+Date:   Thu, 12 May 2022 15:10:17 +0200
+Message-Id: <20220512131019.2594948-2-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220512131019.2594948-1-scgl@linux.ibm.com>
+References: <20220512131019.2594948-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH net-next v2 2/2] net/smc: align the connect behaviour with
- TCP
-Content-Language: en-US
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-        davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
-        tonylu@linux.alibaba.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220512031156.74054-1-guangguan.wang@linux.alibaba.com>
- <20220512031156.74054-3-guangguan.wang@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20220512031156.74054-3-guangguan.wang@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2oaO-gE-6SnHAkJOjUibTWsqLRitPRID
-X-Proofpoint-ORIG-GUID: nMgKDzK2wHDukIK4NrGJp_FNDdIxk9g-
+X-Proofpoint-GUID: asT-5bzCxO9EBOVJOeKQGHprEUJo7oOo
+X-Proofpoint-ORIG-GUID: tjNBglsIc9n5_qBUmZsHAqdhal8jxyRU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-12_02,2022-05-12_01,2022-02-23_01
+ definitions=2022-05-12_10,2022-05-12_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 suspectscore=0 clxscore=1015 mlxlogscore=999 bulkscore=0
- malwarescore=0 spamscore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205120052
+ adultscore=0 suspectscore=0 bulkscore=0 mlxscore=0 impostorscore=0
+ spamscore=0 clxscore=1011 malwarescore=0 lowpriorityscore=0
+ mlxlogscore=999 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2205120061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/05/2022 05:11, Guangguan Wang wrote:
-> Connect with O_NONBLOCK will not be completed immediately
-> and returns -EINPROGRESS. It is possible to use selector/poll
-> for completion by selecting the socket for writing. After select
-> indicates writability, a second connect function call will return
-> 0 to indicate connected successfully as TCP does, but smc returns
-> -EISCONN. Use socket state for smc to indicate connect state, which
-> can help smc aligning the connect behaviour with TCP.
-> 
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-> ---
+If user space uses a memop to emulate an instruction and that
+memop fails, the execution of the instruction ends.
+Instruction execution can end in different ways, one of which is
+suppression, which requires that the instruction execute like a no-op.
+A writing memop that spans multiple pages and fails due to key
+protection may have modified guest memory, as a result, the likely
+correct ending is termination. Therefore, do not indicate a
+suppressing instruction ending in this case.
 
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+---
+ Documentation/virt/kvm/api.rst |  6 ++++++
+ arch/s390/kvm/gaccess.c        | 22 ++++++++++++++++++----
+ 2 files changed, 24 insertions(+), 4 deletions(-)
 
-Thank you.
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 4a900cdbc62e..b6aba4f50db7 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -3754,12 +3754,18 @@ in case of KVM_S390_MEMOP_F_CHECK_ONLY), the ioctl returns a positive
+ error number indicating the type of exception. This exception is also
+ raised directly at the corresponding VCPU if the flag
+ KVM_S390_MEMOP_F_INJECT_EXCEPTION is set.
++On protection exceptions, unless specified otherwise, the injected
++translation-exception identifier (TEID) indicates suppression.
+ 
+ If the KVM_S390_MEMOP_F_SKEY_PROTECTION flag is set, storage key
+ protection is also in effect and may cause exceptions if accesses are
+ prohibited given the access key designated by "key"; the valid range is 0..15.
+ KVM_S390_MEMOP_F_SKEY_PROTECTION is available if KVM_CAP_S390_MEM_OP_EXTENSION
+ is > 0.
++Since the accessed memory may span multiple pages and those pages might have
++different storage keys, it is possible that a protection exception occurs
++after memory has been modified. In this case, if the exception is injected,
++the TEID does not indicate suppression.
+ 
+ Absolute read/write:
+ ^^^^^^^^^^^^^^^^^^^^
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index d53a183c2005..227ed0009354 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -491,8 +491,8 @@ enum prot_type {
+ 	PROT_TYPE_IEP  = 4,
+ };
+ 
+-static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
+-		     u8 ar, enum gacc_mode mode, enum prot_type prot)
++static int trans_exc_ending(struct kvm_vcpu *vcpu, int code, unsigned long gva, u8 ar,
++			    enum gacc_mode mode, enum prot_type prot, bool terminate)
+ {
+ 	struct kvm_s390_pgm_info *pgm = &vcpu->arch.pgm;
+ 	struct trans_exc_code_bits *tec;
+@@ -520,6 +520,11 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
+ 			tec->b61 = 1;
+ 			break;
+ 		}
++		if (terminate) {
++			tec->b56 = 0;
++			tec->b60 = 0;
++			tec->b61 = 0;
++		}
+ 		fallthrough;
+ 	case PGM_ASCE_TYPE:
+ 	case PGM_PAGE_TRANSLATION:
+@@ -552,6 +557,12 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
+ 	return code;
+ }
+ 
++static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva, u8 ar,
++		     enum gacc_mode mode, enum prot_type prot)
++{
++	return trans_exc_ending(vcpu, code, gva, ar, mode, prot, false);
++}
++
+ static int get_vcpu_asce(struct kvm_vcpu *vcpu, union asce *asce,
+ 			 unsigned long ga, u8 ar, enum gacc_mode mode)
+ {
+@@ -1109,8 +1120,11 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+ 		data += fragment_len;
+ 		ga = kvm_s390_logical_to_effective(vcpu, ga + fragment_len);
+ 	}
+-	if (rc > 0)
+-		rc = trans_exc(vcpu, rc, ga, ar, mode, prot);
++	if (rc > 0) {
++		bool terminate = (mode == GACC_STORE) && (idx > 0);
++
++		rc = trans_exc_ending(vcpu, rc, ga, ar, mode, prot, terminate);
++	}
+ out_unlock:
+ 	if (need_ipte_lock)
+ 		ipte_unlock(vcpu);
+-- 
+2.32.0
+
