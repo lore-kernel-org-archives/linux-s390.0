@@ -2,63 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65042C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 19:16:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F1C1C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 19:25:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357997AbiELTQl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 15:16:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36318 "EHLO
+        id S1352238AbiELTZQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 15:25:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357993AbiELTQh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 15:16:37 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2603473B8;
-        Thu, 12 May 2022 12:16:35 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24CJDFc8004218;
-        Thu, 12 May 2022 19:16:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=1CsN5ivk3D2z8QbP7u8AezAtPxEkf8owO72EbSkHfTY=;
- b=nvmWl+t9m+SmPEuC0nN96gOPIWC5EMidPLSBlGo2UYBSvenpRoy/GqGSAz5zHvI3oPIL
- VBw/Gpeni1MWltWW8f0v98Ei/qECrE/ZIhltTzR7/y6j9NwvU+bFcuNA0XqwC1FTF4I2
- Cf2LJJjfKo7TfQtVhb4LMAxc5YCzE19BWhpXPVU+fbaQmkujl7dWna+2LoDq74rsGH9v
- Zjet7t3xfj95RRpzV2rzR8oviADqgjFEmIGK3rsJ8YrDwosi/92EAg64f+aYRjPSxorU
- RtgTeh90oWhzvuMw6LNR1UdcP+KY2Qq+SazKZzKFRgzqzy+i1XwzafheWoPTYGwOzUuX bw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g186w01pd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 19:16:32 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24CJGWEF021122;
-        Thu, 12 May 2022 19:16:32 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g186w01p0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 19:16:32 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24CIvs1M009635;
-        Thu, 12 May 2022 19:16:30 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 3g0ma1h6d0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 May 2022 19:16:30 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24CJGQwG48366018
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 May 2022 19:16:26 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F0EA74C040;
-        Thu, 12 May 2022 19:16:25 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7C1A84C044;
-        Thu, 12 May 2022 19:16:25 +0000 (GMT)
-Received: from osiris (unknown [9.145.44.123])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 12 May 2022 19:16:25 +0000 (GMT)
-Date:   Thu, 12 May 2022 21:16:24 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Nathan Chancellor <nathan@kernel.org>
+        with ESMTP id S243370AbiELTZP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 15:25:15 -0400
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A84822764ED
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 12:25:14 -0700 (PDT)
+Received: by mail-lf1-x12e.google.com with SMTP id i10so10776668lfg.13
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 12:25:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6mcqHVCTOADxT4nWVQOUHhwOqrmkthTN0rJ4nqx8rlI=;
+        b=fKCnjktwaZsXbw/hdsBSxLZqoXSDDmhQvbTlTr5AYZ8Oy9oDUyxGAllTgPTTqFT04O
+         m3sldOJGdC7gWeyAiRqa6IJQGSutRiFPDgOfJHVXCK9s083fVPgxQPUY77Arc5Iw8i2M
+         bzjk6gJ2wHqyIN4IC25rZeTcE6tYu32CyQFwUYh9yoERE+bORr/w4KbFaYi4udwHmUr1
+         OV+KCPvty4O2N28zK2+oGjyyDLNkBRxkRphYt3yx6lcqqjQciRkriZ38J7/aLAmLkaWX
+         TP3pdlbT3G+gvU7KLn0XzLasIlbneDcjX60j2vXak3HjF2T4saXxRHcBR7/nrnjawfyJ
+         qNnQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6mcqHVCTOADxT4nWVQOUHhwOqrmkthTN0rJ4nqx8rlI=;
+        b=Ijd2bxFlaDmrhEVCl51R4jKfLfYbDftfZMfYF+IayfNWok4HyHwnWda6Kdez6QXGJ9
+         yKZ4F50VsrjSP1D6IHD6crkmkLxo4HNf9ShjvD6wNZzKUcsjXfF821Q3iGyhk1DF+mXe
+         abPZ1+0Xg81NrsKfaJYPA6KQfoftkGtOa5H/CbIP3Udb91TWfekXI3acrrst5NtCaRZ3
+         A0MNo0YBlXk7YoQ+ZNe/6uv7wKO/OY14CQZ3CZCnNGicBYJ/BhnPw0c7ImpVoZw2/e7k
+         j7/BloZ5qsc0izsixRq4clzVqqXF2oAGaWdFsEr00b5weziuaudr48JrLK7l96SB8WVq
+         Y5Bg==
+X-Gm-Message-State: AOAM533/cl/MzL5JOOXLwnWxiwE3N1gQIL9e6os9xCVbYic4KWxPV7Tg
+        9pZRTMaN5Oc2Ro3gC5G58DwoXiGavETLQDxQUlWbvw==
+X-Google-Smtp-Source: ABdhPJwheBuGcaGgIIU/pM/BIG++IJsDiYIDUzck0xktR1ebk4IiEg3VfSwDzPBi50vdfq6jUaJJBc2HMtWkYUaWDT4=
+X-Received: by 2002:a05:6512:1291:b0:473:b522:ef58 with SMTP id
+ u17-20020a056512129100b00473b522ef58mr908856lfs.190.1652383512824; Thu, 12
+ May 2022 12:25:12 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220511120532.2228616-1-hca@linux.ibm.com> <20220511120532.2228616-4-hca@linux.ibm.com>
+ <Yn1CLcsu9I0M8IEM@osiris> <CAKwvOdmSBNsA7C2ZCGDEmuxCituSQ=HPJx=9+AsBAOYfkSZRPA@mail.gmail.com>
+ <Yn1ctPDjPaU2wsor@osiris>
+In-Reply-To: <Yn1ctPDjPaU2wsor@osiris>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Thu, 12 May 2022 12:25:01 -0700
+Message-ID: <CAKwvOdkwamvuCFkj-uFA_uT+gLNr8-v-zuGYLYb-pV8TOTxDSw@mail.gmail.com>
+Subject: Re: [PATCH 3/8] s390/entry: shorten OUTSIDE macro
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Nathan Chancellor <natechancellor@gmail.com>
 Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
@@ -67,49 +63,74 @@ Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Egorenkov <egorenar@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Andreas Krebbel <krebbel@linux.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/8] s390/entry: workaround llvm's IAS limitations
-Message-ID: <Yn1dCMwbtgujD/in@osiris>
-References: <20220511120532.2228616-1-hca@linux.ibm.com>
- <20220511120532.2228616-5-hca@linux.ibm.com>
- <YnvynSZfF/8I8vmT@dev-arch.thelio-3990X>
- <Yn1CyTcrZk1Kgvoq@osiris>
- <Yn1a01xhijM5MH1o@dev-arch.thelio-3990X>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yn1a01xhijM5MH1o@dev-arch.thelio-3990X>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: G49Nm5BRHv8hd9WeydFxCdflDYgLhb9H
-X-Proofpoint-GUID: pWw6xIi0_NXjY_7y2CBK4pHcO-XjLHkU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-12_16,2022-05-12_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- bulkscore=0 phishscore=0 suspectscore=0 malwarescore=0 adultscore=0
- priorityscore=1501 lowpriorityscore=0 spamscore=0 clxscore=1015
- mlxlogscore=734 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205120083
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 12, 2022 at 12:06:59PM -0700, Nathan Chancellor wrote:
-> > +#ifdef CONFIG_AS_IS_LLVM
-> > +	clgfrl	%r14,.Lrange_size\@
-> > +#else
-> > +	clgfi	%r14,\end - \start
-> > +#endif
-> >  	jhe	\outside_label
-> > +#ifdef CONFIG_CC_IS_CLANG
-> 
-> I think this one also wants to be CONFIG_AS_IS_LLVM, right?
+On Thu, May 12, 2022 at 12:15 PM Heiko Carstens <hca@linux.ibm.com> wrote:
+>
+> On Thu, May 12, 2022 at 11:00:31AM -0700, Nick Desaulniers wrote:
+> > On Thu, May 12, 2022 at 10:22 AM Heiko Carstens <hca@linux.ibm.com> wrote:
+> > >
+> > > On Wed, May 11, 2022 at 02:05:27PM +0200, Heiko Carstens wrote:
+> > > > Since the minimum architecture level has been raised to z10 a shorter
+> > > > instruction sequence can be used to implement the OUTSIDE macro. This
+> > > > also reduces the number of used registers within that macro to one.
+> > > >
+> > > > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> > > > ---
+> > > >  arch/s390/kernel/entry.S | 8 +++-----
+> > > >  1 file changed, 3 insertions(+), 5 deletions(-)
+> > > >
+> > > > diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+> > > > index a6b45eaa3450..e1664b45090f 100644
+> > > > --- a/arch/s390/kernel/entry.S
+> > > > +++ b/arch/s390/kernel/entry.S
+> > > > @@ -169,11 +169,9 @@ _LPP_OFFSET      = __LC_LPP
+> > > >        * @outside_label: jump here if @reg is outside of [@start..@end)
+> > > >        */
+> > > >       .macro OUTSIDE reg,start,end,outside_label
+> > > > -     lgr     %r14,\reg
+> > > > -     larl    %r13,\start
+> > > > -     slgr    %r14,%r13
+> > > > -     lghi    %r13,\end - \start
+> > > > -     clgr    %r14,%r13
+> > > > +     larl    %r14,\start
+> > > > +     slgrk   %r14,\reg,%r14
+> > > > +     clgfi   %r14,\end - \start
+> > >
+> > > Clever me.. slgrk was added with z196, and not z10.
+> > > So dropping this patch.
+> >
+> > How do the version numbers work for SystemZ? Is there a list/reference
+> > you could link me to?  If it's too deep a rabbit hole, then nevermind,
+> > but I would like to learn a little more about the architecture.
+>
+> If it is only for the machine generations the following links might help:
+>
+> https://www.ibm.com/support/pages/ibm-mainframe-life-cycle-history
+> (see linked pdf for list of machine names)
+>
+> https://en.wikipedia.org/wiki/IBM_Z
+>
+> There might be better sources, but that's all I could find right now.
 
-Yes, of course.
+Interesting! Thanks for the links.
+I'm guessing in our CI that we should probably pursue testing some of
+the newer revisions. Wasn't defconfig updated from z10 to z12 not too
+long ago?
+So probably
+CONFIG_MARCH_Z13
+CONFIG_MARCH_Z14
+CONFIG_MARCH_Z15
+CONFIG_MARCH_Z16
 
-> Other than that, seems fine to me, although I have no knowledge of s390
-> assembly so that statement probably means next to nothing :)
-
-Thanks for having a look! :)
+All look like they're still "supported" (and I'm guessing
+CONFIG_MARCH_Z10 and CONFIG_MARCH_Z196 are not too much burden to
+continue to maintain kernel support for), with a higher emphasis
+perhaps on z15+z16?
+-- 
+Thanks,
+~Nick Desaulniers
