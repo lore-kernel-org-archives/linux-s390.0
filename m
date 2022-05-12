@@ -2,64 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F364C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 09:25:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5525C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 09:31:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351993AbiELJZE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 05:25:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49264 "EHLO
+        id S1352058AbiELJb2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 05:31:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352022AbiELJYy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 05:24:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 21A5E22D610
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 02:24:43 -0700 (PDT)
+        with ESMTP id S1350016AbiELJb1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 05:31:27 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1F291612A0
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 02:31:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652347482;
+        s=mimecast20190719; t=1652347884;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ZYMVGmr4MttuxWd0hUOmG2PAW2P1q54IXjwFFMV7R3w=;
-        b=GqLTdxgws4X1pIGMVkoVZkG10J62Dcm6znRLstJITUWNuRkHSfuLCZIdIRi8OWz9+0/4db
-        jzXhTS0EdzuzzuKHGTY0otpCgbX4I/4y9Xeitprss45qR0PpwX0GHIq67wOOwqckL5sTaS
-        Lg4jagnixB2GE043r8t+UV7HwEXZ8sQ=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=BL3CJGsqY/cqdqqI7zN3z8l2hVpezWWDtzBjCtMeqUg=;
+        b=OXF1EdD8jFeB+hmkUpriJ/6Cws4uCCun+mg6TyM1izR2NWzZY/Tp+so0IdbCIdDYfsGML5
+        Rtl5tq8T8Vo/StlpfxynWddM6JoXBWKrIPrLnpy6vRH9FVYsfPtKCZzgcAXFzKnwuQVBnq
+        pYl13KVvT/UmIULbllxQiY0OZF2yjuk=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-633-U6QvUpJNPGWNRfkmvPJYSA-1; Thu, 12 May 2022 05:24:41 -0400
-X-MC-Unique: U6QvUpJNPGWNRfkmvPJYSA-1
-Received: by mail-wr1-f69.google.com with SMTP id u17-20020a056000161100b0020cda98f292so1826633wrb.21
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 02:24:40 -0700 (PDT)
+ us-mta-106-xFkR4Sd9N3a-H8jWOnI__A-1; Thu, 12 May 2022 05:31:22 -0400
+X-MC-Unique: xFkR4Sd9N3a-H8jWOnI__A-1
+Received: by mail-wm1-f69.google.com with SMTP id m124-20020a1c2682000000b00393fcd2722dso1447052wmm.4
+        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 02:31:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:organization:subject
-         :in-reply-to:content-transfer-encoding;
-        bh=ZYMVGmr4MttuxWd0hUOmG2PAW2P1q54IXjwFFMV7R3w=;
-        b=5scM65e3LkJGtErW5KTztae8raxcS6ZCyC5t0C63ibaL48YD2+2oHchatCSTL85LZ+
-         U3QZhi8Xt8O9BDV9gmW39Xau3ECvW1Byh4VdA7J70YCa9XSfhxwKt73VUkAGYsP+fyPL
-         qTDtgjVZ/m2kCwqxJrj3Qf+4CE8X+pATIhRUwCcYV7IJdMUZ3Pn43hmfBzKT3fwXsqg/
-         ZlM+SHikBsOgJabeFJ7OSLu9+1BB3NivhsoDgltClzwniVfmNZXfKHg5SeMam99MGEDj
-         2wdGlnKXp/OuYOmlkwYIN2nH22mSn3JyVdVIv6hDzAK07/55MnstLa0EuzJGUUqPkxCF
-         6MqA==
-X-Gm-Message-State: AOAM530NzYluWOO2TOkFABxQAVd5e1Mj5lMC+AWwc8Wx6sHLqUuAOlI+
-        0LVMQO5GSY9EWDsC4yZj5vsv50kAkxJO2PRM9z8o18Ka5MUDjCdEdShIyZo6TNYdapDC/fJk3Vm
-        4jDZTND9b3GssLqpAg8W3LA==
-X-Received: by 2002:adf:cd08:0:b0:20a:eafa:4103 with SMTP id w8-20020adfcd08000000b0020aeafa4103mr26900403wrm.227.1652347479779;
-        Thu, 12 May 2022 02:24:39 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxc89JlMnGfd5Y/h97lUfa9Op9S3C7Yv7BklTlNgPy5IpIpEeVS1C3FWV4YEd/XbqGW0n2vRQ==
-X-Received: by 2002:adf:cd08:0:b0:20a:eafa:4103 with SMTP id w8-20020adfcd08000000b0020aeafa4103mr26900383wrm.227.1652347479493;
-        Thu, 12 May 2022 02:24:39 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=BL3CJGsqY/cqdqqI7zN3z8l2hVpezWWDtzBjCtMeqUg=;
+        b=tZDnqooEbGiyR0AbRKcCPJ/KzUfdEQI5/3b/z5WwGFzwdktzzu8qbMfS7N9KJgjp8j
+         AsxMzyBSl82gYt1lHXsJ/e9WqE1IncvnJoTb9NtVPofVRhSn9SVd43RunGf7YIZeDSBl
+         gYpf6vWoOJBBzDCVMLfNOVyCNQMyQFY5Xl+IafRjaKG0JAKhIQRMUqPAbl+a/CxTEy9o
+         gOyntmhYzEREu+7m7ibTbiO/ssYJalXNy2U/6/Ywd8NtnERZ3NkpWcDW+0GgtXOwXpJN
+         gppURux7nnOhpNQf2bOmcI2W7C6MOdDEw2/2d/zaReaDoJj+IqL9aNmHiP/TUgWWVLLl
+         uc4Q==
+X-Gm-Message-State: AOAM533bPVyzk/86fLWF8RYT/WKRCLs5M8axj01kc0ks9v6wIquxYp4k
+        oivNphDwEEgY8+H25ocupA/ERF9A14kjbiLop7dEBuLv4+n653Q9xrYiIHfbwodfSwhyGySMYoz
+        lUUvqQ/Xa79X7GLh45Qe10g==
+X-Received: by 2002:adf:fc42:0:b0:20a:c45d:3767 with SMTP id e2-20020adffc42000000b0020ac45d3767mr26462158wrs.486.1652347880721;
+        Thu, 12 May 2022 02:31:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw0UBVW7EQVs+UjMZICxFii2HRETE5UGdgxRAjQ7akuex9Vg2m4qZRuQs7QskMCy38QjmY7ZA==
+X-Received: by 2002:adf:fc42:0:b0:20a:c45d:3767 with SMTP id e2-20020adffc42000000b0020ac45d3767mr26462123wrs.486.1652347880418;
+        Thu, 12 May 2022 02:31:20 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c701:d200:ee5d:1275:f171:136d? (p200300cbc701d200ee5d1275f171136d.dip0.t-ipconnect.de. [2003:cb:c701:d200:ee5d:1275:f171:136d])
-        by smtp.gmail.com with ESMTPSA id f16-20020a5d4dd0000000b0020c5253d8f5sm3675398wru.65.2022.05.12.02.24.38
+        by smtp.gmail.com with ESMTPSA id z14-20020a1c4c0e000000b003942a244ecfsm2143561wmf.20.2022.05.12.02.31.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 May 2022 02:24:39 -0700 (PDT)
-Message-ID: <2ffb7b35-5066-3e63-7648-7663a9142e7d@redhat.com>
-Date:   Thu, 12 May 2022 11:24:38 +0200
+        Thu, 12 May 2022 02:31:19 -0700 (PDT)
+Message-ID: <76fd0c11-5b9b-0032-183b-54db650f13b1@redhat.com>
+Date:   Thu, 12 May 2022 11:31:18 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.0
+Subject: Re: [PATCH v9 3/3] s390x: KVM: resetting the Topology-Change-Report
 Content-Language: en-US
 To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -68,11 +69,10 @@ Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         gor@linux.ibm.com, wintera@linux.ibm.com, seiden@linux.ibm.com,
         nrb@linux.ibm.com
 References: <20220506092403.47406-1-pmorel@linux.ibm.com>
- <20220506092403.47406-3-pmorel@linux.ibm.com>
+ <20220506092403.47406-4-pmorel@linux.ibm.com>
 From:   David Hildenbrand <david@redhat.com>
 Organization: Red Hat
-Subject: Re: [PATCH v9 2/3] s390x: KVM: guest support for topology function
-In-Reply-To: <20220506092403.47406-3-pmorel@linux.ibm.com>
+In-Reply-To: <20220506092403.47406-4-pmorel@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -80,64 +80,133 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 06.05.22 11:24, Pierre Morel wrote:
-> We let the userland hypervisor know if the machine support the CPU
-> topology facility using a new KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
+> During a subsystem reset the Topology-Change-Report is cleared.
+> Let's give userland the possibility to clear the MTCR in the case
+> of a subsystem reset.
 > 
-> The PTF instruction will report a topology change if there is any change
-> with a previous STSI_15_1_2 SYSIB.
-> Changes inside a STSI_15_1_2 SYSIB occur if CPU bits are set or clear
-> inside the CPU Topology List Entry CPU mask field, which happens with
-> changes in CPU polarization, dedication, CPU types and adding or
-> removing CPUs in a socket.
-> 
-> The reporting to the guest is done using the Multiprocessor
-> Topology-Change-Report (MTCR) bit of the utility entry of the guest's
-> SCA which will be cleared during the interpretation of PTF.
-> 
-> To check if the topology has been modified we use a new field of the
-> arch vCPU to save the previous real CPU ID at the end of a schedule
-> and verify on next schedule that the CPU used is in the same socket.
-> We do not report polarization, CPU Type or dedication change.
-> 
-> STSI(15.1.x) gives information on the CPU configuration topology.
-> Let's accept the interception of STSI with the function code 15 and
-> let the userland part of the hypervisor handle it when userland
-> support the CPU Topology facility.
+> To migrate the MTCR, let's give userland the possibility to
+> query the MTCR state.
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-
-[...]
-
-
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index 0e8603acc105..d9e16b09c8bf 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -874,10 +874,12 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
->  	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
->  		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+> ---
+>  arch/s390/include/uapi/asm/kvm.h |  5 ++
+>  arch/s390/kvm/kvm-s390.c         | 79 ++++++++++++++++++++++++++++++++
+>  2 files changed, 84 insertions(+)
+> 
+> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+> index 7a6b14874d65..abdcf4069343 100644
+> --- a/arch/s390/include/uapi/asm/kvm.h
+> +++ b/arch/s390/include/uapi/asm/kvm.h
+> @@ -74,6 +74,7 @@ struct kvm_s390_io_adapter_req {
+>  #define KVM_S390_VM_CRYPTO		2
+>  #define KVM_S390_VM_CPU_MODEL		3
+>  #define KVM_S390_VM_MIGRATION		4
+> +#define KVM_S390_VM_CPU_TOPOLOGY	5
 >  
-> -	if (fc > 3) {
-> -		kvm_s390_set_psw_cc(vcpu, 3);
-> -		return 0;
-> -	}
-> +	if (fc > 3 && fc != 15)
-> +		goto out_no_data;
+>  /* kvm attributes for mem_ctrl */
+>  #define KVM_S390_VM_MEM_ENABLE_CMMA	0
+> @@ -171,6 +172,10 @@ struct kvm_s390_vm_cpu_subfunc {
+>  #define KVM_S390_VM_MIGRATION_START	1
+>  #define KVM_S390_VM_MIGRATION_STATUS	2
+>  
+> +/* kvm attributes for cpu topology */
+> +#define KVM_S390_VM_CPU_TOPO_MTR_CLEAR	0
+> +#define KVM_S390_VM_CPU_TOPO_MTR_SET	1
 > +
-> +	/* fc 15 is provided with PTF/CPU topology support */
-> +	if (fc == 15 && !test_kvm_facility(vcpu->kvm, 11))
-> +		goto out_no_data;
+>  /* for KVM_GET_REGS and KVM_SET_REGS */
+>  struct kvm_regs {
+>  	/* general purpose regs for s390 */
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index c8bdce31464f..80a1244f0ead 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1731,6 +1731,76 @@ static void kvm_s390_sca_set_mtcr(struct kvm *kvm)
+>  	ipte_unlock(kvm);
+>  }
+>  
+> +/**
+> + * kvm_s390_sca_clear_mtcr
+> + * @kvm: guest KVM description
+> + *
+> + * Is only relevant if the topology facility is present,
+> + * the caller should check KVM facility 11
+> + *
+> + * Updates the Multiprocessor Topology-Change-Report to signal
+> + * the guest with a topology change.
+> + */
+> +static void kvm_s390_sca_clear_mtcr(struct kvm *kvm)
+> +{
+> +	struct bsca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
+> +
+> +	ipte_lock(kvm);
+> +	sca->utility  &= ~SCA_UTILITY_MTCR;
 
 
-Maybe shorter as
+One space too much.
 
-if (fc == 15 && !test_kvm_facility(vcpu->kvm, 11))
-	goto out_no_data;
-else if (fc > 3)
-	goto out_no_data;
+sca->utility &= ~SCA_UTILITY_MTCR;
 
+> +	ipte_unlock(kvm);
+> +}
+> +
+> +static int kvm_s390_set_topology(struct kvm *kvm, struct kvm_device_attr *attr)
+> +{
+> +	if (!test_kvm_facility(kvm, 11))
+> +		return -ENXIO;
+> +
+> +	switch (attr->attr) {
+> +	case KVM_S390_VM_CPU_TOPO_MTR_SET:
+> +		kvm_s390_sca_set_mtcr(kvm);
+> +		break;
+> +	case KVM_S390_VM_CPU_TOPO_MTR_CLEAR:
+> +		kvm_s390_sca_clear_mtcr(kvm);
+> +		break;
+> +	}
+> +	return 0;
+> +}
+> +
+> +/**
+> + * kvm_s390_sca_get_mtcr
+> + * @kvm: guest KVM description
+> + *
+> + * Is only relevant if the topology facility is present,
+> + * the caller should check KVM facility 11
+> + *
+> + * reports to QEMU the Multiprocessor Topology-Change-Report.
+> + */
+> +static int kvm_s390_sca_get_mtcr(struct kvm *kvm)
+> +{
+> +	struct bsca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
+> +	int val;
+> +
+> +	ipte_lock(kvm);
+> +	val = !!(sca->utility & SCA_UTILITY_MTCR);
+> +	ipte_unlock(kvm);
+> +
+> +	return val;
+> +}
+> +
+> +static int kvm_s390_get_topology(struct kvm *kvm, struct kvm_device_attr *attr)
+> +{
+> +	int mtcr;
 
-Apart from that, LGTM.
+I think we prefer something like u16 when copying to user space.
+
+> +
+> +	if (!test_kvm_facility(kvm, 11))
+> +		return -ENXIO;
+> +
+> +	mtcr = kvm_s390_sca_get_mtcr(kvm);
+> +	if (copy_to_user((void __user *)attr->addr, &mtcr, sizeof(mtcr)))
+> +		return -EFAULT;
+> +
+> +	return 0;
+> +}
+
+You should probably add documentation, and document that only the last
+bit (0x1) has a meaning.
+
+Apart from that LGTM.
 
 -- 
 Thanks,
