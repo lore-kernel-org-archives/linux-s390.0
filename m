@@ -2,55 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 463A9C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 14:46:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C94AC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 14:57:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355540AbiELOp6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 10:45:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40572 "EHLO
+        id S1354907AbiELO5K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 10:57:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355542AbiELOp5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 10:45:57 -0400
-Received: from mail.nfschina.com (unknown [IPv6:2400:dd01:100f:2:72e2:84ff:fe10:5f45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CB0B619036;
-        Thu, 12 May 2022 07:45:55 -0700 (PDT)
-Received: from localhost (unknown [127.0.0.1])
-        by mail.nfschina.com (Postfix) with ESMTP id 144A01E80D22;
-        Thu, 12 May 2022 22:40:19 +0800 (CST)
-X-Virus-Scanned: amavisd-new at test.com
-Received: from mail.nfschina.com ([127.0.0.1])
-        by localhost (mail.nfschina.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id wvZOnFFbob1U; Thu, 12 May 2022 22:40:16 +0800 (CST)
-Received: from localhost.localdomain (unknown [219.141.250.2])
-        (Authenticated sender: kunyu@nfschina.com)
-        by mail.nfschina.com (Postfix) with ESMTPA id 3FFCF1E80D04;
-        Thu, 12 May 2022 22:40:16 +0800 (CST)
-From:   Li kunyu <kunyu@nfschina.com>
-To:     rostedt@goodmis.org
-Cc:     agordeev@linux.ibm.com, aou@eecs.berkeley.edu,
-        borntraeger@linux.ibm.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, gor@linux.ibm.com, hca@linux.ibm.com,
-        hpa@zytor.com, kunyu@nfschina.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux@armlinux.org.uk, mingo@redhat.com, palmer@dabbelt.com,
-        paul.walmsley@sifive.com, svens@linux.ibm.com, tglx@linutronix.de,
-        x86@kernel.org
-Subject: Re: [PATCH] kernel: Ftrace seems to have functions to improve performance through optimization
-Date:   Thu, 12 May 2022 22:45:32 +0800
-Message-Id: <20220512144533.58085-1-kunyu@nfschina.com>
-X-Mailer: git-send-email 2.18.2
-In-Reply-To: <20220512101229.7886a798@gandalf.local.home>
-References: <20220512101229.7886a798@gandalf.local.home>
+        with ESMTP id S1355261AbiELO46 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 10:56:58 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F5C62110;
+        Thu, 12 May 2022 07:56:54 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24CDEieF013709;
+        Thu, 12 May 2022 14:56:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=OMTehq1XmIz0jvyyrlNCokWf0qJnSvtY2n6I6yV8cJU=;
+ b=NCTUgIcBSMWOc7AaVGbIEUo6PV5zTQvVZ+74j7YKZaPgFzNz/WPkC8zumY/vxFaWuz8G
+ uJUKseaWoMzbGLjzF5zPTK46VFvbynTDjs3dnsMhy1di8NjbE2VuXVFTioIHdmPcRDtX
+ bjr8mUaMCPjHz7q6cmBtJ4KmDyi7TipfQ3Qfxpk3GahiqOQXR/aVO3Hs7UtHrPbi4pVL
+ NdUQucyBR6Hg/XcvTI/ickt4bF89EwwN5khFPVDcDozThdtJphafNiHIHXyfleGkUWj4
+ fo7JcpokzedK+t0kK7CczxAwLLjLOmJqd6pqlwerucEzG6F1KntfIjKVgwexe+XyOYws 5Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g12xytts5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 May 2022 14:56:50 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24CEmPGL016086;
+        Thu, 12 May 2022 14:56:50 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g12xyttrc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 May 2022 14:56:50 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24CEnoCX013435;
+        Thu, 12 May 2022 14:56:47 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 3g0ma1gyjg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 May 2022 14:56:47 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24CEuijo47776016
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 May 2022 14:56:44 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6440611C04C;
+        Thu, 12 May 2022 14:56:44 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E7E1B11C04A;
+        Thu, 12 May 2022 14:56:43 +0000 (GMT)
+Received: from sig-9-145-9-18.uk.ibm.com (unknown [9.145.9.18])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 12 May 2022 14:56:43 +0000 (GMT)
+Message-ID: <f34130034637278c9999cf6d430be558cb0c2318.camel@linux.ibm.com>
+Subject: Re: [PATCH RESEND v5 1/4] PCI: Clean up pci_scan_slot()
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Date:   Thu, 12 May 2022 16:56:42 +0200
+In-Reply-To: <20220505083839.1315705-2-schnelle@linux.ibm.com>
+References: <20220505083839.1315705-1-schnelle@linux.ibm.com>
+         <20220505083839.1315705-2-schnelle@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fOs3S_ad3T-Zy_kK72KB4445G0h2S1dR
+X-Proofpoint-ORIG-GUID: e6GeGN562Lkekf1wksfaStG8ZKiR2OpF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-12_10,2022-05-12_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 suspectscore=0 lowpriorityscore=0 adultscore=0
+ mlxlogscore=473 spamscore=0 malwarescore=0 clxscore=1015 mlxscore=0
+ impostorscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2205120067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, 2022-05-05 at 10:38 +0200, Niklas Schnelle wrote:
+> While determining the next PCI function is factored out of
+> pci_scan_slot() into next_fn() the former still handles the first
+> function as a special case. This duplicates the code from the scan loop.
+> 
+> Furthermore the non ARI branch of next_fn() is generally hard to
+> understand and especially the check for multifunction devices is hidden
+> in the handling of NULL devices for non-contiguous multifunction. It
+> also signals that no further functions need to be scanned by returning
+> 0 via wraparound and this is a valid function number.
+> 
+> Improve upon this by transforming the conditions in next_fn() to be
+> easier to understand.
+> 
+> By changing next_fn() to return -ENODEV instead of 0 when there is no
+> next function we can then handle the initial function inside the loop
+> and deduplicate the shared handling. This also makes it more explicit
+> that only function 0 must exist.
+> 
+> No functional change is intended.
+> 
+> Cc: Jan Kiszka <jan.kiszka@siemens.com>
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
 
-I'm glad you're willing to reply to me. 
-My current English level is limited, and I may not describe it correctly. 
-I consider that these functions may not be modified in a short time, which may bring advantages in function performance.
-I could only submit it by inquiry.
-
-Thanks.
+Friendly ping :-)
 
