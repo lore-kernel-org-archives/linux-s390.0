@@ -2,113 +2,85 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F38EAC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 09:18:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A00DCC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 09:36:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356439AbiEMJS2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 May 2022 05:18:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39454 "EHLO
+        id S1379130AbiEMJgc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 May 2022 05:36:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378968AbiEMJS0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 05:18:26 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EFB85E74C;
-        Fri, 13 May 2022 02:18:22 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24D9AHxC004372;
-        Fri, 13 May 2022 09:18:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=0G0uc882R6uqOeN60gm10guVSqUxvSgekLWSAu5MDwo=;
- b=NNzJZYG1uibOabBA8Mp4TpKgo4vPIe0woBkCl/IQoZ5r8dpkA+ZvcPeiIrtg/lWjsnd8
- QoF9/4s4KNnjwggIn0Cn5PNUVgzKGPFnTWPSPdiQyHWTJ/s/Z86YLRfoAiElLopF8qrR
- YZ3fTpGr6Lqd1OMm9thd8i9ze0MsrQ0aU1NUi0bbgPPeO1hmBVpG37GDPEP+T67RvLWh
- CumS/RxK6PsxlELbKJpG+BFIQD3X8HFDAcsakOwh1pYiYLnD2qNU3zqw+iqLbLkYsqjc
- 3Qf8XNfbGmWCfOulK58vEB2pcoTjV/dKVrPS8Ai+dEB5OV2kZHzTfRBupf0VspAkh3fU bA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1jstj3g6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 09:18:18 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24D9EuAh024657;
-        Fri, 13 May 2022 09:18:18 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1jstj3fq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 09:18:18 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24D98jov008221;
-        Fri, 13 May 2022 09:18:16 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3fwgd90b0m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 09:18:16 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24D9Hlhn33030436
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 May 2022 09:17:47 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0DF17A4054;
-        Fri, 13 May 2022 09:18:11 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E5B9FA405B;
-        Fri, 13 May 2022 09:18:09 +0000 (GMT)
-Received: from localhost (unknown [9.171.34.99])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 13 May 2022 09:18:09 +0000 (GMT)
-Date:   Fri, 13 May 2022 11:18:08 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
-        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        with ESMTP id S1379131AbiEMJgY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 05:36:24 -0400
+Received: from fornost.hmeau.com (helcar.hmeau.com [216.24.177.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C886147578;
+        Fri, 13 May 2022 02:36:22 -0700 (PDT)
+Received: from gwarestrin.arnor.me.apana.org.au ([192.168.103.7])
+        by fornost.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
+        id 1npRiY-00DHGI-J4; Fri, 13 May 2022 19:36:16 +1000
+Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Fri, 13 May 2022 17:36:14 +0800
+Date:   Fri, 13 May 2022 17:36:14 +0800
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     Vladis Dronov <vdronov@redhat.com>
+Cc:     Patrick Steuer <patrick.steuer@de.ibm.com>,
+        Harald Freudenberger <freude@de.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/8] s390/alternatives: remove padding generation code
-Message-ID: <your-ad-here.call-01652433488-ext-2779@work.hours>
-References: <20220511120532.2228616-1-hca@linux.ibm.com>
- <20220511120532.2228616-3-hca@linux.ibm.com>
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/crypto: add crypto library interface for ChaCha20
+Message-ID: <Yn4mjhfyMtshhEpp@gondor.apana.org.au>
+References: <20220508130944.17860-1-vdronoff@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220511120532.2228616-3-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: knGTXHCeSMSjOP2SSu-bjWmoVSFGewq7
-X-Proofpoint-GUID: QFLqUoIdtflvWUTF2tgMhuvq0wpsk0RO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-13_04,2022-05-12_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 bulkscore=0 mlxlogscore=637 phishscore=0 malwarescore=0
- lowpriorityscore=0 spamscore=0 suspectscore=0 impostorscore=0 mlxscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205130040
+In-Reply-To: <20220508130944.17860-1-vdronoff@gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 11, 2022 at 02:05:26PM +0200, Heiko Carstens wrote:
-> clang fails to handle ".if" statements in inline assembly which are heavily
-> used in the alternatives code.
+On Sun, May 08, 2022 at 03:09:44PM +0200, Vladis Dronov wrote:
+> From: Vladis Dronov <vdronov@redhat.com>
 > 
-> To work around this remove this code, and enforce that users of
-> alternatives must specify original and alternative instruction sequences
-> which have identical sizes. Add a compile time check with two ".org"
-> statements similar to arm64.
+> Implement a crypto library interface for the s390-native ChaCha20 cipher
+> algorithm. This allows us to stop to select CRYPTO_CHACHA20 and instead
+> select CRYPTO_ARCH_HAVE_LIB_CHACHA. This allows BIG_KEYS=y not to build
+> a whole ChaCha20 crypto infrastructure as a built-in, but build a smaller
+> CRYPTO_LIB_CHACHA instead.
 > 
-> In result not only clang can handle this, but also quite a lot of code can
-> be removed.
+> Make CRYPTO_CHACHA_S390 config entry to look like similar ones on other
+> architectures. Remove CRYPTO_ALGAPI select as anyway it is selected by
+> CRYPTO_SKCIPHER.
 > 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> Add a new test module and a test script for ChaCha20 cipher and its
+> interfaces. Here are test results on an idle z15 machine:
+> 
+> Data | Generic crypto TFM |  s390 crypto TFM |    s390 lib
+> size |      enc      dec  |     enc     dec  |     enc     dec
+> -----+--------------------+------------------+----------------
+> 512b |   1545ns   1295ns  |   604ns   446ns  |   430ns  407ns
+> 4k   |   9536ns   9463ns  |  2329ns  2174ns  |  2170ns  2154ns
+> 64k  |  149.6us  149.3us  |  34.4us  34.5us  |  33.9us  33.1us
+> 6M   |  23.61ms  23.11ms  |  4223us  4160us  |  3951us  4008us
+> 60M  |  143.9ms  143.9ms  |  33.5ms  33.2ms  |  32.2ms  32.1ms
+> 
+> Signed-off-by: Vladis Dronov <vdronov@redhat.com>
 > ---
->  arch/s390/include/asm/alternative-asm.h | 76 +++-----------------
->  arch/s390/include/asm/alternative.h     | 93 ++++++-------------------
->  arch/s390/kernel/alternative.c          | 61 +---------------
->  3 files changed, 31 insertions(+), 199 deletions(-)
+>  arch/s390/crypto/chacha-glue.c                |  34 +-
+>  drivers/crypto/Kconfig                        |   4 +-
+>  tools/testing/crypto/chacha20-s390/Makefile   |  12 +
+>  .../testing/crypto/chacha20-s390/run-tests.sh |  34 ++
+>  .../crypto/chacha20-s390/test-cipher.c        | 372 ++++++++++++++++++
+>  5 files changed, 452 insertions(+), 4 deletions(-)
+>  create mode 100644 tools/testing/crypto/chacha20-s390/Makefile
+>  create mode 100644 tools/testing/crypto/chacha20-s390/run-tests.sh
+>  create mode 100644 tools/testing/crypto/chacha20-s390/test-cipher.c
 
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
