@@ -2,124 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 423AAC4167D
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 14:46:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84EFDC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 14:48:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381531AbiEMOqP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 May 2022 10:46:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58940 "EHLO
+        id S1381461AbiEMOsR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 May 2022 10:48:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381450AbiEMOp6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 10:45:58 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBB093C4B7;
-        Fri, 13 May 2022 07:45:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=A7LCydQD5IYNzaoDGyfG1KKM7tCxGhr7TuWULSo03X0=;
-        t=1652453114; x=1653662714; b=LYs2Kri0cw+/UGCEdaklFX6++OP3d6XjJhLcC02jkMM6M13
-        enCTtLPVnFDCrQRFLX819G3cOwVdjYiBSa9JccmqbQblnXISEdyq/7i5O4aMDV5xAFeJh8X61XWYA
-        3hNxcWPO6okKyPbXVAhEt6WHQ/sVkV0gcWR0C3dCeQWocdHTJKZWVZ25I4x63uWgmbhevhAje3sRQ
-        ynAaFSpM6xFAePbWKVwYY4aWUVh0Ju93mi2MceapTMkNIryb6lt7v4/iXwdFQzg89Tz18COaji5Fq
-        iSqUu6mUSMMlAVO2Bcj32MYDMrCOrP4TWkawclAlZw9o6WbW7KIcYMOBD7zR8fsA==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.95)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1npWX2-00AdYm-Tp;
-        Fri, 13 May 2022 16:44:41 +0200
-Message-ID: <1760d499824f9ef053af7a8dac04b48ab7d7fd3d.camel@sipsolutions.net>
-Subject: Re: [PATCH 11/30] um: Improve panic notifiers consistency and
- ordering
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>
-Cc:     akpm@linux-foundation.org, bhe@redhat.com,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
-        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
-        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
-        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
-        halves@canonical.com, fabiomirmar@gmail.com,
-        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
-        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
-        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
-        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org
-Date:   Fri, 13 May 2022 16:44:36 +0200
-In-Reply-To: <4b003501-f5c3-cd66-d222-88d98c93e141@igalia.com>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
-         <20220427224924.592546-12-gpiccoli@igalia.com> <Ynp2hRodh04K3pzK@alley>
-         <4b003501-f5c3-cd66-d222-88d98c93e141@igalia.com>
+        with ESMTP id S1381469AbiEMOsP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 10:48:15 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8AA937A89;
+        Fri, 13 May 2022 07:48:11 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24DEgBoh005087;
+        Fri, 13 May 2022 14:48:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=s0WN2+DMgoJiF82+YJyYinfUJAknvVrSPwJB+rRF9gQ=;
+ b=NaAVK5d3kh+qI2QaPxZIOumP4yRyhotiYkUL+ZvN/2Mb+vkB3yFZMjCBsJ/o5/1QUl3O
+ qBuniOO5j/JUZm93E6UBMJKqJInnUXusv+6oHn8ps/JQnJy8J0WHFQLhbnFSPJgGknBn
+ XDfrlc0H95gSIYedaVd5J/xeXccn9SrsVwKbZe2QAiTmT+cCzyDOKc5y/nJ95S4uNIu7
+ tR7UkCo30QQofjT/i/klMD061X35ctogoR5+jRTYUv0/XQ+VYqXlvdsworvmohVw/bVw
+ q/PmsStj2yCN3Sr4aiFl0+673qK7r/XL0xyjtKTtluPpIIjWHzNnLh/7G7oTOCoW5Pqa sw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1sasg4yr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 14:48:06 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24DEhCti007397;
+        Fri, 13 May 2022 14:48:05 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1sasg4xr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 14:48:05 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24DEhDPR029087;
+        Fri, 13 May 2022 14:48:03 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3fwgd8xw6b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 14:48:03 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24DElaBA22872536
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 13 May 2022 14:47:36 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E14A611C04A;
+        Fri, 13 May 2022 14:47:59 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6391A11C04C;
+        Fri, 13 May 2022 14:47:59 +0000 (GMT)
+Received: from sig-9-145-187-37.de.ibm.com (unknown [9.145.187.37])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 13 May 2022 14:47:59 +0000 (GMT)
+Message-ID: <e0509c905b25f2fbd4edb33928bd0f57f1b0ef1b.camel@linux.ibm.com>
+Subject: Re: [PATCH RESEND v5 1/4] PCI: Clean up pci_scan_slot()
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Date:   Fri, 13 May 2022 16:47:59 +0200
+In-Reply-To: <20220513140723.GA947754@bhelgaas>
+References: <20220513140723.GA947754@bhelgaas>
 Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
-MIME-Version: 1.0
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-malware-bazaar: not-scanned
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: t1w7uGj-nGGZKoUEgGqr151EM79LEoyh
+X-Proofpoint-GUID: wP6AhWUfDf8XmTpqUNVK3Nxwg3MHzNzd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-13_04,2022-05-13_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ impostorscore=0 phishscore=0 mlxscore=0 suspectscore=0 malwarescore=0
+ mlxlogscore=584 spamscore=0 adultscore=0 priorityscore=1501 bulkscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205130064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-05-11 at 17:22 -0300, Guilherme G. Piccoli wrote:
-> On 10/05/2022 11:28, Petr Mladek wrote:
-> > [...]
-> > It is not clear to me why user mode linux should not care about
-> > the other notifiers. It might be because I do not know much
-> > about the user mode linux.
+On Fri, 2022-05-13 at 09:07 -0500, Bjorn Helgaas wrote:
+> On Thu, May 12, 2022 at 04:56:42PM +0200, Niklas Schnelle wrote:
+> > On Thu, 2022-05-05 at 10:38 +0200, Niklas Schnelle wrote:
+> > > While determining the next PCI function is factored out of
+> > > pci_scan_slot() into next_fn() the former still handles the first
+> > > function as a special case. This duplicates the code from the scan loop.
+> > > 
+> > > Furthermore the non ARI branch of next_fn() is generally hard to
+> > > understand and especially the check for multifunction devices is hidden
+> > > in the handling of NULL devices for non-contiguous multifunction. It
+> > > also signals that no further functions need to be scanned by returning
+> > > 0 via wraparound and this is a valid function number.
+> > > 
+> > > Improve upon this by transforming the conditions in next_fn() to be
+> > > easier to understand.
+> > > 
+> > > By changing next_fn() to return -ENODEV instead of 0 when there is no
+> > > next function we can then handle the initial function inside the loop
+> > > and deduplicate the shared handling. This also makes it more explicit
+> > > that only function 0 must exist.
+> > > 
+> > > No functional change is intended.
+> > > 
+> > > Cc: Jan Kiszka <jan.kiszka@siemens.com>
+> > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > ---
 > > 
-> > Is the because they always create core dump or are never running
-> > in a hypervisor or ...?
-> > 
-> > AFAIK, the notifiers do many different things. For example, there
-> > is a notifier that disables RCU watchdog, print some extra
-> > information. Why none of them make sense here?
-> > 
+> > Friendly ping :-)
 > 
-> Hi Petr, my understanding is that UML is a form of running Linux as a
-> regular userspace process for testing purposes.
+> Thanks and sorry for the delay.  I'm off today for my daughter's
+> wedding reception but will get back to it next week. 
 
-Correct.
+No worries, have a great day and congratulations!
 
-> With that said, as soon
-> as we exit in the error path, less "pollution" would happen, so users
-> can use GDB to debug the core dump for example.
+>  Just to expose
+> some of my thought process (and not to request more work from you!)
+> I've been wondering whether b1bd58e448f2 ("PCI: Consolidate
+> "next-function" functions") is really causing us more trouble than
+> it's worth.  In some ways that makes the single next-function harder
+> to read.  But I guess the hypervisor special case is not exactly a
+> "next-function" thing -- it's a "keep scanning even if there's no fn
+> 0" thing.
 > 
-> In later patches of this series (when we split the panic notifiers in 3
-> lists) these UML notifiers run in the pre-reboot list, so they run after
-> the informational notifiers for example (in the default level).
-> But without the list split we cannot order properly, so my gut feeling
-> is that makes sense to run them rather earlier than later in the panic
-> process...
-> 
-> Maybe Anton / Johannes / Richard could give their opinions - appreciate
-> that, I'm not attached to the priority here, it's more about users'
-> common usage of UML I can think of...
+> Bjorn
 
-It's hard to say ... In a sense I'm not sure it matters?
+Yeah I do see your point. Let's discuss next week.
 
-OTOH something like the ftrace dump notifier (kernel/trace/trace.c)
-might still be useful to run before the mconsole and coredump ones, even
-if you could probably use gdb to figure out the information.
-
-Personally, I don't have a scenario where I'd care about the trace
-buffers though, and most of the others I found would seem irrelevant
-(drivers that aren't even compiled, hung tasks won't really happen since
-we exit immediately, and similar.)
-
-johannes
