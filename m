@@ -2,180 +2,251 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAEAEC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 10:43:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C46EC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 11:04:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379583AbiEMKni (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 May 2022 06:43:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47964 "EHLO
+        id S1350874AbiEMLEn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 May 2022 07:04:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379580AbiEMKnh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 06:43:37 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F4771078A0;
-        Fri, 13 May 2022 03:43:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652438616; x=1683974616;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=BdqrzcXRZKOAVCmDpevsRh9iA39ZHGPnaSUGJajxz/E=;
-  b=a7VhJFbiNHcZw/bjqQJqH+F+xDR1rmULBRpAG2O8lUYYuAON5+eHD6zA
-   9BZb+BFZLuu9UCkCHD3zj9zXOrJHzQFn6hXnPABbWWo6K+yQ9tBcdFtJo
-   PE+b+inQZUb1AI2Xd+zqAJIT61cbSxw2GXN5JbS/lv2Uua7HFEnjqR1i9
-   SXv4btaDNsfP+UOxFLlCpe0LeIGO0N1FVI+DkiquC+PwhgvOzlVCHWaP+
-   1t/fw8JlMV1Mk1bttsuUSC+9e/yCX2RZd9C6e1HW4j6LfJUKav2hUreiK
-   uBsjPlOTJzLo65tZZKb8S2H08WOKNKVuDqd9OJiiolHaB3G10cM2YI81J
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10345"; a="250807313"
-X-IronPort-AV: E=Sophos;i="5.91,221,1647327600"; 
-   d="scan'208";a="250807313"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2022 03:43:35 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,221,1647327600"; 
-   d="scan'208";a="712350022"
-Received: from lkp-server01.sh.intel.com (HELO 5056e131ad90) ([10.239.97.150])
-  by fmsmga001.fm.intel.com with ESMTP; 13 May 2022 03:43:33 -0700
-Received: from kbuild by 5056e131ad90 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1npSlg-000Lds-Nu;
-        Fri, 13 May 2022 10:43:32 +0000
-Date:   Fri, 13 May 2022 18:42:56 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-        kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com
-Cc:     kbuild-all@lists.01.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next 1/2] net/smc: send cdc msg inline if qp has
- sufficient inline space
-Message-ID: <202205131842.j3oh7PXI-lkp@intel.com>
-References: <20220513071551.22065-2-guangguan.wang@linux.alibaba.com>
+        with ESMTP id S1345467AbiEMLEn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 07:04:43 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF7B2A28E9;
+        Fri, 13 May 2022 04:04:41 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24D9fb9A030218;
+        Fri, 13 May 2022 11:04:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=7+GTJ9HCwMzj1j8Wi4UERRHqBZpDae+qh3muBLdV9Xk=;
+ b=J9qZ02pFxAHRkZOQiywSx8b/64kxxXeZHqfDXJx8PB66yjSrlBF9hoRmOIpHpo44QO7z
+ fsDra0M4AsyrKWzZjnxrb/v2KhnjfluYz6kNPO1jemAnHEU8506CrWz5c1QbAv7gsdv+
+ jqXKto1oEapx2ZezN3wwL3uFNYFOFxKqThy5EQY53yHo+Tr9q0H/vKYT5U9WEHXS96wq
+ epJjavXwXzb4myhstGk+peaIzZeWa7Cf/hS4b+GKzWikBVMtlQS1R0vphYpt6Q+TyikV
+ LA8SO8bL2MAXe5Ayak6xc8+adLQjKHcnZm1slo+2awioXqDckXVD4UN02JHTxOjmGt+k ZQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1mx41g8m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 11:04:41 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24DASOLt011871;
+        Fri, 13 May 2022 11:04:41 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1mx41g85-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 11:04:40 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24DAxkW7021902;
+        Fri, 13 May 2022 11:04:38 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3fwgd90ge9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 11:04:38 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24DB4BD531457624
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 13 May 2022 11:04:11 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2FF78AE053;
+        Fri, 13 May 2022 11:04:35 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D6344AE051;
+        Fri, 13 May 2022 11:04:34 +0000 (GMT)
+Received: from [9.171.4.53] (unknown [9.171.4.53])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 13 May 2022 11:04:34 +0000 (GMT)
+Message-ID: <5781a3a7-c76c-710d-4236-b82f6e821c48@linux.ibm.com>
+Date:   Fri, 13 May 2022 13:04:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220513071551.22065-2-guangguan.wang@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [kvm-unit-tests PATCH v1 2/2] s390x: add migration test for
+ storage keys
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+References: <20220512140107.1432019-1-nrb@linux.ibm.com>
+ <20220512140107.1432019-3-nrb@linux.ibm.com>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <20220512140107.1432019-3-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: AvVmORy9eyb3xl5avwa8Q8ZdSiPbAspf
+X-Proofpoint-ORIG-GUID: ilyM5s0Txv7XvoNZqOpPhTGioKK1kr_J
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-13_04,2022-05-13_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ suspectscore=0 mlxlogscore=999 malwarescore=0 lowpriorityscore=0
+ impostorscore=0 priorityscore=1501 spamscore=0 clxscore=1015 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205130049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Guangguan,
+On 5/12/22 16:01, Nico Boehr wrote:
+> Upon migration, we expect storage keys being set by the guest to be preserved,
+> so add a test for it.
+> 
+> We keep 128 pages and set predictable storage keys. Then, we migrate and check
+> they can be read back and the respective access restrictions are in place when
+> the access key in the PSW doesn't match.
+> 
+> TCG currently doesn't implement key-controlled protection, see
+> target/s390x/mmu_helper.c, function mmu_handle_skey(), hence add the relevant
+> tests as xfails.
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+>  s390x/Makefile         |  1 +
+>  s390x/migration-skey.c | 98 ++++++++++++++++++++++++++++++++++++++++++
+>  s390x/unittests.cfg    |  4 ++
+>  3 files changed, 103 insertions(+)
+>  create mode 100644 s390x/migration-skey.c
+> 
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index a8e04aa6fe4d..f8ea594b641d 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -32,6 +32,7 @@ tests += $(TEST_DIR)/epsw.elf
+>  tests += $(TEST_DIR)/adtl-status.elf
+>  tests += $(TEST_DIR)/migration.elf
+>  tests += $(TEST_DIR)/pv-attest.elf
+> +tests += $(TEST_DIR)/migration-skey.elf
+>  
+>  pv-tests += $(TEST_DIR)/pv-diags.elf
+>  
+> diff --git a/s390x/migration-skey.c b/s390x/migration-skey.c
+> new file mode 100644
+> index 000000000000..6f3053d8ab40
+> --- /dev/null
+> +++ b/s390x/migration-skey.c
+> @@ -0,0 +1,98 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Storage Key migration tests
+> + *
+> + * Copyright IBM Corp. 2022
+> + *
+> + * Authors:
+> + *  Nico Boehr <nrb@linux.ibm.com>
+> + */
+> +
+> +#include <libcflat.h>
+> +#include <asm/facility.h>
+> +#include <asm/page.h>
+> +#include <asm/mem.h>
+> +#include <asm/interrupt.h>
+> +#include <hardware.h>
+> +
+> +#define NUM_PAGES 128
+> +static uint8_t pagebuf[NUM_PAGES][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+> +
+> +static void test_migration(void)
+> +{
+> +	int i, key_to_set;
+> +	uint8_t *page;
+> +	union skey expected_key, actual_key, mismatching_key;
 
-Thank you for the patch! Perhaps something to improve:
+I would tend to scope those to the bodies of the respective loop,
+but I don't know if that's in accordance with the coding style.
+> +
+> +	for (i = 0; i < NUM_PAGES; i++) {
+> +		/*
+> +		 * Storage keys are 7 bit, lowest bit is always returned as zero
+> +		 * by iske
+> +		 */
+> +		key_to_set = i * 2;
+> +		set_storage_key(pagebuf + i, key_to_set, 1);
 
-[auto build test WARNING on net-next/master]
+Why not just pagebuf[i]?
+> +	}
+> +
+> +	puts("Please migrate me, then press return\n");
+> +	(void)getchar();
+> +
+> +	for (i = 0; i < NUM_PAGES; i++) {
+> +		report_prefix_pushf("page %d", i);
+> +
+> +		page = &pagebuf[i][0];
+> +		actual_key.val = get_storage_key(page);
+> +		expected_key.val = i * 2;
+> +
+> +		/* ignore reference bit */
+> +		actual_key.str.rf = 0;
+> +		expected_key.str.rf = 0;
+> +
+> +		report(actual_key.val == expected_key.val, "expected_key=0x%x actual_key=0x%x", expected_key.val, actual_key.val);
+> +
+> +		/* ensure access key doesn't match storage key and is never zero */
+> +		mismatching_key.str.acc = expected_key.str.acc < 15 ? expected_key.str.acc + 1 : 1;
+> +		*page = 0xff;
+> +
+> +		expect_pgm_int();
+> +		asm volatile (
+> +			/* set access key */
+> +			"spka 0(%[mismatching_key])\n"
+> +			/* try to write page */
+> +			"mvi 0(%[page]), 42\n"
+> +			/* reset access key */
+> +			"spka 0\n"
+> +			:
+> +			: [mismatching_key] "a"(mismatching_key.val),
+> +			  [page] "a"(page)
+> +			: "memory"
+> +		);
+> +		check_pgm_int_code_xfail(host_is_tcg(), PGM_INT_CODE_PROTECTION);
+> +		report_xfail(host_is_tcg(), *page == 0xff, "no store occured");
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Guangguan-Wang/net-smc-send-and-write-inline-optimization-for-smc/20220513-151715
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git b67fd3d9d94223b424674f45eeadeff58b4b03ef
-config: nios2-allyesconfig (https://download.01.org/0day-ci/archive/20220513/202205131842.j3oh7PXI-lkp@intel.com/config)
-compiler: nios2-linux-gcc (GCC) 11.3.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/bac726bf950dac20959af52c6884b7bb07772dac
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Guangguan-Wang/net-smc-send-and-write-inline-optimization-for-smc/20220513-151715
-        git checkout bac726bf950dac20959af52c6884b7bb07772dac
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.3.0 make.cross W=1 O=build_dir ARCH=nios2 SHELL=/bin/bash net/smc/
+What are you testing with this bit? If storage keys are really effective after the migration?
+I'm wondering if using tprot would not be better, it should simplify the code a lot.
+Plus you'd easily test for fetch protection, too.
+> +
+> +		report_prefix_pop();
+> +	}
+> +}
+> +
+> +int main(void)
+> +{
+> +	report_prefix_push("migration-skey");
+> +	if (test_facility(169)) {
+> +		report_skip("storage key removal facility is active");
+> +
+> +		/*
+> +		 * If we just exit and don't ask migrate_cmd to migrate us, it
+> +		 * will just hang forever. Hence, also ask for migration when we
+> +		 * skip this test alltogether.
 
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
+s/alltogether/altogether/
 
-All warnings (new ones prefixed by >>):
+> +		 */
+> +		puts("Please migrate me, then press return\n");
+> +		(void)getchar();
+> +
+> +		goto done;
+> +	}
+> +
+> +	test_migration();
+> +
+> +done:
+> +	report_prefix_pop();
+> +	return report_summary();
+> +}
+> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+> index b456b2881448..1e851d8e3dd8 100644
+> --- a/s390x/unittests.cfg
+> +++ b/s390x/unittests.cfg
+> @@ -176,3 +176,7 @@ extra_params = -cpu qemu,gs=off,vx=off
+>  file = migration.elf
+>  groups = migration
+>  smp = 2
+> +
+> +[migration-skey]
+> +file = migration-skey.elf
+> +groups = migration
 
-   net/smc/smc_wr.c: In function 'smc_wr_init_sge':
->> net/smc/smc_wr.c:561:57: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-     561 |                 lnk->wr_tx_sges[i].addr = send_inline ? (u64)(&lnk->wr_tx_bufs[i]) :
-         |                                                         ^
-
-
-vim +561 net/smc/smc_wr.c
-
-   553	
-   554	static void smc_wr_init_sge(struct smc_link *lnk)
-   555	{
-   556		int sges_per_buf = (lnk->lgr->smc_version == SMC_V2) ? 2 : 1;
-   557		bool send_inline = (lnk->qp_attr.cap.max_inline_data >= SMC_WR_TX_SIZE);
-   558		u32 i;
-   559	
-   560		for (i = 0; i < lnk->wr_tx_cnt; i++) {
- > 561			lnk->wr_tx_sges[i].addr = send_inline ? (u64)(&lnk->wr_tx_bufs[i]) :
-   562				lnk->wr_tx_dma_addr + i * SMC_WR_BUF_SIZE;
-   563			lnk->wr_tx_sges[i].length = SMC_WR_TX_SIZE;
-   564			lnk->wr_tx_sges[i].lkey = lnk->roce_pd->local_dma_lkey;
-   565			lnk->wr_tx_rdma_sges[i].tx_rdma_sge[0].wr_tx_rdma_sge[0].lkey =
-   566				lnk->roce_pd->local_dma_lkey;
-   567			lnk->wr_tx_rdma_sges[i].tx_rdma_sge[0].wr_tx_rdma_sge[1].lkey =
-   568				lnk->roce_pd->local_dma_lkey;
-   569			lnk->wr_tx_rdma_sges[i].tx_rdma_sge[1].wr_tx_rdma_sge[0].lkey =
-   570				lnk->roce_pd->local_dma_lkey;
-   571			lnk->wr_tx_rdma_sges[i].tx_rdma_sge[1].wr_tx_rdma_sge[1].lkey =
-   572				lnk->roce_pd->local_dma_lkey;
-   573			lnk->wr_tx_ibs[i].next = NULL;
-   574			lnk->wr_tx_ibs[i].sg_list = &lnk->wr_tx_sges[i];
-   575			lnk->wr_tx_ibs[i].num_sge = 1;
-   576			lnk->wr_tx_ibs[i].opcode = IB_WR_SEND;
-   577			lnk->wr_tx_ibs[i].send_flags =
-   578				IB_SEND_SIGNALED | IB_SEND_SOLICITED;
-   579			if (send_inline)
-   580				lnk->wr_tx_ibs[i].send_flags |= IB_SEND_INLINE;
-   581			lnk->wr_tx_rdmas[i].wr_tx_rdma[0].wr.opcode = IB_WR_RDMA_WRITE;
-   582			lnk->wr_tx_rdmas[i].wr_tx_rdma[1].wr.opcode = IB_WR_RDMA_WRITE;
-   583			lnk->wr_tx_rdmas[i].wr_tx_rdma[0].wr.sg_list =
-   584				lnk->wr_tx_rdma_sges[i].tx_rdma_sge[0].wr_tx_rdma_sge;
-   585			lnk->wr_tx_rdmas[i].wr_tx_rdma[1].wr.sg_list =
-   586				lnk->wr_tx_rdma_sges[i].tx_rdma_sge[1].wr_tx_rdma_sge;
-   587		}
-   588	
-   589		if (lnk->lgr->smc_version == SMC_V2) {
-   590			lnk->wr_tx_v2_sge->addr = lnk->wr_tx_v2_dma_addr;
-   591			lnk->wr_tx_v2_sge->length = SMC_WR_BUF_V2_SIZE;
-   592			lnk->wr_tx_v2_sge->lkey = lnk->roce_pd->local_dma_lkey;
-   593	
-   594			lnk->wr_tx_v2_ib->next = NULL;
-   595			lnk->wr_tx_v2_ib->sg_list = lnk->wr_tx_v2_sge;
-   596			lnk->wr_tx_v2_ib->num_sge = 1;
-   597			lnk->wr_tx_v2_ib->opcode = IB_WR_SEND;
-   598			lnk->wr_tx_v2_ib->send_flags =
-   599				IB_SEND_SIGNALED | IB_SEND_SOLICITED;
-   600		}
-   601	
-   602		/* With SMC-Rv2 there can be messages larger than SMC_WR_TX_SIZE.
-   603		 * Each ib_recv_wr gets 2 sges, the second one is a spillover buffer
-   604		 * and the same buffer for all sges. When a larger message arrived then
-   605		 * the content of the first small sge is copied to the beginning of
-   606		 * the larger spillover buffer, allowing easy data mapping.
-   607		 */
-   608		for (i = 0; i < lnk->wr_rx_cnt; i++) {
-   609			int x = i * sges_per_buf;
-   610	
-   611			lnk->wr_rx_sges[x].addr =
-   612				lnk->wr_rx_dma_addr + i * SMC_WR_BUF_SIZE;
-   613			lnk->wr_rx_sges[x].length = SMC_WR_TX_SIZE;
-   614			lnk->wr_rx_sges[x].lkey = lnk->roce_pd->local_dma_lkey;
-   615			if (lnk->lgr->smc_version == SMC_V2) {
-   616				lnk->wr_rx_sges[x + 1].addr =
-   617						lnk->wr_rx_v2_dma_addr + SMC_WR_TX_SIZE;
-   618				lnk->wr_rx_sges[x + 1].length =
-   619						SMC_WR_BUF_V2_SIZE - SMC_WR_TX_SIZE;
-   620				lnk->wr_rx_sges[x + 1].lkey =
-   621						lnk->roce_pd->local_dma_lkey;
-   622			}
-   623			lnk->wr_rx_ibs[i].next = NULL;
-   624			lnk->wr_rx_ibs[i].sg_list = &lnk->wr_rx_sges[x];
-   625			lnk->wr_rx_ibs[i].num_sge = sges_per_buf;
-   626		}
-   627		lnk->wr_reg.wr.next = NULL;
-   628		lnk->wr_reg.wr.num_sge = 0;
-   629		lnk->wr_reg.wr.send_flags = IB_SEND_SIGNALED;
-   630		lnk->wr_reg.wr.opcode = IB_WR_REG_MR;
-   631		lnk->wr_reg.access = IB_ACCESS_LOCAL_WRITE | IB_ACCESS_REMOTE_WRITE;
-   632	}
-   633	
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
