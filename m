@@ -2,91 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D165DC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 14:07:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 423AAC4167D
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 14:46:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232951AbiEMOHc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 May 2022 10:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59984 "EHLO
+        id S1381531AbiEMOqP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 May 2022 10:46:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229788AbiEMOH2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 10:07:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F32450B0E;
-        Fri, 13 May 2022 07:07:26 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF4DF6203F;
-        Fri, 13 May 2022 14:07:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7CE8C34100;
-        Fri, 13 May 2022 14:07:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652450845;
-        bh=JHGmg8HELW1l/NvkzMwcz7ZBqd9Xb6Lnpfs7ZKtiCY4=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=Zrk377rYFyGd1DKEgPcrB9U2j9iCZcIVPSjX3G4yXLEfiYpGZy5dx2KMZOtOZ0yNr
-         NCoJXvvNbST2JWJjySL0hS2bH2g4g0XE7V+Gm1NKCEdd9QvmqMast/6QrQI/KEDfMi
-         WorsvflMykUMERYcoyJYSOpC8+l5LMCOzs2YBBRmSJoUTzGKf0scl5FddkBQWOaIhT
-         GwnqFB1VZwZplQZt3NTcK3a/KMcSRjIo0CKbfTxNhXSfdEwnYuPerD7pwFFJGJFJA3
-         hyQLhJjridnveTZ/DfiPT9rpVPxjE9kNvIpfOa4uQeptvK60qVAzKlySyll0t2HMRY
-         5It/PFzyhHP4Q==
-Date:   Fri, 13 May 2022 09:07:23 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: Re: [PATCH RESEND v5 1/4] PCI: Clean up pci_scan_slot()
-Message-ID: <20220513140723.GA947754@bhelgaas>
+        with ESMTP id S1381450AbiEMOp6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 10:45:58 -0400
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBB093C4B7;
+        Fri, 13 May 2022 07:45:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
+        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
+        Resent-Cc:Resent-Message-ID; bh=A7LCydQD5IYNzaoDGyfG1KKM7tCxGhr7TuWULSo03X0=;
+        t=1652453114; x=1653662714; b=LYs2Kri0cw+/UGCEdaklFX6++OP3d6XjJhLcC02jkMM6M13
+        enCTtLPVnFDCrQRFLX819G3cOwVdjYiBSa9JccmqbQblnXISEdyq/7i5O4aMDV5xAFeJh8X61XWYA
+        3hNxcWPO6okKyPbXVAhEt6WHQ/sVkV0gcWR0C3dCeQWocdHTJKZWVZ25I4x63uWgmbhevhAje3sRQ
+        ynAaFSpM6xFAePbWKVwYY4aWUVh0Ju93mi2MceapTMkNIryb6lt7v4/iXwdFQzg89Tz18COaji5Fq
+        iSqUu6mUSMMlAVO2Bcj32MYDMrCOrP4TWkawclAlZw9o6WbW7KIcYMOBD7zR8fsA==;
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.95)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1npWX2-00AdYm-Tp;
+        Fri, 13 May 2022 16:44:41 +0200
+Message-ID: <1760d499824f9ef053af7a8dac04b48ab7d7fd3d.camel@sipsolutions.net>
+Subject: Re: [PATCH 11/30] um: Improve panic notifiers consistency and
+ ordering
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org
+Date:   Fri, 13 May 2022 16:44:36 +0200
+In-Reply-To: <4b003501-f5c3-cd66-d222-88d98c93e141@igalia.com>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+         <20220427224924.592546-12-gpiccoli@igalia.com> <Ynp2hRodh04K3pzK@alley>
+         <4b003501-f5c3-cd66-d222-88d98c93e141@igalia.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f34130034637278c9999cf6d430be558cb0c2318.camel@linux.ibm.com>
+Content-Transfer-Encoding: 7bit
+X-malware-bazaar: not-scanned
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 12, 2022 at 04:56:42PM +0200, Niklas Schnelle wrote:
-> On Thu, 2022-05-05 at 10:38 +0200, Niklas Schnelle wrote:
-> > While determining the next PCI function is factored out of
-> > pci_scan_slot() into next_fn() the former still handles the first
-> > function as a special case. This duplicates the code from the scan loop.
+On Wed, 2022-05-11 at 17:22 -0300, Guilherme G. Piccoli wrote:
+> On 10/05/2022 11:28, Petr Mladek wrote:
+> > [...]
+> > It is not clear to me why user mode linux should not care about
+> > the other notifiers. It might be because I do not know much
+> > about the user mode linux.
 > > 
-> > Furthermore the non ARI branch of next_fn() is generally hard to
-> > understand and especially the check for multifunction devices is hidden
-> > in the handling of NULL devices for non-contiguous multifunction. It
-> > also signals that no further functions need to be scanned by returning
-> > 0 via wraparound and this is a valid function number.
+> > Is the because they always create core dump or are never running
+> > in a hypervisor or ...?
 > > 
-> > Improve upon this by transforming the conditions in next_fn() to be
-> > easier to understand.
+> > AFAIK, the notifiers do many different things. For example, there
+> > is a notifier that disables RCU watchdog, print some extra
+> > information. Why none of them make sense here?
 > > 
-> > By changing next_fn() to return -ENODEV instead of 0 when there is no
-> > next function we can then handle the initial function inside the loop
-> > and deduplicate the shared handling. This also makes it more explicit
-> > that only function 0 must exist.
-> > 
-> > No functional change is intended.
-> > 
-> > Cc: Jan Kiszka <jan.kiszka@siemens.com>
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > ---
 > 
-> Friendly ping :-)
+> Hi Petr, my understanding is that UML is a form of running Linux as a
+> regular userspace process for testing purposes.
 
-Thanks and sorry for the delay.  I'm off today for my daughter's
-wedding reception but will get back to it next week.  Just to expose
-some of my thought process (and not to request more work from you!)
-I've been wondering whether b1bd58e448f2 ("PCI: Consolidate
-"next-function" functions") is really causing us more trouble than
-it's worth.  In some ways that makes the single next-function harder
-to read.  But I guess the hypervisor special case is not exactly a
-"next-function" thing -- it's a "keep scanning even if there's no fn
-0" thing.
+Correct.
 
-Bjorn
+> With that said, as soon
+> as we exit in the error path, less "pollution" would happen, so users
+> can use GDB to debug the core dump for example.
+> 
+> In later patches of this series (when we split the panic notifiers in 3
+> lists) these UML notifiers run in the pre-reboot list, so they run after
+> the informational notifiers for example (in the default level).
+> But without the list split we cannot order properly, so my gut feeling
+> is that makes sense to run them rather earlier than later in the panic
+> process...
+> 
+> Maybe Anton / Johannes / Richard could give their opinions - appreciate
+> that, I'm not attached to the priority here, it's more about users'
+> common usage of UML I can think of...
+
+It's hard to say ... In a sense I'm not sure it matters?
+
+OTOH something like the ftrace dump notifier (kernel/trace/trace.c)
+might still be useful to run before the mconsole and coredump ones, even
+if you could probably use gdb to figure out the information.
+
+Personally, I don't have a scenario where I'd care about the trace
+buffers though, and most of the others I found would seem irrelevant
+(drivers that aren't even compiled, hung tasks won't really happen since
+we exit immediately, and similar.)
+
+johannes
