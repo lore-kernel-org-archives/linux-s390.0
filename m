@@ -2,110 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88140C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 12:15:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55AE3C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 12:29:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355943AbiEMMP2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 May 2022 08:15:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57640 "EHLO
+        id S1380241AbiEMM32 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 May 2022 08:29:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232430AbiEMMP1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 08:15:27 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 109C3297407;
-        Fri, 13 May 2022 05:15:27 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24DAU81E011826;
-        Fri, 13 May 2022 12:15:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=eB9Nf5R4i5bpG1ityJGtSzLMvAfmnAEAQgFMODLMuRc=;
- b=MjHtcqM5HxnkMQenGZh/anKRcX5q/m2Ak7/3/0EZa3VepQW/ebh2Cuxmn2c3Hr39pRkV
- ybj8rl07S3KNXe8AtO8kDcZOHVzYFgeQfKU8c90FtmLo/+LxxqOVWTq7CBNSHHsRCF5M
- TtSs7FBJh9WRsbnO1xKRjkoA3jHUaYXIB7NeHUY2VpZIBOWA7v0hPivWOSCCle1f8mw2
- oGapKkGxiyKb2A/uWrvMsCObqWnEymCqe2oeIrvw7VzejJPDt8VZU+kzUWvAQ9m3vUz2
- KnpNWdv2k9WnI0bMn9fyOeRoda+CFCYovEJ+Ust8wydviG4e2JtN08rbMfOcj0hQ+FEy pw== 
+        with ESMTP id S1380245AbiEMM31 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 08:29:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 976EF4249A;
+        Fri, 13 May 2022 05:29:26 -0700 (PDT)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24DAkdj2005157;
+        Fri, 13 May 2022 12:29:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=IzPP9L+REaBixKO9Nlnb2NfMZQ3wq0sMMzgLB4g7Sr0=;
+ b=o8wSAD8QmpO/wu3Oyd6Pu+ZKNqDqasBph5Zmdtd4HZE3+FEv7RYY7gyk9Wt+enIHTrzu
+ 6nd7JjzKBKrfC/ri5afU/YOxu0M6KGePH08tuKb0ljjl6Pqme0CtOEyguY/nbikmo8aL
+ fsHoLZ4sTjNZiw4k3ekeoYTIA4xdhAfykJ0m9VFRf/Oi5gUSdCNIYVv1wimwyPh8pn2d
+ vaJaxfvtOwbk/ub9ASU22Omnmg8j8bSIAucmOlw2YhznCm93fxlWm7iuBBzXOpNCARJV
+ vvJPQSj+SLqsH2XG82AC9uaBAytCLBxbEXv41uNKJxNIXS5FNsugDN8eIOIYEGpU21tJ 1Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1nmtswjt-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1nvjsvpw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 12:15:26 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24DBRMkD007278;
-        Fri, 13 May 2022 12:15:26 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1nmtswj2-1
+        Fri, 13 May 2022 12:29:17 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24DCSMOV000747;
+        Fri, 13 May 2022 12:29:17 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1nvjsvpb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 12:15:26 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24DC1Xxf021016;
-        Fri, 13 May 2022 12:15:23 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04ams.nl.ibm.com with ESMTP id 3fwgd90ma6-1
+        Fri, 13 May 2022 12:29:17 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24DCMmVX006302;
+        Fri, 13 May 2022 12:29:15 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3fwgd90ngn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 12:15:23 +0000
+        Fri, 13 May 2022 12:29:15 +0000
 Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24DC1epr40829332
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24DCTAEx17170758
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 May 2022 12:01:40 GMT
+        Fri, 13 May 2022 12:29:10 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B03344203F;
-        Fri, 13 May 2022 12:15:20 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id D0E2F42042;
+        Fri, 13 May 2022 12:29:10 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 73B3A42047;
-        Fri, 13 May 2022 12:15:20 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.155.203.253])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 13 May 2022 12:15:20 +0000 (GMT)
-Message-ID: <2eb27198bb0e987a880a8b218eda4f9436589eaa.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 2/2] s390x: add migration test for
- storage keys
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com, scgl@linux.ibm.com
-Date:   Fri, 13 May 2022 14:15:20 +0200
-In-Reply-To: <20220512174107.0500a5e6@p-imbrenda>
-References: <20220512140107.1432019-1-nrb@linux.ibm.com>
-         <20220512140107.1432019-3-nrb@linux.ibm.com>
-         <20220512174107.0500a5e6@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.1 (3.44.1-1.fc36) 
+        by IMSVA (Postfix) with ESMTP id 60AB74203F;
+        Fri, 13 May 2022 12:29:10 +0000 (GMT)
+Received: from osiris (unknown [9.145.14.167])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 13 May 2022 12:29:10 +0000 (GMT)
+Date:   Fri, 13 May 2022 14:29:09 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
+        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andreas Krebbel <krebbel@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 3/8] s390/entry: shorten OUTSIDE macro
+Message-ID: <Yn5PFSoZGuuUFvy7@osiris>
+References: <20220511120532.2228616-1-hca@linux.ibm.com>
+ <20220511120532.2228616-4-hca@linux.ibm.com>
+ <Yn1CLcsu9I0M8IEM@osiris>
+ <CAKwvOdmSBNsA7C2ZCGDEmuxCituSQ=HPJx=9+AsBAOYfkSZRPA@mail.gmail.com>
+ <Yn1ctPDjPaU2wsor@osiris>
+ <CAKwvOdkwamvuCFkj-uFA_uT+gLNr8-v-zuGYLYb-pV8TOTxDSw@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKwvOdkwamvuCFkj-uFA_uT+gLNr8-v-zuGYLYb-pV8TOTxDSw@mail.gmail.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: awwhIzvvlPAD9c2zbAGGumHZ-ADfELLo
-X-Proofpoint-GUID: obD4ne76-El8isEGhEG0nt7DSyg_6Rcu
+X-Proofpoint-ORIG-GUID: uVKBI8XRbtrImnTJvnNQoMwtJn-wntEi
+X-Proofpoint-GUID: L8HiSV1-QsCZ_KGTRTroToBL6eEqhUom
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-13_04,2022-05-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- mlxlogscore=999 adultscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
- mlxscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205130054
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 malwarescore=0 suspectscore=0 clxscore=1015 bulkscore=0
+ mlxscore=0 adultscore=0 mlxlogscore=999 spamscore=0 phishscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205130054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2022-05-12 at 17:41 +0200, Claudio Imbrenda wrote:
-> > diff --git a/s390x/migration-skey.c b/s390x/migration-skey.c
-> > new file mode 100644
-> > index 000000000000..6f3053d8ab40
-[...]
-> > +static void test_migration(void)
-> > +{
-[...]
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0/* ensure access key doesn't match storage key and
-> > is never zero */
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0mismatching_key.str.acc =3D expected_key.str.acc < 15
-> > ? expected_key.str.acc + 1 : 1;
->=20
-> mismatching_key.str.acc =3D (expected_key.str.acc ^ 2) | 1;
+On Thu, May 12, 2022 at 12:25:01PM -0700, Nick Desaulniers wrote:
+> Interesting! Thanks for the links.
+> I'm guessing in our CI that we should probably pursue testing some of
+> the newer revisions. Wasn't defconfig updated from z10 to z12 not too
+> long ago?
 
-As discussed in person: I had something like this before and thought it is
-easier to understand with the tertiary operator.  So I'd prefer to leave as=
--is.
+Yes, that was 1.5 years ago (commit ac94a2911e84 ("s390: update defconfigs")).
 
+> So probably
+> CONFIG_MARCH_Z13
+> CONFIG_MARCH_Z14
+> CONFIG_MARCH_Z15
+> CONFIG_MARCH_Z16
+> 
+> All look like they're still "supported" (and I'm guessing
+> CONFIG_MARCH_Z10 and CONFIG_MARCH_Z196 are not too much burden to
+> continue to maintain kernel support for), with a higher emphasis
+> perhaps on z15+z16?
+
+That makes sense. However for the kernel it doesn't make a difference
+if compiled for z15 or z16 - there were no general instructions added
+with z16 that would make any difference for the kernel.
+All new instructions that came with z16 are either only relevant for
+user space, or used via .insn notation in the kernel, and only used if
+some hardware feature is present.
