@@ -2,170 +2,225 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65E9CC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 12 May 2022 22:31:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50B3FC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 02:13:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359189AbiELWbt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 18:31:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56290 "EHLO
+        id S1347581AbiEMCNm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 22:13:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359177AbiELWbr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 18:31:47 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EA1956FA9
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 15:31:46 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-2f7b815ac06so73030477b3.3
-        for <linux-s390@vger.kernel.org>; Thu, 12 May 2022 15:31:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AJGrVRrH+dOEhiElDtPJnom+nsrzVSlx3m1P3MXcyt8=;
-        b=HKHBQnUdowSNLBhbkOBsBEX5C+iK1w0Yf+bcFPhOqlRiMP6A0Mz5ltaYanBi+i05iG
-         cin6l4liXxnPvewh1T7T7VdF/b2gZubu8BFpF1WFRdvGC4vbHWLBnyEHMDVH+/ycYupI
-         sjKR4L02x/5+BSW+jam05AzZ2NmQlqkBhti6Uq78H0zr3uNSRVTWjzYDMTHeVMumdU/f
-         6Swv4843WGA/Mnd9MNpjok50X0vmtCH9JqfJWCHJy2aQ5P6XU2iRMYw+xQW3GDRas9BS
-         PaouOeajWzpDJoWV+wRBWGsBQvWe3KgQtzreixaQBUYxzKZaZERpu/imjAsk5CAWC9cB
-         OUbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AJGrVRrH+dOEhiElDtPJnom+nsrzVSlx3m1P3MXcyt8=;
-        b=w8AawpTgG7p20xYFOUWSpUIk5QBFLlfiegZ81mxyBccvcjDi82lrR0mIP6XnwfuiH6
-         BI5g9sAhNrm95nVBOPEXmOKmUInzmrPutcz14WrjO8UMh0Ur9bdt+q8ut79/l4cPsgfE
-         UC0i9kuCBf1WkSpU4LcvIjh+IzxjbIKqyNJdsdmPNH7nWZHy5QpPb3Adw2gjKFuEfyOu
-         0rc9mFQQbsaoK6yo+57GmfNdcH+WyC2pao/JPImB8VgxZ4gsT9QK6Sa7fnt7OqR4FxsJ
-         JjRAqkERGTxXcF0IZLpsOAB7Vo25KIHfw+pw+ZosWaBD0qgtcFh8Dpjb1MwVDdQrByqc
-         TdSA==
-X-Gm-Message-State: AOAM530Xdpb2czeyi2RiQTmCozcmkxSV7YeB+l4h4CImGZR/aaM9pG7X
-        zAdUz+x6UaUb8W12+2SX+oYIFV4zv6vuinfd3qrGPA==
-X-Google-Smtp-Source: ABdhPJwzefOUbhnD4vlu7+gan+V9STOahhU9EhcwGhhFaV8YI/mjlx7OYk8OXREHs4uUiLanalOYjb8ajWHHjC3d7gc=
-X-Received: by 2002:a81:4fd0:0:b0:2fb:2c3e:6cbc with SMTP id
- d199-20020a814fd0000000b002fb2c3e6cbcmr2716004ywb.180.1652394705360; Thu, 12
- May 2022 15:31:45 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220512044634.63586-1-ligang.bdlg@bytedance.com>
-In-Reply-To: <20220512044634.63586-1-ligang.bdlg@bytedance.com>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Thu, 12 May 2022 15:31:34 -0700
-Message-ID: <CAJuCfpGDamD6P6Tgz=Y59fpj1NgFL0wjKe+y42-mCQ2x-asx3A@mail.gmail.com>
-Subject: Re: [PATCH 0/5 v1] mm, oom: Introduce per numa node oom for CONSTRAINT_MEMORY_POLICY
-To:     Gang Li <ligang.bdlg@bytedance.com>, Michal Hocko <mhocko@suse.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Muchun Song <songmuchun@bytedance.com>, hca@linux.ibm.com,
+        with ESMTP id S229734AbiEMCNl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 22:13:41 -0400
+Received: from mail.nfschina.com (unknown [IPv6:2400:dd01:100f:2:72e2:84ff:fe10:5f45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B5DE61F3E85;
+        Thu, 12 May 2022 19:13:39 -0700 (PDT)
+Received: from localhost (unknown [127.0.0.1])
+        by mail.nfschina.com (Postfix) with ESMTP id F0AF51E80C82;
+        Fri, 13 May 2022 10:07:58 +0800 (CST)
+X-Virus-Scanned: amavisd-new at test.com
+Received: from mail.nfschina.com ([127.0.0.1])
+        by localhost (mail.nfschina.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id 7ipRy1WLhqHg; Fri, 13 May 2022 10:07:56 +0800 (CST)
+Received: from localhost.localdomain (unknown [219.141.250.2])
+        (Authenticated sender: kunyu@nfschina.com)
+        by mail.nfschina.com (Postfix) with ESMTPA id B62C81E80C80;
+        Fri, 13 May 2022 10:07:54 +0800 (CST)
+From:   Li kunyu <kunyu@nfschina.com>
+To:     rostedt@goodmis.org
+Cc:     mingo@redhat.com, linux@armlinux.org.uk, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
         gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>, acme@kernel.org,
-        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
-        jolsa@kernel.org, namhyung@kernel.org,
-        David Hildenbrand <david@redhat.com>, imbrenda@linux.ibm.com,
-        apopple@nvidia.com, Alexey Dobriyan <adobriyan@gmail.com>,
-        stephen.s.brennan@oracle.com, ohoono.kwon@samsung.com,
-        haolee.swjtu@gmail.com, Kalesh Singh <kaleshsingh@google.com>,
-        zhengqi.arch@bytedance.com, Peter Xu <peterx@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Colin Cross <ccross@google.com>, vincent.whitchurch@axis.com,
-        Thomas Gleixner <tglx@linutronix.de>, bigeasy@linutronix.de,
-        fenghua.yu@intel.com, linux-s390@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-perf-users@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, liqiong@nfschina.com,
+        Li kunyu <kunyu@nfschina.com>
+Subject: [PATCH] kernel: Ftrace seems to have functions to improve performance through optimization  through optimization
+Date:   Fri, 13 May 2022 10:13:14 +0800
+Message-Id: <20220513021314.59480-1-kunyu@nfschina.com>
+X-Mailer: git-send-email 2.18.2
+In-Reply-To: <20220512110725.22e69e3c@gandalf.local.home>
+References: <20220512110725.22e69e3c@gandalf.local.home>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 11, 2022 at 9:47 PM Gang Li <ligang.bdlg@bytedance.com> wrote:
->
-> TLDR:
-> If a mempolicy is in effect(oc->constraint == CONSTRAINT_MEMORY_POLICY), out_of_memory() will
-> select victim on specific node to kill. So that kernel can avoid accidental killing on NUMA system.
->
-> Problem:
-> Before this patch series, oom will only kill the process with the highest memory usage.
-> by selecting process with the highest oom_badness on the entire system to kill.
->
-> This works fine on UMA system, but may have some accidental killing on NUMA system.
->
-> As shown below, if process c.out is bind to Node1 and keep allocating pages from Node1,
-> a.out will be killed first. But killing a.out did't free any mem on Node1, so c.out
-> will be killed then.
->
-> A lot of our AMD machines have 8 numa nodes. In these systems, there is a greater chance
-> of triggering this problem.
->
-> OOM before patches:
-> ```
-> Per-node process memory usage (in MBs)
-> PID             Node 0        Node 1      Total
-> ----------- ---------- ------------- ----------
-> 3095 a.out     3073.34          0.11    3073.45(Killed first. Maximum memory consumption)
-> 3199 b.out      501.35       1500.00    2001.35
-> 3805 c.out        1.52 (grow)2248.00    2249.52(Killed then. Node1 is full)
-> ----------- ---------- ------------- ----------
-> Total          3576.21       3748.11    7324.31
-> ```
->
-> Solution:
-> We store per node rss in mm_rss_stat for each process.
->
-> If a page allocation with mempolicy in effect(oc->constraint == CONSTRAINT_MEMORY_POLICY)
-> triger oom. We will calculate oom_badness with rss counter for the corresponding node. Then
-> select the process with the highest oom_badness on the corresponding node to kill.
->
-> OOM after patches:
-> ```
-> Per-node process memory usage (in MBs)
-> PID             Node 0        Node 1     Total
-> ----------- ---------- ------------- ----------
-> 3095 a.out     3073.34          0.11    3073.45
-> 3199 b.out      501.35       1500.00    2001.35
-> 3805 c.out        1.52 (grow)2248.00    2249.52(killed)
-> ----------- ---------- ------------- ----------
-> Total          3576.21       3748.11    7324.31
-> ```
+such as ftrace_ARCH_code_*, return 0, so the FTRACE_* check is not required
 
-You included lots of people but missed Michal Hocko. CC'ing him and
-please include him in the future postings.
+Signed-off-by: Li kunyu <kunyu@nfschina.com>
+---
+ arch/arm/kernel/ftrace.c   |  6 ++----
+ arch/riscv/kernel/ftrace.c |  6 ++----
+ arch/s390/kernel/ftrace.c  |  3 +--
+ arch/x86/kernel/ftrace.c   |  6 ++----
+ include/linux/ftrace.h     |  4 ++--
+ kernel/trace/ftrace.c      | 16 ++++------------
+ 6 files changed, 13 insertions(+), 28 deletions(-)
 
->
-> Gang Li (5):
->   mm: add a new parameter `node` to `get/add/inc/dec_mm_counter`
->   mm: add numa_count field for rss_stat
->   mm: add numa fields for tracepoint rss_stat
->   mm: enable per numa node rss_stat count
->   mm, oom: enable per numa node oom for CONSTRAINT_MEMORY_POLICY
->
->  arch/s390/mm/pgtable.c        |   4 +-
->  fs/exec.c                     |   2 +-
->  fs/proc/base.c                |   6 +-
->  fs/proc/task_mmu.c            |  14 ++--
->  include/linux/mm.h            |  59 ++++++++++++-----
->  include/linux/mm_types_task.h |  16 +++++
->  include/linux/oom.h           |   2 +-
->  include/trace/events/kmem.h   |  27 ++++++--
->  kernel/events/uprobes.c       |   6 +-
->  kernel/fork.c                 |  70 +++++++++++++++++++-
->  mm/huge_memory.c              |  13 ++--
->  mm/khugepaged.c               |   4 +-
->  mm/ksm.c                      |   2 +-
->  mm/madvise.c                  |   2 +-
->  mm/memory.c                   | 116 ++++++++++++++++++++++++----------
->  mm/migrate.c                  |   2 +
->  mm/migrate_device.c           |   2 +-
->  mm/oom_kill.c                 |  59 ++++++++++++-----
->  mm/rmap.c                     |  16 ++---
->  mm/swapfile.c                 |   4 +-
->  mm/userfaultfd.c              |   2 +-
->  21 files changed, 317 insertions(+), 111 deletions(-)
->
-> --
-> 2.20.1
->
+diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
+index 83cc068586bc..a0b6d1e3812f 100644
+--- a/arch/arm/kernel/ftrace.c
++++ b/arch/arm/kernel/ftrace.c
+@@ -79,16 +79,14 @@ static unsigned long __ref adjust_address(struct dyn_ftrace *rec,
+ 	return (unsigned long)&ftrace_regs_caller_from_init;
+ }
+ 
+-int ftrace_arch_code_modify_prepare(void)
++void ftrace_arch_code_modify_prepare(void)
+ {
+-	return 0;
+ }
+ 
+-int ftrace_arch_code_modify_post_process(void)
++void ftrace_arch_code_modify_post_process(void)
+ {
+ 	/* Make sure any TLB misses during machine stop are cleared. */
+ 	flush_tlb_all();
+-	return 0;
+ }
+ 
+ static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr,
+diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
+index 4716f4cdc038..2086f6585773 100644
+--- a/arch/riscv/kernel/ftrace.c
++++ b/arch/riscv/kernel/ftrace.c
+@@ -12,16 +12,14 @@
+ #include <asm/patch.h>
+ 
+ #ifdef CONFIG_DYNAMIC_FTRACE
+-int ftrace_arch_code_modify_prepare(void) __acquires(&text_mutex)
++void ftrace_arch_code_modify_prepare(void) __acquires(&text_mutex)
+ {
+ 	mutex_lock(&text_mutex);
+-	return 0;
+ }
+ 
+-int ftrace_arch_code_modify_post_process(void) __releases(&text_mutex)
++void ftrace_arch_code_modify_post_process(void) __releases(&text_mutex)
+ {
+ 	mutex_unlock(&text_mutex);
+-	return 0;
+ }
+ 
+ static int ftrace_check_current_call(unsigned long hook_pos,
+diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+index 1852d46babb1..416b5a94353d 100644
+--- a/arch/s390/kernel/ftrace.c
++++ b/arch/s390/kernel/ftrace.c
+@@ -225,14 +225,13 @@ void arch_ftrace_update_code(int command)
+ 	ftrace_modify_all_code(command);
+ }
+ 
+-int ftrace_arch_code_modify_post_process(void)
++void ftrace_arch_code_modify_post_process(void)
+ {
+ 	/*
+ 	 * Flush any pre-fetched instructions on all
+ 	 * CPUs to make the new code visible.
+ 	 */
+ 	text_poke_sync_lock();
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_MODULES
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index 1e31c7d21597..73d2719ed12c 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -37,7 +37,7 @@
+ 
+ static int ftrace_poke_late = 0;
+ 
+-int ftrace_arch_code_modify_prepare(void)
++void ftrace_arch_code_modify_prepare(void)
+     __acquires(&text_mutex)
+ {
+ 	/*
+@@ -47,10 +47,9 @@ int ftrace_arch_code_modify_prepare(void)
+ 	 */
+ 	mutex_lock(&text_mutex);
+ 	ftrace_poke_late = 1;
+-	return 0;
+ }
+ 
+-int ftrace_arch_code_modify_post_process(void)
++void ftrace_arch_code_modify_post_process(void)
+     __releases(&text_mutex)
+ {
+ 	/*
+@@ -61,7 +60,6 @@ int ftrace_arch_code_modify_post_process(void)
+ 	text_poke_finish();
+ 	ftrace_poke_late = 0;
+ 	mutex_unlock(&text_mutex);
+-	return 0;
+ }
+ 
+ static const char *ftrace_nop_replace(void)
+diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+index 4816b7e11047..a5f74f6e7e4e 100644
+--- a/include/linux/ftrace.h
++++ b/include/linux/ftrace.h
+@@ -449,8 +449,8 @@ static inline void stack_tracer_enable(void) { }
+ 
+ #ifdef CONFIG_DYNAMIC_FTRACE
+ 
+-int ftrace_arch_code_modify_prepare(void);
+-int ftrace_arch_code_modify_post_process(void);
++void ftrace_arch_code_modify_prepare(void);
++void ftrace_arch_code_modify_post_process(void);
+ 
+ enum ftrace_bug_type {
+ 	FTRACE_BUG_UNKNOWN,
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 4f1d2f5e7263..35a899f136fe 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -2707,18 +2707,16 @@ ftrace_nop_initialize(struct module *mod, struct dyn_ftrace *rec)
+  * archs can override this function if they must do something
+  * before the modifying code is performed.
+  */
+-int __weak ftrace_arch_code_modify_prepare(void)
++void __weak ftrace_arch_code_modify_prepare(void)
+ {
+-	return 0;
+ }
+ 
+ /*
+  * archs can override this function if they must do something
+  * after the modifying code is performed.
+  */
+-int __weak ftrace_arch_code_modify_post_process(void)
++void __weak ftrace_arch_code_modify_post_process(void)
+ {
+-	return 0;
+ }
+ 
+ void ftrace_modify_all_code(int command)
+@@ -2804,12 +2802,7 @@ void __weak arch_ftrace_update_code(int command)
+ 
+ static void ftrace_run_update_code(int command)
+ {
+-	int ret;
+-
+-	ret = ftrace_arch_code_modify_prepare();
+-	FTRACE_WARN_ON(ret);
+-	if (ret)
+-		return;
++	ftrace_arch_code_modify_prepare();
+ 
+ 	/*
+ 	 * By default we use stop_machine() to modify the code.
+@@ -2819,8 +2812,7 @@ static void ftrace_run_update_code(int command)
+ 	 */
+ 	arch_ftrace_update_code(command);
+ 
+-	ret = ftrace_arch_code_modify_post_process();
+-	FTRACE_WARN_ON(ret);
++	ftrace_arch_code_modify_post_process();
+ }
+ 
+ static void ftrace_run_modify_code(struct ftrace_ops *ops, int command,
+-- 
+2.18.2
+
