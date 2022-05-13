@@ -2,160 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD61CC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 11:44:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88140C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 12:15:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233504AbiEMLon (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 May 2022 07:44:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50454 "EHLO
+        id S1355943AbiEMMP2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 May 2022 08:15:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345668AbiEMLol (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 07:44:41 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43605FF08;
-        Fri, 13 May 2022 04:44:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652442280; x=1683978280;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=b57vSAPzKx+7+zmpE1DDjKWcW89L6UeLoYaHwv1Ix9A=;
-  b=PoRiZDcroWh8waylnism6hO+4hXDHpexjMQCRIEe6Pn4rT4J173SGYEK
-   BA4RzzXNPts0ir5wDkycima4fdWQLzYMF82GT5hLaLwYzgt61sz11S6RJ
-   cLoVJbvtn+QlTqoRrDKXW6jve+z6vATWI2VbCf3I47KvN66c1EBSHR96n
-   lHbkxmLQyqs4/H/SN/ip4+SEnPoE410IAWgC+q/728CJHQSjL6g5uk8wM
-   NcMwcGxPpag7Dyy3nWt4qSlEtWgEwhEbZ9Oedyhwfl3PHw5uS7ZTDRTOT
-   1x5Oh0O45mGng/VHL2eBRMuy59+DFHjy2U79yacoxsfx9Jmjrc1u1mZ0x
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10345"; a="252333152"
-X-IronPort-AV: E=Sophos;i="5.91,221,1647327600"; 
-   d="scan'208";a="252333152"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2022 04:44:40 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,221,1647327600"; 
-   d="scan'208";a="572945975"
-Received: from lkp-server01.sh.intel.com (HELO 5056e131ad90) ([10.239.97.150])
-  by fmsmga007.fm.intel.com with ESMTP; 13 May 2022 04:44:37 -0700
-Received: from kbuild by 5056e131ad90 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1npTin-000LhQ-7z;
-        Fri, 13 May 2022 11:44:37 +0000
-Date:   Fri, 13 May 2022 19:44:11 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-        kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com
-Cc:     kbuild-all@lists.01.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next 2/2] net/smc: rdma write inline if qp has
- sufficient inline space
-Message-ID: <202205131912.bHaVZP7f-lkp@intel.com>
-References: <20220513071551.22065-3-guangguan.wang@linux.alibaba.com>
+        with ESMTP id S232430AbiEMMP1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 08:15:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 109C3297407;
+        Fri, 13 May 2022 05:15:27 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24DAU81E011826;
+        Fri, 13 May 2022 12:15:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=eB9Nf5R4i5bpG1ityJGtSzLMvAfmnAEAQgFMODLMuRc=;
+ b=MjHtcqM5HxnkMQenGZh/anKRcX5q/m2Ak7/3/0EZa3VepQW/ebh2Cuxmn2c3Hr39pRkV
+ ybj8rl07S3KNXe8AtO8kDcZOHVzYFgeQfKU8c90FtmLo/+LxxqOVWTq7CBNSHHsRCF5M
+ TtSs7FBJh9WRsbnO1xKRjkoA3jHUaYXIB7NeHUY2VpZIBOWA7v0hPivWOSCCle1f8mw2
+ oGapKkGxiyKb2A/uWrvMsCObqWnEymCqe2oeIrvw7VzejJPDt8VZU+kzUWvAQ9m3vUz2
+ KnpNWdv2k9WnI0bMn9fyOeRoda+CFCYovEJ+Ust8wydviG4e2JtN08rbMfOcj0hQ+FEy pw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1nmtswjt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 12:15:26 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24DBRMkD007278;
+        Fri, 13 May 2022 12:15:26 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1nmtswj2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 12:15:26 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24DC1Xxf021016;
+        Fri, 13 May 2022 12:15:23 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 3fwgd90ma6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 12:15:23 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24DC1epr40829332
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 13 May 2022 12:01:40 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B03344203F;
+        Fri, 13 May 2022 12:15:20 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 73B3A42047;
+        Fri, 13 May 2022 12:15:20 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.155.203.253])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 13 May 2022 12:15:20 +0000 (GMT)
+Message-ID: <2eb27198bb0e987a880a8b218eda4f9436589eaa.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 2/2] s390x: add migration test for
+ storage keys
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, thuth@redhat.com, scgl@linux.ibm.com
+Date:   Fri, 13 May 2022 14:15:20 +0200
+In-Reply-To: <20220512174107.0500a5e6@p-imbrenda>
+References: <20220512140107.1432019-1-nrb@linux.ibm.com>
+         <20220512140107.1432019-3-nrb@linux.ibm.com>
+         <20220512174107.0500a5e6@p-imbrenda>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.1 (3.44.1-1.fc36) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220513071551.22065-3-guangguan.wang@linux.alibaba.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: awwhIzvvlPAD9c2zbAGGumHZ-ADfELLo
+X-Proofpoint-GUID: obD4ne76-El8isEGhEG0nt7DSyg_6Rcu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-13_04,2022-05-13_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
+ mlxlogscore=999 adultscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
+ mlxscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205130054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Guangguan,
+On Thu, 2022-05-12 at 17:41 +0200, Claudio Imbrenda wrote:
+> > diff --git a/s390x/migration-skey.c b/s390x/migration-skey.c
+> > new file mode 100644
+> > index 000000000000..6f3053d8ab40
+[...]
+> > +static void test_migration(void)
+> > +{
+[...]
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0/* ensure access key doesn't match storage key and
+> > is never zero */
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0mismatching_key.str.acc =3D expected_key.str.acc < 15
+> > ? expected_key.str.acc + 1 : 1;
+>=20
+> mismatching_key.str.acc =3D (expected_key.str.acc ^ 2) | 1;
 
-Thank you for the patch! Perhaps something to improve:
+As discussed in person: I had something like this before and thought it is
+easier to understand with the tertiary operator.  So I'd prefer to leave as=
+-is.
 
-[auto build test WARNING on net-next/master]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Guangguan-Wang/net-smc-send-and-write-inline-optimization-for-smc/20220513-151715
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git b67fd3d9d94223b424674f45eeadeff58b4b03ef
-config: nios2-allyesconfig (https://download.01.org/0day-ci/archive/20220513/202205131912.bHaVZP7f-lkp@intel.com/config)
-compiler: nios2-linux-gcc (GCC) 11.3.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/1e1003898ecdb92b0339075c7501e486bda2d8e8
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Guangguan-Wang/net-smc-send-and-write-inline-optimization-for-smc/20220513-151715
-        git checkout 1e1003898ecdb92b0339075c7501e486bda2d8e8
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.3.0 make.cross W=1 O=build_dir ARCH=nios2 SHELL=/bin/bash net/smc/
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
-   net/smc/smc_tx.c: In function 'smcr_tx_rdma_writes':
->> net/smc/smc_tx.c:399:37: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-     399 |                         base_addr = (u64)conn->sndbuf_desc->cpu_addr;
-         |                                     ^
-
-
-vim +399 net/smc/smc_tx.c
-
-   376	
-   377	/* SMC-R helper for smc_tx_rdma_writes() */
-   378	static int smcr_tx_rdma_writes(struct smc_connection *conn, size_t len,
-   379				       size_t src_off, size_t src_len,
-   380				       size_t dst_off, size_t dst_len,
-   381				       struct smc_rdma_wr *wr_rdma_buf)
-   382	{
-   383		struct smc_link *link = conn->lnk;
-   384	
-   385		dma_addr_t dma_addr =
-   386			sg_dma_address(conn->sndbuf_desc->sgt[link->link_idx].sgl);
-   387		int src_len_sum = src_len, dst_len_sum = dst_len;
-   388		int sent_count = src_off;
-   389		int srcchunk, dstchunk;
-   390		int num_sges;
-   391		int rc;
-   392	
-   393		for (dstchunk = 0; dstchunk < 2; dstchunk++) {
-   394			struct ib_rdma_wr *wr = &wr_rdma_buf->wr_tx_rdma[dstchunk];
-   395			struct ib_sge *sge = wr->wr.sg_list;
-   396			u64 base_addr = dma_addr;
-   397	
-   398			if (dst_len <= link->qp_attr.cap.max_inline_data) {
- > 399				base_addr = (u64)conn->sndbuf_desc->cpu_addr;
-   400				wr->wr.send_flags |= IB_SEND_INLINE;
-   401			} else {
-   402				wr->wr.send_flags &= ~IB_SEND_INLINE;
-   403			}
-   404	
-   405			num_sges = 0;
-   406			for (srcchunk = 0; srcchunk < 2; srcchunk++) {
-   407				sge[srcchunk].addr = base_addr + src_off;
-   408				sge[srcchunk].length = src_len;
-   409				num_sges++;
-   410	
-   411				src_off += src_len;
-   412				if (src_off >= conn->sndbuf_desc->len)
-   413					src_off -= conn->sndbuf_desc->len;
-   414							/* modulo in send ring */
-   415				if (src_len_sum == dst_len)
-   416					break; /* either on 1st or 2nd iteration */
-   417				/* prepare next (== 2nd) iteration */
-   418				src_len = dst_len - src_len; /* remainder */
-   419				src_len_sum += src_len;
-   420			}
-   421			rc = smc_tx_rdma_write(conn, dst_off, num_sges, wr);
-   422			if (rc)
-   423				return rc;
-   424			if (dst_len_sum == len)
-   425				break; /* either on 1st or 2nd iteration */
-   426			/* prepare next (== 2nd) iteration */
-   427			dst_off = 0; /* modulo offset in RMBE ring buffer */
-   428			dst_len = len - dst_len; /* remainder */
-   429			dst_len_sum += dst_len;
-   430			src_len = min_t(int, dst_len, conn->sndbuf_desc->len -
-   431					sent_count);
-   432			src_len_sum = src_len;
-   433		}
-   434		return 0;
-   435	}
-   436	
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
