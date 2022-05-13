@@ -2,85 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A00DCC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 09:36:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BF2FC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 09:51:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379130AbiEMJgc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 May 2022 05:36:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40124 "EHLO
+        id S1379155AbiEMJvs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 May 2022 05:51:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379131AbiEMJgY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 05:36:24 -0400
-Received: from fornost.hmeau.com (helcar.hmeau.com [216.24.177.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C886147578;
-        Fri, 13 May 2022 02:36:22 -0700 (PDT)
-Received: from gwarestrin.arnor.me.apana.org.au ([192.168.103.7])
-        by fornost.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
-        id 1npRiY-00DHGI-J4; Fri, 13 May 2022 19:36:16 +1000
-Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Fri, 13 May 2022 17:36:14 +0800
-Date:   Fri, 13 May 2022 17:36:14 +0800
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     Vladis Dronov <vdronov@redhat.com>
-Cc:     Patrick Steuer <patrick.steuer@de.ibm.com>,
-        Harald Freudenberger <freude@de.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/crypto: add crypto library interface for ChaCha20
-Message-ID: <Yn4mjhfyMtshhEpp@gondor.apana.org.au>
-References: <20220508130944.17860-1-vdronoff@gmail.com>
+        with ESMTP id S1379152AbiEMJvr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 05:51:47 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E49D65716C;
+        Fri, 13 May 2022 02:51:46 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24D9kp38013194;
+        Fri, 13 May 2022 09:51:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=0T3S6tRbon+PM9LAc9WxUO+kRlwzPPR9f7pIzMW6g+Q=;
+ b=ECzPykqdTFnpf9IVgrAq7dq7BM2FbHc689dBVZ4wqOuswkng1Q7jipTO55eDByQegakE
+ JEgnRDkVQ9/f0YrY1QTwk3uJUIgoRQi/SQILipAfSoXjbseOsColJEnGKqro7gJRhw3M
+ q663MduFTduJj1nkoaBOu9nKgWomHvadYJcUYAoHLUE/hxVXwMicfV21v2TerGTz0eE7
+ m8UN/2mrOMuhz2fmzZwXH//oOAdcccwREYsTfRMDcE1jOUbtjkIPGi1KCjM00SOCaeNO
+ ZDegceqKasNr5eBuB/N79dqbPhl7t3FyIMZAyWKM32MDxzfUB45sIYwU4+OpR2fCQwmW 3g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1n0h02pg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 09:51:46 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24D9oFlW025765;
+        Fri, 13 May 2022 09:51:46 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1n0h02nx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 09:51:45 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24D9TI3L017591;
+        Fri, 13 May 2022 09:51:43 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3fwgd8xhrf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 09:51:43 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24D9peno32178668
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 13 May 2022 09:51:40 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0DEDF4C04E;
+        Fri, 13 May 2022 09:51:40 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E50F4C044;
+        Fri, 13 May 2022 09:51:39 +0000 (GMT)
+Received: from linux6.. (unknown [9.114.12.104])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 13 May 2022 09:51:39 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm390 mailing list <kvm390-list@tuxmaker.boeblingen.de.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        imbrenda@linux.ibm.com, thuth@redhat.com, seiden@linux.ibm.com,
+        nrb@linux.ibm.com, scgl@linux.ibm.com
+Subject: [kvm-unit-tests PATCH 0/6] s390x: uv-host: Access check extensions and improvements
+Date:   Fri, 13 May 2022 09:50:11 +0000
+Message-Id: <20220513095017.16301-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220508130944.17860-1-vdronoff@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: oy8bl5zVctakl3cFlQVsnoM24lZMGohA
+X-Proofpoint-ORIG-GUID: jR0mSd3mGgjQnJdU0qpbPAaWHuvCbPNT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-13_04,2022-05-12_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1015
+ impostorscore=0 spamscore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
+ phishscore=0 mlxlogscore=830 priorityscore=1501 malwarescore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205130041
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, May 08, 2022 at 03:09:44PM +0200, Vladis Dronov wrote:
-> From: Vladis Dronov <vdronov@redhat.com>
-> 
-> Implement a crypto library interface for the s390-native ChaCha20 cipher
-> algorithm. This allows us to stop to select CRYPTO_CHACHA20 and instead
-> select CRYPTO_ARCH_HAVE_LIB_CHACHA. This allows BIG_KEYS=y not to build
-> a whole ChaCha20 crypto infrastructure as a built-in, but build a smaller
-> CRYPTO_LIB_CHACHA instead.
-> 
-> Make CRYPTO_CHACHA_S390 config entry to look like similar ones on other
-> architectures. Remove CRYPTO_ALGAPI select as anyway it is selected by
-> CRYPTO_SKCIPHER.
-> 
-> Add a new test module and a test script for ChaCha20 cipher and its
-> interfaces. Here are test results on an idle z15 machine:
-> 
-> Data | Generic crypto TFM |  s390 crypto TFM |    s390 lib
-> size |      enc      dec  |     enc     dec  |     enc     dec
-> -----+--------------------+------------------+----------------
-> 512b |   1545ns   1295ns  |   604ns   446ns  |   430ns  407ns
-> 4k   |   9536ns   9463ns  |  2329ns  2174ns  |  2170ns  2154ns
-> 64k  |  149.6us  149.3us  |  34.4us  34.5us  |  33.9us  33.1us
-> 6M   |  23.61ms  23.11ms  |  4223us  4160us  |  3951us  4008us
-> 60M  |  143.9ms  143.9ms  |  33.5ms  33.2ms  |  32.2ms  32.1ms
-> 
-> Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-> ---
->  arch/s390/crypto/chacha-glue.c                |  34 +-
->  drivers/crypto/Kconfig                        |   4 +-
->  tools/testing/crypto/chacha20-s390/Makefile   |  12 +
->  .../testing/crypto/chacha20-s390/run-tests.sh |  34 ++
->  .../crypto/chacha20-s390/test-cipher.c        | 372 ++++++++++++++++++
->  5 files changed, 452 insertions(+), 4 deletions(-)
->  create mode 100644 tools/testing/crypto/chacha20-s390/Makefile
->  create mode 100644 tools/testing/crypto/chacha20-s390/run-tests.sh
->  create mode 100644 tools/testing/crypto/chacha20-s390/test-cipher.c
+Over the last few weeks I had a few ideas on how to extend the uv-host
+test to get more coverage. Most checks are access checks for secure
+pages or the UVCB and it's satellites.
 
-Patch applied.  Thanks.
+I've had limited time to cleanup this series, so consider having a
+closer look.
+
+Janosch Frank (6):
+  s390x: uv-host: Add access checks for donated memory
+  s390x: uv-host: Add uninitialized UV tests
+  s390x: uv-host: Test uv immediate parameter
+  s390x: uv-host: Add access exception test
+  s390x: uv-host: Add a set secure config parameters test function
+  s390x: uv-host: Remove duplicated +
+
+ s390x/uv-host.c | 244 +++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 239 insertions(+), 5 deletions(-)
+
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.34.1
+
