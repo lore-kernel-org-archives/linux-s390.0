@@ -2,225 +2,175 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50B3FC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 02:13:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01CF8C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 02:25:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347581AbiEMCNm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 22:13:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45966 "EHLO
+        id S244223AbiEMCZN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 May 2022 22:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229734AbiEMCNl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 22:13:41 -0400
-Received: from mail.nfschina.com (unknown [IPv6:2400:dd01:100f:2:72e2:84ff:fe10:5f45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B5DE61F3E85;
-        Thu, 12 May 2022 19:13:39 -0700 (PDT)
-Received: from localhost (unknown [127.0.0.1])
-        by mail.nfschina.com (Postfix) with ESMTP id F0AF51E80C82;
-        Fri, 13 May 2022 10:07:58 +0800 (CST)
-X-Virus-Scanned: amavisd-new at test.com
-Received: from mail.nfschina.com ([127.0.0.1])
-        by localhost (mail.nfschina.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 7ipRy1WLhqHg; Fri, 13 May 2022 10:07:56 +0800 (CST)
-Received: from localhost.localdomain (unknown [219.141.250.2])
-        (Authenticated sender: kunyu@nfschina.com)
-        by mail.nfschina.com (Postfix) with ESMTPA id B62C81E80C80;
-        Fri, 13 May 2022 10:07:54 +0800 (CST)
-From:   Li kunyu <kunyu@nfschina.com>
-To:     rostedt@goodmis.org
-Cc:     mingo@redhat.com, linux@armlinux.org.uk, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, liqiong@nfschina.com,
-        Li kunyu <kunyu@nfschina.com>
-Subject: [PATCH] kernel: Ftrace seems to have functions to improve performance through optimization  through optimization
-Date:   Fri, 13 May 2022 10:13:14 +0800
-Message-Id: <20220513021314.59480-1-kunyu@nfschina.com>
-X-Mailer: git-send-email 2.18.2
-In-Reply-To: <20220512110725.22e69e3c@gandalf.local.home>
-References: <20220512110725.22e69e3c@gandalf.local.home>
+        with ESMTP id S234805AbiEMCZK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 22:25:10 -0400
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C11719D6;
+        Thu, 12 May 2022 19:25:06 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VD19IIY_1652408702;
+Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VD19IIY_1652408702)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 13 May 2022 10:25:04 +0800
+From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH net-next v2] net/smc: align the connect behaviour with TCP
+Date:   Fri, 13 May 2022 10:24:53 +0800
+Message-Id: <20220513022453.7256-1-guangguan.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-such as ftrace_ARCH_code_*, return 0, so the FTRACE_* check is not required
+Connect with O_NONBLOCK will not be completed immediately
+and returns -EINPROGRESS. It is possible to use selector/poll
+for completion by selecting the socket for writing. After select
+indicates writability, a second connect function call will return
+0 to indicate connected successfully as TCP does, but smc returns
+-EISCONN. Use socket state for smc to indicate connect state, which
+can help smc aligning the connect behaviour with TCP.
 
-Signed-off-by: Li kunyu <kunyu@nfschina.com>
+Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/arm/kernel/ftrace.c   |  6 ++----
- arch/riscv/kernel/ftrace.c |  6 ++----
- arch/s390/kernel/ftrace.c  |  3 +--
- arch/x86/kernel/ftrace.c   |  6 ++----
- include/linux/ftrace.h     |  4 ++--
- kernel/trace/ftrace.c      | 16 ++++------------
- 6 files changed, 13 insertions(+), 28 deletions(-)
+ net/smc/af_smc.c | 50 ++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 46 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
-index 83cc068586bc..a0b6d1e3812f 100644
---- a/arch/arm/kernel/ftrace.c
-+++ b/arch/arm/kernel/ftrace.c
-@@ -79,16 +79,14 @@ static unsigned long __ref adjust_address(struct dyn_ftrace *rec,
- 	return (unsigned long)&ftrace_regs_caller_from_init;
- }
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index fce16b9d6e1a..5f70642a8044 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1544,9 +1544,29 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+ 		goto out_err;
  
--int ftrace_arch_code_modify_prepare(void)
-+void ftrace_arch_code_modify_prepare(void)
- {
--	return 0;
- }
+ 	lock_sock(sk);
++	switch (sock->state) {
++	default:
++		rc = -EINVAL;
++		goto out;
++	case SS_CONNECTED:
++		rc = sk->sk_state == SMC_ACTIVE ? -EISCONN : -EINVAL;
++		goto out;
++	case SS_CONNECTING:
++		if (sk->sk_state == SMC_ACTIVE)
++			goto connected;
++		break;
++	case SS_UNCONNECTED:
++		sock->state = SS_CONNECTING;
++		break;
++	}
++
+ 	switch (sk->sk_state) {
+ 	default:
+ 		goto out;
++	case SMC_CLOSED:
++		rc = sock_error(sk) ? : -ECONNABORTED;
++		sock->state = SS_UNCONNECTED;
++		goto out;
+ 	case SMC_ACTIVE:
+ 		rc = -EISCONN;
+ 		goto out;
+@@ -1565,20 +1585,24 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+ 		goto out;
  
--int ftrace_arch_code_modify_post_process(void)
-+void ftrace_arch_code_modify_post_process(void)
- {
- 	/* Make sure any TLB misses during machine stop are cleared. */
- 	flush_tlb_all();
--	return 0;
- }
+ 	sock_hold(&smc->sk); /* sock put in passive closing */
+-	if (smc->use_fallback)
++	if (smc->use_fallback) {
++		sock->state = rc ? SS_CONNECTING : SS_CONNECTED;
+ 		goto out;
++	}
+ 	if (flags & O_NONBLOCK) {
+ 		if (queue_work(smc_hs_wq, &smc->connect_work))
+ 			smc->connect_nonblock = 1;
+ 		rc = -EINPROGRESS;
++		goto out;
+ 	} else {
+ 		rc = __smc_connect(smc);
+ 		if (rc < 0)
+ 			goto out;
+-		else
+-			rc = 0; /* success cases including fallback */
+ 	}
  
- static unsigned long ftrace_call_replace(unsigned long pc, unsigned long addr,
-diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
-index 4716f4cdc038..2086f6585773 100644
---- a/arch/riscv/kernel/ftrace.c
-+++ b/arch/riscv/kernel/ftrace.c
-@@ -12,16 +12,14 @@
- #include <asm/patch.h>
++connected:
++	rc = 0;
++	sock->state = SS_CONNECTED;
+ out:
+ 	release_sock(sk);
+ out_err:
+@@ -1693,6 +1717,7 @@ struct sock *smc_accept_dequeue(struct sock *parent,
+ 		}
+ 		if (new_sock) {
+ 			sock_graft(new_sk, new_sock);
++			new_sock->state = SS_CONNECTED;
+ 			if (isk->use_fallback) {
+ 				smc_sk(new_sk)->clcsock->file = new_sock->file;
+ 				isk->clcsock->file->private_data = isk->clcsock;
+@@ -2424,7 +2449,7 @@ static int smc_listen(struct socket *sock, int backlog)
  
- #ifdef CONFIG_DYNAMIC_FTRACE
--int ftrace_arch_code_modify_prepare(void) __acquires(&text_mutex)
-+void ftrace_arch_code_modify_prepare(void) __acquires(&text_mutex)
- {
- 	mutex_lock(&text_mutex);
--	return 0;
- }
+ 	rc = -EINVAL;
+ 	if ((sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) ||
+-	    smc->connect_nonblock)
++	    smc->connect_nonblock || sock->state != SS_UNCONNECTED)
+ 		goto out;
  
--int ftrace_arch_code_modify_post_process(void) __releases(&text_mutex)
-+void ftrace_arch_code_modify_post_process(void) __releases(&text_mutex)
- {
- 	mutex_unlock(&text_mutex);
--	return 0;
- }
+ 	rc = 0;
+@@ -2716,6 +2741,17 @@ static int smc_shutdown(struct socket *sock, int how)
  
- static int ftrace_check_current_call(unsigned long hook_pos,
-diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-index 1852d46babb1..416b5a94353d 100644
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -225,14 +225,13 @@ void arch_ftrace_update_code(int command)
- 	ftrace_modify_all_code(command);
- }
+ 	lock_sock(sk);
  
--int ftrace_arch_code_modify_post_process(void)
-+void ftrace_arch_code_modify_post_process(void)
- {
- 	/*
- 	 * Flush any pre-fetched instructions on all
- 	 * CPUs to make the new code visible.
- 	 */
- 	text_poke_sync_lock();
--	return 0;
- }
++	if (sock->state == SS_CONNECTING) {
++		if (sk->sk_state == SMC_ACTIVE)
++			sock->state = SS_CONNECTED;
++		else if (sk->sk_state == SMC_PEERCLOSEWAIT1 ||
++			 sk->sk_state == SMC_PEERCLOSEWAIT2 ||
++			 sk->sk_state == SMC_APPCLOSEWAIT1 ||
++			 sk->sk_state == SMC_APPCLOSEWAIT2 ||
++			 sk->sk_state == SMC_APPFINCLOSEWAIT)
++			sock->state = SS_DISCONNECTING;
++	}
++
+ 	rc = -ENOTCONN;
+ 	if ((sk->sk_state != SMC_ACTIVE) &&
+ 	    (sk->sk_state != SMC_PEERCLOSEWAIT1) &&
+@@ -2729,6 +2765,7 @@ static int smc_shutdown(struct socket *sock, int how)
+ 		sk->sk_shutdown = smc->clcsock->sk->sk_shutdown;
+ 		if (sk->sk_shutdown == SHUTDOWN_MASK) {
+ 			sk->sk_state = SMC_CLOSED;
++			sk->sk_socket->state = SS_UNCONNECTED;
+ 			sock_put(sk);
+ 		}
+ 		goto out;
+@@ -2754,6 +2791,10 @@ static int smc_shutdown(struct socket *sock, int how)
+ 	/* map sock_shutdown_cmd constants to sk_shutdown value range */
+ 	sk->sk_shutdown |= how + 1;
  
- #ifdef CONFIG_MODULES
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 1e31c7d21597..73d2719ed12c 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -37,7 +37,7 @@
++	if (sk->sk_state == SMC_CLOSED)
++		sock->state = SS_UNCONNECTED;
++	else
++		sock->state = SS_DISCONNECTING;
+ out:
+ 	release_sock(sk);
+ 	return rc ? rc : rc1;
+@@ -3139,6 +3180,7 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
  
- static int ftrace_poke_late = 0;
- 
--int ftrace_arch_code_modify_prepare(void)
-+void ftrace_arch_code_modify_prepare(void)
-     __acquires(&text_mutex)
- {
- 	/*
-@@ -47,10 +47,9 @@ int ftrace_arch_code_modify_prepare(void)
- 	 */
- 	mutex_lock(&text_mutex);
- 	ftrace_poke_late = 1;
--	return 0;
- }
- 
--int ftrace_arch_code_modify_post_process(void)
-+void ftrace_arch_code_modify_post_process(void)
-     __releases(&text_mutex)
- {
- 	/*
-@@ -61,7 +60,6 @@ int ftrace_arch_code_modify_post_process(void)
- 	text_poke_finish();
- 	ftrace_poke_late = 0;
- 	mutex_unlock(&text_mutex);
--	return 0;
- }
- 
- static const char *ftrace_nop_replace(void)
-diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
-index 4816b7e11047..a5f74f6e7e4e 100644
---- a/include/linux/ftrace.h
-+++ b/include/linux/ftrace.h
-@@ -449,8 +449,8 @@ static inline void stack_tracer_enable(void) { }
- 
- #ifdef CONFIG_DYNAMIC_FTRACE
- 
--int ftrace_arch_code_modify_prepare(void);
--int ftrace_arch_code_modify_post_process(void);
-+void ftrace_arch_code_modify_prepare(void);
-+void ftrace_arch_code_modify_post_process(void);
- 
- enum ftrace_bug_type {
- 	FTRACE_BUG_UNKNOWN,
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 4f1d2f5e7263..35a899f136fe 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -2707,18 +2707,16 @@ ftrace_nop_initialize(struct module *mod, struct dyn_ftrace *rec)
-  * archs can override this function if they must do something
-  * before the modifying code is performed.
-  */
--int __weak ftrace_arch_code_modify_prepare(void)
-+void __weak ftrace_arch_code_modify_prepare(void)
- {
--	return 0;
- }
- 
- /*
-  * archs can override this function if they must do something
-  * after the modifying code is performed.
-  */
--int __weak ftrace_arch_code_modify_post_process(void)
-+void __weak ftrace_arch_code_modify_post_process(void)
- {
--	return 0;
- }
- 
- void ftrace_modify_all_code(int command)
-@@ -2804,12 +2802,7 @@ void __weak arch_ftrace_update_code(int command)
- 
- static void ftrace_run_update_code(int command)
- {
--	int ret;
--
--	ret = ftrace_arch_code_modify_prepare();
--	FTRACE_WARN_ON(ret);
--	if (ret)
--		return;
-+	ftrace_arch_code_modify_prepare();
- 
- 	/*
- 	 * By default we use stop_machine() to modify the code.
-@@ -2819,8 +2812,7 @@ static void ftrace_run_update_code(int command)
- 	 */
- 	arch_ftrace_update_code(command);
- 
--	ret = ftrace_arch_code_modify_post_process();
--	FTRACE_WARN_ON(ret);
-+	ftrace_arch_code_modify_post_process();
- }
- 
- static void ftrace_run_modify_code(struct ftrace_ops *ops, int command,
+ 	rc = -ENOBUFS;
+ 	sock->ops = &smc_sock_ops;
++	sock->state = SS_UNCONNECTED;
+ 	sk = smc_sock_alloc(net, sock, protocol);
+ 	if (!sk)
+ 		goto out;
 -- 
-2.18.2
+2.24.3 (Apple Git-128)
 
