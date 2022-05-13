@@ -2,30 +2,30 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01CF8C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 02:25:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB84FC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 07:16:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244223AbiEMCZN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 May 2022 22:25:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53466 "EHLO
+        id S1377590AbiEMHQL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 May 2022 03:16:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234805AbiEMCZK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 May 2022 22:25:10 -0400
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C11719D6;
-        Thu, 12 May 2022 19:25:06 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VD19IIY_1652408702;
-Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VD19IIY_1652408702)
+        with ESMTP id S234175AbiEMHQH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 03:16:07 -0400
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2A903AA63;
+        Fri, 13 May 2022 00:16:02 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VD2I.iE_1652426158;
+Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VD2I.iE_1652426158)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 13 May 2022 10:25:04 +0800
+          Fri, 13 May 2022 15:15:59 +0800
 From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        pabeni@redhat.com
+To:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v2] net/smc: align the connect behaviour with TCP
-Date:   Fri, 13 May 2022 10:24:53 +0800
-Message-Id: <20220513022453.7256-1-guangguan.wang@linux.alibaba.com>
+Subject: [PATCH net-next 0/2] net/smc: send and write inline optimization for smc
+Date:   Fri, 13 May 2022 15:15:49 +0800
+Message-Id: <20220513071551.22065-1-guangguan.wang@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -33,144 +33,43 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Connect with O_NONBLOCK will not be completed immediately
-and returns -EINPROGRESS. It is possible to use selector/poll
-for completion by selecting the socket for writing. After select
-indicates writability, a second connect function call will return
-0 to indicate connected successfully as TCP does, but smc returns
--EISCONN. Use socket state for smc to indicate connect state, which
-can help smc aligning the connect behaviour with TCP.
+Send cdc msgs and write data inline if qp has sufficent inline
+space, helps latency reducing. 
 
-Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/af_smc.c | 50 ++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 46 insertions(+), 4 deletions(-)
+In my test environment, which are 2 VMs running on the same
+physical host and whose NICs(ConnectX-4Lx) are working on
+SR-IOV mode, qperf shows 0.4us-1.3us improvement in latency.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index fce16b9d6e1a..5f70642a8044 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1544,9 +1544,29 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
- 		goto out_err;
- 
- 	lock_sock(sk);
-+	switch (sock->state) {
-+	default:
-+		rc = -EINVAL;
-+		goto out;
-+	case SS_CONNECTED:
-+		rc = sk->sk_state == SMC_ACTIVE ? -EISCONN : -EINVAL;
-+		goto out;
-+	case SS_CONNECTING:
-+		if (sk->sk_state == SMC_ACTIVE)
-+			goto connected;
-+		break;
-+	case SS_UNCONNECTED:
-+		sock->state = SS_CONNECTING;
-+		break;
-+	}
-+
- 	switch (sk->sk_state) {
- 	default:
- 		goto out;
-+	case SMC_CLOSED:
-+		rc = sock_error(sk) ? : -ECONNABORTED;
-+		sock->state = SS_UNCONNECTED;
-+		goto out;
- 	case SMC_ACTIVE:
- 		rc = -EISCONN;
- 		goto out;
-@@ -1565,20 +1585,24 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
- 		goto out;
- 
- 	sock_hold(&smc->sk); /* sock put in passive closing */
--	if (smc->use_fallback)
-+	if (smc->use_fallback) {
-+		sock->state = rc ? SS_CONNECTING : SS_CONNECTED;
- 		goto out;
-+	}
- 	if (flags & O_NONBLOCK) {
- 		if (queue_work(smc_hs_wq, &smc->connect_work))
- 			smc->connect_nonblock = 1;
- 		rc = -EINPROGRESS;
-+		goto out;
- 	} else {
- 		rc = __smc_connect(smc);
- 		if (rc < 0)
- 			goto out;
--		else
--			rc = 0; /* success cases including fallback */
- 	}
- 
-+connected:
-+	rc = 0;
-+	sock->state = SS_CONNECTED;
- out:
- 	release_sock(sk);
- out_err:
-@@ -1693,6 +1717,7 @@ struct sock *smc_accept_dequeue(struct sock *parent,
- 		}
- 		if (new_sock) {
- 			sock_graft(new_sk, new_sock);
-+			new_sock->state = SS_CONNECTED;
- 			if (isk->use_fallback) {
- 				smc_sk(new_sk)->clcsock->file = new_sock->file;
- 				isk->clcsock->file->private_data = isk->clcsock;
-@@ -2424,7 +2449,7 @@ static int smc_listen(struct socket *sock, int backlog)
- 
- 	rc = -EINVAL;
- 	if ((sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) ||
--	    smc->connect_nonblock)
-+	    smc->connect_nonblock || sock->state != SS_UNCONNECTED)
- 		goto out;
- 
- 	rc = 0;
-@@ -2716,6 +2741,17 @@ static int smc_shutdown(struct socket *sock, int how)
- 
- 	lock_sock(sk);
- 
-+	if (sock->state == SS_CONNECTING) {
-+		if (sk->sk_state == SMC_ACTIVE)
-+			sock->state = SS_CONNECTED;
-+		else if (sk->sk_state == SMC_PEERCLOSEWAIT1 ||
-+			 sk->sk_state == SMC_PEERCLOSEWAIT2 ||
-+			 sk->sk_state == SMC_APPCLOSEWAIT1 ||
-+			 sk->sk_state == SMC_APPCLOSEWAIT2 ||
-+			 sk->sk_state == SMC_APPFINCLOSEWAIT)
-+			sock->state = SS_DISCONNECTING;
-+	}
-+
- 	rc = -ENOTCONN;
- 	if ((sk->sk_state != SMC_ACTIVE) &&
- 	    (sk->sk_state != SMC_PEERCLOSEWAIT1) &&
-@@ -2729,6 +2765,7 @@ static int smc_shutdown(struct socket *sock, int how)
- 		sk->sk_shutdown = smc->clcsock->sk->sk_shutdown;
- 		if (sk->sk_shutdown == SHUTDOWN_MASK) {
- 			sk->sk_state = SMC_CLOSED;
-+			sk->sk_socket->state = SS_UNCONNECTED;
- 			sock_put(sk);
- 		}
- 		goto out;
-@@ -2754,6 +2791,10 @@ static int smc_shutdown(struct socket *sock, int how)
- 	/* map sock_shutdown_cmd constants to sk_shutdown value range */
- 	sk->sk_shutdown |= how + 1;
- 
-+	if (sk->sk_state == SMC_CLOSED)
-+		sock->state = SS_UNCONNECTED;
-+	else
-+		sock->state = SS_DISCONNECTING;
- out:
- 	release_sock(sk);
- 	return rc ? rc : rc1;
-@@ -3139,6 +3180,7 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
- 
- 	rc = -ENOBUFS;
- 	sock->ops = &smc_sock_ops;
-+	sock->state = SS_UNCONNECTED;
- 	sk = smc_sock_alloc(net, sock, protocol);
- 	if (!sk)
- 		goto out;
+Test command:
+server: smc_run taskset -c 1 qperf
+client: smc_run taskset -c 1 qperf <server ip> -oo \
+		msg_size:1:2K:*2 -t 30 -vu tcp_lat
+
+The results shown below:
+msgsize     before       after
+1B          11.9 us      10.6 us (-1.3 us)
+2B          11.7 us      10.7 us (-1.0 us)
+4B          11.7 us      10.7 us (-1.0 us)
+8B          11.6 us      10.6 us (-1.0 us)
+16B         11.7 us      10.7 us (-1.0 us)
+32B         11.7 us      10.6 us (-1.1 us)
+64B         11.7 us      11.2 us (-0.5 us)
+128B        11.6 us      11.2 us (-0.4 us)
+256B        11.8 us      11.2 us (-0.6 us)
+512B        11.8 us      11.3 us (-0.5 us)
+1KB         11.9 us      11.5 us (-0.4 us)
+2KB         12.1 us      11.5 us (-0.6 us)
+
+
+Guangguan Wang (2):
+  net/smc: send cdc msg inline if qp has sufficient inline space
+  net/smc: rdma write inline if qp has sufficient inline space
+
+ net/smc/smc_ib.c |  1 +
+ net/smc/smc_tx.c | 17 ++++++++++++-----
+ net/smc/smc_wr.c |  5 ++++-
+ 3 files changed, 17 insertions(+), 6 deletions(-)
+
 -- 
 2.24.3 (Apple Git-128)
 
