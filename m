@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEFE9C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 19:18:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12F64C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 19:18:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383612AbiEMTSe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 May 2022 15:18:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55488 "EHLO
+        id S1383753AbiEMTSp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 May 2022 15:18:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383674AbiEMTR4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 15:17:56 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F53A3BA79;
-        Fri, 13 May 2022 12:17:07 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24DHeGT7016367;
-        Fri, 13 May 2022 19:17:04 GMT
+        with ESMTP id S1383821AbiEMTST (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 15:18:19 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C949C3DA66;
+        Fri, 13 May 2022 12:17:16 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24DIfp8l028098;
+        Fri, 13 May 2022 19:17:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=EGIZXWmMpVWgHnjEyyIawZMaHLmCbwf6PXxtc63gIJY=;
- b=FkULY04PLvgHVHeQ0nq5iSUxJH95vC3vwr7gYmmoqDnBUyKppl1iMG8rlwnmJFVrR4xc
- AlK5YeTsVD1Hf46jRimG+3p3qCTHSSIqBIiJ1hU4WKeRafySAv+nTI9EvXv9E4bzNYXH
- EMG3+zNFNir3QCjfw9IvAQpuOEeayvB81rVQRvsgPU9crymuNGRnTs5if2bLUBS6ihYJ
- 8KA8TYnCrqIB/WD0BH3seQgXnBib1KyB0wEnMEBRtPjXMc4IgBbaNXf2pDh1SADM4Yna
- SnEJsN8AwBODrRlBUIQvAkb5qubnXMpu+htssbyQ2k0oSMcSchkUWXy2UOu6w6xKemOm Wg== 
+ bh=UFI7L76a1PEOcLmRvvwmgXVaaf3fK28syFZ7EmcFI5o=;
+ b=q4hu8TcYOce7OgWpmKMhzKYDm5SivR7FrupoMQ3ugwg6+VZnbXKb/c2+YfPZKJEvCtkp
+ rQordRQw8iOKkK/wSdhFPlTIaBt+oETT3CzC5BMkoupyNJz6XJPMz45gY8IeAFoYKGIc
+ PPmDAbAM5sgL4WwI5f3RPLbSjihi6p1/bEzLJNrHL3rUAcGA8eWWqg4/vC8UmJoLCL+4
+ GgPVuLUlah255XcTmXZ81jNZ1Y5bncT0dBD6kSbZsxsrhY6SDHORUh3PMqcvxcfisl7S
+ sh0IyEt+Vn/DOePGVaP7U8ZHWVIlzGZDz/d16ckyLVZ1O1VbGridXm7zGpeeYLgBFK84 UA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1qusfffk-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1vu5rkvc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 19:17:03 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24DJCV0U008065;
-        Fri, 13 May 2022 19:17:03 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1qusfff4-1
+        Fri, 13 May 2022 19:17:13 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24DJHD6h017280;
+        Fri, 13 May 2022 19:17:13 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1vu5rkv7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 19:17:03 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24DJCWn2009438;
-        Fri, 13 May 2022 19:17:02 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma03dal.us.ibm.com with ESMTP id 3fwgdaqc1k-1
+        Fri, 13 May 2022 19:17:13 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24DJCaqw005060;
+        Fri, 13 May 2022 19:17:12 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma02dal.us.ibm.com with ESMTP id 3fwgdb7cdf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 19:17:02 +0000
+        Fri, 13 May 2022 19:17:12 +0000
 Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24DJH1MS7537290
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24DJHBPw26345948
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 May 2022 19:17:01 GMT
+        Fri, 13 May 2022 19:17:11 GMT
 Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 49EC7124052;
-        Fri, 13 May 2022 19:17:01 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 53437124053;
+        Fri, 13 May 2022 19:17:11 +0000 (GMT)
 Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EECE6124053;
-        Fri, 13 May 2022 19:16:55 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7F28C124052;
+        Fri, 13 May 2022 19:17:06 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.49.28])
         by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 13 May 2022 19:16:55 +0000 (GMT)
+        Fri, 13 May 2022 19:17:06 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -69,79 +69,66 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: [PATCH v7 19/22] vfio-pci/zdev: different maxstbl for interpreted devices
-Date:   Fri, 13 May 2022 15:15:06 -0400
-Message-Id: <20220513191509.272897-20-mjrosato@linux.ibm.com>
+Subject: [PATCH v7 21/22] KVM: s390: introduce CPU feature for zPCI Interpretation
+Date:   Fri, 13 May 2022 15:15:08 -0400
+Message-Id: <20220513191509.272897-22-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220513191509.272897-1-mjrosato@linux.ibm.com>
 References: <20220513191509.272897-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: DbkY6lKnQZTijsUPnqpQSeTyae-Qtybj
-X-Proofpoint-GUID: 8XN5T53yJkvask-9DV_mawLPNib91v1O
+X-Proofpoint-ORIG-GUID: EE2SjQzem2vII1xbEUgwRxgwwul3BY-4
+X-Proofpoint-GUID: YFqrz2ZPfbdYnHAkNnmPcMlc75SmLn5a
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-13_11,2022-05-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- impostorscore=0 priorityscore=1501 malwarescore=0 adultscore=0
- mlxlogscore=999 bulkscore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
+ impostorscore=0 adultscore=0 malwarescore=0 mlxlogscore=866 phishscore=0
+ mlxscore=0 spamscore=0 suspectscore=0 lowpriorityscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2205130077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When doing load/store interpretation, the maximum store block length is
-determined by the underlying firmware, not the host kernel API.  Reflect
-that in the associated Query PCI Function Group clp capability and let
-userspace decide which is appropriate to present to the guest.
+KVM_S390_VM_CPU_FEAT_ZPCI_INTERP relays whether zPCI interpretive
+execution is possible based on the available hardware facilities.
 
 Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- drivers/vfio/pci/vfio_pci_zdev.c | 6 ++++--
- include/uapi/linux/vfio_zdev.h   | 4 ++++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ arch/s390/include/uapi/asm/kvm.h | 1 +
+ arch/s390/kvm/kvm-s390.c         | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-index c7557f80ec64..067383f84cd8 100644
---- a/drivers/vfio/pci/vfio_pci_zdev.c
-+++ b/drivers/vfio/pci/vfio_pci_zdev.c
-@@ -45,14 +45,16 @@ static int zpci_group_cap(struct zpci_dev *zdev, struct vfio_info_cap *caps)
- {
- 	struct vfio_device_info_cap_zpci_group cap = {
- 		.header.id = VFIO_DEVICE_INFO_CAP_ZPCI_GROUP,
--		.header.version = 1,
-+		.header.version = 2,
- 		.dasm = zdev->dma_mask,
- 		.msi_addr = zdev->msi_addr,
- 		.flags = VFIO_DEVICE_INFO_ZPCI_FLAG_REFRESH,
- 		.mui = zdev->fmb_update,
- 		.noi = zdev->max_msi,
- 		.maxstbl = ZPCI_MAX_WRITE_SIZE,
--		.version = zdev->version
-+		.version = zdev->version,
-+		.reserved = 0,
-+		.imaxstbl = zdev->maxstbl
- 	};
- 
- 	return vfio_info_add_capability(caps, &cap.header, sizeof(cap));
-diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
-index 78c022af3d29..77f2aff1f27e 100644
---- a/include/uapi/linux/vfio_zdev.h
-+++ b/include/uapi/linux/vfio_zdev.h
-@@ -50,6 +50,10 @@ struct vfio_device_info_cap_zpci_group {
- 	__u16 noi;		/* Maximum number of MSIs */
- 	__u16 maxstbl;		/* Maximum Store Block Length */
- 	__u8 version;		/* Supported PCI Version */
-+	/* End of version 1 */
-+	__u8 reserved;
-+	__u16 imaxstbl;		/* Maximum Interpreted Store Block Length */
-+	/* End of version 2 */
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 7a6b14874d65..ed06458a871f 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
+ #define KVM_S390_VM_CPU_FEAT_PFMFI	11
+ #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
+ #define KVM_S390_VM_CPU_FEAT_KSS	13
++#define KVM_S390_VM_CPU_FEAT_ZPCI_INTERP 14
+ struct kvm_s390_vm_cpu_feat {
+ 	__u64 feat[16];
  };
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 1af7cea9d579..0fc2d8c5ccb1 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -433,6 +433,10 @@ static void kvm_s390_cpu_feat_init(void)
+ 	if (test_facility(151)) /* DFLTCC */
+ 		__insn32_query(INSN_DFLTCC, kvm_s390_available_subfunc.dfltcc);
  
- /**
++	/* zPCI Interpretation */
++	if (kvm_s390_pci_interp_allowed())
++		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ZPCI_INTERP);
++
+ 	if (MACHINE_HAS_ESOP)
+ 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
+ 	/*
 -- 
 2.27.0
 
