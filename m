@@ -2,86 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17286C433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 14 May 2022 09:37:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C43FC433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 14 May 2022 10:28:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231373AbiENJhC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 14 May 2022 05:37:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51790 "EHLO
+        id S231148AbiENK2J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 14 May 2022 06:28:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231331AbiENJhB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 14 May 2022 05:37:01 -0400
-Received: from out199-17.us.a.mail.aliyun.com (out199-17.us.a.mail.aliyun.com [47.90.199.17])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A6C61B8;
-        Sat, 14 May 2022 02:36:58 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R751e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VD6nEFN_1652521014;
-Received: from 30.15.218.194(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VD6nEFN_1652521014)
+        with ESMTP id S232116AbiENK2A (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 14 May 2022 06:28:00 -0400
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89C33917B;
+        Sat, 14 May 2022 03:27:57 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R421e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VD6nQif_1652524074;
+Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VD6nQif_1652524074)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 14 May 2022 17:36:55 +0800
-Message-ID: <8a2be07b-acf6-1148-e299-8196c18cfeed@linux.alibaba.com>
-Date:   Sat, 14 May 2022 17:36:53 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.8.1
-Subject: Re: [PATCH net-next 1/2] net/smc: send cdc msg inline if qp has
- sufficient inline space
-Content-Language: en-US
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220513071551.22065-1-guangguan.wang@linux.alibaba.com>
- <20220513071551.22065-2-guangguan.wang@linux.alibaba.com>
- <Yn9GB3QwHiY/vtdc@unreal>
+          Sat, 14 May 2022 18:27:54 +0800
 From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <Yn9GB3QwHiY/vtdc@unreal>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+To:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, leon@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>
+Subject: [PATCH net-next v2 2/2] net/smc: rdma write inline if qp has sufficient inline space
+Date:   Sat, 14 May 2022 18:27:39 +0800
+Message-Id: <20220514102739.41252-3-guangguan.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
+In-Reply-To: <20220514102739.41252-1-guangguan.wang@linux.alibaba.com>
+References: <20220514102739.41252-1-guangguan.wang@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Rdma write with inline flag when sending small packages,
+whose length is shorter than the qp's max_inline_data, can
+help reducing latency.
 
+In my test environment, which are 2 VMs running on the same
+physical host and whose NICs(ConnectX-4Lx) are working on
+SR-IOV mode, qperf shows 0.5us-0.7us improvement in latency.
 
-On 2022/5/14 14:02, Leon Romanovsky wrote:
->> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
->> index 24be1d03fef9..8a2f9a561197 100644
->> --- a/net/smc/smc_wr.c
->> +++ b/net/smc/smc_wr.c
->> @@ -554,10 +554,11 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
->>  static void smc_wr_init_sge(struct smc_link *lnk)
->>  {
->>  	int sges_per_buf = (lnk->lgr->smc_version == SMC_V2) ? 2 : 1;
->> +	bool send_inline = (lnk->qp_attr.cap.max_inline_data >= SMC_WR_TX_SIZE);
-> 
-> When will it be false? You are creating QPs with max_inline_data == SMC_WR_TX_SIZE?
-> 
->>  	u32 i;
->>  
->>  	for (i = 0; i < lnk->wr_tx_cnt; i++) {
->> -		lnk->wr_tx_sges[i].addr =
->> +		lnk->wr_tx_sges[i].addr = send_inline ? (u64)(&lnk->wr_tx_bufs[i]) :
->>  			lnk->wr_tx_dma_addr + i * SMC_WR_BUF_SIZE;
->>  		lnk->wr_tx_sges[i].length = SMC_WR_TX_SIZE;
->>  		lnk->wr_tx_sges[i].lkey = lnk->roce_pd->local_dma_lkey;
->> @@ -575,6 +576,8 @@ static void smc_wr_init_sge(struct smc_link *lnk)
->>  		lnk->wr_tx_ibs[i].opcode = IB_WR_SEND;
->>  		lnk->wr_tx_ibs[i].send_flags =
->>  			IB_SEND_SIGNALED | IB_SEND_SOLICITED;
->> +		if (send_inline)
->> +			lnk->wr_tx_ibs[i].send_flags |= IB_SEND_INLINE;
-> 
-> If you try to transfer data == SMC_WR_TX_SIZE, you will get -ENOMEM error.
-> IB drivers check that length < qp->max_inline_data.
-> 
-> Thanks
-> 
+Test command:
+server: smc_run taskset -c 1 qperf
+client: smc_run taskset -c 1 qperf <server ip> -oo \
+		msg_size:1:2K:*2 -t 30 -vu tcp_lat
 
-Got it. 
+The results shown below:
+msgsize     before       after
+1B          11.2 us      10.6 us (-0.6 us)
+2B          11.2 us      10.7 us (-0.5 us)
+4B          11.3 us      10.7 us (-0.6 us)
+8B          11.2 us      10.6 us (-0.6 us)
+16B         11.3 us      10.7 us (-0.6 us)
+32B         11.3 us      10.6 us (-0.7 us)
+64B         11.2 us      11.2 us (0 us)
+128B        11.2 us      11.2 us (0 us)
+256B        11.2 us      11.2 us (0 us)
+512B        11.4 us      11.3 us (-0.1 us)
+1KB         11.4 us      11.5 us (0.1 us)
+2KB         11.5 us      11.5 us (0 us)
 
-I should create qps with max_inline_data == 0, and get the actual max_inline_data by query_qp.
-And I should use lnk->qp_attr.cap.max_inline_data > SMC_WR_TX_SIZE to decide whether to send inline or not.
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+---
+ net/smc/smc_tx.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-Thank you.
-
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 98ca9229fe87..805a546e8c04 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -391,12 +391,20 @@ static int smcr_tx_rdma_writes(struct smc_connection *conn, size_t len,
+ 	int rc;
+ 
+ 	for (dstchunk = 0; dstchunk < 2; dstchunk++) {
+-		struct ib_sge *sge =
+-			wr_rdma_buf->wr_tx_rdma[dstchunk].wr.sg_list;
++		struct ib_rdma_wr *wr = &wr_rdma_buf->wr_tx_rdma[dstchunk];
++		struct ib_sge *sge = wr->wr.sg_list;
++		u64 base_addr = dma_addr;
++
++		if (dst_len < link->qp_attr.cap.max_inline_data) {
++			base_addr = (uintptr_t)conn->sndbuf_desc->cpu_addr;
++			wr->wr.send_flags |= IB_SEND_INLINE;
++		} else {
++			wr->wr.send_flags &= ~IB_SEND_INLINE;
++		}
+ 
+ 		num_sges = 0;
+ 		for (srcchunk = 0; srcchunk < 2; srcchunk++) {
+-			sge[srcchunk].addr = dma_addr + src_off;
++			sge[srcchunk].addr = base_addr + src_off;
+ 			sge[srcchunk].length = src_len;
+ 			num_sges++;
+ 
+@@ -410,8 +418,7 @@ static int smcr_tx_rdma_writes(struct smc_connection *conn, size_t len,
+ 			src_len = dst_len - src_len; /* remainder */
+ 			src_len_sum += src_len;
+ 		}
+-		rc = smc_tx_rdma_write(conn, dst_off, num_sges,
+-				       &wr_rdma_buf->wr_tx_rdma[dstchunk]);
++		rc = smc_tx_rdma_write(conn, dst_off, num_sges, wr);
+ 		if (rc)
+ 			return rc;
+ 		if (dst_len_sum == len)
+-- 
+2.24.3 (Apple Git-128)
 
