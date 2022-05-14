@@ -2,116 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE980C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 13 May 2022 19:18:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C843C433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 14 May 2022 06:03:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383640AbiEMTSz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 May 2022 15:18:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55432 "EHLO
+        id S231876AbiENGDA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 14 May 2022 02:03:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383778AbiEMTS1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 May 2022 15:18:27 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B83E441988;
-        Fri, 13 May 2022 12:17:26 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24DGoG0V004281;
-        Fri, 13 May 2022 19:17:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=90jLybUWtcFEtmbslowDYpFUqh1zgHjhv3T7pMdxGdg=;
- b=sjVs5JJks1Gw1wgwq95YSUMAJ8zG+hbZrnjE8fIoWCcZVX1DXKfBwK42fbEJ4p8PygIZ
- Dyw11sjqPxs3NPz4fXeshNmj4dMMlLgI/GLvxVXKVfbT3/mGIEond0EvS5+DcSJUxZ3l
- HG8OzXXNP6tLHmAn0CkmcG3huu5hhtSbY57orICvONgbnZNpIa78xci6tLPkJhz6hj0Y
- K8Jn7yMhyZCR7uetS6Z68vdfRW5Q/mtbgm74hLi0Xvx4PjZzz3LjXnPRRKNLmcHaUvRR
- UUmLj6pf2yh28f07mezMXpOVdRjjoCJisAZrdtltfLvXk8ptMmlu3EWjt53iGwdq1JeI Bw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1u71ak35-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 19:17:20 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24DJ3YLW024366;
-        Fri, 13 May 2022 19:17:19 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1u71ak2g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 19:17:19 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24DJDD4F015031;
-        Fri, 13 May 2022 19:17:17 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma03wdc.us.ibm.com with ESMTP id 3fwgda4e0n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 May 2022 19:17:17 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24DJHHht36241810
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 May 2022 19:17:17 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 22697124053;
-        Fri, 13 May 2022 19:17:17 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AEBE6124052;
-        Fri, 13 May 2022 19:17:11 +0000 (GMT)
-Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.49.28])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 13 May 2022 19:17:11 +0000 (GMT)
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-To:     linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
-        jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: [PATCH v7 22/22] MAINTAINERS: additional files related kvm s390 pci passthrough
-Date:   Fri, 13 May 2022 15:15:09 -0400
-Message-Id: <20220513191509.272897-23-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20220513191509.272897-1-mjrosato@linux.ibm.com>
-References: <20220513191509.272897-1-mjrosato@linux.ibm.com>
+        with ESMTP id S231572AbiENGC7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 14 May 2022 02:02:59 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 920EC3DDC8;
+        Fri, 13 May 2022 23:02:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2AC57CE0016;
+        Sat, 14 May 2022 06:02:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A30CC340EE;
+        Sat, 14 May 2022 06:02:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1652508174;
+        bh=wfB+/wuC1y/EiPChFFWDf4KU+v7Xgi38qiJISd0bImo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jI3SAyZlIcP8a6KdcyY0kfLK9bMfgzDdz9T7f4rdCb99rYpxGwMxXxR3wIas18oPh
+         x+OSIg7nr6d+XjUHc9X1Ed2Rebo2ulM+mgih5d9J+8WzOoLAWBZ01uKQiqXE5mVHWJ
+         2xojd7Qvc+VU1TKXsPsniGaeS7H9RzRg5cKqoGNMYctyKl+IZYLBm1L+IF41D+gHzY
+         xKiYmSkouaQyedJVbAZLc2P/FynN53WGfIcLiPp6zuR+UNO7DZng3kV6pmmXPmp5gq
+         yGx6ywgVxGzo6fPJBhsDCKVUElXNPIciB9cwRnxd7wCFMXSs4wvrE7YrjQHyrOQSXc
+         PVuWFmm+psstg==
+Date:   Sat, 14 May 2022 09:02:47 +0300
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next 1/2] net/smc: send cdc msg inline if qp has
+ sufficient inline space
+Message-ID: <Yn9GB3QwHiY/vtdc@unreal>
+References: <20220513071551.22065-1-guangguan.wang@linux.alibaba.com>
+ <20220513071551.22065-2-guangguan.wang@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: J1AvtACjSzVG5eZFwTf5V9OKilMsrJiA
-X-Proofpoint-GUID: njoq1x2KNVjEFLxuFTSd9HXpmlV6bGMF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-13_11,2022-05-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- mlxscore=0 lowpriorityscore=0 bulkscore=0 priorityscore=1501 spamscore=0
- phishscore=0 suspectscore=0 clxscore=1015 impostorscore=0 mlxlogscore=901
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205130076
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220513071551.22065-2-guangguan.wang@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add entries from the s390 kvm subdirectory related to pci passthrough.
+On Fri, May 13, 2022 at 03:15:50PM +0800, Guangguan Wang wrote:
+> As cdc msg's length is 44B, cdc msgs can be sent inline in
+> most rdma devices, which can help reducing sending latency.
+> 
+> In my test environment, which are 2 VMs running on the same
+> physical host and whose NICs(ConnectX-4Lx) are working on
+> SR-IOV mode, qperf shows 0.4us-0.7us improvement in latency.
+> 
+> Test command:
+> server: smc_run taskset -c 1 qperf
+> client: smc_run taskset -c 1 qperf <server ip> -oo \
+> 		msg_size:1:2K:*2 -t 30 -vu tcp_lat
+> 
+> The results shown below:
+> msgsize     before       after
+> 1B          11.9 us      11.2 us (-0.7 us)
+> 2B          11.7 us      11.2 us (-0.5 us)
+> 4B          11.7 us      11.3 us (-0.4 us)
+> 8B          11.6 us      11.2 us (-0.4 us)
+> 16B         11.7 us      11.3 us (-0.4 us)
+> 32B         11.7 us      11.3 us (-0.4 us)
+> 64B         11.7 us      11.2 us (-0.5 us)
+> 128B        11.6 us      11.2 us (-0.4 us)
+> 256B        11.8 us      11.2 us (-0.6 us)
+> 512B        11.8 us      11.4 us (-0.4 us)
+> 1KB         11.9 us      11.4 us (-0.5 us)
+> 2KB         12.1 us      11.5 us (-0.6 us)
+> 
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> ---
+>  net/smc/smc_ib.c | 1 +
+>  net/smc/smc_wr.c | 5 ++++-
+>  2 files changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+> index a3e2d3b89568..1dcce9e4f4ca 100644
+> --- a/net/smc/smc_ib.c
+> +++ b/net/smc/smc_ib.c
+> @@ -671,6 +671,7 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
+>  			.max_recv_wr = SMC_WR_BUF_CNT * 3,
+>  			.max_send_sge = SMC_IB_MAX_SEND_SGE,
+>  			.max_recv_sge = sges_per_buf,
+> +			.max_inline_data = SMC_WR_TX_SIZE,
+>  		},
+>  		.sq_sig_type = IB_SIGNAL_REQ_WR,
+>  		.qp_type = IB_QPT_RC,
+> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+> index 24be1d03fef9..8a2f9a561197 100644
+> --- a/net/smc/smc_wr.c
+> +++ b/net/smc/smc_wr.c
+> @@ -554,10 +554,11 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
+>  static void smc_wr_init_sge(struct smc_link *lnk)
+>  {
+>  	int sges_per_buf = (lnk->lgr->smc_version == SMC_V2) ? 2 : 1;
+> +	bool send_inline = (lnk->qp_attr.cap.max_inline_data >= SMC_WR_TX_SIZE);
 
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+When will it be false? You are creating QPs with max_inline_data == SMC_WR_TX_SIZE?
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 28f809560ac9..767f93172b77 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17266,6 +17266,7 @@ M:	Eric Farman <farman@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
- L:	kvm@vger.kernel.org
- S:	Supported
-+F:	arch/s390/kvm/pci*
- F:	drivers/vfio/pci/vfio_pci_zdev.c
- F:	include/uapi/linux/vfio_zdev.h
- 
--- 
-2.27.0
+>  	u32 i;
+>  
+>  	for (i = 0; i < lnk->wr_tx_cnt; i++) {
+> -		lnk->wr_tx_sges[i].addr =
+> +		lnk->wr_tx_sges[i].addr = send_inline ? (u64)(&lnk->wr_tx_bufs[i]) :
+>  			lnk->wr_tx_dma_addr + i * SMC_WR_BUF_SIZE;
+>  		lnk->wr_tx_sges[i].length = SMC_WR_TX_SIZE;
+>  		lnk->wr_tx_sges[i].lkey = lnk->roce_pd->local_dma_lkey;
+> @@ -575,6 +576,8 @@ static void smc_wr_init_sge(struct smc_link *lnk)
+>  		lnk->wr_tx_ibs[i].opcode = IB_WR_SEND;
+>  		lnk->wr_tx_ibs[i].send_flags =
+>  			IB_SEND_SIGNALED | IB_SEND_SOLICITED;
+> +		if (send_inline)
+> +			lnk->wr_tx_ibs[i].send_flags |= IB_SEND_INLINE;
 
+If you try to transfer data == SMC_WR_TX_SIZE, you will get -ENOMEM error.
+IB drivers check that length < qp->max_inline_data.
+
+Thanks
+
+>  		lnk->wr_tx_rdmas[i].wr_tx_rdma[0].wr.opcode = IB_WR_RDMA_WRITE;
+>  		lnk->wr_tx_rdmas[i].wr_tx_rdma[1].wr.opcode = IB_WR_RDMA_WRITE;
+>  		lnk->wr_tx_rdmas[i].wr_tx_rdma[0].wr.sg_list =
+> -- 
+> 2.24.3 (Apple Git-128)
+> 
