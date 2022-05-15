@@ -2,125 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89921C433F5
-	for <linux-s390@archiver.kernel.org>; Sun, 15 May 2022 17:11:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3D80C3527A
+	for <linux-s390@archiver.kernel.org>; Sun, 15 May 2022 22:15:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237847AbiEORKy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 15 May 2022 13:10:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34332 "EHLO
+        id S238785AbiEOWPB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 15 May 2022 18:15:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237848AbiEORKx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 15 May 2022 13:10:53 -0400
-Received: from out199-11.us.a.mail.aliyun.com (out199-11.us.a.mail.aliyun.com [47.90.199.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89816F5;
-        Sun, 15 May 2022 10:10:50 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R661e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VDBAVZA_1652634645;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VDBAVZA_1652634645)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 16 May 2022 01:10:46 +0800
-Date:   Mon, 16 May 2022 01:10:44 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, leon@kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH net-next v2 1/2] net/smc: send cdc msg inline if qp has
- sufficient inline space
-Message-ID: <YoE0FDc7ivfgabzy@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20220514102739.41252-1-guangguan.wang@linux.alibaba.com>
- <20220514102739.41252-2-guangguan.wang@linux.alibaba.com>
+        with ESMTP id S234701AbiEOWO5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 15 May 2022 18:14:57 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB0F12AE33;
+        Sun, 15 May 2022 15:14:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=YHVcpMpwO8nyb8k3/FdyFSCMjS4nrs3MtFW4fah9gBU=; b=or/Fp90JrKe5WlMtL6cMgrtDTd
+        KlQ8Vj1tprmMn4SD+c397HC1ukULCsTvCB4iLkFWE/e5eO3HFfAEwKhrKkKAtUd9klk2EZdbn6mIN
+        Qd+4SALGR19YAeq7zzTYslQNi14hCF7XYTbP7jST+WF88j+/yFKclHfwZStwWLlezXivWrxaH8IdO
+        FFInQai4LoqHg4Is254olZSUcp3WbX0NojyrclkAFtXk81MOkLDyQLJPvTXx/jJ5o9GkRAlJzHqhs
+        Xl4VBJVpr4ONcW/qU5LapKJAeqGhxtirFucuu9tYQZm2MIj3QsWcao7mjJyCDthsv8RdX0nMP6hLP
+        SN2gr77A==;
+Received: from [177.183.162.244] (helo=[192.168.0.5])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1nqMUS-005ij1-QV; Mon, 16 May 2022 00:13:29 +0200
+Message-ID: <178a456d-3961-9bc2-83d2-2b9457d45fbd@igalia.com>
+Date:   Sun, 15 May 2022 19:12:55 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220514102739.41252-2-guangguan.wang@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH 11/30] um: Improve panic notifiers consistency and
+ ordering
+Content-Language: en-US
+To:     Johannes Berg <johannes@sipsolutions.net>,
+        Petr Mladek <pmladek@suse.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-12-gpiccoli@igalia.com> <Ynp2hRodh04K3pzK@alley>
+ <4b003501-f5c3-cd66-d222-88d98c93e141@igalia.com>
+ <1760d499824f9ef053af7a8dac04b48ab7d7fd3d.camel@sipsolutions.net>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <1760d499824f9ef053af7a8dac04b48ab7d7fd3d.camel@sipsolutions.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, May 14, 2022 at 06:27:38PM +0800, Guangguan Wang wrote:
-> As cdc msg's length is 44B, cdc msgs can be sent inline in
-> most rdma devices, which can help reducing sending latency.
+On 13/05/2022 11:44, Johannes Berg wrote:
+> [...]
+>> Maybe Anton / Johannes / Richard could give their opinions - appreciate
+>> that, I'm not attached to the priority here, it's more about users'
+>> common usage of UML I can think of...
 > 
-> In my test environment, which are 2 VMs running on the same
-> physical host and whose NICs(ConnectX-4Lx) are working on
-> SR-IOV mode, qperf shows 0.4us-0.7us improvement in latency.
+> It's hard to say ... In a sense I'm not sure it matters?
 > 
-> Test command:
-> server: smc_run taskset -c 1 qperf
-> client: smc_run taskset -c 1 qperf <server ip> -oo \
-> 		msg_size:1:2K:*2 -t 30 -vu tcp_lat
+> OTOH something like the ftrace dump notifier (kernel/trace/trace.c)
+> might still be useful to run before the mconsole and coredump ones, even
+> if you could probably use gdb to figure out the information.
 > 
-> The results shown below:
-> msgsize     before       after
-> 1B          11.9 us      11.2 us (-0.7 us)
-> 2B          11.7 us      11.2 us (-0.5 us)
-> 4B          11.7 us      11.3 us (-0.4 us)
-> 8B          11.6 us      11.2 us (-0.4 us)
-> 16B         11.7 us      11.3 us (-0.4 us)
-> 32B         11.7 us      11.3 us (-0.4 us)
-> 64B         11.7 us      11.2 us (-0.5 us)
-> 128B        11.6 us      11.2 us (-0.4 us)
-> 256B        11.8 us      11.2 us (-0.6 us)
-> 512B        11.8 us      11.4 us (-0.4 us)
-> 1KB         11.9 us      11.4 us (-0.5 us)
-> 2KB         12.1 us      11.5 us (-0.6 us)
+> Personally, I don't have a scenario where I'd care about the trace
+> buffers though, and most of the others I found would seem irrelevant
+> (drivers that aren't even compiled, hung tasks won't really happen since
+> we exit immediately, and similar.)
 > 
-> Reported-by: kernel test robot <lkp@intel.com>
+> johannes
 
-You don't need to add this tag, this tag represents who found the issue.
-Tested-by is reasonable.
+Thanks Johannes, I agree with you.
 
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+We don't have great ordering now, one thing we need to enforce is the
+order between the 2 UML notifiers, and this patch is doing that..trying
+to order against other callbacks like the ftrace dumper is messy in the
+current code.
 
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+OTOH if this patch set is accepted at some point, we'll likely have 3
+lists, and with that we can improve ordering a lot - this notifier for
+instance would run in the pre-reboot list, *after* the ftrace dumper (if
+a kmsg dumper is set).
 
-Thanks,
-Tony Lu
+So, my intention is to keep this patch as is for V2 (with some changes
+Johannes suggested before), unless Petr or the other maintainers want
+something different.
+Cheers,
 
-> ---
->  net/smc/smc_ib.c | 1 +
->  net/smc/smc_wr.c | 5 ++++-
->  2 files changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-> index a3e2d3b89568..dcda4165d107 100644
-> --- a/net/smc/smc_ib.c
-> +++ b/net/smc/smc_ib.c
-> @@ -671,6 +671,7 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
->  			.max_recv_wr = SMC_WR_BUF_CNT * 3,
->  			.max_send_sge = SMC_IB_MAX_SEND_SGE,
->  			.max_recv_sge = sges_per_buf,
-> +			.max_inline_data = 0,
->  		},
->  		.sq_sig_type = IB_SIGNAL_REQ_WR,
->  		.qp_type = IB_QPT_RC,
-> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-> index 24be1d03fef9..26f8f240d9e8 100644
-> --- a/net/smc/smc_wr.c
-> +++ b/net/smc/smc_wr.c
-> @@ -554,10 +554,11 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
->  static void smc_wr_init_sge(struct smc_link *lnk)
->  {
->  	int sges_per_buf = (lnk->lgr->smc_version == SMC_V2) ? 2 : 1;
-> +	bool send_inline = (lnk->qp_attr.cap.max_inline_data > SMC_WR_TX_SIZE);
->  	u32 i;
->  
->  	for (i = 0; i < lnk->wr_tx_cnt; i++) {
-> -		lnk->wr_tx_sges[i].addr =
-> +		lnk->wr_tx_sges[i].addr = send_inline ? (uintptr_t)(&lnk->wr_tx_bufs[i]) :
->  			lnk->wr_tx_dma_addr + i * SMC_WR_BUF_SIZE;
->  		lnk->wr_tx_sges[i].length = SMC_WR_TX_SIZE;
->  		lnk->wr_tx_sges[i].lkey = lnk->roce_pd->local_dma_lkey;
-> @@ -575,6 +576,8 @@ static void smc_wr_init_sge(struct smc_link *lnk)
->  		lnk->wr_tx_ibs[i].opcode = IB_WR_SEND;
->  		lnk->wr_tx_ibs[i].send_flags =
->  			IB_SEND_SIGNALED | IB_SEND_SOLICITED;
-> +		if (send_inline)
-> +			lnk->wr_tx_ibs[i].send_flags |= IB_SEND_INLINE;
->  		lnk->wr_tx_rdmas[i].wr_tx_rdma[0].wr.opcode = IB_WR_RDMA_WRITE;
->  		lnk->wr_tx_rdmas[i].wr_tx_rdma[1].wr.opcode = IB_WR_RDMA_WRITE;
->  		lnk->wr_tx_rdmas[i].wr_tx_rdma[0].wr.sg_list =
-> -- 
-> 2.24.3 (Apple Git-128)
+
+Guilherme
