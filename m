@@ -2,113 +2,75 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61678C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 05:51:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 127FFC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 07:18:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239950AbiEPFvx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 01:51:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48876 "EHLO
+        id S240911AbiEPHS0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 03:18:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239943AbiEPFvw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 01:51:52 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1453615712;
-        Sun, 15 May 2022 22:51:50 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R881e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VDEQJfr_1652680307;
-Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VDEQJfr_1652680307)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 16 May 2022 13:51:47 +0800
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, leon@kernel.org,
-        tonylu@linux.alibaba.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: [PATCH net-next v3 2/2] net/smc: rdma write inline if qp has sufficient inline space
-Date:   Mon, 16 May 2022 13:51:37 +0800
-Message-Id: <20220516055137.51873-3-guangguan.wang@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.3 (Apple Git-128)
-In-Reply-To: <20220516055137.51873-1-guangguan.wang@linux.alibaba.com>
-References: <20220516055137.51873-1-guangguan.wang@linux.alibaba.com>
+        with ESMTP id S231464AbiEPHSZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 03:18:25 -0400
+Received: from xavier.telenet-ops.be (xavier.telenet-ops.be [IPv6:2a02:1800:120:4::f00:14])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41E1913CCE
+        for <linux-s390@vger.kernel.org>; Mon, 16 May 2022 00:18:24 -0700 (PDT)
+Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed30:51ae:171f:35c9:722d])
+        by xavier.telenet-ops.be with bizsmtp
+        id XKJK2700L2UsjYA01KJKhi; Mon, 16 May 2022 09:18:22 +0200
+Received: from geert (helo=localhost)
+        by ramsan.of.borg with local-esmtp (Exim 4.93)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1nqUzi-000YsA-VZ; Mon, 16 May 2022 09:18:18 +0200
+Date:   Mon, 16 May 2022 09:18:18 +0200 (CEST)
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+X-X-Sender: geert@ramsan.of.borg
+To:     linux-kernel@vger.kernel.org
+cc:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-media@vger.kernel.org, linux-hardening@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: Build regressions/improvements in v5.18-rc7
+In-Reply-To: <20220516064231.2425428-1-geert@linux-m68k.org>
+Message-ID: <alpine.DEB.2.22.394.2205160916190.134019@ramsan.of.borg>
+References: <CAHk-=wg2eVUN0a1E5UnBF1ziGaU1yrMJtnFPg4R78O=FcRDqnA@mail.gmail.com> <20220516064231.2425428-1-geert@linux-m68k.org>
+User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Rdma write with inline flag when sending small packages,
-whose length is shorter than the qp's max_inline_data, can
-help reducing latency.
+On Mon, 16 May 2022, Geert Uytterhoeven wrote:
+> JFYI, when comparing v5.18-rc7[1] to v5.18-rc6[3], the summaries are:
+>  - build errors: +2/-0
 
-In my test environment, which are 2 VMs running on the same
-physical host and whose NICs(ConnectX-4Lx) are working on
-SR-IOV mode, qperf shows 0.5us-0.7us improvement in latency.
+   + /kisskb/src/drivers/media/platform/nxp/imx-pxp.h: error: initializer element is not constant:  => 582:38
 
-Test command:
-server: smc_run taskset -c 1 qperf
-client: smc_run taskset -c 1 qperf <server ip> -oo \
-		msg_size:1:2K:*2 -t 30 -vu tcp_lat
+mipsel-gcc5/mips-allmodconfig
 
-The results shown below:
-msgsize     before       after
-1B          11.2 us      10.6 us (-0.6 us)
-2B          11.2 us      10.7 us (-0.5 us)
-4B          11.3 us      10.7 us (-0.6 us)
-8B          11.2 us      10.6 us (-0.6 us)
-16B         11.3 us      10.7 us (-0.6 us)
-32B         11.3 us      10.6 us (-0.7 us)
-64B         11.2 us      11.2 us (0 us)
-128B        11.2 us      11.2 us (0 us)
-256B        11.2 us      11.2 us (0 us)
-512B        11.4 us      11.3 us (-0.1 us)
-1KB         11.4 us      11.5 us (0.1 us)
-2KB         11.5 us      11.5 us (0 us)
+Seen before in other builds, missing "U"-suffix on large unsigned
+constants.
 
-Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Tested-by: kernel test robot <lkp@intel.com>
----
- net/smc/smc_tx.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+   + /kisskb/src/include/linux/fortify-string.h: error: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror=attribute-warning]:  => 328:25
 
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 98ca9229fe87..805a546e8c04 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -391,12 +391,20 @@ static int smcr_tx_rdma_writes(struct smc_connection *conn, size_t len,
- 	int rc;
- 
- 	for (dstchunk = 0; dstchunk < 2; dstchunk++) {
--		struct ib_sge *sge =
--			wr_rdma_buf->wr_tx_rdma[dstchunk].wr.sg_list;
-+		struct ib_rdma_wr *wr = &wr_rdma_buf->wr_tx_rdma[dstchunk];
-+		struct ib_sge *sge = wr->wr.sg_list;
-+		u64 base_addr = dma_addr;
-+
-+		if (dst_len < link->qp_attr.cap.max_inline_data) {
-+			base_addr = (uintptr_t)conn->sndbuf_desc->cpu_addr;
-+			wr->wr.send_flags |= IB_SEND_INLINE;
-+		} else {
-+			wr->wr.send_flags &= ~IB_SEND_INLINE;
-+		}
- 
- 		num_sges = 0;
- 		for (srcchunk = 0; srcchunk < 2; srcchunk++) {
--			sge[srcchunk].addr = dma_addr + src_off;
-+			sge[srcchunk].addr = base_addr + src_off;
- 			sge[srcchunk].length = src_len;
- 			num_sges++;
- 
-@@ -410,8 +418,7 @@ static int smcr_tx_rdma_writes(struct smc_connection *conn, size_t len,
- 			src_len = dst_len - src_len; /* remainder */
- 			src_len_sum += src_len;
- 		}
--		rc = smc_tx_rdma_write(conn, dst_off, num_sges,
--				       &wr_rdma_buf->wr_tx_rdma[dstchunk]);
-+		rc = smc_tx_rdma_write(conn, dst_off, num_sges, wr);
- 		if (rc)
- 			return rc;
- 		if (dst_len_sum == len)
--- 
-2.24.3 (Apple Git-128)
+s390x-gcc11/s390-allmodconfig
 
+> [1] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/42226c989789d8da4af1de0c31070c96726d990c/ (all 131 configs)
+> [3] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/c5eb0a61238dd6faf37f58c9ce61c9980aaffd7a/ (all 131 configs)
+
+Gr{oetje,eeting}s,
+
+ 						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+ 							    -- Linus Torvalds
