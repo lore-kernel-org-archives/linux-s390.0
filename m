@@ -2,193 +2,160 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67ADDC4167E
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 14:33:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50054C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 14:43:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244580AbiEPOdr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 10:33:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55296 "EHLO
+        id S238917AbiEPOno (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 10:43:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231847AbiEPOdo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 10:33:44 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2482AF8;
-        Mon, 16 May 2022 07:33:43 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id C33171F9F3;
-        Mon, 16 May 2022 14:33:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1652711621; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=fVjlG4/dfH2RJ8QOIc+qrGCmgCcjOpZB+KPjtLQbhUo=;
-        b=g7zXCdiW66+ZORh6/+b42qlwXs71YIm78eBo2DkB+6yci0VblhfjN32vYqq5tvyFP+a35V
-        4IQbZk+eZ8m4N7dIzfRZvRcjGflhdk2pzgpwxTPHHTNBIE+W9GZV3Zj3ggNIRkQibkb0ZX
-        yDFspItfCnZ03JfIlqNkkDR8LZU/GbA=
-Received: from suse.cz (unknown [10.100.201.202])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 5E6F32C141;
-        Mon, 16 May 2022 14:33:41 +0000 (UTC)
-Date:   Mon, 16 May 2022 16:33:41 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc:     akpm@linux-foundation.org, bhe@redhat.com,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
-        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
-        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
-        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
-        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
-        dave.hansen@linux.intel.com, dyoung@redhat.com,
-        feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org, Alex Elder <elder@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Chris Zankel <chris@zankel.net>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Corey Minyard <minyard@acm.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        James Morse <james.morse@arm.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Matt Turner <mattst88@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Richard Weinberger <richard@nod.at>,
-        Robert Richter <rric@kernel.org>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Wei Liu <wei.liu@kernel.org>
-Subject: Re: [PATCH 21/30] panic: Introduce the panic pre-reboot notifier list
-Message-ID: <YoJgcC8c6LaKADZV@alley>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-22-gpiccoli@igalia.com>
+        with ESMTP id S232814AbiEPOno (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 10:43:44 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 274AA2DD57;
+        Mon, 16 May 2022 07:43:43 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24GEVRxZ028164;
+        Mon, 16 May 2022 14:43:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=G/QMDt6PmelKuw3h1/wn6fFs6tgijcz8HBSIWhry2EI=;
+ b=RTeic89YeUss6dzUxWi8VtwYT8O6pF86YbNd19MKMU1rJax1gpXGtGavO1l/8h5vspug
+ 04Sk+ePffA3z15b1OK9m9mrTfqLUTQ25S+zxJiUPmzjcgu6XYwv0boXwqRAk04imAfkA
+ 0KRv0eBx6IjzJkLqMpBz30AhoV2uuONQuGUdJIeTdx6W+doSvNrpdHw1kOTrkLrOvOXw
+ t3PvHljwoeuEtbAzKOM+A4hffXViwFm4PyhASiDL3JR4ZPx2Cb+QdIL30Gnn/vDr2/dh
+ wE4WYN1PJqHf9sWEX0hpy8bSx+whotltx6cLhnAi0Bw9/LjFQleuA9VMyk9MSxwiC/6p TA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3rey09ss-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 May 2022 14:43:42 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24GEg2r1009019;
+        Mon, 16 May 2022 14:43:42 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3rey09rv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 May 2022 14:43:42 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24GEepfJ019819;
+        Mon, 16 May 2022 14:43:39 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 3g2428t7jt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 May 2022 14:43:39 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24GEhaxg54067678
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 16 May 2022 14:43:36 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8CC22A405C;
+        Mon, 16 May 2022 14:43:36 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4D1D6A4054;
+        Mon, 16 May 2022 14:43:36 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 16 May 2022 14:43:36 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH] s390x: Ignore gcc 12 warnings for low addresses
+Date:   Mon, 16 May 2022 16:43:32 +0200
+Message-Id: <20220516144332.3785876-1-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220427224924.592546-22-gpiccoli@igalia.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 5xHPq3QUwbDBzohJgpI23Mz2KNtcHeKf
+X-Proofpoint-ORIG-GUID: uGLNVgTQzEJkdiR3Eh9IAmd3MRpHpQry
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-16_14,2022-05-16_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 mlxscore=0 impostorscore=0 lowpriorityscore=0
+ phishscore=0 adultscore=0 suspectscore=0 mlxlogscore=999 spamscore=0
+ clxscore=1015 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205160083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed 2022-04-27 19:49:15, Guilherme G. Piccoli wrote:
-> This patch renames the panic_notifier_list to panic_pre_reboot_list;
-> the idea is that a subsequent patch will refactor the panic path
-> in order to better split the notifiers, running some of them very
-> early, some of them not so early [but still before kmsg_dump()] and
-> finally, the rest should execute late, after kdump. The latter ones
-> are now in the panic pre-reboot list - the name comes from the idea
-> that these notifiers execute before panic() attempts rebooting the
-> machine (if that option is set).
-> 
-> We also took the opportunity to clean-up useless header inclusions,
-> improve some notifier block declarations (e.g. in ibmasm/heartbeat.c)
-> and more important, change some priorities - we hereby set 2 notifiers
-> to run late in the list [iss_panic_event() and the IPMI panic_event()]
-> due to the risks they offer (may not return, for example).
-> Proper documentation is going to be provided in a subsequent patch,
-> that effectively refactors the panic path.
-> 
-> --- a/drivers/edac/altera_edac.c
-> +++ b/drivers/edac/altera_edac.c
-> @@ -2163,7 +2162,7 @@ static int altr_edac_a10_probe(struct platform_device *pdev)
->  		int dberror, err_addr;
->  
->  		edac->panic_notifier.notifier_call = s10_edac_dberr_handler;
-> -		atomic_notifier_chain_register(&panic_notifier_list,
-> +		atomic_notifier_chain_register(&panic_pre_reboot_list,
+gcc 12 warns if a memory operand to inline asm points to memory in the
+first 4k bytes. However, in our case, these operands are fine, either
+because we actually want to use that memory, or expect and handle the
+resulting exception.
+Therefore, silence the warning.
 
-My understanding is that this notifier first prints info about ECC
-errors and then triggers reboot. It might make sense to split it
-into two notifiers.
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+---
 
+Alternatives:
+ * Use memory clobber instead of memory output
+   Use address in register input instead of memory input
+       (may require WRITE_ONCE)
+ * Disable the warning globally
+ * Don't use gcc 12.0, with newer versions --param=min-pagesize=0 might
+   avoid the problem
 
->  					       &edac->panic_notifier);
->  
->  		/* Printout a message if uncorrectable error previously. */
-> --- a/drivers/leds/trigger/ledtrig-panic.c
-> +++ b/drivers/leds/trigger/ledtrig-panic.c
-> @@ -64,7 +63,7 @@ static long led_panic_blink(int state)
->  
->  static int __init ledtrig_panic_init(void)
->  {
-> -	atomic_notifier_chain_register(&panic_notifier_list,
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
->  				       &led_trigger_panic_nb);
+ lib/s390x/asm/cpacf.h | 7 +++++++
+ s390x/skey.c          | 7 +++++++
+ 2 files changed, 14 insertions(+)
 
-Blinking => should go to the last "post_reboot/loop" list.
+diff --git a/lib/s390x/asm/cpacf.h b/lib/s390x/asm/cpacf.h
+index 685262b0..02e603c8 100644
+--- a/lib/s390x/asm/cpacf.h
++++ b/lib/s390x/asm/cpacf.h
+@@ -152,6 +152,12 @@ static __always_inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mas
+ 	register unsigned long r0 asm("0") = 0;	/* query function */
+ 	register unsigned long r1 asm("1") = (unsigned long) mask;
+ 
++/*
++ * gcc 12.0.1 warns if mask is < 4k.
++ * We use such addresses to test invalid or protected mask arguments.
++ */
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Warray-bounds"
+ 	asm volatile(
+ 		"	spm 0\n" /* pckmo doesn't change the cc */
+ 		/* Parameter regs are ignored, but must be nonzero and unique */
+@@ -160,6 +166,7 @@ static __always_inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mas
+ 		: "=m" (*mask)
+ 		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (opcode)
+ 		: "cc");
++#pragma GCC diagnostic pop
+ }
+ 
+ static inline int __cpacf_check_opcode(unsigned int opcode)
+diff --git a/s390x/skey.c b/s390x/skey.c
+index 32bf1070..7aa91d19 100644
+--- a/s390x/skey.c
++++ b/s390x/skey.c
+@@ -242,12 +242,19 @@ static void test_store_cpu_address(void)
+  */
+ static void set_prefix_key_1(uint32_t *prefix_ptr)
+ {
++/*
++ * gcc 12.0.1 warns if prefix_ptr is < 4k.
++ * We need such addresses to test fetch protection override.
++ */
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Warray-bounds"
+ 	asm volatile (
+ 		"spka	0x10\n\t"
+ 		"spx	%0\n\t"
+ 		"spka	0\n"
+ 	     :: "Q" (*prefix_ptr)
+ 	);
++#pragma GCC diagnostic pop
+ }
+ 
+ /*
 
+base-commit: c315f52b88b967cfb4cd58f3b4e1987378c47f3b
+-- 
+2.33.1
 
->  
->  	led_trigger_register_simple("panic", &trigger);
-> --- a/drivers/misc/ibmasm/heartbeat.c
-> +++ b/drivers/misc/ibmasm/heartbeat.c
-> @@ -32,20 +31,23 @@ static int suspend_heartbeats = 0;
->  static int panic_happened(struct notifier_block *n, unsigned long val, void *v)
->  {
->  	suspend_heartbeats = 1;
-> -	return 0;
-> +	return NOTIFY_DONE;
->  }
->  
-> -static struct notifier_block panic_notifier = { panic_happened, NULL, 1 };
-> +static struct notifier_block panic_notifier = {
-> +	.notifier_call = panic_happened,
-> +};
->  
->  void ibmasm_register_panic_notifier(void)
->  {
-> -	atomic_notifier_chain_register(&panic_notifier_list, &panic_notifier);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
-> +					&panic_notifier);
-
-Same here. Blinking => should go to the last "post_reboot/loop" list.
-
-
->  }
->  
->  void ibmasm_unregister_panic_notifier(void)
->  {
-> -	atomic_notifier_chain_unregister(&panic_notifier_list,
-> -			&panic_notifier);
-> +	atomic_notifier_chain_unregister(&panic_pre_reboot_list,
-> +					&panic_notifier);
->  }
-
-
-The rest of the moved notifiers seem to fit well this "pre_reboot"
-list.
-
-Best Regards,
-Petr
