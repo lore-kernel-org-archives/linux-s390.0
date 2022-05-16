@@ -2,138 +2,258 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB49FC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 11:12:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DBD63C41535
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 14:02:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243046AbiEPLMl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 07:12:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47292 "EHLO
+        id S244227AbiEPOCG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 10:02:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238564AbiEPLMJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 07:12:09 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5234F2DD2;
-        Mon, 16 May 2022 04:12:02 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24GB13MD039771;
-        Mon, 16 May 2022 11:11:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=wS0srYXEmxGor3ycWjDx9735YvM7Pkqu66LHyu1C2Zo=;
- b=N0/JpVTOOnQJxfsgu/OjyJyGQ+25O7a1MAIOQZDHSaB1XCntK0oxR6+rd4zXJddcIGWZ
- a8e5zqn2W56RKcKorE84JEO3axjVEMfUSYTtwEJ4Stf6ShRTWbMtkNZFtChRJfg8jiZ3
- r34NIfNXMG44cvzzqKve8057I38vW8iA8AFDgoR92V/WKRN0J9T3v3Sodw9PN5JhyJpP
- NgUoF3taGzx5KE9vQew/r1UkVXrD5XE4hrf28RUS8Qd3Y2bfcM9D6VsPOi8rp/fQUedZ
- BdZp1VnYY5Jsp08UOFfFYwJFO9r/kWwCNmTnsxyUPDylTblS2AUZRzA03ydijdrDX8MQ NQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3ncb86ja-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 11:11:58 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24GB35d6005691;
-        Mon, 16 May 2022 11:11:57 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3ncb86hw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 11:11:57 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24GB8fp9024019;
-        Mon, 16 May 2022 11:11:55 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3g2429ahh6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 11:11:55 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24GBBKnE25886980
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 16 May 2022 11:11:20 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 61B38AE04D;
-        Mon, 16 May 2022 11:11:50 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F356DAE045;
-        Mon, 16 May 2022 11:11:49 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 16 May 2022 11:11:49 +0000 (GMT)
-Date:   Mon, 16 May 2022 13:11:48 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
-        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        with ESMTP id S235347AbiEPOCD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 10:02:03 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 290271A389;
+        Mon, 16 May 2022 07:02:02 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 2362F21F5C;
+        Mon, 16 May 2022 14:02:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1652709720; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6xX/Xo1YcyoxhDGVtD+3aF7M9NKMVvtDcsL11SFSAQU=;
+        b=UAEfoymfYf+QAbCzE3oYFS/LnW9rFBs924Unv93LKXY9GoxfXpJbDSZbNYQc1AwPujLxjA
+        jmh7TvIJcQUwFXF0iE9L66PiKtfkKtU88t+hUCpM3m0czPO3TM37NQr+8KouKC5lf5Okex
+        k2McswvfGUIvb+tozWKmApBRPL9ucl0=
+Received: from suse.cz (unknown [10.100.201.202])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id D43112C141;
+        Mon, 16 May 2022 14:01:57 +0000 (UTC)
+Date:   Mon, 16 May 2022 16:01:57 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
+        dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        David Gow <davidgow@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dexuan Cui <decui@microsoft.com>,
+        Doug Berger <opendmb@gmail.com>,
+        Evan Green <evgreen@chromium.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Julius Werner <jwerner@chromium.org>,
+        Justin Chen <justinpopo6@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Markus Mayer <mmayer@broadcom.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/8] s390/entry: workaround llvm's IAS limitations
-Message-ID: <YoIxdMNJjt9rxoeZ@tuxmaker.boeblingen.de.ibm.com>
-References: <20220511120532.2228616-1-hca@linux.ibm.com>
- <20220511120532.2228616-5-hca@linux.ibm.com>
- <YnvynSZfF/8I8vmT@dev-arch.thelio-3990X>
- <Yn1CyTcrZk1Kgvoq@osiris>
- <YoIUX864ULCwu4pz@tuxmaker.boeblingen.de.ibm.com>
- <YoIlQaWNy1wu39ak@osiris>
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: [PATCH 19/30] panic: Add the panic hypervisor notifier list
+Message-ID: <YoJZVZl/MH0KiE/J@alley>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-20-gpiccoli@igalia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YoIlQaWNy1wu39ak@osiris>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Ah_uCgCogIc6033dF8zDRplK3hk-zIq3
-X-Proofpoint-ORIG-GUID: 1y6NPgZ1evu3eDCAvQMH8h0HpMJw65OI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-16_07,2022-05-16_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- impostorscore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
- bulkscore=0 suspectscore=0 mlxscore=0 malwarescore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205160065
+In-Reply-To: <20220427224924.592546-20-gpiccoli@igalia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 16, 2022 at 12:19:45PM +0200, Heiko Carstens wrote:
-> On Mon, May 16, 2022 at 11:07:43AM +0200, Alexander Gordeev wrote:
-> > Isn't the machine check handler refers to this memory before checking
-> > unrecoverable storage errors (with CHKSTG macro) as result of this change?
+On Wed 2022-04-27 19:49:13, Guilherme G. Piccoli wrote:
+> The goal of this new panic notifier is to allow its users to register
+> callbacks to run very early in the panic path. This aims hypervisor/FW
+> notification mechanisms as well as simple LED functions, and any other
+> simple and safe mechanism that should run early in the panic path; more
+> dangerous callbacks should execute later.
 > 
-> Yes, indeed. However implementing this without another register will
-> be quite of a challenge. So what I would prefer in any case: just
-> assume that this minimal set of memory accesses work. Actually I'd
-> seriously like to go a bit further, and even move the checks for
-> storage errors back to C for two reasons:
+> For now, the patch is almost a no-op (although it changes a bit the
+> ordering in which some panic notifiers are executed). In a subsequent
+> patch, the panic path will be refactored, then the panic hypervisor
+> notifiers will effectively run very early in the panic path.
 > 
-> - this would make the machine check handler entry code easier again
-> - it would also allow to enter the machine check handler with DAT on
-> 
-> After all we rely anyway on the fact that at least the local lowcore +
-> the page(s) which contain text are still accessible. Assuming that a
-> couple of page tables also work won't make this much worse, but the
-> code much easier.
-> 
-> So I'd suggest: leave this code as is, and at some later point move
-> "rework" the early machine check handler code.
-> 
-> What do you think?
+> We also defer documenting it all properly in the subsequent refactor
+> patch. While at it, we removed some useless header inclusions and
+> fixed some notifiers return too (by using the standard NOTIFY_DONE).
 
-Sounds very reasonable. Please, find my:
+> --- a/arch/mips/sgi-ip22/ip22-reset.c
+> +++ b/arch/mips/sgi-ip22/ip22-reset.c
+> @@ -195,7 +195,7 @@ static int __init reboot_setup(void)
+>  	}
+>  
+>  	timer_setup(&blink_timer, blink_timeout, 0);
+> -	atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
+> +	atomic_notifier_chain_register(&panic_hypervisor_list, &panic_block);
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+This notifier enables blinking. It is not much safe. It calls
+mod_timer() that takes a lock internally.
+
+This kind of functionality should go into the last list called
+before panic() enters the infinite loop. IMHO, all the blinking
+stuff should go there.
+
+>  
+>  	return 0;
+>  }
+> diff --git a/arch/mips/sgi-ip32/ip32-reset.c b/arch/mips/sgi-ip32/ip32-reset.c
+> index 18d1c115cd53..9ee1302c9d13 100644
+> --- a/arch/mips/sgi-ip32/ip32-reset.c
+> +++ b/arch/mips/sgi-ip32/ip32-reset.c
+> @@ -145,7 +144,7 @@ static __init int ip32_reboot_setup(void)
+>  	pm_power_off = ip32_machine_halt;
+>  
+>  	timer_setup(&blink_timer, blink_timeout, 0);
+> -	atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
+> +	atomic_notifier_chain_register(&panic_hypervisor_list, &panic_block);
+
+Same here. Should be done only before the "loop".
+
+>  
+>  	return 0;
+>  }
+> --- a/drivers/firmware/google/gsmi.c
+> +++ b/drivers/firmware/google/gsmi.c
+> @@ -1034,7 +1034,7 @@ static __init int gsmi_init(void)
+>  
+>  	register_reboot_notifier(&gsmi_reboot_notifier);
+>  	register_die_notifier(&gsmi_die_notifier);
+> -	atomic_notifier_chain_register(&panic_notifier_list,
+> +	atomic_notifier_chain_register(&panic_hypervisor_list,
+>  				       &gsmi_panic_notifier);
+
+I am not sure about this one. It looks like some logging or
+pre_reboot stuff.
 
 
-Also, how such a follow-up looks to you?
+>  
+>  	printk(KERN_INFO "gsmi version " DRIVER_VERSION " loaded\n");
+> --- a/drivers/leds/trigger/ledtrig-activity.c
+> +++ b/drivers/leds/trigger/ledtrig-activity.c
+> @@ -247,7 +247,7 @@ static int __init activity_init(void)
+>  	int rc = led_trigger_register(&activity_led_trigger);
+>  
+>  	if (!rc) {
+> -		atomic_notifier_chain_register(&panic_notifier_list,
+> +		atomic_notifier_chain_register(&panic_hypervisor_list,
+>  					       &activity_panic_nb);
 
-	lgr	%r14,\reg
-#ifdef CONFIG_AS_IS_LLVM
-	larl	%r13,\start
-	slgr	%r14,%r13
-	clgfrl	%r14,.Lrange_size\@
-#else
-	slgfi	%r14,\start
-	clgfi	%r14,\end - \start
-#endif
+The notifier is trivial. It just sets a variable.
+
+But still, it is about blinking and should be done
+in the last "loop" list.
+
+
+>  		register_reboot_notifier(&activity_reboot_nb);
+>  	}
+> --- a/drivers/leds/trigger/ledtrig-heartbeat.c
+> +++ b/drivers/leds/trigger/ledtrig-heartbeat.c
+> @@ -190,7 +190,7 @@ static int __init heartbeat_trig_init(void)
+>  	int rc = led_trigger_register(&heartbeat_led_trigger);
+>  
+>  	if (!rc) {
+> -		atomic_notifier_chain_register(&panic_notifier_list,
+> +		atomic_notifier_chain_register(&panic_hypervisor_list,
+>  					       &heartbeat_panic_nb);
+
+Same here. Blinking => loop list.
+
+>  		register_reboot_notifier(&heartbeat_reboot_nb);
+>  	}
+> diff --git a/drivers/misc/bcm-vk/bcm_vk_dev.c b/drivers/misc/bcm-vk/bcm_vk_dev.c
+> index a16b99bdaa13..d9d5199cdb2b 100644
+> --- a/drivers/misc/bcm-vk/bcm_vk_dev.c
+> +++ b/drivers/misc/bcm-vk/bcm_vk_dev.c
+> @@ -1446,7 +1446,7 @@ static int bcm_vk_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+>  
+>  	/* register for panic notifier */
+>  	vk->panic_nb.notifier_call = bcm_vk_on_panic;
+> -	err = atomic_notifier_chain_register(&panic_notifier_list,
+> +	err = atomic_notifier_chain_register(&panic_hypervisor_list,
+>  					     &vk->panic_nb);
+
+It seems to reset some hardware or so. IMHO, it should go into the
+pre-reboot list.
+
+
+>  	if (err) {
+>  		dev_err(dev, "Fail to register panic notifier\n");
+> --- a/drivers/power/reset/ltc2952-poweroff.c
+> +++ b/drivers/power/reset/ltc2952-poweroff.c
+> @@ -279,7 +279,7 @@ static int ltc2952_poweroff_probe(struct platform_device *pdev)
+>  	pm_power_off = ltc2952_poweroff_kill;
+>  
+>  	data->panic_notifier.notifier_call = ltc2952_poweroff_notify_panic;
+> -	atomic_notifier_chain_register(&panic_notifier_list,
+> +	atomic_notifier_chain_register(&panic_hypervisor_list,
+>  				       &data->panic_notifier);
+
+I looks like this somehow triggers the reboot. IMHO, it should go
+into the pre_reboot list.
+
+>  	dev_info(&pdev->dev, "probe successful\n");
+>  
+> --- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+> +++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+> @@ -814,7 +814,7 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+>  		goto out;
+>  	}
+>  
+> -	atomic_notifier_chain_register(&panic_notifier_list,
+> +	atomic_notifier_chain_register(&panic_hypervisor_list,
+>  				       &brcmstb_pm_panic_nb);
+
+I am not sure about this one. It instruct some HW to preserve DRAM.
+IMHO, it better fits into pre_reboot category but I do not have
+strong opinion.
+
+>  
+>  	pm_power_off = brcmstb_pm_poweroff;
+
+Best Regards,
+Petr
