@@ -2,141 +2,323 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 508C2C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 10:20:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DCA9C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 10:22:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242395AbiEPKUD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 06:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57478 "EHLO
+        id S242427AbiEPKV6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 06:21:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242121AbiEPKT7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 06:19:59 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0276BDEB2;
-        Mon, 16 May 2022 03:19:57 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24GA1aNm024218;
-        Mon, 16 May 2022 10:19:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=heA/a/Vjq9adtkbXdF/L8qMvf1DUOfGrfsS8FQ2zZDc=;
- b=gVm50wPawJR11DVSSRTatPRmWXy+XpXRmEMmK9vGFVWjd4ltKL/kiTu4/1VmY9bCO37/
- vnd4XCbenOu0EazjPc6avyBdTfyjnka0vBDZXcw5j2sIggixjJxO6eC/JmPCASzU+ZOU
- PTGtzipgXNea838u3HeeI2rsylaaRKqvFda8ZOqOdpqhn54tuqLmUBUXN7/9IBg2YXju
- 6+lJJ8H5l4P+S1NMakjNnjaS1Lyjve0n3sFoMWpDOIP//fuIWvKMUc9vgR6UWT5+4SgU
- GNT5m5LH1REQQtHcq5XTi2SmfSkaWkfihcTejbqFgi7rox313iJsChlULULvIMdJ7g4T bA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3mgdrata-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 10:19:55 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24GA4b9M030636;
-        Mon, 16 May 2022 10:19:54 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3mgdrasm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 10:19:54 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24GAJUUs011291;
-        Mon, 16 May 2022 10:19:52 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3g2429af31-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 10:19:51 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24GAJluw36766110
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 16 May 2022 10:19:47 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 66389A405B;
-        Mon, 16 May 2022 10:19:47 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E2D53A4054;
-        Mon, 16 May 2022 10:19:46 +0000 (GMT)
-Received: from osiris (unknown [9.145.19.162])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 16 May 2022 10:19:46 +0000 (GMT)
-Date:   Mon, 16 May 2022 12:19:45 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Jonas Paulsson <paulsson@linux.vnet.ibm.com>,
-        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 4/8] s390/entry: workaround llvm's IAS limitations
-Message-ID: <YoIlQaWNy1wu39ak@osiris>
-References: <20220511120532.2228616-1-hca@linux.ibm.com>
- <20220511120532.2228616-5-hca@linux.ibm.com>
- <YnvynSZfF/8I8vmT@dev-arch.thelio-3990X>
- <Yn1CyTcrZk1Kgvoq@osiris>
- <YoIUX864ULCwu4pz@tuxmaker.boeblingen.de.ibm.com>
+        with ESMTP id S232831AbiEPKVy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 06:21:54 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8420ADECC;
+        Mon, 16 May 2022 03:21:52 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 02CB721F36;
+        Mon, 16 May 2022 10:21:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1652696511; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=9SKwT5B95E5YN9xa81VvHUpO+QGR+zcfCsbhuV2Jgp4=;
+        b=LWTnDo04g2ZIMR91v0c2MAsYmxaUOl80sz+tTo9fRyqmuLzfAZ1jmcmhBu1F/2SwEKbidr
+        AAgP6W9p9YHXuK9IdMK0VKJ5T49DYuwEAzjkXZlkWl2knT/MPCmRsL91fAF4WZ26S0Lq+5
+        GaIq0ymGLcl5C1bryaGKOpn3k9Ph6bU=
+Received: from suse.cz (unknown [10.100.208.146])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 89FB92C141;
+        Mon, 16 May 2022 10:21:48 +0000 (UTC)
+Date:   Mon, 16 May 2022 12:21:48 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc:     "michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        d.hatayama@jp.fujitsu.com, akpm@linux-foundation.org,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, dave.hansen@linux.intel.com, feng.tang@intel.com,
+        gregkh@linuxfoundation.org, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org
+Subject: Re: [PATCH 24/30] panic: Refactor the panic path
+Message-ID: <YoIlvFxbqoiDsD1l@alley>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-25-gpiccoli@igalia.com>
+ <Yn0TnsWVxCcdB2yO@alley>
+ <d313eec2-96b6-04e3-35cd-981f103d010e@igalia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YoIUX864ULCwu4pz@tuxmaker.boeblingen.de.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cznqW8sqX3mDTXjT8lDsfJQaXmNJw4vi
-X-Proofpoint-ORIG-GUID: Nm32b99yoNjb8327YiYrJNcuP-aiU3Q-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-16_06,2022-05-16_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
- adultscore=0 spamscore=0 phishscore=0 priorityscore=1501 mlxscore=0
- lowpriorityscore=0 bulkscore=0 suspectscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205160059
+In-Reply-To: <d313eec2-96b6-04e3-35cd-981f103d010e@igalia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 16, 2022 at 11:07:43AM +0200, Alexander Gordeev wrote:
-> > diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-> > index a6b45eaa3450..f2f30bfba1e9 100644
-> > --- a/arch/s390/kernel/entry.S
-> > +++ b/arch/s390/kernel/entry.S
-> > @@ -172,9 +172,19 @@ _LPP_OFFSET	= __LC_LPP
-> >  	lgr	%r14,\reg
-> >  	larl	%r13,\start
-> >  	slgr	%r14,%r13
-> > -	lghi	%r13,\end - \start
-> > -	clgr	%r14,%r13
-> > +#ifdef CONFIG_AS_IS_LLVM
-> > +	clgfrl	%r14,.Lrange_size\@
-> > +#else
-> > +	clgfi	%r14,\end - \start
-> > +#endif
-> >  	jhe	\outside_label
-> > +#ifdef CONFIG_CC_IS_CLANG
-> > +	.section .rodata, "a"
-> > +	.align 4
-> > +.Lrange_size\@:
-> > +	.long	\end - \start
+On Sun 2022-05-15 19:47:39, Guilherme G. Piccoli wrote:
+> On 12/05/2022 11:03, Petr Mladek wrote:
+> > This talks only about kdump. The reality is much more complicated.
+> > The level affect the order of:
+> > 
+> >     + notifiers vs. kdump
+> >     + notifiers vs. crash_dump
+> >     + crash_dump vs. kdump
 > 
-> Isn't the machine check handler refers to this memory before checking
-> unrecoverable storage errors (with CHKSTG macro) as result of this change?
+> First of all, I'd like to ask you please to clarify to me *exactly* what
+> are the differences between "crash_dump" and "kdump". I'm sorry if
+> that's a silly question, I need to be 100% sure I understand the
+> concepts the same way you do.
 
-Yes, indeed. However implementing this without another register will
-be quite of a challenge. So what I would prefer in any case: just
-assume that this minimal set of memory accesses work. Actually I'd
-seriously like to go a bit further, and even move the checks for
-storage errors back to C for two reasons:
+Ah, it should have been:
 
-- this would make the machine check handler entry code easier again
-- it would also allow to enter the machine check handler with DAT on
+     + notifiers vs. kmsg_dump
+     + notifiers vs. crash_dump
+     + crash_dump vs. kmsg_dump
 
-After all we rely anyway on the fact that at least the local lowcore +
-the page(s) which contain text are still accessible. Assuming that a
-couple of page tables also work won't make this much worse, but the
-code much easier.
+I am sorry for the confusion. Even "crash_dump" is slightly
+misleading because there is no function with this name.
+But it seems to be easier to understand than __crash_kexec().
 
-So I'd suggest: leave this code as is, and at some later point move
-"rework" the early machine check handler code.
 
-What do you think?
+> > There might theoretically many variants of the ordering of kdump,
+> > crash_dump, and the 4 notifier list. Some variants do not make
+> > much sense. You choose 5 variants and tried to select them by
+> > a level number.
+> > 
+> > The question is if we really could easily describe the meaning this
+> > way. It is not only about a "level" of notifiers before kdump. It is
+> > also about the ordering of crash_dump vs. kdump. IMHO, "level"
+> > semantic does not fit there.
+> > 
+> > Maybe more parameters might be easier to understand the effect.
+> > Anyway, we first need to agree on the chosen variants.
+> > I am going to discuss it more in the code, see below.
+> > 
+> > 
+> > [...] 
+> > Here is the code using the above functions. It helps to discuss
+> > the design and logic.
+> > 
+> > I have to say that the logic is very unclear. Almost all
+> > functions are called twice:
+> > 
+> > The really used code path is defined by order_panic_notifiers_and_kdump()
+> > that encodes "level" into "bits". The bits are then flipped in
+> > panic_notifier_*_once() calls that either do something or not.
+> > kmsg_dump() is called according to the bit flip.
+> > 
+> > Also I guess that it is good proof that "level" abstraction does
+> > not fit here. Normal levels would not need this kind of magic.
+> 
+> Heheh OK, I appreciate your opinion, but I guess we'll need to agree in
+> disagree here - I'm much more fond to this kind of code than a bunch of
+> if/else blocks that almost give headaches. Encoding such "level" logic
+> in the if/else scheme is very convoluted, generates a very big code. And
+> the functions aren't so black magic - they map a level in bits, and the
+> functions _once() are called...once! Although we switch the position in
+> the code, so there are 2 calls, one of them is called and the other not.
+
+I see. Well, I would consider this as a warning that the approach is
+too complex. If the code, using if/then/else, would cause headaches
+then also understanding of the behavior would cause headaches for
+both users and programmers.
+
+
+> But that's totally fine to change - especially if we're moving away from
+> the "level" logic. I see below you propose a much simpler approach - if
+> we follow that, definitely we won't need the "black magic" approach heheh
+
+I do not say that my proposal is fully correct. But we really need
+this kind of simpler approach.
+
+
+> > OK, the question is how to make it better.
+
+> > One option "panic_prefer_crash_dump" should be enough.
+> > And the code might look like:
+> > 
+> > void panic()
+> > {
+> > [...]
+> > 	dump_stack();
+> > 	kgdb_panic(buf);
+> > 
+> > 	< ---  here starts the reworked code --- >
+> > 
+> > 	/* crash dump is enough when enabled and preferred. */
+> > 	if (panic_prefer_crash_dump)
+> > 		__crash_kexec(NULL);
+> > 
+> > 	/* Stop other CPUs and focus on handling the panic state. */
+> > 	if (has_kexec_crash_image)
+> > 		crash_smp_send_stop();
+> > 	else
+> > 		smp_send_stop()
+> > 
+> 
+> Here we have a very important point. Why do we need 2 variants of SMP
+> CPU stopping functions? I disagree with that - my understanding of this
+> after some study in architectures is that the crash_() variant is
+> "stronger", should work in all cases and if not, we should fix that -
+> that'd be a bug.
+> 
+> Such variant either maps to smp_send_stop() (in various architectures,
+> including XEN/x86) or overrides the basic function with more proper
+> handling for panic() case...I don't see why we still need such
+> distinction, if you / others have some insight about that, I'd like to
+> hear =)
+
+The two variants were introduced by the commit 0ee59413c967c35a6dd
+("x86/panic: replace smp_send_stop() with kdump friendly version in
+panic path")
+
+It points to https://lkml.org/lkml/2015/6/24/44 that talks about
+still running watchdogs.
+
+It is possible that the problem could be fixed another way. It is
+even possible that it has already been fixed by the notifiers
+that disable the watchdogs.
+
+Anyway, any change of the smp_send_stop() behavior should be done
+in a separate patch. It will help with bisection of possible
+regression. Also it would require a good explanation in
+the commit message. I would personally do it in a separate
+patch(set).
+
+
+> > 	/* Notify hypervisor about the system panic. */
+> > 	atomic_notifier_call_chain(&panic_hypervisor_list, 0, NULL);
+> > 
+> > 	/*
+> > 	 * No need to risk extra info when there is no kmsg dumper
+> > 	 * registered.
+> > 	 */
+> > 	if (!has_kmsg_dumper())
+> > 		__crash_kexec(NULL);
+> > 
+> > 	/* Add extra info from different subsystems. */
+> > 	atomic_notifier_call_chain(&panic_info_list, 0, NULL);
+> > 
+> > 	kmsg_dump(KMSG_DUMP_PANIC);
+> > 	__crash_kexec(NULL);
+> > 
+> > 	/* Flush console */
+> > 	unblank_screen();
+> > 	console_unblank();
+> > 	debug_locks_off();
+> > 	console_flush_on_panic(CONSOLE_FLUSH_PENDING);
+> > 
+> > 	if (panic_timeout > 0) {
+> > 		delay()
+> > 	}
+> > 
+> > 	/*
+> > 	 * Prepare system for eventual reboot and allow custom
+> > 	 * reboot handling.
+> > 	 */
+> > 	atomic_notifier_call_chain(&panic_reboot_list, 0, NULL);
+> 
+> You had the order of panic_reboot_list VS. consoles flushing inverted.
+> It might make sense, although I didn't do that in V1...
+
+IMHO, it makes sense:
+
+  1. panic_reboot_list contains notifiers that do the reboot
+     immediately, for example, xen_panic_event, alpha_panic_event.
+     The consoles have to be flushed earlier.
+
+  2. console_flush_on_panic() ignores the result of console_trylock()
+     and always calls console_unlock(). As a result the lock should
+     be unlocked at the end. And any further printk() should be able
+     to printk the messages to the console immediately. It means
+     that any messages printed by the reboot notifiers should appear
+     on the console as well.
+
+> Are you OK in having a helper for console flushing, as I did in V1? It
+> makes code of panic() a bit less polluted / more focused I feel.
+
+Yes, it makes sense. Well, it would better to do it in a separate
+patch. The patch patch reworking the logic should be as small
+as possible. It will simplify the review.
+
+
+> > 	if (panic_timeout != 0) {
+> > 		reboot();
+> > 	}
+> > 
+> > 	/*
+> > 	 * Prepare system for the infinite waiting, for example,
+> > 	 * setup blinking.
+> > 	 */
+> > 	atomic_notifier_call_chain(&panic_loop_list, 0, NULL);
+> > 
+> > 	infinite_loop();
+> > }
+> > 
+> > 
+> > __crash_kexec() is there 3 times but otherwise the code looks
+> > quite straight forward.
+> > 
+> > Note 1: I renamed the two last notifier list. The name 'post-reboot'
+> > 	did sound strange from the logical POV ;-)
+> > 
+> > Note 2: We have to avoid the possibility to call "reboot" list
+> > 	before kmsg_dump(). All callbacks providing info
+> > 	have to be in the info list. It a callback combines
+> > 	info and reboot functionality then it should be split.
+> > 
+> > 	There must be another way to calm down problematic
+> > 	info callbacks. And it has to be solved when such
+> > 	a problem is reported. Is there any known issue, please?
+> > 
+> > It is possible that I have missed something important.
+> > But I would really like to make the logic as simple as possible.
+> 
+> OK, I agree with you! It's indeed simpler and if others agree, I can
+> happily change the logic to what you proposed. Although...currently the
+> "crash_kexec_post_notifiers" allows to call _all_ panic_reboot_list
+> callbacks _before kdump_.
+>
+> We need to mention this change in the commit messages, but I really
+> would like to hear the opinions of heavy users of notifiers (as
+> Michael/Hyper-V) and the kdump interested parties (like Baoquan / Dave
+> Young / Hayatama). If we all agree on such approach, will change that
+> for V2 =)
+
+Sure, we need to make sure that we call everything that is needed.
+And it should be documented.
+
+I believe that this is the right way because:
+
+  + It was actually the motivation for this patchset. We split
+    the notifiers into separate lists because we want to call
+    only the really needed ones before kmsg_dump and crash_dump.
+
+  + If anything is needed for crash_dump that it should be called
+    even when crash_dump is called first. It should be either
+    hardcoded into crash_dump() or we would need another notifier
+    list that will be always called before crash_dump.
+
+
+Thanks a lot for working on this.
+
+Best Regards,
+Petr
