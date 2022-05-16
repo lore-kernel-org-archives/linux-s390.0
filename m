@@ -2,223 +2,190 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05982C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 15:59:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D859C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 16:07:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235441AbiEPP7U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 11:59:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37514 "EHLO
+        id S245621AbiEPQHE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 12:07:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232184AbiEPP7T (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 11:59:19 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90DB92DA99;
-        Mon, 16 May 2022 08:59:18 -0700 (PDT)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24GFlYu1022330;
-        Mon, 16 May 2022 15:59:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=21cAKJKK7eIRUVKvM5VukTfNanDYRc6XZuYHpi3PVVQ=;
- b=P/B+LIRwI15b0fWsszphDoMFmBS2Zz1JBOew87QzpzhQ/arNST2FpXG8qmHyDhZTcrTO
- rvhmWZUcqphXvLYgkCDwnMUrHG67YH2RgRxfa/3W82SupmrBaOk6QS5n85ijk4WQdTKe
- GoZBWCjwdtDZpKkrsNK/kdAufB09xDpquTuEIN2++kpBYCk/y2cTOfXQ6FlyXKcf3ruX
- chhhsCHdzCDd4i5NPVlOODarWoDnl8fK9wwIWbEgH9QL2u7nCF/ZN1kwXZMj77CCoPaL
- NXZyjjZk3ShclmF813+4gGQJN1fMNEsHEquvF6uWr2iI1vgeOQkcDgaDD3P+AE4QuHJS IA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3sjm8798-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 15:59:17 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24GFpdts005382;
-        Mon, 16 May 2022 15:59:17 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3sjm878v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 15:59:17 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24GFvdJ8004570;
-        Mon, 16 May 2022 15:59:15 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3g2429ayc5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 15:59:15 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24GFxBOh49676638
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 16 May 2022 15:59:11 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CBC68A4054;
-        Mon, 16 May 2022 15:59:11 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7207EA405C;
-        Mon, 16 May 2022 15:59:11 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.0.224])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 16 May 2022 15:59:11 +0000 (GMT)
-Date:   Mon, 16 May 2022 17:59:09 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v2 1/1] s390x: add migration test for
- storage keys
-Message-ID: <20220516175909.7b69c344@p-imbrenda>
-In-Reply-To: <20220516090702.1939253-2-nrb@linux.ibm.com>
-References: <20220516090702.1939253-1-nrb@linux.ibm.com>
-        <20220516090702.1939253-2-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S245614AbiEPQHB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 12:07:01 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D70B37038;
+        Mon, 16 May 2022 09:06:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=hkxxY/QtEmLaEz91h3ZbibgaO5mIVJpTDxNjCMnCCRs=; b=QJKb57mFKwMFscTO5WFY4RSj23
+        KQ6n8H9l2g2SttLbeQWPGo2evZPJbMnkbERgI1GrlJbCyaovBQ7YNgsYgYWZV4AUB43bBYpAdAI4t
+        tSUTgJhvOvNj6CgwWpUnZT0VvP1nPFnrhSTYeteC8TI+m63sh71ROWTeeLMsXDtJw57P/+L4voDEA
+        fAA2sLoZLSjWU8escrCVSpKI49cJB+42jd6GXOMXbMkFbQNvfMy7UNTlghfu62nr5uAdPO/Hn/wFd
+        nMAbmXIqsuv6JnFGW2A+NmrSU+Aj1YnRvsm6Le3RHEDyDM6bMieEJqNdqhsYzjUU2qgiLiCJOh07u
+        ze5flEbQ==;
+Received: from [177.183.162.244] (helo=[192.168.0.5])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1nqdEm-006s2D-Fy; Mon, 16 May 2022 18:06:24 +0200
+Message-ID: <63a74b56-89ef-8d1f-d487-cdb986aab798@igalia.com>
+Date:   Mon, 16 May 2022 13:05:44 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH 21/30] panic: Introduce the panic pre-reboot notifier list
+Content-Language: en-US
+To:     Petr Mladek <pmladek@suse.com>, Tony Luck <tony.luck@intel.com>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alex Elder <elder@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Chris Zankel <chris@zankel.net>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Corey Minyard <minyard@acm.org>,
+        Dexuan Cui <decui@microsoft.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        James Morse <james.morse@arm.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Matt Turner <mattst88@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Richard Weinberger <richard@nod.at>,
+        Robert Richter <rric@kernel.org>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Wei Liu <wei.liu@kernel.org>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-22-gpiccoli@igalia.com> <YoJgcC8c6LaKADZV@alley>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <YoJgcC8c6LaKADZV@alley>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LqJrxBaXXwsX9WcUHHNC5ghm6XzMaR1G
-X-Proofpoint-GUID: LluCIfg2hkrc5wmk39Dj39xUVewHSuJT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-16_14,2022-05-16_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1015 impostorscore=0 lowpriorityscore=0 malwarescore=0
- phishscore=0 bulkscore=0 adultscore=0 mlxscore=0 mlxlogscore=999
- spamscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205160090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 16 May 2022 11:07:02 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
+Thanks again for the review! Comments inline below:
 
-> Upon migration, we expect storage keys being set by the guest to be preserved,
-> so add a test for it.
+
+On 16/05/2022 11:33, Petr Mladek wrote:
+> [...]
+>> --- a/drivers/edac/altera_edac.c
+>> +++ b/drivers/edac/altera_edac.c
+>> @@ -2163,7 +2162,7 @@ static int altr_edac_a10_probe(struct platform_device *pdev)
+>>  		int dberror, err_addr;
+>>  
+>>  		edac->panic_notifier.notifier_call = s10_edac_dberr_handler;
+>> -		atomic_notifier_chain_register(&panic_notifier_list,
+>> +		atomic_notifier_chain_register(&panic_pre_reboot_list,
 > 
-> We keep 128 pages and set predictable storage keys. Then, we migrate and check
-> they can be read back and the respective access restrictions are in place when
-> the access key in the PSW doesn't match.
+> My understanding is that this notifier first prints info about ECC
+> errors and then triggers reboot. It might make sense to split it
+> into two notifiers.
+
+I disagree here - looping the maintainers for comments (CCing Dinh /
+Tony). BTW, sorry for not having you on CC already Dinh, it was my mistake.
+
+So, my reasoning here is: this notifier should fit the info list,
+definitely! But...it's very high risk for kdump. It deep dives into the
+regmap API (there are locks in such code) plus there is an (MM)IO write
+to the device and an ARM firmware call. So, despite the nature of this
+notifier _fits the informational list_, the _code is risky_ so we should
+avoid running it before a kdump.
+
+Now, we indeed have a chicken/egg problem: want to avoid it before
+kdump, BUT in case kdump is not set, kmsg_dump() (and console flushing,
+after your suggestion Petr) will run before it and not save collected
+information from EDAC PoV.
+
+My idea: I could call a second kmsg_dump() or at least a panic console
+flush for within such notifier. Let me know what you think Petr (also
+Dinh / Tony and all interested parties).
+
+
+> [...] 
+>> --- a/drivers/leds/trigger/ledtrig-panic.c
+>> +++ b/drivers/leds/trigger/ledtrig-panic.c
+>> @@ -64,7 +63,7 @@ static long led_panic_blink(int state)
+>>  
+>>  static int __init ledtrig_panic_init(void)
+>>  {
+>> -	atomic_notifier_chain_register(&panic_notifier_list,
+>> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
+>>  				       &led_trigger_panic_nb);
 > 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->  s390x/Makefile         |  1 +
->  s390x/migration-skey.c | 78 ++++++++++++++++++++++++++++++++++++++++++
->  s390x/unittests.cfg    |  4 +++
->  3 files changed, 83 insertions(+)
->  create mode 100644 s390x/migration-skey.c
+> Blinking => should go to the last "post_reboot/loop" list.
+> [...] 
+>> --- a/drivers/misc/ibmasm/heartbeat.c
+>> +++ b/drivers/misc/ibmasm/heartbeat.c
+>> @@ -32,20 +31,23 @@ static int suspend_heartbeats = 0;
+>>  static int panic_happened(struct notifier_block *n, unsigned long val, void *v)
+>>  {
+>>  	suspend_heartbeats = 1;
+>> -	return 0;
+>> +	return NOTIFY_DONE;
+>>  }
+>>  
+>> -static struct notifier_block panic_notifier = { panic_happened, NULL, 1 };
+>> +static struct notifier_block panic_notifier = {
+>> +	.notifier_call = panic_happened,
+>> +};
+>>  
+>>  void ibmasm_register_panic_notifier(void)
+>>  {
+>> -	atomic_notifier_chain_register(&panic_notifier_list, &panic_notifier);
+>> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
+>> +					&panic_notifier);
 > 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index a8e04aa6fe4d..f8ea594b641d 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -32,6 +32,7 @@ tests += $(TEST_DIR)/epsw.elf
->  tests += $(TEST_DIR)/adtl-status.elf
->  tests += $(TEST_DIR)/migration.elf
->  tests += $(TEST_DIR)/pv-attest.elf
-> +tests += $(TEST_DIR)/migration-skey.elf
->  
->  pv-tests += $(TEST_DIR)/pv-diags.elf
->  
-> diff --git a/s390x/migration-skey.c b/s390x/migration-skey.c
-> new file mode 100644
-> index 000000000000..ee4622eb94ba
-> --- /dev/null
-> +++ b/s390x/migration-skey.c
-> @@ -0,0 +1,78 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Storage Key migration tests
-> + *
-> + * Copyright IBM Corp. 2022
-> + *
-> + * Authors:
-> + *  Nico Boehr <nrb@linux.ibm.com>
-> + */
-> +
-> +#include <libcflat.h>
-> +#include <asm/facility.h>
-> +#include <asm/page.h>
-> +#include <asm/mem.h>
-> +#include <asm/interrupt.h>
-> +#include <hardware.h>
-> +
-> +#define NUM_PAGES 128
-> +static uint8_t pagebuf[NUM_PAGES][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
-> +
-> +static void test_migration(void)
-> +{
-> +	int i, key_to_set;
-> +	uint8_t *page;
-> +	union skey expected_key, actual_key;
+> Same here. Blinking => should go to the last "post_reboot/loop" list.
 
-please reverse Christmas tree ^
+Ack on both.
 
-with that fixed:
+IBMasm is not blinking IIUC, but still fits properly the loop list. This
+notifier would make a heartbeat mechanism stop, and once it's stopped,
+service processor is allowed to reboot - that's my understanding.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-> +
-> +	for (i = 0; i < NUM_PAGES; i++) {
-> +		/*
-> +		 * Storage keys are 7 bit, lowest bit is always returned as zero
-> +		 * by iske
-> +		 */
-> +		key_to_set = i * 2;
-> +		set_storage_key(pagebuf[i], key_to_set, 1);
-> +	}
-> +
-> +	puts("Please migrate me, then press return\n");
-> +	(void)getchar();
-> +
-> +	for (i = 0; i < NUM_PAGES; i++) {
-> +		report_prefix_pushf("page %d", i);
-> +
-> +		page = &pagebuf[i][0];
-> +		actual_key.val = get_storage_key(page);
-> +		expected_key.val = i * 2;
-> +
-> +		/* ignore reference bit */
-> +		actual_key.str.rf = 0;
-> +		expected_key.str.rf = 0;
-> +
-> +		report(actual_key.val == expected_key.val, "expected_key=0x%x actual_key=0x%x", expected_key.val, actual_key.val);
-> +
-> +		report_prefix_pop();
-> +	}
-> +}
-> +
-> +int main(void)
-> +{
-> +	report_prefix_push("migration-skey");
-> +	if (test_facility(169)) {
-> +		report_skip("storage key removal facility is active");
-> +
-> +		/*
-> +		 * If we just exit and don't ask migrate_cmd to migrate us, it
-> +		 * will just hang forever. Hence, also ask for migration when we
-> +		 * skip this test altogether.
-> +		 */
-> +		puts("Please migrate me, then press return\n");
-> +		(void)getchar();
-> +
-> +		goto done;
-> +	}
-> +
-> +	test_migration();
-> +
-> +done:
-> +	report_prefix_pop();
-> +	return report_summary();
-> +}
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index b456b2881448..1e851d8e3dd8 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -176,3 +176,7 @@ extra_params = -cpu qemu,gs=off,vx=off
->  file = migration.elf
->  groups = migration
->  smp = 2
-> +
-> +[migration-skey]
-> +file = migration-skey.elf
-> +groups = migration
+Cheers,
 
+
+Guilherme
