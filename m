@@ -2,136 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B6AFC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 16:58:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 748ACC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 17:00:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344021AbiEPQ65 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 12:58:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54354 "EHLO
+        id S235360AbiEPRAT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 13:00:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344061AbiEPQ6v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 12:58:51 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 744A1198;
-        Mon, 16 May 2022 09:58:31 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24GGIWij007719;
-        Mon, 16 May 2022 16:58:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=aVzUp1Bdiwo6CVinfyFYrysYi3uvBEDaynhoTyH4Rjs=;
- b=Uzjvg0bNRguteZvUKLcK03PE3wwOlvWy2V4CSCi5Aajd+hwzIUWOggszRcFRnqetuH5Q
- zAUvmEjbyOzzcGMQInqBMqX4YmAMbwiGCbcf1ENFV/m6Ja2JTbb+/Rf58mNYUlBSMr0S
- XQqw/yv7s4akqZEEviG/szyt6Qwx4lkZtu/bRVnISR7Jr5b9tPpNQOpjLFP0AEcovaWQ
- ef8DPY7wG7Z4QWpGUe3685cPoLFmjR9jjBDIaEGWpICWAT+G4GESkZDG9m6QFv/8mKoC
- e0nWjL0HMoh7s76MNFpqUIggtN1VejfHUp/FMLcL9V8B8v8Gw6Vv5KjDZ2WmOYfkPfSL /Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3t11gnn8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 16:58:26 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24GGSPWY010605;
-        Mon, 16 May 2022 16:58:26 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3t11gnm2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 16:58:25 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24GGruFW029831;
-        Mon, 16 May 2022 16:58:23 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3g2428tcf1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 16:58:23 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24GGvo6N28574030
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 16 May 2022 16:57:50 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2637111C05B;
-        Mon, 16 May 2022 16:58:21 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8F81011C04C;
-        Mon, 16 May 2022 16:58:20 +0000 (GMT)
-Received: from [9.171.85.194] (unknown [9.171.85.194])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 16 May 2022 16:58:20 +0000 (GMT)
-Message-ID: <63039789-839c-865e-27b3-1f843c87de9b@linux.ibm.com>
-Date:   Mon, 16 May 2022 18:58:20 +0200
+        with ESMTP id S1344022AbiEPQ76 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 12:59:58 -0400
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on20610.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe59::610])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41DFD195;
+        Mon, 16 May 2022 09:59:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XgsfVUhWBdNM+b5vsHJA4gJozRhYW+CC5q2mF2oZd3OJd/8gzgurSKU/wtIpBGUnsfSt5rZQ0JCVV4Pp1TMa3t7kE/NckLATs3HL4icdqc24fCkLzQmU3b5qEUokNhK0tOHs7wXnb3tBxE0TSvoz28PE2+eLeb+dwJ2bt8g/wOj34wzjas1+oNNM/deRrJFLjTX97QV3tmUH0X7yUgTl2vDoAquGZpQ17M/EbO0zffkTygr+NDHEGRBx8KGdKCuqwRq+YMgXsSruY1gngxYCu20z482otNGuXPib6K8DnjZbkA/9OVIjRhqhQen1fLJYtSgesaXDtxHJKTikU3sT4w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2mAOYcMq8OCkJgkd6R3Q8j7itX5XE6KWxYNsDJi8A3U=;
+ b=D4B9+lNslT/7qyTL5hcqFNJP+H+LUVG+1PcH9smQJ5Wrno+5TMrMGrDh9+IPG+jaF1Kg2oJ+HzsfqJ8Qc1MKth+Om4bpAjwKw4JHYi11t9Eb4PARyEJXefAakkukroxaik2cmvzFs17wYf2C04C9dLcX7p3qf6qCqz76vHY7Ju6qh0tMkDlbgJ09LDdvzVYxHop1G/O3qZw2JDAL0gz2n0Hlyxl3i/lnHUzuKAI9i4U3Bd4B/Wo4gm0mkTuaOo2o5i4O5v9UgH8Ldbe7zsuI+P09RctBpf1D2bdYE+MhppE5D03whaalD5ZdwoeoDHIpZfS4mac2meyDdceFVey0Jw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2mAOYcMq8OCkJgkd6R3Q8j7itX5XE6KWxYNsDJi8A3U=;
+ b=evkOy4jS45nIuifpi+LH1eoEXF9EuYyK7zWPSz43bU0xhSvoqL34iNtHt0Dp34/5LGXLL26WhUWwEMtHRl2qvBTAr7xHx4UHacrMHhTv+t+U34sK8ThAnk3PVpV44SdS6XICQrRu0pExvHBIHSZ3Fd/zUifLc6XbKj2/x1+2oloNkVYXaqyNpig7kVEXsaFD6AYEfF+GpVCMGGW9q96+g163eicfFRVtX9Jjzg9AXLv3uUIsqU1N29xUcokJSfOvZetfRGWZ1F9qahlbnMRH5ApmXgj7drcLMg2UvIzPebf3j1V7vYo7Eh0hzCT2OjHHYRTGGuNa78uXin85MSyVwA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by MN2PR12MB4048.namprd12.prod.outlook.com (2603:10b6:208:1d5::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5250.14; Mon, 16 May
+ 2022 16:59:55 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2%5]) with mapi id 15.20.5250.018; Mon, 16 May 2022
+ 16:59:55 +0000
+Date:   Mon, 16 May 2022 13:59:53 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
+        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
+        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: Re: [PATCH v7 10/22] vfio/pci: introduce CONFIG_VFIO_PCI_ZDEV_KVM
+Message-ID: <20220516165953.GD1343366@nvidia.com>
+References: <20220513191509.272897-1-mjrosato@linux.ibm.com>
+ <20220513191509.272897-11-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220513191509.272897-11-mjrosato@linux.ibm.com>
+X-ClientProxiedBy: BLAPR03CA0021.namprd03.prod.outlook.com
+ (2603:10b6:208:32b::26) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH net-next v3 0/2] net/smc: send and write inline
- optimization for smc
-Content-Language: en-US
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, leon@kernel.org, tonylu@linux.alibaba.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220516055137.51873-1-guangguan.wang@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20220516055137.51873-1-guangguan.wang@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 9q07apO6WGDWethuOTZKU76-3kK4fbuc
-X-Proofpoint-GUID: 6DlRkI7CZBAkWIxZa-wLpYcoVFrHp4SB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-16_15,2022-05-16_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 phishscore=0 clxscore=1015 malwarescore=0
- impostorscore=0 suspectscore=0 mlxlogscore=999 adultscore=0 mlxscore=0
- bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205160092
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 8b8b77f6-9825-4ce8-69f1-08da375d8039
+X-MS-TrafficTypeDiagnostic: MN2PR12MB4048:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR12MB4048813731FB90F24141E61DC2CF9@MN2PR12MB4048.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: k0k0fj8D15z+WxHT3yRyaR3Nhn/B2Jfn8PdvbHrXOSOs0gG/hyrNHuvXyUyVAdiWnhViecOcFtpPb0ArR48C5T7Yc9ieHp5osCG89UVBV+qLQAj73sCyDxu6wOoJTx80OAgYoMHzEeFxLDqtilv2kbeEFgMMGe2cI1Yc9sjZvy6PEldoUzk+vbuOIqqh1IZTN/LbwU7svzEpQt9pnelbSkuCr2fUmv+lWeWtZo8PA4fFtA/emcyDM5BZOzvcwP54HpbIM9KS1N37vXyO/KW4hGLQC6bENjhGv69GXU/etK9KnyompH0STwMePdyVWbaQz2P8dFSG6pYJPvlp2HDusH2hQKhvcD7hhqh8SX82kPyWP89/bISV7/i5s0XdpiSTUfFInom2eJTcG14OleJmOI9wM4cmYJB5GFIXcVBQkievt/gfwikqnYmf11sGSRuvlwM62WvqtPACoP01XAi2qoLgf6DjEe8TmYlPtBIMtabXySPjFDr0VzEe30WMGkISfRuve1vbe5+1s2XZq12+GV9xIViEfOEJNTa6pwp1PU6B64s8PodoFT81bwzb3ZZH5ZJwwgJKayu6zJQPEBrxBCgxUo35h1wiA3QGMJTLHI2T59S55EdksJV4/gnPCZ0G8Rbt9LycCtHxApBbvb6iRA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(36756003)(4326008)(26005)(86362001)(38100700002)(8676002)(6916009)(2616005)(186003)(1076003)(316002)(6512007)(33656002)(2906002)(5660300002)(6506007)(4744005)(8936002)(6486002)(66476007)(66946007)(66556008)(508600001)(7416002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?1DpdXgoaar3TJ4I0Bb0PivE32YDWg71B3vVH5Ii+aIfp+GophRDUkxEkH6ZL?=
+ =?us-ascii?Q?uy/OgGzIMsgGDp42kmbiwS/9RN/P7qIqVOi+Ph35Ckqwsy0vyfMYMOC5sGuT?=
+ =?us-ascii?Q?aA7+jcI3fkVF0tLB/R8m7CrgKIN7P6hibjCuFQn2qhYX76TOOvZvH3HSCpvM?=
+ =?us-ascii?Q?l3I5tdCaIxTuomOinLEXKIkDQwHUD+zjafM5BdHG9WaiVQcdca/bNBhQfbqu?=
+ =?us-ascii?Q?gsubhjAiY/ksmXd8Pmfzd6E7uGm/WYLnRiaDWiJreNpYj6CVKLFdJqm9zNaX?=
+ =?us-ascii?Q?spdZTwGwvBQagP2UaCfgcGSb5zSh1+t62LoILbtvVyzP4t05Nnd2Ln3BuDPN?=
+ =?us-ascii?Q?5yqr3iiUkXp+31U34+S5rdjSJsRXUTNI4+JHzWI0Nzk7z0fsK7HR6ELXKpqK?=
+ =?us-ascii?Q?wkqRT4KBCqImz1jseu3g6+5REI41JTvSRp6PQcBTGYI4Y3wD3WSX1PIR+QTj?=
+ =?us-ascii?Q?hl436D/DVXLFwydaOvxrzJWWbGb30JPcCUO98bSosmpDlNK/N5b9/hRVGwew?=
+ =?us-ascii?Q?Q29o67jF+5WFLq6cHKSCAifLaEb2/A2EzZDdWsmu/A8s03y0Q5TvT5T1nBFm?=
+ =?us-ascii?Q?y7JZUunpd6APObfQYo6CyKLy1Qvdko2gKEaQeQ+ouPjZCGCED5EHq84NjSjG?=
+ =?us-ascii?Q?v/35cXQzwx86TkWZqCfwP04C0FRZJ9WgCsYM86U5ViKgf2kT93Rf0QDabwlk?=
+ =?us-ascii?Q?ue1b9OPWBJe8uk9i9It9fSAdli3rfPE8GNqisc/J7jx4DX85b1QWd7w7Tb/9?=
+ =?us-ascii?Q?mla0G7ZQ3IimHBSGHquXtWOqGXQh/0SVUE0dSDM00sjgN3wcbJIEaqglWysB?=
+ =?us-ascii?Q?o/NIcrUOYuPR7wqeZIY23NztLxtOn4rRMj4Ya0ciRS0EyTKvQ9/2poGuBd2L?=
+ =?us-ascii?Q?sRpj6+E1dt/T/qnxiE1Wk9zdxAS4aQvm0VYl2UsBYKBOlSeaXXHpE4wIu8wq?=
+ =?us-ascii?Q?flIH+YRQo2aNA70xPW6oa/Upkx1g4e12nSDDjpgdoND4wTt7MfJZ64JSCIni?=
+ =?us-ascii?Q?fKeFIFNosQw14U2GzZZ9SchcCotyoq/T1ZJ3k78LPYLawHSSjFN1TkzOX8+W?=
+ =?us-ascii?Q?3XLpzcUq4hpcQERM4/RVxSNSnsiMfGGjCbPprFVIsfXkIvDNFeb8OROhxnYC?=
+ =?us-ascii?Q?6PfOshByARTs0sX7Ma7v0XqWSpoJkvbLaJhR3cv9VRhNzW4R3DN0Wn3BUhE9?=
+ =?us-ascii?Q?1Kflnjbcok9UDSWe+kI/68b9+Qfe3bY4rRbHo9O/Yx3RrFCzrgyi6YRJmI2B?=
+ =?us-ascii?Q?YnL0jyrce2oBm8RiZ/H3PGeZSvUUnf1bHV9JYSlvW5+oFYKmBT647W9CAQuR?=
+ =?us-ascii?Q?v03/1+3WqzenoP46h5NJKC7HhEyd7UFBoW1tRsHO5xAwtXOSBsN4G3uyCqWm?=
+ =?us-ascii?Q?3OHy2i+RjNRSTZmYcVOXRzPGwvOpKd2JCyjLSG2xRhYZq34+fub3YSMxexX2?=
+ =?us-ascii?Q?kJib9YAl65wzIAQLMGH+DaJLD4pKHOr+dFQliDDAuwaxEVWLXZR5dqQXO4rO?=
+ =?us-ascii?Q?6GfI6BYf59twdCRpiSt/eoFz3YM4TkgFPcR+9u/RQkf7N8hhVKA3pCzIxu7r?=
+ =?us-ascii?Q?Iu4uxExYlyuydZOZfbXF2FnT+DtmhYmIZmQLsHvQaAHRPflv4y2RsH1559gn?=
+ =?us-ascii?Q?PkOoK8Rf9b73y//vblSTR1+3Tei74AxOEyrWAJ7Xi4nDmflE3e7wrNN0GaC0?=
+ =?us-ascii?Q?JKLHDMQO3ZfmFWgS4hsJ2JH9bkWdOT2g/Z5e/lEaM89LUIofxOHw62wGDNrX?=
+ =?us-ascii?Q?w8Zo8cuQ9g=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8b8b77f6-9825-4ce8-69f1-08da375d8039
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 May 2022 16:59:55.0485
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: t6K2i9C2ngFJuacYchhH9LeOOqs3l1psLUgQkuLZ3KZyUTbJS3yG8y81h4Cs8Tv2
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 16/05/2022 07:51, Guangguan Wang wrote:
-> Send cdc msgs and write data inline if qp has sufficent inline
-> space, helps latency reducing. 
-> 
-> In my test environment, which are 2 VMs running on the same
-> physical host and whose NICs(ConnectX-4Lx) are working on
-> SR-IOV mode, qperf shows 0.4us-1.3us improvement in latency.
-> 
-> Test command:
-> server: smc_run taskset -c 1 qperf
-> client: smc_run taskset -c 1 qperf <server ip> -oo \
-> 		msg_size:1:2K:*2 -t 30 -vu tcp_lat
-> 
-> The results shown below:
-> msgsize     before       after
-> 1B          11.9 us      10.6 us (-1.3 us)
-> 2B          11.7 us      10.7 us (-1.0 us)
-> 4B          11.7 us      10.7 us (-1.0 us)
-> 8B          11.6 us      10.6 us (-1.0 us)
-> 16B         11.7 us      10.7 us (-1.0 us)
-> 32B         11.7 us      10.6 us (-1.1 us)
-> 64B         11.7 us      11.2 us (-0.5 us)
-> 128B        11.6 us      11.2 us (-0.4 us)
-> 256B        11.8 us      11.2 us (-0.6 us)
-> 512B        11.8 us      11.3 us (-0.5 us)
-> 1KB         11.9 us      11.5 us (-0.4 us)
-> 2KB         12.1 us      11.5 us (-0.6 us)
-> 
-> Guangguan Wang (2):
->   net/smc: send cdc msg inline if qp has sufficient inline space
->   net/smc: rdma write inline if qp has sufficient inline space
-> 
->  net/smc/smc_ib.c |  1 +
->  net/smc/smc_tx.c | 17 ++++++++++++-----
->  net/smc/smc_wr.c |  5 ++++-
->  3 files changed, 17 insertions(+), 6 deletions(-)
-> 
+On Fri, May 13, 2022 at 03:14:57PM -0400, Matthew Rosato wrote:
+> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+> index 4da1914425e1..ac1290d484e1 100644
+> +++ b/drivers/vfio/pci/Kconfig
+> @@ -44,6 +44,17 @@ config VFIO_PCI_IGD
+>  	  To enable Intel IGD assignment through vfio-pci, say Y.
+>  endif
+>  
+> +config VFIO_PCI_ZDEV_KVM
+> +	bool "VFIO PCI extensions for s390x KVM passthrough"
+> +	depends on S390 && KVM
+> +	default y
+> +	help
+> +	  Support s390x-specific extensions to enable support for enhancements
+> +	  to KVM passthrough capabilities, such as interpretive execution of
+> +	  zPCI instructions.
+> +
+> +	  To enable s390x KVM vfio-pci extensions, say
 
-I like that change, thank you!
-
-For the series:
-
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-
+"say Y"
