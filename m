@@ -2,75 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 127FFC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 07:18:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 517C8C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 07:22:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240911AbiEPHS0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 03:18:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51650 "EHLO
+        id S241044AbiEPHWU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 03:22:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231464AbiEPHSZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 03:18:25 -0400
-Received: from xavier.telenet-ops.be (xavier.telenet-ops.be [IPv6:2a02:1800:120:4::f00:14])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41E1913CCE
-        for <linux-s390@vger.kernel.org>; Mon, 16 May 2022 00:18:24 -0700 (PDT)
-Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed30:51ae:171f:35c9:722d])
-        by xavier.telenet-ops.be with bizsmtp
-        id XKJK2700L2UsjYA01KJKhi; Mon, 16 May 2022 09:18:22 +0200
-Received: from geert (helo=localhost)
-        by ramsan.of.borg with local-esmtp (Exim 4.93)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1nqUzi-000YsA-VZ; Mon, 16 May 2022 09:18:18 +0200
-Date:   Mon, 16 May 2022 09:18:18 +0200 (CEST)
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-X-X-Sender: geert@ramsan.of.borg
-To:     linux-kernel@vger.kernel.org
-cc:     Philipp Zabel <p.zabel@pengutronix.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-media@vger.kernel.org, linux-hardening@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: Build regressions/improvements in v5.18-rc7
-In-Reply-To: <20220516064231.2425428-1-geert@linux-m68k.org>
-Message-ID: <alpine.DEB.2.22.394.2205160916190.134019@ramsan.of.borg>
-References: <CAHk-=wg2eVUN0a1E5UnBF1ziGaU1yrMJtnFPg4R78O=FcRDqnA@mail.gmail.com> <20220516064231.2425428-1-geert@linux-m68k.org>
-User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
+        with ESMTP id S241072AbiEPHWR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 03:22:17 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1696B17E2D;
+        Mon, 16 May 2022 00:22:17 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24G706BE028147;
+        Mon, 16 May 2022 07:22:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=JuifCVkDQVVjp5OiuUeBAJSqFCJKTFUDHWj8OJinmXY=;
+ b=BvhKjElgYoixjN4+jK1B9Xv0b7e781SmVCBZn6db3XUxcvkA1VVW08xOPh9tYlWBKpBn
+ I9gl48FD+C9tU0tVBp0UQKtZAtUAlNrwzTzVkg1iUy+jlA6HVMK7O/2a3g0b4Z7rk0HY
+ YJz83rU4d/yiZ7N2AGdHOKi4dik0DT+XWDFgDDdViGyMB8t2o1UonxikAfGt9PdcmLyI
+ mi7Y5nssECjujsTdnyzd/PmvyfR8+WJIr8IMnwvEaFRL2Rw6+C203Ekrzym4IF6lFfYc
+ z5mCxsJd8DjDv73IpkZhl0buk0qp4AlDVuNlx+1Tk+2SYlUGLLUl38YfMiePTZBh7rsQ 9A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3hub8ejt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 May 2022 07:22:16 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24G7KW4A016681;
+        Mon, 16 May 2022 07:22:15 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3hub8ejh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 May 2022 07:22:15 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24G7IeDh009659;
+        Mon, 16 May 2022 07:22:13 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma02fra.de.ibm.com with ESMTP id 3g2428hqc9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 May 2022 07:22:13 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24G7MAmC42271212
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 16 May 2022 07:22:10 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 568E04C040;
+        Mon, 16 May 2022 07:22:10 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DC2454C046;
+        Mon, 16 May 2022 07:22:09 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.50.122])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 16 May 2022 07:22:09 +0000 (GMT)
+Message-ID: <560068a1e89c2ceec0d544fcc62fa3f95d390182.camel@linux.ibm.com>
+Subject: Re: [PATCH v10 01/19] KVM: s390: pv: leak the topmost page table
+ when destroy fails
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        mimu@linux.ibm.com
+Date:   Mon, 16 May 2022 09:22:09 +0200
+In-Reply-To: <20220414080311.1084834-2-imbrenda@linux.ibm.com>
+References: <20220414080311.1084834-1-imbrenda@linux.ibm.com>
+         <20220414080311.1084834-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.1 (3.44.1-1.fc36) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: d8qLD7uyqhbqj5ReGRJQ2wqDuSMOFLRJ
+X-Proofpoint-GUID: 2_6L4MdguNWF1gvqBaY5Vy4ZAXzAMDb_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-16_03,2022-05-13_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ suspectscore=0 spamscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
+ mlxscore=0 clxscore=1011 priorityscore=1501 adultscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205160036
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 16 May 2022, Geert Uytterhoeven wrote:
-> JFYI, when comparing v5.18-rc7[1] to v5.18-rc6[3], the summaries are:
->  - build errors: +2/-0
+On Thu, 2022-04-14 at 10:02 +0200, Claudio Imbrenda wrote:
 
-   + /kisskb/src/drivers/media/platform/nxp/imx-pxp.h: error: initializer element is not constant:  => 582:38
+[...]
+> +/**
+> + * s390_replace_asce - Try to replace the current ASCE of a gmap
+> with
+> + * another equivalent one.
+> + * @gmap the gmap
+> + *
+> + * If the allocation of the new top level page table fails, the ASCE
+> is not
+> + * replaced.
+> + * In any case, the old ASCE is always removed from the list.
+> Therefore the
+> + * caller has to make sure to save a pointer to it beforehands,
+> unless an
+> + * intentional leak is intended.
+> + */
+> +int s390_replace_asce(struct gmap *gmap)
+> +{
+>=20
+[...]
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/* Set new table origin while =
+preserving existing ASCE
+> control bits */
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0asce =3D (gmap->asce & ~_ASCE_=
+ORIGIN) | __pa(table);
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0WRITE_ONCE(gmap->asce, asce);
 
-mipsel-gcc5/mips-allmodconfig
+Can someone concurrently touch the control bits?
 
-Seen before in other builds, missing "U"-suffix on large unsigned
-constants.
-
-   + /kisskb/src/include/linux/fortify-string.h: error: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror=attribute-warning]:  => 328:25
-
-s390x-gcc11/s390-allmodconfig
-
-> [1] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/42226c989789d8da4af1de0c31070c96726d990c/ (all 131 configs)
-> [3] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/c5eb0a61238dd6faf37f58c9ce61c9980aaffd7a/ (all 131 configs)
-
-Gr{oetje,eeting}s,
-
- 						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
- 							    -- Linus Torvalds
