@@ -2,160 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50054C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 14:43:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEECEC4167B
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 14:46:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238917AbiEPOno (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 10:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53988 "EHLO
+        id S244596AbiEPOqD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 10:46:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232814AbiEPOno (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 10:43:44 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 274AA2DD57;
-        Mon, 16 May 2022 07:43:43 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24GEVRxZ028164;
-        Mon, 16 May 2022 14:43:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=G/QMDt6PmelKuw3h1/wn6fFs6tgijcz8HBSIWhry2EI=;
- b=RTeic89YeUss6dzUxWi8VtwYT8O6pF86YbNd19MKMU1rJax1gpXGtGavO1l/8h5vspug
- 04Sk+ePffA3z15b1OK9m9mrTfqLUTQ25S+zxJiUPmzjcgu6XYwv0boXwqRAk04imAfkA
- 0KRv0eBx6IjzJkLqMpBz30AhoV2uuONQuGUdJIeTdx6W+doSvNrpdHw1kOTrkLrOvOXw
- t3PvHljwoeuEtbAzKOM+A4hffXViwFm4PyhASiDL3JR4ZPx2Cb+QdIL30Gnn/vDr2/dh
- wE4WYN1PJqHf9sWEX0hpy8bSx+whotltx6cLhnAi0Bw9/LjFQleuA9VMyk9MSxwiC/6p TA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3rey09ss-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 14:43:42 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24GEg2r1009019;
-        Mon, 16 May 2022 14:43:42 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3rey09rv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 14:43:42 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24GEepfJ019819;
-        Mon, 16 May 2022 14:43:39 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03fra.de.ibm.com with ESMTP id 3g2428t7jt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 14:43:39 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24GEhaxg54067678
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 16 May 2022 14:43:36 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8CC22A405C;
-        Mon, 16 May 2022 14:43:36 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4D1D6A4054;
-        Mon, 16 May 2022 14:43:36 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 16 May 2022 14:43:36 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH] s390x: Ignore gcc 12 warnings for low addresses
-Date:   Mon, 16 May 2022 16:43:32 +0200
-Message-Id: <20220516144332.3785876-1-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S244590AbiEPOqA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 10:46:00 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FBF763C1;
+        Mon, 16 May 2022 07:45:58 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 5D1DB21E29;
+        Mon, 16 May 2022 14:45:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1652712357; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tG6HOQkoWV3PTxPtSaDR17RqhX4V9rIOdD2egRcz4EQ=;
+        b=gFEwFsAV3UIKYYLVyI3mrLhX3TiIMpl9yPWRGPgk48WclnmFw5gYn5O+dNvzDdNjqF+pxI
+        IMKpGcGZV7FxvMc95tVdofmJAGyq2tRsWSZoEHDpo+UshHGwcUByHkHpUxr0BHmW9i2Opl
+        sUtunVb+gn6OV1DjkoM9JYfMJE7YMOM=
+Received: from suse.cz (unknown [10.100.201.202])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 5A0982C141;
+        Mon, 16 May 2022 14:45:56 +0000 (UTC)
+Date:   Mon, 16 May 2022 16:45:56 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
+        dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH 22/30] panic: Introduce the panic post-reboot notifier
+ list
+Message-ID: <YoJjpBrz34QO+rn9@alley>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-23-gpiccoli@igalia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5xHPq3QUwbDBzohJgpI23Mz2KNtcHeKf
-X-Proofpoint-ORIG-GUID: uGLNVgTQzEJkdiR3Eh9IAmd3MRpHpQry
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-16_14,2022-05-16_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 mlxscore=0 impostorscore=0 lowpriorityscore=0
- phishscore=0 adultscore=0 suspectscore=0 mlxlogscore=999 spamscore=0
- clxscore=1015 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205160083
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220427224924.592546-23-gpiccoli@igalia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-gcc 12 warns if a memory operand to inline asm points to memory in the
-first 4k bytes. However, in our case, these operands are fine, either
-because we actually want to use that memory, or expect and handle the
-resulting exception.
-Therefore, silence the warning.
+On Wed 2022-04-27 19:49:16, Guilherme G. Piccoli wrote:
+> Currently we have 3 notifier lists in the panic path, which will
+> be wired in a way to allow the notifier callbacks to run in
+> different moments at panic time, in a subsequent patch.
+> 
+> But there is also an odd set of architecture calls hardcoded in
+> the end of panic path, after the restart machinery. They're
+> responsible for late time tunings / events, like enabling a stop
+> button (Sparc) or effectively stopping the machine (s390).
+> 
+> This patch introduces yet another notifier list to offer the
+> architectures a way to add callbacks in such late moment on
+> panic path without the need of ifdefs / hardcoded approaches.
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
----
+The patch looks good to me. I would just suggest two changes.
 
-Alternatives:
- * Use memory clobber instead of memory output
-   Use address in register input instead of memory input
-       (may require WRITE_ONCE)
- * Disable the warning globally
- * Don't use gcc 12.0, with newer versions --param=min-pagesize=0 might
-   avoid the problem
+1. I would rename the list to "panic_loop_list" instead of
+   "panic_post_reboot_list".
 
- lib/s390x/asm/cpacf.h | 7 +++++++
- s390x/skey.c          | 7 +++++++
- 2 files changed, 14 insertions(+)
+   It will be more clear that it includes things that are
+   needed before panic() enters the infinite loop.
 
-diff --git a/lib/s390x/asm/cpacf.h b/lib/s390x/asm/cpacf.h
-index 685262b0..02e603c8 100644
---- a/lib/s390x/asm/cpacf.h
-+++ b/lib/s390x/asm/cpacf.h
-@@ -152,6 +152,12 @@ static __always_inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mas
- 	register unsigned long r0 asm("0") = 0;	/* query function */
- 	register unsigned long r1 asm("1") = (unsigned long) mask;
- 
-+/*
-+ * gcc 12.0.1 warns if mask is < 4k.
-+ * We use such addresses to test invalid or protected mask arguments.
-+ */
-+#pragma GCC diagnostic push
-+#pragma GCC diagnostic ignored "-Warray-bounds"
- 	asm volatile(
- 		"	spm 0\n" /* pckmo doesn't change the cc */
- 		/* Parameter regs are ignored, but must be nonzero and unique */
-@@ -160,6 +166,7 @@ static __always_inline void __cpacf_query(unsigned int opcode, cpacf_mask_t *mas
- 		: "=m" (*mask)
- 		: [fc] "d" (r0), [pba] "a" (r1), [opc] "i" (opcode)
- 		: "cc");
-+#pragma GCC diagnostic pop
- }
- 
- static inline int __cpacf_check_opcode(unsigned int opcode)
-diff --git a/s390x/skey.c b/s390x/skey.c
-index 32bf1070..7aa91d19 100644
---- a/s390x/skey.c
-+++ b/s390x/skey.c
-@@ -242,12 +242,19 @@ static void test_store_cpu_address(void)
-  */
- static void set_prefix_key_1(uint32_t *prefix_ptr)
- {
-+/*
-+ * gcc 12.0.1 warns if prefix_ptr is < 4k.
-+ * We need such addresses to test fetch protection override.
-+ */
-+#pragma GCC diagnostic push
-+#pragma GCC diagnostic ignored "-Warray-bounds"
- 	asm volatile (
- 		"spka	0x10\n\t"
- 		"spx	%0\n\t"
- 		"spka	0\n"
- 	     :: "Q" (*prefix_ptr)
- 	);
-+#pragma GCC diagnostic pop
- }
- 
- /*
 
-base-commit: c315f52b88b967cfb4cd58f3b4e1987378c47f3b
--- 
-2.33.1
+2. I would move all the notifiers that enable blinking here.
 
+   The blinking should be done only during the infinite
+   loop when there is nothing else to do. If we enable
+   earlier then it might disturb/break more important
+   functionality (dumping information, reboot).
+
+Best Regards,
+Petr
