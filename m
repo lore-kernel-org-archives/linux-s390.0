@@ -2,226 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 372C5C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 16:48:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B6AFC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 16:58:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239581AbiEPQsG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 12:48:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37066 "EHLO
+        id S1344021AbiEPQ65 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 12:58:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233927AbiEPQsF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 12:48:05 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24FF73C70B;
-        Mon, 16 May 2022 09:48:04 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24GGXAJM005769;
-        Mon, 16 May 2022 16:48:03 GMT
+        with ESMTP id S1344061AbiEPQ6v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 12:58:51 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 744A1198;
+        Mon, 16 May 2022 09:58:31 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24GGIWij007719;
+        Mon, 16 May 2022 16:58:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=VNUdLvdX0E2cFai9PPauNmj5sGnbkJyC1D19ckT58og=;
- b=AkIYoXpdrxiRe3KXLFzBMLxd4bvkVIvDWuBexidiH9EPvjqea7XR+B+itFKoqz4vZJlM
- XLxRFg1hSvTk3Gkq1Vy875ymQWsoNMMnoEkhF16nG2cYXL0iNNqrlYOTQ8amdIqF9vGo
- 7nkp/zKJqQiwue/o/KUW+k1k94tM/VGowg7C9JYGVCldI6A/HyHOtrIJmkwTqFT068yN
- tt3SPO7C8kAsUaPMkiWppmk1sEGYZnPI21trnA3cHwvZm2VjBicUwJqNloMopTszYQwR
- /ctMJ2vESuWY8dpjgHcnlOmAmhR1nCvoxor+ej2ih7LKsKVG5u9KUA3CNYsS5lOuu6pD Yg== 
+ bh=aVzUp1Bdiwo6CVinfyFYrysYi3uvBEDaynhoTyH4Rjs=;
+ b=Uzjvg0bNRguteZvUKLcK03PE3wwOlvWy2V4CSCi5Aajd+hwzIUWOggszRcFRnqetuH5Q
+ zAUvmEjbyOzzcGMQInqBMqX4YmAMbwiGCbcf1ENFV/m6Ja2JTbb+/Rf58mNYUlBSMr0S
+ XQqw/yv7s4akqZEEviG/szyt6Qwx4lkZtu/bRVnISR7Jr5b9tPpNQOpjLFP0AEcovaWQ
+ ef8DPY7wG7Z4QWpGUe3685cPoLFmjR9jjBDIaEGWpICWAT+G4GESkZDG9m6QFv/8mKoC
+ e0nWjL0HMoh7s76MNFpqUIggtN1VejfHUp/FMLcL9V8B8v8Gw6Vv5KjDZ2WmOYfkPfSL /Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3t8088kg-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3t11gnn8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 16:48:03 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24GGXph3007432;
-        Mon, 16 May 2022 16:48:02 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3t8088ha-1
+        Mon, 16 May 2022 16:58:26 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24GGSPWY010605;
+        Mon, 16 May 2022 16:58:26 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3t11gnm2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 16:48:02 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24GGSMFf005573;
-        Mon, 16 May 2022 16:47:56 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3g2429b0jq-1
+        Mon, 16 May 2022 16:58:25 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24GGruFW029831;
+        Mon, 16 May 2022 16:58:23 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04fra.de.ibm.com with ESMTP id 3g2428tcf1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 16:47:55 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24GGlqlJ50397488
+        Mon, 16 May 2022 16:58:23 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24GGvo6N28574030
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 16 May 2022 16:47:52 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5EEA65204F;
-        Mon, 16 May 2022 16:47:52 +0000 (GMT)
-Received: from [9.171.29.242] (unknown [9.171.29.242])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 11F9B52050;
-        Mon, 16 May 2022 16:47:52 +0000 (GMT)
-Message-ID: <947af627-64e0-486d-18e2-c877bc4c4ba6@linux.ibm.com>
-Date:   Mon, 16 May 2022 18:47:51 +0200
+        Mon, 16 May 2022 16:57:50 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2637111C05B;
+        Mon, 16 May 2022 16:58:21 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F81011C04C;
+        Mon, 16 May 2022 16:58:20 +0000 (GMT)
+Received: from [9.171.85.194] (unknown [9.171.85.194])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 16 May 2022 16:58:20 +0000 (GMT)
+Message-ID: <63039789-839c-865e-27b3-1f843c87de9b@linux.ibm.com>
+Date:   Mon, 16 May 2022 18:58:20 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [kvm-unit-tests PATCH v2 1/1] s390x: add migration test for
- storage keys
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH net-next v3 0/2] net/smc: send and write inline
+ optimization for smc
 Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-References: <20220516090702.1939253-1-nrb@linux.ibm.com>
- <20220516090702.1939253-2-nrb@linux.ibm.com>
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-In-Reply-To: <20220516090702.1939253-2-nrb@linux.ibm.com>
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, leon@kernel.org, tonylu@linux.alibaba.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220516055137.51873-1-guangguan.wang@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20220516055137.51873-1-guangguan.wang@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: G4VITCLOIp49hJpOHD3Q9i0fDDOzwFm_
-X-Proofpoint-ORIG-GUID: pjTzmbFzcItItzAHDy--ycrOtlkX2XEi
+X-Proofpoint-ORIG-GUID: 9q07apO6WGDWethuOTZKU76-3kK4fbuc
+X-Proofpoint-GUID: 6DlRkI7CZBAkWIxZa-wLpYcoVFrHp4SB
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-16_15,2022-05-16_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=999 suspectscore=0 phishscore=0 priorityscore=1501 spamscore=0
- lowpriorityscore=0 clxscore=1015 bulkscore=0 impostorscore=0 mlxscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 phishscore=0 clxscore=1015 malwarescore=0
+ impostorscore=0 suspectscore=0 mlxlogscore=999 adultscore=0 mlxscore=0
+ bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2205160092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/16/22 11:07, Nico Boehr wrote:
-> Upon migration, we expect storage keys being set by the guest to be preserved,
-> so add a test for it.
-
-"being set" implies that keys are set while the migration is going on.
-That's not the case, is it?
+On 16/05/2022 07:51, Guangguan Wang wrote:
+> Send cdc msgs and write data inline if qp has sufficent inline
+> space, helps latency reducing. 
 > 
-> We keep 128 pages and set predictable storage keys. Then, we migrate and check
-> they can be read back and the respective access restrictions are in place when
-
-... check that they ...
-
-> the access key in the PSW doesn't match.
-
-The latter half of the sentence doesn't apply anymore, now that you simplified the test.
-So maybe something like: ... and check that they can be read back and match the value
-originally set.
+> In my test environment, which are 2 VMs running on the same
+> physical host and whose NICs(ConnectX-4Lx) are working on
+> SR-IOV mode, qperf shows 0.4us-1.3us improvement in latency.
 > 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->  s390x/Makefile         |  1 +
->  s390x/migration-skey.c | 78 ++++++++++++++++++++++++++++++++++++++++++
->  s390x/unittests.cfg    |  4 +++
->  3 files changed, 83 insertions(+)
->  create mode 100644 s390x/migration-skey.c
+> Test command:
+> server: smc_run taskset -c 1 qperf
+> client: smc_run taskset -c 1 qperf <server ip> -oo \
+> 		msg_size:1:2K:*2 -t 30 -vu tcp_lat
 > 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index a8e04aa6fe4d..f8ea594b641d 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -32,6 +32,7 @@ tests += $(TEST_DIR)/epsw.elf
->  tests += $(TEST_DIR)/adtl-status.elf
->  tests += $(TEST_DIR)/migration.elf
->  tests += $(TEST_DIR)/pv-attest.elf
-> +tests += $(TEST_DIR)/migration-skey.elf
+> The results shown below:
+> msgsize     before       after
+> 1B          11.9 us      10.6 us (-1.3 us)
+> 2B          11.7 us      10.7 us (-1.0 us)
+> 4B          11.7 us      10.7 us (-1.0 us)
+> 8B          11.6 us      10.6 us (-1.0 us)
+> 16B         11.7 us      10.7 us (-1.0 us)
+> 32B         11.7 us      10.6 us (-1.1 us)
+> 64B         11.7 us      11.2 us (-0.5 us)
+> 128B        11.6 us      11.2 us (-0.4 us)
+> 256B        11.8 us      11.2 us (-0.6 us)
+> 512B        11.8 us      11.3 us (-0.5 us)
+> 1KB         11.9 us      11.5 us (-0.4 us)
+> 2KB         12.1 us      11.5 us (-0.6 us)
 > 
->  pv-tests += $(TEST_DIR)/pv-diags.elf
+> Guangguan Wang (2):
+>   net/smc: send cdc msg inline if qp has sufficient inline space
+>   net/smc: rdma write inline if qp has sufficient inline space
 > 
-> diff --git a/s390x/migration-skey.c b/s390x/migration-skey.c
-> new file mode 100644
-> index 000000000000..ee4622eb94ba
-> --- /dev/null
-> +++ b/s390x/migration-skey.c
-> @@ -0,0 +1,78 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Storage Key migration tests
-> + *
-> + * Copyright IBM Corp. 2022
-> + *
-> + * Authors:
-> + *  Nico Boehr <nrb@linux.ibm.com>
-> + */
-> +
-> +#include <libcflat.h>
-> +#include <asm/facility.h>
-> +#include <asm/page.h>
-> +#include <asm/mem.h>
-> +#include <asm/interrupt.h>
-> +#include <hardware.h>
-> +
-> +#define NUM_PAGES 128
-> +static uint8_t pagebuf[NUM_PAGES][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
-> +
-> +static void test_migration(void)
-> +{
-> +	int i, key_to_set;
-> +	uint8_t *page;
-> +	union skey expected_key, actual_key;
-> +
-> +	for (i = 0; i < NUM_PAGES; i++) {
-> +		/*
-> +		 * Storage keys are 7 bit, lowest bit is always returned as zero
-> +		 * by iske
-> +		 */
-> +		key_to_set = i * 2;
-> +		set_storage_key(pagebuf[i], key_to_set, 1);
-> +	}
-> +
-> +	puts("Please migrate me, then press return\n");
-> +	(void)getchar();
-> +
-> +	for (i = 0; i < NUM_PAGES; i++) {
-> +		report_prefix_pushf("page %d", i);
-> +
-> +		page = &pagebuf[i][0];
-> +		actual_key.val = get_storage_key(page);
+>  net/smc/smc_ib.c |  1 +
+>  net/smc/smc_tx.c | 17 ++++++++++++-----
+>  net/smc/smc_wr.c |  5 ++++-
+>  3 files changed, 17 insertions(+), 6 deletions(-)
+> 
 
-The page variable is kinda useless now, I'd just do get_storage_key(pagebuf[0]).
-> +		expected_key.val = i * 2;
-> +
-> +		/* ignore reference bit */
+I like that change, thank you!
 
-Why? Are there any implicit references I'm missing?
-> +		actual_key.str.rf = 0;
-> +		expected_key.str.rf = 0;
-> +
-> +		report(actual_key.val == expected_key.val, "expected_key=0x%x actual_key=0x%x", expected_key.val, actual_key.val);
-> +
-> +		report_prefix_pop();
-> +	}
-> +}
-> +
-> +int main(void)
-> +{
-> +	report_prefix_push("migration-skey");
-> +	if (test_facility(169)) {
-> +		report_skip("storage key removal facility is active");
-> +
-> +		/*
-> +		 * If we just exit and don't ask migrate_cmd to migrate us, it
-> +		 * will just hang forever. Hence, also ask for migration when we
-> +		 * skip this test altogether.
-> +		 */
-> +		puts("Please migrate me, then press return\n");
-> +		(void)getchar();
-> +
-> +		goto done;
-> +	}
-> +
-> +	test_migration();
-> +
-> +done:
-> +	report_prefix_pop();
-> +	return report_summary();
-> +}
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index b456b2881448..1e851d8e3dd8 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -176,3 +176,7 @@ extra_params = -cpu qemu,gs=off,vx=off
->  file = migration.elf
->  groups = migration
->  smp = 2
-> +
-> +[migration-skey]
-> +file = migration-skey.elf
-> +groups = migration
+For the series:
+
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
 
