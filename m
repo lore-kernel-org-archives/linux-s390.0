@@ -2,145 +2,175 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33D9EC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 10:44:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 128D5C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 16 May 2022 10:49:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242924AbiEPKoT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 May 2022 06:44:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50660 "EHLO
+        id S237790AbiEPKtd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 May 2022 06:49:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242854AbiEPKnc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 06:43:32 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C99E248EC;
-        Mon, 16 May 2022 03:43:02 -0700 (PDT)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24GAV3F7011810;
-        Mon, 16 May 2022 10:42:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=ncD54g7wkJHCvpdHQtNwcfU/ssypel9ss6Wqx7eG4kA=;
- b=rDqgfOIb6ptjKyB9fwPyp+U8anFbeSilSlfmfcnzqDeOiHNCF8MXO+fjZQvxUEzfFQ/T
- J2S0Agj3xj1LlU8tn5XqjQLranNVCU9kDVGzDJIzUh8dOuNc5AhttlkAVYPz7TA8jni4
- 3K+NJqzEh1gfk8eVz2h+KxXeSs0T6LwAhGyAfHuE88eQouPI85JsaW5WSnmDp3kTn9zj
- MAdUC89LG26MrlZlbMNhjWqc5UIHK6/pxMmFPT1SIMQ0eumdnTPvDEElLfPQqgJlqNxc
- 3mKtyXRanqBSnY061mdnxMnHPTXohu8Xj9LgiSIBDt9FxR/myClqwbd1Z0RxnRmKU280 nA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3mx98576-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 10:42:59 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24GAWIQY015146;
-        Mon, 16 May 2022 10:42:58 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g3mx9856n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 10:42:58 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24GAcNvP011722;
-        Mon, 16 May 2022 10:42:56 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3g2428sx3t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 May 2022 10:42:56 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24GAgLMi30802186
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 16 May 2022 10:42:21 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F02154C040;
-        Mon, 16 May 2022 10:42:51 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 17E2F4C04A;
-        Mon, 16 May 2022 10:42:51 +0000 (GMT)
-Received: from [9.145.43.21] (unknown [9.145.43.21])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 16 May 2022 10:42:51 +0000 (GMT)
-Message-ID: <5bdad86b-3ab5-a1c2-7dcd-8c45c7aa4555@linux.vnet.ibm.com>
-Date:   Mon, 16 May 2022 12:42:50 +0200
+        with ESMTP id S240544AbiEPKt2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 May 2022 06:49:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 35F98275D3
+        for <linux-s390@vger.kernel.org>; Mon, 16 May 2022 03:49:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652698166;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dF8ol8RqSgN1uVydLkEkOe/lSAk2b58yhc5X/QD6YNk=;
+        b=hX6tyXit4myfj8W9oQT4oW1ytp8rpWTD4W3dayM/lP4ap0snB2RPe6psStDE8DFugiOOIc
+        lkFYOKwxw3Ckt1udo745URd9TmsvNx/AzZCudbG4NbdjvpaaEeSeHDcNqd0ltUNEbZalR+
+        v36CNjEjzp/useFvF0qkXDQBwki3N3k=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-219-kYTlOuwdPuedNAVt7b_wsA-1; Mon, 16 May 2022 06:49:23 -0400
+X-MC-Unique: kYTlOuwdPuedNAVt7b_wsA-1
+Received: by mail-wr1-f69.google.com with SMTP id w20-20020adfd1b4000000b0020cbb4347e6so3818447wrc.17
+        for <linux-s390@vger.kernel.org>; Mon, 16 May 2022 03:49:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=dF8ol8RqSgN1uVydLkEkOe/lSAk2b58yhc5X/QD6YNk=;
+        b=G5Q9xPNT06A2V64YQs5kuS6VX4/F91L9rRINCOWYfrUOAc9CHLKieZUefq9UQzyalu
+         BrpZQlJz+x58EGX+jYgRsgIrqZ2dAn1mKYp7uwKRyLzYx1lfyyuZgiiBnAHEioWTiHwu
+         bx+UrGEpLjEOt4V9GGNm4g2TFgvVak4mc0fzWWkAv84OU6cGPcDYWKEGOKrGyi4wtPYL
+         EQa+tzqQ43+M+FD+1oRpOxBt9J86rlvEU4H+chQMKf9w7eDkBLnB2qHmJpGnhVJHcsS+
+         iaav/9mrxkOFA6wDlV2ZgWcTOHdmwqcGyM5rViGLb1T0pS9J8/zGYCe/TASIGc54Xi1O
+         ybkA==
+X-Gm-Message-State: AOAM532Cwt3cRZmXR9ULlV1tSzvvEzxD2cSIf/rEUGDoD9+hjCJEBh+i
+        kjIluzIcxNX9XhBYiYBaT3M2755DwaOzxaEvvzBNr25ABQZg0Vl3FWA19GO9LYCuWFbe2Aibzwn
+        PUdII/SZY7T4kBV+FVA3guA==
+X-Received: by 2002:a05:600c:354a:b0:394:8fa4:73bc with SMTP id i10-20020a05600c354a00b003948fa473bcmr26681011wmq.37.1652698162119;
+        Mon, 16 May 2022 03:49:22 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzKYhMbUOraZh9NG5nsuei6O6zPQnqkIRtO+I3S8ethr4MqOt5HH7CDzDs68WVWWGcgd3ZJ3A==
+X-Received: by 2002:a05:600c:354a:b0:394:8fa4:73bc with SMTP id i10-20020a05600c354a00b003948fa473bcmr26680989wmq.37.1652698161931;
+        Mon, 16 May 2022 03:49:21 -0700 (PDT)
+Received: from [192.168.0.2] (ip-109-43-178-142.web.vodafone.de. [109.43.178.142])
+        by smtp.gmail.com with ESMTPSA id r7-20020adfab47000000b0020d0a57af5esm2122093wrc.79.2022.05.16.03.49.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 16 May 2022 03:49:21 -0700 (PDT)
+Message-ID: <68a5e0c8-2dd9-a8a2-0333-fef95b2e2dfc@redhat.com>
+Date:   Mon, 16 May 2022 12:49:19 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH 4/8] s390/entry: workaround llvm's IAS limitations
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v7 14/22] KVM: s390: mechanism to enable guest zPCI
+ Interpretation
 Content-Language: en-US
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Ulrich Weigand <ulrich.weigand@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20220511120532.2228616-1-hca@linux.ibm.com>
- <20220511120532.2228616-5-hca@linux.ibm.com>
- <YnvynSZfF/8I8vmT@dev-arch.thelio-3990X> <Yn1CyTcrZk1Kgvoq@osiris>
- <YoIUX864ULCwu4pz@tuxmaker.boeblingen.de.ibm.com> <YoIlQaWNy1wu39ak@osiris>
-From:   Jonas Paulsson <paulsson@linux.vnet.ibm.com>
-In-Reply-To: <YoIlQaWNy1wu39ak@osiris>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, pasic@linux.ibm.com,
+        pbonzini@redhat.com, corbet@lwn.net, jgg@nvidia.com,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220513191509.272897-1-mjrosato@linux.ibm.com>
+ <20220513191509.272897-15-mjrosato@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <20220513191509.272897-15-mjrosato@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kZqrCQfQy1VPDZ6Jutw2xP3BAwUz6_mQ
-X-Proofpoint-ORIG-GUID: fk-BFvK2Jv0N16rbrVKGs8mJnqN5C1YU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-16_06,2022-05-16_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0 spamscore=0
- lowpriorityscore=0 clxscore=1011 phishscore=0 mlxlogscore=999
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205160062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-I will try to get a patch for clang ready soon... /Jonas
+On 13/05/2022 21.15, Matthew Rosato wrote:
+> The guest must have access to certain facilities in order to allow
+> interpretive execution of zPCI instructions and adapter event
+> notifications.  However, there are some cases where a guest might
+> disable interpretation -- provide a mechanism via which we can defer
+> enabling the associated zPCI interpretation facilities until the guest
+> indicates it wishes to use them.
+> 
+> Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/kvm_host.h |  4 ++++
+>   arch/s390/kvm/kvm-s390.c         | 38 ++++++++++++++++++++++++++++++++
+>   arch/s390/kvm/kvm-s390.h         | 10 +++++++++
+>   3 files changed, 52 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index c1518a505060..8e381603b6a7 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -254,7 +254,10 @@ struct kvm_s390_sie_block {
+>   #define ECB2_IEP	0x20
+>   #define ECB2_PFMFI	0x08
+>   #define ECB2_ESCA	0x04
+> +#define ECB2_ZPCI_LSI	0x02
+>   	__u8    ecb2;                   /* 0x0062 */
+> +#define ECB3_AISI	0x20
+> +#define ECB3_AISII	0x10
+>   #define ECB3_DEA 0x08
+>   #define ECB3_AES 0x04
+>   #define ECB3_RI  0x01
+> @@ -940,6 +943,7 @@ struct kvm_arch{
+>   	int use_cmma;
+>   	int use_pfmfi;
+>   	int use_skf;
+> +	int use_zpci_interp;
+>   	int user_cpu_state_ctrl;
+>   	int user_sigp;
+>   	int user_stsi;
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 5a0fbfd19c4a..0797661732cc 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1031,6 +1031,42 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+>   	return 0;
+>   }
+>   
+> +static void kvm_s390_vcpu_pci_setup(struct kvm_vcpu *vcpu)
+> +{
+> +	/* Only set the ECB bits after guest requests zPCI interpretation */
+> +	if (!vcpu->kvm->arch.use_zpci_interp)
+> +		return;
+> +
+> +	vcpu->arch.sie_block->ecb2 |= ECB2_ZPCI_LSI;
+> +	vcpu->arch.sie_block->ecb3 |= ECB3_AISII + ECB3_AISI;
+> +}
+> +
+> +void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm)
+> +{
+> +	struct kvm_vcpu *vcpu;
+> +	unsigned long i;
+> +
+> +	lockdep_assert_held(&kvm->lock);
+> +
+> +	/*
+> +	 * If host is configured for PCI and the necessary facilities are
+> +	 * available, turn on interpretation for the life of this guest
+> +	 */
 
-On 2022-05-16 12:19 em, Heiko Carstens wrote:
-> On Mon, May 16, 2022 at 11:07:43AM +0200, Alexander Gordeev wrote:
->>> diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
->>> index a6b45eaa3450..f2f30bfba1e9 100644
->>> --- a/arch/s390/kernel/entry.S
->>> +++ b/arch/s390/kernel/entry.S
->>> @@ -172,9 +172,19 @@ _LPP_OFFSET	= __LC_LPP
->>>   	lgr	%r14,\reg
->>>   	larl	%r13,\start
->>>   	slgr	%r14,%r13
->>> -	lghi	%r13,\end - \start
->>> -	clgr	%r14,%r13
->>> +#ifdef CONFIG_AS_IS_LLVM
->>> +	clgfrl	%r14,.Lrange_size\@
->>> +#else
->>> +	clgfi	%r14,\end - \start
->>> +#endif
->>>   	jhe	\outside_label
->>> +#ifdef CONFIG_CC_IS_CLANG
->>> +	.section .rodata, "a"
->>> +	.align 4
->>> +.Lrange_size\@:
->>> +	.long	\end - \start
->> Isn't the machine check handler refers to this memory before checking
->> unrecoverable storage errors (with CHKSTG macro) as result of this change?
-> Yes, indeed. However implementing this without another register will
-> be quite of a challenge. So what I would prefer in any case: just
-> assume that this minimal set of memory accesses work. Actually I'd
-> seriously like to go a bit further, and even move the checks for
-> storage errors back to C for two reasons:
->
-> - this would make the machine check handler entry code easier again
-> - it would also allow to enter the machine check handler with DAT on
->
-> After all we rely anyway on the fact that at least the local lowcore +
-> the page(s) which contain text are still accessible. Assuming that a
-> couple of page tables also work won't make this much worse, but the
-> code much easier.
->
-> So I'd suggest: leave this code as is, and at some later point move
-> "rework" the early machine check handler code.
->
-> What do you think?
+I'd suggest to move the comment after the if-statement - it seems to fit 
+better there.
+
+> +	if (!kvm_s390_pci_interp_allowed())
+> +		return;
+> +
+> +	kvm->arch.use_zpci_interp = 1;
+> +
+> +	kvm_s390_vcpu_block_all(kvm);
+> +
+> +	kvm_for_each_vcpu(i, vcpu, kvm) {
+> +		kvm_s390_vcpu_pci_setup(vcpu);
+> +		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
+> +	}
+> +
+> +	kvm_s390_vcpu_unblock_all(kvm);
+> +}
+
+  Thomas
+
