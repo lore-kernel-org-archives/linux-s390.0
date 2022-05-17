@@ -2,201 +2,299 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2672DC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 13:28:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14829C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 13:39:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347707AbiEQN2i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 May 2022 09:28:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42532 "EHLO
+        id S241961AbiEQNjX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 May 2022 09:39:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346419AbiEQN22 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 09:28:28 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0519434B4;
-        Tue, 17 May 2022 06:28:24 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 4DBA821CC7;
-        Tue, 17 May 2022 13:28:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1652794103; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=m8eH28qbE+2Xy0DKW3X9feLJxxFiFeYxt7IWdkwBacU=;
-        b=D3nbGBAQ9bCKnB1WwjJRY0SPMWZeGE7s6okektsDFoMjSCg4MWkDlGu0CaIrnv72L2dSjB
-        TH4hbCd7WNPBQBo5APMhOgzqiXxMfJKdv72h+T8GhDipQ36bscz5ULSJq0aGA9QxAaz7ZE
-        2DHOtfp4NZ3vqG8gLdmAnQza/SAFmg4=
-Received: from suse.cz (unknown [10.100.201.202])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id DE9622C141;
-        Tue, 17 May 2022 13:28:20 +0000 (UTC)
-Date:   Tue, 17 May 2022 15:28:20 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     Evan Green <evgreen@chromium.org>
-Cc:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        David Gow <davidgow@google.com>,
-        Julius Werner <jwerner@chromium.org>,
-        Scott Branden <scott.branden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Sebastian Reichel <sre@kernel.org>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>, bhe@redhat.com,
-        kexec@lists.infradead.org, LKML <linux-kernel@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
-        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
-        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-        Jonathan Corbet <corbet@lwn.net>, d.hatayama@jp.fujitsu.com,
-        dave.hansen@linux.intel.com, dyoung@redhat.com,
-        feng.tang@intel.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de,
-        Kees Cook <keescook@chromium.org>, luto@kernel.org,
-        mhiramat@kernel.org, mingo@redhat.com, paulmck@kernel.org,
-        peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, Alan Stern <stern@rowland.harvard.edu>,
-        Thomas Gleixner <tglx@linutronix.de>, vgoyal@redhat.com,
-        vkuznets@redhat.com, Will Deacon <will@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dexuan Cui <decui@microsoft.com>,
-        Doug Berger <opendmb@gmail.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Justin Chen <justinpopo6@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Markus Mayer <mmayer@broadcom.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mihai Carabas <mihai.carabas@oracle.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        zhenwei pi <pizhenwei@bytedance.com>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: Re: [PATCH 19/30] panic: Add the panic hypervisor notifier list
-Message-ID: <YoOi9PFK/JnNwH+D@alley>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-20-gpiccoli@igalia.com>
- <YoJZVZl/MH0KiE/J@alley>
- <ad082ce7-db50-13bb-3dbb-9b595dfa78be@igalia.com>
- <CAE=gft7ds+dHfEkRz8rnSH1EbTpGTpKbi5Wxj9DW0Jr5mX_j4w@mail.gmail.com>
+        with ESMTP id S240590AbiEQNjW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 09:39:22 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C43D4CD68;
+        Tue, 17 May 2022 06:39:21 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24HDCfnC009438;
+        Tue, 17 May 2022 13:39:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=380nLtz/2FKaZAkJ9R6yKII2gnhuoG3AUjP83YB/ihg=;
+ b=EbiknmA/nX9lpXEISZwsgl5Y9nXkGXWqlx3f93pgYdVpLxclNeJa+jc+S8SKNauJBv+v
+ 4fGH0BcKuPzGcUGewzW8gTCN8tbMMx/o4L5GPrc0YAeIyUEDK3i30N1NKYcFV1DqrXgJ
+ W5kXY5KzycZh7oz+uTq05rYCK4WVMF+R+CgHxO7S3utKUbGFzZhqvMhoukoj+z6iYnI+
+ nUOigYrdZJvj/iF2TXUcYMRQamHkGSb1c1nTJQpHTQrlGAZ760jXXixbiHMtRQzo1kHp
+ 7ATnz++3sv7RBvF+7hbbpxc0p/YWNkAjfnfy8PVfERiTxZZbWT2GRE5z3pBD/Ca83S7Y zQ== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4cd18p96-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 13:39:21 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24HDWsxQ005114;
+        Tue, 17 May 2022 13:39:18 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3g2428uepv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 13:39:18 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24HDdFoi55247294
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 17 May 2022 13:39:15 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8321DA404D;
+        Tue, 17 May 2022 13:39:15 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 508C3A4051;
+        Tue, 17 May 2022 13:39:15 +0000 (GMT)
+Received: from [9.145.157.61] (unknown [9.145.157.61])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 17 May 2022 13:39:15 +0000 (GMT)
+Message-ID: <f8132cf7-9249-75b8-059d-fa1031973beb@linux.ibm.com>
+Date:   Tue, 17 May 2022 15:39:14 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAE=gft7ds+dHfEkRz8rnSH1EbTpGTpKbi5Wxj9DW0Jr5mX_j4w@mail.gmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@linux.ibm.com
+References: <20220516090817.1110090-1-frankja@linux.ibm.com>
+ <20220516090817.1110090-7-frankja@linux.ibm.com>
+ <20220517125907.685ffe44@p-imbrenda>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v5 06/10] kvm: s390: Add configuration dump functionality
+In-Reply-To: <20220517125907.685ffe44@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: T_dguJIhtsGATM8UmLIe_lCd3ocEmkOW
+X-Proofpoint-GUID: T_dguJIhtsGATM8UmLIe_lCd3ocEmkOW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-17_03,2022-05-17_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 clxscore=1015 malwarescore=0 adultscore=0 mlxlogscore=999
+ spamscore=0 mlxscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205170083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon 2022-05-16 09:02:10, Evan Green wrote:
-> On Mon, May 16, 2022 at 8:07 AM Guilherme G. Piccoli
-> <gpiccoli@igalia.com> wrote:
-> >
-> > Thanks for the review!
-> >
-> > I agree with the blinking stuff, I can rework and add all LED/blinking
-> > stuff into the loop list, it does make sense. I'll comment a bit in the
-> > others below...
-> >
-> > On 16/05/2022 11:01, Petr Mladek wrote:
-> > > [...]
-> > >> --- a/arch/mips/sgi-ip22/ip22-reset.c
-> > >> +++ b/arch/mips/sgi-ip22/ip22-reset.c
-> > >> @@ -195,7 +195,7 @@ static int __init reboot_setup(void)
-> > >>      }
-> > >>
-> > >>      timer_setup(&blink_timer, blink_timeout, 0);
-> > >> -    atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
-> > >> +    atomic_notifier_chain_register(&panic_hypervisor_list, &panic_block);
-> > >
-> > > This notifier enables blinking. It is not much safe. It calls
-> > > mod_timer() that takes a lock internally.
-> > >
-> > > This kind of functionality should go into the last list called
-> > > before panic() enters the infinite loop. IMHO, all the blinking
-> > > stuff should go there.
-> > > [...]
-> > >> --- a/arch/mips/sgi-ip32/ip32-reset.c
-> > >> +++ b/arch/mips/sgi-ip32/ip32-reset.c
-> > >> @@ -145,7 +144,7 @@ static __init int ip32_reboot_setup(void)
-> > >>      pm_power_off = ip32_machine_halt;
-> > >>
-> > >>      timer_setup(&blink_timer, blink_timeout, 0);
-> > >> -    atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
-> > >> +    atomic_notifier_chain_register(&panic_hypervisor_list, &panic_block);
-> > >
-> > > Same here. Should be done only before the "loop".
-> > > [...]
-> >
-> > Ack.
-> >
-> >
-> > >> --- a/drivers/firmware/google/gsmi.c
-> > >> +++ b/drivers/firmware/google/gsmi.c
-> > >> @@ -1034,7 +1034,7 @@ static __init int gsmi_init(void)
-> > >>
-> > >>      register_reboot_notifier(&gsmi_reboot_notifier);
-> > >>      register_die_notifier(&gsmi_die_notifier);
-> > >> -    atomic_notifier_chain_register(&panic_notifier_list,
-> > >> +    atomic_notifier_chain_register(&panic_hypervisor_list,
-> > >>                                     &gsmi_panic_notifier);
-> > >
-> > > I am not sure about this one. It looks like some logging or
-> > > pre_reboot stuff.
-> > >
-> >
-> > Disagree here. I'm looping Google maintainers, so they can comment.
-> > (CCed Evan, David, Julius)
-> >
-> > This notifier is clearly a hypervisor notification mechanism. I've fixed
-> > a locking stuff there (in previous patch), I feel it's low-risk but even
-> > if it's mid-risk, the class of such callback remains a perfect fit with
-> > the hypervisor list IMHO.
->
-> This logs a panic to our "eventlog", a tiny logging area in SPI flash
-> for critical and power-related events. In some cases this ends up
-> being the only clue we get in a Chromebook feedback report that a
-> panic occurred, so from my perspective moving it to the front of the
-> line seems like a good idea.
+On 5/17/22 12:59, Claudio Imbrenda wrote:
+> On Mon, 16 May 2022 09:08:13 +0000
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> Sometimes dumping inside of a VM fails, is unavailable or doesn't
+>> yield the required data. For these occasions we dump the VM from the
+>> outside, writing memory and cpu data to a file.
+>>
+>> Up to now PV guests only supported dumping from the inside of the
+>> guest through dumpers like KDUMP. A PV guest can be dumped from the
+>> hypervisor but the data will be stale and / or encrypted.
+>>
+>> To get the actual state of the PV VM we need the help of the
+>> Ultravisor who safeguards the VM state. New UV calls have been added
+>> to initialize the dump, dump storage state data, dump cpu data and
+>> complete the dump process. We expose these calls in this patch via a
+>> new UV ioctl command.
+>>
+>> The sensitive parts of the dump data are encrypted, the dump key is
+>> derived from the Customer Communication Key (CCK). This ensures that
+>> only the owner of the VM who has the CCK can decrypt the dump data.
+>>
+>> The memory is dumped / read via a normal export call and a re-import
+>> after the dump initialization is not needed (no re-encryption with a
+>> dump key).
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-IMHO, this would really better fit into the pre-reboot notifier list:
+The cut code will be fixed according to your requests.
 
-   + the callback stores the log so it is similar to kmsg_dump()
-     or console_flush_on_panic()
+[...]
+>> +/*
+>> + * kvm_s390_pv_dump_stor_state
+>> + *
+>> + * @kvm: pointer to the guest's KVM struct
+>> + * @buff_user: Userspace pointer where we will write the results to
+>> + * @gaddr: Starting absolute guest address for which the storage state
+>> + *         is requested. This value will be updated with the last
+>> + *         address for which data was written when returning to
+>> + *         userspace.
+>> + * @buff_user_len: Length of the buff_user buffer
+>> + * @rc: Pointer to where the uvcb return code is stored
+>> + * @rrc: Pointer to where the uvcb return reason code is stored
+>> + *
+> 
+> please add:
+> 	Context: kvm->lock needs to be held
 
-   + the callback should be proceed after "info" notifiers
-     that might add some other useful information.
+Sure
 
-Honestly, I am not sure what exactly hypervisor callbacks do. But I
-think that they do not try to extract the kernel log because they
-would need to handle the internal format.
+> 
+> also explain that part of the user buffer might be written to even in
+> case of failure (this also needs to go in the documentation)
 
-Best Regards,
-Petr
+Ok
+
+> 
+>> + * Return:
+>> + *  0 on success
+> 
+> rc and rrc will also be set in case of success
+
+But that's different from the return code of this function and would 
+belong to the function description above, no?
+
+> 
+>> + *  -ENOMEM if allocating the cache fails
+>> + *  -EINVAL if gaddr is not aligned to 1MB
+>> + *  -EINVAL if buff_user_len is not aligned to uv_info.conf_dump_storage_state_len
+>> + *  -EINVAL if the UV call fails, rc and rrc will be set in this case
+> 
+> have you considered a different code for UVC failure?
+> so the caller can know that rc and rrc are meaningful
+> 
+> or just explain that rc and rrc will always be set; if the UVC is not
+> performed, rc and rrc will be 0
+
+If the UVC is not performed the rcs will not be *changed*, so it's 
+advisable to set them to 0 to recognize a change.
+
+
+Also:
+While I generally like commenting as much as possible, this is starting 
+to get out of hand, the comment header is now taking up a lot of space. 
+I'll put the rc/rrc comment into the api documentation and I'm 
+considering putting the partial write comment into there too.
+
+> 
+>> + *  -EFAULT if copying the result to buff_user failed
+>> + */
+>> +int kvm_s390_pv_dump_stor_state(struct kvm *kvm, void __user *buff_user,
+>> +				u64 *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc)
+>> +{
+>> +	struct uv_cb_dump_stor_state uvcb = {
+>> +		.header.cmd = UVC_CMD_DUMP_CONF_STOR_STATE,
+>> +		.header.len = sizeof(uvcb),
+>> +		.config_handle = kvm->arch.pv.handle,
+>> +		.gaddr = *gaddr,
+>> +		.dump_area_origin = 0,
+>> +	};
+>> +	size_t buff_kvm_size;
+>> +	size_t size_done = 0;
+>> +	u8 *buff_kvm = NULL;
+>> +	int cc, ret;
+>> +
+>> +	ret = -EINVAL;
+>> +	/* UV call processes 1MB guest storage chunks at a time */
+>> +	if (!IS_ALIGNED(*gaddr, HPAGE_SIZE))
+>> +		goto out;
+>> +
+>> +	/*
+>> +	 * We provide the storage state for 1MB chunks of guest
+>> +	 * storage. The buffer will need to be aligned to
+>> +	 * conf_dump_storage_state_len so we don't end on a partial
+>> +	 * chunk.
+>> +	 */
+>> +	if (!buff_user_len ||
+>> +	    !IS_ALIGNED(buff_user_len, uv_info.conf_dump_storage_state_len))
+>> +		goto out;
+>> +
+>> +	/*
+>> +	 * Allocate a buffer from which we will later copy to the user
+>> +	 * process. We don't want userspace to dictate our buffer size
+>> +	 * so we limit it to DUMP_BUFF_LEN.
+>> +	 */
+>> +	ret = -ENOMEM;
+>> +	buff_kvm_size = min_t(u64, buff_user_len, DUMP_BUFF_LEN);
+>> +	buff_kvm = vzalloc(buff_kvm_size);
+>> +	if (!buff_kvm)
+>> +		goto out;
+>> +
+>> +	ret = 0;
+>> +	uvcb.dump_area_origin = (u64)buff_kvm;
+>> +	/* We will loop until the user buffer is filled or an error occurs */
+>> +	do {
+>> +		/* Get 1MB worth of guest storage state data */
+>> +		cc = uv_call_sched(0, (u64)&uvcb);
+>> +
+>> +		/* All or nothing */
+>> +		if (cc) {
+>> +			ret = -EINVAL;
+>> +			break;
+>> +		}
+>> +
+>> +		size_done += uv_info.conf_dump_storage_state_len;
+> 
+> maybe save this in a local const variable with a shorter name? would be
+> more readable? const u64 dump_len = uv_info.conf_dump_storage_state_len;
+> 
+>> +		uvcb.dump_area_origin += uv_info.conf_dump_storage_state_len;
+>> +		buff_user_len -= uv_info.conf_dump_storage_state_len;
+>> +		uvcb.gaddr += HPAGE_SIZE;
+>> +
+>> +		/* KVM Buffer full, time to copy to the process */
+>> +		if (!buff_user_len || size_done == DUMP_BUFF_LEN) {
+>> +			if (copy_to_user(buff_user, buff_kvm, size_done)) {
+>> +				ret = -EFAULT;
+>> +				break;
+>> +			}
+>> +
+>> +			buff_user += size_done;
+>> +			size_done = 0;
+>> +			uvcb.dump_area_origin = (u64)buff_kvm;
+>> +		}
+>> +	} while (buff_user_len);
+>> +
+>> +	/* Report back where we ended dumping */
+>> +	*gaddr = uvcb.gaddr;
+>> +
+>> +	/* Lets only log errors, we don't want to spam */
+>> +out:
+>> +	if (ret)
+>> +		KVM_UV_EVENT(kvm, 3,
+>> +			     "PROTVIRT DUMP STORAGE STATE: addr %llx ret %d, uvcb rc %x rrc %x",
+>> +			     uvcb.gaddr, ret, uvcb.header.rc, uvcb.header.rrc);
+>> +	*rc = uvcb.header.rc;
+>> +	*rrc = uvcb.header.rrc;
+>> +	vfree(buff_kvm);
+>> +
+>> +	return ret;
+>> +}
+>> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+>> index bb2f91bc2305..1c60c2d314ba 100644
+>> --- a/include/uapi/linux/kvm.h
+>> +++ b/include/uapi/linux/kvm.h
+>> @@ -1653,6 +1653,20 @@ struct kvm_s390_pv_unp {
+>>   	__u64 tweak;
+>>   };
+>>   
+>> +enum pv_cmd_dmp_id {
+>> +	KVM_PV_DUMP_INIT,
+>> +	KVM_PV_DUMP_CONFIG_STOR_STATE,
+>> +	KVM_PV_DUMP_COMPLETE,
+>> +};
+>> +
+>> +struct kvm_s390_pv_dmp {
+>> +	__u64 subcmd;
+>> +	__u64 buff_addr;
+>> +	__u64 buff_len;
+>> +	__u64 gaddr;		/* For dump storage state */
+>> +	__u64 reserved[4];
+>> +};
+>> +
+>>   enum pv_cmd_info_id {
+>>   	KVM_PV_INFO_VM,
+>>   	KVM_PV_INFO_DUMP,
+>> @@ -1696,6 +1710,7 @@ enum pv_cmd_id {
+>>   	KVM_PV_PREP_RESET,
+>>   	KVM_PV_UNSHARE_ALL,
+>>   	KVM_PV_INFO,
+>> +	KVM_PV_DUMP,
+>>   };
+>>   
+>>   struct kvm_pv_cmd {
+> 
+
