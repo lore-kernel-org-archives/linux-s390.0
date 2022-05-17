@@ -2,177 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 415CEC4167B
-	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 17:03:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FD33C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 18:01:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351306AbiEQRDF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 May 2022 13:03:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48112 "EHLO
+        id S1351719AbiEQSBc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 May 2022 14:01:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351286AbiEQRDB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 13:03:01 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B914339D;
-        Tue, 17 May 2022 10:03:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652806980; x=1684342980;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=wPndYlW5xEVdpcc0zA72NXu9ypQzfs4FPZzk6VJMkkY=;
-  b=E6G3ldzPD5ig+NOHm3uUhmmKyCOpiFukwEEZN44mGoqTeXEdbdfw+54i
-   MfU5oqDXSCbrrrvCbE1PbO6tCvc0/ujp0eInlhXAJzbqUmnYl8c8cl0xx
-   nvBxMtW7ZG+ZbqValn2tSdtB8S6ufEPhiga+FXYRM9g2uZux15Xku7Fjv
-   n4U+zmQ9y2VuCsaNZGr7bmg1A0a9kBKt0V3Jq9+oyJ5EqNm4VMbeWzTau
-   pEARQDCByUAmm5UjlOTVRBz39ZEj3GqFKiWAqG5uoXzQkn6sCqNUtExse
-   WAc8YZw5fu16sBtoiouqaY+RbPDv1S8BPINTNA1dHWZ6WQ1a9fkNK+Zta
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10350"; a="258814403"
-X-IronPort-AV: E=Sophos;i="5.91,233,1647327600"; 
-   d="scan'208";a="258814403"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2022 10:02:35 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,233,1647327600"; 
-   d="scan'208";a="700144313"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by orsmga004.jf.intel.com with ESMTP; 17 May 2022 10:02:32 -0700
-Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27; Tue, 17 May 2022 10:02:32 -0700
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27; Tue, 17 May 2022 10:02:31 -0700
-Received: from fmsmsx610.amr.corp.intel.com ([10.18.126.90]) by
- fmsmsx610.amr.corp.intel.com ([10.18.126.90]) with mapi id 15.01.2308.027;
- Tue, 17 May 2022 10:02:31 -0700
-From:   "Luck, Tony" <tony.luck@intel.com>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Dinh Nguyen <dinguyen@kernel.org>
-CC:     "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "bhe@redhat.com" <bhe@redhat.com>,
-        "kexec@lists.infradead.org" <kexec@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "bcm-kernel-feedback-list@broadcom.com" 
-        <bcm-kernel-feedback-list@broadcom.com>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "openipmi-developer@lists.sourceforge.net" 
-        <openipmi-developer@lists.sourceforge.net>,
-        "rcu@vger.kernel.org" <rcu@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "kernel-dev@igalia.com" <kernel-dev@igalia.com>,
-        "kernel@gpiccoli.net" <kernel@gpiccoli.net>,
-        "halves@canonical.com" <halves@canonical.com>,
-        "fabiomirmar@gmail.com" <fabiomirmar@gmail.com>,
-        "alejandro.j.jimenez@oracle.com" <alejandro.j.jimenez@oracle.com>,
-        "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        "arnd@arndb.de" <arnd@arndb.de>, "bp@alien8.de" <bp@alien8.de>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "d.hatayama@jp.fujitsu.com" <d.hatayama@jp.fujitsu.com>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "dyoung@redhat.com" <dyoung@redhat.com>,
-        "Tang, Feng" <feng.tang@intel.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "mikelley@microsoft.com" <mikelley@microsoft.com>,
-        "hidehiro.kawai.ez@hitachi.com" <hidehiro.kawai.ez@hitachi.com>,
-        "jgross@suse.com" <jgross@suse.com>,
-        "john.ogness@linutronix.de" <john.ogness@linutronix.de>,
-        "keescook@chromium.org" <keescook@chromium.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "mhiramat@kernel.org" <mhiramat@kernel.org>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "rostedt@goodmis.org" <rostedt@goodmis.org>,
-        "senozhatsky@chromium.org" <senozhatsky@chromium.org>,
-        "stern@rowland.harvard.edu" <stern@rowland.harvard.edu>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "vgoyal@redhat.com" <vgoyal@redhat.com>,
-        "vkuznets@redhat.com" <vkuznets@redhat.com>,
-        "will@kernel.org" <will@kernel.org>, Alex Elder <elder@kernel.org>,
+        with ESMTP id S1351727AbiEQSBZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 14:01:25 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342703FD82;
+        Tue, 17 May 2022 11:01:24 -0700 (PDT)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24HHfsC1018713;
+        Tue, 17 May 2022 18:01:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=tmdhMwxKEVX3PeaTU8UyOIcfU9EAXEHP60T3yrcx/ms=;
+ b=iQ/tTXc8K7hYdk29JTAn6AdDxWpo5BFoYk8bIOK/f0jA9MdT51YH1G9DdjyU0j6bmfiX
+ LsWtTYzORxsn/6W8zhouy+/+2xd37D7SNeEh73frFJlNvDX+DWnEd0CyZe4VbxbfoRuR
+ xysYaaVh4VdyB2BuWD7n8Q+1LV8D0gl9PdQJGbI52gZjcQ5dCFk9DyIvwi1wUwISLDnp
+ 84FlcO0Oli/sjkAPOvnUwGvBt5UdlxfqONVz7N+0pFE35G5VRM4o/SEDeCagBoX5u7Lc
+ lfP97ccKggdUxaOiaBs/QVIeADIkzvQZCuwoPgqN8wMsQSmRbEREnr2yFUDVyAkR73PT Qg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4gb28cw3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 18:01:17 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24HHl8nQ017286;
+        Tue, 17 May 2022 18:01:17 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4gb28cuy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 18:01:17 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24HHgddO001394;
+        Tue, 17 May 2022 18:01:14 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3g2429ckj7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 18:01:14 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24HI1B1w48824672
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 17 May 2022 18:01:11 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 30B404C046;
+        Tue, 17 May 2022 18:01:11 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B368B4C044;
+        Tue, 17 May 2022 18:01:10 +0000 (GMT)
+Received: from osiris (unknown [9.145.64.16])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 17 May 2022 18:01:10 +0000 (GMT)
+Date:   Tue, 17 May 2022 20:01:09 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Jann Horn <jannh@google.com>,
+        Harald Freudenberger <freude@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Chris Zankel <chris@zankel.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-crypto@vger.kernel.org,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "Corey Minyard" <minyard@acm.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        James Morse <james.morse@arm.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        "Matt Turner" <mattst88@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        "Richard Weinberger" <richard@nod.at>,
-        Robert Richter <rric@kernel.org>,
-        "Stefano Stabellini" <sstabellini@kernel.org>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        "Vasily Gorbik" <gor@linux.ibm.com>, Wei Liu <wei.liu@kernel.org>
-Subject: RE: [PATCH 21/30] panic: Introduce the panic pre-reboot notifier list
-Thread-Topic: [PATCH 21/30] panic: Introduce the panic pre-reboot notifier
- list
-Thread-Index: AQHYWooLnXaT7guJw0OCpuGv/IkEoK0iJCSAgAAZuAD//40QkIAAesuAgAFqbACAACtDgP//jcxA
-Date:   Tue, 17 May 2022 17:02:31 +0000
-Message-ID: <06d85642fef24bc482642d669242654b@intel.com>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-22-gpiccoli@igalia.com> <YoJgcC8c6LaKADZV@alley>
- <63a74b56-89ef-8d1f-d487-cdb986aab798@igalia.com>
- <bed66b9467254a5a8bafc1983dad643a@intel.com>
- <e895ce94-e6b9-caf6-e5d3-06bf0149445c@igalia.com> <YoOs9GJ5Ovq63u5Q@alley>
- <599b72f6-76a4-8e6d-5432-56fb1ffd7e0b@igalia.com>
-In-Reply-To: <599b72f6-76a4-8e6d-5432-56fb1ffd7e0b@igalia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-reaction: no-action
-dlp-version: 11.6.401.20
-x-originating-ip: [10.1.200.100]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/crypto: fix scatterwalk_unmap() callers in AES-GCM
+Message-ID: <YoPi5eH+oFJ2anQh@osiris>
+References: <20220517143047.3054498-1-jannh@google.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220517143047.3054498-1-jannh@google.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: D5hoV9tVBnozGV6HodEoQOPD7mxgR36h
+X-Proofpoint-ORIG-GUID: olvVvJLd3dEjFcB0RK5hhMJdxWYOnVii
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-17_03,2022-05-17_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 phishscore=0
+ spamscore=0 suspectscore=0 clxscore=1015 mlxlogscore=846 bulkscore=0
+ impostorscore=0 mlxscore=0 lowpriorityscore=0 priorityscore=1501
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205170107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-PiBUb255IC8gRGluaCAtIGNhbiBJIGp1c3QgKnNraXAqIHRoaXMgbm90aWZpZXIgKmlmIGtkdW1w
-KiBpcyBzZXQgb3IgZWxzZQ0KPiB3ZSBydW4gdGhlIGNvZGUgYXMtaXM/IERvZXMgdGhhdCBtYWtl
-IHNlbnNlIHRvIHlvdT8NCg0KVGhlICJza2lwIiBvcHRpb24gc291bmRzIGxpa2UgaXQgbmVlZHMg
-c29tZSBzcGVjaWFsIGZsYWcgYXNzb2NpYXRlZCB3aXRoDQphbiBlbnRyeSBvbiB0aGUgbm90aWZp
-ZXIgY2hhaW4uIEJ1dCB0aGVyZSBhcmUgb3RoZXIgbm90aWZpZXIgY2hhaW5zIC4uLiBzbyB0aGF0
-DQpzb3VuZHMgbWVzc3kgdG8gbWUuDQoNCkp1c3QgYWxsIHRoZSBub3RpZmllcnMgaW4gcHJpb3Jp
-dHkgb3JkZXIuIElmIGFueSB3YW50IHRvIHRha2UgZGlmZmVyZW50IGFjdGlvbnMNCmJhc2VkIG9u
-IGtkdW1wIHN0YXR1cywgY2hhbmdlIHRoZSBjb2RlLiBUaGF0IHNlZW1zIG1vcmUgZmxleGlibGUg
-dGhhbg0KYW4gImFsbCBvciBub3RoaW5nIiBhcHByb2FjaCBieSBza2lwcGluZy4NCg0KLVRvbnkN
-Cg==
+On Tue, May 17, 2022 at 04:30:47PM +0200, Jann Horn wrote:
+> The argument of scatterwalk_unmap() is supposed to be the void* that was
+> returned by the previous scatterwalk_map() call.
+> The s390 AES-GCM implementation was instead passing the pointer to the
+> struct scatter_walk.
+> 
+> This doesn't actually break anything because scatterwalk_unmap() only uses
+> its argument under CONFIG_HIGHMEM and ARCH_HAS_FLUSH_ON_KUNMAP.
+> 
+> Note that I have not tested this patch in any way, not even compile-tested
+> it.
+> 
+> Fixes: bf7fa038707c ("s390/crypto: add s390 platform specific aes gcm support.")
+> Signed-off-by: Jann Horn <jannh@google.com>
+> ---
+> IDK which tree this has to go through - s390 or crypto?
+> maybe s390 is better, since they can actually test it?
+> 
+>  arch/s390/crypto/aes_s390.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+
+This can go via the s390 tree, however I'd like to have an ACK from
+Harald, who wrote the original code.
+
+> diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
+> index 54c7536f2482..1023e9d43d44 100644
+> --- a/arch/s390/crypto/aes_s390.c
+> +++ b/arch/s390/crypto/aes_s390.c
+> @@ -701,7 +701,7 @@ static inline void _gcm_sg_unmap_and_advance(struct gcm_sg_walk *gw,
+>  					     unsigned int nbytes)
+>  {
+>  	gw->walk_bytes_remain -= nbytes;
+> -	scatterwalk_unmap(&gw->walk);
+> +	scatterwalk_unmap(gw->walk_ptr);
+>  	scatterwalk_advance(&gw->walk, nbytes);
+>  	scatterwalk_done(&gw->walk, 0, gw->walk_bytes_remain);
+>  	gw->walk_ptr = NULL;
+> @@ -776,7 +776,7 @@ static int gcm_out_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
+>  		goto out;
+>  	}
+>  
+> -	scatterwalk_unmap(&gw->walk);
+> +	scatterwalk_unmap(gw->walk_ptr);
+>  	gw->walk_ptr = NULL;
+>  
+>  	gw->ptr = gw->buf;
+> 
+> base-commit: 42226c989789d8da4af1de0c31070c96726d990c
+> -- 
+> 2.36.0.550.gb090851708-goog
+> 
