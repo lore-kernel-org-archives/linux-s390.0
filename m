@@ -2,453 +2,246 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A26A8C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 13:54:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FCA9C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 13:57:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347593AbiEQNy2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 May 2022 09:54:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41496 "EHLO
+        id S1348134AbiEQN5k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 May 2022 09:57:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347688AbiEQNyY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 09:54:24 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FFBC3D1D6;
-        Tue, 17 May 2022 06:54:23 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24HDg2Vv021327;
-        Tue, 17 May 2022 13:54:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=UGkx5eXq4wqS41BZXjenYgdWa7b1qnJ20WrzN3j1QBo=;
- b=BkM4dJ35ME1IYQ/OARXGLsf8XPVtcy0/5hmMXnIRBQWn7vfDzlxJkx73V3f7NRY102l4
- UJtr6zLtkMCXmFqM/YJQH9pcQ2/usVMi/6ifUh4eYMAVKn9JFwt1L7ILcmT7CYZ07AuP
- hMtLlQZ9dou75yX3/XjdLWAcwQcJtgA+uW03ZGOuIQMtmnRnN1WVgSBkJyGRvqMvJnng
- xbzFD1fHTj5qEfceqKlwxHqHWkKBgmrN89MSIvbWXg/DYuwUvHkvnMI77ZFufpOBrtlb
- 8YBjUF8XiVcnxHKzW+gFw0k8rrLLKjbJEtri3uA01V2ezgI6G3XBxaOvg5KngUm0IapC 3A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4ctm8a68-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 13:54:22 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24HDgAHc021587;
-        Tue, 17 May 2022 13:54:22 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4ctm8a52-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 13:54:22 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24HDnWJV020590;
-        Tue, 17 May 2022 13:54:19 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma01fra.de.ibm.com with ESMTP id 3g2428uf7h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 13:54:18 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24HDsFO653608818
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 17 May 2022 13:54:15 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BEEDA4053;
-        Tue, 17 May 2022 13:54:15 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 518FEA404D;
-        Tue, 17 May 2022 13:54:15 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.40])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 17 May 2022 13:54:15 +0000 (GMT)
-Date:   Tue, 17 May 2022 15:54:07 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v2 3/4] s390x: Test effect of storage
- keys on some more instructions
-Message-ID: <20220517155407.693c600f@p-imbrenda>
-In-Reply-To: <20220517115607.3252157-4-scgl@linux.ibm.com>
-References: <20220517115607.3252157-1-scgl@linux.ibm.com>
-        <20220517115607.3252157-4-scgl@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S232153AbiEQN5h (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 09:57:37 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A94673C4A1;
+        Tue, 17 May 2022 06:57:35 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 5FD4E1F8CA;
+        Tue, 17 May 2022 13:57:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1652795854; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=F/28g65NUYRrE0kqo9hb+aIMt4lDnxj7qFXJPB2SFKQ=;
+        b=La0hw1fimyOXZWGy7NhUralYCHdeUAgxZ7Jx2l4teL3ZObgxCoYN3MJlutKivdf7Tw8ScF
+        Jcou2BEeZy+SMDvZr2KkytW34i2oUnUQq/Rvj3HIt6rmBgE0M6mmkljwufeUEZWWTXnkMR
+        l7FZzEHlQDvQ7gIrbLVQoj/qRxAknBE=
+Received: from suse.cz (unknown [10.100.201.202])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 47D802C141;
+        Tue, 17 May 2022 13:57:32 +0000 (UTC)
+Date:   Tue, 17 May 2022 15:57:29 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc:     David Gow <davidgow@google.com>, Evan Green <evgreen@chromium.org>,
+        Julius Werner <jwerner@chromium.org>,
+        Scott Branden <scott.branden@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dexuan Cui <decui@microsoft.com>,
+        Doug Berger <opendmb@gmail.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Justin Chen <justinpopo6@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Markus Mayer <mmayer@broadcom.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: [PATCH 19/30] panic: Add the panic hypervisor notifier list
+Message-ID: <YoOpyW1+q+Z5as78@alley>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-20-gpiccoli@igalia.com>
+ <YoJZVZl/MH0KiE/J@alley>
+ <ad082ce7-db50-13bb-3dbb-9b595dfa78be@igalia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 5R-OKvX1DlHhcQSkNV4h5hbYzZxbNJu7
-X-Proofpoint-GUID: ZqAAwg8o_o9jvM8s8ujWOqdsDrQo2Hp5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-17_03,2022-05-17_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 malwarescore=0 adultscore=0 clxscore=1015
- impostorscore=0 mlxlogscore=999 bulkscore=0 suspectscore=0 mlxscore=0
- spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205170083
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ad082ce7-db50-13bb-3dbb-9b595dfa78be@igalia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 17 May 2022 13:56:06 +0200
-Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
-
-> Test correctness of some instructions handled by user space instead of
-> KVM with regards to storage keys.
-> Test success and error conditions, including coverage of storage and
-> fetch protection override.
+On Mon 2022-05-16 12:06:17, Guilherme G. Piccoli wrote:
+> Thanks for the review!
 > 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> ---
->  s390x/skey.c        | 285 ++++++++++++++++++++++++++++++++++++++++++++
->  s390x/unittests.cfg |   1 +
->  2 files changed, 286 insertions(+)
+> I agree with the blinking stuff, I can rework and add all LED/blinking
+> stuff into the loop list, it does make sense. I'll comment a bit in the
+> others below...
 > 
-> diff --git a/s390x/skey.c b/s390x/skey.c
-> index 19fa5721..60ae8158 100644
-> --- a/s390x/skey.c
-> +++ b/s390x/skey.c
-> @@ -12,6 +12,7 @@
->  #include <asm/asm-offsets.h>
->  #include <asm/interrupt.h>
->  #include <vmalloc.h>
-> +#include <css.h>
->  #include <asm/page.h>
->  #include <asm/facility.h>
->  #include <asm/mem.h>
-> @@ -284,6 +285,115 @@ static void test_store_cpu_address(void)
->  	report_prefix_pop();
->  }
->  
-> +/*
-> + * Perform CHANNEL SUBSYSTEM CALL (CHSC)  instruction while temporarily executing
-> + * with access key 1.
-> + */
-> +static unsigned int chsc_key_1(void *comm_block)
-> +{
-> +	uint32_t program_mask;
-> +
-> +	asm volatile (
-> +		"spka	0x10\n\t"
-> +		".insn	rre,0xb25f0000,%[comm_block],0\n\t"
-> +		"spka	0\n\t"
-> +		"ipm	%[program_mask]\n"
-> +		: [program_mask] "=d" (program_mask)
-> +		: [comm_block] "d" (comm_block)
-> +		: "memory"
-> +	);
-> +	return program_mask >> 28;
-> +}
-> +
-> +static const char chsc_msg[] = "Performed store-channel-subsystem-characteristics";
-> +static void init_comm_block(uint16_t *comm_block)
-> +{
-> +	memset(comm_block, 0, PAGE_SIZE);
-> +	/* store-channel-subsystem-characteristics command */
-> +	comm_block[0] = 0x10;
-> +	comm_block[1] = 0x10;
-> +	comm_block[9] = 0;
-> +}
-> +
-> +static void test_channel_subsystem_call(void)
-> +{
-> +	uint16_t *comm_block = (uint16_t *)&pagebuf;
-> +	unsigned int cc;
-> +
-> +	report_prefix_push("CHANNEL SUBSYSTEM CALL");
-> +
-> +	report_prefix_push("zero key");
-> +	init_comm_block(comm_block);
-> +	set_storage_key(comm_block, 0x10, 0);
-> +	asm volatile (
-> +		".insn	rre,0xb25f0000,%[comm_block],0\n\t"
-> +		"ipm	%[cc]\n"
-> +		: [cc] "=d" (cc)
-> +		: [comm_block] "d" (comm_block)
-> +		: "memory"
-> +	);
-> +	cc = cc >> 28;
-> +	report(cc == 0 && comm_block[9], chsc_msg);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("matching key");
-> +	init_comm_block(comm_block);
-> +	set_storage_key(comm_block, 0x10, 0);
-> +	cc = chsc_key_1(comm_block);
-> +	report(cc == 0 && comm_block[9], chsc_msg);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("mismatching key");
-> +
-> +	report_prefix_push("no fetch protection");
-> +	init_comm_block(comm_block);
-> +	set_storage_key(comm_block, 0x20, 0);
-> +	expect_pgm_int();
-> +	chsc_key_1(comm_block);
-> +	check_key_prot_exc(ACC_UPDATE, PROT_STORE);
+> On 16/05/2022 11:01, Petr Mladek wrote:
+> >> --- a/drivers/firmware/google/gsmi.c
+> >> +++ b/drivers/firmware/google/gsmi.c
+> >> @@ -1034,7 +1034,7 @@ static __init int gsmi_init(void)
+> >>  
+> >>  	register_reboot_notifier(&gsmi_reboot_notifier);
+> >>  	register_die_notifier(&gsmi_die_notifier);
+> >> -	atomic_notifier_chain_register(&panic_notifier_list,
+> >> +	atomic_notifier_chain_register(&panic_hypervisor_list,
+> >>  				       &gsmi_panic_notifier);
+> > 
+> > I am not sure about this one. It looks like some logging or
+> > pre_reboot stuff.
+> > 
+> 
+> Disagree here. I'm looping Google maintainers, so they can comment.
+> (CCed Evan, David, Julius)
+> 
+> This notifier is clearly a hypervisor notification mechanism. I've fixed
+> a locking stuff there (in previous patch), I feel it's low-risk but even
+> if it's mid-risk, the class of such callback remains a perfect fit with
+> the hypervisor list IMHO.
 
-I wonder if ACC_UPDATE is really needed here? you should clearly never
-get a read error, right?
+It is similar to drivers/soc/bcm/brcmstb/pm/pm-arm.c.
+See below for another idea.
 
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("fetch protection");
-> +	init_comm_block(comm_block);
-> +	set_storage_key(comm_block, 0x28, 0);
-> +	expect_pgm_int();
-> +	chsc_key_1(comm_block);
-> +	check_key_prot_exc(ACC_UPDATE, PROT_FETCH_STORE);
+> >> --- a/drivers/misc/bcm-vk/bcm_vk_dev.c
+> >> +++ b/drivers/misc/bcm-vk/bcm_vk_dev.c
+> >> @@ -1446,7 +1446,7 @@ static int bcm_vk_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+> >>  
+> >>  	/* register for panic notifier */
+> >>  	vk->panic_nb.notifier_call = bcm_vk_on_panic;
+> >> -	err = atomic_notifier_chain_register(&panic_notifier_list,
+> >> +	err = atomic_notifier_chain_register(&panic_hypervisor_list,
+> >>  					     &vk->panic_nb);
+> > 
+> > It seems to reset some hardware or so. IMHO, it should go into the
+> > pre-reboot list.
+> 
+> Mixed feelings here, I'm looping Broadcom maintainers to comment.
+> (CC Scott and Broadcom list)
+> 
+> I'm afraid it breaks kdump if this device is not reset beforehand - it's
+> a doorbell write, so not high risk I think...
+> 
+> But in case the not-reset device can be probed normally in kdump kernel,
+> then I'm fine in moving this to the reboot list! I don't have the HW to
+> test myself.
 
-and here, I guess you would wait for a read error? or is it actually
-defined as unpredictable?
+Good question. Well, it if has to be called before kdump then
+even "hypervisor" list is a wrong place because is not always
+called before kdump.
 
-(same for all ACC_UPDATE below)
 
-> +	report_prefix_pop();
-> +
-> +	ctl_set_bit(0, CTL0_STORAGE_PROTECTION_OVERRIDE);
-> +
-> +	report_prefix_push("storage-protection override, invalid key");
-> +	set_storage_key(comm_block, 0x20, 0);
-> +	init_comm_block(comm_block);
-> +	expect_pgm_int();
-> +	chsc_key_1(comm_block);
-> +	check_key_prot_exc(ACC_UPDATE, PROT_STORE);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("storage-protection override, override key");
-> +	init_comm_block(comm_block);
-> +	set_storage_key(comm_block, 0x90, 0);
-> +	cc = chsc_key_1(comm_block);
-> +	report(cc == 0 && comm_block[9], chsc_msg);
-> +	report_prefix_pop();
-> +
-> +	ctl_clear_bit(0, CTL0_STORAGE_PROTECTION_OVERRIDE);
-> +
-> +	report_prefix_push("storage-protection override disabled, override key");
-> +	init_comm_block(comm_block);
-> +	set_storage_key(comm_block, 0x90, 0);
-> +	expect_pgm_int();
-> +	chsc_key_1(comm_block);
-> +	check_key_prot_exc(ACC_UPDATE, PROT_STORE);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_pop();
-> +
-> +	set_storage_key(comm_block, 0x00, 0);
-> +	report_prefix_pop();
-> +}
-> +
->  /*
->   * Perform SET PREFIX (SPX) instruction while temporarily executing
->   * with access key 1.
-> @@ -417,6 +527,179 @@ static void test_set_prefix(void)
->  	report_prefix_pop();
->  }
->  
-> +/*
-> + * Perform MODIFY SUBCHANNEL (MSCH) instruction while temporarily executing
-> + * with access key 1.
-> + */
-> +static uint32_t modify_subchannel_key_1(uint32_t sid, struct schib *schib)
-> +{
-> +	uint32_t program_mask;
-> +
-> +/*
-> + * gcc 12.0.1 warns if schib is < 4k.
-> + * We need such addresses to test fetch protection override.
-> + */
-> +#pragma GCC diagnostic push
-> +#pragma GCC diagnostic ignored "-Warray-bounds"
+> >> --- a/drivers/power/reset/ltc2952-poweroff.c
+> >> +++ b/drivers/power/reset/ltc2952-poweroff.c
+> >> @@ -279,7 +279,7 @@ static int ltc2952_poweroff_probe(struct platform_device *pdev)
+> >>  	pm_power_off = ltc2952_poweroff_kill;
+> >>  
+> >>  	data->panic_notifier.notifier_call = ltc2952_poweroff_notify_panic;
+> >> -	atomic_notifier_chain_register(&panic_notifier_list,
+> >> +	atomic_notifier_chain_register(&panic_hypervisor_list,
+> >>  				       &data->panic_notifier);
+> > 
+> > I looks like this somehow triggers the reboot. IMHO, it should go
+> > into the pre_reboot list.
+> 
+> Mixed feeling again here - CCing the maintainers for comments (Sebastian
+> / PM folks).
+> 
+> This is setting a variable only, and once it's set (data->kernel_panic
+> is the bool's name), it just bails out the IRQ handler and a timer
+> setting - this timer seems kinda tricky, so bailing out ASAP makes sense
+> IMHO.
 
-I really dislike these pragmas
+IMHO, the timer informs the hardware that the system is still alive
+in the middle of panic(). If the timer is not working then the
+hardware (chip) will think that the system frozen in panic()
+and will power off the system. See the comments in
+drivers/power/reset/ltc2952-poweroff.c:
 
-can we find a nicer way?
+ * The following GPIOs are used:
+ * - trigger (input)
+ *     A level change indicates the shut-down trigger. If it's state reverts
+ *     within the time-out defined by trigger_delay, the shut down is not
+ *     executed. If no pin is assigned to this input, the driver will start the
+ *     watchdog toggle immediately. The chip will only power off the system if
+ *     it is requested to do so through the kill line.
+ *
+ * - watchdog (output)
+ *     Once a shut down is triggered, the driver will toggle this signal,
+ *     with an internal (wde_interval) to stall the hardware shut down.
 
-> +	asm volatile (
-> +		"lr %%r1,%[sid]\n\t"
-> +		"spka	0x10\n\t"
-> +		"msch	%[schib]\n\t"
-> +		"spka	0\n\t"
-> +		"ipm	%[program_mask]\n"
-> +		: [program_mask] "=d" (program_mask)
-> +		: [sid] "d" (sid),
-> +		  [schib] "Q" (*schib)
-> +		: "%r1"
-> +	);
-> +#pragma GCC diagnostic pop
-> +	return program_mask >> 28;
-> +}
-> +
-> +static void test_msch(void)
-> +{
-> +	struct schib *schib = (struct schib *)pagebuf;
-> +	struct schib *no_override_schib;
-> +	int test_device_sid;
-> +	pgd_t *root;
-> +	int cc;
-> +
-> +	report_prefix_push("MSCH");
-> +	root = (pgd_t *)(stctg(1) & PAGE_MASK);
-> +	test_device_sid = css_enumerate();
-> +
-> +	if (!(test_device_sid & SCHID_ONE)) {
-> +		report_fail("no I/O device found");
-> +		return;
-> +	}
-> +
-> +	cc = stsch(test_device_sid, schib);
-> +	if (cc) {
-> +		report_fail("could not store SCHIB");
-> +		return;
-> +	}
-> +
-> +	report_prefix_push("zero key");
-> +	schib->pmcw.intparm = 100;
-> +	set_storage_key(schib, 0x28, 0);
-> +	cc = msch(test_device_sid, schib);
-> +	if (!cc) {
-> +		WRITE_ONCE(schib->pmcw.intparm, 0);
-> +		cc = stsch(test_device_sid, schib);
-> +		report(!cc && schib->pmcw.intparm == 100, "fetched from SCHIB");
-> +	} else {
-> +		report_fail("MSCH cc != 0");
-> +	}
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("matching key");
-> +	schib->pmcw.intparm = 200;
-> +	set_storage_key(schib, 0x18, 0);
-> +	cc = modify_subchannel_key_1(test_device_sid, schib);
-> +	if (!cc) {
-> +		WRITE_ONCE(schib->pmcw.intparm, 0);
-> +		cc = stsch(test_device_sid, schib);
-> +		report(!cc && schib->pmcw.intparm == 200, "fetched from SCHIB");
-> +	} else {
-> +		report_fail("MSCH cc != 0");
-> +	}
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("mismatching key");
-> +
-> +	report_prefix_push("no fetch protection");
-> +	schib->pmcw.intparm = 300;
-> +	set_storage_key(schib, 0x20, 0);
-> +	cc = modify_subchannel_key_1(test_device_sid, schib);
-> +	if (!cc) {
-> +		WRITE_ONCE(schib->pmcw.intparm, 0);
-> +		cc = stsch(test_device_sid, schib);
-> +		report(!cc && schib->pmcw.intparm == 300, "fetched from SCHIB");
-> +	} else {
-> +		report_fail("MSCH cc != 0");
-> +	}
-> +	report_prefix_pop();
-> +
-> +	schib->pmcw.intparm = 0;
-> +	if (!msch(test_device_sid, schib)) {
-> +		report_prefix_push("fetch protection");
-> +		schib->pmcw.intparm = 400;
-> +		set_storage_key(schib, 0x28, 0);
-> +		expect_pgm_int();
-> +		modify_subchannel_key_1(test_device_sid, schib);
-> +		check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
-> +		WRITE_ONCE(schib->pmcw.intparm, 0);
-> +		cc = stsch(test_device_sid, schib);
-> +		report(!cc && schib->pmcw.intparm == 0, "did not modify subchannel");
-> +		report_prefix_pop();
-> +	} else {
-> +		report_fail("could not reset SCHIB");
-> +	}
-> +
-> +	register_pgm_cleanup_func(dat_fixup_pgm_int);
-> +
-> +	schib->pmcw.intparm = 0;
-> +	if (!msch(test_device_sid, schib)) {
-> +		report_prefix_push("remapped page, fetch protection");
-> +		schib->pmcw.intparm = 500;
-> +		set_storage_key(pagebuf, 0x28, 0);
-> +		expect_pgm_int();
-> +		install_page(root, virt_to_pte_phys(root, pagebuf), 0);
-> +		modify_subchannel_key_1(test_device_sid, (struct schib *)0);
-> +		install_page(root, 0, 0);
-> +		check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
-> +		WRITE_ONCE(schib->pmcw.intparm, 0);
-> +		cc = stsch(test_device_sid, schib);
-> +		report(!cc && schib->pmcw.intparm == 0, "did not modify subchannel");
-> +		report_prefix_pop();
-> +	} else {
-> +		report_fail("could not reset SCHIB");
-> +	}
-> +
-> +	ctl_set_bit(0, CTL0_FETCH_PROTECTION_OVERRIDE);
-> +
-> +	report_prefix_push("fetch-protection override applies");
-> +	schib->pmcw.intparm = 600;
-> +	set_storage_key(pagebuf, 0x28, 0);
-> +	install_page(root, virt_to_pte_phys(root, pagebuf), 0);
-> +	cc = modify_subchannel_key_1(test_device_sid, (struct schib *)0);
-> +	install_page(root, 0, 0);
-> +	if (!cc) {
-> +		WRITE_ONCE(schib->pmcw.intparm, 0);
-> +		cc = stsch(test_device_sid, schib);
-> +		report(!cc && schib->pmcw.intparm == 600, "fetched from SCHIB");
-> +	} else {
-> +		report_fail("MSCH cc != 0");
-> +	}
-> +	report_prefix_pop();
-> +
-> +	schib->pmcw.intparm = 0;
-> +	if (!msch(test_device_sid, schib)) {
-> +		report_prefix_push("fetch-protection override does not apply");
-> +		schib->pmcw.intparm = 700;
-> +		no_override_schib = (struct schib *)(pagebuf + 2048);
-> +		memcpy(no_override_schib, schib, sizeof(struct schib));
-> +		set_storage_key(pagebuf, 0x28, 0);
-> +		expect_pgm_int();
-> +		install_page(root, virt_to_pte_phys(root, pagebuf), 0);
-> +		modify_subchannel_key_1(test_device_sid, (struct schib *)2048);
-> +		install_page(root, 0, 0);
-> +		check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
-> +		WRITE_ONCE(schib->pmcw.intparm, 0);
-> +		cc = stsch(test_device_sid, schib);
-> +		report(!cc && schib->pmcw.intparm == 0, "did not modify subchannel");
-> +		report_prefix_pop();
-> +	} else {
-> +		report_fail("could not reset SCHIB");
-> +	}
-> +
-> +	ctl_clear_bit(0, CTL0_FETCH_PROTECTION_OVERRIDE);
-> +	register_pgm_cleanup_func(NULL);
-> +	report_prefix_pop();
-> +	set_storage_key(schib, 0x00, 0);
-> +	report_prefix_pop();
-> +}
-> +
->  int main(void)
->  {
->  	report_prefix_push("skey");
-> @@ -431,9 +714,11 @@ int main(void)
->  	test_chg();
->  	test_test_protection();
->  	test_store_cpu_address();
-> +	test_channel_subsystem_call();
->  
->  	setup_vm();
->  	test_set_prefix();
-> +	test_msch();
->  done:
->  	report_prefix_pop();
->  	return report_summary();
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index b456b288..1280ff0f 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -41,6 +41,7 @@ file = sthyi.elf
->  
->  [skey]
->  file = skey.elf
-> +extra_params = -device virtio-net-ccw
->  
->  [diag10]
->  file = diag10.elf
+IMHO, we really have to keep it alive until we reach the reboot stage.
 
+Another question is how it actually works when the interrupts are
+disabled during panic() and the timer callbacks are not handled.
+
+
+> > [...]
+> >> --- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+> >> +++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+> >> @@ -814,7 +814,7 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+> >>  		goto out;
+> >>  	}
+> >>  
+> >> -	atomic_notifier_chain_register(&panic_notifier_list,
+> >> +	atomic_notifier_chain_register(&panic_hypervisor_list,
+> >>  				       &brcmstb_pm_panic_nb);
+> > 
+> > I am not sure about this one. It instruct some HW to preserve DRAM.
+> > IMHO, it better fits into pre_reboot category but I do not have
+> > strong opinion.
+> 
+> Disagree here, I'm CCing Florian for information.
+> 
+> This notifier preserves RAM so it's *very interesting* if we have
+> kmsg_dump() for example, but maybe might be also relevant in case kdump
+> kernel is configured to store something in a persistent RAM (then,
+> without this notifier, after kdump reboots the system data would be lost).
+
+I see. It is actually similar problem as with
+drivers/firmware/google/gsmi.c.
+
+I does similar things like kmsg_dump() so it should be called in
+the same location (after info notifier list and before kdump).
+
+A solution might be to put it at these notifiers at the very
+end of the "info" list or make extra "dump" notifier list.
+
+Best Regards,
+Petr
