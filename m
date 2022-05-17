@@ -2,127 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCC17C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 12:29:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4953BC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 13:05:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230179AbiEQM3j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 May 2022 08:29:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33774 "EHLO
+        id S1346618AbiEQNFO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 May 2022 09:05:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229937AbiEQM3i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 08:29:38 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C18E6496AF;
-        Tue, 17 May 2022 05:29:37 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24HCFrJp017352;
-        Tue, 17 May 2022 12:29:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=rmFuzkE5F7RcXl6ndTqPBBlZWlxwqwGJL9XYG1XVxxo=;
- b=q0jXI/aYN5Ct3fx0b2opOJDx+T6O03bFdbHfOTyVhKqHdKl6FqyTsdxOLwfRulkfAJvX
- Ai1MIAd85uHshjHrEf4S99ENClY5QIKO2jdcvBmMHxBGJWtf9tU/a7ZOhbpG7B+wBWDd
- f5ap1CAaK0+9ZN0fPwq3+/C6NC1pJOlGn/+ijmMOsytOM7TayILZF2BUIWDcfr0UnY0m
- P7MJ+GM5w+E+KuvDQx1Zc4iJ7yTowaJ0hP7zS+sHHzcG42kIEFHP94otnqSk7447xGF/
- rmEhl739urPRTflmqOClLqCki0BtscKYgdy5y8AwWyAHaBrE6qDCxCnq2ibmq9EtjBOl gw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4bjdgb7f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 12:29:37 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24HCTadE028505;
-        Tue, 17 May 2022 12:29:36 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4bjdgb6s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 12:29:36 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24HCNjDf026998;
-        Tue, 17 May 2022 12:29:34 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04fra.de.ibm.com with ESMTP id 3g2428ubwe-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 12:29:34 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24HCTVcZ43713006
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 17 May 2022 12:29:31 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 40A3142042;
-        Tue, 17 May 2022 12:29:31 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0CC3642047;
-        Tue, 17 May 2022 12:29:31 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.40])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 17 May 2022 12:29:30 +0000 (GMT)
-Date:   Tue, 17 May 2022 14:29:29 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, frankja@linux.ibm.com, thuth@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v2 1/1] s390x: add migration test for
- storage keys
-Message-ID: <20220517142929.62892902@p-imbrenda>
-In-Reply-To: <bceaae6a24324cdb72056977fd6bf7916adcc9d7.camel@linux.ibm.com>
-References: <20220516090702.1939253-1-nrb@linux.ibm.com>
-        <20220516090702.1939253-2-nrb@linux.ibm.com>
-        <947af627-64e0-486d-18e2-c877bc4c4ba6@linux.ibm.com>
-        <3ab95d5d553362a686b9526c8b53996dcaf20400.camel@linux.ibm.com>
-        <bceaae6a24324cdb72056977fd6bf7916adcc9d7.camel@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S1346828AbiEQNE7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 09:04:59 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482551583A;
+        Tue, 17 May 2022 06:04:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=7k65fdRTQg/wflBs9f0TJRvKoWTammEy4iwKmtzcPs4=; b=OpLRZBE1TUxWd4SJevol7qmbWp
+        7cf/63XEfW1McNr9yfxJ/wNA5PzTA6GfEDtrBWeHePG4UP9vT004IKq/Y2n1Wdo9PCU8d40cNtPr7
+        evvA1G/GsHzDMrD3kL1RWnjHzehDzDywj5u53TN0tmnpdWb3jYfL8mY4Uh+43rmflK1PctID/9pFc
+        ZvUCbSUysCdoW+hfAZNQhZbT4OFisfS/H/quOUTTDHZ+I5zaEEC4729JtousRNxBxXebYRI1Dcqzp
+        PvSzoHit05E/cq1DK95qfXV5U60l7efTEeM0sV+06rVod3szWCADFSxvFodt56BQEE6VcTzDLc2Bf
+        FOG6Wfyw==;
+Received: from 200-161-159-120.dsl.telesp.net.br ([200.161.159.120] helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1nqwrY-008RNM-0M; Tue, 17 May 2022 15:03:44 +0200
+Message-ID: <53ceb2c7-f2d7-3b92-4efa-a063487585bc@igalia.com>
+Date:   Tue, 17 May 2022 10:03:13 -0300
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH 05/30] misc/pvpanic: Convert regular spinlock into trylock
+ on panic path
+Content-Language: en-US
+To:     Petr Mladek <pmladek@suse.com>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
+        dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        zhenwei pi <pizhenwei@bytedance.com>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-6-gpiccoli@igalia.com> <YnpXGOXicwdy1E6n@alley>
+ <0a20dd06-f459-638e-cb4d-8255ab1a1f23@igalia.com> <YoN/x2fpdDU4+nSB@alley>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <YoN/x2fpdDU4+nSB@alley>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0kV6nTHkk7J5yY6DyDDSos8TmWazJt3V
-X-Proofpoint-ORIG-GUID: GlKhW9kes-7Epyy8WyA2bPaio6qTivDO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-17_02,2022-05-17_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 mlxlogscore=712 clxscore=1015
- mlxscore=0 spamscore=0 bulkscore=0 adultscore=0 suspectscore=0
- malwarescore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2205170073
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 17 May 2022 13:44:51 +0200
-Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
-
-> On Tue, 2022-05-17 at 10:17 +0200, Nico Boehr wrote:
-> > On Mon, 2022-05-16 at 18:47 +0200, Janis Schoetterl-Glausch wrote: =20
-> > > On 5/16/22 11:07, Nico Boehr wrote: =20
->=20
+On 17/05/2022 07:58, Petr Mladek wrote:
 > [...]
->=20
-> > > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0expected_key.val =3D i * 2;
-> > > > +
-> > > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0/* ignore reference bit */ =20
-> > >=20
-> > > Why? Are there any implicit references I'm missing? =20
-> >=20
-> > Since the PoP specifies (p. 5-122):
-> >=20
-> > "The record of references provided by the reference
-> > bit is not necessarily accurate. However, in the major-
-> > ity of situations, reference recording approximately
-> > coincides with the related storage reference."
-> >=20
-> > I don't really see a way to test this properly.
-> >=20
-> > Maybe I missed something? =20
->=20
-> No I think you're right, although in practice the reference bits should
-> match. Or did you observe a mismatch?
+>> Thanks for the review Petr. Patch was already merged - my goal was to be
+>> concise, i.e., a patch per driver / module, so the patch kinda fixes
+>> whatever I think is wrong with the driver with regards panic handling.
+>>
+>> Do you think it worth to remove this patch from Greg's branch just to
+>> split it in 2? Personally I think it's not worth, but opinions are welcome.
+> 
+> No problem. It is not worth the effort.
+> 
 
-the point is that the architecture allows for mismatches (in particular
-I think it is allowed to overindicate changes)
+OK, perfect!
 
-ignoring that bit is the correct thing to do
+Cheers,
+
+
+Guilherme
