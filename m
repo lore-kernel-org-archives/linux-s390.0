@@ -2,166 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54149C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 15:47:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32D28C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 16:10:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245665AbiEQPro (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 May 2022 11:47:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46624 "EHLO
+        id S1350806AbiEQQKC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 May 2022 12:10:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240318AbiEQPrn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 11:47:43 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C871236;
-        Tue, 17 May 2022 08:47:42 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24HFGXHs032416;
-        Tue, 17 May 2022 15:47:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=TB1p3kKXe7ux8TlLqEp76fKcROj7h9dHboi/mKo/abQ=;
- b=WcDTSouSEaBk7tnLtGwAnxDKWCxMzTGFz8FrvPcr4QGuLOTmPj0CWH0ioU2hpIKw/00S
- NoLFGHlYHrcqt6fPzH4sJdTpnbW8DhEjsumLU2NRSBzw15seL/bzeo+M+ns2T6C06lrZ
- JbpiNC5A4pZ3O7K167kIfT4603GqUg+aDPZSEzjuXkECp/Nf/GSznRgkd73RydinooeA
- J0TJiuoWXjyAWmirWup+hfG7FLeuLHFvTpOf/NjOnlE3hHuWSnw/YOK332zJnG+wXHrt
- XM0EHQsKkp0mPKC/lz+EUTBsSowmV+a4R5ZX4NHjSVEyUxOxVNxDjkUmzO57Dc9bvaSo fA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4dv7hp5m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 15:47:41 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24HFULWs031570;
-        Tue, 17 May 2022 15:47:40 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4dv7hp4a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 15:47:40 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24HFhrok018718;
-        Tue, 17 May 2022 15:47:38 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04fra.de.ibm.com with ESMTP id 3g2428ujfr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 15:47:38 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24HFlYlv42860852
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 17 May 2022 15:47:34 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7B76911C04C;
-        Tue, 17 May 2022 15:47:34 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2788D11C04A;
-        Tue, 17 May 2022 15:47:34 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.56.72])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 17 May 2022 15:47:34 +0000 (GMT)
-Message-ID: <1de086cac18f97b8055f499dfa3bf1ed6788d5b4.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 4/4] s390x: Test effect of storage
- keys on diag 308
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date:   Tue, 17 May 2022 17:47:33 +0200
-In-Reply-To: <20220517165253.46799a10@p-imbrenda>
-References: <20220517115607.3252157-1-scgl@linux.ibm.com>
-         <20220517115607.3252157-5-scgl@linux.ibm.com>
-         <20220517165253.46799a10@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        with ESMTP id S229931AbiEQQKB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 12:10:01 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D633F4A3D7
+        for <linux-s390@vger.kernel.org>; Tue, 17 May 2022 09:10:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652803800;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dBaB3W2FuHWqmpt97cJIpSBxO7PYRb9m6Mm3MSir9dU=;
+        b=g8xtxxK2MKk0bGsjCIhvFsGPkvYipK5fWFzOb4f6zusVvmC4UKxwEjM5Se4O/P+eW4WxRQ
+        806c7vKsB2xejz6p9N4Hzgtv9VYOa6ej3C0CdEFy8vBgFUS8l9ISMRf/ccAorSmKNBokR/
+        OmMUGgZe+evXBU/E+5lGIXANeR18fH4=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-385-W1bC6o1COliAZzn-wUkONQ-1; Tue, 17 May 2022 12:09:58 -0400
+X-MC-Unique: W1bC6o1COliAZzn-wUkONQ-1
+Received: by mail-ej1-f69.google.com with SMTP id gs8-20020a1709072d0800b006f42d47382fso7610247ejc.17
+        for <linux-s390@vger.kernel.org>; Tue, 17 May 2022 09:09:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=dBaB3W2FuHWqmpt97cJIpSBxO7PYRb9m6Mm3MSir9dU=;
+        b=QRFoukFJn+OOu2xuUtW+nooB3kJgfHwkFZ/HDDI5y1A3Xth6joXSTxWydlWwTUwsut
+         r5Mi3wZ+sMtMiUHvnt929+ExJaoPC0amHDEVQsMKkO11I0QmPZouz5uGTCfnVYGBu1vp
+         MwZhxSaRVKE+pTR4tKJbdkK13z31Y2mN9j8u6qMHOA7oMFuFFYqGpzv2h5nAKQ9+zedU
+         WX8fa/IOmb6Byvo7hW1CdCqzU5quTY8TYe4iFUTZpbgKdeqP3YTNBQkE1h/I+QaG6EOk
+         x7TgqfAdqYraeXq2kf0IcVy71XQ6mA+GBNz4VO5BZU4DhPkhF1kmMwI1i9OctCO/LBfW
+         iGtw==
+X-Gm-Message-State: AOAM533xc9jfhmrWc946uTJCN/gc0kRSOiEX3Z62HQzq6tsR7ftrUCEG
+        DjpwDg6IhGDH0EVGcA3zDj+D4VZwVdwhIhxfxNEJcrR8lPLGoje6rHTNFeD1ju19LvSwyuErOy5
+        aBQZLCV+PcOF2FEVWWa08Ng==
+X-Received: by 2002:a05:6402:26d3:b0:427:c57f:5333 with SMTP id x19-20020a05640226d300b00427c57f5333mr20094921edd.61.1652803797621;
+        Tue, 17 May 2022 09:09:57 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJydRjANi6Lqx7MMjNhrc932vVyT+VzWjGzlHQ03dSs5dhLKzuSFi4kWT7SDZem17pSy3WNxdA==
+X-Received: by 2002:a05:6402:26d3:b0:427:c57f:5333 with SMTP id x19-20020a05640226d300b00427c57f5333mr20094903edd.61.1652803797447;
+        Tue, 17 May 2022 09:09:57 -0700 (PDT)
+Received: from [192.168.8.104] (tmo-082-126.customers.d1-online.com. [80.187.82.126])
+        by smtp.gmail.com with ESMTPSA id hy3-20020a1709068a6300b006f3ef214e16sm1234782ejc.124.2022.05.17.09.09.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 May 2022 09:09:56 -0700 (PDT)
+Message-ID: <15aee36c-de22-5f2a-d32b-b74cddebfc1c@redhat.com>
+Date:   Tue, 17 May 2022 18:09:54 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [kvm-unit-tests PATCH] s390x: Ignore gcc 12 warnings for low
+ addresses
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>
+References: <20220516144332.3785876-1-scgl@linux.ibm.com>
+ <20220517140206.6a58760f@p-imbrenda>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <20220517140206.6a58760f@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: a0ihY11oxZzjshDl5TwqQu18G3qQCXda
-X-Proofpoint-ORIG-GUID: BJd0tZGNQPDghjPIo5WlSQtEEFps-kyJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-17_03,2022-05-17_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 malwarescore=0 spamscore=0 impostorscore=0
- clxscore=1015 phishscore=0 suspectscore=0 mlxlogscore=999 bulkscore=0
- adultscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205170095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-05-17 at 16:52 +0200, Claudio Imbrenda wrote:
-> On Tue, 17 May 2022 13:56:07 +0200
+On 17/05/2022 14.02, Claudio Imbrenda wrote:
+> On Mon, 16 May 2022 16:43:32 +0200
 > Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
 > 
-> > Test that key-controlled protection does not apply to diag 308.
-> > 
-> > Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> > ---
-> >  s390x/skey.c | 26 ++++++++++++++++++++++++++
-> >  1 file changed, 26 insertions(+)
-> > 
-> > diff --git a/s390x/skey.c b/s390x/skey.c
-> > index 60ae8158..c2d28ffd 100644
-> > --- a/s390x/skey.c
-> > +++ b/s390x/skey.c
-> > @@ -285,6 +285,31 @@ static void test_store_cpu_address(void)
-> >  	report_prefix_pop();
-> >  }
-> >  
-> > +static void test_diag_308(void)
-> > +{
-> > +	uint16_t response;
-> > +	uint32_t (*ipib)[1024] = (void *)pagebuf;
+>> gcc 12 warns if a memory operand to inline asm points to memory in the
+>> first 4k bytes. However, in our case, these operands are fine, either
+>> because we actually want to use that memory, or expect and handle the
+>> resulting exception.
+>> Therefore, silence the warning.
 > 
-> why not just uint32_t *ipib = (void *)pagebuf; ?
-> 
-> > +
-> > +	report_prefix_push("DIAG 308");
-> > +	(*ipib)[0] = 0; /* Invalid length */
+> I really dislike this
 
-In an intermediate version I had
-memset(ipib, 0, sizeof(*ipib));
-Also, if I could specify that the asm writes to a memory location that
-is specified via an address in a register without displacement, it
-would tell the compiler what memory would be read.
-Alas that is not possible (correct me if I'm wrong), so I actually
-would do
-WRITE_ONCE(ipib[0], 0)
-(an get rid of the pointer to array)
-> 
-> then you can simply do:
-> 
-> ipib[0] = 0;
-> 
-> > +	set_storage_key(ipib, 0x28, 0);
-> > +	/* key-controlled protection does not apply */
-> > +	asm volatile (
-> > +		"lr	%%r2,%[ipib]\n\t"
-> > +		"spka	0x10\n\t"
-> > +		"diag	%%r2,%[code],0x308\n\t"
-> > +		"spka	0\n\t"
-> > +		"lr	%[response],%%r3\n"
-> > +		: [response] "=d" (response)
-> > +		: [ipib] "d" (ipib),
-> > +		  [code] "d" (5)
-> > +		: "%r2", "%r3"
-> > +	);
-> > +	report(response == 0x402, "no exception on fetch, response: invalid IPIB");
-> > +	set_storage_key(ipib, 0x00, 0);
-> > +	report_prefix_pop();
-> > +}
-> > +
-> >  /*
-> >   * Perform CHANNEL SUBSYSTEM CALL (CHSC)  instruction while temporarily executing
-> >   * with access key 1.
-> > @@ -714,6 +739,7 @@ int main(void)
-> >  	test_chg();
-> >  	test_test_protection();
-> >  	test_store_cpu_address();
-> > +	test_diag_308();
-> >  	test_channel_subsystem_call();
-> >  
-> >  	setup_vm();
-> 
+I agree the pragmas are ugly. But maybe we should mimic what the kernel
+is doing here?
+
+$ git show 8b202ee218395
+commit 8b202ee218395319aec1ef44f72043e1fbaccdd6
+Author: Sven Schnelle <svens@linux.ibm.com>
+Date:   Mon Apr 25 14:17:42 2022 +0200
+
+     s390: disable -Warray-bounds
+     
+     gcc-12 shows a lot of array bound warnings on s390. This is caused
+     by the S390_lowcore macro which uses a hardcoded address of 0.
+     
+     Wrapping that with absolute_pointer() works, but gcc no longer knows
+     that a 12 bit displacement is sufficient to access lowcore. So it
+     emits instructions like 'lghi %r1,0; l %rx,xxx(%r1)' instead of a
+     single load/store instruction. As s390 stores variables often
+     read/written in lowcore, this is considered problematic. Therefore
+     disable -Warray-bounds on s390 for gcc-12 for the time being, until
+     there is a better solution.
+
+... so we should maybe disable it in the Makefile, too, until the
+kernel folks found a nicer solution?
+
+  Thomas
 
