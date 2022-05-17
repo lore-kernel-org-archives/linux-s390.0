@@ -2,173 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABDA3C43219
-	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 18:14:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 985A3C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 18:37:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352124AbiEQSOf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 May 2022 14:14:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36234 "EHLO
+        id S1352261AbiEQShC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 May 2022 14:37:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351992AbiEQSN4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 14:13:56 -0400
-Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05D2E50E0D;
-        Tue, 17 May 2022 11:13:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=6MSK1Z4Nv/e1GFKFinCP8P3dIYao0CoLyUe3quXpDhY=; b=cRMrVSVTR+3cn6FVG65SC4Au0y
-        UkLE3SVfqGk36g/jG1E9IomGRvED5Awi+eOSCTntuGE0jPXl5+kfHlbKsvhvVjaCNf8y4mBWXGPlT
-        8r/o/CMKhbUaIdrKhLkt446cgXa07HTSiorku/w0xJvIn3aE4uqi2qj8QGi7eb4Kmsg0/Wh5BR8Vi
-        YCGb8f9djqv6fWXVwjRpFQtg+9b6W6H4TQisr9ZwQKSIB4SsmfEWL196/jrcNQFL2lm66S4LfYE8s
-        uZ+fz2jSIIuBy2Np//l8BP/gbXHu+JyZVeJsb8IAXoZSlvi3RYMR9sSIMXj8sSzR7kYxeP4KKKokk
-        nGGtp5Zg==;
-Received: from 200-161-159-120.dsl.telesp.net.br ([200.161.159.120] helo=[192.168.1.60])
-        by fanzine2.igalia.com with esmtpsa 
-        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-        id 1nr1gv-008nSU-6m; Tue, 17 May 2022 20:13:05 +0200
-Message-ID: <62a63fc2-346f-f375-043a-fa21385279df@igalia.com>
-Date:   Tue, 17 May 2022 15:12:25 -0300
+        with ESMTP id S1352278AbiEQSg6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 14:36:58 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F1B3669E;
+        Tue, 17 May 2022 11:36:56 -0700 (PDT)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24HIO9vF000774;
+        Tue, 17 May 2022 18:36:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=xSpmZomObbwmdVwXU2DztWRfkUMxLlEd6R0FQm0Cvqk=;
+ b=U94saHecCqVzoNu8qSKsqaxqQOnUHnOAGuX1nuUvJeauNa8TJZtT17AqmzfFL9ZeFu3/
+ iOiz0wnGoEW6GNCUu7HBlXSXX6iVCbFb+EiFiOFXZ+MUiOGF/8/d5zOWAqNoGbB3EZZ5
+ p0sI+bhehLgnQjYenZ8w6GZAiXy2BFm7udHVHXW+SRhh60lR2qmbv/8AyvjxcNwtBr3W
+ PMK/e7XO9BhPQrYY9dwCaE+rRXmCjyT/S/iIcGpF1dNtIY0Kg7okwy/+5v/Iw/688qDq
+ dRrzPgIZKmi9JP3G7vY7xO0u3z/VwzzSlvW2vrZlNPA0eWol2xa/7apWUwZ4KybdMhTx vg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4gy10bky-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 18:36:54 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24HIOO3s001298;
+        Tue, 17 May 2022 18:36:54 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4gy10bk7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 18:36:54 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24HI7mkN007589;
+        Tue, 17 May 2022 18:36:53 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma03dal.us.ibm.com with ESMTP id 3g242ad2gh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 18:36:53 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24HIapVu35914134
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 17 May 2022 18:36:52 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D784D6A054;
+        Tue, 17 May 2022 18:36:51 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C1B596A04F;
+        Tue, 17 May 2022 18:36:50 +0000 (GMT)
+Received: from [9.65.254.31] (unknown [9.65.254.31])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 17 May 2022 18:36:50 +0000 (GMT)
+Message-ID: <08b82fea-b728-0920-297a-a0d3dd8cc176@linux.ibm.com>
+Date:   Tue, 17 May 2022 14:36:50 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH 21/30] panic: Introduce the panic pre-reboot notifier list
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v19 07/20] s390/vfio-ap: rename matrix_dev->lock mutex to
+ matrix_dev->mdevs_lock
 Content-Language: en-US
-To:     "Luck, Tony" <tony.luck@intel.com>, Petr Mladek <pmladek@suse.com>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Cc:     "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "bhe@redhat.com" <bhe@redhat.com>,
-        "kexec@lists.infradead.org" <kexec@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "bcm-kernel-feedback-list@broadcom.com" 
-        <bcm-kernel-feedback-list@broadcom.com>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "openipmi-developer@lists.sourceforge.net" 
-        <openipmi-developer@lists.sourceforge.net>,
-        "rcu@vger.kernel.org" <rcu@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "kernel-dev@igalia.com" <kernel-dev@igalia.com>,
-        "kernel@gpiccoli.net" <kernel@gpiccoli.net>,
-        "halves@canonical.com" <halves@canonical.com>,
-        "fabiomirmar@gmail.com" <fabiomirmar@gmail.com>,
-        "alejandro.j.jimenez@oracle.com" <alejandro.j.jimenez@oracle.com>,
-        "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        "arnd@arndb.de" <arnd@arndb.de>, "bp@alien8.de" <bp@alien8.de>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "d.hatayama@jp.fujitsu.com" <d.hatayama@jp.fujitsu.com>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "dyoung@redhat.com" <dyoung@redhat.com>,
-        "Tang, Feng" <feng.tang@intel.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "mikelley@microsoft.com" <mikelley@microsoft.com>,
-        "hidehiro.kawai.ez@hitachi.com" <hidehiro.kawai.ez@hitachi.com>,
-        "jgross@suse.com" <jgross@suse.com>,
-        "john.ogness@linutronix.de" <john.ogness@linutronix.de>,
-        "keescook@chromium.org" <keescook@chromium.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "mhiramat@kernel.org" <mhiramat@kernel.org>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "rostedt@goodmis.org" <rostedt@goodmis.org>,
-        "senozhatsky@chromium.org" <senozhatsky@chromium.org>,
-        "stern@rowland.harvard.edu" <stern@rowland.harvard.edu>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "vgoyal@redhat.com" <vgoyal@redhat.com>,
-        "vkuznets@redhat.com" <vkuznets@redhat.com>,
-        "will@kernel.org" <will@kernel.org>, Alex Elder <elder@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Chris Zankel <chris@zankel.net>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Corey Minyard <minyard@acm.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        James Morse <james.morse@arm.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Matt Turner <mattst88@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Richard Weinberger <richard@nod.at>,
-        Robert Richter <rric@kernel.org>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Wei Liu <wei.liu@kernel.org>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-22-gpiccoli@igalia.com> <YoJgcC8c6LaKADZV@alley>
- <63a74b56-89ef-8d1f-d487-cdb986aab798@igalia.com>
- <bed66b9467254a5a8bafc1983dad643a@intel.com>
- <e895ce94-e6b9-caf6-e5d3-06bf0149445c@igalia.com> <YoOs9GJ5Ovq63u5Q@alley>
- <599b72f6-76a4-8e6d-5432-56fb1ffd7e0b@igalia.com>
- <06d85642fef24bc482642d669242654b@intel.com>
-From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-In-Reply-To: <06d85642fef24bc482642d669242654b@intel.com>
-Content-Type: text/plain; charset=UTF-8
+To:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
+ <20220404221039.1272245-8-akrowiak@linux.ibm.com>
+ <a26ce34d-0ed8-5479-805b-d863ff056848@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <a26ce34d-0ed8-5479-805b-d863ff056848@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: GDXWZ8emObZJ-VNq_4SmZ7TreLcKDhWa
+X-Proofpoint-GUID: EZERV1N4eoBxGDdVK1OzneBLJqNJ3fMW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-17_03,2022-05-17_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ lowpriorityscore=0 phishscore=0 priorityscore=1501 bulkscore=0 spamscore=0
+ mlxlogscore=827 mlxscore=0 clxscore=1015 suspectscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205170108
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 17/05/2022 14:02, Luck, Tony wrote:
->> Tony / Dinh - can I just *skip* this notifier *if kdump* is set or else
->> we run the code as-is? Does that make sense to you?
-> 
-> The "skip" option sounds like it needs some special flag associated with
-> an entry on the notifier chain. But there are other notifier chains ... so that
-> sounds messy to me.
-> 
-> Just all the notifiers in priority order. If any want to take different actions
-> based on kdump status, change the code. That seems more flexible than
-> an "all or nothing" approach by skipping.
-> 
-> -Tony
+Thank you for the review.
 
-I guess I've expressed myself in a poor way - sorry!
+On 5/17/22 10:02 AM, Jason J. Herne wrote:
+> Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
 
-What I'm planning to do in the altera_edac notifier is:
-
-if (kdump_is_set)
- return;
-
-/* regular code */
-
-In other words: if the kdump is set, this notifier will be effectively a
-nop (although it's gonna be called).
-
-Lemme know your thoughts Tony, if that makes sense.
-Thanks,
-
-
-Guilherme
