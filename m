@@ -2,142 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FD33C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 18:01:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B29AC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 18:09:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351719AbiEQSBc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 May 2022 14:01:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32938 "EHLO
+        id S237205AbiEQSJJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 May 2022 14:09:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351727AbiEQSBZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 14:01:25 -0400
+        with ESMTP id S232354AbiEQSJI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 14:09:08 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342703FD82;
-        Tue, 17 May 2022 11:01:24 -0700 (PDT)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24HHfsC1018713;
-        Tue, 17 May 2022 18:01:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=tmdhMwxKEVX3PeaTU8UyOIcfU9EAXEHP60T3yrcx/ms=;
- b=iQ/tTXc8K7hYdk29JTAn6AdDxWpo5BFoYk8bIOK/f0jA9MdT51YH1G9DdjyU0j6bmfiX
- LsWtTYzORxsn/6W8zhouy+/+2xd37D7SNeEh73frFJlNvDX+DWnEd0CyZe4VbxbfoRuR
- xysYaaVh4VdyB2BuWD7n8Q+1LV8D0gl9PdQJGbI52gZjcQ5dCFk9DyIvwi1wUwISLDnp
- 84FlcO0Oli/sjkAPOvnUwGvBt5UdlxfqONVz7N+0pFE35G5VRM4o/SEDeCagBoX5u7Lc
- lfP97ccKggdUxaOiaBs/QVIeADIkzvQZCuwoPgqN8wMsQSmRbEREnr2yFUDVyAkR73PT Qg== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C2E75FB8;
+        Tue, 17 May 2022 11:09:07 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24HHuj7S032306;
+        Tue, 17 May 2022 18:08:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=lZFnxU6GEX5YViFl4HPs4Icmctdn4XUXeWdOlmCpBqI=;
+ b=QJPxroUWOl7U/e0Sj75xbp+o88cRZji5Oj7CRaL/Cp9v/7F55yT+phD+bPuDDd9rdYVh
+ TR2jHE7Uyun/vqjI/VFfour4iWTs3PZjw0WiYbdoTpUugmoJRPac1PqNTMgragcgMWli
+ b89L9WdNoBtfhU2mjjIJ0YuvH/3+U08OcDx2p4L5S1UdQWMKgpdQUPLdNPDzeVNH29Wp
+ iuybvA7sgUFyjxJsSccP0yaIdsqVXGLvjPlnCUPrKC9S9baTj53bUBAZEsG4/ZrJrztw
+ cQwaEQRRkMH2Hl7I1Do3OJBt3fhIaBG616NbXSjh3gNxN4gAd8+aHdvK9EH3JDngVH7r rg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4gb28cw3-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4gj40esf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 18:01:17 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24HHl8nQ017286;
-        Tue, 17 May 2022 18:01:17 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4gb28cuy-1
+        Tue, 17 May 2022 18:08:59 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24HHvk73004564;
+        Tue, 17 May 2022 18:08:58 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4gj40erg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 18:01:17 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24HHgddO001394;
-        Tue, 17 May 2022 18:01:14 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3g2429ckj7-1
+        Tue, 17 May 2022 18:08:58 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24HI8Z07005730;
+        Tue, 17 May 2022 18:08:57 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma01dal.us.ibm.com with ESMTP id 3g242b4v30-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 May 2022 18:01:14 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24HI1B1w48824672
+        Tue, 17 May 2022 18:08:57 +0000
+Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24HI8ube7078890
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 17 May 2022 18:01:11 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 30B404C046;
-        Tue, 17 May 2022 18:01:11 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B368B4C044;
-        Tue, 17 May 2022 18:01:10 +0000 (GMT)
-Received: from osiris (unknown [9.145.64.16])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 17 May 2022 18:01:10 +0000 (GMT)
-Date:   Tue, 17 May 2022 20:01:09 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Jann Horn <jannh@google.com>,
-        Harald Freudenberger <freude@linux.ibm.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-crypto@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/crypto: fix scatterwalk_unmap() callers in AES-GCM
-Message-ID: <YoPi5eH+oFJ2anQh@osiris>
-References: <20220517143047.3054498-1-jannh@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220517143047.3054498-1-jannh@google.com>
+        Tue, 17 May 2022 18:08:56 GMT
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BC5E9AE05F;
+        Tue, 17 May 2022 18:08:56 +0000 (GMT)
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9BAD5AE062;
+        Tue, 17 May 2022 18:08:54 +0000 (GMT)
+Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.37.97])
+        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 17 May 2022 18:08:54 +0000 (GMT)
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+To:     jgg@nvidia.com, alex.williamson@redhat.com
+Cc:     cohuck@redhat.com, borntraeger@linux.ibm.com,
+        jjherne@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com,
+        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, hch@infradead.org,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
+Date:   Tue, 17 May 2022 14:08:50 -0400
+Message-Id: <20220517180851.166538-1-mjrosato@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: D5hoV9tVBnozGV6HodEoQOPD7mxgR36h
-X-Proofpoint-ORIG-GUID: olvVvJLd3dEjFcB0RK5hhMJdxWYOnVii
+X-Proofpoint-ORIG-GUID: qhZLpU9-0YZ89O6SOHMewEQV1JK1GVPw
+X-Proofpoint-GUID: 9Pst9FCHRpDpoz83T36CDDZkW0241MAR
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-17_03,2022-05-17_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 phishscore=0
- spamscore=0 suspectscore=0 clxscore=1015 mlxlogscore=846 bulkscore=0
- impostorscore=0 mlxscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205170107
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ malwarescore=0 priorityscore=1501 phishscore=0 spamscore=0 impostorscore=0
+ mlxlogscore=765 bulkscore=0 clxscore=1011 suspectscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205170107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 17, 2022 at 04:30:47PM +0200, Jann Horn wrote:
-> The argument of scatterwalk_unmap() is supposed to be the void* that was
-> returned by the previous scatterwalk_map() call.
-> The s390 AES-GCM implementation was instead passing the pointer to the
-> struct scatter_walk.
-> 
-> This doesn't actually break anything because scatterwalk_unmap() only uses
-> its argument under CONFIG_HIGHMEM and ARCH_HAS_FLUSH_ON_KUNMAP.
-> 
-> Note that I have not tested this patch in any way, not even compile-tested
-> it.
-> 
-> Fixes: bf7fa038707c ("s390/crypto: add s390 platform specific aes gcm support.")
-> Signed-off-by: Jann Horn <jannh@google.com>
-> ---
-> IDK which tree this has to go through - s390 or crypto?
-> maybe s390 is better, since they can actually test it?
-> 
->  arch/s390/crypto/aes_s390.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+As discussed in this thread:
 
-This can go via the s390 tree, however I'd like to have an ACK from
-Harald, who wrote the original code.
+https://lore.kernel.org/kvm/20220516172734.GE1343366@nvidia.com/
 
-> diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-> index 54c7536f2482..1023e9d43d44 100644
-> --- a/arch/s390/crypto/aes_s390.c
-> +++ b/arch/s390/crypto/aes_s390.c
-> @@ -701,7 +701,7 @@ static inline void _gcm_sg_unmap_and_advance(struct gcm_sg_walk *gw,
->  					     unsigned int nbytes)
->  {
->  	gw->walk_bytes_remain -= nbytes;
-> -	scatterwalk_unmap(&gw->walk);
-> +	scatterwalk_unmap(gw->walk_ptr);
->  	scatterwalk_advance(&gw->walk, nbytes);
->  	scatterwalk_done(&gw->walk, 0, gw->walk_bytes_remain);
->  	gw->walk_ptr = NULL;
-> @@ -776,7 +776,7 @@ static int gcm_out_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
->  		goto out;
->  	}
->  
-> -	scatterwalk_unmap(&gw->walk);
-> +	scatterwalk_unmap(gw->walk_ptr);
->  	gw->walk_ptr = NULL;
->  
->  	gw->ptr = gw->buf;
-> 
-> base-commit: 42226c989789d8da4af1de0c31070c96726d990c
-> -- 
-> 2.36.0.550.gb090851708-goog
-> 
+Let's remove VFIO_GROUP_NOTIFY_SET_KVM and instead assume the association
+has already been established prior to device_open.  For the types today
+that need a KVM (GVT, vfio-ap) these will fail if a KVM is not found.
+Looking ahead, vfio-pci-zdev will optionally want the KVM association
+(enable hardware assists) but it will not be a hard requirement (still
+want to allow other, non-KVM userspace usage). 
+
+This is built on top of Jason's group locking series:
+https://github.com/jgunthorpe/linux/commits/vfio_group_locking
+
+And tested with s390x-pci (zdev-kvm series) and vfio-ap (no GVT to test
+with)
+
+@Jason since it's based on your initial patch if you'd rather a SoB just
+let me know.
+
+Matthew Rosato (1):
+  vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
+
+ drivers/gpu/drm/i915/gvt/gvt.h        |  2 -
+ drivers/gpu/drm/i915/gvt/kvmgt.c      | 60 +++++------------------
+ drivers/s390/crypto/vfio_ap_ops.c     | 35 +++-----------
+ drivers/s390/crypto/vfio_ap_private.h |  3 --
+ drivers/vfio/vfio.c                   | 68 +++++++++------------------
+ include/linux/vfio.h                  |  5 +-
+ 6 files changed, 41 insertions(+), 132 deletions(-)
+
+-- 
+2.27.0
+
