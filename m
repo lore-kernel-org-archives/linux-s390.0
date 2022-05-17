@@ -2,246 +2,328 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FCA9C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 13:57:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C6F6C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 17 May 2022 14:02:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348134AbiEQN5k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 May 2022 09:57:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48540 "EHLO
+        id S1348126AbiEQOCO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 May 2022 10:02:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232153AbiEQN5h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 09:57:37 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A94673C4A1;
-        Tue, 17 May 2022 06:57:35 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 5FD4E1F8CA;
-        Tue, 17 May 2022 13:57:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1652795854; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=F/28g65NUYRrE0kqo9hb+aIMt4lDnxj7qFXJPB2SFKQ=;
-        b=La0hw1fimyOXZWGy7NhUralYCHdeUAgxZ7Jx2l4teL3ZObgxCoYN3MJlutKivdf7Tw8ScF
-        Jcou2BEeZy+SMDvZr2KkytW34i2oUnUQq/Rvj3HIt6rmBgE0M6mmkljwufeUEZWWTXnkMR
-        l7FZzEHlQDvQ7gIrbLVQoj/qRxAknBE=
-Received: from suse.cz (unknown [10.100.201.202])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 47D802C141;
-        Tue, 17 May 2022 13:57:32 +0000 (UTC)
-Date:   Tue, 17 May 2022 15:57:29 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc:     David Gow <davidgow@google.com>, Evan Green <evgreen@chromium.org>,
-        Julius Werner <jwerner@chromium.org>,
-        Scott Branden <scott.branden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        akpm@linux-foundation.org, bhe@redhat.com,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
-        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
-        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
-        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
-        halves@canonical.com, fabiomirmar@gmail.com,
-        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
-        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
-        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
-        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dexuan Cui <decui@microsoft.com>,
-        Doug Berger <opendmb@gmail.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Justin Chen <justinpopo6@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Markus Mayer <mmayer@broadcom.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mihai Carabas <mihai.carabas@oracle.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        zhenwei pi <pizhenwei@bytedance.com>
-Subject: Re: [PATCH 19/30] panic: Add the panic hypervisor notifier list
-Message-ID: <YoOpyW1+q+Z5as78@alley>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-20-gpiccoli@igalia.com>
- <YoJZVZl/MH0KiE/J@alley>
- <ad082ce7-db50-13bb-3dbb-9b595dfa78be@igalia.com>
+        with ESMTP id S243926AbiEQOCN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 May 2022 10:02:13 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D785535846;
+        Tue, 17 May 2022 07:02:11 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24HDs3D0027686;
+        Tue, 17 May 2022 14:02:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=VHxeDu7C4s1ScjOUw2ak878irClVRvC9FAs7n2oF/0s=;
+ b=emTB6f7p7XHqwkYos8gwaVeEMEK3bIW4Ck4zVtwakgCqzjmmx2pKW+4diVIXRkhzVVsn
+ u/zhrDiRuAnhOK0yf4tCto4m+FzjFDGvxbEgqyS8MGE/+Ef6Ox+plH57XkiPkGYwTzlE
+ sGamZa1Gb4h5QxIIbqw/sBYSCTnPB5z3yXxHEC/BiEASFxAw/I1CaNVP6ZznSZpbAeH9
+ 17jUMeP+UGOOTx2Kkqg9Jt9n2sS0dnM+NFnYnluNGCQ6rqQ4cz35oTmwumqkiyCMu/FB
+ xp3VnHRs/7njpgum3UEq6JVUQhKEep1jK/t2uxW/y3siB/C45a9NO5gAEA2TqQ27nwDH Bg== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4d0e869e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 14:02:10 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24HDwiKv023143;
+        Tue, 17 May 2022 14:02:08 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma05fra.de.ibm.com with ESMTP id 3g24293epa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 May 2022 14:02:08 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24HE258W58130810
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 17 May 2022 14:02:05 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 85ED911C052;
+        Tue, 17 May 2022 14:02:05 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5717E11C058;
+        Tue, 17 May 2022 14:02:05 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.40])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 17 May 2022 14:02:05 +0000 (GMT)
+Date:   Tue, 17 May 2022 16:02:03 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@linux.ibm.com
+Subject: Re: [PATCH v5 06/10] kvm: s390: Add configuration dump
+ functionality
+Message-ID: <20220517160203.1b907246@p-imbrenda>
+In-Reply-To: <f8132cf7-9249-75b8-059d-fa1031973beb@linux.ibm.com>
+References: <20220516090817.1110090-1-frankja@linux.ibm.com>
+        <20220516090817.1110090-7-frankja@linux.ibm.com>
+        <20220517125907.685ffe44@p-imbrenda>
+        <f8132cf7-9249-75b8-059d-fa1031973beb@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ad082ce7-db50-13bb-3dbb-9b595dfa78be@igalia.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YIxAMWgiagAkdqJslgjyYVvrnTkg6gL-
+X-Proofpoint-ORIG-GUID: YIxAMWgiagAkdqJslgjyYVvrnTkg6gL-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-17_03,2022-05-17_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 clxscore=1015 impostorscore=0 adultscore=0 suspectscore=0
+ bulkscore=0 mlxscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205170083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon 2022-05-16 12:06:17, Guilherme G. Piccoli wrote:
-> Thanks for the review!
+On Tue, 17 May 2022 15:39:14 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
+> On 5/17/22 12:59, Claudio Imbrenda wrote:
+> > On Mon, 16 May 2022 09:08:13 +0000
+> > Janosch Frank <frankja@linux.ibm.com> wrote:
+> >   
+> >> Sometimes dumping inside of a VM fails, is unavailable or doesn't
+> >> yield the required data. For these occasions we dump the VM from the
+> >> outside, writing memory and cpu data to a file.
+> >>
+> >> Up to now PV guests only supported dumping from the inside of the
+> >> guest through dumpers like KDUMP. A PV guest can be dumped from the
+> >> hypervisor but the data will be stale and / or encrypted.
+> >>
+> >> To get the actual state of the PV VM we need the help of the
+> >> Ultravisor who safeguards the VM state. New UV calls have been added
+> >> to initialize the dump, dump storage state data, dump cpu data and
+> >> complete the dump process. We expose these calls in this patch via a
+> >> new UV ioctl command.
+> >>
+> >> The sensitive parts of the dump data are encrypted, the dump key is
+> >> derived from the Customer Communication Key (CCK). This ensures that
+> >> only the owner of the VM who has the CCK can decrypt the dump data.
+> >>
+> >> The memory is dumped / read via a normal export call and a re-import
+> >> after the dump initialization is not needed (no re-encryption with a
+> >> dump key).
+> >>
+> >> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>  
 > 
-> I agree with the blinking stuff, I can rework and add all LED/blinking
-> stuff into the loop list, it does make sense. I'll comment a bit in the
-> others below...
+> The cut code will be fixed according to your requests.
 > 
-> On 16/05/2022 11:01, Petr Mladek wrote:
-> >> --- a/drivers/firmware/google/gsmi.c
-> >> +++ b/drivers/firmware/google/gsmi.c
-> >> @@ -1034,7 +1034,7 @@ static __init int gsmi_init(void)
-> >>  
-> >>  	register_reboot_notifier(&gsmi_reboot_notifier);
-> >>  	register_die_notifier(&gsmi_die_notifier);
-> >> -	atomic_notifier_chain_register(&panic_notifier_list,
-> >> +	atomic_notifier_chain_register(&panic_hypervisor_list,
-> >>  				       &gsmi_panic_notifier);
+> [...]
+> >> +/*
+
+/**
+
+> >> + * kvm_s390_pv_dump_stor_state
+> >> + *
+> >> + * @kvm: pointer to the guest's KVM struct
+> >> + * @buff_user: Userspace pointer where we will write the results to
+> >> + * @gaddr: Starting absolute guest address for which the storage state
+> >> + *         is requested. This value will be updated with the last
+> >> + *         address for which data was written when returning to
+> >> + *         userspace.
+> >> + * @buff_user_len: Length of the buff_user buffer
+> >> + * @rc: Pointer to where the uvcb return code is stored
+> >> + * @rrc: Pointer to where the uvcb return reason code is stored
+> >> + *  
 > > 
-> > I am not sure about this one. It looks like some logging or
-> > pre_reboot stuff.
+> > please add:
+> > 	Context: kvm->lock needs to be held  
+> 
+> Sure
+> 
 > > 
+> > also explain that part of the user buffer might be written to even in
+> > case of failure (this also needs to go in the documentation)  
 > 
-> Disagree here. I'm looping Google maintainers, so they can comment.
-> (CCed Evan, David, Julius)
+> Ok
 > 
-> This notifier is clearly a hypervisor notification mechanism. I've fixed
-> a locking stuff there (in previous patch), I feel it's low-risk but even
-> if it's mid-risk, the class of such callback remains a perfect fit with
-> the hypervisor list IMHO.
-
-It is similar to drivers/soc/bcm/brcmstb/pm/pm-arm.c.
-See below for another idea.
-
-> >> --- a/drivers/misc/bcm-vk/bcm_vk_dev.c
-> >> +++ b/drivers/misc/bcm-vk/bcm_vk_dev.c
-> >> @@ -1446,7 +1446,7 @@ static int bcm_vk_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
-> >>  
-> >>  	/* register for panic notifier */
-> >>  	vk->panic_nb.notifier_call = bcm_vk_on_panic;
-> >> -	err = atomic_notifier_chain_register(&panic_notifier_list,
-> >> +	err = atomic_notifier_chain_register(&panic_hypervisor_list,
-> >>  					     &vk->panic_nb);
+> >   
+> >> + * Return:
+> >> + *  0 on success  
 > > 
-> > It seems to reset some hardware or so. IMHO, it should go into the
-> > pre-reboot list.
+> > rc and rrc will also be set in case of success  
 > 
-> Mixed feelings here, I'm looping Broadcom maintainers to comment.
-> (CC Scott and Broadcom list)
+> But that's different from the return code of this function and would 
+> belong to the function description above, no?
+
+yes
+
 > 
-> I'm afraid it breaks kdump if this device is not reset beforehand - it's
-> a doorbell write, so not high risk I think...
-> 
-> But in case the not-reset device can be probed normally in kdump kernel,
-> then I'm fine in moving this to the reboot list! I don't have the HW to
-> test myself.
-
-Good question. Well, it if has to be called before kdump then
-even "hypervisor" list is a wrong place because is not always
-called before kdump.
-
-
-> >> --- a/drivers/power/reset/ltc2952-poweroff.c
-> >> +++ b/drivers/power/reset/ltc2952-poweroff.c
-> >> @@ -279,7 +279,7 @@ static int ltc2952_poweroff_probe(struct platform_device *pdev)
-> >>  	pm_power_off = ltc2952_poweroff_kill;
-> >>  
-> >>  	data->panic_notifier.notifier_call = ltc2952_poweroff_notify_panic;
-> >> -	atomic_notifier_chain_register(&panic_notifier_list,
-> >> +	atomic_notifier_chain_register(&panic_hypervisor_list,
-> >>  				       &data->panic_notifier);
+> >   
+> >> + *  -ENOMEM if allocating the cache fails
+> >> + *  -EINVAL if gaddr is not aligned to 1MB
+> >> + *  -EINVAL if buff_user_len is not aligned to uv_info.conf_dump_storage_state_len
+> >> + *  -EINVAL if the UV call fails, rc and rrc will be set in this case  
 > > 
-> > I looks like this somehow triggers the reboot. IMHO, it should go
-> > into the pre_reboot list.
-> 
-> Mixed feeling again here - CCing the maintainers for comments (Sebastian
-> / PM folks).
-> 
-> This is setting a variable only, and once it's set (data->kernel_panic
-> is the bool's name), it just bails out the IRQ handler and a timer
-> setting - this timer seems kinda tricky, so bailing out ASAP makes sense
-> IMHO.
-
-IMHO, the timer informs the hardware that the system is still alive
-in the middle of panic(). If the timer is not working then the
-hardware (chip) will think that the system frozen in panic()
-and will power off the system. See the comments in
-drivers/power/reset/ltc2952-poweroff.c:
-
- * The following GPIOs are used:
- * - trigger (input)
- *     A level change indicates the shut-down trigger. If it's state reverts
- *     within the time-out defined by trigger_delay, the shut down is not
- *     executed. If no pin is assigned to this input, the driver will start the
- *     watchdog toggle immediately. The chip will only power off the system if
- *     it is requested to do so through the kill line.
- *
- * - watchdog (output)
- *     Once a shut down is triggered, the driver will toggle this signal,
- *     with an internal (wde_interval) to stall the hardware shut down.
-
-IMHO, we really have to keep it alive until we reach the reboot stage.
-
-Another question is how it actually works when the interrupts are
-disabled during panic() and the timer callbacks are not handled.
-
-
-> > [...]
-> >> --- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-> >> +++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-> >> @@ -814,7 +814,7 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
-> >>  		goto out;
-> >>  	}
-> >>  
-> >> -	atomic_notifier_chain_register(&panic_notifier_list,
-> >> +	atomic_notifier_chain_register(&panic_hypervisor_list,
-> >>  				       &brcmstb_pm_panic_nb);
+> > have you considered a different code for UVC failure?
+> > so the caller can know that rc and rrc are meaningful
 > > 
-> > I am not sure about this one. It instruct some HW to preserve DRAM.
-> > IMHO, it better fits into pre_reboot category but I do not have
-> > strong opinion.
+> > or just explain that rc and rrc will always be set; if the UVC is not
+> > performed, rc and rrc will be 0  
 > 
-> Disagree here, I'm CCing Florian for information.
+> If the UVC is not performed the rcs will not be *changed*, so it's 
+> advisable to set them to 0 to recognize a change.
+
+ah, right, you jump to out only for errors after the allocation
+
 > 
-> This notifier preserves RAM so it's *very interesting* if we have
-> kmsg_dump() for example, but maybe might be also relevant in case kdump
-> kernel is configured to store something in a persistent RAM (then,
-> without this notifier, after kdump reboots the system data would be lost).
+> 
+> Also:
+> While I generally like commenting as much as possible, this is starting 
+> to get out of hand, the comment header is now taking up a lot of space. 
+> I'll put the rc/rrc comment into the api documentation and I'm 
+> considering putting the partial write comment into there too.
 
-I see. It is actually similar problem as with
-drivers/firmware/google/gsmi.c.
+I don't know, the comments are also used to generate documentation
+automatically, so I think they should contain all the information in
+one way or the other.
 
-I does similar things like kmsg_dump() so it should be called in
-the same location (after info notifier list and before kdump).
+I don't see issues with huge comments, if the function is complex and
+has lots of parameters and possible return values.
 
-A solution might be to put it at these notifiers at the very
-end of the "info" list or make extra "dump" notifier list.
+as much as it bothers you, the whole comment block has 0 lines of actual
+description of what the function does, so I don't think this is getting
+out of hand :)
 
-Best Regards,
-Petr
+> 
+> >   
+> >> + *  -EFAULT if copying the result to buff_user failed
+> >> + */
+> >> +int kvm_s390_pv_dump_stor_state(struct kvm *kvm, void __user *buff_user,
+> >> +				u64 *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc)
+> >> +{
+> >> +	struct uv_cb_dump_stor_state uvcb = {
+> >> +		.header.cmd = UVC_CMD_DUMP_CONF_STOR_STATE,
+> >> +		.header.len = sizeof(uvcb),
+> >> +		.config_handle = kvm->arch.pv.handle,
+> >> +		.gaddr = *gaddr,
+> >> +		.dump_area_origin = 0,
+> >> +	};
+> >> +	size_t buff_kvm_size;
+> >> +	size_t size_done = 0;
+> >> +	u8 *buff_kvm = NULL;
+> >> +	int cc, ret;
+> >> +
+> >> +	ret = -EINVAL;
+> >> +	/* UV call processes 1MB guest storage chunks at a time */
+> >> +	if (!IS_ALIGNED(*gaddr, HPAGE_SIZE))
+> >> +		goto out;
+> >> +
+> >> +	/*
+> >> +	 * We provide the storage state for 1MB chunks of guest
+> >> +	 * storage. The buffer will need to be aligned to
+> >> +	 * conf_dump_storage_state_len so we don't end on a partial
+> >> +	 * chunk.
+> >> +	 */
+> >> +	if (!buff_user_len ||
+> >> +	    !IS_ALIGNED(buff_user_len, uv_info.conf_dump_storage_state_len))
+> >> +		goto out;
+> >> +
+> >> +	/*
+> >> +	 * Allocate a buffer from which we will later copy to the user
+> >> +	 * process. We don't want userspace to dictate our buffer size
+> >> +	 * so we limit it to DUMP_BUFF_LEN.
+> >> +	 */
+> >> +	ret = -ENOMEM;
+> >> +	buff_kvm_size = min_t(u64, buff_user_len, DUMP_BUFF_LEN);
+> >> +	buff_kvm = vzalloc(buff_kvm_size);
+> >> +	if (!buff_kvm)
+> >> +		goto out;
+> >> +
+> >> +	ret = 0;
+> >> +	uvcb.dump_area_origin = (u64)buff_kvm;
+> >> +	/* We will loop until the user buffer is filled or an error occurs */
+> >> +	do {
+> >> +		/* Get 1MB worth of guest storage state data */
+> >> +		cc = uv_call_sched(0, (u64)&uvcb);
+> >> +
+> >> +		/* All or nothing */
+> >> +		if (cc) {
+> >> +			ret = -EINVAL;
+> >> +			break;
+> >> +		}
+> >> +
+> >> +		size_done += uv_info.conf_dump_storage_state_len;  
+> > 
+> > maybe save this in a local const variable with a shorter name? would be
+> > more readable? const u64 dump_len = uv_info.conf_dump_storage_state_len;
+> >   
+
+did you see this one ^ ?
+
+> >> +		uvcb.dump_area_origin += uv_info.conf_dump_storage_state_len;
+> >> +		buff_user_len -= uv_info.conf_dump_storage_state_len;
+> >> +		uvcb.gaddr += HPAGE_SIZE;
+> >> +
+> >> +		/* KVM Buffer full, time to copy to the process */
+> >> +		if (!buff_user_len || size_done == DUMP_BUFF_LEN) {
+> >> +			if (copy_to_user(buff_user, buff_kvm, size_done)) {
+> >> +				ret = -EFAULT;
+> >> +				break;
+> >> +			}
+> >> +
+> >> +			buff_user += size_done;
+> >> +			size_done = 0;
+> >> +			uvcb.dump_area_origin = (u64)buff_kvm;
+> >> +		}
+> >> +	} while (buff_user_len);
+> >> +
+> >> +	/* Report back where we ended dumping */
+> >> +	*gaddr = uvcb.gaddr;
+> >> +
+> >> +	/* Lets only log errors, we don't want to spam */
+> >> +out:
+> >> +	if (ret)
+> >> +		KVM_UV_EVENT(kvm, 3,
+> >> +			     "PROTVIRT DUMP STORAGE STATE: addr %llx ret %d, uvcb rc %x rrc %x",
+> >> +			     uvcb.gaddr, ret, uvcb.header.rc, uvcb.header.rrc);
+> >> +	*rc = uvcb.header.rc;
+> >> +	*rrc = uvcb.header.rrc;
+> >> +	vfree(buff_kvm);
+> >> +
+> >> +	return ret;
+> >> +}
+> >> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> >> index bb2f91bc2305..1c60c2d314ba 100644
+> >> --- a/include/uapi/linux/kvm.h
+> >> +++ b/include/uapi/linux/kvm.h
+> >> @@ -1653,6 +1653,20 @@ struct kvm_s390_pv_unp {
+> >>   	__u64 tweak;
+> >>   };
+> >>   
+> >> +enum pv_cmd_dmp_id {
+> >> +	KVM_PV_DUMP_INIT,
+> >> +	KVM_PV_DUMP_CONFIG_STOR_STATE,
+> >> +	KVM_PV_DUMP_COMPLETE,
+> >> +};
+> >> +
+> >> +struct kvm_s390_pv_dmp {
+> >> +	__u64 subcmd;
+> >> +	__u64 buff_addr;
+> >> +	__u64 buff_len;
+> >> +	__u64 gaddr;		/* For dump storage state */
+> >> +	__u64 reserved[4];
+> >> +};
+> >> +
+> >>   enum pv_cmd_info_id {
+> >>   	KVM_PV_INFO_VM,
+> >>   	KVM_PV_INFO_DUMP,
+> >> @@ -1696,6 +1710,7 @@ enum pv_cmd_id {
+> >>   	KVM_PV_PREP_RESET,
+> >>   	KVM_PV_UNSHARE_ALL,
+> >>   	KVM_PV_INFO,
+> >> +	KVM_PV_DUMP,
+> >>   };
+> >>   
+> >>   struct kvm_pv_cmd {  
+> >   
+> 
+
