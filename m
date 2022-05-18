@@ -2,639 +2,316 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76BC4C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 21:26:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D879C4167B
+	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 22:17:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242511AbiERV0h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 May 2022 17:26:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49114 "EHLO
+        id S229770AbiERWR1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 May 2022 18:17:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243060AbiERV0g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 17:26:36 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C66473B013;
-        Wed, 18 May 2022 14:26:33 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24ILCEFc025644;
-        Wed, 18 May 2022 21:26:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=0OoZR7YW3JYuhk9QoOit9EnNS3V8lt2qJkg0/GdM4xQ=;
- b=V5+WWV4VZdMR3UqOKBQ2TM3QcBrpWjIZfUfoeercazTkjSb/MkhTkUUJjTxpz3dRyAT/
- SAveW7N0AXOEvcy1qUy6QUqPWZuK8WsZuCZDjppb+Ne+8tN9gISTm/Azmk0rI34dEUMk
- l6S/JH1z372hUnDRU7ALXeTCrqHeLKm2CnDT/e/nDNIy4g+TvDE5nbjLEqRvShOB6M8Z
- J1qSydAmSuUfBhrkEf6Y169G9++kMhYgLa7F7mNqL/1kScA/Fm3njHnBr/YyAYp7X3JY
- 0HS5X8lYNaJeVrW3PlxWi6NOuk78raCA3rdPVdhcDEHIwgkLgFLjqvOQLCX/N+wPmlUw CA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g58ghr830-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 May 2022 21:26:24 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24ILE20P032367;
-        Wed, 18 May 2022 21:26:23 GMT
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g58ghr82d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 May 2022 21:26:23 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24IL2eMH001514;
-        Wed, 18 May 2022 21:26:22 GMT
-Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
-        by ppma04wdc.us.ibm.com with ESMTP id 3g4wp5bwpa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 May 2022 21:26:22 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24ILQLD020316558
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 May 2022 21:26:21 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 515D12805C;
-        Wed, 18 May 2022 21:26:21 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F2AD228060;
-        Wed, 18 May 2022 21:26:17 +0000 (GMT)
-Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.37.97])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 18 May 2022 21:26:17 +0000 (GMT)
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-To:     jgg@nvidia.com, alex.williamson@redhat.com
-Cc:     cohuck@redhat.com, borntraeger@linux.ibm.com,
-        jjherne@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, hch@infradead.org,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
-Date:   Wed, 18 May 2022 17:26:07 -0400
-Message-Id: <20220518212607.467538-2-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20220518212607.467538-1-mjrosato@linux.ibm.com>
-References: <20220518212607.467538-1-mjrosato@linux.ibm.com>
+        with ESMTP id S229778AbiERWRX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 18:17:23 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F92D20AE46
+        for <linux-s390@vger.kernel.org>; Wed, 18 May 2022 15:17:20 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id q4so3077862plr.11
+        for <linux-s390@vger.kernel.org>; Wed, 18 May 2022 15:17:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=message-id:date:mime-version:user-agent:subject:to:cc:references
+         :from:in-reply-to;
+        bh=f7n5jaWpFoKcOAvYp2AERDf69a/AsSR9UEgn4dOKM8E=;
+        b=EifTyZE98tGtlUQKlddbIs02IjJ76EJ7IVjvUJClMOAIeyRVqKx2l4kS/6TQPNO09w
+         L/TdTBDj0RAKJqYmKXEQoy6wTboyoYXq7BD6yzspavgwyqGAxpsoGqkwGlrA9b2EIqQY
+         iEZI6wLoR45/Ors/KLQBYeb3DQRvR8Ca1JYg4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :to:cc:references:from:in-reply-to;
+        bh=f7n5jaWpFoKcOAvYp2AERDf69a/AsSR9UEgn4dOKM8E=;
+        b=qrLiXdPLW33qsVc+oHAkf42VmvlDzKXfKGUOrvq8W7HYPkPzFSWAvtb70pV4EoaiqJ
+         UiapmbFJCb5HxA20cl8hZ2FtgQWGksuTgS43kHEY9bikG5YeI+erTJV1eugYx8AkvhvT
+         w5unK3JpDGFLavtN6oc/q5GMo3Bb7Pr6kh5gkOol29S2j51v94YvMaRoaO9Tea+t6FFW
+         4SonVS3L05xiXJB9CE0wI47dVRFYDZe+SZ4i2MTDRRpi5M6AomzwFTljOqolOlzyP7Jm
+         db2rHiqi5jp2BiLkgpH4BfAt1VP+ISYSpq+KaA8HPClbD99CBUULJFIicFV1WkixA/Q0
+         zWFA==
+X-Gm-Message-State: AOAM533EHcymuK2Z1OsFtoMRA4olFdX5vzeuv4Td7QVlMTyXhLkgxI7a
+        dk0swBRaz/3rvthmF48NDkLm5g==
+X-Google-Smtp-Source: ABdhPJxkLsE36Kq2JcCUoiWV2ClSYG7H68DZOk0Dnd5ufVpjZfzcSk9Zz5AbXiW59SdIpTBHz/LAmw==
+X-Received: by 2002:a17:902:ec92:b0:161:7e29:6f9d with SMTP id x18-20020a170902ec9200b001617e296f9dmr1458536plg.157.1652912238747;
+        Wed, 18 May 2022 15:17:18 -0700 (PDT)
+Received: from [10.136.13.180] ([192.19.161.250])
+        by smtp.gmail.com with ESMTPSA id ji15-20020a170903324f00b001616e13fccdsm2195161plb.221.2022.05.18.15.17.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 18 May 2022 15:17:17 -0700 (PDT)
+Message-ID: <81878a67-21f1-fee8-1add-f381bc8b05df@broadcom.com>
+Date:   Wed, 18 May 2022 15:17:07 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: cZO__lhE0imUZpN5c1Hx-Vu5D1daExeo
-X-Proofpoint-GUID: 9lsdZ9dN5tmxflXtdgDSh2dP_DIeYHA4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-18_06,2022-05-17_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- malwarescore=0 mlxlogscore=831 mlxscore=0 priorityscore=1501 phishscore=0
- spamscore=0 bulkscore=0 adultscore=0 suspectscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205180121
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 19/30] panic: Add the panic hypervisor notifier list
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Desmond yan <desmond.yan@broadcom.com>
+Cc:     David Gow <davidgow@google.com>, Evan Green <evgreen@chromium.org>,
+        Julius Werner <jwerner@chromium.org>,
+        bcm-kernel-feedback-list@broadcom.com, linux-pm@vger.kernel.org,
+        akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dexuan Cui <decui@microsoft.com>,
+        Doug Berger <opendmb@gmail.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Justin Chen <justinpopo6@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Markus Mayer <mmayer@broadcom.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        zhenwei pi <pizhenwei@bytedance.com>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-20-gpiccoli@igalia.com> <YoJZVZl/MH0KiE/J@alley>
+ <ad082ce7-db50-13bb-3dbb-9b595dfa78be@igalia.com> <YoOpyW1+q+Z5as78@alley>
+ <d72b9aab-675c-ac89-b73a-b1de4a0b722d@igalia.com>
+From:   Scott Branden <scott.branden@broadcom.com>
+In-Reply-To: <d72b9aab-675c-ac89-b73a-b1de4a0b722d@igalia.com>
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
+        boundary="000000000000e0143505df509ebe"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Rather than relying on a notifier for associating the KVM with
-the group, let's assume that the association has already been
-made prior to device_open.  The first time a device is opened
-associate the group KVM with the device.
+--000000000000e0143505df509ebe
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This fixes a user-triggerable oops in GVT.
+Hi Guilherme,
 
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- drivers/gpu/drm/i915/gvt/gtt.c        |  4 +-
- drivers/gpu/drm/i915/gvt/gvt.h        |  3 -
- drivers/gpu/drm/i915/gvt/kvmgt.c      | 82 ++++++---------------------
- drivers/s390/crypto/vfio_ap_ops.c     | 38 ++++---------
- drivers/s390/crypto/vfio_ap_private.h |  3 -
- drivers/vfio/vfio.c                   | 75 ++++++++----------------
- include/linux/vfio.h                  |  5 +-
- 7 files changed, 56 insertions(+), 154 deletions(-)
++Desmond
 
-diff --git a/drivers/gpu/drm/i915/gvt/gtt.c b/drivers/gpu/drm/i915/gvt/gtt.c
-index 9c5cc2800975..b4f69364f9a1 100644
---- a/drivers/gpu/drm/i915/gvt/gtt.c
-+++ b/drivers/gpu/drm/i915/gvt/gtt.c
-@@ -51,7 +51,7 @@ static int preallocated_oos_pages = 8192;
- 
- static bool intel_gvt_is_valid_gfn(struct intel_vgpu *vgpu, unsigned long gfn)
- {
--	struct kvm *kvm = vgpu->kvm;
-+	struct kvm *kvm = vgpu->vfio_device.kvm;
- 	int idx;
- 	bool ret;
- 
-@@ -1185,7 +1185,7 @@ static int is_2MB_gtt_possible(struct intel_vgpu *vgpu,
- 
- 	if (!vgpu->attached)
- 		return -EINVAL;
--	pfn = gfn_to_pfn(vgpu->kvm, ops->get_pfn(entry));
-+	pfn = gfn_to_pfn(vgpu->vfio_device.kvm, ops->get_pfn(entry));
- 	if (is_error_noslot_pfn(pfn))
- 		return -EINVAL;
- 	return PageTransHuge(pfn_to_page(pfn));
-diff --git a/drivers/gpu/drm/i915/gvt/gvt.h b/drivers/gpu/drm/i915/gvt/gvt.h
-index 2af4c83e733c..aee1a45da74b 100644
---- a/drivers/gpu/drm/i915/gvt/gvt.h
-+++ b/drivers/gpu/drm/i915/gvt/gvt.h
-@@ -227,9 +227,6 @@ struct intel_vgpu {
- 	struct mutex cache_lock;
- 
- 	struct notifier_block iommu_notifier;
--	struct notifier_block group_notifier;
--	struct kvm *kvm;
--	struct work_struct release_work;
- 	atomic_t released;
- 
- 	struct kvm_page_track_notifier_node track_node;
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index 7655ffa97d51..e2f6c56ab342 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -228,8 +228,6 @@ static void intel_gvt_cleanup_vgpu_type_groups(struct intel_gvt *gvt)
- 	}
- }
- 
--static void intel_vgpu_release_work(struct work_struct *work);
--
- static void gvt_unpin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
- 		unsigned long size)
- {
-@@ -761,23 +759,6 @@ static int intel_vgpu_iommu_notifier(struct notifier_block *nb,
- 	return NOTIFY_OK;
- }
- 
--static int intel_vgpu_group_notifier(struct notifier_block *nb,
--				     unsigned long action, void *data)
--{
--	struct intel_vgpu *vgpu =
--		container_of(nb, struct intel_vgpu, group_notifier);
--
--	/* the only action we care about */
--	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
--		vgpu->kvm = data;
--
--		if (!data)
--			schedule_work(&vgpu->release_work);
--	}
--
--	return NOTIFY_OK;
--}
--
- static bool __kvmgt_vgpu_exist(struct intel_vgpu *vgpu)
- {
- 	struct intel_vgpu *itr;
-@@ -789,7 +770,7 @@ static bool __kvmgt_vgpu_exist(struct intel_vgpu *vgpu)
- 		if (!itr->attached)
- 			continue;
- 
--		if (vgpu->kvm == itr->kvm) {
-+		if (vgpu->vfio_device.kvm == itr->vfio_device.kvm) {
- 			ret = true;
- 			goto out;
- 		}
-@@ -806,7 +787,6 @@ static int intel_vgpu_open_device(struct vfio_device *vfio_dev)
- 	int ret;
- 
- 	vgpu->iommu_notifier.notifier_call = intel_vgpu_iommu_notifier;
--	vgpu->group_notifier.notifier_call = intel_vgpu_group_notifier;
- 
- 	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
- 	ret = vfio_register_notifier(vfio_dev, VFIO_IOMMU_NOTIFY, &events,
-@@ -817,38 +797,32 @@ static int intel_vgpu_open_device(struct vfio_device *vfio_dev)
- 		goto out;
- 	}
- 
--	events = VFIO_GROUP_NOTIFY_SET_KVM;
--	ret = vfio_register_notifier(vfio_dev, VFIO_GROUP_NOTIFY, &events,
--				     &vgpu->group_notifier);
--	if (ret != 0) {
--		gvt_vgpu_err("vfio_register_notifier for group failed: %d\n",
--			ret);
--		goto undo_iommu;
--	}
--
- 	ret = -EEXIST;
- 	if (vgpu->attached)
--		goto undo_register;
-+		goto undo_iommu;
- 
- 	ret = -ESRCH;
--	if (!vgpu->kvm || vgpu->kvm->mm != current->mm) {
-+	if (!vgpu->vfio_device.kvm ||
-+	    vgpu->vfio_device.kvm->mm != current->mm) {
- 		gvt_vgpu_err("KVM is required to use Intel vGPU\n");
--		goto undo_register;
-+		goto undo_iommu;
- 	}
- 
-+	kvm_get_kvm(vgpu->vfio_device.kvm);
-+
- 	ret = -EEXIST;
- 	if (__kvmgt_vgpu_exist(vgpu))
--		goto undo_register;
-+		goto undo_iommu;
- 
- 	vgpu->attached = true;
--	kvm_get_kvm(vgpu->kvm);
- 
- 	kvmgt_protect_table_init(vgpu);
- 	gvt_cache_init(vgpu);
- 
- 	vgpu->track_node.track_write = kvmgt_page_track_write;
- 	vgpu->track_node.track_flush_slot = kvmgt_page_track_flush_slot;
--	kvm_page_track_register_notifier(vgpu->kvm, &vgpu->track_node);
-+	kvm_page_track_register_notifier(vgpu->vfio_device.kvm,
-+					 &vgpu->track_node);
- 
- 	debugfs_create_ulong(KVMGT_DEBUGFS_FILENAME, 0444, vgpu->debugfs,
- 			     &vgpu->nr_cache_entries);
-@@ -858,10 +832,6 @@ static int intel_vgpu_open_device(struct vfio_device *vfio_dev)
- 	atomic_set(&vgpu->released, 0);
- 	return 0;
- 
--undo_register:
--	vfio_unregister_notifier(vfio_dev, VFIO_GROUP_NOTIFY,
--				 &vgpu->group_notifier);
--
- undo_iommu:
- 	vfio_unregister_notifier(vfio_dev, VFIO_IOMMU_NOTIFY,
- 				 &vgpu->iommu_notifier);
-@@ -880,8 +850,9 @@ static void intel_vgpu_release_msi_eventfd_ctx(struct intel_vgpu *vgpu)
- 	}
- }
- 
--static void __intel_vgpu_release(struct intel_vgpu *vgpu)
-+static void intel_vgpu_close_device(struct vfio_device *vfio_dev)
- {
-+	struct intel_vgpu *vgpu = vfio_dev_to_vgpu(vfio_dev);
- 	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
- 	int ret;
- 
-@@ -898,35 +869,19 @@ static void __intel_vgpu_release(struct intel_vgpu *vgpu)
- 	drm_WARN(&i915->drm, ret,
- 		 "vfio_unregister_notifier for iommu failed: %d\n", ret);
- 
--	ret = vfio_unregister_notifier(&vgpu->vfio_device, VFIO_GROUP_NOTIFY,
--				       &vgpu->group_notifier);
--	drm_WARN(&i915->drm, ret,
--		 "vfio_unregister_notifier for group failed: %d\n", ret);
--
- 	debugfs_remove(debugfs_lookup(KVMGT_DEBUGFS_FILENAME, vgpu->debugfs));
- 
--	kvm_page_track_unregister_notifier(vgpu->kvm, &vgpu->track_node);
--	kvm_put_kvm(vgpu->kvm);
-+	kvm_page_track_unregister_notifier(vgpu->vfio_device.kvm,
-+					   &vgpu->track_node);
- 	kvmgt_protect_table_destroy(vgpu);
- 	gvt_cache_destroy(vgpu);
- 
- 	intel_vgpu_release_msi_eventfd_ctx(vgpu);
- 
--	vgpu->kvm = NULL;
- 	vgpu->attached = false;
--}
--
--static void intel_vgpu_close_device(struct vfio_device *vfio_dev)
--{
--	__intel_vgpu_release(vfio_dev_to_vgpu(vfio_dev));
--}
--
--static void intel_vgpu_release_work(struct work_struct *work)
--{
--	struct intel_vgpu *vgpu =
--		container_of(work, struct intel_vgpu, release_work);
- 
--	__intel_vgpu_release(vgpu);
-+	if (vgpu->vfio_device.kvm)
-+		kvm_put_kvm(vgpu->vfio_device.kvm);
- }
- 
- static u64 intel_vgpu_get_bar_addr(struct intel_vgpu *vgpu, int bar)
-@@ -1675,7 +1630,6 @@ static int intel_vgpu_probe(struct mdev_device *mdev)
- 		return PTR_ERR(vgpu);
- 	}
- 
--	INIT_WORK(&vgpu->release_work, intel_vgpu_release_work);
- 	vfio_init_group_dev(&vgpu->vfio_device, &mdev->dev,
- 			    &intel_vgpu_dev_ops);
- 
-@@ -1713,7 +1667,7 @@ static struct mdev_driver intel_vgpu_mdev_driver = {
- 
- int intel_gvt_page_track_add(struct intel_vgpu *info, u64 gfn)
- {
--	struct kvm *kvm = info->kvm;
-+	struct kvm *kvm = info->vfio_device.kvm;
- 	struct kvm_memory_slot *slot;
- 	int idx;
- 
-@@ -1743,7 +1697,7 @@ int intel_gvt_page_track_add(struct intel_vgpu *info, u64 gfn)
- 
- int intel_gvt_page_track_remove(struct intel_vgpu *info, u64 gfn)
- {
--	struct kvm *kvm = info->kvm;
-+	struct kvm *kvm = info->vfio_device.kvm;
- 	struct kvm_memory_slot *slot;
- 	int idx;
- 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e8914024f5b1..17a56bb4cf25 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1196,6 +1196,8 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
- {
- 	struct ap_matrix_mdev *m;
- 
-+	kvm_get_kvm(kvm);
-+
- 	if (kvm->arch.crypto.crycbd) {
- 		down_write(&kvm->arch.crypto.pqap_hook_rwsem);
- 		kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
-@@ -1282,25 +1284,9 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
- 		mutex_unlock(&kvm->lock);
- 		mutex_unlock(&matrix_dev->lock);
- 	}
--}
- 
--static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
--				       unsigned long action, void *data)
--{
--	int notify_rc = NOTIFY_OK;
--	struct ap_matrix_mdev *matrix_mdev;
--
--	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
--		return NOTIFY_OK;
--
--	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
--
--	if (!data)
--		vfio_ap_mdev_unset_kvm(matrix_mdev);
--	else if (vfio_ap_mdev_set_kvm(matrix_mdev, data))
--		notify_rc = NOTIFY_DONE;
--
--	return notify_rc;
-+	if (kvm)
-+		kvm_put_kvm(kvm);
- }
- 
- static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
-@@ -1402,11 +1388,10 @@ static int vfio_ap_mdev_open_device(struct vfio_device *vdev)
- 	unsigned long events;
- 	int ret;
- 
--	matrix_mdev->group_notifier.notifier_call = vfio_ap_mdev_group_notifier;
--	events = VFIO_GROUP_NOTIFY_SET_KVM;
-+	if (!vdev->kvm)
-+		return -EPERM;
- 
--	ret = vfio_register_notifier(vdev, VFIO_GROUP_NOTIFY, &events,
--				     &matrix_mdev->group_notifier);
-+	ret = vfio_ap_mdev_set_kvm(matrix_mdev, vdev->kvm);
- 	if (ret)
- 		return ret;
- 
-@@ -1415,12 +1400,11 @@ static int vfio_ap_mdev_open_device(struct vfio_device *vdev)
- 	ret = vfio_register_notifier(vdev, VFIO_IOMMU_NOTIFY, &events,
- 				     &matrix_mdev->iommu_notifier);
- 	if (ret)
--		goto out_unregister_group;
-+		goto err_kvm;
- 	return 0;
- 
--out_unregister_group:
--	vfio_unregister_notifier(vdev, VFIO_GROUP_NOTIFY,
--				 &matrix_mdev->group_notifier);
-+err_kvm:
-+	vfio_ap_mdev_unset_kvm(matrix_mdev);
- 	return ret;
- }
- 
-@@ -1431,8 +1415,6 @@ static void vfio_ap_mdev_close_device(struct vfio_device *vdev)
- 
- 	vfio_unregister_notifier(vdev, VFIO_IOMMU_NOTIFY,
- 				 &matrix_mdev->iommu_notifier);
--	vfio_unregister_notifier(vdev, VFIO_GROUP_NOTIFY,
--				 &matrix_mdev->group_notifier);
- 	vfio_ap_mdev_unset_kvm(matrix_mdev);
- }
- 
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 648fcaf8104a..a26efd804d0d 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -81,8 +81,6 @@ struct ap_matrix {
-  * @node:	allows the ap_matrix_mdev struct to be added to a list
-  * @matrix:	the adapters, usage domains and control domains assigned to the
-  *		mediated matrix device.
-- * @group_notifier: notifier block used for specifying callback function for
-- *		    handling the VFIO_GROUP_NOTIFY_SET_KVM event
-  * @iommu_notifier: notifier block used for specifying callback function for
-  *		    handling the VFIO_IOMMU_NOTIFY_DMA_UNMAP even
-  * @kvm:	the struct holding guest's state
-@@ -94,7 +92,6 @@ struct ap_matrix_mdev {
- 	struct vfio_device vdev;
- 	struct list_head node;
- 	struct ap_matrix matrix;
--	struct notifier_block group_notifier;
- 	struct notifier_block iommu_notifier;
- 	struct kvm *kvm;
- 	crypto_hook pqap_hook;
-diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-index cfcff7764403..272acb62facd 100644
---- a/drivers/vfio/vfio.c
-+++ b/drivers/vfio/vfio.c
-@@ -1083,11 +1083,22 @@ static struct file *vfio_device_open(struct vfio_device *device)
- 
- 	mutex_lock(&device->dev_set->lock);
- 	device->open_count++;
-+	down_read(&device->group->group_rwsem);
-+	if (device->open_count == 1 && device->group->kvm) {
-+		/*
-+		 * Here we pass the KVM pointer with the group under the read
-+		 * lock.  If the device driver will use it, it must obtain a
-+		 * reference and release it during close_device.
-+		 */
-+		device->kvm = device->group->kvm;
-+	}
-+
- 	if (device->open_count == 1 && device->ops->open_device) {
- 		ret = device->ops->open_device(device);
- 		if (ret)
- 			goto err_undo_count;
- 	}
-+	up_read(&device->group->group_rwsem);
- 	mutex_unlock(&device->dev_set->lock);
- 
- 	/*
-@@ -1119,10 +1130,14 @@ static struct file *vfio_device_open(struct vfio_device *device)
- 
- err_close_device:
- 	mutex_lock(&device->dev_set->lock);
-+	down_read(&device->group->group_rwsem);
- 	if (device->open_count == 1 && device->ops->close_device)
- 		device->ops->close_device(device);
- err_undo_count:
- 	device->open_count--;
-+	if (device->open_count == 0 && device->kvm)
-+		device->kvm = NULL;
-+	up_read(&device->group->group_rwsem);
- 	mutex_unlock(&device->dev_set->lock);
- 	module_put(device->dev->driver->owner);
- err_unassign_container:
-@@ -1315,9 +1330,13 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
- 
- 	mutex_lock(&device->dev_set->lock);
- 	vfio_assert_device_open(device);
-+	down_read(&device->group->group_rwsem);
- 	if (device->open_count == 1 && device->ops->close_device)
- 		device->ops->close_device(device);
- 	device->open_count--;
-+	if (device->open_count == 0 && device->kvm)
-+		device->kvm = NULL;
-+	up_read(&device->group->group_rwsem);
- 	mutex_unlock(&device->dev_set->lock);
- 
- 	module_put(device->dev->driver->owner);
-@@ -1726,8 +1745,8 @@ EXPORT_SYMBOL_GPL(vfio_file_enforced_coherent);
-  * @file: VFIO group file
-  * @kvm: KVM to link
-  *
-- * The kvm pointer will be forwarded to all the vfio_device's attached to the
-- * VFIO file via the VFIO_GROUP_NOTIFY_SET_KVM notifier.
-+ * When a VFIO device is first opened the KVM will be available in
-+ * device->kvm if one was associated with the group.
-  */
- void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
- {
-@@ -1738,8 +1757,6 @@ void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
- 
- 	down_write(&group->group_rwsem);
- 	group->kvm = kvm;
--	blocking_notifier_call_chain(&group->notifier,
--				     VFIO_GROUP_NOTIFY_SET_KVM, kvm);
- 	up_write(&group->group_rwsem);
- }
- EXPORT_SYMBOL_GPL(vfio_file_set_kvm);
-@@ -2006,7 +2023,8 @@ static int vfio_register_iommu_notifier(struct vfio_group *group,
- 	struct vfio_iommu_driver *driver;
- 	int ret;
- 
--	down_read(&group->group_rwsem);
-+	lockdep_assert_held_read(&group->group_rwsem);
-+
- 	container = group->container;
- 	driver = container->iommu_driver;
- 	if (likely(driver && driver->ops->register_notifier))
-@@ -2014,7 +2032,6 @@ static int vfio_register_iommu_notifier(struct vfio_group *group,
- 						     events, nb);
- 	else
- 		ret = -ENOTTY;
--	up_read(&group->group_rwsem);
- 
- 	return ret;
- }
-@@ -2026,7 +2043,8 @@ static int vfio_unregister_iommu_notifier(struct vfio_group *group,
- 	struct vfio_iommu_driver *driver;
- 	int ret;
- 
--	down_read(&group->group_rwsem);
-+	lockdep_assert_held_read(&group->group_rwsem);
-+
- 	container = group->container;
- 	driver = container->iommu_driver;
- 	if (likely(driver && driver->ops->unregister_notifier))
-@@ -2034,47 +2052,10 @@ static int vfio_unregister_iommu_notifier(struct vfio_group *group,
- 						       nb);
- 	else
- 		ret = -ENOTTY;
--	up_read(&group->group_rwsem);
- 
- 	return ret;
- }
- 
--static int vfio_register_group_notifier(struct vfio_group *group,
--					unsigned long *events,
--					struct notifier_block *nb)
--{
--	int ret;
--	bool set_kvm = false;
--
--	if (*events & VFIO_GROUP_NOTIFY_SET_KVM)
--		set_kvm = true;
--
--	/* clear known events */
--	*events &= ~VFIO_GROUP_NOTIFY_SET_KVM;
--
--	/* refuse to continue if still events remaining */
--	if (*events)
--		return -EINVAL;
--
--	ret = blocking_notifier_chain_register(&group->notifier, nb);
--	if (ret)
--		return ret;
--
--	/*
--	 * The attaching of kvm and vfio_group might already happen, so
--	 * here we replay once upon registration.
--	 */
--	if (set_kvm) {
--		down_read(&group->group_rwsem);
--		if (group->kvm)
--			blocking_notifier_call_chain(&group->notifier,
--						     VFIO_GROUP_NOTIFY_SET_KVM,
--						     group->kvm);
--		up_read(&group->group_rwsem);
--	}
--	return 0;
--}
--
- int vfio_register_notifier(struct vfio_device *device,
- 			   enum vfio_notify_type type, unsigned long *events,
- 			   struct notifier_block *nb)
-@@ -2090,9 +2071,6 @@ int vfio_register_notifier(struct vfio_device *device,
- 	case VFIO_IOMMU_NOTIFY:
- 		ret = vfio_register_iommu_notifier(group, events, nb);
- 		break;
--	case VFIO_GROUP_NOTIFY:
--		ret = vfio_register_group_notifier(group, events, nb);
--		break;
- 	default:
- 		ret = -EINVAL;
- 	}
-@@ -2114,9 +2092,6 @@ int vfio_unregister_notifier(struct vfio_device *device,
- 	case VFIO_IOMMU_NOTIFY:
- 		ret = vfio_unregister_iommu_notifier(group, nb);
- 		break;
--	case VFIO_GROUP_NOTIFY:
--		ret = blocking_notifier_chain_unregister(&group->notifier, nb);
--		break;
- 	default:
- 		ret = -EINVAL;
- 	}
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 45b287826ce6..5f691453e3fb 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -36,6 +36,7 @@ struct vfio_device {
- 	struct vfio_device_set *dev_set;
- 	struct list_head dev_set_list;
- 	unsigned int migration_flags;
-+	struct kvm *kvm;
- 
- 	/* Members below here are private, not for driver use */
- 	refcount_t refcount;
-@@ -155,15 +156,11 @@ extern int vfio_dma_rw(struct vfio_device *device, dma_addr_t user_iova,
- /* each type has independent events */
- enum vfio_notify_type {
- 	VFIO_IOMMU_NOTIFY = 0,
--	VFIO_GROUP_NOTIFY = 1,
- };
- 
- /* events for VFIO_IOMMU_NOTIFY */
- #define VFIO_IOMMU_NOTIFY_DMA_UNMAP	BIT(0)
- 
--/* events for VFIO_GROUP_NOTIFY */
--#define VFIO_GROUP_NOTIFY_SET_KVM	BIT(0)
--
- extern int vfio_register_notifier(struct vfio_device *device,
- 				  enum vfio_notify_type type,
- 				  unsigned long *required_events,
--- 
-2.27.0
+On 2022-05-17 09:42, Guilherme G. Piccoli wrote:
+> On 17/05/2022 10:57, Petr Mladek wrote:
+>> [...]
+>>>>> --- a/drivers/misc/bcm-vk/bcm_vk_dev.c
+>>>>> +++ b/drivers/misc/bcm-vk/bcm_vk_dev.c
+>>>>> @@ -1446,7 +1446,7 @@ static int bcm_vk_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+>>>> [... snip ...]
+>>>> It seems to reset some hardware or so. IMHO, it should go into the
+>>>> pre-reboot list.
+>>>
+>>> Mixed feelings here, I'm looping Broadcom maintainers to comment.
+>>> (CC Scott and Broadcom list)
+>>>
+>>> I'm afraid it breaks kdump if this device is not reset beforehand - it's
+>>> a doorbell write, so not high risk I think...
+>>>
+>>> But in case the not-reset device can be probed normally in kdump kernel,
+>>> then I'm fine in moving this to the reboot list! I don't have the HW to
+>>> test myself.
+>>
+>> Good question. Well, it if has to be called before kdump then
+>> even "hypervisor" list is a wrong place because is not always
+>> called before kdump.
+> 
+> Agreed! I'll defer that to Scott and Broadcom folks to comment.
+> If it's not strictly necessary, I'll happily move it to the reboot list.
+> 
+> If necessary, we could use the machine_crash_kexec() approach, but we'll
+> fall into the case arm64 doesn't support it and I'm not sure if this
+> device is available for arm - again a question for the maintainers.
+We register to the panic notifier so that we can kill the VK card ASAP
+to stop DMAing things over to the host side.  If it is not notified then
+memory may not be frozen when kdump is occurring.
+Notifying the card on panic is also needed to allow for any type of 
+reset to occur.
 
+So, the only thing preventing moving the notifier later is the chance
+that memory is modified while kdump is occurring.  Or, if DMA is 
+disabled before kdump already then this wouldn't be an issue and the 
+notification to the card (to allow for clean resets) can be done later.
+> 
+> 
+>>   [...]
+>>>>> --- a/drivers/power/reset/ltc2952-poweroff.c
+>>>>> +++ b/drivers/power/reset/ltc2952-poweroff.c
+>>> [...]
+>>> This is setting a variable only, and once it's set (data->kernel_panic
+>>> is the bool's name), it just bails out the IRQ handler and a timer
+>>> setting - this timer seems kinda tricky, so bailing out ASAP makes sense
+>>> IMHO.
+>>
+>> IMHO, the timer informs the hardware that the system is still alive
+>> in the middle of panic(). If the timer is not working then the
+>> hardware (chip) will think that the system frozen in panic()
+>> and will power off the system. See the comments in
+>> drivers/power/reset/ltc2952-poweroff.c:
+>> [.... snip ...]
+>> IMHO, we really have to keep it alive until we reach the reboot stage.
+>>
+>> Another question is how it actually works when the interrupts are
+>> disabled during panic() and the timer callbacks are not handled.
+> 
+> Agreed here! Guess I can move this one the reboot list, fine by me.
+> Unless PM folks think otherwise.
+> 
+> 
+>> [...]
+>>> Disagree here, I'm CCing Florian for information.
+>>>
+>>> This notifier preserves RAM so it's *very interesting* if we have
+>>> kmsg_dump() for example, but maybe might be also relevant in case kdump
+>>> kernel is configured to store something in a persistent RAM (then,
+>>> without this notifier, after kdump reboots the system data would be lost).
+>>
+>> I see. It is actually similar problem as with
+>> drivers/firmware/google/gsmi.c.
+>>
+>> I does similar things like kmsg_dump() so it should be called in
+>> the same location (after info notifier list and before kdump).
+>>
+>> A solution might be to put it at these notifiers at the very
+>> end of the "info" list or make extra "dump" notifier list.
+> 
+> Here I still disagree. I've commented in the other response thread
+> (about Google gsmi) about the semantics of the hypervisor list, but
+> again: this list should contain callbacks that
+> 
+> (a) Should run early, _by default_ before a kdump;
+> (b) Communicate with the firmware/hypervisor in a "low-risk" way;
+> 
+> Imagine a scenario where users configure kdump kernel to save something
+> in a persistent form in DRAM - it'd be like a late pstore, in the next
+> kernel. This callback enables that, it's meant to inform FW "hey, panic
+> happened, please from now on don't clear the RAM in the next FW-reboot".
+> I don't see a reason to postpone that - let's see if the maintainers
+> have an opinion.
+> 
+> Cheers,
+> 
+> 
+> Guilherme
+
+--000000000000e0143505df509ebe
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+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
+cRe0CRXA7ypOJSgxO/nOOyQoaJxT7CGg1npOeSpPjEuc3fE4xum3l0nvU85hj6MlKZu43hokdBh0
+D0nLyyhEwlR3AC/msdff/UGbM/JR9vk812RP4m/aNWZFJwIDAQABo4IB2zCCAdcwDgYDVR0PAQH/
+BAQDAgWgMIGjBggrBgEFBQcBAQSBljCBkzBOBggrBgEFBQcwAoZCaHR0cDovL3NlY3VyZS5nbG9i
+YWxzaWduLmNvbS9jYWNlcnQvZ3NnY2NyM3BlcnNvbmFsc2lnbjJjYTIwMjAuY3J0MEEGCCsGAQUF
+BzABhjVodHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3IzcGVyc29uYWxzaWduMmNhMjAy
+MDBNBgNVHSAERjBEMEIGCisGAQQBoDIBKAowNDAyBggrBgEFBQcCARYmaHR0cHM6Ly93d3cuZ2xv
+YmFsc2lnbi5jb20vcmVwb3NpdG9yeS8wCQYDVR0TBAIwADBJBgNVHR8EQjBAMD6gPKA6hjhodHRw
+Oi8vY3JsLmdsb2JhbHNpZ24uY29tL2dzZ2NjcjNwZXJzb25hbHNpZ24yY2EyMDIwLmNybDAlBgNV
+HREEHjAcgRpzY290dC5icmFuZGVuQGJyb2FkY29tLmNvbTATBgNVHSUEDDAKBggrBgEFBQcDBDAf
+BgNVHSMEGDAWgBSWM9HmWBdbNHWKgVZk1b5I3qGPzzAdBgNVHQ4EFgQUOhjEpl04Sz9dh5MI82E1
+V39lM/owDQYJKoZIhvcNAQELBQADggEBAA7Rlypx/esz/iq1yA4+KW7uwV/aBY344BWcXt6I+SNK
+VwFBgFWfLj5vaEud9TVv2fPSiaHJo0umemOJk+43QD+bsoqmgcFXd21PrOt7Jjs+jjVED9VC5kJq
+S4NNKUkS+BqijJwSegtVygrc/atrIlJbjI21q4qpemUo5fgwqCNm++BmBGTI8yA09vtGSNDRN42k
+lLX9hl3iEj5SBgkQqCbbnoE+ZjjKfqt7ED166WhgyQWNrl39yLcvLj+JRUB3RuvXKZjH0NQEEBII
+wZBDSkyneykLt3CBNIhSCTxKM6OWxVp936ALSa5K9FNy00TeWSpokR6NmzaW8VD/EjTgvqAxggJt
+MIICaQIBATBrMFsxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMTEwLwYD
+VQQDEyhHbG9iYWxTaWduIEdDQyBSMyBQZXJzb25hbFNpZ24gMiBDQSAyMDIwAgx9oXSJpKniO4dS
+Gk8wDQYJYIZIAWUDBAIBBQCggdQwLwYJKoZIhvcNAQkEMSIEIILFBbO32At0jlQYmvDlBzxxKfke
+QfIJzMrdu2nIpFihMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTIy
+MDUxODIyMTcxOVowaQYJKoZIhvcNAQkPMVwwWjALBglghkgBZQMEASowCwYJYIZIAWUDBAEWMAsG
+CWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQowCwYJKoZIhvcNAQEHMAsGCWCGSAFl
+AwQCATANBgkqhkiG9w0BAQEFAASCAQBIc7nOZb/W3CkCvD0kf3LJMsgwBiUyTBcOQHeudvIMXgiB
+QQ8+U0c03geY7pr3oC9UDTjRSIF1RwJcP3BwheBLJu7kfHK3jy1JiouqgOLb3cV+n/v8R/+Xc+Q9
+MlWFHGJrAD9gPOMrvJ1KMqx0CFXaz0l8rlyXDGV6s+r8X1jt1rnbjZIGoBbGOP0+bObjxE+1Gdyd
+bQJRFfYVGChsqzAPm+mOmOBOafJhgclqEhJSTDfXRiL12HGLyzWipIAmcAo0FrSMyjIkYTvnPG2n
+n3uZVbKScFO51F6GoCOYWwE5SK0CHfHOWXk8TRl9CTBHlWCZR0XRAfCmijeVCq6/xT0J
+--000000000000e0143505df509ebe--
