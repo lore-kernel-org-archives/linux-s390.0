@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 543E6C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 04:06:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FA6EC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 04:06:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbiEREGA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 May 2022 00:06:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58698 "EHLO
+        id S229576AbiEREGB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 May 2022 00:06:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229576AbiEREFw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 00:05:52 -0400
+        with ESMTP id S229726AbiEREFy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 00:05:54 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0CBA613CA11
-        for <linux-s390@vger.kernel.org>; Tue, 17 May 2022 21:03:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 494A013CA1D
+        for <linux-s390@vger.kernel.org>; Tue, 17 May 2022 21:03:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652846470;
+        s=mimecast20190719; t=1652846508;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=OVF7ZOKQjlZaNtrOn5007e/TWK4CcFV8q+LPrrFaKRw=;
-        b=INCnP45NvkqaSVZo8PF1z/rRG4zq93kvk2FmPIPTfiAkSZgwam7oZLh9g1VkhRqk2QIul5
-        ztZjTzm0P3lcjGof3Oh3eD73+f28XzvSFp37PUMPlZ73Y0WtUHUYFOnZbkWS+OvNtWNjhv
-        QivFaAzuUYEHZRDRm5xx1JVA9ktyexU=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=TcWKc+TaFJg+Z2XnEjHIsM8AhXNeMqxiwb9on4zJjo8=;
+        b=M5rvPNw4N9nThqgrMULYCrKLPAPPGQQC/Ed5X5Om9ZOy+G73NnEv14t+a6qRYo0Nm+pwQ1
+        xnNY9LpdC4UXR/dsgaC/3urHy673lszBzjPAxct+NifW5Ky7R6tn/6g4boJ/Q/6636/8SY
+        JDR52Ul8tg+ukwfkEp7CvFsJwNKly4Y=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-144-ChW_LB0IO0aaroG4Qs8_1Q-1; Wed, 18 May 2022 00:01:09 -0400
-X-MC-Unique: ChW_LB0IO0aaroG4Qs8_1Q-1
+ us-mta-658-t7Z9i3TwOOek0Q4SOnIMKQ-1; Wed, 18 May 2022 00:01:41 -0400
+X-MC-Unique: t7Z9i3TwOOek0Q4SOnIMKQ-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AFE143C62B70;
-        Wed, 18 May 2022 04:01:08 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7D31E185A7B2;
+        Wed, 18 May 2022 04:01:40 +0000 (UTC)
 Received: from localhost.localdomain (ovpn-14-27.pek2.redhat.com [10.72.14.27])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 701B81121314;
-        Wed, 18 May 2022 04:00:45 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7CB1D1121314;
+        Wed, 18 May 2022 04:01:33 +0000 (UTC)
 From:   Jason Wang <jasowang@redhat.com>
 To:     mst@redhat.com, jasowang@redhat.com,
         virtualization@lists.linux-foundation.org,
@@ -48,9 +48,9 @@ Cc:     tglx@linutronix.de, peterz@infradead.org, paulmck@kernel.org,
         Vineeth Vijayan <vneethv@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
         linux-s390@vger.kernel.org
-Subject: [PATCH V5 3/9] virtio: introduce config op to synchronize vring callbacks
-Date:   Wed, 18 May 2022 11:59:45 +0800
-Message-Id: <20220518035951.94220-4-jasowang@redhat.com>
+Subject: [PATCH V5 6/9] virtio-ccw: implement synchronize_cbs()
+Date:   Wed, 18 May 2022 11:59:48 +0800
+Message-Id: <20220518035951.94220-7-jasowang@redhat.com>
 In-Reply-To: <20220518035951.94220-1-jasowang@redhat.com>
 References: <20220518035951.94220-1-jasowang@redhat.com>
 MIME-Version: 1.0
@@ -61,12 +61,11 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch introduces new virtio config op to vring
-callbacks. Transport specific method is required to make sure the
-write before this function is visible to the vring_interrupt() that is
-called after the return of this function. For the transport that
-doesn't provide synchronize_vqs(), use synchornize_rcu() which
-synchronize with IRQ implicitly as a fallback.
+This patch tries to implement the synchronize_cbs() for ccw. For the
+vring_interrupt() that is called via virtio_airq_handler(), the
+synchronization is simply done via the airq_info's lock. For the
+vring_interrupt() that is called via virtio_ccw_int_handler(), a per
+device rwlock is introduced ans used in the synchronization method.
 
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Peter Zijlstra <peterz@infradead.org>
@@ -77,62 +76,84 @@ Cc: Cornelia Huck <cohuck@redhat.com>
 Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
 Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- include/linux/virtio_config.h | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/s390/virtio/virtio_ccw.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index b341dd62aa4d..25be018810a7 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -57,6 +57,11 @@ struct virtio_shm_region {
-  *		include a NULL entry for vqs unused by driver
-  *	Returns 0 on success or error status
-  * @del_vqs: free virtqueues found by find_vqs().
-+ * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
-+ *      The function guarantees that all memory operations on the
-+ *      queue before it are visible to the vring_interrupt() that is
-+ *      called after it.
-+ *      vdev: the virtio_device
-  * @get_features: get the array of feature bits for this device.
-  *	vdev: the virtio_device
-  *	Returns the first 64 feature bits (all we currently need).
-@@ -89,6 +94,7 @@ struct virtio_config_ops {
- 			const char * const names[], const bool *ctx,
- 			struct irq_affinity *desc);
- 	void (*del_vqs)(struct virtio_device *);
-+	void (*synchronize_cbs)(struct virtio_device *);
- 	u64 (*get_features)(struct virtio_device *vdev);
- 	int (*finalize_features)(struct virtio_device *vdev);
- 	const char *(*bus_name)(struct virtio_device *vdev);
-@@ -217,6 +223,25 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
- 				      desc);
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index d35e7a3f7067..22d36594bcdd 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -62,6 +62,7 @@ struct virtio_ccw_device {
+ 	unsigned int revision; /* Transport revision */
+ 	wait_queue_head_t wait_q;
+ 	spinlock_t lock;
++	rwlock_t irq_lock;
+ 	struct mutex io_lock; /* Serializes I/O requests */
+ 	struct list_head virtqueues;
+ 	bool is_thinint;
+@@ -984,6 +985,27 @@ static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
+ 	return dev_name(&vcdev->cdev->dev);
  }
  
-+/**
-+ * virtio_synchronize_cbs - synchronize with virtqueue callbacks
-+ * @vdev: the device
-+ */
-+static inline
-+void virtio_synchronize_cbs(struct virtio_device *dev)
++static void virtio_ccw_synchronize_cbs(struct virtio_device *vdev)
 +{
-+	if (dev->config->synchronize_cbs) {
-+		dev->config->synchronize_cbs(dev);
++	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
++	struct airq_info *info = vcdev->airq_info;
++
++	if (info) {
++		/*
++		 * Synchronize with the vring_interrupt() with airq indicator
++		 */
++		write_lock_irq(&info->lock);
++		write_unlock_irq(&info->lock);
 +	} else {
 +		/*
-+		 * A best effort fallback to synchronize with
-+		 * interrupts, preemption and softirq disabled
-+		 * regions. See comment above synchronize_rcu().
++		 * Synchronize with the vring_interrupt() called by
++		 * virtio_ccw_int_handler().
 +		 */
-+		synchronize_rcu();
++		write_lock_irq(&vcdev->irq_lock);
++		write_unlock_irq(&vcdev->irq_lock);
 +	}
 +}
 +
- /**
-  * virtio_device_ready - enable vq use in probe function
-  * @vdev: the device
+ static const struct virtio_config_ops virtio_ccw_config_ops = {
+ 	.get_features = virtio_ccw_get_features,
+ 	.finalize_features = virtio_ccw_finalize_features,
+@@ -995,6 +1017,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
+ 	.find_vqs = virtio_ccw_find_vqs,
+ 	.del_vqs = virtio_ccw_del_vqs,
+ 	.bus_name = virtio_ccw_bus_name,
++	.synchronize_cbs = virtio_ccw_synchronize_cbs,
+ };
+ 
+ 
+@@ -1106,6 +1129,8 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+ 			vcdev->err = -EIO;
+ 	}
+ 	virtio_ccw_check_activity(vcdev, activity);
++	/* Local interrupt should be disabled at this time */
++	read_lock(&vcdev->irq_lock);
+ 	for_each_set_bit(i, indicators(vcdev),
+ 			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
+ 		/* The bit clear must happen before the vring kick. */
+@@ -1114,6 +1139,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+ 		vq = virtio_ccw_vq_by_ind(vcdev, i);
+ 		vring_interrupt(0, vq);
+ 	}
++	read_unlock(&vcdev->irq_lock);
+ 	if (test_bit(0, indicators2(vcdev))) {
+ 		virtio_config_changed(&vcdev->vdev);
+ 		clear_bit(0, indicators2(vcdev));
+@@ -1284,6 +1310,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 	init_waitqueue_head(&vcdev->wait_q);
+ 	INIT_LIST_HEAD(&vcdev->virtqueues);
+ 	spin_lock_init(&vcdev->lock);
++	rwlock_init(&vcdev->irq_lock);
+ 	mutex_init(&vcdev->io_lock);
+ 
+ 	spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
 -- 
 2.25.1
 
