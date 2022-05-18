@@ -2,116 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E575C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 07:48:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB00AC4167D
+	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 07:59:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232399AbiERHsE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 May 2022 03:48:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48996 "EHLO
+        id S232960AbiERH7z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 May 2022 03:59:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232417AbiERHsD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 03:48:03 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E0011E4A7;
-        Wed, 18 May 2022 00:47:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=aexzG6QT7OwxTkVV+awVYjuMAu3L2V7mGlqxPgNrxYU=; b=EeO0qMprxdclZ/T8O5w4wRGgBl
-        yK0/SLxrtiPXqvDFHbKQtiWVdp64UUltfCI1iRQnDWSYMd3RlVxHG9ta+pJwcJCSTA/mKQE15m0lq
-        erOEmg0Id8OWhU5wRqbxttRf+G8qjAbJZM5s/iK87aHb2mOwadXq9j5/qaxRJ2yjAzP6ANeXODmGd
-        U+YNi9VopdTaZoHirm7hf0+1oivBlF9vpqLLI8c+suSdyS0GXyVhx5rjrdFfa5Jg3vYrksBV+MEkI
-        04rYnOCMwrm+a1zIiUk4IyLU+z3bDUxaENtVN4TbyAFLQHxTwu91d2cZ8qIWq8G/p5d+e9e5Rs7rn
-        XOdHS+KQ==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nrEPR-000EBP-Sb; Wed, 18 May 2022 07:47:53 +0000
-Date:   Wed, 18 May 2022 00:47:53 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     jgg@nvidia.com, alex.williamson@redhat.com, cohuck@redhat.com,
-        borntraeger@linux.ibm.com, jjherne@linux.ibm.com,
-        akrowiak@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, hch@infradead.org,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
-Message-ID: <YoSkqWl7YkqYksG5@infradead.org>
-References: <20220517180851.166538-1-mjrosato@linux.ibm.com>
- <20220517180851.166538-2-mjrosato@linux.ibm.com>
+        with ESMTP id S232861AbiERH6Y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 03:58:24 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EB051207E6;
+        Wed, 18 May 2022 00:58:22 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 1B35021B9A;
+        Wed, 18 May 2022 07:58:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1652860701; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=QH8rZRpDaB1rKzYBSvbHTkuJfXIZgq5PPOEyov0S61g=;
+        b=T0gGp12c0pU5b8b1i3GTuIGm3SeP3EhRpXPECQNn/enftlsKdapz4VZkfCcS2uIPqM17q+
+        /PBA3AVHUNLBKEckN04LlFAw1RfXD18Ad2wMfhhColdg9InPjS0Cl4zZnO5bfZL0Ln9Soj
+        5NqvLRJqL5BZI+4DmlPHTXzoYIVJS4o=
+Received: from suse.cz (unknown [10.100.201.202])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 0683D2C142;
+        Wed, 18 May 2022 07:58:19 +0000 (UTC)
+Date:   Wed, 18 May 2022 09:58:18 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc:     David Gow <davidgow@google.com>, Evan Green <evgreen@chromium.org>,
+        Julius Werner <jwerner@chromium.org>,
+        Scott Branden <scott.branden@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dexuan Cui <decui@microsoft.com>,
+        Doug Berger <opendmb@gmail.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Justin Chen <justinpopo6@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Markus Mayer <mmayer@broadcom.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: [PATCH 19/30] panic: Add the panic hypervisor notifier list
+Message-ID: <YoSnGmBJ3kYs5WMf@alley>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-20-gpiccoli@igalia.com>
+ <YoJZVZl/MH0KiE/J@alley>
+ <ad082ce7-db50-13bb-3dbb-9b595dfa78be@igalia.com>
+ <YoOpyW1+q+Z5as78@alley>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220517180851.166538-2-mjrosato@linux.ibm.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <YoOpyW1+q+Z5as78@alley>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-With this the release_work in gvt can go away as well:
+On Tue 2022-05-17 15:57:34, Petr Mladek wrote:
+> On Mon 2022-05-16 12:06:17, Guilherme G. Piccoli wrote:
+> > >> --- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+> > >> +++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
+> > >> @@ -814,7 +814,7 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
+> > >>  		goto out;
+> > >>  	}
+> > >>  
+> > >> -	atomic_notifier_chain_register(&panic_notifier_list,
+> > >> +	atomic_notifier_chain_register(&panic_hypervisor_list,
+> > >>  				       &brcmstb_pm_panic_nb);
+> > > 
+> > > I am not sure about this one. It instruct some HW to preserve DRAM.
+> > > IMHO, it better fits into pre_reboot category but I do not have
+> > > strong opinion.
+> > 
+> > Disagree here, I'm CCing Florian for information.
+> > 
+> > This notifier preserves RAM so it's *very interesting* if we have
+> > kmsg_dump() for example, but maybe might be also relevant in case kdump
+> > kernel is configured to store something in a persistent RAM (then,
+> > without this notifier, after kdump reboots the system data would be lost).
+> 
+> I see. It is actually similar problem as with
+> drivers/firmware/google/gsmi.c.
 
-diff --git a/drivers/gpu/drm/i915/gvt/gvt.h b/drivers/gpu/drm/i915/gvt/gvt.h
-index 633acfcf76bf2..aee1a45da74bc 100644
---- a/drivers/gpu/drm/i915/gvt/gvt.h
-+++ b/drivers/gpu/drm/i915/gvt/gvt.h
-@@ -227,7 +227,6 @@ struct intel_vgpu {
- 	struct mutex cache_lock;
- 
- 	struct notifier_block iommu_notifier;
--	struct work_struct release_work;
- 	atomic_t released;
- 
- 	struct kvm_page_track_notifier_node track_node;
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index b317ae4cc7d2d..917617d7599a9 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -228,8 +228,6 @@ static void intel_gvt_cleanup_vgpu_type_groups(struct intel_gvt *gvt)
- 	}
- }
- 
--static void intel_vgpu_release_work(struct work_struct *work);
--
- static void gvt_unpin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
- 		unsigned long size)
- {
-@@ -850,8 +848,9 @@ static void intel_vgpu_release_msi_eventfd_ctx(struct intel_vgpu *vgpu)
- 	}
- }
- 
--static void __intel_vgpu_release(struct intel_vgpu *vgpu)
-+static void intel_vgpu_close_device(struct vfio_device *vfio_dev)
- {
-+	struct intel_vgpu *vgpu = vfio_dev_to_vgpu(vfio_dev);
- 	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
- 	int ret;
- 
-@@ -880,19 +879,6 @@ static void __intel_vgpu_release(struct intel_vgpu *vgpu)
- 	vgpu->attached = false;
- }
- 
--static void intel_vgpu_close_device(struct vfio_device *vfio_dev)
--{
--	__intel_vgpu_release(vfio_dev_to_vgpu(vfio_dev));
--}
--
--static void intel_vgpu_release_work(struct work_struct *work)
--{
--	struct intel_vgpu *vgpu =
--		container_of(work, struct intel_vgpu, release_work);
--
--	__intel_vgpu_release(vgpu);
--}
--
- static u64 intel_vgpu_get_bar_addr(struct intel_vgpu *vgpu, int bar)
- {
- 	u32 start_lo, start_hi;
-@@ -1639,7 +1625,6 @@ static int intel_vgpu_probe(struct mdev_device *mdev)
- 		return PTR_ERR(vgpu);
- 	}
- 
--	INIT_WORK(&vgpu->release_work, intel_vgpu_release_work);
- 	vfio_init_group_dev(&vgpu->vfio_device, &mdev->dev,
- 			    &intel_vgpu_dev_ops);
- 
+As discussed in the other other reply, it seems that both affected
+notifiers do not store kernel logs and should stay in the "hypervisor".
+
+> I does similar things like kmsg_dump() so it should be called in
+> the same location (after info notifier list and before kdump).
+>
+> A solution might be to put it at these notifiers at the very
+> end of the "info" list or make extra "dump" notifier list.
+
+I just want to point out that the above idea has problems.
+Notifiers storing kernel log need to be treated as kmsg_dump().
+In particular, we would  need to know if there are any.
+We do not need to call "info" notifier list before kdump
+when there is no kernel log dumper registered.
+
+Best Regards,
+Petr
