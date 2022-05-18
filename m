@@ -2,144 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F34EFC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 16:51:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BAE1C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 21:26:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240444AbiERQvq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 May 2022 12:51:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47946 "EHLO
+        id S243166AbiERV0i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 May 2022 17:26:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240551AbiERQvp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 12:51:45 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FCEF9E9F2;
-        Wed, 18 May 2022 09:51:44 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24IGO5D7019721;
-        Wed, 18 May 2022 16:51:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=kZmuOQk3nB0k0QQUHtuVyv6VXcOPkjCgoM1V8L0+TvY=;
- b=PrksPn0W3hOiWQTtNYA6q3tuCzNvWy5D0jfh5fXMu7Lw3RdQI5p8BxL5W8Xq7isn0B5O
- 8xWPymE9J0ZU81db+pokLEG6ZLRSoep41GmDsvD0eGHw3DVdzLt7ukj+YKMRlhh5EqJ7
- 7hGjOrhH8mE3oc1OzuJB+M5URxLWSt/GwA2fuS/jRbnYCFtn5zxYFG9PHlZd3XsZxhqH
- qS1Pp7hQOTuyXXqv6RGQ3v1rd3dbI2RbATgPVTDksouB2k2zotnr0q3I1pR9X7PNxHwg
- 43QUrXe9LcfbDE2lpDJCQfbd/ShyPIPRGxROmU2tVMFJWrYY1+47+otEO4sEnJF8xUXq xw== 
+        with ESMTP id S243157AbiERV0g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 17:26:36 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02DE73BFB6;
+        Wed, 18 May 2022 14:26:35 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24IL37Yc011281;
+        Wed, 18 May 2022 21:26:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=y7+InN4T1AhNfnrU+hjtQbi+AUPcRelZo9Aro4X0ebI=;
+ b=Cmwc0+XWsZfiP+nmbI1Lgl131c8TUhy7H7ZNgfPLKnvGxTJBLwAfMeAtHQ37T1tsYO5c
+ L0EG6zbdPYiIpS2ShYDHu4F7EjvMC2qYMN6NYpVlHX3KBscJzv6UI/H69fKjJDi+I3IU
+ XQvaCp1gljf3OpxiHRW8toPAdSUcR4/n9jbbDFz061PtYk85nxmiM7NFlx3XuGRhAm8V
+ fefudY7suiC57SqAIsryNJ0BtjMA7a66g8HqTcMIbs3WMHFWR1XdzwaQDsSPmQmQzS24
+ HYfx2Sz4dqfDJ2zVniZTQhii3+ABMakAKQDsG56sz9Zkl/hpe8iuw4/0pd+Q/fPap80H lg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g549rrrxt-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g58cgrgap-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 May 2022 16:51:43 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24IGSPfm008382;
-        Wed, 18 May 2022 16:51:43 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g549rrrx9-1
+        Wed, 18 May 2022 21:26:19 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24ILJr2m009229;
+        Wed, 18 May 2022 21:26:19 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g58cgrgac-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 May 2022 16:51:43 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24IGXFdl022179;
-        Wed, 18 May 2022 16:51:41 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3g2428vv5n-1
+        Wed, 18 May 2022 21:26:19 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24IL2rtQ019537;
+        Wed, 18 May 2022 21:26:18 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma05wdc.us.ibm.com with ESMTP id 3g242af9se-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 May 2022 16:51:41 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24IGpbSS46858650
+        Wed, 18 May 2022 21:26:18 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24ILQHHC27328794
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 May 2022 16:51:38 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E476542041;
-        Wed, 18 May 2022 16:51:37 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 30A314203F;
-        Wed, 18 May 2022 16:51:37 +0000 (GMT)
-Received: from [9.171.6.188] (unknown [9.171.6.188])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 18 May 2022 16:51:37 +0000 (GMT)
-Message-ID: <5de8d8c2-100d-f935-667c-1090ee31277d@linux.ibm.com>
-Date:   Wed, 18 May 2022 18:55:26 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v9 3/3] s390x: KVM: resetting the Topology-Change-Report
-Content-Language: en-US
-To:     David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, cohuck@redhat.com, thuth@redhat.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, wintera@linux.ibm.com,
-        seiden@linux.ibm.com, nrb@linux.ibm.com
-References: <20220506092403.47406-1-pmorel@linux.ibm.com>
- <20220506092403.47406-4-pmorel@linux.ibm.com>
- <76fd0c11-5b9b-0032-183b-54db650f13b1@redhat.com>
- <20220512115250.2e20bfdf@p-imbrenda>
- <70a7d93c-c1b1-fa72-0eb4-02e3e2235f94@redhat.com>
- <bae4e416-b0e9-31c6-c9d0-df6b5a5fd46f@linux.ibm.com>
- <cfe448f7-0b4e-680d-46a7-33ad25a4c09b@redhat.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <cfe448f7-0b4e-680d-46a7-33ad25a4c09b@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Wed, 18 May 2022 21:26:17 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8B5E528060;
+        Wed, 18 May 2022 21:26:17 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C359E2805E;
+        Wed, 18 May 2022 21:26:13 +0000 (GMT)
+Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.37.97])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed, 18 May 2022 21:26:13 +0000 (GMT)
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+To:     jgg@nvidia.com, alex.williamson@redhat.com
+Cc:     cohuck@redhat.com, borntraeger@linux.ibm.com,
+        jjherne@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com,
+        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, hch@infradead.org,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
+Date:   Wed, 18 May 2022 17:26:06 -0400
+Message-Id: <20220518212607.467538-1-mjrosato@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: W5fS3N71cLrX1I_e6-quxj7Z0L_xZDmt
-X-Proofpoint-GUID: uu-AwpmzG2aQew89jZnaju95wJ-pORKx
+X-Proofpoint-ORIG-GUID: QrOItCWy51AZo_qIJ1RCc4LMGLxnuhOY
+X-Proofpoint-GUID: C7naun7PRSTlUTRKk_2a_XczLp56l8kd
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-18_06,2022-05-17_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 phishscore=0 suspectscore=0 spamscore=0
- mlxscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=792 adultscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205180099
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
+ impostorscore=0 adultscore=0 lowpriorityscore=0 phishscore=0 bulkscore=0
+ spamscore=0 priorityscore=1501 mlxlogscore=560 malwarescore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205180121
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+As discussed in this thread:
 
+https://lore.kernel.org/kvm/20220516172734.GE1343366@nvidia.com/
 
-On 5/18/22 16:33, David Hildenbrand wrote:
-> On 16.05.22 16:21, Pierre Morel wrote:
->>
->>
->> On 5/12/22 12:01, David Hildenbrand wrote:
->>>>>
->>>>> I think we prefer something like u16 when copying to user space.
->>>>
->>>> but then userspace also has to expect a u16, right?
->>>
->>> Yep.
->>>
->>
->> Yes but in fact, inspired by previous discussion I had on the VFIO
->> interface, that is the reason why I did prefer an int.
->> It is much simpler than a u16 and the definition of a bit.
->>
->> Despite a bit in a u16 is what the s3990 achitecture proposes I thought
->> we could make it easier on the KVM/QEMU interface.
->>
->> But if the discussion stops here, I will do as you both propose change
->> to u16 in KVM and userland and add the documentation for the interface.
-> 
-> In general, we pass via the ABI fixed-sized values -- u8, u16, u32, u64
-> ... instead of int. Simply because sizeof(int) is in theory variable
-> (e.g., 32bit vs 64bit).
-> 
-> Take a look at arch/s390/include/uapi/asm/kvm.h and you won't find any
-> usage of int or bool.
-> 
-> Having that said, I'll let the maintainers decide. Using e.g., u8 is
-> just the natural thing to do on a Linux ABI, but we don't really support
-> 32 bit ... maybe we'll support 128bit at one point? ;)
-> 
+Let's remove VFIO_GROUP_NOTIFY_SET_KVM and instead assume the association
+has already been established prior to device_open.  For the types today
+that need a KVM (GVT, vfio-ap) these will fail if a KVM is not found.
+Looking ahead, vfio-pci-zdev will optionally want the KVM association
+(enable hardware assists) but it will not be a hard requirement (still
+want to allow other, non-KVM userspace usage). 
 
-OK then I use u16 with a flag in case we get something in the utilities 
-which is related to the topology in the future.
+This is built on top of Jason's group locking series:
+https://github.com/jgunthorpe/linux/commits/vfio_group_locking
 
-Thanks,
-Pierre
+And tested with s390x-pci (zdev-kvm series) and vfio-ap (GVT changes are
+compile-tested only)
+
+Changes for v2:
+- gvt no longer needs release_work, get rid of it (Christoph)
+- a few compile fixes for gvt
+- update commit to mention fixes gvt oops (Jason)
+- s/down_write/down_read/ in a few spots (Jason)
+- avoid kvm build dependency by holding group read lock over device
+  open/close and put the onus on the driver to obtain a reference if
+  it will actually use the kvm pointer.  Document the requirement,
+  use lockdep_assert to ensure lock is held during register_notifer;
+  today all callers are from driver open_device.
+
+Matthew Rosato (1):
+  vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
+
+ drivers/gpu/drm/i915/gvt/gtt.c        |  4 +-
+ drivers/gpu/drm/i915/gvt/gvt.h        |  3 -
+ drivers/gpu/drm/i915/gvt/kvmgt.c      | 82 ++++++---------------------
+ drivers/s390/crypto/vfio_ap_ops.c     | 38 ++++---------
+ drivers/s390/crypto/vfio_ap_private.h |  3 -
+ drivers/vfio/vfio.c                   | 75 ++++++++----------------
+ include/linux/vfio.h                  |  5 +-
+ 7 files changed, 56 insertions(+), 154 deletions(-)
 
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.27.0
+
