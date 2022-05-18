@@ -2,151 +2,208 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB00AC4167D
-	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 07:59:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CEF3C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 09:20:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbiERH7z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 May 2022 03:59:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50776 "EHLO
+        id S234014AbiERJUG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 May 2022 05:20:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232861AbiERH6Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 03:58:24 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EB051207E6;
-        Wed, 18 May 2022 00:58:22 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 1B35021B9A;
-        Wed, 18 May 2022 07:58:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1652860701; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        with ESMTP id S234045AbiERJUD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 05:20:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 61C4A14916A
+        for <linux-s390@vger.kernel.org>; Wed, 18 May 2022 02:19:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652865599;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=QH8rZRpDaB1rKzYBSvbHTkuJfXIZgq5PPOEyov0S61g=;
-        b=T0gGp12c0pU5b8b1i3GTuIGm3SeP3EhRpXPECQNn/enftlsKdapz4VZkfCcS2uIPqM17q+
-        /PBA3AVHUNLBKEckN04LlFAw1RfXD18Ad2wMfhhColdg9InPjS0Cl4zZnO5bfZL0Ln9Soj
-        5NqvLRJqL5BZI+4DmlPHTXzoYIVJS4o=
-Received: from suse.cz (unknown [10.100.201.202])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 0683D2C142;
-        Wed, 18 May 2022 07:58:19 +0000 (UTC)
-Date:   Wed, 18 May 2022 09:58:18 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc:     David Gow <davidgow@google.com>, Evan Green <evgreen@chromium.org>,
-        Julius Werner <jwerner@chromium.org>,
-        Scott Branden <scott.branden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        akpm@linux-foundation.org, bhe@redhat.com,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
-        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
-        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
-        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
-        halves@canonical.com, fabiomirmar@gmail.com,
-        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
-        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
-        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
-        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dexuan Cui <decui@microsoft.com>,
-        Doug Berger <opendmb@gmail.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Justin Chen <justinpopo6@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Markus Mayer <mmayer@broadcom.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mihai Carabas <mihai.carabas@oracle.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        zhenwei pi <pizhenwei@bytedance.com>
-Subject: Re: [PATCH 19/30] panic: Add the panic hypervisor notifier list
-Message-ID: <YoSnGmBJ3kYs5WMf@alley>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-20-gpiccoli@igalia.com>
- <YoJZVZl/MH0KiE/J@alley>
- <ad082ce7-db50-13bb-3dbb-9b595dfa78be@igalia.com>
- <YoOpyW1+q+Z5as78@alley>
+        bh=FfQDoCx9YIWbfG5ICgqi0/8r2euHWDbQ6lJ6poxNOJI=;
+        b=ZkjXhH/NcCwRG4rvdYS3MEITDDOBZzCaALIlKD4MfDw4KQeOn1t5ZfbBE/xt4u/ATIUcK9
+        9Xc5T+TMPAcC10vT8bPs+QtDprhiG7TZJvw/zIpsKndQcwNXLinbh3zhMMzVcZL1s7QoXv
+        O++SHnUrlhnOOKA0xmp9wmYzMJypjrc=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-395-O3A9AJa3NUO4yvQtxeNJ9w-1; Wed, 18 May 2022 05:19:50 -0400
+X-MC-Unique: O3A9AJa3NUO4yvQtxeNJ9w-1
+Received: by mail-wm1-f72.google.com with SMTP id k35-20020a05600c1ca300b003946a9764baso2626081wms.1
+        for <linux-s390@vger.kernel.org>; Wed, 18 May 2022 02:19:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=FfQDoCx9YIWbfG5ICgqi0/8r2euHWDbQ6lJ6poxNOJI=;
+        b=G/HcSY7HyjBu3Kc216veoEX+zjAMzWmkbG+hqlnHC6glZXSTkLYvDLUgOqTaavUt7X
+         b3l4WLGxZAAbTlhZqVdjMd2f+jUcskcglzPFIv0gfK3WXNBu0xhYoSlr4F0kjSHl88mB
+         P5qD4NF3ksXzgDZWjMf2WwkKYuT81/PI5JpvDQ0frd3JYK2gQdqU6Uc8AUtTLYPv35bY
+         TjCGwDNN18UOeHPd5IDf2KPWDpJXleU56Q6/Yiyfr70fO+d7ov0kLIppnth+RZtGIHqo
+         tHovaoYEfVJSOrMmNIN1D2tNhLEMx2msjcw7jpYwz9Med8djoeUwcuEQVJotPM9JPOhp
+         RilQ==
+X-Gm-Message-State: AOAM530+yOPxAuusTfGWQ2GqGQj4yXpuM1MQB4r1PwmnU85+SUu77u/J
+        vG3dHbVaxL85P8dt9POyxyulLO0eJUPST8qqjREI0gyMf9K/Qn575XJ05Ko8QQSzLgbqcdHPQYU
+        LvqTi+jZ9T4iKVoYFAqlNng==
+X-Received: by 2002:a5d:620c:0:b0:20c:f50a:dafa with SMTP id y12-20020a5d620c000000b0020cf50adafamr19134854wru.460.1652865589422;
+        Wed, 18 May 2022 02:19:49 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzHrtbhj492w0kHpkAlu6o5m/V/peik9KAB4tIG5515RWJkzoHRSpTFHl1FPFzCrDotK9xN7A==
+X-Received: by 2002:a5d:620c:0:b0:20c:f50a:dafa with SMTP id y12-20020a5d620c000000b0020cf50adafamr19134831wru.460.1652865589144;
+        Wed, 18 May 2022 02:19:49 -0700 (PDT)
+Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id p14-20020a05600c1d8e00b0039456fb80b3sm3774686wms.43.2022.05.18.02.19.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 18 May 2022 02:19:48 -0700 (PDT)
+Message-ID: <a44b1bd2-db54-6c8a-d80f-e2cc645207b2@redhat.com>
+Date:   Wed, 18 May 2022 11:19:47 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YoOpyW1+q+Z5as78@alley>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v7 20/22] KVM: s390: add KVM_S390_ZPCI_OP to manage guest
+ zPCI devices
+Content-Language: en-US
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, pasic@linux.ibm.com,
+        pbonzini@redhat.com, corbet@lwn.net, jgg@nvidia.com,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220513191509.272897-1-mjrosato@linux.ibm.com>
+ <20220513191509.272897-21-mjrosato@linux.ibm.com>
+ <7b13aca2-fb3e-3b84-8d3d-e94966fac5f2@redhat.com>
+ <0c6a4f7b-f43a-8f4c-49bb-db10ca010f1f@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <0c6a4f7b-f43a-8f4c-49bb-db10ca010f1f@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue 2022-05-17 15:57:34, Petr Mladek wrote:
-> On Mon 2022-05-16 12:06:17, Guilherme G. Piccoli wrote:
-> > >> --- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-> > >> +++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-> > >> @@ -814,7 +814,7 @@ static int brcmstb_pm_probe(struct platform_device *pdev)
-> > >>  		goto out;
-> > >>  	}
-> > >>  
-> > >> -	atomic_notifier_chain_register(&panic_notifier_list,
-> > >> +	atomic_notifier_chain_register(&panic_hypervisor_list,
-> > >>  				       &brcmstb_pm_panic_nb);
-> > > 
-> > > I am not sure about this one. It instruct some HW to preserve DRAM.
-> > > IMHO, it better fits into pre_reboot category but I do not have
-> > > strong opinion.
-> > 
-> > Disagree here, I'm CCing Florian for information.
-> > 
-> > This notifier preserves RAM so it's *very interesting* if we have
-> > kmsg_dump() for example, but maybe might be also relevant in case kdump
-> > kernel is configured to store something in a persistent RAM (then,
-> > without this notifier, after kdump reboots the system data would be lost).
+On 16/05/2022 17.35, Matthew Rosato wrote:
+> On 5/16/22 5:52 AM, Thomas Huth wrote:
+>> On 13/05/2022 21.15, Matthew Rosato wrote:
+>>> The KVM_S390_ZPCI_OP ioctl provides a mechanism for managing
+>>> hardware-assisted virtualization features for s390X zPCI passthrough.
+>>
+>> s/s390X/s390x/
+>>
+>>> Add the first 2 operations, which can be used to enable/disable
+>>> the specified device for Adapter Event Notification interpretation.
+>>>
+>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>>> ---
+>>>   Documentation/virt/kvm/api.rst | 45 +++++++++++++++++++
+>>>   arch/s390/kvm/kvm-s390.c       | 23 ++++++++++
+>>>   arch/s390/kvm/pci.c            | 81 ++++++++++++++++++++++++++++++++++
+>>>   arch/s390/kvm/pci.h            |  2 +
+>>>   include/uapi/linux/kvm.h       | 31 +++++++++++++
+>>>   5 files changed, 182 insertions(+)
+>>>
+>>> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+>>> index 4a900cdbc62e..a7cd5ebce031 100644
+>>> --- a/Documentation/virt/kvm/api.rst
+>>> +++ b/Documentation/virt/kvm/api.rst
+>>> @@ -5645,6 +5645,51 @@ enabled with ``arch_prctl()``, but this may change 
+>>> in the future.
+>>>   The offsets of the state save areas in struct kvm_xsave follow the 
+>>> contents
+>>>   of CPUID leaf 0xD on the host.
+>>> +4.135 KVM_S390_ZPCI_OP
+>>> +--------------------
+>>> +
+>>> +:Capability: KVM_CAP_S390_ZPCI_OP
+>>> +:Architectures: s390
+>>> +:Type: vcpu ioctl
+>>
+>> vcpu? ... you're wiring it up in  kvm_arch_vm_ioctl() later, so I assume 
+>> it's rather a VM ioctl?
 > 
-> I see. It is actually similar problem as with
-> drivers/firmware/google/gsmi.c.
+> Yup, VM ioctl, bad copy/paste job...
+> 
+>>
+>>> +:Parameters: struct kvm_s390_zpci_op (in)
+>>> +:Returns: 0 on success, <0 on error
+>>> +
+>>> +Used to manage hardware-assisted virtualization features for zPCI devices.
+>>> +
+>>> +Parameters are specified via the following structure::
+>>> +
+>>> +  struct kvm_s390_zpci_op {
+>>> +    /* in */
+>>
+>> If all is "in", why is there a copy_to_user() in the code later?
+>>
+> 
+> Oh no, this is a leftover from a prior version...  Good catch.  There should 
+> no longer be a copy_to_user.
+> 
+>>> +    __u32 fh;        /* target device */
+>>> +    __u8  op;        /* operation to perform */
+>>> +    __u8  pad[3];
+>>> +    union {
+>>> +        /* for KVM_S390_ZPCIOP_REG_AEN */
+>>> +        struct {
+>>> +            __u64 ibv;    /* Guest addr of interrupt bit vector */
+>>> +            __u64 sb;    /* Guest addr of summary bit */
+>>
+>> If this is really a vcpu ioctl, what kind of addresses are you talking 
+>> about here? virtual addresses? real addresses? absolute addresses?
+> 
+> It's a VM ioctl.  These are guest kernel physical addresses that are later 
+> pinned in arch/s390/kvm/pci.c:kvm_s390_pci_aif_enable() as part of handling 
+> the ioctl.
+> 
+>>
+>>> +            __u32 flags;
+>>> +            __u32 noi;    /* Number of interrupts */
+>>> +            __u8 isc;    /* Guest interrupt subclass */
+>>> +            __u8 sbo;    /* Offset of guest summary bit vector */
+>>> +            __u16 pad;
+>>> +        } reg_aen;
+>>> +        __u64 reserved[8];
+>>> +    } u;
+>>> +  };
+>>> +
+>>> +The type of operation is specified in the "op" field.
+>>> +KVM_S390_ZPCIOP_REG_AEN is used to register the VM for adapter event
+>>> +notification interpretation, which will allow firmware delivery of adapter
+>>> +events directly to the vm, with KVM providing a backup delivery mechanism;
+>>> +KVM_S390_ZPCIOP_DEREG_AEN is used to subsequently disable interpretation of
+>>> +adapter event notifications.
+>>> +
+>>> +The target zPCI function must also be specified via the "fh" field. For the
+>>> +KVM_S390_ZPCIOP_REG_AEN operation, additional information to establish 
+>>> firmware
+>>> +delivery must be provided via the "reg_aen" struct.
+>>> +
+>>> +The "reserved" field is meant for future extensions.
+>>
+>> Maybe also mention the "pad" fields? And add should these also be 
+>> initialized to 0 by the calling userspace program?
+> 
+> Sure, I can mention them.  And yes, I agree that userspace should initialize 
+> them to 0, I'll update the QEMU series accordingly.
 
-As discussed in the other other reply, it seems that both affected
-notifiers do not store kernel logs and should stay in the "hypervisor".
+I just spotted the corresponding patch in the QEMU series, and I think it 
+should already be fine there, since you're using "= { ... }" while declaring 
+the variables:
 
-> I does similar things like kmsg_dump() so it should be called in
-> the same location (after info notifier list and before kdump).
->
-> A solution might be to put it at these notifiers at the very
-> end of the "info" list or make extra "dump" notifier list.
++int s390_pci_kvm_aif_disable(S390PCIBusDevice *pbdev)
++{
++    struct kvm_s390_zpci_op args = {
++        .fh = pbdev->fh,
++        .op = KVM_S390_ZPCIOP_DEREG_AEN
++    };
 
-I just want to point out that the above idea has problems.
-Notifiers storing kernel log need to be treated as kmsg_dump().
-In particular, we would  need to know if there are any.
-We do not need to call "info" notifier list before kdump
-when there is no kernel log dumper registered.
+That means unspecified fields will be set to 0 by the compiler already, as 
+far as I know.
 
-Best Regards,
-Petr
+  Thomas
+
