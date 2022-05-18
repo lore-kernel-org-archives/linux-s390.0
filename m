@@ -2,131 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B44CDC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 26 May 2022 07:04:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73920C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 18 May 2022 06:51:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240673AbiEZHEg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 May 2022 03:04:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34062 "EHLO
+        id S231530AbiERGvk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 May 2022 02:51:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238432AbiEZHEg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 May 2022 03:04:36 -0400
-Received: from out199-3.us.a.mail.aliyun.com (out199-3.us.a.mail.aliyun.com [47.90.199.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405674B4E5;
-        Thu, 26 May 2022 00:04:31 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VER5Ho7_1653548667;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VER5Ho7_1653548667)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 26 May 2022 15:04:28 +0800
-Date:   Thu, 26 May 2022 15:04:27 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [RFC net-next] net/smc:introduce 1RTT to SMC
-Message-ID: <Yo8me+RzNhIUGAZ3@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <1653375127-130233-1-git-send-email-alibuda@linux.alibaba.com>
- <YoyOGlG2kVe4VA4m@TonyMac-Alibaba>
- <64439f1c-9817-befd-c11b-fa64d22620a9@linux.ibm.com>
+        with ESMTP id S231859AbiERGvW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 May 2022 02:51:22 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 994E612AD5;
+        Tue, 17 May 2022 23:51:05 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24I6fjc5016984;
+        Wed, 18 May 2022 06:51:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
+ from : to : subject : reply-to : in-reply-to : references : message-id :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NbY09xWXg9+yIVklR6/+BeWHEQALFJnWz2JOVSnd4iI=;
+ b=e0RbybpdloMudrc7yxVmWiX0gmf/MUTsHuH0YO4omh7EV1qzSLzDVSN3db4qh+H1/3Kc
+ J8tImjE7lf4BHRPu9w0ya5t2LAEpvgA0BU22U2AIkfzQZ6av9nmhk3k1HnG/Lwar+4Rj
+ gre56subsB7uoIc3NRMYMuT3Jpcv3oFpf90MbUQyNECZ6h+F+m2yZ149DDredHpxOcUK
+ TEf5r3SOhtfFBaFb0kXxjX0W8VXwaeabGy54uflEweDHg1Fn3gnpNovSKKvSLuG1LoBU
+ la/A1Z72vKBBp4OfdElgLRQo4arF3AKJq2NNe+FBkeyzuII1nKUaCKCmS2niiB1G5C1e hg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4urmg68h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 May 2022 06:51:00 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24I6hg0h032084;
+        Wed, 18 May 2022 06:51:00 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g4urmg67s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 May 2022 06:51:00 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24I6Wp99026748;
+        Wed, 18 May 2022 06:50:59 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma05wdc.us.ibm.com with ESMTP id 3g242aarun-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 May 2022 06:50:59 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24I6owP64916092
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 18 May 2022 06:50:58 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 45C6FB2071;
+        Wed, 18 May 2022 06:50:58 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C17F6B2064;
+        Wed, 18 May 2022 06:50:57 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.10.229.42])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed, 18 May 2022 06:50:57 +0000 (GMT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <64439f1c-9817-befd-c11b-fa64d22620a9@linux.ibm.com>
+Date:   Wed, 18 May 2022 08:50:57 +0200
+From:   Harald Freudenberger <freude@linux.ibm.com>
+To:     undisclosed-recipients:;
+Subject: Re: [PATCH] s390/crypto: fix scatterwalk_unmap() callers in AES-GCM
+Reply-To: freude@linux.ibm.com
+In-Reply-To: <YoPi5eH+oFJ2anQh@osiris>
+References: <20220517143047.3054498-1-jannh@google.com>
+ <YoPi5eH+oFJ2anQh@osiris>
+User-Agent: Roundcube Webmail/1.4.13
+Message-ID: <96f311d4cb0b95752cfefd424fe0f7c3@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: _Q5VPIp3Opuw5KPtLJUfChcbSSX-ACeZ
+X-Proofpoint-ORIG-GUID: 7WCvDsC_mOUQCbivMcFgd3xmxSfWo3pt
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-18_02,2022-05-17_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ phishscore=0 mlxlogscore=779 clxscore=1015 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205180035
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 25, 2022 at 03:42:28PM +0200, Alexandra Winter wrote:
+On 2022-05-17 20:01, Heiko Carstens wrote:
+> On Tue, May 17, 2022 at 04:30:47PM +0200, Jann Horn wrote:
+>> The argument of scatterwalk_unmap() is supposed to be the void* that 
+>> was
+>> returned by the previous scatterwalk_map() call.
+>> The s390 AES-GCM implementation was instead passing the pointer to the
+>> struct scatter_walk.
+>> 
+>> This doesn't actually break anything because scatterwalk_unmap() only 
+>> uses
+>> its argument under CONFIG_HIGHMEM and ARCH_HAS_FLUSH_ON_KUNMAP.
+>> 
+>> Note that I have not tested this patch in any way, not even 
+>> compile-tested
+>> it.
+>> 
+>> Fixes: bf7fa038707c ("s390/crypto: add s390 platform specific aes gcm 
+>> support.")
+>> Signed-off-by: Jann Horn <jannh@google.com>
+>> ---
+>> IDK which tree this has to go through - s390 or crypto?
+>> maybe s390 is better, since they can actually test it?
+>> 
+>>  arch/s390/crypto/aes_s390.c | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
+> This can go via the s390 tree, however I'd like to have an ACK from
+> Harald, who wrote the original code.
 > 
-> On 24.05.22 09:49, Tony Lu wrote:
-> > On Tue, May 24, 2022 at 02:52:07PM +0800, D. Wythe wrote:
-> >> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> >>
-> >> Hi Karsten,
-> >>
-> >> We are promoting SMC-R to the field of cloud computing, dues to the
-> >> particularity of business on the cloud, the scale and the types of
-> >> customer applications are unpredictable. As a participant of SMC-R, we
-> >> also hope that SMC-R can cover more application scenarios. Therefore,
-> >> many connection problems are exposed during this time. There are two
-> >> main issue, one is that the establishment of a single connection takes
-> >> longer than that of the TCP, another is that the degree of concurrency
-> >> is low under multi-connection processing. This patch set is mainly
-> >> optimized for the first issue, and the follow-up of the second issue
-> >> will be synchronized in the future.
-> >>
-> >> In terms of communication process, under current implement, a TCP
-> >> three-way handshake only needs 1-RTT time, while SMC-R currently
-> >> requires 4-RTT times, including 2-RTT over IP(TCP handshake, SMC
-> >> proposal & accept ) and 2-RTT over IB ( two times RKEY exchange), which
-> >> is most influential factor affecting connection established time at the
-> >> moment.
-> >>
-> >> We have noticed that single network interface card is mainstream on the
-> >> cloud, dues to the advantages of cloud deployment costs and the cloud's
-> >> own disaster recovery support. On the other hand, the emergence of RoCE
-> >> LAG technology makes us no longer need to deal with multiple RDMA
-> >> network interface cards by ourselves,  just like NIC bonding does. In
-> >> Alibaba, Roce LAG is widely used for RDMA.
-> > 
-> > I think this is an interesting topic whether we need SMC-level link
-> > redundancy. I agreed with that RoCE LAG and RDMA in cloud vendors handle
-> > redundancy and failover in the lower layer, and do it transparently for
-> > SMC.
-> > 
-> > So let's move on, if a RDMA device has redundancy ability, we could make
-> > SMC simpler by give an option for user-space or based on the device
-> > capability (if we have this flag). This allows under layer to ensure the
-> > reliability of link group.
-> > 
-> > As RFC 7609 mentioned, we should do some extra work for reliability to
-> > add link. It should be an optional work if the device have capability
-> > for redundancy, and make link group simpler and faster (for the
-> > so-called SMC-2RTT in this RFC).
-> > 
-> > I also notice that RFC 7609 is released on August 2015, which is earlier
-> > than RoCE LAG. RoCE LAG is provided after ConnectX-3/ConnectX-3 Pro in
-> > kernel 4.0, and is available in 2017. And cloud vendors' RDMA adapters,
-> > such as Alibaba Elastic RDMA adapter in [1].
-> > 
-> > Given that, I propose whether the second link can be used as an option
-> > in newly created link group. Also, if it is possible, RFC 7609 can be
-> > updated or extend it for this nowadays case.
-> > 
-> > Looking forward for your message, Karsten, D. Wythe and folks.
-> > 
-> > [1] https://lore.kernel.org/linux-rdma/20220523075528.35017-1-chengyou@linux.alibaba.com/
-> > 
-> > Thanks,
-> > Tony Lu
-> >  
-> Thank you D. Wythe for your proposals, the prototype and measurements.
-> They sound quite promising to us.
-> 
-> We need to carefully evaluate them and make sure everything is compatible
-> with the existing implementations of SMC-D and SMC-R v1 and v2. In the
-> typical s390 environment ROCE LAG is propably not good enough, as the card
-> is still a single point of failure. So your ideas need to be compatible
-> with link redundancy. We also need to consider that the extension of the
-> protocol does not block other desirable extensions.
-> 
-> Your prototype is very helpful for the understanding. Before submitting any
-> code patches to net-next, we should agree on the details of the protocol
-> extension. Maybe you could formulate your proposal in plain text, so we can
-> discuss it here? 
-> 
-> We also need to inform you that several public holidays are upcoming in the
-> next weeks and several of our team will be out for summer vacation, so please
-> allow for longer response times.
-> 
-> Kind regards
-> Alexandra Winter
-> 
-It's glad to hear this. This gave us a lot of confidence to insist on
-it, thank you.
-
-Cheers,
-Tony Lu
+>> diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
+>> index 54c7536f2482..1023e9d43d44 100644
+>> --- a/arch/s390/crypto/aes_s390.c
+>> +++ b/arch/s390/crypto/aes_s390.c
+>> @@ -701,7 +701,7 @@ static inline void 
+>> _gcm_sg_unmap_and_advance(struct gcm_sg_walk *gw,
+>>  					     unsigned int nbytes)
+>>  {
+>>  	gw->walk_bytes_remain -= nbytes;
+>> -	scatterwalk_unmap(&gw->walk);
+>> +	scatterwalk_unmap(gw->walk_ptr);
+>>  	scatterwalk_advance(&gw->walk, nbytes);
+>>  	scatterwalk_done(&gw->walk, 0, gw->walk_bytes_remain);
+>>  	gw->walk_ptr = NULL;
+>> @@ -776,7 +776,7 @@ static int gcm_out_walk_go(struct gcm_sg_walk *gw, 
+>> unsigned int minbytesneeded)
+>>  		goto out;
+>>  	}
+>> 
+>> -	scatterwalk_unmap(&gw->walk);
+>> +	scatterwalk_unmap(gw->walk_ptr);
+>>  	gw->walk_ptr = NULL;
+>> 
+>>  	gw->ptr = gw->buf;
+>> 
+>> base-commit: 42226c989789d8da4af1de0c31070c96726d990c
+>> --
+>> 2.36.0.550.gb090851708-goog
+>> 
+Give me a chance to test this and when the testcases all pass, I'll give 
+a green light....
