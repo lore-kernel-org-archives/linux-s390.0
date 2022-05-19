@@ -2,202 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77A71C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 19 May 2022 08:02:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED5C6C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 19 May 2022 08:07:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232541AbiESICy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 May 2022 04:02:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46452 "EHLO
+        id S229604AbiESIHy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 May 2022 04:07:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235110AbiESICr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 May 2022 04:02:47 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4730D57179
-        for <linux-s390@vger.kernel.org>; Thu, 19 May 2022 01:02:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652947365;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=mBpdwym2ArG4EquWnWSi2ftom73RXQQa+Rs2uQPWbKQ=;
-        b=LHQMQSUHiRGj6vv9A4x+UN4aJUlN8/oDsWNhfyWtQkmYn625XTwbAD9M2iUO9/kbNohxXF
-        YaxBus9WICDEOR3APB3zXxTJgD48lh5CG1GP43EuKHm1xpWNCjywRuaKMsl6WqIWH/6hxA
-        sOr1mbEJMIr+d7zqDb78A1pANjybjIQ=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-401-cGVyrzp6MSqI98v_3n9xcQ-1; Thu, 19 May 2022 04:02:43 -0400
-X-MC-Unique: cGVyrzp6MSqI98v_3n9xcQ-1
-Received: by mail-lj1-f199.google.com with SMTP id a8-20020a2e7f08000000b00253c7e7f572so898381ljd.1
-        for <linux-s390@vger.kernel.org>; Thu, 19 May 2022 01:02:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mBpdwym2ArG4EquWnWSi2ftom73RXQQa+Rs2uQPWbKQ=;
-        b=bS/xES8pwXEGsqkFYNT9/qLR3QssbZTA32UzfUkp2dNNqoEp6X2KODSV/LyNHATXhy
-         76wnrIGMI2wQR/4w+djA1pk19468bQo7lYc3CZ/2ZJitE5KpT3on8F544l5oteV75vL5
-         2RZ8eR5BGfdjQvF6RP5/08LcfT1EPJADk1NPxtpgFcQcsrK80JEa+pjP2qzW7zZxv9/E
-         C0DzKoZVTGpS72NOFKiNYDHylYXnaik1LSfnsyh7zRm+bYhddTugZ4k7Ynh4qYW7/D8J
-         Dh0/biwgk2lAyVhqP4Mw7x1eWu0YXiCXyCzcfDRszROxE8RfcIF0JyrgjGXiD9ev84EP
-         n7ow==
-X-Gm-Message-State: AOAM533HA3rqnbQef/oYLQygFqcY0C6xpMsEf4dH9Saq/P/4vuAES/Vy
-        QW9MXKLBIJFvz7P6WwrqdVwDSjZd9GkwTSKGw6fgPyTapxbci3tF/BL7bal+jnJ9s9yIabmoOH0
-        KEOz3hhpo+OYGT51muD+BFzxzqk6dJCjpGs7ccQ==
-X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id p21-20020a056512139500b00446d38279a5mr2463632lfa.210.1652947362409;
-        Thu, 19 May 2022 01:02:42 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwnED6RSEVAGwD+6jZQlEqqnkm9njtiJZnFEYibosooBXmmsa4+cJ2PSgTUPo3sWmsUgAZgWgEnJrDT+wPlxRw=
-X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id
- p21-20020a056512139500b00446d38279a5mr2463601lfa.210.1652947362047; Thu, 19
- May 2022 01:02:42 -0700 (PDT)
+        with ESMTP id S229484AbiESIHx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 May 2022 04:07:53 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 299155C36C;
+        Thu, 19 May 2022 01:07:50 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24J7hF6a004808;
+        Thu, 19 May 2022 08:07:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=iRj/Gszk9ghOKWLuRnZse6pbLKKupbc4uksy72r7C4w=;
+ b=aGpSO0vLGWTIPkUgSHHnDacxHN07A7U4pMF3q43N7p/QPnop7dWd1ojHVOP4h4maVdUN
+ fW9pxNzVUpZqY2LaOI5tBRabmTRble/nVt8DdodEhtnhQDl5FrWP/7h82d08LLvjSqjN
+ pHgROwrBSbDvM15ploOi7DKHclfVGScmr3wYnta/+6RZgkz0Y6e6bmnT9Z9YzgE6ToCl
+ OeIpBtgnvRhRY0JpfxkSX3iCMoI3DnvNcokGZBbk7wV9bsR185kRsZ6FJC6ApXtCDneJ
+ 7jWRxOWmsFbzGpdfEYfrRYVT/7BuZLevytYSfF8LYFjbKFuFusXHTpPmSc50962uItJf Cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5hrg0h3y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 May 2022 08:07:47 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24J7ows7032306;
+        Thu, 19 May 2022 08:07:45 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5hrg0h1g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 May 2022 08:07:45 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24J7vtb5029034;
+        Thu, 19 May 2022 08:07:40 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3g2429evkk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 May 2022 08:07:40 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24J870As33882478
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 19 May 2022 08:07:00 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 76E1B5204E;
+        Thu, 19 May 2022 08:07:37 +0000 (GMT)
+Received: from [9.171.1.168] (unknown [9.171.1.168])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CB85E5204F;
+        Thu, 19 May 2022 08:07:36 +0000 (GMT)
+Message-ID: <1e2bfeeb-6514-a55d-61eb-6391dcc96256@de.ibm.com>
+Date:   Thu, 19 May 2022 10:07:36 +0200
 MIME-Version: 1.0
-References: <20220518035951.94220-1-jasowang@redhat.com> <20220518035951.94220-7-jasowang@redhat.com>
- <87tu9nfaoe.fsf@redhat.com>
-In-Reply-To: <87tu9nfaoe.fsf@redhat.com>
-From:   Jason Wang <jasowang@redhat.com>
-Date:   Thu, 19 May 2022 16:02:30 +0800
-Message-ID: <CACGkMEsiMQ7zDZ6r-q2W=yFqW8WbMEwUc8OFd+o1JzUL-E19Ew@mail.gmail.com>
-Subject: Re: [PATCH V5 6/9] virtio-ccw: implement synchronize_cbs()
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     mst <mst@redhat.com>,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        eperezma <eperezma@redhat.com>, Cindy Lu <lulu@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH v9 0/3] s390x: KVM: CPU Topology
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, gor@linux.ibm.com,
+        wintera@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com
+References: <20220506092403.47406-1-pmorel@linux.ibm.com>
+ <f9cb28d5-2aa5-f902-53ab-592b08672c62@de.ibm.com> <YoXZxhindugH4WxI@osiris>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <YoXZxhindugH4WxI@osiris>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VJZ-r-nzt2sWRlmRrpOwbDBdCyo7LfWn
+X-Proofpoint-ORIG-GUID: P-vkWWeKdImBT3l5LZe-oRt9yS-Tv8Pf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-19_01,2022-05-19_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ suspectscore=0 spamscore=0 clxscore=1015 phishscore=0 adultscore=0
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 mlxlogscore=606
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205190048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 18, 2022 at 5:32 PM Cornelia Huck <cohuck@redhat.com> wrote:
->
-> On Wed, May 18 2022, Jason Wang <jasowang@redhat.com> wrote:
->
-> > This patch tries to implement the synchronize_cbs() for ccw. For the
-> > vring_interrupt() that is called via virtio_airq_handler(), the
-> > synchronization is simply done via the airq_info's lock. For the
-> > vring_interrupt() that is called via virtio_ccw_int_handler(), a per
-> > device rwlock is introduced ans used in the synchronization method.
->
-> s/ans/and/
->
+Am 19.05.22 um 07:46 schrieb Heiko Carstens:
+> On Wed, May 18, 2022 at 05:26:59PM +0200, Christian Borntraeger wrote:
+>> Pierre,
+>>
+>> please use "KVM: s390x:" and not "s390x: KVM:" for future series.
+> 
+> My grep arts ;) tell me that you probably want "KVM: s390:" without
+> "x" for the kernel.
 
-Will fix.
-
-> >
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> > Cc: Marc Zyngier <maz@kernel.org>
-> > Cc: Halil Pasic <pasic@linux.ibm.com>
-> > Cc: Cornelia Huck <cohuck@redhat.com>
-> > Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
-> > Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-> > Cc: linux-s390@vger.kernel.org
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 27 +++++++++++++++++++++++++++
-> >  1 file changed, 27 insertions(+)
-> >
-> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > index d35e7a3f7067..22d36594bcdd 100644
-> > --- a/drivers/s390/virtio/virtio_ccw.c
-> > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > @@ -62,6 +62,7 @@ struct virtio_ccw_device {
-> >       unsigned int revision; /* Transport revision */
-> >       wait_queue_head_t wait_q;
-> >       spinlock_t lock;
-> > +     rwlock_t irq_lock;
-> >       struct mutex io_lock; /* Serializes I/O requests */
-> >       struct list_head virtqueues;
-> >       bool is_thinint;
-> > @@ -984,6 +985,27 @@ static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
-> >       return dev_name(&vcdev->cdev->dev);
-> >  }
-> >
-> > +static void virtio_ccw_synchronize_cbs(struct virtio_device *vdev)
-> > +{
-> > +     struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-> > +     struct airq_info *info = vcdev->airq_info;
-> > +
-> > +     if (info) {
-> > +             /*
-> > +              * Synchronize with the vring_interrupt() with airq indicator
->
-> Maybe
->
-> /*
->  * This device uses adapter interrupts: synchronize with
->  * vring_interrupt() called by virtio_airq_handler() via the indicator
->  * area lock.
->  */
->
-
-Fine.
-
-> > +              */
-> > +             write_lock_irq(&info->lock);
-> > +             write_unlock_irq(&info->lock);
-> > +     } else {
-> > +             /*
-> > +              * Synchronize with the vring_interrupt() called by
-> > +              * virtio_ccw_int_handler().
->
-> /*
->  * This device uses classic interrupts: synchronize with
->  * vring_interrupt() called by virtio_ccw_int_handler() via the
->  * per-device irq_lock.
->  */
->
-
-Looks fine.
-
-> > +              */
-> > +             write_lock_irq(&vcdev->irq_lock);
-> > +             write_unlock_irq(&vcdev->irq_lock);
-> > +     }
-> > +}
-> > +
-> >  static const struct virtio_config_ops virtio_ccw_config_ops = {
-> >       .get_features = virtio_ccw_get_features,
-> >       .finalize_features = virtio_ccw_finalize_features,
-> > @@ -995,6 +1017,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
-> >       .find_vqs = virtio_ccw_find_vqs,
-> >       .del_vqs = virtio_ccw_del_vqs,
-> >       .bus_name = virtio_ccw_bus_name,
-> > +     .synchronize_cbs = virtio_ccw_synchronize_cbs,
-> >  };
-> >
-> >
-> > @@ -1106,6 +1129,8 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> >                       vcdev->err = -EIO;
-> >       }
-> >       virtio_ccw_check_activity(vcdev, activity);
-> > +     /* Local interrupt should be disabled at this time */
->
-> /* Interrupts are disabled here. */
->
-> ?
->
-> Interrupts enabled here would surely be a bug.
-
-Right.
-
-Thanks
-
->
-> > +     read_lock(&vcdev->irq_lock);
-> >       for_each_set_bit(i, indicators(vcdev),
-> >                        sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
-> >               /* The bit clear must happen before the vring kick. */
->
-
+yes :-)
