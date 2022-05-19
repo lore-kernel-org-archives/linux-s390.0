@@ -2,176 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8037C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 19 May 2022 06:52:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7E65C4167D
+	for <linux-s390@archiver.kernel.org>; Thu, 19 May 2022 07:04:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231848AbiESGw1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 May 2022 02:52:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40080 "EHLO
+        id S234511AbiESHEE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 May 2022 03:04:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231277AbiESGw0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 May 2022 02:52:26 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D29B8722C;
-        Wed, 18 May 2022 23:52:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652943145; x=1684479145;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=/cG7Za+7/M1bF3yDnyScpTPZmeJpY7sHbMHyaozXWIE=;
-  b=hGDhkMDPxf+AdCIpZNROWH1vTdZcMqFrZM63a7OEQatrJIr8Y+GtyISg
-   LCqNX6Xj1SF/QHdf8mOVfEoINYFgTrd2hUti/jTbMcsCrSQbHoBMRRO7e
-   s7Yy9Aec2ZsxCD6gMIA6OgiAdgiK1tgz6oGs076Pn5cselqM0Xu226lpt
-   PCxww8rWhz6Ys+Ebra0fSQqUNukMww1UaWRigVJhBUUkF5uHRThfCgT2s
-   QPjVvW0rh8vvElZjvBbnWc3DJdQ9J2n/I89PVcYrvnClVz2KoqGc/ILBX
-   WEsbBslY8nDXVE2Ua1NoV5bA3WSyJlvdxgHXQuPwO92uNOds7x8viOubd
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10351"; a="332674244"
-X-IronPort-AV: E=Sophos;i="5.91,236,1647327600"; 
-   d="scan'208";a="332674244"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2022 23:52:10 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,236,1647327600"; 
-   d="scan'208";a="523924117"
-Received: from fmsmsx605.amr.corp.intel.com ([10.18.126.85])
-  by orsmga003.jf.intel.com with ESMTP; 18 May 2022 23:52:09 -0700
-Received: from fmsmsx606.amr.corp.intel.com (10.18.126.86) by
- fmsmsx605.amr.corp.intel.com (10.18.126.85) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27; Wed, 18 May 2022 23:52:09 -0700
-Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
- fmsmsx606.amr.corp.intel.com (10.18.126.86) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27 via Frontend Transport; Wed, 18 May 2022 23:52:09 -0700
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.173)
- by edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2308.27; Wed, 18 May 2022 23:52:08 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Xxse//DyZSdWF/KjYqS0L3CSfGhXdujEBa0F+lkykDqy+uBD4OSEiMBrrZKFJdEWj9MGDAt2t3JuL0Kh1bPbr20t2tdBRBxDy9CM1999DXg39O6puhNrOZ0kWXkxgaO7qgqBCNI1Pfq9QKR05kfSXyDSSiLPywMA3jgPNA/A3jrTE1SHa75271TaNFArrFxMHVpSP4kk4RUwyTnzcQTuRRlxZZF5poPpQs9m6TZOJVyogBjyZKnApTT2K1zrkFoD8Y7NbIH+p/D5c3e3gr6VG5zRzliMHMcy0W9A/8Mm6KQc7ZjO1opq7TyfVTCEVblOtQuYxyW1O5oYfJDdbF18EA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4op4zzKKgMoc7Wb8CdIlwVGey2cW67/iw+4jwtcn0Lg=;
- b=kVfJSA2qU2ZOiUcUDGt28H6rJtbV01pUGSGTQUxF4QA3pTmY1SSo49U1raaTuEG7mI3Jnhm+99X4qRBkGJcm3iS99uSZ+MluBaQQSiptH+hOIQDutefERpUiqARKsGeeyPY/ZdQgzIbwqU/PH7QKc5GdqAuRl3bY2BQWyKYDrlVE52kYiP6grmtQv15/KyuYqzVzTDqyySelYquPmemGjVG52AmMPIP2omkt4WbaRE0UUYQzZDtyuIJVOrfMERKRNA4accbkoV18+6JzpsRIllqLVS/djIP5qllvOt0z15FMNSCzUyovnqBlEqj621E1DY+RxmjRCYl0XGPfRjNpSA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by MWHPR11MB1903.namprd11.prod.outlook.com (2603:10b6:300:10e::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5250.18; Thu, 19 May
- 2022 06:52:02 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::24dd:37c2:3778:1adb]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::24dd:37c2:3778:1adb%2]) with mapi id 15.20.5273.014; Thu, 19 May 2022
- 06:52:02 +0000
-From:   "Tian, Kevin" <kevin.tian@intel.com>
-To:     "hch@infradead.org" <hch@infradead.org>
-CC:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "jjherne@linux.ibm.com" <jjherne@linux.ibm.com>,
-        "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>,
-        "pasic@linux.ibm.com" <pasic@linux.ibm.com>,
-        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>
-Subject: RE: [PATCH v2 1/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
-Thread-Topic: [PATCH v2 1/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
-Thread-Index: AQHYav38r+LwcdssakyG6t/K4P4DTq0luTjQgAAJoICAAABuUA==
-Date:   Thu, 19 May 2022 06:52:02 +0000
-Message-ID: <BN9PR11MB52764D919142D6917685B3CC8CD09@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20220518212607.467538-1-mjrosato@linux.ibm.com>
- <20220518212607.467538-2-mjrosato@linux.ibm.com>
- <BN9PR11MB527684F9BD1B906B930E4A468CD09@BN9PR11MB5276.namprd11.prod.outlook.com>
- <YoXoL2tt06sEz9Rd@infradead.org>
-In-Reply-To: <YoXoL2tt06sEz9Rd@infradead.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 6331302d-b4f0-4aa4-03b7-08da39641413
-x-ms-traffictypediagnostic: MWHPR11MB1903:EE_
-x-microsoft-antispam-prvs: <MWHPR11MB19038FF09A4F257BEA3D57CF8CD09@MWHPR11MB1903.namprd11.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: GBK4YKKUB1Vmki/doq9ACXkIcTLkkkZmyYtRQfvjfACa5nv6yl+4F+sYVLv95LYoXBiVPA+Zq9PJrYTEKpgQu5Ih5hHJROr5hETiv5StQO577VjflIRbR6KMhyQENcxPu3WxFoU6oQZwfrOIK6Kn4OuJBo4PTs18OIqWNO7s2WUXgiEh+MmMHvzO96CzMOWqvxIxfr7KmJ2NOogXtj18W4BrUEdGbbXjXz3OOn3UIhfycoflhYMJtPZx9jNyEmgIxLfWqwIU5PqwbsiPsLSzOtBrV+Z481UyfWLq62OXPEUNaCGHoRGDhb2dm4wzXu0efEANqOnl8oL26ED4p4r0lXBoZWcKeubEbpgo1cjBjBjbt1jyBi1URhJ95cYu69IT04sv99aFuToQ+eLMZi/Tact7BLvGSoz+AOIbmcoE8FWTB8HjbBc8VNBYlUMqNQPVz9c84TynqUDI2nyNyrrmcWKEWr9hNNja5Swg3XqjNNKvhmcJVhMHxCjlsqIxImglIgRKrP46kofUwgUwKqidwbBRD06bzgGX2pzOU25IRDlUN3802YDEIEcqxADG5n18y5rcKumKcpeS2cAqbfGz2CKvCuyrjLDvvP8nMbB8yWMkEV0NFh/mCvtbRUhGPp0I76Qt2pafC5ZrjOhKRcn9ild22x6R6LW1/dJH0AO51xWvwtCqSg3vl6nTW9WSmmv0Guvy3ygp4+08vxotJvywKA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(66476007)(64756008)(38100700002)(8676002)(122000001)(4326008)(7416002)(5660300002)(86362001)(76116006)(66946007)(66556008)(38070700005)(186003)(8936002)(508600001)(55016003)(6916009)(54906003)(71200400001)(7696005)(82960400001)(4744005)(316002)(26005)(9686003)(66446008)(33656002)(52536014)(2906002)(6506007);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?qIOTZvcezvPE4U5LO7bY00ae5syd+P2qVKWrJ7dP5fnaH6LUUuTibrWuulmT?=
- =?us-ascii?Q?NyuGdVF32fXb9TKQ3T4agkl+NIouo1G8C8E7xy9xRy7SpwJhKZOY9xbLEsP+?=
- =?us-ascii?Q?laGOYmVdq0HdQDYXNRz80KAy/LvebCnK0fX0CSQawsuNVIr/ZxNXHzmOWO8a?=
- =?us-ascii?Q?LEvmzG0eTRJLjivxyx5dwCqm+Yw+oALkC+j9msC9yE2b8LvGWWmk4DdCLhB2?=
- =?us-ascii?Q?57UWXcMOa5YfhPmYIGcy6N3KD+2J7l66Z+8uhP/6QGSDUwlcB8YdpAXy0W6R?=
- =?us-ascii?Q?DRTqLCbwpFlJLGW2ggjeEskXqXJylBglKDin1VERvGNw80vVwX8zLwFySDbI?=
- =?us-ascii?Q?t5FyHRplz0yckTnumo7gV5Jw6g/v2y5wzw4fgFh9vzG4KeycQsMOA+2yTERz?=
- =?us-ascii?Q?AUV6BBMLE5+g9NN8xA9QLn/Q5mfA4vYgG/Ys9ezx2GU6GKz+E/6LuJlsNO3q?=
- =?us-ascii?Q?g4HsHInYkgOa0rsmpoJIhZVrHjpbrcstcGCkELpjm8ab3+wJAhjqXDP1jFgK?=
- =?us-ascii?Q?gEXqbjX5MW9fzi6Y2D9LAAm69+x7zoFr814hTYbu1vnit8JqFB1p7YzvoIKI?=
- =?us-ascii?Q?IvOnn52/gnqoAnBmJiElb8p8nzZwSClwVLct0w/8MoFdcrGwS1NK3zU5H3j+?=
- =?us-ascii?Q?sfb0Hi10UI0qyXi1F/zbShcN9RgWyLPc66HZ6aRNI6PeXKNfOgPKkdcRD1+u?=
- =?us-ascii?Q?kP80sWsxrMGNG1QewmfhkpDB3bvFugqv01MyJArzH/i9kVM38j2kl4vc6PGY?=
- =?us-ascii?Q?gXwk7MetsHVXp6rqtNQYodG273YpTq4Db5qrQepdItj6L6TMsXKjqia26Pc4?=
- =?us-ascii?Q?lCuWdIE/kAGooTTAt0iIKs1VFj9O2SqK7vxkSKjYriAXWEXXBF1EJ8ORjgLK?=
- =?us-ascii?Q?zGVbhDPvhvVWvirooZmnHZFMRAY0LMRjS/kfdXTEs1tiFPHU+6U97tC7s/r/?=
- =?us-ascii?Q?HOAI8ysnLhCp9GSHCuRvQxes8Cp8jacYbM9u0TvqbllyoQwaBcAwtChU7Ho8?=
- =?us-ascii?Q?QICajkDswqZpcDlEur2qoPto/GNGP+6HXVdV2bY1cbjUT/Y4W7Ezq3XIKphw?=
- =?us-ascii?Q?QJctDPfXVt/ThPAGFTlh5sk3wGMbaV5JxiEXyEEtJVcEp0BFGsFscp78RJFs?=
- =?us-ascii?Q?szvigiMc/Wa5khguxQDnanmHAt9tpdOHj6HqMOzqrjoJILiHtjIx7PsVt+0y?=
- =?us-ascii?Q?zSBGRTBGYZpnGBu9AQ+px3IKW785ZUD+xTnpoooJRCKhMQxLYi8BwGW8waq7?=
- =?us-ascii?Q?L9iKcly/HOCT0o1/lDiesbZgMHxvvlKZM65vRv3dZR1FpFLs7w/vMTdKfNAI?=
- =?us-ascii?Q?uFL7ip931UowMehRkocM9qztRfKO5JHJKizCwTkstEEfvocnAUgDujKmGyYL?=
- =?us-ascii?Q?g63/X5rNmHI+i2MBq8Ly8HX+f3m1yFtXAudHPGBdm4GOaXmnQ6lodW4Sb5D/?=
- =?us-ascii?Q?mmPBdykZGAuMhvfEPZsPi1UCRJOoQTmeNGsrJ/x2iJcM1wwp3ypQ0jb8o2f/?=
- =?us-ascii?Q?t7L3a+Y0doZTaHmP3qnzJq4Y7pwm3fJR6efjDP0H09NSZPNWYVXv0L6Iby1W?=
- =?us-ascii?Q?/8KUxOxzYYcv/iTqlmsmJAQd9KhVVIodNTGHPLMxI67dTnVqZTE0iLsy/wSS?=
- =?us-ascii?Q?PH/Dm7Qr3GaruQd5V0gq5JdRZhwynG60UulMNynbjNOiRtOk/qcsAnl/s+Zw?=
- =?us-ascii?Q?3nQI0CBc/itpJZogMTddBFmUgg5mexaBqxbfj67/W/5gmWYDCA1aDB5yjU4t?=
- =?us-ascii?Q?NuOOjIskNg=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229850AbiESHEB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 May 2022 03:04:01 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B09CC275;
+        Thu, 19 May 2022 00:04:00 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id CF6261F9DC;
+        Thu, 19 May 2022 07:03:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1652943838; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=395st/CngVntAAOn5uSBsdHcf6UJsehUQOcbe6ab9wI=;
+        b=qJ/FgyV3p4LuXUdkZjoAbs2+ewn4o7aNZN0S67D2rC96Mde70WoKxt5D1iYy3vIxFGNywX
+        NYQFStO7xXozlUSKqQPZCblT/M2McgEFa5ttVGDSrZzFsBjH4DUBLxqHsrlOhubnXz8Ip9
+        VRfQAfc3f6HDJx77hS/XQSQpNXuMeJQ=
+Received: from suse.cz (unknown [10.100.201.202])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 813A52C141;
+        Thu, 19 May 2022 07:03:55 +0000 (UTC)
+Date:   Thu, 19 May 2022 09:03:52 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc:     David Gow <davidgow@google.com>, Evan Green <evgreen@chromium.org>,
+        Julius Werner <jwerner@chromium.org>,
+        Scott Branden <scott.branden@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        akpm@linux-foundation.org, bhe@redhat.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dexuan Cui <decui@microsoft.com>,
+        Doug Berger <opendmb@gmail.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Justin Chen <justinpopo6@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Markus Mayer <mmayer@broadcom.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: [PATCH 19/30] panic: Add the panic hypervisor notifier list
+Message-ID: <YoXr2AD+Jc/ukUhJ@alley>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-20-gpiccoli@igalia.com>
+ <YoJZVZl/MH0KiE/J@alley>
+ <ad082ce7-db50-13bb-3dbb-9b595dfa78be@igalia.com>
+ <YoOpyW1+q+Z5as78@alley>
+ <YoSnGmBJ3kYs5WMf@alley>
+ <fbbd0a8d-2ef4-4a39-4b75-354918e85778@igalia.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6331302d-b4f0-4aa4-03b7-08da39641413
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 May 2022 06:52:02.2492
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: eVdP3EJcQB3qYLczN3LK2gV+54mW2o8zY6ugREp7BpVHcnX/4ZbZFvE3EuD+G1VKM4J4ER0O4k6AwT5A06Tsow==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR11MB1903
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fbbd0a8d-2ef4-4a39-4b75-354918e85778@igalia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: hch@infradead.org <hch@infradead.org>
-> Sent: Thursday, May 19, 2022 2:48 PM
->=20
-> On Thu, May 19, 2022 at 06:43:06AM +0000, Tian, Kevin wrote:
-> > > This fixes a user-triggerable oops in GVT.
-> >
-> > No changelog.
->=20
-> ??
->=20
-> the cover latter clearly states what has changed since v1, and this
-> patch has a good commit log.  This is exactly how it is supposed to
-> be done.
+On Wed 2022-05-18 10:16:20, Guilherme G. Piccoli wrote:
+> On 18/05/2022 04:58, Petr Mladek wrote:
+> > [...]
+> >> I does similar things like kmsg_dump() so it should be called in
+> >> the same location (after info notifier list and before kdump).
+> >>
+> >> A solution might be to put it at these notifiers at the very
+> >> end of the "info" list or make extra "dump" notifier list.
+> > 
+> > I just want to point out that the above idea has problems.
+> > Notifiers storing kernel log need to be treated as kmsg_dump().
+> > In particular, we would  need to know if there are any.
+> > We do not need to call "info" notifier list before kdump
+> > when there is no kernel log dumper registered.
+> > 
+> 
+> Notifiers respect the priority concept, which is just a number that
+> orders the list addition (and the list is called in order).
+> 
+> I've used the last position to panic_print() [in patch 25] - one idea
+> here is to "reserve" the last position (represented by INT_MIN) for
+> notifiers that act like kmsg_dump(). I couldn't find any IIRC, but that
+> doesn't prevent us to save this position and comment about that.
 
-sigh... don't know why I missed the coverletter.
+I would ignore it for now. If anyone would want to safe the log
+then they would need to read it. They will most likely use
+the existing kmsg_dump() infastructure. In fact, they should
+use it to avoid a code duplication.
+
+Best Regards,
+Petr
