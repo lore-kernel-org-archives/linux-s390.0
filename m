@@ -2,178 +2,167 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84F34C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 19 May 2022 16:35:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0E3EC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 19 May 2022 17:11:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234213AbiESQfR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 May 2022 12:35:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42600 "EHLO
+        id S242478AbiESRL5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 May 2022 13:11:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229822AbiESQfQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 May 2022 12:35:16 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2038AD02AC;
-        Thu, 19 May 2022 09:35:16 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24JG7pPu017535;
-        Thu, 19 May 2022 16:35:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=2T5NhEA+6P1WIyw4DeeIGw9BcvZEFkKAL6lWgW6LRvc=;
- b=bExy/vlOeydJMgjLGuPMNuvb9obIIWE9x/rU49vHC3V/5k9VMhSd+0/UeZ+B1L2D6J7m
- 0X4QznkbKuVVhQHAFQGpVmxUQddGnyrBnOXfokCuHudV+Bq33OTQo+qOGtPVwxUFrc1S
- kqyQ4Hxuf8+wR8LJpM/3mklKexinY0l1llFFhqoIiYUEr/Wf0GZnLiNUvULcelPgToPM
- cPqS+mDshGmx1JT/qYYgtB3SWDrL6Tq/v+mKWCYLEsR2ItGLR8y/XOWbL0BN098MDRnj
- lgtcoySH2NpVfpzASFJOJP2bf8cRLDMGdqdZr8JABJeYAQ4uFwnCwAAfzf2CyB395UJ8 7A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5rsf9a8j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 May 2022 16:35:07 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24JGRO0F009332;
-        Thu, 19 May 2022 16:35:07 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5rsf9a80-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 May 2022 16:35:07 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24JGStQ1017503;
-        Thu, 19 May 2022 16:35:05 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma05wdc.us.ibm.com with ESMTP id 3g242an11b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 May 2022 16:35:05 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24JGZ5rq39452944
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 19 May 2022 16:35:05 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 01060124060;
-        Thu, 19 May 2022 16:35:05 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2940912405B;
-        Thu, 19 May 2022 16:35:02 +0000 (GMT)
-Received: from [9.211.37.97] (unknown [9.211.37.97])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Thu, 19 May 2022 16:35:01 +0000 (GMT)
-Message-ID: <f7a30821-5885-261f-5197-088d6f76dcc4@linux.ibm.com>
-Date:   Thu, 19 May 2022 12:35:00 -0400
+        with ESMTP id S242457AbiESRLz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 May 2022 13:11:55 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC032DD77;
+        Thu, 19 May 2022 10:11:37 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 21E1221B3D;
+        Thu, 19 May 2022 17:11:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1652980296; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=rWh53tGkveY7idEYFsxjbZWpUxq42gDwANR/tTyoynA=;
+        b=GxK3G4QLKN08IdF1ihND5wQ2Ww5O75CoNT+XUN7JDy50/venD87zCA7NNiKGjKc7afCOQl
+        AJJ5F93tVyNCQykjtCBVlUCg2y+WuJP5RKwsDcYZqyf5Ay+FiM9ovzjRmUPAtQ/D/K6glv
+        t+j3pn2by0hLM1Kv95IUGaIORWEpBlw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1652980296;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=rWh53tGkveY7idEYFsxjbZWpUxq42gDwANR/tTyoynA=;
+        b=VMNYKei+gBjUYDhmu+fbZxs5FqWeJIPthSZxCZVqoA4oKbJkLMG5IVS8fNKOmI9Y3PrJ+X
+        8Tz99XX8TMgJYqAg==
+Received: from kunlun.suse.cz (unknown [10.100.128.76])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 885302C141;
+        Thu, 19 May 2022 17:11:35 +0000 (UTC)
+Date:   Thu, 19 May 2022 19:11:34 +0200
+From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>, Coiby Xu <coxu@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, akpm@linux-foundation.org,
+        kexec@lists.infradead.org, keyrings@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Dave Young <dyoung@redhat.com>, Will Deacon <will@kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
+        Philipp Rudo <prudo@linux.ibm.com>,
+        linux-security-module@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-integrity <linux-integrity@vger.kernel.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: Re: [PATCH v8 4/4] kexec, KEYS, s390: Make use of built-in and
+ secondary keyring for signature verification
+Message-ID: <20220519171134.GN163591@kunlun.suse.cz>
+References: <20220512070123.29486-1-coxu@redhat.com>
+ <20220512070123.29486-5-coxu@redhat.com>
+ <YoTYm6Fo1vBUuJGu@osiris>
+ <20220519003902.GE156677@MiWiFi-R3L-srv>
+ <c47299b899da4ad4b6d3ad637022ad82c8ed6ed2.camel@linux.ibm.com>
+ <YoZSl84aJYTscgfO@MiWiFi-R3L-srv>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH v2 1/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
-Content-Language: en-US
-To:     Tony Krowiak <akrowiak@linux.ibm.com>, jgg@nvidia.com,
-        alex.williamson@redhat.com
-Cc:     cohuck@redhat.com, borntraeger@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, hch@infradead.org,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220518212607.467538-1-mjrosato@linux.ibm.com>
- <20220518212607.467538-2-mjrosato@linux.ibm.com>
- <0ab6bb11-4510-0efc-0ad6-507d749022f2@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <0ab6bb11-4510-0efc-0ad6-507d749022f2@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: n5MRbdrtyYeMwoOhhvnPEZ_kAMqepiPR
-X-Proofpoint-ORIG-GUID: fw9NAjzqH5y8tJAgl_wa0ExUc7gQwGLZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-19_05,2022-05-19_03,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1015
- malwarescore=0 priorityscore=1501 phishscore=0 lowpriorityscore=0
- bulkscore=0 spamscore=0 impostorscore=0 suspectscore=0 mlxlogscore=999
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205190095
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YoZSl84aJYTscgfO@MiWiFi-R3L-srv>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/19/22 12:23 PM, Tony Krowiak wrote:
-> I made a few comments, but other than that this looks good to
-> me:
+On Thu, May 19, 2022 at 10:22:15PM +0800, Baoquan He wrote:
+> On 05/19/22 at 07:56am, Mimi Zohar wrote:
+> > [Cc'ing Jarkko, linux-integrity]
+> > 
+> > On Thu, 2022-05-19 at 08:39 +0800, Baoquan He wrote:
+> > > On 05/18/22 at 01:29pm, Heiko Carstens wrote:
+> > > > On Thu, May 12, 2022 at 03:01:23PM +0800, Coiby Xu wrote:
+> > > > > From: Michal Suchanek <msuchanek@suse.de>
+> > > > > 
+> > > > > commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+> > > > > adds support for KEXEC_SIG verification with keys from platform keyring
+> > > > > but the built-in keys and secondary keyring are not used.
+> > > > > 
+> > > > > Add support for the built-in keys and secondary keyring as x86 does.
+> > > > > 
+> > > > > Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+> > > > > Cc: stable@vger.kernel.org
+> > > > > Cc: Philipp Rudo <prudo@linux.ibm.com>
+> > > > > Cc: kexec@lists.infradead.org
+> > > > > Cc: keyrings@vger.kernel.org
+> > > > > Cc: linux-security-module@vger.kernel.org
+> > > > > Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+> > > > > Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
+> > > > > Acked-by: Baoquan He <bhe@redhat.com>
+> > > > > Signed-off-by: Coiby Xu <coxu@redhat.com>
+> > > > > ---
+> > > > >  arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
+> > > > >  1 file changed, 13 insertions(+), 5 deletions(-)
+> > > > 
+> > > > As far as I can tell this doesn't have any dependency to the other
+> > > > patches in this series, so should I pick this up for the s390 tree, or
+> > > > how will this go upstream?
+> > > 
+> > > Thanks, Heiko.
+> > > 
+> > > I want to ask Mimi if this can be taken into KEYS-ENCRYPTED tree.
+> > > Otherwise I will ask Andrew to help pick this whole series.
+> > > 
+> > > Surely, this patch 4 can be taken into s390 seperately since it's
+> > > independent, both looks good.
+> > 
+> > KEYS-ENCRYTPED is a type of key, unrelated to using the .platform,
+> > .builtin, .machine, or .secondary keyrings.  One of the main reasons
+> > for this patch set is to use the new ".machine" keyring, which, if
+> > enabled, is linked to the "secondary" keyring.  However, the only
+> > reference to the ".machine" keyring is in the cover letter, not any of
+> > the patch descriptions.  Since this is the basis for the system's
+> > integrity, this seems like a pretty big omission.
+> > 
+> > From patch 2/4:
+> > "The code in bzImage64_verify_sig makes use of system keyrings
+> > including
+> > .buitin_trusted_keys, .secondary_trusted_keys and .platform keyring to
+> > verify signed kernel image as PE file..."
+> > 
+> > From patch 3/4:
+> > "This patch allows to verify arm64 kernel image signature using not
+> > only
+> > .builtin_trusted_keys but also .platform and .secondary_trusted_keys
+> > keyring."
+> > 
+> > From patch 4/4:
+> > "... with keys from platform keyring but the built-in keys and
+> > secondary keyring are not used."
+> > 
+> > This patch set could probably go through KEYS/KEYRINGS_INTEGRITY, but
+> > it's kind of late to be asking.  Has it been in linux-next?  Should I
+> > assume this patch set has been fully tested or can we get some "tags"?
 > 
-> Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Right, it should be KEYS/KEYRINGS_INTEGRITY related, I made mistaken.
+> Now it got two ACKs from Michal and me. Michal met the same issue on
+> arm64 and posted another series of patches, finally Coiby integrated
+> Michal's patch and his to make this patchset. That would be great if
+> this can get reviewing from experts on key/keyring. Surely, Coiby need
+> update the patch log to add the '.machine' keyring into patch logs as
+> you pointed out.
 > 
+> IIRC, Coiby has tested it on x86_64/arm64, not sure if he took test on
+> s390. No, this hasn't been in linux-next.
 
-...
+I used the s390 code on powerpc and there it did not work because the
+built-in key was needed to verify the kernel.
 
-> I'm not sure what version of the code on which the patch was rebased, 
+I did not really run this on s390, only ported the fix I needed on
+powerpc back to s390.
 
-Was on top of Jason's vfio_group_locking series, but now would apply on 
-vfio-next since Alex pulled that series in to vfio-next.
+Thanks
 
-> but in the
-> latest master branch from our repository the kvm_get_kvm(kvm) function is
-> called inside of the if block below. I'm fine with moving outside of the 
-> block, but
-> I don't see a corresponding removal of it from inside the block.
-
-Yeah, I didn't notice those there.  v3 will simply remove my get/put 
-additions and leave yours as-is.
-
-...
-
->> vfio_ap_mdev_group_notifier;
->> -    events = VFIO_GROUP_NOTIFY_SET_KVM;
->> +    if (!vdev->kvm)
->> +        return -EPERM;
-> 
-> Perhaps -EINVAL or -EFAULT?
-> 
-
-Whichever you'd prefer?  If I don't hear back I'll just use -EINVAL in v3.
-
->> -    ret = vfio_register_notifier(vdev, VFIO_GROUP_NOTIFY, &events,
->> -                     &matrix_mdev->group_notifier);
->> +    ret = vfio_ap_mdev_set_kvm(matrix_mdev, vdev->kvm);
->>       if (ret)
->>           return ret;
->> @@ -1415,12 +1400,11 @@ static int vfio_ap_mdev_open_device(struct 
->> vfio_device *vdev)
->>       ret = vfio_register_notifier(vdev, VFIO_IOMMU_NOTIFY, &events,
->>                        &matrix_mdev->iommu_notifier);
->>       if (ret)
->> -        goto out_unregister_group;
->> +        goto err_kvm;
->>       return 0;
->> -out_unregister_group:
->> -    vfio_unregister_notifier(vdev, VFIO_GROUP_NOTIFY,
->> -                 &matrix_mdev->group_notifier);
->> +err_kvm:
->> +    vfio_ap_mdev_unset_kvm(matrix_mdev);
->>       return ret;
->>   }
->> @@ -1431,8 +1415,6 @@ static void vfio_ap_mdev_close_device(struct 
->> vfio_device *vdev)
->>       vfio_unregister_notifier(vdev, VFIO_IOMMU_NOTIFY,
->>                    &matrix_mdev->iommu_notifier);
->> -    vfio_unregister_notifier(vdev, VFIO_GROUP_NOTIFY,
->> -                 &matrix_mdev->group_notifier);
->>       vfio_ap_mdev_unset_kvm(matrix_mdev);
-> 
-> I'm not sure if this matters, but the vfio_ap_mdev_unset_kvm(matrix_mdev)
-> function uses the KVM pointer stored in matrix_mdev->kvm. I can't imagine
-> the KVM pointer stored in vdev->kvm being different than matrix_mdev->kvm,
-
-With this patch matrix_mdev->kvm is set from the value in vdev->kvm 
-during vfio_ap_mdev_set_kvm (basically, doing the work that the notifier 
-was doing but instead of getting it from notifier data get it from the 
-vfio_device)
-
-> but thought I should point it out. Previously, this function was called 
-> by the
-> notifier handler which did not have access to the KVM pointer which is 
-> why it
-> was retrieved from matrix_mdev->kvm. Even if the vdev->kvm and
-> matrix_mdev->kvm did not match, we should probably go ahead and call
-> the unset function anyway to remove access to AP resources for the guest 
-> and
-> reset the queues.
-> 
-
+Michal
