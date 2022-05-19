@@ -2,99 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED5C6C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 19 May 2022 08:07:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C36A7C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 19 May 2022 08:08:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229604AbiESIHy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 May 2022 04:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55478 "EHLO
+        id S230046AbiESIIi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 May 2022 04:08:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiESIHx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 May 2022 04:07:53 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 299155C36C;
-        Thu, 19 May 2022 01:07:50 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24J7hF6a004808;
-        Thu, 19 May 2022 08:07:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=iRj/Gszk9ghOKWLuRnZse6pbLKKupbc4uksy72r7C4w=;
- b=aGpSO0vLGWTIPkUgSHHnDacxHN07A7U4pMF3q43N7p/QPnop7dWd1ojHVOP4h4maVdUN
- fW9pxNzVUpZqY2LaOI5tBRabmTRble/nVt8DdodEhtnhQDl5FrWP/7h82d08LLvjSqjN
- pHgROwrBSbDvM15ploOi7DKHclfVGScmr3wYnta/+6RZgkz0Y6e6bmnT9Z9YzgE6ToCl
- OeIpBtgnvRhRY0JpfxkSX3iCMoI3DnvNcokGZBbk7wV9bsR185kRsZ6FJC6ApXtCDneJ
- 7jWRxOWmsFbzGpdfEYfrRYVT/7BuZLevytYSfF8LYFjbKFuFusXHTpPmSc50962uItJf Cw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5hrg0h3y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 May 2022 08:07:47 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24J7ows7032306;
-        Thu, 19 May 2022 08:07:45 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5hrg0h1g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 May 2022 08:07:45 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24J7vtb5029034;
-        Thu, 19 May 2022 08:07:40 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3g2429evkk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 May 2022 08:07:40 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24J870As33882478
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 19 May 2022 08:07:00 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 76E1B5204E;
-        Thu, 19 May 2022 08:07:37 +0000 (GMT)
-Received: from [9.171.1.168] (unknown [9.171.1.168])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CB85E5204F;
-        Thu, 19 May 2022 08:07:36 +0000 (GMT)
-Message-ID: <1e2bfeeb-6514-a55d-61eb-6391dcc96256@de.ibm.com>
-Date:   Thu, 19 May 2022 10:07:36 +0200
+        with ESMTP id S229484AbiESIIi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 May 2022 04:08:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4B6B85C36C
+        for <linux-s390@vger.kernel.org>; Thu, 19 May 2022 01:08:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652947716;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=PaRT19em+T4GPwPQ/T0xXwQTdvktI3d/a43tTl0NNkw=;
+        b=YglDRBKj6NtFtEJYgfjfIpd1ByEZctatedn6v9j81LNqt+xhBZV61SoFn79PG0s02KGQUu
+        a/UgZ74/I1bUEYl+5IjHPdee1b7/n8vcOIg0ctb8k6uydrnF8a3j4nl7JLUs+qp16r4rQV
+        lh8SI1THDehlZ7EwnriNP+yGI6IbaaE=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-92-lEGz_3izPp6j-fCwQIZ0pQ-1; Thu, 19 May 2022 04:08:35 -0400
+X-MC-Unique: lEGz_3izPp6j-fCwQIZ0pQ-1
+Received: by mail-lj1-f200.google.com with SMTP id a8-20020a2e7f08000000b00253c7e7f572so902738ljd.1
+        for <linux-s390@vger.kernel.org>; Thu, 19 May 2022 01:08:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PaRT19em+T4GPwPQ/T0xXwQTdvktI3d/a43tTl0NNkw=;
+        b=napWHYbsBmaAWu+ljEHAoKSgsZsRWDFpPX6kAu8bj/saEXXI7RMV10+53c6h6kFoKm
+         68Pquz7d6tOSbREn/ljoPE9aJLo7FEhW42dsINUc9rwoGE8GRotVL3BiRgIehxnFxnd3
+         VFi9IPV9a9O7pRzsDeSrarY0lf8+qlNyjppIhCx/aU8lZPeroGPEtcLKCCam9K+TrIbB
+         eGbNq5YB1FN550R7U7KZOVjS+TgXrNDkWX0j2gPw3Dp33VDiuLqAPFrLCGgwxPuRUn4Q
+         PaJsRgo/gCXKE+5rQ2Dp8vMPtdVuuUcil7E4ITGT8IThM8yr9e2mEeIPjFphzIlTFfEa
+         QK5g==
+X-Gm-Message-State: AOAM530lz/ovFaw5qnApmX+nV1MDXCUJNRcxp1W0oFRbuVKiwqswy62R
+        dM85va2r1YDC3Zqcg+KPNsA5R+6a0MAScFuTmHBwdiKGRAN+Mtk2o7JAdCCXkE+Px25tOqjJfsZ
+        XwY2H0MJSSgo0L9mINm651EDVY24zKWtwk4qOvw==
+X-Received: by 2002:a2e:bd85:0:b0:250:9bf2:8e27 with SMTP id o5-20020a2ebd85000000b002509bf28e27mr1936022ljq.177.1652947713555;
+        Thu, 19 May 2022 01:08:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzTVSo9SydbYuTdAcj6vvShrXEBo1eZDTyMXTBaYDqgH2C2D8RyXds5Ke02dPdHxXw8Kdl7wrNxJTIMixKQCm4=
+X-Received: by 2002:a2e:bd85:0:b0:250:9bf2:8e27 with SMTP id
+ o5-20020a2ebd85000000b002509bf28e27mr1936002ljq.177.1652947713385; Thu, 19
+ May 2022 01:08:33 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v9 0/3] s390x: KVM: CPU Topology
-Content-Language: en-US
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, gor@linux.ibm.com,
-        wintera@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com
-References: <20220506092403.47406-1-pmorel@linux.ibm.com>
- <f9cb28d5-2aa5-f902-53ab-592b08672c62@de.ibm.com> <YoXZxhindugH4WxI@osiris>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <YoXZxhindugH4WxI@osiris>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VJZ-r-nzt2sWRlmRrpOwbDBdCyo7LfWn
-X-Proofpoint-ORIG-GUID: P-vkWWeKdImBT3l5LZe-oRt9yS-Tv8Pf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-19_01,2022-05-19_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- suspectscore=0 spamscore=0 clxscore=1015 phishscore=0 adultscore=0
- lowpriorityscore=0 bulkscore=0 malwarescore=0 mlxlogscore=606
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205190048
+References: <20220518035951.94220-1-jasowang@redhat.com> <20220518035951.94220-8-jasowang@redhat.com>
+ <87r14rf983.fsf@redhat.com>
+In-Reply-To: <87r14rf983.fsf@redhat.com>
+From:   Jason Wang <jasowang@redhat.com>
+Date:   Thu, 19 May 2022 16:08:22 +0800
+Message-ID: <CACGkMEs7f63SDxed0qg4XVspJ9cSCTRrV8R-MUUVQCvjAXp+DA@mail.gmail.com>
+Subject: Re: [PATCH V5 7/9] virtio: allow to unbreak virtqueue
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     mst <mst@redhat.com>,
+        virtualization <virtualization@lists.linux-foundation.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        eperezma <eperezma@redhat.com>, Cindy Lu <lulu@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 19.05.22 um 07:46 schrieb Heiko Carstens:
-> On Wed, May 18, 2022 at 05:26:59PM +0200, Christian Borntraeger wrote:
->> Pierre,
->>
->> please use "KVM: s390x:" and not "s390x: KVM:" for future series.
-> 
-> My grep arts ;) tell me that you probably want "KVM: s390:" without
-> "x" for the kernel.
+On Wed, May 18, 2022 at 6:04 PM Cornelia Huck <cohuck@redhat.com> wrote:
+>
+> On Wed, May 18 2022, Jason Wang <jasowang@redhat.com> wrote:
+>
+> > This patch allows the new introduced __virtio_break_device() to
+> > unbreak the virtqueue.
+> >
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
+> > Cc: Marc Zyngier <maz@kernel.org>
+> > Cc: Halil Pasic <pasic@linux.ibm.com>
+> > Cc: Cornelia Huck <cohuck@redhat.com>
+> > Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
+> > Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/virtio/virtio_ring.c | 21 +++++++++++++++++++++
+> >  include/linux/virtio.h       |  1 +
+> >  2 files changed, 22 insertions(+)
+> >
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index cfb028ca238e..5b7df7c455f0 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -2397,6 +2397,27 @@ void virtio_break_device(struct virtio_device *dev)
+> >  }
+> >  EXPORT_SYMBOL_GPL(virtio_break_device);
+> >
+> > +/*
+> > + * This should allow the device to be used by the driver. You may
+> > + * need to grab appropriate locks to flush. This should only be used
+>
+> Hm, to flush what?
 
-yes :-)
+How about "to flush the write to vq->broken"?
+
+>
+> > + * in some specific case e.g (probing and restoring). Driver should
+> > + * not call this directly.
+>
+> Maybe "This function should only be called by the core, not directly by
+> the driver."?
+
+Ok.
+
+Thanks
+
+>
+> > + */
+> > +void __virtio_unbreak_device(struct virtio_device *dev)
+> > +{
+> > +     struct virtqueue *_vq;
+> > +
+> > +     spin_lock(&dev->vqs_list_lock);
+> > +     list_for_each_entry(_vq, &dev->vqs, list) {
+> > +             struct vring_virtqueue *vq = to_vvq(_vq);
+> > +
+> > +             /* Pairs with READ_ONCE() in virtqueue_is_broken(). */
+> > +             WRITE_ONCE(vq->broken, false);
+> > +     }
+> > +     spin_unlock(&dev->vqs_list_lock);
+> > +}
+> > +EXPORT_SYMBOL_GPL(__virtio_unbreak_device);
+> > +
+> >  dma_addr_t virtqueue_get_desc_addr(struct virtqueue *_vq)
+> >  {
+> >       struct vring_virtqueue *vq = to_vvq(_vq);
+>
+
