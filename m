@@ -2,97 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B624BC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 11:11:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7257EC433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 11:24:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242937AbiETLL0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 May 2022 07:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43654 "EHLO
+        id S1348464AbiETLYg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 May 2022 07:24:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348407AbiETLLZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 07:11:25 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 932093EF22;
-        Fri, 20 May 2022 04:11:22 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KAhckt022523;
-        Fri, 20 May 2022 11:11:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=kJVoVYK/ONGaiB5tlKh4bH8Chhvp/q4lg9PLkDF6dWw=;
- b=S+xYyxqBN8J8IaiZBXMfyHn5FHGyghBwCvz1hH93ggDefOOrOpnVBRP2of/bBZ8TL787
- y7wfQZHCM/yD6kzjhLTbn90tU/Ji7zVmoWsjO2vWWUz6543sPwfG1oXtax8GIe5sLUhE
- SugYV/x0Cjj+dcA9WQJiUuCaeN9YHkK9emVhNE3KffueLTx6UMm7nGkehtrgY8VBU7uE
- b2cM1/VEBuIy8q3oALEp4SPqY4HoirFUpJ5MeZetm1eJHeY9xz2g0g+yovk4A1tmXoSP
- FGjecKUt6Uif/BiQiRG7EJNotBDC3ramwfW+ZawKSfbhoC9HPtDMqPpjFuAIsoyBJ5DC GA== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g62qng659-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 11:11:21 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24KB72XM027654;
-        Fri, 20 May 2022 11:11:19 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3g23pjgpxx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 11:11:19 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24KBAajl32375278
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 May 2022 11:10:36 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 66FF8A404D;
-        Fri, 20 May 2022 11:11:16 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 167E5A4040;
-        Fri, 20 May 2022 11:11:16 +0000 (GMT)
-Received: from osiris (unknown [9.145.81.162])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 20 May 2022 11:11:16 +0000 (GMT)
-Date:   Fri, 20 May 2022 13:11:14 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Steffen Eiden <seiden@linux.ibm.com>
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/1] s390: Add attestation query information
-Message-ID: <Yod3Uiu2hRc9vas7@osiris>
-References: <20220518135908.1110319-1-seiden@linux.ibm.com>
+        with ESMTP id S232303AbiETLYb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 07:24:31 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA58B36CE;
+        Fri, 20 May 2022 04:24:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=DGPrrkXTp6oI8cbbgByz5QLKv15GNHxUgmjuIwTAy/E=; b=eqnE/suLTpG3xbkMCBtDpxLY3n
+        NIRgLQiaBi0sCvdNCD4AFRLhJwRt1fDLW5HSSGFY7WXFEGFCYXn6Q0dC8gIFph3vTjXA6DvyBiQwz
+        I5PwxVn4HFAkq1g0udGCDh7f8awWYDjllyLtGAcRh6eSoRE6OIuNpAwHVy7SfEQenDYcne2doKiCl
+        jXXzZQlRm486qDYGQtQ0jW8Ms6RtpLdk65Qcz7YJ7/YEdFvKdb+dzF1Re9Q6nwXZnFrLVKgAD5Mwb
+        LfHsy0RngN1antwERG5D/EtoEWfAXqtoLg2k7TzZKasJtkGm7zpf+kH+Fd2GGS1HnQh8pXfJiIePS
+        VAbFF/9w==;
+Received: from 200-161-159-120.dsl.telesp.net.br ([200.161.159.120] helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1ns0jj-00Cb4k-Od; Fri, 20 May 2022 13:24:04 +0200
+Message-ID: <ded31ec0-076b-2c5b-0fe6-0c274954821f@igalia.com>
+Date:   Fri, 20 May 2022 08:23:33 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220518135908.1110319-1-seiden@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: nGudQSKKXq0IiARFzdpVgNJN6rLdNBE9
-X-Proofpoint-GUID: nGudQSKKXq0IiARFzdpVgNJN6rLdNBE9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-20_03,2022-05-20_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 clxscore=1015 impostorscore=0 mlxscore=0 bulkscore=0
- adultscore=0 malwarescore=0 mlxlogscore=737 phishscore=0
- lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2205200082
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH 24/30] panic: Refactor the panic path
+Content-Language: en-US
+To:     Baoquan He <bhe@redhat.com>, Petr Mladek <pmladek@suse.com>
+Cc:     "michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        Dave Young <dyoung@redhat.com>, d.hatayama@jp.fujitsu.com,
+        akpm@linux-foundation.org, kexec@lists.infradead.org,
+        linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, dave.hansen@linux.intel.com, feng.tang@intel.com,
+        gregkh@linuxfoundation.org, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-25-gpiccoli@igalia.com> <Yn0TnsWVxCcdB2yO@alley>
+ <d313eec2-96b6-04e3-35cd-981f103d010e@igalia.com>
+ <20220519234502.GA194232@MiWiFi-R3L-srv>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <20220519234502.GA194232@MiWiFi-R3L-srv>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 18, 2022 at 01:59:07PM +0000, Steffen Eiden wrote:
-> By design the uv-device does not check whether an incoming attestation
-> measurement request only specifies valid plaintext flags or has the
-> right request version, as these values are verified by the Ultravisor
-> anyway. However, the userspace program that generates these requests
-> might want to know which flags/versions are supported in order to
-> create requests without trial and error. Therefore, we must expose the
-> supported plaintext flags and versions to userspace.
+On 19/05/2022 20:45, Baoquan He wrote:
+> [...]
+>> I really appreciate the summary skill you have, to convert complex
+>> problems in very clear and concise ideas. Thanks for that, very useful!
+>> I agree with what was summarized above.
 > 
-> since v1:
-> 	* rebased on Janosch's "kvm: s390: Add PV dump support" series
-> 	* added rationale as this cover letter
+> I want to say the similar words to Petr's reviewing comment when I went
+> through the patches and traced each reviewing sub-thread to try to
+> catch up. Petr has reivewed this series so carefully and given many
+> comments I want to ack immediately.
+> 
+> I agree with most of the suggestions from Petr to this patch, except of
+> one tiny concern, please see below inline comment.
 
-Thanks for adding the cover letter! However what I really meant (and
-failed to write) is that the rationale should be part of the patch
-description. Anyway; whoever picks this patch will hopefully integrate
-your cover letter description into the commit.
+Hi Baoquan, thanks! I'm glad you're also reviewing that =)
+
+
+> [...]
+> 
+> I like the proposed skeleton of panic() and code style suggested by
+> Petr very much. About panic_prefer_crash_dump which might need be added,
+> I hope it has a default value true. This makes crash_dump execute at
+> first by default just as before, unless people specify
+> panic_prefer_crash_dump=0|n|off to disable it. Otherwise we need add
+> panic_prefer_crash_dump=1 in kernel and in our distros to enable kdump,
+> this is inconsistent with the old behaviour.
+
+I'd like to understand better why the crash_kexec() must always be the
+first thing in your use case. If we keep that behavior, we'll see all
+sorts of workarounds - see the last patches of this series, Hyper-V and
+PowerPC folks hardcoded "crash_kexec_post_notifiers" in order to force
+execution of their relevant notifiers (like the vmbus disconnect,
+specially in arm64 that has no custom machine_crash_shutdown, or the
+fadump case in ppc). This led to more risk in kdump.
+
+The thing is: with the notifiers' split, we tried to keep only the most
+relevant/necessary stuff in this first list, things that ultimately
+should improve kdump reliability or if not, at least not break it. My
+feeling is that, with this series, we should change the idea/concept
+that kdump must run first nevertheless, not matter what. We're here
+trying to accommodate the antagonistic goals of hypervisors that need
+some clean-up (even for kdump to work) VS. kdump users, that wish a
+"pristine" system reboot ASAP after the crash.
+
+Cheers,
+
+
+Guilherme
