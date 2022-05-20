@@ -2,61 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FC57C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 14:06:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7A28C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 14:07:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350076AbiETOGR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 May 2022 10:06:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53786 "EHLO
+        id S1344894AbiETOH5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 May 2022 10:07:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350132AbiETOGC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 10:06:02 -0400
+        with ESMTP id S1350123AbiETOGB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 10:06:01 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 113595717E;
-        Fri, 20 May 2022 07:05:56 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KDoXQP027915;
-        Fri, 20 May 2022 14:05:56 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E92EC4D625;
+        Fri, 20 May 2022 07:05:54 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KDD8aq016276;
+        Fri, 20 May 2022 14:05:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=ync20aYeVhsM9jjrfEaoPRHlLCsgPI8ru8uUdXr3QH4=;
- b=D0nddTtNGZCt9FNIm/RwopWjrcMwSRmHvvF6vvSHxfLeaSD9zqwo/eJDiI/cnChbl1Pj
- kYDV5YqKEYQS+R/L+VPn26M5RMAwld3yv1E2NSoZHd4aXy5eyhYkj2tQ0WqmU0yaCR9U
- OfiPnW0tT3wD/KHmPpaYgbYJqpmQeTU2eaoI+viOwrz03pTtns1ZLxJM/E2dXhLHAfBI
- WFq32A3dji1HgAQDQ6bIwqkrpbw6AC+4dfhuSAbqk3qBelIRq6pYAycRz/Kttw2Q3c4O
- KOToF62U/nGlYoClHs5IT2RRZAwwPUVPDIBnWbn4rnxg2jJlZtWhqviNE8X4c9SKzQwh mg== 
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=cAuTtd+nj0jhArr6PJ9LjRWhoCED1E6gEqoFubFipnA=;
+ b=jdueWvFeQFje4VPCDlJMmKPljBU5dHQSQ0FxVO0Vu2MtHWZD1mlSvl3cwKbfVSO/BOmQ
+ QvwQG1IngeMB7JShCb1buJa/2Zv4Vin8tnm5VWHEqmp23/TBR/6O6wgMOZXeJ9NAn6YA
+ CPgvVo3Heb6vWuBtsENhSDctDy/3hVv9SyRsolBzkznDP3TdczUkgdKMU1PROT7LjCMo
+ XuWWm7+jRGkpQWovKU1KjxDaArBFqWWNOxDbNsRgOTOkkUFZILnJwSU1beAtH+8oZ77e
+ glzb1tm0ABTvnCKHgXK0qrcySKxFzpA3Tcoe7Ff6/gDEO6JKweX2Wa1YvBQCpjdHs4d3 uw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g69wykppy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 14:05:55 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24KDa3N5031795;
-        Fri, 20 May 2022 14:05:55 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g69wykpp1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 14:05:55 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24KDr65E032468;
-        Fri, 20 May 2022 14:05:53 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3g23pjgxns-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6bp2s95n-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 20 May 2022 14:05:53 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24KDl05T016192;
+        Fri, 20 May 2022 14:05:53 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6bp2s94w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 May 2022 14:05:53 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24KDqmaI007787;
+        Fri, 20 May 2022 14:05:51 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3g2429gwug-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 May 2022 14:05:51 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24KE5nOp48234794
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24KE5mrj48038344
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 May 2022 14:05:49 GMT
+        Fri, 20 May 2022 14:05:48 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 10A57AE053;
-        Fri, 20 May 2022 14:05:49 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 44E3AAE051;
+        Fri, 20 May 2022 14:05:48 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C8053AE051;
+        by IMSVA (Postfix) with ESMTP id 07E99AE045;
         Fri, 20 May 2022 14:05:48 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 20 May 2022 14:05:48 +0000 (GMT)
+        Fri, 20 May 2022 14:05:47 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 To:     Thomas Huth <thuth@redhat.com>,
         Janosch Frank <frankja@linux.ibm.com>,
@@ -64,98 +63,77 @@ To:     Thomas Huth <thuth@redhat.com>,
 Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v2 2/2] s390x: Fix gcc 12 warning about array bounds
-Date:   Fri, 20 May 2022 16:05:46 +0200
-Message-Id: <20220520140546.311193-3-scgl@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 0/2] s390x: Avoid gcc 12 warnings
+Date:   Fri, 20 May 2022 16:05:44 +0200
+Message-Id: <20220520140546.311193-1-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220520140546.311193-1-scgl@linux.ibm.com>
-References: <20220520140546.311193-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 070FtbWemydesTTTqIRTBN70vHEBFByT
-X-Proofpoint-GUID: tE7CWHfFPPwhc1UQccCm8iTCS8MqjLUc
+X-Proofpoint-ORIG-GUID: jl-E3R8KIbKrGQX1I-UmJu63KAQe3yot
+X-Proofpoint-GUID: 1rzUP55Cx00tnA3pngPEycOn4UV-7I-m
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-20_04,2022-05-20_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 bulkscore=0
- clxscore=1015 priorityscore=1501 mlxscore=0 impostorscore=0 spamscore=0
- malwarescore=0 lowpriorityscore=0 adultscore=0 phishscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205200099
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 mlxlogscore=999
+ impostorscore=0 suspectscore=0 mlxscore=0 spamscore=0 malwarescore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205200099
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-gcc 12 warns about pointer constant <4k dereference.
-Silence the warning by using the extern lowcore symbol to derive the
-pointers. This way gcc cannot conclude that the pointer is <4k.
+gcc 12 warns if a memory operand to inline asm points to memory in the
+first 4k bytes. However, in our case, these operands are fine, either
+because we actually want to use that memory, or expect and handle the
+resulting exception.
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
----
- lib/s390x/asm/mem.h | 4 ++++
- s390x/emulator.c    | 5 +++--
- s390x/skey.c        | 2 +-
- 3 files changed, 8 insertions(+), 3 deletions(-)
+v1 -> v2
+ * replace mechanism, don't use pragmas, instead use an extern symbol so
+   gcc cannot conclude that the pointer is <4k
 
-diff --git a/lib/s390x/asm/mem.h b/lib/s390x/asm/mem.h
-index 845c00cc..e7901fe0 100644
---- a/lib/s390x/asm/mem.h
-+++ b/lib/s390x/asm/mem.h
-@@ -7,6 +7,10 @@
-  */
- #ifndef _ASMS390X_MEM_H_
- #define _ASMS390X_MEM_H_
-+#include <asm/arch_def.h>
-+
-+/* pointer to 0 used to avoid compiler warnings */
-+uint8_t *mem_all = (uint8_t *)&lowcore;
- 
- #define SKEY_ACC	0xf0
- #define SKEY_FP		0x08
-diff --git a/s390x/emulator.c b/s390x/emulator.c
-index c9182ea4..afc3c213 100644
---- a/s390x/emulator.c
-+++ b/s390x/emulator.c
-@@ -12,6 +12,7 @@
- #include <asm/cpacf.h>
- #include <asm/interrupt.h>
- #include <asm/float.h>
-+#include <asm/mem.h>
- #include <linux/compiler.h>
- 
- static inline void __test_spm_ipm(uint8_t cc, uint8_t key)
-@@ -138,7 +139,7 @@ static __always_inline void __test_cpacf_invalid_parm(unsigned int opcode)
- {
- 	report_prefix_push("invalid parm address");
- 	expect_pgm_int();
--	__cpacf_query(opcode, (void *) -1);
-+	__cpacf_query(opcode, (cpacf_mask_t *)&mem_all[-1]);
- 	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
- 	report_prefix_pop();
- }
-@@ -148,7 +149,7 @@ static __always_inline void __test_cpacf_protected_parm(unsigned int opcode)
- 	report_prefix_push("protected parm address");
- 	expect_pgm_int();
- 	low_prot_enable();
--	__cpacf_query(opcode, (void *) 8);
-+	__cpacf_query(opcode, (cpacf_mask_t *)&mem_all[8]);
- 	low_prot_disable();
- 	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
- 	report_prefix_pop();
-diff --git a/s390x/skey.c b/s390x/skey.c
-index 32bf1070..42bf598c 100644
---- a/s390x/skey.c
-+++ b/s390x/skey.c
-@@ -349,7 +349,7 @@ static void test_set_prefix(void)
- 	set_storage_key(pagebuf, 0x28, 0);
- 	expect_pgm_int();
- 	install_page(root, virt_to_pte_phys(root, pagebuf), 0);
--	set_prefix_key_1((uint32_t *)2048);
-+	set_prefix_key_1((uint32_t *)&mem_all[2048]);
- 	install_page(root, 0, 0);
- 	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
- 	report(get_prefix() == old_prefix, "did not set prefix");
+   This new extern symbol refers to the lowcore. As a result, code
+   generation for lowcore accesses becomes worse.
+
+   Alternatives:
+    * Don't use extern symbol for lowcore, just for problematic pointers
+    * Hide value from gcc via inline asm
+    * Disable the warning globally
+    * Use memory clobber instead of memory output
+      Use address in register input instead of memory input
+          (may require WRITE_ONCE)
+    * Don't use gcc 12.0, with newer versions --param=min-pagesize=0 might
+      avoid the problem
+
+Janis Schoetterl-Glausch (2):
+  s390x: Introduce symbol for lowcore and use it
+  s390x: Fix gcc 12 warning about array bounds
+
+ lib/s390x/asm/arch_def.h   |  2 ++
+ lib/s390x/asm/facility.h   |  4 +--
+ lib/s390x/asm/mem.h        |  4 +++
+ lib/s390x/css.h            |  2 --
+ lib/s390x/css_lib.c        | 12 ++++----
+ lib/s390x/fault.c          | 10 +++----
+ lib/s390x/interrupt.c      | 61 +++++++++++++++++++-------------------
+ lib/s390x/mmu.c            |  3 +-
+ s390x/flat.lds             |  1 +
+ s390x/snippets/c/flat.lds  |  1 +
+ s390x/css.c                |  4 +--
+ s390x/diag288.c            |  4 +--
+ s390x/edat.c               |  5 ++--
+ s390x/emulator.c           | 15 +++++-----
+ s390x/mvpg.c               |  7 ++---
+ s390x/sclp.c               |  3 +-
+ s390x/skey.c               |  2 +-
+ s390x/skrf.c               | 11 +++----
+ s390x/smp.c                | 23 +++++++-------
+ s390x/snippets/c/spec_ex.c |  5 ++--
+ 20 files changed, 83 insertions(+), 96 deletions(-)
+
+
+base-commit: 8719e8326101c1be8256617caf5835b57e819339
 -- 
 2.33.1
 
