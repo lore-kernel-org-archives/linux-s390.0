@@ -2,425 +2,792 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FEAAC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 13:57:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2667CC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 14:06:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237028AbiETN5G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 May 2022 09:57:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36328 "EHLO
+        id S1349849AbiETOGQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 May 2022 10:06:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236833AbiETN5E (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 09:57:04 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C10335E142;
-        Fri, 20 May 2022 06:57:01 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KDiIHQ014456;
-        Fri, 20 May 2022 13:56:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=WB7PGOAIGqwn7FUsGf9m55ihhyjYL53r+g9LfYU1XiE=;
- b=pcx8bS+gHba3Ob98vmOsZCgAgw7Gt9WOMooC1U+5OzZx70OnCLDmKGRzqp5bNWXLzDoC
- PlcTon0SGToN4uR9tQYo2uAHkhFlNrtolt9atKx7P5zW0tq30GMX9gTMLg+h6jp/8ITr
- EbSf3XmRgvUD2Bnz3yBBmsn55Tk35X6WDT5MYvmsfm+IAR2TBps7SyhkUeb0XM7qnpoY
- TO19nPSNbaQ3kxSAVSTRq1fbF0BesSTmmdQa+PqRT6CVDc3SlzqVdl93wyLmFoNbk7vK
- GEvcy3eBFFQsPWfSAb0hrODZAZhxzkboYYuc0PVLotOIE4e9ruW9X/7nil0ujD/YtrAQ Sg== 
+        with ESMTP id S1350133AbiETOGC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 10:06:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC3EB57134;
+        Fri, 20 May 2022 07:05:55 -0700 (PDT)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KE124p001668;
+        Fri, 20 May 2022 14:05:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=22Mk7Dfik99nctkRazfiWk3JQkZwj+aK3eJ7AdWMLF0=;
+ b=ecEhTeA7BzWtz4P3h/qf+hXVizqKxopAxbXaNU2tZ16JCiIfEU8Y03EnAIU+3Wf5vk55
+ lbLydhdZdPFFiOw4c2oh8ZkDi97LhjdLdw21DzDjCLw8do+fiaQ1gza5AXYuAAhIQysF
+ E6H5dCKyKLpcr4UWmvS279jloH185i2oGLuWP8PJo5bWb87j45/j89B++k6V7+2hWLqV
+ Vpih+oIHSlc1OCCDnFnVoeq96M8MSCEtofOSX7yxmOTfzYGfaqYveo3+4I20t+8eGlfX
+ Wsm+A/t8BcP1bPdS63zPDPA00rbxOdwXP0ubQf5Srb3pt+9oyYBl8krXQX9Zjjo2nngz mA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6c4sr9ba-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6aer34g8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 13:56:49 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24KDjcXj020813;
-        Fri, 20 May 2022 13:56:48 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6c4sr9an-1
+        Fri, 20 May 2022 14:05:54 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24KCkGq2001979;
+        Fri, 20 May 2022 14:05:54 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6aer34fg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 13:56:48 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24KDqVsJ022845;
-        Fri, 20 May 2022 13:56:47 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma04dal.us.ibm.com with ESMTP id 3g3r2fkn48-1
+        Fri, 20 May 2022 14:05:54 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24KDqtEN008266;
+        Fri, 20 May 2022 14:05:52 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3g2429gxfb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 13:56:47 +0000
-Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24KDukVr5571156
+        Fri, 20 May 2022 14:05:52 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24KE5mHi55312856
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 May 2022 13:56:46 GMT
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A269CB206A;
-        Fri, 20 May 2022 13:56:46 +0000 (GMT)
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C381FB2065;
-        Fri, 20 May 2022 13:56:45 +0000 (GMT)
-Received: from [9.160.37.241] (unknown [9.160.37.241])
-        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 20 May 2022 13:56:45 +0000 (GMT)
-Message-ID: <8b6db781-9d4e-4d64-04fa-94e45dbf8b22@linux.ibm.com>
-Date:   Fri, 20 May 2022 09:56:45 -0400
+        Fri, 20 May 2022 14:05:48 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC84AAE045;
+        Fri, 20 May 2022 14:05:48 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 61B81AE053;
+        Fri, 20 May 2022 14:05:48 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 20 May 2022 14:05:48 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v2 1/2] s390x: Introduce symbol for lowcore and use it
+Date:   Fri, 20 May 2022 16:05:45 +0200
+Message-Id: <20220520140546.311193-2-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220520140546.311193-1-scgl@linux.ibm.com>
+References: <20220520140546.311193-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v3 1/1] vfio: remove VFIO_GROUP_NOTIFY_SET_KVM
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, jgg@nvidia.com,
-        alex.williamson@redhat.com
-Cc:     cohuck@redhat.com, borntraeger@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com, hch@infradead.org,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kevin Tian <kevin.tian@intel.com>,
-        Christoph Hellwig <hch@lst.de>
-References: <20220519183311.582380-1-mjrosato@linux.ibm.com>
- <20220519183311.582380-2-mjrosato@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20220519183311.582380-2-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: XQOMaXwfHzdiZWgYc9s7JYi0JZnUa4mD
-X-Proofpoint-GUID: cZUs5C22mGeaE8UZyMeTa0Lr5Q1Lx03B
+X-Proofpoint-ORIG-GUID: jCImax0yn1yNMIACsScQxuPa24QKOVKK
+X-Proofpoint-GUID: gvjxQMyGgpk3Kyvk1Qh22ex5HYHLTsxO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-20_04,2022-05-20_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- clxscore=1015 priorityscore=1501 adultscore=0 spamscore=0 bulkscore=0
- suspectscore=0 malwarescore=0 mlxlogscore=999 impostorscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205200096
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 mlxscore=0 impostorscore=0 spamscore=0 adultscore=0
+ bulkscore=0 phishscore=0 suspectscore=0 mlxlogscore=999 clxscore=1015
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205200099
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+This gets rid of bunch of pointers pointing to the lowcore used in
+various places and replaces it with a unified way of addressing the
+lowcore.
+The new symbol is not a pointer. While this will lead to worse code
+generation (cannot use register 0 for addressing), that should not
+matter too much for kvm unit tests.
+The symbol also will be used to create pointers that the compiler cannot
+warn about as being outside the bounds of an array.
 
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+---
+ lib/s390x/asm/arch_def.h   |  2 ++
+ lib/s390x/asm/facility.h   |  4 +--
+ lib/s390x/css.h            |  2 --
+ lib/s390x/css_lib.c        | 12 ++++----
+ lib/s390x/fault.c          | 10 +++----
+ lib/s390x/interrupt.c      | 61 +++++++++++++++++++-------------------
+ lib/s390x/mmu.c            |  3 +-
+ s390x/flat.lds             |  1 +
+ s390x/snippets/c/flat.lds  |  1 +
+ s390x/css.c                |  4 +--
+ s390x/diag288.c            |  4 +--
+ s390x/edat.c               |  5 ++--
+ s390x/emulator.c           | 10 +++----
+ s390x/mvpg.c               |  7 ++---
+ s390x/sclp.c               |  3 +-
+ s390x/skrf.c               | 11 +++----
+ s390x/smp.c                | 23 +++++++-------
+ s390x/snippets/c/spec_ex.c |  5 ++--
+ 18 files changed, 75 insertions(+), 93 deletions(-)
 
-On 5/19/22 2:33 PM, Matthew Rosato wrote:
-> Rather than relying on a notifier for associating the KVM with
-> the group, let's assume that the association has already been
-> made prior to device_open.  The first time a device is opened
-> associate the group KVM with the device.
->
-> This fixes a user-triggerable oops in GVT.
->
-> Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->   drivers/gpu/drm/i915/gvt/gtt.c        |  4 +-
->   drivers/gpu/drm/i915/gvt/gvt.h        |  3 -
->   drivers/gpu/drm/i915/gvt/kvmgt.c      | 82 ++++++--------------------
->   drivers/s390/crypto/vfio_ap_ops.c     | 35 ++---------
->   drivers/s390/crypto/vfio_ap_private.h |  3 -
->   drivers/vfio/vfio.c                   | 83 ++++++++++-----------------
->   include/linux/vfio.h                  |  6 +-
->   7 files changed, 57 insertions(+), 159 deletions(-)
->
->
->   
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index e8914024f5b1..a7d2a95796d3 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -1284,25 +1284,6 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
->   	}
->   }
->   
-> -static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
-> -				       unsigned long action, void *data)
-> -{
-> -	int notify_rc = NOTIFY_OK;
-> -	struct ap_matrix_mdev *matrix_mdev;
-> -
-> -	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
-> -		return NOTIFY_OK;
-> -
-> -	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
-> -
-> -	if (!data)
-> -		vfio_ap_mdev_unset_kvm(matrix_mdev);
-> -	else if (vfio_ap_mdev_set_kvm(matrix_mdev, data))
-> -		notify_rc = NOTIFY_DONE;
-> -
-> -	return notify_rc;
-> -}
-> -
->   static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
->   {
->   	struct device *dev;
-> @@ -1402,11 +1383,10 @@ static int vfio_ap_mdev_open_device(struct vfio_device *vdev)
->   	unsigned long events;
->   	int ret;
->   
-> -	matrix_mdev->group_notifier.notifier_call = vfio_ap_mdev_group_notifier;
-> -	events = VFIO_GROUP_NOTIFY_SET_KVM;
-> +	if (!vdev->kvm)
-> +		return -EINVAL;
->   
-> -	ret = vfio_register_notifier(vdev, VFIO_GROUP_NOTIFY, &events,
-> -				     &matrix_mdev->group_notifier);
-> +	ret = vfio_ap_mdev_set_kvm(matrix_mdev, vdev->kvm);
->   	if (ret)
->   		return ret;
-
-I'm sorry I didn't see this with my last review, but maybe move the call
-to vfio_ap_mdev_set_kvm(matrix_mdev, vdev->kvm) after the successful
-registration of the IOMMU notifier? This way you won't be plugging AP queues
-into the guest only to remove them if the registration fails.
-
->   
-> @@ -1415,12 +1395,11 @@ static int vfio_ap_mdev_open_device(struct vfio_device *vdev)
->   	ret = vfio_register_notifier(vdev, VFIO_IOMMU_NOTIFY, &events,
->   				     &matrix_mdev->iommu_notifier);
->   	if (ret)
-> -		goto out_unregister_group;
-> +		goto err_kvm;
->   	return 0;
->   
-> -out_unregister_group:
-> -	vfio_unregister_notifier(vdev, VFIO_GROUP_NOTIFY,
-> -				 &matrix_mdev->group_notifier);
-> +err_kvm:
-> +	vfio_ap_mdev_unset_kvm(matrix_mdev);
->   	return ret;
->   }
->   
-> @@ -1431,8 +1410,6 @@ static void vfio_ap_mdev_close_device(struct vfio_device *vdev)
->   
->   	vfio_unregister_notifier(vdev, VFIO_IOMMU_NOTIFY,
->   				 &matrix_mdev->iommu_notifier);
-> -	vfio_unregister_notifier(vdev, VFIO_GROUP_NOTIFY,
-> -				 &matrix_mdev->group_notifier);
->   	vfio_ap_mdev_unset_kvm(matrix_mdev);
->   }
->   
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index 648fcaf8104a..a26efd804d0d 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -81,8 +81,6 @@ struct ap_matrix {
->    * @node:	allows the ap_matrix_mdev struct to be added to a list
->    * @matrix:	the adapters, usage domains and control domains assigned to the
->    *		mediated matrix device.
-> - * @group_notifier: notifier block used for specifying callback function for
-> - *		    handling the VFIO_GROUP_NOTIFY_SET_KVM event
->    * @iommu_notifier: notifier block used for specifying callback function for
->    *		    handling the VFIO_IOMMU_NOTIFY_DMA_UNMAP even
->    * @kvm:	the struct holding guest's state
-> @@ -94,7 +92,6 @@ struct ap_matrix_mdev {
->   	struct vfio_device vdev;
->   	struct list_head node;
->   	struct ap_matrix matrix;
-> -	struct notifier_block group_notifier;
->   	struct notifier_block iommu_notifier;
->   	struct kvm *kvm;
->   	crypto_hook pqap_hook;
-> diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-> index cfcff7764403..831fc722e3f8 100644
-> --- a/drivers/vfio/vfio.c
-> +++ b/drivers/vfio/vfio.c
-> @@ -1083,10 +1083,21 @@ static struct file *vfio_device_open(struct vfio_device *device)
->   
->   	mutex_lock(&device->dev_set->lock);
->   	device->open_count++;
-> -	if (device->open_count == 1 && device->ops->open_device) {
-> -		ret = device->ops->open_device(device);
-> -		if (ret)
-> -			goto err_undo_count;
-> +	if (device->open_count == 1) {
-> +		/*
-> +		 * Here we pass the KVM pointer with the group under the read
-> +		 * lock.  If the device driver will use it, it must obtain a
-> +		 * reference and release it during close_device.
-> +		 */
-> +		down_read(&device->group->group_rwsem);
-> +		device->kvm = device->group->kvm;
-> +
-> +		if (device->ops->open_device) {
-> +			ret = device->ops->open_device(device);
-> +			if (ret)
-> +				goto err_undo_count;
-> +		}
-> +		up_read(&device->group->group_rwsem);
->   	}
->   	mutex_unlock(&device->dev_set->lock);
->   
-> @@ -1119,10 +1130,14 @@ static struct file *vfio_device_open(struct vfio_device *device)
->   
->   err_close_device:
->   	mutex_lock(&device->dev_set->lock);
-> +	down_read(&device->group->group_rwsem);
->   	if (device->open_count == 1 && device->ops->close_device)
->   		device->ops->close_device(device);
->   err_undo_count:
->   	device->open_count--;
-> +	if (device->open_count == 0 && device->kvm)
-> +		device->kvm = NULL;
-> +	up_read(&device->group->group_rwsem);
->   	mutex_unlock(&device->dev_set->lock);
->   	module_put(device->dev->driver->owner);
->   err_unassign_container:
-> @@ -1315,9 +1330,13 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
->   
->   	mutex_lock(&device->dev_set->lock);
->   	vfio_assert_device_open(device);
-> +	down_read(&device->group->group_rwsem);
->   	if (device->open_count == 1 && device->ops->close_device)
->   		device->ops->close_device(device);
-> +	up_read(&device->group->group_rwsem);
->   	device->open_count--;
-> +	if (device->open_count == 0)
-> +		device->kvm = NULL;
->   	mutex_unlock(&device->dev_set->lock);
->   
->   	module_put(device->dev->driver->owner);
-> @@ -1726,8 +1745,8 @@ EXPORT_SYMBOL_GPL(vfio_file_enforced_coherent);
->    * @file: VFIO group file
->    * @kvm: KVM to link
->    *
-> - * The kvm pointer will be forwarded to all the vfio_device's attached to the
-> - * VFIO file via the VFIO_GROUP_NOTIFY_SET_KVM notifier.
-> + * When a VFIO device is first opened the KVM will be available in
-> + * device->kvm if one was associated with the group.
->    */
->   void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
->   {
-> @@ -1738,8 +1757,6 @@ void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
->   
->   	down_write(&group->group_rwsem);
->   	group->kvm = kvm;
-> -	blocking_notifier_call_chain(&group->notifier,
-> -				     VFIO_GROUP_NOTIFY_SET_KVM, kvm);
->   	up_write(&group->group_rwsem);
->   }
->   EXPORT_SYMBOL_GPL(vfio_file_set_kvm);
-> @@ -2006,7 +2023,8 @@ static int vfio_register_iommu_notifier(struct vfio_group *group,
->   	struct vfio_iommu_driver *driver;
->   	int ret;
->   
-> -	down_read(&group->group_rwsem);
-> +	lockdep_assert_held_read(&group->group_rwsem);
-> +
->   	container = group->container;
->   	driver = container->iommu_driver;
->   	if (likely(driver && driver->ops->register_notifier))
-> @@ -2014,7 +2032,6 @@ static int vfio_register_iommu_notifier(struct vfio_group *group,
->   						     events, nb);
->   	else
->   		ret = -ENOTTY;
-> -	up_read(&group->group_rwsem);
->   
->   	return ret;
->   }
-> @@ -2026,7 +2043,8 @@ static int vfio_unregister_iommu_notifier(struct vfio_group *group,
->   	struct vfio_iommu_driver *driver;
->   	int ret;
->   
-> -	down_read(&group->group_rwsem);
-> +	lockdep_assert_held_read(&group->group_rwsem);
-> +
->   	container = group->container;
->   	driver = container->iommu_driver;
->   	if (likely(driver && driver->ops->unregister_notifier))
-> @@ -2034,47 +2052,10 @@ static int vfio_unregister_iommu_notifier(struct vfio_group *group,
->   						       nb);
->   	else
->   		ret = -ENOTTY;
-> -	up_read(&group->group_rwsem);
->   
->   	return ret;
->   }
->   
-> -static int vfio_register_group_notifier(struct vfio_group *group,
-> -					unsigned long *events,
-> -					struct notifier_block *nb)
-> -{
-> -	int ret;
-> -	bool set_kvm = false;
-> -
-> -	if (*events & VFIO_GROUP_NOTIFY_SET_KVM)
-> -		set_kvm = true;
-> -
-> -	/* clear known events */
-> -	*events &= ~VFIO_GROUP_NOTIFY_SET_KVM;
-> -
-> -	/* refuse to continue if still events remaining */
-> -	if (*events)
-> -		return -EINVAL;
-> -
-> -	ret = blocking_notifier_chain_register(&group->notifier, nb);
-> -	if (ret)
-> -		return ret;
-> -
-> -	/*
-> -	 * The attaching of kvm and vfio_group might already happen, so
-> -	 * here we replay once upon registration.
-> -	 */
-> -	if (set_kvm) {
-> -		down_read(&group->group_rwsem);
-> -		if (group->kvm)
-> -			blocking_notifier_call_chain(&group->notifier,
-> -						     VFIO_GROUP_NOTIFY_SET_KVM,
-> -						     group->kvm);
-> -		up_read(&group->group_rwsem);
-> -	}
-> -	return 0;
-> -}
-> -
->   int vfio_register_notifier(struct vfio_device *device,
->   			   enum vfio_notify_type type, unsigned long *events,
->   			   struct notifier_block *nb)
-> @@ -2090,9 +2071,6 @@ int vfio_register_notifier(struct vfio_device *device,
->   	case VFIO_IOMMU_NOTIFY:
->   		ret = vfio_register_iommu_notifier(group, events, nb);
->   		break;
-> -	case VFIO_GROUP_NOTIFY:
-> -		ret = vfio_register_group_notifier(group, events, nb);
-> -		break;
->   	default:
->   		ret = -EINVAL;
->   	}
-> @@ -2114,9 +2092,6 @@ int vfio_unregister_notifier(struct vfio_device *device,
->   	case VFIO_IOMMU_NOTIFY:
->   		ret = vfio_unregister_iommu_notifier(group, nb);
->   		break;
-> -	case VFIO_GROUP_NOTIFY:
-> -		ret = blocking_notifier_chain_unregister(&group->notifier, nb);
-> -		break;
->   	default:
->   		ret = -EINVAL;
->   	}
-> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-> index 45b287826ce6..aa888cc51757 100644
-> --- a/include/linux/vfio.h
-> +++ b/include/linux/vfio.h
-> @@ -36,6 +36,8 @@ struct vfio_device {
->   	struct vfio_device_set *dev_set;
->   	struct list_head dev_set_list;
->   	unsigned int migration_flags;
-> +	/* Driver must reference the kvm during open_device or never touch it */
-> +	struct kvm *kvm;
->   
->   	/* Members below here are private, not for driver use */
->   	refcount_t refcount;
-> @@ -155,15 +157,11 @@ extern int vfio_dma_rw(struct vfio_device *device, dma_addr_t user_iova,
->   /* each type has independent events */
->   enum vfio_notify_type {
->   	VFIO_IOMMU_NOTIFY = 0,
-> -	VFIO_GROUP_NOTIFY = 1,
->   };
->   
->   /* events for VFIO_IOMMU_NOTIFY */
->   #define VFIO_IOMMU_NOTIFY_DMA_UNMAP	BIT(0)
->   
-> -/* events for VFIO_GROUP_NOTIFY */
-> -#define VFIO_GROUP_NOTIFY_SET_KVM	BIT(0)
-> -
->   extern int vfio_register_notifier(struct vfio_device *device,
->   				  enum vfio_notify_type type,
->   				  unsigned long *required_events,
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 72553819..78b257b7 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -145,6 +145,8 @@ struct lowcore {
+ } __attribute__ ((__packed__));
+ _Static_assert(sizeof(struct lowcore) == 0x1900, "Lowcore size");
+ 
++extern struct lowcore lowcore;
++
+ #define PGM_INT_CODE_OPERATION			0x01
+ #define PGM_INT_CODE_PRIVILEGED_OPERATION	0x02
+ #define PGM_INT_CODE_EXECUTE			0x03
+diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
+index ef0fd037..49380203 100644
+--- a/lib/s390x/asm/facility.h
++++ b/lib/s390x/asm/facility.h
+@@ -36,10 +36,8 @@ static inline void stfle(uint64_t *fac, unsigned int nb_doublewords)
+ 
+ static inline void setup_facilities(void)
+ {
+-	struct lowcore *lc = NULL;
+-
+ 	stfl();
+-	memcpy(stfl_doublewords, &lc->stfl, sizeof(lc->stfl));
++	memcpy(stfl_doublewords, &lowcore.stfl, sizeof(lowcore.stfl));
+ 	if (test_facility(7))
+ 		stfle(stfl_doublewords, NB_STFL_DOUBLEWORDS);
+ }
+diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+index a6a68577..0a19324b 100644
+--- a/lib/s390x/css.h
++++ b/lib/s390x/css.h
+@@ -9,8 +9,6 @@
+ #ifndef _S390X_CSS_H_
+ #define _S390X_CSS_H_
+ 
+-#define lowcore_ptr ((struct lowcore *)0x0)
+-
+ /* subchannel ID bit 16 must always be one */
+ #define SCHID_ONE	0x00010000
+ 
+diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
+index a9f5097f..b4d1f086 100644
+--- a/lib/s390x/css_lib.c
++++ b/lib/s390x/css_lib.c
+@@ -357,11 +357,11 @@ void css_irq_io(void)
+ 	int sid;
+ 
+ 	report_prefix_push("Interrupt");
+-	sid = lowcore_ptr->subsys_id_word;
++	sid = lowcore.subsys_id_word;
+ 	/* Lowlevel set the SID as interrupt parameter. */
+-	if (lowcore_ptr->io_int_param != sid) {
++	if (lowcore.io_int_param != sid) {
+ 		report_fail("io_int_param: %x differs from subsys_id_word: %x",
+-			    lowcore_ptr->io_int_param, sid);
++			    lowcore.io_int_param, sid);
+ 		goto pop;
+ 	}
+ 	report_prefix_pop();
+@@ -387,7 +387,7 @@ void css_irq_io(void)
+ 	}
+ pop:
+ 	report_prefix_pop();
+-	lowcore_ptr->io_old_psw.mask &= ~PSW_MASK_WAIT;
++	lowcore.io_old_psw.mask &= ~PSW_MASK_WAIT;
+ }
+ 
+ int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
+@@ -432,9 +432,9 @@ int wait_and_check_io_completion(int schid)
+ 
+ 	report_prefix_push("check I/O completion");
+ 
+-	if (lowcore_ptr->io_int_param != schid) {
++	if (lowcore.io_int_param != schid) {
+ 		report_fail("interrupt parameter: expected %08x got %08x",
+-			    schid, lowcore_ptr->io_int_param);
++			    schid, lowcore.io_int_param);
+ 		ret = -1;
+ 		goto end;
+ 	}
+diff --git a/lib/s390x/fault.c b/lib/s390x/fault.c
+index d3ef00e4..efa62fcb 100644
+--- a/lib/s390x/fault.c
++++ b/lib/s390x/fault.c
+@@ -13,8 +13,6 @@
+ #include <asm/page.h>
+ #include <fault.h>
+ 
+-static struct lowcore *lc = (struct lowcore *)0x0;
+-
+ /* Decodes the protection exceptions we'll most likely see */
+ static void print_decode_pgm_prot(uint64_t teid)
+ {
+@@ -37,7 +35,7 @@ static void print_decode_pgm_prot(uint64_t teid)
+ void print_decode_teid(uint64_t teid)
+ {
+ 	int asce_id = teid & 3;
+-	bool dat = lc->pgm_old_psw.mask & PSW_MASK_DAT;
++	bool dat = lowcore.pgm_old_psw.mask & PSW_MASK_DAT;
+ 
+ 	printf("Memory exception information:\n");
+ 	printf("DAT: %s\n", dat ? "on" : "off");
+@@ -58,15 +56,15 @@ void print_decode_teid(uint64_t teid)
+ 		break;
+ 	}
+ 
+-	if (lc->pgm_int_code == PGM_INT_CODE_PROTECTION)
++	if (lowcore.pgm_int_code == PGM_INT_CODE_PROTECTION)
+ 		print_decode_pgm_prot(teid);
+ 
+ 	/*
+ 	 * If teid bit 61 is off for these two exception the reported
+ 	 * address is unpredictable.
+ 	 */
+-	if ((lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
+-	     lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION) &&
++	if ((lowcore.pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
++	     lowcore.pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION) &&
+ 	    !test_bit_inv(61, &teid)) {
+ 		printf("Address: %lx, unpredictable\n ", teid & PAGE_MASK);
+ 		return;
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 27d3b767..6da20c44 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -18,20 +18,19 @@
+ static bool pgm_int_expected;
+ static bool ext_int_expected;
+ static void (*pgm_cleanup_func)(void);
+-static struct lowcore *lc;
+ 
+ void expect_pgm_int(void)
+ {
+ 	pgm_int_expected = true;
+-	lc->pgm_int_code = 0;
+-	lc->trans_exc_id = 0;
++	lowcore.pgm_int_code = 0;
++	lowcore.trans_exc_id = 0;
+ 	mb();
+ }
+ 
+ void expect_ext_int(void)
+ {
+ 	ext_int_expected = true;
+-	lc->ext_int_code = 0;
++	lowcore.ext_int_code = 0;
+ 	mb();
+ }
+ 
+@@ -40,9 +39,9 @@ uint16_t clear_pgm_int(void)
+ 	uint16_t code;
+ 
+ 	mb();
+-	code = lc->pgm_int_code;
+-	lc->pgm_int_code = 0;
+-	lc->trans_exc_id = 0;
++	code = lowcore.pgm_int_code;
++	lowcore.pgm_int_code = 0;
++	lowcore.trans_exc_id = 0;
+ 	pgm_int_expected = false;
+ 	return code;
+ }
+@@ -50,9 +49,9 @@ uint16_t clear_pgm_int(void)
+ void check_pgm_int_code(uint16_t code)
+ {
+ 	mb();
+-	report(code == lc->pgm_int_code,
++	report(code == lowcore.pgm_int_code,
+ 	       "Program interrupt: expected(%d) == received(%d)", code,
+-	       lc->pgm_int_code);
++	       lowcore.pgm_int_code);
+ }
+ 
+ void register_pgm_cleanup_func(void (*f)(void))
+@@ -63,29 +62,29 @@ void register_pgm_cleanup_func(void (*f)(void))
+ static void fixup_pgm_int(struct stack_frame_int *stack)
+ {
+ 	/* If we have an error on SIE we directly move to sie_exit */
+-	if (lc->pgm_old_psw.addr >= (uint64_t)&sie_entry &&
+-	    lc->pgm_old_psw.addr <= (uint64_t)&sie_exit) {
+-		lc->pgm_old_psw.addr = (uint64_t)&sie_exit;
++	if (lowcore.pgm_old_psw.addr >= (uint64_t)&sie_entry &&
++	    lowcore.pgm_old_psw.addr <= (uint64_t)&sie_exit) {
++		lowcore.pgm_old_psw.addr = (uint64_t)&sie_exit;
+ 	}
+ 
+-	switch (lc->pgm_int_code) {
++	switch (lowcore.pgm_int_code) {
+ 	case PGM_INT_CODE_PRIVILEGED_OPERATION:
+ 		/* Normal operation is in supervisor state, so this exception
+ 		 * was produced intentionally and we should return to the
+ 		 * supervisor state.
+ 		 */
+-		lc->pgm_old_psw.mask &= ~PSW_MASK_PSTATE;
++		lowcore.pgm_old_psw.mask &= ~PSW_MASK_PSTATE;
+ 		break;
+ 	case PGM_INT_CODE_PROTECTION:
+ 		/* Handling for iep.c test case. */
+-		if (prot_is_iep(lc->trans_exc_id))
++		if (prot_is_iep(lowcore.trans_exc_id))
+ 			/*
+ 			 * We branched to the instruction that caused
+ 			 * the exception so we can use the return
+ 			 * address in GR14 to jump back and continue
+ 			 * executing test code.
+ 			 */
+-			lc->pgm_old_psw.addr = stack->grs0[12];
++			lowcore.pgm_old_psw.addr = stack->grs0[12];
+ 		break;
+ 	case PGM_INT_CODE_SEGMENT_TRANSLATION:
+ 	case PGM_INT_CODE_PAGE_TRANSLATION:
+@@ -122,14 +121,14 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
+ 		/* The interrupt was nullified, the old PSW points at the
+ 		 * responsible instruction. Forward the PSW so we don't loop.
+ 		 */
+-		lc->pgm_old_psw.addr += lc->pgm_int_id;
++		lowcore.pgm_old_psw.addr += lowcore.pgm_int_id;
+ 	}
+ 	/* suppressed/terminated/completed point already at the next address */
+ }
+ 
+ static void print_storage_exception_information(void)
+ {
+-	switch (lc->pgm_int_code) {
++	switch (lowcore.pgm_int_code) {
+ 	case PGM_INT_CODE_PROTECTION:
+ 	case PGM_INT_CODE_PAGE_TRANSLATION:
+ 	case PGM_INT_CODE_SEGMENT_TRANSLATION:
+@@ -140,7 +139,7 @@ static void print_storage_exception_information(void)
+ 	case PGM_INT_CODE_SECURE_STOR_ACCESS:
+ 	case PGM_INT_CODE_NON_SECURE_STOR_ACCESS:
+ 	case PGM_INT_CODE_SECURE_STOR_VIOLATION:
+-		print_decode_teid(lc->trans_exc_id);
++		print_decode_teid(lowcore.trans_exc_id);
+ 		break;
+ 	}
+ }
+@@ -165,13 +164,13 @@ static void print_pgm_info(struct stack_frame_int *stack)
+ {
+ 	bool in_sie;
+ 
+-	in_sie = (lc->pgm_old_psw.addr >= (uintptr_t)sie_entry &&
+-		  lc->pgm_old_psw.addr <= (uintptr_t)sie_exit);
++	in_sie = (lowcore.pgm_old_psw.addr >= (uintptr_t)sie_entry &&
++		  lowcore.pgm_old_psw.addr <= (uintptr_t)sie_exit);
+ 
+ 	printf("\n");
+ 	printf("Unexpected program interrupt %s: %#x on cpu %d at %#lx, ilen %d\n",
+ 	       in_sie ? "in SIE" : "",
+-	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr, lc->pgm_int_id);
++	       lowcore.pgm_int_code, stap(), lowcore.pgm_old_psw.addr, lowcore.pgm_int_id);
+ 	print_int_regs(stack);
+ 	dump_stack();
+ 
+@@ -201,13 +200,13 @@ void handle_pgm_int(struct stack_frame_int *stack)
+ void handle_ext_int(struct stack_frame_int *stack)
+ {
+ 	if (!ext_int_expected &&
+-	    lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
++	    lowcore.ext_int_code != EXT_IRQ_SERVICE_SIG) {
+ 		report_abort("Unexpected external call interrupt (code %#x): on cpu %d at %#lx",
+-			     lc->ext_int_code, stap(), lc->ext_old_psw.addr);
++			     lowcore.ext_int_code, stap(), lowcore.ext_old_psw.addr);
+ 		return;
+ 	}
+ 
+-	if (lc->ext_int_code == EXT_IRQ_SERVICE_SIG) {
++	if (lowcore.ext_int_code == EXT_IRQ_SERVICE_SIG) {
+ 		stack->crs[0] &= ~(1UL << 9);
+ 		sclp_handle_ext();
+ 	} else {
+@@ -215,13 +214,13 @@ void handle_ext_int(struct stack_frame_int *stack)
+ 	}
+ 
+ 	if (!(stack->crs[0] & CR0_EXTM_MASK))
+-		lc->ext_old_psw.mask &= ~PSW_MASK_EXT;
++		lowcore.ext_old_psw.mask &= ~PSW_MASK_EXT;
+ }
+ 
+ void handle_mcck_int(void)
+ {
+ 	report_abort("Unexpected machine check interrupt: on cpu %d at %#lx",
+-		     stap(), lc->mcck_old_psw.addr);
++		     stap(), lowcore.mcck_old_psw.addr);
+ }
+ 
+ static void (*io_int_func)(void);
+@@ -232,7 +231,7 @@ void handle_io_int(void)
+ 		return io_int_func();
+ 
+ 	report_abort("Unexpected io interrupt: on cpu %d at %#lx",
+-		     stap(), lc->io_old_psw.addr);
++		     stap(), lowcore.io_old_psw.addr);
+ }
+ 
+ int register_io_int_func(void (*f)(void))
+@@ -253,14 +252,14 @@ int unregister_io_int_func(void (*f)(void))
+ 
+ void handle_svc_int(void)
+ {
+-	uint16_t code = lc->svc_int_code;
++	uint16_t code = lowcore.svc_int_code;
+ 
+ 	switch (code) {
+ 	case SVC_LEAVE_PSTATE:
+-		lc->svc_old_psw.mask &= ~PSW_MASK_PSTATE;
++		lowcore.svc_old_psw.mask &= ~PSW_MASK_PSTATE;
+ 		break;
+ 	default:
+ 		report_abort("Unexpected supervisor call interrupt: code %#x on cpu %d at %#lx",
+-			      code, stap(), lc->svc_old_psw.addr);
++			      code, stap(), lowcore.svc_old_psw.addr);
+ 	}
+ }
+diff --git a/lib/s390x/mmu.c b/lib/s390x/mmu.c
+index 6f9e6502..c9f8754c 100644
+--- a/lib/s390x/mmu.c
++++ b/lib/s390x/mmu.c
+@@ -43,7 +43,6 @@ void configure_dat(int enable)
+ 
+ static void mmu_enable(pgd_t *pgtable)
+ {
+-	struct lowcore *lc = NULL;
+ 	const uint64_t asce = __pa(pgtable) | ASCE_DT_REGION1 |
+ 			      REGION_TABLE_LENGTH;
+ 
+@@ -55,7 +54,7 @@ static void mmu_enable(pgd_t *pgtable)
+ 	configure_dat(1);
+ 
+ 	/* we can now also use DAT unconditionally in our PGM handler */
+-	lc->pgm_new_psw.mask |= PSW_MASK_DAT;
++	lowcore.pgm_new_psw.mask |= PSW_MASK_DAT;
+ }
+ 
+ /*
+diff --git a/s390x/flat.lds b/s390x/flat.lds
+index 86dffacd..de9da1a8 100644
+--- a/s390x/flat.lds
++++ b/s390x/flat.lds
+@@ -7,6 +7,7 @@ SECTIONS
+ 		 * address 0x10000 (cstart64.S .init).
+ 		 */
+ 		. = 0;
++		lowcore = .;
+ 		 LONG(0x00080000)
+ 		 LONG(0x80010000)
+ 		 /* Restart new PSW for booting via PSW restart. */
+diff --git a/s390x/snippets/c/flat.lds b/s390x/snippets/c/flat.lds
+index 59974b38..260ab1c4 100644
+--- a/s390x/snippets/c/flat.lds
++++ b/s390x/snippets/c/flat.lds
+@@ -7,6 +7,7 @@ SECTIONS
+ 		 * address 0x4000 (cstart.S .init).
+ 		 */
+ 		. = 0;
++		lowcore = .;
+ 		 LONG(0x00080000)
+ 		 LONG(0x80004000)
+ 		 /* Restart new PSW for booting via PSW restart. */
+diff --git a/s390x/css.c b/s390x/css.c
+index fabe5237..4b6e31b3 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -74,7 +74,7 @@ static void test_sense(void)
+ 		return;
+ 	}
+ 
+-	lowcore_ptr->io_int_param = 0;
++	lowcore.io_int_param = 0;
+ 
+ 	senseid = alloc_io_mem(sizeof(*senseid), 0);
+ 	if (!senseid) {
+@@ -143,7 +143,7 @@ static void sense_id(void)
+ static void css_init(void)
+ {
+ 	assert(register_io_int_func(css_irq_io) == 0);
+-	lowcore_ptr->io_int_param = 0;
++	lowcore.io_int_param = 0;
+ 
+ 	report(get_chsc_scsc(), "Store Channel Characteristics");
+ }
+diff --git a/s390x/diag288.c b/s390x/diag288.c
+index 072c04a5..e414865b 100644
+--- a/s390x/diag288.c
++++ b/s390x/diag288.c
+@@ -12,8 +12,6 @@
+ #include <asm/asm-offsets.h>
+ #include <asm/interrupt.h>
+ 
+-struct lowcore *lc = (struct lowcore *)0x0;
+-
+ #define CODE_INIT	0
+ #define CODE_CHANGE	1
+ #define CODE_CANCEL	2
+@@ -92,7 +90,7 @@ static void test_bite(void)
+ 	load_psw_mask(mask);
+ 
+ 	/* Arm watchdog */
+-	lc->restart_new_psw.mask = extract_psw_mask() & ~PSW_MASK_EXT;
++	lowcore.restart_new_psw.mask = extract_psw_mask() & ~PSW_MASK_EXT;
+ 	diag288(CODE_INIT, 15, ACTION_RESTART);
+ 	asm volatile("		larl	%r0, 1f\n"
+ 		     "		stg	%r0, 424\n"
+diff --git a/s390x/edat.c b/s390x/edat.c
+index c3bee0c8..c6c25042 100644
+--- a/s390x/edat.c
++++ b/s390x/edat.c
+@@ -23,7 +23,6 @@
+ static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));
+ static unsigned int tmp[1024] __attribute__((aligned(PAGE_SIZE)));
+ static void *root, *mem, *m;
+-static struct lowcore *lc;
+ volatile unsigned int *p;
+ 
+ /*
+@@ -34,10 +33,10 @@ static bool check_pgm_prot(void *ptr)
+ {
+ 	union teid teid;
+ 
+-	if (lc->pgm_int_code != PGM_INT_CODE_PROTECTION)
++	if (lowcore.pgm_int_code != PGM_INT_CODE_PROTECTION)
+ 		return false;
+ 
+-	teid.val = lc->trans_exc_id;
++	teid.val = lowcore.trans_exc_id;
+ 
+ 	/*
+ 	 * depending on the presence of the ESOP feature, the rest of the
+diff --git a/s390x/emulator.c b/s390x/emulator.c
+index b2787a55..c9182ea4 100644
+--- a/s390x/emulator.c
++++ b/s390x/emulator.c
+@@ -14,8 +14,6 @@
+ #include <asm/float.h>
+ #include <linux/compiler.h>
+ 
+-struct lowcore *lc = NULL;
+-
+ static inline void __test_spm_ipm(uint8_t cc, uint8_t key)
+ {
+ 	uint64_t in = (cc << 28) | (key << 24);
+@@ -262,7 +260,7 @@ static void test_prno(void)
+ static void test_dxc(void)
+ {
+ 	/* DXC (0xff) is to be stored in LC and FPC on a trap (CRT) with AFP */
+-	lc->dxc_vxc = 0x12345678;
++	lowcore.dxc_vxc = 0x12345678;
+ 	set_fpc_dxc(0);
+ 
+ 	report_prefix_push("afp");
+@@ -271,12 +269,12 @@ static void test_dxc(void)
+ 		     : : "r"(0) : "memory");
+ 	check_pgm_int_code(PGM_INT_CODE_DATA);
+ 
+-	report(lc->dxc_vxc == 0xff, "dxc in LC");
++	report(lowcore.dxc_vxc == 0xff, "dxc in LC");
+ 	report(get_fpc_dxc() == 0xff, "dxc in FPC");
+ 	report_prefix_pop();
+ 
+ 	/* DXC (0xff) is to be stored in LC only on a trap (CRT) without AFP */
+-	lc->dxc_vxc = 0x12345678;
++	lowcore.dxc_vxc = 0x12345678;
+ 	set_fpc_dxc(0);
+ 
+ 	report_prefix_push("no-afp");
+@@ -288,7 +286,7 @@ static void test_dxc(void)
+ 	afp_enable();
+ 	check_pgm_int_code(PGM_INT_CODE_DATA);
+ 
+-	report(lc->dxc_vxc == 0xff, "dxc in LC");
++	report(lowcore.dxc_vxc == 0xff, "dxc in LC");
+ 	report(get_fpc_dxc() == 0, "dxc not in FPC");
+ 	report_prefix_pop();
+ }
+diff --git a/s390x/mvpg.c b/s390x/mvpg.c
+index 04e5218f..296338d4 100644
+--- a/s390x/mvpg.c
++++ b/s390x/mvpg.c
+@@ -33,7 +33,6 @@
+ 
+ static uint8_t source[PAGE_SIZE]  __attribute__((aligned(PAGE_SIZE)));
+ static uint8_t buffer[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+-static struct lowcore * const lc;
+ 
+ /* Keep track of fresh memory */
+ static uint8_t *fresh;
+@@ -87,7 +86,7 @@ static int page_ok(const uint8_t *p)
+  */
+ static inline bool check_oai(void)
+ {
+-	return *(uint8_t *)(lc->pgm_old_psw.addr - 1) == lc->op_acc_id;
++	return *(uint8_t *)(lowcore.pgm_old_psw.addr - 1) == lowcore.op_acc_id;
+ }
+ 
+ static void test_exceptions(void)
+@@ -216,7 +215,7 @@ static void test_mmu_prot(void)
+ 
+ 	report_prefix_push("source invalid");
+ 	protect_page(source, PAGE_ENTRY_I);
+-	lc->op_acc_id = 0;
++	lowcore.op_acc_id = 0;
+ 	expect_pgm_int();
+ 	mvpg(0, fresh, source);
+ 	report(clear_pgm_int() == PGM_INT_CODE_PAGE_TRANSLATION, "exception");
+@@ -227,7 +226,7 @@ static void test_mmu_prot(void)
+ 
+ 	report_prefix_push("destination invalid");
+ 	protect_page(fresh, PAGE_ENTRY_I);
+-	lc->op_acc_id = 0;
++	lowcore.op_acc_id = 0;
+ 	expect_pgm_int();
+ 	mvpg(0, fresh, source);
+ 	report(clear_pgm_int() == PGM_INT_CODE_PAGE_TRANSLATION, "exception");
+diff --git a/s390x/sclp.c b/s390x/sclp.c
+index 73d722fb..1abb9029 100644
+--- a/s390x/sclp.c
++++ b/s390x/sclp.c
+@@ -31,7 +31,6 @@ static union {
+ 	WriteEventData data;
+ } sccb_template;
+ static uint32_t valid_code;						/* valid command code for READ SCP INFO */
+-static struct lowcore *lc;
+ 
+ /**
+  * Perform one service call, handling exceptions and interrupts.
+@@ -43,7 +42,7 @@ static int sclp_service_call_test(unsigned int command, void *sccb)
+ 	sclp_mark_busy();
+ 	sclp_setup_int();
+ 	cc = servc(command, __pa(sccb));
+-	if (lc->pgm_int_code) {
++	if (lowcore.pgm_int_code) {
+ 		sclp_handle_ext();
+ 		return 0;
+ 	}
+diff --git a/s390x/skrf.c b/s390x/skrf.c
+index b9a2e902..1a811894 100644
+--- a/s390x/skrf.c
++++ b/s390x/skrf.c
+@@ -123,17 +123,15 @@ static void set_flag(int val)
+ 
+ static void ecall_cleanup(void)
+ {
+-	struct lowcore *lc = (void *)0x0;
+-
+-	lc->ext_new_psw.mask = PSW_MASK_64;
+-	lc->sw_int_crs[0] = BIT_ULL(CTL0_AFP);
++	lowcore.ext_new_psw.mask = PSW_MASK_64;
++	lowcore.sw_int_crs[0] = BIT_ULL(CTL0_AFP);
+ 
+ 	/*
+ 	 * PGM old contains the ext new PSW, we need to clean it up,
+ 	 * so we don't get a special operation exception on the lpswe
+ 	 * of pgm old.
+ 	 */
+-	lc->pgm_old_psw.mask = PSW_MASK_64;
++	lowcore.pgm_old_psw.mask = PSW_MASK_64;
+ 
+ 	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+ 	set_flag(1);
+@@ -142,13 +140,12 @@ static void ecall_cleanup(void)
+ /* Set a key into the external new psw mask and open external call masks */
+ static void ecall_setup(void)
+ {
+-	struct lowcore *lc = (void *)0x0;
+ 	uint64_t mask;
+ 
+ 	register_pgm_cleanup_func(ecall_cleanup);
+ 	expect_pgm_int();
+ 	/* Put a skey into the ext new psw */
+-	lc->ext_new_psw.mask = 0x00F0000000000000UL | PSW_MASK_64;
++	lowcore.ext_new_psw.mask = 0x00F0000000000000UL | PSW_MASK_64;
+ 	/* Open up ext masks */
+ 	ctl_set_bit(0, CTL0_EXTERNAL_CALL);
+ 	mask = extract_psw_mask();
+diff --git a/s390x/smp.c b/s390x/smp.c
+index de3aba71..6d474d0d 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -155,28 +155,27 @@ static void test_stop(void)
+ static void test_stop_store_status(void)
+ {
+ 	struct cpu *cpu = smp_cpu_from_idx(1);
+-	struct lowcore *lc = (void *)0x0;
+ 
+ 	report_prefix_push("stop store status");
+ 	report_prefix_push("running");
+ 	smp_cpu_restart(1);
+-	lc->prefix_sa = 0;
+-	lc->grs_sa[15] = 0;
++	lowcore.prefix_sa = 0;
++	lowcore.grs_sa[15] = 0;
+ 	smp_cpu_stop_store_status(1);
+ 	mb();
+ 	report(smp_cpu_stopped(1), "cpu stopped");
+-	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
+-	report(lc->grs_sa[15], "stack");
++	report(lowcore.prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
++	report(lowcore.grs_sa[15], "stack");
+ 	report_prefix_pop();
+ 
+ 	report_prefix_push("stopped");
+-	lc->prefix_sa = 0;
+-	lc->grs_sa[15] = 0;
++	lowcore.prefix_sa = 0;
++	lowcore.grs_sa[15] = 0;
+ 	smp_cpu_stop_store_status(1);
+ 	mb();
+ 	report(smp_cpu_stopped(1), "cpu stopped");
+-	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
+-	report(lc->grs_sa[15], "stack");
++	report(lowcore.prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
++	report(lowcore.grs_sa[15], "stack");
+ 	report_prefix_pop();
+ 
+ 	report_prefix_pop();
+@@ -290,7 +289,6 @@ static void test_set_prefix(void)
+ static void ecall(void)
+ {
+ 	unsigned long mask;
+-	struct lowcore *lc = (void *)0x0;
+ 
+ 	expect_ext_int();
+ 	ctl_set_bit(0, CTL0_EXTERNAL_CALL);
+@@ -298,7 +296,7 @@ static void ecall(void)
+ 	mask |= PSW_MASK_EXT;
+ 	load_psw_mask(mask);
+ 	set_flag(1);
+-	while (lc->ext_int_code != 0x1202) { mb(); }
++	while (lowcore.ext_int_code != 0x1202) { mb(); }
+ 	report_pass("received");
+ 	set_flag(1);
+ }
+@@ -324,7 +322,6 @@ static void test_ecall(void)
+ static void emcall(void)
+ {
+ 	unsigned long mask;
+-	struct lowcore *lc = (void *)0x0;
+ 
+ 	expect_ext_int();
+ 	ctl_set_bit(0, CTL0_EMERGENCY_SIGNAL);
+@@ -332,7 +329,7 @@ static void emcall(void)
+ 	mask |= PSW_MASK_EXT;
+ 	load_psw_mask(mask);
+ 	set_flag(1);
+-	while (lc->ext_int_code != 0x1201) { mb(); }
++	while (lowcore.ext_int_code != 0x1201) { mb(); }
+ 	report_pass("received");
+ 	set_flag(1);
+ }
+diff --git a/s390x/snippets/c/spec_ex.c b/s390x/snippets/c/spec_ex.c
+index 71655ddb..40c170e6 100644
+--- a/s390x/snippets/c/spec_ex.c
++++ b/s390x/snippets/c/spec_ex.c
+@@ -10,12 +10,11 @@
+ 
+ __attribute__((section(".text"))) int main(void)
+ {
+-	struct lowcore *lowcore = (struct lowcore *) 0;
+ 	uint64_t bad_psw = 0;
+ 
+ 	/* PSW bit 12 has no name or meaning and must be 0 */
+-	lowcore->pgm_new_psw.mask = BIT(63 - 12);
+-	lowcore->pgm_new_psw.addr = 0xdeadbeee;
++	lowcore.pgm_new_psw.mask = BIT(63 - 12);
++	lowcore.pgm_new_psw.addr = 0xdeadbeee;
+ 	asm volatile ("lpsw %0" :: "Q"(bad_psw));
+ 	return 0;
+ }
+-- 
+2.33.1
 
