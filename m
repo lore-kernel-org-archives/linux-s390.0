@@ -2,137 +2,194 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1601C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 16:18:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 934C9C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 16:26:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244600AbiETQSp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 May 2022 12:18:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56418 "EHLO
+        id S244406AbiETQ00 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 May 2022 12:26:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232607AbiETQSo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 12:18:44 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0236D86A;
-        Fri, 20 May 2022 09:18:44 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id v10so8115729pgl.11;
-        Fri, 20 May 2022 09:18:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sJkmL3cNNCMdY+tXxffweIx723JB3I+sakjvH9x5oPk=;
-        b=pKqLfq/DCIUJC4+qM7NiWzWHEvd6SrtREbZVUXsyCE/WXQz6k3GgmSapoKl75dVARm
-         DbiSfwlfIBtgrDKulb5CpFbtKpSkHN6f5nnd5qso6EHWyRCL/FqSYE1YV8/gLhAZBryA
-         oY2gKX7F82zdYn4EfMvajmTTI5ItAx/NUx9Udla5wndZ47Ky33OlQ22/uFJA9kvkUnlR
-         o0DVwt8vrrM2QUoPS2/u76YmC5xVNy3LV5hwY+r8Y/gyFVz0b87Q0y20zxyDZ6B6xVZL
-         0Mo4RGXMptD21gYHBroNYsA7W2lBPaZ0V7c9Yh6nEJ/jP++Fd8IjP97FF7cfBPtm7rtU
-         f3vA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sJkmL3cNNCMdY+tXxffweIx723JB3I+sakjvH9x5oPk=;
-        b=cEdJTmQ1GtDApbN3fZuMOu3lugLXsTNN9mYu+flGgRO15E9mBqTO35YYDSkBxGEW+5
-         DEEmRHQgvV1jMKRZAWNj+znJziLJxLTPQvLtDYPm6oS6/aadU7yeRHyrJwMLw68ssrgk
-         ZhgXvibcbvZtx3S59yy4aUCml6WGnMJaW0UdQE91Qzu6sQdaIFtnKoVb8QYuDRtH4pDH
-         ITj4k1svPL9NcqlxBq0IOWHKZ2ONGwkabAhzgiaaJrXKMkMCfvKdt38YhKBSFCxCiJqa
-         e//ZCuIADW3TNbkzhVyAOseXORWczNX1AmzZbmCGqSW55Od4emRfdVFSjpo5LnJYgc6Q
-         erEg==
-X-Gm-Message-State: AOAM530yAn6j6WDSucM+cXh6qd7zZnTQ5sca0RDf2RWbeyeiZVMdqfvO
-        HruN2XWEMVNkFVRG5hqO9DmUyi9t+urGHFdyS5M=
-X-Google-Smtp-Source: ABdhPJx+qcYi6F2bg4WVAwh754TW7golfOR49ep220qUtfFvRzJQads+gxDHdltL7DRwree4z7Rg9gCYETyar8r/p2w=
-X-Received: by 2002:a65:694b:0:b0:3f5:f32a:3adc with SMTP id
- w11-20020a65694b000000b003f5f32a3adcmr9069654pgq.541.1653063523816; Fri, 20
- May 2022 09:18:43 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220428205116.861003-1-yury.norov@gmail.com> <20220428205116.861003-4-yury.norov@gmail.com>
- <20220519150929.GA3145933@roeck-us.net> <CAAH8bW8ju7XLkbYya1A1OtqGVGDUAk7dPyw01RsDzg+v7xihyQ@mail.gmail.com>
- <872607af-5647-a255-83f2-3bf75b7f0df4@roeck-us.net>
-In-Reply-To: <872607af-5647-a255-83f2-3bf75b7f0df4@roeck-us.net>
-From:   Yury Norov <yury.norov@gmail.com>
-Date:   Fri, 20 May 2022 09:18:33 -0700
-Message-ID: <CAAH8bW9zdMCV_JJ7abC6jY=0W-oTK5g0refFgFHLYWCykVk5KA@mail.gmail.com>
-Subject: Re: [PATCH 3/5] lib/bitmap: add test for bitmap_{from,to}_arr64
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
+        with ESMTP id S1351594AbiETQ0Z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 12:26:25 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F138D5DE7C
+        for <linux-s390@vger.kernel.org>; Fri, 20 May 2022 09:26:22 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KEQH9k003251;
+        Fri, 20 May 2022 16:26:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=qkqC9bRaDrHhtBhEmuuoQ47+C1Qc8d9EHHsFjW6O1eQ=;
+ b=AjOf+QJ4/FKRDvmFVwv4EpMGmH5ADDzQiVQDHNuSGjLfvqS5hPPFVvbvPvJQnxzTvEq2
+ RfbXi5Ieq4BEHXLlwEmd+zLgH2fj2WGl5xs0pzHjdu/LdUDqLh/FOuMidPGVWKnnV8aW
+ A153BGuwKBXWrapsEY+tP+yFzrl0pAKIwPfEDiOeULgyqtoCOxiK6NV6dgEyjj23OPV7
+ xRbdXiASDxXbEgYUYQnxFSAbEvlBkTUegL5jDdHV65FmGorTQl+AaG5xTwtSIA7NENKg
+ n1uvFf+9tfXnp944DnaRZx88nz84MntJs7/9AZ6rHcul23zkFm93vpbBldkZrCDtRpiO IQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6crg2jam-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 May 2022 16:26:10 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24KGKNqQ018282;
+        Fri, 20 May 2022 16:26:10 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6crg2ja5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 May 2022 16:26:10 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24KGD0cd000663;
+        Fri, 20 May 2022 16:26:08 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3g2428ye37-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 May 2022 16:26:08 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24KGQ5UG42467588
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 20 May 2022 16:26:05 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 194B811C04A;
+        Fri, 20 May 2022 16:26:05 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 02E0B11C04C;
+        Fri, 20 May 2022 16:26:04 +0000 (GMT)
+Received: from sig-9-145-82-10.uk.ibm.com (unknown [9.145.82.10])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 20 May 2022 16:26:03 +0000 (GMT)
+Message-ID: <dd2d49bb798effaeac55f4bf3625f376bb1abda0.camel@linux.ibm.com>
+Subject: Re: s390-iommu.c default domain conversion
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, alex.williamson@redhat.com,
+        cohuck@redhat.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, Robin Murphy <robin.murphy@arm.com>
+Date:   Fri, 20 May 2022 18:26:03 +0200
+In-Reply-To: <20220520155649.GJ1343366@nvidia.com>
+References: <20220509233552.GT49344@nvidia.com>
+         <ef3ea28b-ccfb-f354-bd6d-6290a2aa4b3e@linux.ibm.com>
+         <20220510160911.GH49344@nvidia.com>
+         <ef9f26c6a017b479610fcd7a7b93bb07815b89fd.camel@linux.ibm.com>
+         <20220520134414.GH1343366@nvidia.com>
+         <6271dd24bfcf82b0c1b911a163ae9549c24691a4.camel@linux.ibm.com>
+         <20220520155649.GJ1343366@nvidia.com>
 Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ez1vTNmtBsB3rRivXzucOswfV5npGokR
+X-Proofpoint-ORIG-GUID: 3i0tOx15cWfzu4GPV8ZGqEtxVfV9aOXx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-20_04,2022-05-20_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0
+ mlxlogscore=672 impostorscore=0 adultscore=0 spamscore=0 phishscore=0
+ mlxscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205200106
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 19, 2022 at 11:04 AM Guenter Roeck <linux@roeck-us.net> wrote:
->
-> On 5/19/22 09:01, Yury Norov wrote:
-> > On Thu, May 19, 2022 at 8:09 AM Guenter Roeck <linux@roeck-us.net> wrote:
-> >>
-> >> On Thu, Apr 28, 2022 at 01:51:14PM -0700, Yury Norov wrote:
-> >>> Test newly added bitmap_{from,to}_arr64() functions similarly to
-> >>> already existing bitmap_{from,to}_arr32() tests.
-> >>>
-> >>> Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> >>
-> >> With this patch in linux-next (including next-20220519), I see lots of
-> >> bitmap test errors when booting 32-bit ppc images in qemu. Examples:
-> >>
-> >> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0", got "0,65"
-> >> ...
-> >> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65", got "0,65,128"
-> >> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65", got "0,65,128-129"
-> >> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65", got "0,65,128-130"
-> >> ...
-> >> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65,128-143", got "0,65,128-143,208-209"
-> >> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65,128-143", got "0,65,128-143,208-210"
-> >>
-> >> and so on. It only  gets worse from there, and ends with:
-> >>
-> >> test_bitmap: parselist: 14: input is '0-2047:128/256' OK, Time: 4274
-> >> test_bitmap: bitmap_print_to_pagebuf: input is '0-32767
-> >> ', Time: 127267
-> >> test_bitmap: failed 337 out of 3801 tests
-> >>
-> >> Other architectures and 64-bit ppc builds seem to be fine.
-> >
-> > Hi Guenter,
-> >
-> > Thanks for letting me know. It's really weird because it has already
-> > been for 2 weeks
-> > in next with no issues. But I tested it on mips32, not powerpc. I'll
-> > check what happens
-> > there.
-> >
-> Oh, I have seen the problem for a while, it is just that -next is in
-> such a bad shape that it is difficult to bisect individual problems.
->
-> > Can you please share your config and qemu image if possible?
-> >
->
-> First, you have to revert commit b033767848c411
-> ("powerpc/code-patching: Use jump_label for testing freed initmem")
-> to avoid a crash. After that, a recent version of qemu should work
-> with the following command line.
->
-> qemu-system-ppc -kernel arch/powerpc/boot/uImage -M mpc8544ds \
->         -m 256 -no-reboot -initrd rootfs.cpio \
->         --append "rdinit=/sbin/init coherent_pool=512k mem=256M console=ttyS0" \
->         -monitor none -nographic
->
-> Configuration is mpc85xx_defconfig with CONFIG_TEST_BITMAP enabled.
-> I used the root file system (initrd) from
-> https://github.com/groeck/linux-build-test/blob/master/rootfs/ppc/rootfs.cpio.gz
+On Fri, 2022-05-20 at 12:56 -0300, Jason Gunthorpe wrote:
+> On Fri, May 20, 2022 at 05:17:05PM +0200, Niklas Schnelle wrote:
+> 
+> > > > With that the performance on the LPAR machine hypervisor (no paging) is
+> > > > on par with our existing code. On paging hypervisors (z/VM and KVM)
+> > > > i.e. with the hypervisor shadowing the I/O translation tables, it's
+> > > > still slower than our existing code and interestingly strict mode seems
+> > > > to be better than lazy here. One thing I haven't done yet is implement
+> > > > the map_pages() operation or adding larger page sizes. 
+> > > 
+> > > map_pages() speeds thiings up if there is contiguous memory, I'm not
+> > > sure what work load you are testing with so hard to guess if that is
+> > > interesting or not.
+> > 
+> > Our most important driver is mlx5 with both IP and RDMA traffic on
+> > ConnectX-4/5/6 but we also support NVMes.
+> 
+> So you probably won't see big gains here from larger page sizes unless
+> you also have a specific userspace that is trigger huge pages.
+> 
+> qemu users spaces do this so it is worth doing anyhow though.
+> 
+> > > > Maybe you have some tips what you'd expect to be most beneficial?
+> > > > Either way we're optimistic this can be solved and this conversion
+> > > > will be a high ranking item on my backlog going forward.
+> > > 
+> > > I'm not really sure I understand the differences, do you have a sense
+> > > what is making it slower? Maybe there is some small feature that can
+> > > be added to the core code? It is very strange that strict is faster,
+> > > that should not be, strict requires synchronous flush in the unmap
+> > > cas, lazy does not. Are you sure you are getting the lazy flushes
+> > > enabled?
+> > 
+> > The lazy flushes are the timer triggered flush_iotlb_all() in
+> > fq_flush_iotlb(), right? I definitely see that when tracing my
+> > flush_iotlb_all() implementation via that path. That flush_iotlb_all()
+> > in my prototype is basically the same as the global RPCIT we did once
+> > we wrapped around our IOVA address space. I suspect that this just
+> > happens much more often with the timer than our wrap around and
+> > flushing the entire aperture is somewhat slow because it causes the
+> > hypervisor to re-examine the entire I/O translation table. On the other
+> > hand in strict mode the iommu_iotlb_sync() call in __iommu_unmap()
+> > always flushes a relatively small contiguous range as I'm using the
+> > following construct to extend gather:
+> > 
+> > 	if (iommu_iotlb_gather_is_disjoint(gather, iova, size))
+> > 		iommu_iotlb_sync(domain, gather);
+> > 
+> > 	iommu_iotlb_gather_add_range(gather, iova, size);
+> > 
+> > Maybe the smaller contiguous ranges just help with locality/caching
+> > because the flushed range in the guests I/O tables was just updated.
+> 
+> So, from what I can tell, the S390 HW is not really the same as a
+> normal iommu in that you can do map over IOVA that hasn't been flushed
+> yet and the map will restore coherency to the new page table
+> entries. I see the zpci_refresh_trans() call in map which is why I
+> assume this?
 
-Yes, that helped a lot. Thanks, I was able to reproduce it. I'll take
-a look shortly.
+The zpci_refresh_trans() in map is only there because previously we
+didn't implement iotlb_sync_map(). Also, we only need to flush on map
+for the paged guest case so the hypervisor can update its shadow table.
+It happens unconditionally in the existing s390_iommu.c because that
+was not well optimized and uses the same s390_iommu_update_trans() for
+map and unmap. We had the skipping of the TLB flush handled properly in
+the arch/s390/pci_dma.c mapping code where !zdev->tlb_refresh indicates
+that we don't need flushes on map.
 
-Thanks,
-Yury
+> 
+> (note that normal HW has a HW IOTLB cache that MUST be flushed or new
+> maps will not be loaded by the HW, so mapping to areas that previously
+> had uninvalidated IOVA is a functional problem, which motivates the
+> design of this scheme)
+
+We do need to flush the TLBs on unmap. The reason is that under LPAR
+(non paging hypervisor) the hardware can establish a new mapping on its
+own if an I/O PTE is changed from invalid to a valid translation and it
+wasn't previously in the TLB. I think that's how most hardware IOMMUs
+work and how I understand your explanation too.
+
+> 
+> However, since S390 can restore coherency during map the lazy
+> invalidation is not for correctness but only for security - to
+> eventually unmap things that the DMA device should not be
+> touching?
+
+As explained above it is for correctness but with the existing code we
+handle this slightly differently. As we go through the entire IOVA
+space we're never reusing a previously unmapped IOVA until we run out
+of IOVAs. Then we do a global flush which on LPAR just drops the
+hardware TLBs making sure that future re-uses of IOVAs will trigger a
+harware walk of the I/O translation tables. Same constraints just a
+different scheme.
+
+
