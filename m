@@ -2,390 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E570C43219
-	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 19:09:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01636C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 20 May 2022 19:52:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353179AbiETTJB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 May 2022 15:09:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33900 "EHLO
+        id S1353335AbiETTwN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 May 2022 15:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353175AbiETTJA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 15:09:00 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23EA2197F62;
-        Fri, 20 May 2022 12:08:59 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KHT8JS025308;
-        Fri, 20 May 2022 19:08:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=x+T+WxIrfKzas3rLyu97XexyZdkzQLKxU0HzboK4YEE=;
- b=EuPBS7cB+ca0aC+7tl3XNU45zpe2N5ZfWiDt0DZt+KHVHu9AR0rCqaAl8Z5U0jru9wts
- IALJP5cQV+i+skha5BktXPX9Obg84TqfltRwGvSEZAMJ5KwUFaSJXVtnGdRCJELo/PWS
- 80u4v1GS8W6E17yL0wGVMFyz0wfC1mcfxzphwLfiBPfMO9wHxU5uhup7qKM692jnpn2V
- M+AhEaSq7SEScNzQ2e+44Fx6tZvuXz/h/7qNH0bg9J531Re9araOS2NgfuyJ/TYP/CVF
- 2M6jl6jykki5bUH+VAhc/N4EOQ+OGc/7M+C2gPb2R+noJv0Uktt9e3/LrVp9IrhkWgcA og== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6fe49n1w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 19:08:58 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24KIc5fk015334;
-        Fri, 20 May 2022 19:08:58 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g6fe49n13-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 19:08:58 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24KIr0Sr026316;
-        Fri, 20 May 2022 19:08:55 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3g2429h805-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 May 2022 19:08:55 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24KJ8Cps32899520
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 May 2022 19:08:12 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BB088AE045;
-        Fri, 20 May 2022 19:08:52 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7CD4FAE04D;
-        Fri, 20 May 2022 19:08:52 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 20 May 2022 19:08:52 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH 3/3] s390x: Rework TEID decoding and usage
-Date:   Fri, 20 May 2022 21:08:50 +0200
-Message-Id: <20220520190850.3445768-4-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220520190850.3445768-1-scgl@linux.ibm.com>
-References: <20220520190850.3445768-1-scgl@linux.ibm.com>
+        with ESMTP id S1353316AbiETTwM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 15:52:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9606A197F4F
+        for <linux-s390@vger.kernel.org>; Fri, 20 May 2022 12:52:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1653076330;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=QC4HhoSa5ax5VuJxdudrkP+hQQcM6Ir26+NRsLLyTuA=;
+        b=Gcyu2HAcY32dWkxlRvim23nIwdoVjm8pF3UQoFSWlH42gM17kS9lzPs3+TY9wW4BFG8Yfo
+        2czn9plS4mJEqO7+dhNe4zm2XUv0Rk99bWPndA5yXmwmrSqbOrCLQVq6sfjFnqBpiFEIQ0
+        L1/huIquOGDBwjm1T5gAYXDYUf96SBU=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-644-4t-3E9E5PQGx31S7cEd1eQ-1; Fri, 20 May 2022 15:52:06 -0400
+X-MC-Unique: 4t-3E9E5PQGx31S7cEd1eQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5AC1829AB3FB;
+        Fri, 20 May 2022 19:52:04 +0000 (UTC)
+Received: from [10.22.32.226] (unknown [10.22.32.226])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id ED99440D2821;
+        Fri, 20 May 2022 19:52:01 +0000 (UTC)
+Message-ID: <f3627eae-f5ae-1d30-2c09-1820a255334a@redhat.com>
+Date:   Fri, 20 May 2022 15:52:01 -0400
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 1/5] kallsyms: pass buffer size in sprint_* APIs
+Content-Language: en-US
+To:     Maninder Singh <maninder1.s@samsung.com>, keescook@chromium.org,
+        pmladek@suse.com, bcain@quicinc.com, mpe@ellerman.id.au,
+        benh@kernel.crashing.org, paulus@samba.org, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, satishkh@cisco.com,
+        sebaddel@cisco.com, kartilak@cisco.com, jejb@linux.ibm.com,
+        martin.petersen@oracle.com, mcgrof@kernel.org,
+        jason.wessel@windriver.com, daniel.thompson@linaro.org,
+        dianders@chromium.org, naveen.n.rao@linux.ibm.com,
+        anil.s.keshavamurthy@intel.com, davem@davemloft.net,
+        mhiramat@kernel.org, peterz@infradead.org, mingo@redhat.com,
+        will@kernel.org, boqun.feng@gmail.com, rostedt@goodmis.org,
+        senozhatsky@chromium.org, andriy.shevchenko@linux.intel.com,
+        linux@rasmusvillemoes.dk, akpm@linux-foundation.org, arnd@arndb.de
+Cc:     linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-modules@vger.kernel.org,
+        kgdb-bugreport@lists.sourceforge.net, v.narang@samsung.com,
+        onkarnath.1@samsung.com
+References: <20220520083701.2610975-1-maninder1.s@samsung.com>
+ <CGME20220520083725epcas5p1c3e2989c991e50603a40c81ccc4982e0@epcas5p1.samsung.com>
+ <20220520083701.2610975-2-maninder1.s@samsung.com>
+From:   Waiman Long <longman@redhat.com>
+In-Reply-To: <20220520083701.2610975-2-maninder1.s@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -q2ZS869OEJ7jjXY41FUxU6Vu93t2aEw
-X-Proofpoint-ORIG-GUID: 5_84DRMUtgBy687CjZTUI4zxydMOouMm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-20_06,2022-05-20_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
- suspectscore=0 clxscore=1015 mlxlogscore=999 mlxscore=0 spamscore=0
- bulkscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205200119
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The translation-exception identification (TEID) contains information to
-identify the cause of certain program exceptions, including translation
-exceptions occurring during dynamic address translation, as well as
-protection exceptions.
-The meaning of fields in the TEID is complex, depending on the exception
-occurring and various potentially installed facilities.
+On 5/20/22 04:36, Maninder Singh wrote:
+> As of now sprint_* APIs don't pass buffer size as an argument
+> and use sprintf directly.
+>
+> To replace dangerous sprintf API to scnprintf,
+> buffer size is required in arguments.
+>
+> Co-developed-by: Onkarnath <onkarnath.1@samsung.com>
+> Signed-off-by: Onkarnath <onkarnath.1@samsung.com>
+> Signed-off-by: Maninder Singh <maninder1.s@samsung.com>
+> ---
+>   arch/s390/lib/test_unwind.c    |  2 +-
+>   drivers/scsi/fnic/fnic_trace.c |  8 ++++----
+>   include/linux/kallsyms.h       | 20 ++++++++++----------
+>   init/main.c                    |  2 +-
+>   kernel/kallsyms.c              | 27 ++++++++++++++++-----------
+>   kernel/trace/trace_output.c    |  2 +-
+>   lib/vsprintf.c                 | 10 +++++-----
+>   7 files changed, 38 insertions(+), 33 deletions(-)
+>
+> diff --git a/arch/s390/lib/test_unwind.c b/arch/s390/lib/test_unwind.c
+> index 5a053b393d5c..adbc2b53db16 100644
+> --- a/arch/s390/lib/test_unwind.c
+> +++ b/arch/s390/lib/test_unwind.c
+> @@ -75,7 +75,7 @@ static noinline int test_unwind(struct task_struct *task, struct pt_regs *regs,
+>   			ret = -EINVAL;
+>   			break;
+>   		}
+> -		sprint_symbol(sym, addr);
+> +		sprint_symbol(sym, KSYM_SYMBOL_LEN, addr);
 
-Rework the type describing the TEID, in order to ease decoding.
-Change the existing code interpreting the TEID and extend it to take the
-installed suppression-on-protection facility into account.
+Instead of hardcoding KSYM_SYMBOL_LEN everywhere, will it better to hide 
+it like this:
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
----
- lib/s390x/asm/interrupt.h | 66 ++++++++++++++++++++++++++--------
- lib/s390x/fault.h         | 30 ++++------------
- lib/s390x/fault.c         | 74 +++++++++++++++++++++++++++------------
- lib/s390x/interrupt.c     |  2 +-
- s390x/edat.c              | 20 +++++++----
- 5 files changed, 124 insertions(+), 68 deletions(-)
+         extern int __sprint_symbol(char *buffer, size_t size, unsigned 
+long address);
+         #define sprint_symbol(buf, addr)        __sprint_symbol(buf, 
+sizeof(buf), addr)
 
-diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
-index d9ab0bd7..8d5bfbf9 100644
---- a/lib/s390x/asm/interrupt.h
-+++ b/lib/s390x/asm/interrupt.h
-@@ -20,23 +20,61 @@
- 
- union teid {
- 	unsigned long val;
--	struct {
--		unsigned long addr:52;
--		unsigned long fetch:1;
--		unsigned long store:1;
--		unsigned long reserved:6;
--		unsigned long acc_list_prot:1;
--		/*
--		 * depending on the exception and the installed facilities,
--		 * the m field can indicate several different things,
--		 * including whether the exception was triggered by a MVPG
--		 * instruction, or whether the addr field is meaningful
--		 */
--		unsigned long m:1;
--		unsigned long asce_id:2;
-+	union {
-+		/* common fields DAT exc & protection exc */
-+		struct {
-+			uint64_t addr			: 52 -  0;
-+			uint64_t acc_exc_f_s		: 54 - 52;
-+			uint64_t side_effect_acc	: 55 - 54;
-+			uint64_t /* reserved */		: 55 - 54;
-+			uint64_t asce_id		: 64 - 62;
-+		};
-+		/* DAT exc */
-+		struct {
-+			uint64_t /* pad */		: 61 -  0;
-+			uint64_t dat_move_page		: 62 - 61;
-+		};
-+		/* suppression on protection */
-+		struct {
-+			uint64_t /* pad */		: 60 -  0;
-+			uint64_t sop_acc_list		: 61 - 60;
-+			uint64_t sop_teid_predictable	: 62 - 61;
-+		};
-+		/* enhanced suppression on protection 1 */
-+		struct {
-+			uint64_t /* pad */		: 61 -  0;
-+			uint64_t esop1_acc_list_or_dat	: 62 - 61;
-+		};
-+		/* enhanced suppression on protection 2 */
-+		struct {
-+			uint64_t /* pad */		: 56 -  0;
-+			uint64_t esop2_prot_code_0	: 57 - 56;
-+			uint64_t /* pad */		: 60 - 57;
-+			uint64_t esop2_prot_code_1	: 61 - 60;
-+			uint64_t esop2_prot_code_2	: 62 - 61;
-+		};
- 	};
- };
- 
-+enum prot_code {
-+	PROT_KEY_LAP,
-+	PROT_DAT,
-+	PROT_KEY,
-+	PROT_ACC_LIST,
-+	PROT_LAP,
-+	PROT_IEP,
-+};
-+
-+static inline enum prot_code teid_esop2_prot_code(union teid teid)
-+{
-+	int code = 0;
-+
-+	code = code << 1 | teid.esop2_prot_code_0;
-+	code = code << 1 | teid.esop2_prot_code_1;
-+	code = code << 1 | teid.esop2_prot_code_2;
-+	return (enum prot_code)code;
-+}
-+
- void register_pgm_cleanup_func(void (*f)(void));
- void handle_pgm_int(struct stack_frame_int *stack);
- void handle_ext_int(struct stack_frame_int *stack);
-diff --git a/lib/s390x/fault.h b/lib/s390x/fault.h
-index 726da2f0..867997f2 100644
---- a/lib/s390x/fault.h
-+++ b/lib/s390x/fault.h
-@@ -11,32 +11,16 @@
- #define _S390X_FAULT_H_
- 
- #include <bitops.h>
-+#include <asm/facility.h>
-+#include <asm/interrupt.h>
- 
- /* Instruction execution prevention, i.e. no-execute, 101 */
--static inline bool prot_is_iep(uint64_t teid)
-+static inline bool prot_is_iep(union teid teid)
- {
--	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid))
--		return true;
--
--	return false;
--}
--
--/* Standard DAT exception, 001 */
--static inline bool prot_is_datp(uint64_t teid)
--{
--	if (!test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid))
--		return true;
--
--	return false;
--}
--
--/* Low-address protection exception, 100 */
--static inline bool prot_is_lap(uint64_t teid)
--{
--	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && !test_bit_inv(61, &teid))
--		return true;
--
--	return false;
-+	if (!test_facility(130))
-+		return false;
-+	/* IEP installed -> ESOP2 installed */
-+	return teid_esop2_prot_code(teid) == PROT_IEP;
- }
- 
- void print_decode_teid(uint64_t teid);
-diff --git a/lib/s390x/fault.c b/lib/s390x/fault.c
-index efa62fcb..02b3c098 100644
---- a/lib/s390x/fault.c
-+++ b/lib/s390x/fault.c
-@@ -13,35 +13,63 @@
- #include <asm/page.h>
- #include <fault.h>
- 
--/* Decodes the protection exceptions we'll most likely see */
--static void print_decode_pgm_prot(uint64_t teid)
--{
--	if (prot_is_lap(teid)) {
--		printf("Type: LAP\n");
--		return;
--	}
--
--	if (prot_is_iep(teid)) {
--		printf("Type: IEP\n");
--		return;
--	}
- 
--	if (prot_is_datp(teid)) {
--		printf("Type: DAT\n");
--		return;
-+static void print_decode_pgm_prot(union teid teid, bool dat)
-+{
-+	switch (get_supp_on_prot_facility()) {
-+	case SOP_NONE:
-+		printf("Type: ?\n");
-+		break;
-+	case SOP_BASIC:
-+		if (teid.sop_teid_predictable && dat && teid.sop_acc_list)
-+			printf("Type: ACC\n");
-+		else
-+			printf("Type: ?\n");
-+		break;
-+	case SOP_ENHANCED_1:
-+		if (teid.esop1_acc_list_or_dat) {
-+			if (teid.sop_acc_list)
-+				printf("Type: ACC\n");
-+			else
-+				printf("Type: DAT\n");
-+		} else {
-+			printf("Type: KEY or LAP\n");
-+		}
-+		break;
-+	case SOP_ENHANCED_2:
-+		switch (teid_esop2_prot_code(teid)) {
-+		case PROT_KEY_LAP:
-+			printf("Type: KEY or LAP\n");
-+			break;
-+		case PROT_DAT:
-+			printf("Type: DAT\n");
-+			break;
-+		case PROT_KEY:
-+			printf("Type: KEY\n");
-+			break;
-+		case PROT_ACC_LIST:
-+			printf("Type: ACC\n");
-+			break;
-+		case PROT_LAP:
-+			printf("Type: LAP\n");
-+			break;
-+		case PROT_IEP:
-+			printf("Type: IEP\n");
-+			break;
-+		}
- 	}
- }
- 
--void print_decode_teid(uint64_t teid)
-+void print_decode_teid(uint64_t raw_teid)
- {
--	int asce_id = teid & 3;
-+	union teid teid = { .val = raw_teid };
- 	bool dat = lowcore.pgm_old_psw.mask & PSW_MASK_DAT;
- 
- 	printf("Memory exception information:\n");
- 	printf("DAT: %s\n", dat ? "on" : "off");
- 
- 	printf("AS: ");
--	switch (asce_id) {
-+	switch (teid.asce_id) {
- 	case AS_PRIM:
- 		printf("Primary\n");
- 		break;
-@@ -57,7 +85,7 @@ void print_decode_teid(uint64_t teid)
- 	}
- 
- 	if (lowcore.pgm_int_code == PGM_INT_CODE_PROTECTION)
--		print_decode_pgm_prot(teid);
-+		print_decode_pgm_prot(teid, dat);
- 
- 	/*
- 	 * If teid bit 61 is off for these two exception the reported
-@@ -65,10 +93,10 @@ void print_decode_teid(uint64_t teid)
- 	 */
- 	if ((lowcore.pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
- 	     lowcore.pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION) &&
--	    !test_bit_inv(61, &teid)) {
--		printf("Address: %lx, unpredictable\n ", teid & PAGE_MASK);
-+	    !teid.sop_teid_predictable) {
-+		printf("Address: %lx, unpredictable\n ", raw_teid & PAGE_MASK);
- 		return;
- 	}
--	printf("TEID: %lx\n", teid);
--	printf("Address: %lx\n\n", teid & PAGE_MASK);
-+	printf("TEID: %lx\n", raw_teid);
-+	printf("Address: %lx\n\n", raw_teid & PAGE_MASK);
- }
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 6da20c44..ac3d1ecd 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -77,7 +77,7 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
- 		break;
- 	case PGM_INT_CODE_PROTECTION:
- 		/* Handling for iep.c test case. */
--		if (prot_is_iep(lowcore.trans_exc_id))
-+		if (prot_is_iep((union teid) { .val = lowcore.trans_exc_id }))
- 			/*
- 			 * We branched to the instruction that caused
- 			 * the exception so we can use the return
-diff --git a/s390x/edat.c b/s390x/edat.c
-index c6c25042..af442039 100644
---- a/s390x/edat.c
-+++ b/s390x/edat.c
-@@ -37,14 +37,20 @@ static bool check_pgm_prot(void *ptr)
- 		return false;
- 
- 	teid.val = lowcore.trans_exc_id;
--
--	/*
--	 * depending on the presence of the ESOP feature, the rest of the
--	 * field might or might not be meaningful when the m field is 0.
--	 */
--	if (!teid.m)
-+	switch (get_supp_on_prot_facility()) {
-+	case SOP_NONE:
- 		return true;
--	return (!teid.acc_list_prot && !teid.asce_id &&
-+	case SOP_BASIC:
-+		if (!teid.sop_teid_predictable)
-+			return true;
-+	case SOP_ENHANCED_1:
-+		if (!teid.esop1_acc_list_or_dat)
-+			return false;
-+	case SOP_ENHANCED_2:
-+		if (teid_esop2_prot_code(teid) != 1)
-+			return false;
-+	}
-+	return (!teid.sop_acc_list && !teid.asce_id &&
- 		(teid.addr == ((unsigned long)ptr >> PAGE_SHIFT)));
- }
- 
--- 
-2.33.1
+Or you can use sizeof(buf) directly instead of KSYM_SYMBOL_LEN.
+
+Cheers,
+Longman
 
