@@ -2,121 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66BBAC433EF
-	for <linux-s390@archiver.kernel.org>; Sat, 21 May 2022 07:40:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 417ECC433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 21 May 2022 10:35:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241818AbiEUHk0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 21 May 2022 03:40:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56558 "EHLO
+        id S238167AbiEUKfP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 21 May 2022 06:35:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbiEUHkZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 May 2022 03:40:25 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C4917D39F;
-        Sat, 21 May 2022 00:40:19 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id y41so9451809pfw.12;
-        Sat, 21 May 2022 00:40:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=yXgvzw1X7R3HihF3IFI7HYdhqndiCIe6AuxGQb67yKc=;
-        b=ePPKvV82Kbx+Rtc5FoK/l+sEPohtrVvNDLK1QXehdRSaZnX8mpyqocpvwr2QsGdWJ5
-         bLQ4ROLDowWcMCZ7CiGYtGgFFQgEdrFrGAvnoOGeKTLU9SETat+F4eINdzD1AjI1jP6q
-         L/uJCTXtPvvvMc07rxyhgn2630pKyn8P9J5qJpKhJckR/mWyMWwWSogoQOrgxVYFoEPS
-         jO/ucBwvw1bPtsZPzQCUP0q3axJvkQ609soFg7SljsJgNtGfwB9Xo3O43njj4LfEG09X
-         8Pu1N9GP+SDyemv9PhvrmlBpb9r5nYPsWCLzx4roLuXNY318xpfnOeG1LxP44cVTMnqY
-         waBg==
+        with ESMTP id S237226AbiEUKfO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 May 2022 06:35:14 -0400
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EC762A15
+        for <linux-s390@vger.kernel.org>; Sat, 21 May 2022 03:35:13 -0700 (PDT)
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com [209.85.128.72])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id A3F4A3F1A1
+        for <linux-s390@vger.kernel.org>; Sat, 21 May 2022 10:35:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1653129310;
+        bh=6xjjxCPsshHoGVKLB5r3oHbwMZn1xq0/B2U9BnnWFDI=;
+        h=From:Date:To:Cc:Subject:Message-ID:In-Reply-To:References:
+         MIME-Version:Content-Type;
+        b=s3fbhfnGyhYjsueo29DEcExBNRYmjAmOs4MQWwtqyuIBnV4rdsQ8Vjgf7KjZ/Scde
+         gP2irDr/CQsLCuPq7phQYUjmheFoYo7zyfEJmMrg8Jd+5z4eUzwiDXL1vQXE26SryJ
+         1i1I+1QR9wzr0GrdH1pbdAS4CGFfp/euItEmJvB+XRJSIbWDcPcUhCSqvaLyBHOD01
+         Df+T0Rnu7GrogAcxXZobHtsJ+TH6zWr1iccn0pNbqP1WpHBpp4bkLCA1M9DewlIt6p
+         bx+C421W7eoQotg2lIcZ/TuR7kjNHzq3KRud8dpDbe428OH2xiAyPbNSKLWYkzCfqH
+         rS+7r7q7seBsQ==
+Received: by mail-wm1-f72.google.com with SMTP id k124-20020a1ca182000000b003973db7d1a0so893179wme.1
+        for <linux-s390@vger.kernel.org>; Sat, 21 May 2022 03:35:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=yXgvzw1X7R3HihF3IFI7HYdhqndiCIe6AuxGQb67yKc=;
-        b=lVp4kAF7uDuZ8EiUc1yoLyAydBn4SLJJDa1zV3Sj3i/up2qZkm6/Yr+AghxSkq0hVT
-         8clIEZM9958jY3iQ9W/02SNqtUI8RUeYoZGEB+MFfwI6sAEGTKrLZ/HGLOGhkf8nk8WG
-         BA6M+FBmcuYreO65SUph0BDid7eEgGanH2Ll5aP284176+BLP9KyJ9ioskkQZ7rBGDMu
-         ngyGxxwT18m4x6P86aTv9C9E8Fdyl2fD1d6XXcNWlPeMk9GmafK1+DJYA+ghOq9b10EJ
-         x09hEFvMrY0Axf/sXHc7Jp1ahGddXXZrm7hNdX6gwp2NuEwv2PALSMh7uEgfPzTYwsLi
-         aYSQ==
-X-Gm-Message-State: AOAM532V/EXRachEh3IDIZ5h6vzO+DkXOfYVEMeRldlOwzPm77w8T+J9
-        O40w5UrXTJt0Akg3ywn+m9E=
-X-Google-Smtp-Source: ABdhPJxCSWMw/Pmp/yjU4TSydTB3KBQBSbZqHg12jWGmP+MTxJedaxk5xTCPwXKuglS2CpVMYqfUlQ==
-X-Received: by 2002:a62:8349:0:b0:518:143e:235c with SMTP id h70-20020a628349000000b00518143e235cmr13565092pfe.82.1653118818520;
-        Sat, 21 May 2022 00:40:18 -0700 (PDT)
-Received: from localhost (searspoint.nvidia.com. [216.228.112.21])
-        by smtp.gmail.com with ESMTPSA id e9-20020a654789000000b003ed6b3dc52esm887826pgs.55.2022.05.21.00.40.17
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version;
+        bh=6xjjxCPsshHoGVKLB5r3oHbwMZn1xq0/B2U9BnnWFDI=;
+        b=teoYHX+W3jLPfTYXrOznIQayj+DnX5kVEoeWuPLwTof7sVYdRN8o543ZiSEs/l/Mcz
+         m3su1gpB7CR/LDhUnX1LRLhlLvLpCHm6bmAL40x+FsHn7Q3ltIsFkgDqWOtGXCr3pMUT
+         4RI21W0JeRnI9gobjyIUGxzjPLeCdPNCd4ZzeQppM0RFMeGxPcqujaUAG8xHkOvVhlt1
+         hkiTzr92pQyhj5BI3OrBDK7eHw8xf1xIXhgCt4crodKlTSw/JhPUAb5zV+bUPqVUEUIq
+         Hu52eBuGbmGLid2i91zkphqsabER2BBs9z14DwcKCKQZdApSdzsRPUbQ5s2GR+Co+9eD
+         Fu9Q==
+X-Gm-Message-State: AOAM530NUZwXbLPFvGMLgeHOQmuGM4FmO6A3xAN9JzLfFkvtTEgyMxRP
+        W+JhB4CVvrlTPUR38UuGHYWKz3F9rFM3dQ/eEWPyY3XM65O4ypR3YWyLgk/ElJvoUgPuHCBgtcC
+        DB3ZQKjXjULd8qAv9/OUzA7S00vXTl8xWYIK6I4M=
+X-Received: by 2002:a5d:4d84:0:b0:20d:1172:a240 with SMTP id b4-20020a5d4d84000000b0020d1172a240mr11726775wru.120.1653129310282;
+        Sat, 21 May 2022 03:35:10 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwBgBLS2cEjr1e6IYas7V8FfDppzGWitFscKU8UGBaE/z0v10um6PXd5yGUyEWxoglvxr63ww==
+X-Received: by 2002:a5d:4d84:0:b0:20d:1172:a240 with SMTP id b4-20020a5d4d84000000b0020d1172a240mr11726766wru.120.1653129310102;
+        Sat, 21 May 2022 03:35:10 -0700 (PDT)
+Received: from smeagol (mob-194-230-144-64.cgn.sunrise.net. [194.230.144.64])
+        by smtp.gmail.com with ESMTPSA id u9-20020adfb209000000b0020c5253d925sm4793422wra.113.2022.05.21.03.35.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 21 May 2022 00:40:17 -0700 (PDT)
-Date:   Sat, 21 May 2022 00:38:05 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH 3/5] lib/bitmap: add test for bitmap_{from,to}_arr64
-Message-ID: <YoiW3R0nsC71hlFm@yury-laptop>
-References: <20220428205116.861003-1-yury.norov@gmail.com>
- <20220428205116.861003-4-yury.norov@gmail.com>
- <20220519150929.GA3145933@roeck-us.net>
+        Sat, 21 May 2022 03:35:08 -0700 (PDT)
+From:   Juerg Haefliger <juerg.haefliger@canonical.com>
+X-Google-Original-From: Juerg Haefliger <juergh@canonical.com>
+Date:   Sat, 21 May 2022 12:35:03 +0200
+To:     Joe Perches <joe@perches.com>
+Cc:     Juerg Haefliger <juerg.haefliger@canonical.com>, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] s390: Kconfig: Fix indentation and add comments
+Message-ID: <20220521123503.03da61da@smeagol>
+In-Reply-To: <8d86b87edc9c9fa33b6a18fac8b160ee56e6a07c.camel@perches.com>
+References: <20220520115708.147841-1-juergh@canonical.com>
+        <20220520115708.147841-2-juergh@canonical.com>
+        <8d86b87edc9c9fa33b6a18fac8b160ee56e6a07c.camel@perches.com>
+Organization: Canonical Ltd
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220519150929.GA3145933@roeck-us.net>
+Content-Type: multipart/signed; boundary="Sig_/7C=1PIYdh2C/CG8EBl=OCo/";
+ protocol="application/pgp-signature"; micalg=pgp-sha512
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 19, 2022 at 08:09:29AM -0700, Guenter Roeck wrote:
-> On Thu, Apr 28, 2022 at 01:51:14PM -0700, Yury Norov wrote:
-> > Test newly added bitmap_{from,to}_arr64() functions similarly to
-> > already existing bitmap_{from,to}_arr32() tests.
-> > 
-> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> 
-> With this patch in linux-next (including next-20220519), I see lots of
-> bitmap test errors when booting 32-bit ppc images in qemu. Examples:
-> 
-> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0", got "0,65"
-> ...
-> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65", got "0,65,128"
-> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65", got "0,65,128-129"
-> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65", got "0,65,128-130"
-> ...
-> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65,128-143", got "0,65,128-143,208-209"
-> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65,128-143", got "0,65,128-143,208-210"
-> 
-> and so on. It only  gets worse from there, and ends with:
-> 
-> test_bitmap: parselist: 14: input is '0-2047:128/256' OK, Time: 4274
-> test_bitmap: bitmap_print_to_pagebuf: input is '0-32767
-> ', Time: 127267
-> test_bitmap: failed 337 out of 3801 tests
-> 
-> Other architectures and 64-bit ppc builds seem to be fine. 
+--Sig_/7C=1PIYdh2C/CG8EBl=OCo/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-So, the problem is in previous patch. I'll fold-in the following fix
-into that if no objections.
+On Fri, 20 May 2022 10:15:38 -0700
+Joe Perches <joe@perches.com> wrote:
 
-diff --git a/lib/bitmap.c b/lib/bitmap.c
-index 52b9912a71ea..97c14845f452 100644
---- a/lib/bitmap.c
-+++ b/lib/bitmap.c
-@@ -1585,7 +1585,7 @@ void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
+> On Fri, 2022-05-20 at 13:57 +0200, Juerg Haefliger wrote:
+> > The convention for indentation seems to be a single tab. Help text is
+> > further indented by an additional two whitespaces. Fix the lines that
+> > violate these rules.
+> >=20
+> > While add it, add trailing comments to endmenu statements for better
+> > readability. =20
+> []
+> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig =20
+> []
+> > @@ -607,7 +607,7 @@ config RANDOMIZE_BASE
+> >  	  as a security feature that deters exploit attempts relying on
+> >  	  knowledge of the location of kernel internals.
+> > =20
+> > -endmenu
+> > +endmenu # "Processor type and features" =20
+>=20
+> An endmenu comment is relatively unusual.
+>=20
+> $ git grep '^endmenu' -- '*/Kconfig*' | wc -l
+> 394
+> $ git grep '^endmenu.*#' -- '*/Kconfig*' | wc -l
+> 20
+>=20
+> I believe it doesn't really help readability.
 
-        /* Clear tail bits in the last element of array beyond nbits. */
-        if (nbits % 64)
--               buf[-1] &= GENMASK_ULL(nbits, 0);
-+               buf[-1] &= GENMASK_ULL(nbits % 64, 0);
- }
- EXPORT_SYMBOL(bitmap_to_arr64);
- #endif
+Thanks for the review. Will send a v2 without that.
 
+...Juerg
+
+>=20
+
+
+--Sig_/7C=1PIYdh2C/CG8EBl=OCo/
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEhZfU96IuprviLdeLD9OLCQumQrcFAmKIwFcACgkQD9OLCQum
+QrfWSA/+LdHqfqWlzjHR038R4bbraz22SBsGuI4mCpDwU3gLzOKSbwxCyIr+0kG7
+Ox6xDZnClHNHrQG8r+CmPYVY40Pla9Ta6E9oDouRe0m5hcpIoMmj3fD6K7q+b6PZ
+3QKw6t2XIAYSfpvSkiStHRewjXc/R2wmaGuIqIFKZda6KTOKiHUBmlNUYKAsnBoR
+C4CmUeCB+ky6ij6dZYYXEIxDl8ZBZnMGn938BJ2dHBu9cj7FcJyAik7v3Uc+a7RH
+11RQGDqbRcHGGEC1woxv0oaZWwHzdcFumQy+hv1sbLmKGBHStXFRdoUF4NHiAYH3
+3WrLE024lwnR8/ZpdClbvH661mWKY6ilNRGVMbDQ/4w9Pf5bXGFYrB2vIdK4aySr
+5PIckHP5J0e2DYePlbdZabXXG71gs+yOOZ5kqA0Gv7PXpiaX53Vexop41v2e6b7y
+4KpZ7mKiR+BopKxaT9/rKKilzByZc+wzg2oM+V/9gjHRnI9mbGAex1FG/hZGAKpk
+0YGkf/X7edMx8fpotNtHB50F4twz3RBol2IFrh3fy1Nux17tCOShedUz9xKzkjes
+iig6OdEji4uy3D+q0jwc+6HGtjMPVwze8y0kpZez5oZkqsGku6SjB/GiI+DV4zBf
+5YtnG/VF+WA3LA6OKVdEaTyUoYQZ7zGP+bbMwG6pnEaNjo51QWw=
+=Kwnk
+-----END PGP SIGNATURE-----
+
+--Sig_/7C=1PIYdh2C/CG8EBl=OCo/--
