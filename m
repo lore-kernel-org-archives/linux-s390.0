@@ -2,183 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CBB8C433FE
-	for <linux-s390@archiver.kernel.org>; Sat, 21 May 2022 00:16:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66BBAC433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 21 May 2022 07:40:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354190AbiEUAQe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 May 2022 20:16:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60096 "EHLO
+        id S241818AbiEUHk0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 21 May 2022 03:40:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237832AbiEUAQd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 May 2022 20:16:33 -0400
-Received: from mail-yw1-x1130.google.com (mail-yw1-x1130.google.com [IPv6:2607:f8b0:4864:20::1130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E838C15A3FE
-        for <linux-s390@vger.kernel.org>; Fri, 20 May 2022 17:16:31 -0700 (PDT)
-Received: by mail-yw1-x1130.google.com with SMTP id 00721157ae682-2ff39b44b06so101667257b3.13
-        for <linux-s390@vger.kernel.org>; Fri, 20 May 2022 17:16:31 -0700 (PDT)
+        with ESMTP id S232064AbiEUHkZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 May 2022 03:40:25 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C4917D39F;
+        Sat, 21 May 2022 00:40:19 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id y41so9451809pfw.12;
+        Sat, 21 May 2022 00:40:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HMCB35Do4nxxJ5Deq7wXwHlJ7AFN2mSTmdz2CZTa0iA=;
-        b=NvEmPTccbXf/sm9VcR2JuXFNK+QOaXohjlLZE5gY0Tji0R59S3gNFYNqP5NKdemCbI
-         AXxHxvIQXgoHZKwOD0aSvd8yi/ia1ORjeMkBSAg0HvrzTeGRoyBge7DJC+mUTdpeVAYZ
-         +4nv6Z+Copf8E3yLYT2iITd/X7EVZ04k+gb57KzXUi3o/EHGsYrEUVcVmjn+nkNZ6Da+
-         skQUS0RdIFyeIFL+Yle2y5GRLCBHqZZOP5XevwC+0xFbCnxGcBFpA1vV14beBv1Up8Yu
-         pZjQ7FuclE5eCiQVB/BJk93rqcFhNqOH4cF5CZfPLUf+mWMG2m0AyceY7mD9a8PdgVwQ
-         Hh+A==
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=yXgvzw1X7R3HihF3IFI7HYdhqndiCIe6AuxGQb67yKc=;
+        b=ePPKvV82Kbx+Rtc5FoK/l+sEPohtrVvNDLK1QXehdRSaZnX8mpyqocpvwr2QsGdWJ5
+         bLQ4ROLDowWcMCZ7CiGYtGgFFQgEdrFrGAvnoOGeKTLU9SETat+F4eINdzD1AjI1jP6q
+         L/uJCTXtPvvvMc07rxyhgn2630pKyn8P9J5qJpKhJckR/mWyMWwWSogoQOrgxVYFoEPS
+         jO/ucBwvw1bPtsZPzQCUP0q3axJvkQ609soFg7SljsJgNtGfwB9Xo3O43njj4LfEG09X
+         8Pu1N9GP+SDyemv9PhvrmlBpb9r5nYPsWCLzx4roLuXNY318xpfnOeG1LxP44cVTMnqY
+         waBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=HMCB35Do4nxxJ5Deq7wXwHlJ7AFN2mSTmdz2CZTa0iA=;
-        b=MwU6hSSndkKrCHGb70TVNHHc7iVEyC5e5FqT+Mgva2N2s8v6UI/mqrbw/Zt4HPLgnJ
-         dRKit85m6f4FbaGuVFXButE2ku0TGmV9iS59VywA17ARbBqsA+s1Yv6bUcXgmTQiZu2w
-         u6rqy9mGWWXqLUPIcFhkQVxXZko4O55DfDOmcqLbzpkxhesPMxRJzo3Jegf9zmNXTnt3
-         Z2l3IxqnjfphmNHm0E2c46lbJQeaZgv7gRxg5GJWIxbfkbemqFXzCtHERnyvisI5MHac
-         3crJNr2jgK76ohmZg9da8bs8vNitlhb6zFzMtIOGfC8e07EQdHLhoBOIo9WDVaxdopAM
-         Fcxg==
-X-Gm-Message-State: AOAM532yKKpqBqVHdWZyXshFPe69c3AIge/ZgCEKjCWV3v3xPNHA54qF
-        s8UcIZfNIJNg0pAbCEsmL/kEys1HTZwBj/DcvZWj6Q==
-X-Google-Smtp-Source: ABdhPJzhnzpqOdgZiqzgNB98UYPOQpFUnarclYeZ96Ou9b+bvQZLF3CorJ9d+9aIjLP2AQ21QaUu7p6eQ3dAVJoU0io=
-X-Received: by 2002:a81:2154:0:b0:2f4:d79e:35dc with SMTP id
- h81-20020a812154000000b002f4d79e35dcmr13210290ywh.126.1653092191044; Fri, 20
- May 2022 17:16:31 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=yXgvzw1X7R3HihF3IFI7HYdhqndiCIe6AuxGQb67yKc=;
+        b=lVp4kAF7uDuZ8EiUc1yoLyAydBn4SLJJDa1zV3Sj3i/up2qZkm6/Yr+AghxSkq0hVT
+         8clIEZM9958jY3iQ9W/02SNqtUI8RUeYoZGEB+MFfwI6sAEGTKrLZ/HGLOGhkf8nk8WG
+         BA6M+FBmcuYreO65SUph0BDid7eEgGanH2Ll5aP284176+BLP9KyJ9ioskkQZ7rBGDMu
+         ngyGxxwT18m4x6P86aTv9C9E8Fdyl2fD1d6XXcNWlPeMk9GmafK1+DJYA+ghOq9b10EJ
+         x09hEFvMrY0Axf/sXHc7Jp1ahGddXXZrm7hNdX6gwp2NuEwv2PALSMh7uEgfPzTYwsLi
+         aYSQ==
+X-Gm-Message-State: AOAM532V/EXRachEh3IDIZ5h6vzO+DkXOfYVEMeRldlOwzPm77w8T+J9
+        O40w5UrXTJt0Akg3ywn+m9E=
+X-Google-Smtp-Source: ABdhPJxCSWMw/Pmp/yjU4TSydTB3KBQBSbZqHg12jWGmP+MTxJedaxk5xTCPwXKuglS2CpVMYqfUlQ==
+X-Received: by 2002:a62:8349:0:b0:518:143e:235c with SMTP id h70-20020a628349000000b00518143e235cmr13565092pfe.82.1653118818520;
+        Sat, 21 May 2022 00:40:18 -0700 (PDT)
+Received: from localhost (searspoint.nvidia.com. [216.228.112.21])
+        by smtp.gmail.com with ESMTPSA id e9-20020a654789000000b003ed6b3dc52esm887826pgs.55.2022.05.21.00.40.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 21 May 2022 00:40:17 -0700 (PDT)
+Date:   Sat, 21 May 2022 00:38:05 -0700
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH 3/5] lib/bitmap: add test for bitmap_{from,to}_arr64
+Message-ID: <YoiW3R0nsC71hlFm@yury-laptop>
+References: <20220428205116.861003-1-yury.norov@gmail.com>
+ <20220428205116.861003-4-yury.norov@gmail.com>
+ <20220519150929.GA3145933@roeck-us.net>
 MIME-Version: 1.0
-References: <20220429220933.1350374-1-saravanak@google.com>
- <YogkhvFGVcjNQ21Z@dev-arch.thelio-3990X> <CAGETcx9nvBs1b4M=2hBhrLX_2-rzLtAmV9WfTXu0MC7JnsBvwA@mail.gmail.com>
- <YogsiMCDupNUhMgL@dev-fedora.thelio-3990X>
-In-Reply-To: <YogsiMCDupNUhMgL@dev-fedora.thelio-3990X>
-From:   Saravana Kannan <saravanak@google.com>
-Date:   Fri, 20 May 2022 17:15:55 -0700
-Message-ID: <CAGETcx-JyWwoGA3o8eep7E29Cm4DcVT6D1JFJh72jLcqm_mjCQ@mail.gmail.com>
-Subject: Re: [PATCH v1] driver core: Extend deferred probe timeout on driver registration
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Jonathan Corbet <corbet@lwn.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Rob Herring <robh@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Will Deacon <will@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Kevin Hilman <khilman@kernel.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Mark Brown <broonie@kernel.org>, Pavel Machek <pavel@ucw.cz>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kernel-team@android.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220519150929.GA3145933@roeck-us.net>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, May 20, 2022 at 5:04 PM Nathan Chancellor <nathan@kernel.org> wrote:
->
-> On Fri, May 20, 2022 at 04:49:48PM -0700, Saravana Kannan wrote:
-> > On Fri, May 20, 2022 at 4:30 PM Nathan Chancellor <nathan@kernel.org> wrote:
-> > >
-> > > Hi Saravana,
-> > >
-> > > On Fri, Apr 29, 2022 at 03:09:32PM -0700, Saravana Kannan wrote:
-> > > > The deferred probe timer that's used for this currently starts at
-> > > > late_initcall and runs for driver_deferred_probe_timeout seconds. The
-> > > > assumption being that all available drivers would be loaded and
-> > > > registered before the timer expires. This means, the
-> > > > driver_deferred_probe_timeout has to be pretty large for it to cover the
-> > > > worst case. But if we set the default value for it to cover the worst
-> > > > case, it would significantly slow down the average case. For this
-> > > > reason, the default value is set to 0.
-> > > >
-> > > > Also, with CONFIG_MODULES=y and the current default values of
-> > > > driver_deferred_probe_timeout=0 and fw_devlink=on, devices with missing
-> > > > drivers will cause their consumer devices to always defer their probes.
-> > > > This is because device links created by fw_devlink defer the probe even
-> > > > before the consumer driver's probe() is called.
-> > > >
-> > > > Instead of a fixed timeout, if we extend an unexpired deferred probe
-> > > > timer on every successful driver registration, with the expectation more
-> > > > modules would be loaded in the near future, then the default value of
-> > > > driver_deferred_probe_timeout only needs to be as long as the worst case
-> > > > time difference between two consecutive module loads.
-> > > >
-> > > > So let's implement that and set the default value to 10 seconds when
-> > > > CONFIG_MODULES=y.
-> > > >
-> > > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> > > > Cc: Rob Herring <robh@kernel.org>
-> > > > Cc: Linus Walleij <linus.walleij@linaro.org>
-> > > > Cc: Will Deacon <will@kernel.org>
-> > > > Cc: Ulf Hansson <ulf.hansson@linaro.org>
-> > > > Cc: Kevin Hilman <khilman@kernel.org>
-> > > > Cc: Thierry Reding <treding@nvidia.com>
-> > > > Cc: Mark Brown <broonie@kernel.org>
-> > > > Cc: Pavel Machek <pavel@ucw.cz>
-> > > > Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> > > > Cc: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-> > > > Cc: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-> > > > Cc: linux-gpio@vger.kernel.org
-> > > > Cc: linux-pm@vger.kernel.org
-> > > > Cc: iommu@lists.linux-foundation.org
-> > > > Signed-off-by: Saravana Kannan <saravanak@google.com>
-> > >
-> > > I bisected a boot hang with ARCH=s390 defconfig in QEMU down to this
-> > > change as commit 2b28a1a84a0e ("driver core: Extend deferred probe
-> > > timeout on driver registration") in next-20220520 (bisect log below).
-> > >
-> > > $ make -skj"$(nproc)" ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- defconfig bzImage
-> > >
-> > > $ timeout --foreground 15m stdbuf -oL -eL \
-> > > qemu-system-s390x \
-> > > -initrd ... \
-> > > -M s390-ccw-virtio \
-> > > -display none \
-> > > -kernel arch/s390/boot/bzImage \
-> > > -m 512m \
-> > > -nodefaults \
-> > > -serial mon:stdio
-> > > ...
-> > > [    2.077303] In-situ OAM (IOAM) with IPv6
-> > > [    2.077639] NET: Registered PF_PACKET protocol family
-> > > [    2.078063] bridge: filtering via arp/ip/ip6tables is no longer available by default. Update your scripts to load br_netfilter if you need this.
-> > > [    2.078795] Key type dns_resolver registered
-> > > [    2.079317] cio: Channel measurement facility initialized using format extended (mode autodetected)
-> > > [    2.081494] Discipline DIAG cannot be used without z/VM
-> > > [  260.626363] random: crng init done
-> > > qemu-system-s390x: terminating on signal 15 from pid 3815762 (timeout)
-> > >
-> > > We have a simple rootfs available if necessary:
-> > >
-> > > https://github.com/ClangBuiltLinux/boot-utils/raw/bc0d17785eb67f1edd0ee0a134970a807895f741/images/s390/rootfs.cpio.zst
-> > >
-> > > If there is any other information I can provide, please let me know!
-> >
-> > Hmm... strange. Can you please try the following command line options
-> > and tell me which of these has the issue and which don't?
->
-> Sure thing!
->
-> > 1) deferred_probe_timeout=0
->
-> No issue.
->
-> > 2) deferred_probe_timeout=1
-> > 3) deferred_probe_timeout=300
->
-> Both of these appear to hang in the same way, I let each sit for five
-> minutes.
+On Thu, May 19, 2022 at 08:09:29AM -0700, Guenter Roeck wrote:
+> On Thu, Apr 28, 2022 at 01:51:14PM -0700, Yury Norov wrote:
+> > Test newly added bitmap_{from,to}_arr64() functions similarly to
+> > already existing bitmap_{from,to}_arr32() tests.
+> > 
+> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
+> 
+> With this patch in linux-next (including next-20220519), I see lots of
+> bitmap test errors when booting 32-bit ppc images in qemu. Examples:
+> 
+> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0", got "0,65"
+> ...
+> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65", got "0,65,128"
+> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65", got "0,65,128-129"
+> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65", got "0,65,128-130"
+> ...
+> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65,128-143", got "0,65,128-143,208-209"
+> test_bitmap: [lib/test_bitmap.c:600] bitmaps contents differ: expected "0,65,128-143", got "0,65,128-143,208-210"
+> 
+> and so on. It only  gets worse from there, and ends with:
+> 
+> test_bitmap: parselist: 14: input is '0-2047:128/256' OK, Time: 4274
+> test_bitmap: bitmap_print_to_pagebuf: input is '0-32767
+> ', Time: 127267
+> test_bitmap: failed 337 out of 3801 tests
+> 
+> Other architectures and 64-bit ppc builds seem to be fine. 
 
-Strange that a sufficiently large timeout isn't helping. Is it trying
-to boot off a network mount? I'll continue looking into this next
-week.
+So, the problem is in previous patch. I'll fold-in the following fix
+into that if no objections.
 
--Saravana
+diff --git a/lib/bitmap.c b/lib/bitmap.c
+index 52b9912a71ea..97c14845f452 100644
+--- a/lib/bitmap.c
++++ b/lib/bitmap.c
+@@ -1585,7 +1585,7 @@ void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
 
->
-> Cheers,
-> Nathan
+        /* Clear tail bits in the last element of array beyond nbits. */
+        if (nbits % 64)
+-               buf[-1] &= GENMASK_ULL(nbits, 0);
++               buf[-1] &= GENMASK_ULL(nbits % 64, 0);
+ }
+ EXPORT_SYMBOL(bitmap_to_arr64);
+ #endif
+
