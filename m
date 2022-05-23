@@ -2,81 +2,89 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EE43C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 18:46:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F072C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 19:32:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242757AbiEWSql (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 May 2022 14:46:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34560 "EHLO
+        id S230098AbiEWTch (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 May 2022 15:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244530AbiEWSqb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 14:46:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 795D513CA2F;
-        Mon, 23 May 2022 11:30:19 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD22360EFA;
-        Mon, 23 May 2022 18:30:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 38C7AC34115;
-        Mon, 23 May 2022 18:30:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653330612;
-        bh=ldOlWU/sFDboKzmSs2d15K53+qfF7cRhmm/mXvh/rH4=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=Ey7e5Yb2SkWigE4SiYIlvfA9d4Q/dUbfry7ImvbBATUbnZivHqkD/GOKxLFqH2wmG
-         2XbvzGk4o4eAIYikpcyzZDZMH/VY+H6Bk0U5uroOp7Vn80vKRNA0aCTx9mYhu2iLac
-         of6IP3Mgf9HADdaeTFNFLG5zf5GK+arTr1joGsGTaSRX0UT5U2WPigwnoOyXlZ6bUP
-         a49hPu0PgapzMjNEJRik0aSdSGAVmkYtnfJMmQfWcCgSjY4MvNO9kcx3HoGwJzEj7e
-         c26vqOosvSu+VCrChn8V/08rdVUjbhcye/r1l0oTW0XGvaTd11SNqWR4djFOazLdxY
-         mU0guJE1SSiSw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 188C7F03935;
-        Mon, 23 May 2022 18:30:12 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230297AbiEWTbt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 15:31:49 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C3EB59157F
+        for <linux-s390@vger.kernel.org>; Mon, 23 May 2022 12:15:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1653333325;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=k/0kz+ejxdczhCliiE6lC8QVlLMBxfRksui59KA65qM=;
+        b=ghjL8dJL9ZbzcCvAUvsdbRACzFhnJffgkeMFEb+STnm97fZsziW/uniV90CIR7fyReI/r1
+        72O1AtruJoyMUhnAOjF7qIxXnR3D+pMWnJExDfdkch+m4ZY3bjpiyXUE2tGV4PisSYgDH8
+        XwV2sV0viaMZxypyMR5k3D3lxfuHCME=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-453-yuQtKMYMPF--uQgpBEvwnA-1; Mon, 23 May 2022 15:15:24 -0400
+X-MC-Unique: yuQtKMYMPF--uQgpBEvwnA-1
+Received: by mail-ej1-f72.google.com with SMTP id gh15-20020a170906e08f00b006fea2a22319so4036227ejb.20
+        for <linux-s390@vger.kernel.org>; Mon, 23 May 2022 12:15:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=k/0kz+ejxdczhCliiE6lC8QVlLMBxfRksui59KA65qM=;
+        b=h0yxYQZqDv1ZrqF8iuwJaZOmt1bmbcxOTsoKUGj9aoSI7yxs7vuQvh1Fi+Clvjlxfw
+         5A9u2J1b5QAvLx8X4CG9Ap6OFwqQ4a86+e7Nz4UtM/169TrZ2FXFJfb5uyKlRhYv57iQ
+         K5bc19bKWDqkflfnpjUFzrbOmx/R9IVQhGw1Vg2SquKM+wYHygo4w0Lif9G0hBVTAMxk
+         aIV6OA3r5pmQioxkN+gjPaahAmwNy5DiOb0E5eqVGodCSXIQnfJ1q1ERy6F/81nLEBFt
+         MrchMU5iUKZrf2vzz2hF/iO7rL6VNMlDK/fPiXWJqxjdoFWI+qjXwWFWg28+uXiMipQI
+         sePw==
+X-Gm-Message-State: AOAM533MJd4MtoruqKL1fW40rW0BnNM+re798P2sbXxA/WHpMXQxYAYF
+        pej2scEOh1twkqxYRdcYthu1pl+zjT0Vxdjsu0u+dWRAQqgNF00LMKd0aLbmi4ESof6X5xWydBN
+        dSyl+XUpKFA7MZOwGTt29gw==
+X-Received: by 2002:a17:907:6d15:b0:6fd:d985:889b with SMTP id sa21-20020a1709076d1500b006fdd985889bmr21549077ejc.753.1653333323221;
+        Mon, 23 May 2022 12:15:23 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxgkCPhcAB33EYPZ90yGnEhKwoYAq64BHcNEOKNWqNDyz59/iBOtrFdjzxw5hQFuZHG1dBu+g==
+X-Received: by 2002:a17:907:6d15:b0:6fd:d985:889b with SMTP id sa21-20020a1709076d1500b006fdd985889bmr21549058ejc.753.1653333323039;
+        Mon, 23 May 2022 12:15:23 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
+        by smtp.googlemail.com with ESMTPSA id c21-20020aa7c995000000b0042aaacd4edasm8624567edt.26.2022.05.23.12.15.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 May 2022 12:15:22 -0700 (PDT)
+Message-ID: <a1d7d9f9-bb9d-1b98-a073-85d835be0341@redhat.com>
+Date:   Mon, 23 May 2022 21:15:19 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH] s390/bpf: fix typo in comment
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <165333061209.5065.9063882337989202641.git-patchwork-notify@kernel.org>
-Date:   Mon, 23 May 2022 18:30:12 +0000
-References: <20220521111145.81697-84-Julia.Lawall@inria.fr>
-In-Reply-To: <20220521111145.81697-84-Julia.Lawall@inria.fr>
-To:     Julia Lawall <julia.lawall@inria.fr>
-Cc:     iii@linux.ibm.com, kernel-janitors@vger.kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
-        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
-        kpsingh@kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [GIT PULL 0/4] KVM: s390: Fix and feature for 5.19
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+References: <20220523095625.13913-1-borntraeger@linux.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20220523095625.13913-1-borntraeger@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+On 5/23/22 11:56, Christian Borntraeger wrote:
+>    git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.19-1
 
-This patch was applied to bpf/bpf-next.git (master)
-by Andrii Nakryiko <andrii@kernel.org>:
+Pulled, thanks.
 
-On Sat, 21 May 2022 13:11:34 +0200 you wrote:
-> Spelling mistake (triple letters) in comment.
-> Detected with the help of Coccinelle.
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-> 
-> ---
->  arch/s390/net/bpf_jit_comp.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-
-Here is the summary with links:
-  - s390/bpf: fix typo in comment
-    https://git.kernel.org/bpf/bpf-next/c/ff2095976ca8
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+Paolo
 
