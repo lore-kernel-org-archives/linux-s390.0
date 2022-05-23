@@ -2,74 +2,92 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 745CCC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 20:08:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CB05C4167B
+	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 20:41:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232335AbiEWUIw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 May 2022 16:08:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37948 "EHLO
+        id S233151AbiEWUlN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 May 2022 16:41:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232362AbiEWUIv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 16:08:51 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E03F980BA;
-        Mon, 23 May 2022 13:08:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description;
-        bh=Ro7WGsVUuxCOeDrWNgjM+lNVv7dX3AAFuu5yPbLuSWE=; b=mxa1UsCgTepiNnJQtOaoPD2lkR
-        uUkPb2ehCURC1r8VNigD58lSgad6dPH5mlsHRMibm3rxfE2Rud6fkebWxcgAMddMkzK8551j6whiW
-        LuXcA3z6NzvyHvsYctJtzsmObRuuPoCV09UtRbnbCXRypgXNjViyONrpi+qFlK+/nxwiFQy2IC50u
-        DY6exdGA+F8VYy5Aj9FsPxisn9LvN2TfNjinK4wc6ANuACQ3RyxmJiBF/70Sl5miLWcVD0MuA4MCY
-        IDzeU6kKqy521/8Ts3inwYs46FYP7C+J/qKi6unFhktlyKDQxUbR7zRKCmokQN4Of1H8LeNJi67Ck
-        9qHt4sqg==;
-Received: from [2601:1c0:6280:3f0::aa0b]
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ntEMA-00GVTA-Fu; Mon, 23 May 2022 20:08:47 +0000
-Message-ID: <c7449167-b6fe-02b7-9cf4-0a4a2a8fab39@infradead.org>
-Date:   Mon, 23 May 2022 13:08:42 -0700
+        with ESMTP id S233175AbiEWUlD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 16:41:03 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE309C3F;
+        Mon, 23 May 2022 13:41:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=LG2HkLvcft3PZ/5y+RaNtcoQpztQykGkc8EQp8pxJfI=; b=fPCMiuZns16FgBzoGF9Je3OLkO
+        LL4L2QHAG/wGtiXgEhS21zRsWqE1LMzGwwDxe6f9KpfZaY9eV7CGD4vwhcqTRNInSSR1HDaLnpPpS
+        miMpU8/+9j0GmfawjCEu88Tqk7uAI9V6UbtlRLQsT2Paj7KpRr9Eexx/1nt9uyC0/PRdqZ6qso//5
+        331flFwFw5rYDxq1lD4s7YGntuImz8x8p2XDCS463SY8sQhksTBKudAp4pKnME8DpTbZ4fGAvbQxT
+        wafY442u8mSqR6x/cwniP7CEUq4fd8W+eVImWzP4xrptC52doj1jXiLwbdsJQSnWbw0nF1P7Xd8f/
+        wPYC4mSw==;
+Received: from 200-161-159-120.dsl.telesp.net.br ([200.161.159.120] helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1ntEr0-00Gje9-7b; Mon, 23 May 2022 22:40:38 +0200
+Message-ID: <0dda86c0-3a54-8c70-d1e7-18bbb4d41bab@igalia.com>
+Date:   Mon, 23 May 2022 17:40:07 -0300
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.9.0
-Subject: Re: [PATCH] s390/uv_uapi: depend on CONFIG_S390
+Subject: Re: [PATCH 12/30] parisc: Replace regular spinlock with spin_trylock
+ on panic path
 Content-Language: en-US
-To:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-References: <20220523192420.151184-1-pbonzini@redhat.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <20220523192420.151184-1-pbonzini@redhat.com>
+To:     Helge Deller <deller@gmx.de>
+Cc:     linux-kernel@vger.kernel.org, kexec@lists.infradead.org,
+        pmladek@suse.com, bhe@redhat.com, akpm@linux-foundation.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-13-gpiccoli@igalia.com>
+ <6a7c924a-54a9-c5ea-8a9d-3ea92987b436@gmx.de>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <6a7c924a-54a9-c5ea-8a9d-3ea92987b436@gmx.de>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 5/23/22 12:24, Paolo Bonzini wrote:
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  drivers/s390/char/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
+On 28/04/2022 13:55, Helge Deller wrote:
+> [...]
+> You may add:
+> Acked-by: Helge Deller <deller@gmx.de> # parisc
 > 
-> diff --git a/drivers/s390/char/Kconfig b/drivers/s390/char/Kconfig
-> index ef8f41833c1a..108e8eb06249 100644
-> --- a/drivers/s390/char/Kconfig
-> +++ b/drivers/s390/char/Kconfig
-> @@ -103,6 +103,7 @@ config SCLP_OFB
->  config S390_UV_UAPI
->  	def_tristate m
->  	prompt "Ultravisor userspace API"
-> +        depends on S390
+> Helge
 
-Please use a tab for indentation instead of spaces.
+Hi Helge, do you think would be possible to still pick this one for
+v5.19 or do you prefer to hold for the next release?
 
->  	help
->  	  Selecting exposes parts of the UV interface to userspace
->  	  by providing a misc character device at /dev/uv.
+I'm working on V2, so if it's merged for 5.19 I won't send it again.
+Thanks,
 
--- 
-~Randy
+
+Guilherme
