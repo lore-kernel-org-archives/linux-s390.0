@@ -2,89 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F072C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 19:32:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF3C2C4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 19:43:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230098AbiEWTch (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 May 2022 15:32:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
+        id S229645AbiEWTnT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 May 2022 15:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230297AbiEWTbt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 15:31:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C3EB59157F
-        for <linux-s390@vger.kernel.org>; Mon, 23 May 2022 12:15:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1653333325;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=k/0kz+ejxdczhCliiE6lC8QVlLMBxfRksui59KA65qM=;
-        b=ghjL8dJL9ZbzcCvAUvsdbRACzFhnJffgkeMFEb+STnm97fZsziW/uniV90CIR7fyReI/r1
-        72O1AtruJoyMUhnAOjF7qIxXnR3D+pMWnJExDfdkch+m4ZY3bjpiyXUE2tGV4PisSYgDH8
-        XwV2sV0viaMZxypyMR5k3D3lxfuHCME=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-453-yuQtKMYMPF--uQgpBEvwnA-1; Mon, 23 May 2022 15:15:24 -0400
-X-MC-Unique: yuQtKMYMPF--uQgpBEvwnA-1
-Received: by mail-ej1-f72.google.com with SMTP id gh15-20020a170906e08f00b006fea2a22319so4036227ejb.20
-        for <linux-s390@vger.kernel.org>; Mon, 23 May 2022 12:15:24 -0700 (PDT)
+        with ESMTP id S234009AbiEWTmU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 15:42:20 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D65F711C03
+        for <linux-s390@vger.kernel.org>; Mon, 23 May 2022 12:39:15 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id b5so6949752plx.10
+        for <linux-s390@vger.kernel.org>; Mon, 23 May 2022 12:39:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=9i0mf5EWjId+dJhDG42zI0t8gO1U5xR/fPTtg8h/guQ=;
+        b=G67mgEOcbKAzzfRqWT2tyqM6K9pitcq9pbTVcwT0LjmKZNi0oiqVsX8V97hEFwl2hf
+         AMnpF3tfbp0thJvNCE4CX5dI4O8ELTGwmxs1K5fhCNP737yCqZGbfIr/xW9c33Xf+LOK
+         scdJ+18kS7hWnfRSUS9ItgijmeteaopgZF3uU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=k/0kz+ejxdczhCliiE6lC8QVlLMBxfRksui59KA65qM=;
-        b=h0yxYQZqDv1ZrqF8iuwJaZOmt1bmbcxOTsoKUGj9aoSI7yxs7vuQvh1Fi+Clvjlxfw
-         5A9u2J1b5QAvLx8X4CG9Ap6OFwqQ4a86+e7Nz4UtM/169TrZ2FXFJfb5uyKlRhYv57iQ
-         K5bc19bKWDqkflfnpjUFzrbOmx/R9IVQhGw1Vg2SquKM+wYHygo4w0Lif9G0hBVTAMxk
-         aIV6OA3r5pmQioxkN+gjPaahAmwNy5DiOb0E5eqVGodCSXIQnfJ1q1ERy6F/81nLEBFt
-         MrchMU5iUKZrf2vzz2hF/iO7rL6VNMlDK/fPiXWJqxjdoFWI+qjXwWFWg28+uXiMipQI
-         sePw==
-X-Gm-Message-State: AOAM533MJd4MtoruqKL1fW40rW0BnNM+re798P2sbXxA/WHpMXQxYAYF
-        pej2scEOh1twkqxYRdcYthu1pl+zjT0Vxdjsu0u+dWRAQqgNF00LMKd0aLbmi4ESof6X5xWydBN
-        dSyl+XUpKFA7MZOwGTt29gw==
-X-Received: by 2002:a17:907:6d15:b0:6fd:d985:889b with SMTP id sa21-20020a1709076d1500b006fdd985889bmr21549077ejc.753.1653333323221;
-        Mon, 23 May 2022 12:15:23 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxgkCPhcAB33EYPZ90yGnEhKwoYAq64BHcNEOKNWqNDyz59/iBOtrFdjzxw5hQFuZHG1dBu+g==
-X-Received: by 2002:a17:907:6d15:b0:6fd:d985:889b with SMTP id sa21-20020a1709076d1500b006fdd985889bmr21549058ejc.753.1653333323039;
-        Mon, 23 May 2022 12:15:23 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
-        by smtp.googlemail.com with ESMTPSA id c21-20020aa7c995000000b0042aaacd4edasm8624567edt.26.2022.05.23.12.15.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 May 2022 12:15:22 -0700 (PDT)
-Message-ID: <a1d7d9f9-bb9d-1b98-a073-85d835be0341@redhat.com>
-Date:   Mon, 23 May 2022 21:15:19 +0200
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=9i0mf5EWjId+dJhDG42zI0t8gO1U5xR/fPTtg8h/guQ=;
+        b=Pcp01eSQBsYq+1shLT73U4iCm1SU2fMacoZkppaFoe2xDvqYrLb88pDqMrD8QrP7tW
+         J8kz/5d5BHch6c1DAFAbX2COWW9a+GzeXC3X46v01Ud1RkxJNwRlYPXUG2iKXYbzMWUg
+         66i+BzFocpbLDM2dNpjTguZRVyWIbW9c6mmiL8CV/GPYezyEM/qdYQdkgyvDG/f9eBD3
+         NR0/aIB98beDJY6ADhtZG9jlMq0kNHML9e/wYa17T/tebMvmjJ1fdPQ/WKH5Sayk4sia
+         8nNY1FM6Z5UYa1YmvCGBavnXN1jEp7SY9epmeMyvW1f7AXPjjdikISt+jlOl4Q3U2Ptq
+         Q5pA==
+X-Gm-Message-State: AOAM533rHEOpyDMQVpfnUYoUS883r+VqTwjaE6fR1VRavgz0W3ntiPux
+        vxbrWhcYO/Skow1o4n4ew8H0eg==
+X-Google-Smtp-Source: ABdhPJwpmlrfLvCqOEAWUHk/iFb9vTBCFvDV+XiSslGuIShWmQMdDaruCMB2aTz4o4uZEjpK38rAug==
+X-Received: by 2002:a17:902:f605:b0:14d:9e11:c864 with SMTP id n5-20020a170902f60500b0014d9e11c864mr24236615plg.54.1653334755308;
+        Mon, 23 May 2022 12:39:15 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id a9-20020a62bd09000000b0051827128aeasm7543246pff.131.2022.05.23.12.39.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 May 2022 12:39:14 -0700 (PDT)
+Date:   Mon, 23 May 2022 12:39:12 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     Maninder Singh <maninder1.s@samsung.com>, pmladek@suse.com,
+        bcain@quicinc.com, mpe@ellerman.id.au, benh@kernel.crashing.org,
+        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, satishkh@cisco.com, sebaddel@cisco.com,
+        kartilak@cisco.com, jejb@linux.ibm.com, martin.petersen@oracle.com,
+        mcgrof@kernel.org, jason.wessel@windriver.com,
+        daniel.thompson@linaro.org, dianders@chromium.org,
+        naveen.n.rao@linux.ibm.com, anil.s.keshavamurthy@intel.com,
+        davem@davemloft.net, mhiramat@kernel.org, peterz@infradead.org,
+        mingo@redhat.com, will@kernel.org, longman@redhat.com,
+        boqun.feng@gmail.com, rostedt@goodmis.org,
+        senozhatsky@chromium.org, andriy.shevchenko@linux.intel.com,
+        linux@rasmusvillemoes.dk, akpm@linux-foundation.org, arnd@arndb.de,
+        linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-modules@vger.kernel.org,
+        kgdb-bugreport@lists.sourceforge.net, v.narang@samsung.com,
+        onkarnath.1@samsung.com
+Subject: Re: [PATCH 0/5] kallsyms: make kallsym APIs more safe with scnprintf
+Message-ID: <202205231238.FAF6D28@keescook>
+References: <CGME20220520083715epcas5p400b11adef4d540756c985feb20ba29bc@epcas5p4.samsung.com>
+ <20220520083701.2610975-1-maninder1.s@samsung.com>
+ <YonTOL4zC4CytVrn@infradead.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [GIT PULL 0/4] KVM: s390: Fix and feature for 5.19
-Content-Language: en-US
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-References: <20220523095625.13913-1-borntraeger@linux.ibm.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20220523095625.13913-1-borntraeger@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YonTOL4zC4CytVrn@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/23/22 11:56, Christian Borntraeger wrote:
->    git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.19-1
+On Sat, May 21, 2022 at 11:07:52PM -0700, Christoph Hellwig wrote:
+> On Fri, May 20, 2022 at 02:06:56PM +0530, Maninder Singh wrote:
+> > kallsyms functionality depends on KSYM_NAME_LEN directly.
+> > but if user passed array length lesser than it, sprintf
+> > can cause issues of buffer overflow attack.
+> > 
+> > So changing *sprint* and *lookup* APIs in this patch set
+> > to have buffer size as an argument and replacing sprintf with
+> > scnprintf.
+> 
+> This is still a pretty horrible API.  Passing something like
+> a struct seq_buf seems like the much better API here.  Also with
+> the amount of arguments and by reference passing it might be worth
+> to pass them as a structure while you're at it.
 
-Pulled, thanks.
+Yeah, I agree. It really seems like seq_buf would be nicer.
 
-Paolo
-
+-- 
+Kees Cook
