@@ -2,178 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4926CC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 05:52:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFCF7C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 05:58:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232587AbiEWFwk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 May 2022 01:52:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43506 "EHLO
+        id S229462AbiEWF6Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 May 2022 01:58:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233606AbiEWFwD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 01:52:03 -0400
-Received: from corp-front08-corp.i.nease.net (corp-front08-corp.i.nease.net [59.111.134.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C45666477;
-        Sun, 22 May 2022 22:51:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
-        Date:Message-Id:MIME-Version:Content-Transfer-Encoding; bh=2SdOn
-        bcxJLMl7W/R+ogaGZHqr1mDU28XhhJYQ8UJrNk=; b=gEKAwbDHAIacTe7WgA09w
-        UYcT1iGSlbi/M4fs1l9Dv5uOY2xVYksHxDRjOE+RoEI1YAxlQTQtdZE2co3bG988
-        Qg1vfelL00LAOiYzzmBLP3fWooREYFrHhCCdSjOFQrRW2R257iYhXax+WcoZWxeP
-        ffBw24mYN/mrK7wIZs+7nY=
-Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
-        by corp-front08-corp.i.nease.net (Coremail) with SMTP id nhDICgB3twPMIItizVBhAA--.44228S2;
-        Mon, 23 May 2022 13:51:09 +0800 (HKT)
-From:   liuyacan@corp.netease.com
-To:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ubraun@linux.ibm.com,
-        liuyacan <liuyacan@corp.netease.com>
-Subject: [PATCH net] net/smc: fix listen processing for SMC-Rv2
-Date:   Mon, 23 May 2022 13:50:56 +0800
-Message-Id: <20220523055056.2078994-1-liuyacan@corp.netease.com>
-X-Mailer: git-send-email 2.20.1
+        with ESMTP id S230173AbiEWF6P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 01:58:15 -0400
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61B936E36
+        for <linux-s390@vger.kernel.org>; Sun, 22 May 2022 22:58:13 -0700 (PDT)
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com [209.85.218.71])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 4F8D93F175
+        for <linux-s390@vger.kernel.org>; Mon, 23 May 2022 05:58:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1653285491;
+        bh=5fCLgio4eOhfw1k5CS2PLumAftaAOSFd6efiEZiEJqo=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=vhhaQz2imbrVUdDwJspFtl7yEoiAZHMkeskuYOFq1f+ALPzZiFGHe6PkZlofxzle4
+         r9MJiACl9cbkbdy+4jYUH3t2Nah6mM77sQaGjXutqm0vrL08wmrCKBKW6InafHOkkr
+         Exwf25SFDn4TSB6qO1MQ/oCHlt6Vh0hXNbRMpO2awYWx95cfYQXZ/omty4cz8O3tho
+         QTIk1tOlkDWxCn2i6kDX4QHDNGzaVCE6GYrF2ih7G01YmTFASmfm51wLJbOTq8BiGo
+         mhrQBflNCt/Z0FE+BB24WP3Y81+qh+La8Czpg/CoMsbp7aQM4Ssv9XM6WgQHixrbMB
+         V/CD9JpyvS/tA==
+Received: by mail-ej1-f71.google.com with SMTP id x2-20020a1709065ac200b006d9b316257fso5419119ejs.12
+        for <linux-s390@vger.kernel.org>; Sun, 22 May 2022 22:58:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=5fCLgio4eOhfw1k5CS2PLumAftaAOSFd6efiEZiEJqo=;
+        b=VjxN2SQP7WgLzPk/QHqY65d5FDbsPJvmcMrVm773Bg7a6U2759We8MnLQkvx2ngFJB
+         g4OwZJtQBUJCVWF/HXB6KO+0EZAcPq6kwLUm8yrOb+bsOZ9vxLauGEuzqSumbDTbe1G+
+         MMwyHF4E8X8fLwabAM3qECfLmlCXH04LGVA/oEevo4b08oQvUhIDoG34xEh8VqyY0tIZ
+         BOw3hVFL4pgXwQ2T4B+BaBpYyJjaweRvT+kFFds5nIYdmH2wYHEEVFQeaYG/mOsH+WmM
+         8s8nrRPib5Q7ip58RdOav6CCFQhSJUCA6EhzAbupveSr2HKjnRlQeGBX1pgq2W9LpBca
+         3Tgg==
+X-Gm-Message-State: AOAM531S6yW4DNZaBdd4T0tkvTHEkDY86hxHydnZQcFQo1rfRTGCFAEx
+        Z5ZHN9Kr+4qMNTaKfR9u5GwHw+bb3Kh+FtUfzuATAJB3kmS5dDA5B6aJCy11acph0qIZ+bYRRiS
+        wRsa4IPHw84hIsyZWVpsc/sluVUAVZ8DCmArqRss=
+X-Received: by 2002:a17:907:7e84:b0:6fe:cded:7d1f with SMTP id qb4-20020a1709077e8400b006fecded7d1fmr4980117ejc.35.1653285491009;
+        Sun, 22 May 2022 22:58:11 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxfJtcFSbeKmiGpMnperQwR7MKkXvhirZBqreQSPSqS1L8LPlV0rM0x+Qgcxcb9LgCvBNK+zQ==
+X-Received: by 2002:a17:907:7e84:b0:6fe:cded:7d1f with SMTP id qb4-20020a1709077e8400b006fecded7d1fmr4980108ejc.35.1653285490869;
+        Sun, 22 May 2022 22:58:10 -0700 (PDT)
+Received: from gollum.fritz.box ([194.191.244.86])
+        by smtp.gmail.com with ESMTPSA id bf15-20020a0564021a4f00b0042a9fcd7c73sm7782160edb.46.2022.05.22.22.58.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 May 2022 22:58:10 -0700 (PDT)
+From:   Juerg Haefliger <juerg.haefliger@canonical.com>
+X-Google-Original-From: Juerg Haefliger <juergh@canonical.com>
+To:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, joe@perches.com
+Cc:     linux-kernel@vger.kernel.org,
+        Juerg Haefliger <juergh@canonical.com>
+Subject: [PATCH 1/2 v2] s390: Kconfig: Fix indentation
+Date:   Mon, 23 May 2022 07:57:35 +0200
+Message-Id: <20220523055735.4538-1-juergh@canonical.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <8d86b87edc9c9fa33b6a18fac8b160ee56e6a07c.camel@perches.com>
+References: <8d86b87edc9c9fa33b6a18fac8b160ee56e6a07c.camel@perches.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: nhDICgB3twPMIItizVBhAA--.44228S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxuF17KFWUJr4xtF4xWF1kuFg_yoWrJF1fpa
-        1Ykry3CFs5GFs3Grs3tF15Zr4rZw18try8G3srGr1FkwnrtryrtryxXF4j9FZxJFW3t3WI
-        vFW8Ar1fWw15taDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUULYb7IF0VCFI7km07C26c804VAKzcIF0wAFF20E14v26r4j6ryU
-        M7CY07I20VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2
-        IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84AC
-        jcxK6xIIjxv20xvEc7CjxVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84
-        ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2kK67ZEXf0FJ3sC6x9vy-n0Xa0_Xr1Utr1k
-        JwI_Jr4ln4vE4IxY62xKV4CY8xCE548m6r4UJryUGwAS0I0E0xvYzxvE52x082IY62kv04
-        87Mc804VCqF7xvr2I5Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
-        JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
-        AKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2xKxwAKzVCY
-        07xG64k0F24l7I0Y64k_MxkI7II2jI8vz4vEwIxGrwCF04k20xvY0x0EwIxGrwCF72vEw2
-        IIxxk0rwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7vE0wC20s026c02F40E14v26r1j6r18
-        MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr4
-        1lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1l
-        IxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4
-        A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0pRp6wAUUUUU=
-X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQAPCVt760cBigAAsE
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: liuyacan <liuyacan@corp.netease.com>
+The convention for indentation seems to be a single tab. Help text is
+further indented by an additional two whitespaces. Fix the lines that
+violate these rules.
 
-In the process of checking whether RDMAv2 is available, the current
-implementation first sets ini->smcrv2.ib_dev_v2, and then allocates
-smc buf desc, but the latter may fail. Unfortunately, the caller
-will only check the former. In this case, a NULL pointer reference
-will occur in smc_clc_send_confirm_accept() when accessing
-conn->rmb_desc.
-
-This patch does two things:
-1. Use the return code to determine whether V2 is available.
-2. If the return code is NODEV, continue to check whether V1 is
-available.
-
-Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
-Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+Signed-off-by: Juerg Haefliger <juergh@canonical.com>
 ---
- net/smc/af_smc.c | 44 +++++++++++++++++++++++++++-----------------
- 1 file changed, 27 insertions(+), 17 deletions(-)
+v2:
+  Drop trailing endmenu comments.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 45a24d242..d3de54b70 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2093,13 +2093,13 @@ static int smc_listen_rdma_reg(struct smc_sock *new_smc, bool local_first)
- 	return 0;
- }
+---
+ arch/s390/Kconfig | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index e084c72104f8..543e859905df 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -736,11 +736,11 @@ config VFIO_AP
+ 	depends on S390_AP_IOMMU && VFIO_MDEV && KVM
+ 	depends on ZCRYPT
+ 	help
+-		This driver grants access to Adjunct Processor (AP) devices
+-		via the VFIO mediated device interface.
++	  This driver grants access to Adjunct Processor (AP) devices
++	  via the VFIO mediated device interface.
  
--static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
--					 struct smc_clc_msg_proposal *pclc,
--					 struct smc_init_info *ini)
-+static int smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
-+					struct smc_clc_msg_proposal *pclc,
-+					struct smc_init_info *ini)
- {
- 	struct smc_clc_v2_extension *smc_v2_ext;
- 	u8 smcr_version;
--	int rc;
-+	int rc = 0;
+-		To compile this driver as a module, choose M here: the module
+-		will be called vfio_ap.
++	  To compile this driver as a module, choose M here: the module
++	  will be called vfio_ap.
  
- 	if (!(ini->smcr_version & SMC_V2) || !smcr_indicated(ini->smc_type_v2))
- 		goto not_found;
-@@ -2117,26 +2117,31 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
- 	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
- 	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
- 	rc = smc_find_rdma_device(new_smc, ini);
--	if (rc) {
--		smc_find_ism_store_rc(rc, ini);
-+	if (rc)
- 		goto not_found;
--	}
-+
- 	if (!ini->smcrv2.uses_gateway)
- 		memcpy(ini->smcrv2.nexthop_mac, pclc->lcl.mac, ETH_ALEN);
+ endmenu
  
- 	smcr_version = ini->smcr_version;
- 	ini->smcr_version = SMC_V2;
- 	rc = smc_listen_rdma_init(new_smc, ini);
--	if (!rc)
--		rc = smc_listen_rdma_reg(new_smc, ini->first_contact_local);
--	if (!rc)
--		return;
--	ini->smcr_version = smcr_version;
--	smc_find_ism_store_rc(rc, ini);
-+	if (rc) {
-+		ini->smcr_version = smcr_version;
-+		goto not_found;
-+	}
-+	rc = smc_listen_rdma_reg(new_smc, ini->first_contact_local);
-+	if (rc) {
-+		ini->smcr_version = smcr_version;
-+		goto not_found;
-+	}
-+	return 0;
- 
- not_found:
-+	rc = rc ?: SMC_CLC_DECL_NOSMCDEV;
- 	ini->smcr_version &= ~SMC_V2;
- 	ini->check_smcrv2 = false;
-+	return rc;
- }
- 
- static int smc_find_rdma_v1_device_serv(struct smc_sock *new_smc,
-@@ -2169,6 +2174,7 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
- 				  struct smc_init_info *ini)
- {
- 	int prfx_rc;
-+	int rc;
- 
- 	/* check for ISM device matching V2 proposed device */
- 	smc_find_ism_v2_device_serv(new_smc, pclc, ini);
-@@ -2196,14 +2202,18 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
- 		return ini->rc ?: SMC_CLC_DECL_NOSMCDDEV;
- 
- 	/* check if RDMA V2 is available */
--	smc_find_rdma_v2_device_serv(new_smc, pclc, ini);
--	if (ini->smcrv2.ib_dev_v2)
-+	rc = smc_find_rdma_v2_device_serv(new_smc, pclc, ini);
-+	if (!rc)
- 		return 0;
- 
-+	/* skip V1 check if V2 is unavailable for non-Device reason */
-+	if (rc != SMC_CLC_DECL_NOSMCDEV &&
-+	    rc != SMC_CLC_DECL_NOSMCRDEV &&
-+	    rc != SMC_CLC_DECL_NOSMCDDEV)
-+		return rc;
-+
- 	/* check if RDMA V1 is available */
- 	if (!prfx_rc) {
--		int rc;
--
- 		rc = smc_find_rdma_v1_device_serv(new_smc, pclc, ini);
- 		smc_find_ism_store_rc(rc, ini);
- 		return (!rc) ? 0 : ini->rc;
 -- 
-2.20.1
+2.32.0
 
