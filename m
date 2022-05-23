@@ -2,119 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F19AEC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 11:19:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61BC0C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 12:13:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234618AbiEWLTz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 May 2022 07:19:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
+        id S235383AbiEWMNF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 May 2022 08:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234824AbiEWLTj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 07:19:39 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7198A4BFC1;
-        Mon, 23 May 2022 04:19:17 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24NB02bL018651;
-        Mon, 23 May 2022 11:19:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=txdmkUzOiYp+J1OhdbK85d8BeqClBeE6H3qwVAzteo0=;
- b=qeI9Z0EkTcUw0230/ls5KpaHmKpuU+RPbLbx7XHFyBk009pjblEzsIxbDTumER8Dk8D6
- sukM0woKjCFnswgv0Qii9hxOIWu+nThFXtIYmLkjGIr2pVdpopdpDIKzBJ9BZ7tkWGL8
- ABRphc5M78W24KEdVoUQPSDZSgtYTPW6bbWXKOKHnuzQiu5BS0Ba4Q3AOOVJ67J4EpLa
- mysJ5Nw3R/e3oQyXiS3RcJOFgVfWpcKSrglxj+c9F/Asw6xhZ8i25G49GOz1qUz4ygG6
- pxLorbuDgau678jhJXkCON4BAOKhdrxQjhFpT36bXLQIwonPOTklFzRT7wBjcvhoO7Pm 4g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g79ctbkdv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 May 2022 11:19:10 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24NBC9xP010018;
-        Mon, 23 May 2022 11:19:10 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g79ctbkd8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 May 2022 11:19:10 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24NAtNtf029515;
-        Mon, 23 May 2022 11:19:07 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3g6qbjaqa4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 May 2022 11:19:07 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24NBJ55X52166924
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 23 May 2022 11:19:05 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2B223A405B;
-        Mon, 23 May 2022 11:19:05 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D4247A4054;
-        Mon, 23 May 2022 11:19:04 +0000 (GMT)
-Received: from [9.152.222.246] (unknown [9.152.222.246])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 23 May 2022 11:19:04 +0000 (GMT)
-Message-ID: <76eeb1b0-6e4f-986b-c32f-e7e4de3426a7@linux.ibm.com>
-Date:   Mon, 23 May 2022 13:19:04 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
+        with ESMTP id S235387AbiEWMNE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 08:13:04 -0400
+Received: from corp-front08-corp.i.nease.net (corp-front08-corp.i.nease.net [59.111.134.158])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EBF8BF47;
+        Mon, 23 May 2022 05:12:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
+        Date:Message-Id:In-Reply-To:References:MIME-Version:
+        Content-Transfer-Encoding; bh=O+sTlVJiIR8kihiGkvpU/fkuVTQpcFKA68
+        uIDzsGL7A=; b=SSASLLNxUxaYFM75kY9gFgPvvkAj2r0WZBXoGn0kvFKQP+mSne
+        4a5D3S4ssesaDUu6Dy8OoF6aNXVDHxkK0rBLXu325+Ewlo2MQi/52+QI5GkpD1Oj
+        BqVChvdHDC0GMvwr/6M6myUUUQHJPen3rg40GQXXmf+FXtJw8KfNsIiwA=
+Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
+        by corp-front08-corp.i.nease.net (Coremail) with SMTP id nhDICgBXlAA9eotiqXVhAA--.7902S2;
+        Mon, 23 May 2022 20:12:45 +0800 (HKT)
+From:   liuyacan@corp.netease.com
+To:     kgraul@linux.ibm.com
+Cc:     davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        liuyacan@corp.netease.com, netdev@vger.kernel.org,
+        pabeni@redhat.com, ubraun@linux.ibm.com
 Subject: Re: [PATCH net] net/smc: fix listen processing for SMC-Rv2
-Content-Language: en-US
-To:     liuyacan@corp.netease.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ubraun@linux.ibm.com
-References: <20220523055056.2078994-1-liuyacan@corp.netease.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20220523055056.2078994-1-liuyacan@corp.netease.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Bk-q3-zXkS3wgpa7rucB5ljCpGHgiNgK
-X-Proofpoint-ORIG-GUID: fNFpVf00xDpP7B0p4qsPRk-zhPW_6sSF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-23_04,2022-05-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 adultscore=0
- priorityscore=1501 malwarescore=0 suspectscore=0 phishscore=0 mlxscore=0
- lowpriorityscore=0 spamscore=0 mlxlogscore=931 impostorscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205230061
+Date:   Mon, 23 May 2022 20:12:45 +0800
+Message-Id: <20220523121245.1910773-1-liuyacan@corp.netease.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <76eeb1b0-6e4f-986b-c32f-e7e4de3426a7@linux.ibm.com>
+References: <76eeb1b0-6e4f-986b-c32f-e7e4de3426a7@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: nhDICgBXlAA9eotiqXVhAA--.7902S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Ar1xXr47uFyrAr1rZrWfuFg_yoW8Ar48pF
+        WrAF4FkFWDt3WfAanFqFyrZr4rA3yFyF1fGrZxJF4Fk3sxZr95ArWIqr1Y9FZ7Za93K3WI
+        vFW8Z393uwn8Aa7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUJCb7IF0VCFI7km07C26c804VAKzcIF0wAFF20E14v26r4j6ryU
+        M7CY07I20VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2
+        IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84AC
+        jcxK6xIIjxv20xvEc7CjxVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4
+        x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1ln4vE1TuYJxujqTIEc-sFP3VYkVW5Jr1DJw4U
+        KVWUGwAawVACjsI_Ar4v6c8GOVW06r1DJrWUAwAawVCFI7vE04vSzxk24VAqrcv_Gr1UXr
+        18M2vj6xkI62vS6c8GOVWUtr1rJFyle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCE34x0
+        Y48IcwAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4
+        A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F
+        5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMx
+        02cVAKzwCY0x0Ix7I2Y4AK64vIr41l42xK82IYc2Ij64vIr41l4x8a64kIII0Yj41l4I8I
+        3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxY624lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8Gjc
+        xK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0
+        cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8V
+        AvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E
+        14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjTREKZWUUUUU
+X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQAPCVt760qFUgARsE
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 23/05/2022 07:50, liuyacan@corp.netease.com wrote:
-> From: liuyacan <liuyacan@corp.netease.com>
+> > From: liuyacan <liuyacan@corp.netease.com>
+> > 
+> > In the process of checking whether RDMAv2 is available, the current
+> > implementation first sets ini->smcrv2.ib_dev_v2, and then allocates
+> > smc buf desc, but the latter may fail. Unfortunately, the caller
+> > will only check the former. In this case, a NULL pointer reference
+> > will occur in smc_clc_send_confirm_accept() when accessing
+> > conn->rmb_desc.
+> > 
+> > This patch does two things:
+> > 1. Use the return code to determine whether V2 is available.
+> > 2. If the return code is NODEV, continue to check whether V1 is
+> > available.
+> > 
+> > Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
+> > Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+> > ---
+>
+> I am not happy with this patch. You are right that this is a problem,
+> but the fix should be much simpler: set ini->smcrv2.ib_dev_v2 = NULL in
+> smc_find_rdma_v2_device_serv() after the not_found label, just like it is
+> done in a similar way for the ISM device in smc_find_ism_v1_device_serv().
+>
+> Your patch changes many more things, and beside that you eliminated the calls 
+> to smc_find_ism_store_rc() completely, which is not correct.
 > 
-> In the process of checking whether RDMAv2 is available, the current
-> implementation first sets ini->smcrv2.ib_dev_v2, and then allocates
-> smc buf desc, but the latter may fail. Unfortunately, the caller
-> will only check the former. In this case, a NULL pointer reference
-> will occur in smc_clc_send_confirm_accept() when accessing
-> conn->rmb_desc.
-> 
-> This patch does two things:
-> 1. Use the return code to determine whether V2 is available.
-> 2. If the return code is NODEV, continue to check whether V1 is
-> available.
-> 
-> Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
-> Signed-off-by: liuyacan <liuyacan@corp.netease.com>
-> ---
+> Since your patch was already applied (btw. 3:20 hours after you submitted it),
+> please revert it and resend. Thank you.
 
-I am not happy with this patch. You are right that this is a problem,
-but the fix should be much simpler: set ini->smcrv2.ib_dev_v2 = NULL in
-smc_find_rdma_v2_device_serv() after the not_found label, just like it is
-done in a similar way for the ISM device in smc_find_ism_v1_device_serv().
+I also have considered this way, one question is that do we need to do more roll 
+back work before V1 check? 
 
-Your patch changes many more things, and beside that you eliminated the calls 
-to smc_find_ism_store_rc() completely, which is not correct.
+Specifically, In smc_find_rdma_v2_device_serv(), there are the following steps:
 
-Since your patch was already applied (btw. 3:20 hours after you submitted it),
-please revert it and resend. Thank you.
+1. smc_listen_rdma_init()
+   1.1 smc_conn_create()
+   1.2 smc_buf_create()   --> may fail
+2. smc_listen_rdma_reg()  --> may fail
+
+When later steps fail, Do we need to roll back previous steps?
+Thank you.
+
+
