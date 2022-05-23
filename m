@@ -2,153 +2,178 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 820E4C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 05:46:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4926CC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 05:52:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229603AbiEWFqJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 May 2022 01:46:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51826 "EHLO
+        id S232587AbiEWFwk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 May 2022 01:52:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229679AbiEWFpy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 01:45:54 -0400
-Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1C52655D;
-        Sun, 22 May 2022 22:45:53 -0700 (PDT)
-Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-e93bbb54f9so17116184fac.12;
-        Sun, 22 May 2022 22:45:53 -0700 (PDT)
+        with ESMTP id S233606AbiEWFwD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 01:52:03 -0400
+Received: from corp-front08-corp.i.nease.net (corp-front08-corp.i.nease.net [59.111.134.158])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C45666477;
+        Sun, 22 May 2022 22:51:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=kK4Ka04kceqN8VVd9w6tDOmbYPZ+nJZTIe88jIZoSJk=;
-        b=bXwOmwvptXUzVEf8w+LjU8kE7nkSzHrjDVPCC77O/zHZxaE7Um57oJfNSQvms127Vg
-         6bVR+SErg44S1V80Z6bc4GM2Z2FO9T4mQLwDIRDmL9hD/pvQuLzwjq9zNUFcrGLEc8LO
-         7OaccycPlYwewUEVPyM7GtavDiuB1e14X2NVHnRB5BLlpGtpNAEQNzd+Izih4uBvXhks
-         xd+08qJAhqvzotdJ7BMPNOIk/G/7GfyOHXvm0qGrS7Z3LC9XSTseYoj102Y7IlTZc6Sq
-         jKMw76OUOdxUurNA+tEjR3JNslzHLKtGCM+hn+4PYsPkOcm7T068yqc7PbOcaEZEsIQT
-         XThQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=kK4Ka04kceqN8VVd9w6tDOmbYPZ+nJZTIe88jIZoSJk=;
-        b=ns94DGshDvLoFDPitT38HsalfN7ZsVrUo7ThOeCHuuuw8Zc8NCVPMjOM5q4tVA/G9m
-         XiLiKKatw2Oa7U7aFGwxRaO106w6xy/ufl+EyTY2pi2c2qkM11YivW2mRhRaJgcehFWw
-         HgiB6dkK5ZcRkf6TDvn8uYU0gzk43BlEaq90kQ4Rw3mErRXFO+eydc2jcFemwr7RhHqx
-         QqSOlXYCzV0RhqkSjqLRqdqB1sT/v5aQ1aCD+J58EK6snvk5P0BacQFzQezmsHR5aU5E
-         LpGYgW2odWt0t+IAKuGVjFh46/MbR6R8nf2cGktETqgEVrkjfW4uKkLPYJmv8VKxPa7l
-         3ZoQ==
-X-Gm-Message-State: AOAM533adjBSqzIaiObngnyMdX9dAGv0UqiFHJW7nzQB6v/E8vgDbBNI
-        TAFASPygymp4KoPXJJTO8x4=
-X-Google-Smtp-Source: ABdhPJzFVeM2nlljQKtG8croc7W21cxaI0vylQicrB+nyqNUTxI9l8dpKFNg37Q+twl0LUnv80NpPQ==
-X-Received: by 2002:a05:6871:283:b0:f1:a2cb:1371 with SMTP id i3-20020a056871028300b000f1a2cb1371mr10792141oae.147.1653284752356;
-        Sun, 22 May 2022 22:45:52 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 106-20020a9d0bf3000000b0060603221276sm3660850oth.70.2022.05.22.22.45.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 May 2022 22:45:51 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sun, 22 May 2022 22:45:50 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     guoren@kernel.org
-Cc:     palmer@dabbelt.com, arnd@arndb.de, gregkh@linuxfoundation.org,
-        hch@lst.de, linux-arch@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, x86@kernel.org,
-        heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
-Subject: Re: [PATCH V9 20/20] riscv: compat: Add COMPAT Kbuild skeletal
- support
-Message-ID: <20220523054550.GA1511899@roeck-us.net>
-References: <20220322144003.2357128-1-guoren@kernel.org>
- <20220322144003.2357128-21-guoren@kernel.org>
+        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
+        Date:Message-Id:MIME-Version:Content-Transfer-Encoding; bh=2SdOn
+        bcxJLMl7W/R+ogaGZHqr1mDU28XhhJYQ8UJrNk=; b=gEKAwbDHAIacTe7WgA09w
+        UYcT1iGSlbi/M4fs1l9Dv5uOY2xVYksHxDRjOE+RoEI1YAxlQTQtdZE2co3bG988
+        Qg1vfelL00LAOiYzzmBLP3fWooREYFrHhCCdSjOFQrRW2R257iYhXax+WcoZWxeP
+        ffBw24mYN/mrK7wIZs+7nY=
+Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
+        by corp-front08-corp.i.nease.net (Coremail) with SMTP id nhDICgB3twPMIItizVBhAA--.44228S2;
+        Mon, 23 May 2022 13:51:09 +0800 (HKT)
+From:   liuyacan@corp.netease.com
+To:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ubraun@linux.ibm.com,
+        liuyacan <liuyacan@corp.netease.com>
+Subject: [PATCH net] net/smc: fix listen processing for SMC-Rv2
+Date:   Mon, 23 May 2022 13:50:56 +0800
+Message-Id: <20220523055056.2078994-1-liuyacan@corp.netease.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220322144003.2357128-21-guoren@kernel.org>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: nhDICgB3twPMIItizVBhAA--.44228S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxuF17KFWUJr4xtF4xWF1kuFg_yoWrJF1fpa
+        1Ykry3CFs5GFs3Grs3tF15Zr4rZw18try8G3srGr1FkwnrtryrtryxXF4j9FZxJFW3t3WI
+        vFW8Ar1fWw15taDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUULYb7IF0VCFI7km07C26c804VAKzcIF0wAFF20E14v26r4j6ryU
+        M7CY07I20VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2
+        IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84AC
+        jcxK6xIIjxv20xvEc7CjxVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84
+        ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2kK67ZEXf0FJ3sC6x9vy-n0Xa0_Xr1Utr1k
+        JwI_Jr4ln4vE4IxY62xKV4CY8xCE548m6r4UJryUGwAS0I0E0xvYzxvE52x082IY62kv04
+        87Mc804VCqF7xvr2I5Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+        JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+        AKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2xKxwAKzVCY
+        07xG64k0F24l7I0Y64k_MxkI7II2jI8vz4vEwIxGrwCF04k20xvY0x0EwIxGrwCF72vEw2
+        IIxxk0rwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7vE0wC20s026c02F40E14v26r1j6r18
+        MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr4
+        1lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1l
+        IxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4
+        A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0pRp6wAUUUUU=
+X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQAPCVt760cBigAAsE
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 22, 2022 at 10:40:03PM +0800, guoren@kernel.org wrote:
-> From: Guo Ren <guoren@linux.alibaba.com>
-> 
-> Adds initial skeletal COMPAT Kbuild (Running 32bit U-mode on
-> 64bit S-mode) support.
->  - Setup kconfig & dummy functions for compiling.
->  - Implement compat_start_thread by the way.
-> 
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> Signed-off-by: Guo Ren <guoren@kernel.org>
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> Tested-by: Heiko Stuebner <heiko@sntech.de>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+From: liuyacan <liuyacan@corp.netease.com>
 
-With this patch in linux-next, all my riscv64 emulations crash.
+In the process of checking whether RDMAv2 is available, the current
+implementation first sets ini->smcrv2.ib_dev_v2, and then allocates
+smc buf desc, but the latter may fail. Unfortunately, the caller
+will only check the former. In this case, a NULL pointer reference
+will occur in smc_clc_send_confirm_accept() when accessing
+conn->rmb_desc.
 
-[   11.600082] Run /sbin/init as init process
-[   11.628561] init[1]: unhandled signal 11 code 0x1 at 0x0000000000000000 in libc.so[ffffff8ad39000+a4000]
-[   11.629398] CPU: 0 PID: 1 Comm: init Not tainted 5.18.0-rc7-next-20220520 #1
-[   11.629462] Hardware name: riscv-virtio,qemu (DT)
-[   11.629546] epc : 00ffffff8ada1100 ra : 00ffffff8ada13c8 sp : 00ffffffc58199f0
-[   11.629586]  gp : 00ffffff8ad39000 tp : 00ffffff8ade0998 t0 : ffffffffffffffff
-[   11.629598]  t1 : 00ffffffc5819fd0 t2 : 0000000000000000 s0 : 00ffffff8ade0cc0
-[   11.629610]  s1 : 00ffffff8ade0cc0 a0 : 0000000000000000 a1 : 00ffffffc5819a00
-[   11.629622]  a2 : 0000000000000001 a3 : 000000000000001e a4 : 00ffffffc5819b00
-[   11.629634]  a5 : 00ffffffc5819b00 a6 : 0000000000000000 a7 : 0000000000000000
-[   11.629645]  s2 : 00ffffff8ade0ac8 s3 : 00ffffff8ade0ec8 s4 : 00ffffff8ade0728
-[   11.629656]  s5 : 00ffffff8ade0a90 s6 : 0000000000000000 s7 : 00ffffffc5819e40
-[   11.629667]  s8 : 00ffffff8ade0ca0 s9 : 00ffffff8addba50 s10: 0000000000000000
-[   11.629678]  s11: 0000000000000000 t3 : 0000000000000002 t4 : 0000000000000001
-[   11.629688]  t5 : 0000000000020000 t6 : ffffffffffffffff
-[   11.629699] status: 0000000000004020 badaddr: 0000000000000000 cause: 000000000000000d
-[   11.633421] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
-[   11.633664] CPU: 0 PID: 1 Comm: init Not tainted 5.18.0-rc7-next-20220520 #1
-[   11.633784] Hardware name: riscv-virtio,qemu (DT)
-[   11.633881] Call Trace:
-[   11.633960] [<ffffffff80005e72>] dump_backtrace+0x1c/0x24
-[   11.634162] [<ffffffff809aa9ec>] show_stack+0x2c/0x38
-[   11.634274] [<ffffffff809b8482>] dump_stack_lvl+0x60/0x8e
-[   11.634386] [<ffffffff809b84c4>] dump_stack+0x14/0x1c
-[   11.634491] [<ffffffff809aaca0>] panic+0x116/0x2e2
-[   11.634596] [<ffffffff80015540>] do_exit+0x7ce/0x7d4
-[   11.634707] [<ffffffff80015666>] do_group_exit+0x24/0x7c
-[   11.634817] [<ffffffff80022294>] get_signal+0x7ee/0x830
-[   11.634924] [<ffffffff800051c0>] do_notify_resume+0x6c/0x41c
-[   11.635037] [<ffffffff80003ad4>] ret_from_exception+0x0/0x10
+This patch does two things:
+1. Use the return code to determine whether V2 is available.
+2. If the return code is NODEV, continue to check whether V1 is
+available.
 
-Guenter
-
+Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
+Signed-off-by: liuyacan <liuyacan@corp.netease.com>
 ---
-# bad: [18ecd30af1a8402c162cca1bd58771c0e5be7815] Add linux-next specific files for 20220520
-# good: [42226c989789d8da4af1de0c31070c96726d990c] Linux 5.18-rc7
-git bisect start 'HEAD' 'v5.18-rc7'
-# bad: [f9b63740b666dd9887eb0282d21b5f65bb0cadd0] Merge branch 'master' of git://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
-git bisect bad f9b63740b666dd9887eb0282d21b5f65bb0cadd0
-# bad: [7db97132097c5973ff77466d0ee681650af653de] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/cel/linux
-git bisect bad 7db97132097c5973ff77466d0ee681650af653de
-# good: [2b7d17d4b7c1ff40f58b0d32be40fc0bb6c582fb] soc: document merges
-git bisect good 2b7d17d4b7c1ff40f58b0d32be40fc0bb6c582fb
-# good: [69c9668f853fdd409bb8abbb37d615785510b29a] Merge branch 'clk-next' of git://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git
-git bisect good 69c9668f853fdd409bb8abbb37d615785510b29a
-# bad: [1577f290aa0d4c5b29c03c46ef52e4952a21bfbb] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git
-git bisect bad 1577f290aa0d4c5b29c03c46ef52e4952a21bfbb
-# good: [34f0971f8ca73d7e5502b4cf299788a9402120f7] powerpc/powernv/flash: Check OPAL flash calls exist before using
-git bisect good 34f0971f8ca73d7e5502b4cf299788a9402120f7
-# good: [0349d7dfc70a26b3facd8ca97de34980d4b60954] Merge branch 'mips-next' of git://git.kernel.org/pub/scm/linux/kernel/git/mips/linux.git
-git bisect good 0349d7dfc70a26b3facd8ca97de34980d4b60954
-# bad: [20bfb54d3b121699674c17a854c5ebc7a8f97d81] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/riscv/linux.git
-git bisect bad 20bfb54d3b121699674c17a854c5ebc7a8f97d81
-# bad: [9be8459298eadb39b9fe9974b890239e9c123107] riscv: compat: Add COMPAT Kbuild skeletal support
-git bisect bad 9be8459298eadb39b9fe9974b890239e9c123107
-# good: [01abdfeac81b5f56062d0a78f2cdc805db937a75] riscv: compat: Support TASK_SIZE for compat mode
-git bisect good 01abdfeac81b5f56062d0a78f2cdc805db937a75
-# good: [f4b395e6f1a588ed6c9a30474e58cf6b27b65783] riscv: compat: Add hw capability check for elf
-git bisect good f4b395e6f1a588ed6c9a30474e58cf6b27b65783
-# good: [3092eb45637573c5e435fbf5eaf9516316e5f9c6] riscv: compat: vdso: Add setup additional pages implementation
-git bisect good 3092eb45637573c5e435fbf5eaf9516316e5f9c6
-# good: [4608c159594fb40a5101357d4f614fdde9ce1fdb] riscv: compat: ptrace: Add compat_arch_ptrace implement
-git bisect good 4608c159594fb40a5101357d4f614fdde9ce1fdb
-# first bad commit: [9be8459298eadb39b9fe9974b890239e9c123107] riscv: compat: Add COMPAT Kbuild skeletal support
+ net/smc/af_smc.c | 44 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 27 insertions(+), 17 deletions(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 45a24d242..d3de54b70 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2093,13 +2093,13 @@ static int smc_listen_rdma_reg(struct smc_sock *new_smc, bool local_first)
+ 	return 0;
+ }
+ 
+-static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+-					 struct smc_clc_msg_proposal *pclc,
+-					 struct smc_init_info *ini)
++static int smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
++					struct smc_clc_msg_proposal *pclc,
++					struct smc_init_info *ini)
+ {
+ 	struct smc_clc_v2_extension *smc_v2_ext;
+ 	u8 smcr_version;
+-	int rc;
++	int rc = 0;
+ 
+ 	if (!(ini->smcr_version & SMC_V2) || !smcr_indicated(ini->smc_type_v2))
+ 		goto not_found;
+@@ -2117,26 +2117,31 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+ 	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
+ 	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
+ 	rc = smc_find_rdma_device(new_smc, ini);
+-	if (rc) {
+-		smc_find_ism_store_rc(rc, ini);
++	if (rc)
+ 		goto not_found;
+-	}
++
+ 	if (!ini->smcrv2.uses_gateway)
+ 		memcpy(ini->smcrv2.nexthop_mac, pclc->lcl.mac, ETH_ALEN);
+ 
+ 	smcr_version = ini->smcr_version;
+ 	ini->smcr_version = SMC_V2;
+ 	rc = smc_listen_rdma_init(new_smc, ini);
+-	if (!rc)
+-		rc = smc_listen_rdma_reg(new_smc, ini->first_contact_local);
+-	if (!rc)
+-		return;
+-	ini->smcr_version = smcr_version;
+-	smc_find_ism_store_rc(rc, ini);
++	if (rc) {
++		ini->smcr_version = smcr_version;
++		goto not_found;
++	}
++	rc = smc_listen_rdma_reg(new_smc, ini->first_contact_local);
++	if (rc) {
++		ini->smcr_version = smcr_version;
++		goto not_found;
++	}
++	return 0;
+ 
+ not_found:
++	rc = rc ?: SMC_CLC_DECL_NOSMCDEV;
+ 	ini->smcr_version &= ~SMC_V2;
+ 	ini->check_smcrv2 = false;
++	return rc;
+ }
+ 
+ static int smc_find_rdma_v1_device_serv(struct smc_sock *new_smc,
+@@ -2169,6 +2174,7 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
+ 				  struct smc_init_info *ini)
+ {
+ 	int prfx_rc;
++	int rc;
+ 
+ 	/* check for ISM device matching V2 proposed device */
+ 	smc_find_ism_v2_device_serv(new_smc, pclc, ini);
+@@ -2196,14 +2202,18 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
+ 		return ini->rc ?: SMC_CLC_DECL_NOSMCDDEV;
+ 
+ 	/* check if RDMA V2 is available */
+-	smc_find_rdma_v2_device_serv(new_smc, pclc, ini);
+-	if (ini->smcrv2.ib_dev_v2)
++	rc = smc_find_rdma_v2_device_serv(new_smc, pclc, ini);
++	if (!rc)
+ 		return 0;
+ 
++	/* skip V1 check if V2 is unavailable for non-Device reason */
++	if (rc != SMC_CLC_DECL_NOSMCDEV &&
++	    rc != SMC_CLC_DECL_NOSMCRDEV &&
++	    rc != SMC_CLC_DECL_NOSMCDDEV)
++		return rc;
++
+ 	/* check if RDMA V1 is available */
+ 	if (!prfx_rc) {
+-		int rc;
+-
+ 		rc = smc_find_rdma_v1_device_serv(new_smc, pclc, ini);
+ 		smc_find_ism_store_rc(rc, ini);
+ 		return (!rc) ? 0 : ini->rc;
+-- 
+2.20.1
+
