@@ -2,148 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61193C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 09:56:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F19AEC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 11:19:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233626AbiEWJ4g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 May 2022 05:56:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46242 "EHLO
+        id S234618AbiEWLTz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 May 2022 07:19:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233711AbiEWJ4f (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 05:56:35 -0400
+        with ESMTP id S234824AbiEWLTj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 07:19:39 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C462635;
-        Mon, 23 May 2022 02:56:32 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24N8FcEQ025827;
-        Mon, 23 May 2022 09:56:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=//7riZxFSqx79veqBcZ9Vwp6zrKkd4aWRCQw7V1IzhU=;
- b=mY/7sUwhxLkaHFCNJhTZOeOrqBfX0FJuw0XGf1AlHHFCccLQ68awBzFNTwAs9pO8LGWe
- Sp7Z0Z8Qyoetmd79YJmeWYlGKT9YJQlWzVRlfmY0MCAZB86DUnD2TheVVqBvuyB3YMz7
- bXpxj9sM6eM0eLzf1ZHfjVLELGDfYJKN2zQ2I9gHEjWNHur72PC3duHBUPdbBJDd6muq
- Zg95GLZRUFY69ZGql8pgt6juKWj0731Jo8JPjUpihx5Tja5I2VNSWQH5WuynmcQeeuc1
- 0+CbMDHdgk6gqlv3PR4N/Opc/nJdfymMEwRtIBoEWzw3Pnyuuej/bG2mVxj0cLQpyq39 PQ== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7198A4BFC1;
+        Mon, 23 May 2022 04:19:17 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24NB02bL018651;
+        Mon, 23 May 2022 11:19:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=txdmkUzOiYp+J1OhdbK85d8BeqClBeE6H3qwVAzteo0=;
+ b=qeI9Z0EkTcUw0230/ls5KpaHmKpuU+RPbLbx7XHFyBk009pjblEzsIxbDTumER8Dk8D6
+ sukM0woKjCFnswgv0Qii9hxOIWu+nThFXtIYmLkjGIr2pVdpopdpDIKzBJ9BZ7tkWGL8
+ ABRphc5M78W24KEdVoUQPSDZSgtYTPW6bbWXKOKHnuzQiu5BS0Ba4Q3AOOVJ67J4EpLa
+ mysJ5Nw3R/e3oQyXiS3RcJOFgVfWpcKSrglxj+c9F/Asw6xhZ8i25G49GOz1qUz4ygG6
+ pxLorbuDgau678jhJXkCON4BAOKhdrxQjhFpT36bXLQIwonPOTklFzRT7wBjcvhoO7Pm 4g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g79f59hj5-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g79ctbkdv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 May 2022 09:56:32 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24N9IONt003260;
-        Mon, 23 May 2022 09:56:31 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g79f59hhd-1
+        Mon, 23 May 2022 11:19:10 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24NBC9xP010018;
+        Mon, 23 May 2022 11:19:10 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g79ctbkd8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 May 2022 09:56:31 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24N9PFxs022803;
-        Mon, 23 May 2022 09:56:29 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03fra.de.ibm.com with ESMTP id 3g6qq9a5ca-1
+        Mon, 23 May 2022 11:19:10 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24NAtNtf029515;
+        Mon, 23 May 2022 11:19:07 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3g6qbjaqa4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 May 2022 09:56:29 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24N9uPmE22086008
+        Mon, 23 May 2022 11:19:07 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24NBJ55X52166924
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 23 May 2022 09:56:25 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D1F5D42042;
-        Mon, 23 May 2022 09:56:25 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BF63A4203F;
-        Mon, 23 May 2022 09:56:25 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 23 May 2022 09:56:25 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id 85679E7962; Mon, 23 May 2022 11:56:25 +0200 (CEST)
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Subject: [GIT PULL 0/4] KVM: s390: Fix and feature for 5.19
-Date:   Mon, 23 May 2022 11:56:21 +0200
-Message-Id: <20220523095625.13913-1-borntraeger@linux.ibm.com>
-X-Mailer: git-send-email 2.35.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Hu-xkmGfz3Gb7qx3ScVXWblL7zUmIShE
-X-Proofpoint-ORIG-GUID: kz5C-fpvKDJGec2PxLoUrRARpfB7Xpmu
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Mon, 23 May 2022 11:19:05 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2B223A405B;
+        Mon, 23 May 2022 11:19:05 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D4247A4054;
+        Mon, 23 May 2022 11:19:04 +0000 (GMT)
+Received: from [9.152.222.246] (unknown [9.152.222.246])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 23 May 2022 11:19:04 +0000 (GMT)
+Message-ID: <76eeb1b0-6e4f-986b-c32f-e7e4de3426a7@linux.ibm.com>
+Date:   Mon, 23 May 2022 13:19:04 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH net] net/smc: fix listen processing for SMC-Rv2
+Content-Language: en-US
+To:     liuyacan@corp.netease.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ubraun@linux.ibm.com
+References: <20220523055056.2078994-1-liuyacan@corp.netease.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20220523055056.2078994-1-liuyacan@corp.netease.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Bk-q3-zXkS3wgpa7rucB5ljCpGHgiNgK
+X-Proofpoint-ORIG-GUID: fNFpVf00xDpP7B0p4qsPRk-zhPW_6sSF
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-23_03,2022-05-20_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
- impostorscore=0 mlxscore=0 suspectscore=0 clxscore=1015 phishscore=0
- mlxlogscore=999 adultscore=0 priorityscore=1501 spamscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205230051
+ definitions=2022-05-23_04,2022-05-23_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 adultscore=0
+ priorityscore=1501 malwarescore=0 suspectscore=0 phishscore=0 mlxscore=0
+ lowpriorityscore=0 spamscore=0 mlxlogscore=931 impostorscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205230061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Paolo,
+On 23/05/2022 07:50, liuyacan@corp.netease.com wrote:
+> From: liuyacan <liuyacan@corp.netease.com>
+> 
+> In the process of checking whether RDMAv2 is available, the current
+> implementation first sets ini->smcrv2.ib_dev_v2, and then allocates
+> smc buf desc, but the latter may fail. Unfortunately, the caller
+> will only check the former. In this case, a NULL pointer reference
+> will occur in smc_clc_send_confirm_accept() when accessing
+> conn->rmb_desc.
+> 
+> This patch does two things:
+> 1. Use the return code to determine whether V2 is available.
+> 2. If the return code is NODEV, continue to check whether V1 is
+> available.
+> 
+> Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
+> Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+> ---
 
-only a small set of changes and sorry for the late pull.
-If Greg asks, the ultravisor device driver has userspace code that is
-acked by the s390 tools maintainer and will follow after the driver
-hits the kernel.
+I am not happy with this patch. You are right that this is a problem,
+but the fix should be much simpler: set ini->smcrv2.ib_dev_v2 = NULL in
+smc_find_rdma_v2_device_serv() after the not_found label, just like it is
+done in a similar way for the ISM device in smc_find_ism_v1_device_serv().
 
+Your patch changes many more things, and beside that you eliminated the calls 
+to smc_find_ism_store_rc() completely, which is not correct.
 
-The following changes since commit ce522ba9ef7e2d9fb22a39eb3371c0c64e2a433e:
-
-  Linux 5.18-rc2 (2022-04-10 14:21:36 -1000)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.19-1
-
-for you to fetch changes up to c71159648c3cf0f7127ddc0bdf3eb4d7885210df:
-
-  KVM: s390: selftest: Test suppression indication on key prot exception (2022-05-20 16:38:42 +0200)
-
-----------------------------------------------------------------
-KVM: s390: Fix and feature for 5.19
-
-- ultravisor communication device driver
-- fix TEID on terminating storage key ops
-
-----------------------------------------------------------------
-Janis Schoetterl-Glausch (2):
-      KVM: s390: Don't indicate suppression on dirtying, failing memop
-      KVM: s390: selftest: Test suppression indication on key prot exception
-
-Steffen Eiden (2):
-      drivers/s390/char: Add Ultravisor io device
-      selftests: drivers/s390x: Add uvdevice tests
-
- Documentation/virt/kvm/api.rst                     |   6 +
- MAINTAINERS                                        |   3 +
- arch/s390/include/asm/uv.h                         |  23 +-
- arch/s390/include/uapi/asm/uvdevice.h              |  51 ++++
- arch/s390/kvm/gaccess.c                            |  22 +-
- drivers/s390/char/Kconfig                          |  10 +
- drivers/s390/char/Makefile                         |   1 +
- drivers/s390/char/uvdevice.c                       | 257 +++++++++++++++++++
- tools/testing/selftests/Makefile                   |   1 +
- tools/testing/selftests/drivers/.gitignore         |   1 +
- .../selftests/drivers/s390x/uvdevice/Makefile      |  22 ++
- .../selftests/drivers/s390x/uvdevice/config        |   1 +
- .../drivers/s390x/uvdevice/test_uvdevice.c         | 276 +++++++++++++++++++++
- tools/testing/selftests/kvm/s390x/memop.c          |  46 +++-
- 14 files changed, 714 insertions(+), 6 deletions(-)
- create mode 100644 arch/s390/include/uapi/asm/uvdevice.h
- create mode 100644 drivers/s390/char/uvdevice.c
- create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/Makefile
- create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/config
- create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/test_uvdevice.c
+Since your patch was already applied (btw. 3:20 hours after you submitted it),
+please revert it and resend. Thank you.
