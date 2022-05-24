@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A02C5C43217
-	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 19:00:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBEADC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 19:01:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240730AbiEXTAv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 24 May 2022 15:00:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54766 "EHLO
+        id S240623AbiEXTA5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 24 May 2022 15:00:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240729AbiEXTA3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 May 2022 15:00:29 -0400
+        with ESMTP id S240686AbiEXTAM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 May 2022 15:00:12 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940D6666BD;
-        Tue, 24 May 2022 12:00:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9FD77CB4F;
+        Tue, 24 May 2022 11:59:49 -0700 (PDT)
 Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OIop9e015632;
-        Tue, 24 May 2022 18:59:54 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OIopQH015628;
+        Tue, 24 May 2022 18:59:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=7cPrNIVkC7pg6rBp57wFO9q+Zr+7TBBC/IIv83/kPHc=;
- b=UNoZzhu1oh8PMbvj271Nma/VFRBQusr74GX6Op7FDvswOyJuWj6MbLIbySo1ZeeXqpTi
- IszkZc/Ofa8dqzZA+SyFp7bsvndtWr95FWBSp2ppYPEPI0B9WaCNzZGnR0BGPRMb7kFf
- OzVkN/iPL8AuheqNiiPiNOWZdKM+3u1qh0KioqPQUKaR2HktBPQp7/2eknx+I4bmyRNl
- DpOUqUqd9SP7Qirze8m9jQ7WSDsTh8ykT1Kqsrpjosk0DDjh2df2hDJ7IpVLr41vjE2x
- J2ia/dBDbJqx33/8diKFqjZZQYKGZBfJaYwUofML0nTSO3ZvhkvN0vjNQmNZRmq71NUh Vg== 
+ bh=bcIkHDDE9CBTib8HklU9WPUB3i95RCiMuxJRFaOB9go=;
+ b=hpQlYF8Jimqn33NtcbRKPXZmRWiY3yksb/zRB1XocL+A/dRKH3fk4VXsfK5JJBxFiG+m
+ 72KRZwgDZq8iPXAn69SVTrzw1w4h/tcDWX6z/0x7RrYuR/ZNvddanFH2Q0tksQOW2OBo
+ jfZKHRMPYR0b/kTNKI+whbVIaGcDpb5Q0vUtaOSfw1ahf1bSMBMzMrMf+0onaUZkgU3i
+ 3OVpS2cVTO4HqoopN9SeCiyQcOi4Z9kl/LZTLIHSLz5AIAt3lsyQiQGkNX6IhotWcR8H
+ TtwOkpu75Jjpu17lnUhD7f24KiJ70C/kJffpWHrAfv4OWGlkNqYczIfpu1/S+nMcEp1w pw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g950j04ub-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g950j04rj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:59:53 +0000
+        Tue, 24 May 2022 18:59:44 +0000
 Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24OIur2O027157;
-        Tue, 24 May 2022 18:59:53 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g950j04u3-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24OIsc0a006577;
+        Tue, 24 May 2022 18:59:44 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g950j04rb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:59:53 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24OIqsEn031412;
-        Tue, 24 May 2022 18:59:52 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma02dal.us.ibm.com with ESMTP id 3g93v80nng-1
+        Tue, 24 May 2022 18:59:44 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24OIrvAJ011874;
+        Tue, 24 May 2022 18:59:43 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma03dal.us.ibm.com with ESMTP id 3g93ut8nvd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:59:52 +0000
+        Tue, 24 May 2022 18:59:43 +0000
 Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24OIxpwf44433918
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24OIxfdq25559336
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 24 May 2022 18:59:51 GMT
+        Tue, 24 May 2022 18:59:41 GMT
 Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E0C58BE059;
-        Tue, 24 May 2022 18:59:50 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id AE83ABE056;
+        Tue, 24 May 2022 18:59:41 +0000 (GMT)
 Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D08A2BE056;
-        Tue, 24 May 2022 18:59:48 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 90B1EBE059;
+        Tue, 24 May 2022 18:59:39 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.163.3.233])
         by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 24 May 2022 18:59:48 +0000 (GMT)
+        Tue, 24 May 2022 18:59:39 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -69,386 +69,433 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: [PATCH v8 16/22] KVM: s390: pci: add routines to start/stop interpretive execution
-Date:   Tue, 24 May 2022 14:59:01 -0400
-Message-Id: <20220524185907.140285-17-mjrosato@linux.ibm.com>
+Subject: [PATCH v8 12/22] KVM: s390: pci: do initial setup for AEN interpretation
+Date:   Tue, 24 May 2022 14:58:57 -0400
+Message-Id: <20220524185907.140285-13-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220524185907.140285-1-mjrosato@linux.ibm.com>
 References: <20220524185907.140285-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 8TDey4Yi58fecimGpVNvvqiwKuGKm5bb
-X-Proofpoint-GUID: mskqKQOjhdnF6-LEd6g1WTa7aClLmJtA
+X-Proofpoint-ORIG-GUID: BoZyWBvjoxrGO1OldQHf2DKAWyVcGBdk
+X-Proofpoint-GUID: pMDhRfsTNw9ZO7pEijQpjp8Y5VdgXE6E
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-24_09,2022-05-23_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
  clxscore=1015 bulkscore=0 phishscore=0 adultscore=0 spamscore=0
- malwarescore=0 suspectscore=0 mlxlogscore=988 impostorscore=0
+ malwarescore=0 suspectscore=0 mlxlogscore=999 impostorscore=0
  lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
  scancount=1 engine=8.12.0-2204290000 definitions=main-2205240090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These routines will be invoked at the time an s390x vfio-pci device is
-associated with a KVM (or when the association is removed), allowing
-the zPCI device to enable or disable load/store intepretation mode;
-this requires the host zPCI device to inform firmware of the unique
-token (GISA designation) that is associated with the owning KVM.
+Initial setup for Adapter Event Notification Interpretation for zPCI
+passthrough devices.  Specifically, allocate a structure for forwarding of
+adapter events and pass the address of this structure to firmware.
 
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  21 ++++
- arch/s390/include/asm/pci.h      |   1 +
- arch/s390/kvm/kvm-s390.c         |  15 +++
- arch/s390/kvm/pci.c              | 167 +++++++++++++++++++++++++++++++
- arch/s390/kvm/pci.h              |   5 +
- arch/s390/pci/pci.c              |   4 +
- 6 files changed, 213 insertions(+)
+ arch/s390/include/asm/pci.h      |   4 +
+ arch/s390/include/asm/pci_insn.h |  12 +++
+ arch/s390/kvm/interrupt.c        |  14 +++
+ arch/s390/kvm/kvm-s390.c         |  11 +++
+ arch/s390/kvm/pci.c              | 160 +++++++++++++++++++++++++++++++
+ arch/s390/kvm/pci.h              |  49 ++++++++++
+ arch/s390/pci/pci.c              |   6 ++
+ 7 files changed, 256 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 8e381603b6a7..2bf931d290b5 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -19,6 +19,7 @@
- #include <linux/kvm.h>
- #include <linux/seqlock.h>
- #include <linux/module.h>
-+#include <linux/pci.h>
- #include <asm/debug.h>
- #include <asm/cpu.h>
- #include <asm/fpu/api.h>
-@@ -967,6 +968,8 @@ struct kvm_arch{
- 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
- 	struct kvm_s390_gisa_interrupt gisa_int;
- 	struct kvm_s390_pv pv;
-+	struct list_head kzdev_list;
-+	spinlock_t kzdev_list_lock;
- };
- 
- #define KVM_HVA_ERR_BAD		(-1UL)
-@@ -1017,4 +1020,22 @@ static inline void kvm_arch_flush_shadow_memslot(struct kvm *kvm,
- static inline void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu) {}
- static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
- 
-+#define __KVM_HAVE_ARCH_VM_FREE
-+void kvm_arch_free_vm(struct kvm *kvm);
-+
-+#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
-+int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm);
-+int kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev);
-+#else
-+static inline int kvm_s390_pci_register_kvm(struct zpci_dev *dev,
-+					    struct kvm *kvm)
-+{
-+	return -EPERM;
-+}
-+static inline int kvm_s390_pci_unregister_kvm(struct zpci_dev *dev)
-+{
-+	return -EPERM;
-+}
-+#endif
-+
- #endif
 diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 322060a75d9f..85eb0ef9d4c3 100644
+index 50f1851edfbe..322060a75d9f 100644
 --- a/arch/s390/include/asm/pci.h
 +++ b/arch/s390/include/asm/pci.h
-@@ -194,6 +194,7 @@ struct zpci_dev {
- 	/* IOMMU and passthrough */
- 	struct s390_domain *s390_domain; /* s390 IOMMU domain data */
- 	struct kvm_zdev *kzdev;
-+	struct mutex kzdev_lock;
+@@ -9,6 +9,7 @@
+ #include <asm-generic/pci.h>
+ #include <asm/pci_clp.h>
+ #include <asm/pci_debug.h>
++#include <asm/pci_insn.h>
+ #include <asm/sclp.h>
+ 
+ #define PCIBIOS_MIN_IO		0x1000
+@@ -204,6 +205,9 @@ extern const struct attribute_group *zpci_attr_groups[];
+ extern unsigned int s390_pci_force_floating __initdata;
+ extern unsigned int s390_pci_no_rid;
+ 
++extern union zpci_sic_iib *zpci_aipb;
++extern struct airq_iv *zpci_aif_sbv;
++
+ /* -----------------------------------------------------------------------------
+   Prototypes
+ ----------------------------------------------------------------------------- */
+diff --git a/arch/s390/include/asm/pci_insn.h b/arch/s390/include/asm/pci_insn.h
+index 5331082fa516..e5f57cfe1d45 100644
+--- a/arch/s390/include/asm/pci_insn.h
++++ b/arch/s390/include/asm/pci_insn.h
+@@ -101,6 +101,7 @@ struct zpci_fib {
+ /* Set Interruption Controls Operation Controls  */
+ #define	SIC_IRQ_MODE_ALL		0
+ #define	SIC_IRQ_MODE_SINGLE		1
++#define	SIC_SET_AENI_CONTROLS		2
+ #define	SIC_IRQ_MODE_DIRECT		4
+ #define	SIC_IRQ_MODE_D_ALL		16
+ #define	SIC_IRQ_MODE_D_SINGLE		17
+@@ -127,9 +128,20 @@ struct zpci_cdiib {
+ 	u64 : 64;
+ } __packed __aligned(8);
+ 
++/* adapter interruption parameters block */
++struct zpci_aipb {
++	u64 faisb;
++	u64 gait;
++	u16 : 13;
++	u16 afi : 3;
++	u32 : 32;
++	u16 faal;
++} __packed __aligned(8);
++
+ union zpci_sic_iib {
+ 	struct zpci_diib diib;
+ 	struct zpci_cdiib cdiib;
++	struct zpci_aipb aipb;
  };
  
- static inline bool zdev_enabled(struct zpci_dev *zdev)
+ DECLARE_STATIC_KEY_FALSE(have_mio);
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 17ff475157d8..37ff4358121a 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -32,6 +32,7 @@
+ #include "kvm-s390.h"
+ #include "gaccess.h"
+ #include "trace-s390.h"
++#include "pci.h"
+ 
+ #define PFAULT_INIT 0x0600
+ #define PFAULT_DONE 0x0680
+@@ -3328,6 +3329,11 @@ void kvm_s390_gib_destroy(void)
+ {
+ 	if (!gib)
+ 		return;
++	if (kvm_s390_pci_interp_allowed() && aift) {
++		mutex_lock(&aift->aift_lock);
++		kvm_s390_pci_aen_exit();
++		mutex_unlock(&aift->aift_lock);
++	}
+ 	chsc_sgib(0);
+ 	unregister_adapter_interrupt(&gib_alert_irq);
+ 	free_page((unsigned long)gib);
+@@ -3365,6 +3371,14 @@ int kvm_s390_gib_init(u8 nisc)
+ 		goto out_unreg_gal;
+ 	}
+ 
++	if (kvm_s390_pci_interp_allowed()) {
++		if (kvm_s390_pci_aen_init(nisc)) {
++			pr_err("Initializing AEN for PCI failed\n");
++			rc = -EIO;
++			goto out_unreg_gal;
++		}
++	}
++
+ 	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
+ 	goto out;
+ 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 981c70f0c1fa..b8dd1587c125 100644
+index 76ad6408cb2c..efc0d8e22308 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -2794,6 +2794,14 @@ static void sca_dispose(struct kvm *kvm)
- 	kvm->arch.sca = NULL;
- }
+@@ -47,6 +47,7 @@
+ #include <asm/fpu/api.h>
+ #include "kvm-s390.h"
+ #include "gaccess.h"
++#include "pci.h"
  
-+void kvm_arch_free_vm(struct kvm *kvm)
-+{
-+	if (IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM))
-+		kvm_s390_pci_clear_list(kvm);
-+
-+	__kvm_arch_free_vm(kvm);
-+}
-+
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
- 	gfp_t alloc_flags = GFP_KERNEL_ACCOUNT;
-@@ -2876,6 +2884,13 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ #define CREATE_TRACE_POINTS
+ #include "trace.h"
+@@ -502,6 +503,14 @@ int kvm_arch_init(void *opaque)
+ 		goto out;
+ 	}
  
- 	kvm_s390_crypto_init(kvm);
- 
-+	if (IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM)) {
-+		mutex_lock(&kvm->lock);
-+		kvm_s390_pci_init_list(kvm);
-+		kvm_s390_vcpu_pci_enable_interp(kvm);
-+		mutex_unlock(&kvm->lock);
++	if (kvm_s390_pci_interp_allowed()) {
++		rc = kvm_s390_pci_init();
++		if (rc) {
++			pr_err("Unable to allocate AIFT for PCI\n");
++			goto out;
++		}
 +	}
 +
- 	mutex_init(&kvm->arch.float_int.ais_lock);
- 	spin_lock_init(&kvm->arch.float_int.lock);
- 	for (i = 0; i < FIRQ_LIST_COUNT; i++)
+ 	rc = kvm_s390_gib_init(GAL_ISC);
+ 	if (rc)
+ 		goto out;
+@@ -516,6 +525,8 @@ int kvm_arch_init(void *opaque)
+ void kvm_arch_exit(void)
+ {
+ 	kvm_s390_gib_destroy();
++	if (kvm_s390_pci_interp_allowed())
++		kvm_s390_pci_exit();
+ 	debug_unregister(kvm_s390_dbf);
+ 	debug_unregister(kvm_s390_dbf_uv);
+ }
 diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index 5a9bc954e677..29166683998f 100644
+index 21c2be5c2713..268cbe99fbac 100644
 --- a/arch/s390/kvm/pci.c
 +++ b/arch/s390/kvm/pci.c
-@@ -12,7 +12,9 @@
- #include <asm/pci.h>
- #include <asm/pci_insn.h>
- #include <asm/pci_io.h>
-+#include <asm/sclp.h>
- #include "pci.h"
-+#include "kvm-s390.h"
+@@ -9,8 +9,149 @@
  
- struct zpci_aift *aift;
- 
-@@ -423,6 +425,171 @@ static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
- 	kfree(kzdev);
- }
- 
-+
-+/*
-+ * Register device with the specified KVM. If interpetation facilities are
-+ * available, enable them and let userspace indicate whether or not they will
-+ * be used (specify SHM bit to disable).
-+ */
-+int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
-+{
-+	int rc;
-+
-+	if (!zdev)
-+		return -EINVAL;
-+
-+	mutex_lock(&zdev->kzdev_lock);
-+
-+	if (zdev->kzdev || zdev->gisa != 0 || !kvm) {
-+		mutex_unlock(&zdev->kzdev_lock);
-+		return -EINVAL;
-+	}
-+
-+	kvm_get_kvm(kvm);
-+
-+	mutex_lock(&kvm->lock);
-+
-+	rc = kvm_s390_pci_dev_open(zdev);
-+	if (rc)
-+		goto err;
-+
-+	/*
-+	 * If interpretation facilities aren't available, add the device to
-+	 * the kzdev list but don't enable for interpretation.
-+	 */
-+	if (!kvm_s390_pci_interp_allowed())
-+		goto out;
-+
-+	/*
-+	 * If this is the first request to use an interpreted device, make the
-+	 * necessary vcpu changes
-+	 */
-+	if (!kvm->arch.use_zpci_interp)
-+		kvm_s390_vcpu_pci_enable_interp(kvm);
-+
-+	if (zdev_enabled(zdev)) {
-+		rc = zpci_disable_device(zdev);
-+		if (rc)
-+			goto err;
-+	}
-+
-+	/*
-+	 * Store information about the identity of the kvm guest allowed to
-+	 * access this device via interpretation to be used by host CLP
-+	 */
-+	zdev->gisa = (u32)virt_to_phys(&kvm->arch.sie_page2->gisa);
-+
-+	rc = zpci_enable_device(zdev);
-+	if (rc)
-+		goto clear_gisa;
-+
-+	/* Re-register the IOMMU that was already created */
-+	rc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-+				virt_to_phys(zdev->dma_table));
-+	if (rc)
-+		goto clear_gisa;
-+
-+out:
-+	zdev->kzdev->kvm = kvm;
-+
-+	spin_lock(&kvm->arch.kzdev_list_lock);
-+	list_add_tail(&zdev->kzdev->entry, &kvm->arch.kzdev_list);
-+	spin_unlock(&kvm->arch.kzdev_list_lock);
-+
-+	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&zdev->kzdev_lock);
-+	return 0;
-+
-+clear_gisa:
-+	zdev->gisa = 0;
-+err:
-+	if (zdev->kzdev)
-+		kvm_s390_pci_dev_release(zdev);
-+	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&zdev->kzdev_lock);
-+	kvm_put_kvm(kvm);
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(kvm_s390_pci_register_kvm);
-+
-+int kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev)
-+{
-+	struct kvm *kvm;
-+	int rc;
-+
-+	if (!zdev)
-+		return -EINVAL;
-+
-+	mutex_lock(&zdev->kzdev_lock);
-+
-+	if (!zdev->kzdev) {
-+		mutex_unlock(&zdev->kzdev_lock);
-+		return -EINVAL;
-+	}
-+
-+	kvm = zdev->kzdev->kvm;
-+	mutex_lock(&kvm->lock);
-+
-+	/*
-+	 * A 0 gisa means interpretation was never enabled, just remove the
-+	 * device from the list.
-+	 */
-+	if (zdev->gisa == 0)
-+		goto out;
-+
-+	/* Forwarding must be turned off before interpretation */
-+	if (zdev->kzdev->fib.fmt0.aibv != 0)
-+		kvm_s390_pci_aif_disable(zdev, true);
-+
-+	/* Remove the host CLP guest designation */
-+	zdev->gisa = 0;
-+
-+	if (zdev_enabled(zdev)) {
-+		rc = zpci_disable_device(zdev);
-+		if (rc)
-+			goto out;
-+	}
-+
-+	rc = zpci_enable_device(zdev);
-+	if (rc)
-+		goto out;
-+
-+	/* Re-register the IOMMU that was already created */
-+	rc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-+				virt_to_phys(zdev->dma_table));
-+
-+out:
-+	spin_lock(&kvm->arch.kzdev_list_lock);
-+	list_del(&zdev->kzdev->entry);
-+	spin_unlock(&kvm->arch.kzdev_list_lock);
-+	kvm_s390_pci_dev_release(zdev);
-+
-+	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&zdev->kzdev_lock);
-+
-+	kvm_put_kvm(kvm);
-+
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(kvm_s390_pci_unregister_kvm);
-+
-+void kvm_s390_pci_init_list(struct kvm *kvm)
-+{
-+	spin_lock_init(&kvm->arch.kzdev_list_lock);
-+	INIT_LIST_HEAD(&kvm->arch.kzdev_list);
-+}
-+
-+void kvm_s390_pci_clear_list(struct kvm *kvm)
-+{
-+	/*
-+	 * This list should already be empty, either via vfio device closures
-+	 * or kvm fd cleanup.
-+	 */
-+	spin_lock(&kvm->arch.kzdev_list_lock);
-+	WARN_ON_ONCE(!list_empty(&kvm->arch.kzdev_list));
-+	spin_unlock(&kvm->arch.kzdev_list_lock);
-+}
-+
- int kvm_s390_pci_init(void)
- {
- 	aift = kzalloc(sizeof(struct zpci_aift), GFP_KERNEL);
-diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
-index 9d091033fc02..fb2b91b76e0c 100644
---- a/arch/s390/kvm/pci.h
-+++ b/arch/s390/kvm/pci.h
-@@ -13,6 +13,7 @@
  #include <linux/kvm_host.h>
  #include <linux/pci.h>
- #include <linux/mutex.h>
-+#include <linux/kvm.h>
++#include <asm/pci.h>
++#include <asm/pci_insn.h>
+ #include "pci.h"
+ 
++struct zpci_aift *aift;
++
++static inline int __set_irq_noiib(u16 ctl, u8 isc)
++{
++	union zpci_sic_iib iib = {{0}};
++
++	return zpci_set_irq_ctrl(ctl, isc, &iib);
++}
++
++void kvm_s390_pci_aen_exit(void)
++{
++	unsigned long flags;
++	struct kvm_zdev **gait_kzdev;
++
++	lockdep_assert_held(&aift->aift_lock);
++
++	/*
++	 * Contents of the aipb remain registered for the life of the host
++	 * kernel, the information preserved in zpci_aipb and zpci_aif_sbv
++	 * in case we insert the KVM module again later.  Clear the AIFT
++	 * information and free anything not registered with underlying
++	 * firmware.
++	 */
++	spin_lock_irqsave(&aift->gait_lock, flags);
++	gait_kzdev = aift->kzdev;
++	aift->gait = 0;
++	aift->sbv = 0;
++	aift->kzdev = 0;
++	spin_unlock_irqrestore(&aift->gait_lock, flags);
++
++	kfree(gait_kzdev);
++}
++
++static int zpci_setup_aipb(u8 nisc)
++{
++	struct page *page;
++	int size, rc;
++
++	zpci_aipb = kzalloc(sizeof(union zpci_sic_iib), GFP_KERNEL);
++	if (!zpci_aipb)
++		return -ENOMEM;
++
++	aift->sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC, 0);
++	if (!aift->sbv) {
++		rc = -ENOMEM;
++		goto free_aipb;
++	}
++	zpci_aif_sbv = aift->sbv;
++	size = get_order(PAGE_ALIGN(ZPCI_NR_DEVICES *
++						sizeof(struct zpci_gaite)));
++	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, size);
++	if (!page) {
++		rc = -ENOMEM;
++		goto free_sbv;
++	}
++	aift->gait = (struct zpci_gaite *)page_to_phys(page);
++
++	zpci_aipb->aipb.faisb = virt_to_phys(aift->sbv->vector);
++	zpci_aipb->aipb.gait = virt_to_phys(aift->gait);
++	zpci_aipb->aipb.afi = nisc;
++	zpci_aipb->aipb.faal = ZPCI_NR_DEVICES;
++
++	/* Setup Adapter Event Notification Interpretation */
++	if (zpci_set_irq_ctrl(SIC_SET_AENI_CONTROLS, 0, zpci_aipb)) {
++		rc = -EIO;
++		goto free_gait;
++	}
++
++	return 0;
++
++free_gait:
++	free_pages((unsigned long)aift->gait, size);
++free_sbv:
++	airq_iv_release(aift->sbv);
++	zpci_aif_sbv = 0;
++free_aipb:
++	kfree(zpci_aipb);
++	zpci_aipb = 0;
++
++	return rc;
++}
++
++static int zpci_reset_aipb(u8 nisc)
++{
++	/*
++	 * AEN registration can only happen once per system boot.  If
++	 * an aipb already exists then AEN was already registered and
++	 * we can re-use the aipb contents.  This can only happen if
++	 * the KVM module was removed and re-inserted.  However, we must
++	 * ensure that the same forwarding ISC is used as this is assigned
++	 * during KVM module load.
++	 */
++	if (zpci_aipb->aipb.afi != nisc)
++		return -EINVAL;
++
++	aift->sbv = zpci_aif_sbv;
++	aift->gait = (struct zpci_gaite *)zpci_aipb->aipb.gait;
++
++	return 0;
++}
++
++int kvm_s390_pci_aen_init(u8 nisc)
++{
++	int rc = 0;
++
++	/* If already enabled for AEN, bail out now */
++	if (aift->gait || aift->sbv)
++		return -EPERM;
++
++	mutex_lock(&aift->aift_lock);
++	aift->kzdev = kcalloc(ZPCI_NR_DEVICES, sizeof(struct kvm_zdev),
++			      GFP_KERNEL);
++	if (!aift->kzdev) {
++		rc = -ENOMEM;
++		goto unlock;
++	}
++
++	if (!zpci_aipb)
++		rc = zpci_setup_aipb(nisc);
++	else
++		rc = zpci_reset_aipb(nisc);
++	if (rc)
++		goto free_zdev;
++
++	/* Enable floating IRQs */
++	if (__set_irq_noiib(SIC_IRQ_MODE_SINGLE, nisc)) {
++		rc = -EIO;
++		kvm_s390_pci_aen_exit();
++	}
++
++	goto unlock;
++
++free_zdev:
++	kfree(aift->kzdev);
++unlock:
++	mutex_unlock(&aift->aift_lock);
++	return rc;
++}
++
+ static int kvm_s390_pci_dev_open(struct zpci_dev *zdev)
+ {
+ 	struct kvm_zdev *kzdev;
+@@ -34,3 +175,22 @@ static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
+ 	zdev->kzdev = 0;
+ 	kfree(kzdev);
+ }
++
++int kvm_s390_pci_init(void)
++{
++	aift = kzalloc(sizeof(struct zpci_aift), GFP_KERNEL);
++	if (!aift)
++		return -ENOMEM;
++
++	spin_lock_init(&aift->gait_lock);
++	mutex_init(&aift->aift_lock);
++
++	return 0;
++}
++
++void kvm_s390_pci_exit(void)
++{
++	mutex_destroy(&aift->aift_lock);
++
++	kfree(aift);
++}
+diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
+index ce93978e8913..c357d900f8b0 100644
+--- a/arch/s390/kvm/pci.h
++++ b/arch/s390/kvm/pci.h
+@@ -12,10 +12,59 @@
+ 
  #include <linux/kvm_host.h>
- #include <asm/airq.h>
- #include <asm/cpu.h>
-@@ -21,6 +22,7 @@ struct kvm_zdev {
+ #include <linux/pci.h>
++#include <linux/mutex.h>
++#include <asm/airq.h>
++#include <asm/cpu.h>
+ 
+ struct kvm_zdev {
  	struct zpci_dev *zdev;
  	struct kvm *kvm;
- 	struct zpci_fib fib;
-+	struct list_head entry;
  };
  
- struct zpci_gaite {
-@@ -54,6 +56,9 @@ static inline struct kvm *kvm_s390_pci_si_to_kvm(struct zpci_aift *aift,
- int kvm_s390_pci_aen_init(u8 nisc);
- void kvm_s390_pci_aen_exit(void);
- 
-+void kvm_s390_pci_init_list(struct kvm *kvm);
-+void kvm_s390_pci_clear_list(struct kvm *kvm);
++struct zpci_gaite {
++	u32 gisa;
++	u8 gisc;
++	u8 count;
++	u8 reserved;
++	u8 aisbo;
++	u64 aisb;
++};
 +
- int kvm_s390_pci_init(void);
- void kvm_s390_pci_exit(void);
- 
++struct zpci_aift {
++	struct zpci_gaite *gait;
++	struct airq_iv *sbv;
++	struct kvm_zdev **kzdev;
++	spinlock_t gait_lock; /* Protects the gait, used during AEN forward */
++	struct mutex aift_lock; /* Protects the other structures in aift */
++};
++
++extern struct zpci_aift *aift;
++
++int kvm_s390_pci_aen_init(u8 nisc);
++void kvm_s390_pci_aen_exit(void);
++
++int kvm_s390_pci_init(void);
++void kvm_s390_pci_exit(void);
++
++static inline bool kvm_s390_pci_interp_allowed(void)
++{
++	struct cpuid cpu_id;
++
++	get_cpu_id(&cpu_id);
++	switch (cpu_id.machine) {
++	case 0x2817:
++	case 0x2818:
++	case 0x2827:
++	case 0x2828:
++	case 0x2964:
++	case 0x2965:
++		/* No SHM on certain machines */
++		return false;
++	default:
++		return (IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM) &&
++			sclp.has_zpci_lsi && sclp.has_aeni && sclp.has_aisi &&
++			sclp.has_aisii);
++	}
++}
++
+ #endif /* __KVM_S390_PCI_H */
 diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index f0a439c43395..c0a20c418513 100644
+index a86cd1cbb80e..f0a439c43395 100644
 --- a/arch/s390/pci/pci.c
 +++ b/arch/s390/pci/pci.c
-@@ -132,6 +132,7 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
- 		zpci_dbg(3, "reg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
- 	return cc;
- }
-+EXPORT_SYMBOL_GPL(zpci_register_ioat);
+@@ -61,6 +61,12 @@ DEFINE_STATIC_KEY_FALSE(have_mio);
  
- /* Modify PCI: Unregister I/O address translation parameters */
- int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
-@@ -712,6 +713,7 @@ int zpci_enable_device(struct zpci_dev *zdev)
- 		zpci_update_fh(zdev, fh);
- 	return rc;
- }
-+EXPORT_SYMBOL_GPL(zpci_enable_device);
+ static struct kmem_cache *zdev_fmb_cache;
  
- int zpci_disable_device(struct zpci_dev *zdev)
++/* AEN structures that must be preserved over KVM module re-insertion */
++union zpci_sic_iib *zpci_aipb;
++EXPORT_SYMBOL_GPL(zpci_aipb);
++struct airq_iv *zpci_aif_sbv;
++EXPORT_SYMBOL_GPL(zpci_aif_sbv);
++
+ struct zpci_dev *get_zdev_by_fid(u32 fid)
  {
-@@ -735,6 +737,7 @@ int zpci_disable_device(struct zpci_dev *zdev)
- 	}
- 	return rc;
- }
-+EXPORT_SYMBOL_GPL(zpci_disable_device);
- 
- /**
-  * zpci_hot_reset_device - perform a reset of the given zPCI function
-@@ -828,6 +831,7 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
- 
- 	kref_init(&zdev->kref);
- 	mutex_init(&zdev->lock);
-+	mutex_init(&zdev->kzdev_lock);
- 
- 	rc = zpci_init_iommu(zdev);
- 	if (rc)
+ 	struct zpci_dev *tmp, *zdev = NULL;
 -- 
 2.27.0
 
