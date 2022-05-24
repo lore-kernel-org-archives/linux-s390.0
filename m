@@ -2,61 +2,68 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30E04C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 19:02:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4296CC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 19:07:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240703AbiEXTCB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 24 May 2022 15:02:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54750 "EHLO
+        id S240832AbiEXTHO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 24 May 2022 15:07:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240972AbiEXTBP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 May 2022 15:01:15 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816158BD18;
-        Tue, 24 May 2022 12:00:38 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OIIWWB028627;
-        Tue, 24 May 2022 19:00:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=5Slx5FLdPNpExytNsZYr6fPsZUMWp2bLsUYnydB9xKg=;
- b=KUzISkoxgezcDirfa5DHQ34zrLQbj/WA9t9Kl7gWSfAMzTHf6JJAcVSwCLShm41Dh48t
- Ls2N7glOkNF/OlJKw7/ho3HuDU9DsnHWHgcPkMYMgZAZSR9/Z+19Zoxt91bPkD4yEA0E
- TCoCEW4WXF4q0mm2ChJ0ras2Oo2fSWRGeHRE39peuitFXeOLSu4w+VKYmNSBtJu35/x5
- 4iwG2j5hZRvpq/ewheF9sWIyAgoWfooRQ5Rdg81Dtbb3iMOWysmMtf2wCO26+g1lj0n3
- 1iCxBflpadkNZOWFJI50tOka6p0N76XYRj4vgBi9V7sRCXjZCYWBahW7UuYo+YW6hpcB 6g== 
+        with ESMTP id S240924AbiEXTHI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 May 2022 15:07:08 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F08F24F21;
+        Tue, 24 May 2022 12:06:58 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OIKlhL032304;
+        Tue, 24 May 2022 19:06:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : from : to : cc : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=/ue2Poc0hILLV7gtJGwQlryK+rzWjYj8WhQTasPSWSM=;
+ b=By9KAOmMy1AENiNfjW5u/RLLWS0NiO3voDsYf9omiM5V9l54ANArKdeb1Kez40M3FCjV
+ C9Sw9Gs2nx4dHyinI36JCOj1rgE02MptYVFG8OtzUkGf9NHJIrf4qLJOHDpYxrL6Nkn5
+ PZtN6GBBujBM+kWCoIU6FC4ZoYmUKMez2bRRzcmt6WbrmYzcOwe1rK/KAOGKfWEf/Ya6
+ oMl/kQcV0n/PXt5CNNlyLt1SjnJnO3NSqz1hZdys0kNoPG/Ew3Ac0NFeDq/VLMZuSC2R
+ F/FO3zkddxTc5Z9f5NLur9VswEf+qPYY0o+CikLMTi9HYvLvgvO3wKE3OIgiwUYl8G2K ag== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g94hd0ps4-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g94jf0taq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 19:00:05 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24OIi6mi001117;
-        Tue, 24 May 2022 19:00:05 GMT
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g94hd0prd-1
+        Tue, 24 May 2022 19:06:55 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24OIxNWm015551;
+        Tue, 24 May 2022 19:06:55 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g94jf0taa-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 19:00:04 +0000
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24OIs6eH021750;
-        Tue, 24 May 2022 19:00:03 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma01wdc.us.ibm.com with ESMTP id 3g93uu8hcy-1
+        Tue, 24 May 2022 19:06:55 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24OJ3BZe027630;
+        Tue, 24 May 2022 19:06:54 GMT
+Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
+        by ppma05wdc.us.ibm.com with ESMTP id 3g93vb8kms-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 19:00:03 +0000
-Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24OJ02Wm29360534
+        Tue, 24 May 2022 19:06:54 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24OJ6rK140370546
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 24 May 2022 19:00:02 GMT
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 71C10BE05A;
-        Tue, 24 May 2022 19:00:02 +0000 (GMT)
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4694DBE056;
-        Tue, 24 May 2022 19:00:00 +0000 (GMT)
-Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.163.3.233])
-        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 24 May 2022 19:00:00 +0000 (GMT)
+        Tue, 24 May 2022 19:06:53 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 08B736A04F;
+        Tue, 24 May 2022 19:06:53 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C1ED86A04D;
+        Tue, 24 May 2022 19:06:50 +0000 (GMT)
+Received: from [9.163.3.233] (unknown [9.163.3.233])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 24 May 2022 19:06:50 +0000 (GMT)
+Message-ID: <59746b70-de0e-35ba-98e7-b30aed2c959f@linux.ibm.com>
+Date:   Tue, 24 May 2022 15:06:50 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v8 00/22] KVM: s390: enable zPCI for interpretive
+ execution
+Content-Language: en-US
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -69,66 +76,59 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: [PATCH v8 21/22] KVM: s390: introduce CPU feature for zPCI Interpretation
-Date:   Tue, 24 May 2022 14:59:06 -0400
-Message-Id: <20220524185907.140285-22-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20220524185907.140285-1-mjrosato@linux.ibm.com>
 References: <20220524185907.140285-1-mjrosato@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220524185907.140285-1-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -hbfx28MxMgcA8gbg0hzUpt7gu72IonE
-X-Proofpoint-GUID: G6Pnv6nd3GWaMpfEzQrdzqYhbiDTalwv
+X-Proofpoint-ORIG-GUID: CdL2-EbQyPxa3yzWeIEN01TdyFEKb3DE
+X-Proofpoint-GUID: QCs9xGvigEgT5HLJTZmptPIDfgLAPqhv
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-24_09,2022-05-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- priorityscore=1501 mlxscore=0 malwarescore=0 suspectscore=0 bulkscore=0
- adultscore=0 phishscore=0 mlxlogscore=863 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2205240090
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=872
+ priorityscore=1501 impostorscore=0 spamscore=0 suspectscore=0 adultscore=0
+ clxscore=1015 bulkscore=0 mlxscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2205240094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-KVM_S390_VM_CPU_FEAT_ZPCI_INTERP relays whether zPCI interpretive
-execution is possible based on the available hardware facilities.
+On 5/24/22 2:58 PM, Matthew Rosato wrote:
+> Note: this version of the series is built on top of vfio -next:
+> https://github.com/awilliam/linux-vfio/tree/next
+> As it now depends on 'vfio: remove VFIO_GROUP_NOTIFY_SET_KVM' and its
+> prereqs.
+> Additionally, if you care to try testing this series on top of vfio -next
+> you'll also want to pick up this fix:
+> https://lore.kernel.org/kvm/20220519182929.581898-1-mjrosato@linux.ibm.com/
+> 
+> ---
+> 
+> Enable interpretive execution of zPCI instructions + adapter interruption
+> forwarding for s390x KVM vfio-pci.  This is done by triggering a routine
+> when the VFIO group is associated with the KVM guest, transmitting to
+> firmware a special token (GISA designation) to enable that specific guest
+> for interpretive execution on that zPCI device.  Load/store interpreation
+> enablement is then controlled by userspace (based upon whether or not a
+> SHM bit is placed in the virtual function handle).  Adapter Event
+> Notification interpretation is controlled from userspace via a new KVM
+> ioctl.
+> 
+> By allowing intepretation of zPCI instructions and firmware delivery of
+> interrupts to guests, we can reduce the frequency of guest SIE exits for
+> zPCI.
+> 
+>  From the perspective of guest configuration, you passthrough zPCI devices
+> in the same manner as before, with intepretation support being used by
+> default if available in kernel+qemu.
+> 
+> Will follow up with a link an updated QEMU series.
+> 
 
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- arch/s390/include/uapi/asm/kvm.h | 1 +
- arch/s390/kvm/kvm-s390.c         | 4 ++++
- 2 files changed, 5 insertions(+)
-
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 7a6b14874d65..ed06458a871f 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
- #define KVM_S390_VM_CPU_FEAT_PFMFI	11
- #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
- #define KVM_S390_VM_CPU_FEAT_KSS	13
-+#define KVM_S390_VM_CPU_FEAT_ZPCI_INTERP 14
- struct kvm_s390_vm_cpu_feat {
- 	__u64 feat[16];
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index af96b613d7e7..9da833a330f8 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -433,6 +433,10 @@ static void kvm_s390_cpu_feat_init(void)
- 	if (test_facility(151)) /* DFLTCC */
- 		__insn32_query(INSN_DFLTCC, kvm_s390_available_subfunc.dfltcc);
- 
-+	/* zPCI Interpretation */
-+	if (kvm_s390_pci_interp_allowed())
-+		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ZPCI_INTERP);
-+
- 	if (MACHINE_HAS_ESOP)
- 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
- 	/*
--- 
-2.27.0
+QEMU v6 series:
+https://lore.kernel.org/kvm/20220524190305.140717-1-mjrosato@linux.ibm.com/
 
