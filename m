@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3872CC4321E
-	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 19:00:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C1FDC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 19:00:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240671AbiEXS76 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 24 May 2022 14:59:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54304 "EHLO
+        id S240602AbiEXTAG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 24 May 2022 15:00:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240623AbiEXS74 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 May 2022 14:59:56 -0400
+        with ESMTP id S240664AbiEXS75 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 May 2022 14:59:57 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 106ED68FBA;
-        Tue, 24 May 2022 11:59:42 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OHWB3R027096;
-        Tue, 24 May 2022 18:59:38 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C505BE46;
+        Tue, 24 May 2022 11:59:46 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OI35Fx021127;
+        Tue, 24 May 2022 18:59:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=M74r3Ua+EIq+K9RU4M+8Ajfg0WOUgyyO3dS1VNZKXEw=;
- b=iLNaai+UAQbfbouJ2VTVpWBULvYNu4x8L1kt0d7NCez1tSI96NzL4P96bEgz28VZeOPB
- STuD/Xm5/VBcAHSNY9LK22CZ0etS6ibKc67gV2OWa7w0pHYUmfg4KdDWrxFRadgXAVHe
- vIYh8gJzsephTkpP9q75X0QCfVbNTEUjp0OGC93ktfzV9icf1R2CUE4mFqhKQf2I2o8N
- GH4N+PaY6uwfTXuRimfe/W587gJOitvzo+YqIXY+V877iYAiHWI9/ym9E7aQePjSWr9l
- xFxcIpn/ErU4kVwggJ/vsJCQ5K7qSPwIJIOMInbuoeoIY9kAXvAxv+MI/0JWug4rXudJ 6g== 
+ bh=Bgx4qyus2FUvcvE4vSD4y7d6W+fI9ESLAW/cHhV1dIY=;
+ b=XUJTdeZQvRUiOdPSOsV54XqrizWGOMwgJKIPBnUQQ9S5gWvLpn8cJaoMwgEYzNX6PUHJ
+ BPeGGlEjqwrAh3yQGIB0xnQ518wMT9ruHhqkoyqYFu9eGA5smG1lqSHx3/Ej7sqKp+zt
+ lJrxG7abSfG/O1bhRia00IV9GupvlydePu1CusgRFMCgw/iSvqtAwlhBEUlBVTJq6Xd6
+ 7+x40k/d+jbRLHokRYO7d641b/xW3Zu5DM8+kcbqHaVA1mbw4vCa0A6DN19LtCATNpcg
+ Cwm0k8JESYVMJTs+0Yw750aFhLhOF1Tul/aBp1xhW8EkNzBfNXIkqHIGol/jRFgEOPEE Uw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g93un1n3m-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g93uk1mf8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:59:38 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24OIxbhn008168;
-        Tue, 24 May 2022 18:59:37 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g93un1n3c-1
+        Tue, 24 May 2022 18:59:42 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24OIP7ZZ009163;
+        Tue, 24 May 2022 18:59:42 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g93uk1mes-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:59:37 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24OIrx0Z011962;
-        Tue, 24 May 2022 18:59:36 GMT
-Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
-        by ppma03dal.us.ibm.com with ESMTP id 3g93ut8nuq-1
+        Tue, 24 May 2022 18:59:41 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24OIsOxW018808;
+        Tue, 24 May 2022 18:59:40 GMT
+Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
+        by ppma04wdc.us.ibm.com with ESMTP id 3g93uyghn6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:59:36 +0000
+        Tue, 24 May 2022 18:59:40 +0000
 Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
-        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24OIxZ1w13762834
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24OIxduN35520928
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 24 May 2022 18:59:35 GMT
+        Tue, 24 May 2022 18:59:39 GMT
 Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EE5BEBE051;
-        Tue, 24 May 2022 18:59:34 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6DC62BE059;
+        Tue, 24 May 2022 18:59:39 +0000 (GMT)
 Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DD492BE05B;
-        Tue, 24 May 2022 18:59:32 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 539A6BE051;
+        Tue, 24 May 2022 18:59:37 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.163.3.233])
         by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 24 May 2022 18:59:32 +0000 (GMT)
+        Tue, 24 May 2022 18:59:37 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -69,90 +69,146 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: [PATCH v8 09/22] s390/pci: stash dtsm and maxstbl
-Date:   Tue, 24 May 2022 14:58:54 -0400
-Message-Id: <20220524185907.140285-10-mjrosato@linux.ibm.com>
+Subject: [PATCH v8 11/22] KVM: s390: pci: add basic kvm_zdev structure
+Date:   Tue, 24 May 2022 14:58:56 -0400
+Message-Id: <20220524185907.140285-12-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220524185907.140285-1-mjrosato@linux.ibm.com>
 References: <20220524185907.140285-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Lrwy7KyWCLvIkdB98VwKHadpYjEckSCV
-X-Proofpoint-ORIG-GUID: e-IH6pygogzDdgmGIdGmBIurj_Zd1SjO
+X-Proofpoint-GUID: a9UfoAaHIBqBNhcjFy9b0RMTQ69_TV80
+X-Proofpoint-ORIG-GUID: mjX36V7oPUDckFUS6GwAH40blQO8wDVF
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-24_09,2022-05-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- mlxlogscore=999 spamscore=0 phishscore=0 adultscore=0 malwarescore=0
- priorityscore=1501 lowpriorityscore=0 clxscore=1015 mlxscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=745 phishscore=0
+ malwarescore=0 priorityscore=1501 impostorscore=0 mlxscore=0
+ suspectscore=0 lowpriorityscore=0 adultscore=0 spamscore=0 bulkscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2205240090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Store information about what IOAT designation types are supported by
-underlying hardware as well as the largest store block size allowed.
-These values will be needed by passthrough.
+This structure will be used to carry kvm passthrough information related to
+zPCI devices.
 
 Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/asm/pci.h     | 2 ++
- arch/s390/include/asm/pci_clp.h | 6 ++++--
- arch/s390/pci/pci_clp.c         | 2 ++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/pci.h |  3 +++
+ arch/s390/kvm/Makefile      |  1 +
+ arch/s390/kvm/pci.c         | 36 ++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/pci.h         | 21 +++++++++++++++++++++
+ 4 files changed, 61 insertions(+)
+ create mode 100644 arch/s390/kvm/pci.c
+ create mode 100644 arch/s390/kvm/pci.h
 
 diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 42a4a312a6dd..4c5b8fbc2079 100644
+index 4c5b8fbc2079..50f1851edfbe 100644
 --- a/arch/s390/include/asm/pci.h
 +++ b/arch/s390/include/asm/pci.h
-@@ -126,9 +126,11 @@ struct zpci_dev {
- 	u32		gisa;		/* GISA designation for passthrough */
- 	u16		vfn;		/* virtual function number */
- 	u16		pchid;		/* physical channel ID */
-+	u16		maxstbl;	/* Maximum store block size */
- 	u8		pfgid;		/* function group ID */
- 	u8		pft;		/* pci function type */
- 	u8		port;
-+	u8		dtsm;		/* Supported DT mask */
- 	u8		rid_available	: 1;
- 	u8		has_hp_slot	: 1;
- 	u8		has_resources	: 1;
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index f3286bc5ba6e..d6189ed14f84 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -153,9 +153,11 @@ struct clp_rsp_query_pci_grp {
- 	u8			:  6;
- 	u8 frame		:  1;
- 	u8 refresh		:  1;	/* TLB refresh mode */
--	u16 reserved2;
-+	u16			:  3;
-+	u16 maxstbl		: 13;	/* Maximum store block size */
- 	u16 mui;
--	u16			: 16;
-+	u8 dtsm;			/* Supported DT mask */
-+	u8 reserved3;
- 	u16 maxfaal;
- 	u16			:  4;
- 	u16 dnoi		: 12;
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index deed35edea14..1edb07ceb766 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -106,6 +106,8 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
- 	zdev->max_msi = response->noi;
- 	zdev->fmb_update = response->mui;
- 	zdev->version = response->version;
-+	zdev->maxstbl = response->maxstbl;
-+	zdev->dtsm = response->dtsm;
+@@ -97,6 +97,7 @@ struct zpci_bar_struct {
+ };
  
- 	switch (response->version) {
- 	case 1:
+ struct s390_domain;
++struct kvm_zdev;
+ 
+ #define ZPCI_FUNCTIONS_PER_BUS 256
+ struct zpci_bus {
+@@ -189,7 +190,9 @@ struct zpci_dev {
+ 
+ 	struct dentry	*debugfs_dev;
+ 
++	/* IOMMU and passthrough */
+ 	struct s390_domain *s390_domain; /* s390 IOMMU domain data */
++	struct kvm_zdev *kzdev;
+ };
+ 
+ static inline bool zdev_enabled(struct zpci_dev *zdev)
+diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
+index 26f4a74e5ce4..02217fb4ae10 100644
+--- a/arch/s390/kvm/Makefile
++++ b/arch/s390/kvm/Makefile
+@@ -10,4 +10,5 @@ ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+ kvm-y += kvm-s390.o intercept.o interrupt.o priv.o sigp.o
+ kvm-y += diag.o gaccess.o guestdbg.o vsie.o pv.o
+ 
++kvm-$(CONFIG_VFIO_PCI_ZDEV_KVM) += pci.o
+ obj-$(CONFIG_KVM) += kvm.o
+diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+new file mode 100644
+index 000000000000..21c2be5c2713
+--- /dev/null
++++ b/arch/s390/kvm/pci.c
+@@ -0,0 +1,36 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * s390 kvm PCI passthrough support
++ *
++ * Copyright IBM Corp. 2022
++ *
++ *    Author(s): Matthew Rosato <mjrosato@linux.ibm.com>
++ */
++
++#include <linux/kvm_host.h>
++#include <linux/pci.h>
++#include "pci.h"
++
++static int kvm_s390_pci_dev_open(struct zpci_dev *zdev)
++{
++	struct kvm_zdev *kzdev;
++
++	kzdev = kzalloc(sizeof(struct kvm_zdev), GFP_KERNEL);
++	if (!kzdev)
++		return -ENOMEM;
++
++	kzdev->zdev = zdev;
++	zdev->kzdev = kzdev;
++
++	return 0;
++}
++
++static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
++{
++	struct kvm_zdev *kzdev;
++
++	kzdev = zdev->kzdev;
++	WARN_ON(kzdev->zdev != zdev);
++	zdev->kzdev = 0;
++	kfree(kzdev);
++}
+diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
+new file mode 100644
+index 000000000000..ce93978e8913
+--- /dev/null
++++ b/arch/s390/kvm/pci.h
+@@ -0,0 +1,21 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * s390 kvm PCI passthrough support
++ *
++ * Copyright IBM Corp. 2022
++ *
++ *    Author(s): Matthew Rosato <mjrosato@linux.ibm.com>
++ */
++
++#ifndef __KVM_S390_PCI_H
++#define __KVM_S390_PCI_H
++
++#include <linux/kvm_host.h>
++#include <linux/pci.h>
++
++struct kvm_zdev {
++	struct zpci_dev *zdev;
++	struct kvm *kvm;
++};
++
++#endif /* __KVM_S390_PCI_H */
 -- 
 2.27.0
 
