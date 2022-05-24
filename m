@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C1FDC433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 19:00:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22F74C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 19:00:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240602AbiEXTAG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 24 May 2022 15:00:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54342 "EHLO
+        id S240766AbiEXTAb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 24 May 2022 15:00:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240664AbiEXS75 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 May 2022 14:59:57 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C505BE46;
-        Tue, 24 May 2022 11:59:46 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OI35Fx021127;
-        Tue, 24 May 2022 18:59:42 GMT
+        with ESMTP id S240697AbiEXTA2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 May 2022 15:00:28 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CB818A32C;
+        Tue, 24 May 2022 11:59:52 -0700 (PDT)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OInGq1005915;
+        Tue, 24 May 2022 18:59:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=Bgx4qyus2FUvcvE4vSD4y7d6W+fI9ESLAW/cHhV1dIY=;
- b=XUJTdeZQvRUiOdPSOsV54XqrizWGOMwgJKIPBnUQQ9S5gWvLpn8cJaoMwgEYzNX6PUHJ
- BPeGGlEjqwrAh3yQGIB0xnQ518wMT9ruHhqkoyqYFu9eGA5smG1lqSHx3/Ej7sqKp+zt
- lJrxG7abSfG/O1bhRia00IV9GupvlydePu1CusgRFMCgw/iSvqtAwlhBEUlBVTJq6Xd6
- 7+x40k/d+jbRLHokRYO7d641b/xW3Zu5DM8+kcbqHaVA1mbw4vCa0A6DN19LtCATNpcg
- Cwm0k8JESYVMJTs+0Yw750aFhLhOF1Tul/aBp1xhW8EkNzBfNXIkqHIGol/jRFgEOPEE Uw== 
+ bh=0P5EjARUrpuMBJlHWBCvjuTiKeGNCIwMQJyA+XJ1aIg=;
+ b=V1+5zsCzB1HIUFpluadcIyxZ0cS7TPLRa3B2WASF7X+gdw1R9HOmMTMaA7j8llm2Hm8j
+ XwNA1CqAPt60EX402xjBym1XydibjAM1y8CFoMeIh9zYLvBpF0sWX3+7+Ni6HPkrcAOX
+ OhMJD3KTIxNLUaApvJsNUPAmJr16CUNCHZWblYCXPtfwUkIPZa2TJDBe3KP0OLB3pw2l
+ /xBK45GjqjeMGGGUC2suRdCW1twIl5AXpuFMbnQH9+mGHjRY6H8lB/p328/NaIkUsvWI
+ F7T2pths1m4MaAH4s/qZ4UQsb7gG4Ul5bydTPoGAm8Qsk6VMu/ne57a//DLxyXgFZioj IQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g93uk1mf8-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g94yr05ba-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:59:42 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24OIP7ZZ009163;
-        Tue, 24 May 2022 18:59:42 GMT
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g93uk1mes-1
+        Tue, 24 May 2022 18:59:48 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24OIomNQ012937;
+        Tue, 24 May 2022 18:59:48 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g94yr05ay-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:59:41 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24OIsOxW018808;
-        Tue, 24 May 2022 18:59:40 GMT
+        Tue, 24 May 2022 18:59:48 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24OIqv0x007741;
+        Tue, 24 May 2022 18:59:47 GMT
 Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
-        by ppma04wdc.us.ibm.com with ESMTP id 3g93uyghn6-1
+        by ppma03wdc.us.ibm.com with ESMTP id 3g93v8rh9c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:59:40 +0000
+        Tue, 24 May 2022 18:59:47 +0000
 Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
-        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24OIxduN35520928
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24OIxkpJ18809246
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 24 May 2022 18:59:39 GMT
+        Tue, 24 May 2022 18:59:46 GMT
 Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6DC62BE059;
-        Tue, 24 May 2022 18:59:39 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 2CE78BE061;
+        Tue, 24 May 2022 18:59:46 +0000 (GMT)
 Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 539A6BE051;
-        Tue, 24 May 2022 18:59:37 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 0A1D5BE056;
+        Tue, 24 May 2022 18:59:44 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.163.3.233])
         by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 24 May 2022 18:59:37 +0000 (GMT)
+        Tue, 24 May 2022 18:59:43 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -69,146 +69,145 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: [PATCH v8 11/22] KVM: s390: pci: add basic kvm_zdev structure
-Date:   Tue, 24 May 2022 14:58:56 -0400
-Message-Id: <20220524185907.140285-12-mjrosato@linux.ibm.com>
+Subject: [PATCH v8 14/22] KVM: s390: mechanism to enable guest zPCI Interpretation
+Date:   Tue, 24 May 2022 14:58:59 -0400
+Message-Id: <20220524185907.140285-15-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220524185907.140285-1-mjrosato@linux.ibm.com>
 References: <20220524185907.140285-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: a9UfoAaHIBqBNhcjFy9b0RMTQ69_TV80
-X-Proofpoint-ORIG-GUID: mjX36V7oPUDckFUS6GwAH40blQO8wDVF
+X-Proofpoint-ORIG-GUID: UoxjfEQMAP0KVaE9us4lqhgsAxEwc1bb
+X-Proofpoint-GUID: 612idAhD_suu41br2ozoaQiQdWImnw_f
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-24_09,2022-05-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=745 phishscore=0
- malwarescore=0 priorityscore=1501 impostorscore=0 mlxscore=0
- suspectscore=0 lowpriorityscore=0 adultscore=0 spamscore=0 bulkscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2205240090
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 mlxscore=0 priorityscore=1501
+ phishscore=0 adultscore=0 spamscore=0 bulkscore=0 mlxlogscore=999
+ clxscore=1015 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2204290000 definitions=main-2205240090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This structure will be used to carry kvm passthrough information related to
-zPCI devices.
+The guest must have access to certain facilities in order to allow
+interpretive execution of zPCI instructions and adapter event
+notifications.  However, there are some cases where a guest might
+disable interpretation -- provide a mechanism via which we can defer
+enabling the associated zPCI interpretation facilities until the guest
+indicates it wishes to use them.
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/asm/pci.h |  3 +++
- arch/s390/kvm/Makefile      |  1 +
- arch/s390/kvm/pci.c         | 36 ++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/pci.h         | 21 +++++++++++++++++++++
- 4 files changed, 61 insertions(+)
- create mode 100644 arch/s390/kvm/pci.c
- create mode 100644 arch/s390/kvm/pci.h
+ arch/s390/include/asm/kvm_host.h |  4 ++++
+ arch/s390/kvm/kvm-s390.c         | 38 ++++++++++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.h         | 10 +++++++++
+ 3 files changed, 52 insertions(+)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 4c5b8fbc2079..50f1851edfbe 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -97,6 +97,7 @@ struct zpci_bar_struct {
- };
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index c1518a505060..8e381603b6a7 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -254,7 +254,10 @@ struct kvm_s390_sie_block {
+ #define ECB2_IEP	0x20
+ #define ECB2_PFMFI	0x08
+ #define ECB2_ESCA	0x04
++#define ECB2_ZPCI_LSI	0x02
+ 	__u8    ecb2;                   /* 0x0062 */
++#define ECB3_AISI	0x20
++#define ECB3_AISII	0x10
+ #define ECB3_DEA 0x08
+ #define ECB3_AES 0x04
+ #define ECB3_RI  0x01
+@@ -940,6 +943,7 @@ struct kvm_arch{
+ 	int use_cmma;
+ 	int use_pfmfi;
+ 	int use_skf;
++	int use_zpci_interp;
+ 	int user_cpu_state_ctrl;
+ 	int user_sigp;
+ 	int user_stsi;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 5a0fbfd19c4a..981c70f0c1fa 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1031,6 +1031,42 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	return 0;
+ }
  
- struct s390_domain;
-+struct kvm_zdev;
- 
- #define ZPCI_FUNCTIONS_PER_BUS 256
- struct zpci_bus {
-@@ -189,7 +190,9 @@ struct zpci_dev {
- 
- 	struct dentry	*debugfs_dev;
- 
-+	/* IOMMU and passthrough */
- 	struct s390_domain *s390_domain; /* s390 IOMMU domain data */
-+	struct kvm_zdev *kzdev;
- };
- 
- static inline bool zdev_enabled(struct zpci_dev *zdev)
-diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-index 26f4a74e5ce4..02217fb4ae10 100644
---- a/arch/s390/kvm/Makefile
-+++ b/arch/s390/kvm/Makefile
-@@ -10,4 +10,5 @@ ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
- kvm-y += kvm-s390.o intercept.o interrupt.o priv.o sigp.o
- kvm-y += diag.o gaccess.o guestdbg.o vsie.o pv.o
- 
-+kvm-$(CONFIG_VFIO_PCI_ZDEV_KVM) += pci.o
- obj-$(CONFIG_KVM) += kvm.o
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-new file mode 100644
-index 000000000000..21c2be5c2713
---- /dev/null
-+++ b/arch/s390/kvm/pci.c
-@@ -0,0 +1,36 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * s390 kvm PCI passthrough support
-+ *
-+ * Copyright IBM Corp. 2022
-+ *
-+ *    Author(s): Matthew Rosato <mjrosato@linux.ibm.com>
-+ */
-+
-+#include <linux/kvm_host.h>
-+#include <linux/pci.h>
-+#include "pci.h"
-+
-+static int kvm_s390_pci_dev_open(struct zpci_dev *zdev)
++static void kvm_s390_vcpu_pci_setup(struct kvm_vcpu *vcpu)
 +{
-+	struct kvm_zdev *kzdev;
++	/* Only set the ECB bits after guest requests zPCI interpretation */
++	if (!vcpu->kvm->arch.use_zpci_interp)
++		return;
 +
-+	kzdev = kzalloc(sizeof(struct kvm_zdev), GFP_KERNEL);
-+	if (!kzdev)
-+		return -ENOMEM;
-+
-+	kzdev->zdev = zdev;
-+	zdev->kzdev = kzdev;
-+
-+	return 0;
++	vcpu->arch.sie_block->ecb2 |= ECB2_ZPCI_LSI;
++	vcpu->arch.sie_block->ecb3 |= ECB3_AISII + ECB3_AISI;
 +}
 +
-+static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
++void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm)
 +{
-+	struct kvm_zdev *kzdev;
++	struct kvm_vcpu *vcpu;
++	unsigned long i;
 +
-+	kzdev = zdev->kzdev;
-+	WARN_ON(kzdev->zdev != zdev);
-+	zdev->kzdev = 0;
-+	kfree(kzdev);
++	lockdep_assert_held(&kvm->lock);
++
++	if (!kvm_s390_pci_interp_allowed())
++		return;
++
++	/*
++	 * If host is configured for PCI and the necessary facilities are
++	 * available, turn on interpretation for the life of this guest
++	 */
++	kvm->arch.use_zpci_interp = 1;
++
++	kvm_s390_vcpu_block_all(kvm);
++
++	kvm_for_each_vcpu(i, vcpu, kvm) {
++		kvm_s390_vcpu_pci_setup(vcpu);
++		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
++	}
++
++	kvm_s390_vcpu_unblock_all(kvm);
 +}
-diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
-new file mode 100644
-index 000000000000..ce93978e8913
---- /dev/null
-+++ b/arch/s390/kvm/pci.h
-@@ -0,0 +1,21 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * s390 kvm PCI passthrough support
++
+ static void kvm_s390_sync_request_broadcast(struct kvm *kvm, int req)
+ {
+ 	unsigned long cx;
+@@ -3340,6 +3376,8 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
+ 
+ 	kvm_s390_vcpu_crypto_setup(vcpu);
+ 
++	kvm_s390_vcpu_pci_setup(vcpu);
++
+ 	mutex_lock(&vcpu->kvm->lock);
+ 	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
+ 		rc = kvm_s390_pv_create_cpu(vcpu, &uvrc, &uvrrc);
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 497d52a83c78..975cffaf13de 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -507,6 +507,16 @@ void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
+  */
+ void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm);
+ 
++/**
++ * kvm_s390_vcpu_pci_enable_interp
 + *
-+ * Copyright IBM Corp. 2022
++ * Set the associated PCI attributes for each vcpu to allow for zPCI Load/Store
++ * interpretation as well as adapter interruption forwarding.
 + *
-+ *    Author(s): Matthew Rosato <mjrosato@linux.ibm.com>
++ * @kvm: the KVM guest
 + */
++void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm);
 +
-+#ifndef __KVM_S390_PCI_H
-+#define __KVM_S390_PCI_H
-+
-+#include <linux/kvm_host.h>
-+#include <linux/pci.h>
-+
-+struct kvm_zdev {
-+	struct zpci_dev *zdev;
-+	struct kvm *kvm;
-+};
-+
-+#endif /* __KVM_S390_PCI_H */
+ /**
+  * diag9c_forwarding_hz
+  *
 -- 
 2.27.0
 
