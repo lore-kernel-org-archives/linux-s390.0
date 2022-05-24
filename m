@@ -2,163 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 994B0C43217
-	for <linux-s390@archiver.kernel.org>; Mon, 23 May 2022 23:00:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3E3BC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 02:59:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230314AbiEWXAo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 May 2022 19:00:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45024 "EHLO
+        id S233923AbiEXC7x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 May 2022 22:59:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbiEWXAn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 19:00:43 -0400
-Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com [IPv6:2001:4860:4864:20::2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F6E6A0D24;
-        Mon, 23 May 2022 16:00:42 -0700 (PDT)
-Received: by mail-oa1-x2a.google.com with SMTP id 586e51a60fabf-e656032735so20361897fac.0;
-        Mon, 23 May 2022 16:00:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=/hOaZULQrF9LX4munHpY3wVXOQ9nYFe0ZRAvQXZ3vbE=;
-        b=nGUkzijZu5ZFwvP8H84AwlAD1vdzdwA1fp5JhNnOjdcRC+ZxUoP+QYS9XM6GLQeWyk
-         phuU243eWaA6M+lCDpQB8vQdh7UdO47A0ZJYAgW4Um8l1Je80E/ADeEln0UO4XBU06uk
-         on8Kx0QGQnjxiqYAC4W9JuuCImAujkCxhohJ9HwGnvDEXHmXOp51TTJpBA0kMEvDsd2n
-         XjWGc1x9K9Uo2HMgqryiDUOsGi2dZjT+EyH+RDMx5s3Jhl2IKdM5ql4zNVw3Tn+xZBSM
-         iAI+2SAS0zaoEjNKFKND7vIAfWufy9XiIMFFVGaGrZQ9xEsjaYicgVQ/L7iaon8uSMaO
-         GZaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to;
-        bh=/hOaZULQrF9LX4munHpY3wVXOQ9nYFe0ZRAvQXZ3vbE=;
-        b=pIQ4PQPwPjLzQz4I3efGWVxiSPJBjdCJsArgMdaSSI3G5xIEY3uStlu0NRGOBFWGJr
-         98iyZCWKVrCN/ItyM5bFx1q+EUAM+jjP3cRLEXrxtkHvxYZEZQgosn5tijtb15xFPmu2
-         1ZmZOZZ4I1I80aOtzbroduovcVIf5G3YPyRwy84cVA74ukhb+oiotjycwws6f/cFQf8d
-         EO8li25y8I20kFq82XzpMrZDOqSdP5gAzoJFX+P0l9pCrKjp/BH8vKpAn5d9ntBqzyWj
-         48DsrOhGhaLaVPAXMPNFwQYOcFzSRfzTSYkvRUQLIru5SMGebJKSWDA8173cZaTRsJov
-         cwKg==
-X-Gm-Message-State: AOAM530XpvB3JCIzpbPJje9kRQqlYN/QWrmgM5uej6QmJthTGh/JcALW
-        pDkJ2X94Ym7kKagjTPQY/rA=
-X-Google-Smtp-Source: ABdhPJwFYvmU9t0f1/cxvvqr52oJVOx3ly87DqZ/EmOOoCe4wzWaAPc48YIP+GgJ2Vc9YQqj1/y/lw==
-X-Received: by 2002:a05:6870:15cc:b0:ee:456f:c1e5 with SMTP id k12-20020a05687015cc00b000ee456fc1e5mr788661oad.46.1653346841457;
-        Mon, 23 May 2022 16:00:41 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t5-20020a056871054500b000e686d1386asm4315531oal.4.2022.05.23.16.00.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 May 2022 16:00:40 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 23 May 2022 16:00:39 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc:     Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Subject: Re: [PATCH V9 20/20] riscv: compat: Add COMPAT Kbuild skeletal
- support
-Message-ID: <20220523230039.GA238308@roeck-us.net>
-References: <20220322144003.2357128-1-guoren@kernel.org>
- <CAJF2gTSCcYif4DEpvrJ6d02no3CU_viyE+OkhhjCV3VsGmcT5Q@mail.gmail.com>
- <0ecdb673-b9a8-40af-7dee-2ba7fe739e5f@roeck-us.net>
- <44686961.fMDQidcC6G@diego>
+        with ESMTP id S232036AbiEXC7w (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 May 2022 22:59:52 -0400
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E859CF12;
+        Mon, 23 May 2022 19:59:49 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R341e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VEG.hal_1653361186;
+Received: from 30.43.105.196(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VEG.hal_1653361186)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 24 May 2022 10:59:47 +0800
+Message-ID: <45a19f8b-1b64-3459-c28c-aebab4fd8f1e@linux.alibaba.com>
+Date:   Tue, 24 May 2022 10:59:46 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.9.0
+Subject: Re: [PATCH net-next v2] net/smc: align the connect behaviour with TCP
+Content-Language: en-US
+To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220513022453.7256-1-guangguan.wang@linux.alibaba.com>
+ <3f0405e7-d92b-e8d0-cc61-b25a11644264@linux.ibm.com>
+From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <3f0405e7-d92b-e8d0-cc61-b25a11644264@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <44686961.fMDQidcC6G@diego>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 24, 2022 at 12:40:06AM +0200, Heiko St�bner wrote:
-> Hi Guenter,
+
+
+On 2022/5/23 20:24, Karsten Graul wrote:
+> On 13/05/2022 04:24, Guangguan Wang wrote:
+>> Connect with O_NONBLOCK will not be completed immediately
+>> and returns -EINPROGRESS. It is possible to use selector/poll
+>> for completion by selecting the socket for writing. After select
+>> indicates writability, a second connect function call will return
+>> 0 to indicate connected successfully as TCP does, but smc returns
+>> -EISCONN. Use socket state for smc to indicate connect state, which
+>> can help smc aligning the connect behaviour with TCP.
+>>
+>> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+>> Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+>> ---
+>>  net/smc/af_smc.c | 50 ++++++++++++++++++++++++++++++++++++++++++++----
+>>  1 file changed, 46 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index fce16b9d6e1a..5f70642a8044 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -1544,9 +1544,29 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+>>  		goto out_err;
+>>  
+>>  	lock_sock(sk);
+>> +	switch (sock->state) {
+>> +	default:
+>> +		rc = -EINVAL;
+>> +		goto out;
+>> +	case SS_CONNECTED:
+>> +		rc = sk->sk_state == SMC_ACTIVE ? -EISCONN : -EINVAL;
+>> +		goto out;
+>> +	case SS_CONNECTING:
+>> +		if (sk->sk_state == SMC_ACTIVE)
+>> +			goto connected;
 > 
-> Am Montag, 23. Mai 2022, 18:18:47 CEST schrieb Guenter Roeck:
-> > On 5/23/22 08:18, Guo Ren wrote:
-> > > I tested Palmer's branch, it's okay:
-> > > 8810d7feee5a (HEAD -> for-next, palmer/for-next) riscv: Don't output a
-> > > bogus mmu-type on a no MMU kernel
-> > > 
-> > > I also tested linux-next, it's okay:
-> > > 
-> > > rv64_rootfs:
-> > > # uname -a
-> > > Linux buildroot 5.18.0-next-20220523 #7 SMP Mon May 23 11:15:17 EDT
-> > > 2022 riscv64 GNU/Linux
-> > > #
-> > 
-> > That is is ok with one setup doesn't mean it is ok with
-> > all setups. It is not ok with my root file system (from
-> > https://github.com/groeck/linux-build-test/tree/master/rootfs/riscv64),
-> > with qemu v6.2.
+> I stumbled over this when thinking about the fallback processing. If for whatever reason
+> fallback==true during smc_connect(), the "if (smc->use_fallback)" below would set sock->state
+> to e.g. SS_CONNECTED. But in the fallback case sk_state keeps SMC_INIT. So during the next call
+> the SS_CONNECTING case above would break because sk_state in NOT SMC_ACTIVE, and we would end
+> up calling kernel_connect() again. Which seems to be no problem when kernel_connect() returns 
+> -EISCONN and we return this to the caller. But is this how it should work, or does it work by chance?
 > 
-> That is very true that it shouldn't fail on any existing (qemu-)platform,
-> but as I remember also testing Guo's series on both riscv32 and riscv64
-> qemu platforms in the past, I guess it would be really helpful to get more
-> information about the failing platform you're experiencing so that we can
-> find the source of the issue.
-> 
-> As it looks like you both tested the same kernel source, I guess the only
-> differences could be in the qemu-version, kernel config and rootfs.
-> Is your rootfs something you can share or that can be rebuilt easily?
-> 
-I provided a link to my root file system above. The link points to two
-root file systems, for initrd (cpio archive) and for ext2.
-I also mentioned above that I used qemu v6.2. And below I said
 
-> My root file system uses musl.
+Since the sk_state keeps SMC_INIT and does not correctly indicate the state of clcsock, it should end
+up calling kernel_connect() again to get the actual connection state of clcsock.
 
-I attached the buildroot configuration below. The buildroot version,
-if I remember correctly, was 2021.02.
+And I'm sorry there is a problem that if sock->state==SS_CONNECTED and sk_state==SMC_INIT, further call
+of smc_connect will return -EINVAL where -EISCONN is preferred. 
+The steps to reproduce:
+1）switch fallback before connect, such as setsockopt TCP_FASTOPEN
+2）connect with noblocking and returns -EINPROGRESS. (sock->state changes to SS_CONNECTING)
+3) end up calling connect with noblocking again and returns 0. (kernel_connect() returns 0 and sock->state changes to
+   SS_CONNECTED but sk->sk_state stays SMC_INIT)
+4) call connect again, maybe by mistake, will return -EINVAL, but -EISCONN is preferred.
 
-Kernel configuration is basically defconfig. However, I do see one
-detail that is possibly special in my configuration.
+What do you think about if we synchronize the sk_state to SMC_ACTIVE instead of keeping SMC_INIT when clcsock
+connected successfully in fallback case described above.
 
-    # The latest kernel assumes SBI version 0.3, but that doesn't match qemu
-    # at least up to version 6.2 and results in hangup/crashes during reboot
-    # with sifive_u emulations.
-    enable_config "${defconfig}" CONFIG_RISCV_SBI_V01
+...
+if (smc->use_fallback) {
+	sock->state = rc ? SS_CONNECTING : SS_CONNECTED;
+	if (!rc)
+		sk->sk_state = SMC_ACTIVE;    /* synchronize sk_state from SMC_INIT to SMC_ACTIVE */
+	goto out;
+}
+...
 
-Hope that helps,
-
-Guenter
-
----
-BR2_riscv=y
-BR2_TOOLCHAIN_BUILDROOT_MUSL=y
-BR2_KERNEL_HEADERS_4_19=y
-BR2_BINUTILS_VERSION_2_32_X=y
-BR2_TARGET_RUN_TESTSCRIPT=y
-BR2_SHUTDOWN_COMMAND_POWEROFF=y
-BR2_SYSTEM_DHCP="eth0"
-BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
-BR2_PACKAGE_STRACE=y
-BR2_PACKAGE_I2C_TOOLS=y
-BR2_PACKAGE_PCIUTILS=y
-BR2_PACKAGE_DTC=y
-BR2_PACKAGE_DTC_PROGRAMS=y
-BR2_PACKAGE_IPROUTE2=y
-BR2_TARGET_ROOTFS_BTRFS=y
-BR2_TARGET_ROOTFS_CPIO=y
-BR2_TARGET_ROOTFS_CPIO_GZIP=y
-BR2_TARGET_ROOTFS_EXT2=y
-BR2_TARGET_ROOTFS_EXT2_SIZE="16M"
-BR2_TARGET_ROOTFS_EXT2_GZIP=y
-BR2_TARGET_ROOTFS_ISO_GZIP=y
-BR2_TARGET_ROOTFS_SQUASHFS=y
-# BR2_TARGET_ROOTFS_TAR is not set
-
+>> +		break;
+>> +	case SS_UNCONNECTED:
+>> +		sock->state = SS_CONNECTING;
+>> +		break;
+>> +	}
+>> +
+>>  	switch (sk->sk_state) {
+>>  	default:
+>>  		goto out;
+>> +	case SMC_CLOSED:
+>> +		rc = sock_error(sk) ? : -ECONNABORTED;
+>> +		sock->state = SS_UNCONNECTED;
+>> +		goto out;
+>>  	case SMC_ACTIVE:
+>>  		rc = -EISCONN;
+>>  		goto out;
+>> @@ -1565,20 +1585,24 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
+>>  		goto out;
+>>  
+>>  	sock_hold(&smc->sk); /* sock put in passive closing */
+>> -	if (smc->use_fallback)
+>> +	if (smc->use_fallback) {
+>> +		sock->state = rc ? SS_CONNECTING : SS_CONNECTED;
+>>  		goto out;
+>> +	}
+>>  	if (flags & O_NONBLOCK) {
+>>  		if (queue_work(smc_hs_wq, &smc->connect_work))
+>>  			smc->connect_nonblock = 1;
+>>  		rc = -EINPROGRESS;
+>> +		goto out;
+>>  	} else {
+>>  		rc = __smc_connect(smc);
+>>  		if (rc < 0)
+>>  			goto out;
+>> -		else
+>> -			rc = 0; /* success cases including fallback */
+>>  	}
+>>  
+>> +connected:
+>> +	rc = 0;
+>> +	sock->state = SS_CONNECTED;
+>>  out:
+>>  	release_sock(sk);
+>>  out_err:
