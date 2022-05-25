@@ -2,702 +2,431 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C64AC4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 24 May 2022 23:46:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0E52C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 06:05:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240683AbiEXXqG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 24 May 2022 19:46:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53800 "EHLO
+        id S239114AbiEYGFV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 May 2022 02:05:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242832AbiEXXqD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 May 2022 19:46:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8BF8362BF6
-        for <linux-s390@vger.kernel.org>; Tue, 24 May 2022 16:45:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1653435948;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Ub7hH2HoY4nCTkVKkAzEkRz7bxCCCenYlhWXD745cvU=;
-        b=O+j+05DAgJFkPswthuUWU/7X3yFrWzSL6r/r2tLSRbgCv7YUhkBV1njERNoHq6zzjYJsu2
-        wg8XixgAd1AL7GNmAqh515R54ERquURbhIY0R2bhbwbGCYOyS3KCFdFzndW6Zq0MdugStF
-        TsVZR76ICYcvF/pqeri1MW5FcpKkkFI=
-Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
- [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-670-nx56cHOZNlaUNBq2M_aizQ-1; Tue, 24 May 2022 19:45:40 -0400
-X-MC-Unique: nx56cHOZNlaUNBq2M_aizQ-1
-Received: by mail-io1-f70.google.com with SMTP id b12-20020a6b7c4c000000b0066570f0b704so2958701ioq.7
-        for <linux-s390@vger.kernel.org>; Tue, 24 May 2022 16:45:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Ub7hH2HoY4nCTkVKkAzEkRz7bxCCCenYlhWXD745cvU=;
-        b=VUVhF0F3tykFE0nHFa7Z7iAJsT1c/uRpYdfpZElFoU4OaqRhB03+WRtAbj7c179Xxo
-         CaOe+V14b3J/RKcA0XKO6IwYtfGUAbFhohW9k86c2ta5fXwrzhfhaIWLPkXBeG7kNFlx
-         Jar2RxCUI9Dle+XvSobkxQes2vSY2f8WWGu+/nUkFYRUWAuo+4huUdZUSBZxcM3MtLj/
-         PGGs8HFGGaebaCp2v+93N33/GK1mY85bMQQlHL/swc+TDwDNzsm6UzYGmSqaXDHHdbRZ
-         Yt1xDVjNxhyMmoEZAvieWh8T4cOsqBzMTdzUdCCQhy6dkvQc6y/rOnCmirsttbsozf9e
-         JVMA==
-X-Gm-Message-State: AOAM532lkTbPYBP8lEjUJqbIqXRtL/Aqt/oluZMxGpjA5gytel7gySHs
-        /e/IimTh0rs91377Uob0EH05Hq9Fw02cmmSWonevGbqrJOy8OuVjWOC8reX+saXczfF6NIt2MKi
-        320icjIcL5kpJJxT03ztR4w==
-X-Received: by 2002:a05:6638:1515:b0:330:8be2:3a66 with SMTP id b21-20020a056638151500b003308be23a66mr1000152jat.78.1653435938886;
-        Tue, 24 May 2022 16:45:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwb3MYyKqnkeRfDxNgcMROX7NgndiKTUt8ZQ5K/eV+BJditKHZghQ/ZUQONAr5arLXHt5KYRQ==
-X-Received: by 2002:a05:6638:1515:b0:330:8be2:3a66 with SMTP id b21-20020a056638151500b003308be23a66mr1000105jat.78.1653435938503;
-        Tue, 24 May 2022 16:45:38 -0700 (PDT)
-Received: from localhost.localdomain (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
-        by smtp.gmail.com with ESMTPSA id r3-20020a92c5a3000000b002cde6e352fbsm4927985ilt.69.2022.05.24.16.45.32
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 24 May 2022 16:45:37 -0700 (PDT)
-From:   Peter Xu <peterx@redhat.com>
-To:     linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Cc:     Richard Henderson <rth@twiddle.net>,
-        David Hildenbrand <david@redhat.com>, peterx@redhat.com,
-        Matt Turner <mattst88@gmail.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Michal Simek <monstr@monstr.eu>,
-        Russell King <linux@armlinux.org.uk>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-riscv@lists.infradead.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Jonas Bonn <jonas@southpole.se>, Will Deacon <will@kernel.org>,
-        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        openrisc@lists.librecores.org, linux-s390@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        linux-m68k@lists.linux-m68k.org,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Chris Zankel <chris@zankel.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alistair Popple <apopple@nvidia.com>,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        sparclinux@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Stafford Horne <shorne@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-xtensa@linux-xtensa.org, Nicholas Piggin <npiggin@gmail.com>,
-        linux-sh@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-um@lists.infradead.org, linux-alpha@vger.kernel.org,
-        Johannes Berg <johannes@sipsolutions.net>,
-        linux-ia64@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Dinh Nguyen <dinguyen@kernel.org>, Guo Ren <guoren@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
-        Hugh Dickins <hughd@google.com>, Rich Felker <dalias@libc.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        linux-parisc@vger.kernel.org,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH v3] mm: Avoid unnecessary page fault retires on shared memory types
-Date:   Tue, 24 May 2022 19:45:31 -0400
-Message-Id: <20220524234531.1949-1-peterx@redhat.com>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S231764AbiEYGFU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 02:05:20 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E379B63521;
+        Tue, 24 May 2022 23:05:18 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24P5l8DS023398;
+        Wed, 25 May 2022 06:05:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=gicHu5gb5My9A4FMxdjHB58tYnvepmGQKVYXjPK5DoQ=;
+ b=lbd5wvTdbFAjGwlyw7DEwjzZNxLDdBWO9kJEVUyb27CDj7h3e/KPGcWEP3If3h1ewYe3
+ XptgAsUPQcx1zjLuw7lkxMGqYCTaSzhPX5K+XKD+y3qquMNpgIRhBtdtOOVZaMvrD+pk
+ wWfUtKfMgOWRi2j7TuENsGddC4AiWANQ+0hBRR17Rm/CEs4bYL2I9jPyYeHGHUGB7rAe
+ 5QWx8HtZO7PFZ4ZkDnKVTsXmxVTEX+iwz8QVs1AvQHANANObS+trk/RTb+qEJmpYOkPD
+ xIqpa+KxDd2hqrQ2Iv2mOCyR4NkFqrzXnXLbx+3W+yKv02STRYHa9zl6X0CLzpIk2ZQO cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g9em689vp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 May 2022 06:05:18 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24P5n6mH028467;
+        Wed, 25 May 2022 06:05:17 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g9em689uj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 May 2022 06:05:17 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24P5ZRvG018470;
+        Wed, 25 May 2022 06:05:15 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 3g94g38egh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 May 2022 06:05:15 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24P65B5453805386
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 25 May 2022 06:05:11 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D3218AE045;
+        Wed, 25 May 2022 06:05:11 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 71926AE058;
+        Wed, 25 May 2022 06:05:11 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.9.136])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 25 May 2022 06:05:11 +0000 (GMT)
+Date:   Wed, 25 May 2022 08:05:09 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v3 2/3] s390x: Test effect of storage
+ keys on some more instructions
+Message-ID: <20220525080509.3a1f6161@p-imbrenda>
+In-Reply-To: <20220523132406.1820550-3-scgl@linux.ibm.com>
+References: <20220523132406.1820550-1-scgl@linux.ibm.com>
+        <20220523132406.1820550-3-scgl@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VZIU4ZcsKTDxZCl0Pt5GxIrIRbcPSZ9m
+X-Proofpoint-ORIG-GUID: zyQm3uy19FlU3EKdVreUKJlLsORN2y1H
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-25_02,2022-05-23_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ suspectscore=0 adultscore=0 impostorscore=0 mlxscore=0 priorityscore=1501
+ phishscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2205250030
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-I observed that for each of the shared file-backed page faults, we're very
-likely to retry one more time for the 1st write fault upon no page.  It's
-because we'll need to release the mmap lock for dirty rate limit purpose
-with balance_dirty_pages_ratelimited() (in fault_dirty_shared_page()).
+On Mon, 23 May 2022 15:24:05 +0200
+Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
 
-Then after that throttling we return VM_FAULT_RETRY.
+> Test correctness of some instructions handled by user space instead of
+> KVM with regards to storage keys.
+> Test success and error conditions, including coverage of storage and
+> fetch protection override.
+> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-We did that probably because VM_FAULT_RETRY is the only way we can return
-to the fault handler at that time telling it we've released the mmap lock.
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-However that's not ideal because it's very likely the fault does not need
-to be retried at all since the pgtable was well installed before the
-throttling, so the next continuous fault (including taking mmap read lock,
-walk the pgtable, etc.) could be in most cases unnecessary.
-
-It's not only slowing down page faults for shared file-backed, but also add
-more mmap lock contention which is in most cases not needed at all.
-
-To observe this, one could try to write to some shmem page and look at
-"pgfault" value in /proc/vmstat, then we should expect 2 counts for each
-shmem write simply because we retried, and vm event "pgfault" will capture
-that.
-
-To make it more efficient, add a new VM_FAULT_COMPLETED return code just to
-show that we've completed the whole fault and released the lock.  It's also
-a hint that we should very possibly not need another fault immediately on
-this page because we've just completed it.
-
-This patch provides a ~12% perf boost on my aarch64 test VM with a simple
-program sequentially dirtying 400MB shmem file being mmap()ed and these are
-the time it needs:
-
-  Before: 650.980 ms (+-1.94%)
-  After:  569.396 ms (+-1.38%)
-
-I believe it could help more than that.
-
-We need some special care on GUP and the s390 pgfault handler (for gmap
-code before returning from pgfault), the rest changes in the page fault
-handlers should be relatively straightforward.
-
-Another thing to mention is that mm_account_fault() does take this new
-fault as a generic fault to be accounted, unlike VM_FAULT_RETRY.
-
-I explicitly didn't touch hmm_vma_fault() and break_ksm() because they do
-not handle VM_FAULT_RETRY even with existing code, so I'm literally keeping
-them as-is.
-
-Signed-off-by: Peter Xu <peterx@redhat.com>
----
-
-v3:
-- Rebase to akpm/mm-unstable
-- Copy arch maintainers
----
- arch/alpha/mm/fault.c         |  4 ++++
- arch/arc/mm/fault.c           |  4 ++++
- arch/arm/mm/fault.c           |  4 ++++
- arch/arm64/mm/fault.c         |  4 ++++
- arch/csky/mm/fault.c          |  4 ++++
- arch/hexagon/mm/vm_fault.c    |  4 ++++
- arch/ia64/mm/fault.c          |  4 ++++
- arch/m68k/mm/fault.c          |  4 ++++
- arch/microblaze/mm/fault.c    |  4 ++++
- arch/mips/mm/fault.c          |  4 ++++
- arch/nios2/mm/fault.c         |  4 ++++
- arch/openrisc/mm/fault.c      |  4 ++++
- arch/parisc/mm/fault.c        |  4 ++++
- arch/powerpc/mm/copro_fault.c |  5 +++++
- arch/powerpc/mm/fault.c       |  5 +++++
- arch/riscv/mm/fault.c         |  4 ++++
- arch/s390/mm/fault.c          | 12 +++++++++++-
- arch/sh/mm/fault.c            |  4 ++++
- arch/sparc/mm/fault_32.c      |  4 ++++
- arch/sparc/mm/fault_64.c      |  5 +++++
- arch/um/kernel/trap.c         |  4 ++++
- arch/x86/mm/fault.c           |  4 ++++
- arch/xtensa/mm/fault.c        |  4 ++++
- include/linux/mm_types.h      |  2 ++
- mm/gup.c                      | 34 +++++++++++++++++++++++++++++++++-
- mm/memory.c                   |  2 +-
- 26 files changed, 138 insertions(+), 3 deletions(-)
-
-diff --git a/arch/alpha/mm/fault.c b/arch/alpha/mm/fault.c
-index ec20c1004abf..ef427a6bdd1a 100644
---- a/arch/alpha/mm/fault.c
-+++ b/arch/alpha/mm/fault.c
-@@ -155,6 +155,10 @@ do_page_fault(unsigned long address, unsigned long mmcsr,
- 	if (fault_signal_pending(fault, regs))
- 		return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_OOM)
- 			goto out_of_memory;
-diff --git a/arch/arc/mm/fault.c b/arch/arc/mm/fault.c
-index dad27e4d69ff..5ca59a482632 100644
---- a/arch/arc/mm/fault.c
-+++ b/arch/arc/mm/fault.c
-@@ -146,6 +146,10 @@ void do_page_fault(unsigned long address, struct pt_regs *regs)
- 		return;
- 	}
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	/*
- 	 * Fault retry nuances, mmap_lock already relinquished by core mm
- 	 */
-diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
-index a062e07516dd..46cccd6bf705 100644
---- a/arch/arm/mm/fault.c
-+++ b/arch/arm/mm/fault.c
-@@ -322,6 +322,10 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- 		return 0;
- 	}
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return 0;
-+
- 	if (!(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_RETRY) {
- 			flags |= FAULT_FLAG_TRIED;
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index 77341b160aca..e401d416bbd6 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -607,6 +607,10 @@ static int __kprobes do_page_fault(unsigned long far, unsigned int esr,
- 		return 0;
- 	}
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return 0;
-+
- 	if (fault & VM_FAULT_RETRY) {
- 		mm_flags |= FAULT_FLAG_TRIED;
- 		goto retry;
-diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
-index 7215a46b6b8e..e15f736cca4b 100644
---- a/arch/csky/mm/fault.c
-+++ b/arch/csky/mm/fault.c
-@@ -285,6 +285,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
- 		return;
- 	}
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely((fault & VM_FAULT_RETRY) && (flags & FAULT_FLAG_ALLOW_RETRY))) {
- 		flags |= FAULT_FLAG_TRIED;
- 
-diff --git a/arch/hexagon/mm/vm_fault.c b/arch/hexagon/mm/vm_fault.c
-index 4fac4b9eb316..f73c7cbfe326 100644
---- a/arch/hexagon/mm/vm_fault.c
-+++ b/arch/hexagon/mm/vm_fault.c
-@@ -96,6 +96,10 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
- 	if (fault_signal_pending(fault, regs))
- 		return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	/* The most common case -- we are done. */
- 	if (likely(!(fault & VM_FAULT_ERROR))) {
- 		if (fault & VM_FAULT_RETRY) {
-diff --git a/arch/ia64/mm/fault.c b/arch/ia64/mm/fault.c
-index 07379d1a227f..ef78c2d66cdd 100644
---- a/arch/ia64/mm/fault.c
-+++ b/arch/ia64/mm/fault.c
-@@ -139,6 +139,10 @@ ia64_do_page_fault (unsigned long address, unsigned long isr, struct pt_regs *re
- 	if (fault_signal_pending(fault, regs))
- 		return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		/*
- 		 * We ran out of memory, or some other thing happened
-diff --git a/arch/m68k/mm/fault.c b/arch/m68k/mm/fault.c
-index 71aa9f6315dc..4d2837eb3e2a 100644
---- a/arch/m68k/mm/fault.c
-+++ b/arch/m68k/mm/fault.c
-@@ -141,6 +141,10 @@ int do_page_fault(struct pt_regs *regs, unsigned long address,
- 	if (fault_signal_pending(fault, regs))
- 		return 0;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return 0;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_OOM)
- 			goto out_of_memory;
-diff --git a/arch/microblaze/mm/fault.c b/arch/microblaze/mm/fault.c
-index a9626e6a68af..5c40c3ebe52f 100644
---- a/arch/microblaze/mm/fault.c
-+++ b/arch/microblaze/mm/fault.c
-@@ -222,6 +222,10 @@ void do_page_fault(struct pt_regs *regs, unsigned long address,
- 	if (fault_signal_pending(fault, regs))
- 		return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_OOM)
- 			goto out_of_memory;
-diff --git a/arch/mips/mm/fault.c b/arch/mips/mm/fault.c
-index 44f98100e84e..6f72bac39bf2 100644
---- a/arch/mips/mm/fault.c
-+++ b/arch/mips/mm/fault.c
-@@ -162,6 +162,10 @@ static void __kprobes __do_page_fault(struct pt_regs *regs, unsigned long write,
- 		return;
- 	}
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_OOM)
- 			goto out_of_memory;
-diff --git a/arch/nios2/mm/fault.c b/arch/nios2/mm/fault.c
-index a32f14cd72f2..edaca0a6c1c1 100644
---- a/arch/nios2/mm/fault.c
-+++ b/arch/nios2/mm/fault.c
-@@ -139,6 +139,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long cause,
- 	if (fault_signal_pending(fault, regs))
- 		return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_OOM)
- 			goto out_of_memory;
-diff --git a/arch/openrisc/mm/fault.c b/arch/openrisc/mm/fault.c
-index 80bb66ad42f6..c18f7abd64df 100644
---- a/arch/openrisc/mm/fault.c
-+++ b/arch/openrisc/mm/fault.c
-@@ -167,6 +167,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long address,
- 	if (fault_signal_pending(fault, regs))
- 		return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_OOM)
- 			goto out_of_memory;
-diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
-index f114e102aaf2..fe57175a7792 100644
---- a/arch/parisc/mm/fault.c
-+++ b/arch/parisc/mm/fault.c
-@@ -309,6 +309,10 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
- 	if (fault_signal_pending(fault, regs))
- 		return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		/*
- 		 * We hit a shared mapping outside of the file, or some
-diff --git a/arch/powerpc/mm/copro_fault.c b/arch/powerpc/mm/copro_fault.c
-index c1cb21a00884..7c507fb48182 100644
---- a/arch/powerpc/mm/copro_fault.c
-+++ b/arch/powerpc/mm/copro_fault.c
-@@ -65,6 +65,11 @@ int copro_handle_mm_fault(struct mm_struct *mm, unsigned long ea,
- 
- 	ret = 0;
- 	*flt = handle_mm_fault(vma, ea, is_write ? FAULT_FLAG_WRITE : 0, NULL);
-+
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (*flt & VM_FAULT_COMPLETED)
-+		return 0;
-+
- 	if (unlikely(*flt & VM_FAULT_ERROR)) {
- 		if (*flt & VM_FAULT_OOM) {
- 			ret = -ENOMEM;
-diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
-index d53fed4eccbd..014005428687 100644
---- a/arch/powerpc/mm/fault.c
-+++ b/arch/powerpc/mm/fault.c
-@@ -511,6 +511,10 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
- 	if (fault_signal_pending(fault, regs))
- 		return user_mode(regs) ? 0 : SIGBUS;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		goto out;
-+
- 	/*
- 	 * Handle the retry right now, the mmap_lock has been released in that
- 	 * case.
-@@ -525,6 +529,7 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
- 	if (unlikely(fault & VM_FAULT_ERROR))
- 		return mm_fault_error(regs, address, fault);
- 
-+out:
- 	/*
- 	 * Major/minor page fault accounting.
- 	 */
-diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
-index 4e9efbe46d5f..d6a87f4137ca 100644
---- a/arch/riscv/mm/fault.c
-+++ b/arch/riscv/mm/fault.c
-@@ -330,6 +330,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
- 	if (fault_signal_pending(fault, regs))
- 		return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_RETRY)) {
- 		flags |= FAULT_FLAG_TRIED;
- 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index e173b6187ad5..9503a7cfaf03 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -339,6 +339,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	unsigned long address;
- 	unsigned int flags;
- 	vm_fault_t fault;
-+	bool need_unlock = true;
- 	bool is_write;
- 
- 	tsk = current;
-@@ -433,6 +434,13 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 			goto out_up;
- 		goto out;
- 	}
-+
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED) {
-+		need_unlock = false;
-+		goto out_gmap;
-+	}
-+
- 	if (unlikely(fault & VM_FAULT_ERROR))
- 		goto out_up;
- 
-@@ -452,6 +460,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 		mmap_read_lock(mm);
- 		goto retry;
- 	}
-+out_gmap:
- 	if (IS_ENABLED(CONFIG_PGSTE) && gmap) {
- 		address =  __gmap_link(gmap, current->thread.gmap_addr,
- 				       address);
-@@ -466,7 +475,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	}
- 	fault = 0;
- out_up:
--	mmap_read_unlock(mm);
-+	if (need_unlock)
-+		mmap_read_unlock(mm);
- out:
- 	return fault;
- }
-diff --git a/arch/sh/mm/fault.c b/arch/sh/mm/fault.c
-index e175667b1363..acd2f5e50bfc 100644
---- a/arch/sh/mm/fault.c
-+++ b/arch/sh/mm/fault.c
-@@ -485,6 +485,10 @@ asmlinkage void __kprobes do_page_fault(struct pt_regs *regs,
- 		if (mm_fault_error(regs, error_code, address, fault))
- 			return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (fault & VM_FAULT_RETRY) {
- 		flags |= FAULT_FLAG_TRIED;
- 
-diff --git a/arch/sparc/mm/fault_32.c b/arch/sparc/mm/fault_32.c
-index ad569d9bd124..91259f291c54 100644
---- a/arch/sparc/mm/fault_32.c
-+++ b/arch/sparc/mm/fault_32.c
-@@ -190,6 +190,10 @@ asmlinkage void do_sparc_fault(struct pt_regs *regs, int text_fault, int write,
- 	if (fault_signal_pending(fault, regs))
- 		return;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_OOM)
- 			goto out_of_memory;
-diff --git a/arch/sparc/mm/fault_64.c b/arch/sparc/mm/fault_64.c
-index 253e07043298..4acc12eafbf5 100644
---- a/arch/sparc/mm/fault_64.c
-+++ b/arch/sparc/mm/fault_64.c
-@@ -427,6 +427,10 @@ asmlinkage void __kprobes do_sparc64_fault(struct pt_regs *regs)
- 	if (fault_signal_pending(fault, regs))
- 		goto exit_exception;
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		goto lock_released;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_OOM)
- 			goto out_of_memory;
-@@ -449,6 +453,7 @@ asmlinkage void __kprobes do_sparc64_fault(struct pt_regs *regs)
- 	}
- 	mmap_read_unlock(mm);
- 
-+lock_released:
- 	mm_rss = get_mm_rss(mm);
- #if defined(CONFIG_TRANSPARENT_HUGEPAGE)
- 	mm_rss -= (mm->context.thp_pte_count * (HPAGE_SIZE / PAGE_SIZE));
-diff --git a/arch/um/kernel/trap.c b/arch/um/kernel/trap.c
-index d1d5d0be0308..d3ce21c4ca32 100644
---- a/arch/um/kernel/trap.c
-+++ b/arch/um/kernel/trap.c
-@@ -76,6 +76,10 @@ int handle_page_fault(unsigned long address, unsigned long ip,
- 		if ((fault & VM_FAULT_RETRY) && fatal_signal_pending(current))
- 			goto out_nosemaphore;
- 
-+		/* The fault is fully completed (including releasing mmap lock) */
-+		if (fault & VM_FAULT_COMPLETED)
-+			return 0;
-+
- 		if (unlikely(fault & VM_FAULT_ERROR)) {
- 			if (fault & VM_FAULT_OOM) {
- 				goto out_of_memory;
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index d0074c6ed31a..12ed70b432d6 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -1408,6 +1408,10 @@ void do_user_addr_fault(struct pt_regs *regs,
- 		return;
- 	}
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	/*
- 	 * If we need to retry the mmap_lock has already been released,
- 	 * and if there is a fatal signal pending there is no guarantee
-diff --git a/arch/xtensa/mm/fault.c b/arch/xtensa/mm/fault.c
-index 06d0973a0d74..5f64305ba8d7 100644
---- a/arch/xtensa/mm/fault.c
-+++ b/arch/xtensa/mm/fault.c
-@@ -118,6 +118,10 @@ void do_page_fault(struct pt_regs *regs)
- 		return;
- 	}
- 
-+	/* The fault is fully completed (including releasing mmap lock) */
-+	if (fault & VM_FAULT_COMPLETED)
-+		return;
-+
- 	if (unlikely(fault & VM_FAULT_ERROR)) {
- 		if (fault & VM_FAULT_OOM)
- 			goto out_of_memory;
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index c09b7f0555b8..decc275db3c9 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -729,6 +729,7 @@ typedef __bitwise unsigned int vm_fault_t;
-  * @VM_FAULT_NEEDDSYNC:		->fault did not modify page tables and needs
-  *				fsync() to complete (for synchronous page faults
-  *				in DAX)
-+ * @VM_FAULT_COMPLETED:		->fault completed, meanwhile mmap lock released
-  * @VM_FAULT_HINDEX_MASK:	mask HINDEX value
-  *
-  */
-@@ -746,6 +747,7 @@ enum vm_fault_reason {
- 	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x000800,
- 	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x001000,
- 	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x002000,
-+	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x004000,
- 	VM_FAULT_HINDEX_MASK    = (__force vm_fault_t)0x0f0000,
- };
- 
-diff --git a/mm/gup.c b/mm/gup.c
-index 2e07cff3b31b..3347b083d70b 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -951,6 +951,25 @@ static int faultin_page(struct vm_area_struct *vma,
- 	}
- 
- 	ret = handle_mm_fault(vma, address, fault_flags, NULL);
-+
-+	if (ret & VM_FAULT_COMPLETED) {
-+		/*
-+		 * With FAULT_FLAG_RETRY_NOWAIT we'll never release the
-+		 * mmap lock in the page fault handler. Sanity check this.
-+		 */
-+		WARN_ON_ONCE(fault_flags & FAULT_FLAG_RETRY_NOWAIT);
-+		if (locked)
-+			*locked = 0;
-+		/*
-+		 * We should do the same as VM_FAULT_RETRY, but let's not
-+		 * return -EBUSY since that's not reflecting the reality on
-+		 * what has happened - we've just fully completed a page
-+		 * fault, with the mmap lock released.  Use -EAGAIN to show
-+		 * that we want to take the mmap lock _again_.
-+		 */
-+		return -EAGAIN;
-+	}
-+
- 	if (ret & VM_FAULT_ERROR) {
- 		int err = vm_fault_to_errno(ret, *flags);
- 
-@@ -1177,6 +1196,7 @@ static long __get_user_pages(struct mm_struct *mm,
- 			case 0:
- 				goto retry;
- 			case -EBUSY:
-+			case -EAGAIN:
- 				ret = 0;
- 				fallthrough;
- 			case -EFAULT:
-@@ -1303,6 +1323,18 @@ int fixup_user_fault(struct mm_struct *mm,
- 		return -EINTR;
- 
- 	ret = handle_mm_fault(vma, address, fault_flags, NULL);
-+
-+	if (ret & VM_FAULT_COMPLETED) {
-+		/*
-+		 * NOTE: it's a pity that we need to retake the lock here
-+		 * to pair with the unlock() in the callers. Ideally we
-+		 * could tell the callers so they do not need to unlock.
-+		 */
-+		mmap_read_lock(mm);
-+		*unlocked = true;
-+		return 0;
-+	}
-+
- 	if (ret & VM_FAULT_ERROR) {
- 		int err = vm_fault_to_errno(ret, 0);
- 
-@@ -1368,7 +1400,7 @@ static __always_inline long __get_user_pages_locked(struct mm_struct *mm,
- 			/* VM_FAULT_RETRY couldn't trigger, bypass */
- 			return ret;
- 
--		/* VM_FAULT_RETRY cannot return errors */
-+		/* VM_FAULT_RETRY or VM_FAULT_COMPLETED cannot return errors */
- 		if (!*locked) {
- 			BUG_ON(ret < 0);
- 			BUG_ON(ret >= nr_pages);
-diff --git a/mm/memory.c b/mm/memory.c
-index 54d106e0c999..a8be2d7a8718 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3020,7 +3020,7 @@ static vm_fault_t fault_dirty_shared_page(struct vm_fault *vmf)
- 		balance_dirty_pages_ratelimited(mapping);
- 		if (fpin) {
- 			fput(fpin);
--			return VM_FAULT_RETRY;
-+			return VM_FAULT_COMPLETED;
- 		}
- 	}
- 
--- 
-2.32.0
+> ---
+>  s390x/skey.c        | 275 ++++++++++++++++++++++++++++++++++++++++++++
+>  s390x/unittests.cfg |   1 +
+>  2 files changed, 276 insertions(+)
+> 
+> diff --git a/s390x/skey.c b/s390x/skey.c
+> index 5e234cde..a55034b5 100644
+> --- a/s390x/skey.c
+> +++ b/s390x/skey.c
+> @@ -12,6 +12,7 @@
+>  #include <asm/asm-offsets.h>
+>  #include <asm/interrupt.h>
+>  #include <vmalloc.h>
+> +#include <css.h>
+>  #include <asm/page.h>
+>  #include <asm/facility.h>
+>  #include <asm/mem.h>
+> @@ -299,6 +300,115 @@ static void test_store_cpu_address(void)
+>  	report_prefix_pop();
+>  }
+>  
+> +/*
+> + * Perform CHANNEL SUBSYSTEM CALL (CHSC)  instruction while temporarily executing
+> + * with access key 1.
+> + */
+> +static unsigned int chsc_key_1(void *comm_block)
+> +{
+> +	uint32_t program_mask;
+> +
+> +	asm volatile (
+> +		"spka	0x10\n\t"
+> +		".insn	rre,0xb25f0000,%[comm_block],0\n\t"
+> +		"spka	0\n\t"
+> +		"ipm	%[program_mask]\n"
+> +		: [program_mask] "=d" (program_mask)
+> +		: [comm_block] "d" (comm_block)
+> +		: "memory"
+> +	);
+> +	return program_mask >> 28;
+> +}
+> +
+> +static const char chsc_msg[] = "Performed store-channel-subsystem-characteristics";
+> +static void init_comm_block(uint16_t *comm_block)
+> +{
+> +	memset(comm_block, 0, PAGE_SIZE);
+> +	/* store-channel-subsystem-characteristics command */
+> +	comm_block[0] = 0x10;
+> +	comm_block[1] = 0x10;
+> +	comm_block[9] = 0;
+> +}
+> +
+> +static void test_channel_subsystem_call(void)
+> +{
+> +	uint16_t *comm_block = (uint16_t *)&pagebuf;
+> +	unsigned int cc;
+> +
+> +	report_prefix_push("CHANNEL SUBSYSTEM CALL");
+> +
+> +	report_prefix_push("zero key");
+> +	init_comm_block(comm_block);
+> +	set_storage_key(comm_block, 0x10, 0);
+> +	asm volatile (
+> +		".insn	rre,0xb25f0000,%[comm_block],0\n\t"
+> +		"ipm	%[cc]\n"
+> +		: [cc] "=d" (cc)
+> +		: [comm_block] "d" (comm_block)
+> +		: "memory"
+> +	);
+> +	cc = cc >> 28;
+> +	report(cc == 0 && comm_block[9], chsc_msg);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("matching key");
+> +	init_comm_block(comm_block);
+> +	set_storage_key(comm_block, 0x10, 0);
+> +	cc = chsc_key_1(comm_block);
+> +	report(cc == 0 && comm_block[9], chsc_msg);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("mismatching key");
+> +
+> +	report_prefix_push("no fetch protection");
+> +	init_comm_block(comm_block);
+> +	set_storage_key(comm_block, 0x20, 0);
+> +	expect_pgm_int();
+> +	chsc_key_1(comm_block);
+> +	check_key_prot_exc(ACC_UPDATE, PROT_STORE);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("fetch protection");
+> +	init_comm_block(comm_block);
+> +	set_storage_key(comm_block, 0x28, 0);
+> +	expect_pgm_int();
+> +	chsc_key_1(comm_block);
+> +	check_key_prot_exc(ACC_UPDATE, PROT_FETCH_STORE);
+> +	report_prefix_pop();
+> +
+> +	ctl_set_bit(0, CTL0_STORAGE_PROTECTION_OVERRIDE);
+> +
+> +	report_prefix_push("storage-protection override, invalid key");
+> +	set_storage_key(comm_block, 0x20, 0);
+> +	init_comm_block(comm_block);
+> +	expect_pgm_int();
+> +	chsc_key_1(comm_block);
+> +	check_key_prot_exc(ACC_UPDATE, PROT_STORE);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("storage-protection override, override key");
+> +	init_comm_block(comm_block);
+> +	set_storage_key(comm_block, 0x90, 0);
+> +	cc = chsc_key_1(comm_block);
+> +	report(cc == 0 && comm_block[9], chsc_msg);
+> +	report_prefix_pop();
+> +
+> +	ctl_clear_bit(0, CTL0_STORAGE_PROTECTION_OVERRIDE);
+> +
+> +	report_prefix_push("storage-protection override disabled, override key");
+> +	init_comm_block(comm_block);
+> +	set_storage_key(comm_block, 0x90, 0);
+> +	expect_pgm_int();
+> +	chsc_key_1(comm_block);
+> +	check_key_prot_exc(ACC_UPDATE, PROT_STORE);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_pop();
+> +
+> +	set_storage_key(comm_block, 0x00, 0);
+> +	report_prefix_pop();
+> +}
+> +
+>  /*
+>   * Perform SET PREFIX (SPX) instruction while temporarily executing
+>   * with access key 1.
+> @@ -425,6 +535,169 @@ static void test_set_prefix(void)
+>  	report_prefix_pop();
+>  }
+>  
+> +/*
+> + * Perform MODIFY SUBCHANNEL (MSCH) instruction while temporarily executing
+> + * with access key 1.
+> + */
+> +static uint32_t modify_subchannel_key_1(uint32_t sid, struct schib *schib)
+> +{
+> +	uint32_t program_mask;
+> +
+> +	asm volatile (
+> +		"lr %%r1,%[sid]\n\t"
+> +		"spka	0x10\n\t"
+> +		"msch	%[schib]\n\t"
+> +		"spka	0\n\t"
+> +		"ipm	%[program_mask]\n"
+> +		: [program_mask] "=d" (program_mask)
+> +		: [sid] "d" (sid),
+> +		  [schib] "Q" (*schib)
+> +		: "%r1"
+> +	);
+> +	return program_mask >> 28;
+> +}
+> +
+> +static void test_msch(void)
+> +{
+> +	struct schib *schib = (struct schib *)pagebuf;
+> +	struct schib *no_override_schib;
+> +	int test_device_sid;
+> +	pgd_t *root;
+> +	int cc;
+> +
+> +	report_prefix_push("MSCH");
+> +	root = (pgd_t *)(stctg(1) & PAGE_MASK);
+> +	test_device_sid = css_enumerate();
+> +
+> +	if (!(test_device_sid & SCHID_ONE)) {
+> +		report_fail("no I/O device found");
+> +		return;
+> +	}
+> +
+> +	cc = stsch(test_device_sid, schib);
+> +	if (cc) {
+> +		report_fail("could not store SCHIB");
+> +		return;
+> +	}
+> +
+> +	report_prefix_push("zero key");
+> +	schib->pmcw.intparm = 100;
+> +	set_storage_key(schib, 0x28, 0);
+> +	cc = msch(test_device_sid, schib);
+> +	if (!cc) {
+> +		WRITE_ONCE(schib->pmcw.intparm, 0);
+> +		cc = stsch(test_device_sid, schib);
+> +		report(!cc && schib->pmcw.intparm == 100, "fetched from SCHIB");
+> +	} else {
+> +		report_fail("MSCH cc != 0");
+> +	}
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("matching key");
+> +	schib->pmcw.intparm = 200;
+> +	set_storage_key(schib, 0x18, 0);
+> +	cc = modify_subchannel_key_1(test_device_sid, schib);
+> +	if (!cc) {
+> +		WRITE_ONCE(schib->pmcw.intparm, 0);
+> +		cc = stsch(test_device_sid, schib);
+> +		report(!cc && schib->pmcw.intparm == 200, "fetched from SCHIB");
+> +	} else {
+> +		report_fail("MSCH cc != 0");
+> +	}
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("mismatching key");
+> +
+> +	report_prefix_push("no fetch protection");
+> +	schib->pmcw.intparm = 300;
+> +	set_storage_key(schib, 0x20, 0);
+> +	cc = modify_subchannel_key_1(test_device_sid, schib);
+> +	if (!cc) {
+> +		WRITE_ONCE(schib->pmcw.intparm, 0);
+> +		cc = stsch(test_device_sid, schib);
+> +		report(!cc && schib->pmcw.intparm == 300, "fetched from SCHIB");
+> +	} else {
+> +		report_fail("MSCH cc != 0");
+> +	}
+> +	report_prefix_pop();
+> +
+> +	schib->pmcw.intparm = 0;
+> +	if (!msch(test_device_sid, schib)) {
+> +		report_prefix_push("fetch protection");
+> +		schib->pmcw.intparm = 400;
+> +		set_storage_key(schib, 0x28, 0);
+> +		expect_pgm_int();
+> +		modify_subchannel_key_1(test_device_sid, schib);
+> +		check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
+> +		cc = stsch(test_device_sid, schib);
+> +		report(!cc && schib->pmcw.intparm == 0, "did not modify subchannel");
+> +		report_prefix_pop();
+> +	} else {
+> +		report_fail("could not reset SCHIB");
+> +	}
+> +
+> +	register_pgm_cleanup_func(dat_fixup_pgm_int);
+> +
+> +	schib->pmcw.intparm = 0;
+> +	if (!msch(test_device_sid, schib)) {
+> +		report_prefix_push("remapped page, fetch protection");
+> +		schib->pmcw.intparm = 500;
+> +		set_storage_key(pagebuf, 0x28, 0);
+> +		expect_pgm_int();
+> +		install_page(root, virt_to_pte_phys(root, pagebuf), 0);
+> +		modify_subchannel_key_1(test_device_sid, (struct schib *)0);
+> +		install_page(root, 0, 0);
+> +		check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
+> +		cc = stsch(test_device_sid, schib);
+> +		report(!cc && schib->pmcw.intparm == 0, "did not modify subchannel");
+> +		report_prefix_pop();
+> +	} else {
+> +		report_fail("could not reset SCHIB");
+> +	}
+> +
+> +	ctl_set_bit(0, CTL0_FETCH_PROTECTION_OVERRIDE);
+> +
+> +	report_prefix_push("fetch-protection override applies");
+> +	schib->pmcw.intparm = 600;
+> +	set_storage_key(pagebuf, 0x28, 0);
+> +	install_page(root, virt_to_pte_phys(root, pagebuf), 0);
+> +	cc = modify_subchannel_key_1(test_device_sid, (struct schib *)0);
+> +	install_page(root, 0, 0);
+> +	if (!cc) {
+> +		WRITE_ONCE(schib->pmcw.intparm, 0);
+> +		cc = stsch(test_device_sid, schib);
+> +		report(!cc && schib->pmcw.intparm == 600, "fetched from SCHIB");
+> +	} else {
+> +		report_fail("MSCH cc != 0");
+> +	}
+> +	report_prefix_pop();
+> +
+> +	schib->pmcw.intparm = 0;
+> +	if (!msch(test_device_sid, schib)) {
+> +		report_prefix_push("fetch-protection override does not apply");
+> +		schib->pmcw.intparm = 700;
+> +		no_override_schib = (struct schib *)(pagebuf + 2048);
+> +		memcpy(no_override_schib, schib, sizeof(struct schib));
+> +		set_storage_key(pagebuf, 0x28, 0);
+> +		expect_pgm_int();
+> +		install_page(root, virt_to_pte_phys(root, pagebuf), 0);
+> +		modify_subchannel_key_1(test_device_sid, (struct schib *)&mem_all[2048]);
+> +		install_page(root, 0, 0);
+> +		check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
+> +		cc = stsch(test_device_sid, schib);
+> +		report(!cc && schib->pmcw.intparm == 0, "did not modify subchannel");
+> +		report_prefix_pop();
+> +	} else {
+> +		report_fail("could not reset SCHIB");
+> +	}
+> +
+> +	ctl_clear_bit(0, CTL0_FETCH_PROTECTION_OVERRIDE);
+> +	register_pgm_cleanup_func(NULL);
+> +	report_prefix_pop();
+> +	set_storage_key(schib, 0x00, 0);
+> +	report_prefix_pop();
+> +}
+> +
+>  int main(void)
+>  {
+>  	report_prefix_push("skey");
+> @@ -439,9 +712,11 @@ int main(void)
+>  	test_chg();
+>  	test_test_protection();
+>  	test_store_cpu_address();
+> +	test_channel_subsystem_call();
+>  
+>  	setup_vm();
+>  	test_set_prefix();
+> +	test_msch();
+>  done:
+>  	report_prefix_pop();
+>  	return report_summary();
+> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+> index b456b288..1280ff0f 100644
+> --- a/s390x/unittests.cfg
+> +++ b/s390x/unittests.cfg
+> @@ -41,6 +41,7 @@ file = sthyi.elf
+>  
+>  [skey]
+>  file = skey.elf
+> +extra_params = -device virtio-net-ccw
+>  
+>  [diag10]
+>  file = diag10.elf
 
