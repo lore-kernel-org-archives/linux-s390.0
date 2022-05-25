@@ -2,104 +2,89 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C3ABC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 09:39:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E71B6C4321E
+	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 10:57:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229578AbiEYJjS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 May 2022 05:39:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47232 "EHLO
+        id S235505AbiEYK5y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 May 2022 06:57:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238756AbiEYJjR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 05:39:17 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE8916587;
-        Wed, 25 May 2022 02:39:14 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24P8vrrv024850;
-        Wed, 25 May 2022 09:39:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=ylJUfpWx3Yxp4kwkfQplma+hP7YJIWMMpB2tnksU+qU=;
- b=jxyGlFp271qyveXDS07cByASuS4gTfe3+2OCeYMVBp/Ry6O0semzTIic1IqIBemRC2mG
- /czhbGn+oo9vExu5gvZG8aOwx5ds94UFaDNoCJmfw8KbkmFW0ZCgzSa51ouNdMpnAaM7
- mYnNxSrHgTjzzFwwKRZolXqzfv0DPLOOqxVBPwe0Lx7JQXKwkh+G/C0RZF1ro207Z+Jp
- x80N9a8hyAtm3VL8/MyjkfPjrhWnN5E7hbaQMMvetLgMd1QZmZHG/wQCXSTQzX3Y34jG
- DLp4MaxG3u95Ue2e3yjcJSA9W8cL0asnj+Eo5bCkJXosgWlaVfTkPGWbKFv1yirMeq0J lA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g9fedk9xn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 May 2022 09:39:08 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24P9cLfe021386;
-        Wed, 25 May 2022 09:39:06 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3g93ux0wmq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 May 2022 09:39:06 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24P9cCZd27656496
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 25 May 2022 09:38:12 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4A4DA5204E;
-        Wed, 25 May 2022 09:39:03 +0000 (GMT)
-Received: from osiris (unknown [9.145.37.53])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id E454C5204F;
-        Wed, 25 May 2022 09:39:02 +0000 (GMT)
-Date:   Wed, 25 May 2022 11:39:01 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Juerg Haefliger <juerg.haefliger@canonical.com>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Juerg Haefliger <juergh@canonical.com>
-Subject: Re: [PATCH 0/2] s390: Kconfig: Style cleanups
-Message-ID: <Yo35NdfKlGwu5Trd@osiris>
-References: <20220520115708.147841-1-juergh@canonical.com>
- <YotWU/E8z2fJaqj7@osiris>
+        with ESMTP id S230281AbiEYK5x (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 06:57:53 -0400
+Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584461182F;
+        Wed, 25 May 2022 03:57:50 -0700 (PDT)
+Received: from ip5b412258.dynamic.kabel-deutschland.de ([91.65.34.88] helo=diego.localnet)
+        by gloria.sntech.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <heiko@sntech.de>)
+        id 1ntohn-0005Jh-KS; Wed, 25 May 2022 12:57:31 +0200
+From:   Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+To:     Guo Ren <guoren@kernel.org>, Guenter Roeck <linux@roeck-us.net>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Christoph Hellwig <hch@lst.de>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Subject: Re: [PATCH V9 20/20] riscv: compat: Add COMPAT Kbuild skeletal support
+Date:   Wed, 25 May 2022 12:57:30 +0200
+Message-ID: <6435704.4vTCxPXJkl@diego>
+In-Reply-To: <20220524220646.GA3990738@roeck-us.net>
+References: <20220322144003.2357128-1-guoren@kernel.org> <CAJF2gTSa=roJOiKFiL8nSQ12E-emz-xrXs=RNAc4zSFaPuRAzw@mail.gmail.com> <20220524220646.GA3990738@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YotWU/E8z2fJaqj7@osiris>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: uFZ_5owwDyhUO9Wp_FPqJ-wmAwLOvPHp
-X-Proofpoint-GUID: uFZ_5owwDyhUO9Wp_FPqJ-wmAwLOvPHp
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-25_03,2022-05-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
- adultscore=0 clxscore=1015 bulkscore=0 suspectscore=0 mlxlogscore=489
- spamscore=0 lowpriorityscore=0 impostorscore=0 priorityscore=1501
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2205250046
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 23, 2022 at 11:39:31AM +0200, Heiko Carstens wrote:
-> On Fri, May 20, 2022 at 01:57:06PM +0200, Juerg Haefliger wrote:
-> > The majority of the Kconfig files use a single tab for basic indentation
-> > and a single tab followed by two whitespaces for help text indentation.
-> > Fix the lines that don't follow this convention.
-> > 
-> > While at it:
-> >   - Add trailing comments to endif/endmenu statements for better
-> >     readability.
-> > 
-> > Juerg Haefliger (2):
-> >   s390: Kconfig: Fix indentation and add comments
-> >   s390: Kconfig.debug: Fix indentation
-> > 
-> >  arch/s390/Kconfig       | 20 ++++++++++----------
-> >  arch/s390/Kconfig.debug | 12 ++++++------
-> >  2 files changed, 16 insertions(+), 16 deletions(-)
+Am Mittwoch, 25. Mai 2022, 00:06:46 CEST schrieb Guenter Roeck:
+> On Wed, May 25, 2022 at 01:46:38AM +0800, Guo Ren wrote:
+> [ ... ]
 > 
-> Both applied (v2 for the first patch). Thanks!
+> > > The problem is come from "__dls3's vdso decode part in musl's
+> > > ldso/dynlink.c". The ehdr->e_phnum & ehdr->e_phentsize are wrong.
+> > >
+> > > I think the root cause is from musl's implementation with the wrong
+> > > elf parser. I would fix that soon.
+> > Not elf parser, it's "aux vector just past environ[]". I think I could
+> > solve this, but anyone who could help dig in is welcome.
+> > 
+> 
+> I am not sure I understand what you are saying here. Point is that my
+> root file system, generated with musl a year or so ago, crashes with
+> your patch set applied. That is a regression, even if there is a bug
+> in musl.
 
-..and removed both patches again. Please make sure that your email
-addresses match. That is: the email address you use for signing off
-and the one you use for sending. Right now there is a mismatch when I
-apply your patches in "From:" and "Signed-off-by:".
+Also as I said in the other part of the thread, the rootfs seems innocent,
+as my completely-standard Debian riscv64 rootfs is also affected.
 
-Please resend.
+The merged version seems to be v12 [0] - not sure how we this discussion
+ended up in v9, but I just tested this revision in two variants:
+
+- v5.17 + this v9 -> works nicely
+- v5.18-rc6 + this v9 (rebased onto it) -> breaks the boot
+  The only rebase-conflict was with the introduction of restartable
+  sequences and removal of the tracehook include, but turning CONFIG_RSEQ
+  off doesn't seem to affect the breakage.
+
+So it looks like something changed between 5.17 and 5.18 that causes the issue.
+
+
+Heiko
+
+
+[0] https://lore.kernel.org/all/20220405071314.3225832-1-guoren@kernel.org/
+
+
+
