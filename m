@@ -2,111 +2,174 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAC4EC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 12:02:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A9E5C4167B
+	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 12:44:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239932AbiEYMCN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 May 2022 08:02:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42218 "EHLO
+        id S235505AbiEYMo0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 May 2022 08:44:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243014AbiEYMCJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 08:02:09 -0400
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 739A2218F
-        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 05:02:08 -0700 (PDT)
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com [209.85.208.71])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 45ED83F21C
-        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 12:02:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1653480126;
-        bh=NBsh7HLtz477jQnNDrBziTrv34OGyGgoiBBMRY6NAL0=;
-        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=J1iAkFXhiVNchKj1f+PeigCv0OXs8HYALcv0QtW3rhfGoz9siX1qatHPfHkGsg/xl
-         H7wi32aW6LOzmpDIUtBwpxP+w/W4pT7fhYI9Fw7yJ8BQhI4VvJ3Utbwzb2uZSEHC/8
-         fR9eDykUSwo06D+ZGzdMtnNJIeCTW+IdGasw0iwQ3hEs6BoNLc4RaA93zatImedxxJ
-         DNY0YRnVSJPdLmOSCdybcNgXqqbnAMp7MgY//4JQ3bhIWYZYWqYY3+fbqX8brtWbdV
-         syW+afAAzVOklHWE0k6RXNfe+xaLzAcdoFBbWSnbr5oKqbIesS9By+kTfE9aT/Qn69
-         COT69mGzzV/ig==
-Received: by mail-ed1-f71.google.com with SMTP id l17-20020a056402029100b0042bcb0c15e4so907726edv.10
-        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 05:02:06 -0700 (PDT)
+        with ESMTP id S238438AbiEYMoX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 08:44:23 -0400
+Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com [IPv6:2607:f8b0:4864:20::729])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9738D6BD
+        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 05:44:20 -0700 (PDT)
+Received: by mail-qk1-x729.google.com with SMTP id 14so11037732qkl.6
+        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 05:44:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cmpxchg-org.20210112.gappssmtp.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=w0F6iR9EKs/zIprBUHWYk0xdfCPICb6b6FOC3ooI/Qg=;
+        b=LMEKNyEIRYPV5QWJlwplZCx+Yze+80z3MALcLFPz5jKdddgbR28N/X6bo9Jvgd00MP
+         WWkcUcb1+z91voFM8WjtduJpm5pvevvusNqH0PzjaxsPqwHpEmvLG6H17fO8d+8uqQ/c
+         xW/rbo+trH8MjL1X/foXOCmesnHHx99Tmug43Nb91EXZFTR7KAdlglnJRYtL1NUTbXz5
+         2CGVavB8u5eJ5bdNx8JVu0TNi6KB2NiCnWSVtKfIEdRU3i4wp/Kah2nDHcLAJXmplYfJ
+         xzofRGg4rofGSre9mJv/qm1XS4Pms5gIR+r4L8hjS8Owdd3qkT56i/sicOD/din7w+oO
+         VJFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=NBsh7HLtz477jQnNDrBziTrv34OGyGgoiBBMRY6NAL0=;
-        b=XtKSD+KXWX2V881jGF2kpD2H5KlDfFT3uFkK/WlQ+Qv6M7/cUsQm6z8rrqQso4wsXG
-         Zb/fw0yqjEnYmA0SsFcrTHsAZSwIfyUuNN72a8oT/fozWg/5BC61EeAMi+TS2mdKz2Vx
-         v1TZ5RftTEgHLqxfOIpTUyMlGgUjoyzuxWB1kq37M19A+q7yHBEDbwtgckLgzcb0gk2L
-         FolaZrkUabb/K77P8CkSZACH3yvl+f8DkjYLYOQpcbZO8gT55iQ/FocC2MQMXLkih2Da
-         yXGv1i+ZW5A5r+pulgWV+3nmTlQFoGzRrMT0kKF2YLu3QMvs0nNbbgeaWbJIdeohCaTl
-         /NRw==
-X-Gm-Message-State: AOAM533jNLqhP502kBRO7OQi/XNLQvNn5etUuTfIfSveLDol1N0vFdwU
-        Ji/jAqf7cO8/O7NdI5OYVFi32+57+3lEUNLoNxZpbHwHh1RMsH6gWK2fxby0WTUz6cjrQQ+8pwS
-        fnnhb61gSmCvavESgn/nckasGdRwrxyXpV4BpV/Y=
-X-Received: by 2002:a17:907:168d:b0:6fe:e7b7:e52 with SMTP id hc13-20020a170907168d00b006fee7b70e52mr12642947ejc.330.1653480123563;
-        Wed, 25 May 2022 05:02:03 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwpvixsysiEX+Ix2v/02GfvLL2dSaTMPsnBQpmjhjxCD60aAsLOQcfH+i2i6OLjU0n30H0Dpw==
-X-Received: by 2002:a17:907:168d:b0:6fe:e7b7:e52 with SMTP id hc13-20020a170907168d00b006fee7b70e52mr12642928ejc.330.1653480123364;
-        Wed, 25 May 2022 05:02:03 -0700 (PDT)
-Received: from gollum.fritz.box ([194.191.244.86])
-        by smtp.gmail.com with ESMTPSA id hh15-20020a170906a94f00b006fec41b21e1sm4257609ejb.171.2022.05.25.05.02.02
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=w0F6iR9EKs/zIprBUHWYk0xdfCPICb6b6FOC3ooI/Qg=;
+        b=ItdffMwHUV/2iQJAiWuR/2ZGuuc4uWTZQuHSRm01FBuaAXrdOZsipP/GpYcfOwz2vJ
+         Y2vE8MhgRDMvgscMboAz2sqHkY90QD6VCTh+lWEcDHben91McBMwl/p27eNm+IMmlyip
+         sHkzZt/hO6rksLS3Ghq0M55NTcsKnfRat+AS1kN8N9R4oTl2by1YNNywZYuwZheYLl15
+         zPJxZm/hG7yv9XdHCPRdiDNdxfp2DW7DeFk2dM1/FG7j0yXxQl8ACEwSPVEiKJ3+lSkn
+         bqIj/pGiUqS/BSwiZP3H5tYgwYbjOtl2ODYkDlAhwLmt+nbW7Rnx965VK47RbUdrjm3B
+         XuVg==
+X-Gm-Message-State: AOAM532QT7NiqicGnQqxrGwHcyHP4CEG1lm3qAMbiDtLjk+7wt7oH37W
+        yd2ONuPs1IsK7LriCMzRLjcDsw==
+X-Google-Smtp-Source: ABdhPJx/POKWSCbmzd2neCxXDwISwEb1wGzjcuEavupLeI/smDQTCNVGAU9PwpCoNv+A6qxiW2wj4Q==
+X-Received: by 2002:a05:620a:4047:b0:6a0:5dae:ad67 with SMTP id i7-20020a05620a404700b006a05daead67mr19946570qko.530.1653482659851;
+        Wed, 25 May 2022 05:44:19 -0700 (PDT)
+Received: from localhost ([2620:10d:c091:480::1:741f])
+        by smtp.gmail.com with ESMTPSA id g25-20020ac870d9000000b002f9433ed963sm1207797qtp.64.2022.05.25.05.44.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 May 2022 05:02:02 -0700 (PDT)
-From:   Juerg Haefliger <juerg.haefliger@canonical.com>
-To:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Juerg Haefliger <juerg.haefliger@canonical.com>
-Subject: [PATCH 2/2 v2] s390: Kconfig.debug: Fix indentation
-Date:   Wed, 25 May 2022 14:01:51 +0200
-Message-Id: <20220525120151.39594-1-juerg.haefliger@canonical.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <Yo35NdfKlGwu5Trd@osiris>
-References: <Yo35NdfKlGwu5Trd@osiris>
+        Wed, 25 May 2022 05:44:19 -0700 (PDT)
+Date:   Wed, 25 May 2022 08:44:18 -0400
+From:   Johannes Weiner <hannes@cmpxchg.org>
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Richard Henderson <rth@twiddle.net>,
+        David Hildenbrand <david@redhat.com>,
+        Matt Turner <mattst88@gmail.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Michal Simek <monstr@monstr.eu>,
+        Russell King <linux@armlinux.org.uk>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        linux-riscv@lists.infradead.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Jonas Bonn <jonas@southpole.se>, Will Deacon <will@kernel.org>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        openrisc@lists.librecores.org, linux-s390@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>,
+        linux-m68k@lists.linux-m68k.org,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Chris Zankel <chris@zankel.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alistair Popple <apopple@nvidia.com>,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        sparclinux@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Stafford Horne <shorne@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        linux-xtensa@linux-xtensa.org, Nicholas Piggin <npiggin@gmail.com>,
+        linux-sh@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-um@lists.infradead.org, linux-alpha@vger.kernel.org,
+        Johannes Berg <johannes@sipsolutions.net>,
+        linux-ia64@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Dinh Nguyen <dinguyen@kernel.org>, Guo Ren <guoren@kernel.org>,
+        linux-snps-arc@lists.infradead.org,
+        Hugh Dickins <hughd@google.com>, Rich Felker <dalias@libc.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Richard Weinberger <richard@nod.at>,
+        linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        linux-parisc@vger.kernel.org,
+        "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v3] mm: Avoid unnecessary page fault retires on shared
+ memory types
+Message-ID: <Yo4kojxZfjNiZI7/@cmpxchg.org>
+References: <20220524234531.1949-1-peterx@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220524234531.1949-1-peterx@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The convention for indentation seems to be a single tab. Help text is
-further indented by an additional two whitespaces. Fix the lines that
-violate these rules.
+On Tue, May 24, 2022 at 07:45:31PM -0400, Peter Xu wrote:
+> I observed that for each of the shared file-backed page faults, we're very
+> likely to retry one more time for the 1st write fault upon no page.  It's
+> because we'll need to release the mmap lock for dirty rate limit purpose
+> with balance_dirty_pages_ratelimited() (in fault_dirty_shared_page()).
+> 
+> Then after that throttling we return VM_FAULT_RETRY.
+> 
+> We did that probably because VM_FAULT_RETRY is the only way we can return
+> to the fault handler at that time telling it we've released the mmap lock.
+> 
+> However that's not ideal because it's very likely the fault does not need
+> to be retried at all since the pgtable was well installed before the
+> throttling, so the next continuous fault (including taking mmap read lock,
+> walk the pgtable, etc.) could be in most cases unnecessary.
+> 
+> It's not only slowing down page faults for shared file-backed, but also add
+> more mmap lock contention which is in most cases not needed at all.
+> 
+> To observe this, one could try to write to some shmem page and look at
+> "pgfault" value in /proc/vmstat, then we should expect 2 counts for each
+> shmem write simply because we retried, and vm event "pgfault" will capture
+> that.
+> 
+> To make it more efficient, add a new VM_FAULT_COMPLETED return code just to
+> show that we've completed the whole fault and released the lock.  It's also
+> a hint that we should very possibly not need another fault immediately on
+> this page because we've just completed it.
+> 
+> This patch provides a ~12% perf boost on my aarch64 test VM with a simple
+> program sequentially dirtying 400MB shmem file being mmap()ed and these are
+> the time it needs:
+> 
+>   Before: 650.980 ms (+-1.94%)
+>   After:  569.396 ms (+-1.38%)
+> 
+> I believe it could help more than that.
+> 
+> We need some special care on GUP and the s390 pgfault handler (for gmap
+> code before returning from pgfault), the rest changes in the page fault
+> handlers should be relatively straightforward.
+> 
+> Another thing to mention is that mm_account_fault() does take this new
+> fault as a generic fault to be accounted, unlike VM_FAULT_RETRY.
+> 
+> I explicitly didn't touch hmm_vma_fault() and break_ksm() because they do
+> not handle VM_FAULT_RETRY even with existing code, so I'm literally keeping
+> them as-is.
+> 
+> Signed-off-by: Peter Xu <peterx@redhat.com>
 
-Signed-off-by: Juerg Haefliger <juerg.haefliger@canonical.com>
----
-v2:
- Change author and sob email addresses to match sender email address.
-
----
- arch/s390/Kconfig.debug | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/Kconfig.debug b/arch/s390/Kconfig.debug
-index e94a2a7f6bf4..c4300ea4abf8 100644
---- a/arch/s390/Kconfig.debug
-+++ b/arch/s390/Kconfig.debug
-@@ -14,9 +14,9 @@ config DEBUG_ENTRY
- 	  If unsure, say N.
- 
- config CIO_INJECT
--       bool "CIO Inject interfaces"
--       depends on DEBUG_KERNEL && DEBUG_FS
--       help
--	This option provides a debugging facility to inject certain artificial events
--	and instruction responses to the CIO layer of Linux kernel. The newly created
--	debugfs user-interfaces will be at /sys/kernel/debug/s390/cio/*
-+	bool "CIO Inject interfaces"
-+	depends on DEBUG_KERNEL && DEBUG_FS
-+	help
-+	  This option provides a debugging facility to inject certain artificial events
-+	  and instruction responses to the CIO layer of Linux kernel. The newly created
-+	  debugfs user-interfaces will be at /sys/kernel/debug/s390/cio/*
--- 
-2.32.0
-
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
