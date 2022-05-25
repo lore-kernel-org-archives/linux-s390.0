@@ -2,162 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3143DC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 11:11:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC9B9C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 12:01:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242190AbiEYLLN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 May 2022 07:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41108 "EHLO
+        id S232123AbiEYMBx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 May 2022 08:01:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241080AbiEYLLK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 07:11:10 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3CA8CCC5;
-        Wed, 25 May 2022 04:11:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=TTSfncRF4bwVxkeR+S4pHa2NuE5vU7NkHqU52imXoeo=; b=AZ7NLjulpP1WzqY4jAw9CJ6mzn
-        eNxn6mITLdAkzreesFIusYyJANkaOvbZVslHzJxDDqo/jW9prJ6mSOYajnNAsWgSTZTPCGe4Y+H+t
-        Q7b5K2i3OxODvn+feDcYZuuvagMcqlznlm2xJ6e8wPUzB4c/WkijGr50Z8D32ZlBmwWuMwGQbue1E
-        mrsCyjPGVmj7xf/0/rnV0zIseeyVAHCeyTCYTi0ZFmZwkk1CWC0IMPFglArv51u64lwHpRP8/QuNm
-        TypGtB34O3uGaPoduTA8k7e4jOZswva+y2onGqiOIb4Z5GAtPEnJDGpyLSzDy3ZlKvUO8MvNVaZm2
-        4u9mbK6A==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ntouK-001b5l-Bp; Wed, 25 May 2022 11:10:28 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        with ESMTP id S238021AbiEYMBw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 08:01:52 -0400
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF531004
+        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 05:01:48 -0700 (PDT)
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com [209.85.218.71])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 59CA2300222;
-        Wed, 25 May 2022 13:10:17 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 374CD207688E7; Wed, 25 May 2022 13:10:17 +0200 (CEST)
-Date:   Wed, 25 May 2022 13:10:17 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Peter Xu <peterx@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Richard Henderson <rth@twiddle.net>,
-        David Hildenbrand <david@redhat.com>,
-        Matt Turner <mattst88@gmail.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Michal Simek <monstr@monstr.eu>,
-        Russell King <linux@armlinux.org.uk>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-riscv@lists.infradead.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Jonas Bonn <jonas@southpole.se>, Will Deacon <will@kernel.org>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        openrisc@lists.librecores.org, linux-s390@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        linux-m68k@lists.linux-m68k.org,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Chris Zankel <chris@zankel.net>,
-        Alistair Popple <apopple@nvidia.com>,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        sparclinux@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Stafford Horne <shorne@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-xtensa@linux-xtensa.org, Nicholas Piggin <npiggin@gmail.com>,
-        linux-sh@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-um@lists.infradead.org, linux-alpha@vger.kernel.org,
-        Johannes Berg <johannes@sipsolutions.net>,
-        linux-ia64@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Dinh Nguyen <dinguyen@kernel.org>, Guo Ren <guoren@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
-        Hugh Dickins <hughd@google.com>, Rich Felker <dalias@libc.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        linux-parisc@vger.kernel.org,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v3] mm: Avoid unnecessary page fault retires on shared
- memory types
-Message-ID: <Yo4OmaNW5YUrGE0S@hirez.programming.kicks-ass.net>
-References: <20220524234531.1949-1-peterx@redhat.com>
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 578013F208
+        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 12:01:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1653480106;
+        bh=vEyRu3gyoMBvdd4Z8NDlxfvzdwpR2dJGXySAtqBJ85Y=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=Dg4UHwh3ewgEIKc23GYfgRL2UY+hiROrMW9PdPdVc0QEbrHqTYIaI+oklUX8OOqPC
+         YjP3K5vCbbt75aPGhceljGfYHiYCpkCluuX5dCbXlEO7IZykWrSou41ymRUDL6Zon/
+         oAx5qcNJquHw4sgc6u8UyZ6TtdcO3Q/PmOekdXsezWWHE5XFdQrJ2EaatGCmtj9Ndi
+         Wuh2WMnYtE8pMworGNl8//270XpCkegg0bGoFgNCJmIIb5QZKPLgLSEozbrc/xUi5p
+         jCaLJsElsaURl9mT3MrWbs92+BfOGEbBK+fhHZWIfg7iWnhRgHFWRJ1yqdPzRX/J3i
+         GYT9R7N4fb79A==
+Received: by mail-ej1-f71.google.com with SMTP id x2-20020a1709065ac200b006d9b316257fso9408929ejs.12
+        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 05:01:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=vEyRu3gyoMBvdd4Z8NDlxfvzdwpR2dJGXySAtqBJ85Y=;
+        b=UTLtMFrWswwocnhRNrlq+IQG3vSZLthc9xmpjE8e7PI5ylXH8NBtjLqhnlfRyG86Fh
+         xpBO5NN2YgqFdaIV5klrF1N1jNvZ7gIA2Ffb+BwZ1Qnfdgw2Nq4abZOn9gRXOrjn47GG
+         mNFlZLKMfe4PK9ltTn2Qz9Xvh6D7L9n+dSUlGQma+Fx/NrLferAh/zWdQDRfhR43PXdw
+         e4ogsqVzhj/1HsgXe+sD9z2VKO3O+wbD6WwtB0oT0/i/hrXocqchKTx5vGNqga5vH2CC
+         hV1O1Pim+Hs23Hv0VsNi8+WfEAy2gd8aKX9ePZN3PW6aFDkLOSRdlE/7uhs7l3vYvESq
+         Je8A==
+X-Gm-Message-State: AOAM53081gLpub6A6HpaM7R9pCn9IAo+SyLINOiTsPusRKRwgvck0dnD
+        7YmURYmN7H14ECwVM6JQ5/BFBQ8Ui0n4cJPPin2J+JJw7T9RUsEy+Ablqn/cKbkF7FWt091GZ+F
+        P5cyk0nqepR0yXT3+rYtoQUO7jsdkzZLVMsZCZzg=
+X-Received: by 2002:a05:6402:b8e:b0:42a:c086:11cd with SMTP id cf14-20020a0564020b8e00b0042ac08611cdmr33974619edb.166.1653480105991;
+        Wed, 25 May 2022 05:01:45 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwL7IQSCfk7dw7Rhxy+BNIoQlgtSODxXBakXaluBUCASNADG2UAzgu1tC5VXb0qfQbABuoOmA==
+X-Received: by 2002:a05:6402:b8e:b0:42a:c086:11cd with SMTP id cf14-20020a0564020b8e00b0042ac08611cdmr33974591edb.166.1653480105786;
+        Wed, 25 May 2022 05:01:45 -0700 (PDT)
+Received: from gollum.fritz.box ([194.191.244.86])
+        by smtp.gmail.com with ESMTPSA id s25-20020a1709066c9900b006fefd1d5c2bsm2093389ejr.148.2022.05.25.05.01.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 May 2022 05:01:45 -0700 (PDT)
+From:   Juerg Haefliger <juerg.haefliger@canonical.com>
+To:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Juerg Haefliger <juerg.haefliger@canonical.com>
+Subject: [PATCH 1/2 v3] s390: Kconfig: Fix indentation
+Date:   Wed, 25 May 2022 14:01:40 +0200
+Message-Id: <20220525120140.39534-1-juerg.haefliger@canonical.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <Yo35NdfKlGwu5Trd@osiris>
+References: <Yo35NdfKlGwu5Trd@osiris>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220524234531.1949-1-peterx@redhat.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 24, 2022 at 07:45:31PM -0400, Peter Xu wrote:
-> I observed that for each of the shared file-backed page faults, we're very
-> likely to retry one more time for the 1st write fault upon no page.  It's
-> because we'll need to release the mmap lock for dirty rate limit purpose
-> with balance_dirty_pages_ratelimited() (in fault_dirty_shared_page()).
-> 
-> Then after that throttling we return VM_FAULT_RETRY.
-> 
-> We did that probably because VM_FAULT_RETRY is the only way we can return
-> to the fault handler at that time telling it we've released the mmap lock.
-> 
-> However that's not ideal because it's very likely the fault does not need
-> to be retried at all since the pgtable was well installed before the
-> throttling, so the next continuous fault (including taking mmap read lock,
-> walk the pgtable, etc.) could be in most cases unnecessary.
-> 
-> It's not only slowing down page faults for shared file-backed, but also add
-> more mmap lock contention which is in most cases not needed at all.
-> 
-> To observe this, one could try to write to some shmem page and look at
-> "pgfault" value in /proc/vmstat, then we should expect 2 counts for each
-> shmem write simply because we retried, and vm event "pgfault" will capture
-> that.
-> 
-> To make it more efficient, add a new VM_FAULT_COMPLETED return code just to
-> show that we've completed the whole fault and released the lock.  It's also
-> a hint that we should very possibly not need another fault immediately on
-> this page because we've just completed it.
-> 
-> This patch provides a ~12% perf boost on my aarch64 test VM with a simple
-> program sequentially dirtying 400MB shmem file being mmap()ed and these are
-> the time it needs:
-> 
->   Before: 650.980 ms (+-1.94%)
->   After:  569.396 ms (+-1.38%)
-> 
-> I believe it could help more than that.
-> 
-> We need some special care on GUP and the s390 pgfault handler (for gmap
-> code before returning from pgfault), the rest changes in the page fault
-> handlers should be relatively straightforward.
-> 
-> Another thing to mention is that mm_account_fault() does take this new
-> fault as a generic fault to be accounted, unlike VM_FAULT_RETRY.
-> 
-> I explicitly didn't touch hmm_vma_fault() and break_ksm() because they do
-> not handle VM_FAULT_RETRY even with existing code, so I'm literally keeping
-> them as-is.
-> 
-> Signed-off-by: Peter Xu <peterx@redhat.com>
+The convention for indentation seems to be a single tab. Help text is
+further indented by an additional two whitespaces. Fix the lines that
+violate these rules.
 
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Juerg Haefliger <juerg.haefliger@canonical.com>
+---
+v3:
+ Change author and sob email addresses to match sender email address.
+v2:
+  Drop trailing endmenu comments.
+
+---
+ arch/s390/Kconfig | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index e084c72104f8..543e859905df 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -736,11 +736,11 @@ config VFIO_AP
+ 	depends on S390_AP_IOMMU && VFIO_MDEV && KVM
+ 	depends on ZCRYPT
+ 	help
+-		This driver grants access to Adjunct Processor (AP) devices
+-		via the VFIO mediated device interface.
++	  This driver grants access to Adjunct Processor (AP) devices
++	  via the VFIO mediated device interface.
+ 
+-		To compile this driver as a module, choose M here: the module
+-		will be called vfio_ap.
++	  To compile this driver as a module, choose M here: the module
++	  will be called vfio_ap.
+ 
+ endmenu
+ 
+-- 
+2.32.0
+
