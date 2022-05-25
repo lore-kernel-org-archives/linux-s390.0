@@ -2,110 +2,182 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6C2DC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 07:12:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72A48C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 08:09:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244276AbiEYHM0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 May 2022 03:12:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54450 "EHLO
+        id S234398AbiEYIJb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 May 2022 04:09:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238372AbiEYHMF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 03:12:05 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBA95FDB;
-        Wed, 25 May 2022 00:12:03 -0700 (PDT)
-Date:   Wed, 25 May 2022 09:11:56 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1653462718;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+orsWNjWtAwiggB87niLJ7T2vo66GNbCnC4aWo769UQ=;
-        b=tXIaQWvesmewK1SQvqwWgjKsyAyyIrLjEanwcNAy2h/P5FMGq/kJgWZClGgDeKmANuYAkW
-        6I7SL146oVeYMmgPOm/K/5ULiZwNsVMQKo5zuy5USu5ms+bQvLeomBnv/Y7RF7ep6r43Fg
-        yrE+GteNpeB84vc7KB5yHCiGDGSLxpJF9n26BehK7VVK2KwTS1qiOtnBNXBBg3s07zq9LZ
-        QuC90oOJFyjhHJqpIG4b7pe7LqIsPAYDmbR2tbrm4G6CKN84jA5eTlcpkoSp3W47VVgETh
-        utsXLbJ9WiKBewsE1+4q4+5PmLVYRznaktasLTJPtcPFwgqlSj1UxEdIbhT9hg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1653462718;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+orsWNjWtAwiggB87niLJ7T2vo66GNbCnC4aWo769UQ=;
-        b=1vNUO3Dakuo2lI9Z/n9vsWIZ8Loex9gUHN2zaefzYBYblmfryFJ25az2ZrOSX+XZBIv9t6
-        eUlvctYCzDyGwvCQ==
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To:     Saravana Kannan <saravanak@google.com>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Rob Herring <robh@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Will Deacon <will@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Kevin Hilman <khilman@kernel.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Mark Brown <broonie@kernel.org>, Pavel Machek <pavel@ucw.cz>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kernel-team@android.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, John Stultz <jstultz@google.com>
-Subject: Re: [PATCH v1] driver core: Extend deferred probe timeout on driver
- registration
-Message-ID: <Yo3WvGnNk3LvLb7R@linutronix.de>
-References: <YogkhvFGVcjNQ21Z@dev-arch.thelio-3990X>
- <CAGETcx9nvBs1b4M=2hBhrLX_2-rzLtAmV9WfTXu0MC7JnsBvwA@mail.gmail.com>
- <YogsiMCDupNUhMgL@dev-fedora.thelio-3990X>
- <CAGETcx-JyWwoGA3o8eep7E29Cm4DcVT6D1JFJh72jLcqm_mjCQ@mail.gmail.com>
- <Youleo3Ganxbc1sq@dev-arch.thelio-3990X>
- <CAGETcx-sL08h2toEyxY6ztc6xNuJiPok6iDEeuJ1mOA3nvE+vA@mail.gmail.com>
- <YowHNo4sBjr9ijZr@dev-arch.thelio-3990X>
- <CAGETcx91_WgpmwEA7mBSvUdyJV0a8ymfaNKTmXq=mAJYAjzq1A@mail.gmail.com>
- <Yo0KyWx+3oX3cMCS@linutronix.de>
- <CAGETcx_qTLwbjzMruLThLYV+MZD5W2Ox-QwLFQeW=eQgxzq-Hw@mail.gmail.com>
+        with ESMTP id S230115AbiEYIJ1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 04:09:27 -0400
+Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C21B7CB62;
+        Wed, 25 May 2022 01:09:26 -0700 (PDT)
+Received: by mail-vs1-f47.google.com with SMTP id 68so13045341vse.11;
+        Wed, 25 May 2022 01:09:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AP6YAmjuideizUL7mupGqzQ5PgkASmXHUBF+HT7ISso=;
+        b=uxJG7TB5ZJoieTVL9kZBV836edJKVAeT7i96N1Eig6qaN8mbelut5uQR+kc+K8v4Bw
+         dkowdSspLVgOTKbgfz/5tlE4JY3hsccAG6cKlcL5+c93/euhtlRSlhexpfRCfevFIlWa
+         9rfIN6O2cHHmkMzRa4Jt66M6lUzWXaKo6ds0q2CpMvUDTE3jlDC4IcjInV/PbCZr3A0+
+         PpiO36GQjmCz8Sa7qHUT4p2WeLFLsEVcGj1Y3Rr5SL9TqWjDivfEq4nibmUqogpK36Eh
+         gZ8kUA1kvAG2Ude0vxeWE/NuD7GNe8+PSZ9nJefR1OPK15H6f66/MoRoCW471Fr/e5xZ
+         81zw==
+X-Gm-Message-State: AOAM532SXnRLy1P6ElhzCgp42VJD+0kpKtI8URzsEnkGThEYBs2sYTKj
+        8B5PNvPN02xJ7eX3SV9e4uEmF4nzDasNGbhk
+X-Google-Smtp-Source: ABdhPJyFCX17Qe0SSxnx7zIp3cpaHTT1zCBiw2GlZG3GhFycAwtOt46i1+3Zw1R/E5qT6LQBX71XZQ==
+X-Received: by 2002:a05:6102:f06:b0:337:9881:5031 with SMTP id v6-20020a0561020f0600b0033798815031mr8239948vss.67.1653466165429;
+        Wed, 25 May 2022 01:09:25 -0700 (PDT)
+Received: from mail-ua1-f44.google.com (mail-ua1-f44.google.com. [209.85.222.44])
+        by smtp.gmail.com with ESMTPSA id u23-20020ab07037000000b003626f894df6sm163784ual.36.2022.05.25.01.09.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 May 2022 01:09:25 -0700 (PDT)
+Received: by mail-ua1-f44.google.com with SMTP id m18so7079159uao.9;
+        Wed, 25 May 2022 01:09:25 -0700 (PDT)
+X-Received: by 2002:a05:6902:120e:b0:634:6f29:6b84 with SMTP id
+ s14-20020a056902120e00b006346f296b84mr30228977ybu.604.1653465845434; Wed, 25
+ May 2022 01:04:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <CAGETcx_qTLwbjzMruLThLYV+MZD5W2Ox-QwLFQeW=eQgxzq-Hw@mail.gmail.com>
+References: <20220524234531.1949-1-peterx@redhat.com>
+In-Reply-To: <20220524234531.1949-1-peterx@redhat.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 25 May 2022 10:03:53 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWpCUGXn=KzfpfZqResRR41XkBKZiQQVo_O_Hq+KMcDKg@mail.gmail.com>
+Message-ID: <CAMuHMdWpCUGXn=KzfpfZqResRR41XkBKZiQQVo_O_Hq+KMcDKg@mail.gmail.com>
+Subject: Re: [PATCH v3] mm: Avoid unnecessary page fault retires on shared
+ memory types
+To:     Peter Xu <peterx@redhat.com>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux MM <linux-mm@kvack.org>,
+        Richard Henderson <rth@twiddle.net>,
+        David Hildenbrand <david@redhat.com>,
+        Matt Turner <mattst88@gmail.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Michal Simek <monstr@monstr.eu>,
+        Russell King <linux@armlinux.org.uk>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Jonas Bonn <jonas@southpole.se>, Will Deacon <will@kernel.org>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        openrisc@lists.librecores.org, linux-s390@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>,
+        linux-m68k@lists.linux-m68k.org,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Chris Zankel <chris@zankel.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alistair Popple <apopple@nvidia.com>,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        sparclinux@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Stafford Horne <shorne@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        linux-xtensa@linux-xtensa.org, Nicholas Piggin <npiggin@gmail.com>,
+        linux-sh@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-um@lists.infradead.org, linux-alpha@vger.kernel.org,
+        Johannes Berg <johannes@sipsolutions.net>,
+        linux-ia64@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        Guo Ren <guoren@kernel.org>,
+        linux-snps-arc@lists.infradead.org,
+        Hugh Dickins <hughd@google.com>, Rich Felker <dalias@libc.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Richard Weinberger <richard@nod.at>,
+        linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        linux-parisc@vger.kernel.org,
+        "David S . Miller" <davem@davemloft.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-05-24 10:46:49 [-0700], Saravana Kannan wrote:
-> > Removing probe_timeout_waitqueue (as suggested) or setting the timeout
-> > to 0 avoids the delay.
->=20
-> In your case, I think it might be working as intended? Curious, what
-> was the call stack in your case where it was blocked?
+On Wed, May 25, 2022 at 1:45 AM Peter Xu <peterx@redhat.com> wrote:
+> I observed that for each of the shared file-backed page faults, we're very
+> likely to retry one more time for the 1st write fault upon no page.  It's
+> because we'll need to release the mmap lock for dirty rate limit purpose
+> with balance_dirty_pages_ratelimited() (in fault_dirty_shared_page()).
+>
+> Then after that throttling we return VM_FAULT_RETRY.
+>
+> We did that probably because VM_FAULT_RETRY is the only way we can return
+> to the fault handler at that time telling it we've released the mmap lock.
+>
+> However that's not ideal because it's very likely the fault does not need
+> to be retried at all since the pgtable was well installed before the
+> throttling, so the next continuous fault (including taking mmap read lock,
+> walk the pgtable, etc.) could be in most cases unnecessary.
+>
+> It's not only slowing down page faults for shared file-backed, but also add
+> more mmap lock contention which is in most cases not needed at all.
+>
+> To observe this, one could try to write to some shmem page and look at
+> "pgfault" value in /proc/vmstat, then we should expect 2 counts for each
+> shmem write simply because we retried, and vm event "pgfault" will capture
+> that.
+>
+> To make it more efficient, add a new VM_FAULT_COMPLETED return code just to
+> show that we've completed the whole fault and released the lock.  It's also
+> a hint that we should very possibly not need another fault immediately on
+> this page because we've just completed it.
+>
+> This patch provides a ~12% perf boost on my aarch64 test VM with a simple
+> program sequentially dirtying 400MB shmem file being mmap()ed and these are
+> the time it needs:
+>
+>   Before: 650.980 ms (+-1.94%)
+>   After:  569.396 ms (+-1.38%)
+>
+> I believe it could help more than that.
+>
+> We need some special care on GUP and the s390 pgfault handler (for gmap
+> code before returning from pgfault), the rest changes in the page fault
+> handlers should be relatively straightforward.
+>
+> Another thing to mention is that mm_account_fault() does take this new
+> fault as a generic fault to be accounted, unlike VM_FAULT_RETRY.
+>
+> I explicitly didn't touch hmm_vma_fault() and break_ksm() because they do
+> not handle VM_FAULT_RETRY even with existing code, so I'm literally keeping
+> them as-is.
+>
+> Signed-off-by: Peter Xu <peterx@redhat.com>
 
-Why is then there 10sec delay during boot? The backtrace is
-|------------[ cut here ]------------
-|WARNING: CPU: 4 PID: 1 at drivers/base/dd.c:742 wait_for_device_probe+0x30=
-/0x110
-|Modules linked in:
-|CPU: 4 PID: 1 Comm: swapper/0 Not tainted 5.18.0-rc5+ #154
-|RIP: 0010:wait_for_device_probe+0x30/0x110
-|Call Trace:
-| <TASK>
-| prepare_namespace+0x2b/0x160
-| kernel_init_freeable+0x2b3/0x2dd
-| kernel_init+0x11/0x110
-| ret_from_fork+0x22/0x30
-| </TASK>
+>  arch/m68k/mm/fault.c          |  4 ++++
 
-Looking closer, it can't access init. This in particular box boots
-directly the kernel without an initramfs so the kernel later mounts
-/dev/sda1 and everything is good.  So that seems to be the reason=E2=80=A6
-My other machine with an initramfs does not show this problem.
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-> -Saravana
+Gr{oetje,eeting}s,
 
-Sebastian
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
