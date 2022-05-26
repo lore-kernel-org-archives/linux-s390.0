@@ -2,135 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 361E0C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 25 May 2022 19:49:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8E1CC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 26 May 2022 00:41:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344756AbiEYTtl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 May 2022 15:49:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47374 "EHLO
+        id S1344506AbiEZAl1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 May 2022 20:41:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344309AbiEYTtl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 15:49:41 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A211766AEC
-        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 12:49:38 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-300beab2b76so14391647b3.13
-        for <linux-s390@vger.kernel.org>; Wed, 25 May 2022 12:49:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=lcsU1M3aHmWM93+N/Pq2k69CNkfyIQUCxczoLH0OLPk=;
-        b=hGvqDCPINlCno6IGVx/RQ4/atSQ+dW08eMaP/4u4J2Rx0AU21Orr25m5AgNUJgVoBC
-         3FFOnaz5xSM9a3RRyGWmmLYgiZVdvKzEmj7vsHFg6Sh7EwGqNKrvH43xPCnlETqRbyTJ
-         rUgPCSCAGnF+I3fcFxMltq5wx33LgoLK4ERO4IR4Sot/Uaxxldi6tkX+WdLxAvCCiEtI
-         QP4xUPzpC2rlJZR8sd1n3W8vuHEHoaO4LC9YRcKisj9Uq+DszGcvpWkcK75IpZtbpf64
-         JIxJLJ+6BngIh5kjOcaFiUEdbJbMoovEHpIlAtRm4xeoQYYTe1wf9PGaYkAV8y48Abi0
-         +6Hg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=lcsU1M3aHmWM93+N/Pq2k69CNkfyIQUCxczoLH0OLPk=;
-        b=wCT9qnvy9/V5Gi70eO+ODavAX5SBduIHHhse8v3C+zn5m75+pT7zD1Spr4qodwGUDo
-         7ukVqlQSsoMlkjsRPKmGzsBUz+yMFMoS1O9yWjtfN9HbePLEzxE+Gr5lRbi11Kn3lm4R
-         L+wnv0ff5evKLE7yTT/XkfN1i99idyuL9UR9CpApMtv7Ebmnkq5JwAKIGk/Sltc/24/0
-         9UP5UzA6P4oDLVMO7nVZAevMgEruGBABalUFB5iVbioJFp4YPgI9itA0v2tO2chfkA3Z
-         RSugaobIuXS2UG1WlCNu4+Zqla5upI6uTRaSoixDLlI1bQGExS5hHVRUEW06RkOrRU5e
-         D4lQ==
-X-Gm-Message-State: AOAM5327nXxbv0A6DwulHJeVPoXiE9vfxle9LTGT6FWLlkxgY3DLhMtp
-        weTi7rKk8Gmt4+tapjUVeXaABhVOd/8CwV8/n9NI4g==
-X-Google-Smtp-Source: ABdhPJye/LYmXdbx2DRGvhYd77idEIGqJLpVK4M7sUVcSaytWZ/KajOi10nwmyuJy9EQw0Od4wYghiCxgCclb01GpVs=
-X-Received: by 2002:a81:72c5:0:b0:300:7d0:a642 with SMTP id
- n188-20020a8172c5000000b0030007d0a642mr14402533ywc.80.1653508177547; Wed, 25
- May 2022 12:49:37 -0700 (PDT)
+        with ESMTP id S1344960AbiEZAkL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 20:40:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 243A8B0D20;
+        Wed, 25 May 2022 17:40:10 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9B1FB81ECB;
+        Thu, 26 May 2022 00:40:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6589DC34118;
+        Thu, 26 May 2022 00:40:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653525607;
+        bh=XbYpsC9yEq2qbfVcCMnpASOsc0x6dM1zetw0N7lzPwE=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=OzeAYiRZdsB0yXNS0g4T0S862JWB2B/LUQvACOo5rMGE2n7o9TZvPB27hB71zz38y
+         vo9jrOt3g7Uz6Ayo1wV41mp4/BSeoUVtantEuSKD5nAs/iu8jdCOVoUa11gVT2bdrc
+         Te2G/7HFQTTP7+EIraOOvVasWY1jJOE6CNGvIfHnnTricGNK2En6oABwY37E52bEjy
+         OerKaDd5ZbVw2Fhm6RTHF/WOyuj0HDTUusgZKY1QYwx5AzZBjQ/IDqX+0Q3Igt0ccj
+         na8+zgUeTUqSTMCBGY8rJGZE3RXEGnIg6ufUHZKVlRoUxxV42EVxFThlBwDoaMNG68
+         /qk7UI4Wse96g==
+Received: by mail-vs1-f46.google.com with SMTP id m2so42228vsr.8;
+        Wed, 25 May 2022 17:40:07 -0700 (PDT)
+X-Gm-Message-State: AOAM532RKsjUwuddb79+sBVhEXiHohPcDMW74d3X2KG0MaN6lrjoT9g3
+        0Z/QDjIXEC5X8ZaRZoq75Sl9tCpVobhk8FopS84=
+X-Google-Smtp-Source: ABdhPJx0cJkHljwuAHpyaehwgqdzrKWDw6u17/hHUkJNA8qg9NggwxKoibBsRSciUSmCfyeKXeu5IRU/QTIMEigENhQ=
+X-Received: by 2002:a67:c117:0:b0:337:a2ea:98e3 with SMTP id
+ d23-20020a67c117000000b00337a2ea98e3mr8547786vsj.59.1653525606376; Wed, 25
+ May 2022 17:40:06 -0700 (PDT)
 MIME-Version: 1.0
-References: <YogkhvFGVcjNQ21Z@dev-arch.thelio-3990X> <CAGETcx9nvBs1b4M=2hBhrLX_2-rzLtAmV9WfTXu0MC7JnsBvwA@mail.gmail.com>
- <YogsiMCDupNUhMgL@dev-fedora.thelio-3990X> <CAGETcx-JyWwoGA3o8eep7E29Cm4DcVT6D1JFJh72jLcqm_mjCQ@mail.gmail.com>
- <Youleo3Ganxbc1sq@dev-arch.thelio-3990X> <CAGETcx-sL08h2toEyxY6ztc6xNuJiPok6iDEeuJ1mOA3nvE+vA@mail.gmail.com>
- <YowHNo4sBjr9ijZr@dev-arch.thelio-3990X> <CAGETcx91_WgpmwEA7mBSvUdyJV0a8ymfaNKTmXq=mAJYAjzq1A@mail.gmail.com>
- <Yo0KyWx+3oX3cMCS@linutronix.de> <CAGETcx_qTLwbjzMruLThLYV+MZD5W2Ox-QwLFQeW=eQgxzq-Hw@mail.gmail.com>
- <Yo3WvGnNk3LvLb7R@linutronix.de>
-In-Reply-To: <Yo3WvGnNk3LvLb7R@linutronix.de>
-From:   Saravana Kannan <saravanak@google.com>
-Date:   Wed, 25 May 2022 12:49:00 -0700
-Message-ID: <CAGETcx84ja_w_=vXKDOZnM8EVEcuAg1tX9Kqy57PTkDb1=H4FA@mail.gmail.com>
-Subject: Re: [PATCH v1] driver core: Extend deferred probe timeout on driver registration
-To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
+References: <20220322144003.2357128-1-guoren@kernel.org> <3418219.V25eIC5XRa@diego>
+ <CAJF2gTTkpHLZf-+VXZE_gCn=5ZJ5FS3jOxKLVoMyL4i=baPd7Q@mail.gmail.com> <1766627.8hzESeGDPO@diego>
+In-Reply-To: <1766627.8hzESeGDPO@diego>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Thu, 26 May 2022 08:39:54 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTRrrwDUOTqLDTxZLNnWM1LXEq4VFVB8jZPdYvnS2i0ung@mail.gmail.com>
+Message-ID: <CAJF2gTRrrwDUOTqLDTxZLNnWM1LXEq4VFVB8jZPdYvnS2i0ung@mail.gmail.com>
+Subject: Re: [PATCH V9 20/20] riscv: compat: Add COMPAT Kbuild skeletal support
+To:     =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Arnd Bergmann <arnd@arndb.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Rob Herring <robh@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Will Deacon <will@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Kevin Hilman <khilman@kernel.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Mark Brown <broonie@kernel.org>, Pavel Machek <pavel@ucw.cz>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kernel-team@android.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, John Stultz <jstultz@google.com>
+        Christoph Hellwig <hch@lst.de>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 25, 2022 at 12:12 AM Sebastian Andrzej Siewior
-<bigeasy@linutronix.de> wrote:
+On Thu, May 26, 2022 at 3:37 AM Heiko St=C3=BCbner <heiko@sntech.de> wrote:
 >
-> On 2022-05-24 10:46:49 [-0700], Saravana Kannan wrote:
-> > > Removing probe_timeout_waitqueue (as suggested) or setting the timeou=
-t
-> > > to 0 avoids the delay.
+> Am Mittwoch, 25. Mai 2022, 18:08:22 CEST schrieb Guo Ren:
+> > Thx Heiko & Guenter,
 > >
-> > In your case, I think it might be working as intended? Curious, what
-> > was the call stack in your case where it was blocked?
+> > On Wed, May 25, 2022 at 7:10 PM Heiko St=C3=BCbner <heiko@sntech.de> wr=
+ote:
+> > >
+> > > Am Mittwoch, 25. Mai 2022, 12:57:30 CEST schrieb Heiko St=C3=BCbner:
+> > > > Am Mittwoch, 25. Mai 2022, 00:06:46 CEST schrieb Guenter Roeck:
+> > > > > On Wed, May 25, 2022 at 01:46:38AM +0800, Guo Ren wrote:
+> > > > > [ ... ]
+> > > > >
+> > > > > > > The problem is come from "__dls3's vdso decode part in musl's
+> > > > > > > ldso/dynlink.c". The ehdr->e_phnum & ehdr->e_phentsize are wr=
+ong.
+> > > > > > >
+> > > > > > > I think the root cause is from musl's implementation with the=
+ wrong
+> > > > > > > elf parser. I would fix that soon.
+> > > > > > Not elf parser, it's "aux vector just past environ[]". I think =
+I could
+> > > > > > solve this, but anyone who could help dig in is welcome.
+> > > > > >
+> > > > >
+> > > > > I am not sure I understand what you are saying here. Point is tha=
+t my
+> > > > > root file system, generated with musl a year or so ago, crashes w=
+ith
+> > > > > your patch set applied. That is a regression, even if there is a =
+bug
+> > > > > in musl.
+> > Thx for the report, it's a valuable regression for riscv-compat.
+> >
+> > > >
+> > > > Also as I said in the other part of the thread, the rootfs seems in=
+nocent,
+> > > > as my completely-standard Debian riscv64 rootfs is also affected.
+> > > >
+> > > > The merged version seems to be v12 [0] - not sure how we this discu=
+ssion
+> > > > ended up in v9, but I just tested this revision in two variants:
+> > > >
+> > > > - v5.17 + this v9 -> works nicely
+> > >
+> > > I take that back ... now going back to that build I somehow also run =
+into
+> > > that issue here ... will investigate more.
+> > Yeah, it's my fault. I've fixed up it, please have a try:
+> >
+> > https://lore.kernel.org/linux-riscv/20220525160404.2930984-1-guoren@ker=
+nel.org/T/#u
 >
-> Why is then there 10sec delay during boot? The backtrace is
-> |------------[ cut here ]------------
-> |WARNING: CPU: 4 PID: 1 at drivers/base/dd.c:742 wait_for_device_probe+0x=
-30/0x110
-> |Modules linked in:
-> |CPU: 4 PID: 1 Comm: swapper/0 Not tainted 5.18.0-rc5+ #154
-> |RIP: 0010:wait_for_device_probe+0x30/0x110
-> |Call Trace:
-> | <TASK>
-> | prepare_namespace+0x2b/0x160
-> | kernel_init_freeable+0x2b3/0x2dd
-> | kernel_init+0x11/0x110
-> | ret_from_fork+0x22/0x30
-> | </TASK>
+> very cool that you found the issue.
+> I've tested your patch and it seems to fix the issue for me.
 >
-> Looking closer, it can't access init. This in particular box boots
-> directly the kernel without an initramfs so the kernel later mounts
-> /dev/sda1 and everything is good.  So that seems to be the reason=E2=80=
-=A6
+> Thanks for figuring out the cause
+I should thx Guenter Roeck, It just surprised me that compat_vdso
+could work with quite a lot of rv64 apps.
 
-Hmmm... that part shouldn't matter. As long as you are hitting the
-same code path. My guess is one of them has CONFIG_MODULES enabled and
-the other doesn't.
-
-In either case, I think the patch needs to be reverted (I'll send out
-one soon), but that'll also mean I need to revert part of my patch
-(sets the timeout back to 0) or I need to fix this case:
-https://lore.kernel.org/lkml/TYAPR01MB45443DF63B9EF29054F7C41FD8C60@TYAPR01=
-MB4544.jpnprd01.prod.outlook.com/
-
-I'll try to do the latter if I can get something reasonable soon.
-Otherwise, I'll just do the revert + partial revert.
-
--Saravana
-
-
-> My other machine with an initramfs does not show this problem.
+> Heiko
 >
-> > -Saravana
 >
-> Sebastian
+> > > > - v5.18-rc6 + this v9 (rebased onto it) -> breaks the boot
+> > > >   The only rebase-conflict was with the introduction of restartable
+> > > >   sequences and removal of the tracehook include, but turning CONFI=
+G_RSEQ
+> > > >   off doesn't seem to affect the breakage.
+> > > >
+> > > > So it looks like something changed between 5.17 and 5.18 that cause=
+s the issue.
+> > > >
+> > > >
+> > > > Heiko
+> > > >
+> > > >
+> > > > [0] https://lore.kernel.org/all/20220405071314.3225832-1-guoren@ker=
+nel.org/
+> > > >
+> > >
+> > >
+> > >
+> > >
+> >
+> >
+> >
+>
+>
+>
+>
+
+
+--=20
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
