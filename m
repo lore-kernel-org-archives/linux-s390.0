@@ -2,85 +2,79 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39793C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 26 May 2022 03:47:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91955C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 26 May 2022 05:10:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236472AbiEZDra (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 May 2022 23:47:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53722 "EHLO
+        id S1345707AbiEZFKP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 26 May 2022 01:10:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233544AbiEZDr3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 May 2022 23:47:29 -0400
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25AC6257;
-        Wed, 25 May 2022 20:47:26 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VEQTeja_1653536838;
-Received: from 30.225.28.183(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VEQTeja_1653536838)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 26 May 2022 11:47:24 +0800
-Message-ID: <8a518b27-3048-cb0b-d2e3-a68d0ef05171@linux.alibaba.com>
-Date:   Thu, 26 May 2022 11:47:18 +0800
+        with ESMTP id S231924AbiEZFKP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 May 2022 01:10:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FF3ABC6E4;
+        Wed, 25 May 2022 22:10:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A641661A22;
+        Thu, 26 May 2022 05:10:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id CCD25C34118;
+        Thu, 26 May 2022 05:10:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653541812;
+        bh=R0Ebxv8lXFQ/RVHZfkbBb9OGmHlz+FwVvB+dTGMmpTs=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=Gq8SMsK3dCvgq7sff7Kf0evv143LX/6LZC8ms7BM4TbP7I/+3NJnGXM2ZkgGTL+1A
+         IKPJNcTHhZXroapDLJkZrR5KohYU2aTuuxrK46iiCRxcStsxoyUUKze+33cs0TgPYU
+         DwFY4XYmZ7lLMAAFwoVKpbL9fOI2KIgbURHZXJ4fJvKoBA/jP5tjQ3Sqvp8hl3LsP2
+         7aQ3ZRDA2Vo6DRxYaoWoOfwbpqjml23/Jilew2N4x/gy3fWL57H97C4FMChBDe0Vq/
+         kxLD/ilsKGfpg3BlryDHTa5CQX7M0RsiTaBRgj6vVDctwNA5SEh5isyRRqKrfyhiM5
+         PsBPbYkkqKGMw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id B2A70F03938;
+        Thu, 26 May 2022 05:10:12 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.8.1
-Subject: Re: [RFC net-next] net/smc:introduce 1RTT to SMC
-To:     Alexandra Winter <wintera@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-References: <1653375127-130233-1-git-send-email-alibuda@linux.alibaba.com>
- <YoyOGlG2kVe4VA4m@TonyMac-Alibaba>
- <64439f1c-9817-befd-c11b-fa64d22620a9@linux.ibm.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <64439f1c-9817-befd-c11b-fa64d22620a9@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/smc: set ini->smcrv2.ib_dev_v2 to NULL if SMC-Rv2 is
+ unavailable
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <165354181272.23912.6206348269992645590.git-patchwork-notify@kernel.org>
+Date:   Thu, 26 May 2022 05:10:12 +0000
+References: <20220525085408.812273-1-liuyacan@corp.netease.com>
+In-Reply-To: <20220525085408.812273-1-liuyacan@corp.netease.com>
+To:     None <liuyacan@corp.netease.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ubraun@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hello:
 
+This patch was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-在 2022/5/25 下午9:42, Alexandra Winter 写道:
-
-> Thank you D. Wythe for your proposals, the prototype and measurements.
-> They sound quite promising to us.
->  > We need to carefully evaluate them and make sure everything is compatible
-> with the existing implementations of SMC-D and SMC-R v1 and v2. In the
-> typical s390 environment ROCE LAG is propably not good enough, as the card
-> is still a single point of failure. So your ideas need to be compatible
-> with link redundancy. We also need to consider that the extension of the
-> protocol does not block other desirable extensions.
+On Wed, 25 May 2022 16:54:08 +0800 you wrote:
+> From: liuyacan <liuyacan@corp.netease.com>
 > 
-> Your prototype is very helpful for the understanding. Before submitting any
-> code patches to net-next, we should agree on the details of the protocol
-> extension. Maybe you could formulate your proposal in plain text, so we can
-> discuss it here?
-
-I am very pleased to hear that your team have interest in this 
-proposals, and thanks a lot for your advise. We really appreciate your 
-point of view about compatibility, In fact, we are working on some 
-written drafts which compatibility is quite a important part, and will 
-be shared here soon.
-
+> In the process of checking whether RDMAv2 is available, the current
+> implementation first sets ini->smcrv2.ib_dev_v2, and then allocates
+> smc buf desc and register rmb, but the latter may fail. In this case,
+> the pointer should be reset.
 > 
-> We also need to inform you that several public holidays are upcoming in the
-> next weeks and several of our team will be out for summer vacation, so please
-> allow for longer response times.
+> [...]
 
-Thanks for your informing, that's totaly okay to us. May your holidays 
-be full of warmth and cheer.
+Here is the summary with links:
+  - [net] net/smc: set ini->smcrv2.ib_dev_v2 to NULL if SMC-Rv2 is unavailable
+    https://git.kernel.org/netdev/net/c/b3b1a17538d3
 
-
-> Kind regards
-> Alexandra Winter
-> 
-
-
-D. Wyther
-Thanks.
-
-
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
