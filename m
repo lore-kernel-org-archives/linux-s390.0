@@ -2,181 +2,293 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4371BC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 13:36:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CDE5C4167B
+	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 13:49:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242917AbiE0Ngm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 May 2022 09:36:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38648 "EHLO
+        id S1352783AbiE0NtO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 May 2022 09:49:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235855AbiE0Ngl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 09:36:41 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C32F35C378;
-        Fri, 27 May 2022 06:36:37 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24RDNkix007065;
-        Fri, 27 May 2022 13:36:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : reply-to : subject : to : cc : references : from :
- in-reply-to : content-type : content-transfer-encoding; s=pp1;
- bh=UvFfAb7XzrtbZWcakjYDQFR097d/QQ6h3USU5tf9mOU=;
- b=Dgepv199RVUJ5xaCICOhCfrCKHv6E+cWaiobNYIRVwwIUgQ8FRvTr5ur8M4q7kKRF7S3
- hQmREqzcTV+aBs/Cp1ZrlD34l1nNWzdmlxPDjflZrZJDFFX2jNwO40arVXC+Rojls6C3
- 89mSdxY///C8T10LYEP4gBNoPnE2ZSCTn0eMt7IiVxiuxYN7a6NDjf1Tc8k3rHKS98S7
- tjpcIi8nTm8mAYrILujes+mJhrEcRi381vJUS1ig7Ms58nLvUP3sPh/e7VK7Cn4O5t7B
- h5ojqQREfZpaIzwwwn5Z+mb2VxYUJEEfRMSaV6I4Myw8uDf+yPrgxAFHeSWez91ZmA0q Vw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gayg807ty-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 May 2022 13:36:34 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24RDUW4L002489;
-        Fri, 27 May 2022 13:36:33 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gayg807tp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 May 2022 13:36:33 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24RDYWhL013836;
-        Fri, 27 May 2022 13:36:33 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma03wdc.us.ibm.com with ESMTP id 3gabgmf0d4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 May 2022 13:36:33 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24RDaWPQ39387498
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 May 2022 13:36:32 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7F91F28058;
-        Fri, 27 May 2022 13:36:32 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2EDE828065;
-        Fri, 27 May 2022 13:36:32 +0000 (GMT)
-Received: from [9.60.75.219] (unknown [9.60.75.219])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 27 May 2022 13:36:32 +0000 (GMT)
-Message-ID: <9364a1b7-9060-20aa-b0d6-88c41a30e7d4@linux.ibm.com>
-Date:   Fri, 27 May 2022 09:36:32 -0400
+        with ESMTP id S1344512AbiE0NtM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 09:49:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7BFF75C359
+        for <linux-s390@vger.kernel.org>; Fri, 27 May 2022 06:49:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1653659349;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=u3wM6LMtd0WRKF0TJX2qWAIusndSWh4uKD1DEnhNev8=;
+        b=GnhzP5Zro7Q+YgUUUxlCFu0wpQzw7xT84gsoDvlxumO9xBnREdTK+jdpbsFiaRAwQK4gC1
+        rU5Q5UCvP6PMJ0ZuISQz4IQU52fIaMZEFqF+QgorL3et9ONL62yzD8ydkMmEpeqk6wrD9Z
+        ILi7hy3bMwCOn/Wm+x/GAXBaMA91dV8=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-321-vddKjXoeMkabGX3xq46OsQ-1; Fri, 27 May 2022 09:49:08 -0400
+X-MC-Unique: vddKjXoeMkabGX3xq46OsQ-1
+Received: by mail-io1-f69.google.com with SMTP id a11-20020a6b660b000000b0066577bb520dso2811968ioc.8
+        for <linux-s390@vger.kernel.org>; Fri, 27 May 2022 06:49:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=u3wM6LMtd0WRKF0TJX2qWAIusndSWh4uKD1DEnhNev8=;
+        b=sc8yHSH/PhNUm+jk1Sy/aDHWP9g62uwUKPyM17x/RvyQ/Wwu/mlOF5EkfhusReCwPP
+         9Q/j7yqRjNYIdKjO7aGO3+rhOWmiMj3aR0nxID9RRnvCmR4ZUeXMGsMJhVJELN7KPgqJ
+         H07hQkNrmhsMRgDT2bjhv2f5Gj+FdEB9r9bgJNMB9HeD4y3fiMhyaxn3SDIXso1FzC/Q
+         ppf2kAyKn+D44I9TKfXZyF4bqwbFwOfLlUllbV3ZgFS2ZUv3Qhb4qnuSh/VTENkK/v9W
+         ah02BFqJcNzzKcVfBPE0jHkNjM0eTbRSC6b+UPyf/VKKxsLpeehb93u+ECar3bN1F7Pv
+         l28g==
+X-Gm-Message-State: AOAM533hxNtySgAbTIGWzki+Vb6DwN7l97nGST6MlgB4SqV7+V18p7jg
+        ktKEDCJQHBjygZX3EH5SCnDbBIDt5Cmop354JfSq0Y7poGI988af9Ki71avXr5W8U9SMe2i7cRu
+        TXKeDD/65zqYLh84vlXkfCw==
+X-Received: by 2002:a05:6602:1584:b0:664:ab0f:5339 with SMTP id e4-20020a056602158400b00664ab0f5339mr10502571iow.146.1653659347405;
+        Fri, 27 May 2022 06:49:07 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzCqN3qwLLuYZMqrMI7aGsb6Zn5OHs31WIJQ3aUgDc8PhP19ReX/GZlaKbEBJ1PdD9YunS6AA==
+X-Received: by 2002:a05:6602:1584:b0:664:ab0f:5339 with SMTP id e4-20020a056602158400b00664ab0f5339mr10502527iow.146.1653659347005;
+        Fri, 27 May 2022 06:49:07 -0700 (PDT)
+Received: from xz-m1.local (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
+        by smtp.gmail.com with ESMTPSA id x25-20020a029719000000b0032b3a7817d6sm563254jai.154.2022.05.27.06.49.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 May 2022 06:49:06 -0700 (PDT)
+Date:   Fri, 27 May 2022 09:49:01 -0400
+From:   Peter Xu <peterx@redhat.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Richard Henderson <rth@twiddle.net>,
+        David Hildenbrand <david@redhat.com>,
+        Matt Turner <mattst88@gmail.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Michal Simek <monstr@monstr.eu>,
+        Russell King <linux@armlinux.org.uk>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        linux-riscv@lists.infradead.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Jonas Bonn <jonas@southpole.se>, Will Deacon <will@kernel.org>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        openrisc@lists.librecores.org, linux-s390@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>,
+        linux-m68k@lists.linux-m68k.org,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Chris Zankel <chris@zankel.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alistair Popple <apopple@nvidia.com>,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        sparclinux@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Stafford Horne <shorne@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        linux-xtensa@linux-xtensa.org, Nicholas Piggin <npiggin@gmail.com>,
+        linux-sh@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-um@lists.infradead.org, linux-alpha@vger.kernel.org,
+        Johannes Berg <johannes@sipsolutions.net>,
+        linux-ia64@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Dinh Nguyen <dinguyen@kernel.org>, Guo Ren <guoren@kernel.org>,
+        linux-snps-arc@lists.infradead.org,
+        Hugh Dickins <hughd@google.com>, Rich Felker <dalias@libc.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Richard Weinberger <richard@nod.at>,
+        linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        linux-parisc@vger.kernel.org,
+        "David S . Miller" <davem@davemloft.net>,
+        Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v3] mm: Avoid unnecessary page fault retires on shared
+ memory types
+Message-ID: <YpDWzX8dyh1259Mo@xz-m1.local>
+References: <20220524234531.1949-1-peterx@redhat.com>
+ <YpDCzvLER9AYJJc8@osiris>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Reply-To: jjherne@linux.ibm.com
-Subject: Re: [PATCH v19 11/20] s390/vfio-ap: prepare for dynamic update of
- guest's APCB on queue probe/remove
-Content-Language: en-US
-To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
- <20220404221039.1272245-12-akrowiak@linux.ibm.com>
-From:   "Jason J. Herne" <jjherne@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <20220404221039.1272245-12-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xRlckxqCRc19NbXDI99X_qHWEu4qeofs
-X-Proofpoint-ORIG-GUID: bBkFK8XaS7mL1iDBCEYFcvvYWPergox1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-27_03,2022-05-27_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 malwarescore=0 phishscore=0 lowpriorityscore=0
- bulkscore=0 adultscore=0 mlxlogscore=999 clxscore=1015 mlxscore=0
- impostorscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2204290000 definitions=main-2205270063
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YpDCzvLER9AYJJc8@osiris>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/4/22 18:10, Tony Krowiak wrote:
-> The callback functions for probing and removing a queue device must take
-> and release the locks required to perform a dynamic update of a guest's
-> APCB in the proper order.
-> 
-> The proper order for taking the locks is:
-> 
->          matrix_dev->guests_lock => kvm->lock => matrix_dev->mdevs_lock
-> 
-> The proper order for releasing the locks is:
-> 
->          matrix_dev->mdevs_lock => kvm->lock => matrix_dev->guests_lock
-> 
-> A new helper function is introduced to be used by the probe callback to
-> acquire the required locks. Since the probe callback only has
-> access to a queue device when it is called, the helper function will find
-> the ap_matrix_mdev object to which the queue device's APQN is assigned and
-> return it so the KVM guest to which the mdev is attached can be dynamically
-> updated.
-> 
-> Note that in order to find the ap_matrix_mdev (matrix_mdev) object, it is
-> necessary to search the matrix_dev->mdev_list. This presents a
-> locking order dilemma because the matrix_dev->mdevs_lock can't be taken to
-> protect against changes to the list while searching for the matrix_mdev to
-> which a queue device's APQN is assigned. This is due to the fact that the
-> proper locking order requires that the matrix_dev->mdevs_lock be taken
-> after both the matrix_mdev->kvm->lock and the matrix_dev->mdevs_lock.
-> Consequently, the matrix_dev->guests_lock will be used to protect against
-> removal of a matrix_mdev object from the list while a queue device is
-> being probed. This necessitates changes to the mdev probe/remove
-> callback functions to take the matrix_dev->guests_lock prior to removing
-> a matrix_mdev object from the list.
-> 
-> A new macro is also introduced to acquire the locks required to dynamically
-> update the guest's APCB in the proper order when a queue device is
-> removed.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c | 126 +++++++++++++++++++++---------
->   1 file changed, 88 insertions(+), 38 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 2219b1069ceb..080a733f7cd2 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -116,6 +116,74 @@ static const struct vfio_device_ops vfio_ap_matrix_dev_ops;
->   	mutex_unlock(&matrix_dev->guests_lock);		\
->   })
->   
-> +/**
-> + * vfio_ap_mdev_get_update_locks_for_apqn: retrieve the matrix mdev to which an
-> + *					   APQN is assigned and acquire the
-> + *					   locks required to update the APCB of
-> + *					   the KVM guest to which the mdev is
-> + *					   attached.
-> + *
-> + * @apqn: the APQN of a queue device.
-> + *
-> + * The proper locking order is:
-> + * 1. matrix_dev->guests_lock: required to use the KVM pointer to update a KVM
-> + *			       guest's APCB.
-> + * 2. matrix_mdev->kvm->lock:  required to update a guest's APCB
-> + * 3. matrix_dev->mdevs_lock:  required to access data stored in a matrix_mdev
-> + *
-> + * Note: If @apqn is not assigned to a matrix_mdev, the matrix_mdev->kvm->lock
-> + *	 will not be taken.
-> + *
-> + * Return: the ap_matrix_mdev object to which @apqn is assigned or NULL if @apqn
-> + *	   is not assigned to an ap_matrix_mdev.
-> + */
-> +static struct ap_matrix_mdev *vfio_ap_mdev_get_update_locks_for_apqn(int apqn)
+Hi, Heiko,
 
-vfio_ap_mdev_get_update_locks_for_apqn is "crazy long".
-How about:
-   get_mdev_for_apqn()
+On Fri, May 27, 2022 at 02:23:42PM +0200, Heiko Carstens wrote:
+> On Tue, May 24, 2022 at 07:45:31PM -0400, Peter Xu wrote:
+> > I observed that for each of the shared file-backed page faults, we're very
+> > likely to retry one more time for the 1st write fault upon no page.  It's
+> > because we'll need to release the mmap lock for dirty rate limit purpose
+> > with balance_dirty_pages_ratelimited() (in fault_dirty_shared_page()).
+> > 
+> > Then after that throttling we return VM_FAULT_RETRY.
+> > 
+> > We did that probably because VM_FAULT_RETRY is the only way we can return
+> > to the fault handler at that time telling it we've released the mmap lock.
+> > 
+> > However that's not ideal because it's very likely the fault does not need
+> > to be retried at all since the pgtable was well installed before the
+> > throttling, so the next continuous fault (including taking mmap read lock,
+> > walk the pgtable, etc.) could be in most cases unnecessary.
+> > 
+> > It's not only slowing down page faults for shared file-backed, but also add
+> > more mmap lock contention which is in most cases not needed at all.
+> > 
+> > To observe this, one could try to write to some shmem page and look at
+> > "pgfault" value in /proc/vmstat, then we should expect 2 counts for each
+> > shmem write simply because we retried, and vm event "pgfault" will capture
+> > that.
+> > 
+> > To make it more efficient, add a new VM_FAULT_COMPLETED return code just to
+> > show that we've completed the whole fault and released the lock.  It's also
+> > a hint that we should very possibly not need another fault immediately on
+> > this page because we've just completed it.
+> > 
+> > This patch provides a ~12% perf boost on my aarch64 test VM with a simple
+> > program sequentially dirtying 400MB shmem file being mmap()ed and these are
+> > the time it needs:
+> > 
+> >   Before: 650.980 ms (+-1.94%)
+> >   After:  569.396 ms (+-1.38%)
+> > 
+> > I believe it could help more than that.
+> > 
+> > We need some special care on GUP and the s390 pgfault handler (for gmap
+> > code before returning from pgfault), the rest changes in the page fault
+> > handlers should be relatively straightforward.
+> > 
+> > Another thing to mention is that mm_account_fault() does take this new
+> > fault as a generic fault to be accounted, unlike VM_FAULT_RETRY.
+> > 
+> > I explicitly didn't touch hmm_vma_fault() and break_ksm() because they do
+> > not handle VM_FAULT_RETRY even with existing code, so I'm literally keeping
+> > them as-is.
+> > 
+> > Signed-off-by: Peter Xu <peterx@redhat.com>
+> ...
+> > diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> > index e173b6187ad5..9503a7cfaf03 100644
+> > --- a/arch/s390/mm/fault.c
+> > +++ b/arch/s390/mm/fault.c
+> > @@ -339,6 +339,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+> >  	unsigned long address;
+> >  	unsigned int flags;
+> >  	vm_fault_t fault;
+> > +	bool need_unlock = true;
+> >  	bool is_write;
+> >  
+> >  	tsk = current;
+> > @@ -433,6 +434,13 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+> >  			goto out_up;
+> >  		goto out;
+> >  	}
+> > +
+> > +	/* The fault is fully completed (including releasing mmap lock) */
+> > +	if (fault & VM_FAULT_COMPLETED) {
+> > +		need_unlock = false;
+> > +		goto out_gmap;
+> > +	}
+> > +
+> >  	if (unlikely(fault & VM_FAULT_ERROR))
+> >  		goto out_up;
+> >  
+> > @@ -452,6 +460,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+> >  		mmap_read_lock(mm);
+> >  		goto retry;
+> >  	}
+> > +out_gmap:
+> >  	if (IS_ENABLED(CONFIG_PGSTE) && gmap) {
+> >  		address =  __gmap_link(gmap, current->thread.gmap_addr,
+> >  				       address);
+> > @@ -466,7 +475,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+> >  	}
+> >  	fault = 0;
+> >  out_up:
+> > -	mmap_read_unlock(mm);
+> > +	if (need_unlock)
+> > +		mmap_read_unlock(mm);
+> >  out:
+> 
+> This seems to be incorrect. __gmap_link() requires the mmap_lock to be
+> held. Christian, Janosch, or David, could you please check?
 
-This function is static and the terms mdev and apqn are specific enough that I
-don't think it needs to start with vfio_ap. And there is no need to state in
-the function name that locks are acquired. That point will be obvious to anyone
-reading the prologue or the code.
+Thanks for pointing that out.  Indeed I see the clue right above the
+comment of __gmap_link():
 
-Aside from that, Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
+/*
+ * ...
+ * The mmap_lock of the mm that belongs to the address space must be held
+ * when this function gets called.
+ */
+int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+
+A further fact is it'll walk the pgtable right afterwards, assuming
+gmap->mm will definitely be the current mm or it'll definitely go wrong.
+
+I'll change s390 to retake the lock with the new COMPLETE retcode, so at
+least it'll avoid one pgtable work procedure even if the lock overhead was
+kept.
+
+With that, one more possible further optimization for s390 only will be
+conditionally not taking that lock when !CONFIG_PGSTE, but I have totally
+no idea whether that'll be a common use case, so I plan to leave that for
+later in all cases.
+
+Actually after doing that the whole changeset of s390 is even more
+straightforward:
+
+---8<---
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index e173b6187ad5..4608cc962ecf 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -433,6 +433,17 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+                        goto out_up;
+                goto out;
+        }
++
++       /* The fault is fully completed (including releasing mmap lock) */
++       if (fault & VM_FAULT_COMPLETED) {
++               /*
++                * Gmap will need the mmap lock again, so retake it.  TODO:
++                * only conditionally take the lock when CONFIG_PGSTE set.
++                */
++               mmap_read_lock(mm);
++               goto out_gmap;
++       }
++
+        if (unlikely(fault & VM_FAULT_ERROR))
+                goto out_up;
+ 
+@@ -452,6 +463,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+                mmap_read_lock(mm);
+                goto retry;
+        }
++out_gmap:
+        if (IS_ENABLED(CONFIG_PGSTE) && gmap) {
+                address =  __gmap_link(gmap, current->thread.gmap_addr,
+                                       address);
+---8<---
+
+Thanks,
 
 -- 
--- Jason J. Herne (jjherne@linux.ibm.com)
+Peter Xu
+
