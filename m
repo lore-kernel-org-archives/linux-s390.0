@@ -2,201 +2,206 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7BECC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 14:53:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD406C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 17:01:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352382AbiE0Oxu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 May 2022 10:53:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34558 "EHLO
+        id S1345553AbiE0RBx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 May 2022 13:01:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352192AbiE0Oxt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 10:53:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6A62C12E331
-        for <linux-s390@vger.kernel.org>; Fri, 27 May 2022 07:53:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1653663225;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=uLEQbfXieXddbws3ZtMPUo3kSGjUH1tIUFKal4fFd0k=;
-        b=ZUWXkMmaLR/WV6SaN23An4IjuzAIza1QX1t8JzsMALCVYB77n5xLXUBVTeDmXG4i9Rz8In
-        93SdTNCn3lvYQKzM1zI+gr5m3+U3u6Q3xuOoj9aE3GpQX8tvfmVao021lGneA/iU37e0Wi
-        G7M7d7KrJBIJ1UlhRAr3ZuYKmDOg12A=
-Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
- [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-658-gtgXKfOEMNyckOsSFg-JUg-1; Fri, 27 May 2022 10:53:44 -0400
-X-MC-Unique: gtgXKfOEMNyckOsSFg-JUg-1
-Received: by mail-io1-f70.google.com with SMTP id r188-20020a6b2bc5000000b0065fc8f23866so2891335ior.16
-        for <linux-s390@vger.kernel.org>; Fri, 27 May 2022 07:53:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=uLEQbfXieXddbws3ZtMPUo3kSGjUH1tIUFKal4fFd0k=;
-        b=d9+AUS1bLF0WxWwtZVas5tVcejxrtcqWVODN/R2pP6CK6SvYys/UOW5r0kfUsfhtDr
-         iZ6R7hJMhtfcqklj6DdZoYQLNKL4aN5G5VKnW7UiyGEtSDZmsgi6rSebi1e4KcnlQJG6
-         qrGOmH8+ap5XHhInOOcq91SpeouKR5uBeGO7TIqnU6ORvYEDl475Ut626K9Zg2WVQO7H
-         AjS4ezeaQdrm2niCBZz4nYpj3XWyoLVYBxtysfnjg6FbhxtoC34ImCazjLK2ZJWPog9v
-         S2HMUavMztjO7hMxAJpslKPwUpGK3/EIosPlNaoU8EKHFvvGf8/RUIeacZ9UeoSLDERC
-         Y0zw==
-X-Gm-Message-State: AOAM532EsdnSqcbTDgMQtkJkT7MU4ULSWru+gGIDvOn3C9o7CMbEaB/e
-        2P40iw5q9DrC/lh8SQ1X8S1kqfQ9O0ByxHsRp7n98sA8W6qgpOfOaTsVhmK0qOBc2DQuAkVOrJK
-        I2Y6Kg0/z7uBVtHsKNfCmSQ==
-X-Received: by 2002:a05:6e02:1a61:b0:2cf:8a90:7396 with SMTP id w1-20020a056e021a6100b002cf8a907396mr22761900ilv.256.1653663223383;
-        Fri, 27 May 2022 07:53:43 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxG97+4KBIU6l93iytV0+qRm43dQQLHa2a/K8HbhfEtxo7G4J9rDpss95rHRYaCYZkQNmDyjQ==
-X-Received: by 2002:a05:6e02:1a61:b0:2cf:8a90:7396 with SMTP id w1-20020a056e021a6100b002cf8a907396mr22761868ilv.256.1653663222806;
-        Fri, 27 May 2022 07:53:42 -0700 (PDT)
-Received: from xz-m1.local (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
-        by smtp.gmail.com with ESMTPSA id d6-20020a023f06000000b00330efaf1161sm596380jaa.148.2022.05.27.07.53.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 May 2022 07:53:42 -0700 (PDT)
-Date:   Fri, 27 May 2022 10:53:36 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     Ingo Molnar <mingo@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Richard Henderson <rth@twiddle.net>,
-        David Hildenbrand <david@redhat.com>,
-        Matt Turner <mattst88@gmail.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Michal Simek <monstr@monstr.eu>,
-        Russell King <linux@armlinux.org.uk>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-riscv@lists.infradead.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Jonas Bonn <jonas@southpole.se>, Will Deacon <will@kernel.org>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        openrisc@lists.librecores.org, linux-s390@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        linux-m68k@lists.linux-m68k.org,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Chris Zankel <chris@zankel.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alistair Popple <apopple@nvidia.com>,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        sparclinux@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Stafford Horne <shorne@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-xtensa@linux-xtensa.org, Nicholas Piggin <npiggin@gmail.com>,
-        linux-sh@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-um@lists.infradead.org, linux-alpha@vger.kernel.org,
-        Johannes Berg <johannes@sipsolutions.net>,
-        linux-ia64@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Dinh Nguyen <dinguyen@kernel.org>, Guo Ren <guoren@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
-        Hugh Dickins <hughd@google.com>, Rich Felker <dalias@libc.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        linux-parisc@vger.kernel.org,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v3] mm: Avoid unnecessary page fault retires on shared
- memory types
-Message-ID: <YpDl8IM0FF6GeJ4B@xz-m1.local>
-References: <20220524234531.1949-1-peterx@redhat.com>
- <YpCsBwFArieTpvg2@gmail.com>
+        with ESMTP id S240823AbiE0RBv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 13:01:51 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 963B912FEFE;
+        Fri, 27 May 2022 10:01:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1653670910; x=1685206910;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=BdDeiQFwZ1xXaQfqDjb+Gm9LS0kjkErg8VaAhvHaTQU=;
+  b=hfZu4QquL1V/601FjgmMz1UHY27znw7DBQHfAZf1oiA9MVEihUBex555
+   8h4/dvMQxc/a4GfMynB0tLaRm+nHott31vkGYPdWvea4+8jlTEVX7+4p6
+   j5vHwnHt6hirfbMvi6Y8D1qCjEpy4Z9xYPr8sX89OBj+EvxcUSGx49grH
+   ngQjYlXzosUXdlUs1+tTfjU1wrhEoeX7UyCqcDcarkXpjpkBc4bAp6oVu
+   oW9Q5mpRKxVaQaW0tZJ1VmeJR3jhqyZgIc6xEdyJtYzVf1nKJFoAbfRuF
+   UkMsvZJSUo9+65b5RTKQSoW/2nrJmrOabKkqseCMvQTb7NuOK5m2Fgv4x
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10360"; a="262146502"
+X-IronPort-AV: E=Sophos;i="5.91,256,1647327600"; 
+   d="scan'208";a="262146502"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2022 10:01:50 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,256,1647327600"; 
+   d="scan'208";a="528199319"
+Received: from lkp-server01.sh.intel.com (HELO db63a1be7222) ([10.239.97.150])
+  by orsmga003.jf.intel.com with ESMTP; 27 May 2022 10:01:46 -0700
+Received: from kbuild by db63a1be7222 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1nudLN-0004xh-M6;
+        Fri, 27 May 2022 17:01:45 +0000
+Date:   Sat, 28 May 2022 01:00:57 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
+        akpm@linux-foundation.org, david@redhat.com, peterz@infradead.org,
+        mingo@redhat.com, ast@kernel.org
+Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-api@vger.kernel.org, fam.zheng@bytedance.com,
+        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+Subject: Re: [PATCH] procfs: add syscall statistics
+Message-ID: <202205280044.z43jIWts-lkp@intel.com>
+References: <20220527110959.54559-1-zhangyuchen.lcr@bytedance.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YpCsBwFArieTpvg2@gmail.com>
+In-Reply-To: <20220527110959.54559-1-zhangyuchen.lcr@bytedance.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, May 27, 2022 at 12:46:31PM +0200, Ingo Molnar wrote:
-> 
-> * Peter Xu <peterx@redhat.com> wrote:
-> 
-> > This patch provides a ~12% perf boost on my aarch64 test VM with a simple
-> > program sequentially dirtying 400MB shmem file being mmap()ed and these are
-> > the time it needs:
-> >
-> >   Before: 650.980 ms (+-1.94%)
-> >   After:  569.396 ms (+-1.38%)
-> 
-> Nice!
-> 
-> >  arch/x86/mm/fault.c           |  4 ++++
-> 
-> Reviewed-by: Ingo Molnar <mingo@kernel.org>
-> 
-> Minor comment typo:
-> 
-> > +		/*
-> > +		 * We should do the same as VM_FAULT_RETRY, but let's not
-> > +		 * return -EBUSY since that's not reflecting the reality on
-> > +		 * what has happened - we've just fully completed a page
-> > +		 * fault, with the mmap lock released.  Use -EAGAIN to show
-> > +		 * that we want to take the mmap lock _again_.
-> > +		 */
-> 
-> s/reflecting the reality on what has happened
->  /reflecting the reality of what has happened
+Hi Zhang,
 
-Will fix.
+Thank you for the patch! Yet something to improve:
 
-> 
-> >  	ret = handle_mm_fault(vma, address, fault_flags, NULL);
-> > +
-> > +	if (ret & VM_FAULT_COMPLETED) {
-> > +		/*
-> > +		 * NOTE: it's a pity that we need to retake the lock here
-> > +		 * to pair with the unlock() in the callers. Ideally we
-> > +		 * could tell the callers so they do not need to unlock.
-> > +		 */
-> > +		mmap_read_lock(mm);
-> > +		*unlocked = true;
-> > +		return 0;
-> 
-> Indeed that's a pity - I guess more performance could be gained here, 
-> especially in highly parallel threaded workloads?
+[auto build test ERROR on linus/master]
+[also build test ERROR on next-20220527]
+[cannot apply to akpm-mm/mm-everything arm64/for-next/core s390/features tip/x86/core v5.18]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-Yes I think so.
+url:    https://github.com/intel-lab-lkp/linux/commits/Zhang-Yuchen/procfs-add-syscall-statistics/20220527-191241
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 7e284070abe53d448517b80493863595af4ab5f0
+config: csky-randconfig-r002-20220526 (https://download.01.org/0day-ci/archive/20220528/202205280044.z43jIWts-lkp@intel.com/config)
+compiler: csky-linux-gcc (GCC) 11.3.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/979bf5b1b085588caab1cbdce55e40e823c12db9
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Zhang-Yuchen/procfs-add-syscall-statistics/20220527-191241
+        git checkout 979bf5b1b085588caab1cbdce55e40e823c12db9
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.3.0 make.cross W=1 O=build_dir ARCH=csky SHELL=/bin/bash arch/csky/kernel/
 
-The patch avoids the page fault retry, including the mmap lock/unlock side.
-Now if we retake the lock for fixup_user_fault() we still safe time for
-pgtable walks but the lock overhead will be somehow kept, just with smaller
-critical sections.
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
 
-Some fixup_user_fault() callers won't be affected as long as unlocked==NULL
-is passed - e.g. the futex code path (fault_in_user_writeable).  After all
-they never needed to retake the lock before/after this patch.
+All errors (new ones prefixed by >>):
 
-It's about the other callers, and they may need some more touch-ups case by
-case.  Examples are follow_fault_pfn() in vfio and hva_to_pfn_remapped() in
-KVM: both of them returns -EAGAIN when *unlocked==true.  We need to teach
-them to know "*unlocked==true" does not necessarily mean a retry attempt.
+>> arch/csky/kernel/syscall_table.c:11:14: error: conflicting types for 'sys_call_table'; have 'void * const[451]'
+      11 | void * const sys_call_table[__NR_syscalls] __page_aligned_data = {
+         |              ^~~~~~~~~~~~~~
+   In file included from include/linux/syscalls.h:89,
+                    from arch/csky/kernel/syscall_table.c:4:
+   arch/csky/include/asm/syscall.h:11:14: note: previous declaration of 'sys_call_table' with type 'void *[]'
+      11 | extern void *sys_call_table[];
+         |              ^~~~~~~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: warning: initialized field overwritten [-Woverride-init]
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:29:37: note: in expansion of macro '__SYSCALL'
+      29 | #define __SC_COMP(_nr, _sys, _comp) __SYSCALL(_nr, _sys)
+         |                                     ^~~~~~~~~
+   include/uapi/asm-generic/unistd.h:34:1: note: in expansion of macro '__SC_COMP'
+      34 | __SC_COMP(__NR_io_setup, sys_io_setup, compat_sys_io_setup)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: note: (near initialization for 'sys_call_table[0]')
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:29:37: note: in expansion of macro '__SYSCALL'
+      29 | #define __SC_COMP(_nr, _sys, _comp) __SYSCALL(_nr, _sys)
+         |                                     ^~~~~~~~~
+   include/uapi/asm-generic/unistd.h:34:1: note: in expansion of macro '__SC_COMP'
+      34 | __SC_COMP(__NR_io_setup, sys_io_setup, compat_sys_io_setup)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: warning: initialized field overwritten [-Woverride-init]
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:36:1: note: in expansion of macro '__SYSCALL'
+      36 | __SYSCALL(__NR_io_destroy, sys_io_destroy)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: note: (near initialization for 'sys_call_table[1]')
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:36:1: note: in expansion of macro '__SYSCALL'
+      36 | __SYSCALL(__NR_io_destroy, sys_io_destroy)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: warning: initialized field overwritten [-Woverride-init]
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:29:37: note: in expansion of macro '__SYSCALL'
+      29 | #define __SC_COMP(_nr, _sys, _comp) __SYSCALL(_nr, _sys)
+         |                                     ^~~~~~~~~
+   include/uapi/asm-generic/unistd.h:38:1: note: in expansion of macro '__SC_COMP'
+      38 | __SC_COMP(__NR_io_submit, sys_io_submit, compat_sys_io_submit)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: note: (near initialization for 'sys_call_table[2]')
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:29:37: note: in expansion of macro '__SYSCALL'
+      29 | #define __SC_COMP(_nr, _sys, _comp) __SYSCALL(_nr, _sys)
+         |                                     ^~~~~~~~~
+   include/uapi/asm-generic/unistd.h:38:1: note: in expansion of macro '__SC_COMP'
+      38 | __SC_COMP(__NR_io_submit, sys_io_submit, compat_sys_io_submit)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: warning: initialized field overwritten [-Woverride-init]
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:40:1: note: in expansion of macro '__SYSCALL'
+      40 | __SYSCALL(__NR_io_cancel, sys_io_cancel)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: note: (near initialization for 'sys_call_table[3]')
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:40:1: note: in expansion of macro '__SYSCALL'
+      40 | __SYSCALL(__NR_io_cancel, sys_io_cancel)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: warning: initialized field overwritten [-Woverride-init]
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:20:34: note: in expansion of macro '__SYSCALL'
+      20 | #define __SC_3264(_nr, _32, _64) __SYSCALL(_nr, _32)
+         |                                  ^~~~~~~~~
+   include/uapi/asm-generic/unistd.h:43:1: note: in expansion of macro '__SC_3264'
+      43 | __SC_3264(__NR_io_getevents, sys_io_getevents_time32, sys_io_getevents)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: note: (near initialization for 'sys_call_table[4]')
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:20:34: note: in expansion of macro '__SYSCALL'
+      20 | #define __SC_3264(_nr, _32, _64) __SYSCALL(_nr, _32)
+         |                                  ^~~~~~~~~
+   include/uapi/asm-generic/unistd.h:43:1: note: in expansion of macro '__SC_3264'
+      43 | __SC_3264(__NR_io_getevents, sys_io_getevents_time32, sys_io_getevents)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: warning: initialized field overwritten [-Woverride-init]
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:48:1: note: in expansion of macro '__SYSCALL'
+      48 | __SYSCALL(__NR_setxattr, sys_setxattr)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: note: (near initialization for 'sys_call_table[5]')
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
+   include/uapi/asm-generic/unistd.h:48:1: note: in expansion of macro '__SYSCALL'
+      48 | __SYSCALL(__NR_setxattr, sys_setxattr)
+         | ^~~~~~~~~
+   arch/csky/kernel/syscall_table.c:8:35: warning: initialized field overwritten [-Woverride-init]
+       8 | #define __SYSCALL(nr, call)[nr] = (call),
+         |                                   ^
 
-I think I can look into them if this patch can be accepted as a follow up.
 
-Thanks for taking a look!
+vim +11 arch/csky/kernel/syscall_table.c
+
+4859bfca11c7d6 Guo Ren 2018-09-05   9  
+4859bfca11c7d6 Guo Ren 2018-09-05  10  #define sys_fadvise64_64 sys_csky_fadvise64_64
+4859bfca11c7d6 Guo Ren 2018-09-05 @11  void * const sys_call_table[__NR_syscalls] __page_aligned_data = {
 
 -- 
-Peter Xu
-
+0-DAY CI Kernel Test Service
+https://01.org/lkp
