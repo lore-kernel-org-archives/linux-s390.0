@@ -2,351 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52ECEC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 13:51:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D9F7C43219
+	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 14:14:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229613AbiE0Nu7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 May 2022 09:50:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33846 "EHLO
+        id S1353044AbiE0OON (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 May 2022 10:14:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352154AbiE0Nu7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 09:50:59 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E105FF25;
-        Fri, 27 May 2022 06:50:57 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24RDmE7E011796;
-        Fri, 27 May 2022 13:50:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : from : subject : reply-to : to : cc : references :
- in-reply-to : content-type : content-transfer-encoding; s=pp1;
- bh=Bh3ZGYuOb6L25mH86JuIELBGab5SecUH8nGKaXK/7Yc=;
- b=Y9uMuXnpV5KV4deMNe57fUfikU0uMyPUjsKEqkYdQO9wjTuhSxO5kyxZzfrAldh1gNWv
- CZNtT9LhB/yN6Ux2AE/QR6QtA78Zv7pEfDQag8TJJJTRfj/pyUaOqQFfWEpAYHYUqwzB
- 1gshmCJ9Gj+uoUJP7SuozdIUk9YqLwc+Bj3ZlEgXkacRq9FvK/SeeLvrcuC0/wJvJN7y
- gclpfIdeheIJzy2EmJ1O/6yO4U9vCeZa4h0s6YF4+5WfFGYHNQriw7ndP99bGJ8hdeZa
- D6jVhHcdby00MnC6vId+ZUf5s071O1QEhcV5sxlfIc0ku4g4MrDNxZYC4P7D2kvEbNWN iA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gax6j29av-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 May 2022 13:50:53 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24RDK1bs026378;
-        Fri, 27 May 2022 13:50:53 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gax6j29an-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 May 2022 13:50:53 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24RDnIl7027980;
-        Fri, 27 May 2022 13:50:52 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma02dal.us.ibm.com with ESMTP id 3g93v8s3p4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 May 2022 13:50:52 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24RDopsE11010426
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 May 2022 13:50:51 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 419302805A;
-        Fri, 27 May 2022 13:50:51 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CAC8F28059;
-        Fri, 27 May 2022 13:50:50 +0000 (GMT)
-Received: from [9.60.75.219] (unknown [9.60.75.219])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 27 May 2022 13:50:50 +0000 (GMT)
-Message-ID: <4d05a8f4-d2e9-bc54-3e9b-6becc3281f0f@linux.ibm.com>
-Date:   Fri, 27 May 2022 09:50:50 -0400
+        with ESMTP id S236208AbiE0OOL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 10:14:11 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9DB75AA4A;
+        Fri, 27 May 2022 07:14:08 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id wh22so9067983ejb.7;
+        Fri, 27 May 2022 07:14:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mDpmMrX6ZAj99tYsLUoYw7iDnZGlJpEI/3VF/4/WHsM=;
+        b=hmiV/2279z7xlKaFk+GxCbmDFupUyDQeF53CqctYwc3ylvA1+g67fm9AYwf3aJD52U
+         2Y0VNqCIPfJbF0YC3jT9aXfuCTHrZQH0zxRrdU5jcN1U1Kr3Xyjgnel+Kg8sZAH6ee2U
+         0dRC/R9cIcfp4pxd3fmznfBJMykLh8g3O16PpM3SZgOtK4GcYkW2MzmtU5DshhyBsBBf
+         3dKOBekLlhYbIn1nXTFG8IGd4yeaLAs2b4LMzjf8mjbboq9RHjfL3e/PH9gzng8YZQoR
+         wqBZqmfZxrzbCTzS+9/EGH3SBeLUcCO/TOjFgUVkrnmnGi4VHBCbnbAcC3eLlGOH/cDk
+         d4rg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mDpmMrX6ZAj99tYsLUoYw7iDnZGlJpEI/3VF/4/WHsM=;
+        b=XWvs1OzpyEqn2rhMU2sOJAnRMC9Qb0KkWrQvEEpybCDANviWERnMzdKTzV8aiyBUGn
+         HfqcPxGd+loh56t7alMhH3Q0ezryCE1SoGoUud6dfyt939qEQ4TrgjxJjr4BEoNWPvNZ
+         nmKroZJUnPRTnYy980ah4Ud0Ta9/Ccdh3twtCIZrU/dqNDrlTKjQK/GZPi6iKeX3sY0f
+         gWEXI5FzA9O12F2/E7cSft5VY1WiOxWEv4rVUMWSCqIdp44M+qyDKeZR/WAONDI2BG8v
+         K2gQVHlJ3wEXPjZyQtzfG1xN+aWXYySc4QaQiaVBdXQ5mtkDd1o6ca2HmJVlmG6XPbT9
+         ePnA==
+X-Gm-Message-State: AOAM5320hwJ+ArNo4XFq8NN+JwUKClRz+yG1JczUhHhT/Y10LQMQqysQ
+        wQRha3zL6V8EzSfVax4KAaQES3v6XH5Ksu67WVk=
+X-Google-Smtp-Source: ABdhPJzu+h5wDUX4t7z5kJNxgp3+mHRNUPXxSn4d+Qux7XVdKfp9P59rjLYvyQHCXOcEAGyObqTC+BjeidAUXP/vTKc=
+X-Received: by 2002:a17:907:7da5:b0:6fe:d818:ee49 with SMTP id
+ oz37-20020a1709077da500b006fed818ee49mr24958685ejc.58.1653660847121; Fri, 27
+ May 2022 07:14:07 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-From:   "Jason J. Herne" <jjherne@linux.ibm.com>
-Subject: Re: [PATCH v19 11/20] s390/vfio-ap: prepare for dynamic update of
- guest's APCB on queue probe/remove
-Reply-To: jjherne@linux.ibm.com
-To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
- <20220404221039.1272245-12-akrowiak@linux.ibm.com>
-Content-Language: en-US
-Organization: IBM
-In-Reply-To: <20220404221039.1272245-12-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MuyEN9g8d_1AW-9ttBTwX3wdMJWCtU47
-X-Proofpoint-GUID: neUzKBmt3Jf8Y_2mN3ZN7xE1KO7Wcgxa
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-27_03,2022-05-27_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- lowpriorityscore=0 mlxscore=0 spamscore=0 bulkscore=0 priorityscore=1501
- adultscore=0 clxscore=1015 mlxlogscore=999 suspectscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2205270064
+References: <20220527110959.54559-1-zhangyuchen.lcr@bytedance.com>
+In-Reply-To: <20220527110959.54559-1-zhangyuchen.lcr@bytedance.com>
+From:   Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date:   Fri, 27 May 2022 07:13:54 -0700
+Message-ID: <CAADnVQL69J8MWhaNzNG=ANL_i8_QqABON+pWJDuqRTkFGPJYUQ@mail.gmail.com>
+Subject: Re: [PATCH] procfs: add syscall statistics
+To:     Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux-Fsdevel <linux-fsdevel@vger.kernel.org>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>, fam.zheng@bytedance.com,
+        bpf <bpf@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/4/22 18:10, Tony Krowiak wrote:
-> The callback functions for probing and removing a queue device must take
-> and release the locks required to perform a dynamic update of a guest's
-> APCB in the proper order.
-> 
-> The proper order for taking the locks is:
-> 
->          matrix_dev->guests_lock => kvm->lock => matrix_dev->mdevs_lock
-> 
-> The proper order for releasing the locks is:
-> 
->          matrix_dev->mdevs_lock => kvm->lock => matrix_dev->guests_lock
-> 
-> A new helper function is introduced to be used by the probe callback to
-> acquire the required locks. Since the probe callback only has
-> access to a queue device when it is called, the helper function will find
-> the ap_matrix_mdev object to which the queue device's APQN is assigned and
-> return it so the KVM guest to which the mdev is attached can be dynamically
-> updated.
-> 
-> Note that in order to find the ap_matrix_mdev (matrix_mdev) object, it is
-> necessary to search the matrix_dev->mdev_list. This presents a
-> locking order dilemma because the matrix_dev->mdevs_lock can't be taken to
-> protect against changes to the list while searching for the matrix_mdev to
-> which a queue device's APQN is assigned. This is due to the fact that the
-> proper locking order requires that the matrix_dev->mdevs_lock be taken
-> after both the matrix_mdev->kvm->lock and the matrix_dev->mdevs_lock.
-> Consequently, the matrix_dev->guests_lock will be used to protect against
-> removal of a matrix_mdev object from the list while a queue device is
-> being probed. This necessitates changes to the mdev probe/remove
-> callback functions to take the matrix_dev->guests_lock prior to removing
-> a matrix_mdev object from the list.
-> 
-> A new macro is also introduced to acquire the locks required to dynamically
-> update the guest's APCB in the proper order when a queue device is
-> removed.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c | 126 +++++++++++++++++++++---------
->   1 file changed, 88 insertions(+), 38 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 2219b1069ceb..080a733f7cd2 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -116,6 +116,74 @@ static const struct vfio_device_ops vfio_ap_matrix_dev_ops;
->   	mutex_unlock(&matrix_dev->guests_lock);		\
->   })
->   
-> +/**
-> + * vfio_ap_mdev_get_update_locks_for_apqn: retrieve the matrix mdev to which an
-> + *					   APQN is assigned and acquire the
-> + *					   locks required to update the APCB of
-> + *					   the KVM guest to which the mdev is
-> + *					   attached.
-> + *
-> + * @apqn: the APQN of a queue device.
-> + *
-> + * The proper locking order is:
-> + * 1. matrix_dev->guests_lock: required to use the KVM pointer to update a KVM
-> + *			       guest's APCB.
-> + * 2. matrix_mdev->kvm->lock:  required to update a guest's APCB
-> + * 3. matrix_dev->mdevs_lock:  required to access data stored in a matrix_mdev
-> + *
-> + * Note: If @apqn is not assigned to a matrix_mdev, the matrix_mdev->kvm->lock
-> + *	 will not be taken.
-> + *
-> + * Return: the ap_matrix_mdev object to which @apqn is assigned or NULL if @apqn
-> + *	   is not assigned to an ap_matrix_mdev.
-> + */
-> +static struct ap_matrix_mdev *vfio_ap_mdev_get_update_locks_for_apqn(int apqn)
-> +{
-> +	struct ap_matrix_mdev *matrix_mdev;
-> +
-> +	mutex_lock(&matrix_dev->guests_lock);
-> +
-> +	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-> +		if (test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm) &&
-> +		    test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm)) {
-> +			if (matrix_mdev->kvm)
-> +				mutex_lock(&matrix_mdev->kvm->lock);
-> +
-> +			mutex_lock(&matrix_dev->mdevs_lock);
-> +
-> +			return matrix_mdev;
-> +		}
-> +	}
-> +
-> +	mutex_lock(&matrix_dev->mdevs_lock);
-> +
-> +	return NULL;
-> +}
-> +
-> +/**
-> + * get_update_locks_for_queue: get the locks required to update the APCB of the
-> + *			       KVM guest to which the matrix mdev linked to a
-> + *			       vfio_ap_queue object is attached.
-> + *
-> + * @queue: a pointer to a vfio_ap_queue object.
-> + *
-> + * The proper locking order is:
-> + * 1. matrix_dev->guests_lock: required to use the KVM pointer to update a KVM
-> + *				guest's APCB.
-> + * 2. queue->matrix_mdev->kvm->lock: required to update a guest's APCB
-> + * 3. matrix_dev->mdevs_lock:	required to access data stored in a matrix_mdev
-> + *
-> + * Note: if @queue is not linked to an ap_matrix_mdev object, the KVM lock
-> + *	  will not be taken.
-> + */
-> +#define get_update_locks_for_queue(queue) ({			\
-> +	struct ap_matrix_mdev *matrix_mdev = q->matrix_mdev;	\
-> +	mutex_lock(&matrix_dev->guests_lock);			\
-> +	if (matrix_mdev && matrix_mdev->kvm)			\
-> +		mutex_lock(&matrix_mdev->kvm->lock);		\
-> +	mutex_lock(&matrix_dev->mdevs_lock);			\
-> +})
-> +
+On Fri, May 27, 2022 at 4:10 AM Zhang Yuchen
+<zhangyuchen.lcr@bytedance.com> wrote:
+>
+> Add /proc/syscalls to display percpu syscall count.
 
+I second Peter's nack.
+We don't add debug features to the production kernel.
 
-One more comment I forgot to include before:
-This macro is far too similar to existing macro, get_update_locks_for_mdev. And it is only 
-called in one place. Let's remove this and replace the single invocation with:
+> We need a less resource-intensive way to count syscall per cpu
+> for system problem location.
+>
+> There is a similar utility syscount in the BCC project, but syscount
+> has a high performance cost.
 
-get_update_locks_for_mdev(q->matrix_mdev);
+There are two syscount tools in BCC:
+tools/syscount
+libbpf-tools/syscount
 
+Which one has this 42% overhead?
 
->   /**
->    * vfio_ap_mdev_get_queue - retrieve a queue with a specific APQN from a
->    *			    hash table of queues assigned to a matrix mdev
-> @@ -615,21 +683,18 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
->   	matrix_mdev->pqap_hook = handle_pqap;
->   	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
->   	hash_init(matrix_mdev->qtable.queues);
-> -	mdev_set_drvdata(mdev, matrix_mdev);
-> -	mutex_lock(&matrix_dev->mdevs_lock);
-> -	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
-> -	mutex_unlock(&matrix_dev->mdevs_lock);
->   
->   	ret = vfio_register_emulated_iommu_dev(&matrix_mdev->vdev);
->   	if (ret)
->   		goto err_list;
-> +	mdev_set_drvdata(mdev, matrix_mdev);
-> +	mutex_lock(&matrix_dev->mdevs_lock);
-> +	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
-> +	mutex_unlock(&matrix_dev->mdevs_lock);
->   	dev_set_drvdata(&mdev->dev, matrix_mdev);
->   	return 0;
->   
->   err_list:
-> -	mutex_lock(&matrix_dev->mdevs_lock);
-> -	list_del(&matrix_mdev->node);
-> -	mutex_unlock(&matrix_dev->mdevs_lock);
->   	vfio_uninit_group_dev(&matrix_mdev->vdev);
->   	kfree(matrix_mdev);
->   err_dec_available:
-> @@ -692,11 +757,13 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
->   
->   	vfio_unregister_group_dev(&matrix_mdev->vdev);
->   
-> +	mutex_lock(&matrix_dev->guests_lock);
->   	mutex_lock(&matrix_dev->mdevs_lock);
->   	vfio_ap_mdev_reset_queues(matrix_mdev);
->   	vfio_ap_mdev_unlink_fr_queues(matrix_mdev);
->   	list_del(&matrix_mdev->node);
->   	mutex_unlock(&matrix_dev->mdevs_lock);
-> +	mutex_unlock(&matrix_dev->guests_lock);
->   	vfio_uninit_group_dev(&matrix_mdev->vdev);
->   	kfree(matrix_mdev);
->   	atomic_inc(&matrix_dev->available_instances);
-> @@ -1665,49 +1732,30 @@ void vfio_ap_mdev_unregister(void)
->   	mdev_unregister_driver(&vfio_ap_matrix_driver);
->   }
->   
-> -/*
-> - * vfio_ap_queue_link_mdev
-> - *
-> - * @q: The queue to link with the matrix mdev.
-> - *
-> - * Links @q with the matrix mdev to which the queue's APQN is assigned.
-> - */
-> -static void vfio_ap_queue_link_mdev(struct vfio_ap_queue *q)
-> -{
-> -	unsigned long apid = AP_QID_CARD(q->apqn);
-> -	unsigned long apqi = AP_QID_QUEUE(q->apqn);
-> -	struct ap_matrix_mdev *matrix_mdev;
-> -
-> -	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-> -		if (test_bit_inv(apid, matrix_mdev->matrix.apm) &&
-> -		    test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
-> -			vfio_ap_mdev_link_queue(matrix_mdev, q);
-> -			break;
-> -		}
-> -	}
-> -}
-> -
->   int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
->   {
->   	struct vfio_ap_queue *q;
-> +	struct ap_matrix_mdev *matrix_mdev;
->   	DECLARE_BITMAP(apm_delta, AP_DEVICES);
->   
->   	q = kzalloc(sizeof(*q), GFP_KERNEL);
->   	if (!q)
->   		return -ENOMEM;
-> -	mutex_lock(&matrix_dev->mdevs_lock);
->   	q->apqn = to_ap_queue(&apdev->device)->qid;
->   	q->saved_isc = VFIO_AP_ISC_INVALID;
-> -	vfio_ap_queue_link_mdev(q);
-> -	if (q->matrix_mdev) {
-> +
-> +	matrix_mdev = vfio_ap_mdev_get_update_locks_for_apqn(q->apqn);
-> +
-> +	if (matrix_mdev) {
-> +		vfio_ap_mdev_link_queue(matrix_mdev, q);
->   		memset(apm_delta, 0, sizeof(apm_delta));
->   		set_bit_inv(AP_QID_CARD(q->apqn), apm_delta);
->   		vfio_ap_mdev_filter_matrix(apm_delta,
-> -					   q->matrix_mdev->matrix.aqm,
-> -					   q->matrix_mdev);
-> +					   matrix_mdev->matrix.aqm,
-> +					   matrix_mdev);
->   	}
->   	dev_set_drvdata(&apdev->device, q);
-> -	mutex_unlock(&matrix_dev->mdevs_lock);
-> +	release_update_locks_for_mdev(matrix_mdev);
->   
->   	return 0;
->   }
-> @@ -1716,11 +1764,13 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->   {
->   	unsigned long apid;
->   	struct vfio_ap_queue *q;
-> +	struct ap_matrix_mdev *matrix_mdev;
->   
-> -	mutex_lock(&matrix_dev->mdevs_lock);
->   	q = dev_get_drvdata(&apdev->device);
-> +	get_update_locks_for_queue(q);
-> +	matrix_mdev = q->matrix_mdev;
->   
-> -	if (q->matrix_mdev) {
-> +	if (matrix_mdev) {
->   		vfio_ap_unlink_queue_fr_mdev(q);
->   
->   		apid = AP_QID_CARD(q->apqn);
-> @@ -1731,5 +1781,5 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->   	vfio_ap_mdev_reset_queue(q, 1);
->   	dev_set_drvdata(&apdev->device, NULL);
->   	kfree(q);
-> -	mutex_unlock(&matrix_dev->mdevs_lock);
-> +	release_update_locks_for_mdev(matrix_mdev);
->   }
+The former tool is obsolete though.
+It was written in the days when bpf had 1/10 of
+the features it has today.
+Both tools can be optimized.
+They attach to raw_syscalls tracepoint.
+tracepoints are not cheap.
+In terms of overhead:
+tracepoint > raw_tracepoint > fentry.
+bpf can attach to all three.
 
-
--- 
--- Jason J. Herne (jjherne@linux.ibm.com)
+Please profile libbpf-tools/syscount tool
+with perf and unixbench, understand where overhead
+comes from and then optimize the tool.
