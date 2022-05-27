@@ -2,190 +2,102 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 633DEC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 05:39:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1C4AC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 06:01:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243279AbiE0Fjb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 May 2022 01:39:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57420 "EHLO
+        id S243840AbiE0GBw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 May 2022 02:01:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231261AbiE0Fj3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 01:39:29 -0400
-Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com [IPv6:2001:4860:4864:20::2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E08266AE2;
-        Thu, 26 May 2022 22:39:28 -0700 (PDT)
-Received: by mail-oa1-x2a.google.com with SMTP id 586e51a60fabf-f2bb84f9edso4657949fac.10;
-        Thu, 26 May 2022 22:39:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2j31mgyTy2/RMpvPafIuRR/7M5aCsOn5pH1JxQKELh0=;
-        b=WLF0ZKcKkqyL/2e9Vrm4jJIU7Iq70SjWVWeR4mG+diJpadGhfuylwbDWHZVjDdFbuq
-         Hxc+zHrNjRLjtRhI1yhC+nolDKLNrwOV2/oaWTaoh4VCK67BB0z5yPlcOmnthCOgtmez
-         8jkwQgYPNLUuG0ZEbUiSy7uVEpWFtrO5L4UM+4mbtXpWMiQIVZp0eLdp45xYgN9Jmvmc
-         aulsD6JeO/TIOhvHj+bALfaW9BR7tPWEUeyaMI8bJbO4wOxVeH/I0lrHRJ+FP9F521BK
-         /lEKp/SRZycKZGHLE0LZwkZV2trusLGaniTNIWTP9EnU7l+Xe/n5XI3K1uCmL30r4C8o
-         Jgxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2j31mgyTy2/RMpvPafIuRR/7M5aCsOn5pH1JxQKELh0=;
-        b=BNbKxGUp6nZBq3hFA1YncaPUzKL8qpEIMs3rWgr6v39diaLCfFbRSX/wLlLoYjrgaW
-         iZNzVm+zgE4EQ+gTr6TLlvLkeK31+Y/z17Iu5F9m56355jwvM+HPeG2nX3iFnpR6TNUw
-         RR5uix6MwAd6t+cuFAb1Jh56gui+nozuUl4s+6Zg44S3BEYf4IBWJDRQouz+mDf5YMm+
-         Z157VqCmh/Keg4Dt4xdZ2TQsT2jzunnPw51fxFzuKEOwgJa33Mby4oF6hR2TW8y2vgBx
-         JCIT6f4nbPa8wmFDCHzjcRxJ+9/hrgxfMAKF6WMpfTx2OmXL5sX5IyT6SKEUpRAMzlq1
-         rMUg==
-X-Gm-Message-State: AOAM5320CJCnAsf0/QNp3+XFa0zxnHyh99tuedtHSSGS4Ff/eLQ0KYrA
-        FNZ9Q1TKmZ+YoQxUbFrAUdNU/20eXVCw1BPniiw=
-X-Google-Smtp-Source: ABdhPJy8+6PjRSs5xseRfaJdStvLUZHZV5vQKgs4hS+3gJJgloJJ42WfwmBmCJpVr7XfQyeK+DIvF8/HIUAjs0cVwxU=
-X-Received: by 2002:a05:6870:5ba6:b0:f1:5840:f38e with SMTP id
- em38-20020a0568705ba600b000f15840f38emr3323758oab.210.1653629967367; Thu, 26
- May 2022 22:39:27 -0700 (PDT)
+        with ESMTP id S243769AbiE0GBt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 02:01:49 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 97828FCB
+        for <linux-s390@vger.kernel.org>; Thu, 26 May 2022 23:01:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1653631304;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=lynSeVT1NfwEzANWSPivWToMg2lFwBVUR0GD7hlFiwg=;
+        b=iiz8C+RHjA4OxZUHeRcz4KtO3gR8F6YwGahbqTN1ElXnWuUwgv6+DSTGo+yNlJxaBzfkJw
+        K023Oy6KbPiRMXFfGHRzYj0EAyDZT87WQdqXza2cV/7zrPSFkqKi3THJZ2J7vPm9ukmTQd
+        id1k3aOQk4zCYovHAGh70HEub4P8RoY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-587-mZNTa0xxM2Os7yz2KbfjHg-1; Fri, 27 May 2022 02:01:40 -0400
+X-MC-Unique: mZNTa0xxM2Os7yz2KbfjHg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B1B3E811E7A;
+        Fri, 27 May 2022 06:01:39 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-13-240.pek2.redhat.com [10.72.13.240])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 608292166B26;
+        Fri, 27 May 2022 06:01:31 +0000 (UTC)
+From:   Jason Wang <jasowang@redhat.com>
+To:     mst@redhat.com, jasowang@redhat.com,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org
+Cc:     tglx@linutronix.de, peterz@infradead.org, paulmck@kernel.org,
+        maz@kernel.org, pasic@linux.ibm.com, cohuck@redhat.com,
+        eperezma@redhat.com, lulu@redhat.com, sgarzare@redhat.com,
+        xuanzhuo@linux.alibaba.com,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: [PATCH V6 1/9] virtio: use virtio_device_ready() in virtio_device_restore()
+Date:   Fri, 27 May 2022 14:01:12 +0800
+Message-Id: <20220527060120.20964-2-jasowang@redhat.com>
+In-Reply-To: <20220527060120.20964-1-jasowang@redhat.com>
+References: <20220527060120.20964-1-jasowang@redhat.com>
 MIME-Version: 1.0
-References: <20220524234531.1949-1-peterx@redhat.com>
-In-Reply-To: <20220524234531.1949-1-peterx@redhat.com>
-From:   Max Filippov <jcmvbkbc@gmail.com>
-Date:   Thu, 26 May 2022 22:39:15 -0700
-Message-ID: <CAMo8BfJWzUnwPyWKsBsW2-x7t=Go5Mwb643kXm5BfpVDAeaeWA@mail.gmail.com>
-Subject: Re: [PATCH v3] mm: Avoid unnecessary page fault retires on shared
- memory types
-To:     Peter Xu <peterx@redhat.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        Richard Henderson <rth@twiddle.net>,
-        David Hildenbrand <david@redhat.com>,
-        Matt Turner <mattst88@gmail.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Michal Simek <monstr@monstr.eu>,
-        Russell King <linux@armlinux.org.uk>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Jonas Bonn <jonas@southpole.se>, Will Deacon <will@kernel.org>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        openrisc@lists.librecores.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "open list:M68K ARCHITECTURE" <linux-m68k@lists.linux-m68k.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Chris Zankel <chris@zankel.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alistair Popple <apopple@nvidia.com>,
-        linux-csky@vger.kernel.org,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "open list:SPARC + UltraSPAR..." <sparclinux@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Stafford Horne <shorne@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "maintainer:X86 ARCHITECTURE..." <x86@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "open list:SUPERH" <linux-sh@vger.kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
-        Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-um@lists.infradead.org,
-        "open list:ALPHA PORT" <linux-alpha@vger.kernel.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "open list:IA64 (Itanium) PL..." <linux-ia64@vger.kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Dinh Nguyen <dinguyen@kernel.org>, Guo Ren <guoren@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
-        Hugh Dickins <hughd@google.com>, Rich Felker <dalias@libc.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        "open list:PARISC ARCHITECTURE" <linux-parisc@vger.kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 24, 2022 at 4:45 PM Peter Xu <peterx@redhat.com> wrote:
->
-> I observed that for each of the shared file-backed page faults, we're very
-> likely to retry one more time for the 1st write fault upon no page.  It's
-> because we'll need to release the mmap lock for dirty rate limit purpose
-> with balance_dirty_pages_ratelimited() (in fault_dirty_shared_page()).
->
-> Then after that throttling we return VM_FAULT_RETRY.
->
-> We did that probably because VM_FAULT_RETRY is the only way we can return
-> to the fault handler at that time telling it we've released the mmap lock.
->
-> However that's not ideal because it's very likely the fault does not need
-> to be retried at all since the pgtable was well installed before the
-> throttling, so the next continuous fault (including taking mmap read lock,
-> walk the pgtable, etc.) could be in most cases unnecessary.
->
-> It's not only slowing down page faults for shared file-backed, but also add
-> more mmap lock contention which is in most cases not needed at all.
->
-> To observe this, one could try to write to some shmem page and look at
-> "pgfault" value in /proc/vmstat, then we should expect 2 counts for each
-> shmem write simply because we retried, and vm event "pgfault" will capture
-> that.
->
-> To make it more efficient, add a new VM_FAULT_COMPLETED return code just to
-> show that we've completed the whole fault and released the lock.  It's also
-> a hint that we should very possibly not need another fault immediately on
-> this page because we've just completed it.
->
-> This patch provides a ~12% perf boost on my aarch64 test VM with a simple
-> program sequentially dirtying 400MB shmem file being mmap()ed and these are
-> the time it needs:
->
->   Before: 650.980 ms (+-1.94%)
->   After:  569.396 ms (+-1.38%)
->
-> I believe it could help more than that.
->
-> We need some special care on GUP and the s390 pgfault handler (for gmap
-> code before returning from pgfault), the rest changes in the page fault
-> handlers should be relatively straightforward.
->
-> Another thing to mention is that mm_account_fault() does take this new
-> fault as a generic fault to be accounted, unlike VM_FAULT_RETRY.
->
-> I explicitly didn't touch hmm_vma_fault() and break_ksm() because they do
-> not handle VM_FAULT_RETRY even with existing code, so I'm literally keeping
-> them as-is.
->
-> Signed-off-by: Peter Xu <peterx@redhat.com>
-> ---
->
-> v3:
-> - Rebase to akpm/mm-unstable
-> - Copy arch maintainers
-> ---
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-For xtensa:
-Acked-by: Max Filippov <jcmvbkbc@gmail.com>
+It will allow us to do extension on virtio_device_ready() without
+duplicating code.
 
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Halil Pasic <pasic@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>
+Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index ce424c16997d..938e975029d4 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -526,8 +526,9 @@ int virtio_device_restore(struct virtio_device *dev)
+ 			goto err;
+ 	}
+ 
+-	/* Finally, tell the device we're all set */
+-	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
++	/* If restore didn't do it, mark device DRIVER_OK ourselves. */
++	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
++		virtio_device_ready(dev);
+ 
+ 	virtio_config_enable(dev);
+ 
 -- 
-Thanks.
--- Max
+2.25.1
+
