@@ -2,239 +2,184 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0F94C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 12:40:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 240CFC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 12:43:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352072AbiE0MkT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 May 2022 08:40:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53864 "EHLO
+        id S1353065AbiE0Mnf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 May 2022 08:43:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352529AbiE0Mjx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 08:39:53 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 839482CE07;
-        Fri, 27 May 2022 05:26:28 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24RATwTb021454;
-        Fri, 27 May 2022 12:23:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=RVk/+c6nPK5D2qeDI0zLbVO1lqN1tQYD0TzNeMii76M=;
- b=CdGIqDdzBXd3h2dRHpL1DShFdmTRQ/K3BNoowjsJ7U4uRWdEUL24qUkp9B9CCe4qwI1x
- ueMHE+3+v1uC7fMJZdhALNq0R69QTPr2X7t7hmmcYdqjvUF+dOgF+KjoQRzbmFzsymwU
- 4TRs+Fcb59XpwhBMszKHjkfxh5jERETh0DSQF2mQOARMUdDnfiEcL/AxzL9Ab0Nz2WHK
- SDNr7raIw4jjkxtIKRrkZp9dwvFLuLsudS4hJ9Ynj7wBxCmCSFMaztPXonoUGxJ1hjXA
- 3uotVOEbohqQcj6NjHHndqMeFT50tNx88feHmMQrikGztx2louDZC2dPTlWt2pNYYxwq Kg== 
+        with ESMTP id S1352898AbiE0MnZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 08:43:25 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EACC17E23;
+        Fri, 27 May 2022 05:40:41 -0700 (PDT)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24RCHxZu017194;
+        Fri, 27 May 2022 12:40:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : reply-to : subject : to : cc : references : from :
+ in-reply-to : content-type : content-transfer-encoding; s=pp1;
+ bh=x7+rNrqppJOmcQuwjq3loMO1MRTA5ucu5Lqod708gUo=;
+ b=lsvVzIcPdgJQPfsL+/VxgfBWqTuh747Pd54pn/r+oDTEmkhzeRVrviSGAquNBg80ZPDa
+ HaLx8h0gvLtC4Sap/6QWkjXpjdkUYpGPks5nbDK+vb/5MiXzWkWVXgfa2ewuWF78wOZK
+ 0G+OMF08lMPHm0Cj8PTfn+dwCiJ1f6y4k5ZyFdwfJVmJr7OSYceTVdOuePToTL5O3PRu
+ lf00eYT5Phr71aByrRVy87oJ9OnIeXWDX511UQVDetsxw9Tp7HAIYHjSFKFXwbEzTlDR
+ i5G/woqCtSrn50QwfCx9KIQn/gKskCBsG5/esZr7vN+0TiCmZKpUyYXB0nUCYOXD+X46 Kw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gavxnsywe-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gaxhcgd4c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 May 2022 12:23:53 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24RBpM9d025770;
-        Fri, 27 May 2022 12:23:52 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gavxnsyvm-1
+        Fri, 27 May 2022 12:40:38 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24RCKUZQ021905;
+        Fri, 27 May 2022 12:40:38 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gaxhcgd45-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 May 2022 12:23:52 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24RCLTLO021408;
-        Fri, 27 May 2022 12:23:49 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 3g9ucga110-1
+        Fri, 27 May 2022 12:40:38 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24RCbGIX017016;
+        Fri, 27 May 2022 12:40:37 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma05wdc.us.ibm.com with ESMTP id 3g93vbvbb9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 May 2022 12:23:49 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24RCNkSu32899416
+        Fri, 27 May 2022 12:40:37 +0000
+Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24RCeasD31392198
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 May 2022 12:23:46 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 225BAAE04D;
-        Fri, 27 May 2022 12:23:46 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A0D99AE045;
-        Fri, 27 May 2022 12:23:43 +0000 (GMT)
-Received: from osiris (unknown [9.145.57.114])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 27 May 2022 12:23:43 +0000 (GMT)
-Date:   Fri, 27 May 2022 14:23:42 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Peter Xu <peterx@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Richard Henderson <rth@twiddle.net>,
-        David Hildenbrand <david@redhat.com>,
-        Matt Turner <mattst88@gmail.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Michal Simek <monstr@monstr.eu>,
-        Russell King <linux@armlinux.org.uk>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-riscv@lists.infradead.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Jonas Bonn <jonas@southpole.se>, Will Deacon <will@kernel.org>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        openrisc@lists.librecores.org, linux-s390@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        linux-m68k@lists.linux-m68k.org,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Chris Zankel <chris@zankel.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alistair Popple <apopple@nvidia.com>,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        sparclinux@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Stafford Horne <shorne@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-xtensa@linux-xtensa.org, Nicholas Piggin <npiggin@gmail.com>,
-        linux-sh@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-um@lists.infradead.org, linux-alpha@vger.kernel.org,
-        Johannes Berg <johannes@sipsolutions.net>,
-        linux-ia64@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Dinh Nguyen <dinguyen@kernel.org>, Guo Ren <guoren@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
-        Hugh Dickins <hughd@google.com>, Rich Felker <dalias@libc.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        linux-parisc@vger.kernel.org,
-        "David S . Miller" <davem@davemloft.net>,
-        Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH v3] mm: Avoid unnecessary page fault retires on shared
- memory types
-Message-ID: <YpDCzvLER9AYJJc8@osiris>
-References: <20220524234531.1949-1-peterx@redhat.com>
+        Fri, 27 May 2022 12:40:36 GMT
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6481B78069;
+        Fri, 27 May 2022 12:40:36 +0000 (GMT)
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A19F678060;
+        Fri, 27 May 2022 12:40:35 +0000 (GMT)
+Received: from [9.60.75.219] (unknown [9.60.75.219])
+        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Fri, 27 May 2022 12:40:35 +0000 (GMT)
+Message-ID: <2c2d7563-c614-e4f8-7826-73deba6d489b@linux.ibm.com>
+Date:   Fri, 27 May 2022 08:40:35 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220524234531.1949-1-peterx@redhat.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Reply-To: jjherne@linux.ibm.com
+Subject: Re: [PATCH v19 08/20] s390/vfio-ap: introduce new mutex to control
+ access to the KVM pointer
+Content-Language: en-US
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
+ <20220404221039.1272245-9-akrowiak@linux.ibm.com>
+From:   "Jason J. Herne" <jjherne@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <20220404221039.1272245-9-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: B856HEmp0-oPmnQmmWvfQf-2fQL_698C
-X-Proofpoint-GUID: YnY8uuN2fOATVDxq6iTcIl1znLlGk8-q
+X-Proofpoint-GUID: RsNefrVn2vSPdcq6izBpkQPhIg6e1QeG
+X-Proofpoint-ORIG-GUID: w-XTH8Nx3R0gcqG_z-anZ8MMPiKqoQLo
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-27_03,2022-05-27_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501 malwarescore=0
- lowpriorityscore=0 mlxscore=0 clxscore=1011 mlxlogscore=999 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2205270057
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ lowpriorityscore=0 phishscore=0 mlxscore=0 mlxlogscore=999 malwarescore=0
+ impostorscore=0 clxscore=1015 bulkscore=0 suspectscore=0
+ priorityscore=1501 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2204290000 definitions=main-2205270059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 24, 2022 at 07:45:31PM -0400, Peter Xu wrote:
-> I observed that for each of the shared file-backed page faults, we're very
-> likely to retry one more time for the 1st write fault upon no page.  It's
-> because we'll need to release the mmap lock for dirty rate limit purpose
-> with balance_dirty_pages_ratelimited() (in fault_dirty_shared_page()).
+On 4/4/22 18:10, Tony Krowiak wrote:
+> The vfio_ap device driver registers for notification when the pointer to
+> the KVM object for a guest is set. Recall that the KVM lock (kvm->lock)
+> mutex must be taken outside of the matrix_dev->lock mutex to prevent the
+> reporting by lockdep of a circular locking dependency (a.k.a., a lockdep
+> splat):
 > 
-> Then after that throttling we return VM_FAULT_RETRY.
+> * see commit 0cc00c8d4050 ("Fix circular lockdep when setting/clearing
+>    crypto masks")
 > 
-> We did that probably because VM_FAULT_RETRY is the only way we can return
-> to the fault handler at that time telling it we've released the mmap lock.
+> * see commit 86956e70761b ("replace open coded locks for
+>    VFIO_GROUP_NOTIFY_SET_KVM notification")
 > 
-> However that's not ideal because it's very likely the fault does not need
-> to be retried at all since the pgtable was well installed before the
-> throttling, so the next continuous fault (including taking mmap read lock,
-> walk the pgtable, etc.) could be in most cases unnecessary.
+> With the introduction of support for hot plugging/unplugging AP devices
+> passed through to a KVM guest, a new guests_lock mutex is introduced to
+> ensure the proper locking order is maintained:
 > 
-> It's not only slowing down page faults for shared file-backed, but also add
-> more mmap lock contention which is in most cases not needed at all.
+> struct ap_matrix_dev {
+>          ...
+>          struct mutex guests_lock;
+>         ...
+> }
 > 
-> To observe this, one could try to write to some shmem page and look at
-> "pgfault" value in /proc/vmstat, then we should expect 2 counts for each
-> shmem write simply because we retried, and vm event "pgfault" will capture
-> that.
+> The matrix_dev->guests_lock controls access to the matrix_mdev instances
+> that hold the state for AP devices that have been passed through to a
+> KVM guest. This lock must be held to control access to the KVM pointer
+> (matrix_mdev->kvm) while the vfio_ap device driver is using it to
+> plug/unplug AP devices passed through to the KVM guest.
 > 
-> To make it more efficient, add a new VM_FAULT_COMPLETED return code just to
-> show that we've completed the whole fault and released the lock.  It's also
-> a hint that we should very possibly not need another fault immediately on
-> this page because we've just completed it.
+> Keep in mind, the proper locking order must be maintained whenever
+> dynamically updating a KVM guest's APCB to plug/unplug adapters, domains
+> and control domains:
 > 
-> This patch provides a ~12% perf boost on my aarch64 test VM with a simple
-> program sequentially dirtying 400MB shmem file being mmap()ed and these are
-> the time it needs:
+>      1. matrix_dev->guests_lock: required to use the KVM pointer - stored in
+>         a struct ap_matrix_mdev instance - to update a KVM guest's APCB
 > 
->   Before: 650.980 ms (+-1.94%)
->   After:  569.396 ms (+-1.38%)
+>      2. matrix_mdev->kvm->lock: required to update a guest's APCB
 > 
-> I believe it could help more than that.
+>      3. matrix_dev->mdevs_lock: required to access data stored in a
+>         struct ap_matrix_mdev instance.
 > 
-> We need some special care on GUP and the s390 pgfault handler (for gmap
-> code before returning from pgfault), the rest changes in the page fault
-> handlers should be relatively straightforward.
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>   drivers/s390/crypto/vfio_ap_drv.c     | 1 +
+>   drivers/s390/crypto/vfio_ap_private.h | 6 ++++++
+>   2 files changed, 7 insertions(+)
 > 
-> Another thing to mention is that mm_account_fault() does take this new
-> fault as a generic fault to be accounted, unlike VM_FAULT_RETRY.
-> 
-> I explicitly didn't touch hmm_vma_fault() and break_ksm() because they do
-> not handle VM_FAULT_RETRY even with existing code, so I'm literally keeping
-> them as-is.
-> 
-> Signed-off-by: Peter Xu <peterx@redhat.com>
-...
-> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> index e173b6187ad5..9503a7cfaf03 100644
-> --- a/arch/s390/mm/fault.c
-> +++ b/arch/s390/mm/fault.c
-> @@ -339,6 +339,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
->  	unsigned long address;
->  	unsigned int flags;
->  	vm_fault_t fault;
-> +	bool need_unlock = true;
->  	bool is_write;
->  
->  	tsk = current;
-> @@ -433,6 +434,13 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
->  			goto out_up;
->  		goto out;
->  	}
-> +
-> +	/* The fault is fully completed (including releasing mmap lock) */
-> +	if (fault & VM_FAULT_COMPLETED) {
-> +		need_unlock = false;
-> +		goto out_gmap;
-> +	}
-> +
->  	if (unlikely(fault & VM_FAULT_ERROR))
->  		goto out_up;
->  
-> @@ -452,6 +460,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
->  		mmap_read_lock(mm);
->  		goto retry;
->  	}
-> +out_gmap:
->  	if (IS_ENABLED(CONFIG_PGSTE) && gmap) {
->  		address =  __gmap_link(gmap, current->thread.gmap_addr,
->  				       address);
-> @@ -466,7 +475,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
->  	}
->  	fault = 0;
->  out_up:
-> -	mmap_read_unlock(mm);
-> +	if (need_unlock)
-> +		mmap_read_unlock(mm);
->  out:
+> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+> index 0a5acd151a9b..c258e5f7fdfc 100644
+> --- a/drivers/s390/crypto/vfio_ap_drv.c
+> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+> @@ -161,6 +161,7 @@ static int vfio_ap_matrix_dev_create(void)
+>   
+>   	mutex_init(&matrix_dev->mdevs_lock);
+>   	INIT_LIST_HEAD(&matrix_dev->mdev_list);
+> +	mutex_init(&matrix_dev->guests_lock);
+>   
+>   	dev_set_name(&matrix_dev->device, "%s", VFIO_AP_DEV_NAME);
+>   	matrix_dev->device.parent = root_device;
+> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+> index 5262e02192a4..ec926f2f2930 100644
+> --- a/drivers/s390/crypto/vfio_ap_private.h
+> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> @@ -39,6 +39,11 @@
+>    *		single ap_matrix_mdev device. It's quite coarse but we don't
+>    *		expect much contention.
+>    * @vfio_ap_drv: the vfio_ap device driver
+> + * @guests_lock: mutex for controlling access to a guest that is using AP
+> + *		 devices passed through by the vfio_ap device driver. This lock
+> + *		 will be taken when the AP devices are plugged into or unplugged
+> + *		 from a guest, and when an ap_matrix_mdev device is added to or
+> + *		 removed from @mdev_list or the list is iterated.
+>    */
+>   struct ap_matrix_dev {
+>   	struct device device;
+> @@ -47,6 +52,7 @@ struct ap_matrix_dev {
+>   	struct list_head mdev_list;
+>   	struct mutex mdevs_lock;
+>   	struct ap_driver  *vfio_ap_drv;
+> +	struct mutex guests_lock;
+>   };
+>   
+>   extern struct ap_matrix_dev *matrix_dev;
 
-This seems to be incorrect. __gmap_link() requires the mmap_lock to be
-held. Christian, Janosch, or David, could you please check?
+In isolation... Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
+
+
+-- 
+-- Jason J. Herne (jjherne@linux.ibm.com)
