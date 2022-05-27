@@ -2,171 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4A5DC43217
-	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 10:46:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2F83C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 27 May 2022 10:50:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351154AbiE0Kqt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 May 2022 06:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51052 "EHLO
+        id S241595AbiE0KuL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 May 2022 06:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344688AbiE0Kqi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 06:46:38 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248E4140E2;
-        Fri, 27 May 2022 03:46:37 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id m20so7894959ejj.10;
-        Fri, 27 May 2022 03:46:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=VEAekRrz/FSY4pk4QnV3m6H5QVjhz8BFDYr0EcpVw1E=;
-        b=nXTl96gpCDbYy3bbmZHUFxanwBKanpTD5T3ye91nNt0S5DzRS50X+C3V5calou/Tbd
-         W3tp+Pa5ui5nyk/J9IilzxqUhKzX+QyGcukjZk0ELfa/RtKrZMaq9i+yE1j0RcYeHGEH
-         V+4RtLXDWPxnAymJMfcVpu0JZEZoxenwNXkmgyYKMQXGnN1Ls7NkOSx9TgW4IEazH0HS
-         TOy4lNsQjFRd71dz5D/Ux8BGGU+UgNurAc7P2zcBMC8bJFwbS5pJWekOq461oc+DsRDd
-         eh87WbfBiCTIu2NxwA+S3LoC7J0WxrnESI1Jt77XHjKjToAke3bka2tT28oXpFfiDYxk
-         GFbg==
+        with ESMTP id S236827AbiE0KuJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 May 2022 06:50:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 57F4212B019
+        for <linux-s390@vger.kernel.org>; Fri, 27 May 2022 03:50:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1653648607;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=l2Lh+gpGDkrHKWoEv+QKFc0qknv05ZH2I5oLoT3BQ3w=;
+        b=ez9AvT1B4NZ/MUDoOykLozkTNl8FJXcGC15qzLS0DRTXuXdkh63SwQEPnVC0UWwRtiA3sC
+        2hxEopK8rrOzSipx/hZOzvb/vrd6hHPHXKOFv7/uc0fl5/eBb83K2zzHvMBs3A0eDTi5ga
+        WXKypaY0X0DhTZWNPXoeAi2l7lEuYk8=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-505-BHZHLglXNleXVI5Me-0dbg-1; Fri, 27 May 2022 06:50:06 -0400
+X-MC-Unique: BHZHLglXNleXVI5Me-0dbg-1
+Received: by mail-wm1-f70.google.com with SMTP id o2-20020a05600c510200b0039747b0216fso4659198wms.0
+        for <linux-s390@vger.kernel.org>; Fri, 27 May 2022 03:50:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=VEAekRrz/FSY4pk4QnV3m6H5QVjhz8BFDYr0EcpVw1E=;
-        b=LO/1f7GqF0w+xraxHPRErJiYfcdeZvbNzV9YGGojCAY5Bupb1bp0W3LZctCENfsFtR
-         /WAKDzDKat2OkwGPW6D9fTl8fLj4Etmld6CZcJPticTjrF4H+haFomQ5h2e2HbYEdbs9
-         rJXKpbLU4YBYdRz+DOOZSbUePDCap7/oqhjphJIaE5H/vNGTmKGyWs34XdICGbJfAF2E
-         FnHaX6s/oiFnVrTvwhnGudEJM0wErbTqenz+2gjOQJe2b/lD6oLvnqlQCGKjtFr1Yece
-         d/2nPYfV3C7ZHShCeCpBEDW/M2LNQKNi0ij4kNVyvIb3aU7A7WLEEfAmvHnsZOmvVZPm
-         eUGQ==
-X-Gm-Message-State: AOAM530kWFv/pmgO/9MV407r0PZ0iD3pk3N1Wphwja2DI6Sdq8+O0cTf
-        4C7lKcUVxCvRV2qALA5lixmZBgoYiWo=
-X-Google-Smtp-Source: ABdhPJyWn7wVchQLELsEVq6TA/gUzEaBn19VUAXtFTYBInhQr0sSQqMx29HcpQwhBHqmmOM8Z+iT0g==
-X-Received: by 2002:a17:907:7baa:b0:6fe:b3dc:2378 with SMTP id ne42-20020a1709077baa00b006feb3dc2378mr30766036ejc.266.1653648395645;
-        Fri, 27 May 2022 03:46:35 -0700 (PDT)
-Received: from gmail.com (563BA16F.dsl.pool.telekom.hu. [86.59.161.111])
-        by smtp.gmail.com with ESMTPSA id i20-20020a17090639d400b006fec1a73e48sm1320742eje.64.2022.05.27.03.46.32
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=l2Lh+gpGDkrHKWoEv+QKFc0qknv05ZH2I5oLoT3BQ3w=;
+        b=yZ2K8SMxjO7YCDZWcGjBMpMxCi5+FAMPkQ2NbV3ZKGAp5svEHc9OuytaPeUGSQmSN6
+         of9fA2m2bXGjJalWw9YlCfIzy2ZHI96altEg45J9WexEbKQNs8oI1+7Ujd4wPieeH6Am
+         DffoaZFOVivR6TMts9Gkfm/JmSgubbZQZapOuX6GS9vL9P03t/+7DDp5Xbcj9x6MF+Kz
+         LKSU9MLe/9whGVHOJp9wF4+97fyotf1ET5Wf5UE/eDS4L2sqcs6E4RerHkB7h6bCizLX
+         LAL1ifjLUWogq+w+bR+mPvSnOToj9pjGsr+OzPaRk9tuWOWSbi6rucqco9kogBsf27YL
+         2jDA==
+X-Gm-Message-State: AOAM531hmnrrlFKXXhMZy65is8hvq8AuJjtKR9sQl1YQBjx/ak1k0Me3
+        DpHaJnD5GCPudgCmAN3iWxZlMAVYiZzHq3tTKrKSLN/vC01aran686JK0UsNrVKXm3ZW34DZS/A
+        2xL3jqi0wtVA2R8U3Bddt4Q==
+X-Received: by 2002:adf:d1e7:0:b0:20f:dd30:489b with SMTP id g7-20020adfd1e7000000b0020fdd30489bmr19682804wrd.94.1653648605109;
+        Fri, 27 May 2022 03:50:05 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyS7mTUl4muodaOxpb3A92/00mQUnf2JML65CurJrTdcEaXMLxZDQNgec7W8o6+Bm+X58NZew==
+X-Received: by 2002:adf:d1e7:0:b0:20f:dd30:489b with SMTP id g7-20020adfd1e7000000b0020fdd30489bmr19682778wrd.94.1653648604834;
+        Fri, 27 May 2022 03:50:04 -0700 (PDT)
+Received: from redhat.com ([2.55.130.213])
+        by smtp.gmail.com with ESMTPSA id r2-20020a7bc082000000b00397402ae674sm1828344wmh.11.2022.05.27.03.50.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 May 2022 03:46:34 -0700 (PDT)
-Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
-Date:   Fri, 27 May 2022 12:46:31 +0200
-From:   Ingo Molnar <mingo@kernel.org>
-To:     Peter Xu <peterx@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Richard Henderson <rth@twiddle.net>,
-        David Hildenbrand <david@redhat.com>,
-        Matt Turner <mattst88@gmail.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Michal Simek <monstr@monstr.eu>,
-        Russell King <linux@armlinux.org.uk>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-riscv@lists.infradead.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Jonas Bonn <jonas@southpole.se>, Will Deacon <will@kernel.org>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        openrisc@lists.librecores.org, linux-s390@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        linux-m68k@lists.linux-m68k.org,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Chris Zankel <chris@zankel.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alistair Popple <apopple@nvidia.com>,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        sparclinux@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Stafford Horne <shorne@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-xtensa@linux-xtensa.org, Nicholas Piggin <npiggin@gmail.com>,
-        linux-sh@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-um@lists.infradead.org, linux-alpha@vger.kernel.org,
-        Johannes Berg <johannes@sipsolutions.net>,
-        linux-ia64@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Dinh Nguyen <dinguyen@kernel.org>, Guo Ren <guoren@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
-        Hugh Dickins <hughd@google.com>, Rich Felker <dalias@libc.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        linux-parisc@vger.kernel.org,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v3] mm: Avoid unnecessary page fault retires on shared
- memory types
-Message-ID: <YpCsBwFArieTpvg2@gmail.com>
-References: <20220524234531.1949-1-peterx@redhat.com>
+        Fri, 27 May 2022 03:50:04 -0700 (PDT)
+Date:   Fri, 27 May 2022 06:50:00 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, tglx@linutronix.de,
+        peterz@infradead.org, paulmck@kernel.org, maz@kernel.org,
+        pasic@linux.ibm.com, cohuck@redhat.com, eperezma@redhat.com,
+        lulu@redhat.com, sgarzare@redhat.com, xuanzhuo@linux.alibaba.com,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH V6 9/9] virtio: use WARN_ON() to warning illegal status
+ value
+Message-ID: <20220527064118-mutt-send-email-mst@kernel.org>
+References: <20220527060120.20964-1-jasowang@redhat.com>
+ <20220527060120.20964-10-jasowang@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220524234531.1949-1-peterx@redhat.com>
+In-Reply-To: <20220527060120.20964-10-jasowang@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+At a minimum, I don't see why it's part of the series. Host can always
+crash the guest if it wants to ...
+The point of BUG_ON is device or driver is already corrupted so we
+should not try to drive it.  If you still want this in pls come up with
+a better commit log explaining the why.
 
-* Peter Xu <peterx@redhat.com> wrote:
+On Fri, May 27, 2022 at 02:01:20PM +0800, Jason Wang wrote:
+> We used to use BUG_ON() in virtio_device_ready() to detect illegal
 
-> This patch provides a ~12% perf boost on my aarch64 test VM with a simple
-> program sequentially dirtying 400MB shmem file being mmap()ed and these are
-> the time it needs:
->
->   Before: 650.980 ms (+-1.94%)
->   After:  569.396 ms (+-1.38%)
+not really, BUG_ON just crashes the kernel.  we detect by checking
+status.
 
-Nice!
+> status value, this seems sub-optimal since the value is under the
+> control of the device. Switch to use WARN_ON() instead.
 
->  arch/x86/mm/fault.c           |  4 ++++
+some people use crash on warn so ...
 
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
+> 
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: "Paul E. McKenney" <paulmck@kernel.org>
+> Cc: Marc Zyngier <maz@kernel.org>
+> Cc: Halil Pasic <pasic@linux.ibm.com>
+> Cc: Cornelia Huck <cohuck@redhat.com>
+> Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
+> Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Minor comment typo:
+> ---
+>  include/linux/virtio_config.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index d4edfd7d91bb..9a36051ceb76 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -255,7 +255,7 @@ void virtio_device_ready(struct virtio_device *dev)
+>  {
+>  	unsigned status = dev->config->get_status(dev);
+>  
+> -	BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
+> +	WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
+>  
 
-> +		/*
-> +		 * We should do the same as VM_FAULT_RETRY, but let's not
-> +		 * return -EBUSY since that's not reflecting the reality on
-> +		 * what has happened - we've just fully completed a page
-> +		 * fault, with the mmap lock released.  Use -EAGAIN to show
-> +		 * that we want to take the mmap lock _again_.
-> +		 */
+we lose debuggability as guest will try to continue.
+if we are doing this let us print a helpful message and dump a lot of
+state right here.
 
-s/reflecting the reality on what has happened
- /reflecting the reality of what has happened
+>  	/*
+>  	 * The virtio_synchronize_cbs() makes sure vring_interrupt()
+> -- 
+> 2.25.1
 
->  	ret = handle_mm_fault(vma, address, fault_flags, NULL);
-> +
-> +	if (ret & VM_FAULT_COMPLETED) {
-> +		/*
-> +		 * NOTE: it's a pity that we need to retake the lock here
-> +		 * to pair with the unlock() in the callers. Ideally we
-> +		 * could tell the callers so they do not need to unlock.
-> +		 */
-> +		mmap_read_lock(mm);
-> +		*unlocked = true;
-> +		return 0;
-
-Indeed that's a pity - I guess more performance could be gained here, 
-especially in highly parallel threaded workloads?
-
-Thanks,
-
-	Ingo
