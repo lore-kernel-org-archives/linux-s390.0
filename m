@@ -2,59 +2,78 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE701C433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 28 May 2022 06:55:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD4BBC433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 28 May 2022 11:40:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229765AbiE1GzR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 28 May 2022 02:55:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40360 "EHLO
+        id S234751AbiE1LkP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 28 May 2022 07:40:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbiE1GzQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 28 May 2022 02:55:16 -0400
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E158BBF;
-        Fri, 27 May 2022 23:55:14 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R431e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VEaTnjx_1653720909;
-Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VEaTnjx_1653720909)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 28 May 2022 14:55:10 +0800
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        pabeni@redhat.com, edumazet@google.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH net] net/smc: fixes for converting from "struct smc_cdc_tx_pend **" to "struct smc_wr_tx_pend_priv *"
-Date:   Sat, 28 May 2022 14:54:57 +0800
-Message-Id: <20220528065457.93676-1-guangguan.wang@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.3 (Apple Git-128)
+        with ESMTP id S234741AbiE1LkO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 28 May 2022 07:40:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15318167DD;
+        Sat, 28 May 2022 04:40:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC5A7B80EAE;
+        Sat, 28 May 2022 11:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 68A31C34118;
+        Sat, 28 May 2022 11:40:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653738011;
+        bh=ZHpRnFQkeQtmCAXLllnoeiBMgN6AR5loMUWSyWMqj38=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=tHv4xzJIVLE7nNzO8MQ4KGbhH82tAQSNStVEI4ylZaL0oP9YoGTqZAz6VvqImcHpg
+         lusq22zRSMJ0Uha/huKJPtrh+cZR6tDWc+yRnOSZlmcmLOgOmBoqHCut0lBiKUJAoQ
+         UDfblPV9QptlLSDsKJzxyopjgbDHhvIMAOSIVmKR0hH+7yhpyPRccwUz17Qaqr6ZMA
+         QBwNRKdHt39j469HA2IIDmnkAm9ksLBZ6lZ8HjR2LChznS7x4aqrzS9XdoVDjmr+HX
+         McxoonhcxUB+gDbEisyZbxlxzQnQeSvVysWx9Bw7QX40gGYSJRRlqf9ApmJBuG7lXT
+         eakuXHko9XsHg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 515ACF03942;
+        Sat, 28 May 2022 11:40:11 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/smc: fixes for converting from "struct
+ smc_cdc_tx_pend **" to "struct smc_wr_tx_pend_priv *"
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <165373801132.32245.12112811414781251794.git-patchwork-notify@kernel.org>
+Date:   Sat, 28 May 2022 11:40:11 +0000
+References: <20220528065457.93676-1-guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20220528065457.93676-1-guangguan.wang@linux.alibaba.com>
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com, edumazet@google.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-"struct smc_cdc_tx_pend **" can not directly convert
-to "struct smc_wr_tx_pend_priv *".
+Hello:
 
-Fixes: 2bced6aefa3d ("net/smc: put slot when connection is killed")
-Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
----
- net/smc/smc_cdc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch was applied to netdev/net.git (master)
+by David S. Miller <davem@davemloft.net>:
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 5c731f27996e..53f63bfbaf5f 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -82,7 +82,7 @@ int smc_cdc_get_free_slot(struct smc_connection *conn,
- 		/* abnormal termination */
- 		if (!rc)
- 			smc_wr_tx_put_slot(link,
--					   (struct smc_wr_tx_pend_priv *)pend);
-+					   (struct smc_wr_tx_pend_priv *)(*pend));
- 		rc = -EPIPE;
- 	}
- 	return rc;
+On Sat, 28 May 2022 14:54:57 +0800 you wrote:
+> "struct smc_cdc_tx_pend **" can not directly convert
+> to "struct smc_wr_tx_pend_priv *".
+> 
+> Fixes: 2bced6aefa3d ("net/smc: put slot when connection is killed")
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> ---
+>  net/smc/smc_cdc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+
+Here is the summary with links:
+  - [net] net/smc: fixes for converting from "struct smc_cdc_tx_pend **" to "struct smc_wr_tx_pend_priv *"
+    https://git.kernel.org/netdev/net/c/e225c9a5a74b
+
+You are awesome, thank you!
 -- 
-2.24.3 (Apple Git-128)
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
