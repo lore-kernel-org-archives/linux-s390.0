@@ -2,192 +2,98 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2440DC4332F
-	for <linux-s390@archiver.kernel.org>; Sun, 29 May 2022 20:37:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6EE5C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 30 May 2022 03:16:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231815AbiE2UhB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 29 May 2022 16:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52614 "EHLO
+        id S231538AbiE3DQ0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 29 May 2022 23:16:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229999AbiE2Ug6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 29 May 2022 16:36:58 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585DC6327;
-        Sun, 29 May 2022 13:36:57 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24TJMjwU012617;
-        Sun, 29 May 2022 20:33:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=x4N7bX0DRRebDZ+llHBEoOO1y8RqkpeB+Jlf+Vx+ui4=;
- b=hakF/8aPF5DH3ICHAn7P7Q7xBA4KtdA0je0+nJRBs+xaI2hHDxgItX2ciwK19sCxk0JA
- lJnlqKta8jHKJkMqJ1rgWh3qDwM1i/TtlTQ6ooSKLwvTWHLC31BcYNAGC/G9N1aAutXV
- V/4AJkKs1JGbbdy51HbI6h6b7Z42larzwd7F8tbvXbgPaisrk9ryWS8vf9H7FU54t9UR
- 0Eo3hWRTOOaJavYhxG1gVT9JHKnOc8gKYbkkKxn8voKk4y3jdzUzhrmCMfV05FMX0fA5
- j1Oa7gTPBzc3qIRMostgXnmcMPZVXypM3JAAZSk7OQxWvEnIL9TkJkNVyyqJFOQLb2Mf xw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gby3esrdj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 29 May 2022 20:33:34 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24TKP7nu010580;
-        Sun, 29 May 2022 20:33:33 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gby3esrd9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 29 May 2022 20:33:33 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24TKLpBX018675;
-        Sun, 29 May 2022 20:33:31 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma01fra.de.ibm.com with ESMTP id 3gbcakh5ud-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 29 May 2022 20:33:30 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24TKXR4r17105322
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 29 May 2022 20:33:27 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5933511C04C;
-        Sun, 29 May 2022 20:33:27 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EEE2A11C04A;
-        Sun, 29 May 2022 20:33:24 +0000 (GMT)
-Received: from osiris (unknown [9.145.39.236])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Sun, 29 May 2022 20:33:24 +0000 (GMT)
-Date:   Sun, 29 May 2022 22:33:23 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Peter Xu <peterx@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Will Deacon <will@kernel.org>,
-        Matt Turner <mattst88@gmail.com>, linux-s390@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Brian Cain <bcain@quicinc.com>, Borislav Petkov <bp@alien8.de>,
-        linux-alpha@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        linux-snps-arc@lists.infradead.org,
-        Vineet Gupta <vgupta@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Rich Felker <dalias@libc.org>, sparclinux@vger.kernel.org,
-        Russell King <linux@armlinux.org.uk>,
-        David Hildenbrand <david@redhat.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        linux-xtensa@linux-xtensa.org, linux-sh@vger.kernel.org,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        linux-m68k@lists.linux-m68k.org, linuxppc-dev@lists.ozlabs.org,
-        Richard Henderson <rth@twiddle.net>,
-        Guo Ren <guoren@kernel.org>, linux-parisc@vger.kernel.org,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Helge Deller <deller@gmx.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        linux-um@lists.infradead.org, "H . Peter Anvin" <hpa@zytor.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        openrisc@lists.librecores.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-hexagon@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Stafford Horne <shorne@gmail.com>, linux-csky@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-mips@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Hugh Dickins <hughd@google.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-riscv@lists.infradead.org, Max Filippov <jcmvbkbc@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Chris Zankel <chris@zankel.net>,
-        Michal Simek <monstr@monstr.eu>, x86@kernel.org,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Richard Weinberger <richard@nod.at>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH v4] mm: Avoid unnecessary page fault retires on shared
- memory types
-Message-ID: <YpPYkzbrQmy4FjrI@osiris>
-References: <20220527193936.30678-1-peterx@redhat.com>
+        with ESMTP id S230190AbiE3DQY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 29 May 2022 23:16:24 -0400
+Received: from corp-front10-corp.i.nease.net (corp-front11-corp.i.nease.net [42.186.62.105])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC34A4BB88;
+        Sun, 29 May 2022 20:16:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
+        Date:Message-Id:MIME-Version:Content-Transfer-Encoding; bh=3ZtQG
+        plpK1TUOtshd/f0IPODZV9We7sq8TM2GN3EieU=; b=A7OuLVkRtBPo/LvMY8qLh
+        zvlX3RenAztIQ2UlyMYSk/Ar/zUuLXhYSLBqghk33CuxKLx7zmKvVajeXDoukc1m
+        17p7/0pXooZqLLrGJNCocxuu4/aQl+lidQstnAjmmIPlnrYhShnMvFG1tAHQCQN6
+        tBQhAU8gVxaqsEJLXT2th0=
+Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
+        by corp-front11-corp.i.nease.net (Coremail) with SMTP id aYG_CgA3UmT0NpRiZmklAA--.15991S2;
+        Mon, 30 May 2022 11:16:04 +0800 (HKT)
+From:   liuyacan@corp.netease.com
+To:     kgraul@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ubraun@linux.ibm.com,
+        tonylu@linux.alibaba.com
+Subject: SMC-R problem under multithread
+Date:   Mon, 30 May 2022 11:16:04 +0800
+Message-Id: <20220530031604.144875-1-liuyacan@corp.netease.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220527193936.30678-1-peterx@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oFSau6Dj_1rg8rX4SeOfmoPaYp5LEgWy
-X-Proofpoint-GUID: M6Ru04-Ir3Ey8vHF11WRaj0WUz41oFky
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-29_05,2022-05-27_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 clxscore=1011 phishscore=0 impostorscore=0
- lowpriorityscore=0 mlxlogscore=818 suspectscore=0 mlxscore=0 adultscore=0
- bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2205290119
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: aYG_CgA3UmT0NpRiZmklAA--.15991S2
+X-Coremail-Antispam: 1UD129KBjvdXoW7JrWfXFWxXw1rKF4xKw1xKrg_yoWkCrb_WF
+        4kGF1UA3y3JrWIgw4Ivr10yrZaqay5Cwn8Z34kKr10k3ykXwnxCFZ5X393Xa1kGF4Fkrn0
+        gwn0vrZrtw1a9jkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUbJkYjxAI6xCIbckI1I0E57IF64kEYxAxM7k0a2IF6w4xM7kC6x80
+        4xWl14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3wAFIxvE14
+        AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjxv2
+        0xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26rxl6s0DM28EF7xvwVC2z2
+        80aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2kK67ZEXf0FJ3sC
+        6x9vy-n0Xa0_Xr1Utr1kJwI_Jr4le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCE34x0Y4
+        8IcwAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2
+        jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACI402YV
+        CY1x02628vn2kIc2xKxwAKzVCY07xG64k0F24l7I0Y64k_MxkI7II2jI8vz4vEwIxGrwCF
+        04k20xvY0x0EwIxGrwCF72vEw2IIxxk0rwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7vE0w
+        C20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAF
+        wI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjx
+        v20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2
+        jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0x
+        ZFpf9x07jD_-PUUUUU=
+X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQATCVt763voNAAPs8
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, May 27, 2022 at 03:39:36PM -0400, Peter Xu wrote:
-> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> index e173b6187ad5..4608cc962ecf 100644
-> --- a/arch/s390/mm/fault.c
-> +++ b/arch/s390/mm/fault.c
-> @@ -433,6 +433,17 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
->  			goto out_up;
->  		goto out;
->  	}
-> +
-> +	/* The fault is fully completed (including releasing mmap lock) */
-> +	if (fault & VM_FAULT_COMPLETED) {
-> +		/*
-> +		 * Gmap will need the mmap lock again, so retake it.  TODO:
-> +		 * only conditionally take the lock when CONFIG_PGSTE set.
-> +		 */
-> +		mmap_read_lock(mm);
-> +		goto out_gmap;
-> +	}
-> +
->  	if (unlikely(fault & VM_FAULT_ERROR))
->  		goto out_up;
->  
+Hi experts,
 
-Guess the patch below on top of your patch is what we want.
-Just for clarification: if gmap is not NULL then the process is a kvm
-process. So, depending on the workload, this optimization makes sense.
+  I recently used memcached to test the performance of SMC-R relative to TCP, but the results 
+  are confusing me. When using multithread on the server side, the performance of SMC-R is not as good as TCP.
+    
+  Specifically, I tested 4 scenarios with server thread: 1\2\4\8. The client uses 8threads fixedly. 
+  
+  server: (smc_run) memcached -t 1 -m 16384 -p [SERVER-PORT] -U 0 -F -c 10240 -o modern
+  client: (smc-run) memtier_benchmark -s [SERVER-IP] -p [SERVER-PORT] -P memcache_text --random-data --data-size=100 --data-size-pattern=S --key-minimum=30 --key-maximum=100  -n 5000000 -t 8
+  
+  The result is as follows:
+  
+  SMC-R:
+  
+  server-thread    ops/sec  client-cpu server-cpu
+      1             242k        220%         97%
+      2             362k        241%        128%
+      4             378k        242%        160%
+      8             395k        242%        210%
+      
+  TCP:
+  server-thread    ops/sec  client-cpu server-cpu
+      1             185k       224%         100%
+      2             435k       479%         200%
+      4             780k       731%         400%
+      8             938k       800%         659%                   
+   
+  It can be seen that as the number of threads increases, the performance increase of SMC-R is much slower than that of TCP.
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 4608cc962ecf..e1d40ca341b7 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -436,12 +436,11 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 
- 	/* The fault is fully completed (including releasing mmap lock) */
- 	if (fault & VM_FAULT_COMPLETED) {
--		/*
--		 * Gmap will need the mmap lock again, so retake it.  TODO:
--		 * only conditionally take the lock when CONFIG_PGSTE set.
--		 */
--		mmap_read_lock(mm);
--		goto out_gmap;
-+		if (gmap) {
-+			mmap_read_lock(mm);
-+			goto out_gmap;
-+		}
-+		goto out;
- 	}
- 
- 	if (unlikely(fault & VM_FAULT_ERROR))
+  Am I doing something wrong? Or is it only when CPU resources are tight that SMC-R has a significant advantage ?  
+  
+  Any suggestions are welcome.
+
+
+Thanks & Regards,
+Yacan.
+
