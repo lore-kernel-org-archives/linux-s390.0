@@ -2,107 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24FFAC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 30 May 2022 13:10:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8FEAC46467
+	for <linux-s390@archiver.kernel.org>; Mon, 30 May 2022 13:36:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236196AbiE3NK3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 May 2022 09:10:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37470 "EHLO
+        id S237630AbiE3Ngx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 30 May 2022 09:36:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234192AbiE3NK1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 May 2022 09:10:27 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12D0D70922;
-        Mon, 30 May 2022 06:10:25 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24UBop4H014649;
-        Mon, 30 May 2022 13:10:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Ng21bU7ThRXYZ3QyAuku56OHtAHZGrEQ0rg6J0y21lQ=;
- b=SFJsb0QJWBbAsrJcNNdwW+ina+Q2hTUNiSmGMjsVvwTo85kdvhvgM+MT5y07pNsDwZOM
- c2fn+fLxeKCPD43tjlAUY+HR8apQgmFfUKL++kHkX8xkhnqka4aQLqT3+PFSrE/ah93A
- 0VvrL35O7zpZtkL/6KCeEcSKC1+lmibfEWJWzeR2Z4cZ89heWEkHYxl8XOpCs3sIhVMr
- tuXuW+2uoUnA4uCFB4BrphxwlTcJqcJznTV9g0Svhk2J4vLts3cFatSODaurMtPqCDDj
- 5BIgVP4qOvARmFczt7+24MoKbjdlrKpJy/Sch45fMUCHB50m0vXcSjkfRW9+DVJjbkvV fw== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gcwdj1fgn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 May 2022 13:10:24 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24UD6hQN030846;
-        Mon, 30 May 2022 13:10:22 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma02fra.de.ibm.com with ESMTP id 3gbcc6a1ym-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 May 2022 13:10:22 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24UDAIha54919672
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 30 May 2022 13:10:18 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CF94CA405F;
-        Mon, 30 May 2022 13:10:18 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 97297A405C;
-        Mon, 30 May 2022 13:10:18 +0000 (GMT)
-Received: from [9.171.2.176] (unknown [9.171.2.176])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 30 May 2022 13:10:18 +0000 (GMT)
-Message-ID: <fd1fa794-1d23-ab95-f5d1-940621ccb2c7@linux.ibm.com>
-Date:   Mon, 30 May 2022 15:10:18 +0200
+        with ESMTP id S237767AbiE3Nfo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 May 2022 09:35:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 908768A049;
+        Mon, 30 May 2022 06:28:51 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D23360DD5;
+        Mon, 30 May 2022 13:28:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2BB0C385B8;
+        Mon, 30 May 2022 13:28:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653917330;
+        bh=g7XB8B2hXhx0t6vm3lGhWMstRlw7oJH8/lHkhtWU6kk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nq7f64Yko1jn6fVD4WVSA9K8/lnuNwTRd0SCrIYx0z5aZyUolaEvgUkm+dst3xc0Q
+         g2l0oNwo3fmGzuZ8klXT7VY8u99IsTpotQ4twllDHijeJBVMLapd9XSQWNTsaT4sIc
+         6DYo9+u5NKH9u6tDmRanBVsZHlMLejHAl2uaTmqJoONgEkvB4pO28oKydFfF1JsCEL
+         5BrB1sHzMFjRaqQYRCBYtbFVEkbDxUyXxi4UN3gLM81Nm3N4LVwrAU2tNSkc+l+FZT
+         wNZEO3Uuw4W2dPEhBTLrj7HP0eKPzUK+ye1DleARlnDMk/EKkRHUe/PzJdCkKkddxy
+         qJ5qp5owMkJqg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, vschneid@redhat.com,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 096/159] s390/preempt: disable __preempt_count_add() optimization for PROFILE_ALL_BRANCHES
+Date:   Mon, 30 May 2022 09:23:21 -0400
+Message-Id: <20220530132425.1929512-96-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
+References: <20220530132425.1929512-1-sashal@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v6 00/11] kvm: s390: Add PV dump support
-Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
-References: <20220517163629.3443-1-frankja@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20220517163629.3443-1-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oZ99y21tR0ZPAKhCyWBWH6TVBifffSkD
-X-Proofpoint-GUID: oZ99y21tR0ZPAKhCyWBWH6TVBifffSkD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-30_04,2022-05-30_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- spamscore=0 priorityscore=1501 mlxscore=0 adultscore=0 impostorscore=0
- mlxlogscore=999 suspectscore=0 malwarescore=0 lowpriorityscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2205300068
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 17.05.22 um 18:36 schrieb Janosch Frank:
-> Sometimes dumping inside of a VM fails, is unavailable or doesn't
-> yield the required data. For these occasions we dump the VM from the
-> outside, writing memory and cpu data to a file.
-> 
-> Up to now PV guests only supported dumping from the inside of the
-> guest through dumpers like KDUMP. A PV guest can be dumped from the
-> hypervisor but the data will be stale and / or encrypted.
-> 
-> To get the actual state of the PV VM we need the help of the
-> Ultravisor who safeguards the VM state. New UV calls have been added
-> to initialize the dump, dump storage state data, dump cpu data and
-> complete the dump process.
-> 
-> I chose not to document the dump data provided by the Ultravisor since
-> KVM doesn't interprete it in any way. We're currently searching for a
-> location and enough cycles to make it available to all.
-> 
-> v6:
-> 	* Added patch that explains KVM's rc/rrc writes
-> 	* Added rev-bys
-> 	* Improved documentation
-> 	* Reworked capability indication
-> 	* Moved the dump completion into a new function
+From: Heiko Carstens <hca@linux.ibm.com>
 
-I queued this now for kvms390/next. Its likely too late for this merge window, though.
-(I also applied the fixup proposed by Claudio in patch 6).
+[ Upstream commit 63678eecec57fc51b778be3da35a397931287170 ]
+
+gcc 12 does not (always) optimize away code that should only be generated
+if parameters are constant and within in a certain range. This depends on
+various obscure kernel config options, however in particular
+PROFILE_ALL_BRANCHES can trigger this compile error:
+
+In function ‘__atomic_add_const’,
+    inlined from ‘__preempt_count_add.part.0’ at ./arch/s390/include/asm/preempt.h:50:3:
+./arch/s390/include/asm/atomic_ops.h:80:9: error: impossible constraint in ‘asm’
+   80 |         asm volatile(                                                   \
+      |         ^~~
+
+Workaround this by simply disabling the optimization for
+PROFILE_ALL_BRANCHES, since the kernel will be so slow, that this
+optimization won't matter at all.
+
+Reported-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/include/asm/preempt.h | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
+index d9d5350cc3ec..bf15da0fedbc 100644
+--- a/arch/s390/include/asm/preempt.h
++++ b/arch/s390/include/asm/preempt.h
+@@ -46,10 +46,17 @@ static inline bool test_preempt_need_resched(void)
+ 
+ static inline void __preempt_count_add(int val)
+ {
+-	if (__builtin_constant_p(val) && (val >= -128) && (val <= 127))
+-		__atomic_add_const(val, &S390_lowcore.preempt_count);
+-	else
+-		__atomic_add(val, &S390_lowcore.preempt_count);
++	/*
++	 * With some obscure config options and CONFIG_PROFILE_ALL_BRANCHES
++	 * enabled, gcc 12 fails to handle __builtin_constant_p().
++	 */
++	if (!IS_ENABLED(CONFIG_PROFILE_ALL_BRANCHES)) {
++		if (__builtin_constant_p(val) && (val >= -128) && (val <= 127)) {
++			__atomic_add_const(val, &S390_lowcore.preempt_count);
++			return;
++		}
++	}
++	__atomic_add(val, &S390_lowcore.preempt_count);
+ }
+ 
+ static inline void __preempt_count_sub(int val)
+-- 
+2.35.1
+
