@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B642C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 30 May 2022 14:23:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 898A2C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 30 May 2022 14:23:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240026AbiE3OXk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S241566AbiE3OXk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Mon, 30 May 2022 10:23:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42946 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241372AbiE3ORc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 May 2022 10:17:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A88FB8FF80;
-        Mon, 30 May 2022 06:45:56 -0700 (PDT)
+        with ESMTP id S242326AbiE3OSr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 May 2022 10:18:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21FD61207DA;
+        Mon, 30 May 2022 06:49:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 599EAB80D83;
-        Mon, 30 May 2022 13:45:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 032C6C385B8;
-        Mon, 30 May 2022 13:45:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3122160F14;
+        Mon, 30 May 2022 13:48:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE54C36AE7;
+        Mon, 30 May 2022 13:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918354;
-        bh=im+cepvljc7lf1qmxeA/Pg3Q0vGcfHUx4GIwSUU/uJk=;
+        s=k20201202; t=1653918515;
+        bh=1oaoX4ok9yeMVtkHfkvusLYM5Kis7pHtPy11PUfzcqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzsBSTelaO8SpxnC8gajpgTaNjHvDKWEFPH+6b5ZQHaGx4kpksqwMk2vguwMnSzLb
-         M7wpGtAvTB1OVT0XzTDx0OleXc+hvyqWCar5etuXX8KKpHJuho+4tyP7AopQ+33D8S
-         M5Ul83swS+WuFbTvqdwCy2XZvQi0ezwsaTm7QRuq0Jl2L8ktfogcWSWiudqxCWED+0
-         HUSfyeOtXsoXAh4NsTtQkVIwdxCun7cX0KqvlLTMgpcagd7y148093l0RqnMjsay23
-         mxuo88lpo5w7VJEmhx7YEQiA3nW2V6On2d0OEJURxq+PC/ZzsjwgG+R7IGst9m5+UD
-         xSBf34tQOe0qg==
+        b=UZr5hZZkwh1MBLbeC5nBcAe+Vdj/LdnYJi3bVQNkzZEeLgvLa1Ko2jWT11JSSZq9V
+         9LIUJx+d46Fwr7rSejc+cdBw/t6ib5kX8sB0xqoVY+0/4/8O2t14GcbovPpU4Qky/I
+         GNFqR3p+uCdOl/Vu/NLc3IcnL3iAgbfAqV9+b76cfQI5jgpk2PhVjdth4d0Jw5Nyn9
+         bYW158sW0pAuHHFbNzX8lNBdcWyLfbBEJT22//9Z0b+cEYs8hnMAGJW/U+Gg37+TbC
+         At/D05VAjXXBo0X9bLpLIw5nR7ON0Xyuktsm3L1naIw+5aHos1CXDXUOnSIEzVEhcA
+         +DOTO2DMXd5CQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
@@ -39,12 +39,12 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
         agordeev@linux.ibm.com, vschneid@redhat.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 47/76] s390/preempt: disable __preempt_count_add() optimization for PROFILE_ALL_BRANCHES
-Date:   Mon, 30 May 2022 09:43:37 -0400
-Message-Id: <20220530134406.1934928-47-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 35/55] s390/preempt: disable __preempt_count_add() optimization for PROFILE_ALL_BRANCHES
+Date:   Mon, 30 May 2022 09:46:41 -0400
+Message-Id: <20220530134701.1935933-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220530134406.1934928-1-sashal@kernel.org>
-References: <20220530134406.1934928-1-sashal@kernel.org>
+In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
+References: <20220530134701.1935933-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -82,10 +82,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 11 insertions(+), 4 deletions(-)
 
 diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
-index b5f545db461a..60e101b8460c 100644
+index b5ea9e14c017..3dcd8ab3db73 100644
 --- a/arch/s390/include/asm/preempt.h
 +++ b/arch/s390/include/asm/preempt.h
-@@ -46,10 +46,17 @@ static inline bool test_preempt_need_resched(void)
+@@ -52,10 +52,17 @@ static inline bool test_preempt_need_resched(void)
  
  static inline void __preempt_count_add(int val)
  {
