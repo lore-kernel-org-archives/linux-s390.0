@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D854AC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 30 May 2022 14:29:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5105BC433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 30 May 2022 14:34:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237273AbiE3O24 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 May 2022 10:28:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33970 "EHLO
+        id S240312AbiE3OeX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 30 May 2022 10:34:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241471AbiE3OXE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 May 2022 10:23:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50F24A7761;
-        Mon, 30 May 2022 06:50:29 -0700 (PDT)
+        with ESMTP id S240507AbiE3O3V (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 May 2022 10:29:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03674625F;
+        Mon, 30 May 2022 06:51:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFCC4B80DBB;
-        Mon, 30 May 2022 13:50:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499A7C385B8;
-        Mon, 30 May 2022 13:50:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B89F60FA9;
+        Mon, 30 May 2022 13:51:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 627E7C341CB;
+        Mon, 30 May 2022 13:51:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918627;
+        s=k20201202; t=1653918704;
         bh=o5pO4LCMS5/b+2fU+WThBdm9r/1xafoD8Nszr9ODGqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yj2CmD1LXJHN63k0jRs+fjGbEuCwVmBf93bEssnR6Ul6W3L9zCuwadmXNYCR3xscH
-         zq5UupCt25H4GMqHN3A59Gx8GGzUvHajPQTTpsTQnoBQaREgdOfP0poGo2//RXcJvR
-         QgaMctGVIPtZY9CfyNpoIX/3dV4SOn1SV2TeLDXmzSq4yNxi1ydhmxLAvBPFNxtEZk
-         tyYAJr0aMNPq/gCjoKsDjD+2LpkL4fK8k6HRBHwc84jlBWoD25pBmyysZzQ8c3cJtn
-         ZiP4sSfWnlSExsz/qCf5SxEKZKbb5BhjLkNU7/++8T35uFJizh0As9q4G4xoohsTpD
-         Ed9Y0hrMmzSXw==
+        b=OeYZ1MBW+gDSREbk03XKHKgLTj3P6ycM8Y7WY4nil7L7xfapxsnIPxyK3U5gUDz0q
+         hNbSi+CN4+qXzjaDlHN5m8ghcaB2qwldX8esNs/cJh92z9AtTtPWVVtxU9+asda1tj
+         D5gXZvDk40diYlPWXKQY0C8tPgn7OeHywSAzOdOz8lrk81dVClBp5LyAbzDb3z6tOc
+         8kRqq9WPwTByZi4MwFhC4VNCGmeIDupj8xIX5tu5r/W9/pFxI8IH4FWqf3HJ57UkL5
+         tBGw4II61fKthtiMmcA6vFotrdnmh5VLEFUpHf7FJ3jMWD6J9oBPJfxau3tOcnk93m
+         HKaHAyjVUfA9A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
@@ -39,12 +39,12 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
         agordeev@linux.ibm.com, vschneid@redhat.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 25/38] s390/preempt: disable __preempt_count_add() optimization for PROFILE_ALL_BRANCHES
-Date:   Mon, 30 May 2022 09:49:11 -0400
-Message-Id: <20220530134924.1936816-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 18/29] s390/preempt: disable __preempt_count_add() optimization for PROFILE_ALL_BRANCHES
+Date:   Mon, 30 May 2022 09:50:45 -0400
+Message-Id: <20220530135057.1937286-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220530134924.1936816-1-sashal@kernel.org>
-References: <20220530134924.1936816-1-sashal@kernel.org>
+In-Reply-To: <20220530135057.1937286-1-sashal@kernel.org>
+References: <20220530135057.1937286-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
