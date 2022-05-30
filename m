@@ -2,62 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D728C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 30 May 2022 16:02:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0BF5C4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 30 May 2022 17:06:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241191AbiE3QCn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 May 2022 12:02:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60056 "EHLO
+        id S239922AbiE3RGx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 30 May 2022 13:06:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242304AbiE3QCO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 May 2022 12:02:14 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 020E21CF
-        for <linux-s390@vger.kernel.org>; Mon, 30 May 2022 09:01:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1653926463;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=9ZWphZRcK3afyDhn+H8+iYAM34Y/wtF11YrAt0KXpqo=;
-        b=OS5bC/RbZWQv79yKd7eUx+L80tJuGwYMwoVX2WpJqFE+WQ2EeHxy5+54Sg+j+dJCpcYZs5
-        dO+n8wU9jSdN6aZk2DHWbOuf17Rll0cLfQ2K4qce5CQIdj5CYuWhPA8/1z4t/30tbVQPsk
-        H+rQTflA+VYaQexDjenXT6RuodApb3A=
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
- [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-88-2y4-Dv-2Nn-CyMAL7GkkIQ-1; Mon, 30 May 2022 12:00:59 -0400
-X-MC-Unique: 2y4-Dv-2Nn-CyMAL7GkkIQ-1
-Received: by mail-io1-f72.google.com with SMTP id r10-20020a5edb4a000000b006656e9a2603so5661648iop.6
-        for <linux-s390@vger.kernel.org>; Mon, 30 May 2022 09:00:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=9ZWphZRcK3afyDhn+H8+iYAM34Y/wtF11YrAt0KXpqo=;
-        b=bKyIa7LfhafsjiJL3uYLuDpcTlIA1YAFOYfcnwAYtCGId8+s5hqLz9QfAbQYs9qnKz
-         0hCSTXT0c4sSk0FCdYHtodyCg672IJVsP+BS97plr2vBgn6LfFX3V/ncR6pQmQJ+lctS
-         uw54yIrlz4QI5XdsPEr3Tk73r3DsC4A/CJzCEmiMl0nC9jQPOqzDOQOjTqj3dOw/qVKU
-         1ZlYeXvFEhCgQKuGY9v9jc+Fq0HmVOyNw21Ha0e9I9U7G/eV2JehJ5Fgr10buG+KB4Jd
-         TbCFwT6y5Y5C9zbFChKk69As0XKDeHayoVL05gXcAUTISlG5ZKqDRtHgHw1Y/lscRR5x
-         8L2w==
-X-Gm-Message-State: AOAM532iIzWsbZAtY90JEvU8CxPPi44zVtpxM8gV61say7/b/4l3qc38
-        BEXzRclAhDdusG6VbGcukktWxOimtEfJiZmj3UE9DRL7NxmtsJSirWv3eIwQ9DFxBXYJ7toMyeU
-        hHXchlrAOnwsh4ZxhIyhpzg==
-X-Received: by 2002:a05:6e02:1648:b0:2cd:fe43:39db with SMTP id v8-20020a056e02164800b002cdfe4339dbmr30191735ilu.172.1653926458623;
-        Mon, 30 May 2022 09:00:58 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz0UxFyFLwjW1ZOMQsp2rrmtoQtqcFmY+n0cdYYM503zYLjoFDoHLhs+0Zam5Eh/FIDylo0ew==
-X-Received: by 2002:a05:6e02:1648:b0:2cd:fe43:39db with SMTP id v8-20020a056e02164800b002cdfe4339dbmr30191721ilu.172.1653926458383;
-        Mon, 30 May 2022 09:00:58 -0700 (PDT)
-Received: from xz-m1.local (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
-        by smtp.gmail.com with ESMTPSA id b16-20020a926710000000b002cde6e352e5sm3863762ilc.47.2022.05.30.09.00.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 May 2022 09:00:57 -0700 (PDT)
-Date:   Mon, 30 May 2022 12:00:52 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Will Deacon <will@kernel.org>,
+        with ESMTP id S231479AbiE3RGt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 May 2022 13:06:49 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE7E313D1D;
+        Mon, 30 May 2022 10:06:48 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24UFlBCJ006896;
+        Mon, 30 May 2022 17:03:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=nuAd2Iic3Df8wQVQfUDAHr9blMnTlV35ZZhowW5zRHM=;
+ b=GwoxnpVHH+XSUsQX4Uo1bo8cdnbuzO0NJnzuyE90Jasb+aOQ71mVN8kYNbpcdUCKt9gZ
+ 5/2tRl0m5i0yJ0QvpW5ewhK5WrTrZDG3u1FvMAGm/mp6Uhg2yCEioInqh158ShVbgQZd
+ VOv6o2bJzN7/DpdevufU/c6bjaulj3jTXyZkX+N1v9KthdoxZL1VEwGdXUYdM0uPqRBG
+ PH1Mc3zn+iFNHwQX2MgC9zkNQZ5S1v3/u9cv0MoSSUerYaf0eezVaPl4xU8E4/tUMsEF
+ or8tsa1h/KQuioEysfZ4L5FhMQ5/D9Nb/sP/1EISoxs5arGd7XvXiAOqZeEBT/RamGym vg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gd0tt94te-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 30 May 2022 17:03:42 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24UH0Sno010210;
+        Mon, 30 May 2022 17:03:41 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gd0tt94st-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 30 May 2022 17:03:40 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24UH30XB023868;
+        Mon, 30 May 2022 17:03:38 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3gbbynk0ju-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 30 May 2022 17:03:38 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24UGnEMM55837084
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 30 May 2022 16:49:14 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E56C9A4054;
+        Mon, 30 May 2022 17:03:34 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75192A405C;
+        Mon, 30 May 2022 17:03:32 +0000 (GMT)
+Received: from osiris (unknown [9.145.46.13])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 30 May 2022 17:03:32 +0000 (GMT)
+Date:   Mon, 30 May 2022 19:03:31 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Peter Xu <peterx@redhat.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Will Deacon <will@kernel.org>,
         Matt Turner <mattst88@gmail.com>, linux-s390@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         Brian Cain <bcain@quicinc.com>, Borislav Petkov <bp@alien8.de>,
@@ -116,56 +120,62 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>, linux-kernel@vger.kernel.org,
         Ingo Molnar <mingo@kernel.org>
 Subject: Re: [PATCH v4] mm: Avoid unnecessary page fault retires on shared
  memory types
-Message-ID: <YpTqNKMTt8PoA41n@xz-m1.local>
+Message-ID: <YpT443jVZtM6p9OD@osiris>
 References: <20220527193936.30678-1-peterx@redhat.com>
  <YpPYkzbrQmy4FjrI@osiris>
  <33fd4731-9765-d78b-bdc3-f8243c98e81f@linux.ibm.com>
  <YpToVpjXmdFqGOpY@xz-m1.local>
+ <YpTqNKMTt8PoA41n@xz-m1.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YpToVpjXmdFqGOpY@xz-m1.local>
+In-Reply-To: <YpTqNKMTt8PoA41n@xz-m1.local>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: kj3ykjw07xL7ladYmzasaLdz4r7OyUPU
+X-Proofpoint-GUID: UnBEcQZR6mYYZGFfUgye1q-aXjSM4e8h
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-05-30_07,2022-05-30_03,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 bulkscore=0 spamscore=0 clxscore=1015 mlxlogscore=999
+ mlxscore=0 phishscore=0 malwarescore=0 impostorscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2205300090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 30, 2022 at 11:52:54AM -0400, Peter Xu wrote:
-> On Mon, May 30, 2022 at 11:35:10AM +0200, Christian Borntraeger wrote:
-> > 
-> > 
-> > Am 29.05.22 um 22:33 schrieb Heiko Carstens:
-> > [...]
-> > > 
-> > > Guess the patch below on top of your patch is what we want.
-> > > Just for clarification: if gmap is not NULL then the process is a kvm
-> > > process. So, depending on the workload, this optimization makes sense.
-> > > 
-> > > diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> > > index 4608cc962ecf..e1d40ca341b7 100644
-> > > --- a/arch/s390/mm/fault.c
-> > > +++ b/arch/s390/mm/fault.c
-> > > @@ -436,12 +436,11 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
-> > >   	/* The fault is fully completed (including releasing mmap lock) */
-> > >   	if (fault & VM_FAULT_COMPLETED) {
-> > > -		/*
-> > > -		 * Gmap will need the mmap lock again, so retake it.  TODO:
-> > > -		 * only conditionally take the lock when CONFIG_PGSTE set.
-> > > -		 */
-> > > -		mmap_read_lock(mm);
-> > > -		goto out_gmap;
-> > > +		if (gmap) {
-> > > +			mmap_read_lock(mm);
-> > > +			goto out_gmap;
-> > > +		}
-> > > +		goto out;
+On Mon, May 30, 2022 at 12:00:52PM -0400, Peter Xu wrote:
+> On Mon, May 30, 2022 at 11:52:54AM -0400, Peter Xu wrote:
+> > On Mon, May 30, 2022 at 11:35:10AM +0200, Christian Borntraeger wrote:
+> > > > diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> > > > index 4608cc962ecf..e1d40ca341b7 100644
+> > > > --- a/arch/s390/mm/fault.c
+> > > > +++ b/arch/s390/mm/fault.c
+> > > > @@ -436,12 +436,11 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+> > > >   	/* The fault is fully completed (including releasing mmap lock) */
+> > > >   	if (fault & VM_FAULT_COMPLETED) {
+> > > > -		/*
+> > > > -		 * Gmap will need the mmap lock again, so retake it.  TODO:
+> > > > -		 * only conditionally take the lock when CONFIG_PGSTE set.
+> > > > -		 */
+> > > > -		mmap_read_lock(mm);
+> > > > -		goto out_gmap;
+> > > > +		if (gmap) {
+> > > > +			mmap_read_lock(mm);
+> > > > +			goto out_gmap;
+> > > > +		}
+			fault = 0;  <----
+> > > > +		goto out;
+> 
+> Hmm, right after I replied I found "goto out" could be problematic, since
+> all s390 callers of do_exception() will assume it an error condition (side
+> note: "goto out_gmap" contains one step to clear "fault" to 0).  I'll
+> replace this with "return 0" instead if it looks good to both of you.
+> 
+> I'll wait for a confirmation before reposting.  Thanks,
 
-Hmm, right after I replied I found "goto out" could be problematic, since
-all s390 callers of do_exception() will assume it an error condition (side
-note: "goto out_gmap" contains one step to clear "fault" to 0).  I'll
-replace this with "return 0" instead if it looks good to both of you.
+Right, that was stupid. Thanks for double checking!
 
-I'll wait for a confirmation before reposting.  Thanks,
-
--- 
-Peter Xu
-
+However could you please add "fault = 0" just in front of the goto out
+like above? I'd like to avoid having returns and gotos mixed.
