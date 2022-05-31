@@ -2,112 +2,202 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B1E3C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 31 May 2022 08:37:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28155C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 31 May 2022 08:55:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244920AbiEaIhy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 31 May 2022 04:37:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59128 "EHLO
+        id S241462AbiEaIzf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 31 May 2022 04:55:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241386AbiEaIhX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 May 2022 04:37:23 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70313522FA;
-        Tue, 31 May 2022 01:37:20 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24V5g18X001311;
-        Tue, 31 May 2022 08:37:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=XC7zduPNmSfRtyt3S9GB+uoHsgq1u4k82CI3w6NYzu8=;
- b=LOxNcqAGeknPU8fTdZ6nWBaoSJZ8hyT2CUUewfsqusQGB4bTxnEkp5/Bu0VEdBvyGjbJ
- GDsJBxXVCuGhxvapLRKQYRMvj0ue0FW545tDMpTwOsPolSxad6rGVbbwuOSXNuPdOgko
- vbRKCTjCwjJOVB1SlSxR8lKzuYbPsMv1zCea87lI1+x9Bv3ipEXTL26zQw5SISuPoEaL
- j6CTJzR0a9qKHJv2aNR+2z/Ixy06PxRiOjnyRfPfb805EuPOQNKAjcC+2R1SD/AcL2S/
- 7qr53/N1NOeFel6yh2UsIa7Jjvt60GZmTcDqZW2S+KiU8g7j8GBE54s+OhrEfXfQoWG4 aw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gdd3mu3hc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 31 May 2022 08:37:19 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24V6wxU1009429;
-        Tue, 31 May 2022 08:37:19 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gdd3mu3fp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 31 May 2022 08:37:19 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24V8ZDVe003289;
-        Tue, 31 May 2022 08:37:17 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04fra.de.ibm.com with ESMTP id 3gbc8yjvms-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 31 May 2022 08:37:16 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24V8bDmE22020568
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 31 May 2022 08:37:13 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CDCCE11C04C;
-        Tue, 31 May 2022 08:37:13 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 879C411C04A;
-        Tue, 31 May 2022 08:37:13 +0000 (GMT)
-Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 31 May 2022 08:37:13 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
-        scgl@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v3 0/1] s390x: add migration test for storage keys
-Date:   Tue, 31 May 2022 10:37:12 +0200
-Message-Id: <20220531083713.48534-1-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.36.1
+        with ESMTP id S238868AbiEaIze (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 May 2022 04:55:34 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 439648FFB6
+        for <linux-s390@vger.kernel.org>; Tue, 31 May 2022 01:55:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1653987332;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=iaP4Rx4SV9w6UZ0UimQmEHdq+Pczo5IQxJG2ZngiOPM=;
+        b=gBmdtN37zGBnesVp9nKsmJ6Uti5+LytGymv8hm8VUru7XERM3MIbhKPtEpwuhGsl7cy7L+
+        rRpS1oPqt55bPMtqUpaCFzu1gEg4j0RKsFyFuBvFjy8lN6srd7owjTRB/uySsjrZZgLTcc
+        BBpqaGzfRCVBDCqpKqkO9JHDoEriIWg=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-232-RSgDXQWdPzicTgzXHYMl2g-1; Tue, 31 May 2022 04:55:30 -0400
+X-MC-Unique: RSgDXQWdPzicTgzXHYMl2g-1
+Received: by mail-wr1-f72.google.com with SMTP id p8-20020a5d4588000000b0021033f1f79aso717010wrq.5
+        for <linux-s390@vger.kernel.org>; Tue, 31 May 2022 01:55:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=iaP4Rx4SV9w6UZ0UimQmEHdq+Pczo5IQxJG2ZngiOPM=;
+        b=Ha/F2HZFVkPXXY52VRKGCqCOplm7BuluvOMm1BgxHjCaK/QYGF6a5kUxG8EFbEGbUK
+         7PJA2tOiwHMw61NcLd43fQ69F84sFWqw/7BjY11c5zWWuOkjBltTCdF7mKfWanpYC4Qa
+         dZJykBxJ+MvKg35cZ7PHikxsLoC9ENLi+CGOAl+URcubbfxMJ7sVHPZKYIs00xY847vU
+         uU2s+G4ig+/MYewq6ANmDcoAof9k+iBRVtui7hHF41gcoTaeG7mkdGHDp4ukKb+j1gfK
+         nNHkJupuVgHpftRa7CAMpaVCm8OFjTS9fcks+gl/fiZkqs96/b2j/+2IEdSwTJyaogIN
+         q5yw==
+X-Gm-Message-State: AOAM531897oEWXVj1Mt7QlokLQE37+ZN0hzf/20xNI5JQqTKeJXtrhs/
+        rk/3xx5PhT8u1l/VvlU2kufwN2m9gSCL0iI/RIdACIk469mzPodsRAmIsXAylD6csX6VHD7SWv8
+        /y9VMoWmZk8nanA/YzihwQw==
+X-Received: by 2002:a05:600c:4fce:b0:397:84e3:2297 with SMTP id o14-20020a05600c4fce00b0039784e32297mr20649144wmq.197.1653987329678;
+        Tue, 31 May 2022 01:55:29 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwmtw0XS0DBlA1YvKfMMOV2qEVZg5v+DEqF8KrKAaLiktU6Q6McjheYaP8uCBOW3Vk193L4MA==
+X-Received: by 2002:a05:600c:4fce:b0:397:84e3:2297 with SMTP id o14-20020a05600c4fce00b0039784e32297mr20649129wmq.197.1653987329497;
+        Tue, 31 May 2022 01:55:29 -0700 (PDT)
+Received: from [192.168.0.2] (ip-109-43-177-214.web.vodafone.de. [109.43.177.214])
+        by smtp.gmail.com with ESMTPSA id v5-20020a1cac05000000b003974df805c7sm1551685wme.8.2022.05.31.01.55.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 31 May 2022 01:55:29 -0700 (PDT)
+Message-ID: <ed8e3b8a-e7ac-d432-f733-82fdaf668c1b@redhat.com>
+Date:   Tue, 31 May 2022 10:55:27 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Y9XEBG_SPWtxFxocKttjOia-2fPtn54x
-X-Proofpoint-GUID: kLnl5f4lEqXctvhMCeP4dueIIclA4BGX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-05-31_03,2022-05-30_03,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- adultscore=0 lowpriorityscore=0 suspectscore=0 priorityscore=1501
- bulkscore=0 mlxscore=0 clxscore=1015 phishscore=0 impostorscore=0
- mlxlogscore=882 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2205310041
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [kvm-unit-tests PATCH v3 1/1] s390x: add migration test for
+ storage keys
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, scgl@linux.ibm.com
+References: <20220531083713.48534-1-nrb@linux.ibm.com>
+ <20220531083713.48534-2-nrb@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <20220531083713.48534-2-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-v2->v3:
-----
-* remove some useless variables, style suggestions, improve commit description
-  (thanks Janis)
-* reverse christmas tree (thanks Claudio)
+On 31/05/2022 10.37, Nico Boehr wrote:
+> Upon migration, we expect storage keys set by the guest to be preserved, so add
+> a test for it.
+> 
+> We keep 128 pages and set predictable storage keys. Then, we migrate and check
+> that they can be read back and match the value originally set.
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   s390x/Makefile         |  1 +
+>   s390x/migration-skey.c | 76 ++++++++++++++++++++++++++++++++++++++++++
+>   s390x/unittests.cfg    |  4 +++
+>   3 files changed, 81 insertions(+)
+>   create mode 100644 s390x/migration-skey.c
+> 
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 25802428fa13..94fc5c1a3527 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -33,6 +33,7 @@ tests += $(TEST_DIR)/adtl-status.elf
+>   tests += $(TEST_DIR)/migration.elf
+>   tests += $(TEST_DIR)/pv-attest.elf
+>   tests += $(TEST_DIR)/migration-cmm.elf
+> +tests += $(TEST_DIR)/migration-skey.elf
+>   
+>   pv-tests += $(TEST_DIR)/pv-diags.elf
+>   
+> diff --git a/s390x/migration-skey.c b/s390x/migration-skey.c
+> new file mode 100644
+> index 000000000000..f846ac435836
+> --- /dev/null
+> +++ b/s390x/migration-skey.c
+> @@ -0,0 +1,76 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Storage Key migration tests
+> + *
+> + * Copyright IBM Corp. 2022
+> + *
+> + * Authors:
+> + *  Nico Boehr <nrb@linux.ibm.com>
+> + */
+> +
+> +#include <libcflat.h>
+> +#include <asm/facility.h>
+> +#include <asm/page.h>
+> +#include <asm/mem.h>
+> +#include <asm/interrupt.h>
+> +#include <hardware.h>
+> +
+> +#define NUM_PAGES 128
+> +static uint8_t pagebuf[NUM_PAGES][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+> +
+> +static void test_migration(void)
+> +{
+> +	union skey expected_key, actual_key;
+> +	int i, key_to_set;
+> +
+> +	for (i = 0; i < NUM_PAGES; i++) {
+> +		/*
+> +		 * Storage keys are 7 bit, lowest bit is always returned as zero
+> +		 * by iske
+> +		 */
+> +		key_to_set = i * 2;
+> +		set_storage_key(pagebuf[i], key_to_set, 1);
+> +	}
+> +
+> +	puts("Please migrate me, then press return\n");
+> +	(void)getchar();
+> +
+> +	for (i = 0; i < NUM_PAGES; i++) {
+> +		report_prefix_pushf("page %d", i);
+> +
+> +		actual_key.val = get_storage_key(pagebuf[i]);
+> +		expected_key.val = i * 2;
+> +
+> +		/* ignore reference bit */
+> +		actual_key.str.rf = 0;
+> +		expected_key.str.rf = 0;
 
-v1->v2:
-----
-* As per discussion with Janis and Claudio, remove the actual access check from
-  the test. This also allows us to remove the check_pgm_int_code_xfail() patch.
-* Typos/Style suggestions (thanks Janis)
+If the reference bit gets always ignored, testing 64 pages should be enough? 
+OTOH this will complicate the for-loop / creation of the key value, so I 
+don't mind too much if we keep it this way.
 
-Upon migration, we expect storage keys set by the guest to be preserved,
-so add a test for it.
+> +		report(actual_key.val == expected_key.val, "expected_key=0x%x actual_key=0x%x", expected_key.val, actual_key.val);
+> +
+> +		report_prefix_pop();
+> +	}
+> +}
+> +
+> +int main(void)
+> +{
+> +	report_prefix_push("migration-skey");
+> +	if (test_facility(169)) {
+> +		report_skip("storage key removal facility is active");
+> +
+> +		/*
+> +		 * If we just exit and don't ask migrate_cmd to migrate us, it
+> +		 * will just hang forever. Hence, also ask for migration when we
+> +		 * skip this test altogether.
+> +		 */
+> +		puts("Please migrate me, then press return\n");
+> +		(void)getchar();
+> +
+> +		goto done;
+> +	}
+> +
+> +	test_migration();
+> +
+> +done:
 
-We keep 128 pages and set predictable storage keys. Then, we migrate and check
-they can be read back.
+	} else {
+		test_migration();
+	}
 
-Nico Boehr (1):
-  s390x: add migration test for storage keys
+to get rid of the goto?
 
- s390x/Makefile         |  1 +
- s390x/migration-skey.c | 76 ++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg    |  4 +++
- 3 files changed, 81 insertions(+)
- create mode 100644 s390x/migration-skey.c
+> +	report_prefix_pop();
+> +	return report_summary();
+> +}
 
--- 
-2.36.1
+Either way:
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
