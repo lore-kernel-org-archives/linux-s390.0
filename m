@@ -2,214 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 238B9C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 31 May 2022 10:44:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AE7CC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 31 May 2022 11:29:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242883AbiEaKox (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 31 May 2022 06:44:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39872 "EHLO
+        id S1343601AbiEaL3d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 31 May 2022 07:29:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233804AbiEaKow (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 May 2022 06:44:52 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A90E18DDED;
-        Tue, 31 May 2022 03:44:51 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24VASouu007641;
-        Tue, 31 May 2022 10:44:49 GMT
+        with ESMTP id S235213AbiEaL3c (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 May 2022 07:29:32 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4815956FBE;
+        Tue, 31 May 2022 04:29:31 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24VADnwf008819;
+        Tue, 31 May 2022 11:29:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=0jJlzKzm/DxDvXINYNTGWbXmbG9ORhCTY/VSBeTfRMs=;
- b=gj5NIORWcil2TaNGaofRhfsU4tCbhqSm3oYJCsgAsdAMn9ptMSxyLekrZFlgZAXgXDr/
- RDgfFPg/c7e9ohHm68zaSl1Js78sR16HUvhtKIBSVgS9q4AhdXCj3fQ7mGZ4CQ4En0su
- LSqADtEGdZPOowbAZzGDUjkBYsmlrT0KZF/X87MRCykV4RLTReGJJrOFj3Qb7nELPyMS
- zM128m/mTH9avGy91ihVCNe3f798rsh7+AV752CrEfm80Zok3wf4K9EHCV0NSK87j6vY
- 7LQFgijWtAirdgnDb2q5VWnzTrOx+T60ozzBjC9Kkg/33yhORrp97cmsWsxp16nobwW0 Rw== 
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=MWJNEvmLnQ7b1SoYG+r2ZoWJVqcH6a53P8JH4dFdcvg=;
+ b=EeAI+GU2aeitzyymDENs4vP/E/C4Xlo5EPydGcBJk90GDkYafGNJJuMYb8nMweaCw6JR
+ 8neJFL/fLusTwUuM0O2ZT3fhQ7GmJg8ivkHkKJB1nZINz6gQzx5cFHkv9zggGdQzXCf/
+ ZWQDyb4rTPfSNataZpij8/qPNmiA3AupVErHFKoNtuuJGvaxv0n3XHbMYRYESQf84ICL
+ xUwVlJgiRv9Iw5JJEXRkgDt8apgRqMNfPfEi2t4ATUlukhh8zLxuKguGjiXLvGn7WYwd
+ EeY6TWsvm0VNCYY8g31OBkXPkecz17AXtJgGN5hDggPx2xI7ONRS/9d7gQqy4tyNq98U tg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gdeedv0ax-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gdh3118up-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 31 May 2022 10:44:49 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24V9bC1x006276;
-        Tue, 31 May 2022 10:44:49 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gdeedv0am-1
+        Tue, 31 May 2022 11:29:28 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24VAFmgE018942;
+        Tue, 31 May 2022 11:29:27 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gdh3118u9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 31 May 2022 10:44:49 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24VAZiMj026283;
-        Tue, 31 May 2022 10:44:48 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma01dal.us.ibm.com with ESMTP id 3gcxt57cjs-1
+        Tue, 31 May 2022 11:29:27 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24VBLkol022481;
+        Tue, 31 May 2022 11:29:25 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06fra.de.ibm.com with ESMTP id 3gbcb7k1xn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 31 May 2022 10:44:48 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24VAilZ026673446
+        Tue, 31 May 2022 11:29:25 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24VBTMXb47644982
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 31 May 2022 10:44:47 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0A575AC062;
-        Tue, 31 May 2022 10:44:47 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 70BA8AC065;
-        Tue, 31 May 2022 10:44:46 +0000 (GMT)
-Received: from [9.160.37.241] (unknown [9.160.37.241])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 31 May 2022 10:44:46 +0000 (GMT)
-Message-ID: <f838f274-ff4d-496d-2393-14423117ff7e@linux.ibm.com>
-Date:   Tue, 31 May 2022 06:44:46 -0400
-MIME-Version: 1.0
+        Tue, 31 May 2022 11:29:22 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 24280A405B;
+        Tue, 31 May 2022 11:29:22 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 87F3EA4054;
+        Tue, 31 May 2022 11:29:21 +0000 (GMT)
+Received: from [9.171.36.152] (unknown [9.171.36.152])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 31 May 2022 11:29:21 +0000 (GMT)
+Message-ID: <a1b60913-c261-f8f0-d8bc-a536dcb64c52@linux.ibm.com>
+Date:   Tue, 31 May 2022 13:29:21 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v19 11/20] s390/vfio-ap: prepare for dynamic update of
- guest's APCB on queue probe/remove
+ Thunderbird/91.8.0
+Subject: Re: [PATCH v4 0/4] KVM: s390: selftests: Provide TAP output in tests
 Content-Language: en-US
-To:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
- <20220404221039.1272245-12-akrowiak@linux.ibm.com>
- <9364a1b7-9060-20aa-b0d6-88c41a30e7d4@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <9364a1b7-9060-20aa-b0d6-88c41a30e7d4@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+References: <20220531101554.36844-1-thuth@redhat.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20220531101554.36844-1-thuth@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cVNAkKZarVS-7jTW77s3SoJLqpV2_3Ev
-X-Proofpoint-ORIG-GUID: xMKK5ck2dwLiHNrfC5uBN9An8Ouf6PIr
+X-Proofpoint-ORIG-GUID: j5mIJ4VbVYQWbpKnQvweuT8s-MBOBH7c
+X-Proofpoint-GUID: 9YIdFaTq2U7r2UXf7Hy5Ab5caIFuWj2i
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-05-31_03,2022-05-30_03,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- impostorscore=0 priorityscore=1501 mlxlogscore=999 malwarescore=0
- spamscore=0 clxscore=1015 phishscore=0 lowpriorityscore=0 suspectscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2205310054
+ definitions=2022-05-31_04,2022-05-30_03,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ malwarescore=0 mlxlogscore=999 phishscore=0 bulkscore=0 spamscore=0
+ impostorscore=0 suspectscore=0 priorityscore=1501 clxscore=1015
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2205310058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Am 31.05.22 um 12:15 schrieb Thomas Huth:
+> This patch series is motivated by Shuah's suggestion here:
+> 
+>   https://lore.kernel.org/kvm/d576d8f7-980f-3bc6-87ad-5a6ae45609b8@linuxfoundation.org/
+> 
+> Many s390x KVM selftests do not output any information about which
+> tests have been run, so it's hard to say whether a test binary
+> contains a certain sub-test or not. To improve this situation let's
+> add some TAP output via the kselftest.h interface to these tests,
+> so that it easier to understand what has been executed or not.
+> 
+> v4:
+>   - Rebased to include test_termination() now in the memop test
+>   - Reworked the extension capability check in the memop test
+> 
+> v3:
+>   - Added comments / fixed cosmetics according to Janosch's and
+>     Janis' reviews of the v2 series
+>   - Added Reviewed-by tags from the v2 series
+> 
+> v2:
+>   - Reworked the extension checking in the first patch
+>   - Make sure to always print the TAP 13 header in the second patch
+>   - Reworked the SKIP printing in the third patch
+> 
+> Thomas Huth (4):
+>    KVM: s390: selftests: Use TAP interface in the memop test
+>    KVM: s390: selftests: Use TAP interface in the sync_regs test
+>    KVM: s390: selftests: Use TAP interface in the tprot test
+>    KVM: s390: selftests: Use TAP interface in the reset test
+> 
+>   tools/testing/selftests/kvm/s390x/memop.c     | 95 +++++++++++++++----
+>   tools/testing/selftests/kvm/s390x/resets.c    | 38 ++++++--
+>   .../selftests/kvm/s390x/sync_regs_test.c      | 87 +++++++++++++----
+>   tools/testing/selftests/kvm/s390x/tprot.c     | 29 +++++-
+>   4 files changed, 197 insertions(+), 52 deletions(-)
+> 
 
-
-On 5/27/22 9:36 AM, Jason J. Herne wrote:
-> On 4/4/22 18:10, Tony Krowiak wrote:
->> The callback functions for probing and removing a queue device must take
->> and release the locks required to perform a dynamic update of a guest's
->> APCB in the proper order.
->>
->> The proper order for taking the locks is:
->>
->>          matrix_dev->guests_lock => kvm->lock => matrix_dev->mdevs_lock
->>
->> The proper order for releasing the locks is:
->>
->>          matrix_dev->mdevs_lock => kvm->lock => matrix_dev->guests_lock
->>
->> A new helper function is introduced to be used by the probe callback to
->> acquire the required locks. Since the probe callback only has
->> access to a queue device when it is called, the helper function will 
->> find
->> the ap_matrix_mdev object to which the queue device's APQN is 
->> assigned and
->> return it so the KVM guest to which the mdev is attached can be 
->> dynamically
->> updated.
->>
->> Note that in order to find the ap_matrix_mdev (matrix_mdev) object, 
->> it is
->> necessary to search the matrix_dev->mdev_list. This presents a
->> locking order dilemma because the matrix_dev->mdevs_lock can't be 
->> taken to
->> protect against changes to the list while searching for the 
->> matrix_mdev to
->> which a queue device's APQN is assigned. This is due to the fact that 
->> the
->> proper locking order requires that the matrix_dev->mdevs_lock be taken
->> after both the matrix_mdev->kvm->lock and the matrix_dev->mdevs_lock.
->> Consequently, the matrix_dev->guests_lock will be used to protect 
->> against
->> removal of a matrix_mdev object from the list while a queue device is
->> being probed. This necessitates changes to the mdev probe/remove
->> callback functions to take the matrix_dev->guests_lock prior to removing
->> a matrix_mdev object from the list.
->>
->> A new macro is also introduced to acquire the locks required to 
->> dynamically
->> update the guest's APCB in the proper order when a queue device is
->> removed.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 126 +++++++++++++++++++++---------
->>   1 file changed, 88 insertions(+), 38 deletions(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
->> b/drivers/s390/crypto/vfio_ap_ops.c
->> index 2219b1069ceb..080a733f7cd2 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -116,6 +116,74 @@ static const struct vfio_device_ops 
->> vfio_ap_matrix_dev_ops;
->>       mutex_unlock(&matrix_dev->guests_lock);        \
->>   })
->>   +/**
->> + * vfio_ap_mdev_get_update_locks_for_apqn: retrieve the matrix mdev 
->> to which an
->> + *                       APQN is assigned and acquire the
->> + *                       locks required to update the APCB of
->> + *                       the KVM guest to which the mdev is
->> + *                       attached.
->> + *
->> + * @apqn: the APQN of a queue device.
->> + *
->> + * The proper locking order is:
->> + * 1. matrix_dev->guests_lock: required to use the KVM pointer to 
->> update a KVM
->> + *                   guest's APCB.
->> + * 2. matrix_mdev->kvm->lock:  required to update a guest's APCB
->> + * 3. matrix_dev->mdevs_lock:  required to access data stored in a 
->> matrix_mdev
->> + *
->> + * Note: If @apqn is not assigned to a matrix_mdev, the 
->> matrix_mdev->kvm->lock
->> + *     will not be taken.
->> + *
->> + * Return: the ap_matrix_mdev object to which @apqn is assigned or 
->> NULL if @apqn
->> + *       is not assigned to an ap_matrix_mdev.
->> + */
->> +static struct ap_matrix_mdev 
->> *vfio_ap_mdev_get_update_locks_for_apqn(int apqn)
->
-> vfio_ap_mdev_get_update_locks_for_apqn is "crazy long".
-> How about:
->   get_mdev_for_apqn()
->
-> This function is static and the terms mdev and apqn are specific 
-> enough that I
-> don't think it needs to start with vfio_ap. And there is no need to 
-> state in
-> the function name that locks are acquired. That point will be obvious 
-> to anyone
-> reading the prologue or the code.
-
-The primary purpose of the function is to acquire the locks in the 
-proper order, so
-I think the name should state that purpose. It may be obvious to someone 
-reading
-the prologue or this function, but not so obvious in the context of the 
-calling function.
-Having said that, I will shorten the name to:
-
-     get_update_locks_for_apqn
-
-
-
->
-> Aside from that, Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
->
-
+Thanks applied and queued.
