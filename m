@@ -2,177 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5317BC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Jun 2022 11:36:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9A13CCA468
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Jun 2022 13:48:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236784AbiFALgI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Jun 2022 07:36:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48732 "EHLO
+        id S1353321AbiFANsO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Jun 2022 09:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229979AbiFALgH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jun 2022 07:36:07 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24601326E6;
-        Wed,  1 Jun 2022 04:36:03 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 251A7Coe002163;
-        Wed, 1 Jun 2022 11:35:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+        with ESMTP id S1353299AbiFANsM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jun 2022 09:48:12 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D2449F2D;
+        Wed,  1 Jun 2022 06:48:11 -0700 (PDT)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 251DgQm2008193;
+        Wed, 1 Jun 2022 13:48:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=TEcSc53xq12JwZ22Jm+ODdKDD5AwMEfeVMyVhWez9hw=;
- b=ttSGw5fqRKA903UW753yjObMfeEdHTev/mVne0IVC9oE3f2LT4Z9hwfdzOKvnSWaxZ28
- Vto8GuvFQCP11bcSxQoR7ENsV7hZlGJZQ6p++pPH4dees+ShnTOM59AiYGMXxznprN3c
- UdieSl5volqMqRKKV0BYWo3gT63F8v1ADxExO2Yg4SfGgAmFMpoIBuh+bkLm9B0VlnrL
- 9tCelFJP1eI4+be0l//XFnPoEbAmwZ5hoF0zFXE/qBG4JB5twWM45Av6ikKvfSIhcHNb
- 6+KJ4Hvp9y7UEoIR2kPmNmaL+3OzQyBBMeb6JPzXKw5sa/90Vqg1v1Ln+Tevte7fDHkw 2Q== 
+ bh=AdF0i2v6MgTpDZILesOP+3ego3j9yhHlN3e6Y57/X3w=;
+ b=RFQoqQgegIJdz8XFhtat2M+Oi5Yun90UFs8AH93iCManTZQZUp1m/aC8savTR7rXFWi1
+ Ub3pRT7nVwT+5zfizf7GeTBwyqzXnF+D1GqoLKfGxB80Et2zm+h9zcgtGG/9E/Ot/Du6
+ NmTYFUb8RfS5leXOBWS/a95e8GQUEEa7OqjLZlQm0mw2fl6yeW7h45K9XgxmPq2v/dcF
+ IFB6bc25hZqH1XB3MtwzCvDIOOzWkE5MdRqDev/iqifuFn0g9JwTrK7o9tSDI6IqLNuh
+ ngsZeULLYQkyMDee1NKG3rJrOQsmKD5fcBGeNJLOdtshEN+dVhcGTwLeOuPHIRMzBkSt xA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ge4uq374g-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ge97q83m0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Jun 2022 11:35:58 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 251AwcgX017146;
-        Wed, 1 Jun 2022 11:35:58 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ge4uq373j-1
+        Wed, 01 Jun 2022 13:48:11 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 251DhGfF009632;
+        Wed, 1 Jun 2022 13:48:11 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ge97q83kc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Jun 2022 11:35:58 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 251BJioS008613;
-        Wed, 1 Jun 2022 11:35:56 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3gbc97v6nw-1
+        Wed, 01 Jun 2022 13:48:10 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 251Darms032271;
+        Wed, 1 Jun 2022 13:48:08 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3gbc7h5q86-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Jun 2022 11:35:56 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 251BZr0425952586
+        Wed, 01 Jun 2022 13:48:08 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 251Dm5JD53805478
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 1 Jun 2022 11:35:53 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9963C4C04E;
-        Wed,  1 Jun 2022 11:35:53 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 555914C044;
-        Wed,  1 Jun 2022 11:35:53 +0000 (GMT)
-Received: from [9.152.224.55] (unknown [9.152.224.55])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  1 Jun 2022 11:35:53 +0000 (GMT)
-Message-ID: <7fb28436-1fca-ba4c-7745-ca88d83c657b@linux.ibm.com>
-Date:   Wed, 1 Jun 2022 13:35:52 +0200
+        Wed, 1 Jun 2022 13:48:05 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 422B45204F;
+        Wed,  1 Jun 2022 13:48:05 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1 (unknown [9.152.224.44])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id E98AF5204E;
+        Wed,  1 Jun 2022 13:48:04 +0000 (GMT)
+Date:   Wed, 1 Jun 2022 15:48:03 +0200
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com, scgl@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v3 1/1] s390x: add migration test for
+ storage keys
+Message-ID: <20220601154803.6bc22cac@li-ca45c2cc-336f-11b2-a85c-c6e71de567f1>
+In-Reply-To: <ed8e3b8a-e7ac-d432-f733-82fdaf668c1b@redhat.com>
+References: <20220531083713.48534-1-nrb@linux.ibm.com>
+        <20220531083713.48534-2-nrb@linux.ibm.com>
+        <ed8e3b8a-e7ac-d432-f733-82fdaf668c1b@redhat.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.9.1
-Subject: Re: [RFC net-next] net/smc:introduce 1RTT to SMC
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>
-Cc:     Karsten Graul <kgraul@linux.ibm.com>, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1653375127-130233-1-git-send-email-alibuda@linux.alibaba.com>
- <YoyOGlG2kVe4VA4m@TonyMac-Alibaba>
- <64439f1c-9817-befd-c11b-fa64d22620a9@linux.ibm.com>
- <7d57f299-115f-3d34-a45e-1c125a9a580a@linux.alibaba.com>
- <YpcwaNLUtPyzPBgc@TonyMac-Alibaba>
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <YpcwaNLUtPyzPBgc@TonyMac-Alibaba>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: rmR-56A_Yc69QUhYc_L6F9UW8RmytESf
-X-Proofpoint-GUID: 7mMhP4ywYKudnr9aA5spIx1AfmBjT44B
+X-Proofpoint-ORIG-GUID: E6u0LEc7fb2I469EZ_5Zy1tm6cedtJEt
+X-Proofpoint-GUID: we-xpX31RyRR67_V2uXZCfn_MZnCFTjg
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-01_03,2022-06-01_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 adultscore=0 mlxscore=0 suspectscore=0 spamscore=0
- impostorscore=0 malwarescore=0 bulkscore=0 lowpriorityscore=0
- clxscore=1011 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206010052
+ definitions=2022-06-01_04,2022-06-01_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
+ impostorscore=0 spamscore=0 malwarescore=0 suspectscore=0 phishscore=0
+ lowpriorityscore=0 mlxscore=0 bulkscore=0 adultscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2206010060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Ooops, I just realized I accidentally sent an empty message this
+morning. Sorry!
 
+On Tue, 31 May 2022 10:55:27 +0200
+Thomas Huth <thuth@redhat.com> wrote:
 
-On 01.06.22 11:24, Tony Lu wrote:
-> On Wed, Jun 01, 2022 at 02:33:09PM +0800, D. Wythe wrote:
->>
->> 在 2022/5/25 下午9:42, Alexandra Winter 写道:
->>
->>> We need to carefully evaluate them and make sure everything is compatible
->>> with the existing implementations of SMC-D and SMC-R v1 and v2. In the
->>> typical s390 environment ROCE LAG is propably not good enough, as the card
->>> is still a single point of failure. So your ideas need to be compatible
->>> with link redundancy. We also need to consider that the extension of the
->>> protocol does not block other desirable extensions.
->>>
->>> Your prototype is very helpful for the understanding. Before submitting any
->>> code patches to net-next, we should agree on the details of the protocol
->>> extension. Maybe you could formulate your proposal in plain text, so we can
->>> discuss it here?
->>>
->>> We also need to inform you that several public holidays are upcoming in the
->>> next weeks and several of our team will be out for summer vacation, so please
->>> allow for longer response times.
->>>
->>> Kind regards
->>> Alexandra Winter
->>>
->>
->> Hi alls,
->>
->> In order to achieve signle-link compatibility, we must
->> complete at least once negotiation. We wish to provide
->> higher scalability while meeting this feature. There are
->> few ways to reach this.
->>
->> 1. Use the available reserved bits. According to
->> the SMC v2 protocol, there are at least 28 reserved octets
->> in PROPOSAL MESSAGE and at least 10 reserved octets in
->> ACCEPT MESSAGE are available. We can define an area in which
->> as a feature area, works like bitmap. Considering the subsequent
->> scalability, we MAY use at least 2 reserved ctets, which can support
->> negotiation of at least 16 features.
->>
->> 2. Unify all the areas named extension in current
->> SMC v2 protocol spec without reinterpreting any existing field
->> and field offset changes, including 'PROPOSAL V1 IP Subnet Extension',
->> 'PROPOSAL V2 Extension', 'PROPOSAL SMC-DV2 EXTENSION' .etc. And provides
->> the ability to grow dynamically as needs expand. This scheme will use
->> at least 10 reserved octets in the PROPOSAL MESSAGE and at least 4 reserved
->> octets in ACCEPT MESSAGE and CONFIRM MESSAGE. Fortunately, we only need to
->> use reserved fields, and the current reserved fields are sufficient. And
->> then we can easily add a new extension named SIGNLE LINK. Limited by space,
->> the details will be elaborated after the scheme is finalized.
+[...]
+> > diff --git a/s390x/migration-skey.c b/s390x/migration-skey.c
+> > new file mode 100644
+> > index 000000000000..f846ac435836
+> > --- /dev/null
+> > +++ b/s390x/migration-skey.c
+[...]
+> > +	for (i = 0; i < NUM_PAGES; i++) {
+> > +		report_prefix_pushf("page %d", i);
+> > +
+> > +		actual_key.val = get_storage_key(pagebuf[i]);
+> > +		expected_key.val = i * 2;
+> > +
+> > +		/* ignore reference bit */
+> > +		actual_key.str.rf = 0;
+> > +		expected_key.str.rf = 0;  
 > 
-> After reading this and latest version of protocol, I agree with that the
-> idea to provide a more flexible extension facilities. And, it's a good
-> chance for us to set here talking about the protocol extension.
-> 
-> There are some potential scenarios that need flexible extensions in my
-> mind:
-> - other protocols support, such as iWARP / IB or new version protocol,
-> - dozens of feature flags in the future, like this proposal. With the
->   growth of new feature, it could overflow bitmap.
-> 
-> Actually, this extension facilities are very similar to TCP options.
-> 
-> So what about your opinions about the solution of this? If there are
-> some existed approaches for the future extensions, maybe this can get
-> involved in it. Or we can start a discuss about this as this mail
-> mentioned.
-> 
-> Also, I am wondering if there is plan to update the RFC7609, add the
-> latest v2 support?
-> 
-> Thanks,
-> Tony Lu
+> If the reference bit gets always ignored, testing 64 pages should be
+> enough? OTOH this will complicate the for-loop / creation of the key
+> value, so I don't mind too much if we keep it this way.
 
-We have asked the SMC protocol owners about their opinion about using the
-reserved fields for new options in particular, and about where and how to
-discuss this in general. (including where to document the versions).
-Please allow some time for us to come back to you.
+Since it would make this thing more complex, I think I would just leave it as-is, 64 additional pages don't cost much.
 
-Kind regards
-Alexandra
+[...]
+> > +	if (test_facility(169)) {
+> > +		report_skip("storage key removal facility is
+> > active"); +
+> > +		/*
+> > +		 * If we just exit and don't ask migrate_cmd to
+> > migrate us, it
+> > +		 * will just hang forever. Hence, also ask for
+> > migration when we
+> > +		 * skip this test altogether.
+> > +		 */
+> > +		puts("Please migrate me, then press return\n");
+> > +		(void)getchar();
+> > +
+> > +		goto done;
+> > +	}
+> > +
+> > +	test_migration();
+> > +
+> > +done:  
+> 
+> 	} else {
+> 		test_migration();
+> 	}
+> 
+> to get rid of the goto?
+
+Yes, makes sense, thank you.
+
+[...]
+> Either way:
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+
+Thanks.
