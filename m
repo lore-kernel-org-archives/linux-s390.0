@@ -2,176 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E715C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Jun 2022 10:04:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5317BC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Jun 2022 11:36:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351779AbiFAKEA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Jun 2022 06:04:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39806 "EHLO
+        id S236784AbiFALgI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Jun 2022 07:36:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351661AbiFAKDH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jun 2022 06:03:07 -0400
+        with ESMTP id S229979AbiFALgH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jun 2022 07:36:07 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B2B65AB;
-        Wed,  1 Jun 2022 03:02:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24601326E6;
+        Wed,  1 Jun 2022 04:36:03 -0700 (PDT)
 Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2518he0P002219;
-        Wed, 1 Jun 2022 10:02:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=9GZat0Xdj5tj2DvKvZwHZ+ugzsSXSipXcdFI7v7mVyg=;
- b=WenUJU65gORG5L9qT1uN0w/mWnCyhp/wgHxKYbyMuO64PXSz7qJUdn7M/AFakokMqrB/
- HWKAqyh9H7B8BpWr4eBLfD81CdEqzI0CfTCKSWwgd1qh8rXhqUE8wdYGCU+bPLBH1zem
- V27qLrQGEYUiA5QI1wMMPdcBYqImcnfoEVk1O3YHCZHRbTzT6LdlxDSBO4ZswrR3qctp
- FZiGAKsS9Ycv+isQfx4PS5j8ZkdTYSoEg+nuG5UghQPXZ9+3m1NRpEpATi92oL9Y6wZJ
- YXD2HqcPT1hnsmvA0gFaa47hqSzYz9bjkmJUt33xNo/7pZ9d/6EJ3gDmApSO9Gtt65wq Hw== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ge4uq1eqn-1
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 251A7Coe002163;
+        Wed, 1 Jun 2022 11:35:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=TEcSc53xq12JwZ22Jm+ODdKDD5AwMEfeVMyVhWez9hw=;
+ b=ttSGw5fqRKA903UW753yjObMfeEdHTev/mVne0IVC9oE3f2LT4Z9hwfdzOKvnSWaxZ28
+ Vto8GuvFQCP11bcSxQoR7ENsV7hZlGJZQ6p++pPH4dees+ShnTOM59AiYGMXxznprN3c
+ UdieSl5volqMqRKKV0BYWo3gT63F8v1ADxExO2Yg4SfGgAmFMpoIBuh+bkLm9B0VlnrL
+ 9tCelFJP1eI4+be0l//XFnPoEbAmwZ5hoF0zFXE/qBG4JB5twWM45Av6ikKvfSIhcHNb
+ 6+KJ4Hvp9y7UEoIR2kPmNmaL+3OzQyBBMeb6JPzXKw5sa/90Vqg1v1Ln+Tevte7fDHkw 2Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ge4uq374g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Jun 2022 10:02:51 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2519pNwv004726;
-        Wed, 1 Jun 2022 10:02:49 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma01fra.de.ibm.com with ESMTP id 3gbcakm30e-1
+        Wed, 01 Jun 2022 11:35:58 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 251AwcgX017146;
+        Wed, 1 Jun 2022 11:35:58 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ge4uq373j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Jun 2022 10:02:49 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 251A2kKb55902594
+        Wed, 01 Jun 2022 11:35:58 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 251BJioS008613;
+        Wed, 1 Jun 2022 11:35:56 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3gbc97v6nw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Jun 2022 11:35:56 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 251BZr0425952586
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 1 Jun 2022 10:02:46 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0EE17A404D;
-        Wed,  1 Jun 2022 10:02:46 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BD69CA4040;
-        Wed,  1 Jun 2022 10:02:45 +0000 (GMT)
-Received: from t46lp73.. (unknown [9.152.108.100])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  1 Jun 2022 10:02:45 +0000 (GMT)
-From:   Steffen Eiden <seiden@linux.ibm.com>
-To:     seiden@linux.ibm.com
-Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        hca@linux.ibm.com, imbrenda@linux.ibm.com,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        nrb@linux.ibm.com
-Subject: Re: [PATCH v2 1/1] s390: Add attestation query information
-Date:   Wed,  1 Jun 2022 10:02:45 +0000
-Message-Id: <20220601100245.3189993-1-seiden@linux.ibm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220518135908.1110319-2-seiden@linux.ibm.com>
-References: <20220518135908.1110319-2-seiden@linux.ibm.com>
+        Wed, 1 Jun 2022 11:35:53 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9963C4C04E;
+        Wed,  1 Jun 2022 11:35:53 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 555914C044;
+        Wed,  1 Jun 2022 11:35:53 +0000 (GMT)
+Received: from [9.152.224.55] (unknown [9.152.224.55])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  1 Jun 2022 11:35:53 +0000 (GMT)
+Message-ID: <7fb28436-1fca-ba4c-7745-ca88d83c657b@linux.ibm.com>
+Date:   Wed, 1 Jun 2022 13:35:52 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.9.1
+Subject: Re: [RFC net-next] net/smc:introduce 1RTT to SMC
+Content-Language: en-US
+To:     Tony Lu <tonylu@linux.alibaba.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>
+Cc:     Karsten Graul <kgraul@linux.ibm.com>, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1653375127-130233-1-git-send-email-alibuda@linux.alibaba.com>
+ <YoyOGlG2kVe4VA4m@TonyMac-Alibaba>
+ <64439f1c-9817-befd-c11b-fa64d22620a9@linux.ibm.com>
+ <7d57f299-115f-3d34-a45e-1c125a9a580a@linux.alibaba.com>
+ <YpcwaNLUtPyzPBgc@TonyMac-Alibaba>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <YpcwaNLUtPyzPBgc@TonyMac-Alibaba>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oI5ubfcnDbfWrS6ZDmxnb0IPJVvoDFLT
-X-Proofpoint-GUID: oI5ubfcnDbfWrS6ZDmxnb0IPJVvoDFLT
+X-Proofpoint-ORIG-GUID: rmR-56A_Yc69QUhYc_L6F9UW8RmytESf
+X-Proofpoint-GUID: 7mMhP4ywYKudnr9aA5spIx1AfmBjT44B
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-01_03,2022-05-30_03,2022-02-23_01
+ definitions=2022-06-01_03,2022-06-01_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
  mlxlogscore=999 adultscore=0 mlxscore=0 suspectscore=0 spamscore=0
  impostorscore=0 malwarescore=0 bulkscore=0 lowpriorityscore=0
  clxscore=1011 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206010043
+ engine=8.12.0-2204290000 definitions=main-2206010052
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-By design the uv-device does not check whether an incoming attestation
-measurement request only specifies valid plain text flags or has the
-right request version, as these values are verified by the Ultravisor
-anyway. However, the userspace program that generates these requests
-might want to know which flags/versions are supported in order to
-create requests without trial and error. Therefore, expose the
-supported plain text flags and versions to userspace via sysfs.
 
-Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/boot/uv.c        |  2 ++
- arch/s390/include/asm/uv.h |  7 ++++++-
- arch/s390/kernel/uv.c      | 20 ++++++++++++++++++++
- 3 files changed, 28 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
-index 67c737c1e580..a5fa667160b2 100644
---- a/arch/s390/boot/uv.c
-+++ b/arch/s390/boot/uv.c
-@@ -45,6 +45,8 @@ void uv_query_info(void)
- 		uv_info.supp_se_hdr_pcf = uvcb.supp_se_hdr_pcf;
- 		uv_info.conf_dump_storage_state_len = uvcb.conf_dump_storage_state_len;
- 		uv_info.conf_dump_finalize_len = uvcb.conf_dump_finalize_len;
-+		uv_info.supp_att_req_hdr_ver = uvcb.supp_att_req_hdr_ver;
-+		uv_info.supp_att_pflags = uvcb.supp_att_pflags;
- 	}
- 
- #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 3e597bb634bd..18fe04c8547e 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -124,7 +124,10 @@ struct uv_cb_qui {
- 	u64 reservedc0;				/* 0x00c0 */
- 	u64 conf_dump_storage_state_len;	/* 0x00c8 */
- 	u64 conf_dump_finalize_len;		/* 0x00d0 */
--	u8  reservedd8[256 - 216];		/* 0x00d8 */
-+	u64 reservedd8;				/* 0x00d8 */
-+	u64 supp_att_req_hdr_ver;		/* 0x00e0 */
-+	u64 supp_att_pflags;			/* 0x00e8 */
-+	u8 reservedf0[256 - 240];		/* 0x00f0 */
- } __packed __aligned(8);
- 
- /* Initialize Ultravisor */
-@@ -350,6 +353,8 @@ struct uv_info {
- 	unsigned long supp_se_hdr_pcf;
- 	unsigned long conf_dump_storage_state_len;
- 	unsigned long conf_dump_finalize_len;
-+	unsigned long supp_att_req_hdr_ver;
-+	unsigned long supp_att_pflags;
- };
- 
- extern struct uv_info uv_info;
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 84fe33b6af4d..c13d5a7b71f0 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -479,6 +479,24 @@ static ssize_t uv_query_max_guest_addr(struct kobject *kobj,
- static struct kobj_attribute uv_query_max_guest_addr_attr =
- 	__ATTR(max_address, 0444, uv_query_max_guest_addr, NULL);
- 
-+static ssize_t uv_query_supp_att_req_hdr_ver(struct kobject *kobj,
-+					     struct kobj_attribute *attr, char *page)
-+{
-+	return scnprintf(page, PAGE_SIZE, "%lx\n", uv_info.supp_att_req_hdr_ver);
-+}
-+
-+static struct kobj_attribute uv_query_supp_att_req_hdr_ver_attr =
-+	__ATTR(supp_att_req_hdr_ver, 0444, uv_query_supp_att_req_hdr_ver, NULL);
-+
-+static ssize_t uv_query_supp_att_pflags(struct kobject *kobj,
-+					struct kobj_attribute *attr, char *page)
-+{
-+	return scnprintf(page, PAGE_SIZE, "%lx\n", uv_info.supp_att_pflags);
-+}
-+
-+static struct kobj_attribute uv_query_supp_att_pflags_attr =
-+	__ATTR(supp_att_pflags, 0444, uv_query_supp_att_pflags, NULL);
-+
- static struct attribute *uv_query_attrs[] = {
- 	&uv_query_facilities_attr.attr,
- 	&uv_query_feature_indications_attr.attr,
-@@ -490,6 +508,8 @@ static struct attribute *uv_query_attrs[] = {
- 	&uv_query_dump_storage_state_len_attr.attr,
- 	&uv_query_dump_finalize_len_attr.attr,
- 	&uv_query_dump_cpu_len_attr.attr,
-+	&uv_query_supp_att_req_hdr_ver_attr.attr,
-+	&uv_query_supp_att_pflags_attr.attr,
- 	NULL,
- };
- 
--- 
-2.30.2
+On 01.06.22 11:24, Tony Lu wrote:
+> On Wed, Jun 01, 2022 at 02:33:09PM +0800, D. Wythe wrote:
+>>
+>> 在 2022/5/25 下午9:42, Alexandra Winter 写道:
+>>
+>>> We need to carefully evaluate them and make sure everything is compatible
+>>> with the existing implementations of SMC-D and SMC-R v1 and v2. In the
+>>> typical s390 environment ROCE LAG is propably not good enough, as the card
+>>> is still a single point of failure. So your ideas need to be compatible
+>>> with link redundancy. We also need to consider that the extension of the
+>>> protocol does not block other desirable extensions.
+>>>
+>>> Your prototype is very helpful for the understanding. Before submitting any
+>>> code patches to net-next, we should agree on the details of the protocol
+>>> extension. Maybe you could formulate your proposal in plain text, so we can
+>>> discuss it here?
+>>>
+>>> We also need to inform you that several public holidays are upcoming in the
+>>> next weeks and several of our team will be out for summer vacation, so please
+>>> allow for longer response times.
+>>>
+>>> Kind regards
+>>> Alexandra Winter
+>>>
+>>
+>> Hi alls,
+>>
+>> In order to achieve signle-link compatibility, we must
+>> complete at least once negotiation. We wish to provide
+>> higher scalability while meeting this feature. There are
+>> few ways to reach this.
+>>
+>> 1. Use the available reserved bits. According to
+>> the SMC v2 protocol, there are at least 28 reserved octets
+>> in PROPOSAL MESSAGE and at least 10 reserved octets in
+>> ACCEPT MESSAGE are available. We can define an area in which
+>> as a feature area, works like bitmap. Considering the subsequent
+>> scalability, we MAY use at least 2 reserved ctets, which can support
+>> negotiation of at least 16 features.
+>>
+>> 2. Unify all the areas named extension in current
+>> SMC v2 protocol spec without reinterpreting any existing field
+>> and field offset changes, including 'PROPOSAL V1 IP Subnet Extension',
+>> 'PROPOSAL V2 Extension', 'PROPOSAL SMC-DV2 EXTENSION' .etc. And provides
+>> the ability to grow dynamically as needs expand. This scheme will use
+>> at least 10 reserved octets in the PROPOSAL MESSAGE and at least 4 reserved
+>> octets in ACCEPT MESSAGE and CONFIRM MESSAGE. Fortunately, we only need to
+>> use reserved fields, and the current reserved fields are sufficient. And
+>> then we can easily add a new extension named SIGNLE LINK. Limited by space,
+>> the details will be elaborated after the scheme is finalized.
+> 
+> After reading this and latest version of protocol, I agree with that the
+> idea to provide a more flexible extension facilities. And, it's a good
+> chance for us to set here talking about the protocol extension.
+> 
+> There are some potential scenarios that need flexible extensions in my
+> mind:
+> - other protocols support, such as iWARP / IB or new version protocol,
+> - dozens of feature flags in the future, like this proposal. With the
+>   growth of new feature, it could overflow bitmap.
+> 
+> Actually, this extension facilities are very similar to TCP options.
+> 
+> So what about your opinions about the solution of this? If there are
+> some existed approaches for the future extensions, maybe this can get
+> involved in it. Or we can start a discuss about this as this mail
+> mentioned.
+> 
+> Also, I am wondering if there is plan to update the RFC7609, add the
+> latest v2 support?
+> 
+> Thanks,
+> Tony Lu
 
+We have asked the SMC protocol owners about their opinion about using the
+reserved fields for new options in particular, and about where and how to
+discuss this in general. (including where to document the versions).
+Please allow some time for us to come back to you.
+
+Kind regards
+Alexandra
