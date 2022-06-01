@@ -2,152 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 241A3CCA47A
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Jun 2022 18:40:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B591AC43334
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Jun 2022 18:55:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231933AbiFASkN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Jun 2022 14:40:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50634 "EHLO
+        id S231675AbiFASzI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Jun 2022 14:55:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231779AbiFASkK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jun 2022 14:40:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13942DFF55;
-        Wed,  1 Jun 2022 11:40:08 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92515B81C23;
-        Wed,  1 Jun 2022 18:40:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7E30C385B8;
-        Wed,  1 Jun 2022 18:40:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654108806;
-        bh=vpZ1oNTlay8NWlxGY9rUMzeRkjnKLNWUB5LHGYBDV9E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SV4cmB3MpgVr8rN3mq/AgsHnJ59ZjgcffarURyAfkAdkEzNpXND21AvmUXs/TCSKG
-         JN6Kln9Qh2fKKoNGqhtzaeN3GVMD5O+WlHNEGZq1+TVFKTgXvUeTxpOC2opw2jzy3M
-         bzs+i28vGY/FzwHvhAo/7MfauYLqirVh5qrYbf/9uggvCsKOW9dGOrTbtu8Bly2ogq
-         gdOF0hMn+j3+XeZkNnzwCZiw7gyMKIj6V8TC3bRb8s5c+amjSWyv+xMo80ucbbrM+M
-         K8Ccnhjy4g9orAMgOh/NR3ZQR6ir+xGwf35PRNSGyFHOR15Ppn2g/2bRwSBc69z3WO
-         cpjY5uJWVEvrQ==
-Date:   Wed, 1 Jun 2022 11:40:03 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     iommu@lists.linux-foundation.org, x86@kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
-        linux-pci@vger.kernel.org
-Subject: Re: [PATCH 09/15] swiotlb: make the swiotlb_init interface more
- useful
-Message-ID: <Ypeyg2Dm/WfoKDZt@dev-arch.thelio-3990X>
-References: <20220404050559.132378-1-hch@lst.de>
- <20220404050559.132378-10-hch@lst.de>
- <YpehC7BwBlnuxplF@dev-arch.thelio-3990X>
- <20220601173441.GB27582@lst.de>
- <YpemDuzdoaO3rijX@Ryzen-9-3900X.>
- <20220601175743.GA28082@lst.de>
- <Yper7agk7XfCCQNa@dev-arch.thelio-3990X>
- <20220601182141.GA28309@lst.de>
+        with ESMTP id S230388AbiFASzG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jun 2022 14:55:06 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405E2152D99;
+        Wed,  1 Jun 2022 11:55:01 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 251IJcdG030907;
+        Wed, 1 Jun 2022 18:54:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : reply-to : subject : to : cc : references : from :
+ in-reply-to : content-type : content-transfer-encoding; s=pp1;
+ bh=ZSRNauAIIz3T3KQSlyheFSn9sDOzFc2WKfdsvdYbF4c=;
+ b=Ex0FrcDRYpnwmCI5csJKXgAKZVjXhPXJGiV32HooZYyT9296mzK5MjxsEPcPPhxm23GH
+ Ak6lVQbVF+CkIAFnydi6HLUqcj+58myAftlZp6VrmYtiaN7iWIkcCHTZU7ZkHaWe60ZK
+ 3qPAygmvciWz3r78e7DUojJ4C9/lqGxBnf5nG+zLYCmHgX00jx+aiu5zx3ngTRrzcleT
+ tDXH3pUzo6Qr/GqzEzF0BD0ErSrp56fHWB5pQJpmj75wsDjfic6DuciqyzmILx1bHp3U
+ GB74eBN7Ac0zuFWuHpI5AUZhyFby09tZgXprbNImIeKq9ojA54CjxpBgIYY9Pv21Q+W1 2g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ged9hrw1x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Jun 2022 18:54:51 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 251InY9d002483;
+        Wed, 1 Jun 2022 18:54:50 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ged9hrw0q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Jun 2022 18:54:48 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 251IolfX022842;
+        Wed, 1 Jun 2022 18:54:47 GMT
+Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
+        by ppma02dal.us.ibm.com with ESMTP id 3gd1ad2rxu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Jun 2022 18:54:47 +0000
+Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
+        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 251IskZ864028980
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 1 Jun 2022 18:54:46 GMT
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 68126AE05F;
+        Wed,  1 Jun 2022 18:54:46 +0000 (GMT)
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AF470AE060;
+        Wed,  1 Jun 2022 18:54:45 +0000 (GMT)
+Received: from [9.65.239.109] (unknown [9.65.239.109])
+        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed,  1 Jun 2022 18:54:45 +0000 (GMT)
+Message-ID: <164f0852-3d7c-7d38-6fb2-9cacf6728ede@linux.ibm.com>
+Date:   Wed, 1 Jun 2022 14:54:45 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220601182141.GA28309@lst.de>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Reply-To: jjherne@linux.ibm.com
+Subject: Re: [PATCH v19 12/20] s390/vfio-ap: allow hot plug/unplug of AP
+ devices when assigned/unassigned
+Content-Language: en-US
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
+ <20220404221039.1272245-13-akrowiak@linux.ibm.com>
+From:   "Jason J. Herne" <jjherne@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <20220404221039.1272245-13-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: o93ObAkzWTcrkRSfTeAGBymQd9TXBSIH
+X-Proofpoint-ORIG-GUID: 4J00neEdMbTV_qncTuOWgeGVeRxwBtmN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-01_06,2022-06-01_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ adultscore=0 impostorscore=0 bulkscore=0 spamscore=0 suspectscore=0
+ clxscore=1015 priorityscore=1501 malwarescore=0 lowpriorityscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206010077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 01, 2022 at 08:21:41PM +0200, Christoph Hellwig wrote:
-> On Wed, Jun 01, 2022 at 11:11:57AM -0700, Nathan Chancellor wrote:
-> > On Wed, Jun 01, 2022 at 07:57:43PM +0200, Christoph Hellwig wrote:
-> > > On Wed, Jun 01, 2022 at 10:46:54AM -0700, Nathan Chancellor wrote:
-> > > > On Wed, Jun 01, 2022 at 07:34:41PM +0200, Christoph Hellwig wrote:
-> > > > > Can you send me the full dmesg and the content of
-> > > > > /sys/kernel/debug/swiotlb/io_tlb_nslabs for a good and a bad boot?
-> > > > 
-> > > > Sure thing, they are attached! If there is anything else I can provide
-> > > > or test, I am more than happy to do so.
-> > > 
-> > > Nothing interesting.  But the performance numbers almost look like
-> > > swiotlb=force got ignored before (even if I can't explain why).
-> > 
-> > I was able to get my performance back with this diff but I don't know if
-> > this is a hack or a proper fix in the context of the series.
+On 4/4/22 18:10, Tony Krowiak wrote:
+> Let's hot plug an adapter, domain or control domain into the guest when it
+> is assigned to a matrix mdev that is attached to a KVM guest. Likewise,
+> let's hot unplug an adapter, domain or control domain from the guest when
+> it is unassigned from a matrix_mdev that is attached to a KVM guest.
 > 
-> This looks good, but needs a little tweak.  I'd go for this variant of
-> it:
-
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-
-Thanks a lot for the quick fix!
-
-> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-> index dfa1de89dc944..cb50f8d383606 100644
-> --- a/kernel/dma/swiotlb.c
-> +++ b/kernel/dma/swiotlb.c
-> @@ -192,7 +192,7 @@ void __init swiotlb_update_mem_attributes(void)
->  }
->  
->  static void swiotlb_init_io_tlb_mem(struct io_tlb_mem *mem, phys_addr_t start,
-> -				    unsigned long nslabs, bool late_alloc)
-> +		unsigned long nslabs, unsigned int flags, bool late_alloc)
->  {
->  	void *vaddr = phys_to_virt(start);
->  	unsigned long bytes = nslabs << IO_TLB_SHIFT, i;
-> @@ -203,8 +203,7 @@ static void swiotlb_init_io_tlb_mem(struct io_tlb_mem *mem, phys_addr_t start,
->  	mem->index = 0;
->  	mem->late_alloc = late_alloc;
->  
-> -	if (swiotlb_force_bounce)
-> -		mem->force_bounce = true;
-> +	mem->force_bounce = swiotlb_force_bounce || (flags & SWIOTLB_FORCE);
->  
->  	spin_lock_init(&mem->lock);
->  	for (i = 0; i < mem->nslabs; i++) {
-> @@ -275,8 +274,7 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
->  		panic("%s: Failed to allocate %zu bytes align=0x%lx\n",
->  		      __func__, alloc_size, PAGE_SIZE);
->  
-> -	swiotlb_init_io_tlb_mem(mem, __pa(tlb), nslabs, false);
-> -	mem->force_bounce = flags & SWIOTLB_FORCE;
-> +	swiotlb_init_io_tlb_mem(mem, __pa(tlb), nslabs, flags, false);
->  
->  	if (flags & SWIOTLB_VERBOSE)
->  		swiotlb_print_info();
-> @@ -348,7 +346,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
->  
->  	set_memory_decrypted((unsigned long)vstart,
->  			     (nslabs << IO_TLB_SHIFT) >> PAGE_SHIFT);
-> -	swiotlb_init_io_tlb_mem(mem, virt_to_phys(vstart), nslabs, true);
-> +	swiotlb_init_io_tlb_mem(mem, virt_to_phys(vstart), nslabs, 0, true);
->  
->  	swiotlb_print_info();
->  	return 0;
-> @@ -835,8 +833,8 @@ static int rmem_swiotlb_device_init(struct reserved_mem *rmem,
->  
->  		set_memory_decrypted((unsigned long)phys_to_virt(rmem->base),
->  				     rmem->size >> PAGE_SHIFT);
-> -		swiotlb_init_io_tlb_mem(mem, rmem->base, nslabs, false);
-> -		mem->force_bounce = true;
-> +		swiotlb_init_io_tlb_mem(mem, rmem->base, nslabs, SWIOTLB_FORCE,
-> +				false);
->  		mem->for_alloc = true;
->  
->  		rmem->priv = mem;
+> Whenever an assignment or unassignment of an adapter, domain or control
+> domain is performed, the APQNs and control domains assigned to the matrix
+> mdev will be filtered and assigned to the AP control block
+> (APCB) that supplies the AP configuration to the guest so that no
+> adapter, domain or control domain that is not in the host's AP
+> configuration nor any APQN that does not reference a queue device bound
+> to the vfio_ap device driver is assigned.
 > 
+> After updating the APCB, if the mdev is in use by a KVM guest, it is
+> hot plugged into the guest to dynamically provide access to the adapters,
+> domains and control domains provided via the newly refreshed APCB.
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>   drivers/s390/crypto/vfio_ap_ops.c | 112 +++++++++++++++---------------
+>   1 file changed, 57 insertions(+), 55 deletions(-)
 
-Cheers,
-Nathan
+Seems sane.
+
+Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
