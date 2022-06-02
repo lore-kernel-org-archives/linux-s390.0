@@ -2,248 +2,174 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98F05CCA478
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Jun 2022 10:30:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73D91C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Jun 2022 12:50:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233854AbiFBKau (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Jun 2022 06:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39076 "EHLO
+        id S235073AbiFBMuq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Jun 2022 08:50:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233910AbiFBKal (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jun 2022 06:30:41 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 244EA6D383;
-        Thu,  2 Jun 2022 03:30:31 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 252A3bSs007605;
-        Thu, 2 Jun 2022 10:30:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=VKd5vFUiEKfuRcGuSWKwzFHHhQa5vtGA/lkq5v9/Zc8=;
- b=cyscfWEuEF5gJTMeZZ+ZRhSXHb3YXeB3Cht4rRf2Ka0vt9uin73Hdql+mENqx0MWlmof
- gFsI7eeVHIb8zoigEZM0V+VCOjPsQzWA1Yq0F7tfVu8A7KgChLR4VA7CJVF5Wwwpka6/
- vz7EgxNB5KcTuoJCMJdADV7mtJBX1FC4o2qS2xEmBIBSPYmx35vEmzGUniTdYRrsCCXW
- m8ij0jFn+9OZgN+XItuN4Q67sv/nXKtWdOLvGWn2kP4CxhysGQzmg4ozfbPsExaxaX8C
- BIAbjRoQgjv8qm3lMUpZHMQX4elMO32Vrsk+n/tJHgpbUWULnW3yZ/KeNWauNSX3TKPX 1w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3geu4age4h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Jun 2022 10:30:23 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 252APtCS009521;
-        Thu, 2 Jun 2022 10:30:22 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3geu4age3x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Jun 2022 10:30:22 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 252AL1lq024733;
-        Thu, 2 Jun 2022 10:30:20 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3gbc7h6w3d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Jun 2022 10:30:20 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 252AUIOs24314162
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 2 Jun 2022 10:30:18 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 914ECA4055;
-        Thu,  2 Jun 2022 10:30:17 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5658DA404D;
-        Thu,  2 Jun 2022 10:30:17 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  2 Jun 2022 10:30:17 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Bjorn Helgaas <bhelgaas@google.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH RESEND v5 4/4] s390/pci: allow zPCI zbus without a function zero
-Date:   Thu,  2 Jun 2022 12:30:16 +0200
-Message-Id: <20220602103016.1499031-5-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220602103016.1499031-1-schnelle@linux.ibm.com>
-References: <20220602103016.1499031-1-schnelle@linux.ibm.com>
+        with ESMTP id S231722AbiFBMuo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jun 2022 08:50:44 -0400
+Received: from FRA01-PR2-obe.outbound.protection.outlook.com (mail-eopbgr120078.outbound.protection.outlook.com [40.107.12.78])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F13D8CB3D;
+        Thu,  2 Jun 2022 05:50:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=oOjWh8tcEPN9c7iuZYQcRNLASQhpWSyAz33vgxWR5VILMbCua6votkBY1X+3dlEsHVrHiJsa0nd4lEXYSZjbn0OyGwauwHITsxKEqmFA5poRcUUBgDDFYbuotJzi1F+SCyuAvBWWlwGVODYK42kZn/8QeBjpAJwIxM0tD7EW4GP6URwY+rhg1VndD6E2peCCVcXimayLPL1Ygoh7z4jYhVcOIYiz7iHIDxD1dhpd9C3y2CtBaILO3PlL+DJoHe32JVhUP1gNdlvtmoe5cUDC95bAGO8VygZlosqD+/wFSASwkWJIyxf+0QD7/pxm2UzArvqbt3mg3ZPoYabqhIS7jg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2ZG107phFFLeubObwgtm2R0ts9AgDuQURdPKUo4TVfE=;
+ b=KW0N50dviR1tZ6RW6kuBCijnuSnAH+w9TFbVyQ0zokhPhs0YkgF//izNYw6THjg45s8gGee+uxsyZvB3j9Gr/Mo2jmqXh4rGpo9t7uw14ZJzVTBjnfJhipEb/KmL7n2GE5d0WIqyqH31bA2gQHeTdOsip7wWhkg3RiJoAeEf/lql545Kv7pRucaHoC9d4gM2uRCUwcs8DvLqOXEZ56t+oomd5XBRuwVgBU/Zojb54Gs4OZoqtkBH47RncQ36HvX+tBo+7KNEA+9hyR4w2zo3AAJLuvjYHbBuWptq6IcqzzJFJnVrGmFkddqpoi0bSysSzwedB+7YM0IfbuquXTvJEg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=csgroup.eu; dmarc=pass action=none header.from=csgroup.eu;
+ dkim=pass header.d=csgroup.eu; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2ZG107phFFLeubObwgtm2R0ts9AgDuQURdPKUo4TVfE=;
+ b=MbU0Fb68Lbtr5tsP2bE5jN9GtjJf82pt64Hkl73ZWGLHNIZ2aaLX4GViP2ptSeXDOqjcCf+89dBbkDkt447axlkOU/mTWR0E45P4YBXZSVGE0MMo8ndsYA5S4ABZwANpCFq8gKwgIZ5qKFcwQwCdxpZoD3UinfpnISNQZOL+ikTfy3VZ/R1bPykh+XIT2ndQ7VIRG4LnCQBspNIWlYhH8y9dX1Sj0pDAhhyAqV/RjPV+pTbEr90SKhjZVi6u3az7DUO4mZZcM3lT1JfoCS6zaNK9bu7rrDj6llajepbO6HUeyfSS2wzFfwH8lzcoePYwRwm2v98eF5X4XlZA2Wp5Pw==
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
+ by PR1P264MB3925.FRAP264.PROD.OUTLOOK.COM (2603:10a6:102:250::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13; Thu, 2 Jun
+ 2022 12:50:40 +0000
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::b15e:862f:adf7:5356]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::b15e:862f:adf7:5356%6]) with mapi id 15.20.5314.013; Thu, 2 Jun 2022
+ 12:50:39 +0000
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Petr Mladek <pmladek@suse.com>
+CC:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "live-patching@vger.kernel.org" <live-patching@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>
+Subject: Re: [PATCH] livepatch: Remove klp_arch_set_pc() and asm/livepatch.h
+Thread-Topic: [PATCH] livepatch: Remove klp_arch_set_pc() and asm/livepatch.h
+Thread-Index: AQHYQmzcVzwq4WZnpECFcLJ2vYLmSKzWOdSAgFYkdQCAAIzGgIAPjtCA
+Date:   Thu, 2 Jun 2022 12:50:39 +0000
+Message-ID: <0a76550d-008d-0364-8244-4dae2981ea05@csgroup.eu>
+References: <e029c7cfde436f6bbf99148ab14dc2da99add503.1648447981.git.christophe.leroy@csgroup.eu>
+ <YkLsEUgxJkYbLZ7Z@alley> <e1840187-6032-9f75-d7a8-b2b2fc5cbb58@csgroup.eu>
+ <YoulGX1p82IoEzST@alley>
+In-Reply-To: <YoulGX1p82IoEzST@alley>
+Accept-Language: fr-FR, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=csgroup.eu;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 9785ae97-878a-4036-2489-08da44967f69
+x-ms-traffictypediagnostic: PR1P264MB3925:EE_
+x-microsoft-antispam-prvs: <PR1P264MB392548C551129C1F0764D0BFEDDE9@PR1P264MB3925.FRAP264.PROD.OUTLOOK.COM>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: VMuhAhoWlIiqLJ9ZmgRXP4cqNG9BuNjEVY83OsE4GBi8RKMxdUwuaV4YAXxeexbjI0HE/lHGanRPmGWC5Aq0symmi9/LXG0p04Jz9ZHGlKEpnIrQeWnbBGQLxf1jTXSrYhoW0vUckzoFva0oIRNKgyLltbpu3UU9e7fwHQpBAx1nwSbp9B4zEtNSyDAGU2v2WenxhCSVuAMxqodr+Yn60nwGluAq/MRMMw8E4+bmFe25XtMFpWdbHapegRXWh9NsR0FjgM09he85QoIdp4AEhvnahvLL9iajhU8uv0yzCzP3clxjioUAOgjEIYWwaK4HqTiZ2Ji3ywrhUUCeS5kQSnTAWk56qO/WAd4zB4rjoCHUnGXx6wHs6vV4YnOs79rC6dt40o2HFcsL/2PWe0OAfMS3HAKhymxG5g81oULru/cib2jgcW0PbUKGJkYPRJmdYdDuJ7FAmIJgqhU0tRAYjxE5H4nD7qneA+89UqWQEymM5bLQgYQ/oS4G6/OnotJJeUePwArnmHe5t8qymUW8sZ3TAQVBwFf3m5TAuXoLpofvF9SblUjG35VGBYDE8vl6DZH82hbsoBsUOaXMzXVm6sUeczw5xMyN8LaRPAmJkTqhKUrBtk8975DxbpnrEMOWb2WCnQxB9mor/4Rj3meaeeQE1KsCxcg4lkG1RXBiDMKidfKd+TA62dj+nzIXG18+lqQXvJNb2sAB+G5wNj/nd/6xtnTo8ab/ulsW28YlljCVVQNOh2v57RJqWKjCVy/e5tZKN5jhHzanEdbTTm+hFA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(66556008)(44832011)(64756008)(6486002)(8676002)(4326008)(122000001)(7416002)(66946007)(38070700005)(38100700002)(8936002)(5660300002)(71200400001)(2906002)(66476007)(6506007)(508600001)(54906003)(6512007)(76116006)(26005)(6916009)(83380400001)(91956017)(2616005)(316002)(66574015)(186003)(36756003)(31686004)(31696002)(86362001)(66446008)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?YUttdGVSZHpIL0N0L0V6Vlh5a0tyYlhWUW13aVovZnA3dzBSRzRSMnZSelNw?=
+ =?utf-8?B?NmFXcXI5N2Jwd3lkM3kwanZoZnBMQkdSNHY5b2NWeDNOVWMyY0pJNmhDdTlv?=
+ =?utf-8?B?T1QrQzJWTWlXbFlTcDRNZk0xR2ZpMjJ2S3R4Mld4bWtSdkJKS0paVmtkT294?=
+ =?utf-8?B?alRtbS9CelhYdmpzTEMvL090M3RoVUVVS2lCdjZZT1ZENXpheTB6em5NT3dI?=
+ =?utf-8?B?ZThjd2ZUR1lIeGQyYjB2YW5zcWxuSVhzQUJhV0Z0bVlacHlxb2lsTTdjZmhw?=
+ =?utf-8?B?QTJsd21mY2FlOHNDMU9FQW1VMFFTRlJwOWl4YjR3dDJLQ3k1NWNZN2NqZnBK?=
+ =?utf-8?B?bjZzdXhYdENsODZkOElkTlNxYjhacU0yZmJQL0ZVVTVYVHhRWDMyYWxtNkFT?=
+ =?utf-8?B?ZUVvVGYzYTQ4WkdYdUF2RlRUbmFsRlI0cWdKcWJhempyUUpTay9DRDVqQVpK?=
+ =?utf-8?B?UTJFd2hhSVlHZk5xZTNzNTM1dUd6MlV6YXY3c3A2UWtpLzY2S3Ezc1lNQ3hD?=
+ =?utf-8?B?WExhSlpMM0pqK0pZWHJIbndaalFQV0wxQU5GWENjMmRYL1Z1SzJqWFVLc0Nj?=
+ =?utf-8?B?d0RrSW1DN0hwYndkNmgwMnRpaDNXNE4zcVVGTml6a3MzRUVmM0MySWtGU1VL?=
+ =?utf-8?B?cllLSVhXMjlkNEhNUy9MRzkzRVY5R3NuUmJEelBSK0dSRmxsM3Bhc1FtcWha?=
+ =?utf-8?B?VFJEVEJtSldoZ3RTK3EvN0k1b2VqK1JPN2NBckM3RGN1bHZwZ1BKVmd2c2s1?=
+ =?utf-8?B?eFcyWjZ3MDVvekwveEllVENGemdJUldDeDZmUDZweE15dHNWMjUvM1ZVOFFF?=
+ =?utf-8?B?VVFvVnJpVllFQWtxNmo0MVl3NFlvOXVXcXRPaGJsYzdRMSsyQ2pCRndRWFN3?=
+ =?utf-8?B?dzdmSkMzNk52WkJzeFFUVkFBSXVYM3F3SnYwVU1CYVBCcDJIbWEydjFBMGw4?=
+ =?utf-8?B?RDFSdWxlTmZPdkNnYkNtZzlYZGk3bmxWc3hPZUY0RjkvbHJxZkNDQitzSHFT?=
+ =?utf-8?B?bzhMWmlRcXpRdFdOQ0lmMDVnTTJXdm5iOTlqMlppM3JpVUowMlRqRUtOa0ZT?=
+ =?utf-8?B?Z2ZqTTdlZWI1QS9SeXhQRzl6WENCdDIrTzJZM2JSQ1d2UzhrSlB2TGcyS0R2?=
+ =?utf-8?B?Q2pwelo4Z1A5VnJDK1J6NUhIRCtnb1FvdEhSV0s0RTUwQ0RzdGlkNFVnRnQv?=
+ =?utf-8?B?VytraUtiZWhlOXNqR2E1MVJZNktMcjl6NU5qemdQY2V0TkQ5T3ZDeXF4MGVh?=
+ =?utf-8?B?THN6UGRURFNrbWdNS1U3UjdabW5sTVhKUVNPRzQ2bVlJb0ZtblNPbW8xeTdh?=
+ =?utf-8?B?YUgrWlNXQW5SN0pYbEtxVXpWWWo3cmVOTVFlU0hJUkxZanRoaXJZVmJBQk93?=
+ =?utf-8?B?Ky9tVnhnMW55djFvYkRvVnJUdGVQWWM5cWlWRzBnTi9QdHdvMkNzNHJkUWMy?=
+ =?utf-8?B?ajMzeWJZdFphS1YvRmI3aXJYN1J3cWFndnVjTTg3TVI0Zko1dFBaYjNScThE?=
+ =?utf-8?B?N2RSTXRvVklWcEZoU1ZNaUxTTFFqeU9LK25VWkFtbUVNUFBJdG15bzhJbDlp?=
+ =?utf-8?B?MjI4MURJVkxnZXRJUUR4a3YwWm9MTTllWktNNUhMZ0N0Q0dMa0NQVHZEM3dX?=
+ =?utf-8?B?Rm1FaEFQNGE4RGNWTlRrS044eXl4QVo4SFpsYllFS3cwekNObHJaN2d0OFh3?=
+ =?utf-8?B?MldoeW0wVHJCVGUvaGNjUWhSSHZEbitMcTQwSkRCcXhYTzlhNnRCdlJ2RkVO?=
+ =?utf-8?B?M2c1OUZETnk3VnNkYXYyeitFT3psMHI5UE9NTlloS2xzL2p2U2FHU1ZjVkhK?=
+ =?utf-8?B?cjBVcXpia3hmeHA5L0pFNWZ0eE03MjdvTFJMT2I2WkowU1c3VVdoWkswSldq?=
+ =?utf-8?B?QUQzVFE5WXhTR05JbEU4NHJQKzRjMkpBSFpOTi8xbWJnek1VTXhSUWtFV0t6?=
+ =?utf-8?B?WXlnTjhZYnBUOGdZNmxpS1BibHVUVFRrRjBRTTZHazlVbnZNY0w2WGtzVjVB?=
+ =?utf-8?B?VzBNOGp4NXdta1RCek9TU1B4WDBBYkErNzFvbW9FbU8rNVdsL0EzT1JPU0pT?=
+ =?utf-8?B?ZytGajljODNSQi9nU1RDQ1ZPSXJ4c1ZibDh6UnhSRlJ6OTFYZTFJV2ZPTW1x?=
+ =?utf-8?B?RmpuWmNrRiszNWxtQzVnZ1pPamdZcG12RndvVktTanY5T3QrRmIrK1JqU2p5?=
+ =?utf-8?B?MnFRMVQxZG1DVVBJZE12OTN0ckpnT2dPaTUreE5Ia2tiTVk5eWJIc2pWT3B0?=
+ =?utf-8?B?WHhaMktVNVlxY09LVlprMmozSjV3Q3RIZ2MwNHgwNmMxY2JPczJPUE90SE9B?=
+ =?utf-8?B?QnU3OXhYdUJDRXRvSmNhMDBXR0NnU0tLVW9aZjZmait1WktDdWJLVkpCSjcz?=
+ =?utf-8?Q?2HWmMk1EcwOLzzq4a6x1vgSYHJ8eZ/fBWV9Ox?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <B108D3FD38046145AFAD7916A1D6331D@FRAP264.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: wiDIw29KI5PkWw4vLdyrsc9XqM5Sl1Ia
-X-Proofpoint-ORIG-GUID: 5XmRFYMu6qdf2n5WPMgQdspeHsM-b81Y
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-02_01,2022-06-01_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- adultscore=0 mlxlogscore=952 suspectscore=0 lowpriorityscore=0
- clxscore=1015 phishscore=0 malwarescore=0 impostorscore=0 bulkscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206020042
+X-OriginatorOrg: csgroup.eu
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9785ae97-878a-4036-2489-08da44967f69
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Jun 2022 12:50:39.9570
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 6/M+y0QZula+Lhluxn2LAoU0kq2GFm6kazBkuVuKzt2V8EUlxis0absFI7B0MKQvo+sAGJ75lZ2jsYefJS7NZBtY1s353mZikKL2ZTm+QFY=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR1P264MB3925
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Currently the zPCI code block PCI bus creation and probing of a zPCI
-zbus unless there is a PCI function with devfn 0. This is always the
-case for the PCI functions with hidden RID but may keep PCI functions
-from a multi-function PCI device with RID information invisible until
-the function 0 becomes visible. Worse as a PCI bus is necessary to even
-present a PCI hotplug slot even that remains invisible.
-
-With the probing of these so called isolated PCI functions enabled for
-s390 in common code this restriction is no longer necessary. On network
-cards with multiple ports and a PF per port this also allows using each
-port on its own while still providing the physical PCI topology
-information in the devfn needed to associate VFs with their parent PF.
-
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- arch/s390/pci/pci_bus.c | 82 ++++++++++-------------------------------
- 1 file changed, 20 insertions(+), 62 deletions(-)
-
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index 5d77acbd1c87..6a8da1b742ae 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -145,9 +145,6 @@ int zpci_bus_scan_bus(struct zpci_bus *zbus)
- 	struct zpci_dev *zdev;
- 	int devfn, rc, ret = 0;
- 
--	if (!zbus->function[0])
--		return 0;
--
- 	for (devfn = 0; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
- 		zdev = zbus->function[devfn];
- 		if (zdev && zdev->state == ZPCI_FN_STATE_CONFIGURED) {
-@@ -184,26 +181,26 @@ void zpci_bus_scan_busses(void)
- 
- /* zpci_bus_create_pci_bus - Create the PCI bus associated with this zbus
-  * @zbus: the zbus holding the zdevices
-- * @f0: function 0 of the bus
-+ * @fr: PCI root function that will determine the bus's domain, and bus speeed
-  * @ops: the pci operations
-  *
-- * Function zero is taken as a parameter as this is used to determine the
-- * domain, multifunction property and maximum bus speed of the entire bus.
-+ * The PCI function @fr determines the domain (its UID), multifunction property
-+ * and maximum bus speed of the entire bus.
-  *
-  * Return: 0 on success, an error code otherwise
-  */
--static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *f0, struct pci_ops *ops)
-+static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, struct pci_ops *ops)
- {
- 	struct pci_bus *bus;
- 	int domain;
- 
--	domain = zpci_alloc_domain((u16)f0->uid);
-+	domain = zpci_alloc_domain((u16)fr->uid);
- 	if (domain < 0)
- 		return domain;
- 
- 	zbus->domain_nr = domain;
--	zbus->multifunction = f0->rid_available;
--	zbus->max_bus_speed = f0->max_bus_speed;
-+	zbus->multifunction = fr->rid_available;
-+	zbus->max_bus_speed = fr->max_bus_speed;
- 
- 	/*
- 	 * Note that the zbus->resources are taken over and zbus->resources
-@@ -303,47 +300,6 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
- 	}
- }
- 
--/* zpci_bus_create_hotplug_slots - Add hotplug slot(s) for device added to bus
-- * @zdev: the zPCI device that was newly added
-- *
-- * Add the hotplug slot(s) for the newly added PCI function. Normally this is
-- * simply the slot for the function itself. If however we are adding the
-- * function 0 on a zbus, it might be that we already registered functions on
-- * that zbus but could not create their hotplug slots yet so add those now too.
-- *
-- * Return: 0 on success, an error code otherwise
-- */
--static int zpci_bus_create_hotplug_slots(struct zpci_dev *zdev)
--{
--	struct zpci_bus *zbus = zdev->zbus;
--	int devfn, rc = 0;
--
--	rc = zpci_init_slot(zdev);
--	if (rc)
--		return rc;
--	zdev->has_hp_slot = 1;
--
--	if (zdev->devfn == 0 && zbus->multifunction) {
--		/* Now that function 0 is there we can finally create the
--		 * hotplug slots for those functions with devfn != 0 that have
--		 * been parked in zbus->function[] waiting for us to be able to
--		 * create the PCI bus.
--		 */
--		for  (devfn = 1; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
--			zdev = zbus->function[devfn];
--			if (zdev && !zdev->has_hp_slot) {
--				rc = zpci_init_slot(zdev);
--				if (rc)
--					return rc;
--				zdev->has_hp_slot = 1;
--			}
--		}
--
--	}
--
--	return rc;
--}
--
- static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
- {
- 	int rc = -EINVAL;
-@@ -352,21 +308,19 @@ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
- 		pr_err("devfn %04x is already assigned\n", zdev->devfn);
- 		return rc;
- 	}
-+
- 	zdev->zbus = zbus;
- 	zbus->function[zdev->devfn] = zdev;
- 	zpci_nb_devices++;
- 
--	if (zbus->bus) {
--		if (zbus->multifunction && !zdev->rid_available) {
--			WARN_ONCE(1, "rid_available not set for multifunction\n");
--			goto error;
--		}
--
--		zpci_bus_create_hotplug_slots(zdev);
--	} else {
--		/* Hotplug slot will be created once function 0 appears */
--		zbus->multifunction = 1;
-+	if (zbus->multifunction && !zdev->rid_available) {
-+		WARN_ONCE(1, "rid_available not set for multifunction\n");
-+		goto error;
- 	}
-+	rc = zpci_init_slot(zdev);
-+	if (rc)
-+		goto error;
-+	zdev->has_hp_slot = 1;
- 
- 	return 0;
- 
-@@ -400,7 +354,11 @@ int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
- 			return -ENOMEM;
- 	}
- 
--	if (zdev->devfn == 0) {
-+	if (!zbus->bus) {
-+		/* The UID of the first PCI function registered with a zpci_bus
-+		 * is used as the domain number for that bus. Currently there
-+		 * is exactly one zpci_bus per domain.
-+		 */
- 		rc = zpci_bus_create_pci_bus(zbus, zdev, ops);
- 		if (rc)
- 			goto error;
--- 
-2.32.0
-
+SGkgUGV0ciwNCg0KTGUgMjMvMDUvMjAyMiDDoCAxNzoxNSwgUGV0ciBNbGFkZWsgYSDDqWNyaXTC
+oDoNCj4gT24gTW9uIDIwMjItMDUtMjMgMDY6NTE6NDcsIENocmlzdG9waGUgTGVyb3kgd3JvdGU6
+DQo+Pg0KPj4NCj4+IExlIDI5LzAzLzIwMjIgw6AgMTM6MjIsIFBldHIgTWxhZGVrIGEgw6ljcml0
+wqA6DQo+Pj4gT24gTW9uIDIwMjItMDMtMjggMDg6MjY6NDgsIENocmlzdG9waGUgTGVyb3kgd3Jv
+dGU6DQo+Pj4+IEFsbCB0aHJlZSB2ZXJzaW9ucyBvZiBrbHBfYXJjaF9zZXRfcGMoKSBkbyBleGFj
+dGx5IHRoZSBzYW1lOiB0aGV5DQo+Pj4+IGNhbGwgZnRyYWNlX2luc3RydWN0aW9uX3BvaW50ZXJf
+c2V0KCkuDQo+Pj4+DQo+Pj4+IENhbGwgZnRyYWNlX2luc3RydWN0aW9uX3BvaW50ZXJfc2V0KCkg
+ZGlyZWN0bHkgYW5kIHJlbW92ZQ0KPj4+PiBrbHBfYXJjaF9zZXRfcGMoKS4NCj4+Pj4NCj4+Pj4g
+QXMga2xwX2FyY2hfc2V0X3BjKCkgd2FzIHRoZSBvbmx5IHRoaW5nIHJlbWFpbmluZyBpbiBhc20v
+bGl2ZXBhdGNoLmgNCj4+Pj4gb24geDg2IGFuZCBzMzkwLCByZW1vdmUgYXNtL2xpdmVwYXRjaC5o
+DQo+Pj4+DQo+Pj4+IGxpdmVwYXRjaC5oIHJlbWFpbnMgb24gcG93ZXJwYyBidXQgaXRzIGNvbnRl
+bnQgaXMgZXhjbHVzaXZlbHkgdXNlZA0KPj4+PiBieSBwb3dlcnBjIHNwZWNpZmljIGNvZGUuDQo+
+Pj4+DQo+Pj4+IFNpZ25lZC1vZmYtYnk6IENocmlzdG9waGUgTGVyb3kgPGNocmlzdG9waGUubGVy
+b3lAY3Nncm91cC5ldT4NCj4+Pg0KPj4+IEFja2VkLWJ5OiBQZXRyIE1sYWRlayA8cG1sYWRla0Bz
+dXNlLmNvbT4NCj4+Pg0KPj4+IEkgYW0gZ29pbmcgdG8gdGFrZSBpdCB2aWEgbGl2ZXBhdGNoL2xp
+dmVwYXRjaC5naXQgZm9yIDUuMTkuIFdlIGFyZQ0KPj4+IGFscmVhZHkgaW4gdGhlIG1pZGRsZSBv
+ZiB0aGUgbWVyZ2Ugd2luZG93IGFuZCB0aGlzIGlzIG5vdCBjcml0aWNhbC4NCj4+Pg0KPj4NCj4+
+IEkgaGF2ZW4ndCBzZWVuIGl0IGluIGxpbnV4LW5leHQuDQo+Pg0KPj4gRG8geW91IHN0aWxsIHBs
+YW4gdG8gdGFrZSBpdCBmb3IgNS4xOSA/DQo+IA0KPiBUaGFua3MgYSBsb3QgZm9yIHBvaW50aW5n
+IHRoaXMgb3V0LiBJIGhhdmUgY29tcGxldGVseSBmb3Jnb3QgYWJvdXQNCj4gdGhpcyBwYXRjaCAv
+b1wNCj4gDQo+IEkgaGF2ZSBqdXN0IHB1c2hlZCBpdCBpbnRvIGxpdmVwYXRjaGluZy9saXZlcGF0
+Y2hpbmcuZ2l0LA0KPiBicmFuY2ggZm9yLTUuMTkvY2xlYW51cC4NCj4gDQo+IEkgYW0gZ29pbmcg
+dG8gY3JlYXRlIHB1bGwgcmVxdWVzdCBmb3IgNS4xOSBieSB0aGUgZW5kIG9mIHRoaXMgd2Vlaw0K
+PiBhZnRlciBpdCBnZXRzIGEgc3BpbiBpbiBsaW51eC1uZXh0Lg0KPiANCg0KSSBjYW4ndCBzZWUg
+aXQgeWV0IGluIGxpbnVzIG1haW5saW5lIHRyZWUuIEFueSBpc3N1ZSA/DQoNClRoYW5rcw0KQ2hy
+aXN0b3BoZQ==
