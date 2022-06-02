@@ -2,275 +2,253 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4692C43334
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Jun 2022 19:51:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88064C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Jun 2022 20:11:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238885AbiFBTvV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Jun 2022 15:51:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49582 "EHLO
+        id S237704AbiFBULh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Jun 2022 16:11:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238037AbiFBTvU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jun 2022 15:51:20 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFAEF22F;
-        Thu,  2 Jun 2022 12:51:18 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 252Ja32L000608;
-        Thu, 2 Jun 2022 19:51:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=pkNR0AvAdOPHbWhxsTIhuSoE4M6ya54DTHKhfD82Wrg=;
- b=SPbMqdk9wHd20uqQ9ZZ531RfkrqJUQwkS47UImvGuBRP3KhJnM8nXZ8VaVHahRcRZKmn
- i3QFxj+RJKkvcQDgkNupC9l0FCM6nbk2uN7NbVH/t1ExfqbSE/k0YshmbGgDpYiHORbi
- qYnLGoqO+hNiz9udlm2qv9jBJoJpy+b/JK3RZx/zDvsaQ4YVWXLkdKdAtb086WTlMEZm
- 35pGe8L6CuqntJuG/oHwcZ9SGVFlAgnu2SWYBHp4uMkvWL3yRiG/1GiXWb2nN2o0ZzJm
- FHSlzMBqenZIBVqf6oMWFopyBlKA6NWVhzouAEIbQsIHAslAxpm2nX5YdyQ+baVmsCNM WA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gew9cqvnp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Jun 2022 19:51:16 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 252JaJvA002088;
-        Thu, 2 Jun 2022 19:51:16 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gew9cqvnb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Jun 2022 19:51:16 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 252JZgBY006922;
-        Thu, 2 Jun 2022 19:51:15 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma05wdc.us.ibm.com with ESMTP id 3gds40ee4d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Jun 2022 19:51:14 +0000
-Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 252JpDVF30671306
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 2 Jun 2022 19:51:13 GMT
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7CDF36A057;
-        Thu,  2 Jun 2022 19:51:13 +0000 (GMT)
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 94B086A051;
-        Thu,  2 Jun 2022 19:51:12 +0000 (GMT)
-Received: from [9.211.104.178] (unknown [9.211.104.178])
-        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu,  2 Jun 2022 19:51:12 +0000 (GMT)
-Message-ID: <715c1356-b700-f529-f7a8-bb917c8d95d5@linux.ibm.com>
-Date:   Thu, 2 Jun 2022 15:51:11 -0400
+        with ESMTP id S237532AbiFBULg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jun 2022 16:11:36 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CFF62BC06
+        for <linux-s390@vger.kernel.org>; Thu,  2 Jun 2022 13:11:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1654200692;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=BYY7dcXsY44fX5UAyrBEQpdxF2tKWWA11PscTbyg+9s=;
+        b=UKdb2aF0dVlujJ9iknSFOGo5TJkxT0G3VdVM7yNmb41UVzwunpyJbUFFQtG6pT2GW/SKbM
+        IAPqA4AjY9UwAHjMwb9NhWoFrONXQK4pvfobLJwHal8IJIv6bNsqabznryLm5r1d/D9lCZ
+        XUlbFQoYzftuWPy2XIsZOoImqdMJzfo=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-445-sX_cUacNOIi6hXMjVKXr3g-1; Thu, 02 Jun 2022 16:11:31 -0400
+X-MC-Unique: sX_cUacNOIi6hXMjVKXr3g-1
+Received: by mail-wm1-f69.google.com with SMTP id l34-20020a05600c1d2200b003973a50c1e4so3336721wms.2
+        for <linux-s390@vger.kernel.org>; Thu, 02 Jun 2022 13:11:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:content-transfer-encoding;
+        bh=BYY7dcXsY44fX5UAyrBEQpdxF2tKWWA11PscTbyg+9s=;
+        b=dh78F7tnHVml/TSiakxgWX6FAun5CqnRnurHU2LV/7o2wYO6It1gt6+E12e0f4cegh
+         eTTHYyALRjCWBJekN4Y2nJoAKkh6G6eiELmQDoCeEPyyKpc50/INqHYxvrtaZxk9N7hf
+         pAzEPmsUpbOXwuXFR3fucd+Zu5CNadIuxw8Vl3Deftx2cEv5PQtoI+lOd2bVlgsRorMg
+         TWY6kz6D8lOoMNaTnyhPKVqYpz+HWEHbMp9EJEX+qioZwC/UnNSjhMmntEzy+tlayx48
+         H06D50kDRIGb1PUKgoJe9Xo5qznhLwOe66iiQKFyMXzfDUmqpDseDb6RsyBlGVUo/xDX
+         b1zg==
+X-Gm-Message-State: AOAM531vix+djaiwaGU5+HDCV0CzMKnVxHwtn9PumUQz9ZP/a8S484cQ
+        YKQc1tHFlKeVq99qfopPqgThhnDtUdnmx97UVnhpczGwMddUz6ubfUel3/PBR5MPQWz4o3oxARi
+        kB95zQEVnEtG+nsYI6gy2CA==
+X-Received: by 2002:adf:e10d:0:b0:20c:dc8f:e5a5 with SMTP id t13-20020adfe10d000000b0020cdc8fe5a5mr5037999wrz.265.1654200690440;
+        Thu, 02 Jun 2022 13:11:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzneIx0zMilxr+W1BaJYsoq6s6IQhmzotnKWEdtoLNMkaqVhZmbNrt2KDMUSeYLfo6yVFEAAg==
+X-Received: by 2002:adf:e10d:0:b0:20c:dc8f:e5a5 with SMTP id t13-20020adfe10d000000b0020cdc8fe5a5mr5037980wrz.265.1654200690187;
+        Thu, 02 Jun 2022 13:11:30 -0700 (PDT)
+Received: from redhat.com ([2.55.40.171])
+        by smtp.gmail.com with ESMTPSA id n4-20020a1c7204000000b003949dbc3790sm7063981wmc.18.2022.06.02.13.11.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Jun 2022 13:11:29 -0700 (PDT)
+Date:   Thu, 2 Jun 2022 16:11:24 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        arbn@yandex-team.com, arei.gonglei@huawei.com,
+        christophe.jaillet@wanadoo.fr, cohuck@redhat.com,
+        dan.carpenter@oracle.com, dinechin@redhat.com, elic@nvidia.com,
+        eperezma@redhat.com, gautam.dawar@xilinx.com, gdawar@xilinx.com,
+        helei.sig11@bytedance.com, jasowang@redhat.com,
+        lingshan.zhu@intel.com, linux-s390@vger.kernel.org,
+        liuke94@huawei.com, lkp@intel.com, lulu@redhat.com, maz@kernel.org,
+        michael.christie@oracle.com, mst@redhat.com, muriloo@linux.ibm.com,
+        oberpar@linux.ibm.com, pasic@linux.ibm.com, paulmck@kernel.org,
+        peterz@infradead.org, pizhenwei@bytedance.com, sgarzare@redhat.com,
+        solomonbstoner@protonmail.ch, stable@vger.kernel.org,
+        suwan.kim027@gmail.com, tglx@linutronix.de, vneethv@linux.ibm.com,
+        xianting.tian@linux.alibaba.com, zheyuma97@gmail.com
+Subject: [GIT PULL] vhost,virtio,vdpa: features, fixes, cleanups
+Message-ID: <20220602161124-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH v1 01/18] vfio/ccw: Remove UUID from s390 debug log
-Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Liu Yi L <yi.l.liu@intel.com>,
-        Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Michael Kawano <mkawano@linux.ibm.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>
-References: <20220602171948.2790690-1-farman@linux.ibm.com>
- <20220602171948.2790690-2-farman@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20220602171948.2790690-2-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kXBYNRdeCQfV1ca3CWFHPk_fYenqW0VO
-X-Proofpoint-ORIG-GUID: d12coq0nn8a8-4m7Mzde5ZpRxZ8fkB7F
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-02_05,2022-06-02_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 lowpriorityscore=0 phishscore=0 spamscore=0
- impostorscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0 suspectscore=0
- mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206020083
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Mutt-Fcc: =sent
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/2/22 1:19 PM, Eric Farman wrote:
-> From: Michael Kawano <mkawano@linux.ibm.com>
-> 
-> As vfio-ccw devices are created/destroyed, the uuid of the associated
-> mdevs that are recorded in $S390DBF/vfio_ccw_msg/sprintf get lost as
-> they are created using pointers passed by reference.
-> 
-> This is a deliberate design point of s390dbf, but it leaves the uuid
+The following changes since commit 8ab2afa23bd197df47819a87f0265c0ac95c5b6a:
 
-This wording is confusing, maybe some re-wording would help here.
+  Merge tag 'for-5.19/fbdev-1' of git://git.kernel.org/pub/scm/linux/kernel/git/deller/linux-fbdev (2022-05-30 12:46:49 -0700)
 
-Basically, s390dbf doesn't support values passed by reference today 
-(e.g. %pUl), it will just store that pointer (e.g. &mdev->uuid) and not 
-its contents -- so a subsequent viewing of the s390dbf log at any point 
-in the future will go peek at that referenced memory -- which might have 
-been freed (e.g. mdev was removed).  So this change will fix potential 
-garbage data viewed from the log or worse an oops when viewing the log 
--- the latter of which should probably be mentioned in the commit message.
+are available in the Git repository at:
 
-I'm not sure if it was a deliberate design decision of s390dbf or just a 
-feature that was never implemented, so I'd omit that altogether -- but 
-it IS pointed out in the s390dbf documentation as a limitation anyway.
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-The code itself is fine:
+for you to fetch changes up to bd8bb9aed56b1814784a975e2dfea12a9adcee92:
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+  vdpa: ifcvf: set pci driver data in probe (2022-06-01 02:16:38 -0400)
 
-> in these traces less than useful. Since the subchannels are more
-> constant, and are mapped 1:1 with the mdevs, the associated mdev can
-> be discerned by looking at the device configuration (e.g., mdevctl)
-> and places, such as kernel messages, where it is statically stored.
-> 
-> Thus, let's just remove the uuid from s390dbf traces. As we were
-> the only consumer of mdev_uuid(), remove that too.
-> 
-> Cc: Kirti Wankhede <kwankhede@nvidia.com>
-> Signed-off-by: Michael Kawano <mkawano@linux.ibm.com>
-> Fixes: 60e05d1cf0875 ("vfio-ccw: add some logging")
-> Fixes: b7701dfbf9832 ("vfio-ccw: Register a chp_event callback for vfio-ccw")
-> [farman: reworded commit message, added Fixes: tags]
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->   drivers/s390/cio/vfio_ccw_drv.c |  5 ++---
->   drivers/s390/cio/vfio_ccw_fsm.c | 24 ++++++++++++------------
->   drivers/s390/cio/vfio_ccw_ops.c |  8 ++++----
->   include/linux/mdev.h            |  4 ----
->   4 files changed, 18 insertions(+), 23 deletions(-)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-> index ee182cfb467d..35055eb94115 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -14,7 +14,6 @@
->   #include <linux/init.h>
->   #include <linux/device.h>
->   #include <linux/slab.h>
-> -#include <linux/uuid.h>
->   #include <linux/mdev.h>
->   
->   #include <asm/isc.h>
-> @@ -358,8 +357,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
->   		return 0;
->   
->   	trace_vfio_ccw_chp_event(private->sch->schid, mask, event);
-> -	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
-> -			   mdev_uuid(private->mdev), sch->schid.cssid,
-> +	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: mask=0x%x event=%d\n",
-> +			   sch->schid.cssid,
->   			   sch->schid.ssid, sch->schid.sch_no,
->   			   mask, event);
->   
-> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-> index e435a9cd92da..86b23732d899 100644
-> --- a/drivers/s390/cio/vfio_ccw_fsm.c
-> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
-> @@ -256,8 +256,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->   		if (orb->tm.b) {
->   			io_region->ret_code = -EOPNOTSUPP;
->   			VFIO_CCW_MSG_EVENT(2,
-> -					   "%pUl (%x.%x.%04x): transport mode\n",
-> -					   mdev_uuid(mdev), schid.cssid,
-> +					   "sch %x.%x.%04x: transport mode\n",
-> +					   schid.cssid,
->   					   schid.ssid, schid.sch_no);
->   			errstr = "transport mode";
->   			goto err_out;
-> @@ -266,8 +266,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->   					      orb);
->   		if (io_region->ret_code) {
->   			VFIO_CCW_MSG_EVENT(2,
-> -					   "%pUl (%x.%x.%04x): cp_init=%d\n",
-> -					   mdev_uuid(mdev), schid.cssid,
-> +					   "sch %x.%x.%04x: cp_init=%d\n",
-> +					   schid.cssid,
->   					   schid.ssid, schid.sch_no,
->   					   io_region->ret_code);
->   			errstr = "cp init";
-> @@ -277,8 +277,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->   		io_region->ret_code = cp_prefetch(&private->cp);
->   		if (io_region->ret_code) {
->   			VFIO_CCW_MSG_EVENT(2,
-> -					   "%pUl (%x.%x.%04x): cp_prefetch=%d\n",
-> -					   mdev_uuid(mdev), schid.cssid,
-> +					   "sch %x.%x.%04x: cp_prefetch=%d\n",
-> +					   schid.cssid,
->   					   schid.ssid, schid.sch_no,
->   					   io_region->ret_code);
->   			errstr = "cp prefetch";
-> @@ -290,8 +290,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->   		io_region->ret_code = fsm_io_helper(private);
->   		if (io_region->ret_code) {
->   			VFIO_CCW_MSG_EVENT(2,
-> -					   "%pUl (%x.%x.%04x): fsm_io_helper=%d\n",
-> -					   mdev_uuid(mdev), schid.cssid,
-> +					   "sch %x.%x.%04x: fsm_io_helper=%d\n",
-> +					   schid.cssid,
->   					   schid.ssid, schid.sch_no,
->   					   io_region->ret_code);
->   			errstr = "cp fsm_io_helper";
-> @@ -301,16 +301,16 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->   		return;
->   	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
->   		VFIO_CCW_MSG_EVENT(2,
-> -				   "%pUl (%x.%x.%04x): halt on io_region\n",
-> -				   mdev_uuid(mdev), schid.cssid,
-> +				   "sch %x.%x.%04x: halt on io_region\n",
-> +				   schid.cssid,
->   				   schid.ssid, schid.sch_no);
->   		/* halt is handled via the async cmd region */
->   		io_region->ret_code = -EOPNOTSUPP;
->   		goto err_out;
->   	} else if (scsw->cmd.fctl & SCSW_FCTL_CLEAR_FUNC) {
->   		VFIO_CCW_MSG_EVENT(2,
-> -				   "%pUl (%x.%x.%04x): clear on io_region\n",
-> -				   mdev_uuid(mdev), schid.cssid,
-> +				   "sch %x.%x.%04x: clear on io_region\n",
-> +				   schid.cssid,
->   				   schid.ssid, schid.sch_no);
->   		/* clear is handled via the async cmd region */
->   		io_region->ret_code = -EOPNOTSUPP;
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index d8589afac272..bebae21228aa 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -131,8 +131,8 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
->   	private->mdev = mdev;
->   	private->state = VFIO_CCW_STATE_IDLE;
->   
-> -	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: create\n",
-> -			   mdev_uuid(mdev), private->sch->schid.cssid,
-> +	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: create\n",
-> +			   private->sch->schid.cssid,
->   			   private->sch->schid.ssid,
->   			   private->sch->schid.sch_no);
->   
-> @@ -154,8 +154,8 @@ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
->   {
->   	struct vfio_ccw_private *private = dev_get_drvdata(mdev->dev.parent);
->   
-> -	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: remove\n",
-> -			   mdev_uuid(mdev), private->sch->schid.cssid,
-> +	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: remove\n",
-> +			   private->sch->schid.cssid,
->   			   private->sch->schid.ssid,
->   			   private->sch->schid.sch_no);
->   
-> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-> index 15d03f6532d0..a5788f592817 100644
-> --- a/include/linux/mdev.h
-> +++ b/include/linux/mdev.h
-> @@ -139,10 +139,6 @@ static inline void mdev_set_drvdata(struct mdev_device *mdev, void *data)
->   {
->   	mdev->driver_data = data;
->   }
-> -static inline const guid_t *mdev_uuid(struct mdev_device *mdev)
-> -{
-> -	return &mdev->uuid;
-> -}
->   
->   extern struct bus_type mdev_bus_type;
->   
+----------------------------------------------------------------
+vhost,virtio,vdpa: features, fixes, cleanups
+
+mac vlan filter and stats support in mlx5 vdpa
+irq hardening in virtio
+performance improvements in virtio crypto
+polling i/o support in virtio blk
+ASID support in vhost
+fixes, cleanups all over the place
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Andrey Ryabinin (4):
+      vhost: get rid of vhost_poll_flush() wrapper
+      vhost_net: get rid of vhost_net_flush_vq() and extra flush calls
+      vhost_test: remove vhost_test_flush_vq()
+      vhost_vsock: simplify vhost_vsock_flush()
+
+Christophe JAILLET (1):
+      virtio: pci: Fix an error handling path in vp_modern_probe()
+
+Cindy Lu (1):
+      vdpa/vp_vdpa : add vdpa tool support in vp_vdpa
+
+Dan Carpenter (2):
+      vdpasim: Off by one in vdpasim_set_group_asid()
+      vhost-vdpa: return -EFAULT on copy_to_user() failure
+
+Eli Cohen (8):
+      vdpa: Fix error logic in vdpa_nl_cmd_dev_get_doit
+      vdpa: Add support for querying vendor statistics
+      net/vdpa: Use readers/writers semaphore instead of vdpa_dev_mutex
+      net/vdpa: Use readers/writers semaphore instead of cf_mutex
+      vdpa/mlx5: Add support for reading descriptor statistics
+      vdpa/mlx5: Use readers/writers semaphore instead of mutex
+      vdpa/mlx5: Remove flow counter from steering
+      vdpa/mlx5: Add RX MAC VLAN filter support
+
+Eugenio Pérez (1):
+      vdpasim: allow to enable a vq repeatedly
+
+Gautam Dawar (19):
+      vhost: move the backend feature bits to vhost_types.h
+      virtio-vdpa: don't set callback if virtio doesn't need it
+      vhost-vdpa: passing iotlb to IOMMU mapping helpers
+      vhost-vdpa: switch to use vhost-vdpa specific IOTLB
+      vdpa: introduce virtqueue groups
+      vdpa: multiple address spaces support
+      vdpa: introduce config operations for associating ASID to a virtqueue group
+      vhost_iotlb: split out IOTLB initialization
+      vhost: support ASID in IOTLB API
+      vhost-vdpa: introduce asid based IOTLB
+      vhost-vdpa: introduce uAPI to get the number of virtqueue groups
+      vhost-vdpa: introduce uAPI to get the number of address spaces
+      vhost-vdpa: uAPI to get virtqueue group id
+      vhost-vdpa: introduce uAPI to set group ASID
+      vhost-vdpa: support ASID based IOTLB API
+      vdpa_sim: advertise VIRTIO_NET_F_MTU
+      vdpa_sim: factor out buffer completion logic
+      vdpa_sim: filter destination mac address
+      vdpasim: control virtqueue support
+
+Jason Wang (9):
+      virtio: use virtio_reset_device() when possible
+      virtio: introduce config op to synchronize vring callbacks
+      virtio-pci: implement synchronize_cbs()
+      virtio-mmio: implement synchronize_cbs()
+      virtio-ccw: implement synchronize_cbs()
+      virtio: allow to unbreak virtqueue
+      virtio: harden vring IRQ
+      virtio: use WARN_ON() to warning illegal status value
+      vdpa: ifcvf: set pci driver data in probe
+
+Mike Christie (4):
+      vhost: flush dev once during vhost_dev_stop
+      vhost-scsi: drop flush after vhost_dev_cleanup
+      vhost-test: drop flush after vhost_dev_cleanup
+      vhost: rename vhost_work_dev_flush
+
+Murilo Opsfelder Araujo (1):
+      virtio-pci: Remove wrong address verification in vp_del_vqs()
+
+Solomon Tan (2):
+      virtio: Replace unsigned with unsigned int
+      virtio: Replace long long int with long long
+
+Stefano Garzarella (1):
+      virtio: use virtio_device_ready() in virtio_device_restore()
+
+Suwan Kim (2):
+      virtio-blk: support polling I/O
+      virtio-blk: support mq_ops->queue_rqs()
+
+Xianting Tian (2):
+      virtio_ring: remove unnecessary to_vvq call in vring hot path
+      virtio_ring: add unlikely annotation for free descs check
+
+Zhu Lingshan (1):
+      vDPA/ifcvf: fix uninitialized config_vector warning
+
+keliu (1):
+      virtio: Directly use ida_alloc()/free()
+
+lei he (2):
+      virtio-crypto: adjust dst_len at ops callback
+      virtio-crypto: enable retry for virtio-crypto-dev
+
+zhenwei pi (3):
+      virtio-crypto: change code style
+      virtio-crypto: use private buffer for control request
+      virtio-crypto: wait ctrl queue instead of busy polling
+
+ drivers/block/virtio_blk.c                         | 224 +++++++++-
+ .../crypto/virtio/virtio_crypto_akcipher_algs.c    |  95 ++--
+ drivers/crypto/virtio/virtio_crypto_common.h       |  21 +-
+ drivers/crypto/virtio/virtio_crypto_core.c         |  55 ++-
+ .../crypto/virtio/virtio_crypto_skcipher_algs.c    | 138 +++---
+ drivers/s390/virtio/virtio_ccw.c                   |  34 ++
+ drivers/vdpa/alibaba/eni_vdpa.c                    |   2 +-
+ drivers/vdpa/ifcvf/ifcvf_main.c                    |  23 +-
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h                 |   2 +
+ drivers/vdpa/mlx5/net/mlx5_vnet.c                  | 491 +++++++++++++++++----
+ drivers/vdpa/vdpa.c                                | 257 +++++++++--
+ drivers/vdpa/vdpa_sim/vdpa_sim.c                   | 107 ++++-
+ drivers/vdpa/vdpa_sim/vdpa_sim.h                   |   3 +
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c               | 169 +++++--
+ drivers/vdpa/vdpa_user/vduse_dev.c                 |   3 +-
+ drivers/vdpa/virtio_pci/vp_vdpa.c                  | 161 +++++--
+ drivers/vhost/iotlb.c                              |  23 +-
+ drivers/vhost/net.c                                |  11 +-
+ drivers/vhost/scsi.c                               |   4 +-
+ drivers/vhost/test.c                               |  14 +-
+ drivers/vhost/vdpa.c                               | 271 +++++++++---
+ drivers/vhost/vhost.c                              |  45 +-
+ drivers/vhost/vhost.h                              |   7 +-
+ drivers/vhost/vsock.c                              |   7 +-
+ drivers/virtio/virtio.c                            |  32 +-
+ drivers/virtio/virtio_balloon.c                    |  12 +-
+ drivers/virtio/virtio_mmio.c                       |  27 +-
+ drivers/virtio/virtio_pci_common.c                 |  15 +-
+ drivers/virtio/virtio_pci_common.h                 |  10 +-
+ drivers/virtio/virtio_pci_legacy.c                 |  11 +-
+ drivers/virtio/virtio_pci_modern.c                 |  14 +-
+ drivers/virtio/virtio_pci_modern_dev.c             |   6 +
+ drivers/virtio/virtio_ring.c                       |  55 ++-
+ drivers/virtio/virtio_vdpa.c                       |  12 +-
+ include/linux/mlx5/mlx5_ifc.h                      |   1 +
+ include/linux/mlx5/mlx5_ifc_vdpa.h                 |  39 ++
+ include/linux/vdpa.h                               |  61 ++-
+ include/linux/vhost_iotlb.h                        |   2 +
+ include/linux/virtio.h                             |   1 +
+ include/linux/virtio_config.h                      |  47 +-
+ include/uapi/linux/vdpa.h                          |   6 +
+ include/uapi/linux/vhost.h                         |  26 +-
+ include/uapi/linux/vhost_types.h                   |  11 +-
+ 43 files changed, 1964 insertions(+), 591 deletions(-)
 
