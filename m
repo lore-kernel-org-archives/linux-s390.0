@@ -2,159 +2,137 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E066C43334
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Jun 2022 20:42:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D49EC43334
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Jun 2022 03:26:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbiFAUmw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Jun 2022 16:42:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39174 "EHLO
+        id S233567AbiFBD0Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Jun 2022 23:26:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbiFAUml (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jun 2022 16:42:41 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19419205D6;
-        Wed,  1 Jun 2022 13:24:32 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 251IlkkC003358;
-        Wed, 1 Jun 2022 18:55:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : reply-to : subject : to : cc : references : from :
- in-reply-to : content-type : content-transfer-encoding; s=pp1;
- bh=XVzw2mc3iz5xfz497XqXBFZCHB9CzJ9ZhmWL6Mw3CVY=;
- b=EqiBpEWWu9GGylszK9QleINctTXoLKf26H0RI7357ln6YJLAIkJlOoor5JauGb7tiLAn
- pSPSErvIIz68OPVr48gEC1erQYfd33FQSpTIlEb+Y21Z0E4LYBXaaKVebe6F1Os89Ljk
- FV3ko/PsVjcsSkFRlYnwsI8Cl5GAHb9ynKUj9ugdIG3IQJYhh4JKxLL/ueR2stOiwTyR
- j1fdBzjFhAez+KNy7X+SxYqVHoIfhnUXrKQY27RLPk/is+OpF9h7Pe1z+GrzoNfr+QR4
- rijBFbEZKPF4/hbY4ll45pYZHscC1U3QI4kMJEmtSDOCWBpvP8KXDuBvlNDR0Y6ttkea Yg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gedq0r5g7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Jun 2022 18:55:16 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 251IrWIa019785;
-        Wed, 1 Jun 2022 18:55:15 GMT
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gedq0r5fw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Jun 2022 18:55:15 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 251IojXG009833;
-        Wed, 1 Jun 2022 18:55:15 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma04wdc.us.ibm.com with ESMTP id 3gbc7fwgsm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Jun 2022 18:55:15 +0000
-Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 251ItE6564356636
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 1 Jun 2022 18:55:14 GMT
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3CB9FAE064;
-        Wed,  1 Jun 2022 18:55:14 +0000 (GMT)
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 89BF7AE063;
-        Wed,  1 Jun 2022 18:55:13 +0000 (GMT)
-Received: from [9.65.239.109] (unknown [9.65.239.109])
-        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed,  1 Jun 2022 18:55:13 +0000 (GMT)
-Message-ID: <74c3707f-8e80-d924-00f5-7f163ab0bbc2@linux.ibm.com>
-Date:   Wed, 1 Jun 2022 14:55:13 -0400
+        with ESMTP id S233530AbiFBD0X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jun 2022 23:26:23 -0400
+Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 692AF2A7A83;
+        Wed,  1 Jun 2022 20:26:21 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VF8hX7Z_1654140378;
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VF8hX7Z_1654140378)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 02 Jun 2022 11:26:18 +0800
+Date:   Thu, 2 Jun 2022 11:26:18 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>
+Cc:     Tony Lu <tonylu@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [RFC net-next] net/smc:introduce 1RTT to SMC
+Message-ID: <20220602032618.GA96227@e02h04389.eu6sqa>
+Reply-To: "D. Wythe" <alibuda@linux.alibaba.com>
+References: <1653375127-130233-1-git-send-email-alibuda@linux.alibaba.com>
+ <YoyOGlG2kVe4VA4m@TonyMac-Alibaba>
+ <64439f1c-9817-befd-c11b-fa64d22620a9@linux.ibm.com>
+ <7d57f299-115f-3d34-a45e-1c125a9a580a@linux.alibaba.com>
+ <YpcwaNLUtPyzPBgc@TonyMac-Alibaba>
+ <7fb28436-1fca-ba4c-7745-ca88d83c657b@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Reply-To: jjherne@linux.ibm.com
-Subject: Re: [PATCH v19 13/20] s390/vfio-ap: hot plug/unplug of AP devices
- when probed/removed
-Content-Language: en-US
-To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
- <20220404221039.1272245-14-akrowiak@linux.ibm.com>
-From:   "Jason J. Herne" <jjherne@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <20220404221039.1272245-14-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: kjsRUZU92s9o1PKSeEti_evaqoFtXus3
-X-Proofpoint-GUID: J4dnQuZ-Tdye_-lbCgPO1tRWWSmlk-o6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-01_07,2022-06-01_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 adultscore=0 mlxlogscore=999 clxscore=1015 malwarescore=0
- priorityscore=1501 lowpriorityscore=0 spamscore=0 phishscore=0 bulkscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206010077
+Content-Type: text/plain; charset=gb2312
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7fb28436-1fca-ba4c-7745-ca88d83c657b@linux.ibm.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/4/22 18:10, Tony Krowiak wrote:
-> When an AP queue device is probed or removed, if the mediated device is
-> attached to a KVM guest, the mediated device's adapter, domain and
-> control domain bitmaps must be filtered to update the guest's APCB and if
-> any changes are detected, the guest's APCB must then be hot plugged into
-> the guest to reflect those changes to the guest.
+On Wed, Jun 01, 2022 at 01:35:52PM +0200, Alexandra Winter wrote:
 > 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c | 23 +++++++++++++++++------
->   1 file changed, 17 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 47f808122ed2..ec5f37d726ec 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -1752,9 +1752,11 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
->   		vfio_ap_mdev_link_queue(matrix_mdev, q);
->   		memset(apm_delta, 0, sizeof(apm_delta));
->   		set_bit_inv(AP_QID_CARD(q->apqn), apm_delta);
-> -		vfio_ap_mdev_filter_matrix(apm_delta,
-> -					   matrix_mdev->matrix.aqm,
-> -					   matrix_mdev);
-> +
-> +		if (vfio_ap_mdev_filter_matrix(apm_delta,
-> +					       matrix_mdev->matrix.aqm,
-> +					       matrix_mdev))
-> +			vfio_ap_mdev_update_guest_apcb(matrix_mdev);
->   	}
->   	dev_set_drvdata(&apdev->device, q);
->   	release_update_locks_for_mdev(matrix_mdev);
-> @@ -1764,7 +1766,7 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
->   
->   void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->   {
-> -	unsigned long apid;
-> +	unsigned long apid, apqi;
->   	struct vfio_ap_queue *q;
->   	struct ap_matrix_mdev *matrix_mdev;
->   
-> @@ -1776,8 +1778,17 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->   		vfio_ap_unlink_queue_fr_mdev(q);
->   
->   		apid = AP_QID_CARD(q->apqn);
-> -		if (test_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm))
-> -			clear_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm);
-> +		apqi = AP_QID_QUEUE(q->apqn);
-> +
-> +		/*
-> +		 * If the queue is assigned to the guest's APCB, then remove
-> +		 * the adapter's APID from the APCB and hot it into the guest.
-> +		 */
-> +		if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
-> +		    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm)) {
-> +			clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
-> +			vfio_ap_mdev_update_guest_apcb(matrix_mdev);
-> +		}
->   	}
->   
->   	vfio_ap_mdev_reset_queue(q, 1);
+> On 01.06.22 11:24, Tony Lu wrote:
+> > On Wed, Jun 01, 2022 at 02:33:09PM +0800, D. Wythe wrote:
+> >>
+> >> ÔÚ 2022/5/25 ÏÂÎç9:42, Alexandra Winter Ð´µÀ:
+> >>
+> >>> We need to carefully evaluate them and make sure everything is compatible
+> >>> with the existing implementations of SMC-D and SMC-R v1 and v2. In the
+> >>> typical s390 environment ROCE LAG is propably not good enough, as the card
+> >>> is still a single point of failure. So your ideas need to be compatible
+> >>> with link redundancy. We also need to consider that the extension of the
+> >>> protocol does not block other desirable extensions.
+> >>>
+> >>> Your prototype is very helpful for the understanding. Before submitting any
+> >>> code patches to net-next, we should agree on the details of the protocol
+> >>> extension. Maybe you could formulate your proposal in plain text, so we can
+> >>> discuss it here?
+> >>>
+> >>> We also need to inform you that several public holidays are upcoming in the
+> >>> next weeks and several of our team will be out for summer vacation, so please
+> >>> allow for longer response times.
+> >>>
+> >>> Kind regards
+> >>> Alexandra Winter
+> >>>
+> >>
+> >> Hi alls,
+> >>
+> >> In order to achieve signle-link compatibility, we must
+> >> complete at least once negotiation. We wish to provide
+> >> higher scalability while meeting this feature. There are
+> >> few ways to reach this.
+> >>
+> >> 1. Use the available reserved bits. According to
+> >> the SMC v2 protocol, there are at least 28 reserved octets
+> >> in PROPOSAL MESSAGE and at least 10 reserved octets in
+> >> ACCEPT MESSAGE are available. We can define an area in which
+> >> as a feature area, works like bitmap. Considering the subsequent
+> >> scalability, we MAY use at least 2 reserved ctets, which can support
+> >> negotiation of at least 16 features.
+> >>
+> >> 2. Unify all the areas named extension in current
+> >> SMC v2 protocol spec without reinterpreting any existing field
+> >> and field offset changes, including 'PROPOSAL V1 IP Subnet Extension',
+> >> 'PROPOSAL V2 Extension', 'PROPOSAL SMC-DV2 EXTENSION' .etc. And provides
+> >> the ability to grow dynamically as needs expand. This scheme will use
+> >> at least 10 reserved octets in the PROPOSAL MESSAGE and at least 4 reserved
+> >> octets in ACCEPT MESSAGE and CONFIRM MESSAGE. Fortunately, we only need to
+> >> use reserved fields, and the current reserved fields are sufficient. And
+> >> then we can easily add a new extension named SIGNLE LINK. Limited by space,
+> >> the details will be elaborated after the scheme is finalized.
+> > 
+> > After reading this and latest version of protocol, I agree with that the
+> > idea to provide a more flexible extension facilities. And, it's a good
+> > chance for us to set here talking about the protocol extension.
+> > 
+> > There are some potential scenarios that need flexible extensions in my
+> > mind:
+> > - other protocols support, such as iWARP / IB or new version protocol,
+> > - dozens of feature flags in the future, like this proposal. With the
+> >   growth of new feature, it could overflow bitmap.
+> > 
+> > Actually, this extension facilities are very similar to TCP options.
+> > 
+> > So what about your opinions about the solution of this? If there are
+> > some existed approaches for the future extensions, maybe this can get
+> > involved in it. Or we can start a discuss about this as this mail
+> > mentioned.
+> > 
+> > Also, I am wondering if there is plan to update the RFC7609, add the
+> > latest v2 support?
+> > 
+> > Thanks,
+> > Tony Lu
+> 
+> We have asked the SMC protocol owners about their opinion about using the
+> reserved fields for new options in particular, and about where and how to
+> discuss this in general. (including where to document the versions).
+> Please allow some time for us to come back to you.
+> 
+> Kind regards
+> Alexandra
 
-Also seems sane.
+Thank you for the information. Before we officially push the document update,
+if you had any suggestions for the two schemes we are mentioned above,
+or which one you prefer, please keep us informed.
 
-Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
+Best wishes.
+D. Wyther
+
