@@ -2,137 +2,201 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D49EC43334
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Jun 2022 03:26:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 889B9C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Jun 2022 10:30:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233567AbiFBD0Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Jun 2022 23:26:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49796 "EHLO
+        id S233927AbiFBKam (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Jun 2022 06:30:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233530AbiFBD0X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jun 2022 23:26:23 -0400
-Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 692AF2A7A83;
-        Wed,  1 Jun 2022 20:26:21 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VF8hX7Z_1654140378;
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VF8hX7Z_1654140378)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 02 Jun 2022 11:26:18 +0800
-Date:   Thu, 2 Jun 2022 11:26:18 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     Tony Lu <tonylu@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [RFC net-next] net/smc:introduce 1RTT to SMC
-Message-ID: <20220602032618.GA96227@e02h04389.eu6sqa>
-Reply-To: "D. Wythe" <alibuda@linux.alibaba.com>
-References: <1653375127-130233-1-git-send-email-alibuda@linux.alibaba.com>
- <YoyOGlG2kVe4VA4m@TonyMac-Alibaba>
- <64439f1c-9817-befd-c11b-fa64d22620a9@linux.ibm.com>
- <7d57f299-115f-3d34-a45e-1c125a9a580a@linux.alibaba.com>
- <YpcwaNLUtPyzPBgc@TonyMac-Alibaba>
- <7fb28436-1fca-ba4c-7745-ca88d83c657b@linux.ibm.com>
+        with ESMTP id S233867AbiFBKaj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jun 2022 06:30:39 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB39769B63;
+        Thu,  2 Jun 2022 03:30:25 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2528RlA9004842;
+        Thu, 2 Jun 2022 10:30:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=eQMrxDwS4o5AY3NeYTPbXuHkF5e1oKNwRgLoIiLPsKE=;
+ b=bfeV+OMSMS9U7IzCkV87degRxs6V/Nl/P9O5UrgRK8mxzaiKFn3PiRl28a0Xj5eJJi5U
+ Q5SEN7PrZENknYmU6xB9jilcHRdrr8RbwU+A7IJSyOC9r9TjbGsoBaiEnX9Rr9xxmF0M
+ oObvE45R1T06g3NftiOmt3MuPhCgCbEGBnhQN9t2z8RBDITiFBBgx7yOgn4eYZX63a9I
+ MvC3inwHtMrZzs5ZmaPT1q0rx0Zq0Z1+g3OvlPgn7TLAT5HhWMxhaVSRImJNxwVwlG1k
+ 1j6lnzZDLioIjcVjYyh783jiIdcXfTKOv58i29E2ZvjsiHFG1RdVxMF51d1AKoQnVCoh fw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gesqga4wr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 02 Jun 2022 10:30:22 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 252APCL7010460;
+        Thu, 2 Jun 2022 10:30:22 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gesqga4w0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 02 Jun 2022 10:30:22 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 252AL1B8024703;
+        Thu, 2 Jun 2022 10:30:19 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3gbc7h6w3c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 02 Jun 2022 10:30:19 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 252AUGID19333600
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 2 Jun 2022 10:30:16 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B2F65A4040;
+        Thu,  2 Jun 2022 10:30:16 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 77443A4051;
+        Thu,  2 Jun 2022 10:30:16 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  2 Jun 2022 10:30:16 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH RESEND v5 1/4] PCI: Clean up pci_scan_slot()
+Date:   Thu,  2 Jun 2022 12:30:13 +0200
+Message-Id: <20220602103016.1499031-2-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220602103016.1499031-1-schnelle@linux.ibm.com>
+References: <20220602103016.1499031-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=gb2312
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <7fb28436-1fca-ba4c-7745-ca88d83c657b@linux.ibm.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: vRptsqR1bog7f75OPad7Rfv8K_IkTp0r
+X-Proofpoint-ORIG-GUID: X6Kv4EO8UjbfMWZBN2PjzShrQaD7uZol
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-02_01,2022-06-02_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ priorityscore=1501 mlxscore=0 adultscore=0 phishscore=0 clxscore=1015
+ impostorscore=0 suspectscore=0 mlxlogscore=841 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206020042
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 01, 2022 at 01:35:52PM +0200, Alexandra Winter wrote:
-> 
-> 
-> On 01.06.22 11:24, Tony Lu wrote:
-> > On Wed, Jun 01, 2022 at 02:33:09PM +0800, D. Wythe wrote:
-> >>
-> >> ÔÚ 2022/5/25 ÏÂÎç9:42, Alexandra Winter Ð´µÀ:
-> >>
-> >>> We need to carefully evaluate them and make sure everything is compatible
-> >>> with the existing implementations of SMC-D and SMC-R v1 and v2. In the
-> >>> typical s390 environment ROCE LAG is propably not good enough, as the card
-> >>> is still a single point of failure. So your ideas need to be compatible
-> >>> with link redundancy. We also need to consider that the extension of the
-> >>> protocol does not block other desirable extensions.
-> >>>
-> >>> Your prototype is very helpful for the understanding. Before submitting any
-> >>> code patches to net-next, we should agree on the details of the protocol
-> >>> extension. Maybe you could formulate your proposal in plain text, so we can
-> >>> discuss it here?
-> >>>
-> >>> We also need to inform you that several public holidays are upcoming in the
-> >>> next weeks and several of our team will be out for summer vacation, so please
-> >>> allow for longer response times.
-> >>>
-> >>> Kind regards
-> >>> Alexandra Winter
-> >>>
-> >>
-> >> Hi alls,
-> >>
-> >> In order to achieve signle-link compatibility, we must
-> >> complete at least once negotiation. We wish to provide
-> >> higher scalability while meeting this feature. There are
-> >> few ways to reach this.
-> >>
-> >> 1. Use the available reserved bits. According to
-> >> the SMC v2 protocol, there are at least 28 reserved octets
-> >> in PROPOSAL MESSAGE and at least 10 reserved octets in
-> >> ACCEPT MESSAGE are available. We can define an area in which
-> >> as a feature area, works like bitmap. Considering the subsequent
-> >> scalability, we MAY use at least 2 reserved ctets, which can support
-> >> negotiation of at least 16 features.
-> >>
-> >> 2. Unify all the areas named extension in current
-> >> SMC v2 protocol spec without reinterpreting any existing field
-> >> and field offset changes, including 'PROPOSAL V1 IP Subnet Extension',
-> >> 'PROPOSAL V2 Extension', 'PROPOSAL SMC-DV2 EXTENSION' .etc. And provides
-> >> the ability to grow dynamically as needs expand. This scheme will use
-> >> at least 10 reserved octets in the PROPOSAL MESSAGE and at least 4 reserved
-> >> octets in ACCEPT MESSAGE and CONFIRM MESSAGE. Fortunately, we only need to
-> >> use reserved fields, and the current reserved fields are sufficient. And
-> >> then we can easily add a new extension named SIGNLE LINK. Limited by space,
-> >> the details will be elaborated after the scheme is finalized.
-> > 
-> > After reading this and latest version of protocol, I agree with that the
-> > idea to provide a more flexible extension facilities. And, it's a good
-> > chance for us to set here talking about the protocol extension.
-> > 
-> > There are some potential scenarios that need flexible extensions in my
-> > mind:
-> > - other protocols support, such as iWARP / IB or new version protocol,
-> > - dozens of feature flags in the future, like this proposal. With the
-> >   growth of new feature, it could overflow bitmap.
-> > 
-> > Actually, this extension facilities are very similar to TCP options.
-> > 
-> > So what about your opinions about the solution of this? If there are
-> > some existed approaches for the future extensions, maybe this can get
-> > involved in it. Or we can start a discuss about this as this mail
-> > mentioned.
-> > 
-> > Also, I am wondering if there is plan to update the RFC7609, add the
-> > latest v2 support?
-> > 
-> > Thanks,
-> > Tony Lu
-> 
-> We have asked the SMC protocol owners about their opinion about using the
-> reserved fields for new options in particular, and about where and how to
-> discuss this in general. (including where to document the versions).
-> Please allow some time for us to come back to you.
-> 
-> Kind regards
-> Alexandra
+While determining the next PCI function is factored out of
+pci_scan_slot() into next_fn() the former still handles the first
+function as a special case. This duplicates the code from the scan loop.
 
-Thank you for the information. Before we officially push the document update,
-if you had any suggestions for the two schemes we are mentioned above,
-or which one you prefer, please keep us informed.
+Furthermore the non ARI branch of next_fn() is generally hard to
+understand and especially the check for multifunction devices is hidden
+in the handling of NULL devices for non-contiguous multifunction. It
+also signals that no further functions need to be scanned by returning
+0 via wraparound and this is a valid function number.
 
-Best wishes.
-D. Wyther
+Improve upon this by transforming the conditions in next_fn() to be
+easier to understand.
+
+By changing next_fn() to return -ENODEV instead of 0 when there is no
+next function we can then handle the initial function inside the loop
+and deduplicate the shared handling. This also makes it more explicit
+that only function 0 must exist.
+
+No functional change is intended.
+
+Cc: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ drivers/pci/probe.c | 38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 17a969942d37..78aa1bccab2f 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -2579,8 +2579,7 @@ struct pci_dev *pci_scan_single_device(struct pci_bus *bus, int devfn)
+ }
+ EXPORT_SYMBOL(pci_scan_single_device);
+ 
+-static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *dev,
+-			    unsigned int fn)
++static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
+ {
+ 	int pos;
+ 	u16 cap = 0;
+@@ -2588,24 +2587,26 @@ static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *dev,
+ 
+ 	if (pci_ari_enabled(bus)) {
+ 		if (!dev)
+-			return 0;
++			return -ENODEV;
+ 		pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
+ 		if (!pos)
+-			return 0;
++			return -ENODEV;
+ 
+ 		pci_read_config_word(dev, pos + PCI_ARI_CAP, &cap);
+ 		next_fn = PCI_ARI_CAP_NFN(cap);
+ 		if (next_fn <= fn)
+-			return 0;	/* protect against malformed list */
++			return -ENODEV;	/* protect against malformed list */
+ 
+ 		return next_fn;
+ 	}
++	if (fn >= 7)
++		return -ENODEV;
+ 
+-	/* dev may be NULL for non-contiguous multifunction devices */
+-	if (!dev || dev->multifunction)
+-		return (fn + 1) % 8;
++	/* only multifunction devices may have more functions */
++	if (dev && !dev->multifunction)
++		return -ENODEV;
+ 
+-	return 0;
++	return fn + 1;
+ }
+ 
+ static int only_one_child(struct pci_bus *bus)
+@@ -2643,26 +2644,25 @@ static int only_one_child(struct pci_bus *bus)
+  */
+ int pci_scan_slot(struct pci_bus *bus, int devfn)
+ {
+-	unsigned int fn, nr = 0;
+ 	struct pci_dev *dev;
++	int fn = 0, nr = 0;
+ 
+ 	if (only_one_child(bus) && (devfn > 0))
+ 		return 0; /* Already scanned the entire slot */
+ 
+-	dev = pci_scan_single_device(bus, devfn);
+-	if (!dev)
+-		return 0;
+-	if (!pci_dev_is_added(dev))
+-		nr++;
+-
+-	for (fn = next_fn(bus, dev, 0); fn > 0; fn = next_fn(bus, dev, fn)) {
++	do {
+ 		dev = pci_scan_single_device(bus, devfn + fn);
+ 		if (dev) {
+ 			if (!pci_dev_is_added(dev))
+ 				nr++;
+-			dev->multifunction = 1;
++			if (fn > 0)
++				dev->multifunction = 1;
++		} else if (fn == 0) {
++			/* function 0 is required */
++			break;
+ 		}
+-	}
++		fn = next_fn(bus, dev, fn);
++	} while (fn >= 0);
+ 
+ 	/* Only one slot has PCIe device */
+ 	if (bus->self && nr)
+-- 
+2.32.0
 
