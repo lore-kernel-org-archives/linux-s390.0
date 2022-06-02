@@ -2,60 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87B20C43334
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Jun 2022 10:30:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98F05CCA478
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Jun 2022 10:30:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233932AbiFBKaq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Jun 2022 06:30:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38850 "EHLO
+        id S233854AbiFBKau (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Jun 2022 06:30:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233892AbiFBKaj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jun 2022 06:30:39 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C62169B7F;
-        Thu,  2 Jun 2022 03:30:26 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2529WtMb028009;
+        with ESMTP id S233910AbiFBKal (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jun 2022 06:30:41 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 244EA6D383;
+        Thu,  2 Jun 2022 03:30:31 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 252A3bSs007605;
         Thu, 2 Jun 2022 10:30:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=BUKnHMMtJlhw8wLxcVR6t/uKudxySSsONcFK+URS3a0=;
- b=Zmg0djj8O8yQECdE2+rjeaykMhO0XDhQFKM5aN3fxGPfSUYVhIHqjldPYyQf45dUJBxl
- JhKshElqUxNQbP5D/lo6JHft2MCwF9C3pU4soziw3AQLrYFGG+5YDpNlrlWyL/SKXX3e
- w8cat/l20Ig0N8VBO59uySaPKRYvPp5ZmsvoM2mmnd5IqGlquOZKq6wZAhia/81dHFs0
- mb+PRpioE5+ZGprQZdtgyYv/befHmzRQ9ORLGwtBodQOzKI/VTyShy1YbgQFMqmJFeAe
- mTzhx6/Do1fpxVykryj6EYLMywRx/YDkjcfQKrokTHeusTuv8E5XZGfQ5Hv7GJscp//b Ow== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=VKd5vFUiEKfuRcGuSWKwzFHHhQa5vtGA/lkq5v9/Zc8=;
+ b=cyscfWEuEF5gJTMeZZ+ZRhSXHb3YXeB3Cht4rRf2Ka0vt9uin73Hdql+mENqx0MWlmof
+ gFsI7eeVHIb8zoigEZM0V+VCOjPsQzWA1Yq0F7tfVu8A7KgChLR4VA7CJVF5Wwwpka6/
+ vz7EgxNB5KcTuoJCMJdADV7mtJBX1FC4o2qS2xEmBIBSPYmx35vEmzGUniTdYRrsCCXW
+ m8ij0jFn+9OZgN+XItuN4Q67sv/nXKtWdOLvGWn2kP4CxhysGQzmg4ozfbPsExaxaX8C
+ BIAbjRoQgjv8qm3lMUpZHMQX4elMO32Vrsk+n/tJHgpbUWULnW3yZ/KeNWauNSX3TKPX 1w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3geqwsvax9-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3geu4age4h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 02 Jun 2022 10:30:23 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 252AFOPT010517;
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 252APtCS009521;
         Thu, 2 Jun 2022 10:30:22 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3geqwsvawn-1
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3geu4age3x-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 02 Jun 2022 10:30:22 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 252AJqhf029426;
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 252AL1lq024733;
         Thu, 2 Jun 2022 10:30:20 GMT
 Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3gbc97w84k-1
+        by ppma03ams.nl.ibm.com with ESMTP id 3gbc7h6w3d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 02 Jun 2022 10:30:20 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 252AUH9O17432932
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 252AUIOs24314162
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 2 Jun 2022 10:30:17 GMT
+        Thu, 2 Jun 2022 10:30:18 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 050BDA405D;
+        by IMSVA (Postfix) with ESMTP id 914ECA4055;
         Thu,  2 Jun 2022 10:30:17 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE553A4053;
-        Thu,  2 Jun 2022 10:30:16 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 5658DA404D;
+        Thu,  2 Jun 2022 10:30:17 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  2 Jun 2022 10:30:16 +0000 (GMT)
+        Thu,  2 Jun 2022 10:30:17 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Bjorn Helgaas <bhelgaas@google.com>,
         Jan Kiszka <jan.kiszka@siemens.com>,
@@ -63,104 +64,186 @@ To:     Bjorn Helgaas <bhelgaas@google.com>,
         Pierre Morel <pmorel@linux.ibm.com>
 Cc:     linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH RESEND v5 2/4] PCI: Move jailhouse's isolated function handling to pci_scan_slot()
-Date:   Thu,  2 Jun 2022 12:30:14 +0200
-Message-Id: <20220602103016.1499031-3-schnelle@linux.ibm.com>
+Subject: [PATCH RESEND v5 4/4] s390/pci: allow zPCI zbus without a function zero
+Date:   Thu,  2 Jun 2022 12:30:16 +0200
+Message-Id: <20220602103016.1499031-5-schnelle@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220602103016.1499031-1-schnelle@linux.ibm.com>
 References: <20220602103016.1499031-1-schnelle@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FvagVA2LuZ1xH6ZuhmlkBYZ5D9SxGscl
-X-Proofpoint-GUID: 6A6geVftTe1w0FdnyjwjybMb0eG2zT6A
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: wiDIw29KI5PkWw4vLdyrsc9XqM5Sl1Ia
+X-Proofpoint-ORIG-GUID: 5XmRFYMu6qdf2n5WPMgQdspeHsM-b81Y
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-02_01,2022-06-02_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 spamscore=0 priorityscore=1501 impostorscore=0 adultscore=0
- mlxscore=0 mlxlogscore=999 malwarescore=0 clxscore=1015 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2022-06-02_01,2022-06-01_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ adultscore=0 mlxlogscore=952 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 phishscore=0 malwarescore=0 impostorscore=0 bulkscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2206020042
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The special case of the jailhouse hypervisor passing through individual
-PCI functions handles scanning for PCI functions even if function 0 does
-not exist. Currently this is done with an extra loop duplicating the one
-in pci_scan_slot(). By incorporating the check for jailhouse_paravirt()
-into pci_scan_slot() we can instead do this as part of the normal
-slot scan. Note that with the assignment of dev->multifunction gated by
-fn > 0 we set dev->multifunction unconditionally for all functions if
-function 0 is missing just as in the existing jailhouse loop.
+Currently the zPCI code block PCI bus creation and probing of a zPCI
+zbus unless there is a PCI function with devfn 0. This is always the
+case for the PCI functions with hidden RID but may keep PCI functions
+from a multi-function PCI device with RID information invisible until
+the function 0 becomes visible. Worse as a PCI bus is necessary to even
+present a PCI hotplug slot even that remains invisible.
 
-The only functional change is that we now call
-pcie_aspm_init_link_state() for these functions but this already
-happened if function 0 was passed through and should not be a problem.
+With the probing of these so called isolated PCI functions enabled for
+s390 in common code this restriction is no longer necessary. On network
+cards with multiple ports and a PF per port this also allows using each
+port on its own while still providing the physical PCI topology
+information in the devfn needed to associate VFs with their parent PF.
 
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Link: https://lore.kernel.org/linux-pci/20220408224514.GA353445@bhelgaas/
-Suggested-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- drivers/pci/probe.c | 30 ++++++++++--------------------
- 1 file changed, 10 insertions(+), 20 deletions(-)
+ arch/s390/pci/pci_bus.c | 82 ++++++++++-------------------------------
+ 1 file changed, 20 insertions(+), 62 deletions(-)
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 78aa1bccab2f..3029edc68ff7 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -2658,8 +2658,13 @@ int pci_scan_slot(struct pci_bus *bus, int devfn)
- 			if (fn > 0)
- 				dev->multifunction = 1;
- 		} else if (fn == 0) {
--			/* function 0 is required */
--			break;
-+			/*
-+			 * function 0 is required unless we are running on
-+			 * a hypervisor which passes through individual PCI
-+			 * functions.
-+			 */
-+			if (!jailhouse_paravirt())
-+				break;
- 		}
- 		fn = next_fn(bus, dev, fn);
- 	} while (fn >= 0);
-@@ -2858,29 +2863,14 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
- {
- 	unsigned int used_buses, normal_bridges = 0, hotplug_bridges = 0;
- 	unsigned int start = bus->busn_res.start;
--	unsigned int devfn, fn, cmax, max = start;
-+	unsigned int devfn, cmax, max = start;
- 	struct pci_dev *dev;
--	int nr_devs;
+diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+index 5d77acbd1c87..6a8da1b742ae 100644
+--- a/arch/s390/pci/pci_bus.c
++++ b/arch/s390/pci/pci_bus.c
+@@ -145,9 +145,6 @@ int zpci_bus_scan_bus(struct zpci_bus *zbus)
+ 	struct zpci_dev *zdev;
+ 	int devfn, rc, ret = 0;
  
- 	dev_dbg(&bus->dev, "scanning bus\n");
- 
- 	/* Go find them, Rover! */
--	for (devfn = 0; devfn < 256; devfn += 8) {
--		nr_devs = pci_scan_slot(bus, devfn);
+-	if (!zbus->function[0])
+-		return 0;
 -
--		/*
--		 * The Jailhouse hypervisor may pass individual functions of a
--		 * multi-function device to a guest without passing function 0.
--		 * Look for them as well.
+ 	for (devfn = 0; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
+ 		zdev = zbus->function[devfn];
+ 		if (zdev && zdev->state == ZPCI_FN_STATE_CONFIGURED) {
+@@ -184,26 +181,26 @@ void zpci_bus_scan_busses(void)
+ 
+ /* zpci_bus_create_pci_bus - Create the PCI bus associated with this zbus
+  * @zbus: the zbus holding the zdevices
+- * @f0: function 0 of the bus
++ * @fr: PCI root function that will determine the bus's domain, and bus speeed
+  * @ops: the pci operations
+  *
+- * Function zero is taken as a parameter as this is used to determine the
+- * domain, multifunction property and maximum bus speed of the entire bus.
++ * The PCI function @fr determines the domain (its UID), multifunction property
++ * and maximum bus speed of the entire bus.
+  *
+  * Return: 0 on success, an error code otherwise
+  */
+-static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *f0, struct pci_ops *ops)
++static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, struct pci_ops *ops)
+ {
+ 	struct pci_bus *bus;
+ 	int domain;
+ 
+-	domain = zpci_alloc_domain((u16)f0->uid);
++	domain = zpci_alloc_domain((u16)fr->uid);
+ 	if (domain < 0)
+ 		return domain;
+ 
+ 	zbus->domain_nr = domain;
+-	zbus->multifunction = f0->rid_available;
+-	zbus->max_bus_speed = f0->max_bus_speed;
++	zbus->multifunction = fr->rid_available;
++	zbus->max_bus_speed = fr->max_bus_speed;
+ 
+ 	/*
+ 	 * Note that the zbus->resources are taken over and zbus->resources
+@@ -303,47 +300,6 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
+ 	}
+ }
+ 
+-/* zpci_bus_create_hotplug_slots - Add hotplug slot(s) for device added to bus
+- * @zdev: the zPCI device that was newly added
+- *
+- * Add the hotplug slot(s) for the newly added PCI function. Normally this is
+- * simply the slot for the function itself. If however we are adding the
+- * function 0 on a zbus, it might be that we already registered functions on
+- * that zbus but could not create their hotplug slots yet so add those now too.
+- *
+- * Return: 0 on success, an error code otherwise
+- */
+-static int zpci_bus_create_hotplug_slots(struct zpci_dev *zdev)
+-{
+-	struct zpci_bus *zbus = zdev->zbus;
+-	int devfn, rc = 0;
+-
+-	rc = zpci_init_slot(zdev);
+-	if (rc)
+-		return rc;
+-	zdev->has_hp_slot = 1;
+-
+-	if (zdev->devfn == 0 && zbus->multifunction) {
+-		/* Now that function 0 is there we can finally create the
+-		 * hotplug slots for those functions with devfn != 0 that have
+-		 * been parked in zbus->function[] waiting for us to be able to
+-		 * create the PCI bus.
 -		 */
--		if (jailhouse_paravirt() && nr_devs == 0) {
--			for (fn = 1; fn < 8; fn++) {
--				dev = pci_scan_single_device(bus, devfn + fn);
--				if (dev)
--					dev->multifunction = 1;
+-		for  (devfn = 1; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
+-			zdev = zbus->function[devfn];
+-			if (zdev && !zdev->has_hp_slot) {
+-				rc = zpci_init_slot(zdev);
+-				if (rc)
+-					return rc;
+-				zdev->has_hp_slot = 1;
 -			}
 -		}
+-
 -	}
-+	for (devfn = 0; devfn < 256; devfn += 8)
-+		pci_scan_slot(bus, devfn);
+-
+-	return rc;
+-}
+-
+ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
+ {
+ 	int rc = -EINVAL;
+@@ -352,21 +308,19 @@ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
+ 		pr_err("devfn %04x is already assigned\n", zdev->devfn);
+ 		return rc;
+ 	}
++
+ 	zdev->zbus = zbus;
+ 	zbus->function[zdev->devfn] = zdev;
+ 	zpci_nb_devices++;
  
- 	/* Reserve buses for SR-IOV capability */
- 	used_buses = pci_iov_bus_range(bus);
+-	if (zbus->bus) {
+-		if (zbus->multifunction && !zdev->rid_available) {
+-			WARN_ONCE(1, "rid_available not set for multifunction\n");
+-			goto error;
+-		}
+-
+-		zpci_bus_create_hotplug_slots(zdev);
+-	} else {
+-		/* Hotplug slot will be created once function 0 appears */
+-		zbus->multifunction = 1;
++	if (zbus->multifunction && !zdev->rid_available) {
++		WARN_ONCE(1, "rid_available not set for multifunction\n");
++		goto error;
+ 	}
++	rc = zpci_init_slot(zdev);
++	if (rc)
++		goto error;
++	zdev->has_hp_slot = 1;
+ 
+ 	return 0;
+ 
+@@ -400,7 +354,11 @@ int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
+ 			return -ENOMEM;
+ 	}
+ 
+-	if (zdev->devfn == 0) {
++	if (!zbus->bus) {
++		/* The UID of the first PCI function registered with a zpci_bus
++		 * is used as the domain number for that bus. Currently there
++		 * is exactly one zpci_bus per domain.
++		 */
+ 		rc = zpci_bus_create_pci_bus(zbus, zdev, ops);
+ 		if (rc)
+ 			goto error;
 -- 
 2.32.0
 
