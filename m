@@ -2,81 +2,336 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37A83CCA473
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Jun 2022 18:50:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B65B9C43334
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Jun 2022 19:03:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349042AbiFCSu6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Jun 2022 14:50:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53254 "EHLO
+        id S1347890AbiFCTDO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Jun 2022 15:03:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349134AbiFCSuL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jun 2022 14:50:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD09027FF0;
-        Fri,  3 Jun 2022 11:50:10 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CD7A619C2;
-        Fri,  3 Jun 2022 18:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 030BCC385B8;
-        Fri,  3 Jun 2022 18:50:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654282210;
-        bh=bOriYyJek/0gWTzeUpshNdx4hLR6hEcL+erxtFQ1q6Q=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=Evqa9V+gShN4CKTki1Qc95yc8OQ6s9PLcauHwWuQWN/qHkuUNZ3Ib2o0b29gwpynZ
-         FRgXrSMXOhDap47vgkuQWBTzhhSlqdXRt/x0Mm2Q7px6ynj/GTJtEY2YI8lCMm0foC
-         tCzxlmZLw9mQEMDl6Ck+F4hfp9+VRvbgfh+AG/b1ERk5aKSf0lA34orC2kL0heSbP1
-         KSyyYSWbqd8GlD1k7CqRTvyLLEhZbKDqDUFqCXaJU3Zqven3aHo0fD3BqHSRRQ0IbI
-         Wvb9n5mPF5ea0BrsoYqVv8cJ4usD9SvY/gvd0zrWD7kgkOyV3Ja5WW7Y3ZE+OzLFsv
-         SHtKdUIA0I91g==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id E093BF03953;
-        Fri,  3 Jun 2022 18:50:09 +0000 (UTC)
-Subject: Re: [GIT PULL] vhost,virtio,vdpa: features, fixes, cleanups
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20220602161124-mutt-send-email-mst@kernel.org>
-References: <20220602161124-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20220602161124-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: bd8bb9aed56b1814784a975e2dfea12a9adcee92
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 6e5f6a86915d65210e90acac0402e6f37e21fc7b
-Message-Id: <165428220991.10974.157104839485276628.pr-tracker-bot@kernel.org>
-Date:   Fri, 03 Jun 2022 18:50:09 +0000
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        arbn@yandex-team.com, arei.gonglei@huawei.com,
-        christophe.jaillet@wanadoo.fr, cohuck@redhat.com,
-        dan.carpenter@oracle.com, dinechin@redhat.com, elic@nvidia.com,
-        eperezma@redhat.com, gautam.dawar@xilinx.com, gdawar@xilinx.com,
-        helei.sig11@bytedance.com, jasowang@redhat.com,
-        lingshan.zhu@intel.com, linux-s390@vger.kernel.org,
-        liuke94@huawei.com, lkp@intel.com, lulu@redhat.com, maz@kernel.org,
-        michael.christie@oracle.com, mst@redhat.com, muriloo@linux.ibm.com,
-        oberpar@linux.ibm.com, pasic@linux.ibm.com, paulmck@kernel.org,
-        peterz@infradead.org, pizhenwei@bytedance.com, sgarzare@redhat.com,
-        solomonbstoner@protonmail.ch, stable@vger.kernel.org,
-        suwan.kim027@gmail.com, tglx@linutronix.de, vneethv@linux.ibm.com,
-        xianting.tian@linux.alibaba.com, zheyuma97@gmail.com
+        with ESMTP id S1346017AbiFCTDN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jun 2022 15:03:13 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E76C130F53;
+        Fri,  3 Jun 2022 12:03:10 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 253Go841010916;
+        Fri, 3 Jun 2022 19:03:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=PgxYIG8PJJLALUpiAGKfgFkESXEXvrlas7ZMyunsupc=;
+ b=RWeun5R6Ojfnt1ojIi3+PG+hT9SUvhzsRWuHHkBl1rwRQq7IbqwHDOuPWMNTGHYY+D9M
+ BqCm6y1wsTE4lrcddBEoRwChcp/zuX1C6hbgS60GLgRi51j+WZCj25/IcHxMkVSl1uKD
+ qEUuYeuNjE26lVV7drWMW5ec/IkfugNWbkUOeY2XB3MARCenLpY0z/yuSh3t2B8e/xme
+ ao8eyjz08DaQamianmjmIkuczNNEL07f9Pr2r6ctUX6/m8s5i6XzPlq05o9t1w97jGd6
+ ImUpX8dvKMW2MPM7DUYMEoErriK74rrY0heQ+4kFdsmrr5YpqAPC/FIDZLlUYh+ZdA3n mA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gfgu78pur-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 19:03:08 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 253J1i4G014750;
+        Fri, 3 Jun 2022 19:03:07 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gfgu78pu5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 19:03:07 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 253IaE7d016411;
+        Fri, 3 Jun 2022 19:03:06 GMT
+Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
+        by ppma01dal.us.ibm.com with ESMTP id 3gcxt652rg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 19:03:06 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 253J355E34537838
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 3 Jun 2022 19:03:05 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 316F9C605D;
+        Fri,  3 Jun 2022 19:03:05 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 31DA1C6057;
+        Fri,  3 Jun 2022 19:03:04 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.211.94.47])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Fri,  3 Jun 2022 19:03:04 +0000 (GMT)
+Message-ID: <a9ff5850a4964fe0238261c35591c3c18a4a8df3.camel@linux.ibm.com>
+Subject: Re: [PATCH v1 01/18] vfio/ccw: Remove UUID from s390 debug log
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Liu Yi L <yi.l.liu@intel.com>,
+        Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Michael Kawano <mkawano@linux.ibm.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>
+Date:   Fri, 03 Jun 2022 15:03:02 -0400
+In-Reply-To: <715c1356-b700-f529-f7a8-bb917c8d95d5@linux.ibm.com>
+References: <20220602171948.2790690-1-farman@linux.ibm.com>
+         <20220602171948.2790690-2-farman@linux.ibm.com>
+         <715c1356-b700-f529-f7a8-bb917c8d95d5@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: RLhEcyZeta-WO1VooYtfL2nZ3Kbchc1R
+X-Proofpoint-GUID: JMfMq6xaRFN1vq2XLWrcMFBBKk5KEhww
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-03_06,2022-06-03_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ phishscore=0 mlxlogscore=999 suspectscore=0 spamscore=0 impostorscore=0
+ adultscore=0 priorityscore=1501 mlxscore=0 clxscore=1015
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206030076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Thu, 2 Jun 2022 16:11:24 -0400:
+On Thu, 2022-06-02 at 15:51 -0400, Matthew Rosato wrote:
+> On 6/2/22 1:19 PM, Eric Farman wrote:
+> > From: Michael Kawano <mkawano@linux.ibm.com>
+> > 
+> > As vfio-ccw devices are created/destroyed, the uuid of the
+> > associated
+> > mdevs that are recorded in $S390DBF/vfio_ccw_msg/sprintf get lost
+> > as
+> > they are created using pointers passed by reference.
+> > 
+> > This is a deliberate design point of s390dbf, but it leaves the
+> > uuid
+> 
+> This wording is confusing, maybe some re-wording would help here.
+> 
+> Basically, s390dbf doesn't support values passed by reference today 
+> (e.g. %pUl), it will just store that pointer (e.g. &mdev->uuid) and
+> not 
+> its contents -- so a subsequent viewing of the s390dbf log at any
+> point 
+> in the future will go peek at that referenced memory -- which might
+> have 
+> been freed (e.g. mdev was removed).  So this change will fix
+> potential 
+> garbage data viewed from the log or worse an oops when viewing the
+> log 
+> -- the latter of which should probably be mentioned in the commit
+> message.
+> 
+> I'm not sure if it was a deliberate design decision of s390dbf or
+> just a 
+> feature that was never implemented, so I'd omit that altogether --
+> but 
+> it IS pointed out in the s390dbf documentation as a limitation
+> anyway.
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+@Jason, @Matt...  All fair, I obviously got too verbose in whatever I
+was writing at the time. I've changed this to:
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/6e5f6a86915d65210e90acac0402e6f37e21fc7b
+As vfio-ccw devices are created/destroyed, the uuid of the associated
+mdevs that are recorded in $S390DBF/vfio_ccw_msg/sprintf get lost.
+This is because a pointer to the UUID is stored instead of the UUID
+itself, and that memory may have been repurposed if/when the logs are
+examined. The result is usually garbage UUID data in the logs, though
+there is an outside chance of an oops happening here.
 
-Thank you!
+Simply remove the UUID from the traces, as the subchannel number will
+provide useful configuration information for problem determination,
+and is stored directly into the log instead of a pointer.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+As we were the only consumer of mdev_uuid(), remove that too.
+
+> 
+> The code itself is fine:
+> 
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> 
+> > in these traces less than useful. Since the subchannels are more
+> > constant, and are mapped 1:1 with the mdevs, the associated mdev
+> > can
+> > be discerned by looking at the device configuration (e.g., mdevctl)
+> > and places, such as kernel messages, where it is statically stored.
+> > 
+> > Thus, let's just remove the uuid from s390dbf traces. As we were
+> > the only consumer of mdev_uuid(), remove that too.
+> > 
+> > Cc: Kirti Wankhede <kwankhede@nvidia.com>
+> > Signed-off-by: Michael Kawano <mkawano@linux.ibm.com>
+> > Fixes: 60e05d1cf0875 ("vfio-ccw: add some logging")
+> > Fixes: b7701dfbf9832 ("vfio-ccw: Register a chp_event callback for
+> > vfio-ccw")
+> > [farman: reworded commit message, added Fixes: tags]
+> > Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> > ---
+> >   drivers/s390/cio/vfio_ccw_drv.c |  5 ++---
+> >   drivers/s390/cio/vfio_ccw_fsm.c | 24 ++++++++++++------------
+> >   drivers/s390/cio/vfio_ccw_ops.c |  8 ++++----
+> >   include/linux/mdev.h            |  4 ----
+> >   4 files changed, 18 insertions(+), 23 deletions(-)
+> > 
+> > diff --git a/drivers/s390/cio/vfio_ccw_drv.c
+> > b/drivers/s390/cio/vfio_ccw_drv.c
+> > index ee182cfb467d..35055eb94115 100644
+> > --- a/drivers/s390/cio/vfio_ccw_drv.c
+> > +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> > @@ -14,7 +14,6 @@
+> >   #include <linux/init.h>
+> >   #include <linux/device.h>
+> >   #include <linux/slab.h>
+> > -#include <linux/uuid.h>
+> >   #include <linux/mdev.h>
+> >   
+> >   #include <asm/isc.h>
+> > @@ -358,8 +357,8 @@ static int vfio_ccw_chp_event(struct subchannel
+> > *sch,
+> >   		return 0;
+> >   
+> >   	trace_vfio_ccw_chp_event(private->sch->schid, mask, event);
+> > -	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x
+> > event=%d\n",
+> > -			   mdev_uuid(private->mdev), sch->schid.cssid,
+> > +	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: mask=0x%x event=%d\n",
+> > +			   sch->schid.cssid,
+> >   			   sch->schid.ssid, sch->schid.sch_no,
+> >   			   mask, event);
+> >   
+> > diff --git a/drivers/s390/cio/vfio_ccw_fsm.c
+> > b/drivers/s390/cio/vfio_ccw_fsm.c
+> > index e435a9cd92da..86b23732d899 100644
+> > --- a/drivers/s390/cio/vfio_ccw_fsm.c
+> > +++ b/drivers/s390/cio/vfio_ccw_fsm.c
+> > @@ -256,8 +256,8 @@ static void fsm_io_request(struct
+> > vfio_ccw_private *private,
+> >   		if (orb->tm.b) {
+> >   			io_region->ret_code = -EOPNOTSUPP;
+> >   			VFIO_CCW_MSG_EVENT(2,
+> > -					   "%pUl (%x.%x.%04x):
+> > transport mode\n",
+> > -					   mdev_uuid(mdev),
+> > schid.cssid,
+> > +					   "sch %x.%x.%04x: transport
+> > mode\n",
+> > +					   schid.cssid,
+> >   					   schid.ssid, schid.sch_no);
+> >   			errstr = "transport mode";
+> >   			goto err_out;
+> > @@ -266,8 +266,8 @@ static void fsm_io_request(struct
+> > vfio_ccw_private *private,
+> >   					      orb);
+> >   		if (io_region->ret_code) {
+> >   			VFIO_CCW_MSG_EVENT(2,
+> > -					   "%pUl (%x.%x.%04x):
+> > cp_init=%d\n",
+> > -					   mdev_uuid(mdev),
+> > schid.cssid,
+> > +					   "sch %x.%x.%04x:
+> > cp_init=%d\n",
+> > +					   schid.cssid,
+> >   					   schid.ssid, schid.sch_no,
+> >   					   io_region->ret_code);
+> >   			errstr = "cp init";
+> > @@ -277,8 +277,8 @@ static void fsm_io_request(struct
+> > vfio_ccw_private *private,
+> >   		io_region->ret_code = cp_prefetch(&private->cp);
+> >   		if (io_region->ret_code) {
+> >   			VFIO_CCW_MSG_EVENT(2,
+> > -					   "%pUl (%x.%x.%04x):
+> > cp_prefetch=%d\n",
+> > -					   mdev_uuid(mdev),
+> > schid.cssid,
+> > +					   "sch %x.%x.%04x:
+> > cp_prefetch=%d\n",
+> > +					   schid.cssid,
+> >   					   schid.ssid, schid.sch_no,
+> >   					   io_region->ret_code);
+> >   			errstr = "cp prefetch";
+> > @@ -290,8 +290,8 @@ static void fsm_io_request(struct
+> > vfio_ccw_private *private,
+> >   		io_region->ret_code = fsm_io_helper(private);
+> >   		if (io_region->ret_code) {
+> >   			VFIO_CCW_MSG_EVENT(2,
+> > -					   "%pUl (%x.%x.%04x):
+> > fsm_io_helper=%d\n",
+> > -					   mdev_uuid(mdev),
+> > schid.cssid,
+> > +					   "sch %x.%x.%04x:
+> > fsm_io_helper=%d\n",
+> > +					   schid.cssid,
+> >   					   schid.ssid, schid.sch_no,
+> >   					   io_region->ret_code);
+> >   			errstr = "cp fsm_io_helper";
+> > @@ -301,16 +301,16 @@ static void fsm_io_request(struct
+> > vfio_ccw_private *private,
+> >   		return;
+> >   	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
+> >   		VFIO_CCW_MSG_EVENT(2,
+> > -				   "%pUl (%x.%x.%04x): halt on
+> > io_region\n",
+> > -				   mdev_uuid(mdev), schid.cssid,
+> > +				   "sch %x.%x.%04x: halt on
+> > io_region\n",
+> > +				   schid.cssid,
+> >   				   schid.ssid, schid.sch_no);
+> >   		/* halt is handled via the async cmd region */
+> >   		io_region->ret_code = -EOPNOTSUPP;
+> >   		goto err_out;
+> >   	} else if (scsw->cmd.fctl & SCSW_FCTL_CLEAR_FUNC) {
+> >   		VFIO_CCW_MSG_EVENT(2,
+> > -				   "%pUl (%x.%x.%04x): clear on
+> > io_region\n",
+> > -				   mdev_uuid(mdev), schid.cssid,
+> > +				   "sch %x.%x.%04x: clear on
+> > io_region\n",
+> > +				   schid.cssid,
+> >   				   schid.ssid, schid.sch_no);
+> >   		/* clear is handled via the async cmd region */
+> >   		io_region->ret_code = -EOPNOTSUPP;
+> > diff --git a/drivers/s390/cio/vfio_ccw_ops.c
+> > b/drivers/s390/cio/vfio_ccw_ops.c
+> > index d8589afac272..bebae21228aa 100644
+> > --- a/drivers/s390/cio/vfio_ccw_ops.c
+> > +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> > @@ -131,8 +131,8 @@ static int vfio_ccw_mdev_probe(struct
+> > mdev_device *mdev)
+> >   	private->mdev = mdev;
+> >   	private->state = VFIO_CCW_STATE_IDLE;
+> >   
+> > -	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: create\n",
+> > -			   mdev_uuid(mdev), private->sch->schid.cssid,
+> > +	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: create\n",
+> > +			   private->sch->schid.cssid,
+> >   			   private->sch->schid.ssid,
+> >   			   private->sch->schid.sch_no);
+> >   
+> > @@ -154,8 +154,8 @@ static void vfio_ccw_mdev_remove(struct
+> > mdev_device *mdev)
+> >   {
+> >   	struct vfio_ccw_private *private = dev_get_drvdata(mdev-
+> > >dev.parent);
+> >   
+> > -	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: remove\n",
+> > -			   mdev_uuid(mdev), private->sch->schid.cssid,
+> > +	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: remove\n",
+> > +			   private->sch->schid.cssid,
+> >   			   private->sch->schid.ssid,
+> >   			   private->sch->schid.sch_no);
+> >   
+> > diff --git a/include/linux/mdev.h b/include/linux/mdev.h
+> > index 15d03f6532d0..a5788f592817 100644
+> > --- a/include/linux/mdev.h
+> > +++ b/include/linux/mdev.h
+> > @@ -139,10 +139,6 @@ static inline void mdev_set_drvdata(struct
+> > mdev_device *mdev, void *data)
+> >   {
+> >   	mdev->driver_data = data;
+> >   }
+> > -static inline const guid_t *mdev_uuid(struct mdev_device *mdev)
+> > -{
+> > -	return &mdev->uuid;
+> > -}
+> >   
+> >   extern struct bus_type mdev_bus_type;
+> >   
+
