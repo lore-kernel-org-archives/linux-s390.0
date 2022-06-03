@@ -2,158 +2,392 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B2D8C43334
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Jun 2022 13:37:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 226E0C43334
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Jun 2022 13:49:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230269AbiFCNhS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Jun 2022 09:37:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52480 "EHLO
+        id S243775AbiFCNtr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Jun 2022 09:49:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230239AbiFCNhS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jun 2022 09:37:18 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2046.outbound.protection.outlook.com [40.107.237.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5E55FB7;
-        Fri,  3 Jun 2022 06:37:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kxeFS06+NtUvAxjNS0dtowuIR6kcxUA2u6HKO1x5V3jHWwPEiERLgsNJ4276xKCGdj0Nczhzeb2Gj2MuSGz3oFz5BOd6h0djkHxWh1VBeeSwVGSf7CDcU5a9qiWL+nyFmHebi2rSMJ2kXNzqRJlcgu5kMHmZXpPKEXlJ1oUWtJuX78pcVyz5s5UHBdaX/KbCKfOZlbZGKxjjv45ZyWubkbmThi255tpU1B76e6czFMU7H61xpP1nacA4+lcB8IlSvI9i5FMrrLDUeYVpBQ6CByltewaZ0Y1yMp9EmTilUayhYh8S0v3ArIaRaELPfNgJ7Xfh/PwQAypM0aYy8lW45g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=h75YBVdWjDDhMOswN0rvs3ClDy3jbpwi8GCx7p3QgoY=;
- b=WBgu9rOAdR9hmFhz/pSafRlP0M+E/Oc3d0/Kl7bS4A/1CxtPK9/qvucNjpw6RRvabtj3qkgMjN6xKT7NzTk20rY3Q6frbMNR44jvKNkUdCECgjAC9zGJM2RWFy2cJsqyvLywfU0EoKguQizysiRLvNvekx2boyvO8LP7OZnYU7S6zwCdzyKMb3UEcuxhFNOs7LXiOEGCMTmzc7qHJRGXtScBdTG2P4q27r+8DClsGYVR2oIFcRwQkc5jDxR+c17faKiZ0pkCIHK31Osw3FIWbn+/ONCQRImiAJ1u/AaVgrU6wCbxBJ/m0sZEqet3TE8rgCOYsqex3iYQlgsSye9VkA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=h75YBVdWjDDhMOswN0rvs3ClDy3jbpwi8GCx7p3QgoY=;
- b=RY/P37pvVQSwLRCsfyLY4yhrr1LKyGtbV3uEdX6rIiWytyu/KAHwsNo01OFh481vdR64Y/kjV6dQGpFr6w+Lw+YT7TYXP6kS5Ozy1oAgSd7zx/YJNS5UMcJFk96BnmTE+oriFuH/q/jAGngvNULiJUBHunZv1IYUqSuh0ILq5rsr79kw27mLI5w2bu4QFrf4yOgW5y3blr71q3M0Dif6I8exn3b5BszDRwBiyMpxjIajRrb6ezVDItNkRK7cCQGy60G3EFgahnQrIQ22rFj8/J/8codPjasyLzxHJrS87RJ/j/6R0GtbTDm7UIxvWRYdy+02lLOPMULG4JRdEUxamg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by MN2PR12MB4799.namprd12.prod.outlook.com (2603:10b6:208:a2::26) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13; Fri, 3 Jun
- 2022 13:37:14 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::2484:51da:d56f:f1a5]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::2484:51da:d56f:f1a5%9]) with mapi id 15.20.5314.015; Fri, 3 Jun 2022
- 13:37:14 +0000
-Date:   Fri, 3 Jun 2022 10:37:13 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     Eric Farman <farman@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        "Jason J. Herne" <jjherne@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Liu Yi L <yi.l.liu@intel.com>,
-        Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v1 03/18] vfio/ccw: Ensure mdev->dev is cleared on mdev
- remove
-Message-ID: <20220603133713.GZ1343366@nvidia.com>
-References: <20220602171948.2790690-1-farman@linux.ibm.com>
- <20220602171948.2790690-4-farman@linux.ibm.com>
- <65153af9-be41-8f20-98f1-bc047518c3ae@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <65153af9-be41-8f20-98f1-bc047518c3ae@linux.ibm.com>
-X-ClientProxiedBy: BL1PR13CA0273.namprd13.prod.outlook.com
- (2603:10b6:208:2bc::8) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S244810AbiFCNtp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jun 2022 09:49:45 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E65D25EB2;
+        Fri,  3 Jun 2022 06:49:44 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 253BTr9U018188;
+        Fri, 3 Jun 2022 13:49:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : from : subject : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=TdyYOPU40kXZFFG8Xb0JF+fPyOykeVsIfyHEddjXwFY=;
+ b=AikR8zSW/CcnTWTlfo8BlXnCEzHpJx3FVWgEAEJqqMvX99i8IpIDpwfLhcz3EWo4v1iO
+ jjTkh3QEIwXlqAoTw7EcvGgaG4XMh49FUmvK1Ddy/LGPaC/jGWdajLg65cDuQQXxfkDh
+ Pmai3gUY93yz3U/QUQGqBObMA7mlrNuXYyA37U2+8uJLDkUQVsUdbc4yx1tkau0Jpfuu
+ RfPga7CV5ZSqyMDbsfgbZHchjGLFBHsDYkEeKo2lL8GRUmOL29a4I9zpFO+CCbj1eUJB
+ EmFD+aM5Soxs/QRW+cUldJrG7ahFQLmqd8bu3rhIdhRP3dg4fyDmh6NB1d6dvaiMkOQN dw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gfhftafpg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 13:49:43 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 253DYjw7000481;
+        Fri, 3 Jun 2022 13:49:43 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gfhftafnf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 13:49:43 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 253DaQeY006978;
+        Fri, 3 Jun 2022 13:49:40 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3gf2afgt3k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 13:49:40 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 253Dnb9P47645078
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 3 Jun 2022 13:49:37 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7142AA4055;
+        Fri,  3 Jun 2022 13:49:37 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 411B7A4051;
+        Fri,  3 Jun 2022 13:49:34 +0000 (GMT)
+Received: from [9.171.9.147] (unknown [9.171.9.147])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  3 Jun 2022 13:49:34 +0000 (GMT)
+Message-ID: <c5eb73b0-776d-d0eb-7040-09fcbb603a8f@linux.ibm.com>
+Date:   Fri, 3 Jun 2022 15:49:33 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: efb86d95-a36e-4457-0c67-08da45662b1d
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4799:EE_
-X-Microsoft-Antispam-PRVS: <MN2PR12MB47990E80D5FAF92EE41BBCFDC2A19@MN2PR12MB4799.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: SOOl1Oz3ZATdClOZWpGplCMSHmFYECGKIJNtD1VWdY3cmXA2My0cUoi9dDAQW92YQwGVg+106qeHt7q/Ek0QtQg7JEgCiR3Tu+/f5mM5YzMnWOW5OZTVDkuGZGJCQMIshNcETVeMUZaBoF9DhOGFq4nPT9nTySgE6cRG7Ftm4BcaHdDdNQPrzyP1wdbSFZ2TWlcyWAPOhPlgxE0Oz0IW5tAlJ5CSYjGb6TdRxCiUVggcTTAdilc21U868AXz5TFXvXtVSFKwInzDQzhEl9nRbx/CpZNN5Fvb9IUJt3mSLS/uC9HydFOXwFE9GfTv3A4OtHL5ZKBaR/HegyTKGQ1shge4PBKMd89CzOYe3kvfva4AvX3XxvcXCZXDhCHEA0O1hBWdvOXBE2Qt1Zj7eX1mnijPQISaSLSYZHH/CDTUr/hVePw/HAZChp5NALsjdYAsXucU0C1qaJVQwSHfm/+ntR91RKrtuuYi/Kh15dqF1w3gbq/SsDvKqvZrqh8I+h5dQDdcZet+Z9XYM9peCL45E/RVifPHkWX5BEcNY7SKJqOA92I88khQ0L6s874vd9SFt+hMsDGw3oYGVuZcwZFHCqahveFgAxVSsSZA8O8J3F20ikh6Ce6s3KC9QKtjHX5XPC7Tt53f5SzJPx6xlq0eqQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6486002)(53546011)(186003)(6916009)(508600001)(2906002)(54906003)(33656002)(4326008)(8676002)(66556008)(8936002)(66476007)(66946007)(5660300002)(6512007)(1076003)(2616005)(26005)(86362001)(6506007)(316002)(38100700002)(36756003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?xYYcfwouiecDrwF88JXJBwpkvEO6pMLgB6bAuguk0QYZmf+mSK6YJqV/A6R3?=
- =?us-ascii?Q?PGxzRDEq22byb/J3Sgdx3YNiJsw1uoaznlQEYluyOelVP20Ba/U1mOOollx2?=
- =?us-ascii?Q?6ezdBWq6DBhS8/SxpuD/6Z8Zzo2sh3TEl/MxfQmIwF3Vscfiwwvji47yl0Js?=
- =?us-ascii?Q?z0M71FgcI4QdmGZ1y9iNaSZf1Cw7GdPwVqmloFDC1lBHF0j+KBfXifu1Fv/G?=
- =?us-ascii?Q?Qm1ugrU5imXoQKGQwbuCDJjiGjtA0w49rPdacR1btilE7UiZIe39XIJksHaf?=
- =?us-ascii?Q?6mAffZuU/HpnZeEQNJUYlaYR8MZBERgkTcgEJ0L36enYuucohIZeXT2hrRMA?=
- =?us-ascii?Q?z5m5/q1munGlrhNaSJUfNXAVf4djbsa71UQ7/pePpl56RIP3/um3hb+xgy1M?=
- =?us-ascii?Q?QdlI3uZHdoKdkv07NosUlvrKPxBoQ1AyAaZ8gLp3bW2MTPj2dumUgBQCeyRb?=
- =?us-ascii?Q?WtSo9sHVPXNbHObLpmphRQ7ny5KdDmEX6OJMbB7m55gkp0l9qe+YKWq4qFPS?=
- =?us-ascii?Q?ZirDZPsznJBDnUHOVJssl+Y+IKtB4oEEa94SfsaqeGQ6MhOfF7PvNV1OXIr+?=
- =?us-ascii?Q?1URatzqjIXFrHtHOApz9T0k9LA8/Mmkl66toLrTBv7lwCX712LahHbw1E2Z4?=
- =?us-ascii?Q?jXBV3oX4FHbxAc0PUNat4dZf1X1Q5r4DR9EIOWvJInNcQQXbYlU/CrzVSyiv?=
- =?us-ascii?Q?LknDtPeFDoTZeQ+nETb1L81FCBpnFD9R7F29vgnnB8mRF1AoXSpbapPRpoVe?=
- =?us-ascii?Q?2u6x6Awq+WWXzkcqgxN52XrfwRW49Dw8HhjMUwRiD8gF76O0iVdjGtddho+Q?=
- =?us-ascii?Q?tqRT+JlIqZ/DD1HZVVcMhnHHl77TDXL5rlfXm3HYlipVVYTYQQPqASShb7KA?=
- =?us-ascii?Q?FKXXg5iYeVHQ1tLdUWMG0LrlBFv+uNL2FPlpMyEYUzj5JXhEHOsED6maXUOD?=
- =?us-ascii?Q?SZeH9yyieNTVjiitKzRu8202ucdB9xGCBvGJU/E3DaNnquQDi6XR/uYCXj4k?=
- =?us-ascii?Q?XZw4+raG+amtd5UN7wZGnIFyy0I8OXeuMVmIwkLytLSN1dKmXbjL2MWZa4Rw?=
- =?us-ascii?Q?d+QBAr/VV1g1WkGI7j++sSQ2Ny/7w8bghPbVsRgJgx5jPVCi60oylDWaNviX?=
- =?us-ascii?Q?GBmOtvOc9DiE6oepgjMoLrEqn14e19+wCTgy3A0B/xAGv08ETuAb4ohTBTlW?=
- =?us-ascii?Q?Ot9xQpMAs5x1I7vPw8Fv9sBkRk55YWfG1INCqt76m9ng/GAIvv40LIiMVm15?=
- =?us-ascii?Q?GCeAYX+RmejhsJWgxCiUCHVF34S1VCZRpsBUT8y0ufGIeNOLfcinWlJ4FPK0?=
- =?us-ascii?Q?OXBNtjVYvyLgtdAr4fdu7TdL1sJ6raF7/JcAQpr8eaeO7USmZcljwTBGfg5p?=
- =?us-ascii?Q?FJIDjq/mtc/bD9UO7dNJRPkbpXrmygw9H/61PgxqC1QNMDELf1q1rl5CIY+z?=
- =?us-ascii?Q?pf7MjldwkzzfH8KILk+WU/XPYztaa7GAvHvPAwHPR7Jxc7JYYJLXVNb0cobV?=
- =?us-ascii?Q?enkgmLscG6SCsKIojYYAy38n0SK+y5WIlLiAXUGLu+OxjC2j7zv/WzDrTvlm?=
- =?us-ascii?Q?L/cASOT2x4BQhF5SD4rRybfUqfeCxWBsowLtKvIjhNAM+RFvgbDHYCxSpQew?=
- =?us-ascii?Q?1hprORno01SQTgozA/thHyE7sAshe6JovLPATz2efYy2y0YnVgAqG8Xgklhn?=
- =?us-ascii?Q?f6ai8uNJXxUMN9gXD4rCs6V2knSyqlU13cFnD7OEsON4wjao49s7C+qtLu8F?=
- =?us-ascii?Q?4aZPhtpnQg=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: efb86d95-a36e-4457-0c67-08da45662b1d
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Jun 2022 13:37:13.9901
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Bf4OraLZDj734eOoM1koUOji2j9Y5f+PDTquGUhH86GvFiyJw7UE/wZ2iIhr6vma
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4799
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: Rework TEID decoding and usage
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20220520190850.3445768-1-scgl@linux.ibm.com>
+ <20220520190850.3445768-4-scgl@linux.ibm.com>
+ <20220524164030.6adb45bf@p-imbrenda>
+Content-Language: en-US
+In-Reply-To: <20220524164030.6adb45bf@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: MmwAiKSzyDyrSWrfEjqxmt474qwV4dlp
+X-Proofpoint-ORIG-GUID: UwX3_PFGQEVC1XOIvRmH98zl3XXtHaBp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-03_04,2022-06-03_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 adultscore=0 suspectscore=0 clxscore=1015
+ mlxlogscore=999 malwarescore=0 impostorscore=0 spamscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2206030059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 03, 2022 at 09:25:19AM -0400, Matthew Rosato wrote:
-> On 6/2/22 1:19 PM, Eric Farman wrote:
-> > The mdev is linked with the vfio_ccw_private pointer when the mdev
-> > is probed, but it's not cleared once the mdev is removed.
-> > 
-> > This isn't much of a concern based on the current device lifecycle,
-> > but fix it so that things make sense in later shuffling.
-> > 
-> > Fixes: 3bf1311f351ef ("vfio/ccw: Convert to use vfio_register_emulated_iommu_dev()")
-> > Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> >   drivers/s390/cio/vfio_ccw_ops.c | 1 +
-> >   1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> > index a403d059a4e6..a0a3200b0b04 100644
-> > +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> > @@ -159,6 +159,7 @@ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
-> >   			   private->sch->schid.ssid,
-> >   			   private->sch->schid.sch_no);
-> > +	dev_set_drvdata(&mdev->dev, NULL);
-> >   	vfio_unregister_group_dev(&private->vdev);
-> >   	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+On 5/24/22 16:40, Claudio Imbrenda wrote:
+> On Fri, 20 May 2022 21:08:50 +0200
+> Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
 > 
-> Seems harmless enough.
+>> The translation-exception identification (TEID) contains information to
+>> identify the cause of certain program exceptions, including translation
+>> exceptions occurring during dynamic address translation, as well as
+>> protection exceptions.
+>> The meaning of fields in the TEID is complex, depending on the exception
+>> occurring and various potentially installed facilities.
+>>
+>> Rework the type describing the TEID, in order to ease decoding.
+>> Change the existing code interpreting the TEID and extend it to take the
+>> installed suppression-on-protection facility into account.
+>>
+>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>> ---
+>>  lib/s390x/asm/interrupt.h | 66 ++++++++++++++++++++++++++--------
+>>  lib/s390x/fault.h         | 30 ++++------------
+>>  lib/s390x/fault.c         | 74 +++++++++++++++++++++++++++------------
+>>  lib/s390x/interrupt.c     |  2 +-
+>>  s390x/edat.c              | 20 +++++++----
+>>  5 files changed, 124 insertions(+), 68 deletions(-)
+>>
+>> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+>> index d9ab0bd7..8d5bfbf9 100644
+>> --- a/lib/s390x/asm/interrupt.h
+>> +++ b/lib/s390x/asm/interrupt.h
+>> @@ -20,23 +20,61 @@
+>>  
+>>  union teid {
+>>  	unsigned long val;
+>> -	struct {
+>> -		unsigned long addr:52;
+>> -		unsigned long fetch:1;
+>> -		unsigned long store:1;
+>> -		unsigned long reserved:6;
+>> -		unsigned long acc_list_prot:1;
+>> -		/*
+>> -		 * depending on the exception and the installed facilities,
+>> -		 * the m field can indicate several different things,
+>> -		 * including whether the exception was triggered by a MVPG
+>> -		 * instruction, or whether the addr field is meaningful
+>> -		 */
+>> -		unsigned long m:1;
+>> -		unsigned long asce_id:2;
+>> +	union {
+>> +		/* common fields DAT exc & protection exc */
+>> +		struct {
+>> +			uint64_t addr			: 52 -  0;
+>> +			uint64_t acc_exc_f_s		: 54 - 52;
+>> +			uint64_t side_effect_acc	: 55 - 54;
+>> +			uint64_t /* reserved */		: 55 - 54;
 > 
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> 
-> But is this just precautionary or is it fixing a real problem (if the former
-> I don't think a fixes tag makes sense)
-> 
-> I also ask because I note vfio-ap clears its driver_data in mdev_remove but
-> also leaves the pointer set, meaning they might need a similar cleanup and
-> should probably have a look (CC Tony & Jason H)
+> shouldn't this ^ be 62 - 55 ?
 
-There should be no reason to clear the drvdata on remove - the driver
-must be designed to guarentee all references to the dev stop before
-the remove function returns.
+Oops, yes.
+> 
+>> +			uint64_t asce_id		: 64 - 62;
+>> +		};
+>> +		/* DAT exc */
+>> +		struct {
+>> +			uint64_t /* pad */		: 61 -  0;
+>> +			uint64_t dat_move_page		: 62 - 61;
+>> +		};
+>> +		/* suppression on protection */
+>> +		struct {
+>> +			uint64_t /* pad */		: 60 -  0;
+>> +			uint64_t sop_acc_list		: 61 - 60;
+>> +			uint64_t sop_teid_predictable	: 62 - 61;
+>> +		};
+>> +		/* enhanced suppression on protection 1 */
+>> +		struct {
+>> +			uint64_t /* pad */		: 61 -  0;
+> 
+> 60 - 0
+> 
+>> +			uint64_t esop1_acc_list_or_dat	: 62 - 61;
+> 
+> 61 - 60
+> 
+> and then:
+> 
+> uint64_t esop1_teid_predictable : 62 - 61;
+> 
+Ah, no, but I see how it is confusing.
+If bit 61 is one then the exception is due to access list or DAT.
+That's why its called acc_list_or_dat.
+If it is zero it's due to low address or key and the rest of the TEID
+is unpredictable. So this is an alias of sop_teid_predictable.
 
-Jason
+>> +		};
+>> +		/* enhanced suppression on protection 2 */
+>> +		struct {
+>> +			uint64_t /* pad */		: 56 -  0;
+>> +			uint64_t esop2_prot_code_0	: 57 - 56;
+>> +			uint64_t /* pad */		: 60 - 57;
+>> +			uint64_t esop2_prot_code_1	: 61 - 60;
+>> +			uint64_t esop2_prot_code_2	: 62 - 61;
+>> +		};
+>>  	};
+>>  };
+>>  
+>> +enum prot_code {
+>> +	PROT_KEY_LAP,
+>> +	PROT_DAT,
+>> +	PROT_KEY,
+>> +	PROT_ACC_LIST,
+>> +	PROT_LAP,
+>> +	PROT_IEP,
+> 
+> I would still also define two PROT_INVALID or PROT_RESERVED
+> 
+> just to avoid surprises
+> 
+I guess the values are reserved, but maybe an assert would be better?
+Then we'd be notified to fix the test.
+
+[...]
+
+>> +static void print_decode_pgm_prot(union teid teid, bool dat)
+>> +{
+>> +	switch (get_supp_on_prot_facility()) {
+>> +	case SOP_NONE:
+>> +		printf("Type: ?\n");
+>> +		break;
+>> +	case SOP_BASIC:
+>> +		if (teid.sop_teid_predictable && dat && teid.sop_acc_list)
+>> +			printf("Type: ACC\n");
+>> +		else
+>> +			printf("Type: ?\n");
+>> +		break;
+>> +	case SOP_ENHANCED_1:
+>> +		if (teid.esop1_acc_list_or_dat) {
+>> +			if (teid.sop_acc_list)
+>> +				printf("Type: ACC\n");
+>> +			else
+>> +				printf("Type: DAT\n");
+>> +		} else {
+>> +			printf("Type: KEY or LAP\n");
+>> +		}
+>> +		break;
+>> +	case SOP_ENHANCED_2:
+>> +		switch (teid_esop2_prot_code(teid)) {
+> 
+> I wonder if it weren't easier to do
+> 
+> static const char * const prot_strings[6] = {"KEY or LAP", "DAT", ...};
+> printf("Type: %s\n", prot_strings[teid_esop2_prot_code(teid)]);
+> 
+Yeah, good idea.
+
+>> +		case PROT_KEY_LAP:
+>> +			printf("Type: KEY or LAP\n");
+>> +			break;
+>> +		case PROT_DAT:
+>> +			printf("Type: DAT\n");
+>> +			break;
+>> +		case PROT_KEY:
+>> +			printf("Type: KEY\n");
+>> +			break;
+>> +		case PROT_ACC_LIST:
+>> +			printf("Type: ACC\n");
+>> +			break;
+>> +		case PROT_LAP:
+>> +			printf("Type: LAP\n");
+>> +			break;
+>> +		case PROT_IEP:
+>> +			printf("Type: IEP\n");
+>> +			break;
+>> +		}
+>>  	}
+>>  }
+>>  
+
+[...]
+
+>> @@ -65,10 +93,10 @@ void print_decode_teid(uint64_t teid)
+>>  	 */
+>>  	if ((lowcore.pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
+>>  	     lowcore.pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION) &&
+>> -	    !test_bit_inv(61, &teid)) {
+>> -		printf("Address: %lx, unpredictable\n ", teid & PAGE_MASK);
+>> +	    !teid.sop_teid_predictable) {
+>> +		printf("Address: %lx, unpredictable\n ", raw_teid & PAGE_MASK);
+>>  		return;
+>>  	}
+>> -	printf("TEID: %lx\n", teid);
+>> -	printf("Address: %lx\n\n", teid & PAGE_MASK);
+>> +	printf("TEID: %lx\n", raw_teid);
+>> +	printf("Address: %lx\n\n", raw_teid & PAGE_MASK);
+> 
+> teid.addr << PAGE_SHIFT ?
+
+I got compiler warnings because teid.addr is 52 bit.
+> 
+>>  }
+>> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+>> index 6da20c44..ac3d1ecd 100644
+>> --- a/lib/s390x/interrupt.c
+>> +++ b/lib/s390x/interrupt.c
+>> @@ -77,7 +77,7 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
+>>  		break;
+>>  	case PGM_INT_CODE_PROTECTION:
+>>  		/* Handling for iep.c test case. */
+>> -		if (prot_is_iep(lowcore.trans_exc_id))
+>> +		if (prot_is_iep((union teid) { .val = lowcore.trans_exc_id }))
+>>  			/*
+>>  			 * We branched to the instruction that caused
+>>  			 * the exception so we can use the return
+>> diff --git a/s390x/edat.c b/s390x/edat.c
+>> index c6c25042..af442039 100644
+>> --- a/s390x/edat.c
+>> +++ b/s390x/edat.c
+>> @@ -37,14 +37,20 @@ static bool check_pgm_prot(void *ptr)
+>>  		return false;
+>>  
+>>  	teid.val = lowcore.trans_exc_id;
+>> -
+>> -	/*
+>> -	 * depending on the presence of the ESOP feature, the rest of the
+>> -	 * field might or might not be meaningful when the m field is 0.
+>> -	 */
+>> -	if (!teid.m)
+>> +	switch (get_supp_on_prot_facility()) {
+>> +	case SOP_NONE:
+>>  		return true;
+>> -	return (!teid.acc_list_prot && !teid.asce_id &&
+>> +	case SOP_BASIC:
+>> +		if (!teid.sop_teid_predictable)
+>> +			return true;
+> 
+This function is mostly correct, except it's missing
+break; statements (so not correct at all :)).
+
+> add:
+> 
+> if (teid.sop_acc_list)
+> 	return false;
+> 
+Will be taken care of by the return statement at the very bottom.
+
+>> +	case SOP_ENHANCED_1:
+> 
+> you need to handle the unpredictable case here too
+> 
+>> +		if (!teid.esop1_acc_list_or_dat)
+>> +			return false;
+>
+> so you return false the it is DAT... but if it is not DAT, it's
+> access-control-list... 
+> 
+So this makes sense if instead you think about bit 61.
+It also shows the rational for the variable name if you read it as
+"if the exception was not due to either access list or DAT", so we
+return false in case we know it was not DAT.
+
+> you might want to replace this whole case with:
+> 
+> return !teid.esop1_teid_predictable;
+> 
+> (although I don't understand why you want to exclude DAT here)
+> 
+>> +	case SOP_ENHANCED_2:
+>> +		if (teid_esop2_prot_code(teid) != 1)
+> 
+> why not using the PROT_DAT enum?
+
+Just forgot.
+
+> also, handle the PROT_ACC_LIST too
+> 
+> also, add:
+> 
+> if (PROT_KEY_LAP)
+> 	return true;
+
+Am I misunderstanding the edat test? We're expecting nothing but
+DAT protection exceptions, no? So everything else is a test failure.
+> 
+> because in that case you don't have the address part.
+> 
+> 
+> 
+> but at this point I wonder if you can't just rewrite this function with
+> an additional enum prot_code parameter, to specify the exact type of
+> exception you're expecting
+
+Maybe, but I don't think it's worth it. The logic is complicated and I'd
+prefer to keep it as simple as possible and keeping it specific to the test
+helps with that, instead of generalizing it to all possibilities.
+> 
+>> +			return false;
+>> +	}
+>> +	return (!teid.sop_acc_list && !teid.asce_id &&
+>>  		(teid.addr == ((unsigned long)ptr >> PAGE_SHIFT)));
+>>  }
+>>  
+> 
+
