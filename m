@@ -2,185 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DE67CCA473
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Jun 2022 06:57:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DB6BC433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Jun 2022 06:57:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241757AbiFCG5F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Jun 2022 02:57:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
+        id S241818AbiFCG5G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Jun 2022 02:57:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241738AbiFCG5D (ORCPT
+        with ESMTP id S241769AbiFCG5D (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jun 2022 02:57:03 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45C2F2F;
-        Thu,  2 Jun 2022 23:56:55 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2536i6Pn032567;
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4804F36;
+        Thu,  2 Jun 2022 23:56:54 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2536hlGw031177;
         Fri, 3 Jun 2022 06:56:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=nVxjbhDKJVU2SodTU+YqCP2t/lJgulhuO+wfOpNsDb8=;
- b=CTFmCu/uMQB5+Ia1dirmKNu7drEQeiK2F6XE2CS5GGLKnm9NI78VaT/9p3hdMLxs8m/D
- VYyBXjkpoT7X0fwk1ExFPCOAX6ehR2dA5rvIVg9DPDqKCNE8ZAeZzN2mMHrAXf/HBxb5
- Y1QLZ+JJwrAIzhBQ03Fv27wsuZTOLk5JwkXW3tI2bxVCiEWA0sUv5AZpkkUEytwmIYR2
- jNf6ZCxMC6RqBStlTyjL9a/aKq0I2MmqeyedI28IubH5h78l/vJZaQlQZYAVkZ4o8381
- stpbG91mvhvGsRxhjwcd16ayv8TFk56jXXrvH93rnmyiXpcvf9W8jm0Ueaf5t+UMt1V4 Lg== 
+ bh=B76ii6aGW9eLNBNEMMOE6K6NRx7mIr3K+oSU22gMg14=;
+ b=WQS2cPWRULH0Ur4dSh9pR7YslD1YnkNdIg7vDg5OHASGcGUoCqVsOBEu1B8xSg1e9/SB
+ Yc9fD9otcsLT7sNsmr3MO/a6409ChvBXbxWgd4PofmeiHBAEgVXfd8Un9YO8vAfWZHcF
+ 9+/xiyeczjiZmxh6oJzHOky9c3VcHpLx0f36AHy8Zw7k+/dX0p4EISQrGk2VSttZq7LV
+ 63tE5qBItdtVApcCt96LgrnEFepsgoBsO9BcEkIQfk2NeNg02bIBKJSIDH72yISWnVQK
+ FP8OYQwmXB52Ubn4pBeHgawkn2MHCMlTVtZ0W8js6cK096QqtM0kGDwNm3n4gfX319EL IQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gfd9fg690-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Jun 2022 06:56:54 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2536ru0Q021027;
-        Fri, 3 Jun 2022 06:56:53 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gfd9fg68j-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gfd9r85rb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 03 Jun 2022 06:56:53 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2536pgUQ023035;
-        Fri, 3 Jun 2022 06:56:51 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04fra.de.ibm.com with ESMTP id 3gbc8yp3p8-1
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2536kDxx009902;
+        Fri, 3 Jun 2022 06:56:53 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gfd9r85qp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Jun 2022 06:56:51 +0000
+        Fri, 03 Jun 2022 06:56:53 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2536pKca027181;
+        Fri, 3 Jun 2022 06:56:50 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma02fra.de.ibm.com with ESMTP id 3gbcc6e3wh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 06:56:50 +0000
 Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2536um3o20709784
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2536ulHo22282500
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Jun 2022 06:56:48 GMT
+        Fri, 3 Jun 2022 06:56:47 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 750FB4203F;
-        Fri,  3 Jun 2022 06:56:48 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7E9A14203F;
+        Fri,  3 Jun 2022 06:56:47 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 212C142047;
-        Fri,  3 Jun 2022 06:56:48 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 2B58642042;
+        Fri,  3 Jun 2022 06:56:47 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.40])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  3 Jun 2022 06:56:48 +0000 (GMT)
+        Fri,  3 Jun 2022 06:56:47 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
         mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: [PATCH v11 05/19] KVM: s390: pv: usage counter instead of flag
-Date:   Fri,  3 Jun 2022 08:56:31 +0200
-Message-Id: <20220603065645.10019-6-imbrenda@linux.ibm.com>
+Subject: [PATCH v11 03/19] KVM: s390: pv: handle secure storage exceptions for normal guests
+Date:   Fri,  3 Jun 2022 08:56:29 +0200
+Message-Id: <20220603065645.10019-4-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220603065645.10019-1-imbrenda@linux.ibm.com>
 References: <20220603065645.10019-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MeIbW88PbuO1Sf8QufEfqkFd59_bpwWa
-X-Proofpoint-GUID: yjcN1-S3orveR7cWp9ooVxT2KPkZhr4G
+X-Proofpoint-ORIG-GUID: qOPRGrEGTBTXrJU88kpjD_gblkSc-GB_
+X-Proofpoint-GUID: 7-ZEXGxjAF--eAykZlV6mjS-Ldj0T7s4
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-03_02,2022-06-02_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- adultscore=0 clxscore=1015 mlxscore=0 spamscore=0 malwarescore=0
- priorityscore=1501 suspectscore=0 mlxlogscore=999 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2022-06-03_01,2022-06-02_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=497
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 clxscore=1015
+ malwarescore=0 phishscore=0 spamscore=0 bulkscore=0 mlxscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2206030027
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use the new protected_count field as a counter instead of the old
-is_protected flag. This will be used in upcoming patches.
+With upcoming patches, normal guests might touch secure pages.
 
-Increment the counter when a secure configuration is created, and
-decrement it when it is destroyed. Previously the flag was set when the
-set secure parameters UVC was performed.
+This patch extends the existing exception handler to convert the pages
+to non secure also when the exception is triggered by a normal guest.
+
+This can happen for example when a secure guest reboots; the first
+stage of a secure guest is non secure, and in general a secure guest
+can reboot into non-secure mode.
+
+If the secure memory of the previous boot has not been cleared up
+completely yet (which will be allowed to happen in an upcoming patch),
+a non-secure guest might touch secure memory, which will need to be
+handled properly.
+
+This means that gmap faults must be handled and not cause termination
+of the process. The handling is the same as userspace accesses, it's
+enough to translate the gmap address to a user address and then let the
+normal user fault code handle it.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/include/asm/mmu.h         |  2 +-
- arch/s390/include/asm/mmu_context.h |  2 +-
- arch/s390/include/asm/pgtable.h     |  2 +-
- arch/s390/kvm/pv.c                  | 12 +++++++-----
- 4 files changed, 10 insertions(+), 8 deletions(-)
+ arch/s390/mm/fault.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
-index 82aae78e1315..1572b3634cdd 100644
---- a/arch/s390/include/asm/mmu.h
-+++ b/arch/s390/include/asm/mmu.h
-@@ -18,7 +18,7 @@ typedef struct {
- 	unsigned long asce_limit;
- 	unsigned long vdso_base;
- 	/* The mmu context belongs to a secure guest. */
--	atomic_t is_protected;
-+	atomic_t protected_count;
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index af1ac49168fb..ee7871f770fb 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -754,6 +754,7 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 	struct vm_area_struct *vma;
+ 	struct mm_struct *mm;
+ 	struct page *page;
++	struct gmap *gmap;
+ 	int rc;
+ 
  	/*
- 	 * The following bitfields need a down_write on the mm
- 	 * semaphore when they are written to. As they are only
-diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
-index c7937f369e62..2a38af5a00c2 100644
---- a/arch/s390/include/asm/mmu_context.h
-+++ b/arch/s390/include/asm/mmu_context.h
-@@ -26,7 +26,7 @@ static inline int init_new_context(struct task_struct *tsk,
- 	INIT_LIST_HEAD(&mm->context.gmap_list);
- 	cpumask_clear(&mm->context.cpu_attach_mask);
- 	atomic_set(&mm->context.flush_count, 0);
--	atomic_set(&mm->context.is_protected, 0);
-+	atomic_set(&mm->context.protected_count, 0);
- 	mm->context.gmap_asce = 0;
- 	mm->context.flush_mm = 0;
- #ifdef CONFIG_PGSTE
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index a397b072a580..f16403ba81ec 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -525,7 +525,7 @@ static inline int mm_has_pgste(struct mm_struct *mm)
- static inline int mm_is_protected(struct mm_struct *mm)
- {
- #ifdef CONFIG_PGSTE
--	if (unlikely(atomic_read(&mm->context.is_protected)))
-+	if (unlikely(atomic_read(&mm->context.protected_count)))
- 		return 1;
- #endif
- 	return 0;
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index bcbe10862f9f..f3134d79f8e1 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -166,7 +166,8 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- 	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
- 			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
- 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
--	atomic_set(&kvm->mm->context.is_protected, 0);
-+	if (!cc)
-+		atomic_dec(&kvm->mm->context.protected_count);
- 	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", *rc, *rrc);
- 	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", *rc, *rrc);
- 	/* Intended memory leak on "impossible" error */
-@@ -208,11 +209,14 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- 	/* Outputs */
- 	kvm->arch.pv.handle = uvcb.guest_handle;
- 
-+	atomic_inc(&kvm->mm->context.protected_count);
- 	if (cc) {
--		if (uvcb.header.rc & UVC_RC_NEED_DESTROY)
-+		if (uvcb.header.rc & UVC_RC_NEED_DESTROY) {
- 			kvm_s390_pv_deinit_vm(kvm, &dummy, &dummy);
--		else
-+		} else {
-+			atomic_dec(&kvm->mm->context.protected_count);
- 			kvm_s390_pv_dealloc_vm(kvm);
-+		}
- 		return -EIO;
+@@ -783,6 +784,17 @@ void do_secure_storage_access(struct pt_regs *regs)
  	}
- 	kvm->arch.gmap->guest_handle = uvcb.guest_handle;
-@@ -235,8 +239,6 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
- 	*rrc = uvcb.header.rrc;
- 	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
- 		     *rc, *rrc);
--	if (!cc)
--		atomic_set(&kvm->mm->context.is_protected, 1);
- 	return cc ? -EINVAL : 0;
- }
  
+ 	switch (get_fault_type(regs)) {
++	case GMAP_FAULT:
++		mm = current->mm;
++		gmap = (struct gmap *)S390_lowcore.gmap;
++		mmap_read_lock(mm);
++		addr = __gmap_translate(gmap, addr);
++		mmap_read_unlock(mm);
++		if (IS_ERR_VALUE(addr)) {
++			do_fault_error(regs, VM_ACCESS_FLAGS, VM_FAULT_BADMAP);
++			break;
++		}
++		fallthrough;
+ 	case USER_FAULT:
+ 		mm = current->mm;
+ 		mmap_read_lock(mm);
+@@ -811,7 +823,6 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 		if (rc)
+ 			BUG();
+ 		break;
+-	case GMAP_FAULT:
+ 	default:
+ 		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
+ 		WARN_ON_ONCE(1);
 -- 
 2.36.1
 
