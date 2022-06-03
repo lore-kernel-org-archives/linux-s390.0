@@ -2,163 +2,174 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DE26C43334
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Jun 2022 10:15:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43C78C43334
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Jun 2022 10:35:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243566AbiFCKPh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Jun 2022 06:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58118 "EHLO
+        id S234719AbiFCKfw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Jun 2022 06:35:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243597AbiFCKP0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jun 2022 06:15:26 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D6E763B3F8;
-        Fri,  3 Jun 2022 03:15:22 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 97ADC1655;
-        Fri,  3 Jun 2022 03:15:22 -0700 (PDT)
-Received: from a077893.blr.arm.com (unknown [10.162.42.23])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id EB91A3F766;
-        Fri,  3 Jun 2022 03:15:13 -0700 (PDT)
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-To:     linux-mm@kvack.org
-Cc:     Anshuman Khandual <anshuman.khandual@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org,
-        openrisc@lists.librecores.org, linux-csky@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Stafford Horne <shorne@gmail.com>
-Subject: [PATCH 6/6] openrisc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date:   Fri,  3 Jun 2022 15:44:11 +0530
-Message-Id: <20220603101411.488970-7-anshuman.khandual@arm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220603101411.488970-1-anshuman.khandual@arm.com>
-References: <20220603101411.488970-1-anshuman.khandual@arm.com>
+        with ESMTP id S243761AbiFCKfv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jun 2022 06:35:51 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B4693BBEE;
+        Fri,  3 Jun 2022 03:35:49 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 253AINDM017529;
+        Fri, 3 Jun 2022 10:35:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=KrF/6NdORb5t9M1zK9SmmWbSKjZRrMIB2uKQIGHIFJo=;
+ b=PxmDhQe2pbbCDaWlmeLislDzKdhK34hByl612MJNhGoid9YrD9jZFNjW9Ethhq/OqxyZ
+ kmPEngx7/v6ZMrTns6Q9fxNXjATflU6Y0ZzN0Q8yCcxl2W70AZF6q42nhdxzGlwyoBAf
+ ffse3Pzr5Lppucb7bhDAOidJEzJU1BPXvMSpuLSqau5BU00VQ84o3M36vw7tnbfflZNw
+ bXZBIMWi0d7hmphBp+cXdBVLyUDUISTCz8y/e0w44mZ0efd295prr5bon80JqagQQ7uH
+ 1hBMfXC6iW8HMSyEw58TzJou2FjOwoIhIl+Khvjl5k5rlySkzouYcTnnjNQgt57f/awL 2A== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gfge5881b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 10:35:48 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 253AZlqW013713;
+        Fri, 3 Jun 2022 10:35:47 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04fra.de.ibm.com with ESMTP id 3gbc8yp9rn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 10:35:46 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 253AZhIU35127698
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 3 Jun 2022 10:35:43 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 94B2452057;
+        Fri,  3 Jun 2022 10:35:43 +0000 (GMT)
+Received: from osiris (unknown [9.145.50.93])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 4C61052051;
+        Fri,  3 Jun 2022 10:35:43 +0000 (GMT)
+Date:   Fri, 3 Jun 2022 12:35:41 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] more s390 updates for 5.19 merge window
+Message-ID: <Ypnj/R48mToD7WZL@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: oZcCA2zYdX6aaB1BpyTNKp6YRqjFlvfy
+X-Proofpoint-ORIG-GUID: oZcCA2zYdX6aaB1BpyTNKp6YRqjFlvfy
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-03_03,2022-06-03_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ lowpriorityscore=5 mlxscore=0 bulkscore=5 mlxlogscore=667 adultscore=0
+ clxscore=1015 priorityscore=1501 impostorscore=0 malwarescore=0
+ suspectscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2204290000 definitions=main-2206030046
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This defines and exports a platform specific custom vm_get_page_prot() via
-subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
-macros can be dropped which are no longer needed.
+Hi Linus,
 
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: openrisc@lists.librecores.org
-Cc: linux-kernel@vger.kernel.org
-Acked-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
- arch/openrisc/Kconfig               |  1 +
- arch/openrisc/include/asm/pgtable.h | 18 -------------
- arch/openrisc/mm/init.c             | 41 +++++++++++++++++++++++++++++
- 3 files changed, 42 insertions(+), 18 deletions(-)
+please pull more s390 updates for 5.19 merge window.
+Just a couple of small improvements, bug fixes and cleanups.
 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index e814df4c483c..fe0dfb50eb86 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -10,6 +10,7 @@ config OPENRISC
- 	select ARCH_HAS_DMA_SET_UNCACHED
- 	select ARCH_HAS_DMA_CLEAR_UNCACHED
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
-+	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select COMMON_CLK
- 	select OF
- 	select OF_EARLY_FLATTREE
-diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
-index c3abbf71e09f..dcae8aea132f 100644
---- a/arch/openrisc/include/asm/pgtable.h
-+++ b/arch/openrisc/include/asm/pgtable.h
-@@ -176,24 +176,6 @@ extern void paging_init(void);
- 	__pgprot(_PAGE_ALL | _PAGE_SRE | _PAGE_SWE \
- 		 | _PAGE_SHARED | _PAGE_DIRTY | _PAGE_EXEC | _PAGE_CI)
- 
--#define __P000	PAGE_NONE
--#define __P001	PAGE_READONLY_X
--#define __P010	PAGE_COPY
--#define __P011	PAGE_COPY_X
--#define __P100	PAGE_READONLY
--#define __P101	PAGE_READONLY_X
--#define __P110	PAGE_COPY
--#define __P111	PAGE_COPY_X
--
--#define __S000	PAGE_NONE
--#define __S001	PAGE_READONLY_X
--#define __S010	PAGE_SHARED
--#define __S011	PAGE_SHARED_X
--#define __S100	PAGE_READONLY
--#define __S101	PAGE_READONLY_X
--#define __S110	PAGE_SHARED
--#define __S111	PAGE_SHARED_X
--
- /* zero page used for uninitialized stuff */
- extern unsigned long empty_zero_page[2048];
- #define ZERO_PAGE(vaddr) (virt_to_page(empty_zero_page))
-diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-index 3a021ab6f1ae..266dc68c32e5 100644
---- a/arch/openrisc/mm/init.c
-+++ b/arch/openrisc/mm/init.c
-@@ -208,3 +208,44 @@ void __init mem_init(void)
- 	mem_init_done = 1;
- 	return;
- }
-+
-+pgprot_t vm_get_page_prot(unsigned long vm_flags)
-+{
-+	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-+	case VM_NONE:
-+		return PAGE_NONE;
-+	case VM_READ:
-+		return PAGE_READONLY_X;
-+	case VM_WRITE:
-+		return PAGE_COPY;
-+	case VM_WRITE | VM_READ:
-+		return PAGE_COPY_X;
-+	case VM_EXEC:
-+		return PAGE_READONLY;
-+	case VM_EXEC | VM_READ:
-+		return PAGE_READONLY_X;
-+	case VM_EXEC | VM_WRITE:
-+		return PAGE_COPY;
-+	case VM_EXEC | VM_WRITE | VM_READ:
-+		return PAGE_COPY_X;
-+	case VM_SHARED:
-+		return PAGE_NONE;
-+	case VM_SHARED | VM_READ:
-+		return PAGE_READONLY_X;
-+	case VM_SHARED | VM_WRITE:
-+		return PAGE_SHARED;
-+	case VM_SHARED | VM_WRITE | VM_READ:
-+		return PAGE_SHARED_X;
-+	case VM_SHARED | VM_EXEC:
-+		return PAGE_READONLY;
-+	case VM_SHARED | VM_EXEC | VM_READ:
-+		return PAGE_READONLY_X;
-+	case VM_SHARED | VM_EXEC | VM_WRITE:
-+		return PAGE_SHARED;
-+	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-+		return PAGE_SHARED_X;
-+	default:
-+		BUILD_BUG();
-+	}
-+}
-+EXPORT_SYMBOL(vm_get_page_prot);
--- 
-2.25.1
+Thanks,
+Heiko
 
+The following changes since commit 94d3477897481b92874654455e263e0b1728acb5:
+
+  s390/head: get rid of 31 bit leftovers (2022-05-18 13:31:07 +0200)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.19-2
+
+for you to fetch changes up to e0ffcf3fe18e0310221461c08969edec2cc7628c:
+
+  s390/stack: add union to reflect kvm stack slot usages (2022-06-01 12:03:17 +0200)
+
+----------------------------------------------------------------
+more s390 updates for 5.19 merge window
+
+- Add Eric Farman as maintainer for s390 virtio drivers.
+
+- Improve machine check handling, and avoid incorrectly injecting a machine
+  check into a kvm guest.
+
+- Add cond_resched() call to gmap page table walker in order to avoid
+  possible huge latencies. Also use non-quiesing sske instruction to speed
+  up storage key handling.
+
+- Add __GFP_NORETRY to KEXEC_CONTROL_MEMORY_GFP so s390 behaves similar like
+  common code.
+
+- Get sie control block address from correct stack slot in perf event
+  code. This fixes potential random memory accesses.
+
+- Change uaccess code so that the exception handler sets the result of
+  get_user() and __get_kernel_nofault() to zero in case of a fault. Until
+  now this was done via input parameters for inline assemblies. Doing it
+  via fault handling is what most or even all other architectures are
+  doing.
+
+- Couple of other small cleanups and fixes.
+
+----------------------------------------------------------------
+Alexander Gordeev (1):
+      s390/mcck: isolate SIE instruction when setting CIF_MCCK_GUEST flag
+
+Christian Borntraeger (2):
+      s390/gmap: voluntarily schedule during key setting
+      s390/mm: use non-quiescing sske for KVM switch to keyed guest
+
+Eric Farman (1):
+      MAINTAINERS: Update s390 virtio-ccw
+
+Heiko Carstens (9):
+      s390: simplify early program check handler
+      s390: generate register offsets into pt_regs automatically
+      s390/kexec: add __GFP_NORETRY to KEXEC_CONTROL_MEMORY_GFP
+      s390/uaccess: use symbolic names for inline assembler operands
+      s390/uaccess: use exception handler to zero result on get_user() failure
+      s390/uaccess: use __noreturn instead of __attribute__((noreturn))
+      s390/uaccess: whitespace cleanup
+      s390/stack: merge empty stack frame slots
+      s390/stack: add union to reflect kvm stack slot usages
+
+Jann Horn (1):
+      s390/crypto: fix scatterwalk_unmap() callers in AES-GCM
+
+Juerg Haefliger (2):
+      s390/Kconfig: fix indentation
+      s390/Kconfig.debug: fix indentation
+
+Nico Boehr (1):
+      s390/perf: obtain sie_block from the right address
+
+ MAINTAINERS                             |   1 +
+ arch/s390/Kconfig                       |   8 +-
+ arch/s390/Kconfig.debug                 |  12 +-
+ arch/s390/crypto/aes_s390.c             |   4 +-
+ arch/s390/include/asm/asm-extable.h     |  91 +++++++++-----
+ arch/s390/include/asm/kexec.h           |   2 +-
+ arch/s390/include/asm/processor.h       |   6 -
+ arch/s390/include/asm/stacktrace.h      |  11 +-
+ arch/s390/include/asm/uaccess.h         | 217 +++++++++++++++++---------------
+ arch/s390/kernel/Makefile               |   2 +-
+ arch/s390/kernel/asm-offsets.c          |  26 +++-
+ arch/s390/kernel/early.c                |   5 +-
+ arch/s390/kernel/{base.S => earlypgm.S} |  33 +----
+ arch/s390/kernel/entry.S                |  23 +---
+ arch/s390/kernel/entry.h                |   2 +
+ arch/s390/kernel/perf_event.c           |   2 +-
+ arch/s390/mm/extable.c                  |  39 +++++-
+ arch/s390/mm/gmap.c                     |  14 +++
+ arch/s390/mm/pgtable.c                  |   2 +-
+ 19 files changed, 289 insertions(+), 211 deletions(-)
+ rename arch/s390/kernel/{base.S => earlypgm.S} (52%)
