@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 114BEC43334
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Jun 2022 20:35:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61101C433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Jun 2022 20:35:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233990AbiFFUfT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Jun 2022 16:35:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55812 "EHLO
+        id S233828AbiFFUfj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Jun 2022 16:35:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234058AbiFFUfE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Jun 2022 16:35:04 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78BDAEE14;
-        Mon,  6 Jun 2022 13:34:34 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 256KVDfm001234;
-        Mon, 6 Jun 2022 20:34:31 GMT
+        with ESMTP id S233900AbiFFUeb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Jun 2022 16:34:31 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73C29814B6;
+        Mon,  6 Jun 2022 13:34:14 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 256KTm2A006902;
+        Mon, 6 Jun 2022 20:34:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=Vn5TqxxJA1Gs3B+Q9MerZhtcWYUmXfHFm6LUl5+f63I=;
- b=jn4sj+CwsgAiGRWliiKm/mf4eChof1Jn0Kj25l/0BuoZp0yNgRs+B6/8yB9wSbTaR8C2
- LKO2h8Z8CcjPscbYclSn9IrfT1HvQF11cfdinQ8FLuxcG4EhTQ/KydHEPhoLtk/vmU8B
- PnNF2RQsIwdT2KxNDUWz2qNzJydUcqv2RcSdqthTIk0jUKLGM08GVadkowS3v4T20U2R
- ZHmQAnNfUSBiuniYs7f8jWvAV6/o2Vq37aet4ZSxQWgSlH5NFRkhj2zBHI4jwXuDcxwe
- 2AuErM7z5I4cOlL7xVkfZcmHDIUrZ8ksSuSYZhTnp0fkHB9Gn1cA2q2bNc3QKeZloSDx uw== 
+ bh=P+jPwJT/jMaA7af6ITFmvrLQgCBqA844cvwWWFyZfpA=;
+ b=HyqARHr7dNnvsWMrwnbP416zDEIMZo1nJ48ypwgwYi0+w/neNvgYDvNGv3yex6/KHzLV
+ kQqkND2kN5yVbPRPzp30tZyQxu1VyYIheCWSSGgk28Pikn08LB5wBvphOYudN2lDugq1
+ aR64EpLVshTD6npddlRDUBixojX2MrytKVFiOps/8sGEwxWgKYzR7vUVj2COwa5ShEA+
+ Bo7m3EkMyaMt6Z/1QesG1d0MEZdgKeK6fipviCYsA294hPZNb6yUxt+qVuDzS0mjHUnj
+ nyyIHBI72/zzWJLx6DL2gxgbVlT+vEpWFjPR8pfrOIuD1hfEY0e+rP59ecxvTJU0wlA4 Bw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ghq3ysw8p-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ghpset8r2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Jun 2022 20:34:31 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 256KVeD4002715;
-        Mon, 6 Jun 2022 20:34:31 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ghq3ysw8a-1
+        Mon, 06 Jun 2022 20:34:12 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 256KUMDV012879;
+        Mon, 6 Jun 2022 20:34:12 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ghpset8qp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Jun 2022 20:34:31 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 256KKJHf005972;
-        Mon, 6 Jun 2022 20:34:30 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma02wdc.us.ibm.com with ESMTP id 3gfy19ftkx-1
+        Mon, 06 Jun 2022 20:34:12 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 256KLS1l007336;
+        Mon, 6 Jun 2022 20:34:11 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma02dal.us.ibm.com with ESMTP id 3gfy1abrap-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Jun 2022 20:34:30 +0000
+        Mon, 06 Jun 2022 20:34:11 +0000
 Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 256KYT8g42795274
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 256KYAEM28049772
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Jun 2022 20:34:29 GMT
+        Mon, 6 Jun 2022 20:34:10 GMT
 Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7B96D28064;
-        Mon,  6 Jun 2022 20:34:29 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1C9AD28064;
+        Mon,  6 Jun 2022 20:34:10 +0000 (GMT)
 Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1183128059;
-        Mon,  6 Jun 2022 20:34:23 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 040D328058;
+        Mon,  6 Jun 2022 20:34:06 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.163.20.188])
         by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Jun 2022 20:34:22 +0000 (GMT)
+        Mon,  6 Jun 2022 20:34:05 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -68,180 +68,221 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v9 08/21] s390/pci: stash associated GISA designation
-Date:   Mon,  6 Jun 2022 16:33:12 -0400
-Message-Id: <20220606203325.110625-9-mjrosato@linux.ibm.com>
+        linux-doc@vger.kernel.org
+Subject: [PATCH v9 05/21] s390/airq: pass more TPI info to airq handlers
+Date:   Mon,  6 Jun 2022 16:33:09 -0400
+Message-Id: <20220606203325.110625-6-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220606203325.110625-1-mjrosato@linux.ibm.com>
 References: <20220606203325.110625-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GWgaumbW731dGpp_VYPKpp2KtxrxjKdF
-X-Proofpoint-GUID: nrnQWli_xB7vWZV104VTWxo4aCvrY2qF
+X-Proofpoint-GUID: mfGafPpMxj8GyTnCKrhxqSIdomDSLKu9
+X-Proofpoint-ORIG-GUID: YrZOaQu8vghIxbj4dWcK2zcioNnAGDzZ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
  definitions=2022-06-06_06,2022-06-03_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 phishscore=0
- priorityscore=1501 spamscore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0
- bulkscore=0 impostorscore=0 malwarescore=0 mlxlogscore=661 suspectscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ mlxscore=0 malwarescore=0 phishscore=0 priorityscore=1501 impostorscore=0
+ lowpriorityscore=0 clxscore=1015 mlxlogscore=828 adultscore=0 spamscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
  definitions=main-2206060081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-For passthrough devices, we will need to know the GISA designation of the
-guest if interpretation facilities are to be used.  Setup to stash this in
-the zdev and set a default of 0 (no GISA designation) for now; a subsequent
-patch will set a valid GISA designation for passthrough devices.
-Also, extend mpcific routines to specify this stashed designation as part
-of the mpcific command.
+A subsequent patch will introduce an airq handler that requires additional
+TPI information beyond directed vs floating, so pass the entire tpi_info
+structure via the handler.  Only pci actually uses this information today,
+for the other airq handlers this is effectively a no-op.
 
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/asm/pci.h     | 1 +
- arch/s390/include/asm/pci_clp.h | 3 ++-
- arch/s390/pci/pci.c             | 6 ++++++
- arch/s390/pci/pci_clp.c         | 5 +++++
- arch/s390/pci/pci_irq.c         | 5 +++++
- 5 files changed, 19 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/airq.h     | 3 ++-
+ arch/s390/kvm/interrupt.c        | 4 +++-
+ arch/s390/pci/pci_irq.c          | 9 +++++++--
+ drivers/s390/cio/airq.c          | 2 +-
+ drivers/s390/cio/qdio_thinint.c  | 6 ++++--
+ drivers/s390/crypto/ap_bus.c     | 9 ++++++---
+ drivers/s390/virtio/virtio_ccw.c | 4 +++-
+ 7 files changed, 26 insertions(+), 11 deletions(-)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index fdb9745ee998..42a4a312a6dd 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -123,6 +123,7 @@ struct zpci_dev {
- 	enum zpci_state state;
- 	u32		fid;		/* function ID, used by sclp */
- 	u32		fh;		/* function handle, used by insn's */
-+	u32		gisa;		/* GISA designation for passthrough */
- 	u16		vfn;		/* virtual function number */
- 	u16		pchid;		/* physical channel ID */
- 	u8		pfgid;		/* function group ID */
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index 1f4b666e85ee..f3286bc5ba6e 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -173,7 +173,8 @@ struct clp_req_set_pci {
- 	u16 reserved2;
- 	u8 oc;				/* operation controls */
- 	u8 ndas;			/* number of dma spaces */
--	u64 reserved3;
-+	u32 reserved3;
-+	u32 gisa;			/* GISA designation */
- } __packed;
+diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
+index 01936fdfaddb..7918a7d09028 100644
+--- a/arch/s390/include/asm/airq.h
++++ b/arch/s390/include/asm/airq.h
+@@ -12,10 +12,11 @@
  
- /* Set PCI function response */
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index bc980fd313d5..c8b9d866434c 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -120,6 +120,7 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
- 	fib.pba = base;
- 	fib.pal = limit;
- 	fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
-+	fib.gd = zdev->gisa;
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc)
- 		zpci_dbg(3, "reg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
-@@ -133,6 +134,8 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
- 	struct zpci_fib fib = {0};
- 	u8 cc, status;
+ #include <linux/bit_spinlock.h>
+ #include <linux/dma-mapping.h>
++#include <asm/tpi.h>
  
-+	fib.gd = zdev->gisa;
-+
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc)
- 		zpci_dbg(3, "unreg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
-@@ -160,6 +163,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
- 	atomic64_set(&zdev->unmapped_pages, 0);
+ struct airq_struct {
+ 	struct hlist_node list;		/* Handler queueing. */
+-	void (*handler)(struct airq_struct *airq, bool floating);
++	void (*handler)(struct airq_struct *airq, struct tpi_info *tpi_info);
+ 	u8 *lsi_ptr;			/* Local-Summary-Indicator pointer */
+ 	u8 lsi_mask;			/* Local-Summary-Indicator mask */
+ 	u8 isc;				/* Interrupt-subclass */
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index af96dc0549a4..17ff475157d8 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -28,6 +28,7 @@
+ #include <asm/switch_to.h>
+ #include <asm/nmi.h>
+ #include <asm/airq.h>
++#include <asm/tpi.h>
+ #include "kvm-s390.h"
+ #include "gaccess.h"
+ #include "trace-s390.h"
+@@ -3311,7 +3312,8 @@ int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
+ }
+ EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
  
- 	fib.fmb_addr = virt_to_phys(zdev->fmb);
-+	fib.gd = zdev->gisa;
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc) {
- 		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
-@@ -178,6 +182,8 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
- 	if (!zdev->fmb)
- 		return -EINVAL;
- 
-+	fib.gd = zdev->gisa;
-+
- 	/* Function measurement is disabled if fmb address is zero */
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc == 3) /* Function already gone. */
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 375e0a5120bc..d058c83467ef 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -229,12 +229,16 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
+-static void gib_alert_irq_handler(struct airq_struct *airq, bool floating)
++static void gib_alert_irq_handler(struct airq_struct *airq,
++				  struct tpi_info *tpi_info)
  {
- 	struct clp_req_rsp_set_pci *rrb;
- 	int rc, retries = 100;
-+	u32 gisa = 0;
- 
- 	*fh = 0;
- 	rrb = clp_alloc_block(GFP_KERNEL);
- 	if (!rrb)
- 		return -ENOMEM;
- 
-+	if (command != CLP_SET_DISABLE_PCI_FN)
-+		gisa = zdev->gisa;
-+
- 	do {
- 		memset(rrb, 0, sizeof(*rrb));
- 		rrb->request.hdr.len = sizeof(rrb->request);
-@@ -243,6 +247,7 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
- 		rrb->request.fh = zdev->fh;
- 		rrb->request.oc = command;
- 		rrb->request.ndas = nr_dma_as;
-+		rrb->request.gisa = gisa;
- 
- 		rc = clp_req(rrb, CLP_LPS_PCI);
- 		if (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY) {
+ 	inc_irq_stat(IRQIO_GAL);
+ 	process_gib_alert_list();
 diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
-index f2b3145b6697..a2b42a63a53b 100644
+index 500cd2dbdf53..b805c75252ed 100644
 --- a/arch/s390/pci/pci_irq.c
 +++ b/arch/s390/pci/pci_irq.c
-@@ -43,6 +43,7 @@ static int zpci_set_airq(struct zpci_dev *zdev)
- 	fib.fmt0.aibvo = 0;	/* each zdev has its own interrupt vector */
- 	fib.fmt0.aisb = virt_to_phys(zpci_sbv->vector) + (zdev->aisb / 64) * 8;
- 	fib.fmt0.aisbo = zdev->aisb & 63;
-+	fib.gd = zdev->gisa;
+@@ -11,6 +11,7 @@
  
- 	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
+ #include <asm/isc.h>
+ #include <asm/airq.h>
++#include <asm/tpi.h>
+ 
+ static enum {FLOATING, DIRECTED} irq_delivery;
+ 
+@@ -216,8 +217,11 @@ static void zpci_handle_fallback_irq(void)
+ 	}
  }
-@@ -54,6 +55,8 @@ static int zpci_clear_airq(struct zpci_dev *zdev)
- 	struct zpci_fib fib = {0};
- 	u8 cc, status;
  
-+	fib.gd = zdev->gisa;
+-static void zpci_directed_irq_handler(struct airq_struct *airq, bool floating)
++static void zpci_directed_irq_handler(struct airq_struct *airq,
++				      struct tpi_info *tpi_info)
+ {
++	bool floating = !tpi_info->directed_irq;
 +
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc == 3 || (cc == 1 && status == 24))
- 		/* Function already gone or IRQs already deregistered. */
-@@ -72,6 +75,7 @@ static int zpci_set_directed_irq(struct zpci_dev *zdev)
- 	fib.fmt = 1;
- 	fib.fmt1.noi = zdev->msi_nr_irqs;
- 	fib.fmt1.dibvo = zdev->msi_first_bit;
-+	fib.gd = zdev->gisa;
- 
- 	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
+ 	if (floating) {
+ 		inc_irq_stat(IRQIO_PCF);
+ 		zpci_handle_fallback_irq();
+@@ -227,7 +231,8 @@ static void zpci_directed_irq_handler(struct airq_struct *airq, bool floating)
+ 	}
  }
-@@ -84,6 +88,7 @@ static int zpci_clear_directed_irq(struct zpci_dev *zdev)
- 	u8 cc, status;
  
- 	fib.fmt = 1;
-+	fib.gd = zdev->gisa;
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc == 3 || (cc == 1 && status == 24))
- 		/* Function already gone or IRQs already deregistered. */
+-static void zpci_floating_irq_handler(struct airq_struct *airq, bool floating)
++static void zpci_floating_irq_handler(struct airq_struct *airq,
++				      struct tpi_info *tpi_info)
+ {
+ 	unsigned long si, ai;
+ 	struct airq_iv *aibv;
+diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+index c0ed364bf446..230eb5b5b64e 100644
+--- a/drivers/s390/cio/airq.c
++++ b/drivers/s390/cio/airq.c
+@@ -99,7 +99,7 @@ static irqreturn_t do_airq_interrupt(int irq, void *dummy)
+ 	rcu_read_lock();
+ 	hlist_for_each_entry_rcu(airq, head, list)
+ 		if ((*airq->lsi_ptr & airq->lsi_mask) != 0)
+-			airq->handler(airq, !tpi_info->directed_irq);
++			airq->handler(airq, tpi_info);
+ 	rcu_read_unlock();
+ 
+ 	return IRQ_HANDLED;
+diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
+index 8e09bf3a2fcd..9b9335dd06db 100644
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -15,6 +15,7 @@
+ #include <asm/qdio.h>
+ #include <asm/airq.h>
+ #include <asm/isc.h>
++#include <asm/tpi.h>
+ 
+ #include "cio.h"
+ #include "ioasm.h"
+@@ -93,9 +94,10 @@ static inline u32 clear_shared_ind(void)
+ /**
+  * tiqdio_thinint_handler - thin interrupt handler for qdio
+  * @airq: pointer to adapter interrupt descriptor
+- * @floating: flag to recognize floating vs. directed interrupts (unused)
++ * @tpi_info: interrupt information (e.g. floating vs directed -- unused)
+  */
+-static void tiqdio_thinint_handler(struct airq_struct *airq, bool floating)
++static void tiqdio_thinint_handler(struct airq_struct *airq,
++				   struct tpi_info *tpi_info)
+ {
+ 	u64 irq_time = S390_lowcore.int_clock;
+ 	u32 si_used = clear_shared_ind();
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 5c13d2079d96..1b85f21c151b 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -27,6 +27,7 @@
+ #include <linux/kthread.h>
+ #include <linux/mutex.h>
+ #include <asm/airq.h>
++#include <asm/tpi.h>
+ #include <linux/atomic.h>
+ #include <asm/isc.h>
+ #include <linux/hrtimer.h>
+@@ -131,7 +132,8 @@ static int ap_max_adapter_id = 63;
+ static struct bus_type ap_bus_type;
+ 
+ /* Adapter interrupt definitions */
+-static void ap_interrupt_handler(struct airq_struct *airq, bool floating);
++static void ap_interrupt_handler(struct airq_struct *airq,
++				 struct tpi_info *tpi_info);
+ 
+ static bool ap_irq_flag;
+ 
+@@ -452,9 +454,10 @@ static enum hrtimer_restart ap_poll_timeout(struct hrtimer *unused)
+ /**
+  * ap_interrupt_handler() - Schedule ap_tasklet on interrupt
+  * @airq: pointer to adapter interrupt descriptor
+- * @floating: ignored
++ * @tpi_info: ignored
+  */
+-static void ap_interrupt_handler(struct airq_struct *airq, bool floating)
++static void ap_interrupt_handler(struct airq_struct *airq,
++				 struct tpi_info *tpi_info)
+ {
+ 	inc_irq_stat(IRQIO_APB);
+ 	tasklet_schedule(&ap_tasklet);
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 97e51c34e6cf..58cca50996ee 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -33,6 +33,7 @@
+ #include <asm/virtio-ccw.h>
+ #include <asm/isc.h>
+ #include <asm/airq.h>
++#include <asm/tpi.h>
+ 
+ /*
+  * virtio related functions
+@@ -204,7 +205,8 @@ static void drop_airq_indicator(struct virtqueue *vq, struct airq_info *info)
+ 	write_unlock_irqrestore(&info->lock, flags);
+ }
+ 
+-static void virtio_airq_handler(struct airq_struct *airq, bool floating)
++static void virtio_airq_handler(struct airq_struct *airq,
++				struct tpi_info *tpi_info)
+ {
+ 	struct airq_info *info = container_of(airq, struct airq_info, airq);
+ 	unsigned long ai;
 -- 
 2.27.0
 
