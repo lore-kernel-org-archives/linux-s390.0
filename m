@@ -2,343 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D043CCA482
-	for <linux-s390@archiver.kernel.org>; Sun,  5 Jun 2022 10:19:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AE37C43334
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Jun 2022 06:20:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245391AbiFEKTp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 5 Jun 2022 06:19:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34696 "EHLO
+        id S229936AbiFFGUQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Jun 2022 02:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245251AbiFEKTn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 5 Jun 2022 06:19:43 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 95B994B87C;
-        Sun,  5 Jun 2022 03:19:41 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 526A6D6E;
-        Sun,  5 Jun 2022 03:19:41 -0700 (PDT)
-Received: from [10.163.37.253] (unknown [10.163.37.253])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 477943F66F;
-        Sun,  5 Jun 2022 03:19:32 -0700 (PDT)
-Message-ID: <0de0e896-2c4b-55e5-9860-07227a5d3ef6@arm.com>
-Date:   Sun, 5 Jun 2022 15:49:32 +0530
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH 1/6] mm/mmap: Restrict generic protection_map[] array
- visibility
-Content-Language: en-US
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        Will Deacon <will@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "linux-arm-kernel@lists.infradead.org" 
+        with ESMTP id S229895AbiFFGUE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Jun 2022 02:20:04 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2049.outbound.protection.outlook.com [40.107.220.49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAABA21E12;
+        Sun,  5 Jun 2022 23:20:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WGcMjBA4IAx2mEiIDAlCIX67CCFMhUtMYv60zw0osDpL97q0LfsN+hxR4/94p9h+DALvmJNqsqLtpBR4LiIidvqG2iVk32fXvEHfL1uBJL4PcdhNK0TNqUBt/z8hAYqQqh2EvqT+pLi84M7ERQvY4y5PuQdkpeR24tJZPmKNBChidIC1Ye1eWUllPXJpYCCsz3F2NMVKrTMYwBJbGpVsjnwfgH1uJTn/uWt0wJYnun91vuYvh66nojiK49SIl76ljulPeWLyoHNjP2VfH2CBXF16CrSJeftEGj6dyXva7gutP6PwFx/Z6yIyXFIE+G70G49G9OomItZU1Scnp5eLkw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=SeO7Te4yt4I3yBW6/n8sTDab7gbKG7kE6H+bEojxsls=;
+ b=ROlR5sVzYZbqKOnILTWxcLGXCLNNdCxqKXYZ8360hsoCWuihyIvjXIDkL4CZf5fJmnNuonDRhp3RngZxeYu5Kdltp+ic7z+4W5a00L0HaVn2ooTo2cQqSEWDjGtbPivDjXw8SG7XVrSgg5ZhO9+F6Sa6hrJkoBFtqOV6xVJRgnTaJTQk34J4CLq9ojXumJCzHJU5ots3wm1WD9KvAiKcuc3oCLwAh79E+OCs3+8zqt4lA5OqqaGAT3E51MAbmLRc7skysXxQJa0ouzCBiUyTh/R4jR/Hvr0YJR9AunKna5o4SVr2Dnl9cR9ByZh/oJLTfkWfDc4PAjbnuoQmqmMrYQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.238) smtp.rcpttodomain=samsung.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SeO7Te4yt4I3yBW6/n8sTDab7gbKG7kE6H+bEojxsls=;
+ b=sENtcgjYXlx7gF1Ww8pbiuMwRJ/UhVPfvEiS6SG5dqH2SW9aZTLDbH7YNcpBj0y8rlDMLqi0ymZUbxCTQgvmQqcgLXsp/tQMfps8ZJ0MeNwzeAMlZSc2THfYZ+hJ7da55qfjM+fDWejB9ZXUuQna1t+cCJfPbmhHL/h1uOlx0kZoIG7MUD/yMHZmDkwPnxuyOsyeK9Sirgmnj3EAjy6aQ70yYfcPeVsgftxdTdjY1fspMXRfMy6RmRpMSrsJQZJgMUk6V7Ijy/YRyn0h3ujniXtkUv1b2XN2ttdGJzX8lKlFTSMdS0YaK12UEnMhKgM2oFbBkHYKEtoiu7Fq7ht70g==
+Received: from DM6PR13CA0049.namprd13.prod.outlook.com (2603:10b6:5:134::26)
+ by DS7PR12MB6118.namprd12.prod.outlook.com (2603:10b6:8:9a::5) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5314.18; Mon, 6 Jun 2022 06:20:00 +0000
+Received: from DM6NAM11FT057.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:134:cafe::66) by DM6PR13CA0049.outlook.office365.com
+ (2603:10b6:5:134::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.11 via Frontend
+ Transport; Mon, 6 Jun 2022 06:20:00 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.238; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.238) by
+ DM6NAM11FT057.mail.protection.outlook.com (10.13.172.252) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5314.12 via Frontend Transport; Mon, 6 Jun 2022 06:20:00 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by DRHQMAIL105.nvidia.com
+ (10.27.9.14) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Mon, 6 Jun
+ 2022 06:19:59 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Sun, 5 Jun 2022
+ 23:19:58 -0700
+Received: from Asurada-Nvidia.nvidia.com (10.127.8.12) by mail.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server id 15.2.986.22 via Frontend
+ Transport; Sun, 5 Jun 2022 23:19:56 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     <jgg@nvidia.com>, <joro@8bytes.org>, <will@kernel.org>,
+        <marcan@marcan.st>, <sven@svenpeter.dev>, <robin.murphy@arm.com>,
+        <robdclark@gmail.com>, <m.szyprowski@samsung.com>,
+        <krzysztof.kozlowski@linaro.org>, <baolu.lu@linux.intel.com>,
+        <agross@kernel.org>, <bjorn.andersson@linaro.org>,
+        <matthias.bgg@gmail.com>, <heiko@sntech.de>, <orsonzhai@gmail.com>,
+        <baolin.wang7@gmail.com>, <zhang.lyra@gmail.com>, <wens@csie.org>,
+        <jernej.skrabec@gmail.com>, <samuel@sholland.org>,
+        <jean-philippe@linaro.org>, <alex.williamson@redhat.com>
+CC:     <suravee.suthikulpanit@amd.com>, <alyssa@rosenzweig.io>,
+        <alim.akhtar@samsung.com>, <dwmw2@infradead.org>,
+        <yong.wu@mediatek.com>, <mjrosato@linux.ibm.com>,
+        <gerald.schaefer@linux.ibm.com>, <thierry.reding@gmail.com>,
+        <vdumpa@nvidia.com>, <jonathanh@nvidia.com>, <cohuck@redhat.com>,
+        <iommu@lists.linux-foundation.org>, <linux-kernel@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "David S. Miller" <davem@davemloft.net>
-References: <20220603101411.488970-1-anshuman.khandual@arm.com>
- <20220603101411.488970-2-anshuman.khandual@arm.com>
- <cd27ea20-73c1-443a-b6ad-6d22b8b1145f@csgroup.eu>
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <cd27ea20-73c1-443a-b6ad-6d22b8b1145f@csgroup.eu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        <linux-arm-msm@vger.kernel.org>,
+        <linux-samsung-soc@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-rockchip@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <linux-sunxi@lists.linux.dev>, <linux-tegra@vger.kernel.org>,
+        <virtualization@lists.linux-foundation.org>, <kvm@vger.kernel.org>
+Subject: [PATCH 3/5] vfio/iommu_type1: Prefer to reuse domains vs match enforced cache coherency
+Date:   Sun, 5 Jun 2022 23:19:25 -0700
+Message-ID: <20220606061927.26049-4-nicolinc@nvidia.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20220606061927.26049-1-nicolinc@nvidia.com>
+References: <20220606061927.26049-1-nicolinc@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: bb407244-624f-4b4a-99c6-08da478495e9
+X-MS-TrafficTypeDiagnostic: DS7PR12MB6118:EE_
+X-Microsoft-Antispam-PRVS: <DS7PR12MB6118FD6562C7A810C4BCD6CCABA29@DS7PR12MB6118.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: i8tdHq15yT1WINxiiwZZdMsO9IrJtkA4R9MXKqwKxXQG6mgzUX3kzv9rK+rShRMSWnkD6J8/Yu6KG2q23Fsy/6CG4W3Vo7HrhwugSUVcZEJzK55e2Vge6vsJdmr/OTVkfBq7ifIz2vxnJ+Q2sCWDBM0E+zR/OGLxM5wXspdnewX51zk5kEhankAbfsmXSE777idXG+f4gLjLmQOvEZEvJrzpdp9db1MxcF2YgYlnPxbfrmY2lldC5dJyWkYu01PjIOM2vzQ+CN/XeE8gw8QM9TdKXh7oaP5YjUsOhnaS+synX6yddE/NgHpPhhju9OI556Cg2b0rVxo3DUdl6UOeK2MmlaWnZpBSWRnFPqi/j2XIZpwMUVhTflKx/Z/v0/kir0tWA9yiK0U6RR9TYlJb5sjHX6KJjNJFxBSeIGEMVGVWzXbcpNtHBjbshi5nXZRxQ2+K7SsrnPHA8KgPwRY7eCekAfZlrSYGm0//m7IX9gSH3ci5LqcxUq8U1s8GJ/t4A8Mw92r7Et6WZiBRaEETgpSmNkc81MrjVhf7HH5SeYfLOCqrt95mYq70nP01MUfaDUpPppLCD9r/ybwIfZnCULmxrTdnaZfbAzFGrm1ujrrobmL4WpzRRMnhSC39Xr6XzQ915Ucie2z7KIUkMNZ+rWoHkqgKQOWdzLL/RUZZHODr+Yvpjj6hMIiLqMQMDyHroNlzuY2pk4HxgIvmFtjHzUPsYmYaWKvuENFgOSI0dndstJUI4viewQOj4dupX+Lo/V8EZ3mEG8tJ3An4oGu7yQ==
+X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230001)(4636009)(46966006)(36840700001)(40470700004)(7696005)(2616005)(6666004)(1076003)(47076005)(54906003)(26005)(86362001)(40460700003)(426003)(2906002)(7416002)(7406005)(83380400001)(186003)(5660300002)(36756003)(316002)(81166007)(336012)(8936002)(82310400005)(70586007)(921005)(110136005)(356005)(4326008)(70206006)(8676002)(36860700001)(508600001)(2101003)(36900700001)(83996005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jun 2022 06:20:00.1466
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: bb407244-624f-4b4a-99c6-08da478495e9
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT057.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6118
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: Jason Gunthorpe <jgg@nvidia.com>
 
+The KVM mechanism for controlling wbinvd is only triggered during
+kvm_vfio_group_add(), meaning it is a one-shot test done once the devices
+are setup.
 
-On 6/3/22 17:48, Christophe Leroy wrote:
-> 
-> 
-> Le 03/06/2022 à 12:14, Anshuman Khandual a écrit :
->> Restrict generic protection_map[] array visibility only for platforms which
->> do not enable ARCH_HAS_VM_GET_PAGE_PROT. For other platforms that do define
->> their own vm_get_page_prot() enabling ARCH_HAS_VM_GET_PAGE_PROT, could have
->> their private static protection_map[] still implementing an array look up.
->> These private protection_map[] array could do without __PXXX/__SXXX macros,
->> making them redundant and dropping them off.
->>
->> But platforms which do not define their custom vm_get_page_prot() enabling
->> ARCH_HAS_VM_GET_PAGE_PROT, will still have to provide __PXXX/__SXXX macros.
->> Although this now provides a method for other willing platforms to drop off
->> __PXXX/__SXX macros completely.
->>
->> Cc: Catalin Marinas <catalin.marinas@arm.com>
->> Cc: Will Deacon <will@kernel.org>
->> Cc: Michael Ellerman <mpe@ellerman.id.au>
->> Cc: Paul Mackerras <paulus@samba.org>
->> Cc: "David S. Miller" <davem@davemloft.net>
->> Cc: Thomas Gleixner <tglx@linutronix.de>
->> Cc: Ingo Molnar <mingo@redhat.com>
->> Cc: Andrew Morton <akpm@linux-foundation.org>
->> Cc: x86@kernel.org
->> Cc: linux-arm-kernel@lists.infradead.org
->> Cc: linuxppc-dev@lists.ozlabs.org
->> Cc: sparclinux@vger.kernel.org
->> Cc: linux-mm@kvack.org
->> Cc: linux-kernel@vger.kernel.org
->> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
->> ---
->>   arch/arm64/include/asm/pgtable-prot.h | 18 ------------------
->>   arch/arm64/mm/mmap.c                  | 21 +++++++++++++++++++++
->>   arch/powerpc/include/asm/pgtable.h    |  2 ++
->>   arch/powerpc/mm/book3s64/pgtable.c    | 20 ++++++++++++++++++++
->>   arch/sparc/include/asm/pgtable_32.h   |  2 ++
->>   arch/sparc/include/asm/pgtable_64.h   | 19 -------------------
->>   arch/sparc/mm/init_64.c               | 20 ++++++++++++++++++++
->>   arch/x86/include/asm/pgtable_types.h  | 19 -------------------
->>   arch/x86/mm/pgprot.c                  | 19 +++++++++++++++++++
->>   include/linux/mm.h                    |  2 ++
->>   mm/mmap.c                             |  2 +-
->>   11 files changed, 87 insertions(+), 57 deletions(-)
->>
-> 
->> diff --git a/arch/powerpc/include/asm/pgtable.h b/arch/powerpc/include/asm/pgtable.h
->> index d564d0ecd4cd..8ed2a80c896e 100644
->> --- a/arch/powerpc/include/asm/pgtable.h
->> +++ b/arch/powerpc/include/asm/pgtable.h
->> @@ -21,6 +21,7 @@ struct mm_struct;
->>   #endif /* !CONFIG_PPC_BOOK3S */
->>   
->>   /* Note due to the way vm flags are laid out, the bits are XWR */
->> +#ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT
-> 
-> Ok, so until now it was common to all powerpc platforms. Now you define 
-> a different way whether it is a PPC_BOOK3S_64 or another platform ? 
-> What's the point ?
+So, there is no value in trying to push a device that could do enforced
+cache coherency to a dedicated domain vs re-using an existing domain since
+KVM won't be able to take advantage of it. This just wastes domain memory.
 
-On powerpc,
+Simplify this code and eliminate the test. This removes the only logic
+that needed to have a dummy domain attached prior to searching for a
+matching domain and simplifies the next patches.
 
-select ARCH_HAS_VM_GET_PAGE_PROT        if PPC_BOOK3S_64
+If someday we want to try and optimize this further the better approach is
+to update the Intel driver so that enforce_cache_coherency() can work on a
+domain that already has IOPTEs and then call the enforce_cache_coherency()
+after detaching a device from a domain to upgrade the whole domain to
+enforced cache coherency mode.
 
-Currently protection_map[] which requires __PXXX/__SXXX macros,
-is applicable on all platforms, irrespective whether they enable
-ARCH_HAS_VM_GET_PAGE_PROT or not. But because protection_map[]
-is being made private for ARCH_HAS_VM_GET_PAGE_PROT enabling
-platforms, they will not require __PXXX/__SXXX macros anymore.
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
+---
+ drivers/vfio/vfio_iommu_type1.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-In this case, PPC_BOOK3S_64 does not require the macros anymore,
-where as other powerpc platforms will still require them as they
-depend on the generic protection_map[].
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index c13b9290e357..f4e3b423a453 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -2285,9 +2285,7 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+ 	 * testing if they're on the same bus_type.
+ 	 */
+ 	list_for_each_entry(d, &iommu->domain_list, next) {
+-		if (d->domain->ops == domain->domain->ops &&
+-		    d->enforce_cache_coherency ==
+-			    domain->enforce_cache_coherency) {
++		if (d->domain->ops == domain->domain->ops) {
+ 			iommu_detach_group(domain->domain, group->iommu_group);
+ 			if (!iommu_attach_group(d->domain,
+ 						group->iommu_group)) {
+-- 
+2.17.1
 
-> 
->>   #define __P000	PAGE_NONE
->>   #define __P001	PAGE_READONLY
->>   #define __P010	PAGE_COPY
->> @@ -38,6 +39,7 @@ struct mm_struct;
->>   #define __S101	PAGE_READONLY_X
->>   #define __S110	PAGE_SHARED_X
->>   #define __S111	PAGE_SHARED_X
->> +#endif
->>   
->>   #ifndef __ASSEMBLY__
->>   
->> diff --git a/arch/powerpc/mm/book3s64/pgtable.c b/arch/powerpc/mm/book3s64/pgtable.c
->> index 7b9966402b25..2cf10a17c0a9 100644
->> --- a/arch/powerpc/mm/book3s64/pgtable.c
->> +++ b/arch/powerpc/mm/book3s64/pgtable.c
->> @@ -551,6 +551,26 @@ unsigned long memremap_compat_align(void)
->>   EXPORT_SYMBOL_GPL(memremap_compat_align);
->>   #endif
->>   
->> +/* Note due to the way vm flags are laid out, the bits are XWR */
->> +static pgprot_t protection_map[16] __ro_after_init = {
-> 
-> I don't think powerpc modifies that at all. Could be const instead of 
-> ro_after_init.
-
-Sure, will change that.
-
-> 
->> +	[VM_NONE]					= PAGE_NONE,
->> +	[VM_READ]					= PAGE_READONLY,
->> +	[VM_WRITE]					= PAGE_COPY,
->> +	[VM_WRITE | VM_READ]				= PAGE_COPY,
->> +	[VM_EXEC]					= PAGE_READONLY_X,
->> +	[VM_EXEC | VM_READ]				= PAGE_READONLY_X,
->> +	[VM_EXEC | VM_WRITE]				= PAGE_COPY_X,
->> +	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_COPY_X,
->> +	[VM_SHARED]					= PAGE_NONE,
->> +	[VM_SHARED | VM_READ]				= PAGE_READONLY,
->> +	[VM_SHARED | VM_WRITE]				= PAGE_SHARED,
->> +	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_SHARED,
->> +	[VM_SHARED | VM_EXEC]				= PAGE_READONLY_X,
->> +	[VM_SHARED | VM_EXEC | VM_READ]			= PAGE_READONLY_X,
->> +	[VM_SHARED | VM_EXEC | VM_WRITE]		= PAGE_SHARED_X,
->> +	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_SHARED_X
->> +};
-> 
-> That's nice but it could apply to all powerpc platforms. Why restrict it 
-> to book3s/64 ?
-
-Because as mentioned earlier, others powerpc platforms do not
-enable ARCH_HAS_VM_GET_PAGE_PROT.
-
-> 
->> +
->>   pgprot_t vm_get_page_prot(unsigned long vm_flags)
->>   {
->>   	unsigned long prot = pgprot_val(protection_map[vm_flags &
->> diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
->> index 4866625da314..bca98b280fdd 100644
->> --- a/arch/sparc/include/asm/pgtable_32.h
->> +++ b/arch/sparc/include/asm/pgtable_32.h
->> @@ -65,6 +65,7 @@ void paging_init(void);
->>   extern unsigned long ptr_in_current_pgd;
->>   
->>   /*         xwr */
->> +#ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT
-> 
-> CONFIG_ARCH_HAS_VM_GET_PAGE_PROT is selected by sparc64 only, is that 
-> ifdef needed at all ?
-
-Not really necessary, but added just to tighten up.
-
-> 
->>   #define __P000  PAGE_NONE
->>   #define __P001  PAGE_READONLY
->>   #define __P010  PAGE_COPY
->> @@ -82,6 +83,7 @@ extern unsigned long ptr_in_current_pgd;
->>   #define __S101	PAGE_READONLY
->>   #define __S110	PAGE_SHARED
->>   #define __S111	PAGE_SHARED
->> +#endif
->>   
->>   /* First physical page can be anywhere, the following is needed so that
->>    * va-->pa and vice versa conversions work properly without performance
->> diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
->> index 4679e45c8348..a779418ceba9 100644
->> --- a/arch/sparc/include/asm/pgtable_64.h
->> +++ b/arch/sparc/include/asm/pgtable_64.h
->> @@ -187,25 +187,6 @@ bool kern_addr_valid(unsigned long addr);
->>   #define _PAGE_SZHUGE_4U	_PAGE_SZ4MB_4U
->>   #define _PAGE_SZHUGE_4V	_PAGE_SZ4MB_4V
->>   
->> -/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
->> -#define __P000	__pgprot(0)
->> -#define __P001	__pgprot(0)
->> -#define __P010	__pgprot(0)
->> -#define __P011	__pgprot(0)
->> -#define __P100	__pgprot(0)
->> -#define __P101	__pgprot(0)
->> -#define __P110	__pgprot(0)
->> -#define __P111	__pgprot(0)
->> -
->> -#define __S000	__pgprot(0)
->> -#define __S001	__pgprot(0)
->> -#define __S010	__pgprot(0)
->> -#define __S011	__pgprot(0)
->> -#define __S100	__pgprot(0)
->> -#define __S101	__pgprot(0)
->> -#define __S110	__pgprot(0)
->> -#define __S111	__pgprot(0)
->> -
->>   #ifndef __ASSEMBLY__
->>   
->>   pte_t mk_pte_io(unsigned long, pgprot_t, int, unsigned long);
->> diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
->> index f6174df2d5af..6edc2a68b73c 100644
->> --- a/arch/sparc/mm/init_64.c
->> +++ b/arch/sparc/mm/init_64.c
->> @@ -2634,6 +2634,26 @@ void vmemmap_free(unsigned long start, unsigned long end,
->>   }
->>   #endif /* CONFIG_SPARSEMEM_VMEMMAP */
->>   
->> +/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
->> +static pgprot_t protection_map[16] __ro_after_init = {
->> +	[VM_NONE]					= __pgprot(0),
->> +	[VM_READ]					= __pgprot(0),
->> +	[VM_WRITE]					= __pgprot(0),
->> +	[VM_WRITE | VM_READ]				= __pgprot(0),
->> +	[VM_EXEC]					= __pgprot(0),
->> +	[VM_EXEC | VM_READ]				= __pgprot(0),
->> +	[VM_EXEC | VM_WRITE]				= __pgprot(0),
->> +	[VM_EXEC | VM_WRITE | VM_READ]			= __pgprot(0),
->> +	[VM_SHARED]					= __pgprot(0),
->> +	[VM_SHARED | VM_READ]				= __pgprot(0),
->> +	[VM_SHARED | VM_WRITE]				= __pgprot(0),
->> +	[VM_SHARED | VM_WRITE | VM_READ]		= __pgprot(0),
->> +	[VM_SHARED | VM_EXEC]				= __pgprot(0),
->> +	[VM_SHARED | VM_EXEC | VM_READ]			= __pgprot(0),
->> +	[VM_SHARED | VM_EXEC | VM_WRITE]		= __pgprot(0),
->> +	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= __pgprot(0)
->> +};
-> 
-> __pgprot(0) is 0 so you don't need to initialise the fields at all, it 
-> is zeroized at startup as part of BSS section.
-
-Sure, will change.
-
-> 
->> +
->>   static void prot_init_common(unsigned long page_none,
->>   			     unsigned long page_shared,
->>   			     unsigned long page_copy,
-> 
->> diff --git a/include/linux/mm.h b/include/linux/mm.h
->> index bc8f326be0ce..2254c1980c8e 100644
->> --- a/include/linux/mm.h
->> +++ b/include/linux/mm.h
->> @@ -420,11 +420,13 @@ extern unsigned int kobjsize(const void *objp);
->>   #endif
->>   #define VM_FLAGS_CLEAR	(ARCH_VM_PKEY_FLAGS | VM_ARCH_CLEAR)
->>   
->> +#ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT
->>   /*
->>    * mapping from the currently active vm_flags protection bits (the
->>    * low four bits) to a page protection mask..
->>    */
->>   extern pgprot_t protection_map[16];
->> +#endif
->>   
->>   /*
->>    * The default fault flags that should be used by most of the
->> diff --git a/mm/mmap.c b/mm/mmap.c
->> index 61e6135c54ef..e66920414945 100644
->> --- a/mm/mmap.c
->> +++ b/mm/mmap.c
->> @@ -101,6 +101,7 @@ static void unmap_region(struct mm_struct *mm,
->>    *								w: (no) no
->>    *								x: (yes) yes
->>    */
->> +#ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT
->>   pgprot_t protection_map[16] __ro_after_init = {
->>   	[VM_NONE]					= __P000,
->>   	[VM_READ]					= __P001,
->> @@ -120,7 +121,6 @@ pgprot_t protection_map[16] __ro_after_init = {
->>   	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= __S111
->>   };
->>   
->> -#ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT
-> 
-> Why not let architectures provide their protection_map[] and keep that 
-> function ?
-
-Just to understand this correctly.
-
-All platforms provide their private protection_map[] array, drop __SXXX, __PXXX
-macros which will not be required anymore, depend on generic vm_get_page_prot()
-array look up, unless they need custom function via ARCH_HAS_VM_GET_PAGE_PROT ?
-
-> 
->>   pgprot_t vm_get_page_prot(unsigned long vm_flags)
->>   {
->>   	return protection_map[vm_flags & (VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)];
