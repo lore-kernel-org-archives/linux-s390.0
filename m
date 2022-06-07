@@ -2,135 +2,165 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13BD1CCA47C
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 18:48:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A494CCA48B
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 01:18:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353856AbiFGSsm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Jun 2022 14:48:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
+        id S1344545AbiFHBR7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Jun 2022 21:17:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354116AbiFGSqe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 14:46:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A15618FA5D;
-        Tue,  7 Jun 2022 11:00:06 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 104DC616B6;
-        Tue,  7 Jun 2022 18:00:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56EEEC3411F;
-        Tue,  7 Jun 2022 18:00:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654624805;
-        bh=pX0nzPf64Gi4N4lq58ZN23VDkANWV2A2CBadwxo9BvY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OW2GvImPO43hKq1qfk7tHUfn9DvuP+Vm8uDtQeh4zaNeEPoxstS8V5AUYmMuUWmUy
-         uexEQBOBux+zyhS00eZ3k6A3Lfa3S/Nbn6ZQ62U12/4DAvhFdlEB+Ws4D9fl91TNOY
-         i5H7y6yCpPI4KWk0qptxYmz/LsmQszESB+9A/oyGGaxEeMcj8r5hpegok/kk5pALXE
-         oivs0UWM78CFQE1cKLWIZJrX8aZ7xj+8NeqdwvW3wUzhB0EGqkue07tC+v0fioWNyi
-         598UPxwd21Bc+N0MbtBEJNdlICsH8/5fcI/eolzKnelbHmURcM4bv8aRiVDFZDmAeP
-         GzKNbG0ZA4THg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        with ESMTP id S1838720AbiFHACF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 20:02:05 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2054.outbound.protection.outlook.com [40.107.236.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4927E285AAC;
+        Tue,  7 Jun 2022 15:40:08 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=KHVQ2m+4UiTntxNDMxvxeq4d6bUgTqNT6897JH0oqRH7XT3c8bDozB8xIPUlTf4OPKcATi0y2vY3Nhy9+naroNnX6t9CHyz7L0/yZqjgVkt3oqKrdmhG9NAApTyVJ9Qu6qic0oTiDHxAiB1HQXxClEAr4J2JewJL8TR7ifkJPzZFn88C9V5v1q/ygX+Vib8M23KxUypbYvkVayKr6x4nKmyUWzh7ZWL/jgo2kPNVwLL5MvCbBl5KPHgSrbbrV51BQ2tAuUQUOqR70zulv1245LcSjC1rxaaBsaomnDW3JJLhgbD1ByQocPhfRbc8ZVFAQYjNnH3EQJJeyOVib/tMQg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2dKPhgrcXmw6AIJJfudSaDYgE2dMNDFRLnleDGuRGY0=;
+ b=dUAeX489iHcIrNzXHE0jh/0Y217/e5crZUaHl6MouTy9h6ovmZ9t1VH0DMx1f8Qb9w4TdXKtt4ym5nOUgtZ9kHJsKWLTKa+uMw7sS1I32ruRKtqnspAColPfnZnVTwEYnUfbpulXkmhdsAI7zVLxfatkwLoPIQo9cvDoLmO4EiWtNT6h/zBdFScBpb9jxSI60g3WxHElOq7Cb3J4NGfKwFWZJ+dI/Pvs8SmJA5NKkjgyGB/J1+1hk9NKDSRug44XO7EDfVcFbISdJPvqyjyid2zZ38kZM9Ua7O94P7bUD9WhNegiUM8neQA2VWi3rL8FFlJsmSbiQH/7TpW01AYprQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2dKPhgrcXmw6AIJJfudSaDYgE2dMNDFRLnleDGuRGY0=;
+ b=K+YmCIkEPa3qMo6SqhTzGemNIc8wNvh2egdz7JwmUWdD5yj0KSi331pbKcAqj/lWyP2L82S148afpYfnn+qD1pVANno62kaTtB7+I3lHZE5shf6VBErZ1RPoopqgslx1aL4UzXRgLDIyY1i1cRI36JIX7WfdsR4cYquq2JC3LeGmpCnjH8LGs/WelMY7EAeH7BAjlWms0aVde1rDRPjS4vMLFZ89ycIelNM1gg9Uu1tg/iPShZbbPVxfYISi2cRWXdYN+TCt8vc6DFbxcLdn3uvGSiIyGBqXFu5hJWM7F1IP4HtVbvForCfYbEWZhrypvv98/CQUygw7ILhhrI77OQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by MN2PR12MB4389.namprd12.prod.outlook.com (2603:10b6:208:262::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.12; Tue, 7 Jun
+ 2022 22:40:06 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::2484:51da:d56f:f1a5]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::2484:51da:d56f:f1a5%9]) with mapi id 15.20.5314.019; Tue, 7 Jun 2022
+ 22:40:06 +0000
+Date:   Tue, 7 Jun 2022 19:40:05 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, frankja@linux.ibm.com,
-        gor@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 36/38] s390/gmap: voluntarily schedule during key setting
-Date:   Tue,  7 Jun 2022 13:58:31 -0400
-Message-Id: <20220607175835.480735-36-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220607175835.480735-1-sashal@kernel.org>
-References: <20220607175835.480735-1-sashal@kernel.org>
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Subject: Re: [PATCH 1/2] vfio: Replace the DMA unmapping notifier with a
+ callback
+Message-ID: <20220607224005.GA805783@nvidia.com>
+References: <0-v1-896844109f36+a-vfio_unmap_notif_jgg@nvidia.com>
+ <1-v1-896844109f36+a-vfio_unmap_notif_jgg@nvidia.com>
+ <20220607053955.GA8508@lst.de>
+ <20220607115752.GG1343366@nvidia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220607115752.GG1343366@nvidia.com>
+X-ClientProxiedBy: MN2PR05CA0046.namprd05.prod.outlook.com
+ (2603:10b6:208:236::15) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 53ef0093-7b4c-4257-e7f4-08da48d6ab83
+X-MS-TrafficTypeDiagnostic: MN2PR12MB4389:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR12MB438921F42B56568E5DBF197AC2A59@MN2PR12MB4389.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: pBpu5xN3n8iMFWHJffm1UxwEkiAmWfuo5zV6/kuzm57q3rRQDD812oNcZ2qKXT77tF2hHwjfqAi7pYJ94Xf5f6v6K3DJXt/j/M/0sEsC9KGd8k0ab91gQfbi4tjn7NTb1FvZBVDKQAWTwJFjfAFdwBeqQoyvW+5NzqAYgU5k3yymQ3SljVORaE9Dok3zxOvc4EOFkvzm79rgS9XhWsaTsGaTa8yNoBnI9YIHosv6wn51ycQmSRIlS1bITszKrSGVnKi1rletgH0K9tmJQeotwKB2om7d1FCTn9zcKYRZDOxOBcXTfrBw7EwgOCvyEEUTeRF2E9BEYvFm6u6ZKwRkQgkU8SI2kpvQ7DZZD+ZxZ0xSVnegZxAYLRoqJEG8rq/gPtKQrUcFEWYS0uojO+D2a3hNAuha7rRbYZcXlBGGPyzQJswcDKuItsEH36r6ai7WLcOiqAgYW/jVCPF7Mly2IK3sMlgmbS9xzcelKYaZ26NzbCjv2wjdB5mM9wzI2JqjgiAwXk0SMMBKESaAKdP/mB+nuTiFOrzB4mV+hCbgTR5NbxqninkCfCdWJ+gSEbqlQZiyuTindjpKqYu0STrUoQUiPz+ORLzIbX15fDS8GnqbKAeZT2Z/NSkHCeqpD4i2pJ6WK6Lu2hHhdR5XXCdyp/4D3Vezji2CIJyweTj5PgmA4rUbt/x62T9Gsbh7dPhizzld5499zg0S+KZ0DaH68g==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(508600001)(36756003)(2906002)(66556008)(7416002)(2616005)(8936002)(5660300002)(186003)(26005)(316002)(8676002)(83380400001)(1076003)(6512007)(6916009)(54906003)(38100700002)(33656002)(66476007)(66946007)(6506007)(6486002)(86362001)(4326008)(27376004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?F4RYXfppcgKxC4r3ewhH+V0HxgSX4VnLAQMJuQIutYRmPARH5U9ZFdG9PVXn?=
+ =?us-ascii?Q?C9ThOWL719RlOmkgYVfnyHq7D36vGUKRKZiMw1hq8z/jqyPSsfNSsmI2YfqN?=
+ =?us-ascii?Q?nZqWStrc/UWRwqBdUggJX/gsVv8VWk0E8lFtD1bqX6t/t1XVjuRQIq/Jvatf?=
+ =?us-ascii?Q?pPFWPAi1SV7nYAOnjt2/L3Qrcc7jCXgcATAyXzdeY2ObMeI+pasluU8MyWS/?=
+ =?us-ascii?Q?bY6eNIRBqBEO7QDHCqO7PusBLz5Sy0N6t5VUk+lHlXctBYXDDAy2Vjikpwpu?=
+ =?us-ascii?Q?niSFozQzHowlq7uSI161zlej+K33gikkFkQJUhpDqRgzeUu++dEITmQIYRcw?=
+ =?us-ascii?Q?Ko42NVjwmFze5eVs/Szby02isqF7yj0q/zJNqJyD6BG2zVEcXrpktoDY2PMN?=
+ =?us-ascii?Q?6jAC5DSEoC/H2yzDR6jnkvpMUhGpsllELYlmU7G3CYS87VO29fAw0lU3JAIC?=
+ =?us-ascii?Q?Ebr47aeVoKW//CPCtFelgvtZrr2O03oXyBwExLdDV3vRYjO8/oIlHK/lTc3P?=
+ =?us-ascii?Q?iD7SiGU/334vu7LfdZdOToZVAUOWK7MxEXow6FiMeWd4DtfuSdlGyMsWaN0O?=
+ =?us-ascii?Q?miaZKe2MPKheQFqdp2Vl/QstUCK8J5FDERYsbjzfgZLGZhSFkr9K3zzrgFld?=
+ =?us-ascii?Q?J55CI8I/cQOWqm6ZQ+a0TYaID15ycLj4bCC/YCAS9dmx/os1gUtTWn3W25CR?=
+ =?us-ascii?Q?pd7Bq+krbAzOfo5neqhrMuO74N4xY7Vyg+AwRUGbcQmwh2J2beOymmhLoyOu?=
+ =?us-ascii?Q?ntXklGPJgPPnNBlfYfaPOcyKtZmdRfN1mAqEBoRz3lHX/rlZZLXUOlibjEGp?=
+ =?us-ascii?Q?ubYtT6PXB5BlxM+FkYmHb8PKzewSDX5xRrWUgcnFkvObQQz4zTLtANiekd9g?=
+ =?us-ascii?Q?MuSRgAH+MgSQ1AG2iU29spHAMXnvsGVDxS2vUlsuV+MnLx8SZXuZVTI2zdNF?=
+ =?us-ascii?Q?M2PteKasfIb/0IK9CD+dblFrIh3T+WC/JQncfTvLzk34ZkB39iS9woJWm4eN?=
+ =?us-ascii?Q?0loXNCyCvf4O+95UEQz8oESf4WXeCUVc2MR/BbCa+GFoo5Y8wJEl3Wt2L5Xw?=
+ =?us-ascii?Q?99hDedFrxcMZ+7h5Krwh0KWhoiFzw0kZsmw/FM8RZ9iiyIF9Ew1T5HQmPSIZ?=
+ =?us-ascii?Q?SzD5jXtqQoMwlnnd4vIiS9d7UjeBoXjM7FzR15EHFFbVoI/QpvQm4ULc7Dcq?=
+ =?us-ascii?Q?POceqmCgryJuDSJqaEHvY6bMKtRzG2TelkA2CgobkzCAikHopVTz7mWroHee?=
+ =?us-ascii?Q?9SD3vIfBAeY+pfrramdUCuVh+AbNfTagyOqCU+evDv0GrG1dzjRD3iXTzYWW?=
+ =?us-ascii?Q?lIY29X1d8rwOZbTEUdhmIQD32pkkEVUdoPaNbSWoZ/3IIvGyvGZFh8meVY1g?=
+ =?us-ascii?Q?W3n4aSO2+zIUIxP/51u0pxd/3qj/+s6NMQKFrcurwZHNcncxFakLH+EJx+HL?=
+ =?us-ascii?Q?jH8T8gF1gncHBrrXmNt18bYOCRKnGl6Yc58v2g32R0KLse+/WGpu+7sdvA/E?=
+ =?us-ascii?Q?FwYmKnfjZLxlw5qdJNNSWi11GO9uS0fjjBNsb6OScSivSrESyDvTbaD2IOfC?=
+ =?us-ascii?Q?lvWogkcvWShe7wXFBDGs/V0ARXmsHs+sEf0gRzSpTia8+t2+KpeMntQLA4de?=
+ =?us-ascii?Q?FgIO/ZG6o7i0CcO+1zZxKaWFduK26OSO9vLGTVSg3+5dpBjwLt/ez/G2FM8W?=
+ =?us-ascii?Q?4NFGAN/C+9pwNmsmhCnE7Q2fdmc3RCEPIogXcmc/Su/PUEkxB2Z1vX8ACW/X?=
+ =?us-ascii?Q?hHOelr/AOg=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 53ef0093-7b4c-4257-e7f4-08da48d6ab83
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jun 2022 22:40:06.6439
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: hYuvMPqa8MJIxshEGc/s+XBM5E8LXYfQeHF7U9Uq4YqcdFi7JV/yHoolQk3uUvVy
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4389
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
+On Tue, Jun 07, 2022 at 08:57:52AM -0300, Jason Gunthorpe wrote:
+> On Tue, Jun 07, 2022 at 07:39:55AM +0200, Christoph Hellwig wrote:
+> 
+> > > +static int vfio_iommu_notifier(struct notifier_block *nb, unsigned long action,
+> > > +			       void *data)
+> > > +{
+> > > +	struct vfio_device *vfio_device =
+> > > +		container_of(nb, struct vfio_device, iommu_nb);
+> > > +	struct vfio_iommu_type1_dma_unmap *unmap = data;
+> > 
+> > Using the iommu type 1 UAPI structure in the core vfio code for a
+> > subset of its field is kinda weird.  But we can fix this later.
+> 
+> Ah, I did type this in at one point.. It was small lets include it in
+> this patch
 
-[ Upstream commit 6d5946274df1fff539a7eece458a43be733d1db8 ]
+Oh I got this explanation mixed up - forgot about this vesitgual bit
 
-With large and many guest with storage keys it is possible to create
-large latencies or stalls during initial key setting:
+The patch is split in two: this patch removes the
+vfio_iommu_type1_dma_unmap from all the drivers but leaves the type1
+code as-is and bridges it here, the next patch changes the type1 code
+to direcly call the op and deletes this function. So this weirdness is
+fully deleted by the end of the series.
 
-rcu: INFO: rcu_sched self-detected stall on CPU
-rcu:   18-....: (2099 ticks this GP) idle=54e/1/0x4000000000000002 softirq=35598716/35598716 fqs=998
-       (t=2100 jiffies g=155867385 q=20879)
-Task dump for CPU 18:
-CPU 1/KVM       R  running task        0 1030947 256019 0x06000004
-Call Trace:
-sched_show_task
-rcu_dump_cpu_stacks
-rcu_sched_clock_irq
-update_process_times
-tick_sched_handle
-tick_sched_timer
-__hrtimer_run_queues
-hrtimer_interrupt
-do_IRQ
-ext_int_handler
-ptep_zap_key
-
-The mmap lock is held during the page walking but since this is a
-semaphore scheduling is still possible. Same for the kvm srcu.
-To minimize overhead do this on every segment table entry or large page.
-
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220530092706.11637-2-borntraeger@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/mm/gmap.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index f2d19d40272c..2db097c14cec 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2596,6 +2596,18 @@ static int __s390_enable_skey_pte(pte_t *pte, unsigned long addr,
- 	return 0;
- }
- 
-+/*
-+ * Give a chance to schedule after setting a key to 256 pages.
-+ * We only hold the mm lock, which is a rwsem and the kvm srcu.
-+ * Both can sleep.
-+ */
-+static int __s390_enable_skey_pmd(pmd_t *pmd, unsigned long addr,
-+				  unsigned long next, struct mm_walk *walk)
-+{
-+	cond_resched();
-+	return 0;
-+}
-+
- static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
- 				      unsigned long hmask, unsigned long next,
- 				      struct mm_walk *walk)
-@@ -2618,12 +2630,14 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
- 	end = start + HPAGE_SIZE - 1;
- 	__storage_key_init_range(start, end);
- 	set_bit(PG_arch_1, &page->flags);
-+	cond_resched();
- 	return 0;
- }
- 
- static const struct mm_walk_ops enable_skey_walk_ops = {
- 	.hugetlb_entry		= __s390_enable_skey_hugetlb,
- 	.pte_entry		= __s390_enable_skey_pte,
-+	.pmd_entry		= __s390_enable_skey_pmd,
- };
- 
- int s390_enable_skey(void)
--- 
-2.35.1
-
+Jason
