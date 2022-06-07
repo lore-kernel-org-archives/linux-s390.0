@@ -2,100 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B058C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 17:32:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F410BCCA47E
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 18:18:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346970AbiFGRcV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Jun 2022 13:32:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39602 "EHLO
+        id S1351438AbiFGSSw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Jun 2022 14:18:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347316AbiFGRaW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 13:30:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BED921105D6
-        for <linux-s390@vger.kernel.org>; Tue,  7 Jun 2022 10:26:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1654622778;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=3/UV364lqIHTwaOFv7dNLYog86f9+MNfNsOfPzkrNv0=;
-        b=fR5Ka9+A+6b2/FY6s6KRsCbvB4qwYzXitM5gepIn7tO9Lz2JymZL7ZYwWAeaQPfSDX3z1N
-        mY4K/IA7HZ6sujTXwJKcKp17P/4tLlS7oK2S+2QeNV4G3gKu4QsU5kOjFmueAT+4qzcwKs
-        RALs0fH4vSkbL+Hy1PeGVFpanrocsMs=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-604-rr52pTUUMF6LN1ArOzeMiQ-1; Tue, 07 Jun 2022 13:26:17 -0400
-X-MC-Unique: rr52pTUUMF6LN1ArOzeMiQ-1
-Received: by mail-qv1-f72.google.com with SMTP id eb5-20020ad44e45000000b0046447caa7a0so11325196qvb.16
-        for <linux-s390@vger.kernel.org>; Tue, 07 Jun 2022 10:26:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:references:to:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=3/UV364lqIHTwaOFv7dNLYog86f9+MNfNsOfPzkrNv0=;
-        b=F/Ll20wGYtULyc/5EGsKMgHmfP4f6qO5yZDTqIbE0hPD987t8kWvC8PQSv4VjkAwPW
-         GYQlSAZa7SJLwXWg1o5aO8Y61nN1kLvsbaiotAIufulnndI+HoNOyA1j66NOxGNVSbnJ
-         KT4NCg45K4QDUjcCIm3o4B08FyRAHn6t5s01dksuaXZzgbIQlp49DdzuBWHnf8ftzMTK
-         ys92XV++AYdIP4rZtLDSh8PlRVjtCMDDwxx/eTgGFvgwElCqTKIPewKz/0jPtidIT3H8
-         UE6u1FKWWmqL5pD9YOzDucxwfH63QKOCTz26h6Bfzhv40IrGFftihBMnHTHrkHUVv2zN
-         EDEA==
-X-Gm-Message-State: AOAM533iteNrKmF1IUcGWgr2f+S20DntACeHc6aloSP3MdR1YEKf/hPr
-        Jqqw+wb+xFjDlprRaB2gD/Y8VX1wrHMkl/Att9Q3+z6hb+z7DZGqXUpPNZuulWmar1ixORyDNHk
-        gHGfH5ACVYleXmZ3u/P5b+A==
-X-Received: by 2002:ad4:5bc7:0:b0:466:5cac:64f2 with SMTP id t7-20020ad45bc7000000b004665cac64f2mr23609219qvt.104.1654622776845;
-        Tue, 07 Jun 2022 10:26:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx30DjIOJ2y+staca/O9RZjhhcOcN+i7pCjzHeoud4kpXM7ul0SnctL1ggOMLRPlKA4vqrChA==
-X-Received: by 2002:ad4:5bc7:0:b0:466:5cac:64f2 with SMTP id t7-20020ad45bc7000000b004665cac64f2mr23609187qvt.104.1654622776469;
-        Tue, 07 Jun 2022 10:26:16 -0700 (PDT)
-Received: from [192.168.1.9] (pool-68-163-101-245.bstnma.fios.verizon.net. [68.163.101.245])
-        by smtp.gmail.com with ESMTPSA id t194-20020a3746cb000000b006a371ba1fa5sm13809214qka.32.2022.06.07.10.26.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Jun 2022 10:26:16 -0700 (PDT)
-Subject: Fwd: s390/nospec: add an option to use thunk-extern
-References: <8417373c-9dba-54bd-ce08-2d36d0a2af04@redhat.com>
-To:     linux-s390 <linux-s390@vger.kernel.org>,
-        linux-kbuild@vger.kernel.org
-From:   Joe Lawrence <joe.lawrence@redhat.com>
-X-Forwarded-Message-Id: <8417373c-9dba-54bd-ce08-2d36d0a2af04@redhat.com>
-Message-ID: <8569429d-57f8-a0cf-8b17-1291f6973d32@redhat.com>
-Date:   Tue, 7 Jun 2022 13:26:15 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        with ESMTP id S1352855AbiFGSRi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 14:17:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4737211A3C;
+        Tue,  7 Jun 2022 10:52:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2194BB82367;
+        Tue,  7 Jun 2022 17:52:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B25AC34119;
+        Tue,  7 Jun 2022 17:52:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1654624363;
+        bh=vhFQJOuDoweg0cmkJ2+dd/wYe49J1ZAW4hcLiGdLY9g=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Wot1LJhMtiAaLhtXn82f+oOMlyPkrCSqPjO9biCTWr1H8Kcdi0VVPPU7X1NyPbkfu
+         couMZVMw05sBRxuT8sSf6bZyLTocH+ZTmjex6tQdifLK09laPAoJSeSRAqYnmjjDcb
+         H3xs2i4/a0H9YRLgiUGuBOMRzfla4sEhT3Bep9wk6wqKvjbUOgFpFM5f9Fhx+98d6t
+         K1oHyKg/MsNu4poP98/M2BTfUugWHFgBv1kskJ46zoooUuqXNFaQNDB2DmkLudFUmQ
+         wXuaFywtQNZXMMJnzQF5MvCPVYuPKK49ESd27KB75lFs2mM+31N+LZxCTbsmwq+Wdj
+         BsIElR4vI3vcw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, frankja@linux.ibm.com,
+        gor@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 65/68] s390/gmap: voluntarily schedule during key setting
+Date:   Tue,  7 Jun 2022 13:48:31 -0400
+Message-Id: <20220607174846.477972-65-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220607174846.477972-1-sashal@kernel.org>
+References: <20220607174846.477972-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <8417373c-9dba-54bd-ce08-2d36d0a2af04@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-[ adding appropriate lists ]
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
 
--------- Forwarded Message --------
-Subject: Re: s390/nospec: add an option to use thunk-extern
-Date: Thu, 2 Jun 2022 08:02:20 -0400
-From: Joe Lawrence <joe.lawrence@redhat.com>
-To: Vasily Gorbik <gor@linux.ibm.com>
+[ Upstream commit 6d5946274df1fff539a7eece458a43be733d1db8 ]
 
-Hi Vasily,
+With large and many guest with storage keys it is possible to create
+large latencies or stalls during initial key setting:
 
-I couldn't find the upstream patch post for 1d2ad084800e ("s390/nospec:
-add an option to use thunk-extern"), so replying off-list here.  Feel
-free to cc the appropriate list.
+rcu: INFO: rcu_sched self-detected stall on CPU
+rcu:   18-....: (2099 ticks this GP) idle=54e/1/0x4000000000000002 softirq=35598716/35598716 fqs=998
+       (t=2100 jiffies g=155867385 q=20879)
+Task dump for CPU 18:
+CPU 1/KVM       R  running task        0 1030947 256019 0x06000004
+Call Trace:
+sched_show_task
+rcu_dump_cpu_stacks
+rcu_sched_clock_irq
+update_process_times
+tick_sched_handle
+tick_sched_timer
+__hrtimer_run_queues
+hrtimer_interrupt
+do_IRQ
+ext_int_handler
+ptep_zap_key
 
-Regarding this change, as I understand it, when CONFIG_EXPOLINE_EXTERN=y
-out-of-tree kernel modules will need to link against
-arch/s390x/lib/expoline.o, right?
+The mmap lock is held during the page walking but since this is a
+semaphore scheduling is still possible. Same for the kvm srcu.
+To minimize overhead do this on every segment table entry or large page.
 
-And if so, shouldn't the top level 'prepare_modules' target create
-expoline.o for this purpose?
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220530092706.11637-2-borntraeger@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/mm/gmap.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-Regards,
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 1ac73917a8d3..b8ae4a4aa2ba 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2608,6 +2608,18 @@ static int __s390_enable_skey_pte(pte_t *pte, unsigned long addr,
+ 	return 0;
+ }
+ 
++/*
++ * Give a chance to schedule after setting a key to 256 pages.
++ * We only hold the mm lock, which is a rwsem and the kvm srcu.
++ * Both can sleep.
++ */
++static int __s390_enable_skey_pmd(pmd_t *pmd, unsigned long addr,
++				  unsigned long next, struct mm_walk *walk)
++{
++	cond_resched();
++	return 0;
++}
++
+ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 				      unsigned long hmask, unsigned long next,
+ 				      struct mm_walk *walk)
+@@ -2630,12 +2642,14 @@ static int __s390_enable_skey_hugetlb(pte_t *pte, unsigned long addr,
+ 	end = start + HPAGE_SIZE - 1;
+ 	__storage_key_init_range(start, end);
+ 	set_bit(PG_arch_1, &page->flags);
++	cond_resched();
+ 	return 0;
+ }
+ 
+ static const struct mm_walk_ops enable_skey_walk_ops = {
+ 	.hugetlb_entry		= __s390_enable_skey_hugetlb,
+ 	.pte_entry		= __s390_enable_skey_pte,
++	.pmd_entry		= __s390_enable_skey_pmd,
+ };
+ 
+ int s390_enable_skey(void)
 -- 
-Joe
+2.35.1
 
