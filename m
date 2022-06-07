@@ -2,21 +2,21 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 802B9C43334
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 05:49:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0134C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 05:50:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233252AbiFGFtA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Jun 2022 01:49:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53722 "EHLO
+        id S230112AbiFGFu4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Jun 2022 01:50:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230090AbiFGFtA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 01:49:00 -0400
+        with ESMTP id S230090AbiFGFuz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 01:50:55 -0400
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A53BBA99B;
-        Mon,  6 Jun 2022 22:48:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E775BA99B;
+        Mon,  6 Jun 2022 22:50:54 -0700 (PDT)
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 197A068BFE; Tue,  7 Jun 2022 07:48:53 +0200 (CEST)
-Date:   Tue, 7 Jun 2022 07:48:52 +0200
+        id B4A7F68AFE; Tue,  7 Jun 2022 07:50:50 +0200 (CEST)
+Date:   Tue, 7 Jun 2022 07:50:50 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     Kirti Wankhede <kwankhede@nvidia.com>
 Cc:     Christoph Hellwig <hch@lst.de>,
@@ -32,64 +32,46 @@ Cc:     Christoph Hellwig <hch@lst.de>,
         intel-gvt-dev@lists.freedesktop.org, Neo Jia <cjia@nvidia.com>,
         Dheeraj Nigam <dnigam@nvidia.com>,
         Tarun Gupta <targupta@nvidia.com>
-Subject: Re: [PATCH 2/8] vfio/mdev: embedd struct mdev_parent in the parent
- data structure
-Message-ID: <20220607054852.GA8680@lst.de>
-References: <20220603063328.3715-1-hch@lst.de> <20220603063328.3715-3-hch@lst.de> <71e7d9a8-1005-0458-b8cd-147ccc6430d7@nvidia.com>
+Subject: Re: [PATCH 3/8] vfio/mdev: simplify mdev_type handling
+Message-ID: <20220607055050.GB8680@lst.de>
+References: <20220603063328.3715-1-hch@lst.de> <20220603063328.3715-4-hch@lst.de> <86df429e-9f01-7a91-c420-bb1130b4d343@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <71e7d9a8-1005-0458-b8cd-147ccc6430d7@nvidia.com>
+In-Reply-To: <86df429e-9f01-7a91-c420-bb1130b4d343@nvidia.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 07, 2022 at 12:52:30AM +0530, Kirti Wankhede wrote:
-> By removing this list, there is no way to know if parent device is 
-> registered repeatedly? What will happen if same parent device is registered 
-> twice? will it fail somewhere else?
-
-The driver core will warn if you double register a device.
-
->>   probe'd to then it should call::
->>   -	extern int  mdev_register_device(struct device *dev,
->> -	                                 struct mdev_driver *mdev_driver);
->> +	int mdev_register_parent(struct mdev_parent *parent, struct device *dev,
->> +			struct mdev_driver *mdev_driver);
->>
+On Tue, Jun 07, 2022 at 12:52:49AM +0530, Kirti Wankhede wrote:
+>>   	void (*remove)(struct mdev_device *dev);
+>> -	struct attribute_group **supported_type_groups;
+>>   	struct device_driver driver;
+>>   };
 >
-> No need to change API name as it still registers 'struct device *dev', it 
-> could be 'mdev_register_device' but with new argument list.
+> mdev_type should be part of mdev_parent, separating it from mdev_parent 
+> could result in more errors while using mdev framework.
 
-I think the name name is a lot more clear, as device is really overused.
-Especially as this is not a mdev_device, which are registered
-elsewhere..
+Why?
 
->>   -	mdev_unregister_device(i915->drm.dev);
->> +	mdev_unregister_parent(&i915->vgpu.parent);
->
-> Ideally, parent should be member of gvt. There could be multiple vgpus 
-> created on one physical device. Intel folks would be better reviewer 
-> though.
+> Similarly it should 
+> be added as part of mdev_register_device. Below adding types is separated 
+> from mdev_register_device which is more error prone.
 
-i915->vgpu is not for a single VGPU, but all VGPU related core
-support.
+How so?
 
->> -	struct mdev_parent *parent;
->>   	char *env_string = "MDEV_STATE=registered";
->>   	char *envp[] = { env_string, NULL };
->> +	int ret;
->>     	/* check for mandatory ops */
->>   	if (!mdev_driver->supported_type_groups)
->>   		return -EINVAL;
->>   -	dev = get_device(dev);
->> -	if (!dev)
->> -		return -EINVAL;
->> -
->
-> Why not held device here? What if some driver miss behave where it 
-> registers device to mdev, but unloads without unregistering from mdev?
+> What if driver 
+> registering to mdev doesn't add mdev_types? - mdev framework is un-usable 
+> in that case.
 
-Then that driver is buggy.  We don't add extra reference to slightly
-paper over buggy code elsewhere in the kernel either.
+Yes, so it is if you don't add it to the supported_type_groups field
+in the current kernel.  Basic programmer error, and trivially caught.
+
+> We had kept it together with mdev registration so that 
+> mdev_types should be mandatory to be defined by driver during registration. 
+> How would you mandate mdev_type by such separation?
+
+I would not.  Registering a parent without types is perfectly valid from
+the code correctness perspective.  It just isn't very useful.  Just
+like say creating a kobject without attributes in the device model.
