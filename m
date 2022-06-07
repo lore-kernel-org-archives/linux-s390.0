@@ -2,189 +2,189 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B6F9CCA482
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 11:11:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1C8AC43334
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 11:57:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242522AbiFGLL0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Jun 2022 07:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33958 "EHLO
+        id S243276AbiFGL5L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Jun 2022 07:57:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243075AbiFGLKi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 07:10:38 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17B30986D0;
-        Tue,  7 Jun 2022 04:09:06 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 257A0G2h012945;
-        Tue, 7 Jun 2022 11:09:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=QMmAXMc3VpP+QXpAwauYdGXx9BAL9Qwb9B7xZ1fJumo=;
- b=s/I6bjF40Jil1/eBUh7LFXcGy4H/qIxLcW1NTKAuDREunDifdH038gpDObV2o+ej8wUW
- Y/V2qTALczMygMeFu7rZIewv8buFqFQU4HEfpScCOT1A6mud7K2ZwZi0db7lqxVLHQ/C
- pClB2v/37hQG6OT1BQ+3p/B+GtwqcoZZojPGwl5pQ3B/9pOLIzXHrG60VOoJqa8EA7NQ
- z24J9niiTyrH5YttrURkOJ72AXL3apYpnkdvAJMUvvPpLOv/DljIvi1GF4u5TwsqqKnW
- /I54QCdnG1AqFtOm4qKtVRDAtOXQwncw/nm0azTwM30dY9nobStFJ/AFnsEYm4WIiK/j Rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gj4hu183f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Jun 2022 11:09:05 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 257AmBHI013102;
-        Tue, 7 Jun 2022 11:09:05 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gj4hu1830-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Jun 2022 11:09:05 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 257B7wxH022528;
-        Tue, 7 Jun 2022 11:09:03 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3gfy19bne9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Jun 2022 11:09:03 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 257B90EF22348140
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Jun 2022 11:09:00 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 345A3AE05A;
-        Tue,  7 Jun 2022 11:09:00 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ECBFDAE057;
-        Tue,  7 Jun 2022 11:08:59 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.40])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Jun 2022 11:08:59 +0000 (GMT)
-Date:   Tue, 7 Jun 2022 13:08:57 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, pmorel@linux.ibm.com, nrb@linux.ibm.com,
-        thuth@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v1 2/2] lib: s390x: better smp interrupt
- checks
-Message-ID: <20220607130857.391ddfc6@p-imbrenda>
-In-Reply-To: <5552dc4a-4c1f-2f01-eaa7-fa42042d4455@linux.ibm.com>
-References: <20220603154037.103733-1-imbrenda@linux.ibm.com>
-        <20220603154037.103733-3-imbrenda@linux.ibm.com>
-        <5552dc4a-4c1f-2f01-eaa7-fa42042d4455@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        with ESMTP id S243258AbiFGL5H (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 07:57:07 -0400
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2051.outbound.protection.outlook.com [40.107.93.51])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F40656403;
+        Tue,  7 Jun 2022 04:57:06 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Z5bkzeFfz7hku6BLNt1DVLefLYtPWrVlLBLOQj6Tl1AhBc+B2pG7FW0lrTunLQ22McFKjnDJUubMwJLA9seBqepovxJM/N0+JrGz+W/Z0MhmHozJrY9SiDoD5oz8PNka3D4vxlru23BvrMQeLEKqqE/jRua2MOp9AC3tg9D1UoEhI8D/VnBMMjVdpksQ1WKaL5KtD8zdJ8+8kraSeIqI2/O0s4YPlcNI+49WRLCxCSb+EOljpQ4B2YBOks/JV+T5iC/38Okbt8VlaaOLO7oc9GeLVFmmt/QzSJj/0VzdUt5kIjGg8OIA9opcp62bWTR8SuYQn/DGnqQIZPDrQSw/Mw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Ex6m5qwnMkAXTA9LrGpCxi+Okw3ZZAIb0c5X6u+40Dc=;
+ b=SJVj0oOcZeQp7Eo5eoGOnC/2CKeUqrq/i/sglGbnlZCGFTFOtjNyxuRSUaeKUen59GXk5momKv+hmWLia4PFxCEw7+OGE269YmfQ4ISA4naenrdEVMM5hvoL+TM0K9x5z0V5psMairIsBwV/eFm11soMQwAD+VdgjYVSXXjvBqHVSJv7MvXhaPACdcUeQ4IRfLxOY6+tK3P0nGoaA2RHshvKrbz24WaCBYP8f4C4h3NQ1B41gcxjzlUHa2Fywp0h3eGoL2Ky88t6sYehKVEbaT1w9hTaPa3KhetOeExykVUBF+Wp5aFhFjnM4jMDK8Z9SnlcQ7HPbmvM1jw+a0a62g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Ex6m5qwnMkAXTA9LrGpCxi+Okw3ZZAIb0c5X6u+40Dc=;
+ b=IVyqJfnT8PR9xoyVKwn6WvZvJlmWMnZc6kMM43xzNAKoVRdbNkB11Lz8t491SLWIT9lCQEXcUv5FbAXDo4JgJ9xq3EdLIEAEEWTnDb5+Dcctywpolop54WSxLeCtfP6IlNUZCJTLdL0jEXf9pWxRr50VEZr/ds8VSERUoB3r8J+1rHLB+hRYU9ItiDZaVhfD98rz55zLAo3QtdJx3l9p+ee8xyqQp4vfwTcbdtLGMop5LJhyzfnMMua2Co5ub1fbA8Bowh9n7m54LCXeFdgkF9WpC8dqUyJVfOaE2Ty31U6y1NHBNFRGDy51o3za9uAeX+3TymVD0pdf332ZPogj3w==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by MWHPR12MB1182.namprd12.prod.outlook.com (2603:10b6:300:b::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13; Tue, 7 Jun
+ 2022 11:57:04 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::2484:51da:d56f:f1a5]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::2484:51da:d56f:f1a5%9]) with mapi id 15.20.5314.019; Tue, 7 Jun 2022
+ 11:57:04 +0000
+Date:   Tue, 7 Jun 2022 08:57:02 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Subject: Re: [PATCH 2/2] vfio: Replace the iommu notifier with a device list
+Message-ID: <20220607115702.GF1343366@nvidia.com>
+References: <0-v1-896844109f36+a-vfio_unmap_notif_jgg@nvidia.com>
+ <2-v1-896844109f36+a-vfio_unmap_notif_jgg@nvidia.com>
+ <20220607054437.GB8508@lst.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220607054437.GB8508@lst.de>
+X-ClientProxiedBy: MN2PR06CA0019.namprd06.prod.outlook.com
+ (2603:10b6:208:23d::24) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -anTONY1mqwWQDWF5ElwxLjqL0tKtiUz
-X-Proofpoint-GUID: ZBzMvsa_Qx18YYZfo0T1KP26WmseXc3n
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-07_04,2022-06-07_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 bulkscore=0 malwarescore=0 mlxscore=0 spamscore=0
- mlxlogscore=999 phishscore=0 suspectscore=0 adultscore=0
- lowpriorityscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2204290000 definitions=main-2206070044
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 784a0f29-8ad3-45c6-c3f9-08da487cd684
+X-MS-TrafficTypeDiagnostic: MWHPR12MB1182:EE_
+X-Microsoft-Antispam-PRVS: <MWHPR12MB118278472E4CCA4146781467C2A59@MWHPR12MB1182.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: WLZDnnu0sAcUiIrdVv4uMUkO2fI1Dc0eXrcGcyruBM6C4rckIrgxsVyXdpN60rLc7VnX8acOf7AM/2NFCk+GebalW9ys18HL/OFxQJ1GkmcbzLVH3GppT4gBgQuUXsUztPyUWyRr+XQ3k40xP+Opsd4dL2SgFWZ6AYU0a0OgJlAIsxNg0Lrrs77k9ewz4ei0BZFOse7PJCk//d/7C5Uio3mJxRfeSks9xqSE2g7IKcNsOWUJCx/HxO+HAJpxJdqsw93y0BT01ZST8Kthid+Qt+jGAQZeEuyWnCOpfG1r9x69kdxeKnGHxswztDwIgYu6MUOhHzS+qtQKkz7QMtm5Kndp7Qe5lr8DUBnIpYM8VRDTiPaasIS3nu81KrVnsWSnqULV8jk2pdTCk+bhcqP2QYunfOB963wX1XqAS8B8JzyvzBIqp6RIljDct2WpW+WEPyFNhhhb6Qqv1tDHI3O+85jchINUFEsZy6abE0B59gx5fj8iGaTM0ZUvaRrUzWm5Cpr8whD7tsLLyh/PTdb0bakoUmeTskvwW4ETn5XPjW2ciV5TyYMWupKPl5qCVn9991y0nXUfFoOZ0uG+1+XKSsfhV+XdFDCSC3wKXiNjmowOAWEzUsUgFDGVD1x2lnFcij0xzr1iEEBiAd0RkrdGVA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(33656002)(5660300002)(36756003)(316002)(8676002)(2906002)(8936002)(7416002)(6506007)(4326008)(2616005)(66946007)(66556008)(66476007)(83380400001)(186003)(54906003)(38100700002)(6512007)(26005)(6916009)(86362001)(6486002)(508600001)(1076003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?SmnLqpJWFVk93G5c/OMO9jtx+NymIaJf0JUmXrM6xE1A/U33+F1dEq3vUDS6?=
+ =?us-ascii?Q?fpPg8GAAtuAFphEIJ/fw+PlMrNQgoDtI9nhED/6Evo/XwmtbfCjDtlzvSEHF?=
+ =?us-ascii?Q?qImJmWCxMLsTfdWZNJQkJyEih+aCJfW+uA5uCNXyIx//Au3YB/nTcTkt4suR?=
+ =?us-ascii?Q?/Ui/O7rfBV4rujK6PInED3HVrgrwLgiFYf1H/3TIZM87mXcVCl9HkD7eL2Xz?=
+ =?us-ascii?Q?pp3eEue1TfX1Oq1Uq475k5qmczOdmrv3rnd44ef/kDdu9k03JP86vBALvywj?=
+ =?us-ascii?Q?o1JWWDsgN+g/9f4JlydUSqYVbsCDIwLgeXY7HFLZnMUFXI+k/qAM4zPmQspC?=
+ =?us-ascii?Q?1w4tfmKelkjSeuaO1M53C3iMzciDXo9viGCJugn1Wl4i2pSTe/WgvwPmbXL+?=
+ =?us-ascii?Q?SPUpz1pZnwtqnENLbClsOaP18x/bRjeYiCePACNQRPf1zp36Ud3RIzSkHYBe?=
+ =?us-ascii?Q?WiLM3NeHUm8l7FbpUXrq3fxlza6/GKYoIeW+MGHvE3YudkK5I3tQGa3isDFS?=
+ =?us-ascii?Q?hGFktZc97ZpoFSQb296ETT1vKrfhyChAsSwa4bs8eXABg2J6TK9OH14bTzk4?=
+ =?us-ascii?Q?TIfaWBvJ31unXyj4tAuQHmfV0GmZhQSD12MvN/MHf0xkdXdxVm49G4Yrv3LM?=
+ =?us-ascii?Q?lBgPVDiuXeNdxtV2IDoz4nmRI/wbX9ttcbJoo0PfgXkjSbBK8aLP97VCmm3x?=
+ =?us-ascii?Q?xNt0IBCVJJS6661JlhlP3fOCcXFylhRWABYM8bUIaTN3PSkO00v2C1lLrv7F?=
+ =?us-ascii?Q?DYMSwMUvobGsBGFzGYbmATXPQousOXkPoxqWyz6ylEV48P9W+eb/Rvzsj/63?=
+ =?us-ascii?Q?WiTF8G/5vhxtVaPORl7Hu1lQJ7bO1mdtTS1RG6EPlQzW6Yp8WRRjCWFnVhEe?=
+ =?us-ascii?Q?TTQ8lo143iFblpJjH6QV6Kkpa5BJZKvzXqdiM1a4kuLfvTOOeMmLoeouHvKI?=
+ =?us-ascii?Q?DwMbIxKNQxTe1MzsQjmYfDOure9x66u1RMa4fRdT76otnfPxWT80laFc4ARJ?=
+ =?us-ascii?Q?HOAh70optvzraAbBgpVXyfUWB4mu0ZALvMYpcIenyiKqi+tf0rmG9dlSPDC6?=
+ =?us-ascii?Q?3j8M47+SyFRikq9NfuiuXnrSonPx80UQyZLX5niski2hg7K81Dov7uCsPsoP?=
+ =?us-ascii?Q?JC2iC9zBSLaqtcFaCrVfUBa5X1GEA5ktfS0EfJtcMJpp0r5hutHjqtnB4C2t?=
+ =?us-ascii?Q?JUVqGw7/jQGYsvsUCX3CHYaFbdzpjGp4B49XO4GMA+3fJf83nLaI00eyLowc?=
+ =?us-ascii?Q?+y8yOWbcwr12pxh0OF8m3peFZTGjLd8IaId8m5Jy9u+v+CC9SGqxVbmc1fCY?=
+ =?us-ascii?Q?D/595ICEdN+gHFyq+hPVmyGWB6zYZMm9+Srx1TigXZfGg88ksRZm6zhLwoBS?=
+ =?us-ascii?Q?DRkpB3+Cv5o4EGG9vbGa1t2XSVLMFOUTlTJ/wVN7pnmanZNegnYYv/1pv5rS?=
+ =?us-ascii?Q?LS4IwwjOy8iIe0vbLcelBuDPN/P3etrCL9nRMPFd8rbwBB+K0GrUh3OiW5UF?=
+ =?us-ascii?Q?njQqgT0/+7wuF+OUqjU9ARxhzoelu26YSau2qoW5f5PDUEXFx5kvP1Rvnym2?=
+ =?us-ascii?Q?QoJpQhMWHDF0FoT1+OGm2EKKyxPWAz6YhXdmS71xenBSRL5G/szBbgUMxff4?=
+ =?us-ascii?Q?qiNnU1u14ZVbIdTzcbbNg+ekUAM8rUjcn+h1x52mkJJLF3+Ot5e4vyv68Np7?=
+ =?us-ascii?Q?hFWOjWBEu2Nb4xNn0/Vf7Ni+vMjGPMzkyxGKqp6fV1AC2chg5XDGRwroohmD?=
+ =?us-ascii?Q?BkQcDQIowg=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 784a0f29-8ad3-45c6-c3f9-08da487cd684
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jun 2022 11:57:04.0703
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 30zKiZMto7nL9sKpURc/8dI42Vk6JK0LfizLVynMuMhO9EvQOBvT5tHWd8JYjJFV
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR12MB1182
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 7 Jun 2022 12:01:11 +0200
-Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
-
-> On 6/3/22 17:40, Claudio Imbrenda wrote:
-> > Use per-CPU flags and callbacks for Program, Extern, and I/O interrupts
-> > instead of global variables.
-> > 
-> > This allows for more accurate error handling; a CPU waiting for an
-> > interrupt will not have it "stolen" by a different CPU that was not
-> > supposed to wait for one, and now two CPUs can wait for interrupts at
-> > the same time.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >  lib/s390x/asm/arch_def.h |  7 ++++++-
-> >  lib/s390x/interrupt.c    | 38 ++++++++++++++++----------------------
-> >  2 files changed, 22 insertions(+), 23 deletions(-)
-> > 
-> > diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> > index 72553819..3a0d9c43 100644
-> > --- a/lib/s390x/asm/arch_def.h
-> > +++ b/lib/s390x/asm/arch_def.h
-> > @@ -124,7 +124,12 @@ struct lowcore {
-> >  	uint8_t		pad_0x0280[0x0308 - 0x0280];	/* 0x0280 */
-> >  	uint64_t	sw_int_crs[16];			/* 0x0308 */
-> >  	struct psw	sw_int_psw;			/* 0x0388 */
-> > -	uint8_t		pad_0x0310[0x11b0 - 0x0398];	/* 0x0398 */
-> > +	uint32_t	pgm_int_expected;		/* 0x0398 */
-> > +	uint32_t	ext_int_expected;		/* 0x039c */
-> > +	void		(*pgm_cleanup_func)(void);	/* 0x03a0 */
-> > +	void		(*ext_cleanup_func)(void);	/* 0x03a8 */
-> > +	void		(*io_int_func)(void);		/* 0x03b0 */  
+On Tue, Jun 07, 2022 at 07:44:37AM +0200, Christoph Hellwig wrote:
+> On Mon, Jun 06, 2022 at 09:34:36PM -0300, Jason Gunthorpe wrote:
+> > +			if (!list_empty(&iommu->device_list)) {
+> > +				mutex_lock(&iommu->device_list_lock);
+> > +				mutex_unlock(&iommu->lock);
+> > +
+> > +				list_for_each_entry(device,
+> > +						    &iommu->device_list,
+> > +						    iommu_entry)
+> > +					device->ops->dma_unmap(
+> > +						device, dma->iova, dma->size);
+> > +
+> > +				mutex_unlock(&iommu->device_list_lock);
+> > +				mutex_lock(&iommu->lock);
+> > +			}
 > 
-> If you switch the function pointers and the *_expected around,
-> you can use bools for the latter, right?
-> I think, since they're names suggest that they're bools, they should
-> be. Additionally I prefer true/false over 1/0, since the latter raises
-> the questions if other values are also used.
-
-that's exactly what I wanted to avoid. uint32_t can easily be accessed
-atomically and/or compare-and-swapped if needed.
-
-I don't like using true/false for things that are not bools
-
+> I wonder if factoring this into a little helper instead of the
+> very deep indentation might be a bit better for readability.
 > 
-> > +	uint8_t		pad_0x03b8[0x11b0 - 0x03b8];	/* 0x03b8 */
-> >  	uint64_t	mcck_ext_sa_addr;		/* 0x11b0 */
-> >  	uint8_t		pad_0x11b8[0x1200 - 0x11b8];	/* 0x11b8 */
-> >  	uint64_t	fprs_sa[16];			/* 0x1200 */
-> > diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> > index 27d3b767..e57946f0 100644
-> > --- a/lib/s390x/interrupt.c
-> > +++ b/lib/s390x/interrupt.c
-> > @@ -15,14 +15,11 @@
-> >  #include <fault.h>
-> >  #include <asm/page.h>
-> >  
-> > -static bool pgm_int_expected;
-> > -static bool ext_int_expected;
-> > -static void (*pgm_cleanup_func)(void);
-> >  static struct lowcore *lc;
-> >  
-> >  void expect_pgm_int(void)
+> > +static void vfio_iommu_type1_register_device(void *iommu_data,
+> > +					     struct vfio_device *vdev)
 > >  {
-> > -	pgm_int_expected = true;
-> > +	lc->pgm_int_expected = 1;
-> >  	lc->pgm_int_code = 0;
-> >  	lc->trans_exc_id = 0;
-> >  	mb();  
-> 
-> [...]
-> 
-> >  void handle_pgm_int(struct stack_frame_int *stack)
-> >  {
-> > -	if (!pgm_int_expected) {
-> > +	if (!lc->pgm_int_expected) {
-> >  		/* Force sclp_busy to false, otherwise we will loop forever */
-> >  		sclp_handle_ext();
-> >  		print_pgm_info(stack);
-> >  	}
+> >  	struct vfio_iommu *iommu = iommu_data;
 > >  
-> > -	pgm_int_expected = false;
-> > +	lc->pgm_int_expected = 0;
+> > +	if (!vdev->ops->dma_unmap)
+> > +		return;
 > >  
-> > -	if (pgm_cleanup_func)
-> > -		(*pgm_cleanup_func)();
-> > +	if (lc->pgm_cleanup_func)
-> > +		(*lc->pgm_cleanup_func)();  
+> > +	mutex_lock(&iommu->lock);
+> > +	mutex_lock(&iommu->device_list_lock);
+> > +	list_add(&vdev->iommu_entry, &iommu->device_list);
+> > +	mutex_unlock(&iommu->device_list_lock);
+> > +	mutex_unlock(&iommu->lock);
 > 
-> [...]
-> 
-> > +	if (lc->io_int_func)
-> > +		return lc->io_int_func();  
-> Why is a difference between the function pointer usages here?
-> 
+> Why do we need both iommu->lock and the device_list_lock everywhere?
 
-because that is how it was before; both have the same semantics anyway
+Not everwhere, all the readers are using only one of the locks.  The
+list empty calls that were previously unlocked are done under the
+iommu->lock and only the list iteration was done under the
+device_list.
 
+> Maybe explain the locking scheme somewhere so that people don't have
+> to guess, because it seems to me that just using iommu->lock would
+> be enough right now.
+
+The expectation is that the dma_umap callback will re-enter the type1
+driver via vfio_unpin_pages calls and this will recurse back onto the
+iommu->lock - so it must be dropped before invoking the callback.
+
+I'll add a note
+
+Jason
