@@ -2,128 +2,86 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59A88C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 12:06:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC722C43334
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 12:33:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243352AbiFGMGE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Jun 2022 08:06:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48360 "EHLO
+        id S243749AbiFGMdS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Jun 2022 08:33:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240340AbiFGMGC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 08:06:02 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D12ABF5534;
-        Tue,  7 Jun 2022 05:06:00 -0700 (PDT)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 257BSfaS019178;
-        Tue, 7 Jun 2022 12:05:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=XTeQ+dQstEypyto2xBeV0JnMoP1Xt5ItKNMp4LQKRpk=;
- b=dgMb0G5Xar93sIp4VySX/1w68CspO6FO1zEuqB++Pi2RFBb33WxgrYzcGgDfSkMR9hM5
- P6IE0tIsyreW1dK+naD4Yl+LDMUtszP7dml1J0pX9wtZ7UMTD+A+6kahD06aeDgnu8CM
- g52meEZ+A/phzNQDes192lG//H+KDNapxLgiENKSYZrSVElbonweeL7R01PM7VvJu9nk
- ivWhWkoeKtYxOWGNqOrFgegE8Zzw8nPmCVk9zQ5Q+NpVmk/uTsD24hUgzutkClb/vLMX
- 6/Z1VCulkFCLTOzHMU1/I4kTg3KhXEqOQQbZnuZnoCxt0fFTrdR0IQ2OgWr3kBNLHvB6 SA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gj5u38ncq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Jun 2022 12:05:58 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 257BVjrj031205;
-        Tue, 7 Jun 2022 12:05:58 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gj5u38nbu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Jun 2022 12:05:58 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 257C5dJW014828;
-        Tue, 7 Jun 2022 12:05:56 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3gfy19bqmf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Jun 2022 12:05:56 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 257C5rWJ31064368
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Jun 2022 12:05:53 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4E86111C071;
-        Tue,  7 Jun 2022 12:05:53 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7BE3911C06F;
-        Tue,  7 Jun 2022 12:05:52 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.16.221])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Tue,  7 Jun 2022 12:05:52 +0000 (GMT)
-Date:   Tue, 7 Jun 2022 14:05:44 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v19 11/20] s390/vfio-ap: prepare for dynamic update of
- guest's APCB on queue probe/remove
-Message-ID: <20220607140544.32d33f3d.pasic@linux.ibm.com>
-In-Reply-To: <f838f274-ff4d-496d-2393-14423117ff7e@linux.ibm.com>
-References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
-        <20220404221039.1272245-12-akrowiak@linux.ibm.com>
-        <9364a1b7-9060-20aa-b0d6-88c41a30e7d4@linux.ibm.com>
-        <f838f274-ff4d-496d-2393-14423117ff7e@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        with ESMTP id S242695AbiFGMdS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 08:33:18 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65E2C6D198;
+        Tue,  7 Jun 2022 05:33:17 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 0B8A71F968;
+        Tue,  7 Jun 2022 12:33:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1654605196; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=uf7X1P+eft8n9oLVYCmNH8QJXSIXiGGa7r7u8nKCitc=;
+        b=EMI1NXVUQfGwxPLsSKYWQMJ5ZCBqj7rJKlkmNJDrH7q0XIOuz9UKMSDkxLwjm7nbDL8JBK
+        HHTyLMF42yzpuX9ExVXtnN+tSWGFrsXK5bBTlzOZkwLdwoXoQOqTNKiV1c0rWWcAlsTZRN
+        9zZQcFTsZK2KglSQ+5TW+6bMYb1vFXg=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id C18F513A88;
+        Tue,  7 Jun 2022 12:33:15 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id cxjULYtFn2LPDAAAMHmgww
+        (envelope-from <jgross@suse.com>); Tue, 07 Jun 2022 12:33:15 +0000
+From:   Juergen Gross <jgross@suse.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: [PATCH] s390/kvm: avoid hypfs error message
+Date:   Tue,  7 Jun 2022 14:33:14 +0200
+Message-Id: <20220607123314.10255-1-jgross@suse.com>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FV0JSVpMoOjx3jX8H7Bi5nfXD_pNmkXa
-X-Proofpoint-GUID: tADHCpYYpz-awQPvxr_vfJsyJHOnAtkD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-07_04,2022-06-07_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- mlxscore=0 spamscore=0 clxscore=1011 lowpriorityscore=0 malwarescore=0
- impostorscore=0 priorityscore=1501 bulkscore=0 mlxlogscore=999
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206070052
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 31 May 2022 06:44:46 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+When booting under KVM the following error messages are issued:
 
-> > vfio_ap_mdev_get_update_locks_for_apqn is "crazy long".
-> > How about:
-> >   get_mdev_for_apqn()
-> >
-> > This function is static and the terms mdev and apqn are specific 
-> > enough that I
-> > don't think it needs to start with vfio_ap. And there is no need to 
-> > state in
-> > the function name that locks are acquired. That point will be obvious 
-> > to anyone
-> > reading the prologue or the code.  
-> 
-> The primary purpose of the function is to acquire the locks in the 
-> proper order, so
-> I think the name should state that purpose. It may be obvious to someone 
-> reading
-> the prologue or this function, but not so obvious in the context of the 
-> calling function.
+hypfs.7f5705: The hardware system does not support hypfs
+hypfs.7a79f0: Initialization of hypfs failed with rc=-61
 
-I agree with Tony. To me get_mdev_for_apqn() sounds like getting a
-reference to a matrix_mdev object (and incrementing its refcount) or
-something similar. BTW some more bike shedding: I prefer by_apqn instead
-of for_apqn, because the set of locks we need to take is determined _by_
-the apqn parameter, but it ain't semantically the set of locks we need
-to perform an update operation on the apqn or on the queue associated
-with the apqn. No strong opinion though -- I'm no native speaker and
-prepositions are difficult for me.
+While being documented, they can easily be avoided by bailing out of
+hypfs_init() early in case of running as a KVM guest.
 
-Regards,
-Halil
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ arch/s390/hypfs/inode.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index 5c97f48cea91..bdf078f3c641 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -464,6 +464,9 @@ static int __init hypfs_init(void)
+ {
+ 	int rc;
+ 
++	if (MACHINE_IS_KVM)
++		return -ENODATA;
++
+ 	hypfs_dbfs_init();
+ 
+ 	if (hypfs_diag_init()) {
+-- 
+2.35.3
+
