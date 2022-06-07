@@ -2,95 +2,98 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B5A1C43334
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 14:49:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CFACC43334
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Jun 2022 15:05:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244693AbiFGOtK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Jun 2022 10:49:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50600 "EHLO
+        id S244141AbiFGPFi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Jun 2022 11:05:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343535AbiFGOtI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 10:49:08 -0400
+        with ESMTP id S1343902AbiFGPFQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jun 2022 11:05:16 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D481DF504A;
-        Tue,  7 Jun 2022 07:49:05 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 257EZkxO025293;
-        Tue, 7 Jun 2022 14:49:05 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E3D56434;
+        Tue,  7 Jun 2022 08:05:16 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 257EgoIm004830;
+        Tue, 7 Jun 2022 15:05:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=fR1sZsUuBWTKDTdZYbBptbpvCL8/PrdUFkDE3PjDMjo=;
- b=XXpZUeXTZY3QOpSd02eeTF5+B2xKgOmUOZBebOP/cwsbTs4xhflvXF7+8ojLk+E5HOvy
- 5ZqnoZq1av14bPfnx+ZfWBQ6wOWt69C6Ihw3OoxJDQeW3zTrIU5YO3saieyfExdIvSXI
- JQ4nVZd+rXwL653qo3JJzo9GUqkSNfKO2lXhuuoa1n+kUmOXKNcl9K+T4dj1kN+90uXC
- rB1TLnTTQ2cwYSF70y5xe/NCrIj1annxkCRWfoXMQkEdlo9uU9HMvnI4HNzSdG586FWi
- Ou6c7p3m4XBps5LLsFCkV4AQMsRI47CkXuS0F8ZEBp+66Oyjm23IcQPGi0hQZfpzHlGy +A== 
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=qEjB72O42+7+wW+vipA5kyBhxbvkx24CGXk6clNMCIg=;
+ b=szPVjog+UcFvZ0t+OjTCX6uMPvEvfuztekOFUqEFAkuT76+fjHO7MN9a0ogWj+Ri729a
+ QasGnvCpc9vcOUldr3m2Z4qdJwsR7ciA4nBA98n8CVig4bn+5O0AgjaTT3Tl1w0s78Pu
+ C4JiJPe5AQoF3+XoDPcmQbQOIo225ivdjU6q13ewm4owDOVhvdvprkCPEVlIpS8KNaVV
+ Jl0nDdF6R6pv5dofX4X6v8lFy/4emqzo7Yz7IDH+k1b39Ih4P2OwRbQFR3fPDfKED/g5
+ rRsAhWfh+e6cEX0nCcplrM/1iX0dTr/0ZTa+ME431zUPedPIF7lceWoO8GxPyN8LX4/u 3A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gj8bv8hnn-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gj8p20hht-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Jun 2022 14:49:05 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 257En4aP014103;
-        Tue, 7 Jun 2022 14:49:04 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gj8bv8hn8-1
+        Tue, 07 Jun 2022 15:05:08 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 257EggRV004434;
+        Tue, 7 Jun 2022 15:05:07 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gj8p20hg5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Jun 2022 14:49:04 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 257EMF5A024098;
-        Tue, 7 Jun 2022 14:49:02 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3gfy19bwnq-1
+        Tue, 07 Jun 2022 15:05:07 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 257EnsNU023305;
+        Tue, 7 Jun 2022 15:05:05 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3gfy19bxg8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Jun 2022 14:49:02 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 257Emx9n45154656
+        Tue, 07 Jun 2022 15:05:05 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 257F53iZ15270202
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Jun 2022 14:48:59 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7DEE15204F;
-        Tue,  7 Jun 2022 14:48:59 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1 (unknown [9.171.69.129])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id 1E5975204E;
-        Tue,  7 Jun 2022 14:48:59 +0000 (GMT)
-Date:   Tue, 7 Jun 2022 16:48:57 +0200
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, scgl@linux.ibm.com, pmorel@linux.ibm.com,
-        thuth@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v1 2/2] lib: s390x: better smp interrupt
- checks
-Message-ID: <20220607164857.53dac498@li-ca45c2cc-336f-11b2-a85c-c6e71de567f1>
-In-Reply-To: <20220607164113.5d51f37d@p-imbrenda>
-References: <20220603154037.103733-1-imbrenda@linux.ibm.com>
-        <20220603154037.103733-3-imbrenda@linux.ibm.com>
-        <20220607162309.25e97913@li-ca45c2cc-336f-11b2-a85c-c6e71de567f1>
-        <20220607164113.5d51f37d@p-imbrenda>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        Tue, 7 Jun 2022 15:05:03 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 21589A4053;
+        Tue,  7 Jun 2022 15:05:03 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B282CA4040;
+        Tue,  7 Jun 2022 15:05:02 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.174.83])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue,  7 Jun 2022 15:05:02 +0000 (GMT)
+Date:   Tue, 7 Jun 2022 17:05:01 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     zlang@redhat.com
+Cc:     bugzilla-daemon@kernel.org, linux-s390@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [Bug 216073] New: [s390x] kernel BUG at mm/usercopy.c:101!
+ usercopy: Kernel memory exposure attempt detected from vmalloc 'n  o area'
+ (offset 0, size 1)!
+Message-ID: <Yp9pHV14OqvH0n02@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <bug-216073-27@https.bugzilla.kernel.org/>
+ <20220606151312.6a9d098c85ed060d36519600@linux-foundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220606151312.6a9d098c85ed060d36519600@linux-foundation.org>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: UzjtES5vSnszk44caiLGgPVb353X1c0m
-X-Proofpoint-ORIG-GUID: Ir8596N4CDDl5VJrRF1MvnFGB7DvbOpD
+X-Proofpoint-ORIG-GUID: UZFHjEcs-ydRRnRTpxNaifi-9E9yQaUA
+X-Proofpoint-GUID: E5VbUGLm4lLfrXt6zTg_DqW6In9G_5lP
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
  definitions=2022-06-07_06,2022-06-07_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- lowpriorityscore=0 spamscore=0 phishscore=0 priorityscore=1501
- suspectscore=0 mlxlogscore=877 clxscore=1015 adultscore=0 impostorscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206070058
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
+ lowpriorityscore=0 mlxlogscore=999 impostorscore=0 mlxscore=0 phishscore=0
+ malwarescore=0 suspectscore=0 bulkscore=0 priorityscore=1501 clxscore=1011
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2206070061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 7 Jun 2022 16:41:13 +0200
-Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
+On Mon, Jun 06, 2022 at 03:13:12PM -0700, Andrew Morton wrote:
+> (switched to email.  Please respond via emailed reply-to-all, not via the
+> bugzilla web interface).
 
-> yes I have considered that (maybe I should add this in the patch
-> description)
+Hi Zorro,
 
-Yes, and not just that; maybe rename expect_ext_int to expect_ext_int_on_this_cpu, same for register_io_int_func.
+Unfortunately, I am not able to reproduce the issue. Could you please
+clarify your test environment details and share your xfstests config?
+
+Thanks!
