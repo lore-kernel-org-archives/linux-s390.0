@@ -2,100 +2,190 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9941FC43334
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 19:13:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BDC0C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 20:26:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234573AbiFHTNl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Jun 2022 15:13:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50486 "EHLO
+        id S231744AbiFHU0h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Jun 2022 16:26:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235054AbiFHTN1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 15:13:27 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E523E72;
-        Wed,  8 Jun 2022 12:13:24 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258HgICS010210;
-        Wed, 8 Jun 2022 19:13:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=B9eu3Gppk93iL3sO6HkMh3ZMUeXL+5aSdT4YYlhXVSc=;
- b=plN62VaKWZxGZJAOEuuXgKTOXyzWmUucdvdn4O+VtvIyKog5yppWPo5Fk2lpEq9giRXo
- RH/0wVJ6Au2Ar72OP/I2QciJwDcthH0p6dbDNCAEvv02mT/EmOAaLqzZKQR36jJ4Bcbk
- fNUHXByB4AupteHXkYwvzgbMNDg3rAXReyloAsJJP9TOOPiZQ74JMgEHamyQpHMKK4mS
- /jgoxRyNfV/mTZLcQhOe4rvWB9dUfhwPFow9Jda82CN77AF4Ry10XwZo/kHsANNIfpfI
- VITsKMPXZDWmOjc9ThsloRIAzJb8LB6OcJT2CiPJrEuaV+9Cn+PY5rsfWNlYODWOGSK5 hg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gk0d7ht90-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 19:13:21 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 258IdnlB040642;
-        Wed, 8 Jun 2022 19:13:20 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gk0d7ht8d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 19:13:20 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 258IoZJ2009595;
-        Wed, 8 Jun 2022 19:13:18 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 3gfy18vp8f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 19:13:18 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 258JDFq216646498
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Jun 2022 19:13:15 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 52C275204E;
-        Wed,  8 Jun 2022 19:13:15 +0000 (GMT)
-Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.174.83])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id DBF1D5204F;
-        Wed,  8 Jun 2022 19:13:14 +0000 (GMT)
-Date:   Wed, 8 Jun 2022 21:13:12 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Zorro Lang <zlang@redhat.com>
-Cc:     bugzilla-daemon@kernel.org, linux-s390@vger.kernel.org,
-        linux-xfs@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [Bug 216073] New: [s390x] kernel BUG at mm/usercopy.c:101!
- usercopy: Kernel memory exposure attempt detected from vmalloc 'n  o area'
- (offset 0, size 1)!
-Message-ID: <YqD0yAELzHxdRBU6@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-References: <bug-216073-27@https.bugzilla.kernel.org/>
- <20220606151312.6a9d098c85ed060d36519600@linux-foundation.org>
- <Yp9pHV14OqvH0n02@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
- <20220608021922.n2izu7n4yoadknkx@zlang-mailbox>
+        with ESMTP id S230254AbiFHU0g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 16:26:36 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CD5F3A4CC5;
+        Wed,  8 Jun 2022 13:26:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=UslqCti0qqUSvM7NSsuVph4LPbUHbcSI30SBdlOy048=; b=oWSTSrJHo+c3AeKRudCHbJrEtu
+        M/cVAkxCfYBh3bHZCR/E4oQsHb4DDQOzTw/YixFD0ZT8TsAkRDBxYP+aPzobRm2PTnwAZYXTaq6Fw
+        rkqnKz7V8L7TMY53wRqi6bu8gCIJ0XsNNLAmA7KCu4po7dqsaRK6+nSArbM5p64scbG5ePLbhiUFt
+        2R5rf9M67rrdmynxd+nZ1qOmERF4P9uO/eVBCpmCJ8wbXSXFD9vh7/fDo6cWh4lxcqnQJ+zIkK/CM
+        MiaBE+93YVXNM1muCECUywxQI9Ew8SQMp0oYGUwO2K5I3CKWGNdPTbrkh2R9aMT5wCg7d6jdj4+BM
+        YCuRJatQ==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nz2Fv-00Es7U-II; Wed, 08 Jun 2022 20:26:19 +0000
+Date:   Wed, 8 Jun 2022 13:26:19 -0700
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Song Liu <song@kernel.org>, Christoph Hellwig <hch@lst.de>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Guo Ren <guoren@kernel.org>,
+        Jarkko Sakkinen <jarkko@profian.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nathaniel McCallum <nathaniel@profian.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Marco Elver <elver@google.com>,
+        Dan Li <ashimida@linux.alibaba.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhongjin <chenzhongjin@huawei.com>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Mark Brown <broonie@kernel.org>,
+        Luis Machado <luis.machado@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Joey Gouly <joey.gouly@arm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dave Anglin <dave.anglin@bell.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Daniel Axtens <dja@axtens.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@atishpatra.org>,
+        Changbin Du <changbin.du@intel.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Liao Chang <liaochang1@huawei.com>,
+        Philipp Tomsich <philipp.tomsich@vrull.eu>,
+        Wu Caize <zepan@sipeed.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Tobias Huschle <huschle@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Michael Roth <michael.roth@amd.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-modules@vger.kernel.org
+Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
+Message-ID: <YqEF6+YKqCHsWZJW@bombadil.infradead.org>
+References: <20220608000014.3054333-1-jarkko@profian.com>
+ <CAJF2gTQgCn2CyZ4+VBqEEBT2b4+1KxoEXxrd+Ritk=58+U8EFA@mail.gmail.com>
+ <YqAy0qjI4Lktk/uJ@iki.fi>
+ <20220608232115.ccd4399f4a1d133e9b65c2a9@kernel.org>
+ <CAPhsuW6iUieQvA6KqzSLgtxmjkVSWCuVwNA338DATb_myHxo7w@mail.gmail.com>
+ <CAPhsuW6BzUtqnjvaGJScXRpghs0_V_phpdyd4_oAKhvmkX-GFw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220608021922.n2izu7n4yoadknkx@zlang-mailbox>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vrBXhuEJjZ1CFOf-k1V2V41Lgub9cbJ2
-X-Proofpoint-ORIG-GUID: veUc2VfaDJND0NMMS2XmMm1AM-poPNj0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-08_05,2022-06-07_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
- impostorscore=0 mlxlogscore=690 suspectscore=0 phishscore=0
- priorityscore=1501 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2204290000 definitions=main-2206080074
+In-Reply-To: <CAPhsuW6BzUtqnjvaGJScXRpghs0_V_phpdyd4_oAKhvmkX-GFw@mail.gmail.com>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 08, 2022 at 10:19:22AM +0800, Zorro Lang wrote:
-> One of the test environment details as [1]. The xfstests config as [2].
-> It's easier to reproduce on 64k directory size xfs by running xfstests
-> auto group.
+On Wed, Jun 08, 2022 at 11:20:53AM -0700, Song Liu wrote:
+> On Wed, Jun 8, 2022 at 9:12 AM Song Liu <song@kernel.org> wrote:
+> > On Wed, Jun 8, 2022 at 7:21 AM Masami Hiramatsu <mhiramat@kernel.org> wrote:
+> > > On Wed, 8 Jun 2022 08:25:38 +0300
+> > > Jarkko Sakkinen <jarkko@kernel.org> wrote:
+> > > > On Wed, Jun 08, 2022 at 10:35:42AM +0800, Guo Ren wrote:
+> > > > > On Wed, Jun 8, 2022 at 8:02 AM Jarkko Sakkinen <jarkko@profian.com> wrote:
+> > > > > > As the result, kprobes can be used with a monolithic kernel.
+> > > > > It's strange when MODULES is n, but vmlinux still obtains module_alloc.
+> > > > >
+> > > > > Maybe we need a kprobe_alloc, right?
+> > > >
+> > > > Perhaps not the best name but at least it documents the fact that
+> > > > they use the same allocator.
+> > > >
+> > > > Few years ago I carved up something "half-way there" for kprobes,
+> > > > and I used the name text_alloc() [*].
+> > > >
+> > > > [*] https://lore.kernel.org/all/20200724050553.1724168-1-jarkko.sakkinen@linux.intel.com/
+> > >
+> > > Yeah, I remember that. Thank you for updating your patch!
+> > > I think the idea (split module_alloc() from CONFIG_MODULE) is good to me.
+> > > If module support maintainers think this name is not good, you may be
+> > > able to rename it as text_alloc() and make the module_alloc() as a
+> > > wrapper of it.
+> >
+> > IIUC, most users of module_alloc() use it to allocate memory for text, except
+> > that module code uses it for both text and data. Therefore, I guess calling it
+> > text_alloc() is not 100% accurate until we change the module code (to use
+> > a different API to allocate memory for data).
+> 
+> Git history showed me
+> 
+> 7a0e27b2a0ce mm: remove vmalloc_exec
+> 
+> I guess we are somehow going back in time...
 
+No, that was removed because it has only one user. The real hard work
+to generalize vmalloc_exec() with all the arch special sauce was not
+done.
 
-Thanks for the details, Zorro!
+To do this properly architectures must be able to override it. We can
+use the old vmalloc_exec() or text_alloc(). I think vmalloc_exec() is
+more in line with mm stuff, but it would be our first __weak mm call
+from what I can tell.
 
-Do you create test and scratch device with xfs_io, as README suggests?
-If yes, what are sizes of the files?
-Also, do you run always xfs/auto or xfs/294 hits for you reliably?
+Anyway patches welcomed.
 
-Thanks!
+  Luis
