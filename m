@@ -2,137 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7A20C43334
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 13:31:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69B4AC43334
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 13:33:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240095AbiFHNb4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Jun 2022 09:31:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56524 "EHLO
+        id S240233AbiFHNdN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Jun 2022 09:33:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239983AbiFHNbz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 09:31:55 -0400
+        with ESMTP id S240150AbiFHNdM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 09:33:12 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F664C9EC0;
-        Wed,  8 Jun 2022 06:31:53 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258CqAet018265;
-        Wed, 8 Jun 2022 13:31:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=tbUoJADDfy69tOLB5oIBIp2mPffNhGp0fJvy4h43UCM=;
- b=eCd5WUFsd3ynHYKoY28p32KjL3IK+IWshKurZpMZLW2R3aT7Q7/w66f+i80MhmnL2KPt
- ayBNp4kxYLsBSjaeOQd0S0EDsFlfKg08m76hPPUQjpOi8JLILrf6IphlVIgOVb7yyZey
- iicvw6vzE4gYnh+Afxal17C3LD/0StM89V6g5IbqS1S1Rk0/ZwRiNMflbb+OQ/CVDIkn
- UwAPGAUH/6ID0DSBjMlR0PZEHZl6aJdSkZ4y9EuBt0yXp9KZD6C2ClVFY/uxah1w5vQA
- 2t7EzN7z0oNvZgyqrY9d2Sy6ilEJvckAp60R92hTfp1GvwJZw4rOMjoYwWNJ/BYqRxrd jg== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB70A6359;
+        Wed,  8 Jun 2022 06:33:11 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258DDXeF014446;
+        Wed, 8 Jun 2022 13:33:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=IYMfG2hBnWKAecfsfCY24FeaFZr0/SNd8OolgTumZRc=;
+ b=LqKtOtYhDmTRY2hpDU6nh4MwFQgIe2az/LXyzO7agiLeDNlRJzPLpkfpw9h+uFJhd5Uk
+ mC08dWChXx1rOWwieU1EuDUPY6HIeLG+EGRXrWfd1r9FXOy9vA/jhVv6/ghiPQyje1SD
+ 8pjiyFexdhQe7CT19BzUFcm1Lz8w5Tktq3L2HAzbUdLM5AU0mhPWnv4M48icdE3hjYMd
+ /JyzYVK+Z30Xu5q9VPg5qq3szR7Q/3V/WVz0yw7U35IYFD7eXBv0NuQ5wLFMydYBdMqV
+ lIzz60eZYd4xxZRRHfyR9ExPBkVCR5hBWn57lSD33lJ0+9SKisnQ4gikYnMicoa0DZt9 eQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjv5cgxf9-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjvf68ev5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 13:31:50 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 258DPw01016869;
-        Wed, 8 Jun 2022 13:31:50 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjv5cgxeq-1
+        Wed, 08 Jun 2022 13:33:11 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 258DP4GP029010;
+        Wed, 8 Jun 2022 13:33:10 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjvf68eu0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 13:31:49 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 258DKMJ7006054;
-        Wed, 8 Jun 2022 13:31:48 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma03wdc.us.ibm.com with ESMTP id 3gfy19uhua-1
+        Wed, 08 Jun 2022 13:33:10 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 258DKOBd014993;
+        Wed, 8 Jun 2022 13:33:08 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma01fra.de.ibm.com with ESMTP id 3gfy19c62n-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 13:31:48 +0000
-Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 258DVlt830736866
+        Wed, 08 Jun 2022 13:33:08 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 258DX53921627140
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Jun 2022 13:31:47 GMT
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 86748BE053;
-        Wed,  8 Jun 2022 13:31:47 +0000 (GMT)
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 857F6BE04F;
-        Wed,  8 Jun 2022 13:31:46 +0000 (GMT)
-Received: from [9.160.55.57] (unknown [9.160.55.57])
-        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Wed,  8 Jun 2022 13:31:46 +0000 (GMT)
-Message-ID: <db3bc9c5-8f65-0507-2453-ccee41e10127@linux.ibm.com>
-Date:   Wed, 8 Jun 2022 09:31:46 -0400
+        Wed, 8 Jun 2022 13:33:05 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4337211C04C;
+        Wed,  8 Jun 2022 13:33:05 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F29DC11C054;
+        Wed,  8 Jun 2022 13:33:04 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Jun 2022 13:33:04 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v2 1/3] s390x: Fix sclp facility bit numbers
+Date:   Wed,  8 Jun 2022 15:33:01 +0200
+Message-Id: <20220608133303.1532166-2-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220608133303.1532166-1-scgl@linux.ibm.com>
+References: <20220608133303.1532166-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v19 11/20] s390/vfio-ap: prepare for dynamic update of
- guest's APCB on queue probe/remove
-Content-Language: en-US
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, fiuczy@linux.ibm.com
-References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
- <20220404221039.1272245-12-akrowiak@linux.ibm.com>
- <9364a1b7-9060-20aa-b0d6-88c41a30e7d4@linux.ibm.com>
- <f838f274-ff4d-496d-2393-14423117ff7e@linux.ibm.com>
- <20220607140544.32d33f3d.pasic@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20220607140544.32d33f3d.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xOfdXdbKMTdautt6Ps_qr1bprHaB9I8i
-X-Proofpoint-ORIG-GUID: ELQ7UXCaAOPiI9u170yr3ccxVjU7AFxA
+X-Proofpoint-GUID: jsZdNVql8VbcxBpRlndAgFJGWgbZA7OV
+X-Proofpoint-ORIG-GUID: uZ7_N3pGzcQV7-yh2mN6gPyw09NpeS0W
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
  definitions=2022-06-08_04,2022-06-07_02,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- priorityscore=1501 suspectscore=0 bulkscore=0 spamscore=0 mlxlogscore=999
- lowpriorityscore=0 impostorscore=0 malwarescore=0 adultscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206080058
+ adultscore=0 priorityscore=1501 impostorscore=0 malwarescore=0 bulkscore=0
+ mlxlogscore=999 phishscore=0 spamscore=0 suspectscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2206080058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+sclp_feat_check takes care of adjusting the bit numbering such that they
+can be defined as they are in the documentation.
 
+Fixes: 4dd649c8 ("lib: s390x: sclp: Extend feature probing")
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/sclp.h | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-On 6/7/22 8:05 AM, Halil Pasic wrote:
-> On Tue, 31 May 2022 06:44:46 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->>> vfio_ap_mdev_get_update_locks_for_apqn is "crazy long".
->>> How about:
->>>    get_mdev_for_apqn()
->>>
->>> This function is static and the terms mdev and apqn are specific
->>> enough that I
->>> don't think it needs to start with vfio_ap. And there is no need to
->>> state in
->>> the function name that locks are acquired. That point will be obvious
->>> to anyone
->>> reading the prologue or the code.
->> The primary purpose of the function is to acquire the locks in the
->> proper order, so
->> I think the name should state that purpose. It may be obvious to someone
->> reading
->> the prologue or this function, but not so obvious in the context of the
->> calling function.
-> I agree with Tony. To me get_mdev_for_apqn() sounds like getting a
-> reference to a matrix_mdev object (and incrementing its refcount) or
-> something similar. BTW some more bike shedding: I prefer by_apqn instead
-> of for_apqn, because the set of locks we need to take is determined _by_
-> the apqn parameter, but it ain't semantically the set of locks we need
-> to perform an update operation on the apqn or on the queue associated
-> with the apqn. No strong opinion though -- I'm no native speaker and
-> prepositions are difficult for me.
-
-I am a native speaker and I had to review prepositions. I learned
-grammar in elementary school (grades 1-6) and have forgotten
-much of the terminology as it relates to sentence structure. Anyway,
-I digress. I'm okay with 'by_apqn'.
-
->
-> Regards,
-> Halil
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index e48a5a3d..3488f4d2 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -134,13 +134,13 @@ struct sclp_facilities {
+ };
+ 
+ /* bit number within a certain byte */
+-#define SCLP_FEAT_85_BIT_GSLS		7
+-#define SCLP_FEAT_98_BIT_KSS		0
+-#define SCLP_FEAT_116_BIT_64BSCAO	7
+-#define SCLP_FEAT_116_BIT_CMMA		6
+-#define SCLP_FEAT_116_BIT_ESCA		3
+-#define SCLP_FEAT_117_BIT_PFMFI		6
+-#define SCLP_FEAT_117_BIT_IBS		5
++#define SCLP_FEAT_85_BIT_GSLS		0
++#define SCLP_FEAT_98_BIT_KSS		7
++#define SCLP_FEAT_116_BIT_64BSCAO	0
++#define SCLP_FEAT_116_BIT_CMMA		1
++#define SCLP_FEAT_116_BIT_ESCA		4
++#define SCLP_FEAT_117_BIT_PFMFI		1
++#define SCLP_FEAT_117_BIT_IBS		2
+ 
+ typedef struct ReadInfo {
+ 	SCCBHeader h;
+-- 
+2.33.1
 
