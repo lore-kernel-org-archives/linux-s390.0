@@ -2,61 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB37DC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 13:33:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA699CCA47F
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 13:33:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240241AbiFHNdO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S240242AbiFHNdO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Wed, 8 Jun 2022 09:33:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35082 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240175AbiFHNdM (ORCPT
+        with ESMTP id S240190AbiFHNdM (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 09:33:12 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCDFF110479;
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 827071105E4;
         Wed,  8 Jun 2022 06:33:11 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258DDUAx014333;
-        Wed, 8 Jun 2022 13:33:11 GMT
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258DM8xA012024;
+        Wed, 8 Jun 2022 13:33:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=/kHztYtNU8ZIG8TZAmeQpGr/URgYi4SyOZDD8Aurd0g=;
- b=ZaEEj2JgJueiUTL+5xwk22Diu/SrFwNbSoSK2xBVUVmTqcmwEAuqlPjykpRwfVaUxLax
- R2A8KlK57HnGeCBDRBdliVTDpE9YkQafb55k+2gIrcJG7FuamB8zUUf2T1GvHKM6NSNh
- +xyeYAmJy4Vmn+16oaxSSmYPaza5dAk+8Ed6a+NtoQBpITbPSsvpD9zEqYl4KgmYc7Hp
- H2/9nik/+VHVZKKqOIXBCUOkX2iQLYMkV4vQapdUTJQ5HkF86kehgesKesCQeWJZqOw7
- M+Zp8Qz2I/uVfsWTN/t4tNeEKyCLeGZckhoToPRwh8TYhJqKYRGd9jmwb3ztwSlUUHz9 Fg== 
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=iJU0IMYtRXpUt9NA3ZRPpxE5Kg9QWC8rk5Bf7StkcA0=;
+ b=oZQli1/BCn2+t4BU7Fh70ZbxfR3AkOIcOVhqzojpM4g6UA0K+9Dk9SqmNQBe44WrX2w8
+ Qk8SqmHQTM1GptBAmuip9ge9nDWosJQFX0Mgxqj6IPjzDej06Xl0AVaASOiSmvosm+nd
+ +62CxxbmimSV4rZpquUQb+OkwbW5Lt6av8ydjGcYwzf0u1cfIIqEOJora4PdW5KVumYW
+ rg1i8c/HYiXlSq22qmxS7VjURpDDL6vb+Xq+JaDvxmwxhU14H/BfYAiOM+ww1ypHN5Us
+ 8Hr9cgmOLPTiX+drpYEd9yvnJG0u4HPhX/17j7BwpuFIfR0vlq4dKdt5y9vCzKCFlwTk Xw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjvf68ev9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 13:33:11 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 258DFBAO020891;
-        Wed, 8 Jun 2022 13:33:11 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjvf68eu3-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjvkf87mq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 08 Jun 2022 13:33:10 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 258DJubS020303;
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 258DMUHZ012914;
+        Wed, 8 Jun 2022 13:33:10 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjvkf87m3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Jun 2022 13:33:09 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 258DLBAk005731;
         Wed, 8 Jun 2022 13:33:08 GMT
 Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3gfxnhwbmw-1
+        by ppma03fra.de.ibm.com with ESMTP id 3gfy18v5mb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 08 Jun 2022 13:33:08 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 258DX5hu21627144
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 258DX5sW21627390
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Wed, 8 Jun 2022 13:33:05 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 896B511C052;
-        Wed,  8 Jun 2022 13:33:05 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E7CDD11C052;
+        Wed,  8 Jun 2022 13:33:04 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4E3D411C050;
-        Wed,  8 Jun 2022 13:33:05 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id AC34911C058;
+        Wed,  8 Jun 2022 13:33:04 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  8 Jun 2022 13:33:05 +0000 (GMT)
+        Wed,  8 Jun 2022 13:33:04 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 To:     Thomas Huth <thuth@redhat.com>,
         Janosch Frank <frankja@linux.ibm.com>,
@@ -64,115 +63,223 @@ To:     Thomas Huth <thuth@redhat.com>,
 Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v2 2/3] s390x: lib: SOP facility query function
-Date:   Wed,  8 Jun 2022 15:33:02 +0200
-Message-Id: <20220608133303.1532166-3-scgl@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 0/3] s390x: Rework TEID decoding and usage
+Date:   Wed,  8 Jun 2022 15:33:00 +0200
+Message-Id: <20220608133303.1532166-1-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220608133303.1532166-1-scgl@linux.ibm.com>
-References: <20220608133303.1532166-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: sbt95BNQNibW5yS9Mr3ZpeSOaf6ABeYK
-X-Proofpoint-ORIG-GUID: cdUq2sit7OA00Tz4EInE_jReZKsx4vkn
+X-Proofpoint-ORIG-GUID: U5KFwoqDy32_p8kPbHa6va_RBPSTYNwo
+X-Proofpoint-GUID: RGB9SIWWVt3rDmWiLYCVyfx6xdZ-SegM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
  definitions=2022-06-08_04,2022-06-07_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- adultscore=0 priorityscore=1501 impostorscore=0 malwarescore=0 bulkscore=0
- mlxlogscore=999 phishscore=0 spamscore=0 suspectscore=0 lowpriorityscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ mlxlogscore=999 lowpriorityscore=0 spamscore=0 mlxscore=0 phishscore=0
+ adultscore=0 priorityscore=1501 bulkscore=0 suspectscore=0 impostorscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
  definitions=main-2206080058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add function returning which suppression-on-protection facility is
+The translation-exception identification (TEID) contains information to
+identify the cause of certain program exceptions, including translation
+exceptions occurring during dynamic address translation, as well as
+protection exceptions.
+The meaning of fields in the TEID is complex, depending on the exception
+occurring and various potentially installed facilities.
+
+Add function to query which suppression-on-protection facility is
 installed.
+Rework the type describing the TEID, in order to ease decoding.
+Change the existing code interpreting the TEID and extend it to take the
+installed suppression-on-protection facility into account.
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- lib/s390x/asm/facility.h | 21 +++++++++++++++++++++
- lib/s390x/sclp.h         |  4 ++++
- lib/s390x/sclp.c         |  2 ++
- 3 files changed, 27 insertions(+)
+Also fix the sclp bit order.
+This series is based on  v3 of series s390x: Avoid gcc 12 warnings .
+The sclp fix is taken from v2 More skey instr. emulation test,
+and could be picked independently from the rest of the series.
 
-diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
-index 49380203..a66fe56a 100644
---- a/lib/s390x/asm/facility.h
-+++ b/lib/s390x/asm/facility.h
-@@ -12,6 +12,7 @@
- #include <asm/facility.h>
- #include <asm/arch_def.h>
- #include <bitops.h>
-+#include <sclp.h>
- 
- #define NB_STFL_DOUBLEWORDS 32
- extern uint64_t stfl_doublewords[];
-@@ -42,4 +43,24 @@ static inline void setup_facilities(void)
- 		stfle(stfl_doublewords, NB_STFL_DOUBLEWORDS);
- }
- 
-+enum supp_on_prot_facility {
-+	SOP_NONE,
-+	SOP_BASIC,
-+	SOP_ENHANCED_1,
-+	SOP_ENHANCED_2,
-+};
-+
-+static inline enum supp_on_prot_facility get_supp_on_prot_facility(void)
-+{
-+	if (sclp_facilities.has_esop) {
-+		if (test_facility(131)) /* side-effect-access facility */
-+			return SOP_ENHANCED_2;
-+		else
-+			return SOP_ENHANCED_1;
-+	}
-+	if (sclp_facilities.has_sop)
-+		return SOP_BASIC;
-+	return SOP_NONE;
-+}
-+
- #endif
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 3488f4d2..853529bf 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -123,7 +123,9 @@ struct sclp_facilities {
- 	uint64_t has_cei : 1;
- 
- 	uint64_t has_diag318 : 1;
-+	uint64_t has_sop : 1;
- 	uint64_t has_gsls : 1;
-+	uint64_t has_esop : 1;
- 	uint64_t has_cmma : 1;
- 	uint64_t has_64bscao : 1;
- 	uint64_t has_esca : 1;
-@@ -134,7 +136,9 @@ struct sclp_facilities {
- };
- 
- /* bit number within a certain byte */
-+#define SCLP_FEAT_80_BIT_SOP		2
- #define SCLP_FEAT_85_BIT_GSLS		0
-+#define SCLP_FEAT_85_BIT_ESOP		6
- #define SCLP_FEAT_98_BIT_KSS		7
- #define SCLP_FEAT_116_BIT_64BSCAO	0
- #define SCLP_FEAT_116_BIT_CMMA		1
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index b8204c5f..e6017f64 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -152,7 +152,9 @@ void sclp_facilities_setup(void)
- 	cpu = sclp_get_cpu_entries();
- 	if (read_info->offset_cpu > 134)
- 		sclp_facilities.has_diag318 = read_info->byte_134_diag318;
-+	sclp_facilities.has_sop = sclp_feat_check(80, SCLP_FEAT_80_BIT_SOP);
- 	sclp_facilities.has_gsls = sclp_feat_check(85, SCLP_FEAT_85_BIT_GSLS);
-+	sclp_facilities.has_esop = sclp_feat_check(85, SCLP_FEAT_85_BIT_ESOP);
- 	sclp_facilities.has_kss = sclp_feat_check(98, SCLP_FEAT_98_BIT_KSS);
- 	sclp_facilities.has_cmma = sclp_feat_check(116, SCLP_FEAT_116_BIT_CMMA);
- 	sclp_facilities.has_64bscao = sclp_feat_check(116, SCLP_FEAT_116_BIT_64BSCAO);
+v1 -> v2
+ * pick up r-b
+ * get rid of esop1 alias of sop_teid_predictable
+ * assert that the esop2 protection code is valid
+ * use string literal array and indexing for protection code printing
+ * fix protection exception check in edat.c
+
+Janis Schoetterl-Glausch (3):
+  s390x: Fix sclp facility bit numbers
+  s390x: lib: SOP facility query function
+  s390x: Rework TEID decoding and usage
+
+ lib/s390x/asm/facility.h  | 21 +++++++++++++
+ lib/s390x/asm/interrupt.h | 61 +++++++++++++++++++++++++++---------
+ lib/s390x/fault.h         | 30 +++++-------------
+ lib/s390x/sclp.h          | 18 ++++++-----
+ lib/s390x/fault.c         | 65 ++++++++++++++++++++++++++-------------
+ lib/s390x/interrupt.c     |  2 +-
+ lib/s390x/sclp.c          |  2 ++
+ s390x/edat.c              | 26 ++++++++++------
+ 8 files changed, 149 insertions(+), 76 deletions(-)
+
+Range-diff against v1:
+1:  abb9b37a = 1:  6427944a s390x: Fix sclp facility bit numbers
+2:  5662f4bc ! 2:  a08fce3b s390x: lib: SOP facility query function
+    @@ Commit message
+         installed.
+     
+         Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+    +    Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+     
+      ## lib/s390x/asm/facility.h ##
+     @@
+3:  b716e5ef ! 3:  eb268af1 s390x: Rework TEID decoding and usage
+    @@ lib/s390x/asm/interrupt.h
+     +			uint64_t addr			: 52 -  0;
+     +			uint64_t acc_exc_f_s		: 54 - 52;
+     +			uint64_t side_effect_acc	: 55 - 54;
+    -+			uint64_t /* reserved */		: 55 - 54;
+    ++			uint64_t /* reserved */		: 62 - 55;
+     +			uint64_t asce_id		: 64 - 62;
+     +		};
+     +		/* DAT exc */
+    @@ lib/s390x/asm/interrupt.h
+     +			uint64_t sop_acc_list		: 61 - 60;
+     +			uint64_t sop_teid_predictable	: 62 - 61;
+     +		};
+    -+		/* enhanced suppression on protection 1 */
+    -+		struct {
+    -+			uint64_t /* pad */		: 61 -  0;
+    -+			uint64_t esop1_acc_list_or_dat	: 62 - 61;
+    -+		};
+     +		/* enhanced suppression on protection 2 */
+     +		struct {
+     +			uint64_t /* pad */		: 56 -  0;
+    @@ lib/s390x/asm/interrupt.h
+     +
+     +static inline enum prot_code teid_esop2_prot_code(union teid teid)
+     +{
+    -+	int code = 0;
+    ++	int code = (teid.esop2_prot_code_0 << 2 |
+    ++		    teid.esop2_prot_code_1 << 1 |
+    ++		    teid.esop2_prot_code_2);
+     +
+    -+	code = code << 1 | teid.esop2_prot_code_0;
+    -+	code = code << 1 | teid.esop2_prot_code_1;
+    -+	code = code << 1 | teid.esop2_prot_code_2;
+    ++	assert(code < 6);
+     +	return (enum prot_code)code;
+     +}
+     +
+    @@ lib/s390x/fault.c
+     -		printf("Type: LAP\n");
+     -		return;
+     -	}
+    --
+    + 
+     -	if (prot_is_iep(teid)) {
+     -		printf("Type: IEP\n");
+     -		return;
+     -	}
+    - 
+    --	if (prot_is_datp(teid)) {
+    --		printf("Type: DAT\n");
+    --		return;
+     +static void print_decode_pgm_prot(union teid teid, bool dat)
+     +{
+     +	switch (get_supp_on_prot_facility()) {
+    @@ lib/s390x/fault.c
+     +			printf("Type: ?\n");
+     +		break;
+     +	case SOP_ENHANCED_1:
+    -+		if (teid.esop1_acc_list_or_dat) {
+    ++		if (teid.sop_teid_predictable) {/* implies access list or DAT */
+     +			if (teid.sop_acc_list)
+     +				printf("Type: ACC\n");
+     +			else
+    @@ lib/s390x/fault.c
+     +			printf("Type: KEY or LAP\n");
+     +		}
+     +		break;
+    -+	case SOP_ENHANCED_2:
+    -+		switch (teid_esop2_prot_code(teid)) {
+    -+		case PROT_KEY_LAP:
+    -+			printf("Type: KEY or LAP\n");
+    -+			break;
+    -+		case PROT_DAT:
+    -+			printf("Type: DAT\n");
+    -+			break;
+    -+		case PROT_KEY:
+    -+			printf("Type: KEY\n");
+    -+			break;
+    -+		case PROT_ACC_LIST:
+    -+			printf("Type: ACC\n");
+    -+			break;
+    -+		case PROT_LAP:
+    -+			printf("Type: LAP\n");
+    -+			break;
+    -+		case PROT_IEP:
+    -+			printf("Type: IEP\n");
+    -+			break;
+    ++	case SOP_ENHANCED_2: {
+    ++		static const char * const prot_str[] = {
+    ++			"KEY or LAP",
+    ++			"DAT",
+    ++			"KEY",
+    ++			"ACC",
+    ++			"LAP",
+    ++			"IEP",
+    ++		};
+    ++		int prot_code = teid_esop2_prot_code(teid);
+    + 
+    +-	if (prot_is_datp(teid)) {
+    +-		printf("Type: DAT\n");
+    +-		return;
+    ++		assert(0 <= prot_code && prot_code < ARRAY_SIZE(prot_str));
+    ++		printf("Type: %s\n", prot_str[prot_code]);
+     +		}
+      	}
+      }
+    @@ lib/s390x/interrupt.c: static void fixup_pgm_int(struct stack_frame_int *stack)
+      			 * the exception so we can use the return
+     
+      ## s390x/edat.c ##
+    +@@ s390x/edat.c: static void *root, *mem, *m;
+    + volatile unsigned int *p;
+    + 
+    + /*
+    +- * Check if a non-access-list protection exception happened for the given
+    +- * address, in the primary address space.
+    ++ * Check if the exception is consistent with DAT protection and has the correct
+    ++ * address and primary address space.
+    +  */
+    + static bool check_pgm_prot(void *ptr)
+    + {
+     @@ s390x/edat.c: static bool check_pgm_prot(void *ptr)
+      		return false;
+      
+    @@ s390x/edat.c: static bool check_pgm_prot(void *ptr)
+     +	case SOP_BASIC:
+     +		if (!teid.sop_teid_predictable)
+     +			return true;
+    ++		break;
+     +	case SOP_ENHANCED_1:
+    -+		if (!teid.esop1_acc_list_or_dat)
+    ++		if (!teid.sop_teid_predictable) /* implies key or low addr */
+     +			return false;
+    ++		break;
+     +	case SOP_ENHANCED_2:
+    -+		if (teid_esop2_prot_code(teid) != 1)
+    ++		if (teid_esop2_prot_code(teid) != PROT_DAT)
+     +			return false;
+     +	}
+     +	return (!teid.sop_acc_list && !teid.asce_id &&
+
+base-commit: 2eed0bf1096077144cc3a0dd9974689487f9511a
+prerequisite-patch-id: aa682f50e4eba0e9b6cacd245d568f5bcca05e0f
+prerequisite-patch-id: 79a88ac3faff3ae2ef214bf4a90de7463e2fdc8a
 -- 
 2.33.1
 
