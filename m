@@ -2,177 +2,183 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E13FDC43334
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 15:55:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03631CCA489
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 16:08:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244654AbiFHPzT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Jun 2022 11:55:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45326 "EHLO
+        id S244926AbiFHQI4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Jun 2022 12:08:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244645AbiFHPzS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 11:55:18 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C07CB1EC;
-        Wed,  8 Jun 2022 08:55:16 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258FD438001000;
-        Wed, 8 Jun 2022 15:55:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=txNEuU224eOnCI1/Om2APq8QKKEtliSOrDExGA4ag64=;
- b=I8Lotd14/kHCSBR638EejxKoYDjRj8MK4cU2WSicrusUp7W36O3ci/RXJze8vyNL9B1l
- u7vWRxemIYoUuUAPiF9mWwHKCcQFhVhfdAfvlfeYppbS5/GEyF0SOFHwNV4B2Y+z/xBp
- ABymelrj/eGfvxbK1D+V6pCUdyuRMPcjaX6SUjLKcsee6qSyoL3Dg62trXXUoLB8T+vY
- oQXEQVgiW0iZBCvcRPEVfl/njX5rm3lL5SuKvWfh76tGJwBL4JKQs7QFjbC2WXP6vk5q
- rs4xXtUY8IgER8DKJ9b6pU1BO1Y9OuPg4xsIiqLKvmqK7g7P7kC4vYvpvC6bSek4+687 yA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjx7a0vmv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 15:55:16 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 258FnQe3026144;
-        Wed, 8 Jun 2022 15:55:15 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjx7a0vkb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 15:55:15 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 258Fq8Gp000545;
-        Wed, 8 Jun 2022 15:55:13 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 3gfy18vdwr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 15:55:13 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 258FsrQ724117660
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Jun 2022 15:54:53 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 40D89AE053;
-        Wed,  8 Jun 2022 15:55:10 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ECCB0AE045;
-        Wed,  8 Jun 2022 15:55:09 +0000 (GMT)
-Received: from [9.171.25.241] (unknown [9.171.25.241])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  8 Jun 2022 15:55:09 +0000 (GMT)
-Message-ID: <6ed956e7-81e0-cb09-85ea-383af9d4446e@linux.ibm.com>
-Date:   Wed, 8 Jun 2022 17:55:08 +0200
+        with ESMTP id S244756AbiFHQIv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 12:08:51 -0400
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FAC03A70B;
+        Wed,  8 Jun 2022 09:08:49 -0700 (PDT)
+Received: by mail-yb1-f180.google.com with SMTP id l204so37280388ybf.10;
+        Wed, 08 Jun 2022 09:08:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kprufSUtg2c0Z0Z7k//OQq4qpvnNTKXHCWDLteZACkI=;
+        b=4OZPGArm5aASPMYGwigE9LVS/MEQLszXMZDPERe69ojjRlPgPzS/wZbuhr+m//jOcQ
+         saiRQKU7WvQ/GKoWpvr0hGYxfKKW0kb+CBU5UAII+DGSpD4KOSTxAz2LThLG1e6uc0tl
+         k00diWkqstl5X+pkvVYEFhUE1hnrgkEr50j/CKiq9CsMbHxDGqft1WW3iRT3df9y/WVf
+         BY35xbzqpa9I/DRbxRItMbMxlSSuUnBslnWIPXYWPGTBhCNBouspf/6WDOXrdqh11DCA
+         K8HC0ViN8PIYJ2HperziM+GTi+ddvWabIAjRPVOgePcJ8dkMSPXUUukv+2p27yqshHzB
+         1jeg==
+X-Gm-Message-State: AOAM533NroIWprpGWUpKchA2E69B/tPMTX2biRRW/ZCVvIxpPCR2Pz9K
+        Mw7asq1GQU/yWCjABLbZEyx/qhVQvpJn6zIkEB0=
+X-Google-Smtp-Source: ABdhPJyG4ZT1DjeY4ERw/W2efwDb4GS4TUltgXoK23+ZW/CgpHQ75Z+ngY7GcqUaxeuwjXh809zcJPBimQ/BOSJe/30=
+X-Received: by 2002:a25:d98b:0:b0:65c:9dc9:7a8f with SMTP id
+ q133-20020a25d98b000000b0065c9dc97a8fmr34529681ybg.622.1654704528580; Wed, 08
+ Jun 2022 09:08:48 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [kvm-unit-tests PATCH v2 3/3] s390x: Rework TEID decoding and
- usage
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20220608133303.1532166-1-scgl@linux.ibm.com>
- <20220608133303.1532166-4-scgl@linux.ibm.com>
- <20220608160357.4fa94ecc@p-imbrenda>
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-In-Reply-To: <20220608160357.4fa94ecc@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: iEHsg6gbNZoBZ-M-R07j6-O0f8KzjSmV
-X-Proofpoint-GUID: Y77t9blcbYINUzpiACK7BtpC_L5MD1iH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-08_05,2022-06-07_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- impostorscore=0 bulkscore=0 adultscore=0 mlxscore=0 malwarescore=0
- priorityscore=1501 lowpriorityscore=0 spamscore=0 clxscore=1015
- phishscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2204290000 definitions=main-2206080065
+References: <20220608142723.103523089@infradead.org> <20220608144516.172460444@infradead.org>
+ <CAJZ5v0gW-zD8Mgghy70f3rFz0QoozCwZ9idyrqtFgA6SWHK5XQ@mail.gmail.com> <YqDEwMDSL1YXdHFH@hirez.programming.kicks-ass.net>
+In-Reply-To: <YqDEwMDSL1YXdHFH@hirez.programming.kicks-ass.net>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Wed, 8 Jun 2022 18:08:37 +0200
+Message-ID: <CAJZ5v0hFfhxjp5cVNz+JSWcWx5ga1cDccmsqKAVgxp-JWs9upg@mail.gmail.com>
+Subject: Re: [PATCH 04/36] cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>, rth@twiddle.net,
+        ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        ulli.kroll@googlemail.com,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Kevin Hilman <khilman@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>,
+        kernel@xen0n.name, Geert Uytterhoeven <geert@linux-m68k.org>,
+        sammy@sammy.net, Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        dinguyen@kernel.org, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi,
+        Stafford Horne <shorne@gmail.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        David Miller <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        anton.ivanov@cambridgegreys.com,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, acme@kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        jolsa@kernel.org, namhyung@kernel.org,
+        Juergen Gross <jgross@suse.com>, srivatsa@csail.mit.edu,
+        amakhalov@vmware.com, pv-drivers@vmware.com,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>, chris@zankel.net,
+        jcmvbkbc@gmail.com, Len Brown <lenb@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        lpieralisi@kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Anup Patel <anup@brainfault.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Yury Norov <yury.norov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Petr Mladek <pmladek@suse.com>, senozhatsky@chromium.org,
+        John Ogness <john.ogness@linutronix.de>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        quic_neeraju@quicinc.com, Josh Triplett <josh@joshtriplett.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Benjamin Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        vschneid@redhat.com, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-snps-arc@lists.infradead.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        openrisc@lists.librecores.org,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390@vger.kernel.org,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org, linux-xtensa@linux-xtensa.org,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        linux-tegra <linux-tegra@vger.kernel.org>,
+        linux-arch <linux-arch@vger.kernel.org>, rcu@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/8/22 16:03, Claudio Imbrenda wrote:
-> On Wed,  8 Jun 2022 15:33:03 +0200
-> Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
-> 
->> The translation-exception identification (TEID) contains information to
->> identify the cause of certain program exceptions, including translation
->> exceptions occurring during dynamic address translation, as well as
->> protection exceptions.
->> The meaning of fields in the TEID is complex, depending on the exception
->> occurring and various potentially installed facilities.
->>
->> Rework the type describing the TEID, in order to ease decoding.
->> Change the existing code interpreting the TEID and extend it to take the
->> installed suppression-on-protection facility into account.
->>
->> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->> ---
->>  lib/s390x/asm/interrupt.h | 61 +++++++++++++++++++++++++++---------
->>  lib/s390x/fault.h         | 30 +++++-------------
->>  lib/s390x/fault.c         | 65 ++++++++++++++++++++++++++-------------
->>  lib/s390x/interrupt.c     |  2 +-
->>  s390x/edat.c              | 26 ++++++++++------
->>  5 files changed, 115 insertions(+), 69 deletions(-)
->>
->> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
->> index d9ab0bd7..3ca6bf76 100644
->> --- a/lib/s390x/asm/interrupt.h
->> +++ b/lib/s390x/asm/interrupt.h
->> @@ -20,23 +20,56 @@
->>  
+On Wed, Jun 8, 2022 at 5:48 PM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> On Wed, Jun 08, 2022 at 05:01:05PM +0200, Rafael J. Wysocki wrote:
+> > On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
+> > >
+> > > Commit c227233ad64c ("intel_idle: enable interrupts before C1 on
+> > > Xeons") wrecked intel_idle in two ways:
+> > >
+> > >  - must not have tracing in idle functions
+> > >  - must return with IRQs disabled
+> > >
+> > > Additionally, it added a branch for no good reason.
+> > >
+> > > Fixes: c227233ad64c ("intel_idle: enable interrupts before C1 on Xeons")
+> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> >
+> > Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> >
+> > And do I think correctly that this can be applied without the rest of
+> > the series?
+>
+> Yeah, I don't think this relies on any of the preceding patches. If you
+> want to route this through the pm/fixes tree that's fine.
 
-[...]
-
->>  
->> +enum prot_code {
->> +	PROT_KEY_LAP,
->> +	PROT_DAT,
->> +	PROT_KEY,
->> +	PROT_ACC_LIST,
->> +	PROT_LAP,
->> +	PROT_IEP,
-> 
-> add:
-> 	PROT_CODE_SIZE,	/* Must always be the last one */
-> 
-> [...]
-> 
->> +	case SOP_ENHANCED_2: {
->> +		static const char * const prot_str[] = {
-> 
-> static const char * const prot_str[PROT_CODE_SIZE] = {
-> 
-> so you have the guarantee that this has the right size, and you will
-> get a compile error if a new value is added to the enum but not here
-
-Will I? It would just initialize missing elements with NULL, no?
-> 
-> and at this point I think it might make more sense to move this right
-> after the enum itself
-> 
->> +			"KEY or LAP",
->> +			"DAT",
->> +			"KEY",
->> +			"ACC",
->> +			"LAP",
->> +			"IEP",
->> +		};
->> +		int prot_code = teid_esop2_prot_code(teid);
-> 
-> enum prot_code prot_code = teid_esop2_prot_code(teid)> 
->>  
->> -	if (prot_is_datp(teid)) {
->> -		printf("Type: DAT\n");
->> -		return;
->> +		assert(0 <= prot_code && prot_code < ARRAY_SIZE(prot_str));
-> 
-> then you can remove this assert ^
-> 
->> +		printf("Type: %s\n", prot_str[prot_code]);
->> +		}
->>  	}
->>  }
->>  
-[...]
+OK, thanks, applied (and I moved the intel_idle() kerneldoc so it is
+next to the function to avoid the docs build warning).
