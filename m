@@ -2,190 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FBE3C43334
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 11:26:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E3DFC43334
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 12:02:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236821AbiFHL0s (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Jun 2022 07:26:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41670 "EHLO
+        id S238443AbiFHMCS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Jun 2022 08:02:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238171AbiFHL0q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 07:26:46 -0400
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1anam02on2074.outbound.protection.outlook.com [40.107.96.74])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8109D12F;
-        Wed,  8 Jun 2022 04:26:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=l2fcJWCRpL2wjGraksZ+6q/J7gZQauSPxQLILNKaffAa6PXjrS0cOotp+fxRysobkzJs5MCG8HoVAUf+hBgDDTbMIn6J8iibGDXXm9fWG8XQdtcqJfufszRXrryuWgJVAK60l8P8WZscBB++xqd8NUkmjkgCeBBfjQtnJgepn5y1AQVggBZ225r2OopSnebkszZ0jGUlJmBjxTjtxgA2okhSvO3Jz+yyY5yN0t5Bf8HH2gS4+p4h/H2JIq1NV4UWMLWhhj9L5N0bSn8TSCcSo029qbcPcK8kylhjNvk9eSm0rlv2u5KhZMCJA8EU2KW7ArHBurnkOaUXFvbYoo5Usg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3kebujFf2V3rB8oLOFfL6Y4qStaZh/dlVPZYl0rPimw=;
- b=SFdapiCZ3S5Q31W+hWxIW/QgdkseF3o7XC4GQ4Bdo6YIMHLnDFOHFYNKPKxwhRc3/b2cO4f7XvhLIFYtdMlmxn8b5QMckoQW8ALTm+IPFp/eo5+SVEeGNmVu3EVMoiWCuRiFPILJmjH2hP8qzYtIo5kGPppyxAe1jpD06HDj/fWFuKfzlSc7mkXqr4OV7zpmPwCY04LsOps6Kg02H3yY476gox4yzuLHB/txRvJIvWAFFmiCUFaFyEM4Vi8TW+k7KnPpIN47ynEO0MoWtE2iTqRDJFQ7Gs+NAwUH0znL4LIMAeNitOjeHk2iT4QuDLyz04huqonQHDdaG5QNbRdbIQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3kebujFf2V3rB8oLOFfL6Y4qStaZh/dlVPZYl0rPimw=;
- b=tn6PxMdCjdspY/jCd843t36RD96YZ4dzIzDuVHgDfKlqHhwJ5abr/MBm7MiS8EI3uV7hE0aeU9ze4PJXKNUz8JP8BlDwYA2splncOxO9SICaXZgFIT8JoZmMZL6zfIVj/67eVBoPJthy8xS87yRM2LAcCyFVszapbrKEJ/o5PUKyIU3OCCrorqpmG4QRzWNRfmTi+jwGTIOD3IIfbUxklmqFSrY7OM/QnjrYTXqpNcDxDn+21rnj0sLgPTmMcfu1szSEgirTxuehA3seAPRydDdFHzw5OxzukKQgLf55tqmxz6WQnFDw9oxDY5ZUiHQoEjgT0IM28qUQNePu3lB9ZA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by BN6PR1201MB0195.namprd12.prod.outlook.com (2603:10b6:405:53::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.12; Wed, 8 Jun
- 2022 11:26:42 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::2484:51da:d56f:f1a5]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::2484:51da:d56f:f1a5%9]) with mapi id 15.20.5314.019; Wed, 8 Jun 2022
- 11:26:42 +0000
-Date:   Wed, 8 Jun 2022 08:26:41 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v2 2/2] vfio: Replace the iommu notifier with a device
- list
-Message-ID: <20220608112641.GM1343366@nvidia.com>
-References: <0-v2-80aa110d03ce+24b-vfio_unmap_notif_jgg@nvidia.com>
- <2-v2-80aa110d03ce+24b-vfio_unmap_notif_jgg@nvidia.com>
- <BN9PR11MB527600F9745D1AE27150CF938CA49@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB527600F9745D1AE27150CF938CA49@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-ClientProxiedBy: MN2PR15CA0023.namprd15.prod.outlook.com
- (2603:10b6:208:1b4::36) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S238432AbiFHMCR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 08:02:17 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F47E1915EF;
+        Wed,  8 Jun 2022 05:02:16 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258BrJRM010454;
+        Wed, 8 Jun 2022 12:02:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=wSDU0Y5VM1J7chEIsBtE3pZOFbwx6Weo3CiOr77m76c=;
+ b=Pl27yWgtxOBEQktFErn8SPVV9uyr/OA76ilXsr2oiRZTH1i7ittDdy8zwhyJSC/SRwjH
+ AYh4XODmbXAvCMbrKb0UoxJ6v2mEEm7DHhCdxGtdgf8Bugsg2ZZhtMzH1pf2AS+QMBgw
+ njeSDvCmy9p0xFXktBJV5W5sMvLFFhZ1F90NE2X4tnfYSmmXiKtQNsTQ5UtOpVxSONYa
+ VTifmvNFoK/m95aajERpUD90T59cM8ilRwxtiiJw2rTO09zYAcTV6vms/uV4eINqJ35V
+ HaNEjPaj26i2RwFBK5UYWPHXi9NP1Bi1NFuZFA1d6xJhC5VIN6GnOYmf3uJrIPWpPgyx zQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjt95hdhf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Jun 2022 12:02:15 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 258Bs8V6014149;
+        Wed, 8 Jun 2022 12:02:15 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjt95hdgs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Jun 2022 12:02:15 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 258BpsMW004689;
+        Wed, 8 Jun 2022 12:02:13 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3gfy19d4ug-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Jun 2022 12:02:12 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 258C29mS16384358
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Jun 2022 12:02:10 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E0BB2A405C;
+        Wed,  8 Jun 2022 12:02:09 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 81A17A4054;
+        Wed,  8 Jun 2022 12:02:09 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1 (unknown [9.152.224.44])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Jun 2022 12:02:09 +0000 (GMT)
+Date:   Wed, 8 Jun 2022 14:02:07 +0200
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        scgl@linux.ibm.com, mimu@linux.ibm.com
+Subject: Re: [PATCH v11 10/19] KVM: s390: pv: add mmu_notifier
+Message-ID: <20220608140207.23c79f1c@li-ca45c2cc-336f-11b2-a85c-c6e71de567f1>
+In-Reply-To: <20220603065645.10019-11-imbrenda@linux.ibm.com>
+References: <20220603065645.10019-1-imbrenda@linux.ibm.com>
+        <20220603065645.10019-11-imbrenda@linux.ibm.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a469ccdb-db85-4d57-91d5-08da4941c30d
-X-MS-TrafficTypeDiagnostic: BN6PR1201MB0195:EE_
-X-Microsoft-Antispam-PRVS: <BN6PR1201MB019516D597B128A2A359EC7FC2A49@BN6PR1201MB0195.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 8t1tK6tD1H9PL4wWZAFqc1J5n00XwW2NQiy5Vy+5jlo4kV4rr3lEDkNF0db0zy/EwMr1wnIIZRSWx8qWhG5SRYlmKVs2oIkpu5hPnYkdvqNhz/3523Pcl0y6PbbNbaEXvc1FC/qSzkB8njiST9U0y4DQz+uEpfUHvkeBdUkl8iUj/kTJUvr8o4LHTUkNmdfwcQxDol9svi2w/W770hJ5bZJsGrMkPk9O9OiKymVFJg1I012FNpxIf6rV2Kt2sRg7hCChyMgBr4O61gzysXkMEWol0QPuQYuU3WQ0bZv9x20jh5cBK5vT0mNXmPpeLtRm+gyq0rJvyS2/AMNfOESCMtZUfmPIL3CeCsNVskNSnq27aOrREimIlZjphqq/KRiDGvFhvS/dzT59lk4vvdnxUuwGKCcMv2rVxtAOB/Nq+eixw7qRgbCfqKaGVNvuV5XwDtODpMg45wdq9rW0HnmcJOWNj7zsIllAmC6bwyW4JpLIzk/cgFmy+vbT8fXCb53C/uE9F48z8A5+1CRZJT8176jIHgtcAb+jbda6t/AEG+R0Hg+KP21Fmue1j6uAU+HgGq0IVUtt2hI0AE8NvmcT0knABlEr+kABEruiQqSOs0jKxx7alS+gGTlFWbh7GA4BoV8Wo0vclQWtdsrEwqYVbQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6486002)(316002)(26005)(8676002)(6506007)(38100700002)(5660300002)(7416002)(7406005)(86362001)(186003)(33656002)(8936002)(6512007)(66946007)(66556008)(66476007)(1076003)(508600001)(2906002)(83380400001)(4326008)(2616005)(54906003)(36756003)(6916009);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?8++tOrYoBmpzyOs9trn/o76IJPmf9GqUBd3Dr8EArVBVzPOt7Jh2Sq3Otsx5?=
- =?us-ascii?Q?mOFE5d1wqmOf9AEYw2cA14hVIloqpMSbeEPl/9soFzYkmcvay5IiRya9D9PY?=
- =?us-ascii?Q?F3l9CSGI8q6DaEe463WQa8DtvDWGvs4xKIitPIrefNHngyNbkO7r7yZ6AR+U?=
- =?us-ascii?Q?TeHtWjkHmu9fa8l4bhaOhwiE7OKvFWKgnxtfgWrXqPt3yVo5klMtUlxLrZob?=
- =?us-ascii?Q?CMeLuiIAS1K+vwfPs8E/TCYdn4UXX/7KIl72g1jJ1IbTT77S3TuYYm53ZEC3?=
- =?us-ascii?Q?6D6mZCCIt6/13hvvdYDkrKH4MFU5pWwSE0vi9rmzaNR+S4ypv/hnZ9mhUnoM?=
- =?us-ascii?Q?jlW5Ywd0pVLBVwlSgl2APCNTgiNoumyAziFrNiYiWFTxe5rAbO5AHr7uo+e0?=
- =?us-ascii?Q?fD4yN2bfl9rTr7K9u4yCwZXNFpPRwUQTeglmRA4BA128dd+WP6kh7zXQy2Xi?=
- =?us-ascii?Q?Da08Tbc+bhzZun5dfDM0S3OnI3JAKQ8BNUr0N/QZSsdVS2YpIef7toLU0vzP?=
- =?us-ascii?Q?XuVcklDGfVhpQA8mL5XkPDQfcZOlkQtJvuxT/Wltnipx+bsSDX8FrUyHm2kR?=
- =?us-ascii?Q?D0TItVDkRKDMgyX8RvRe2slnuEkl5PdsUKUyolaAdRSVQCDyk8P2N3pCzIMq?=
- =?us-ascii?Q?FEl4Uns1JrzCHQbSQMQ9zMYu2BCeW2WEJj3PLEKgPeVbPSM2C/Qzlwpm8MWy?=
- =?us-ascii?Q?xiBa2OxVvgT0Uy1lVdVRTw9/obnX6SogKk+MmTb3R5xlwlG4BH9MTQHK18Qt?=
- =?us-ascii?Q?YWk312ukFSe/P+ewDzAKBTCC4yCb6hnS2MINY1jcnsDUZIi7X/cPXVm8v2SF?=
- =?us-ascii?Q?wR6FVTLwm0LOpMPKG4h8wNu+Ov5znYDdZwIZrsPrxgnCFV8B6B8X6OPbujtL?=
- =?us-ascii?Q?IjCJFv0u52fB8QRxC5TLO/glWosZJhUjLZmRHkoxm+G86FgmfmUv1otqMivk?=
- =?us-ascii?Q?xZdJ2v3n9rO3oPottgu0GSD3FWUsBVT/NGL0PNTto0yWOtqdwB2mUYe44p5m?=
- =?us-ascii?Q?JAQfkvIc85D+NCFlX/63mnA4wj7LLZORdgVP1DXwpEfWbX3w4iGbyMF/PDfI?=
- =?us-ascii?Q?CKYtiFpQMWW75J4Joc16vgFBzx8WLUZRWEYsmrInGNIrJb3PVcGaA3ztK5Q9?=
- =?us-ascii?Q?TWAUbiBxLNU10UA7v1HfcObgYpGmsVR+eIbRWJdFMVp1riw22jfkIM8AzEpx?=
- =?us-ascii?Q?oYbSP0EExg/hAkOllIOC36a4SvFMPq38fuko4oXeMSl1om0AQdTmtrvbEQGr?=
- =?us-ascii?Q?zJxRa7PABCT5c1Q2guL5my4PW4j780p1HJt4n7s0Vsbz9byoyImj7CqEZAoT?=
- =?us-ascii?Q?l+pmZN3AnNH8AV7SPCbAETYlZ8ky8/oxRyRJH2vJEgox3UPyLx9KIv46kGQF?=
- =?us-ascii?Q?MlvWjklRyHH7HaGhxSLOWDtNQi/rYhPpCqN0SlwHIv7wi4wxd0ONXy1ZzIDW?=
- =?us-ascii?Q?uQhHm20X4ACUTRZ7Eld13JhTOfIzq2oX8yteCvouaycXwD5pzn1i/Ut6/8rH?=
- =?us-ascii?Q?wzO8dxbetkZJr+mdkyfThwdmQXSrcAx8axDHXGf6X4q1geimOQSE8xeJ9e3d?=
- =?us-ascii?Q?KFdBZnRh2CIgtLsCWSeGpWtCbAChyoypJ0S1syhxf0jlKKfG7O30gFXGcblQ?=
- =?us-ascii?Q?YWmzavwmk+7bvher3l8wiS6cZGn4J/dJUb2p9s5ZBdPI92IYLhpZr214VjoG?=
- =?us-ascii?Q?cUmlaffz+y7uZxHEkNphdoe42AsEWMjdmhwzI1sHUSbok9lqVL0ugjPQYmex?=
- =?us-ascii?Q?2T/eZQd4og=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a469ccdb-db85-4d57-91d5-08da4941c30d
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jun 2022 11:26:42.2212
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: alF/Q7OCv2/++iCoscCtzFgGubWyncFf53axSm16WDJEdfhndocUnmVUKNFrl22h
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR1201MB0195
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: EwAI1KYngP4tLw66FN1GDuC2JaDnQBWv
+X-Proofpoint-ORIG-GUID: Z09z1LvCZdnm8foDOnk8cxPUhDVWyKEk
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-08_03,2022-06-07_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ adultscore=0 malwarescore=0 impostorscore=0 priorityscore=1501 spamscore=0
+ clxscore=1015 bulkscore=0 mlxlogscore=825 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2206080049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 08, 2022 at 03:47:12AM +0000, Tian, Kevin wrote:
-> > From: Jason Gunthorpe
-> > Sent: Wednesday, June 8, 2022 7:02 AM
-> > 
-> > Instead of bouncing the function call to the driver op through a blocking
-> > notifier just have the iommu layer call it directly.
-> > 
-> > Register each device that is being attached to the iommu with the lower
-> > driver which then threads them on a linked list and calls the appropriate
-> > driver op at the right time.
-> > 
-> > Currently the only use is if dma_unmap() is defined.
-> > 
-> > Also, fully lock all the debugging tests on the pinning path that a
-> > dma_unmap is registered.
-> >
-> ... 
-> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> > diff --git a/drivers/vfio/vfio_iommu_type1.c
-> > b/drivers/vfio/vfio_iommu_type1.c
-> > index c13b9290e35759..4ddb1f1abd238b 100644
-> > +++ b/drivers/vfio/vfio_iommu_type1.c
-> > @@ -67,7 +67,8 @@ struct vfio_iommu {
-> >  	struct list_head	iova_list;
-> >  	struct mutex		lock;
-> >  	struct rb_root		dma_list;
-> > -	struct blocking_notifier_head notifier;
-> > +	struct list_head	device_list;
-> > +	struct mutex		device_list_lock;
+On Fri,  3 Jun 2022 08:56:36 +0200
+Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
+
+> Add an mmu_notifier for protected VMs. The callback function is
+> triggered when the mm is torn down, and will attempt to convert all
+> protected vCPUs to non-protected. This allows the mm teardown to use
+> the destroy page UVC instead of export.
 > 
-> emulated_device_list or unmap_device_list, to be more accurate?
+> Also make KVM select CONFIG_MMU_NOTIFIER, needed to use mmu_notifiers.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Acked-by: Janosch Frank <frankja@linux.ibm.com>
 
-I don't think it is worth getting too specific here, the fact it only
-has dma_unmap devices is a bit of a shortcut to save some work.
-
-> btw a few lines downward there is already a emulated_iommu_groups.
-> the two sounds a bit overlapping given mdev's iommu group is faked
-> and singleton. Wonder whether it's cleaner to just reuse the existing field...
-
-The locking is more complicated on this since we still have check
-every device in the group if it is opened or not while launching the
-callback and prevent it from opening/closing while the callback is
-running.
-
-Since I plan to delete the dirty tracking which will drop the
-emulated_iommu_groups too I would leave it like this.
-
-Jason
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
