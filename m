@@ -2,425 +2,179 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F18EC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 17:45:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC1F5C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 17:46:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232866AbiFHRpu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Jun 2022 13:45:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40658 "EHLO
+        id S232814AbiFHRqk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Jun 2022 13:46:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232793AbiFHRpr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 13:45:47 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA9F182BB9;
-        Wed,  8 Jun 2022 10:45:45 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258GE0WF010747;
-        Wed, 8 Jun 2022 17:45:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=V6J7nn3GJ3JQvZ6U+5OZsRGF/t1SytmjeEHYCxmk7g0=;
- b=UM+8ifmT0hB+drquBUjlb/Nl8qk5cRqlijCZuTCTGgYOcOs21qjMLIoti1LSPkcC0xT1
- 4DKFYs2Usxw1V8oHhtAjFOMQJAzsFqi4GF9v2kiVWF8bhm7iCgBou/HXjZvifkbNclhb
- wZI5E9EC0WlUk3ZtwiouBr1cwvQ8yetAwlh+vAN6sGmYJB4P2QJ0f9smgIDLSmqXeCFa
- cOl51Gl21XFaF2tlG98DJwdmps0IbWve8H/eLDJH+FcxZr61xOGgoGY3cUZsbrVKdycA
- 2ZYroaa4oQUI/gZT/vUPOVrT4vy4bWxx0Af7Xp9mqhhGis5+kSvLoBYwJQDyWCGKp/Iu 0A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjy3t1v2x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 17:45:44 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 258GviYd016492;
-        Wed, 8 Jun 2022 17:45:43 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjy3t1v2h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 17:45:43 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 258HL6RM021599;
-        Wed, 8 Jun 2022 17:45:42 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06fra.de.ibm.com with ESMTP id 3gfxnj4k3q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Jun 2022 17:45:41 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 258HjcrU44630398
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Jun 2022 17:45:39 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CC42711C052;
-        Wed,  8 Jun 2022 17:45:38 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8F0DA11C04C;
-        Wed,  8 Jun 2022 17:45:38 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  8 Jun 2022 17:45:38 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v4 2/3] s390x: Test effect of storage keys on some more instructions
-Date:   Wed,  8 Jun 2022 19:45:35 +0200
-Message-Id: <20220608174536.1700357-3-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220608174536.1700357-1-scgl@linux.ibm.com>
-References: <20220608174536.1700357-1-scgl@linux.ibm.com>
+        with ESMTP id S232256AbiFHRqj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 13:46:39 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2081.outbound.protection.outlook.com [40.107.236.81])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F301ACE6B;
+        Wed,  8 Jun 2022 10:46:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kHqn5PAP+jbe8Zs5DgorTAGXOCPOVhFXbYoYTJCHxFuoObzdit2lC4O9O1vivWhNiY+zDYZBIVasc/Aho9bjIjD7fDt1GqD+gg+dP/ddBsrnCVCKzIecUdca+WLJy9sebrabWuE5b5WP0NUGqMKynwjr6jsr/KABnoMoQbtgzX2HDJbLLwmnEwD7oc4JrRxQ6vncGo7kkEdM9nk2PNTj3RjuSo1KVDyFC3ckW3XGLlLz6pTm4/N1GuIYVPtlDsymbUm5Q4SmFW671AkPnxOgpKj3LiRQlRFSbsIq49rdxiSNZ1RDW+j4pW4chFq2HCD4qipoEqgXpbp/dP4z/yRSnQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fFeNMwak6IcWIfXn3ck/l0OoBncuvs3yDZ+On/hvF3w=;
+ b=FZN7npI2c4Y6/FzlggObdZDGWKmeW1ze3nbyVSLHjKCRM/TJuUEKFLpjg+dHYHPwdclNK1SczwySFeQ0t5t6caG2h/c+3JFEieaq4HVQpxS+cBkJ4HXYubTTasnc875wk8w3T92nZWXIVgNPwbDwBBJ2j/tYkub3XCj3RdubsFgb/ItmmGkndwvVXLX0rfo+LMa0xToXGYN/NjWpGAMQ+up0Ia5wa2wSOG12uohIwTkZa4NxA6Ia4F1+QCpu/i4hrQ5C8YeEApE6BO1W4t4KWUHwDp/ar0dbs/bUykPAQF1cMB22xvKF/+P7BXR3alD4nUzSghf2wmH6ikDVALsqVg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.235) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
+ (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
+ (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fFeNMwak6IcWIfXn3ck/l0OoBncuvs3yDZ+On/hvF3w=;
+ b=pj314MFZvyxbk0ZQs3c3QVIyiIVQvNRFWeljCaisw0svE3icciaLryu3SwB0ZrJruRPwCHycdF4wqAtPteGog6x6WVjlLESH6hvPeDrZrnR+RPyF39amcDN+uB9Vh7M8HNgVfpKFtMIPwxZD6OLG39vMVYxzMWC8fr6QDrGq6pHplKhKAzvo+3RQJasA72tXTPMmIYOac4j55a3VSKOkN5kGsFhdpTybvsc45awQKNkhJb+xIkvCjZlgTlBCzAKRScyZvB2f2v72w18BTuucGDIWT74YwdOeMTT88dbwNkPiNdDw6pXiRsR87KEhizzHi+VNUl9o+dBa+9XHhl5/uw==
+Received: from BN8PR04CA0048.namprd04.prod.outlook.com (2603:10b6:408:d4::22)
+ by BL1PR12MB5109.namprd12.prod.outlook.com (2603:10b6:208:309::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.12; Wed, 8 Jun
+ 2022 17:46:36 +0000
+Received: from BN8NAM11FT049.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:d4:cafe::74) by BN8PR04CA0048.outlook.office365.com
+ (2603:10b6:408:d4::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.12 via Frontend
+ Transport; Wed, 8 Jun 2022 17:46:36 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.235)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.235 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.235; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.235) by
+ BN8NAM11FT049.mail.protection.outlook.com (10.13.177.157) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5332.12 via Frontend Transport; Wed, 8 Jun 2022 17:46:35 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Wed, 8 Jun
+ 2022 17:46:35 +0000
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Wed, 8 Jun 2022
+ 10:46:34 -0700
+Received: from Asurada-Nvidia (10.127.8.14) by mail.nvidia.com (10.129.68.6)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22 via Frontend
+ Transport; Wed, 8 Jun 2022 10:46:31 -0700
+Date:   Wed, 8 Jun 2022 10:46:30 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+CC:     "jgg@nvidia.com" <jgg@nvidia.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "will@kernel.org" <will@kernel.org>,
+        "marcan@marcan.st" <marcan@marcan.st>,
+        "sven@svenpeter.dev" <sven@svenpeter.dev>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "robdclark@gmail.com" <robdclark@gmail.com>,
+        "m.szyprowski@samsung.com" <m.szyprowski@samsung.com>,
+        "krzysztof.kozlowski@linaro.org" <krzysztof.kozlowski@linaro.org>,
+        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
+        "agross@kernel.org" <agross@kernel.org>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
+        "baolin.wang7@gmail.com" <baolin.wang7@gmail.com>,
+        "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
+        "wens@csie.org" <wens@csie.org>,
+        "jernej.skrabec@gmail.com" <jernej.skrabec@gmail.com>,
+        "samuel@sholland.org" <samuel@sholland.org>,
+        "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>,
+        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+        "alim.akhtar@samsung.com" <alim.akhtar@samsung.com>,
+        "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-samsung-soc@vger.kernel.org" 
+        <linux-samsung-soc@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
+        "linux-rockchip@lists.infradead.org" 
+        <linux-rockchip@lists.infradead.org>,
+        "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
+        "linux-sunxi@lists.linux.dev" <linux-sunxi@lists.linux.dev>,
+        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+        "linux-mediatek@lists.infradead.org" 
+        <linux-mediatek@lists.infradead.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
+        "dwmw2@infradead.org" <dwmw2@infradead.org>
+Subject: Re: [PATCH 4/5] vfio/iommu_type1: Clean up update_dirty_scope in
+ detach_group()
+Message-ID: <YqDgdqVIEwWF1Lku@Asurada-Nvidia>
+References: <20220606061927.26049-1-nicolinc@nvidia.com>
+ <20220606061927.26049-5-nicolinc@nvidia.com>
+ <BN9PR11MB5276FD77A2780C97BB82CBA88CA49@BN9PR11MB5276.namprd11.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: UFMIVomsQJlufhFUntadcLLR0_e4gtwB
-X-Proofpoint-GUID: 9_Slf2CFUZ3hIZK036S-XlQtVcjNIOsa
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-08_05,2022-06-07_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 adultscore=0 mlxlogscore=999 bulkscore=0
- lowpriorityscore=0 malwarescore=0 mlxscore=0 spamscore=0 suspectscore=0
- phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2204290000 definitions=main-2206080070
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB5276FD77A2780C97BB82CBA88CA49@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1587681b-17e6-42e3-05b6-08da4976d555
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5109:EE_
+X-Microsoft-Antispam-PRVS: <BL1PR12MB5109163184F6942DE7D0E27DABA49@BL1PR12MB5109.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: VlWwurAOdfoGgoI16h8tVUGa0DMWObSVow2a+oqBe2GTFnExd/q6V80KUoAhwGlN9yTiFYxYW6jVjBzap0lqYoeVA4tHrBHMrOGcX5zZBeMejX3y7boGTlEAy8viOhvea4Lc5edPDt9f1gM3Yz4yshhtJU834DNuWSaDl8ncPyiQpyTRLuBvHJQBfduDGAfTgNfVbzHCJWrjAXpEGCRPTCGf7mTDAGh5679B46vrSg97YEDPFcMD43BwIItZvesFk4Zy64H93Dwary+5LvOOu343wysK9GxUMsJt9ESj5btIlqPdywHT8vmD67YvGPAoF/x3yZG3LHh7dZG8q/gtWy/b19cPhlo8nNnXnqEF0h7nE/ltWdup6DdvlH4HcoFYaMfD8+KZMV6Nv5XXpmSmcgQ94fjbq6RpxSQwnzq7UXarKD8LjmvWxl+5vaxdtSLl+vQBoPAlz1+dg+ILTz84VtisIYiw0ad3EIuQhQbcbYSsDfl9yL3rUkx2qO+yEb2NtCkQ2Fm3IO17nJB9KrPPm+T/qEgXoGVHlivYgejJEd9lU5sCIz0CwKdDurelw2XGvaY0nI7xYOBc6QrkGfSXmL4RbKqj3ZJ2PIJhnpEDGJMm+/XmrxCm1GA9pgdb3fgW8qWWDVkr+09ib2mFcHFvH7pgUIS1zo/GUOR2uhAkDta/7zYxFcm6pSERA8WykStTkWHbbfBM3IVe36tTA8CCypUdjIbGAWMJQSylTJFpr+k=
+X-Forefront-Antispam-Report: CIP:12.22.5.235;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230001)(4636009)(40470700004)(46966006)(36840700001)(316002)(47076005)(426003)(8676002)(81166007)(36860700001)(55016003)(82310400005)(6916009)(70206006)(4326008)(70586007)(356005)(2906002)(54906003)(508600001)(336012)(8936002)(9686003)(33716001)(4744005)(186003)(5660300002)(83380400001)(40460700003)(86362001)(7416002)(7406005)(26005)(14143004)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jun 2022 17:46:35.8559
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1587681b-17e6-42e3-05b6-08da4976d555
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.235];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT049.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5109
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Test correctness of some instructions handled by user space instead of
-KVM with regards to storage keys.
-Test success and error conditions, including coverage of storage and
-fetch protection override.
+On Wed, Jun 08, 2022 at 08:35:47AM +0000, Tian, Kevin wrote:
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- s390x/skey.c        | 275 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   1 +
- 2 files changed, 276 insertions(+)
+> > @@ -2519,7 +2515,17 @@ static void vfio_iommu_type1_detach_group(void
+> > *iommu_data,
+> >                       kfree(domain);
+> >                       vfio_iommu_aper_expand(iommu, &iova_copy);
+> >                       vfio_update_pgsize_bitmap(iommu);
+> > +                     /*
+> > +                      * Removal of a group without dirty tracking may
+> > allow
+> > +                      * the iommu scope to be promoted.
+> > +                      */
+> > +                     if (!group->pinned_page_dirty_scope) {
+> > +                             iommu->num_non_pinned_groups--;
+> > +                             if (iommu->dirty_page_tracking)
+> > +
+> >       vfio_iommu_populate_bitmap_full(iommu);
+> 
+> This doesn't look correct. The old code decrements
+> num_non_pinned_groups for every detach group without dirty
+> tracking. But now it's only done when the domain is about to
+> be released...
 
-diff --git a/s390x/skey.c b/s390x/skey.c
-index d05ebc09..36b81cec 100644
---- a/s390x/skey.c
-+++ b/s390x/skey.c
-@@ -12,6 +12,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/interrupt.h>
- #include <vmalloc.h>
-+#include <css.h>
- #include <asm/page.h>
- #include <asm/facility.h>
- #include <asm/mem.h>
-@@ -304,6 +305,115 @@ static void test_store_cpu_address(void)
- 	report_prefix_pop();
- }
- 
-+/*
-+ * Perform CHANNEL SUBSYSTEM CALL (CHSC)  instruction while temporarily executing
-+ * with access key 1.
-+ */
-+static unsigned int chsc_key_1(void *comm_block)
-+{
-+	uint32_t program_mask;
-+
-+	asm volatile (
-+		"spka	0x10\n\t"
-+		".insn	rre,0xb25f0000,%[comm_block],0\n\t"
-+		"spka	0\n\t"
-+		"ipm	%[program_mask]\n"
-+		: [program_mask] "=d" (program_mask)
-+		: [comm_block] "d" (comm_block)
-+		: "memory"
-+	);
-+	return program_mask >> 28;
-+}
-+
-+static const char chsc_msg[] = "Performed store-channel-subsystem-characteristics";
-+static void init_comm_block(uint16_t *comm_block)
-+{
-+	memset(comm_block, 0, PAGE_SIZE);
-+	/* store-channel-subsystem-characteristics command */
-+	comm_block[0] = 0x10;
-+	comm_block[1] = 0x10;
-+	comm_block[9] = 0;
-+}
-+
-+static void test_channel_subsystem_call(void)
-+{
-+	uint16_t *comm_block = (uint16_t *)&pagebuf;
-+	unsigned int cc;
-+
-+	report_prefix_push("CHANNEL SUBSYSTEM CALL");
-+
-+	report_prefix_push("zero key");
-+	init_comm_block(comm_block);
-+	set_storage_key(comm_block, 0x10, 0);
-+	asm volatile (
-+		".insn	rre,0xb25f0000,%[comm_block],0\n\t"
-+		"ipm	%[cc]\n"
-+		: [cc] "=d" (cc)
-+		: [comm_block] "d" (comm_block)
-+		: "memory"
-+	);
-+	cc = cc >> 28;
-+	report(cc == 0 && comm_block[9], chsc_msg);
-+	report_prefix_pop();
-+
-+	report_prefix_push("matching key");
-+	init_comm_block(comm_block);
-+	set_storage_key(comm_block, 0x10, 0);
-+	cc = chsc_key_1(comm_block);
-+	report(cc == 0 && comm_block[9], chsc_msg);
-+	report_prefix_pop();
-+
-+	report_prefix_push("mismatching key");
-+
-+	report_prefix_push("no fetch protection");
-+	init_comm_block(comm_block);
-+	set_storage_key(comm_block, 0x20, 0);
-+	expect_pgm_int();
-+	chsc_key_1(comm_block);
-+	check_key_prot_exc(ACC_UPDATE, PROT_STORE);
-+	report_prefix_pop();
-+
-+	report_prefix_push("fetch protection");
-+	init_comm_block(comm_block);
-+	set_storage_key(comm_block, 0x28, 0);
-+	expect_pgm_int();
-+	chsc_key_1(comm_block);
-+	check_key_prot_exc(ACC_UPDATE, PROT_FETCH_STORE);
-+	report_prefix_pop();
-+
-+	ctl_set_bit(0, CTL0_STORAGE_PROTECTION_OVERRIDE);
-+
-+	report_prefix_push("storage-protection override, invalid key");
-+	set_storage_key(comm_block, 0x20, 0);
-+	init_comm_block(comm_block);
-+	expect_pgm_int();
-+	chsc_key_1(comm_block);
-+	check_key_prot_exc(ACC_UPDATE, PROT_STORE);
-+	report_prefix_pop();
-+
-+	report_prefix_push("storage-protection override, override key");
-+	init_comm_block(comm_block);
-+	set_storage_key(comm_block, 0x90, 0);
-+	cc = chsc_key_1(comm_block);
-+	report(cc == 0 && comm_block[9], chsc_msg);
-+	report_prefix_pop();
-+
-+	ctl_clear_bit(0, CTL0_STORAGE_PROTECTION_OVERRIDE);
-+
-+	report_prefix_push("storage-protection override disabled, override key");
-+	init_comm_block(comm_block);
-+	set_storage_key(comm_block, 0x90, 0);
-+	expect_pgm_int();
-+	chsc_key_1(comm_block);
-+	check_key_prot_exc(ACC_UPDATE, PROT_STORE);
-+	report_prefix_pop();
-+
-+	report_prefix_pop();
-+
-+	set_storage_key(comm_block, 0x00, 0);
-+	report_prefix_pop();
-+}
-+
- /*
-  * Perform SET PREFIX (SPX) instruction while temporarily executing
-  * with access key 1.
-@@ -430,6 +540,169 @@ static void test_set_prefix(void)
- 	report_prefix_pop();
- }
- 
-+/*
-+ * Perform MODIFY SUBCHANNEL (MSCH) instruction while temporarily executing
-+ * with access key 1.
-+ */
-+static uint32_t modify_subchannel_key_1(uint32_t sid, struct schib *schib)
-+{
-+	uint32_t program_mask;
-+
-+	asm volatile (
-+		"lr %%r1,%[sid]\n\t"
-+		"spka	0x10\n\t"
-+		"msch	%[schib]\n\t"
-+		"spka	0\n\t"
-+		"ipm	%[program_mask]\n"
-+		: [program_mask] "=d" (program_mask)
-+		: [sid] "d" (sid),
-+		  [schib] "Q" (*schib)
-+		: "%r1"
-+	);
-+	return program_mask >> 28;
-+}
-+
-+static void test_msch(void)
-+{
-+	struct schib *schib = (struct schib *)pagebuf;
-+	struct schib *no_override_schib;
-+	int test_device_sid;
-+	pgd_t *root;
-+	int cc;
-+
-+	report_prefix_push("MSCH");
-+	root = (pgd_t *)(stctg(1) & PAGE_MASK);
-+	test_device_sid = css_enumerate();
-+
-+	if (!(test_device_sid & SCHID_ONE)) {
-+		report_fail("no I/O device found");
-+		return;
-+	}
-+
-+	cc = stsch(test_device_sid, schib);
-+	if (cc) {
-+		report_fail("could not store SCHIB");
-+		return;
-+	}
-+
-+	report_prefix_push("zero key");
-+	schib->pmcw.intparm = 100;
-+	set_storage_key(schib, 0x28, 0);
-+	cc = msch(test_device_sid, schib);
-+	if (!cc) {
-+		WRITE_ONCE(schib->pmcw.intparm, 0);
-+		cc = stsch(test_device_sid, schib);
-+		report(!cc && schib->pmcw.intparm == 100, "fetched from SCHIB");
-+	} else {
-+		report_fail("MSCH cc != 0");
-+	}
-+	report_prefix_pop();
-+
-+	report_prefix_push("matching key");
-+	schib->pmcw.intparm = 200;
-+	set_storage_key(schib, 0x18, 0);
-+	cc = modify_subchannel_key_1(test_device_sid, schib);
-+	if (!cc) {
-+		WRITE_ONCE(schib->pmcw.intparm, 0);
-+		cc = stsch(test_device_sid, schib);
-+		report(!cc && schib->pmcw.intparm == 200, "fetched from SCHIB");
-+	} else {
-+		report_fail("MSCH cc != 0");
-+	}
-+	report_prefix_pop();
-+
-+	report_prefix_push("mismatching key");
-+
-+	report_prefix_push("no fetch protection");
-+	schib->pmcw.intparm = 300;
-+	set_storage_key(schib, 0x20, 0);
-+	cc = modify_subchannel_key_1(test_device_sid, schib);
-+	if (!cc) {
-+		WRITE_ONCE(schib->pmcw.intparm, 0);
-+		cc = stsch(test_device_sid, schib);
-+		report(!cc && schib->pmcw.intparm == 300, "fetched from SCHIB");
-+	} else {
-+		report_fail("MSCH cc != 0");
-+	}
-+	report_prefix_pop();
-+
-+	schib->pmcw.intparm = 0;
-+	if (!msch(test_device_sid, schib)) {
-+		report_prefix_push("fetch protection");
-+		schib->pmcw.intparm = 400;
-+		set_storage_key(schib, 0x28, 0);
-+		expect_pgm_int();
-+		modify_subchannel_key_1(test_device_sid, schib);
-+		check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
-+		cc = stsch(test_device_sid, schib);
-+		report(!cc && schib->pmcw.intparm == 0, "did not modify subchannel");
-+		report_prefix_pop();
-+	} else {
-+		report_fail("could not reset SCHIB");
-+	}
-+
-+	register_pgm_cleanup_func(dat_fixup_pgm_int);
-+
-+	schib->pmcw.intparm = 0;
-+	if (!msch(test_device_sid, schib)) {
-+		report_prefix_push("remapped page, fetch protection");
-+		schib->pmcw.intparm = 500;
-+		set_storage_key(pagebuf, 0x28, 0);
-+		expect_pgm_int();
-+		install_page(root, virt_to_pte_phys(root, pagebuf), 0);
-+		modify_subchannel_key_1(test_device_sid, (struct schib *)0);
-+		install_page(root, 0, 0);
-+		check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
-+		cc = stsch(test_device_sid, schib);
-+		report(!cc && schib->pmcw.intparm == 0, "did not modify subchannel");
-+		report_prefix_pop();
-+	} else {
-+		report_fail("could not reset SCHIB");
-+	}
-+
-+	ctl_set_bit(0, CTL0_FETCH_PROTECTION_OVERRIDE);
-+
-+	report_prefix_push("fetch-protection override applies");
-+	schib->pmcw.intparm = 600;
-+	set_storage_key(pagebuf, 0x28, 0);
-+	install_page(root, virt_to_pte_phys(root, pagebuf), 0);
-+	cc = modify_subchannel_key_1(test_device_sid, (struct schib *)0);
-+	install_page(root, 0, 0);
-+	if (!cc) {
-+		WRITE_ONCE(schib->pmcw.intparm, 0);
-+		cc = stsch(test_device_sid, schib);
-+		report(!cc && schib->pmcw.intparm == 600, "fetched from SCHIB");
-+	} else {
-+		report_fail("MSCH cc != 0");
-+	}
-+	report_prefix_pop();
-+
-+	schib->pmcw.intparm = 0;
-+	if (!msch(test_device_sid, schib)) {
-+		report_prefix_push("fetch-protection override does not apply");
-+		schib->pmcw.intparm = 700;
-+		no_override_schib = (struct schib *)(pagebuf + 2048);
-+		memcpy(no_override_schib, schib, sizeof(struct schib));
-+		set_storage_key(pagebuf, 0x28, 0);
-+		expect_pgm_int();
-+		install_page(root, virt_to_pte_phys(root, pagebuf), 0);
-+		modify_subchannel_key_1(test_device_sid, OPAQUE_PTR(2048));
-+		install_page(root, 0, 0);
-+		check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
-+		cc = stsch(test_device_sid, schib);
-+		report(!cc && schib->pmcw.intparm == 0, "did not modify subchannel");
-+		report_prefix_pop();
-+	} else {
-+		report_fail("could not reset SCHIB");
-+	}
-+
-+	ctl_clear_bit(0, CTL0_FETCH_PROTECTION_OVERRIDE);
-+	register_pgm_cleanup_func(NULL);
-+	report_prefix_pop();
-+	set_storage_key(schib, 0x00, 0);
-+	report_prefix_pop();
-+}
-+
- int main(void)
- {
- 	report_prefix_push("skey");
-@@ -444,9 +717,11 @@ int main(void)
- 	test_chg();
- 	test_test_protection();
- 	test_store_cpu_address();
-+	test_channel_subsystem_call();
- 
- 	setup_vm();
- 	test_set_prefix();
-+	test_msch();
- done:
- 	report_prefix_pop();
- 	return report_summary();
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index b456b288..1280ff0f 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -41,6 +41,7 @@ file = sthyi.elf
- 
- [skey]
- file = skey.elf
-+extra_params = -device virtio-net-ccw
- 
- [diag10]
- file = diag10.elf
--- 
-2.33.1
+Hmm..you are right. It should be placed outside:
+		if (list_empty(&domain->group_list)) {
+			...
+		}
++		if (!group->pinned_page_dirty_scope) {
++			...
++		}
 
+Will fix this and the same problem in PATCH-5 too.
+
+Thanks!
