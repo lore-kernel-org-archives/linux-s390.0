@@ -2,220 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 361F6CCA481
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 17:38:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 426D0C43334
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 17:45:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232632AbiFHRig (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Jun 2022 13:38:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35652 "EHLO
+        id S232814AbiFHRpr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Jun 2022 13:45:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232400AbiFHRid (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 13:38:33 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2088.outbound.protection.outlook.com [40.107.93.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C27901C111;
-        Wed,  8 Jun 2022 10:38:30 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=N1BWX6K1R+uLPaOiwyQ9CAxmozpYz6cKBgk25ktapsJ3+BOzZQV1eHpJgXBPUIopwZ6yvJqbGC59twiaOhuel+6IZHLxecFxfamKSC0eG6SHCN2EBK1TY2TPdikY1yRZnOwxDb68TI47USZ1Q35yDt5Eqx3fF7K050TrE16f8EN2CcghyUPFdwfM6l7OYD2YtWtjvRvicLP20LwqmO7buLaoXc5V/zm8ME029Tk+nKkKx5KJwMpOzDt6DT88qtHRCoQQDTV0zi9ZCaDxFuDtx8CNRek7/4WntA7qo0l69JyTo6rQ89jH3iZW25cSQvnFhrNrDeOxX8+9qYmFN5RRhg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=G9m+KiG0SZtRd5/u4ThC8jMJtZr/Nc4RKd2A3eyR1tE=;
- b=cAp0T4zAhRB7IvLzE6o6Zr6y0MU8U5BvLEPDckUlqPRnyq6DDOPc+xRRIqsER0DwHc+p2WWXQJNjOcLfYa0gs4q5mdOk4oZ+E3lFcHO0sjOfJ1iR8uFWCfU5hZd69HbXWQ3Ncr24YYcrjnXIQqWLNM79dbixS4VnR03o5Ot0d4WeImC/y0qmPMz7w0NSlGUwCWc8gpIM2M8v4oL3D+wNE34XZLSB54nmEGcBQHrPrzJreO+b5BfZhyG4FnAxKIMAlVvX3ILQpbZEsGqO1Bqjo7UAPfHtC+k/swwcCMWq5Ms3SD+mF2XQY3r+hvMrOMJFB9C3CULk4qqt92Yt5/CFPA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.236) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
- (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
- (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=G9m+KiG0SZtRd5/u4ThC8jMJtZr/Nc4RKd2A3eyR1tE=;
- b=QsvXkpEIO2Ehdu2QUvSm8aj+wyNi7aNFH8Iqjd/Twq0uxjJvXeyRa6Nrwx6/jbfF3JaWpEzdKgu76TpVp+x1gF/XLAMVDuAEee+gS9H0cTHPwhbFY7VfRxmmzutzxFrd4AUbK/xNuoS1cYZB/PjnRlOUSNHoxVndqfgxTT34LIr1hbD6SmukH7cWr2tpf5C2xhNZ04Iot/OLzxrTY/DoTOvZIif7Uz3O2MpKSIq5BKmqh+7k5o3mu2mtXzgZQaIOG7SiPbNzGP593HtpXp5m6epQsV8qkKV0HgbkxnCEBzHJIX4L55+hITRNBAaFzekVscy/RDGye+hKcPqfR0HD9Q==
-Received: from DS7P222CA0022.NAMP222.PROD.OUTLOOK.COM (2603:10b6:8:2e::25) by
- DM6PR12MB3817.namprd12.prod.outlook.com (2603:10b6:5:1c9::27) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5314.13; Wed, 8 Jun 2022 17:38:29 +0000
-Received: from DM6NAM11FT057.eop-nam11.prod.protection.outlook.com
- (2603:10b6:8:2e:cafe::2f) by DS7P222CA0022.outlook.office365.com
- (2603:10b6:8:2e::25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13 via Frontend
- Transport; Wed, 8 Jun 2022 17:38:29 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.236)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.236 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.236; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (12.22.5.236) by
- DM6NAM11FT057.mail.protection.outlook.com (10.13.172.252) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5332.12 via Frontend Transport; Wed, 8 Jun 2022 17:38:29 +0000
-Received: from rnnvmail204.nvidia.com (10.129.68.6) by DRHQMAIL109.nvidia.com
- (10.27.9.19) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Wed, 8 Jun
- 2022 17:38:28 +0000
-Received: from rnnvmail203.nvidia.com (10.129.68.9) by rnnvmail204.nvidia.com
- (10.129.68.6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Wed, 8 Jun 2022
- 10:38:28 -0700
-Received: from Asurada-Nvidia (10.127.8.14) by mail.nvidia.com (10.129.68.9)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22 via Frontend
- Transport; Wed, 8 Jun 2022 10:38:25 -0700
-Date:   Wed, 8 Jun 2022 10:38:24 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-CC:     "jgg@nvidia.com" <jgg@nvidia.com>,
-        "joro@8bytes.org" <joro@8bytes.org>,
-        "will@kernel.org" <will@kernel.org>,
-        "marcan@marcan.st" <marcan@marcan.st>,
-        "sven@svenpeter.dev" <sven@svenpeter.dev>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "robdclark@gmail.com" <robdclark@gmail.com>,
-        "m.szyprowski@samsung.com" <m.szyprowski@samsung.com>,
-        "krzysztof.kozlowski@linaro.org" <krzysztof.kozlowski@linaro.org>,
-        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
-        "agross@kernel.org" <agross@kernel.org>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
-        "heiko@sntech.de" <heiko@sntech.de>,
-        "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
-        "baolin.wang7@gmail.com" <baolin.wang7@gmail.com>,
-        "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
-        "wens@csie.org" <wens@csie.org>,
-        "jernej.skrabec@gmail.com" <jernej.skrabec@gmail.com>,
-        "samuel@sholland.org" <samuel@sholland.org>,
-        "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        "alim.akhtar@samsung.com" <alim.akhtar@samsung.com>,
-        "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-samsung-soc@vger.kernel.org" 
-        <linux-samsung-soc@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
-        "linux-rockchip@lists.infradead.org" 
-        <linux-rockchip@lists.infradead.org>,
-        "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
-        "linux-sunxi@lists.linux.dev" <linux-sunxi@lists.linux.dev>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-mediatek@lists.infradead.org" 
-        <linux-mediatek@lists.infradead.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
-        "dwmw2@infradead.org" <dwmw2@infradead.org>
-Subject: Re: [PATCH 1/5] iommu: Return -EMEDIUMTYPE for incompatible domain
- and device/group
-Message-ID: <YqDekEqGV0SXWgmL@Asurada-Nvidia>
-References: <20220606061927.26049-1-nicolinc@nvidia.com>
- <20220606061927.26049-2-nicolinc@nvidia.com>
- <BN9PR11MB52763602BBEEEF580C3B360E8CA49@BN9PR11MB5276.namprd11.prod.outlook.com>
+        with ESMTP id S232789AbiFHRpq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 13:45:46 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8506183167;
+        Wed,  8 Jun 2022 10:45:45 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258FhSba027439;
+        Wed, 8 Jun 2022 17:45:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=JnD0ujQO3gPXjpIRdSMloY3wDrS/eiESuHbrBzwtPR4=;
+ b=mXTpLExPVmS8zLxLzHzOzRvk5rRhJZMyfNdcfyUgETgUquEjIn48Y4Rw5w/lyFXumf5f
+ CPm/bbNLBbRTu2XhD0v4iVccr/F1+NLSc7dYZ0y2cLsMFcgXy+nY1m+97YcweQu17GgO
+ QGx6iYLJZGnkadUtAm9vsQU9KthJMekj1S1VNJIPZX6BCcpWZTNjfNbki1OkiOtPOLW9
+ 8a56mg+pyQQV4lr0ufjStpo9NBgPnyIUnK7N/1s3PiQG1FvpBft9itTwWzH/jAyNNt+R
+ kgpc2w561Ez9Tqgkb/oL4CAJoPVVDeqECI2R3Gnb2zVd6e0DKF1uXQRka6L95e8Wl7/8 4w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjxngamka-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Jun 2022 17:45:44 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 258HVwOE009689;
+        Wed, 8 Jun 2022 17:45:44 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gjxngamk0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Jun 2022 17:45:44 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 258HM8Kq003344;
+        Wed, 8 Jun 2022 17:45:42 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3gfy19dsen-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Jun 2022 17:45:42 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 258Hjd7k11534800
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Jun 2022 17:45:39 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 29D4111C04C;
+        Wed,  8 Jun 2022 17:45:39 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E531B11C04A;
+        Wed,  8 Jun 2022 17:45:38 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Jun 2022 17:45:38 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v4 3/3] s390x: Test effect of storage keys on diag 308
+Date:   Wed,  8 Jun 2022 19:45:36 +0200
+Message-Id: <20220608174536.1700357-4-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220608174536.1700357-1-scgl@linux.ibm.com>
+References: <20220608174536.1700357-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB52763602BBEEEF580C3B360E8CA49@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: f3a5ea2a-f976-46d7-b11e-08da4975b335
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3817:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR12MB3817CD67B892FAAFFB7B32A4ABA49@DM6PR12MB3817.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: UTuUaEidQiWyq/qNlzH8v5WGUimEdNqfSxfGKylYYXiqjlw4B1Gjyy1s4p3W4k3yDa8t7UoT53/PaYdak4dbB2Lt+aa+PD4NtHNuEjdjXI/fS6NCZ75VYHg3UcaiNynCwiOvFtNK8lTZxcP3ov8NojJjozjShXHOInS5sEXloaohwRfDVRBr9IWDce3Yx1Mdbh6cuRRF0FUgijBp5eTZgCRljLobuT9Kh93Sb/rXKFNfQXmusshV0LGeShINpGmQBBD1f+jdCNXflp1fFbDY934siMXKL7aizsP4C/SGApoTZT6ej7lwciIcbPsFvXykmFCl6M4M0RgoE8B+fyEyjWfmeUb6T72cooBQOMg+0RtQkU4v21Jhm8Fhle+C+za7FloTTqLCUI0rE0bBtfso2jWI3sjyslJtS4IGmnWgn2wlgIq571iMTeG6axWO+rZVWvhjU1bS9zCiI0/m8Z1ANJP170fIGjFxACzUwt/Mb1tmfTehVX8S61T8kQXf70W+svGYx4LadvLlhkPt3pz/ah+zikqnML6s4QkrBeMzbrlZwrvf2q7O1ZkHiDzRD95QC6yDHMzch5f5SMRB+Goyowa3ZG2NmM8800IA7XLcpn66mchSWDcoSqYPa0YiA3v2SUJmPuhVtzjdMtiB0b24y5chII5/gmqnvibh6gGxRiuMl5ghH+WzK0ccgB6D6Y5bSmDqJqs/P5Mzl1ERR2Quew==
-X-Forefront-Antispam-Report: CIP:12.22.5.236;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230001)(4636009)(36840700001)(46966006)(40470700004)(82310400005)(83380400001)(426003)(186003)(336012)(7406005)(70206006)(36860700001)(5660300002)(8936002)(508600001)(40460700003)(47076005)(86362001)(2906002)(33716001)(26005)(356005)(9686003)(7416002)(316002)(81166007)(54906003)(4326008)(8676002)(6916009)(70586007)(55016003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jun 2022 17:38:29.1738
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: f3a5ea2a-f976-46d7-b11e-08da4975b335
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.236];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT057.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3817
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: P-Ob8chekW0tP2PIWVhWjLqg3bNmII8r
+X-Proofpoint-ORIG-GUID: aDdAqMm8Z2t1nqMOniTLLPLrKtnDbI7W
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-08_05,2022-06-07_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
+ bulkscore=0 mlxscore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
+ suspectscore=0 clxscore=1015 spamscore=0 impostorscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2206080070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Kevin,
+Test that key-controlled protection does not apply to diag 308.
 
-On Wed, Jun 08, 2022 at 07:49:10AM +0000, Tian, Kevin wrote:
-> External email: Use caution opening links or attachments
-> 
-> 
-> > From: Nicolin Chen
-> > Sent: Monday, June 6, 2022 2:19 PM
-> >
-> > Cases like VFIO wish to attach a device to an existing domain that was
-> > not allocated specifically from the device. This raises a condition
-> > where the IOMMU driver can fail the domain attach because the domain and
-> > device are incompatible with each other.
-> >
-> > This is a soft failure that can be resolved by using a different domain.
-> >
-> > Provide a dedicated errno from the IOMMU driver during attach that the
-> > reason attached failed is because of domain incompatability. EMEDIUMTYPE
-> > is chosen because it is never used within the iommu subsystem today and
-> > evokes a sense that the 'medium' aka the domain is incompatible.
-> >
-> > VFIO can use this to know attach is a soft failure and it should continue
-> > searching. Otherwise the attach will be a hard failure and VFIO will
-> > return the code to userspace.
-> >
-> > Update all drivers to return EMEDIUMTYPE in their failure paths that are
-> > related to domain incompatability.
-> 
-> Seems not all drivers are converted, e.g.:
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ s390x/skey.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-Thank you for going through all of them!
-
-> mtk_iommu_v1_attach_device():
->         /* Only allow the domain created internally. */
->         mtk_mapping = data->mapping;
->         if (mtk_mapping->domain != domain)
->                 return 0;
-> ** the current code sounds incorrect which should return an error
-
-I agree.
+diff --git a/s390x/skey.c b/s390x/skey.c
+index 36b81cec..87418f19 100644
+--- a/s390x/skey.c
++++ b/s390x/skey.c
+@@ -305,6 +305,31 @@ static void test_store_cpu_address(void)
+ 	report_prefix_pop();
+ }
  
-> s390_iommu_attach_device():
->         /* Allow only devices with identical DMA range limits */
->         } else if (domain->geometry.aperture_start != zdev->start_dma ||
->                 domain->geometry.aperture_end != zdev->end_dma) {
->                 rc = -EINVAL;
->
-> sprd_iommu_attach_device():
->         if (dom->sdev) {
->                 pr_err("There's already a device attached to this domain.\n");
->                 return -EINVAL;
->         }
-> 
-> 
-> gart_iommu_attach_dev():
->         if (gart->active_domain && gart->active_domain != domain) {
->                 ret = -EBUSY;
++static void test_diag_308(void)
++{
++	uint16_t response;
++	uint32_t *ipib = (uint32_t *)pagebuf;
++
++	report_prefix_push("DIAG 308");
++	WRITE_ONCE(ipib[0], 0); /* Invalid length */
++	set_storage_key(ipib, 0x28, 0);
++	/* key-controlled protection does not apply */
++	asm volatile (
++		"lr	%%r2,%[ipib]\n\t"
++		"spka	0x10\n\t"
++		"diag	%%r2,%[code],0x308\n\t"
++		"spka	0\n\t"
++		"lr	%[response],%%r3\n"
++		: [response] "=d" (response)
++		: [ipib] "d" (ipib),
++		  [code] "d" (5)
++		: "%r2", "%r3"
++	);
++	report(response == 0x402, "no exception on fetch, response: invalid IPIB");
++	set_storage_key(ipib, 0x00, 0);
++	report_prefix_pop();
++}
++
+ /*
+  * Perform CHANNEL SUBSYSTEM CALL (CHSC)  instruction while temporarily executing
+  * with access key 1.
+@@ -717,6 +742,7 @@ int main(void)
+ 	test_chg();
+ 	test_test_protection();
+ 	test_store_cpu_address();
++	test_diag_308();
+ 	test_channel_subsystem_call();
+ 
+ 	setup_vm();
+-- 
+2.33.1
 
-Will add these.
-
-> arm_smmu_attach_dev():
->         if (!fwspec || fwspec->ops != &arm_smmu_ops) {
->                 dev_err(dev, "cannot attach to SMMU, is it on the same bus?\n");
->                 return -ENXIO;
->         }
-> **probably this check can be covered by next patch which moves bus ops
-> check into iommu core?
-
-I was thinking that it could be covered. Yet, we are about to drop
-that ops check, as Robin pointed out that we don't need that ops
-sanity for we don't have mixed-driver systems yet. So perhaps this
-would be a different ops check and should return -EMEDIUMTYPE too,
-I think.
-
-Thanks
-Nic
