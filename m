@@ -2,263 +2,187 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61F4CC43334
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 10:45:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FD63C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Jun 2022 11:17:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237288AbiFHKpj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Jun 2022 06:45:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56656 "EHLO
+        id S237942AbiFHLRb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Jun 2022 07:17:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237266AbiFHKph (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 06:45:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534072AE11;
-        Wed,  8 Jun 2022 03:45:35 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3C80B826B8;
-        Wed,  8 Jun 2022 10:45:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 487FCC341C6;
-        Wed,  8 Jun 2022 10:45:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654685132;
-        bh=IUkks1rKSJ/NdE5ptUYvV5ETNPKdfPh+xYmfyDN6j5A=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3DH+BPm08KVSut05Senfp4vB0Ejiz90/0DzI4vHCNQF16R43bm9dX0GsLcK8wSpK
-         plrR1TLzk5K/Qat9LG5AiN84lz9yBdURg1nRZ5wniBrPOMmDXCft6VEwf2ePW0UaO/
-         FVOeSu0qQBF1TU/ywvAWyjf2kUVucSdIMPerJSs75FMqBbnmcsEaKVPHtgYZf5QOWf
-         cV/jySGcmUoNAsA2qd+ohhIyMDuAMABCr2rMK9SexxphliKJ4L+/URsW6eQ0qI7yLG
-         DVqLtbIGZcSO2dOy3he82ehh6trVRaOjMN0KpC3PuYXvxSPp7rojL7Qb7P1bVGkRIi
-         4mr+zRf+Pg+uw==
-From:   Ard Biesheuvel <ardb@kernel.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 3/3] jump_label: make initial NOP patching the special case
-Date:   Wed,  8 Jun 2022 12:45:12 +0200
-Message-Id: <20220608104512.1176209-4-ardb@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220608104512.1176209-1-ardb@kernel.org>
-References: <20220608104512.1176209-1-ardb@kernel.org>
+        with ESMTP id S237780AbiFHLRa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 07:17:30 -0400
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2077.outbound.protection.outlook.com [40.107.100.77])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73364386CAF;
+        Wed,  8 Jun 2022 04:17:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kSbljbs6FoLDellRbZpgOPjudv63XU5tmncOfZ+pm2LmPoN5IJ7/UnAUTTbmyhWlELtGtovXauhcXb99qCpD7qccOEr3zmJnQUT5z+0s0lqKtORm9fqGAZSXFXEoOmM3KwxPSt/1UTFOj+hpmwA0kH8NVW4YP4h/39ikIBYvjx+gqrKN41lF5vgIOIoFbphWf44xwi5yub+mDi/s2TS8g/9NVbOmMbH0r/O5BhW5L8XRw2UmoIztNfF8SqcsmZZVLSR0IiqesD4B38pk31CYGFNvZg+fdW7/QIh5M5NpqFrmgu8Xm46HZoPhbIQLz2VfG62dq2KLblDy4QngaJd4Cg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tIfkp8E5KBtvRmW4yi1xoFUv9uv8UQxyX18dwprf1MQ=;
+ b=CRFpgDjh5KOmEFwRZAvuPswT3pJrEIBYU3NmY2ePuq/wcM4iRmieaDmarJZSAXGnLQHpD0f4V16/Jlzu9juRre6VKl6uRbm/OyJfIi+vHRo3XcS+8zBenYurV2xx5ti98s6MB9v1UIpGElwQUpqX6RgqKAmB7sagjzBMNd3Ch3dGnIXSJSyyuOpukNovFqjOA2TNv60dW3W1NTAMyGe/TtFh725u0RtSKi90hMmi/0GVtUby9/PnCm3RCRoVu/OomMgjUKDBOX5C+ASn6vdI6S8qnwcgjqgR6SdjTsskZ8QW4lU4O5lfqnfeWjy9MxRrC7uNqQb5MSh2kkXNbibf9Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tIfkp8E5KBtvRmW4yi1xoFUv9uv8UQxyX18dwprf1MQ=;
+ b=k6UJmfITb5ZJlFmT8BY9zNGu99HuopB2bSBnOeK5GvkkZPRTcaFmKIuTQdC3t0Q7ktsaDIkIpQTk7JHCvcr2sjnBIElZQa1w81OURzygTNQGNGT+yFrmfMWHhN2yzq2lRj4reBeWqqtj2X66DzqbMpAUEo0bRtTVx94jFA2uy1C0cEY7Li799x/Koc8GCiPNZ4PcZ4cDxqjaai/qWmVDXonUZ7CgDj5T/vWdohFGmTLsNPiv5JwBucRszICruQwqAdXllmUEzj6L6PfVpFrOs1FLkEM5AeyDIUlkpmSNMJpD62h/fMB2Ey0vUwqRo6eSWJFrecoasE9Ue4K5rYHSbg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by DM4PR12MB5343.namprd12.prod.outlook.com (2603:10b6:5:389::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13; Wed, 8 Jun
+ 2022 11:17:26 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::2484:51da:d56f:f1a5]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::2484:51da:d56f:f1a5%9]) with mapi id 15.20.5314.019; Wed, 8 Jun 2022
+ 11:17:26 +0000
+Date:   Wed, 8 Jun 2022 08:17:24 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+Cc:     Nicolin Chen <nicolinc@nvidia.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "will@kernel.org" <will@kernel.org>,
+        "marcan@marcan.st" <marcan@marcan.st>,
+        "sven@svenpeter.dev" <sven@svenpeter.dev>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "robdclark@gmail.com" <robdclark@gmail.com>,
+        "m.szyprowski@samsung.com" <m.szyprowski@samsung.com>,
+        "krzysztof.kozlowski@linaro.org" <krzysztof.kozlowski@linaro.org>,
+        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
+        "agross@kernel.org" <agross@kernel.org>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
+        "baolin.wang7@gmail.com" <baolin.wang7@gmail.com>,
+        "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
+        "wens@csie.org" <wens@csie.org>,
+        "jernej.skrabec@gmail.com" <jernej.skrabec@gmail.com>,
+        "samuel@sholland.org" <samuel@sholland.org>,
+        "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>,
+        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+        "alim.akhtar@samsung.com" <alim.akhtar@samsung.com>,
+        "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-samsung-soc@vger.kernel.org" 
+        <linux-samsung-soc@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
+        "linux-rockchip@lists.infradead.org" 
+        <linux-rockchip@lists.infradead.org>,
+        "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
+        "linux-sunxi@lists.linux.dev" <linux-sunxi@lists.linux.dev>,
+        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+        "linux-mediatek@lists.infradead.org" 
+        <linux-mediatek@lists.infradead.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
+        "dwmw2@infradead.org" <dwmw2@infradead.org>
+Subject: Re: [PATCH 3/5] vfio/iommu_type1: Prefer to reuse domains vs match
+ enforced cache coherency
+Message-ID: <20220608111724.GL1343366@nvidia.com>
+References: <20220606061927.26049-1-nicolinc@nvidia.com>
+ <20220606061927.26049-4-nicolinc@nvidia.com>
+ <BN9PR11MB5276DC98E75B1906A76F7ADC8CA49@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB5276DC98E75B1906A76F7ADC8CA49@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-ClientProxiedBy: MN2PR05CA0035.namprd05.prod.outlook.com
+ (2603:10b6:208:c0::48) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=7711; h=from:subject; bh=IUkks1rKSJ/NdE5ptUYvV5ETNPKdfPh+xYmfyDN6j5A=; b=owEB7QES/pANAwAKAcNPIjmS2Y8kAcsmYgBioH23z/sItwB00nGMha5Ha+zYBS5GkKeFiVirkyRz Z6sfHB+JAbMEAAEKAB0WIQT72WJ8QGnJQhU3VynDTyI5ktmPJAUCYqB9twAKCRDDTyI5ktmPJEPOC/ 90LIbIy+/gbgiX0AcTzY9J5qxBHb2tBJg57qdy0vZgq6YXW9lk1TbqhSB5oRSWenMgxFwgSV4pp/VS F0X8MC5aaIZMfaJb7AMP9o/n6MUHqaMI3Y/x9DbuK1LedWYrAU0pEgmA3Cp/Sh2zDl0lM3c7JJmxT5 iig2vO3AVMNxDkCpOIkvv49syUB4oNyRJdaHM/eBkkI4xuj4IFFEjrJ/wzHasavLpGBnIl97rpw/oN bEkHxz7TBWVXruTXcgcW4JwVFbrUGqVt5Zj5lKuuIr7YUf80r+6wz4xAj13Vxu94ierpwqVaze07vR rDcCaJo0SjwDVg/Sgu36X4sM8oSreMmHS/oT+CY3c6gtrIaVAto8wSwRBp/9goBEhst6To1wIkwwAy pjpVxGND5LfUI1EKLKlsAsogQ+mxaqTNn2Wn1tAT+9RGJZphb6BGs2wYj90u2tQECZlhnLUYjLrfh7 asC8ZlLoRWywY2bTprQg0YXwCam51umh4rvV5XP7SLUg4=
-X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 7e109dbf-2d78-4e90-7279-08da494077d9
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5343:EE_
+X-Microsoft-Antispam-PRVS: <DM4PR12MB5343F3BADC2C0475E12C087EC2A49@DM4PR12MB5343.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: M3khKKea+46b7JZJFDq8fk/7GJsQpPRQVXbPELsmqPZbJhqZ/sGrdnoP82INW7xxhyE0Sh8PwumAQX0xAwCY44DqUTCnQ+j+9NTbAtpMFKSK7hz8CzBnPqd05bJNjRkuREYngOpnXggGeWYw1vyvjLivH7G/ni9oR2IRo2WVvubO1EMofeDKyGpuB0brQn42fNEtSj3gxwBzNMKOXlfRCmPAFUJjd4Bkir/RlB/sfdGoYLclZYjBLA1phqGBrbg/eSDBm3tmAtErbgMHgaqIc6y/dyYmDbY3x5WFWezXPZASOql70g1UF5fQPbEV2zWA5nYu8rANQrp7/SkkkZJfu04Fj7cg9NHS92+7JV/qeN275zU37J7nSC0jR4x5p9dA5cBWHVGCkE8PbzyFM24MZnBGzBxUiiqxsS2NJpnquF3XYPcoEzRPz5LNqrWLfwWTSIDu2vIOAQSUZoOpcvVA4dmV2O1KmWDlYehcmILD1YPcPib2lxxcHFsapcL8y25rVpOxpcz0Ghm8cXVMZSayluNYVYuOIXFHcefbp8LXMhs6U4MSMJHxB7sJ6lRc+PS7V2i8IXhQrx03SU8Vthr2HPou6KdNowOzVFI40nDa+L7uo+KerZ8joQVBOFYFNj6dkB4LE/zDJbQZHHIbn/NAjg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(8936002)(83380400001)(186003)(26005)(316002)(7406005)(6916009)(6512007)(2616005)(508600001)(36756003)(2906002)(33656002)(86362001)(6486002)(38100700002)(54906003)(6506007)(1076003)(4326008)(8676002)(5660300002)(66556008)(66476007)(7416002)(66946007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ZuxJJbH8qjGIDaAh3SXYcmnbQ48YErF4SCikA3b1V3JaUcRYWCR9Sn0Db+5w?=
+ =?us-ascii?Q?VVsZMMHLjVVw/dT0yRZQpvkoDr4v5k+UfKuL+goXQF5HsRmzsx+rUeRVciuO?=
+ =?us-ascii?Q?ApUOj44GgQvCoa2InUVqJ4VBWDgPMEn4qWoB0zx6fsw3sb9Y7KCGhg45pQIi?=
+ =?us-ascii?Q?Zon8rxAGg2vXNQ+YN3hJRyolw1lxmIVXp5MJtpajlEtEAcHwioQ8tw7dh5K+?=
+ =?us-ascii?Q?9vN7dhuMjve4o9j4wrBT5/9afAerVMGspV/qbhGcRjK7KFUeQoehpwTHEyL3?=
+ =?us-ascii?Q?nYYyxs8HDiDlSxFtI0ziNU5M12sEN5IHKvQHmyMh9/7eTRQg0/3/ZI+v6EQC?=
+ =?us-ascii?Q?mbhdK7qbOrBPZWvOzfniUotHvYpI2albWCRhBQCIYstGu5VvIS8fBjaS3Ttu?=
+ =?us-ascii?Q?6MAKqQyQ6UBOrDVlzINFCmVV228vpGsu8TQ5lg7Y0o19AJAc1NkvmFObHOQ0?=
+ =?us-ascii?Q?OaQDIPqTrl5fFtV2iRMSo4ceBXGGxOtctuTrhfO2QnPJj0m1t05JJTb2G/KC?=
+ =?us-ascii?Q?/WHb3IWSR+N3FrrqSxwYAZcYAlU6FeN+cIlXBzD4gs2tTCmFaQ3hmodBKgDl?=
+ =?us-ascii?Q?L3Qbc2s5C6TBppaD69bg4VI/ht+rDDnze0ATW+xulsgx+huqjOU7KwztF2kB?=
+ =?us-ascii?Q?fZH5K+iuS43f2gsQ2cekA2UdFmvFZyLHn6uCxDroodhLfehwYurAR6BQXQW6?=
+ =?us-ascii?Q?dQwBYDClyVJmcUa47y9uWVY9lCpT0qa+Hx91M6jJYuW+U6GY7qaUVnxh4mz1?=
+ =?us-ascii?Q?YMT9fly+eSA4lG6KN/iAWfSLMXyNEvDo6AYXYMQV6hb9bPNbgeaVCpc+wOUi?=
+ =?us-ascii?Q?fkOs2CHd0NKUIl3jNn7dobCasoCXw3W9yB3uG4JqW2kMorqqGP95+yxP3N/q?=
+ =?us-ascii?Q?QTL8URMR8KHC8aoiPmVLU9TTuRFOffbw2NcjVQcvc0l4moGS+Un4i2BE/zAh?=
+ =?us-ascii?Q?BOlFoLeKFe8L9m00Px5jlBPFdBJJGsLmMel7xMO+lz2V8jG7S/XK1zI1ZspF?=
+ =?us-ascii?Q?PBennkNHEuzruBnlFhI8B2uOqogw5mlCLxxUgl2W8E9PZPOvjpZRQLUN8wb0?=
+ =?us-ascii?Q?SymmRZW0N+gQH1pEa4/5VbCw00K8sTqp5xX5d/h6RxG6U8so3pXc3hFgc1dF?=
+ =?us-ascii?Q?iuiNsu6IzJaRKtNF2nznl5J0w8bFSV6aIlz+98kNz8835uWnKgodkgcGKE+M?=
+ =?us-ascii?Q?F/tCvQwH4iGGLYbeKBhpQWFh5dsssrwT1fV7VluQWi4VRoHarlU0D4Q9P2wa?=
+ =?us-ascii?Q?+QLNlHtfl/btEkD78B83tGt9keL/FyUgUu5KgjS06WvdG8T+ravcgyyabrsP?=
+ =?us-ascii?Q?nA7A8kUhp5n0Rfc4CGlJdlk6d/0eEmytSS8gWxJZaDKmxICPfU8IxIWPsza4?=
+ =?us-ascii?Q?rx7pSxxY8HzTbfrcMreK6qeJJ36uMqcgU0ltblyMFwucHgec9PzO7jmYHOyv?=
+ =?us-ascii?Q?6lwozP2oVdziNIEpwXfYA9s0Earq2mfB1WY+iZHjvvhHLmCLXcv5dfRtmfAm?=
+ =?us-ascii?Q?GlG71sQouvV02fTDHncm4iyLuu8lBMaHcoaC+jHZStFiw9A6McRabHNERPAk?=
+ =?us-ascii?Q?uTaBHoEnP78LVtptltLmQH1vei7K5GVQAErhawkyaUE54GvrGIeLVsLYncb1?=
+ =?us-ascii?Q?q5gt8lY2xnHeaRLkZqhXUaawpICAM9Qzs40wNDCaK3Sgig9NGu5Mu/llotKP?=
+ =?us-ascii?Q?BoOGhJmReHMuHKEXwWNJUjvizem2Ah7RXpZGqYHsMKT2Ws8KnKNo0a+7qQl2?=
+ =?us-ascii?Q?NI8ZF7G2aw=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7e109dbf-2d78-4e90-7279-08da494077d9
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jun 2022 11:17:26.5851
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: NlzeZFRt8LJ1fNvLhsuAFFE01oM4KB5zTUX++2oN79OXPBUrX0li9IRGiFytH7Ir
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5343
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Instead of defaulting to patching NOP opcodes at init time, and leaving
-it to the architectures to override this if this is not needed, switch
-to a model where doing nothing is the default. This is the common case
-by far, as only MIPS requires NOP patching at init time. On all other
-architectures, the correct encodings are emitted by the compiler and so
-no initial patching is needed.
+On Wed, Jun 08, 2022 at 08:28:03AM +0000, Tian, Kevin wrote:
+> > From: Nicolin Chen
+> > Sent: Monday, June 6, 2022 2:19 PM
+> > 
+> > From: Jason Gunthorpe <jgg@nvidia.com>
+> > 
+> > The KVM mechanism for controlling wbinvd is only triggered during
+> > kvm_vfio_group_add(), meaning it is a one-shot test done once the devices
+> > are setup.
+> 
+> It's not one-shot. kvm_vfio_update_coherency() is called in both
+> group_add() and group_del(). Then the coherency property is
+> checked dynamically in wbinvd emulation:
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
----
- Documentation/staging/static-keys.rst |  3 ---
- arch/arc/kernel/jump_label.c          | 13 -------------
- arch/arm/kernel/jump_label.c          |  6 ------
- arch/arm64/kernel/jump_label.c        | 11 -----------
- arch/mips/include/asm/jump_label.h    |  2 ++
- arch/parisc/kernel/jump_label.c       | 11 -----------
- arch/riscv/kernel/jump_label.c        | 12 ------------
- arch/s390/kernel/jump_label.c         |  5 -----
- arch/x86/kernel/jump_label.c          | 13 -------------
- kernel/jump_label.c                   | 14 +++-----------
- 10 files changed, 5 insertions(+), 85 deletions(-)
+From the perspective of managing the domains that is still
+one-shot. It doesn't get updated when individual devices are
+added/removed to domains.
 
-diff --git a/Documentation/staging/static-keys.rst b/Documentation/staging/static-keys.rst
-index 38290b9f25eb..b0a519f456cf 100644
---- a/Documentation/staging/static-keys.rst
-+++ b/Documentation/staging/static-keys.rst
-@@ -201,9 +201,6 @@ static_key->entry field makes use of the two least significant bits.
- * ``void arch_jump_label_transform(struct jump_entry *entry, enum jump_label_type type)``,
-     see: arch/x86/kernel/jump_label.c
- 
--* ``__init_or_module void arch_jump_label_transform_static(struct jump_entry *entry, enum jump_label_type type)``,
--    see: arch/x86/kernel/jump_label.c
--
- * ``struct jump_entry``,
-     see: arch/x86/include/asm/jump_label.h
- 
-diff --git a/arch/arc/kernel/jump_label.c b/arch/arc/kernel/jump_label.c
-index b8600dc325b5..70b74a5d047b 100644
---- a/arch/arc/kernel/jump_label.c
-+++ b/arch/arc/kernel/jump_label.c
-@@ -96,19 +96,6 @@ void arch_jump_label_transform(struct jump_entry *entry,
- 	flush_icache_range(entry->code, entry->code + JUMP_LABEL_NOP_SIZE);
- }
- 
--void arch_jump_label_transform_static(struct jump_entry *entry,
--				      enum jump_label_type type)
--{
--	/*
--	 * We use only one NOP type (1x, 4 byte) in arch_static_branch, so
--	 * there's no need to patch an identical NOP over the top of it here.
--	 * The generic code calls 'arch_jump_label_transform' if the NOP needs
--	 * to be replaced by a branch, so 'arch_jump_label_transform_static' is
--	 * never called with type other than JUMP_LABEL_NOP.
--	 */
--	BUG_ON(type != JUMP_LABEL_NOP);
--}
--
- #ifdef CONFIG_ARC_DBG_JUMP_LABEL
- #define SELFTEST_MSG	"ARC: instruction generation self-test: "
- 
-diff --git a/arch/arm/kernel/jump_label.c b/arch/arm/kernel/jump_label.c
-index 303b3ab87f7e..eb9c24b6e8e2 100644
---- a/arch/arm/kernel/jump_label.c
-+++ b/arch/arm/kernel/jump_label.c
-@@ -27,9 +27,3 @@ void arch_jump_label_transform(struct jump_entry *entry,
- {
- 	__arch_jump_label_transform(entry, type, false);
- }
--
--void arch_jump_label_transform_static(struct jump_entry *entry,
--				      enum jump_label_type type)
--{
--	__arch_jump_label_transform(entry, type, true);
--}
-diff --git a/arch/arm64/kernel/jump_label.c b/arch/arm64/kernel/jump_label.c
-index fc98037e1220..faf88ec9c48e 100644
---- a/arch/arm64/kernel/jump_label.c
-+++ b/arch/arm64/kernel/jump_label.c
-@@ -26,14 +26,3 @@ void arch_jump_label_transform(struct jump_entry *entry,
- 
- 	aarch64_insn_patch_text_nosync(addr, insn);
- }
--
--void arch_jump_label_transform_static(struct jump_entry *entry,
--				      enum jump_label_type type)
--{
--	/*
--	 * We use the architected A64 NOP in arch_static_branch, so there's no
--	 * need to patch an identical A64 NOP over the top of it here. The core
--	 * will call arch_jump_label_transform from a module notifier if the
--	 * NOP needs to be replaced by a branch.
--	 */
--}
-diff --git a/arch/mips/include/asm/jump_label.h b/arch/mips/include/asm/jump_label.h
-index 3185fd3220ec..c5c6864e64bc 100644
---- a/arch/mips/include/asm/jump_label.h
-+++ b/arch/mips/include/asm/jump_label.h
-@@ -8,6 +8,8 @@
- #ifndef _ASM_MIPS_JUMP_LABEL_H
- #define _ASM_MIPS_JUMP_LABEL_H
- 
-+#define arch_jump_label_transform_static arch_jump_label_transform
-+
- #ifndef __ASSEMBLY__
- 
- #include <linux/types.h>
-diff --git a/arch/parisc/kernel/jump_label.c b/arch/parisc/kernel/jump_label.c
-index d2f3cb12e282..e253b134500d 100644
---- a/arch/parisc/kernel/jump_label.c
-+++ b/arch/parisc/kernel/jump_label.c
-@@ -42,14 +42,3 @@ void arch_jump_label_transform(struct jump_entry *entry,
- 
- 	patch_text(addr, insn);
- }
--
--void arch_jump_label_transform_static(struct jump_entry *entry,
--				      enum jump_label_type type)
--{
--	/*
--	 * We use the architected NOP in arch_static_branch, so there's no
--	 * need to patch an identical NOP over the top of it here. The core
--	 * will call arch_jump_label_transform from a module notifier if the
--	 * NOP needs to be replaced by a branch.
--	 */
--}
-diff --git a/arch/riscv/kernel/jump_label.c b/arch/riscv/kernel/jump_label.c
-index 20e09056d141..e6694759dbd0 100644
---- a/arch/riscv/kernel/jump_label.c
-+++ b/arch/riscv/kernel/jump_label.c
-@@ -39,15 +39,3 @@ void arch_jump_label_transform(struct jump_entry *entry,
- 	patch_text_nosync(addr, &insn, sizeof(insn));
- 	mutex_unlock(&text_mutex);
- }
--
--void arch_jump_label_transform_static(struct jump_entry *entry,
--				      enum jump_label_type type)
--{
--	/*
--	 * We use the same instructions in the arch_static_branch and
--	 * arch_static_branch_jump inline functions, so there's no
--	 * need to patch them up here.
--	 * The core will call arch_jump_label_transform  when those
--	 * instructions need to be replaced.
--	 */
--}
-diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
-index d764f0d229ab..e808bb8bc0da 100644
---- a/arch/s390/kernel/jump_label.c
-+++ b/arch/s390/kernel/jump_label.c
-@@ -80,8 +80,3 @@ void arch_jump_label_transform_apply(void)
- {
- 	text_poke_sync();
- }
--
--void __init_or_module arch_jump_label_transform_static(struct jump_entry *entry,
--						       enum jump_label_type type)
--{
--}
-diff --git a/arch/x86/kernel/jump_label.c b/arch/x86/kernel/jump_label.c
-index 68f091ba8443..f5b8ef02d172 100644
---- a/arch/x86/kernel/jump_label.c
-+++ b/arch/x86/kernel/jump_label.c
-@@ -146,16 +146,3 @@ void arch_jump_label_transform_apply(void)
- 	text_poke_finish();
- 	mutex_unlock(&text_mutex);
- }
--
--static enum {
--	JL_STATE_START,
--	JL_STATE_NO_UPDATE,
--	JL_STATE_UPDATE,
--} jlstate __initdata_or_module = JL_STATE_START;
--
--__init_or_module void arch_jump_label_transform_static(struct jump_entry *entry,
--				      enum jump_label_type type)
--{
--	if (jlstate == JL_STATE_UPDATE)
--		jump_label_transform(entry, type, 1);
--}
-diff --git a/kernel/jump_label.c b/kernel/jump_label.c
-index b1ac2948be79..ff8576c00893 100644
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -332,17 +332,9 @@ static int __jump_label_text_reserved(struct jump_entry *iter_start,
- 	return 0;
- }
- 
--/*
-- * Update code which is definitely not currently executing.
-- * Architectures which need heavyweight synchronization to modify
-- * running code can override this to make the non-live update case
-- * cheaper.
-- */
--void __weak __init_or_module arch_jump_label_transform_static(struct jump_entry *entry,
--					    enum jump_label_type type)
--{
--	arch_jump_label_transform(entry, type);
--}
-+#ifndef arch_jump_label_transform_static
-+#define arch_jump_label_transform_static(entry, type)
-+#endif
- 
- static inline struct jump_entry *static_key_entries(struct static_key *key)
- {
--- 
-2.30.2
+> given that I'm fine with the change in this patch. Even more probably
+> we really want an explicit one-shot model so KVM can lock down
+> the property once it starts to consume it then further adding a new
+> group which would change the coherency is explicitly rejected and
+> removing an existing group leaves it intact.
 
+Why? Once wbinvd is enabled it is compatible with all domain
+configurations, so just leave it on and ignore everything at that
+point.
+
+Jason
