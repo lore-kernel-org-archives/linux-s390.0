@@ -2,172 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1ADA0CCA47F
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 13:45:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9C1BC43334
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 13:53:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239233AbiFINo7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 09:44:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53770 "EHLO
+        id S239599AbiFINxh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 09:53:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235379AbiFINo5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 09:44:57 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DF21A07A;
-        Thu,  9 Jun 2022 06:44:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=NHIPvBaPp5ezFE0h6AYG9aEftcsm+tTZkR/4v4e/RO8=; b=ZkTA3OQR9tQAPfsN8i3VT0+tcQ
-        VkNiVG4DvxfE7u93S0pqGwdWhkGV1NcSm080rrE6ZN6PZmE/7MFiC0p5O9k7EowRl1BGbyDIZ+diS
-        F67SHfIxA8A3HlLNF161DlTI7MBt5iWAICHfCzPAzIbG6AP+mVcrMDj+Im//qlKEsfJfMnBJJw/45
-        OjKfECOlFuzeBrcqR7UfXnNNFMXEyuIFinDBu5p08c3Ss/zhmk6MA3OiEBmqbxjLL6u6EgrsmqZ4L
-        XnIHH4EiskReSnyaDTw0LFwUML/2XUIT+CdASkQ7cnHXlptF3Y20dvcpLoetViskFTqFGvKcey9zH
-        sQ8iTAFg==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nzISr-002FYc-3e; Thu, 09 Jun 2022 13:44:45 +0000
-Date:   Thu, 9 Jun 2022 06:44:45 -0700
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
-        Christoph Hellwig <hch@infradead.org>
-Cc:     Jarkko Sakkinen <jarkko@profian.com>, linux-kernel@vger.kernel.org,
-        Nathaniel McCallum <nathaniel@profian.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Marco Elver <elver@google.com>,
-        Dan Li <ashimida@linux.alibaba.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Song Liu <song@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chen Zhongjin <chenzhongjin@huawei.com>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Mark Brown <broonie@kernel.org>,
-        Luis Machado <luis.machado@linaro.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Joey Gouly <joey.gouly@arm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Dave Anglin <dave.anglin@bell.net>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Daniel Axtens <dja@axtens.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Jordan Niethe <jniethe5@gmail.com>,
-        Guo Ren <guoren@kernel.org>, Anup Patel <anup@brainfault.org>,
-        Atish Patra <atishp@atishpatra.org>,
-        Changbin Du <changbin.du@intel.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Liao Chang <liaochang1@huawei.com>,
-        Philipp Tomsich <philipp.tomsich@vrull.eu>,
-        Wu Caize <zepan@sipeed.com>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Tobias Huschle <huschle@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Michael Roth <michael.roth@amd.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Aaron Tomlin <atomlin@redhat.com>,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-modules@vger.kernel.org
-Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
-Message-ID: <YqH5TfN9w35kHFLU@bombadil.infradead.org>
-References: <20220608000014.3054333-1-jarkko@profian.com>
- <YqGlmpbx8HTrWmpF@shell.armlinux.org.uk>
+        with ESMTP id S236775AbiFINxf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 09:53:35 -0400
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 407D31F230C
+        for <linux-s390@vger.kernel.org>; Thu,  9 Jun 2022 06:53:33 -0700 (PDT)
+Received: by mail-yb1-xb36.google.com with SMTP id w2so41867090ybi.7
+        for <linux-s390@vger.kernel.org>; Thu, 09 Jun 2022 06:53:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lxk3erEnK6X8l1h+c5LR7dYudSNnktRPy2YkDiUavZk=;
+        b=bf+4vrjXiHJ31KIu4Gn9fz0kzCJfCOU1lBmNIi3MPCYOGfE+K+yZz1oe4L1g+wVUzE
+         LNi2rjTseY7kRuZiBASR8T18LSqHIttiHYhOXHbfJASuY4nO5P0MjXUPUy+4QXCqQ7fC
+         zgGR+NTJmwqnmycnN0CYnqt72iPvh/9kRB7iy+1bF6srWKu1VG90EwBAsbXMKIVy9p8s
+         0S72jwsSQeSoBdx+gWSUIeOzQfx5ouizQ1XoVOqAo3zD+FDIH5a9G048GwSJhTs2GoOC
+         00B1oEzBvVvfgVWdJ9rXYDIVasCp7iBVzWF92aj83aQp+MbBwJyDHHrCC5LeDJn91mm1
+         bL7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lxk3erEnK6X8l1h+c5LR7dYudSNnktRPy2YkDiUavZk=;
+        b=EC74rqxiqk3t7Nzq8tOyUGQWUkUgCjAeXtloWXbESOOmgqKpp7y/5SADfULhGg9B1a
+         CAOavWjstx1aIjkYG+RrHbH6YiYG1yuhJM34/qhnaGXFPUxdJXzvKTQm0+W62dYCq25H
+         yCTx+vsmph6EWnyzYxvz+l46cbCUthX1ag12I7wjXGoA4awreKJ3ptwdemzf/k0ylwF2
+         andxta4+fSD+1cGAUS43+rqweQiopdzpdq0N8+b8hSLC8t5Jj7Pfq1Q6+yPpTGAiEkhm
+         0E7iii+lkhPrCTqOwFkoXOHZr4b6jhIO9YbpzSSj/pe3V9swjqCPI5J9l8QNETR2J14V
+         S+Zg==
+X-Gm-Message-State: AOAM532WaGQDSbsuy/o2RnKY/rVDsqSk+cs6jJWRG3Ue+kRx6OmV4aw8
+        ReEcTS/RmZAMKfiEt1bIMSZexHK9rb8G2+mfzhPPUQ==
+X-Google-Smtp-Source: ABdhPJw3jCDO7EzaAolIFjfqgZekBWsECCoOQScBqYlIlPgNDL+TjdXws2goS7JCvG7bHlkOzJhOqX9Tqqd4sB82cao=
+X-Received: by 2002:a25:aa32:0:b0:65c:af6a:3502 with SMTP id
+ s47-20020a25aa32000000b0065caf6a3502mr40088926ybi.598.1654782812194; Thu, 09
+ Jun 2022 06:53:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YqGlmpbx8HTrWmpF@shell.armlinux.org.uk>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
+References: <20220608043955.919359-1-kuba@kernel.org> <YqBdY0NzK9XJG7HC@nanopsycho>
+ <20220608075827.2af7a35f@kernel.org> <f263209c-509c-5f6b-865c-cd5d38d29549@kernel.org>
+ <CANn89i+RCCXQDVVTB+hHasGmjdXwdm8CvkPQv3nYSLgr=MYmpA@mail.gmail.com> <b00ab3c4a12fb11ed95b2a4634e50e3cba10ec28.camel@redhat.com>
+In-Reply-To: <b00ab3c4a12fb11ed95b2a4634e50e3cba10ec28.camel@redhat.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Thu, 9 Jun 2022 06:53:21 -0700
+Message-ID: <CANn89iLzAY1FAJASwrDcV9xB8UvhPAWfuFsjfiRiu1F9Tu0ciA@mail.gmail.com>
+Subject: Re: [PATCH net-next] net: rename reference+tracking helpers
+To:     Paolo Abeni <pabeni@redhat.com>
+Cc:     David Ahern <dsahern@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+        Jiri Pirko <jiri@resnulli.us>,
+        David Miller <davem@davemloft.net>,
+        netdev <netdev@vger.kernel.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        jreuter@yaina.de, razor@blackwall.org,
+        Karsten Graul <kgraul@linux.ibm.com>, ivecera@redhat.com,
+        Jon Maloy <jmaloy@redhat.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        Xin Long <lucien.xin@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
+        Yajun Deng <yajun.deng@linux.dev>,
+        Antoine Tenart <atenart@kernel.org>, richardsonnick@google.com,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        linux-hams@vger.kernel.org, dev@openvswitch.org,
+        linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 09, 2022 at 08:47:38AM +0100, Russell King (Oracle) wrote:
-> On Wed, Jun 08, 2022 at 02:59:27AM +0300, Jarkko Sakkinen wrote:
-> > diff --git a/arch/arm/kernel/Makefile b/arch/arm/kernel/Makefile
-> > index 553866751e1a..d2bb954cd54f 100644
-> > --- a/arch/arm/kernel/Makefile
-> > +++ b/arch/arm/kernel/Makefile
-> > @@ -44,6 +44,11 @@ obj-$(CONFIG_CPU_IDLE)		+= cpuidle.o
-> >  obj-$(CONFIG_ISA_DMA_API)	+= dma.o
-> >  obj-$(CONFIG_FIQ)		+= fiq.o fiqasm.o
-> >  obj-$(CONFIG_MODULES)		+= armksyms.o module.o
-> > +ifeq ($(CONFIG_MODULES),y)
-> > +obj-y				+= module_alloc.o
-> > +else
-> > +obj-$(CONFIG_KPROBES)		+= module_alloc.o
-> > +endif
-> 
-> Doesn't:
-> 
-> obj-$(CONFIG_MODULES)		+= module_alloc.o
-> obj-$(CONFIG_KPROBES)		+= module_alloc.o
+On Thu, Jun 9, 2022 at 4:50 AM Paolo Abeni <pabeni@redhat.com> wrote:
+>
+> On Wed, 2022-06-08 at 16:00 -0700, Eric Dumazet wrote:
+> > On Wed, Jun 8, 2022 at 3:58 PM David Ahern <dsahern@kernel.org> wrote:
+> > >
+> > > On 6/8/22 8:58 AM, Jakub Kicinski wrote:
+> > > > IMO to encourage use of the track-capable API we could keep their names
+> > > > short and call the legacy functions __netdev_hold() as I mentioned or
+> > > > maybe netdev_hold_notrack().
+> > >
+> > > I like that option. Similar to the old nla_parse functions that were
+> > > renamed with _deprecated - makes it easier to catch new uses.
+> >
+> > I think we need to clearly document the needed conversions for future
+> > bugfix backports.
+> >
+>
+> To be on the same page: do you think we need something under
+> Documentation with this patch? or with the later dev_hold rename? or
+> did I misunderstood completely?
 
-That just begs for a new kconfig symbol for the object, and for
-the object then to be built with it.
+Adding instructions in the comments describing the functions would probably help
+stable teams (or ourselves because they will ask us to take care of conflicts)
 
-The archs which override the default can use ARCH_HAS_VM_ALLOC_EXEC.
-Please note that the respective free is important as well and its
-not clear if we need an another define for the free. Someone has
-to do that work. We want to ensure to noexec the code on free and
-this can vary on each arch.
+And backport the dev_put()/dev_hold() rename to kernels without
+CONFIG_NET_DEV_REFCNT_TRACKER infra.
 
-> work just as well? The kbuild modules.rst documentation says:
-> 
->         The order of files in $(obj-y) is significant.  Duplicates in
->         the lists are allowed: the first instance will be linked into
->         built-in.a and succeeding instances will be ignored.
-> 
-> so you should be fine... or the documentation is wrong!
-
-Agreed, but this is just sloppy, better to use a new kconfig symbol
-to represent what is actually being required.
-
-  Luis
+s/dev_put()/netdev_put_notrack()/
+s/dev_hold()/netdev_hold_notrack()/
