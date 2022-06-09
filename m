@@ -2,184 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3592CCCA47D
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 07:39:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E818AC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 07:44:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239268AbiFIHjc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 03:39:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40952 "EHLO
+        id S238803AbiFIHoy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 03:44:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237153AbiFIHj0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 03:39:26 -0400
-Received: from muru.com (muru.com [72.249.23.125])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 361E11AF1F;
-        Thu,  9 Jun 2022 00:39:25 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id 88FEF80F1;
-        Thu,  9 Jun 2022 07:34:50 +0000 (UTC)
-Date:   Thu, 9 Jun 2022 10:39:22 +0300
-From:   Tony Lindgren <tony@atomide.com>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Kevin Hilman <khilman@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>,
-        Xuerui Wang <kernel@xen0n.name>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sam Creasey <sammy@sammy.net>, Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        David Miller <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Juergen Gross <jgross@suse.com>, srivatsa@csail.mit.edu,
-        amakhalov@vmware.com, Pv-drivers <pv-drivers@vmware.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Rafael Wysocki <rafael@kernel.org>,
-        Len Brown <lenb@kernel.org>, Pavel Machek <pavel@ucw.cz>,
-        gregkh <gregkh@linuxfoundation.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        lpieralisi@kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Anup Patel <anup@brainfault.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        jacob.jun.pan@linux.intel.com, Yury Norov <yury.norov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        John Ogness <john.ogness@linutronix.de>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        quic_neeraju@quicinc.com, Josh Triplett <josh@joshtriplett.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        vschneid@redhat.com, jpoimboe@kernel.org,
-        alpha <linux-alpha@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-omap <linux-omap@vger.kernel.org>,
-        linux-csky@vger.kernel.org,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        "open list:IA64 (Itanium) PLATFORM" <linux-ia64@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Openrisc <openrisc@lists.librecores.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        linux-perf-users@vger.kernel.org,
-        "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" 
-        <virtualization@lists.linux-foundation.org>,
-        xen-devel <xen-devel@lists.xenproject.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        "open list:TEGRA ARCHITECTURE SUPPORT" <linux-tegra@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>, rcu@vger.kernel.org
-Subject: Re: [PATCH 33/36] cpuidle,omap3: Use WFI for omap3_pm_idle()
-Message-ID: <YqGjqgSrTRseJW6M@atomide.com>
-References: <20220608142723.103523089@infradead.org>
- <20220608144518.010587032@infradead.org>
- <CAK8P3a0g-fNu9=BUECSXcNeWT7XWHQMnSXZE-XYE+5eakHxKxA@mail.gmail.com>
+        with ESMTP id S233114AbiFIHox (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 03:44:53 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 714591F2DE;
+        Thu,  9 Jun 2022 00:44:51 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2596iOSO005945;
+        Thu, 9 Jun 2022 07:44:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=IV3ZNYmjhwzHflxHbEfNGCjnBLNowyX0Pmlit7EAFno=;
+ b=G15wwBU8ckeIM7S4aBZqdFnt6oUMIg8hGzWYj+Zl55zB1uzfS2fmAtRaeJB5kQCNQns6
+ 4lMocLeTivils1fS2wSKQay1opwqF4JgUdK6kSXjZR1Ua4zwYUIXU1WH2pJfogQG8PmM
+ P7PmwoL5vcG8vXlKGFqxO8bJdKYKbgQa/Zyzzxd70lbeWaPCxYhKiBxkvovkRmUZRGT1
+ yhbE4GvwUMb6xqD4ps+exZmBg63ytV3SmHKekaDXkss4lxdouB13Pg/FkZqYWqR8In8p
+ sr1lFXBx0cULVTrQjgJ31NL95BF9vQtkSfF/qc8KoX9ARFJ2YkWe5UF0KWuc3suCUugK /g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gkbv013qb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Jun 2022 07:44:50 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 259710rH013165;
+        Thu, 9 Jun 2022 07:44:50 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gkbv013py-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Jun 2022 07:44:50 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2597KNm5024326;
+        Thu, 9 Jun 2022 07:44:48 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3gfy19ej9g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Jun 2022 07:44:48 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2597iiY818284824
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 9 Jun 2022 07:44:45 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E2E674C046;
+        Thu,  9 Jun 2022 07:44:44 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 92EA14C044;
+        Thu,  9 Jun 2022 07:44:44 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.15.52])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Jun 2022 07:44:44 +0000 (GMT)
+Date:   Thu, 9 Jun 2022 09:44:41 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v3 1/3] s390x: Test TEID values in
+ storage key test
+Message-ID: <20220609094441.282f0cb9@p-imbrenda>
+In-Reply-To: <a6d1dfe0f9163650c8b3bb80065e12a1b190f97b.camel@linux.ibm.com>
+References: <20220523132406.1820550-1-scgl@linux.ibm.com>
+        <20220523132406.1820550-2-scgl@linux.ibm.com>
+        <20220524170927.46fbd24a@p-imbrenda>
+        <a6d1dfe0f9163650c8b3bb80065e12a1b190f97b.camel@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a0g-fNu9=BUECSXcNeWT7XWHQMnSXZE-XYE+5eakHxKxA@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6x7weEedKAuWpL_-2C3pGbUbZuw8-MKT
+X-Proofpoint-GUID: RCLuyV2AgzyMPuJFJd0JJQqV_Bs6IWFK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-09_07,2022-06-07_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ impostorscore=0 suspectscore=0 adultscore=0 priorityscore=1501
+ phishscore=0 mlxscore=0 bulkscore=0 clxscore=1015 malwarescore=0
+ spamscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2204290000 definitions=main-2206090029
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-* Arnd Bergmann <arnd@arndb.de> [220608 18:18]:
-> On Wed, Jun 8, 2022 at 4:27 PM Peter Zijlstra <peterz@infradead.org> wrote:
-> >
-> > arch_cpu_idle() is a very simple idle interface and exposes only a
-> > single idle state and is expected to not require RCU and not do any
-> > tracing/instrumentation.
-> >
-> > As such, omap_sram_idle() is not a valid implementation. Replace it
-> > with the simple (shallow) omap3_do_wfi() call. Leaving the more
-> > complicated idle states for the cpuidle driver.
+On Wed, 08 Jun 2022 19:03:23 +0200
+Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
 
-Agreed it makes sense to limit deeper idle states to cpuidle. Hopefully
-there is some informative splat for attempting to use arch_cpu_ide()
-for deeper idle states :)
+[...]
 
-> I see similar code in omap2:
+> > > +		break;
+> > > +	case SOP_ENHANCED_2:
+> > > +		switch (teid_esop2_prot_code(teid)) {
+> > > +		case PROT_KEY:
+> > > +			access_code = teid.acc_exc_f_s;  
+> > 
+> > is the f/s feature guaranteed to be present when we have esop2?  
 > 
-> omap2_pm_idle()
->  -> omap2_enter_full_retention()
->      -> omap2_sram_suspend()
+> That's how I understand it. For esop1 the PoP explicitly states that
+> the facility is a prerequisite, for esop2 it doesn't.
+> > 
+> > can the f/s feature be present with esop1 or basic sop?  
 > 
-> Is that code path safe to use without RCU or does it need a similar change?
+> esop1: yes, basic: no.
+> The way I read it, in the case of esop1 the bits are only meaningful
+> for DAT and access list exceptions, i.e. when the TEID is not
+> unpredictable.
 
-Seems like a similar change should be done for omap2. Then anybody who
-cares to implement a minimal cpuidle support can do so.
+I see, makes sense
 
-Regards,
+maybe add a comment :)
 
-Tony
+> >   
+> > > +
+> > > +			switch (access_code) {
+> > > +			case 0:
+> > > +				report_pass("valid access code");
+> > > +				break;
+> > > +			case 1:
+> > > +			case 2:
+> > > +				report((access & access_code) && (prot & access_code),
+> > > +				       "valid access code");
+> > > +				break;
+> > > +			case 3:
+> > > +				/*
+> > > +				 * This is incorrect in that reserved values
+> > > +				 * should be ignored, but kvm should not return
+> > > +				 * a reserved value and having a test for that
+> > > +				 * is more valuable.
+> > > +				 */
+> > > +				report_fail("valid access code");
+> > > +				break;
+> > > +			}
+> > > +			/* fallthrough */
+> > > +		case PROT_KEY_LAP:
+> > > +			report_pass("valid protection code");
+> > > +			break;
+> > > +		default:
+> > > +			report_fail("valid protection code");
+> > > +		}
+> > > +		break;
+> > > +	}
+> > > +	report_prefix_pop();
+> > > +}
+> > > +  
+> 
+> [...]
+
