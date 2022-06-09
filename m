@@ -2,104 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9C1BC43334
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 13:53:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33A49C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 14:44:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239599AbiFINxh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 09:53:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36850 "EHLO
+        id S241234AbiFIOoI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 10:44:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236775AbiFINxf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 09:53:35 -0400
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 407D31F230C
-        for <linux-s390@vger.kernel.org>; Thu,  9 Jun 2022 06:53:33 -0700 (PDT)
-Received: by mail-yb1-xb36.google.com with SMTP id w2so41867090ybi.7
-        for <linux-s390@vger.kernel.org>; Thu, 09 Jun 2022 06:53:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lxk3erEnK6X8l1h+c5LR7dYudSNnktRPy2YkDiUavZk=;
-        b=bf+4vrjXiHJ31KIu4Gn9fz0kzCJfCOU1lBmNIi3MPCYOGfE+K+yZz1oe4L1g+wVUzE
-         LNi2rjTseY7kRuZiBASR8T18LSqHIttiHYhOXHbfJASuY4nO5P0MjXUPUy+4QXCqQ7fC
-         zgGR+NTJmwqnmycnN0CYnqt72iPvh/9kRB7iy+1bF6srWKu1VG90EwBAsbXMKIVy9p8s
-         0S72jwsSQeSoBdx+gWSUIeOzQfx5ouizQ1XoVOqAo3zD+FDIH5a9G048GwSJhTs2GoOC
-         00B1oEzBvVvfgVWdJ9rXYDIVasCp7iBVzWF92aj83aQp+MbBwJyDHHrCC5LeDJn91mm1
-         bL7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lxk3erEnK6X8l1h+c5LR7dYudSNnktRPy2YkDiUavZk=;
-        b=EC74rqxiqk3t7Nzq8tOyUGQWUkUgCjAeXtloWXbESOOmgqKpp7y/5SADfULhGg9B1a
-         CAOavWjstx1aIjkYG+RrHbH6YiYG1yuhJM34/qhnaGXFPUxdJXzvKTQm0+W62dYCq25H
-         yCTx+vsmph6EWnyzYxvz+l46cbCUthX1ag12I7wjXGoA4awreKJ3ptwdemzf/k0ylwF2
-         andxta4+fSD+1cGAUS43+rqweQiopdzpdq0N8+b8hSLC8t5Jj7Pfq1Q6+yPpTGAiEkhm
-         0E7iii+lkhPrCTqOwFkoXOHZr4b6jhIO9YbpzSSj/pe3V9swjqCPI5J9l8QNETR2J14V
-         S+Zg==
-X-Gm-Message-State: AOAM532WaGQDSbsuy/o2RnKY/rVDsqSk+cs6jJWRG3Ue+kRx6OmV4aw8
-        ReEcTS/RmZAMKfiEt1bIMSZexHK9rb8G2+mfzhPPUQ==
-X-Google-Smtp-Source: ABdhPJw3jCDO7EzaAolIFjfqgZekBWsECCoOQScBqYlIlPgNDL+TjdXws2goS7JCvG7bHlkOzJhOqX9Tqqd4sB82cao=
-X-Received: by 2002:a25:aa32:0:b0:65c:af6a:3502 with SMTP id
- s47-20020a25aa32000000b0065caf6a3502mr40088926ybi.598.1654782812194; Thu, 09
- Jun 2022 06:53:32 -0700 (PDT)
+        with ESMTP id S236920AbiFIOoG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 10:44:06 -0400
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on20626.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e89::626])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C84584D6A2;
+        Thu,  9 Jun 2022 07:44:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=GZXG7IMAbMYBNtMOj4KqENcdobi/8XRnQPN9bT2e++H3gfckiq85v7dcNw+CKiO3EbYS2eRI7q/EC09VRLenR1GkjSOHWi9JeCN0H2BWcGoJbi3SWSMn72wF1h8nsHwraeZEcrtUdVP+C45OCAETd9I8Xoi+0GhpqBMC3BH3wvoTvdtIx+WCUo61T5bwaojZu2mwXafEP5lPf3A5JI3ATAzOvELxNj/35Iye+Au3XWrPsECJjcHYUIhIz+gmL2LN9vKCP6tQ3E/62FSdVvctjIDl6/IfhiEM2FqFXiO6A8ns7x2Q3cVuCaxjTgKt+Yiz+a7rsFiugGxdoJiYEShqZg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fdVDLVRW83SzwLD7SNCnAsAU5EMD59e07qHay9VL05o=;
+ b=DQpoE2rdGutPVmdsxSB892xuRibE6+cYVelwoX7FIHx6U4syXDiMHPLo/adxT+EPDa1znwtwETqZAKlALqYcauXeG98ggJpOtYnKvtzFEtV8ONU7MteODt8rf4Lx2bbT2m76Ux35pfLVYyCvEa2gs2zfniQhqAw3GDstYXCK/1IkEN+uPI+fcajZoSlHxIQJU3dBDuxjfGK2ZBJp4qf8QqTxUDwhtKV+i8LLdSrlQY+pTujnqPdlelwVgdhDjL5YXn0vEltr6dnCBd8DevpbpJa4mIcu0UyaM+Ap8s5PIYPerRqfq5BLTOVzpGfrifLDHVmC3466dWqyMRB9zeGQjA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fdVDLVRW83SzwLD7SNCnAsAU5EMD59e07qHay9VL05o=;
+ b=FVgfZ2GVPFrXsGKuybuNCDmPoyqgz92yyKELL9Fb2HlV23L2GpwLUpOcplfPXWGT57wCQOLbnUu6h5t3CYB/L/r+kAhnzb59WZG46Zy5uga88AbQAkbXGnmLKPFtXp07upIKqRqlMZrWxHApfarsdsTH6TCSgLlUQ2kvEvEWOYfLryrKdayCmpDBp1T9DU39vTO7hhvQtxSRDESGhA8NjhexNGh2OuWc2+MLl058xME9/6gZpC2UYdSldasN5KV0B93hn6toc6vVcp6+QJLDYtcb1D3TegCI/uCv+Sr2ZKX4FNOHKTHjy1sMkXAQM/6peVXSsnAJZ1ulT5Jvo64hEw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by PH7PR12MB5688.namprd12.prod.outlook.com (2603:10b6:510:13c::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5293.13; Thu, 9 Jun
+ 2022 14:44:01 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb%3]) with mapi id 15.20.5332.013; Thu, 9 Jun 2022
+ 14:44:00 +0000
+Date:   Thu, 9 Jun 2022 11:43:59 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v2 1/2] vfio: Replace the DMA unmapping notifier with a
+ callback
+Message-ID: <20220609144359.GB1343366@nvidia.com>
+References: <1-v2-80aa110d03ce+24b-vfio_unmap_notif_jgg@nvidia.com>
+ <1ae0abaaa4fc7959ba25cf59b3ef0da39bfc7f36.camel@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1ae0abaaa4fc7959ba25cf59b3ef0da39bfc7f36.camel@linux.ibm.com>
+X-ClientProxiedBy: BL1PR13CA0241.namprd13.prod.outlook.com
+ (2603:10b6:208:2ba::6) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-References: <20220608043955.919359-1-kuba@kernel.org> <YqBdY0NzK9XJG7HC@nanopsycho>
- <20220608075827.2af7a35f@kernel.org> <f263209c-509c-5f6b-865c-cd5d38d29549@kernel.org>
- <CANn89i+RCCXQDVVTB+hHasGmjdXwdm8CvkPQv3nYSLgr=MYmpA@mail.gmail.com> <b00ab3c4a12fb11ed95b2a4634e50e3cba10ec28.camel@redhat.com>
-In-Reply-To: <b00ab3c4a12fb11ed95b2a4634e50e3cba10ec28.camel@redhat.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Thu, 9 Jun 2022 06:53:21 -0700
-Message-ID: <CANn89iLzAY1FAJASwrDcV9xB8UvhPAWfuFsjfiRiu1F9Tu0ciA@mail.gmail.com>
-Subject: Re: [PATCH net-next] net: rename reference+tracking helpers
-To:     Paolo Abeni <pabeni@redhat.com>
-Cc:     David Ahern <dsahern@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
-        Jiri Pirko <jiri@resnulli.us>,
-        David Miller <davem@davemloft.net>,
-        netdev <netdev@vger.kernel.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        jreuter@yaina.de, razor@blackwall.org,
-        Karsten Graul <kgraul@linux.ibm.com>, ivecera@redhat.com,
-        Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Xin Long <lucien.xin@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
-        Yajun Deng <yajun.deng@linux.dev>,
-        Antoine Tenart <atenart@kernel.org>, richardsonnick@google.com,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        linux-hams@vger.kernel.org, dev@openvswitch.org,
-        linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net
-Content-Type: text/plain; charset="UTF-8"
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 63c6653e-4568-4205-af4c-08da4a267d86
+X-MS-TrafficTypeDiagnostic: PH7PR12MB5688:EE_
+X-Microsoft-Antispam-PRVS: <PH7PR12MB5688C39E2101CD5FEC84AADFC2A79@PH7PR12MB5688.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: +FcR9ZMGfmChq0p2hd0/lCSnZOe8DMcmcQDXxdiflCpQ0kOf6vsLclOhyXweT+cPyPwDr6V1uqJGsTxYm0B//CPjRUYDybAb0cg5oNk6OgJ7gmxhuZpRQasLi9Z2+nYFjcRjEqKckCj7eXkzQRRt2wMlWd/0D95WF40toT0X8LJCBiZ/uUF6grc1X2ArcFbBCkPMXWCgV1cM7TzxWZlfnYu1SYtSZw2IPZ3CqeV6NnaMcpIytlEGUf3wyo5ltaPHh9GqwUNIwZM2yNkyL1eJHsowFEygTHqepjrmty9NUK4hpbuJVgaoP+5kvNSYAv6oM5ZoDzBNjV3VeyLTeecPh8FMBnPHJ/kcMUt9qf9iAkMNBVehEiVGFp4CEPuLY77zZL+yZcn38PI0Qo3aNLK/eqzJZlemg5Ity6T//CNnlFjSMPdkVKOpy4UeXLtkIG9NXoC2ccrmvwZmypaARAKrbSUILCBusRRG0ndnI+TigSGCjJaBYgq0F+9+xxOMDw8yUX1HUI9RocjSzl8Z9r5KSyBJMSKYYYv3D6huItotpiDvTUEfPW9EomIS1qxzj1Gfg1dwKp987K3X8RKLdso1U7G/coBWCmJITWxNgoeyq5CUsbssVhDH0rT/9Vo8NwuNFFUj/enfkF3EABAobW6JYg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(36756003)(86362001)(8936002)(83380400001)(38100700002)(6512007)(4744005)(316002)(54906003)(508600001)(26005)(1076003)(4326008)(8676002)(33656002)(7416002)(6506007)(2616005)(66556008)(66476007)(66946007)(6916009)(2906002)(5660300002)(186003)(6486002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?SWjHtUXyoa+86aqacJ4hyGAa4/3ROzE+bfLoDQqS1Y1F1lptGpEzL+yG3SI0?=
+ =?us-ascii?Q?4hE7gwPXcm0bOG/UQ7KbapukbI6hl5DBnS43h3r5hcE7nQNRQpxvqEZFNrxC?=
+ =?us-ascii?Q?c6Xsf/qwaOS1tfECrRFuQUSjODtuh47WJbnDR7cdMIOPPov4WMPMMp3O7G9x?=
+ =?us-ascii?Q?nsAGJDql9eIr/LQKz+2jvpZdQRKpHh77avP7Mo8IQs3ZE3j+XSaz2hekQBU/?=
+ =?us-ascii?Q?JOjepRVJwyHn9bEpWK8G7dwSHtIrq41kivFuVEQ8o0h7NWQDAMp0BqZiJffF?=
+ =?us-ascii?Q?xJXynY1wDdt5xkg9TIOrf1a0kiAetH02Kk+G3IEpFdQCjSaB2M6FNK7UqwrP?=
+ =?us-ascii?Q?R7wtwMwCSV4u2G1G+1Ej+n7XcFL/TChv9bGsGXb26H3QiRD1sIxensDhXZ+h?=
+ =?us-ascii?Q?PFdSRg+FfZNie023iuflGnW4ZDNpQi+joE6te1CjBKeNrUMAw2qIHm048Rz4?=
+ =?us-ascii?Q?m6yWdo16sT5IkDONamGV7+EG/aRPf4hHi/J4xhNFKpWJMVrZYOJ71Za6IdWw?=
+ =?us-ascii?Q?mc3ZsvWGyUPCiZrFOtsw34bNPd/kxtp3k9KqmsR7fdrF1hwYtPgzBsG00nwc?=
+ =?us-ascii?Q?dFDXfYTz3VDK8Zxy7mAKVdi5b6eBqnYFjFfoTKp7P5dxNVToHonwnE9KjvL5?=
+ =?us-ascii?Q?++KwvvN+lnIdbYkdAm/F7olvfv053B1zsAtpYH1/CTnJSkGgHBQj2XeTjpyX?=
+ =?us-ascii?Q?vZFSqEu6Qt3OERS5diJaUUdcwbk+YTkijeSWqgb/Bc5j4MxhrHS7t7iNeQG/?=
+ =?us-ascii?Q?Qzdu6HA2AvM39BOF4dIrJpkcDP6URogZr3aDTS1FpRxZ5V5yqOKlj3QrZOUN?=
+ =?us-ascii?Q?2m38dxflRzj1kE6C4Qn8/1chh46thYzyFsUlrQCPBLjDQWrYRsoAa/BlQMRM?=
+ =?us-ascii?Q?MVP8BGiewJL38XgYQ1j6Z/FuHDsVWUg1g0AXnRWgM+0rw6DZgWqly+qXBvl+?=
+ =?us-ascii?Q?zT0sKE7mH9qQAj377Rjw0DcePbKn0zQyBmQctL8JfVGuRnsv1ZuEsTxU3MYu?=
+ =?us-ascii?Q?iHymWGdtZjer1UWPffr+Gf/UWxMS4lR7ETWqSa/MwYx1LdtU/IGyiiNzxC3h?=
+ =?us-ascii?Q?GWCY8p6GMvNurYx+M4XpA0cY5pcyvrqXBtUV6u5iqrhQkgfgRtxTdQtAKp2m?=
+ =?us-ascii?Q?4Y7Z9pvjDq/i5XIKs6FaIkQWDlrkQgMvZmz8RqO5/QGXS2WpD01V8ff+G67i?=
+ =?us-ascii?Q?bdwCVf+k4gZ+wijaX0DBnWs7Mx7XPR4C6T33k27lgIg20u7HqPPbJhXWR0OM?=
+ =?us-ascii?Q?HY9Te1lDj3zk3XPkjjLiNNTEnO6FRtM0Qpt00XKYC6zP0Hmswnu6UfvPzUZ6?=
+ =?us-ascii?Q?NeBxPJjKxnBwdli6PDNUmQwDOyPllqyAWDBJVKIBbghPAo+lLJOYYmjfZgh+?=
+ =?us-ascii?Q?xMdqK6jPRSb4eFHcnAxuW9WcXs4x4ahB/NgIusMlkH5n7MVJNx0L4TmDUXVI?=
+ =?us-ascii?Q?+ZM3L92T+dMnIBMxQ79iD9Q3RBmGwsgq9nBqXp2Y1ggh0tqAYaX2uBlaITW6?=
+ =?us-ascii?Q?q4ncQw8CP3XakMzFrTBvDtBwRw4UKI8tsqOtPXAaT/uoW3XWEPNRS3ylOddF?=
+ =?us-ascii?Q?OR4vjeyOi2L1LTKHl9wQtThBgGZa8shdn2uVgpNhDtdi5WXcWtoCJSmejPWb?=
+ =?us-ascii?Q?QD6tyV3ID9XR4MbxDRn7u9cWoVDSQcnqCQRt7mjoL2EoICKeNp6RPtGIffUO?=
+ =?us-ascii?Q?4JiEH1Y54a1DMjZFW6Ek8pVtDWhEsa9O7QYBwS4xdMglbDc6ME5OQ6sHuKEt?=
+ =?us-ascii?Q?rzspeqLkew=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 63c6653e-4568-4205-af4c-08da4a267d86
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2022 14:44:00.4674
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: lYECJoQFaIEpdNSF9eQvx9uOiVG5GEsXxEUnr9fSLY9g4hEeDZ3UOwKUzViZF8kj
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5688
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 9, 2022 at 4:50 AM Paolo Abeni <pabeni@redhat.com> wrote:
->
-> On Wed, 2022-06-08 at 16:00 -0700, Eric Dumazet wrote:
-> > On Wed, Jun 8, 2022 at 3:58 PM David Ahern <dsahern@kernel.org> wrote:
-> > >
-> > > On 6/8/22 8:58 AM, Jakub Kicinski wrote:
-> > > > IMO to encourage use of the track-capable API we could keep their names
-> > > > short and call the legacy functions __netdev_hold() as I mentioned or
-> > > > maybe netdev_hold_notrack().
-> > >
-> > > I like that option. Similar to the old nla_parse functions that were
-> > > renamed with _deprecated - makes it easier to catch new uses.
-> >
-> > I think we need to clearly document the needed conversions for future
-> > bugfix backports.
-> >
->
-> To be on the same page: do you think we need something under
-> Documentation with this patch? or with the later dev_hold rename? or
-> did I misunderstood completely?
+On Wed, Jun 08, 2022 at 11:50:31AM -0400, Eric Farman wrote:
+> > --- a/drivers/s390/cio/vfio_ccw_private.h
+> > +++ b/drivers/s390/cio/vfio_ccw_private.h
+> > @@ -98,7 +98,6 @@ struct vfio_ccw_private {
+> >  	struct completion	*completion;
+> >  	atomic_t		avail;
+> >  	struct mdev_device	*mdev;
+> > -	struct notifier_block	nb;
+> 
+> Could you also remove this from the comment block above the struct?
+> Besides that, this is fine for -ccw.
 
-Adding instructions in the comments describing the functions would probably help
-stable teams (or ourselves because they will ask us to take care of conflicts)
+Done, thanks
 
-And backport the dev_put()/dev_hold() rename to kernels without
-CONFIG_NET_DEV_REFCNT_TRACKER infra.
-
-s/dev_put()/netdev_put_notrack()/
-s/dev_hold()/netdev_hold_notrack()/
+Jason
