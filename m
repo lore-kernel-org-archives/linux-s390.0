@@ -2,167 +2,87 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D1F7C43334
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 07:48:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C91CCC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 08:10:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240274AbiFIHsx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 03:48:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58276 "EHLO
+        id S235340AbiFIIKU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 04:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238680AbiFIHsw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 03:48:52 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FDB76A043;
-        Thu,  9 Jun 2022 00:48:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=3xoIRA2BBvzVO0XOc/JU1zTILnsefWyOV49Y7IJ3FLY=; b=AGRuyJpQp9QMikHh/33qL0JsHV
-        U+WVKRpKqJjJvGyaFDokMlWsSCM9no5evqxr8XfHexEuz39eb12W7RP7lrous4XASMRUkOLz5VouH
-        wLOvqEp2LZsitkUiAmo4QZ4OqBM+FawBjbkxe3L4iSs+u4EoDbAZTWfm7hCu0mzKN+/zIyvki4As7
-        StixFRJyaOTciQhpHuJ8zWO31vomCg9cRzQQEama2CztMyJ+0N8odAUMXxupDZVXJ2vDzPMCIz1fo
-        q5Sz7FLf2dgFeqPVWUX5WWIQ+PRyBjxQp0aakORxRQrSWetvEE8P/oPwTCIquE+kqksSrLBnCbWei
-        uIwhbQZg==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:32800)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1nzCtn-0005fb-B8; Thu, 09 Jun 2022 08:48:11 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1nzCtG-0002ae-KM; Thu, 09 Jun 2022 08:47:38 +0100
-Date:   Thu, 9 Jun 2022 08:47:38 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Jarkko Sakkinen <jarkko@profian.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Nathaniel McCallum <nathaniel@profian.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Marco Elver <elver@google.com>,
-        Dan Li <ashimida@linux.alibaba.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Song Liu <song@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Chen Zhongjin <chenzhongjin@huawei.com>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Mark Brown <broonie@kernel.org>,
-        Luis Machado <luis.machado@linaro.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Joey Gouly <joey.gouly@arm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Dave Anglin <dave.anglin@bell.net>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Daniel Axtens <dja@axtens.net>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Jordan Niethe <jniethe5@gmail.com>,
-        Guo Ren <guoren@kernel.org>, Anup Patel <anup@brainfault.org>,
-        Atish Patra <atishp@atishpatra.org>,
-        Changbin Du <changbin.du@intel.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Liao Chang <liaochang1@huawei.com>,
-        Philipp Tomsich <philipp.tomsich@vrull.eu>,
-        Wu Caize <zepan@sipeed.com>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Tobias Huschle <huschle@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Michael Roth <michael.roth@amd.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Aaron Tomlin <atomlin@redhat.com>,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-modules@vger.kernel.org
-Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
-Message-ID: <YqGlmpbx8HTrWmpF@shell.armlinux.org.uk>
-References: <20220608000014.3054333-1-jarkko@profian.com>
+        with ESMTP id S233329AbiFIIKT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 04:10:19 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3E5EB168D1A
+        for <linux-s390@vger.kernel.org>; Thu,  9 Jun 2022 01:10:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1654762217;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tiLrsl9taTyGSrJjDKI7N8ule2WbsgbzAGcFN4T087E=;
+        b=HuOwIaxtrW89aS3DIGtHL+KXKFIp9xnErcxYaSQ4+zgccf/QqE95xI9JHBFEGTI0BRJOfy
+        oh9CwvHWMxqfUgWcCZPyRTJfD5XDYDtGrETZbHAxkylEUZ9jBuIQTJ/BWFx4sDUZxTI6k/
+        JnkJtGIGkUlAXrD83ogpnHf1Bw4mOgU=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-562-sFd4YcckPoi0xEo8ZlBU9g-1; Thu, 09 Jun 2022 04:10:14 -0400
+X-MC-Unique: sFd4YcckPoi0xEo8ZlBU9g-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8A7AB3C0E216;
+        Thu,  9 Jun 2022 08:10:13 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.115])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0B475492C3B;
+        Thu,  9 Jun 2022 08:10:12 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Alex Williamson <alex.williamson@redhat.com>,
+        alex.williamson@redhat.com
+Cc:     kwankhede@nvidia.com, farman@linux.ibm.com, mjrosato@linux.ibm.com,
+        pasic@linux.ibm.com, diana.craciun@oss.nxp.com,
+        eric.auger@redhat.com, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, jgg@nvidia.com, yishaih@nvidia.com,
+        hch@lst.de
+Subject: Re: [PATCH] vfio: de-extern-ify function prototypes
+In-Reply-To: <165471414407.203056.474032786990662279.stgit@omen>
+Organization: Red Hat GmbH
+References: <165471414407.203056.474032786990662279.stgit@omen>
+User-Agent: Notmuch/0.36 (https://notmuchmail.org)
+Date:   Thu, 09 Jun 2022 10:10:11 +0200
+Message-ID: <87tu8u9s0s.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220608000014.3054333-1-jarkko@profian.com>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 08, 2022 at 02:59:27AM +0300, Jarkko Sakkinen wrote:
-> diff --git a/arch/arm/kernel/Makefile b/arch/arm/kernel/Makefile
-> index 553866751e1a..d2bb954cd54f 100644
-> --- a/arch/arm/kernel/Makefile
-> +++ b/arch/arm/kernel/Makefile
-> @@ -44,6 +44,11 @@ obj-$(CONFIG_CPU_IDLE)		+= cpuidle.o
->  obj-$(CONFIG_ISA_DMA_API)	+= dma.o
->  obj-$(CONFIG_FIQ)		+= fiq.o fiqasm.o
->  obj-$(CONFIG_MODULES)		+= armksyms.o module.o
-> +ifeq ($(CONFIG_MODULES),y)
-> +obj-y				+= module_alloc.o
-> +else
-> +obj-$(CONFIG_KPROBES)		+= module_alloc.o
-> +endif
+On Wed, Jun 08 2022, Alex Williamson <alex.williamson@redhat.com> wrote:
 
-Doesn't:
+> The use of 'extern' in function prototypes has been disrecommended in
+> the kernel coding style for several years now, remove them from all vfio
+> related files so contributors no longer need to decide between style and
+> consistency.
+>
+> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+> ---
+>
+> A patch in the same vein was proposed about a year ago, but tied to an ill
+> fated series and forgotten.  Now that we're at the beginning of a new
+> development cycle, I'd like to propose kicking off the v5.20 vfio next
+> branch with this patch and would kindly ask anyone with pending respins or
+> significant conflicts to rebase on top of this patch.  Thanks!
+>
+>  Documentation/driver-api/vfio-mediated-device.rst |   10 ++-
+>  drivers/s390/cio/vfio_ccw_cp.h                    |   12 ++--
+>  drivers/s390/cio/vfio_ccw_private.h               |    6 +-
+>  drivers/vfio/fsl-mc/vfio_fsl_mc_private.h         |    2 -
+>  drivers/vfio/platform/vfio_platform_private.h     |   21 +++---
+>  include/linux/vfio.h                              |   70 ++++++++++-----------
+>  include/linux/vfio_pci_core.h                     |   65 ++++++++++----------
+>  7 files changed, 91 insertions(+), 95 deletions(-)
 
-obj-$(CONFIG_MODULES)		+= module_alloc.o
-obj-$(CONFIG_KPROBES)		+= module_alloc.o
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-work just as well? The kbuild modules.rst documentation says:
-
-        The order of files in $(obj-y) is significant.  Duplicates in
-        the lists are allowed: the first instance will be linked into
-        built-in.a and succeeding instances will be ignored.
-
-so you should be fine... or the documentation is wrong!
-
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
