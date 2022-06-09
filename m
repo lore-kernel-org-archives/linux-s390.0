@@ -2,111 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5E36C43334
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 11:50:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3730CCA47F
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 11:50:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239900AbiFILuL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 07:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60076 "EHLO
+        id S244606AbiFILuM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 07:50:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244663AbiFILuH (ORCPT
+        with ESMTP id S244644AbiFILuH (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 07:50:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 724CE20EEA5
-        for <linux-s390@vger.kernel.org>; Thu,  9 Jun 2022 04:50:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1654775404;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DuwhD3TtwqmPc3FtJmMtruEqS+FysyJ1M2ttopTd4UE=;
-        b=ieQXaU+yNSYRRJ4d/O9w1oroTIbSrZjCYx3EYfDFflwmyJPDbnh27T6eEz+U2mBOIwz1gc
-        igM8SduL/pUBD+LQOfyJIaBRKOJRhes4VOBTyKB6+FtUKbjO7EPHGFW/vQU1ueHN3vZtJ2
-        CLPJORk9yHSj8XwW6eVoyHtkc/NxCSU=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-625-njpUDfwVP3-wtPgfgFJwCw-1; Thu, 09 Jun 2022 07:49:55 -0400
-X-MC-Unique: njpUDfwVP3-wtPgfgFJwCw-1
-Received: by mail-qk1-f200.google.com with SMTP id bs17-20020a05620a471100b006a734d3910dso616728qkb.22
-        for <linux-s390@vger.kernel.org>; Thu, 09 Jun 2022 04:49:55 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=DuwhD3TtwqmPc3FtJmMtruEqS+FysyJ1M2ttopTd4UE=;
-        b=L027W1WhADYivoC1CCAYdH1W2BtbLpXKAmnbs19nKldmSRAfpmaRj0sscYxyEm1vHs
-         g65rHKNDLq34h92z7GMACSFKu/x762knQ+ceMR/58Tl3X/zjoG7l6EkCJOU7NnJ2PHWu
-         SOwJ+DnXZLtdxygk0UBVvU+1ck+u5smCHrMvSz0FfYpSD0kl5+z/TYBueoDj/oTKiCMV
-         JcImQh8oFarxV2Ew4WfZ5DO94zBSqyngTeb1pnPj2uwx71QfrUmBHp+7OKrr4V2owcwy
-         jQ2xclo4GhUPCTPO3RKl2oOYWowkj3vF3/bw2OgnKL7FqVqMN2BaOgEseKnEjYxder8S
-         gdrQ==
-X-Gm-Message-State: AOAM533JzjGOxmkS0YOaSBQqAvoyDh9F2rft8rNMArvubdgUWbCwHJJs
-        l8ecU5OIvaphLEBDd8uhz4/LyDH0gn9jFngP0y0UxaDE91xJeNkyzzYwp7iMywleRBbUO7U5P0V
-        H8sCvfu7abVX/lCp1vS180Q==
-X-Received: by 2002:a05:6214:761:b0:441:196:795e with SMTP id f1-20020a056214076100b004410196795emr83996403qvz.67.1654775395351;
-        Thu, 09 Jun 2022 04:49:55 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyiM6WZ7qFmx0s6PGdh/jWpyxlZoyVwejHGOyF0aVfaLqcBlYDNDG9DqxVM31JDDGzdiHNvxg==
-X-Received: by 2002:a05:6214:761:b0:441:196:795e with SMTP id f1-20020a056214076100b004410196795emr83996374qvz.67.1654775395085;
-        Thu, 09 Jun 2022 04:49:55 -0700 (PDT)
-Received: from gerbillo.redhat.com (146-241-113-202.dyn.eolo.it. [146.241.113.202])
-        by smtp.gmail.com with ESMTPSA id i21-20020a05620a405500b006a6ac4e7ab4sm12759648qko.112.2022.06.09.04.49.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jun 2022 04:49:54 -0700 (PDT)
-Message-ID: <b00ab3c4a12fb11ed95b2a4634e50e3cba10ec28.camel@redhat.com>
-Subject: Re: [PATCH net-next] net: rename reference+tracking helpers
-From:   Paolo Abeni <pabeni@redhat.com>
-To:     Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>
-Cc:     Jakub Kicinski <kuba@kernel.org>, Jiri Pirko <jiri@resnulli.us>,
-        David Miller <davem@davemloft.net>,
-        netdev <netdev@vger.kernel.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        jreuter@yaina.de, razor@blackwall.org,
-        Karsten Graul <kgraul@linux.ibm.com>, ivecera@redhat.com,
-        Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Xin Long <lucien.xin@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
-        Yajun Deng <yajun.deng@linux.dev>,
-        Antoine Tenart <atenart@kernel.org>, richardsonnick@google.com,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        linux-hams@vger.kernel.org, dev@openvswitch.org,
-        linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net
-Date:   Thu, 09 Jun 2022 13:49:48 +0200
-In-Reply-To: <CANn89i+RCCXQDVVTB+hHasGmjdXwdm8CvkPQv3nYSLgr=MYmpA@mail.gmail.com>
-References: <20220608043955.919359-1-kuba@kernel.org>
-         <YqBdY0NzK9XJG7HC@nanopsycho> <20220608075827.2af7a35f@kernel.org>
-         <f263209c-509c-5f6b-865c-cd5d38d29549@kernel.org>
-         <CANn89i+RCCXQDVVTB+hHasGmjdXwdm8CvkPQv3nYSLgr=MYmpA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2172B20B155;
+        Thu,  9 Jun 2022 04:50:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFC6CB82D36;
+        Thu,  9 Jun 2022 11:50:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D5E1C3411B;
+        Thu,  9 Jun 2022 11:50:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1654775401;
+        bh=md2cOKY0UjufG4JRi8yS8d/Uy6RwmNPC5w/ptfzbrDI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=De+o670BbtOyb/W8kZuv1eJLacQIdlvshH76kO751dnHlBG9ViMAkMis6KRuoxNYC
+         hxi4KpllFRC2A0BKuuUS3IOoSUxaWz/0JTTZN/YOVl6lxfWRRcQPHAv0eFx/y/Hmal
+         Z6f3y/fxWtBMoM+h9oOVQhTuSN5K1yVlv6GRYsf777Mo7ELPHew9LGyg//lHrCj/2f
+         xUWagCs+J6qo5XlYXX06rKdTz4CtfSjmblhEeV9HNPeWsBSGzXmVkKXW1Ms5tvZns/
+         wVEBoygFpSksMVX+0JkbCCn6ldys+Sb/YT7pT6GCNe8xiVizupbn0QdKTx0wuIzLjM
+         8nlBqin4Cd+LQ==
+Date:   Thu, 9 Jun 2022 14:48:02 +0300
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc:     Jarkko Sakkinen <jarkko@profian.com>, linux-kernel@vger.kernel.org,
+        Nathaniel McCallum <nathaniel@profian.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Marco Elver <elver@google.com>,
+        Dan Li <ashimida@linux.alibaba.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Song Liu <song@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhongjin <chenzhongjin@huawei.com>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Mark Brown <broonie@kernel.org>,
+        Luis Machado <luis.machado@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Joey Gouly <joey.gouly@arm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dave Anglin <dave.anglin@bell.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Daniel Axtens <dja@axtens.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Guo Ren <guoren@kernel.org>, Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@atishpatra.org>,
+        Changbin Du <changbin.du@intel.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Liao Chang <liaochang1@huawei.com>,
+        Philipp Tomsich <philipp.tomsich@vrull.eu>,
+        Wu Caize <zepan@sipeed.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Tobias Huschle <huschle@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Michael Roth <michael.roth@amd.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-modules@vger.kernel.org
+Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
+Message-ID: <YqHd8mwRVWg0u+Ci@iki.fi>
+References: <20220608000014.3054333-1-jarkko@profian.com>
+ <YqGlmpbx8HTrWmpF@shell.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YqGlmpbx8HTrWmpF@shell.armlinux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-06-08 at 16:00 -0700, Eric Dumazet wrote:
-> On Wed, Jun 8, 2022 at 3:58 PM David Ahern <dsahern@kernel.org> wrote:
-> > 
-> > On 6/8/22 8:58 AM, Jakub Kicinski wrote:
-> > > IMO to encourage use of the track-capable API we could keep their names
-> > > short and call the legacy functions __netdev_hold() as I mentioned or
-> > > maybe netdev_hold_notrack().
-> > 
-> > I like that option. Similar to the old nla_parse functions that were
-> > renamed with _deprecated - makes it easier to catch new uses.
+On Thu, Jun 09, 2022 at 08:47:38AM +0100, Russell King (Oracle) wrote:
+> On Wed, Jun 08, 2022 at 02:59:27AM +0300, Jarkko Sakkinen wrote:
+> > diff --git a/arch/arm/kernel/Makefile b/arch/arm/kernel/Makefile
+> > index 553866751e1a..d2bb954cd54f 100644
+> > --- a/arch/arm/kernel/Makefile
+> > +++ b/arch/arm/kernel/Makefile
+> > @@ -44,6 +44,11 @@ obj-$(CONFIG_CPU_IDLE)		+= cpuidle.o
+> >  obj-$(CONFIG_ISA_DMA_API)	+= dma.o
+> >  obj-$(CONFIG_FIQ)		+= fiq.o fiqasm.o
+> >  obj-$(CONFIG_MODULES)		+= armksyms.o module.o
+> > +ifeq ($(CONFIG_MODULES),y)
+> > +obj-y				+= module_alloc.o
+> > +else
+> > +obj-$(CONFIG_KPROBES)		+= module_alloc.o
+> > +endif
 > 
-> I think we need to clearly document the needed conversions for future
-> bugfix backports.
+> Doesn't:
 > 
+> obj-$(CONFIG_MODULES)		+= module_alloc.o
+> obj-$(CONFIG_KPROBES)		+= module_alloc.o
+> 
+> work just as well? The kbuild modules.rst documentation says:
+> 
+>         The order of files in $(obj-y) is significant.  Duplicates in
+>         the lists are allowed: the first instance will be linked into
+>         built-in.a and succeeding instances will be ignored.
+> 
+> so you should be fine... or the documentation is wrong!
 
-To be on the same page: do you think we need something under
-Documentation with this patch? or with the later dev_hold rename? or
-did I misunderstood completely?
+OK, I did not know this. Thanks for the tip!
 
-Thanks!
-
-Paolo
-
+BR, Jarkko
