@@ -2,123 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5789CC43334
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 11:31:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5E36C43334
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 11:50:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240547AbiFILb0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 07:31:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54772 "EHLO
+        id S239900AbiFILuL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 07:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243869AbiFILbO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 07:31:14 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1E6D3A4824
-        for <linux-s390@vger.kernel.org>; Thu,  9 Jun 2022 04:31:11 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id y19so46858076ejq.6
-        for <linux-s390@vger.kernel.org>; Thu, 09 Jun 2022 04:31:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=+XewJc/p+7yp1re11t6BfmEtfp27WPbXPnywgusXXTc=;
-        b=dD0Bz9eW32MHk+TeRLS+QqFpXQSyJG1PFuM0sFc2oIQiPmRbBKI4wiAjUnrY0TOPB3
-         vmLpoVIxPESYT9ISrrirk39KtLhSpCgEKtG3yrDCpv/Gh6ZWSamp4kS8RJg23gIGNIEa
-         lDd2yagv7BcuRvFzrWxMhthjwknH7br96szys=
+        with ESMTP id S244663AbiFILuH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 07:50:07 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 724CE20EEA5
+        for <linux-s390@vger.kernel.org>; Thu,  9 Jun 2022 04:50:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1654775404;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DuwhD3TtwqmPc3FtJmMtruEqS+FysyJ1M2ttopTd4UE=;
+        b=ieQXaU+yNSYRRJ4d/O9w1oroTIbSrZjCYx3EYfDFflwmyJPDbnh27T6eEz+U2mBOIwz1gc
+        igM8SduL/pUBD+LQOfyJIaBRKOJRhes4VOBTyKB6+FtUKbjO7EPHGFW/vQU1ueHN3vZtJ2
+        CLPJORk9yHSj8XwW6eVoyHtkc/NxCSU=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-625-njpUDfwVP3-wtPgfgFJwCw-1; Thu, 09 Jun 2022 07:49:55 -0400
+X-MC-Unique: njpUDfwVP3-wtPgfgFJwCw-1
+Received: by mail-qk1-f200.google.com with SMTP id bs17-20020a05620a471100b006a734d3910dso616728qkb.22
+        for <linux-s390@vger.kernel.org>; Thu, 09 Jun 2022 04:49:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+XewJc/p+7yp1re11t6BfmEtfp27WPbXPnywgusXXTc=;
-        b=bCoBmsEAlvu5t3j+d2RKdXg6OjzT40JJitLE6eppfhpyB8GxRQsUgYzJjOn7aeqP09
-         sr9sZ+f8vIem3td0Wk/+rVFJWZN0FSfTPJhEs4HRQ8yYHznbr7RdQcnMeIx3unoeWvdu
-         1NWt+0eQiVYdn7H8N00od5hbpYclZyX6gd3EAqV0jbRVL8TkfDBu/1+1hYVkoaNDT7ic
-         UkLu/JPcoOdXXIYhfqVFj9wurA2NHwEPvRpLHiJuuCY9bfmNLca0NnFMRSw1svSzs3q6
-         OU26Pow8dbK4Bee9la8n0paE8GFNot9WCpS8qfnxV5dpg4iMn5JF9SPYgPm4ERV6OFc8
-         19Xw==
-X-Gm-Message-State: AOAM5319okIQpbDiJqBjPsVx39hdCOen/pTzh78mMfO7E32+wmxnjZQl
-        gAoBIYAYxoNajNZtg4cV65bwVHoZVvSTBU+8z1qsQQ==
-X-Google-Smtp-Source: ABdhPJx9nV7wAxP/lyAtNedlGfDPIROj9YXpatcH7EqCac1uVlfTSKszMzYbWUxkatf8WgjTCZNOZTjPAlJBoltWDx4=
-X-Received: by 2002:a17:907:c22:b0:711:dc95:3996 with SMTP id
- ga34-20020a1709070c2200b00711dc953996mr13928684ejc.62.1654774269713; Thu, 09
- Jun 2022 04:31:09 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220608142723.103523089@infradead.org> <20220608144517.444659212@infradead.org>
- <YqG6URbihTNCk9YR@alley> <YqHFHB6qqv5wiR8t@worktop.programming.kicks-ass.net>
-In-Reply-To: <YqHFHB6qqv5wiR8t@worktop.programming.kicks-ass.net>
-From:   Sergey Senozhatsky <senozhatsky@chromium.org>
-Date:   Thu, 9 Jun 2022 20:30:58 +0900
-Message-ID: <CA+_sPaoJGrXhNPCs2dKf2J7u07y1xYrRFZBUtkKwzK9GqcHSuQ@mail.gmail.com>
-Subject: Re: [PATCH 24/36] printk: Remove trace_.*_rcuidle() usage
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Petr Mladek <pmladek@suse.com>, ink@jurassic.park.msu.ru,
-        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
-        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
-        shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
-        tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com,
-        will@kernel.org, guoren@kernel.org, bcain@quicinc.com,
-        chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
-        sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de,
-        dinguyen@kernel.org, jonas@southpole.se,
-        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
-        James.Bottomley@hansenpartnership.com, deller@gmx.de,
-        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
-        davem@davemloft.net, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        acme@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
-        amakhalov@vmware.com, pv-drivers@vmware.com,
-        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
-        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
-        gregkh@linuxfoundation.org, mturquette@baylibre.com,
-        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
-        sudeep.holla@arm.com, agross@kernel.org,
-        bjorn.andersson@linaro.org, anup@brainfault.org,
-        thierry.reding@gmail.com, jonathanh@nvidia.com,
-        jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        yury.norov@gmail.com, andriy.shevchenko@linux.intel.com,
-        linux@rasmusvillemoes.dk, rostedt@goodmis.org,
-        john.ogness@linutronix.de, paulmck@kernel.org, frederic@kernel.org,
-        quic_neeraju@quicinc.com, josh@joshtriplett.org,
-        mathieu.desnoyers@efficios.com, jiangshanlai@gmail.com,
-        joel@joelfernandes.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
-        vschneid@redhat.com, jpoimboe@kernel.org,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org, linux-xtensa@linux-xtensa.org,
-        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-arch@vger.kernel.org,
-        rcu@vger.kernel.org
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=DuwhD3TtwqmPc3FtJmMtruEqS+FysyJ1M2ttopTd4UE=;
+        b=L027W1WhADYivoC1CCAYdH1W2BtbLpXKAmnbs19nKldmSRAfpmaRj0sscYxyEm1vHs
+         g65rHKNDLq34h92z7GMACSFKu/x762knQ+ceMR/58Tl3X/zjoG7l6EkCJOU7NnJ2PHWu
+         SOwJ+DnXZLtdxygk0UBVvU+1ck+u5smCHrMvSz0FfYpSD0kl5+z/TYBueoDj/oTKiCMV
+         JcImQh8oFarxV2Ew4WfZ5DO94zBSqyngTeb1pnPj2uwx71QfrUmBHp+7OKrr4V2owcwy
+         jQ2xclo4GhUPCTPO3RKl2oOYWowkj3vF3/bw2OgnKL7FqVqMN2BaOgEseKnEjYxder8S
+         gdrQ==
+X-Gm-Message-State: AOAM533JzjGOxmkS0YOaSBQqAvoyDh9F2rft8rNMArvubdgUWbCwHJJs
+        l8ecU5OIvaphLEBDd8uhz4/LyDH0gn9jFngP0y0UxaDE91xJeNkyzzYwp7iMywleRBbUO7U5P0V
+        H8sCvfu7abVX/lCp1vS180Q==
+X-Received: by 2002:a05:6214:761:b0:441:196:795e with SMTP id f1-20020a056214076100b004410196795emr83996403qvz.67.1654775395351;
+        Thu, 09 Jun 2022 04:49:55 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyiM6WZ7qFmx0s6PGdh/jWpyxlZoyVwejHGOyF0aVfaLqcBlYDNDG9DqxVM31JDDGzdiHNvxg==
+X-Received: by 2002:a05:6214:761:b0:441:196:795e with SMTP id f1-20020a056214076100b004410196795emr83996374qvz.67.1654775395085;
+        Thu, 09 Jun 2022 04:49:55 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-113-202.dyn.eolo.it. [146.241.113.202])
+        by smtp.gmail.com with ESMTPSA id i21-20020a05620a405500b006a6ac4e7ab4sm12759648qko.112.2022.06.09.04.49.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jun 2022 04:49:54 -0700 (PDT)
+Message-ID: <b00ab3c4a12fb11ed95b2a4634e50e3cba10ec28.camel@redhat.com>
+Subject: Re: [PATCH net-next] net: rename reference+tracking helpers
+From:   Paolo Abeni <pabeni@redhat.com>
+To:     Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>
+Cc:     Jakub Kicinski <kuba@kernel.org>, Jiri Pirko <jiri@resnulli.us>,
+        David Miller <davem@davemloft.net>,
+        netdev <netdev@vger.kernel.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        jreuter@yaina.de, razor@blackwall.org,
+        Karsten Graul <kgraul@linux.ibm.com>, ivecera@redhat.com,
+        Jon Maloy <jmaloy@redhat.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        Xin Long <lucien.xin@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
+        Yajun Deng <yajun.deng@linux.dev>,
+        Antoine Tenart <atenart@kernel.org>, richardsonnick@google.com,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        linux-hams@vger.kernel.org, dev@openvswitch.org,
+        linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net
+Date:   Thu, 09 Jun 2022 13:49:48 +0200
+In-Reply-To: <CANn89i+RCCXQDVVTB+hHasGmjdXwdm8CvkPQv3nYSLgr=MYmpA@mail.gmail.com>
+References: <20220608043955.919359-1-kuba@kernel.org>
+         <YqBdY0NzK9XJG7HC@nanopsycho> <20220608075827.2af7a35f@kernel.org>
+         <f263209c-509c-5f6b-865c-cd5d38d29549@kernel.org>
+         <CANn89i+RCCXQDVVTB+hHasGmjdXwdm8CvkPQv3nYSLgr=MYmpA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-My emails are getting rejected... Let me try web-interface
+On Wed, 2022-06-08 at 16:00 -0700, Eric Dumazet wrote:
+> On Wed, Jun 8, 2022 at 3:58 PM David Ahern <dsahern@kernel.org> wrote:
+> > 
+> > On 6/8/22 8:58 AM, Jakub Kicinski wrote:
+> > > IMO to encourage use of the track-capable API we could keep their names
+> > > short and call the legacy functions __netdev_hold() as I mentioned or
+> > > maybe netdev_hold_notrack().
+> > 
+> > I like that option. Similar to the old nla_parse functions that were
+> > renamed with _deprecated - makes it easier to catch new uses.
+> 
+> I think we need to clearly document the needed conversions for future
+> bugfix backports.
+> 
 
-Kudos to Petr for the questions and thanks to PeterZ for the answers.
+To be on the same page: do you think we need something under
+Documentation with this patch? or with the later dev_hold rename? or
+did I misunderstood completely?
 
-On Thu, Jun 9, 2022 at 7:02 PM Peter Zijlstra <peterz@infradead.org> wrote:
-> This is the tracepoint used to spool all of printk into ftrace, I
-> suspect there's users, but I haven't used it myself.
+Thanks!
 
-I'm somewhat curious whether we can actually remove that trace event.
+Paolo
+
