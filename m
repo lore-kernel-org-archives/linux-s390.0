@@ -2,42 +2,38 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81FB2CCA473
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 13:24:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1ADA0CCA47F
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 13:45:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343878AbiFINYv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 09:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47878 "EHLO
+        id S239233AbiFINo7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 09:44:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343879AbiFINYq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 09:24:46 -0400
+        with ESMTP id S235379AbiFINo5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 09:44:57 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF9A31451CA;
-        Thu,  9 Jun 2022 06:24:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DF21A07A;
+        Thu,  9 Jun 2022 06:44:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
         MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=SFRCVVrRGHSCzaC+svV91Zy2fb9KgpsgW9PodQQtuVA=; b=ZXUIBRWwS9a1A+i7Wlnvbq7c8v
-        6SK4in80vdIW70IGh6Qwe/9mFxNaBZtzv0uCfovEqg5B7wUC50nw2bh7ER+xaP3QNR+1iZYXnNxos
-        S1DekrsiVQcuauqgAW2+sZFC/1rHvD65HUzk2WexFzY/WbUzTA0pWZot8NWi77yxehXc35lrntlkB
-        Qm2bnOZFbox6CvC5LSuNuJ2I85jiSSXcaN35yBtUgsVQkHMxSoBGhW1SghmYnnm8iMvnQWF6TnUmW
-        X1ud3JxTTmlPwgF7s5xG9BVcKDfLwreRR4yef4m+LNO6b+HhdBpLgVt2qZH1BGOEUFylRzfms6+VM
-        DcV1sHDg==;
+        bh=NHIPvBaPp5ezFE0h6AYG9aEftcsm+tTZkR/4v4e/RO8=; b=ZkTA3OQR9tQAPfsN8i3VT0+tcQ
+        VkNiVG4DvxfE7u93S0pqGwdWhkGV1NcSm080rrE6ZN6PZmE/7MFiC0p5O9k7EowRl1BGbyDIZ+diS
+        F67SHfIxA8A3HlLNF161DlTI7MBt5iWAICHfCzPAzIbG6AP+mVcrMDj+Im//qlKEsfJfMnBJJw/45
+        OjKfECOlFuzeBrcqR7UfXnNNFMXEyuIFinDBu5p08c3Ss/zhmk6MA3OiEBmqbxjLL6u6EgrsmqZ4L
+        XnIHH4EiskReSnyaDTw0LFwUML/2XUIT+CdASkQ7cnHXlptF3Y20dvcpLoetViskFTqFGvKcey9zH
+        sQ8iTAFg==;
 Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nzI9A-0027yT-Ln; Thu, 09 Jun 2022 13:24:24 +0000
-Date:   Thu, 9 Jun 2022 06:24:24 -0700
+        id 1nzISr-002FYc-3e; Thu, 09 Jun 2022 13:44:45 +0000
+Date:   Thu, 9 Jun 2022 06:44:45 -0700
 From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Christoph Hellwig <hch@lst.de>,
+To:     "Russell King (Oracle)" <linux@armlinux.org.uk>,
         "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Song Liu <song@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Guo Ren <guoren@kernel.org>,
-        Jarkko Sakkinen <jarkko@profian.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Christoph Hellwig <hch@infradead.org>
+Cc:     Jarkko Sakkinen <jarkko@profian.com>, linux-kernel@vger.kernel.org,
         Nathaniel McCallum <nathaniel@profian.com>,
-        Russell King <linux@armlinux.org.uk>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
@@ -57,11 +53,11 @@ Cc:     Song Liu <song@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
         "H. Peter Anvin" <hpa@zytor.com>,
         "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
         Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
         Steven Rostedt <rostedt@goodmis.org>,
         Kees Cook <keescook@chromium.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
@@ -72,8 +68,7 @@ Cc:     Song Liu <song@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
         Marco Elver <elver@google.com>,
         Dan Li <ashimida@linux.alibaba.com>,
         Sami Tolvanen <samitolvanen@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Song Liu <song@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
         Nick Desaulniers <ndesaulniers@google.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Chen Zhongjin <chenzhongjin@huawei.com>,
@@ -89,12 +84,13 @@ Cc:     Song Liu <song@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
         Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
         Guenter Roeck <linux@roeck-us.net>,
         Dave Anglin <dave.anglin@bell.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Alexei Starovoitov <ast@kernel.org>,
         Nicholas Piggin <npiggin@gmail.com>,
         Daniel Axtens <dja@axtens.net>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Jordan Niethe <jniethe5@gmail.com>,
-        Anup Patel <anup@brainfault.org>,
+        Guo Ren <guoren@kernel.org>, Anup Patel <anup@brainfault.org>,
         Atish Patra <atishp@atishpatra.org>,
         Changbin Du <changbin.du@intel.com>,
         Heiko Stuebner <heiko@sntech.de>,
@@ -116,66 +112,62 @@ Cc:     Song Liu <song@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
         Tiezhu Yang <yangtiezhu@loongson.cn>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Aaron Tomlin <atomlin@redhat.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-modules@vger.kernel.org
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-modules@vger.kernel.org
 Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
-Message-ID: <YqH0iEgsi6+bwS3x@bombadil.infradead.org>
+Message-ID: <YqH5TfN9w35kHFLU@bombadil.infradead.org>
 References: <20220608000014.3054333-1-jarkko@profian.com>
- <CAJF2gTQgCn2CyZ4+VBqEEBT2b4+1KxoEXxrd+Ritk=58+U8EFA@mail.gmail.com>
- <YqAy0qjI4Lktk/uJ@iki.fi>
- <20220608232115.ccd4399f4a1d133e9b65c2a9@kernel.org>
- <CAPhsuW6iUieQvA6KqzSLgtxmjkVSWCuVwNA338DATb_myHxo7w@mail.gmail.com>
- <CAPhsuW6BzUtqnjvaGJScXRpghs0_V_phpdyd4_oAKhvmkX-GFw@mail.gmail.com>
- <YqEF6+YKqCHsWZJW@bombadil.infradead.org>
- <20220609034852.GA30873@lst.de>
+ <YqGlmpbx8HTrWmpF@shell.armlinux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220609034852.GA30873@lst.de>
+In-Reply-To: <YqGlmpbx8HTrWmpF@shell.armlinux.org.uk>
 Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 09, 2022 at 05:48:52AM +0200, Christoph Hellwig wrote:
-> On Wed, Jun 08, 2022 at 01:26:19PM -0700, Luis Chamberlain wrote:
-> > No, that was removed because it has only one user.
+On Thu, Jun 09, 2022 at 08:47:38AM +0100, Russell King (Oracle) wrote:
+> On Wed, Jun 08, 2022 at 02:59:27AM +0300, Jarkko Sakkinen wrote:
+> > diff --git a/arch/arm/kernel/Makefile b/arch/arm/kernel/Makefile
+> > index 553866751e1a..d2bb954cd54f 100644
+> > --- a/arch/arm/kernel/Makefile
+> > +++ b/arch/arm/kernel/Makefile
+> > @@ -44,6 +44,11 @@ obj-$(CONFIG_CPU_IDLE)		+= cpuidle.o
+> >  obj-$(CONFIG_ISA_DMA_API)	+= dma.o
+> >  obj-$(CONFIG_FIQ)		+= fiq.o fiqasm.o
+> >  obj-$(CONFIG_MODULES)		+= armksyms.o module.o
+> > +ifeq ($(CONFIG_MODULES),y)
+> > +obj-y				+= module_alloc.o
+> > +else
+> > +obj-$(CONFIG_KPROBES)		+= module_alloc.o
+> > +endif
 > 
-> That is only part of the story.  The other part is that the overall
-> kernel simply does not have any business allocating exutable memory.
-> Executable memory is a very special concept for modules or module-like
-> code like kprobes, and should not be exposed as a general concept.
+> Doesn't:
+> 
+> obj-$(CONFIG_MODULES)		+= module_alloc.o
+> obj-$(CONFIG_KPROBES)		+= module_alloc.o
 
-It is not just modules and kprobes, it is also ftrace and bpf too now.
-So while it should not be used everywhere calling it module_alloc()
-is just confusing at this point. Likewise, module_alloc_huge() is
-being proposed too and I'd rather we deal with this properly in aligment
-of taking care of the rename as well.
+That just begs for a new kconfig symbol for the object, and for
+the object then to be built with it.
 
-If the concern is to restrict access we can use the module namespace stuff
-so to ensure only intended users get access to it.
+The archs which override the default can use ARCH_HAS_VM_ALLOC_EXEC.
+Please note that the respective free is important as well and its
+not clear if we need an another define for the free. Someone has
+to do that work. We want to ensure to noexec the code on free and
+this can vary on each arch.
 
-> Especially as executable memory really should not also be writable
-> for security reasons.  In other words, we should actually never
-> allocate executable memory, every.  We might seal memory and then
-> mark it executable after having written to it, which is how modules
-> and kprobes are implemented on all modern Linux ports anyway.
+> work just as well? The kbuild modules.rst documentation says:
+> 
+>         The order of files in $(obj-y) is significant.  Duplicates in
+>         the lists are allowed: the first instance will be linked into
+>         built-in.a and succeeding instances will be ignored.
+> 
+> so you should be fine... or the documentation is wrong!
 
-The respective free *should* do the executable bits, and there
-is no generic way to do this for all archs and so it is open coded
-today. In fact some architectures need further work / help and so
-split up the module data and exect already on v5.19+ with the new
-ARCH_WANTS_MODULES_DATA_IN_VMALLOC. See this thread for details:
-
-https://lkml.kernel.org/r/Yo1XTN441qbNTLGR@bombadil.infradead.org
-
-Doing this work is not easy, but if we're going to do it, it must
-be done right.
+Agreed, but this is just sloppy, better to use a new kconfig symbol
+to represent what is actually being required.
 
   Luis
