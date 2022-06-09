@@ -2,87 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C91CCC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 08:10:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35587CCA480
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 09:17:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235340AbiFIIKU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 04:10:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41394 "EHLO
+        id S241026AbiFIJRB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 05:17:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233329AbiFIIKT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 04:10:19 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3E5EB168D1A
-        for <linux-s390@vger.kernel.org>; Thu,  9 Jun 2022 01:10:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1654762217;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        with ESMTP id S233025AbiFIJQz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 05:16:55 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AA0E1A046;
+        Thu,  9 Jun 2022 02:16:53 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 31C7E1FDAF;
+        Thu,  9 Jun 2022 09:16:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1654766212; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=tiLrsl9taTyGSrJjDKI7N8ule2WbsgbzAGcFN4T087E=;
-        b=HuOwIaxtrW89aS3DIGtHL+KXKFIp9xnErcxYaSQ4+zgccf/QqE95xI9JHBFEGTI0BRJOfy
-        oh9CwvHWMxqfUgWcCZPyRTJfD5XDYDtGrETZbHAxkylEUZ9jBuIQTJ/BWFx4sDUZxTI6k/
-        JnkJtGIGkUlAXrD83ogpnHf1Bw4mOgU=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-562-sFd4YcckPoi0xEo8ZlBU9g-1; Thu, 09 Jun 2022 04:10:14 -0400
-X-MC-Unique: sFd4YcckPoi0xEo8ZlBU9g-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        bh=d57/DrqDiiJ2foYz2ew+5Cqn+PqODCYrsHqzu7X2C2Q=;
+        b=fo+sYmFjpmQOmpyD3JvJl9AYNinBjxAVeUE+HbamyvnKBmUJ4aJ/YSAu3A8+CqB7Ibeuz8
+        5d8JOsM43+X+4Im3fKziKImYEhGOTr+/e/e7kKF981tYnqb1CU7vBLnpyqhaj1HOQaPm0q
+        8dfR9EB/TBh2sOsSKiFiTu8q7nOVsPQ=
+Received: from suse.cz (unknown [10.100.208.146])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8A7AB3C0E216;
-        Thu,  9 Jun 2022 08:10:13 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.115])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0B475492C3B;
-        Thu,  9 Jun 2022 08:10:12 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Alex Williamson <alex.williamson@redhat.com>,
-        alex.williamson@redhat.com
-Cc:     kwankhede@nvidia.com, farman@linux.ibm.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, diana.craciun@oss.nxp.com,
-        eric.auger@redhat.com, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, jgg@nvidia.com, yishaih@nvidia.com,
-        hch@lst.de
-Subject: Re: [PATCH] vfio: de-extern-ify function prototypes
-In-Reply-To: <165471414407.203056.474032786990662279.stgit@omen>
-Organization: Red Hat GmbH
-References: <165471414407.203056.474032786990662279.stgit@omen>
-User-Agent: Notmuch/0.36 (https://notmuchmail.org)
-Date:   Thu, 09 Jun 2022 10:10:11 +0200
-Message-ID: <87tu8u9s0s.fsf@redhat.com>
+        by relay2.suse.de (Postfix) with ESMTPS id B45BB2C14F;
+        Thu,  9 Jun 2022 09:16:46 +0000 (UTC)
+Date:   Thu, 9 Jun 2022 11:16:46 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org,
+        linux@armlinux.org.uk, ulli.kroll@googlemail.com,
+        linus.walleij@linaro.org, shawnguo@kernel.org,
+        Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de,
+        festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com,
+        khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org,
+        guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org,
+        kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net,
+        monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org,
+        jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
+        shorne@gmail.com, James.Bottomley@hansenpartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
+        paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
+        amakhalov@vmware.com, pv-drivers@vmware.com,
+        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
+        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
+        gregkh@linuxfoundation.org, mturquette@baylibre.com,
+        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
+        sudeep.holla@arm.com, agross@kernel.org,
+        bjorn.andersson@linaro.org, anup@brainfault.org,
+        thierry.reding@gmail.com, jonathanh@nvidia.com,
+        jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        yury.norov@gmail.com, andriy.shevchenko@linux.intel.com,
+        linux@rasmusvillemoes.dk, rostedt@goodmis.org,
+        senozhatsky@chromium.org, john.ogness@linutronix.de,
+        paulmck@kernel.org, frederic@kernel.org, quic_neeraju@quicinc.com,
+        josh@joshtriplett.org, mathieu.desnoyers@efficios.com,
+        jiangshanlai@gmail.com, joel@joelfernandes.org,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, bsegall@google.com, mgorman@suse.de,
+        bristot@redhat.com, vschneid@redhat.com, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org, linux-xtensa@linux-xtensa.org,
+        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-arch@vger.kernel.org,
+        rcu@vger.kernel.org
+Subject: Re: [PATCH 24/36] printk: Remove trace_.*_rcuidle() usage
+Message-ID: <YqG6URbihTNCk9YR@alley>
+References: <20220608142723.103523089@infradead.org>
+ <20220608144517.444659212@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220608144517.444659212@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 08 2022, Alex Williamson <alex.williamson@redhat.com> wrote:
+On Wed 2022-06-08 16:27:47, Peter Zijlstra wrote:
+> The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
+> tracepoint"), was printk usage from the cpuidle path where RCU was
+> already disabled.
+> 
+> Per the patches earlier in this series, this is no longer the case.
 
-> The use of 'extern' in function prototypes has been disrecommended in
-> the kernel coding style for several years now, remove them from all vfio
-> related files so contributors no longer need to decide between style and
-> consistency.
->
-> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+My understanding is that this series reduces a lot the amount
+of code called with RCU disabled. As a result the particular printk()
+call mentioned by commit fc98c3c8c9dc ("printk: use rcuidle console
+tracepoint") is called with RCU enabled now. Hence this particular
+problem is fixed better way now.
+
+But is this true in general?
+Does this "prevent" calling printk() a safe way in code with
+RCU disabled?
+
+I am not sure if anyone cares. printk() is the best effort
+functionality because of the consoles code anyway. Also I wonder
+if anyone uses this trace_console().
+
+Therefore if this patch allows to remove some tricky tracing
+code then it might be worth it. But if trace_console_rcuidle()
+variant is still going to be available then I would keep using it.
+
+Best Regards,
+Petr
+
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 > ---
->
-> A patch in the same vein was proposed about a year ago, but tied to an ill
-> fated series and forgotten.  Now that we're at the beginning of a new
-> development cycle, I'd like to propose kicking off the v5.20 vfio next
-> branch with this patch and would kindly ask anyone with pending respins or
-> significant conflicts to rebase on top of this patch.  Thanks!
->
->  Documentation/driver-api/vfio-mediated-device.rst |   10 ++-
->  drivers/s390/cio/vfio_ccw_cp.h                    |   12 ++--
->  drivers/s390/cio/vfio_ccw_private.h               |    6 +-
->  drivers/vfio/fsl-mc/vfio_fsl_mc_private.h         |    2 -
->  drivers/vfio/platform/vfio_platform_private.h     |   21 +++---
->  include/linux/vfio.h                              |   70 ++++++++++-----------
->  include/linux/vfio_pci_core.h                     |   65 ++++++++++----------
->  7 files changed, 91 insertions(+), 95 deletions(-)
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-
+>  kernel/printk/printk.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- a/kernel/printk/printk.c
+> +++ b/kernel/printk/printk.c
+> @@ -2238,7 +2238,7 @@ static u16 printk_sprint(char *text, u16
+>  		}
+>  	}
+>  
+> -	trace_console_rcuidle(text, text_len);
+> +	trace_console(text, text_len);
+>  
+>  	return text_len;
+>  }
+> 
