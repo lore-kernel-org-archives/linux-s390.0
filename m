@@ -2,73 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49634C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 03:29:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF1E9C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 03:49:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237593AbiFID3n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Jun 2022 23:29:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54526 "EHLO
+        id S231346AbiFIDtG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Jun 2022 23:49:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236504AbiFID3m (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 23:29:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 273AA1E226D;
-        Wed,  8 Jun 2022 20:29:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F154AB82B94;
-        Thu,  9 Jun 2022 03:29:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAB32C34116;
-        Thu,  9 Jun 2022 03:29:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654745376;
-        bh=xoMdLg4homzX7FWVt3xib9e6tyLXTnBCuXHzsxIdiYU=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=SHTS45FZ1e4NdsSWYZaoPM01p8VvTFdnfmSUye57UgA/nGXzngjzNW5OJKi9+bzdM
-         ZLMVnGAjbJ0MJovWKA6sdWs43dW9D3xJ1N7BKP+3KHhaDhGQsIHU/yEA/Ebw0HA6xH
-         CjK+CajEOkREWLliuvGmu0pLv10rr4kQjGAPn8SqqX8yTpKEHtkmHzueLCgocozA1c
-         Xu9141RD4pF85Sb56qROkM5WSUzdibeFV6UCKgQA87edE8NPNX3imSUDKbfSEleUqX
-         9Rm6dfZR3qO/Me8hvV+wMhVXs8okdyoJCdlYUhy9utNGqKj1d2If2fbqsDsVvXUEBL
-         hCkr/Khg1eYlQ==
-Date:   Wed, 8 Jun 2022 20:29:34 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     David Ahern <dsahern@kernel.org>
-Cc:     Jiri Pirko <jiri@resnulli.us>, davem@davemloft.net,
-        netdev@vger.kernel.org, edumazet@google.com, pabeni@redhat.com,
-        steffen.klassert@secunet.com, jreuter@yaina.de,
-        razor@blackwall.org, kgraul@linux.ibm.com, ivecera@redhat.com,
-        jmaloy@redhat.com, ying.xue@windriver.com, lucien.xin@gmail.com,
-        arnd@arndb.de, yajun.deng@linux.dev, atenart@kernel.org,
-        richardsonnick@google.com, hkallweit1@gmail.com,
-        linux-hams@vger.kernel.org, dev@openvswitch.org,
-        linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net
-Subject: Re: [PATCH net-next] net: rename reference+tracking helpers
-Message-ID: <20220608202934.6412b843@kernel.org>
-In-Reply-To: <f263209c-509c-5f6b-865c-cd5d38d29549@kernel.org>
-References: <20220608043955.919359-1-kuba@kernel.org>
-        <YqBdY0NzK9XJG7HC@nanopsycho>
-        <20220608075827.2af7a35f@kernel.org>
-        <f263209c-509c-5f6b-865c-cd5d38d29549@kernel.org>
+        with ESMTP id S229833AbiFIDtD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jun 2022 23:49:03 -0400
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A57232C;
+        Wed,  8 Jun 2022 20:49:01 -0700 (PDT)
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id EFD956732D; Thu,  9 Jun 2022 05:48:52 +0200 (CEST)
+Date:   Thu, 9 Jun 2022 05:48:52 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     Luis Chamberlain <mcgrof@kernel.org>
+Cc:     Song Liu <song@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Guo Ren <guoren@kernel.org>,
+        Jarkko Sakkinen <jarkko@profian.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nathaniel McCallum <nathaniel@profian.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Marco Elver <elver@google.com>,
+        Dan Li <ashimida@linux.alibaba.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhongjin <chenzhongjin@huawei.com>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Mark Brown <broonie@kernel.org>,
+        Luis Machado <luis.machado@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Joey Gouly <joey.gouly@arm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dave Anglin <dave.anglin@bell.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Daniel Axtens <dja@axtens.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@atishpatra.org>,
+        Changbin Du <changbin.du@intel.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Liao Chang <liaochang1@huawei.com>,
+        Philipp Tomsich <philipp.tomsich@vrull.eu>,
+        Wu Caize <zepan@sipeed.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Tobias Huschle <huschle@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Michael Roth <michael.roth@amd.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-modules@vger.kernel.org
+Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
+Message-ID: <20220609034852.GA30873@lst.de>
+References: <20220608000014.3054333-1-jarkko@profian.com> <CAJF2gTQgCn2CyZ4+VBqEEBT2b4+1KxoEXxrd+Ritk=58+U8EFA@mail.gmail.com> <YqAy0qjI4Lktk/uJ@iki.fi> <20220608232115.ccd4399f4a1d133e9b65c2a9@kernel.org> <CAPhsuW6iUieQvA6KqzSLgtxmjkVSWCuVwNA338DATb_myHxo7w@mail.gmail.com> <CAPhsuW6BzUtqnjvaGJScXRpghs0_V_phpdyd4_oAKhvmkX-GFw@mail.gmail.com> <YqEF6+YKqCHsWZJW@bombadil.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YqEF6+YKqCHsWZJW@bombadil.infradead.org>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 8 Jun 2022 16:58:08 -0600 David Ahern wrote:
-> On 6/8/22 8:58 AM, Jakub Kicinski wrote:
-> > IMO to encourage use of the track-capable API we could keep their names
-> > short and call the legacy functions __netdev_hold() as I mentioned or
-> > maybe netdev_hold_notrack().  
-> 
-> I like that option. Similar to the old nla_parse functions that were
-> renamed with _deprecated - makes it easier to catch new uses.
+On Wed, Jun 08, 2022 at 01:26:19PM -0700, Luis Chamberlain wrote:
+> No, that was removed because it has only one user.
 
-Well, not really a perfect parallel because _deprecated nla has to stay
-forever, given it behaves differently, while _notrack would hopefully
-die either thru conversion or someone rightly taking an axe to the
-cobwebbed code.
+That is only part of the story.  The other part is that the overall
+kernel simply does not have any business allocating exutable memory.
+Executable memory is a very special concept for modules or module-like
+code like kprobes, and should not be exposed as a general concept.
 
-Either way, I hope nobody is against merging the current patch.
+Especially as executable memory really should not also be writable
+for security reasons.  In other words, we should actually never
+allocate executable memory, every.  We might seal memory and then
+mark it executable after having written to it, which is how modules
+and kprobes are implemented on all modern Linux ports anyway.
