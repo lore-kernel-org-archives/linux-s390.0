@@ -2,122 +2,181 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 284B4C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 04:40:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D24B2CCA47D
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 05:40:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237038AbiFIEkX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 00:40:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54232 "EHLO
+        id S238487AbiFIFj7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 01:39:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234229AbiFIEkW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 00:40:22 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BF2F19A735
-        for <linux-s390@vger.kernel.org>; Wed,  8 Jun 2022 21:40:19 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id c2so29574840edf.5
-        for <linux-s390@vger.kernel.org>; Wed, 08 Jun 2022 21:40:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20210112.gappssmtp.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=FGwLN6puZ2hD8UNyN4LTRFh855zcMnLstF1aT3B7ECg=;
-        b=vckwlfQRJJgVJD2IArXfO8ivPnho4P23qQegmr2OKAnSRJamakuH15QFoEH5y7pl8c
-         blM2Fz+NfuJjbvKPf3YJicVjEKs6XYI41DUM4AZgeS3Crl/NvLymV8vPXl3+3feBBdPi
-         Dh0y7CoHm2DXxYSBVfPuDJzyW39BDxEZ/QuF4RLdurWL9JHlbx7L1xLb/bVnpI996DX6
-         yO5r7IDiAbSEFtqx1gGfbH/pdBIO7Lx4Kmpu6yBbLPH2Xv3WD5I6wXQc3jwWOfFIHvmV
-         QyLuvDk8LkAHIqxKHe6UXt7lUONKMkrvnhW8VbmWPjsnDA6dl9FSJ7xMAqrzP8NJ9BgI
-         GnPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=FGwLN6puZ2hD8UNyN4LTRFh855zcMnLstF1aT3B7ECg=;
-        b=HAtKij7+QZCzJYv7BHz2VlRjjQP2uKPImqNsSIYRp+gTAO58axdLhXpU+E/DQriURB
-         2MUBibCyRJgliwCl9FQ23g1nrUOkfCotfUXv8K12nGcIsDTHdlQVAPsNXvAb9djPf4ef
-         659Jj08xh6XUPYgBXwf0Lhb26jOIWzsylMb88ouuqNVyAZtSDy+vFLud39U90NftIPFo
-         fT0HomVdRiPC8n9WN1UH/Es0IW4WSG8oOELGv8nQJvVihfEW8P7huSt5HKfw32o9cmoT
-         HbQqPrF/qAfeviVfBIAc4eLjmPF5tNJfRYEN/9ODzXhPK7T0sTajA/Jb+rI649ZCL+vD
-         b3kA==
-X-Gm-Message-State: AOAM5301TBYv8u9lGW6eySB9RHp4Uu5uI1AddUQuAdQCx6aXN+2bsv4V
-        e9czfFqHcbgqoenQpwxNVGnjCw==
-X-Google-Smtp-Source: ABdhPJwkl5Dwf+IBNyE9I/uIGnca3Y413YdqXpI0R0HFLSWuB7sCtSbudO+fNiixBToO1SPOJsk2Ag==
-X-Received: by 2002:a50:9f88:0:b0:42d:f7d2:1b7b with SMTP id c8-20020a509f88000000b0042df7d21b7bmr43486428edf.139.1654749617527;
-        Wed, 08 Jun 2022 21:40:17 -0700 (PDT)
-Received: from localhost (mail.chocen-mesto.cz. [85.163.43.2])
-        by smtp.gmail.com with ESMTPSA id t2-20020a056402524200b004333e3e3199sm465008edd.63.2022.06.08.21.40.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jun 2022 21:40:17 -0700 (PDT)
-Date:   Thu, 9 Jun 2022 06:40:15 +0200
-From:   Jiri Pirko <jiri@resnulli.us>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
-        pabeni@redhat.com, dsahern@kernel.org,
-        steffen.klassert@secunet.com, jreuter@yaina.de,
-        razor@blackwall.org, kgraul@linux.ibm.com, ivecera@redhat.com,
-        jmaloy@redhat.com, ying.xue@windriver.com, lucien.xin@gmail.com,
-        arnd@arndb.de, yajun.deng@linux.dev, atenart@kernel.org,
-        richardsonnick@google.com, hkallweit1@gmail.com,
-        linux-hams@vger.kernel.org, dev@openvswitch.org,
-        linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net
-Subject: Re: [PATCH net-next] net: rename reference+tracking helpers
-Message-ID: <YqF5rzIiLCJgW5Gd@nanopsycho>
-References: <20220608043955.919359-1-kuba@kernel.org>
- <YqBdY0NzK9XJG7HC@nanopsycho>
- <20220608075827.2af7a35f@kernel.org>
+        with ESMTP id S237522AbiFIFj6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 01:39:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E27C73FDA7;
+        Wed,  8 Jun 2022 22:39:55 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87718B82C20;
+        Thu,  9 Jun 2022 05:39:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C191AC34114;
+        Thu,  9 Jun 2022 05:39:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1654753192;
+        bh=ZBzW7c26dslHeRr0ieKbrHN+05ZdER8p0imFsIG2U6Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=F2o+ddHoBAh/ztSTEKLJZaE98wUIiQxUNoAdW7BKWVIFeAQYKxd9oL3vnlesLyKiT
+         VPKotdlsvpJZKg7TX7GrDwbwHGgxs3Qf8sMkZdCE0hRTpjzlMCugH24kzF76BmzYme
+         FUzeMivArYzPXUNpXIYaEwcOX33YkdGM40VXdm0o37FlvFRqULsbkJoYQ5wnf0eIx0
+         TsgucyhkqJSUb8zaXjI6z38KzJrwe/5gEy/qHB66zJJ+NN0dJalvYXl+h/dTuz52xO
+         KDwJeNKP7bAq38rvYsyIpD7YkTJTxX5WVGn8fBd514jOuj6Fut8wOy/CTcFyzoQstK
+         voCzneXRcBiJw==
+Date:   Thu, 9 Jun 2022 08:37:54 +0300
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Jarkko Sakkinen <jarkko@profian.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nathaniel McCallum <nathaniel@profian.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Marco Elver <elver@google.com>,
+        Dan Li <ashimida@linux.alibaba.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Song Liu <song@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhongjin <chenzhongjin@huawei.com>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Mark Brown <broonie@kernel.org>,
+        Luis Machado <luis.machado@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Joey Gouly <joey.gouly@arm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dave Anglin <dave.anglin@bell.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Daniel Axtens <dja@axtens.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Guo Ren <guoren@kernel.org>, Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@atishpatra.org>,
+        Changbin Du <changbin.du@intel.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Liao Chang <liaochang1@huawei.com>,
+        Philipp Tomsich <philipp.tomsich@vrull.eu>,
+        Wu Caize <zepan@sipeed.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Tobias Huschle <huschle@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Michael Roth <michael.roth@amd.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-modules@vger.kernel.org
+Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
+Message-ID: <YqGHMs4ha7JMvODf@iki.fi>
+References: <20220608000014.3054333-1-jarkko@profian.com>
+ <CAMj1kXFsdEq6XZ6eOuf8Ks-F4qgneVxFeLYNN_S4JaPy8koEyw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220608075827.2af7a35f@kernel.org>
+In-Reply-To: <CAMj1kXFsdEq6XZ6eOuf8Ks-F4qgneVxFeLYNN_S4JaPy8koEyw@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Wed, Jun 08, 2022 at 04:58:27PM CEST, kuba@kernel.org wrote:
->On Wed, 8 Jun 2022 10:27:15 +0200 Jiri Pirko wrote:
->> Wed, Jun 08, 2022 at 06:39:55AM CEST, kuba@kernel.org wrote:
->> >Netdev reference helpers have a dev_ prefix for historic
->> >reasons. Renaming the old helpers would be too much churn  
->> 
->> Hmm, I think it would be great to eventually rename the rest too in
->> order to maintain unique prefix for netdev things. Why do you think the
->> "churn" would be an issue?
->
->Felt like we're better of moving everyone to the new tracking helpers
->than doing just a pure rename. But I'm not opposed to a pure rename.
->
->> >diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
->> >index 817577e713d7..815738c0e067 100644
->> >--- a/drivers/net/macsec.c
->> >+++ b/drivers/net/macsec.c
->> >@@ -3462,7 +3462,7 @@ static int macsec_dev_init(struct net_device *dev)
->> > 		memcpy(dev->broadcast, real_dev->broadcast, dev->addr_len);
->> > 
->> > 	/* Get macsec's reference to real_dev */
->> >-	dev_hold_track(real_dev, &macsec->dev_tracker, GFP_KERNEL);
->> >+	netdev_hold(real_dev, &macsec->dev_tracker, GFP_KERNEL);  
->> 
->> So we later decide to rename dev_hold() to obey the netdev_*() naming
->> scheme, we would have collision.
->
->dev_hold() should not be used in new code, we should use tracking
->everywhere. Given that we can name the old helpers __netdev_hold().
->
->> Also, seems to me odd to have:
->> OLDPREFIX_x()
->> and
->> NEWPREFIX_x()
->> to be different functions.
->> 
->> For the sake of not making naming mess, could we rather have:
->> netdev_hold_track()
->> or
->> netdev_hold_tr() if the prior is too long
->> ?
->
->See above, one day non-track version should be removed.
->IMO to encourage use of the track-capable API we could keep their names
->short and call the legacy functions __netdev_hold() as I mentioned or
->maybe netdev_hold_notrack().
+On Wed, Jun 08, 2022 at 06:27:51PM +0200, Ard Biesheuvel wrote:
+> Hello Jarkko,
+> 
+> On Wed, 8 Jun 2022 at 02:02, Jarkko Sakkinen <jarkko@profian.com> wrote:
+> >
+> > Tracing with kprobes while running a monolithic kernel is currently
+> > impossible because CONFIG_KPROBES is dependent of CONFIG_MODULES.  This
+> > dependency is a result of kprobes code using the module allocator for the
+> > trampoline code.
+> >
+> > Detaching kprobes from modules helps to squeeze down the user space,
+> > e.g. when developing new core kernel features, while still having all
+> > the nice tracing capabilities.
+> >
+> > For kernel/ and arch/*, move module_alloc() and module_memfree() to
+> > module_alloc.c, and compile as part of vmlinux when either CONFIG_MODULES
+> > or CONFIG_KPROBES is enabled.  In addition, flag kernel module specific
+> > code with CONFIG_MODULES.
+> >
+> > As the result, kprobes can be used with a monolithic kernel.
+> 
+> I think I may have mentioned this the previous time as well, but I
+> don't think this is the right approach.
 
-Okay, that makes sense.
+OK, I apologize for my ignorance. It's been a while.
 
+> Kprobes uses alloc_insn_page() to allocate executable memory, but the
+> requirements for this memory are radically different compared to
+> loadable modules, which need to be within an arch-specific distance of
+> the core kernel, need KASAN backing etc etc.
+> 
+> This is why arm64, for instance, does not implement alloc_insn_page()
+> in terms of module_alloc() [and likely does not belong in this patch
+> for that reason]
+> 
+> Is there any reason kprobes cannot simply use vmalloc()?
+
+All arch's, except nios2 use vmalloc() in the end for module_alloc().
+nios2 uses kmalloc() for the reasons that I'm not aware of, but it does
+not support kprobes in the first place.
+
+Based on this, I think that could work out just fine.
+
+I could cope with that.
+
+BR, Jarkko
