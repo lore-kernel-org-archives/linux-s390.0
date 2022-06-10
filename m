@@ -2,197 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EB78CCA483
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Jun 2022 23:45:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE9E7C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Jun 2022 00:04:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345500AbiFIXp2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Jun 2022 19:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41460 "EHLO
+        id S238709AbiFJAEj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Jun 2022 20:04:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232670AbiFIXpY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 19:45:24 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E963A60ABF;
-        Thu,  9 Jun 2022 16:45:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654818322; x=1686354322;
-  h=date:from:to:cc:subject:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=/qix89+4Yux2UyS3QMBWmKLCne+VvkXES21cCGFIhLs=;
-  b=EkaTUs0rea+454rYaBsqSroRFg0PamD4jU6O0eq1wv/5itn58fVYLUXz
-   hlWtv1Ogpl7/5XIS618tIb0uG/q2+eGCMXsttxiOJDTm6dvjif29rcsmN
-   nWpOfx8wOz2WQB1f6Ul8b7EGNqASBsmk3lVSAAbjuyEvvEhAIHeX8zQmg
-   +ufj+64/oRf3ev5vJZH5Yejs7zEtNES51/2LxU4etWbj7BVv+kw0q1QiP
-   unGfwpuQghUcTK8rXLxr286tVxF9gYfN+irF5pYrEItvr0xmkc2yTnQok
-   EbNfwxaIzp9UCsQ8gskKbD4HfjRVXi6KKS6myyqzqnJkOJaWOKufoYQaK
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10373"; a="278263539"
-X-IronPort-AV: E=Sophos;i="5.91,288,1647327600"; 
-   d="scan'208";a="278263539"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2022 16:45:19 -0700
-X-IronPort-AV: E=Sophos;i="5.91,288,1647327600"; 
-   d="scan'208";a="610480359"
-Received: from jacob-builder.jf.intel.com (HELO jacob-builder) ([10.7.198.157])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2022 16:45:19 -0700
-Date:   Thu, 9 Jun 2022 16:49:21 -0700
-From:   Jacob Pan <jacob.jun.pan@linux.intel.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com,
-        vgupta@kernel.org, linux@armlinux.org.uk,
-        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
-        shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
-        tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com,
-        will@kernel.org, guoren@kernel.org, bcain@quicinc.com,
-        chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
-        sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de,
-        dinguyen@kernel.org, jonas@southpole.se,
-        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
-        James.Bottomley@HansenPartnership.com, deller@gmx.de,
-        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
-        davem@davemloft.net, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        acme@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
-        amakhalov@vmware.com, pv-drivers@vmware.com,
-        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
-        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
-        gregkh@linuxfoundation.org, mturquette@baylibre.com,
-        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
-        sudeep.holla@arm.com, agross@kernel.org,
-        bjorn.andersson@linaro.org, anup@brainfault.org,
-        thierry.reding@gmail.com, jonathanh@nvidia.com,
-        Arnd Bergmann <arnd@arndb.de>, yury.norov@gmail.com,
-        andriy.shevchenko@linux.intel.com, linux@rasmusvillemoes.dk,
-        rostedt@goodmis.org, pmladek@suse.com, senozhatsky@chromium.org,
-        john.ogness@linutronix.de, paulmck@kernel.org, frederic@kernel.org,
-        quic_neeraju@quicinc.com, josh@joshtriplett.org,
-        mathieu.desnoyers@efficios.com, jiangshanlai@gmail.com,
-        joel@joelfernandes.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
-        vschneid@redhat.com, jpoimboe@kernel.org,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org, linux-xtensa@linux-xtensa.org,
-        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-arch@vger.kernel.org,
-        rcu@vger.kernel.org, jacob.jun.pan@linux.intel.com
-Subject: Re: [PATCH 04/36] cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE
-Message-ID: <20220609164921.5e61711d@jacob-builder>
-In-Reply-To: <20220608144516.172460444@infradead.org>
-References: <20220608142723.103523089@infradead.org>
-        <20220608144516.172460444@infradead.org>
-Organization: OTC
-X-Mailer: Claws Mail 3.17.5 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        with ESMTP id S231197AbiFJAEi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jun 2022 20:04:38 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2052.outbound.protection.outlook.com [40.107.244.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 200B52E93E7;
+        Thu,  9 Jun 2022 17:04:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=RWw8qmAIQV8n4SLR+cTBch8sFHDZ7ONliENFZIaYSQv4wx9NkqaBmR8bMK/aF+EWfowcRaaj8JAzffRJZUM4T+Ba5zOaWlmfDQQfPMAFoRZ4kYj4j8czdM0mJiuwwsgYWlgxVQ3sxT6GFbFtBwpKwxO3k7LzG64HoPqXRfo+SEdHP2XJ2eZkiyGBbOYTu4aLNDOrGCZGIm4tBD5eE6UyEtFOrAoBFqR24UGNABy3E6WRbeY+lWef2N6tVKyrTUogmSTboNjd/30Kn0bFt2jTNEAGlH0sofX+mcYdkD9UKOKKs6SIBaCS9vn74nSXgYjQut547hYjLszw0E1/FS3Whw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=BkJSpoqJIZ+uhN6zMr35XHimir9RM5KTDo8T0C1uJWg=;
+ b=Gmeygob0T8EQRyHBjTNWGQS+ApV6G4B0EEtcumW+5eYAqVIv33Zn7jqWJwQAPf0tkDAyiDE6Z/+MUzDjnaIWXtCFZVS8U9AG/1PESYlvt5EeJsJhkuF/ttvuTxqWG0j2mkRp0ojZHRMzWpoqBy3qpaAUzlaA8fWrt3CFLzo5azX27qMC1FMz1vWic2cH74j1M/A8KfyxJk9lUSs433J/7IisuGOTcqutVJ+P5PZcLYiw6EZA/atpo2Bx/XwBUtd84JTvbUcBbVAJxGPZZ5UinmAtxS4WF4nXZMgt7Bkmwv8T3e65lgnmuMZmyeQGKObzsNAWXzJnS0LujjyMun0ymg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BkJSpoqJIZ+uhN6zMr35XHimir9RM5KTDo8T0C1uJWg=;
+ b=q9Lpk4gf533toSPgrEjBEbgkc7mGPF+7Uvs+ttzLOtT4u1MC08cLaEs2+0KJYmH+NKpqZQbzJBLnYORLEmdQV4qE8Zh1lizBtuPEuddVUFaxlO7hSo7N9UusMF7sfWbHdmAOmeFJKXE8Imm3w85W+T+8e2qLMrVW37KVDzuL2CN9a+J5e+22/qpRvJhghQm9M7dO0q5Rsz6XZD5WNpA8jm+/IGGiiajizUEAurZagMIIzbfTPmx9hlJGktEtd+ndeHX9c8zSq1b0dDrI7xVefJv6JweIXOFXdXVBwsgB6Z+s7Ykv3ArD5Hem+BrAQJCiOEf2sRAxaFxzTuO03j4Cxw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by CY4PR12MB1768.namprd12.prod.outlook.com (2603:10b6:903:11c::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.17; Fri, 10 Jun
+ 2022 00:04:35 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb%3]) with mapi id 15.20.5332.013; Fri, 10 Jun 2022
+ 00:04:35 +0000
+Date:   Thu, 9 Jun 2022 21:04:34 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     kwankhede@nvidia.com, farman@linux.ibm.com, mjrosato@linux.ibm.com,
+        pasic@linux.ibm.com, diana.craciun@oss.nxp.com, cohuck@redhat.com,
+        eric.auger@redhat.com, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, yishaih@nvidia.com, hch@lst.de
+Subject: Re: [PATCH] vfio: de-extern-ify function prototypes
+Message-ID: <20220610000434.GE1343366@nvidia.com>
+References: <165471414407.203056.474032786990662279.stgit@omen>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <165471414407.203056.474032786990662279.stgit@omen>
+X-ClientProxiedBy: MN2PR16CA0042.namprd16.prod.outlook.com
+ (2603:10b6:208:234::11) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a54be9f8-45fe-4684-df7e-08da4a74cdbe
+X-MS-TrafficTypeDiagnostic: CY4PR12MB1768:EE_
+X-Microsoft-Antispam-PRVS: <CY4PR12MB1768D2513F9569138FA509B5C2A69@CY4PR12MB1768.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 7InaZMIrXuv9s253r6D/zEYbk2FZ1fZclqCwT+QwR/Pel/3hhUSrf9Xd6Y/TuwfYIc6OJtXvbIm8C/wkQAP3Og+45311F+oVAL1m3QobgNlnh/2ITeBid0zHcM27UMq8iFOECEOR/Fl+1gOjW53OnlNLyCzVoDXyvfqX6yjS+QNrXtiZiv7oniiV+9JvqUO3UcLhtk8XEbGHoUWgnN6g73YLyFvtG/9Jt3BgrnTUvtXwLCg2+fk9vW7At2DhHo2vMskurIaRpdGxDbGv20xhC18VDqDcjnsDJKiWosxUyboABIX2WFDmRPEUa8xFp+Xn6Vk/XHg+mt/YmWwTROkme6YVrWBjv7R9/koSPm3fay/JPBr+Iu2gldsqFmcJIYiCP0VvKNWxFqKe+8XLXArE/yzdBYQJWi6QmyT78KSb9CVFYVLGQSfzAbFPKSKns/MKXCSILL+UCCmbiAF71lMMtxFuGRseF2RpW32J8W+RqeD7pHQb+obAN+t3/Y53Zo+O5zdomg6byXXpkLh03M/9FGRPfTtPy4CZkZTdBgDJpA4WMtNMxYqo1QHeKL3TYIz0p0UZZuSa1JcUL3NuAYGKoADExfVRRcE/5fMM32QN5aYRr0egz5fAWCjtbl63qNWTyizJbTeKaHB8WYro3gyHog==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(38100700002)(186003)(5660300002)(6916009)(4326008)(66946007)(8936002)(8676002)(66556008)(66476007)(4744005)(508600001)(316002)(7416002)(6486002)(33656002)(6506007)(86362001)(26005)(36756003)(2906002)(2616005)(6512007)(1076003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?fbatCssn4GawTpeCIlXO4P+V9btiSQaWnecQzFFkF7ZXBJe73V5uPx2dOk2q?=
+ =?us-ascii?Q?NKG5XCeoIc7wSxUG2gwmn5xpOmHMfWVP70gFSFNW7FcfWKoiBlC99HFBO+kd?=
+ =?us-ascii?Q?ccp8CrcBTGgBcpZa7uggl9XTfwWQMFw2t57mvxmx1C4LpTXpRhvObW4VM3WO?=
+ =?us-ascii?Q?kiZIhYJXQCdbcoezDGAsAt2PUH7JrQiWB2MBvnMvA9IWBwkudFMN1lJ+DUtr?=
+ =?us-ascii?Q?1lNBaiaUZreizhHWphDUMTACansJSQesfewED79BVt0kMx5OvXKmgykhvW8g?=
+ =?us-ascii?Q?y8NUoTh3bdUfimMlrW3FJ7ldVEcZWKicLvxxor1H+3Y6y67dQt2JvzpVw0CB?=
+ =?us-ascii?Q?u9gFsL8zuBSS+LdQTP5yzeCiVJ9W+8GyP25dD5SedHRqDWn6WHo5Ct54WRU0?=
+ =?us-ascii?Q?DXWVTYP1HMnlp2wW7nSTR2bMfhePBgMtGNCohUJ2KVeGIPofsw8a7hRyPICh?=
+ =?us-ascii?Q?r7UraBQ45UV0nOe15/8kt5NyYKlMaUV2AlLcWOCeJAB/y7Z1qPvMkPwYLt0I?=
+ =?us-ascii?Q?fER7GcHc4NPFB2T8dgCAK5y7n7VGjSW3ftadkFT81EHE2vgnsCI3Pj2ZdNam?=
+ =?us-ascii?Q?BTPZSJU6wTW/SeP7y+QeEY/rkUwg9rwul0RK3yWO36CLErfuVB/IQ6T3bbas?=
+ =?us-ascii?Q?ufI+JqweuzqIbQuePAIS0QKnJwGJuse3Yd3IjEC8JxnzWdblpBZUP8lAKZZq?=
+ =?us-ascii?Q?7rAFGkBGw2SObjmXcrbZltQ4xNUWAInpy9aemWuNgx3Mm+qDujMEmIiJ1+q1?=
+ =?us-ascii?Q?yjrTjgpBj3zaDpixU3uQOx2q5XHmjhTJ5lOXTJ3l3S18eWTuiyjg98mL07kL?=
+ =?us-ascii?Q?XzBs1Tvsfni8dQmIx02WMvjLqzGOEcYCOPvCbpDKFgMQRJGtvvDjF12LBvx0?=
+ =?us-ascii?Q?3mAWI2ni2xSHcfW3TWRmvFhbQ8ZJ102v8F8llcGGuzv6iN/hZ/xAGd0Y7l9D?=
+ =?us-ascii?Q?tTQL3WSevWtvOksfrCZTUgx82DrxJ+ciDXqnunj+FSLIkkH51gI9Kd9k+eF2?=
+ =?us-ascii?Q?vQqSJ+QzoTHuaDEDODAkXVNka6HA7RiXDVpQ/HDh3FCAhD62KY2KTsKDvWvg?=
+ =?us-ascii?Q?zkgmmqUlfPOm0LtYmeN426Ck4jpGH8OxlNTpp1vWlU5M+pJMSsOv3sMV4zyE?=
+ =?us-ascii?Q?BfbKY0LnfnQ4ISMc6Z249Xc/bDREScMI6jHAfhMQi4O0ovR+db7hfryepBfw?=
+ =?us-ascii?Q?U2ArKnmZv1gCTMCuJRjUGvOYKUhYRxLnZVoZHlEfziibOOlxEv/Zyc5wsLjS?=
+ =?us-ascii?Q?88GjvpkenX0xnzoFPo4upkQiuegpgO9UZstyeVViAmq5XFqriDJOrsesryFs?=
+ =?us-ascii?Q?0JUIegerxK8k/8lDX3lUJmkSDvdbPHOHvtX9lSLqghL7A8N9in5LQbYHwgq+?=
+ =?us-ascii?Q?laJzqzzQdHAqReLYnN9VQDrxrs+2j6tRhjlG9ODYl9k4qbDkdvj4P+jg176i?=
+ =?us-ascii?Q?wfgQOXyzIRtwl0IrqMeZMuv0QF62LUtkHNAR75GYUBiszvgLCysI1qqEPNQ7?=
+ =?us-ascii?Q?JNyKDK8zZuNmIEBaIyRU0WECGoNMCZ5B04BbwhT2QIEFkiHR7DYzV1BvFQnc?=
+ =?us-ascii?Q?eBcXAQ25Xiw6ewnqKkIUuxoO0KJJd5gB7n6/sYUfyiWwlFzmuPKl8ibrUmgi?=
+ =?us-ascii?Q?OE5Ebp0paROITbWFybTZKKvmWTnWpTbxk3cZtHoaIXKlBDoBpuVfDBXnHFHa?=
+ =?us-ascii?Q?/eAJh7e/ywCKCWN0F2UiLbDLr5qwoHW59dSeptlrLjA8BldWspFsBi0zoREc?=
+ =?us-ascii?Q?uIvnQUfhJQ=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a54be9f8-45fe-4684-df7e-08da4a74cdbe
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jun 2022 00:04:35.6565
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7rIPBbajZ9g25y1MrwWXPxrj+W01nrWfCnwVLe2nXhbGAhHXqKdUgJE5o0U0vUkN
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1768
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Peter,
-
-On Wed, 08 Jun 2022 16:27:27 +0200, Peter Zijlstra <peterz@infradead.org>
-wrote:
-
-> Commit c227233ad64c ("intel_idle: enable interrupts before C1 on
-> Xeons") wrecked intel_idle in two ways:
+On Wed, Jun 08, 2022 at 12:55:13PM -0600, Alex Williamson wrote:
+> The use of 'extern' in function prototypes has been disrecommended in
+> the kernel coding style for several years now, remove them from all vfio
+> related files so contributors no longer need to decide between style and
+> consistency.
 > 
->  - must not have tracing in idle functions
->  - must return with IRQs disabled
-> 
-> Additionally, it added a branch for no good reason.
-> 
-> Fixes: c227233ad64c ("intel_idle: enable interrupts before C1 on Xeons")
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 > ---
->  drivers/idle/intel_idle.c |   48
-> +++++++++++++++++++++++++++++++++++----------- 1 file changed, 37
-> insertions(+), 11 deletions(-)
 > 
-> --- a/drivers/idle/intel_idle.c
-> +++ b/drivers/idle/intel_idle.c
-> @@ -129,21 +137,37 @@ static unsigned int mwait_substates __in
->   *
->   * Must be called under local_irq_disable().
->   */
-nit: this comment is no long true, right?
+> A patch in the same vein was proposed about a year ago, but tied to an ill
+> fated series and forgotten.  Now that we're at the beginning of a new
+> development cycle, I'd like to propose kicking off the v5.20 vfio next
+> branch with this patch and would kindly ask anyone with pending respins or
+> significant conflicts to rebase on top of this patch.  Thanks!
 
-> +
-> -static __cpuidle int intel_idle(struct cpuidle_device *dev,
-> -				struct cpuidle_driver *drv, int index)
-> +static __always_inline int __intel_idle(struct cpuidle_device *dev,
-> +					struct cpuidle_driver *drv, int
-> index) {
->  	struct cpuidle_state *state = &drv->states[index];
->  	unsigned long eax = flg2MWAIT(state->flags);
->  	unsigned long ecx = 1; /* break on interrupt flag */
->  
-> -	if (state->flags & CPUIDLE_FLAG_IRQ_ENABLE)
-> -		local_irq_enable();
-> -
->  	mwait_idle_with_hints(eax, ecx);
->  
->  	return index;
->  }
->  
-> +static __cpuidle int intel_idle(struct cpuidle_device *dev,
-> +				struct cpuidle_driver *drv, int index)
-> +{
-> +	return __intel_idle(dev, drv, index);
-> +}
-> +
-> +static __cpuidle int intel_idle_irq(struct cpuidle_device *dev,
-> +				    struct cpuidle_driver *drv, int
-> index) +{
-> +	int ret;
-> +
-> +	raw_local_irq_enable();
-> +	ret = __intel_idle(dev, drv, index);
-> +	raw_local_irq_disable();
-> +
-> +	return ret;
-> +}
-> +
->  /**
->   * intel_idle_s2idle - Ask the processor to enter the given idle state.
->   * @dev: cpuidle device of the target CPU.
-> @@ -1801,6 +1824,9 @@ static void __init intel_idle_init_cstat
->  		/* Structure copy. */
->  		drv->states[drv->state_count] =
-> cpuidle_state_table[cstate]; 
-> +		if (cpuidle_state_table[cstate].flags &
-> CPUIDLE_FLAG_IRQ_ENABLE)
-> +			drv->states[drv->state_count].enter =
-> intel_idle_irq; +
->  		if ((disabled_states_mask & BIT(drv->state_count)) ||
->  		    ((icpu->use_acpi || force_use_acpi) &&
->  		     intel_idle_off_by_default(mwait_hint) &&
-> 
-> 
+Can you stick it in your branch please?
 
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Thanks,
-
-Jacob
+Thanks
+Jason
