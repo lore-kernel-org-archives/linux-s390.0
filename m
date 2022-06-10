@@ -2,39 +2,39 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFDBBC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Jun 2022 22:13:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C34A1C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Jun 2022 22:20:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347524AbiFJWNR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Jun 2022 18:13:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34388 "EHLO
+        id S244949AbiFJWUe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Jun 2022 18:20:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343938AbiFJWNR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Jun 2022 18:13:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7758534B192;
-        Fri, 10 Jun 2022 15:13:15 -0700 (PDT)
+        with ESMTP id S238605AbiFJWUe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Jun 2022 18:20:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02D2B4D255;
+        Fri, 10 Jun 2022 15:20:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C710461C31;
-        Fri, 10 Jun 2022 22:13:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41B35C34114;
-        Fri, 10 Jun 2022 22:13:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7861AB8330D;
+        Fri, 10 Jun 2022 22:20:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5120AC34114;
+        Fri, 10 Jun 2022 22:20:28 +0000 (UTC)
 Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="aYQ7y6Rk"
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="DSF5nlyl"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1654899191;
+        t=1654899626;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=t2f6qI8/oFRViU76hvS66RGdR09WEUm5UJSyKhBZa3I=;
-        b=aYQ7y6RkeHA/IYB7+6LU2HZ5n0q7mFheTMdsbbg7kjzk4PesGYHrG0zUvWhdT7yOWETXs0
-        fb0oWh6lJqUeNABEg3+xiZgG8s4OdhHYsIh6GuvL8V+yJrZcZSTsBhpYr6/ZdoYGxVV4CC
-        Yc9U+D+C5ZhhiKmRbDPqlSq+GD5AfRM=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id dad9202c (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Fri, 10 Jun 2022 22:13:11 +0000 (UTC)
+        bh=YFpdOg3OgXWY/Khm8nkjgTwy8lUJHGm4vp6zM8xtjrY=;
+        b=DSF5nlylDHfKFStO7Xm4YULJsv+USQVagOH+ONmgPfJXCdGL/kKuWrpjvhs+w6SdS/85Fl
+        8omT9BnuPATU4RR5pFq6WJDCsTShIChSbcj8k7A3UCHgVQOnokiHWZXhjvPgnG8HxPNt36
+        R5dp4N7QpDwKtyLiPmyT/ergD8VUiqI=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id f016d077 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Fri, 10 Jun 2022 22:20:26 +0000 (UTC)
 From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
 To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>
@@ -42,11 +42,11 @@ Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
         Harald Freudenberger <freude@linux.ibm.com>,
         Ingo Franzki <ifranzki@linux.ibm.com>,
         Juergen Christ <jchrist@linux.ibm.com>
-Subject: [PATCH v2] s390/archrandom: simplify back to earlier design and initialize earlier
-Date:   Sat, 11 Jun 2022 00:13:05 +0200
-Message-Id: <20220610221305.370280-1-Jason@zx2c4.com>
-In-Reply-To: <20220610111041.2709-1-Jason@zx2c4.com>
-References: <20220610111041.2709-1-Jason@zx2c4.com>
+Subject: [PATCH v3] s390/archrandom: simplify back to earlier design and initialize earlier
+Date:   Sat, 11 Jun 2022 00:20:23 +0200
+Message-Id: <20220610222023.378448-1-Jason@zx2c4.com>
+In-Reply-To: <20220610221305.370280-1-Jason@zx2c4.com>
+References: <20220610221305.370280-1-Jason@zx2c4.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -87,16 +87,16 @@ Cc: Juergen Christ <jchrist@linux.ibm.com>
 Cc: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
- arch/s390/crypto/arch_random.c     | 216 +----------------------------
- arch/s390/include/asm/archrandom.h |  16 ++-
- arch/s390/kernel/setup.c           |   1 +
- 3 files changed, 13 insertions(+), 220 deletions(-)
+ arch/s390/crypto/arch_random.c     | 217 -----------------------------
+ arch/s390/include/asm/archrandom.h |  14 +-
+ arch/s390/kernel/setup.c           |   5 +
+ 3 files changed, 12 insertions(+), 224 deletions(-)
 
 diff --git a/arch/s390/crypto/arch_random.c b/arch/s390/crypto/arch_random.c
-index 56007c763902..f93bc2ab0fd7 100644
+index 56007c763902..1f2d40993c4d 100644
 --- a/arch/s390/crypto/arch_random.c
 +++ b/arch/s390/crypto/arch_random.c
-@@ -4,36 +4,12 @@
+@@ -4,232 +4,15 @@
   *
   * Copyright IBM Corp. 2017, 2020
   * Author(s): Harald Freudenberger
@@ -133,10 +133,10 @@ index 56007c763902..f93bc2ab0fd7 100644
  #include <asm/cpacf.h>
  
  DEFINE_STATIC_KEY_FALSE(s390_arch_random_available);
-@@ -41,195 +17,9 @@ DEFINE_STATIC_KEY_FALSE(s390_arch_random_available);
+ 
  atomic64_t s390_arch_random_counter = ATOMIC64_INIT(0);
  EXPORT_SYMBOL(s390_arch_random_counter);
- 
+-
 -#define ARCH_REFILL_TICKS (HZ/2)
 -#define ARCH_PRNG_SEED_SIZE 32
 -#define ARCH_RNG_BUF_SIZE 2048
@@ -175,8 +175,7 @@ index 56007c763902..f93bc2ab0fd7 100644
 -EXPORT_SYMBOL(s390_arch_random_generate);
 -
 -static void arch_rng_refill_buffer(struct work_struct *unused)
-+void __init arch_random_init(void)
- {
+-{
 -	unsigned int delay = ARCH_REFILL_TICKS;
 -
 -	spin_lock(&arch_rng_lock);
@@ -324,16 +323,14 @@ index 56007c763902..f93bc2ab0fd7 100644
 -				   &arch_rng_work, ARCH_REFILL_TICKS);
 -
 -		/* enable arch random to the outside world */
-+	/* check if subfunction CPACF_PRNO_TRNG is available */
-+	if (cpacf_query_func(CPACF_PRNO, CPACF_PRNO_TRNG))
- 		static_branch_enable(&s390_arch_random_available);
+-		static_branch_enable(&s390_arch_random_available);
 -	}
 -
 -	return 0;
- }
+-}
 -arch_initcall(s390_arch_random_init);
 diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
-index 5dc712fde3c7..a381dea49168 100644
+index 5dc712fde3c7..2c6e1c6ecbe7 100644
 --- a/arch/s390/include/asm/archrandom.h
 +++ b/arch/s390/include/asm/archrandom.h
 @@ -15,17 +15,13 @@
@@ -366,7 +363,7 @@ index 5dc712fde3c7..a381dea49168 100644
  	}
  	return false;
  }
-@@ -45,10 +43,14 @@ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+@@ -45,7 +43,9 @@ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
  static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
  {
  	if (static_branch_likely(&s390_arch_random_available)) {
@@ -377,22 +374,22 @@ index 5dc712fde3c7..a381dea49168 100644
  	}
  	return false;
  }
- 
-+void __init arch_random_init(void);
-+
- #endif /* CONFIG_ARCH_RANDOM */
- #endif /* _ASM_S390_ARCHRANDOM_H */
 diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 8d91eccc0963..57e8a555fb25 100644
+index 8d91eccc0963..0a37f5de2863 100644
 --- a/arch/s390/kernel/setup.c
 +++ b/arch/s390/kernel/setup.c
-@@ -1057,5 +1057,6 @@ void __init setup_arch(char **cmdline_p)
- 	setup_zfcpdump();
- 
- 	/* Add system specific data to the random pool */
-+	arch_random_init();
- 	setup_randomness();
+@@ -875,6 +875,11 @@ static void __init setup_randomness(void)
+ 	if (stsi(vmms, 3, 2, 2) == 0 && vmms->count)
+ 		add_device_randomness(&vmms->vm, sizeof(vmms->vm[0]) * vmms->count);
+ 	memblock_free(vmms, PAGE_SIZE);
++
++#ifdef CONFIG_ARCH_RANDOM
++	if (cpacf_query_func(CPACF_PRNO, CPACF_PRNO_TRNG))
++		static_branch_enable(&s390_arch_random_available);
++#endif
  }
+ 
+ /*
 -- 
 2.35.1
 
