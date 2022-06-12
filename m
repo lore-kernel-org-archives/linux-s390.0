@@ -2,141 +2,220 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84008C43334
-	for <linux-s390@archiver.kernel.org>; Sun, 12 Jun 2022 11:59:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2ACAACCA473
+	for <linux-s390@archiver.kernel.org>; Sun, 12 Jun 2022 12:18:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234116AbiFLL7R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 12 Jun 2022 07:59:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49400 "EHLO
+        id S234564AbiFLMSb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 12 Jun 2022 08:18:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231336AbiFLL7Q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Jun 2022 07:59:16 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0229A1C13F;
-        Sun, 12 Jun 2022 04:59:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=3KXVdownPf+XtBYtHXzLfe4VCme34Fi24LyBj8hBMl0=; b=IcxYejTIgt1WEFCRwMXmCKg2KV
-        r1OOz8KLjFQJ0dpy7Oo4ov1DJJ5PgwZBh3XQO/yZNUxofDwjrpw2h3KJcsQdWitcuK64Mcg71fCKk
-        jMjs4zgrbjSr5gddJQu0ipPqOEk3z9IzDEs8radkDwC0LWcYfecOYEcQuCi27x27GpyUVcHyOzNfZ
-        x2fhPGS0zdCKA7kPZYExnTv57ETJXLP0zxksrUF+UNCDIr1vFXaZqwW3eb63qKsxdPAoZQRaf4o68
-        nPjITWNacWHlUKVzqvNHF3t7abPbnrdxS2W9bu0Ezrqppm19yU9//V4TnS9hn7//TxRzvfvTrk1JJ
-        P4sBS1TA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1o0MF0-00FzUP-6Q; Sun, 12 Jun 2022 11:58:50 +0000
-Date:   Sun, 12 Jun 2022 12:58:50 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Zorro Lang <zlang@redhat.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        bugzilla-daemon@kernel.org, linux-s390@vger.kernel.org,
-        linux-xfs@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: Re: [Bug 216073] New: [s390x] kernel BUG at mm/usercopy.c:101!
- usercopy: Kernel memory exposure attempt detected from vmalloc 'n  o area'
- (offset 0, size 1)!
-Message-ID: <YqXU+oU7wayOcmCe@casper.infradead.org>
-References: <bug-216073-27@https.bugzilla.kernel.org/>
- <20220606151312.6a9d098c85ed060d36519600@linux-foundation.org>
- <Yp9pHV14OqvH0n02@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
- <20220608021922.n2izu7n4yoadknkx@zlang-mailbox>
- <YqD0yAELzHxdRBU6@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
- <20220612044230.murerhsa765akogj@zlang-mailbox>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220612044230.murerhsa765akogj@zlang-mailbox>
+        with ESMTP id S234382AbiFLMSa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Jun 2022 08:18:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A15FAE7E;
+        Sun, 12 Jun 2022 05:18:26 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFEF960EB6;
+        Sun, 12 Jun 2022 12:18:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83C2CC34115;
+        Sun, 12 Jun 2022 12:18:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655036305;
+        bh=WgqWCXOvSOyYM9CA6unsEF9x7497RtdMdOYMhEwuXNA=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=hJVwSxcZhwtzLwx3w1QhqIA1+qrWZ1YGyKj5qHKKPQ++Yqa816Xz6ppZ1R/IDxtM8
+         0mGodfwO2v8xthNHRtUQ7dsU9T6KZrnnSnwkX2Km4qoMD4VxgmypasgeO574/wxfWh
+         iPI0tb5tr49puQN4NIA3CqGVLyVln/zbm8lBPZ8hG8qBmrK2oCj41WK75ev21hQO/v
+         iwYspOZKGjKe7g7QShHcxe1rR10SCFSjyNkmdYBtuEMKE90L7FAENwgzstDNcN3N7s
+         6bz8ns5CJW9GDL1c/9Wzb9AS47ccvnKE6Mk6uAYpYzfOmoKzOnrDABFX7VAQu5vWRi
+         lMYiDZBwwPCeQ==
+Date:   Sun, 12 Jun 2022 21:18:02 +0900
+From:   Masami Hiramatsu (Google) <mhiramat@kernel.org>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Jarkko Sakkinen <jarkko@kernel.org>, Song Liu <song@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Guo Ren <guoren@kernel.org>,
+        Jarkko Sakkinen <jarkko@profian.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nathaniel McCallum <nathaniel@profian.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Marco Elver <elver@google.com>,
+        Dan Li <ashimida@linux.alibaba.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhongjin <chenzhongjin@huawei.com>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Mark Brown <broonie@kernel.org>,
+        Luis Machado <luis.machado@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Joey Gouly <joey.gouly@arm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dave Anglin <dave.anglin@bell.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Daniel Axtens <dja@axtens.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@atishpatra.org>,
+        Changbin Du <changbin.du@intel.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Liao Chang <liaochang1@huawei.com>,
+        Philipp Tomsich <philipp.tomsich@vrull.eu>,
+        Wu Caize <zepan@sipeed.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Tobias Huschle <huschle@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Michael Roth <michael.roth@amd.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        =?UTF-8?B?QW5kcsOp?= Almeida <andrealmeid@igalia.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-modules@vger.kernel.org
+Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
+Message-Id: <20220612211802.30a16623e8b0a55122b02386@kernel.org>
+In-Reply-To: <CAMj1kXGGyO-DL9hjKYKR2sp87s4KExiQybES8pp4JgqJcHkfLA@mail.gmail.com>
+References: <20220608000014.3054333-1-jarkko@profian.com>
+        <CAJF2gTQgCn2CyZ4+VBqEEBT2b4+1KxoEXxrd+Ritk=58+U8EFA@mail.gmail.com>
+        <YqAy0qjI4Lktk/uJ@iki.fi>
+        <20220608232115.ccd4399f4a1d133e9b65c2a9@kernel.org>
+        <CAPhsuW6iUieQvA6KqzSLgtxmjkVSWCuVwNA338DATb_myHxo7w@mail.gmail.com>
+        <YqHx1d+MwRLLzGQe@iki.fi>
+        <CAMj1kXGGyO-DL9hjKYKR2sp87s4KExiQybES8pp4JgqJcHkfLA@mail.gmail.com>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Jun 12, 2022 at 12:42:30PM +0800, Zorro Lang wrote:
-> Looks likt it's not a s390x specific bug, I just hit this issue once (not 100%
-> reproducible) on aarch64 with linux v5.19.0-rc1+ [1]. So back to cc linux-mm
-> to get more review.
+On Thu, 9 Jun 2022 15:23:16 +0200
+Ard Biesheuvel <ardb@kernel.org> wrote:
+
+> On Thu, 9 Jun 2022 at 15:14, Jarkko Sakkinen <jarkko@kernel.org> wrote:
+> >
+> > On Wed, Jun 08, 2022 at 09:12:34AM -0700, Song Liu wrote:
+> > > On Wed, Jun 8, 2022 at 7:21 AM Masami Hiramatsu <mhiramat@kernel.org> wrote:
+> > > >
+> > > > Hi Jarkko,
+> > > >
+> > > > On Wed, 8 Jun 2022 08:25:38 +0300
+> > > > Jarkko Sakkinen <jarkko@kernel.org> wrote:
+> > > >
+> > > > > On Wed, Jun 08, 2022 at 10:35:42AM +0800, Guo Ren wrote:
+> > > > > > .
+> > > > > >
+> > > > > > On Wed, Jun 8, 2022 at 8:02 AM Jarkko Sakkinen <jarkko@profian.com> wrote:
+> > > > > > >
+> > > > > > > Tracing with kprobes while running a monolithic kernel is currently
+> > > > > > > impossible because CONFIG_KPROBES is dependent of CONFIG_MODULES.  This
+> > > > > > > dependency is a result of kprobes code using the module allocator for the
+> > > > > > > trampoline code.
+> > > > > > >
+> > > > > > > Detaching kprobes from modules helps to squeeze down the user space,
+> > > > > > > e.g. when developing new core kernel features, while still having all
+> > > > > > > the nice tracing capabilities.
+> > > > > > >
+> > > > > > > For kernel/ and arch/*, move module_alloc() and module_memfree() to
+> > > > > > > module_alloc.c, and compile as part of vmlinux when either CONFIG_MODULES
+> > > > > > > or CONFIG_KPROBES is enabled.  In addition, flag kernel module specific
+> > > > > > > code with CONFIG_MODULES.
+> > > > > > >
+> > > > > > > As the result, kprobes can be used with a monolithic kernel.
+> > > > > > It's strange when MODULES is n, but vmlinux still obtains module_alloc.
+> > > > > >
+> > > > > > Maybe we need a kprobe_alloc, right?
+> > > > >
+> > > > > Perhaps not the best name but at least it documents the fact that
+> > > > > they use the same allocator.
+> > > > >
+> > > > > Few years ago I carved up something "half-way there" for kprobes,
+> > > > > and I used the name text_alloc() [*].
+> > > > >
+> > > > > [*] https://lore.kernel.org/all/20200724050553.1724168-1-jarkko.sakkinen@linux.intel.com/
+> > > >
+> > > > Yeah, I remember that. Thank you for updating your patch!
+> > > > I think the idea (split module_alloc() from CONFIG_MODULE) is good to me.
+> > > > If module support maintainers think this name is not good, you may be
+> > > > able to rename it as text_alloc() and make the module_alloc() as a
+> > > > wrapper of it.
+> > >
+> > > IIUC, most users of module_alloc() use it to allocate memory for text, except
+> > > that module code uses it for both text and data. Therefore, I guess calling it
+> > > text_alloc() is not 100% accurate until we change the module code (to use
+> > > a different API to allocate memory for data).
+> >
+> > After reading the feedback, I'd stay on using module_alloc() because
+> > it has arch-specific quirks baked in. Easier to deal with them in one
+> > place.
+> >
 > 
-> [1]
-> [  980.200947] usercopy: Kernel memory exposure attempt detected from vmalloc 'no area' (offset 0, size 1)! 
+> In that case, please ensure that you enable this only on architectures
+> where it is needed. arm64 implements alloc_insn_page() without relying
+> on module_alloc() so I would not expect to see any changes there.
 
-       if (is_vmalloc_addr(ptr)) {
-               struct vm_struct *area = find_vm_area(ptr);
-               if (!area) {
-                       usercopy_abort("vmalloc", "no area", to_user, 0, n);
+Hmm, what about adding CONFIG_ARCH_HAVE_ALLOC_INSN_PAGE and check it?
+If it is defined, kprobes will not define the __weak function, but
+if not, it will use module_alloc()?
 
-Oh.  Looks like XFS uses vm_map_ram() and vm_map_ram() doesn't allocate
-a vm_struct.
+Thank you,
 
-Ulad, how does this look to you?
-
-diff --git a/mm/usercopy.c b/mm/usercopy.c
-index baeacc735b83..6bc2a1407c59 100644
---- a/mm/usercopy.c
-+++ b/mm/usercopy.c
-@@ -173,7 +173,7 @@ static inline void check_heap_object(const void *ptr, unsigned long n,
- 	}
- 
- 	if (is_vmalloc_addr(ptr)) {
--		struct vm_struct *area = find_vm_area(ptr);
-+		struct vmap_area *area = find_vmap_area((unsigned long)ptr);
- 		unsigned long offset;
- 
- 		if (!area) {
-@@ -181,8 +181,9 @@ static inline void check_heap_object(const void *ptr, unsigned long n,
- 			return;
- 		}
- 
--		offset = ptr - area->addr;
--		if (offset + n > get_vm_area_size(area))
-+		/* XXX: We should also abort for free vmap_areas */
-+		offset = (unsigned long)ptr - area->va_start;
-+		if (offset + n >= area->va_end)
- 			usercopy_abort("vmalloc", NULL, to_user, offset, n);
- 		return;
- 	}
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 07db42455dd4..effd1ff6a4b4 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1798,7 +1798,7 @@ static void free_unmap_vmap_area(struct vmap_area *va)
- 	free_vmap_area_noflush(va);
- }
- 
--static struct vmap_area *find_vmap_area(unsigned long addr)
-+struct vmap_area *find_vmap_area(unsigned long addr)
- {
- 	struct vmap_area *va;
- 
-
-> [  980.200968] ------------[ cut here ]------------ 
-> [  980.200969] kernel BUG at mm/usercopy.c:101! 
-> [  980.201081] Internal error: Oops - BUG: 0 [#1] SMP 
-> [  980.224192] Modules linked in: rfkill arm_spe_pmu mlx5_ib ast drm_vram_helper drm_ttm_helper ttm ib_uverbs acpi_ipmi drm_kms_helper ipmi_ssif fb_sys_fops syscopyarea sysfillrect ib_core sysimgblt arm_cmn arm_dmc620_pmu arm_dsu_pmu cppc_cpufreq sunrpc vfat fat drm fuse xfs libcrc32c mlx5_core crct10dif_ce ghash_ce sha2_ce sha256_arm64 sha1_ce sbsa_gwdt nvme igb mlxfw nvme_core tls i2c_algo_bit psample pci_hyperv_intf i2c_designware_platform i2c_designware_core xgene_hwmon ipmi_devintf ipmi_msghandler 
-> [  980.268449] CPU: 42 PID: 121940 Comm: rm Kdump: loaded Not tainted 5.19.0-rc1+ #1 
-> [  980.275921] Hardware name: GIGABYTE R272-P30-JG/MP32-AR0-JG, BIOS F16f (SCP: 1.06.20210615) 07/01/2021 
-> [  980.285214] pstate: 60400009 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--) 
-> [  980.292165] pc : usercopy_abort+0x78/0x7c 
-> [  980.296167] lr : usercopy_abort+0x78/0x7c 
-> [  980.300166] sp : ffff80002b007730 
-> [  980.303469] x29: ffff80002b007740 x28: ffff80002b007cc0 x27: ffffdc5683ecc880 
-> [  980.310595] x26: 1ffff00005600f9b x25: ffffdc5681c90000 x24: ffff80002b007cdc 
-> [  980.317722] x23: ffff800041a0004a x22: 0000000000000001 x21: 0000000000000001 
-> [  980.324848] x20: 0000000000000000 x19: ffff800041a00049 x18: 0000000000000000 
-> [  980.331974] x17: 2720636f6c6c616d x16: 76206d6f72662064 x15: 6574636574656420 
-> [  980.339101] x14: 74706d6574746120 x13: 21293120657a6973 x12: ffff6106cbc4c03f 
-> [  980.346227] x11: 1fffe106cbc4c03e x10: ffff6106cbc4c03e x9 : ffffdc5681f36e30 
-> [  980.353353] x8 : ffff08365e2601f7 x7 : 0000000000000001 x6 : ffff6106cbc4c03e 
-> [  980.360480] x5 : ffff08365e2601f0 x4 : 1fffe10044b11801 x3 : 0000000000000000 
-> [  980.367606] x2 : 0000000000000000 x1 : ffff08022588c000 x0 : 000000000000005c 
-> [  980.374733] Call trace: 
-> [  980.377167]  usercopy_abort+0x78/0x7c 
-> [  980.380819]  check_heap_object+0x3dc/0x3e0 
-> [  980.384907]  __check_object_size.part.0+0x6c/0x1f0 
-> [  980.389688]  __check_object_size+0x24/0x30 
-> [  980.393774]  filldir64+0x548/0x84c 
-> [  980.397165]  xfs_dir2_block_getdents+0x404/0x960 [xfs] 
-> [  980.402437]  xfs_readdir+0x3c4/0x4b0 [xfs] 
-> [  980.406652]  xfs_file_readdir+0x6c/0xa0 [xfs] 
-> [  980.411127]  iterate_dir+0x3a4/0x500 
+-- 
+Masami Hiramatsu (Google) <mhiramat@kernel.org>
