@@ -2,66 +2,43 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE760C43334
-	for <linux-s390@archiver.kernel.org>; Sun, 12 Jun 2022 13:03:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD177C433EF
+	for <linux-s390@archiver.kernel.org>; Sun, 12 Jun 2022 17:26:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236937AbiFLNDa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 12 Jun 2022 09:03:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42318 "EHLO
+        id S229601AbiFLR0z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 12 Jun 2022 13:26:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231208AbiFLNDa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Jun 2022 09:03:30 -0400
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81F5B26EF;
-        Sun, 12 Jun 2022 06:03:24 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id y32so5072308lfa.6;
-        Sun, 12 Jun 2022 06:03:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=YTsB0N3qWfzpCuWe8xUMKoFVyRm+YxRVrS5Z4FIpVVM=;
-        b=AsSwvwNxL3KeUSJBcoZ1iIcJZEbYruf9NSXjmaXfcvuJyayYlkSFFLGoZeVq1oKbIV
-         XaKFFMgzUChyJSjOYc4cV+T+Fq2TnxHZNYbunfmIKKsC0LbSyE+xfHHcQRgFcSgK11oz
-         eePYpL3UNGYvOHZWbnkvec1YWEtms7M4wVIbaND/rK9DabSHc/ePrKzHf05lYkv3Kpje
-         d7AARJjjV+tK+qtU28DOaQ4d0/hfJQa0G4YsZcux5eKLf1g5t08/msVAQFRppSHDGaoD
-         rboxzHmavmc760MOPfbsNwK0UvEdktGWEgkSdHfJfDGJzlZY4/xb7rEreVlv2gMOokJk
-         t2Hg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=YTsB0N3qWfzpCuWe8xUMKoFVyRm+YxRVrS5Z4FIpVVM=;
-        b=L01tucwBeh8Wmpre9DeatOsdYZxfwyPC6/RyRKOgwKlv4wW3sNvYC24KjZOpGgyX/f
-         q/gjf+PkauI23eHMPveGFl6YMFF1AwrFhGY2TAzj+H2UOZiIsnONiYubsEq1NHna1FZ5
-         g2rFPqo67xxaAMeISAQP3x7FsKiJSlEoNuiL/R1MZ7Cj5YVn09urS8zK8FxKlea0/rEJ
-         3OwBX0YHR+fxOTSpt6z7KQ75yMSfh3D/sS5eqiNdCsMVQh+akOrW81Whir1kePT5IH6y
-         esdr8PrOpYQXgYDGvTV3PHXpvzN2a2qyw71J4KRmzRE3dlrnjCD3zgfMKboBeiUOz10g
-         px9A==
-X-Gm-Message-State: AOAM532O/QwAWvPrif+nwkSxeUm32L6RC/tDPeT1titCFH7+wllg1bxU
-        FD8cDG0NA5DojMkeYVnN18Z99FR9EuJnuQ==
-X-Google-Smtp-Source: ABdhPJxqBZF44drPTOlVrkQ14816GxopWXiCGJdlxVakknAiNSZNINLfaOvEAx+0CqgPBpKB0XTklw==
-X-Received: by 2002:a05:6512:308b:b0:479:3986:1d5c with SMTP id z11-20020a056512308b00b0047939861d5cmr21705756lfd.99.1655039002668;
-        Sun, 12 Jun 2022 06:03:22 -0700 (PDT)
-Received: from pc638.lan ([155.137.26.201])
-        by smtp.gmail.com with ESMTPSA id a15-20020a056512200f00b0047255d210f4sm607717lfb.35.2022.06.12.06.03.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Jun 2022 06:03:21 -0700 (PDT)
-From:   Uladzislau Rezki <urezki@gmail.com>
-X-Google-Original-From: Uladzislau Rezki <urezki@pc638.lan>
-Date:   Sun, 12 Jun 2022 15:03:20 +0200
-To:     Matthew Wilcox <willy@infradead.org>
+        with ESMTP id S229600AbiFLR0y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Jun 2022 13:26:54 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B0F55A083;
+        Sun, 12 Jun 2022 10:26:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=zrnFIBXm601T4yQOf/WyT3Lwfcbm3/ZR9fWcKu8zKB8=; b=Cc/lSueRI3PMxodzEHYOLMnGM9
+        pkQXAZnMt3uVgZfLakvT2rHimT3er0bzYwlSyl0kKn9JmNhRX6NVSR3HAimG4x5IKjFeprULEl1H2
+        p5fZBmAwzWBsFtbS7dveCnRR+F7Li0bMuUuejUGK3d2bVs8genSEfACxcWmrkWl9hhg+TmjRM3MzV
+        AYWHUO6oXYhK19RpPjOb/6tRvfs61qaUDkM7xrp6gMGlB035CyQtC98oZIWuZ6zYrj7uwiFXDpeRG
+        Ep9fnijSlwGtqtRX0kz7UEu8K5UG8Uwm0DPNZNaQObefz3WYWpCmP8nVwfkLsDy4R5HNStj8DXmzM
+        pqlko/gg==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1o0RMJ-00G9qW-G0; Sun, 12 Jun 2022 17:26:43 +0000
+Date:   Sun, 12 Jun 2022 18:26:43 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Uladzislau Rezki <urezki@gmail.com>
 Cc:     Zorro Lang <zlang@redhat.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         bugzilla-daemon@kernel.org, linux-s390@vger.kernel.org,
         linux-xfs@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        Uladzislau Rezki <urezki@gmail.com>,
         Kees Cook <keescook@chromium.org>
 Subject: Re: [Bug 216073] New: [s390x] kernel BUG at mm/usercopy.c:101!
  usercopy: Kernel memory exposure attempt detected from vmalloc 'n  o area'
  (offset 0, size 1)!
-Message-ID: <YqXkGMY9xtUvPR5D@pc638.lan>
+Message-ID: <YqYh0xyJvoNsSOpy@casper.infradead.org>
 References: <bug-216073-27@https.bugzilla.kernel.org/>
  <20220606151312.6a9d098c85ed060d36519600@linux-foundation.org>
  <Yp9pHV14OqvH0n02@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
@@ -69,72 +46,48 @@ References: <bug-216073-27@https.bugzilla.kernel.org/>
  <YqD0yAELzHxdRBU6@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
  <20220612044230.murerhsa765akogj@zlang-mailbox>
  <YqXU+oU7wayOcmCe@casper.infradead.org>
+ <YqXkGMY9xtUvPR5D@pc638.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YqXU+oU7wayOcmCe@casper.infradead.org>
+In-Reply-To: <YqXkGMY9xtUvPR5D@pc638.lan>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> On Sun, Jun 12, 2022 at 12:42:30PM +0800, Zorro Lang wrote:
-> > Looks likt it's not a s390x specific bug, I just hit this issue once (not 100%
-> > reproducible) on aarch64 with linux v5.19.0-rc1+ [1]. So back to cc linux-mm
-> > to get more review.
-> > 
-> > [1]
-> > [  980.200947] usercopy: Kernel memory exposure attempt detected from vmalloc 'no area' (offset 0, size 1)! 
+On Sun, Jun 12, 2022 at 03:03:20PM +0200, Uladzislau Rezki wrote:
+> > @@ -181,8 +181,9 @@ static inline void check_heap_object(const void *ptr, unsigned long n,
+> >  			return;
+> >  		}
+> >  
+> > -		offset = ptr - area->addr;
+> > -		if (offset + n > get_vm_area_size(area))
+> > +		/* XXX: We should also abort for free vmap_areas */
+> > +		offset = (unsigned long)ptr - area->va_start;
+> >
+> I was a bit confused about "offset" and why it is needed here. It is always zero. 
+> So we can get rid of it to make it less confused. From the other hand a zero offset
+> contributes to nothing.
+
+I don't think offset is necessarily zero.  'ptr' is a pointer somewhere
+in the object, not necessarily the start of the object.
+
+> >
+> > +		if (offset + n >= area->va_end)
+> >
+> I think it is a bit wrong. As i see it, "n" is a size and what we would like to do
+> here is boundary check:
 > 
->        if (is_vmalloc_addr(ptr)) {
->                struct vm_struct *area = find_vm_area(ptr);
->                if (!area) {
->                        usercopy_abort("vmalloc", "no area", to_user, 0, n);
-> 
-> Oh.  Looks like XFS uses vm_map_ram() and vm_map_ram() doesn't allocate
-> a vm_struct.
-> 
-> Ulad, how does this look to you?
->
-It looks like a correct way to me :) XFS uses per-cpu-vm_map_ram()-vm_unmap_ram()
-API which do not allocate "vm_struct" because it is not needed.
+> <snip>
+> if (n > va_size(area))
+>     usercopy_abort("vmalloc", NULL, to_user, 0, n);
+> <snip>
 
->
-> diff --git a/mm/usercopy.c b/mm/usercopy.c
-> index baeacc735b83..6bc2a1407c59 100644
-> --- a/mm/usercopy.c
-> +++ b/mm/usercopy.c
-> @@ -173,7 +173,7 @@ static inline void check_heap_object(const void *ptr, unsigned long n,
->  	}
->  
->  	if (is_vmalloc_addr(ptr)) {
-> -		struct vm_struct *area = find_vm_area(ptr);
-> +		struct vmap_area *area = find_vmap_area((unsigned long)ptr);
->  		unsigned long offset;
->  
->  		if (!area) {
-> @@ -181,8 +181,9 @@ static inline void check_heap_object(const void *ptr, unsigned long n,
->  			return;
->  		}
->  
-> -		offset = ptr - area->addr;
-> -		if (offset + n > get_vm_area_size(area))
-> +		/* XXX: We should also abort for free vmap_areas */
-> +		offset = (unsigned long)ptr - area->va_start;
->
-I was a bit confused about "offset" and why it is needed here. It is always zero. 
-So we can get rid of it to make it less confused. From the other hand a zero offset
-contributes to nothing.
+Hmm ... we should probably be more careful about wrapping.
 
->
-> +		if (offset + n >= area->va_end)
->
-I think it is a bit wrong. As i see it, "n" is a size and what we would like to do
-here is boundary check:
+                if (n > area->va_end - addr)
+                        usercopy_abort("vmalloc", NULL, to_user, offset, n);
 
-<snip>
-if (n > va_size(area))
-    usercopy_abort("vmalloc", NULL, to_user, 0, n);
-<snip>
+... and that goes for the whole function actually.  I'll split that into
+a separate change.
 
---
-Uladzislau Rezki
