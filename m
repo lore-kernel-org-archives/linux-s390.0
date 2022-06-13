@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A3CEC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Jun 2022 15:17:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 661D3CCA47F
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Jun 2022 15:18:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351308AbiFMPRc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Jun 2022 11:17:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37836 "EHLO
+        id S1386448AbiFMPSc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Jun 2022 11:18:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387594AbiFMPPM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Jun 2022 11:15:12 -0400
+        with ESMTP id S237863AbiFMPRs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Jun 2022 11:17:48 -0400
 Received: from muru.com (muru.com [72.249.23.125])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 963C713DFD;
-        Mon, 13 Jun 2022 05:33:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C8B351269A6;
+        Mon, 13 Jun 2022 05:36:14 -0700 (PDT)
 Received: from localhost (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id 07F638191;
-        Mon, 13 Jun 2022 12:29:14 +0000 (UTC)
-Date:   Mon, 13 Jun 2022 15:33:54 +0300
+        by muru.com (Postfix) with ESMTPS id 87B6681D6;
+        Mon, 13 Jun 2022 12:31:31 +0000 (UTC)
+Date:   Mon, 13 Jun 2022 15:36:11 +0300
 From:   Tony Lindgren <tony@atomide.com>
 To:     Peter Zijlstra <peterz@infradead.org>
 Cc:     rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com,
@@ -77,23 +77,25 @@ Cc:     rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com,
         linux-clk@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         linux-tegra@vger.kernel.org, linux-arch@vger.kernel.org,
         rcu@vger.kernel.org
-Subject: Re: [PATCH 12/36] cpuidle,omap2: Push RCU-idle into driver
-Message-ID: <YqcusjKzpN/d0qFf@atomide.com>
+Subject: Re: [PATCH 33/36] cpuidle,omap3: Use WFI for omap3_pm_idle()
+Message-ID: <YqcvO0xSmlEVMef3@atomide.com>
 References: <20220608142723.103523089@infradead.org>
- <20220608144516.677524509@infradead.org>
+ <20220608144518.010587032@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220608144516.677524509@infradead.org>
+In-Reply-To: <20220608144518.010587032@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-* Peter Zijlstra <peterz@infradead.org> [220608 14:42]:
-> Doing RCU-idle outside the driver, only to then temporarily enable it
-> again, some *four* times, before going idle is daft.
+* Peter Zijlstra <peterz@infradead.org> [220608 14:52]:
+> arch_cpu_idle() is a very simple idle interface and exposes only a
+> single idle state and is expected to not require RCU and not do any
+> tracing/instrumentation.
+> 
+> As such, omap_sram_idle() is not a valid implementation. Replace it
+> with the simple (shallow) omap3_do_wfi() call. Leaving the more
+> complicated idle states for the cpuidle driver.
 
-Maybe update the subject line with s/omap2/omap4/, other than that:
-
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
