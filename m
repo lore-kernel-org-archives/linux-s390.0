@@ -2,138 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6154C433EF
-	for <linux-s390@archiver.kernel.org>; Sun, 12 Jun 2022 20:53:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C75FCCA47F
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Jun 2022 01:16:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232238AbiFLUxw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 12 Jun 2022 16:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56806 "EHLO
+        id S231265AbiFMBQF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 12 Jun 2022 21:16:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235752AbiFLUxv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Jun 2022 16:53:51 -0400
-Received: from mail-vs1-xe35.google.com (mail-vs1-xe35.google.com [IPv6:2607:f8b0:4864:20::e35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD46442A0F
-        for <linux-s390@vger.kernel.org>; Sun, 12 Jun 2022 13:53:50 -0700 (PDT)
-Received: by mail-vs1-xe35.google.com with SMTP id i186so4175250vsc.9
-        for <linux-s390@vger.kernel.org>; Sun, 12 Jun 2022 13:53:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OJfotZiRzuoS+7CnA5NemSTVt7fepw5ufihdBDzzgQQ=;
-        b=KXAKuvYoZX6voVfebZciqsFuaOT1xlylP/bXjRsOd3khGsexHMExqDJTGaXDWkxC/U
-         WlW9rLB4Cr8X2AUypnU3qY/y2zOoEz16xqXUOu5B6oONQeMTaS0YctoXDzusseC91Jt3
-         vVo0FCJdanTfiSAqu9vlWRrSwP8vwe3u+1Oyw9sPI5znsSlnmfaPPOkja8qDqE/t88ab
-         lp8Azxs0YfoAzd3PW853IDmhZzK+gOdz55CuV2HJfv49q8OS0+fpFcSHJQSBkigHnSlY
-         +hw/tW99NN1hNhtjRA8eosw2rzmBWa+OJutfNW0W0K/BWfEOslmyoX71i+wHeiVO9YIh
-         dAfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OJfotZiRzuoS+7CnA5NemSTVt7fepw5ufihdBDzzgQQ=;
-        b=HJrQG2XUcBVjXhb8VqeRu8Q3LnfJHCkAHwVjLLhZexPaIuogvU0srEX30vsRixt0KY
-         OTKL7lap/pk871uTdkOzVl9n4RK/zJcmWNwvUB7tMSE53WPoW21t/8Mbk7qbOyo9CjDI
-         Rr/lhVyga0WEDMB/PgfJhg4CYxXJOuNx3eTL7PN0gcsotDFzrJscQivb5/pwRx+/UTqy
-         /U1KQIHUVOFBxs7H7l77cebcBACnGFqbDM4R5pNScenWdAlA4ZVZ5lPGwO0fjiQWBywk
-         Y3TcEw7Nr6jrKYnpXOCYB9UPJUIwbyIibeZ0azUK/wXc6jPg+K+1GHKwRzj0DuX5ApMf
-         d0Rg==
-X-Gm-Message-State: AOAM530NGBgBFtscguHG9JsscHYEmAJ5L4+TTfbkloA4ilXJyLGZNQ4i
-        QzDTLdYMlrhV/p7QRKiGXCLMjPeZMSznAHSLdOg5+A==
-X-Google-Smtp-Source: ABdhPJwBVf+WBAiEXjrt+ydVOHqQ5Be67mgqqSivacZ32Q88vfjoi97jW7UtQXBof9HP9JSki187Blq+rKsVWaKI6/o=
-X-Received: by 2002:a67:f3d0:0:b0:34b:b52d:d676 with SMTP id
- j16-20020a67f3d0000000b0034bb52dd676mr16027842vsn.6.1655067229790; Sun, 12
- Jun 2022 13:53:49 -0700 (PDT)
+        with ESMTP id S231309AbiFMBQD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Jun 2022 21:16:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED783252A4;
+        Sun, 12 Jun 2022 18:16:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE9F4B80CFB;
+        Mon, 13 Jun 2022 01:16:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A678C341C4;
+        Mon, 13 Jun 2022 01:16:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655082960;
+        bh=T/oPYXJvfTUUTAn3CsqoozPh9/pXSGnZmlhYNE8gbWs=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=PxWK/9l6TdsQa77yV2AJPnGPvbYWhjRLP+wFfrNAXLjgtstoiHZXCMoo8B2IqcL7y
+         rJYzFIT+mHg3ZKrHvaheUxROxBUNvqFs2qlykv4MpcQSZOCcE5InVYzVY9gAedqrzl
+         FnuwwSzIfvkZHuyrFJ7SxGf5qezL+KsNEXhVx5VKfPjeumd7apyl49oYKlxtRU1zpg
+         GDBh5Hgh8YUFAxR7RJZPuea54fZ5P93OWebgMT4J8xA0g1zF/FoCx8KzlVZ5id19aY
+         dSaS71/WhW/0o+WHBrRP1zFeukLpZRbthXoRShYwKaOPOzZU843Ve5m0UWJoV8qtRs
+         VsQDIkfPoli1Q==
+Received: by mail-ua1-f48.google.com with SMTP id 63so1644079uaw.10;
+        Sun, 12 Jun 2022 18:16:00 -0700 (PDT)
+X-Gm-Message-State: AOAM532X/HcAEa2YaFJjCvzIZNL9PJ69x/UlVxmrZ9PxP1xJd59Lnaez
+        pTd191Ygtk+bldpMc6ZaUQWfW507LiPajqQWev8=
+X-Google-Smtp-Source: ABdhPJy022BVkvpX4bwvrgAxTSG7Jz6gfQIdan6W4shKCc4lN35Y4ktHFEjUhhT0WI19MsTm4e13W+ximSNeINXMAlQ=
+X-Received: by 2002:ab0:3459:0:b0:378:ec81:4a8b with SMTP id
+ a25-20020ab03459000000b00378ec814a8bmr14374212uaq.83.1655082959409; Sun, 12
+ Jun 2022 18:15:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <Yp9pHV14OqvH0n02@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
- <20220608021922.n2izu7n4yoadknkx@zlang-mailbox> <YqD0yAELzHxdRBU6@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
- <20220612044230.murerhsa765akogj@zlang-mailbox> <YqXU+oU7wayOcmCe@casper.infradead.org>
- <YqXkGMY9xtUvPR5D@pc638.lan> <YqYh0xyJvoNsSOpy@casper.infradead.org>
- <CAOUHufbBkcjChkMfF8exh3=6=JM09-GCU71KXhUGmz4UdOhUmg@mail.gmail.com>
- <YqYq846zFUInllTw@casper.infradead.org> <CAOUHufan8+uombVMSSrKra-8Cu5pSJj80LVa6QrGbFzBmUQHxg@mail.gmail.com>
- <YqZD/5sUmeJJMonT@casper.infradead.org>
-In-Reply-To: <YqZD/5sUmeJJMonT@casper.infradead.org>
-From:   Yu Zhao <yuzhao@google.com>
-Date:   Sun, 12 Jun 2022 14:53:13 -0600
-Message-ID: <CAOUHufZujyohTuqeMqk+yzba17wHSmT2NxbwO_98ApO+LgJ0XA@mail.gmail.com>
-Subject: Re: [Bug 216073] New: [s390x] kernel BUG at mm/usercopy.c:101!
- usercopy: Kernel memory exposure attempt detected from vmalloc 'n o area'
- (offset 0, size 1)!
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Uladzislau Rezki <urezki@gmail.com>, Zorro Lang <zlang@redhat.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        bugzilla-daemon@kernel.org, linux-s390@vger.kernel.org,
-        linux-xfs@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux-MM <linux-mm@kvack.org>, Kees Cook <keescook@chromium.org>
+References: <20220405071314.3225832-1-guoren@kernel.org> <20220405071314.3225832-3-guoren@kernel.org>
+ <20220608094108.GA18122@asgard.redhat.com>
+In-Reply-To: <20220608094108.GA18122@asgard.redhat.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Mon, 13 Jun 2022 09:15:48 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTQhFbN3mK0jco=NAKZr4qCgvX4zkw3h6jdffr66Rz7REQ@mail.gmail.com>
+Message-ID: <CAJF2gTQhFbN3mK0jco=NAKZr4qCgvX4zkw3h6jdffr66Rz7REQ@mail.gmail.com>
+Subject: Re: [PATCH V12 02/20] uapi: always define F_GETLK64/F_SETLK64/F_SETLKW64
+ in fcntl.h
+To:     Eugene Syromiatnikov <esyr@redhat.com>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, ldv@strace.io
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Jun 12, 2022 at 1:52 PM Matthew Wilcox <willy@infradead.org> wrote:
+On Wed, Jun 8, 2022 at 5:41 PM Eugene Syromiatnikov <esyr@redhat.com> wrote=
+:
 >
-> On Sun, Jun 12, 2022 at 12:43:45PM -0600, Yu Zhao wrote:
-> > On Sun, Jun 12, 2022 at 12:05 PM Matthew Wilcox <willy@infradead.org> wrote:
-> > >
-> > > On Sun, Jun 12, 2022 at 11:59:58AM -0600, Yu Zhao wrote:
-> > > > Please let me know if there is something we want to test -- I can
-> > > > reproduce the problem reliably:
-> > > >
-> > > > ------------[ cut here ]------------
-> > > > kernel BUG at mm/usercopy.c:101!
-> > >
-> > > The line right before cut here would have been nice ;-)
+> On Tue, Apr 05, 2022 at 03:12:56PM +0800, guoren@kernel.org wrote:
+> > From: Christoph Hellwig <hch@lst.de>
 > >
-> > Right.
-> >
-> > $ grep usercopy:
-> > usercopy: Kernel memory exposure attempt detected from vmalloc (offset
-> > 2882303761517129920, size 11)!
-> > usercopy: Kernel memory exposure attempt detected from vmalloc (offset
-> > 8574853690513436864, size 11)!
-> > usercopy: Kernel memory exposure attempt detected from vmalloc (offset
-> > 7998392938210013376, size 11)!
+> > Note that before this change they were never visible to userspace due
+> > to the fact that CONFIG_64BIT is only set for kernel builds.
 >
-> That's a different problem.  And, er, what?  How on earth do we have
-> an offset that big?!
+> > -#ifndef CONFIG_64BIT
+> > +#if __BITS_PER_LONG =3D=3D 32 || defined(__KERNEL__)
 >
->                 struct vm_struct *area = find_vm_area(ptr);
->                 offset = ptr - area->addr;
->                 if (offset + n > get_vm_area_size(area))
->                         usercopy_abort("vmalloc", NULL, to_user, offset, n);
+> Actually, it's quite the opposite: "ifndef" usage made it vailable at all=
+ times
+> to the userspace, and this change has actually broken building strace
+> with the latest kernel headers[1][2].  There could be some debate
+> whether having these F_*64 definitions exposed to the user space 64-bit
+> applications, but it seems that were no harm (as they were exposed alread=
+y
+> for quite some time), and they are useful at least for strace for compat
+> application tracing purposes.
 >
-> That first offset is 0x2800'0000'0000'30C0
+> [1] https://github.com/strace/strace/runs/6779763146?check_suite_focus=3D=
+true#step:4:3222
+> [2] https://pipelines.actions.githubusercontent.com/serviceHosts/e5309ebd=
+-8a2f-43f4-a212-b52080275b5d/_apis/pipelines/1/runs/1473/signedlogcontent/1=
+2?urlExpires=3D2022-06-08T09%3A37%3A13.9248496Z&urlSigningMethod=3DHMACV1&u=
+rlSignature=3DfIT7vd0O4NNRwzwKWLXY4UVZBIIF3XiVI9skAsGvV0I%3D
 >
-> You said it was easy to replicate; can you add:
->
->                         printk("addr:%px ptr:%px\n", area->addr, ptr);
->
-> so that we can start to understand how we end up with such a bogus
-> offset?
+Yes, there is no CONFIG_64BIT in userspace, we shouldn't limit it with
+(__BITS_PER_LONG =3D=3D 32 || defined(__KERNEL__)) to break the
+compatibility. Just export F_*64 definitions permanently.
 
-Here you go:
+--=20
+Best Regards
+ Guo Ren
 
-addr:96ffffdfebcd4000 ptr:ffffffdfebcd70c0
-usercopy: Kernel memory exposure attempt detected from vmalloc (offset
-7566047373982445760, size 11)!
-
-And, not sure if it'd be helpful, with the vmap:
-
-va_start:ffffffd83db0d000 va_end:ffffffd83db13000
-addr:44ffffd83db0d000 ptr:ffffffd83db100c0
-usercopy: Kernel memory exposure attempt detected from vmalloc (offset
-13474770085092536512, size 11)!
-
-which seems to explain why the fix worked.
-
-+               if (offset + n > get_vm_area_size(area)) {
-+                       struct vmap_area *vmap =
-find_vmap_area((unsigned long)ptr);
-+
-+                       if (vmap)
-+                               printk("va_start:%px va_end:%px\n",
-vmap->va_start, vmap->va_end);
-+                       printk("addr:%px ptr:%px\n", area->addr, ptr);
-                        usercopy_abort("vmalloc", NULL, to_user, offset, n);
-+               }
+ML: https://lore.kernel.org/linux-csky/
