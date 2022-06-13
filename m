@@ -2,484 +2,209 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66B7CC43334
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Jun 2022 09:28:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83590C43334
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Jun 2022 10:15:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233050AbiFMJ2L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Jun 2022 05:28:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45536 "EHLO
+        id S241522AbiFMKPw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Jun 2022 06:15:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232992AbiFMJ2L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Jun 2022 05:28:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1772113EA6
-        for <linux-s390@vger.kernel.org>; Mon, 13 Jun 2022 02:28:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655112487;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=2nn+23e8/YcXqa3zZDXdt2e26IdoAgB+/lGnAeSUV5U=;
-        b=iaUw/BwbJbDBikgHBIYCLFFLwAxmfLRBC+JoIT9IUJfUk6SqG2u/q8RkpOn0D/fSP2KS2F
-        MM3WVgRwslwKALRcBvUX/LmtdeIdsXrN00fXF9Dtvuns7WjVs/TTozhM6lMQvGHIjcxta0
-        Q3s4/ZwbCawS6SqpHQetZPmmbeP1hNo=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-93-5Sq7mHx4NvKXUi4Sz9xfow-1; Mon, 13 Jun 2022 05:28:04 -0400
-X-MC-Unique: 5Sq7mHx4NvKXUi4Sz9xfow-1
-Received: by mail-ed1-f71.google.com with SMTP id eh10-20020a0564020f8a00b0042dd9bf7c57so3608738edb.17
-        for <linux-s390@vger.kernel.org>; Mon, 13 Jun 2022 02:28:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=2nn+23e8/YcXqa3zZDXdt2e26IdoAgB+/lGnAeSUV5U=;
-        b=Ox7wka5kVvM15TY4e1XQU4PqjN8v/CPsDBlumuY83K6hqV53jwlnfXZ8uy+oTJEy2N
-         iGdLHgRnq8QuaWgMEcGjQmE5i/aURiELrW7cImR+LhLFPvdy2pTqAvRKYGhElNK3Szfx
-         NuRMBtq3Ed31yIlAnzOpoUKeJn/Kx5sHyQ9chhE0HJB76GJSuvxi1Qn+uejTIZfIPat1
-         zDqbfHMar4EqA6hksd4CFcPOfGsZSTcqUKknOh9RAhBxuzVhJntdkbbTYs1lukCX8UNX
-         cjiMpupXpRFcjIiBhJmjmVdWW8Bs6Z+s/Bv7miCkkg0SGMjJXQSxNYrMOgQu19AptlBw
-         S31w==
-X-Gm-Message-State: AOAM531gMU8Lb2F0yHulfafj8XM+OF2rTleFWQSyzwgJheyDnLTAa60a
-        bpTN7IpjyJ/PBcbkhioPIIpwg/4YSQ/HbNo92aW2g4PRwydja1byuDe0botrogbfJRRwTLAXK8E
-        uK06QYeNK9meN6gcRr3h3Yw==
-X-Received: by 2002:a17:906:72c5:b0:711:d2cb:28b0 with SMTP id m5-20020a17090672c500b00711d2cb28b0mr33988955ejl.229.1655112482504;
-        Mon, 13 Jun 2022 02:28:02 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyoanNHzdE7z/rxDV6q8BRDYhnhO/jlyFDR77cGzs7yekmd1V75CPi8wPvJA1z+L4fSwkJ4dg==
-X-Received: by 2002:a17:906:72c5:b0:711:d2cb:28b0 with SMTP id m5-20020a17090672c500b00711d2cb28b0mr33988921ejl.229.1655112482208;
-        Mon, 13 Jun 2022 02:28:02 -0700 (PDT)
-Received: from redhat.com ([2a03:c5c0:107c:be5a:1a30:9f6d:4400:4adc])
-        by smtp.gmail.com with ESMTPSA id e4-20020a50ec84000000b0042617ba63basm4508287edr.68.2022.06.13.02.27.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jun 2022 02:28:01 -0700 (PDT)
-Date:   Mon, 13 Jun 2022 05:27:54 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     virtualization <virtualization@lists.linux-foundation.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        eperezma <eperezma@redhat.com>, Cindy Lu <lulu@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
-Message-ID: <20220613052644-mutt-send-email-mst@kernel.org>
-References: <20220527060120.20964-9-jasowang@redhat.com>
- <20220611010747-mutt-send-email-mst@kernel.org>
- <CACGkMEtRP+0Xy63g0SF_y1avv=3rFv6P9+Z7kp9XBS5d+_py8w@mail.gmail.com>
- <20220613023337-mutt-send-email-mst@kernel.org>
- <CACGkMEs05ZisiPW+7H6Omp80MzmZWZCpc1mf5Vd99C3H-KUtgA@mail.gmail.com>
- <20220613041416-mutt-send-email-mst@kernel.org>
- <CACGkMEsT_fWdPxN1cTWOX=vu-ntp3Xo4j46-ZKALeSXr7DmJFQ@mail.gmail.com>
- <20220613045606-mutt-send-email-mst@kernel.org>
- <CACGkMEtAQck7Nr6SP_pD0MGT3njnwZSyT=xPyYzUU3c5GNNM_w@mail.gmail.com>
- <CACGkMEvUFJkC=mnvL2PSH6-3RMcJUk84f-9X46JVcj2vTAr4SQ@mail.gmail.com>
+        with ESMTP id S241534AbiFMKP2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Jun 2022 06:15:28 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85C74B1E0;
+        Mon, 13 Jun 2022 03:14:46 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25D8uToX029055;
+        Mon, 13 Jun 2022 10:14:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=WqQX4gZN1wlNT57RJA8mJ52WwcVtji3VJg5ApeO8dzY=;
+ b=A2QfD2GsttJJNXvmncBp4BkP+b5sTCYO4J7Q3bA37ZYOmaQjDnwMmplySVaLcgz1HKDP
+ dZTD6kpGhA/9HVqrF0cg9RDO3hiZjm5m1P4VZFeBkNLWkMo/bWftHgIlXliYYbrz105E
+ Sz5938nDxtol1HYSKP2Tyc3L8nOwBcypqlcYYSL2Xnj9I6tmmXBu3l+xE4cvNmmgfCq3
+ ETC1ru7Aiimo3qIpTXimSK1O/7bQV7XnQlye84PKQgwx6Tx55NvDv51+TakgBHvW9AfV
+ y6ljT37C23UdntKBkwgUUpLSgdiV7l1V/p6faTvowzN6e3ewLvvmH3W8jaAb3yW/q8yk Cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gn5484tdx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Jun 2022 10:14:45 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25DA7Lak010748;
+        Mon, 13 Jun 2022 10:14:45 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gn5484tdf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Jun 2022 10:14:44 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25DA7AON011912;
+        Mon, 13 Jun 2022 10:14:43 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3gmjp8syeb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Jun 2022 10:14:42 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25DAEd4221102888
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 13 Jun 2022 10:14:40 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D5D395204F;
+        Mon, 13 Jun 2022 10:14:39 +0000 (GMT)
+Received: from a46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 9651652057;
+        Mon, 13 Jun 2022 10:14:39 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        scgl@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v5 1/1] s390x: add migration test for storage keys
+Date:   Mon, 13 Jun 2022 12:14:39 +0200
+Message-Id: <20220613101439.557174-2-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220613101439.557174-1-nrb@linux.ibm.com>
+References: <20220613101439.557174-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACGkMEvUFJkC=mnvL2PSH6-3RMcJUk84f-9X46JVcj2vTAr4SQ@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0NtjODS-m9oD8RPPET1bjBRegJIs6k3P
+X-Proofpoint-ORIG-GUID: VjrNl2g-WhL7wartsuYlPnglk9y7a5JQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-13_03,2022-06-09_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 spamscore=0 lowpriorityscore=0
+ priorityscore=1501 mlxlogscore=999 suspectscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206130046
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 13, 2022 at 05:14:59PM +0800, Jason Wang wrote:
-> On Mon, Jun 13, 2022 at 5:08 PM Jason Wang <jasowang@redhat.com> wrote:
-> >
-> > On Mon, Jun 13, 2022 at 4:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Mon, Jun 13, 2022 at 04:51:08PM +0800, Jason Wang wrote:
-> > > > On Mon, Jun 13, 2022 at 4:19 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > >
-> > > > > On Mon, Jun 13, 2022 at 04:07:09PM +0800, Jason Wang wrote:
-> > > > > > On Mon, Jun 13, 2022 at 3:23 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Mon, Jun 13, 2022 at 01:26:59PM +0800, Jason Wang wrote:
-> > > > > > > > On Sat, Jun 11, 2022 at 1:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Fri, May 27, 2022 at 02:01:19PM +0800, Jason Wang wrote:
-> > > > > > > > > > This is a rework on the previous IRQ hardening that is done for
-> > > > > > > > > > virtio-pci where several drawbacks were found and were reverted:
-> > > > > > > > > >
-> > > > > > > > > > 1) try to use IRQF_NO_AUTOEN which is not friendly to affinity managed IRQ
-> > > > > > > > > >    that is used by some device such as virtio-blk
-> > > > > > > > > > 2) done only for PCI transport
-> > > > > > > > > >
-> > > > > > > > > > The vq->broken is re-used in this patch for implementing the IRQ
-> > > > > > > > > > hardening. The vq->broken is set to true during both initialization
-> > > > > > > > > > and reset. And the vq->broken is set to false in
-> > > > > > > > > > virtio_device_ready(). Then vring_interrupt() can check and return
-> > > > > > > > > > when vq->broken is true. And in this case, switch to return IRQ_NONE
-> > > > > > > > > > to let the interrupt core aware of such invalid interrupt to prevent
-> > > > > > > > > > IRQ storm.
-> > > > > > > > > >
-> > > > > > > > > > The reason of using a per queue variable instead of a per device one
-> > > > > > > > > > is that we may need it for per queue reset hardening in the future.
-> > > > > > > > > >
-> > > > > > > > > > Note that the hardening is only done for vring interrupt since the
-> > > > > > > > > > config interrupt hardening is already done in commit 22b7050a024d7
-> > > > > > > > > > ("virtio: defer config changed notifications"). But the method that is
-> > > > > > > > > > used by config interrupt can't be reused by the vring interrupt
-> > > > > > > > > > handler because it uses spinlock to do the synchronization which is
-> > > > > > > > > > expensive.
-> > > > > > > > > >
-> > > > > > > > > > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > > > > > > > > > Cc: Peter Zijlstra <peterz@infradead.org>
-> > > > > > > > > > Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> > > > > > > > > > Cc: Marc Zyngier <maz@kernel.org>
-> > > > > > > > > > Cc: Halil Pasic <pasic@linux.ibm.com>
-> > > > > > > > > > Cc: Cornelia Huck <cohuck@redhat.com>
-> > > > > > > > > > Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
-> > > > > > > > > > Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-> > > > > > > > > > Cc: linux-s390@vger.kernel.org
-> > > > > > > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > Jason, I am really concerned by all the fallout.
-> > > > > > > > > I propose adding a flag to suppress the hardening -
-> > > > > > > > > this will be a debugging aid and a work around for
-> > > > > > > > > users if we find more buggy drivers.
-> > > > > > > > >
-> > > > > > > > > suppress_interrupt_hardening ?
-> > > > > > > >
-> > > > > > > > I can post a patch but I'm afraid if we disable it by default, it
-> > > > > > > > won't be used by the users so there's no way for us to receive the bug
-> > > > > > > > report. Or we need a plan to enable it by default.
-> > > > > > > >
-> > > > > > > > It's rc2, how about waiting for 1 and 2 rc? Or it looks better if we
-> > > > > > > > simply warn instead of disable it by default.
-> > > > > > > >
-> > > > > > > > Thanks
-> > > > > > >
-> > > > > > > I meant more like a flag in struct virtio_driver.
-> > > > > > > For now, could you audit all drivers which don't call _ready?
-> > > > > > > I found 5 of these:
-> > > > > > >
-> > > > > > > drivers/bluetooth/virtio_bt.c
-> > > > > >
-> > > > > > This driver seems to be fine, it doesn't use the device/vq in its probe().
-> > > > >
-> > > > >
-> > > > > But it calls hci_register_dev and that in turn queues all kind of
-> > > > > work. Also, can linux start using the device immediately after
-> > > > > it's registered?
-> > > >
-> > > > So I think the driver is allowed to queue before DRIVER_OK.
-> > >
-> > > it's not allowed to kick
-> >
-> > Yes.
-> >
-> > >
-> > > > If yes,
-> > > > the only side effect is the delay of the tx interrupt after DRIVER_OK
-> > > > for a well behaved device.
-> > >
-> > > your patches drop the interrupt though, it won't be just delayed.
-> >
-> > For a well behaved device, it can only trigger the interrupt after DRIVER_OK.
-> >
-> > So for virtio bt, it works like:
-> >
-> > 1) driver queue buffer and kick
-> > 2) driver set DRIVER_OK
-> > 3) device start to process the buffer
-> > 4) device send an notification
-> >
-> > The only risk is that the virtqueue could be filled before DRIVER_OK,
-> > or anything I missed?
-> 
-> btw, hci has an open and close method and we do rx refill in
-> hdev->open, so we're probably fine here.
-> 
-> Thanks
+Upon migration, we expect storage keys set by the guest to be preserved, so add
+a test for it.
 
+We keep 128 pages and set predictable storage keys. Then, we migrate and check
+that they can be read back and match the value originally set.
 
-Sounds good. Now to audit the rest of them from this POV ;)
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+---
+ s390x/Makefile         |  1 +
+ s390x/migration-skey.c | 78 ++++++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg    |  4 +++
+ 3 files changed, 83 insertions(+)
+ create mode 100644 s390x/migration-skey.c
 
- drivers/i2c/busses/i2c-virtio.c
- drivers/net/caif/caif_virtio.c
- drivers/nvdimm/virtio_pmem.c
- arm_scmi
- virtio_rpmsg_bus.c
-
-
-
-> >
-> > >
-> > > > If not, we need to clarify it in the spec
-> > > > and call virtio_device_ready() before subsystem registration.
-> > >
-> > > hmm, i don't get what we need to clarify
-> >
-> > E.g the driver is not allowed to kick or after DRIVER_OK should the
-> > device only process the buffer after a kick after DRIVER_OK (I think
-> > no)?
-> >
-> > >
-> > > > >
-> > > > >
-> > > > > > > drivers/gpu/drm/virtio/virtgpu_drv.c
-> > > > > >
-> > > > > > It calles virtio_device_ready() in virtio_gpu_init(), and it looks to
-> > > > > > me the code is correct.
-> > > > >
-> > > > > OK.
-> > > > >
-> > > > > > > drivers/i2c/busses/i2c-virtio.c
-> > > > > > > drivers/net/caif/caif_virtio.c
-> > > > > > > drivers/nvdimm/virtio_pmem.c
-> > > > > >
-> > > > > > The above looks fine and we have three more:
-> > > > > >
-> > > > > > arm_scmi: probe() doesn't use vq
-> > > > > > mac80211_hwsim.c: doesn't use vq (only fill rx), but it kicks the rx,
-> > > > > > it looks to me we need a device_ready before the kick.
-> > > > > > virtio_rpmsg_bus.c: doesn't use vq
-> > > > > >
-> > > > > > I will post a patch for mac80211_hwsim.c.
-> > > > > > Thanks
-> > > > >
-> > > > > Same comments for all of the above. Might linux not start using the
-> > > > > device once it's registered?
-> > > >
-> > > > It depends on the specific subsystem.
-> > > >
-> > > > For the subsystem that can't use the device immediately, calling
-> > > > virtio_device_ready() after the subsystem's registration should be
-> > > > fine. E.g for the networking subsystem, the TX won't happen if
-> > > > ndo_open() is not called, calling virtio_device_ready() after
-> > > > netdev_register() seems to be fine.
-> > >
-> > > exactly
-> > >
-> > > > For the subsystem that can use the device immediately, if the
-> > > > subsystem does not depend on the result of a request in the probe to
-> > > > proceed, we are still fine. Since those requests will be proceed after
-> > > > DRIVER_OK.
-> > >
-> > > Well first won't driver code normally kick as well?
-> >
-> > Kick itself is not blocked.
-> >
-> > > And without kick, won't everything just be blocked?
-> >
-> > It depends on the subsystem. E.g driver can choose to use a callback
-> > instead of polling the used buffer in the probe.
-> >
-> > >
-> > >
-> > > > For the rest we need to do virtio_device_ready() before registration.
-> > > >
-> > > > Thanks
-> > >
-> > > Then we can get an interrupt for an unregistered device.
-> >
-> > It depends on the device. For the device that doesn't have an rx queue
-> > (or device to driver queue), we are fine:
-> >
-> > E.g in virtio-blk:
-> >
-> >         virtio_device_ready(vdev);
-> >
-> >         err = device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
-> >         if (err)
-> >                 goto out_cleanup_disk;
-> >
-> > Thanks
-> >
-> > >
-> > >
-> > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > ---
-> > > > > > > > > >  drivers/s390/virtio/virtio_ccw.c       |  4 ++++
-> > > > > > > > > >  drivers/virtio/virtio.c                | 15 ++++++++++++---
-> > > > > > > > > >  drivers/virtio/virtio_mmio.c           |  5 +++++
-> > > > > > > > > >  drivers/virtio/virtio_pci_modern_dev.c |  5 +++++
-> > > > > > > > > >  drivers/virtio/virtio_ring.c           | 11 +++++++----
-> > > > > > > > > >  include/linux/virtio_config.h          | 20 ++++++++++++++++++++
-> > > > > > > > > >  6 files changed, 53 insertions(+), 7 deletions(-)
-> > > > > > > > > >
-> > > > > > > > > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > > > > > > > > > index c188e4f20ca3..97e51c34e6cf 100644
-> > > > > > > > > > --- a/drivers/s390/virtio/virtio_ccw.c
-> > > > > > > > > > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > > > > > > > > > @@ -971,6 +971,10 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
-> > > > > > > > > >       ccw->flags = 0;
-> > > > > > > > > >       ccw->count = sizeof(status);
-> > > > > > > > > >       ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
-> > > > > > > > > > +     /* We use ssch for setting the status which is a serializing
-> > > > > > > > > > +      * instruction that guarantees the memory writes have
-> > > > > > > > > > +      * completed before ssch.
-> > > > > > > > > > +      */
-> > > > > > > > > >       ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_STATUS);
-> > > > > > > > > >       /* Write failed? We assume status is unchanged. */
-> > > > > > > > > >       if (ret)
-> > > > > > > > > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > > > > > > > > index aa1eb5132767..95fac4c97c8b 100644
-> > > > > > > > > > --- a/drivers/virtio/virtio.c
-> > > > > > > > > > +++ b/drivers/virtio/virtio.c
-> > > > > > > > > > @@ -220,6 +220,15 @@ static int virtio_features_ok(struct virtio_device *dev)
-> > > > > > > > > >   * */
-> > > > > > > > > >  void virtio_reset_device(struct virtio_device *dev)
-> > > > > > > > > >  {
-> > > > > > > > > > +     /*
-> > > > > > > > > > +      * The below virtio_synchronize_cbs() guarantees that any
-> > > > > > > > > > +      * interrupt for this line arriving after
-> > > > > > > > > > +      * virtio_synchronize_vqs() has completed is guaranteed to see
-> > > > > > > > > > +      * vq->broken as true.
-> > > > > > > > > > +      */
-> > > > > > > > > > +     virtio_break_device(dev);
-> > > > > > > > >
-> > > > > > > > > So make this conditional
-> > > > > > > > >
-> > > > > > > > > > +     virtio_synchronize_cbs(dev);
-> > > > > > > > > > +
-> > > > > > > > > >       dev->config->reset(dev);
-> > > > > > > > > >  }
-> > > > > > > > > >  EXPORT_SYMBOL_GPL(virtio_reset_device);
-> > > > > > > > > > @@ -428,6 +437,9 @@ int register_virtio_device(struct virtio_device *dev)
-> > > > > > > > > >       dev->config_enabled = false;
-> > > > > > > > > >       dev->config_change_pending = false;
-> > > > > > > > > >
-> > > > > > > > > > +     INIT_LIST_HEAD(&dev->vqs);
-> > > > > > > > > > +     spin_lock_init(&dev->vqs_list_lock);
-> > > > > > > > > > +
-> > > > > > > > > >       /* We always start by resetting the device, in case a previous
-> > > > > > > > > >        * driver messed it up.  This also tests that code path a little. */
-> > > > > > > > > >       virtio_reset_device(dev);
-> > > > > > > > > > @@ -435,9 +447,6 @@ int register_virtio_device(struct virtio_device *dev)
-> > > > > > > > > >       /* Acknowledge that we've seen the device. */
-> > > > > > > > > >       virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> > > > > > > > > >
-> > > > > > > > > > -     INIT_LIST_HEAD(&dev->vqs);
-> > > > > > > > > > -     spin_lock_init(&dev->vqs_list_lock);
-> > > > > > > > > > -
-> > > > > > > > > >       /*
-> > > > > > > > > >        * device_add() causes the bus infrastructure to look for a matching
-> > > > > > > > > >        * driver.
-> > > > > > > > > > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> > > > > > > > > > index c9699a59f93c..f9a36bc7ac27 100644
-> > > > > > > > > > --- a/drivers/virtio/virtio_mmio.c
-> > > > > > > > > > +++ b/drivers/virtio/virtio_mmio.c
-> > > > > > > > > > @@ -253,6 +253,11 @@ static void vm_set_status(struct virtio_device *vdev, u8 status)
-> > > > > > > > > >       /* We should never be setting status to 0. */
-> > > > > > > > > >       BUG_ON(status == 0);
-> > > > > > > > > >
-> > > > > > > > > > +     /*
-> > > > > > > > > > +      * Per memory-barriers.txt, wmb() is not needed to guarantee
-> > > > > > > > > > +      * that the the cache coherent memory writes have completed
-> > > > > > > > > > +      * before writing to the MMIO region.
-> > > > > > > > > > +      */
-> > > > > > > > > >       writel(status, vm_dev->base + VIRTIO_MMIO_STATUS);
-> > > > > > > > > >  }
-> > > > > > > > > >
-> > > > > > > > > > diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> > > > > > > > > > index 4093f9cca7a6..a0fa14f28a7f 100644
-> > > > > > > > > > --- a/drivers/virtio/virtio_pci_modern_dev.c
-> > > > > > > > > > +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> > > > > > > > > > @@ -467,6 +467,11 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
-> > > > > > > > > >  {
-> > > > > > > > > >       struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
-> > > > > > > > > >
-> > > > > > > > > > +     /*
-> > > > > > > > > > +      * Per memory-barriers.txt, wmb() is not needed to guarantee
-> > > > > > > > > > +      * that the the cache coherent memory writes have completed
-> > > > > > > > > > +      * before writing to the MMIO region.
-> > > > > > > > > > +      */
-> > > > > > > > > >       vp_iowrite8(status, &cfg->device_status);
-> > > > > > > > > >  }
-> > > > > > > > > >  EXPORT_SYMBOL_GPL(vp_modern_set_status);
-> > > > > > > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > > > > > > > > index 9c231e1fded7..13a7348cedff 100644
-> > > > > > > > > > --- a/drivers/virtio/virtio_ring.c
-> > > > > > > > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > > > > > > > @@ -1688,7 +1688,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> > > > > > > > > >       vq->we_own_ring = true;
-> > > > > > > > > >       vq->notify = notify;
-> > > > > > > > > >       vq->weak_barriers = weak_barriers;
-> > > > > > > > > > -     vq->broken = false;
-> > > > > > > > > > +     vq->broken = true;
-> > > > > > > > > >       vq->last_used_idx = 0;
-> > > > > > > > > >       vq->event_triggered = false;
-> > > > > > > > > >       vq->num_added = 0;
-> > > > > > > > >
-> > > > > > > > > and make this conditional
-> > > > > > > > >
-> > > > > > > > > > @@ -2134,8 +2134,11 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> > > > > > > > > >               return IRQ_NONE;
-> > > > > > > > > >       }
-> > > > > > > > > >
-> > > > > > > > > > -     if (unlikely(vq->broken))
-> > > > > > > > > > -             return IRQ_HANDLED;
-> > > > > > > > > > +     if (unlikely(vq->broken)) {
-> > > > > > > > > > +             dev_warn_once(&vq->vq.vdev->dev,
-> > > > > > > > > > +                           "virtio vring IRQ raised before DRIVER_OK");
-> > > > > > > > > > +             return IRQ_NONE;
-> > > > > > > > > > +     }
-> > > > > > > > > >
-> > > > > > > > > >       /* Just a hint for performance: so it's ok that this can be racy! */
-> > > > > > > > > >       if (vq->event)
-> > > > > > > > > > @@ -2177,7 +2180,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > > > > > > > > >       vq->we_own_ring = false;
-> > > > > > > > > >       vq->notify = notify;
-> > > > > > > > > >       vq->weak_barriers = weak_barriers;
-> > > > > > > > > > -     vq->broken = false;
-> > > > > > > > > > +     vq->broken = true;
-> > > > > > > > > >       vq->last_used_idx = 0;
-> > > > > > > > > >       vq->event_triggered = false;
-> > > > > > > > > >       vq->num_added = 0;
-> > > > > > > > >
-> > > > > > > > > and make this conditional
-> > > > > > > > >
-> > > > > > > > > > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > > > > > > > > > index 25be018810a7..d4edfd7d91bb 100644
-> > > > > > > > > > --- a/include/linux/virtio_config.h
-> > > > > > > > > > +++ b/include/linux/virtio_config.h
-> > > > > > > > > > @@ -256,6 +256,26 @@ void virtio_device_ready(struct virtio_device *dev)
-> > > > > > > > > >       unsigned status = dev->config->get_status(dev);
-> > > > > > > > > >
-> > > > > > > > > >       BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-> > > > > > > > > > +
-> > > > > > > > > > +     /*
-> > > > > > > > > > +      * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> > > > > > > > > > +      * will see the driver specific setup if it sees vq->broken
-> > > > > > > > > > +      * as false (even if the notifications come before DRIVER_OK).
-> > > > > > > > > > +      */
-> > > > > > > > > > +     virtio_synchronize_cbs(dev);
-> > > > > > > > > > +     __virtio_unbreak_device(dev);
-> > > > > > > > > > +     /*
-> > > > > > > > > > +      * The transport should ensure the visibility of vq->broken
-> > > > > > > > > > +      * before setting DRIVER_OK. See the comments for the transport
-> > > > > > > > > > +      * specific set_status() method.
-> > > > > > > > > > +      *
-> > > > > > > > > > +      * A well behaved device will only notify a virtqueue after
-> > > > > > > > > > +      * DRIVER_OK, this means the device should "see" the coherenct
-> > > > > > > > > > +      * memory write that set vq->broken as false which is done by
-> > > > > > > > > > +      * the driver when it sees DRIVER_OK, then the following
-> > > > > > > > > > +      * driver's vring_interrupt() will see vq->broken as false so
-> > > > > > > > > > +      * we won't lose any notification.
-> > > > > > > > > > +      */
-> > > > > > > > > >       dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
-> > > > > > > > > >  }
-> > > > > > > > > >
-> > > > > > > > > > --
-> > > > > > > > > > 2.25.1
-> > > > > > > > >
-> > > > > > >
-> > > > >
-> > >
+diff --git a/s390x/Makefile b/s390x/Makefile
+index a8e04aa6fe4d..f8ea594b641d 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -32,6 +32,7 @@ tests += $(TEST_DIR)/epsw.elf
+ tests += $(TEST_DIR)/adtl-status.elf
+ tests += $(TEST_DIR)/migration.elf
+ tests += $(TEST_DIR)/pv-attest.elf
++tests += $(TEST_DIR)/migration-skey.elf
+ 
+ pv-tests += $(TEST_DIR)/pv-diags.elf
+ 
+diff --git a/s390x/migration-skey.c b/s390x/migration-skey.c
+new file mode 100644
+index 000000000000..f7082937e3a9
+--- /dev/null
++++ b/s390x/migration-skey.c
+@@ -0,0 +1,78 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Storage Key migration tests
++ *
++ * Copyright IBM Corp. 2022
++ *
++ * Authors:
++ *  Nico Boehr <nrb@linux.ibm.com>
++ */
++
++#include <libcflat.h>
++#include <asm/facility.h>
++#include <asm/page.h>
++#include <asm/mem.h>
++#include <asm/interrupt.h>
++#include <hardware.h>
++
++#define NUM_PAGES 128
++static uint8_t pagebuf[NUM_PAGES][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
++
++static void test_migration(void)
++{
++	union skey expected_key, actual_key;
++	int i, key_to_set, key_mismatches = 0;
++
++	for (i = 0; i < NUM_PAGES; i++) {
++		/*
++		 * Storage keys are 7 bit, lowest bit is always returned as zero
++		 * by iske.
++		 * This loop will set all 7 bits which means we set fetch
++		 * protection as well as reference and change indication for
++		 * some keys.
++		 */
++		key_to_set = i * 2;
++		set_storage_key(pagebuf[i], key_to_set, 1);
++	}
++
++	puts("Please migrate me, then press return\n");
++	(void)getchar();
++
++	for (i = 0; i < NUM_PAGES; i++) {
++		actual_key.val = get_storage_key(pagebuf[i]);
++		expected_key.val = i * 2;
++
++		/* ignore reference bit */
++		actual_key.str.rf = 0;
++		expected_key.str.rf = 0;
++
++		/* don't log anything when key matches to avoid spamming the log */
++		if (actual_key.val != expected_key.val) {
++			key_mismatches++;
++			report_fail("page %d expected_key=0x%x actual_key=0x%x", i, expected_key.val, actual_key.val);
++		}
++	}
++
++	report(!key_mismatches, "skeys after migration match");
++}
++
++int main(void)
++{
++	report_prefix_push("migration-skey");
++	if (test_facility(169)) {
++		report_skip("storage key removal facility is active");
++
++		/*
++		 * If we just exit and don't ask migrate_cmd to migrate us, it
++		 * will just hang forever. Hence, also ask for migration when we
++		 * skip this test altogether.
++		 */
++		puts("Please migrate me, then press return\n");
++		(void)getchar();
++	} else {
++		test_migration();
++	}
++
++	report_prefix_pop();
++	return report_summary();
++}
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index b456b2881448..1e851d8e3dd8 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -176,3 +176,7 @@ extra_params = -cpu qemu,gs=off,vx=off
+ file = migration.elf
+ groups = migration
+ smp = 2
++
++[migration-skey]
++file = migration-skey.elf
++groups = migration
+-- 
+2.36.1
 
