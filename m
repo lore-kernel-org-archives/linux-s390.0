@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D632FCCA47D
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 02:07:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E73F1CCA47B
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 02:12:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351873AbiFNCHw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Jun 2022 22:07:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43258 "EHLO
+        id S1353016AbiFNCMC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Jun 2022 22:12:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351900AbiFNCGg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Jun 2022 22:06:36 -0400
+        with ESMTP id S1352765AbiFNCLW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Jun 2022 22:11:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433DF34BBE;
-        Mon, 13 Jun 2022 19:05:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565D437A29;
+        Mon, 13 Jun 2022 19:07:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF20160AD8;
-        Tue, 14 Jun 2022 02:05:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81050C3411E;
-        Tue, 14 Jun 2022 02:05:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4721E60B66;
+        Tue, 14 Jun 2022 02:06:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30FEFC34114;
+        Tue, 14 Jun 2022 02:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172347;
-        bh=57NhVFpYxRLlqyB8Qsgm3/53dA0OyIDmVza9kHI/wMY=;
+        s=k20201202; t=1655172413;
+        bh=uwHDzuN9Io+WZTJmeh6rxLC/HiVmn2fIrdS5XUeVtj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bb4iko7oNXrhx0FaXwrKBKATSgdcPW7HvElVha4oHwOrjxJzpSAC4iv6w63tcE+IL
-         491kIBGpUAvWZy3GFl96Qk4DA6nPpgBkleOjZuYoQqQph7jX3ugrPXLxLK/2jWMz9j
-         0MRjwgBizoWHK/kGtiV71phLOApWC4dM6yMX0HHDLBXbVt5Vr+Auc1kdiSZP35GUxr
-         RJP1POpvU7D4Dhv/F7c0nup5I8hMUAkIAU+c3miHcrkyaFwqS/yKQMpsLdUzC+kmBn
-         4ceqEB7S+uIuhQJ0JlbNL49MqblaIr6Ye8u8fRcDFNknoh9qZAL9+sMopMoO+YGUXK
-         d4vsBCsu2d+5A==
+        b=nxl/ySSUcWdlr0Ts7Rr/fyvAmcmQQ/rpbvwJKb5MaVBgrCkjigtcmu9zjaM/g6AL0
+         oVLqe/mISsrztJ5Z+0t1q9/8LbH3gnBNv+BMTayoWmJxb6H+p3Ft0JIpKaSNQO+6oR
+         O/SCKybkMsu1Ujz7oXbIOEup4THItgS9IDpcVnhJoBpUMh0Jb8A48d+PLIq+vVeYCo
+         hlmU6lPOC16+YJyXebT59EC+utEC7UE3NSUjMW0CebH9WW36F5/RAnNTGTexAZFPQz
+         UgDq7VE8+3uFgZ8xOH5ejwy5bT/CHywvvxYMDp8NhG9/TRpdIXlw+w/nv8fRybhjsT
+         AL3EvRcRcuNfg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
@@ -38,15 +38,15 @@ Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Nathan Chancellor <nathan@kernel.org>,
         Sasha Levin <sashal@kernel.org>, mmarek@suse.com,
         schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com,
-        daniel@iogearbox.net, ast@kernel.org, gregkh@linuxfoundation.org,
-        fllinden@amazon.com, linux-kbuild@vger.kernel.org,
+        gregkh@linuxfoundation.org, fllinden@amazon.com, ast@kernel.org,
+        daniel@iogearbox.net, linux-kbuild@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 38/47] gcc-12: disable '-Warray-bounds' universally for now
-Date:   Mon, 13 Jun 2022 22:04:31 -0400
-Message-Id: <20220614020441.1098348-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.17 34/43] gcc-12: disable '-Warray-bounds' universally for now
+Date:   Mon, 13 Jun 2022 22:05:53 -0400
+Message-Id: <20220614020602.1098943-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220614020441.1098348-1-sashal@kernel.org>
-References: <20220614020441.1098348-1-sashal@kernel.org>
+In-Reply-To: <20220614020602.1098943-1-sashal@kernel.org>
+References: <20220614020602.1098943-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -103,10 +103,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  4 files changed, 12 insertions(+), 9 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index a8de148aeb04..86b16e0bd19a 100644
+index e2a1832681e7..0a344db643b1 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -787,6 +787,7 @@ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
+@@ -778,6 +778,7 @@ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
  KBUILD_CFLAGS += $(stackp-flags-y)
  
  KBUILD_CFLAGS-$(CONFIG_WERROR) += -Werror
@@ -115,11 +115,11 @@ index a8de148aeb04..86b16e0bd19a 100644
  
  ifdef CONFIG_CC_IS_CLANG
 diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index e084c72104f8..359b0cc0dc35 100644
+index be9f39fd06df..b14a18ac2e71 100644
 --- a/arch/s390/Kconfig
 +++ b/arch/s390/Kconfig
-@@ -125,6 +125,7 @@ config S390
- 	select CLONE_BACKWARDS2
+@@ -123,6 +123,7 @@ config S390
+ 	select CPU_NO_EFFICIENT_FFS if !HAVE_MARCH_Z9_109_FEATURES
  	select DMA_OPS if PCI
  	select DYNAMIC_FTRACE if FUNCTION_TRACER
 +	select GCC12_NO_ARRAY_BOUNDS
@@ -127,7 +127,7 @@ index e084c72104f8..359b0cc0dc35 100644
  	select GENERIC_CPU_AUTOPROBE
  	select GENERIC_CPU_VULNERABILITIES
 diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index df325eacf62d..eba70d585cb2 100644
+index 6e42252214dd..82a44f60ad3c 100644
 --- a/arch/s390/Makefile
 +++ b/arch/s390/Makefile
 @@ -30,15 +30,7 @@ KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
@@ -148,10 +148,10 @@ index df325eacf62d..eba70d585cb2 100644
  UTS_MACHINE	:= s390x
  STACK_SIZE	:= $(if $(CONFIG_KASAN),65536,16384)
 diff --git a/init/Kconfig b/init/Kconfig
-index b19e2eeaae80..fa63cc019ebf 100644
+index 4a7a569706c5..cbe094645917 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -899,6 +899,15 @@ config CC_IMPLICIT_FALLTHROUGH
+@@ -895,6 +895,15 @@ config CC_IMPLICIT_FALLTHROUGH
  	default "-Wimplicit-fallthrough=5" if CC_IS_GCC && $(cc-option,-Wimplicit-fallthrough=5)
  	default "-Wimplicit-fallthrough" if CC_IS_CLANG && $(cc-option,-Wunreachable-code-fallthrough)
  
