@@ -2,118 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71636C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 16:26:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E134AC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 16:29:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244345AbiFNQ04 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Jun 2022 12:26:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40760 "EHLO
+        id S243270AbiFNQ3S (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Jun 2022 12:29:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235828AbiFNQ0z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jun 2022 12:26:55 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BC42BB20;
-        Tue, 14 Jun 2022 09:26:54 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25EGQoiA031134;
-        Tue, 14 Jun 2022 16:26:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=6/TalSMpRDCZ4+DG9lsQ67+dg6iiSAzSJZ/PRuZfARA=;
- b=iZgfswXrcDEE0bPKWRRGxQVrFe2bfrtXBxdUpWvdcmzZOVCZXH8z7Cvxp9i/96rAYmm7
- rh1x1cwiQQqLwkI/QhAxZ/okMZf6bZJY5u2JsEFHVBRTBWcQ7/XTz8+KDb2OuG4qu3qq
- RqKbzBv3Nb9SKuv5c4ocN4Rza9Dbjx/8DzJmWcWnDd0+ilmOvyKDDi87U63ffsBptCHD
- vRvgBHIjBBPj71jB4r2upWAUWtVeYheBP2x+WLUZA5PPGljwn7sGd1X9g5x0ktatRnOy
- B8d4oEOF2Bzfk66ZhajsJN8lwgPVnZmMJZjPFThM/Q0Ltu8eDUVqt4PqtCCcYb6rK7Sw dw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gppa6739m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 16:26:53 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25EGQqL5031459;
-        Tue, 14 Jun 2022 16:26:52 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gppa67342-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 16:26:52 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25EG6v4N031317;
-        Tue, 14 Jun 2022 16:26:41 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3gmjajcms5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 16:26:41 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25EGQcQu14942552
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Jun 2022 16:26:38 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 05AB54C040;
-        Tue, 14 Jun 2022 16:26:38 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 97E684C046;
-        Tue, 14 Jun 2022 16:26:37 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Jun 2022 16:26:37 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     thuth@redhat.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, pbonzini@redhat.com
-Cc:     david@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        linux-s390@vger.kernel.org, scgl@linux.ibm.com, shuah@kernel.org
-Subject: [PATCH] KVM: s390: selftests: Fix memop extension capability check
-Date:   Tue, 14 Jun 2022 18:26:35 +0200
-Message-Id: <20220614162635.3445019-1-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <36d83871-343d-e8a0-1aed-05bf386f9b1b@redhat.com>
-References: <36d83871-343d-e8a0-1aed-05bf386f9b1b@redhat.com>
+        with ESMTP id S1343903AbiFNQ2Z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jun 2022 12:28:25 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 46ABB193EB;
+        Tue, 14 Jun 2022 09:28:24 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D999D16F8;
+        Tue, 14 Jun 2022 09:28:23 -0700 (PDT)
+Received: from FVFF77S0Q05N (unknown [10.57.41.154])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EEF753F66F;
+        Tue, 14 Jun 2022 09:28:05 -0700 (PDT)
+Date:   Tue, 14 Jun 2022 17:28:02 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com,
+        vgupta@kernel.org, linux@armlinux.org.uk,
+        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
+        shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, guoren@kernel.org, bcain@quicinc.com,
+        chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
+        sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de,
+        dinguyen@kernel.org, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+        James.Bottomley@HansenPartnership.com, deller@gmx.de,
+        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        acme@kernel.org, alexander.shishkin@linux.intel.com,
+        jolsa@kernel.org, namhyung@kernel.org, jgross@suse.com,
+        srivatsa@csail.mit.edu, amakhalov@vmware.com,
+        pv-drivers@vmware.com, boris.ostrovsky@oracle.com,
+        chris@zankel.net, jcmvbkbc@gmail.com, rafael@kernel.org,
+        lenb@kernel.org, pavel@ucw.cz, gregkh@linuxfoundation.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        daniel.lezcano@linaro.org, lpieralisi@kernel.org,
+        sudeep.holla@arm.com, agross@kernel.org,
+        bjorn.andersson@linaro.org, anup@brainfault.org,
+        thierry.reding@gmail.com, jonathanh@nvidia.com,
+        jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        yury.norov@gmail.com, andriy.shevchenko@linux.intel.com,
+        linux@rasmusvillemoes.dk, rostedt@goodmis.org, pmladek@suse.com,
+        senozhatsky@chromium.org, john.ogness@linutronix.de,
+        paulmck@kernel.org, frederic@kernel.org, quic_neeraju@quicinc.com,
+        josh@joshtriplett.org, mathieu.desnoyers@efficios.com,
+        jiangshanlai@gmail.com, joel@joelfernandes.org,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, bsegall@google.com, mgorman@suse.de,
+        bristot@redhat.com, vschneid@redhat.com, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org, linux-xtensa@linux-xtensa.org,
+        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-arch@vger.kernel.org,
+        rcu@vger.kernel.org
+Subject: Re: [PATCH 25/36] time/tick-broadcast: Remove RCU_NONIDLE usage
+Message-ID: <Yqi3EmHbuvf3ItMI@FVFF77S0Q05N>
+References: <20220608142723.103523089@infradead.org>
+ <20220608144517.507286638@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bbCm_KGA5GT1nJ6yz2bkdsVAd0LVogjw
-X-Proofpoint-ORIG-GUID: B8dsVfyF-Pfrxd7CIb6Ie_WRb-G7_jJr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-14_06,2022-06-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
- suspectscore=0 impostorscore=0 phishscore=0 malwarescore=0 adultscore=0
- mlxscore=0 spamscore=0 mlxlogscore=863 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206140062
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220608144517.507286638@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Fix the inverted logic of the memop extension capability check.
+On Wed, Jun 08, 2022 at 04:27:48PM +0200, Peter Zijlstra wrote:
+> No callers left that have already disabled RCU.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-Fixes: 97da92c0ff92 ("KVM: s390: selftests: Use TAP interface in the memop test")
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
----
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 
+Mark.
 
-Here you go.
-Hope it doesn't get lost as a reply, but I can always resend
-and it's not super critical after all.
-
-
- tools/testing/selftests/kvm/s390x/memop.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-index e704c6fa5758..e1056f20dfa1 100644
---- a/tools/testing/selftests/kvm/s390x/memop.c
-+++ b/tools/testing/selftests/kvm/s390x/memop.c
-@@ -769,7 +769,7 @@ int main(int argc, char *argv[])
- 	ksft_set_plan(ARRAY_SIZE(testlist));
- 
- 	for (idx = 0; idx < ARRAY_SIZE(testlist); idx++) {
--		if (testlist[idx].extension >= extension_cap) {
-+		if (extension_cap >= testlist[idx].extension) {
- 			testlist[idx].test();
- 			ksft_test_result_pass("%s\n", testlist[idx].name);
- 		} else {
--- 
-2.32.0
-
+> ---
+>  kernel/time/tick-broadcast-hrtimer.c |   29 ++++++++++++-----------------
+>  1 file changed, 12 insertions(+), 17 deletions(-)
+> 
+> --- a/kernel/time/tick-broadcast-hrtimer.c
+> +++ b/kernel/time/tick-broadcast-hrtimer.c
+> @@ -56,25 +56,20 @@ static int bc_set_next(ktime_t expires,
+>  	 * hrtimer callback function is currently running, then
+>  	 * hrtimer_start() cannot move it and the timer stays on the CPU on
+>  	 * which it is assigned at the moment.
+> +	 */
+> +	hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
+> +	/*
+> +	 * The core tick broadcast mode expects bc->bound_on to be set
+> +	 * correctly to prevent a CPU which has the broadcast hrtimer
+> +	 * armed from going deep idle.
+>  	 *
+> -	 * As this can be called from idle code, the hrtimer_start()
+> -	 * invocation has to be wrapped with RCU_NONIDLE() as
+> -	 * hrtimer_start() can call into tracing.
+> +	 * As tick_broadcast_lock is held, nothing can change the cpu
+> +	 * base which was just established in hrtimer_start() above. So
+> +	 * the below access is safe even without holding the hrtimer
+> +	 * base lock.
+>  	 */
+> -	RCU_NONIDLE( {
+> -		hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
+> -		/*
+> -		 * The core tick broadcast mode expects bc->bound_on to be set
+> -		 * correctly to prevent a CPU which has the broadcast hrtimer
+> -		 * armed from going deep idle.
+> -		 *
+> -		 * As tick_broadcast_lock is held, nothing can change the cpu
+> -		 * base which was just established in hrtimer_start() above. So
+> -		 * the below access is safe even without holding the hrtimer
+> -		 * base lock.
+> -		 */
+> -		bc->bound_on = bctimer.base->cpu_base->cpu;
+> -	} );
+> +	bc->bound_on = bctimer.base->cpu_base->cpu;
+> +
+>  	return 0;
+>  }
+>  
+> 
+> 
