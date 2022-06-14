@@ -2,171 +2,85 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E73F1CCA47B
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 02:12:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6B37C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 04:54:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353016AbiFNCMC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Jun 2022 22:12:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54914 "EHLO
+        id S237447AbiFNEyq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Jun 2022 00:54:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352765AbiFNCLW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Jun 2022 22:11:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565D437A29;
-        Mon, 13 Jun 2022 19:07:09 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4721E60B66;
-        Tue, 14 Jun 2022 02:06:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30FEFC34114;
-        Tue, 14 Jun 2022 02:06:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655172413;
-        bh=uwHDzuN9Io+WZTJmeh6rxLC/HiVmn2fIrdS5XUeVtj8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxl/ySSUcWdlr0Ts7Rr/fyvAmcmQQ/rpbvwJKb5MaVBgrCkjigtcmu9zjaM/g6AL0
-         oVLqe/mISsrztJ5Z+0t1q9/8LbH3gnBNv+BMTayoWmJxb6H+p3Ft0JIpKaSNQO+6oR
-         O/SCKybkMsu1Ujz7oXbIOEup4THItgS9IDpcVnhJoBpUMh0Jb8A48d+PLIq+vVeYCo
-         hlmU6lPOC16+YJyXebT59EC+utEC7UE3NSUjMW0CebH9WW36F5/RAnNTGTexAZFPQz
-         UgDq7VE8+3uFgZ8xOH5ejwy5bT/CHywvvxYMDp8NhG9/TRpdIXlw+w/nv8fRybhjsT
-         AL3EvRcRcuNfg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, mmarek@suse.com,
-        schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com,
-        gregkh@linuxfoundation.org, fllinden@amazon.com, ast@kernel.org,
-        daniel@iogearbox.net, linux-kbuild@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 34/43] gcc-12: disable '-Warray-bounds' universally for now
-Date:   Mon, 13 Jun 2022 22:05:53 -0400
-Message-Id: <20220614020602.1098943-34-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220614020602.1098943-1-sashal@kernel.org>
-References: <20220614020602.1098943-1-sashal@kernel.org>
+        with ESMTP id S229611AbiFNEyp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jun 2022 00:54:45 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA15B37BD6;
+        Mon, 13 Jun 2022 21:54:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=CPcuQGJ8u4Jy0B6sriKitXk9Z5PFXAtCX9f68K5wl1A=; b=mUfbeiR89N4DsxNp6xXOH41i6Y
+        JmtqblFYQ4hQGF0fmFwHUye5cQJeGWzSt6b16HZEhcjTN4z901V6X4j0zUdTyxqe4fHe1Z3+Zk/tl
+        E54UlgsHkEsAnlXtiHdxA8PfqYDM352o5h239lCiulcNUHeh8taU4z+nhIqROXdaXMxbJN5Xhysvp
+        JylXTOMt78ZlKNirLVWZLj10TSzdPgbe7rBrhEpCGYbyjOj5fa2DJn9FEr0bu+MPUZerflgvD1FYM
+        yfN1Ul2LmLSK7zpPfpyCLr9H4JFJqAN/TxrPiWcA4URVnHMkhckT9gwPe7BlphpA8BfL3nqfKjmyJ
+        Wtkrw3Sw==;
+Received: from [2001:4bb8:180:36f6:1fed:6d48:cf16:d13c] (helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1o0yZS-0072dn-Ep; Tue, 14 Jun 2022 04:54:30 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        intel-gvt-dev@lists.freedesktop.org
+Subject: simplify the mdev interface v2
+Date:   Tue, 14 Jun 2022 06:54:15 +0200
+Message-Id: <20220614045428.278494-1-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+Hi all,
 
-[ Upstream commit f0be87c42cbd341d436d06da4792e6b0c83c3aeb ]
+this series signigicantly simplies the mdev driver interface by following
+the patterns for device model interaction used elsewhere in the kernel.
 
-In commit 8b202ee21839 ("s390: disable -Warray-bounds") the s390 people
-disabled the '-Warray-bounds' warning for gcc-12, because the new logic
-in gcc would cause warnings for their use of the S390_lowcore macro,
-which accesses absolute pointers.
+Changes since v1:
+ - embedd the mdev_parent into a different sub-structure in i916
+ - remove headers now inclued by mdev.h from individual source files
+ - pass an array of mdev_types to mdev_register_parent
+ - add additional patches to implement all attributes on the
+   mdev_type in the core code
 
-It turns out gcc-12 has many other issues in this area, so this takes
-that s390 warning disable logic, and turns it into a kernel build config
-entry instead.
-
-Part of the intent is that we can make this all much more targeted, and
-use this conflig flag to disable it in only particular configurations
-that cause problems, with the s390 case as an example:
-
-        select GCC12_NO_ARRAY_BOUNDS
-
-and we could do that for other configuration cases that cause issues.
-
-Or we could possibly use the CONFIG_CC_NO_ARRAY_BOUNDS thing in a more
-targeted way, and disable the warning only for particular uses: again
-the s390 case as an example:
-
-  KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_CC_NO_ARRAY_BOUNDS),-Wno-array-bounds)
-
-but this ends up just doing it globally in the top-level Makefile, since
-the current issues are spread fairly widely all over:
-
-  KBUILD_CFLAGS-$(CONFIG_CC_NO_ARRAY_BOUNDS) += -Wno-array-bounds
-
-We'll try to limit this later, since the gcc-12 problems are rare enough
-that *much* of the kernel can be built with it without disabling this
-warning.
-
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- Makefile           |  1 +
- arch/s390/Kconfig  |  1 +
- arch/s390/Makefile | 10 +---------
- init/Kconfig       |  9 +++++++++
- 4 files changed, 12 insertions(+), 9 deletions(-)
-
-diff --git a/Makefile b/Makefile
-index e2a1832681e7..0a344db643b1 100644
---- a/Makefile
-+++ b/Makefile
-@@ -778,6 +778,7 @@ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
- KBUILD_CFLAGS += $(stackp-flags-y)
- 
- KBUILD_CFLAGS-$(CONFIG_WERROR) += -Werror
-+KBUILD_CFLAGS-$(CONFIG_CC_NO_ARRAY_BOUNDS) += -Wno-array-bounds
- KBUILD_CFLAGS += $(KBUILD_CFLAGS-y) $(CONFIG_CC_IMPLICIT_FALLTHROUGH)
- 
- ifdef CONFIG_CC_IS_CLANG
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index be9f39fd06df..b14a18ac2e71 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -123,6 +123,7 @@ config S390
- 	select CPU_NO_EFFICIENT_FFS if !HAVE_MARCH_Z9_109_FEATURES
- 	select DMA_OPS if PCI
- 	select DYNAMIC_FTRACE if FUNCTION_TRACER
-+	select GCC12_NO_ARRAY_BOUNDS
- 	select GENERIC_ALLOCATOR
- 	select GENERIC_CPU_AUTOPROBE
- 	select GENERIC_CPU_VULNERABILITIES
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index 6e42252214dd..82a44f60ad3c 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -30,15 +30,7 @@ KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
- KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
--
--ifdef CONFIG_CC_IS_GCC
--	ifeq ($(call cc-ifversion, -ge, 1200, y), y)
--		ifeq ($(call cc-ifversion, -lt, 1300, y), y)
--			KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
--			KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, array-bounds)
--		endif
--	endif
--endif
-+KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_CC_NO_ARRAY_BOUNDS),-Wno-array-bounds)
- 
- UTS_MACHINE	:= s390x
- STACK_SIZE	:= $(if $(CONFIG_KASAN),65536,16384)
-diff --git a/init/Kconfig b/init/Kconfig
-index 4a7a569706c5..cbe094645917 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -895,6 +895,15 @@ config CC_IMPLICIT_FALLTHROUGH
- 	default "-Wimplicit-fallthrough=5" if CC_IS_GCC && $(cc-option,-Wimplicit-fallthrough=5)
- 	default "-Wimplicit-fallthrough" if CC_IS_CLANG && $(cc-option,-Wunreachable-code-fallthrough)
- 
-+# Currently, disable gcc-12 array-bounds globally.
-+# We may want to target only particular configurations some day.
-+config GCC12_NO_ARRAY_BOUNDS
-+	def_bool y
-+
-+config CC_NO_ARRAY_BOUNDS
-+	bool
-+	default y if CC_IS_GCC && GCC_VERSION >= 120000 && GCC_VERSION < 130000 && GCC12_NO_ARRAY_BOUNDS
-+
- #
- # For architectures that know their GCC __int128 support is sound
- #
--- 
-2.35.1
-
+Diffstat:
+ Documentation/driver-api/vfio-mediated-device.rst |   26 +-
+ Documentation/s390/vfio-ap.rst                    |    2 
+ Documentation/s390/vfio-ccw.rst                   |    2 
+ drivers/gpu/drm/i915/gvt/gvt.h                    |    6 
+ drivers/gpu/drm/i915/gvt/kvmgt.c                  |  158 +++------------
+ drivers/gpu/drm/i915/gvt/vgpu.c                   |   60 +----
+ drivers/s390/cio/cio.h                            |    4 
+ drivers/s390/cio/vfio_ccw_drv.c                   |    3 
+ drivers/s390/cio/vfio_ccw_ops.c                   |   60 -----
+ drivers/s390/cio/vfio_ccw_private.h               |    2 
+ drivers/s390/crypto/vfio_ap_ops.c                 |   68 ------
+ drivers/s390/crypto/vfio_ap_private.h             |    6 
+ drivers/vfio/mdev/mdev_core.c                     |  214 ++++++--------------
+ drivers/vfio/mdev/mdev_driver.c                   |    7 
+ drivers/vfio/mdev/mdev_private.h                  |   39 ---
+ drivers/vfio/mdev/mdev_sysfs.c                    |  230 ++++++++--------------
+ include/linux/mdev.h                              |   77 +++----
+ samples/vfio-mdev/mbochs.c                        |  103 ++-------
+ samples/vfio-mdev/mdpy.c                          |  115 ++---------
+ samples/vfio-mdev/mtty.c                          |   94 +++-----
+ 20 files changed, 389 insertions(+), 887 deletions(-)
