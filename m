@@ -2,233 +2,174 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99A2CCCA47A
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 18:18:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16E4FC43334
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 20:45:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344726AbiFNSSY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Jun 2022 14:18:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40222 "EHLO
+        id S232738AbiFNUp2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Jun 2022 16:45:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345312AbiFNSSU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jun 2022 14:18:20 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6255517040;
-        Tue, 14 Jun 2022 11:18:18 -0700 (PDT)
-Date:   Tue, 14 Jun 2022 20:18:14 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1655230696;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=glKtlzrdgS42FUCeVSzwN4g68eQlfOzE5nkkDj9Hmbo=;
-        b=bdOWxOcYLa1MqIDMGml1p3YAa+XuOEhBnRnAIoDvIzOoOBnLKkuT0WmGM+GhFRcb2f73ds
-        q06UZPG2KI6Q/2WCjvU91DDQey2tlZOP8I9x99QFDBgtnCHm3RZciXHiNK3p+4ZS4YRw8q
-        JaY523zT9e6y0T1b33h64fvnQ1cJIarN4kPLYgKKLz07N1QNteLZ+qULdMTTqzrFkQrWeD
-        gx4NOOS1VjWgk7yJzaW9uHe6Vtc3BrBt6VC7pYB1ufcbKzsz0oTwvXZezknB13L/uDJgdh
-        FUFbNwY7b1wffxieh0zy1moi3CApldOhWe+i2qDH7UVqOzvbJONNa7mxuqfR5A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1655230696;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=glKtlzrdgS42FUCeVSzwN4g68eQlfOzE5nkkDj9Hmbo=;
-        b=xTHjXNhpcCR8SakGE0xHmIzkgkPPHrYipvdxi4xgUsrXIkGeJ97y9f+lUhxwstj5DToUol
-        xtiZ47mMHrxI8+DQ==
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To:     linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        sparclinux@vger.kernel.org
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Rich Felker <dalias@libc.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>
-Subject: [PATCH] arch/*: Disable softirq stacks on PREEMPT_RT.
-Message-ID: <YqjQ5kso7czrmYPW@linutronix.de>
+        with ESMTP id S233197AbiFNUp1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jun 2022 16:45:27 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2085.outbound.protection.outlook.com [40.107.220.85])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39CD128E0C;
+        Tue, 14 Jun 2022 13:45:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IJ3bF63yYGUN6eohvnWDP9oKyS+9TiW3ayXA/a22grBqOH2hJwisWr8dg6vL6FouhZIJxnde5LqjRSaB0B+B6jBVGsQk36B93Y7xZpZs+lo13PR26x+v0opZkLXS5oaJN5Qfqj7ancj27L3sTu9l27UYeoUv4RDgI8FjYffqcgUDp5V/qg9/U2iH1q2hqf2FXYMLLk3zd5kohvDblI1mhnW5/Zoso9i+mYdgxPpaLq99t7uaJCD0z+zSDITiw4ywtOfDCKZ9sjhwxtl6lt7Dm2tZfMxBdtDDkok9al6DA7ljsRd0uGbx6pYuf9js6DZSCCbD3myNMfIA0bqVbabvCA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=h+wdnHzm5/tFJI64HWledeJrntDDTEnQRGQb3TjHaak=;
+ b=OqjzX1hhs8nf4EaE+2jE3pmO2Kjv2Mpr0fX4ctxEq4KLBSW0RYxjDnmzTvipUuAhUik3AAYgXsEQ9KKGf8RZgjwoViD4bZ+IrVBJp6v6s1KcottmCIVrRKvabPKML4QZ32oDBXoewriLTn8etvY8/CjbYtPNfIRmzBO78If3Lk65ZZUY+El2wr7LiYLrddG9srRMYGmbc2D6BqCYpYBAoNtR3jdIPEfACZrGqt3eHOPoTaVW3yy5O9+9//T3tuI2ozbvEZgzOk8c0XEx4ZSevYhwo98Qyr3cIaSJAv1K7NBIZAnl3WMPqEUq87YW2fpRPkfLISpEQUG3DqjD5psJSg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.235) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
+ (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
+ (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=h+wdnHzm5/tFJI64HWledeJrntDDTEnQRGQb3TjHaak=;
+ b=XfpsHHlhP6RjgRnv2YvQYPgMseZ6o6stX8nOOrlRUvybxcMS0kC7GSuFMym2nIlbXTp7Odm9I5U5Pf3N/Y2WkCxg89a5nmpO9fvfNZnGmnygKuB/JgY2xtYkaauV+jQq0mCRmEzTu9Mw225ue7e9JSF9FC1xZkmQsaZ12oLvnqlPkb77jV0aKtAGged9X2LvbdBlHCNgh624YBjemTB/kCW9nwo5NuB9PgBKzoc81Lw7L3ZFP3iaf855HfB0+bmqlcx/gJwTpcgGazzT9HTEPQPP29lEZR/+LiMa2HOJF1T/T9Z4/taJufU6An6tgBiu7beCFIpJBgw8Q/Wxz4iHPw==
+Received: from BN0PR04CA0144.namprd04.prod.outlook.com (2603:10b6:408:ed::29)
+ by BN6PR1201MB0113.namprd12.prod.outlook.com (2603:10b6:405:55::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.12; Tue, 14 Jun
+ 2022 20:45:23 +0000
+Received: from BN8NAM11FT008.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:ed:cafe::87) by BN0PR04CA0144.outlook.office365.com
+ (2603:10b6:408:ed::29) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.17 via Frontend
+ Transport; Tue, 14 Jun 2022 20:45:23 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.235)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.235 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.235; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.235) by
+ BN8NAM11FT008.mail.protection.outlook.com (10.13.177.95) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5332.12 via Frontend Transport; Tue, 14 Jun 2022 20:45:23 +0000
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Tue, 14 Jun
+ 2022 20:45:22 +0000
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail202.nvidia.com
+ (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Tue, 14 Jun
+ 2022 13:45:22 -0700
+Received: from Asurada-Nvidia (10.127.8.11) by mail.nvidia.com (10.129.68.6)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22 via Frontend
+ Transport; Tue, 14 Jun 2022 13:45:19 -0700
+Date:   Tue, 14 Jun 2022 13:45:18 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>
+CC:     Jason Gunthorpe <jgg@nvidia.com>,
+        "joro@8bytes.org" <joro@8bytes.org>,
+        "will@kernel.org" <will@kernel.org>,
+        "marcan@marcan.st" <marcan@marcan.st>,
+        "sven@svenpeter.dev" <sven@svenpeter.dev>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "robdclark@gmail.com" <robdclark@gmail.com>,
+        "m.szyprowski@samsung.com" <m.szyprowski@samsung.com>,
+        "krzysztof.kozlowski@linaro.org" <krzysztof.kozlowski@linaro.org>,
+        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
+        "agross@kernel.org" <agross@kernel.org>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
+        "heiko@sntech.de" <heiko@sntech.de>,
+        "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
+        "baolin.wang7@gmail.com" <baolin.wang7@gmail.com>,
+        "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
+        "wens@csie.org" <wens@csie.org>,
+        "jernej.skrabec@gmail.com" <jernej.skrabec@gmail.com>,
+        "samuel@sholland.org" <samuel@sholland.org>,
+        "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>,
+        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+        "alim.akhtar@samsung.com" <alim.akhtar@samsung.com>,
+        "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-samsung-soc@vger.kernel.org" 
+        <linux-samsung-soc@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
+        "linux-rockchip@lists.infradead.org" 
+        <linux-rockchip@lists.infradead.org>,
+        "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
+        "linux-sunxi@lists.linux.dev" <linux-sunxi@lists.linux.dev>,
+        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+        "linux-mediatek@lists.infradead.org" 
+        <linux-mediatek@lists.infradead.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
+        "dwmw2@infradead.org" <dwmw2@infradead.org>
+Subject: Re: [PATCH 3/5] vfio/iommu_type1: Prefer to reuse domains vs match
+ enforced cache coherency
+Message-ID: <YqjzXpzuBa4ATf9o@Asurada-Nvidia>
+References: <20220606061927.26049-1-nicolinc@nvidia.com>
+ <20220606061927.26049-4-nicolinc@nvidia.com>
+ <BN9PR11MB5276DC98E75B1906A76F7ADC8CA49@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <20220608111724.GL1343366@nvidia.com>
+ <DM4PR11MB52781590FB8FB197579DEE848CA49@DM4PR11MB5278.namprd11.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
+In-Reply-To: <DM4PR11MB52781590FB8FB197579DEE848CA49@DM4PR11MB5278.namprd11.prod.outlook.com>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c57380c9-1dd6-4d7d-4096-08da4e46ce09
+X-MS-TrafficTypeDiagnostic: BN6PR1201MB0113:EE_
+X-Microsoft-Antispam-PRVS: <BN6PR1201MB0113233C3B5CAF3FE03B6129ABAA9@BN6PR1201MB0113.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 01Lo7EEKLCy2OIC9zTeh6zz/WeBLpYGCF/uXe2ghKhndvNCltYjbF+9OT7LjgeEp0EGOYX5nuh8iNeJdBU9ltcgjgxnXDpq2V4ci2ZGnH/qdqBYJAvHqdOHKYZnlUsuyIwMc5/ZbSNSlzit+njn0WYai4x8rr0ZEmgKxr9lbMKggl+67Z3iwkRyy0mB0dp8SfaBVMh1XZDS8flTgxtRw9ggZO3cGg1XUhhsXl9VK5HMTXN8sAFQn3IJgkOd8SZ8F75KGwXFAp8byCM4c6ZzPY0ocQ+1DYLkWW7xxoqtllkzXftPyL/EON92SQXB0iomv5sJSfASJa52ZEdJ9ZCVP8emmMOA0am7u7MWVpExc6P/LjBm1bgZANxlx1mptyq0XjhB057UHTchHzc333st+7lAC+iGMOew4JEbMYoRP//znW+l8zk9usgbzA+tg55NalrgL7Pwht3H1lcAyo+37W026OIYzHwBTwtw0dS3vbt5YA35V7kyPIZnJri/6mo9tuelWk3JF9QPHOG4EAVfkPPv9nWOOTYs4BGK1uO5sxTULTBgNSVwaSw2R+JzRxKw95KPJE1sUFHwcXvCi6mNojKWSjRSoZgD0KA0/ZAbi09qjpoXRJjk/2PiOSdswHXc9qzUWl36cTtF0LUxCn7pNzSodPa/MLmoZXXZ5fZNnEXHmKdEljxtMKov1+RUJYUOPNVkI2hG8arkjz3tAzGtodg==
+X-Forefront-Antispam-Report: CIP:12.22.5.235;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(40470700004)(36840700001)(46966006)(5660300002)(7416002)(356005)(36860700001)(7406005)(2906002)(186003)(4744005)(40460700003)(82310400005)(26005)(9686003)(33716001)(70586007)(54906003)(8936002)(86362001)(70206006)(55016003)(508600001)(83380400001)(4326008)(47076005)(8676002)(316002)(426003)(336012)(6916009)(81166007)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jun 2022 20:45:23.5861
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: c57380c9-1dd6-4d7d-4096-08da4e46ce09
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.235];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT008.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR1201MB0113
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-PREEMPT_RT preempts softirqs and the current implementation avoids
-do_softirq_own_stack() and only uses __do_softirq().
+Hi Kevin,
 
-Disable the unused softirqs stacks on PREEMPT_RT to safe some memory and
-ensure that do_softirq_own_stack() is not used bwcause it is not
-expected.
+On Wed, Jun 08, 2022 at 11:48:27PM +0000, Tian, Kevin wrote:
+> > > > The KVM mechanism for controlling wbinvd is only triggered during
+> > > > kvm_vfio_group_add(), meaning it is a one-shot test done once the
+> > devices
+> > > > are setup.
+> > >
+> > > It's not one-shot. kvm_vfio_update_coherency() is called in both
+> > > group_add() and group_del(). Then the coherency property is
+> > > checked dynamically in wbinvd emulation:
+> >
+> > From the perspective of managing the domains that is still
+> > one-shot. It doesn't get updated when individual devices are
+> > added/removed to domains.
+> 
+> It's unchanged per-domain but dynamic per-vm when multiple
+> domains are added/removed (i.e. kvm->arch.noncoherent_dma_count).
+> It's the latter being checked in the kvm.
 
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
+I am going to send a v2, yet not quite getting the point here.
+Meanwhile, Jason is on leave.
 
-Initially I aimed only for the asm-generic bits and arm since I have
-most bits of the port ready. Arnd then suggested to do all arches at
-once and here it is.
-I tried to keep it minimal in sense that I didn't remove the dedicated
-softirq-stacks on parisc or powerpc for instance. That would add another
-few ifdefs and I don't know if we manage to get it up and running on
-parisc. I do have the missing bits for powerpc however ;)
+What, in your opinion, would be an accurate description here?
 
- arch/arm/kernel/irq.c                 | 3 ++-
- arch/parisc/kernel/irq.c              | 2 ++
- arch/powerpc/kernel/irq.c             | 4 ++++
- arch/s390/include/asm/softirq_stack.h | 3 ++-
- arch/sh/kernel/irq.c                  | 2 ++
- arch/sparc/kernel/irq_64.c            | 2 ++
- include/asm-generic/softirq_stack.h   | 2 +-
- 7 files changed, 15 insertions(+), 3 deletions(-)
-
-diff --git a/arch/arm/kernel/irq.c b/arch/arm/kernel/irq.c
-index 5c6f8d11a3ce5..034cb48c9eeb8 100644
---- a/arch/arm/kernel/irq.c
-+++ b/arch/arm/kernel/irq.c
-@@ -70,6 +70,7 @@ static void __init init_irq_stacks(void)
- 	}
- }
- 
-+#ifndef CONFIG_PREEMPT_RT
- static void ____do_softirq(void *arg)
- {
- 	__do_softirq();
-@@ -80,7 +81,7 @@ void do_softirq_own_stack(void)
- 	call_with_stack(____do_softirq, NULL,
- 			__this_cpu_read(irq_stack_ptr));
- }
--
-+#endif
- #endif
- 
- int arch_show_interrupts(struct seq_file *p, int prec)
-diff --git a/arch/parisc/kernel/irq.c b/arch/parisc/kernel/irq.c
-index 0fe2d79fb123f..eba193bcdab1b 100644
---- a/arch/parisc/kernel/irq.c
-+++ b/arch/parisc/kernel/irq.c
-@@ -480,10 +480,12 @@ static void execute_on_irq_stack(void *func, unsigned long param1)
- 	*irq_stack_in_use = 1;
- }
- 
-+#ifndef CONFIG_PREEMPT_RT
- void do_softirq_own_stack(void)
- {
- 	execute_on_irq_stack(__do_softirq, 0);
- }
-+#endif
- #endif /* CONFIG_IRQSTACKS */
- 
- /* ONLY called from entry.S:intr_extint() */
-diff --git a/arch/powerpc/kernel/irq.c b/arch/powerpc/kernel/irq.c
-index dd09919c3c668..0822a274a549c 100644
---- a/arch/powerpc/kernel/irq.c
-+++ b/arch/powerpc/kernel/irq.c
-@@ -611,6 +611,7 @@ static inline void check_stack_overflow(void)
- 	}
- }
- 
-+#ifndef CONFIG_PREEMPT_RT
- static __always_inline void call_do_softirq(const void *sp)
- {
- 	/* Temporarily switch r1 to sp, call __do_softirq() then restore r1. */
-@@ -629,6 +630,7 @@ static __always_inline void call_do_softirq(const void *sp)
- 		   "r11", "r12"
- 	);
- }
-+#endif
- 
- static __always_inline void call_do_irq(struct pt_regs *regs, void *sp)
- {
-@@ -747,10 +749,12 @@ void *mcheckirq_ctx[NR_CPUS] __read_mostly;
- void *softirq_ctx[NR_CPUS] __read_mostly;
- void *hardirq_ctx[NR_CPUS] __read_mostly;
- 
-+#ifndef CONFIG_PREEMPT_RT
- void do_softirq_own_stack(void)
- {
- 	call_do_softirq(softirq_ctx[smp_processor_id()]);
- }
-+#endif
- 
- irq_hw_number_t virq_to_hw(unsigned int virq)
- {
-diff --git a/arch/s390/include/asm/softirq_stack.h b/arch/s390/include/asm/softirq_stack.h
-index fd17f25704bd5..af68d6c1d5840 100644
---- a/arch/s390/include/asm/softirq_stack.h
-+++ b/arch/s390/include/asm/softirq_stack.h
-@@ -5,9 +5,10 @@
- #include <asm/lowcore.h>
- #include <asm/stacktrace.h>
- 
-+#ifndef CONFIG_PREEMPT_RT
- static inline void do_softirq_own_stack(void)
- {
- 	call_on_stack(0, S390_lowcore.async_stack, void, __do_softirq);
- }
--
-+#endif
- #endif /* __ASM_S390_SOFTIRQ_STACK_H */
-diff --git a/arch/sh/kernel/irq.c b/arch/sh/kernel/irq.c
-index ef0f0827cf575..2d3eca8fee011 100644
---- a/arch/sh/kernel/irq.c
-+++ b/arch/sh/kernel/irq.c
-@@ -149,6 +149,7 @@ void irq_ctx_exit(int cpu)
- 	hardirq_ctx[cpu] = NULL;
- }
- 
-+#ifndef CONFIG_PREEMPT_RT
- void do_softirq_own_stack(void)
- {
- 	struct thread_info *curctx;
-@@ -176,6 +177,7 @@ void do_softirq_own_stack(void)
- 		  "r5", "r6", "r7", "r8", "r9", "r15", "t", "pr"
- 	);
- }
-+#endif
- #else
- static inline void handle_one_irq(unsigned int irq)
- {
-diff --git a/arch/sparc/kernel/irq_64.c b/arch/sparc/kernel/irq_64.c
-index c8848bb681a11..41fa1be980a33 100644
---- a/arch/sparc/kernel/irq_64.c
-+++ b/arch/sparc/kernel/irq_64.c
-@@ -855,6 +855,7 @@ void __irq_entry handler_irq(int pil, struct pt_regs *regs)
- 	set_irq_regs(old_regs);
- }
- 
-+#ifndef CONFIG_PREEMPT_RT
- void do_softirq_own_stack(void)
- {
- 	void *orig_sp, *sp = softirq_stack[smp_processor_id()];
-@@ -869,6 +870,7 @@ void do_softirq_own_stack(void)
- 	__asm__ __volatile__("mov %0, %%sp"
- 			     : : "r" (orig_sp));
- }
-+#endif
- 
- #ifdef CONFIG_HOTPLUG_CPU
- void fixup_irqs(void)
-diff --git a/include/asm-generic/softirq_stack.h b/include/asm-generic/softirq_stack.h
-index eceeecf6a5bd8..d3e2d81656e04 100644
---- a/include/asm-generic/softirq_stack.h
-+++ b/include/asm-generic/softirq_stack.h
-@@ -2,7 +2,7 @@
- #ifndef __ASM_GENERIC_SOFTIRQ_STACK_H
- #define __ASM_GENERIC_SOFTIRQ_STACK_H
- 
--#ifdef CONFIG_HAVE_SOFTIRQ_ON_OWN_STACK
-+#if defined(CONFIG_HAVE_SOFTIRQ_ON_OWN_STACK) && !defined(CONFIG_PREEMPT_RT)
- void do_softirq_own_stack(void);
- #else
- static inline void do_softirq_own_stack(void)
--- 
-2.36.1
-
+Thanks
+Nic
