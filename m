@@ -2,114 +2,211 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D9A3C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 17:09:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 094C9C43334
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 17:33:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234986AbiFNRJO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Jun 2022 13:09:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58870 "EHLO
+        id S240663AbiFNRd3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Jun 2022 13:33:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243552AbiFNRJI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jun 2022 13:09:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 77EE01E3C2
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jun 2022 10:09:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655226545;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TtO7y3+ijZ6YgcAc4PQtJVzw8h5/IO41lJW3F/O5h8o=;
-        b=MExBRNUrDgO3Q+J734Mscv2T2qASZLzHE4c8el9HZi4lUBQWptJZY+ONvKd8Y6oXwuv7uE
-        /ufobr/ex6e07iXpTO4d2IvHFhWqnVY54c6O9vb6obt4kK3C5MGbgQqNzmPab29/h4jUiv
-        y1ANlS0px2g3htt6lFW/B2sNQxgCp58=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-399-lSR9Npo_M-O7uHXqNa1rIw-1; Tue, 14 Jun 2022 13:09:04 -0400
-X-MC-Unique: lSR9Npo_M-O7uHXqNa1rIw-1
-Received: by mail-wm1-f71.google.com with SMTP id r6-20020a1c4406000000b0039c8f5804c4so295489wma.3
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jun 2022 10:09:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=TtO7y3+ijZ6YgcAc4PQtJVzw8h5/IO41lJW3F/O5h8o=;
-        b=VfRx20hDts5l84RtgqTe0bnwjkQPz+JbzDrWASzcb9I9d18nmUD2in+UnE3zrEfo1k
-         0TArlUJRV1emyEVR8RngpVrAjZxRnM1Q5FpkRoURfz5G5ZMC8RmagEWq9p9Qrcw9+CwQ
-         lJwqiwEXwOBvdtiVGstLf58esJRH6NlRk+3gnDhTDON+/kdeWi/wTXsiCmUR3qwxgSB4
-         sI2nfZLqJiuGrWjMnzaae2+tkyi6AnYnEYeELLuE9NFqkRA6+q0PMY9+7hZdPzip61Hf
-         uxPjm66R0glkQfFA+cum29ugI1/bOEd8MFF4XWWoDE9I2v4lX50b1p8QlSB9YQOZrIym
-         x5OQ==
-X-Gm-Message-State: AOAM533lP5scohKhDUwkqTvqLfgjPG/DtZ0Dwqic4Kw5fYJzCEi3Qup8
-        ONDyeIQF5uK7UkKH0h6i83dG53QmeI6AKmq4MOt0BvslvWqH2HQIaXrc4rgjcxjGlP/9JphWids
-        /nBh6zfVaWtIIwnf5nOZubA==
-X-Received: by 2002:a1c:f213:0:b0:39b:ad32:5e51 with SMTP id s19-20020a1cf213000000b0039bad325e51mr5215041wmc.72.1655226543168;
-        Tue, 14 Jun 2022 10:09:03 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwEH0VwSnOcNDbF6N4JmvvUE3uFVg/Be8POxZzNI8KiXy7aOZbLTS8Lt1QSrzLFl377ZtNdew==
-X-Received: by 2002:a1c:f213:0:b0:39b:ad32:5e51 with SMTP id s19-20020a1cf213000000b0039bad325e51mr5215014wmc.72.1655226542875;
-        Tue, 14 Jun 2022 10:09:02 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
-        by smtp.googlemail.com with ESMTPSA id v1-20020adfebc1000000b0020d07d90b71sm12236421wrn.66.2022.06.14.10.09.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Jun 2022 10:09:01 -0700 (PDT)
-Message-ID: <6dca9fc3-d50a-2920-b22e-73f0bd2c93f9@redhat.com>
-Date:   Tue, 14 Jun 2022 19:09:00 +0200
+        with ESMTP id S242526AbiFNRdZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jun 2022 13:33:25 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 77C763056C;
+        Tue, 14 Jun 2022 10:33:23 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CD0DD1762;
+        Tue, 14 Jun 2022 10:33:22 -0700 (PDT)
+Received: from FVFF77S0Q05N (unknown [10.57.41.154])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3C0913F66F;
+        Tue, 14 Jun 2022 10:33:04 -0700 (PDT)
+Date:   Tue, 14 Jun 2022 18:33:00 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com,
+        vgupta@kernel.org, linux@armlinux.org.uk,
+        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
+        shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, guoren@kernel.org, bcain@quicinc.com,
+        chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
+        sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de,
+        dinguyen@kernel.org, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+        James.Bottomley@hansenpartnership.com, deller@gmx.de,
+        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        acme@kernel.org, alexander.shishkin@linux.intel.com,
+        jolsa@kernel.org, namhyung@kernel.org, jgross@suse.com,
+        srivatsa@csail.mit.edu, amakhalov@vmware.com,
+        pv-drivers@vmware.com, boris.ostrovsky@oracle.com,
+        chris@zankel.net, jcmvbkbc@gmail.com, rafael@kernel.org,
+        lenb@kernel.org, pavel@ucw.cz, gregkh@linuxfoundation.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        daniel.lezcano@linaro.org, lpieralisi@kernel.org,
+        sudeep.holla@arm.com, agross@kernel.org,
+        bjorn.andersson@linaro.org, anup@brainfault.org,
+        thierry.reding@gmail.com, jonathanh@nvidia.com,
+        jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        yury.norov@gmail.com, andriy.shevchenko@linux.intel.com,
+        linux@rasmusvillemoes.dk, rostedt@goodmis.org, pmladek@suse.com,
+        senozhatsky@chromium.org, john.ogness@linutronix.de,
+        paulmck@kernel.org, frederic@kernel.org, quic_neeraju@quicinc.com,
+        josh@joshtriplett.org, mathieu.desnoyers@efficios.com,
+        jiangshanlai@gmail.com, joel@joelfernandes.org,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, bsegall@google.com, mgorman@suse.de,
+        bristot@redhat.com, vschneid@redhat.com, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org, linux-xtensa@linux-xtensa.org,
+        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-arch@vger.kernel.org,
+        rcu@vger.kernel.org
+Subject: Re: [PATCH 00/36] cpuidle,rcu: Cleanup the mess
+Message-ID: <YqjGTFEWSJGGOjNA@FVFF77S0Q05N>
+References: <20220608142723.103523089@infradead.org>
+ <YqhuwQjmZyOVSiLI@FVFF77S0Q05N>
+ <Yqi+Nqz1J8wI5GcX@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH] KVM: s390: selftests: Fix memop extension capability
- check
-Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>, thuth@redhat.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Cc:     david@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        linux-s390@vger.kernel.org, shuah@kernel.org
-References: <36d83871-343d-e8a0-1aed-05bf386f9b1b@redhat.com>
- <20220614162635.3445019-1-scgl@linux.ibm.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20220614162635.3445019-1-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yqi+Nqz1J8wI5GcX@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/14/22 18:26, Janis Schoetterl-Glausch wrote:
-> Fix the inverted logic of the memop extension capability check.
+On Tue, Jun 14, 2022 at 06:58:30PM +0200, Peter Zijlstra wrote:
+> On Tue, Jun 14, 2022 at 12:19:29PM +0100, Mark Rutland wrote:
+> > On Wed, Jun 08, 2022 at 04:27:23PM +0200, Peter Zijlstra wrote:
+> > > Hi All! (omg so many)
+> > 
+> > Hi Peter,
+> > 
+> > Sorry for the delay; my plate has also been rather full recently. I'm beginning
+> > to page this in now.
 > 
-> Fixes: 97da92c0ff92 ("KVM: s390: selftests: Use TAP interface in the memop test")
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> ---
+> No worries; we all have too much to do ;-)
 > 
+> > > These here few patches mostly clear out the utter mess that is cpuidle vs rcuidle.
+> > > 
+> > > At the end of the ride there's only 2 real RCU_NONIDLE() users left
+> > > 
+> > >   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
+> > >   drivers/perf/arm_pmu.c:                 RCU_NONIDLE(armpmu_start(event, PERF_EF_RELOAD));
+> > 
+> > The latter of these is necessary because apparently PM notifiers are called
+> > with RCU not watching. Is that still the case today (or at the end of this
+> > series)? If so, that feels like fertile land for more issues (yaey...). If not,
+> > we should be able to drop this.
 > 
-> Here you go.
-> Hope it doesn't get lost as a reply, but I can always resend
-> and it's not super critical after all.
-> 
-> 
->   tools/testing/selftests/kvm/s390x/memop.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-> index e704c6fa5758..e1056f20dfa1 100644
-> --- a/tools/testing/selftests/kvm/s390x/memop.c
-> +++ b/tools/testing/selftests/kvm/s390x/memop.c
-> @@ -769,7 +769,7 @@ int main(int argc, char *argv[])
->   	ksft_set_plan(ARRAY_SIZE(testlist));
->   
->   	for (idx = 0; idx < ARRAY_SIZE(testlist); idx++) {
-> -		if (testlist[idx].extension >= extension_cap) {
-> +		if (extension_cap >= testlist[idx].extension) {
->   			testlist[idx].test();
->   			ksft_test_result_pass("%s\n", testlist[idx].name);
->   		} else {
+> That should be fixed; fingers crossed :-)
 
-Done, thanks!
+Cool; I'll try to give that a spin when I'm sat next to some relevant hardware. :)
 
-Paolo
+> > >   kernel/cfi.c:   RCU_NONIDLE({
+> > > 
+> > > (the CFI one is likely dead in the kCFI rewrite) and there's only a hand full
+> > > of trace_.*_rcuidle() left:
+> > > 
+> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
+> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
+> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
+> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
+> > >   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
+> > >   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
+> > > 
+> > > All of them are in 'deprecated' code that is unused for GENERIC_ENTRY.
+> > I think those are also unused on arm64 too?
+> > 
+> > If not, I can go attack that.
+> 
+> My grep spots:
+> 
+> arch/arm64/kernel/entry-common.c:               trace_hardirqs_on();
+> arch/arm64/include/asm/daifflags.h:     trace_hardirqs_off();
+> arch/arm64/include/asm/daifflags.h:             trace_hardirqs_off();
 
+Ah; I hadn't realised those used trace_.*_rcuidle() behind the scenes.
+
+That affects local_irq_{enable,disable,restore}() too (which is what the
+daifflags.h bits are emulating), and also the generic entry code's
+irqentry_exit().
+
+So it feels to me like we should be fixing those more generally? e.g. say that
+with a new STRICT_ENTRY[_RCU], we can only call trace_hardirqs_{on,off}() with
+RCU watching, and alter the definition of those?
+
+> The _on thing should be replaced with something like:
+> 
+> 	trace_hardirqs_on_prepare();
+> 	lockdep_hardirqs_on_prepare();
+> 	instrumentation_end();
+> 	rcu_irq_exit();
+> 	lockdep_hardirqs_on(CALLER_ADDR0);
+> 
+> (as I think you know, since you have some of that already). And
+> something similar for the _off thing, but with _off_finish().
+
+Sure; I knew that was necessary for the outermost parts of entry (and I think
+that's all handled), I just hadn't realised that trace_hardirqs_{on,off} did
+the rcuidle thing in the middle.
+
+It'd be nice to not have to open-code the whole sequence everywhere for the
+portions which run after entry and are instrumentable, so (as above) I reckon
+we want to make trace_hardirqs_{on,off}() not do the rcuidle part
+unnecessarily (which IIUC is an end-goal anyway)?
+
+> > > I've touched a _lot_ of code that I can't test and likely broken some of it :/
+> > > In particular, the whole ARM cpuidle stuff was quite involved with OMAP being
+> > > the absolute 'winner'.
+> > > 
+> > > I'm hoping Mark can help me sort the remaining ARM64 bits as he moves that to
+> > > GENERIC_ENTRY.
+> > 
+> > Moving to GENERIC_ENTRY as a whole is going to take a tonne of work
+> > (refactoring both arm64 and the generic portion to be more amenable to each
+> > other), but we can certainly move closer to that for the bits that matter here.
+> 
+> I know ... been there etc.. :-)
+> 
+> > Maybe we want a STRICT_ENTRY option to get rid of all the deprecated stuff that
+> > we can select regardless of GENERIC_ENTRY to make that easier.
+> 
+> Possible yeah.
+> 
+> > > I've also got a note that says ARM64 can probably do a WFE based
+> > > idle state and employ TIF_POLLING_NRFLAG to avoid some IPIs.
+> > 
+> > Possibly; I'm not sure how much of a win that'll be given that by default we'll
+> > have a ~10KHz WFE wakeup from the timer, but we could take a peek.
+> 
+> Ohh.. I didn't know it woke up *that* often. I just know Will made use
+> of it in things like smp_cond_load_relaxed() which would be somewhat
+> similar to a very shallow idle state that looks at the TIF word.
+
+We'll get some saving, I'm just not sure where that falls on the curve of idle
+states. FWIW the wakeup *can* be disabled (and it'd be nice to when we have
+WFxT instructions which take a timeout), it jsut happens to be on by default
+for reasons.
+
+Thanks,
+Mark.
