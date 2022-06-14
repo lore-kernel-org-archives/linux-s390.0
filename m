@@ -2,174 +2,211 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14CBFC43334
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 10:38:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AF51CCA47C
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Jun 2022 10:57:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233282AbiFNKi5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Jun 2022 06:38:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56786 "EHLO
+        id S1356021AbiFNK4g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Jun 2022 06:56:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230157AbiFNKi4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jun 2022 06:38:56 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A468C35252;
-        Tue, 14 Jun 2022 03:38:55 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25E96fHg024970;
-        Tue, 14 Jun 2022 10:38:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=fenuCRyA2MbBa5B5nqlyL4fDAInAfNqYcCHTaK+ep6c=;
- b=suhlY2Ae8Zzv/ThqTEhWxC4kz+32aBI0a+u/g52ayzRnRcUgwGfYjNdfsv+GQ3knLuCf
- Su/MUA+K5IhD1SE1uhVqy9jrejPhLgHYMETkUib1AmrTcQMTEUzehdJca3g6KGzOYRGD
- wzOBTNc9EtDUrERKvAqu0+/gP0GaroH730HLiWUWzJ196+WIPUe7ALzwLqiJ4CZL8hiL
- nnnphSTtdiL/23YMg4dGIJ2ls56Dlp+pr1G9qVqthSZoUdSl8eMiGo0WapwpcPRdDGTG
- etsJ7AaW4r5CinIuz7BsbOdfACS2MvjWA5npXbv+OmUeb19ZAKf16IaG7eTfXoRPHTk3 JA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gpp6hc952-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 10:38:47 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25E96uKM025759;
-        Tue, 14 Jun 2022 10:38:47 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gpp6hc94e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 10:38:47 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25EAaom7021792;
-        Tue, 14 Jun 2022 10:38:44 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3gmjajc787-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Jun 2022 10:38:44 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25EAcfks8716654
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Jun 2022 10:38:41 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8B9DB42042;
-        Tue, 14 Jun 2022 10:38:41 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2DA8342041;
-        Tue, 14 Jun 2022 10:38:39 +0000 (GMT)
-Received: from [9.171.29.58] (unknown [9.171.29.58])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Jun 2022 10:38:37 +0000 (GMT)
-Message-ID: <07576ae9-9798-316f-d33e-10c91faeebfb@linux.ibm.com>
-Date:   Tue, 14 Jun 2022 12:38:37 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH v4 1/4] KVM: s390: selftests: Use TAP interface in the
- memop test
-Content-Language: en-US
-To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org,
+        with ESMTP id S1355992AbiFNK4X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jun 2022 06:56:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E81B13B3EC;
+        Tue, 14 Jun 2022 03:56:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 840C361243;
+        Tue, 14 Jun 2022 10:56:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 684A4C3411B;
+        Tue, 14 Jun 2022 10:56:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655204181;
+        bh=00Prm+cUcZ84XpftD1dN/FsJdtVgLrlVbBRu1vY0N5M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GJ95osrVTc29XfAfsEoUU7WX2toadBvY3p7QFX5tpiu1BguwysX9r9TxGtw8aYY9n
+         7dlCDWef80SO6YKztD5/KX6n7Y63tLpHsHD4tZLe39NPNprDEuYJ4QV3OB37cZGvAj
+         IaIu2GguR8oHWbINnEHCM3cx9QcpbJSvuqjzsrMfDYUfocAyaRNr0Pt1A51rT53dh9
+         rDPotEBWirI+Y2P11VJvRfmmoENEdUlYds3MF8ovi7JJoImaYhf0YnPNPIDSD1X1Qu
+         u+E1S/fX8sdfiEnKYnQt3gWGX8HCuLdUK3Dn9KpHAkPUmWIlOW27FtAzM7KU1xfWdH
+         fGJYQOPmMLlqw==
+Date:   Tue, 14 Jun 2022 13:54:18 +0300
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Song Liu <song@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
+        Guo Ren <guoren@kernel.org>,
+        Jarkko Sakkinen <jarkko@profian.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nathaniel McCallum <nathaniel@profian.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>, linux-s390@vger.kernel.org
-References: <20220531101554.36844-1-thuth@redhat.com>
- <20220531101554.36844-2-thuth@redhat.com>
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-In-Reply-To: <20220531101554.36844-2-thuth@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nKt6VK9FhXp14FtCBnSww5of7OpRYt0T
-X-Proofpoint-ORIG-GUID: citumcxVuJL2MZYB4n2rHeF_iUEaQ4ZW
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-14_03,2022-06-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- lowpriorityscore=0 priorityscore=1501 clxscore=1011 adultscore=0
- mlxlogscore=999 malwarescore=0 spamscore=0 phishscore=0 suspectscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206140041
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Marco Elver <elver@google.com>,
+        Dan Li <ashimida@linux.alibaba.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhongjin <chenzhongjin@huawei.com>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Mark Brown <broonie@kernel.org>,
+        Luis Machado <luis.machado@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Joey Gouly <joey.gouly@arm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dave Anglin <dave.anglin@bell.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Daniel Axtens <dja@axtens.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@atishpatra.org>,
+        Changbin Du <changbin.du@intel.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Liao Chang <liaochang1@huawei.com>,
+        Philipp Tomsich <philipp.tomsich@vrull.eu>,
+        Wu Caize <zepan@sipeed.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Tobias Huschle <huschle@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Michael Roth <michael.roth@amd.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-modules@vger.kernel.org
+Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
+Message-ID: <Yqho2hu5q/n10D7g@iki.fi>
+References: <20220608000014.3054333-1-jarkko@profian.com>
+ <CAJF2gTQgCn2CyZ4+VBqEEBT2b4+1KxoEXxrd+Ritk=58+U8EFA@mail.gmail.com>
+ <YqAy0qjI4Lktk/uJ@iki.fi>
+ <20220608232115.ccd4399f4a1d133e9b65c2a9@kernel.org>
+ <CAPhsuW6iUieQvA6KqzSLgtxmjkVSWCuVwNA338DATb_myHxo7w@mail.gmail.com>
+ <YqHx1d+MwRLLzGQe@iki.fi>
+ <CAMj1kXGGyO-DL9hjKYKR2sp87s4KExiQybES8pp4JgqJcHkfLA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXGGyO-DL9hjKYKR2sp87s4KExiQybES8pp4JgqJcHkfLA@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/31/22 12:15, Thomas Huth wrote:
-> The memop test currently does not have any output (unless one of the
-> TEST_ASSERT statement fails), so it's hard to say for a user whether
-> a certain new sub-test has been included in the binary or not. Let's
-> make this a little bit more user-friendly and include some TAP output
-> via the kselftests.h interface.
+On Thu, Jun 09, 2022 at 03:23:16PM +0200, Ard Biesheuvel wrote:
+> On Thu, 9 Jun 2022 at 15:14, Jarkko Sakkinen <jarkko@kernel.org> wrote:
+> >
+> > On Wed, Jun 08, 2022 at 09:12:34AM -0700, Song Liu wrote:
+> > > On Wed, Jun 8, 2022 at 7:21 AM Masami Hiramatsu <mhiramat@kernel.org> wrote:
+> > > >
+> > > > Hi Jarkko,
+> > > >
+> > > > On Wed, 8 Jun 2022 08:25:38 +0300
+> > > > Jarkko Sakkinen <jarkko@kernel.org> wrote:
+> > > >
+> > > > > On Wed, Jun 08, 2022 at 10:35:42AM +0800, Guo Ren wrote:
+> > > > > > .
+> > > > > >
+> > > > > > On Wed, Jun 8, 2022 at 8:02 AM Jarkko Sakkinen <jarkko@profian.com> wrote:
+> > > > > > >
+> > > > > > > Tracing with kprobes while running a monolithic kernel is currently
+> > > > > > > impossible because CONFIG_KPROBES is dependent of CONFIG_MODULES.  This
+> > > > > > > dependency is a result of kprobes code using the module allocator for the
+> > > > > > > trampoline code.
+> > > > > > >
+> > > > > > > Detaching kprobes from modules helps to squeeze down the user space,
+> > > > > > > e.g. when developing new core kernel features, while still having all
+> > > > > > > the nice tracing capabilities.
+> > > > > > >
+> > > > > > > For kernel/ and arch/*, move module_alloc() and module_memfree() to
+> > > > > > > module_alloc.c, and compile as part of vmlinux when either CONFIG_MODULES
+> > > > > > > or CONFIG_KPROBES is enabled.  In addition, flag kernel module specific
+> > > > > > > code with CONFIG_MODULES.
+> > > > > > >
+> > > > > > > As the result, kprobes can be used with a monolithic kernel.
+> > > > > > It's strange when MODULES is n, but vmlinux still obtains module_alloc.
+> > > > > >
+> > > > > > Maybe we need a kprobe_alloc, right?
+> > > > >
+> > > > > Perhaps not the best name but at least it documents the fact that
+> > > > > they use the same allocator.
+> > > > >
+> > > > > Few years ago I carved up something "half-way there" for kprobes,
+> > > > > and I used the name text_alloc() [*].
+> > > > >
+> > > > > [*] https://lore.kernel.org/all/20200724050553.1724168-1-jarkko.sakkinen@linux.intel.com/
+> > > >
+> > > > Yeah, I remember that. Thank you for updating your patch!
+> > > > I think the idea (split module_alloc() from CONFIG_MODULE) is good to me.
+> > > > If module support maintainers think this name is not good, you may be
+> > > > able to rename it as text_alloc() and make the module_alloc() as a
+> > > > wrapper of it.
+> > >
+> > > IIUC, most users of module_alloc() use it to allocate memory for text, except
+> > > that module code uses it for both text and data. Therefore, I guess calling it
+> > > text_alloc() is not 100% accurate until we change the module code (to use
+> > > a different API to allocate memory for data).
+> >
+> > After reading the feedback, I'd stay on using module_alloc() because
+> > it has arch-specific quirks baked in. Easier to deal with them in one
+> > place.
+> >
 > 
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  tools/testing/selftests/kvm/s390x/memop.c | 95 ++++++++++++++++++-----
->  1 file changed, 77 insertions(+), 18 deletions(-)
-> 
-> diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-> index 49f26f544127..e704c6fa5758 100644
-> --- a/tools/testing/selftests/kvm/s390x/memop.c
-> +++ b/tools/testing/selftests/kvm/s390x/memop.c
-> @@ -14,6 +14,7 @@
->  
+> In that case, please ensure that you enable this only on architectures
+> where it is needed. arm64 implements alloc_insn_page() without relying
+> on module_alloc() so I would not expect to see any changes there.
 
-[...]
+Right, got it, thanks for remark.
 
->  int main(int argc, char *argv[])
->  {
-> -	int memop_cap, extension_cap;
-> +	int memop_cap, extension_cap, idx;
->  
->  	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
->  
-> +	ksft_print_header();
-> +
->  	memop_cap = kvm_check_cap(KVM_CAP_S390_MEM_OP);
->  	extension_cap = kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
->  	if (!memop_cap) {
-> -		print_skip("CAP_S390_MEM_OP not supported");
-> -		exit(KSFT_SKIP);
-> +		ksft_exit_skip("CAP_S390_MEM_OP not supported.\n");
->  	}
->  
-> -	test_copy();
-> -	if (extension_cap > 0) {
-> -		test_copy_key();
-> -		test_copy_key_storage_prot_override();
-> -		test_copy_key_fetch_prot();
-> -		test_copy_key_fetch_prot_override();
-> -		test_errors_key();
-> -		test_termination();
-> -		test_errors_key_storage_prot_override();
-> -		test_errors_key_fetch_prot_override_not_enabled();
-> -		test_errors_key_fetch_prot_override_enabled();
-> -	} else {
-> -		print_skip("storage key memop extension not supported");
-> +	ksft_set_plan(ARRAY_SIZE(testlist));
-> +
-> +	for (idx = 0; idx < ARRAY_SIZE(testlist); idx++) {
-> +		if (testlist[idx].extension >= extension_cap) {
-
-This is reversed, should be
-
-   		if (testlist[idx].extension <= extension_cap) {
-or
-		if (extension_cap >= testlist[idx].extension) {
-
-I'd prefer the latter.
-
-> +			testlist[idx].test();
-> +			ksft_test_result_pass("%s\n", testlist[idx].name);
-> +		} else {
-> +			ksft_test_result_skip("%s - extension level %d not supported\n",
-> +					      testlist[idx].name,
-> +					      testlist[idx].extension);
-> +		}
->  	}
-> -	test_errors();
->  
-> -	return 0;
-> +	ksft_finished();	/* Print results and exit() accordingly */
->  }
-
+BR, Jarkko
