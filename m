@@ -2,93 +2,193 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9807C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 15:42:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AB49CCA473
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 15:46:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354995AbiFOPmJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 11:42:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36570 "EHLO
+        id S231167AbiFOPqK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 11:46:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347569AbiFOPmG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 11:42:06 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F6E333EB3;
-        Wed, 15 Jun 2022 08:42:05 -0700 (PDT)
-Received: from mail-yw1-f170.google.com ([209.85.128.170]) by
- mrelayeu.kundenserver.de (mreue011 [213.165.67.97]) with ESMTPSA (Nemesis) id
- 1MpD39-1nMsUO29NP-00qmZw; Wed, 15 Jun 2022 17:42:03 +0200
-Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-31336535373so65529697b3.2;
-        Wed, 15 Jun 2022 08:42:02 -0700 (PDT)
-X-Gm-Message-State: AJIora++c+Wn/IOsx9pCgv7/Nzu9gHCVZW360JjfwTsj2olgqMQARQMb
-        3jcRfUUpFG/Larpdm4QhU//MFCefbtkSYPBh3QM=
-X-Google-Smtp-Source: AGRyM1tvSYqmEMcQOHNj9RHGvPD3N77JHNbv7mv6qEA4arhJQHb8/8PCIV9TGNOQcD+GB1sbS5DvpPMqr/97f5KSeYo=
-X-Received: by 2002:a81:2f84:0:b0:314:2bfd:bf1f with SMTP id
- v126-20020a812f84000000b003142bfdbf1fmr292750ywv.320.1655307721907; Wed, 15
- Jun 2022 08:42:01 -0700 (PDT)
-MIME-Version: 1.0
-References: <YqjQ5kso7czrmYPW@linutronix.de> <YqmC1aAm+O7RD2IH@infradead.org>
-In-Reply-To: <YqmC1aAm+O7RD2IH@infradead.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Wed, 15 Jun 2022 17:41:45 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1QmeAscV-Ory-Dae4RoLvDSPEjEgFGQHR9U8jUervGuA@mail.gmail.com>
-Message-ID: <CAK8P3a1QmeAscV-Ory-Dae4RoLvDSPEjEgFGQHR9U8jUervGuA@mail.gmail.com>
-Subject: Re: [PATCH] arch/*: Disable softirq stacks on PREEMPT_RT.
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
+        with ESMTP id S229752AbiFOPqK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 11:46:10 -0400
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 049F3286CD;
+        Wed, 15 Jun 2022 08:46:05 -0700 (PDT)
+Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 1D77E5A9;
+        Wed, 15 Jun 2022 17:46:03 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1655307963;
+        bh=m3A5dqZop5odCJRCkgs9BvSWyBpz30/KNAeaIHJZ1q0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gz+qyRs9G+48QItleZ7QvFKhIzWdHGgYD3bsSj4cvZevz+vnv/bHuU11OCDz2zfvV
+         mVSOAOmfirc3j3SuYgvLYBpRzrMfP0UyUXAilgSvgVHGUDVUOChMlva/17o7wLGv0O
+         tPxdzNanUqOciJtQpE5RO6ZydGGmlUaux55rBxfs=
+Date:   Wed, 15 Jun 2022 18:45:52 +0300
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Christian =?utf-8?B?R8O2dHRzY2hl?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Rich Felker <dalias@libc.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:f9gWmAOWQ4mJqq9vnpq340BcszasWXWP8oa3AU2ZDOsKL9mj5K4
- axGZkpi9mmoxgs0WXgG3u+bl9+r5z0klO1aPIC+E9liMAY1Z5keTOuuIvd9COoa1z3dHYCO
- HUpNxWrMZHSJ1AVVZttzC3QOj5oTyk2Nk/JRicTpoS1XzgA9fafttu3wHtrnSqgX26plHb9
- 6IrOqhsgAx7H5uDrUHIFA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:wdbNn5/MWQQ=:eB+gLs0OdaEHc9PgXzSq80
- otKA4DpR1wzlE+IVSQ4haIZTS8bLUm+Q29mzbBOW9FnhsLADvZNKABrYoVhSA9+Ke1n9/z5BI
- jx8LBbyznrgV//3pkaIfWAAwbBrHEJ1hYvN0/D0aAPkHJebtkU8FrT3FtRMcEff0k0rbusvzA
- qt46cbpUxXdvsPTu2caIgFV1xOoNwGx6IsUVz1daRLh7uhZCxRRJagl+FOEK4tVeKRU6jyaXH
- C4I+D9DwXvTk3hWfyLzfm1dsmd4+puXl5qSLW6C1SYhvkOOl+U91UiL2/YWHwmzv/PnbephLa
- M6qiTVygrH6NhJGSZm6r4WIo/TxmjBHuKxDHLmHcSJxnMP5Jz98ibEmdxdoqKfNoewSB+tSTU
- IAVG7adFJh0H9M1Ul+yBKE06woGOS/pqFKviYMpDiFOufxxTYj2esD1pSaMkPUJ0phRvDcfJM
- 1MIjXsp09s1HJ3n3TZ98+Az5TzAx5LH2hexdwvlKO87w5kL9ViRscUXEdXwtQ0Zcvmey+FVxW
- RXK74aNyGCEbC3Y6T7r0oPl3jS9JQ+AlfZhZo2vHbVTG2xue80SGI+DFn1lLYCyUMjaVRcEPq
- piTmF3/dcBfhc93w/yKrCq1scQHFm5mDG2iNEHNanPZcdDIW7K6M2J+PKmhMa4J1P+5BCwDQD
- BeEWCQlG2vfhhIp3GkLkg/yrg4Rxlpt0MuFjReXfLoym6mwHX5cRsDoCCUvO1IrWSbgS225Zm
- s/5qFdU+mlLZ6ckw6tPGB0jOHovQHJjZr7T3m+YUBysEop1+p8B3GhTY37qciq3NtcIr1eCU+
- Aqccn4+JrnMgPPRPdLVN6TtmIOoh3l7bADPDv3TuncikH9FYdliaknx9U8c5iaWfsBRi6ybEZ
- dnxfu08HVFEYW8C38xYw==
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Serge Hallyn <serge@hallyn.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Arnd Bergmann <arnd@arndb.de>, Ondrej Zary <linux@zary.sk>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        David Yang <davidcomponentone@gmail.com>,
+        Colin Ian King <colin.king@intel.com>,
+        Yang Guang <yang.guang5@zte.com.cn>,
+        Wan Jiabing <wanjiabing@vivo.com>,
+        Julia Lawall <Julia.Lawall@inria.fr>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v3 4/8] drivers: use new capable_any functionality
+Message-ID: <Yqn+sCXTHeTH5v+R@pendragon.ideasonboard.com>
+References: <20220502160030.131168-8-cgzones@googlemail.com>
+ <20220615152623.311223-1-cgzones@googlemail.com>
+ <20220615152623.311223-3-cgzones@googlemail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220615152623.311223-3-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 8:57 AM Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Tue, Jun 14, 2022 at 08:18:14PM +0200, Sebastian Andrzej Siewior wrote:
-> > Disable the unused softirqs stacks on PREEMPT_RT to safe some memory and
->
-> s/safe/save/
+Hi Christian,
 
+Thank you for the patch.
 
-Applied to the asm-generic tree with the above fixup, thanks!
+On Wed, Jun 15, 2022 at 05:26:18PM +0200, Christian Göttsche wrote:
+> Use the new added capable_any function in appropriate cases, where a
+> task is required to have any of two capabilities.
+> 
+> Reorder CAP_SYS_ADMIN last.
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 
-      Arnd
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+> ---
+> v3:
+>    rename to capable_any()
+> ---
+>  drivers/media/common/saa7146/saa7146_video.c     | 2 +-
+>  drivers/media/pci/bt8xx/bttv-driver.c            | 3 +--
+>  drivers/media/pci/saa7134/saa7134-video.c        | 3 +--
+>  drivers/media/platform/nxp/fsl-viu.c             | 2 +-
+>  drivers/media/test-drivers/vivid/vivid-vid-cap.c | 2 +-
+>  drivers/net/caif/caif_serial.c                   | 2 +-
+>  drivers/s390/block/dasd_eckd.c                   | 2 +-
+>  7 files changed, 7 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/media/common/saa7146/saa7146_video.c b/drivers/media/common/saa7146/saa7146_video.c
+> index 2296765079a4..f0d08935b096 100644
+> --- a/drivers/media/common/saa7146/saa7146_video.c
+> +++ b/drivers/media/common/saa7146/saa7146_video.c
+> @@ -469,7 +469,7 @@ static int vidioc_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuf
+>  
+>  	DEB_EE("VIDIOC_S_FBUF\n");
+>  
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>  		return -EPERM;
+>  
+>  	/* check args */
+> diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
+> index d40b537f4e98..7098cff2ea51 100644
+> --- a/drivers/media/pci/bt8xx/bttv-driver.c
+> +++ b/drivers/media/pci/bt8xx/bttv-driver.c
+> @@ -2567,8 +2567,7 @@ static int bttv_s_fbuf(struct file *file, void *f,
+>  	const struct bttv_format *fmt;
+>  	int retval;
+>  
+> -	if (!capable(CAP_SYS_ADMIN) &&
+> -		!capable(CAP_SYS_RAWIO))
+> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>  		return -EPERM;
+>  
+>  	/* check args */
+> diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
+> index 4d8974c9fcc9..23104c04a9aa 100644
+> --- a/drivers/media/pci/saa7134/saa7134-video.c
+> +++ b/drivers/media/pci/saa7134/saa7134-video.c
+> @@ -1797,8 +1797,7 @@ static int saa7134_s_fbuf(struct file *file, void *f,
+>  	struct saa7134_dev *dev = video_drvdata(file);
+>  	struct saa7134_format *fmt;
+>  
+> -	if (!capable(CAP_SYS_ADMIN) &&
+> -	   !capable(CAP_SYS_RAWIO))
+> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>  		return -EPERM;
+>  
+>  	/* check args */
+> diff --git a/drivers/media/platform/nxp/fsl-viu.c b/drivers/media/platform/nxp/fsl-viu.c
+> index afc96f6db2a1..81a90c113dc6 100644
+> --- a/drivers/media/platform/nxp/fsl-viu.c
+> +++ b/drivers/media/platform/nxp/fsl-viu.c
+> @@ -803,7 +803,7 @@ static int vidioc_s_fbuf(struct file *file, void *priv, const struct v4l2_frameb
+>  	const struct v4l2_framebuffer *fb = arg;
+>  	struct viu_fmt *fmt;
+>  
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>  		return -EPERM;
+>  
+>  	/* check args */
+> diff --git a/drivers/media/test-drivers/vivid/vivid-vid-cap.c b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
+> index b9caa4b26209..918913e47069 100644
+> --- a/drivers/media/test-drivers/vivid/vivid-vid-cap.c
+> +++ b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
+> @@ -1253,7 +1253,7 @@ int vivid_vid_cap_s_fbuf(struct file *file, void *fh,
+>  	if (dev->multiplanar)
+>  		return -ENOTTY;
+>  
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>  		return -EPERM;
+>  
+>  	if (dev->overlay_cap_owner)
+> diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
+> index 688075859ae4..ca3f82a0e3a6 100644
+> --- a/drivers/net/caif/caif_serial.c
+> +++ b/drivers/net/caif/caif_serial.c
+> @@ -326,7 +326,7 @@ static int ldisc_open(struct tty_struct *tty)
+>  	/* No write no play */
+>  	if (tty->ops->write == NULL)
+>  		return -EOPNOTSUPP;
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_TTY_CONFIG))
+> +	if (!capable_any(CAP_SYS_TTY_CONFIG, CAP_SYS_ADMIN))
+>  		return -EPERM;
+>  
+>  	/* release devices to avoid name collision */
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+> index 836838f7d686..66f6db7a11fc 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -5330,7 +5330,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
+>  	char psf0, psf1;
+>  	int rc;
+>  
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>  		return -EACCES;
+>  	psf0 = psf1 = 0;
+>  
+
+-- 
+Regards,
+
+Laurent Pinchart
