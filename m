@@ -2,219 +2,212 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CF63C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 10:15:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92530C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 10:19:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242859AbiFOKPU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 06:15:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58850 "EHLO
+        id S1344821AbiFOKTa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 06:19:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346907AbiFOKNe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 06:13:34 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1184D25E94
-        for <linux-s390@vger.kernel.org>; Wed, 15 Jun 2022 03:13:31 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id y196so11014417pfb.6
-        for <linux-s390@vger.kernel.org>; Wed, 15 Jun 2022 03:13:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=u65QQc2UhosWLMahxlQMn59AukfWR4oEL4oKp6IP8R4=;
-        b=p6mwc20X/Q1hFeLzxCcgv78Ie6ePALgDnjKy0f6FJRwbFLlEtcyClUGIdIrRdeQuXG
-         S/APdh60P9Vj8ZWvK21slVtmWATXSGVi+5VECU1WfwLJvu2C/wmcawnZDXRiot0hlSHm
-         Rj7uCUvqbhfhVQA2GJoevnDtzp3l7dads+GM0V7twfGct+XRmzBvtEqdoi5foez5H8Tl
-         y+0lXd+AX5G7s1qiOthMz582qdHInuCvPvzrWtGgxndpyZsnunHSHy2OoTApYkKzSehV
-         bDdojCchjZBnfLQaL4EpQdwXR+4O+F/a96TGh2BXnAkuyMFutgthOpv/gugFEo+C2bE3
-         9Itg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=u65QQc2UhosWLMahxlQMn59AukfWR4oEL4oKp6IP8R4=;
-        b=MMqKZugYZHRQ8goNqziVv0jmOVWchKGmrXaVerKSSHpEbRJAPqW70dtDL+RvPbAE8F
-         MS1yWA+eMMy/3DZaSRDWg5+kYCe3WZxIQy31/VZoeMGMh/8Wc4j6vx/R5AlAeP1EoPLq
-         uZvmIbDd3QHZoBw5S+0PH/B2CXZjR9ef2dm57HQ76dK53iLeAOwqeMjVzV6uTDkyTt2Q
-         109yN0FqQYufO9wfzf2hgqxTnWsOBjk8gZd8gsbUrYi2szdyKrvrjxijmMK25/Apd8YA
-         2SAKWbfLlgQyaN/JYhkdvPdRqXXyPZ51MHSYeHtObrGVf2E5b5gMyX890auI+HMGV1o9
-         AL3w==
-X-Gm-Message-State: AOAM532RdYAjG/yfc+MeklpFgepZlW19NHkLmCLSCSKaJDSefcLR7QvW
-        Cyn9/+GQsiyYumAdu5xmbtwW0w==
-X-Google-Smtp-Source: ABdhPJyRk1EuvqaSy5Q9Ox2cFgvalWMPQnJzgUhcIvPfkO5QikvHoHYqXNW1DdxHoCrhz1YsvIMCUg==
-X-Received: by 2002:a63:81c3:0:b0:3fc:c510:1a3 with SMTP id t186-20020a6381c3000000b003fcc51001a3mr8220683pgd.581.1655288010235;
-        Wed, 15 Jun 2022 03:13:30 -0700 (PDT)
-Received: from [10.255.194.85] ([139.177.225.252])
-        by smtp.gmail.com with ESMTPSA id jd13-20020a170903260d00b0016184e7b013sm8885181plb.36.2022.06.15.03.13.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jun 2022 03:13:27 -0700 (PDT)
-Message-ID: <0e27425e-1fb6-bc7c-9845-71dc805897c3@bytedance.com>
-Date:   Wed, 15 Jun 2022 18:13:12 +0800
+        with ESMTP id S237034AbiFOKT3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 06:19:29 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8BF427F1;
+        Wed, 15 Jun 2022 03:19:26 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25F8Bx8Z020509;
+        Wed, 15 Jun 2022 10:19:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Ysak+bOxf2WK1p19LI1YGYc6xtN+QIwFGyYHHce1LNw=;
+ b=fl/as7pRKi3oyNScMPATmNbfNK0YO0fx4MY8Nmx1KOKF45ra5zOxC46BcuDxhAgmdwGK
+ 8lpqil8DUVLtYPtuBo3s/WrMiboehDAE0U/MUvsUqtvXpF1BL52bO891dH1n0IbDYo+x
+ hGpL4Vh6U73FJEjLhUIn2R0jCQgPGTaqu0L8aPUqriUYr9UZtt0kdBrc8nDjtdVBtKn4
+ XZQA/Kqa39MSQkedDiHf4IZi487So2B+yR1jIrzx4Sz5BamJE/ARFacj7/VxP8Sx0KEF
+ ADQVS/obYxeom9+IYE3vZVps/emG0sH2ULTbDPKr8pQaPEmeAnWadTVVgG2TdHMmFKzy xw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gq8e4raju-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Jun 2022 10:19:25 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25F8Rclr016427;
+        Wed, 15 Jun 2022 10:19:25 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gq8e4raj6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Jun 2022 10:19:25 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25FA6TT1018252;
+        Wed, 15 Jun 2022 10:19:23 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3gmjp94c9b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Jun 2022 10:19:23 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25FAJNmS25493976
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 15 Jun 2022 10:19:24 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3648411C04A;
+        Wed, 15 Jun 2022 10:19:20 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5D63411C050;
+        Wed, 15 Jun 2022 10:19:19 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.1.67])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 15 Jun 2022 10:19:19 +0000 (GMT)
+Date:   Wed, 15 Jun 2022 12:19:16 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, borntraeger@de.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        mimu@linux.ibm.com, nrb@linux.ibm.com
+Subject: Re: [PATCH v11 14/19] KVM: s390: pv: cleanup leftover protected VMs
+ if needed
+Message-ID: <20220615121916.77b039af@p-imbrenda>
+In-Reply-To: <0a13397a-86e0-7c25-0044-7a5733f61730@linux.ibm.com>
+References: <20220603065645.10019-1-imbrenda@linux.ibm.com>
+        <20220603065645.10019-15-imbrenda@linux.ibm.com>
+        <0a13397a-86e0-7c25-0044-7a5733f61730@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.10.0
-Subject: Re: Re: [PATCH 0/5 v1] mm, oom: Introduce per numa node oom for
- CONSTRAINT_MEMORY_POLICY
-Content-Language: en-US
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     akpm@linux-foundation.org, songmuchun@bytedance.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        ebiederm@xmission.com, keescook@chromium.org,
-        viro@zeniv.linux.org.uk, rostedt@goodmis.org, mingo@redhat.com,
-        peterz@infradead.org, acme@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        namhyung@kernel.org, david@redhat.com, imbrenda@linux.ibm.com,
-        apopple@nvidia.com, adobriyan@gmail.com,
-        stephen.s.brennan@oracle.com, ohoono.kwon@samsung.com,
-        haolee.swjtu@gmail.com, kaleshsingh@google.com,
-        zhengqi.arch@bytedance.com, peterx@redhat.com, shy828301@gmail.com,
-        surenb@google.com, ccross@google.com, vincent.whitchurch@axis.com,
-        tglx@linutronix.de, bigeasy@linutronix.de, fenghua.yu@intel.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org
-References: <20220512044634.63586-1-ligang.bdlg@bytedance.com>
- <YoJ/ioXwGTdCywUE@dhcp22.suse.cz>
-From:   Gang Li <ligang.bdlg@bytedance.com>
-In-Reply-To: <YoJ/ioXwGTdCywUE@dhcp22.suse.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: YMSFfob9GrASPT3jG10CkjicSGUSQwCW
+X-Proofpoint-GUID: n1uBPQq9KFPwu3vX7eKS_Wchr_NSB4Rq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-15_03,2022-06-13_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 malwarescore=0 mlxlogscore=999 spamscore=0 adultscore=0
+ impostorscore=0 phishscore=0 clxscore=1015 mlxscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206150039
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi, I've done some benchmarking in the last few days.
+On Wed, 15 Jun 2022 11:59:36 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-On 2022/5/17 00:44, Michal Hocko wrote:
-> Sorry, I have only now found this email thread. The limitation of the
-> NUMA constrained oom is well known and long standing. Basically the
-> whole thing is a best effort as we are lacking per numa node memory
-> stats. I can see that you are trying to fill up that gap but this is
-> not really free. Have you measured the runtime overhead? Accounting is
-> done in a very performance sensitive paths and it would be rather
-> unfortunate to make everybody pay the overhead while binding to a
-> specific node or sets of nodes is not the most common usecase.
+> On 6/3/22 08:56, Claudio Imbrenda wrote:
+> > In upcoming patches it will be possible to start tearing down a
+> > protected VM, and finish the teardown concurrently in a different
+> > thread.  
+> 
+> s/,/
+> s/the/its/
 
-## CPU consumption
-
-According to the result of Unixbench. There is less than one percent 
-performance loss in most cases.
-
-On 40c512g machine.
-
-40 parallel copies of tests:
-+----------+----------+-----+----------+---------+---------+---------+
-| numastat | FileCopy | ... |   Pipe   |  Fork   | syscall |  total  |
-+----------+----------+-----+----------+---------+---------+---------+
-| off      | 2920.24  | ... | 35926.58 | 6980.14 | 2617.18 | 8484.52 |
-| on       | 2919.15  | ... | 36066.07 | 6835.01 | 2724.82 | 8461.24 |
-| overhead | 0.04%    | ... | -0.39%   | 2.12%   | -3.95%  | 0.28%   |
-+----------+----------+-----+----------+---------+---------+---------+
-
-1 parallel copy of tests:
-+----------+----------+-----+---------+--------+---------+---------+
-| numastat | FileCopy | ... |  Pipe   |  Fork  | syscall |  total  |
-+----------+----------+-----+---------+--------+---------+---------+
-| off      | 1515.37  | ... | 1473.97 | 546.88 | 1152.37 | 1671.2  |
-| on       | 1508.09  | ... | 1473.75 | 532.61 | 1148.83 | 1662.72 |
-| overhead | 0.48%    | ... | 0.01%   | 2.68%  | 0.31%   | 0.51%   |
-+----------+----------+-----+---------+--------+---------+---------+
-
-## MEM consumption
-
-per task_struct:
-sizeof(int) * num_possible_nodes() + sizeof(int*)
-typically 4 * 2 + 8 bytes
-
-per mm_struct:
-sizeof(atomic_long_t) * num_possible_nodes() + sizeof(atomic_long_t*)
-typically 8 * 2 + 8 bytes
-
-zap_pte_range:
-sizeof(int) * num_possible_nodes() + sizeof(int*)
-typically 4 * 2 + 8 bytes
-
-> Also have you tried to have a look at cpusets? Those should be easier to
-> make a proper selection as it should be possible to iterate over tasks
-> belonging to a specific cpuset much more easier - essentialy something
-> similar to memcg oom killer. We do not do that right now and by a very
-> brief look at the CONSTRAINT_CPUSET it seems that this code is not
-> really doing much these days. Maybe that would be a more appropriate way
-> to deal with more precise node aware oom killing?
-
-Looks like both CONSTRAINT_MEMORY_POLICY and CONSTRAINT_CPUSET can
-be uesd to deal with node aware oom killing.
-
-I think we can calculate badness in this way:
-    If constraint=CONSTRAINT_MEMORY_POLICY, get badness by `nodemask`.
-    If constraint=CONSTRAINT_CPUSET, get badness by `mems_allowed`.
-
-example code:
-```
-long oom_badness(struct task_struct *p, struct oom_control *oc)
-	long points;
-
-	...
-
-	if (unlikely(oc->constraint == CONSTRAINT_MEMORY_POLICY)) {
-		for_each_node_mask(nid, oc->nodemask)
-			points += get_mm_counter(p->mm, -1, nid)
-	} else if (unlikely(oc->constraint == CONSTRAINT_CPUSET)) {
-		for_each_node_mask(nid, cpuset_current_mems_allowed)
-			points += get_mm_counter(p->mm, -1, nid)
-	} else {
-		points = get_mm_rss(p->mm);
-	}
-	points += get_mm_counter(p->mm, MM_SWAPENTS, NUMA_NO_NODE) \
-		+ mm_pgtables_bytes(p->mm) / PAGE_SIZE;
-
-	...
-
-}
-```
+will fix
 
 > 
-> [...]
->>   21 files changed, 317 insertions(+), 111 deletions(-)
+> > 
+> > Protected VMs that are pending for tear down ("leftover") need to be
+> > cleaned properly when the userspace process (e.g. qemu) terminates.
+> > 
+> > This patch makes sure that all "leftover" protected VMs are always
+> > properly torn down.  
 > 
-> The code footprint is not free either. And more importantnly does this
-> even work much more reliably? I can see quite some NUMA_NO_NODE
-> accounting (e.g. copy_pte_range!).Is this somehow fixable?
+> So we're handling the kvm_arch_destroy_vm() case here, right?
 
-> Also how do those numbers add up. Let's say you increase the counter as
-> NUMA_NO_NODE but later on during the clean up you decrease based on the
-> page node?
- > Last but not least I am really not following MM_NO_TYPE concept. I can
- > only see add_mm_counter users without any decrements. What is going on
- > there?
+yes
 
-There are two usage scenarios of NUMA_NO_NODE in this patch.
+> Maybe add that in a more prominent way and rework the subject:
+> 
+> KVM: s390: pv: cleanup leftover PV VM shells on VM shutdown
 
-1. placeholder when swap pages in and out of swapfile.
-```
-	// mem to swapfile
-	dec_mm_counter(vma->vm_mm, MM_ANONPAGES, page_to_nid(page));
-	inc_mm_counter(vma->vm_mm, MM_SWAPENTS, NUMA_NO_NODE);
+ok, I'll change the description and rework the subject
 
-	// swapfile to mem
-	inc_mm_counter(vma->vm_mm, MM_ANONPAGES, page_to_nid(page));
-	dec_mm_counter(vma->vm_mm, MM_SWAPENTS, NUMA_NO_NODE);
-```
+> 
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > ---
+> >   arch/s390/include/asm/kvm_host.h |   2 +
+> >   arch/s390/kvm/kvm-s390.c         |   2 +
+> >   arch/s390/kvm/pv.c               | 109 ++++++++++++++++++++++++++++---
+> >   3 files changed, 104 insertions(+), 9 deletions(-)
+> > 
+> > diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> > index 5824efe5fc9d..cca8e05e0a71 100644
+> > --- a/arch/s390/include/asm/kvm_host.h
+> > +++ b/arch/s390/include/asm/kvm_host.h
+> > @@ -924,6 +924,8 @@ struct kvm_s390_pv {
+> >   	u64 guest_len;
+> >   	unsigned long stor_base;
+> >   	void *stor_var;
+> > +	void *prepared_for_async_deinit;
+> > +	struct list_head need_cleanup;
+> >   	struct mmu_notifier mmu_notifier;
+> >   };
+> >   
+> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> > index fe1fa896def7..369de8377116 100644
+> > --- a/arch/s390/kvm/kvm-s390.c
+> > +++ b/arch/s390/kvm/kvm-s390.c
+> > @@ -2890,6 +2890,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+> >   	kvm_s390_vsie_init(kvm);
+> >   	if (use_gisa)
+> >   		kvm_s390_gisa_init(kvm);
+> > +	INIT_LIST_HEAD(&kvm->arch.pv.need_cleanup);
+> > +	kvm->arch.pv.prepared_for_async_deinit = NULL;
+> >   	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
+> >   
+> >   	return 0;
+> > diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> > index 6cffea26c47f..8471c17d538c 100644
+> > --- a/arch/s390/kvm/pv.c
+> > +++ b/arch/s390/kvm/pv.c
+> > @@ -17,6 +17,19 @@
+> >   #include <linux/mmu_notifier.h>
+> >   #include "kvm-s390.h"
+> >   
+> > +/**
+> > + * @struct leftover_pv_vm  
+> 
+> Any other ideas on naming these VMs?
 
-In *_mm_counter(vma->vm_mm, MM_SWAPENTS, NUMA_NO_NODE),
-NUMA_NO_NODE is a placeholder. It means this page does not exist in any
-node anymore.
+not really
 
-2. placeholder in `add_mm_rss_vec` and `sync_mm_rss` for per process mm 
-counter synchronization with SPLIT_RSS_COUNTING enabled.
+> Also I'd turn that around: pv_vm_leftover
 
+I mean, it's a leftover protected VM, it felt more natural to name it
+that way
 
-MM_NO_TYPE is also a placeholder in `*_mm_counter`, `add_mm_rss_vec` and 
-`sync_mm_rss`.
+> 
+> > + * Represents a "leftover" protected VM that is still registered with the
+> > + * Ultravisor, but which does not correspond any longer to an active KVM VM.
+> > + */
+> > +struct leftover_pv_vm {
+> > +	struct list_head list;
+> > +	unsigned long old_gmap_table;
+> > +	u64 handle;
+> > +	void *stor_var;
+> > +	unsigned long stor_base;
+> > +};
+> > +  
+> 
+> I think we should switch this patch and the next one and add this struct 
+> to the next patch. The list work below makes more sense once the next 
+> patch has been read.
 
-These placeholders are very strange. Maybe I should introduce a helper
-function for mm->rss_stat.numa_count counting instead of using
-placeholder.
+but the next patch will leave leftovers in some circumstances, and
+those won't be cleaned up without this patch.
 
+having this patch first means that when the next patch is applied, the
+leftovers are already taken care of
+
+> >   static void kvm_s390_clear_pv_state(struct kvm *kvm)
+> >   {
+> >   	kvm->arch.pv.handle = 0;
+> > @@ -158,23 +171,88 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+> >   	return -ENOMEM;
+> >   }
+> >     
+> 
+> >     
+> 
 
