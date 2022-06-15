@@ -2,272 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0047FCCA47F
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 20:34:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B42B3C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 20:38:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346801AbiFOUeH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 16:34:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56994 "EHLO
+        id S240289AbiFOUiJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 16:38:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346898AbiFOUda (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 16:33:30 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E056C31931;
-        Wed, 15 Jun 2022 13:33:28 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25FImMgD028666;
-        Wed, 15 Jun 2022 20:33:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=oDQWPVjwEgh/gLyQfvRiwKh9Sjxe+FR5cAI+2Gb2y3Y=;
- b=W5ad+h2RP7xCyUc3xevoEEQaAHtAscOnSf5BVvqoi5ZO6wwE3ASgva3cdRIWG8Qnbsjy
- Lp1MB64f7uVSzFMkPGeBO7dotBUiuMtelcIZS0QpR+kuFjCn5Zimrrm28eV5IeT3YHp7
- z3sloRhN0QptC4GN5ISKkdTaU0OmvHaXrRpIOeTYhWbVppofvjG6DpcMkaFeKHvdjILN
- EDIV9GPu7YUxMioqlCsmIatxtlzYUJm+qZl+hPGrKCj/zzIcXY9MIlcp0+Lluqcee9Lf
- jino+47bgUipL47B/RgZeuhAVwOVBQxDkhELD43lZ/LguUm8Sr3hbUtjrxRmfJdXJxSf Cw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gqj4h78md-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Jun 2022 20:33:26 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25FImNA8028835;
-        Wed, 15 Jun 2022 20:33:25 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gqj4h78k4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Jun 2022 20:33:25 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25FKLCvX000426;
-        Wed, 15 Jun 2022 20:33:23 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3gmjp9697k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Jun 2022 20:33:23 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25FKXOrF21037332
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Jun 2022 20:33:24 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3DC925204F;
-        Wed, 15 Jun 2022 20:33:20 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 2605F5204E;
-        Wed, 15 Jun 2022 20:33:20 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id 07853E0031; Wed, 15 Jun 2022 22:33:20 +0200 (CEST)
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Michael Kawano <mkawano@linux.ibm.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v2 01/10] vfio/ccw: Remove UUID from s390 debug log
-Date:   Wed, 15 Jun 2022 22:33:09 +0200
-Message-Id: <20220615203318.3830778-2-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220615203318.3830778-1-farman@linux.ibm.com>
-References: <20220615203318.3830778-1-farman@linux.ibm.com>
+        with ESMTP id S233389AbiFOUiH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 16:38:07 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2052.outbound.protection.outlook.com [40.107.220.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F129C10CE;
+        Wed, 15 Jun 2022 13:38:06 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=aXQOy+EGOBeV/afIYq0Eca4L4LufbvCyTgptkXGCuCYZux71+Kv1GSTIR+pWz2xw0kPYuRhRviajBqQgqF9owAqOmcP7d4krqSW5/sVornwcRq1JhwjVkFzDkmzmb0+Ds6VWADhqQb2IXZlTxorVGdsPMX8Txb9iMKVo/6kgKUmqx0YmgC/O+0HUavAAO1/4WEEbBI9/Jb2lhmqO5JUoQrVWhGpfqGxtcd6FHHlT2RzBGg/I0FjvwRPtcJ3sWTMr5BCms/m4MQnH9TOAkrC2lO6PHo5puZZ6Tg4vmd/IbkaudvX+oNalOGzKne5p30/XyU+O73WxpumOgNAp50aR/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=mcqS4/TeUseE6sPfFpoWH8zs5lrAIW9DyBEREwM4EOE=;
+ b=IXPTOEZsSHPvYjCAckhO2lyxsHEllyOmeIfNoWgWl+J7QzU7fixgRYymFqzcfoTmOxDK3V2RCQoVIZRR+5CoWtb4T+noM1LKG7DfrYDk2dflLXHgsDJKf0RgTvGKPiQFBHkRkIdXLZ0eeNds1JZ8mjY7bloCOdzVX+ZbzST32A3kC+x0QiuQbDdOe5z9mOuPc6vLo+44/ya/iz8R8f8y6l/+oTj255+QEA8lu6tqvZ+yg2xeR79IcqXkrf1Rhtx970g0t/M8Tae5Tgo+tyFnqc2xzoWpGnDv39KzRf+YIx91+OAjQdxCDDYmXxWQy8ulyJGqYOGhvJvcyD6FlO4xOA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=mcqS4/TeUseE6sPfFpoWH8zs5lrAIW9DyBEREwM4EOE=;
+ b=lluNuZGHGGzxGX7jEDtsF9nZNbr3OJmZ8PtEucP4eHL+M5uXFY5x6VGPWbsUwb/fMrq+iPgesPrqf2I1ozpOSwXlFJbuuiF+BbMIEqQyysqJaT5A/BuDlx63AWfARQ7XWjcpHDEeGdZKRH/5bzhjS4ETbTc/hlrwujQKqDAyIcffS/0PHAeCyCoBfgKa12tQA+8qTZ11OKA6MZ+jH7Buv42MBOjPZZ1u2N4rcs0sMiWjk9YngA6Jc+2pM+feOk5Tjmat5KM5x/an0sd8MpE4UT9PA1Fel2cSWxkMswYNWKC/Wx6u+PexXSI6ZrNav6NUi6rTx89OtuwAzjlEZPtv3g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4206.namprd12.prod.outlook.com (2603:10b6:208:1d5::18)
+ by DM6PR12MB2841.namprd12.prod.outlook.com (2603:10b6:5:49::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.14; Wed, 15 Jun
+ 2022 20:38:04 +0000
+Received: from MN2PR12MB4206.namprd12.prod.outlook.com
+ ([fe80::d5df:ac97:8e92:fc14]) by MN2PR12MB4206.namprd12.prod.outlook.com
+ ([fe80::d5df:ac97:8e92:fc14%7]) with mapi id 15.20.5332.022; Wed, 15 Jun 2022
+ 20:38:04 +0000
+Message-ID: <da987b5b-c9a0-a142-eb12-1537ea21e209@nvidia.com>
+Date:   Thu, 16 Jun 2022 02:07:51 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH 11/13] vfio/mdev: consolidate all the available_instance
+ sysfs into the core code
+Content-Language: en-US
+To:     Christoph Hellwig <hch@lst.de>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        intel-gvt-dev@lists.freedesktop.org, Neo Jia <cjia@nvidia.com>,
+        Tarun Gupta <targupta@nvidia.com>,
+        Dheeraj Nigam <dnigam@nvidia.com>
+References: <20220614045428.278494-1-hch@lst.de>
+ <20220614045428.278494-12-hch@lst.de>
+X-Nvconfidentiality: public
+From:   Kirti Wankhede <kwankhede@nvidia.com>
+In-Reply-To: <20220614045428.278494-12-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MAXPR0101CA0044.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a00:d::30) To MN2PR12MB4206.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::18)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: IwDISKGY06W--tgfEfqEnPMMtPgNcKaL
-X-Proofpoint-ORIG-GUID: aALs5yjtP3KqJBTHeNql2mpYLtYvFn3c
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-15_16,2022-06-15_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
- impostorscore=0 spamscore=0 priorityscore=1501 adultscore=0 mlxscore=0
- lowpriorityscore=0 mlxlogscore=999 clxscore=1015 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206150074
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a53b64d6-32ce-4c62-f473-08da4f0ef290
+X-MS-TrafficTypeDiagnostic: DM6PR12MB2841:EE_
+X-Microsoft-Antispam-PRVS: <DM6PR12MB28414F7258DE2CDA76C57FFDDCAD9@DM6PR12MB2841.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Ne4Obswn9vOLdUriWSXoF2ywsEtdLRbOw7psXQDQYBncHWuOfxtDeLAGIQEvg31GtYduWdf9IktBlqrp0EfrCgJG+UnBMic71PB6oVl6VesPHYQZsDUlps+ivl7j3aF+N2n4NYczLkX5taCoaEzp1Mw8a74mIDEi6QjuDQJ1mofW8NF12qYxSBZbECCDfUEKHmouxIPrbVoBRBBOP1R/mUuPor0NJquPlEZRlhQhSZAtVUpREis2X6RJ94M6X/OqALgr+hWkrttNt8c17bdNWXomLPtGKuz7AXSh34Z3gIfUx18aWLXcw0ym2I+psMGVhfgMz2ob6LMKj5x8k++tCBZBn+DKxweY8RQr7mD3za6il+aCSkgOMcdkXjA8G/sUzptrct9wLF4kfT3E31x/t1zeRW5RJSUE1vfOUBR3sUA7Vfe+mrG6YT8xLhP3MNOQSmQ8EXOTcM8dKKcp8vgQs3gPLsUxLroJwKn+GkIru1hksigkWRy5AiSwgQV9+VufnUoLyfXTZ5jqQ4dQXAAfrbjmLw9lhr9CRdWBTLZFGcMKsqTbARQ3xSWlu5OBlFvlbqW4Rg2NvpyO0j02Dj3V2QWyr+X5J4n09pYXax0yvoouA/JtTR+/TrkOl3hNi/yK0m6CjGWdHG6pHdDgGrNHRAfLgcHVKeSSKnWmecKhMXrv/r1L1OvLmXBoOHbikWEwp7NcaHvDrnV+yL7F+S1XHh/cj3WjOSa4+F/PYr/oIWE=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4206.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(316002)(55236004)(6486002)(508600001)(53546011)(110136005)(36756003)(6512007)(2616005)(26005)(66476007)(5660300002)(31696002)(54906003)(8936002)(4326008)(2906002)(66556008)(8676002)(7416002)(31686004)(107886003)(66946007)(186003)(558084003)(6666004)(6506007)(38100700002)(86362001)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dllJOTlNUWZEQWVxTERSK21nQlZEQUlrbFVCaFpZSzZTOW1qaXVTMDNGVlFj?=
+ =?utf-8?B?WDN4eGJISWtxREdoYTR5NWhGQVdibVpaRDhzZnQxVGZDeldiOU5zNllscXhp?=
+ =?utf-8?B?RkVhbWdvR1ZrTEJWSWUzbGVISzZCWDB0WWlySjhpdERBL3BRWE5XQnNMaFJy?=
+ =?utf-8?B?czdlM0I0eTIxMEtSVFNXaGFnWFB5OERqRmNpMzhWVzNhQy9PNElyb0VRMGNo?=
+ =?utf-8?B?WlpPQWRUeUI4WjJVczl1Q3lXSjcwWWNQZmZEWm5jUWR5U21UOEdPQXdJUW12?=
+ =?utf-8?B?NjRTTVprQ1A0T0prdkZQdXBJUURRaC9XYzMwdklGc01qVXNsK1d5MlEwQmJI?=
+ =?utf-8?B?RTQzYzk5R09DaGlaNWdlY1dYRTA0OHREVWpJSDNHZjhPYXhZT29TWGsvSUtY?=
+ =?utf-8?B?UXJMUmFvKytHU1hZelFKczlkM2dGRlhJRC9VZTdyb0hST2I3bDFPOW9UaGp3?=
+ =?utf-8?B?WnhEVzI1SFc0MDlzKzhEdmdWV2gvTDZvSk1FODRlMi9CMmh5VzRBMEdkSmd1?=
+ =?utf-8?B?OWlieXAyL24zOUNtZW4ySFJFWktFOW9qYVlnQnc1dXFjcEFEN2hON3lXYUFs?=
+ =?utf-8?B?aktLazU1UjFTU0tKT1FWUElFR2xyRzRRY2VXWjFJaFJRUEYrTlF0OGpoaUVh?=
+ =?utf-8?B?SjdHTGlCMkpUTVliYnRjYjdUVE05a2tVdXNMRFdjcElKRTFnTjlUdDQ1ZzBw?=
+ =?utf-8?B?Q0pMbS9RdmtCVktlSkxyS2FqOTdCN2ZHZGZOMzZvR3E2ZXZTOHpFVmFYbisy?=
+ =?utf-8?B?S0t3OVY5ZFFnTG1NeWkrMnEwWDhaZEsweFhwYUgvZ05hc1Y3RmN0RzU3VjI4?=
+ =?utf-8?B?cXNrMjhuSnlVc3lHWFV1cHJTK2oycFhwb1c2czhPS1BrOExWMmlaY3JIZklP?=
+ =?utf-8?B?bFVVamVMNzlQajkvZXhzT2ZvMG4zYWI1SkFoYjk5RnJ6UzFBTHJzV3FwN0I2?=
+ =?utf-8?B?THl0WXFLSTZLSzJTMUZaci9wNEN6NDFLSFVVUzluNkpTVTJZWlYzRDRUcXNZ?=
+ =?utf-8?B?NDNvYU9hSUdkOGZkMUVsd0ZmTUU2blc2ZExJM3dDQUhGbzZSZnZVVXpNcnVj?=
+ =?utf-8?B?TUoycXlZallLZ25QU1FwM0V6d0dZRmJrZGhBUnFHNmY5N2NJbE5uUzBpQ0VD?=
+ =?utf-8?B?QVFHLy80OWlSYkZlcUw3NGFRa0xSMXhhNDZWaHJONmE5bG1vdXcwSlNwL1Iz?=
+ =?utf-8?B?aTRnNEdCTStKWVRwRWZveVNzbFdHS3JvS3BDcWFNWk9FbkxLR0c5M3NRU0NM?=
+ =?utf-8?B?c0U4UGFzWUdhMzcvWmZqdnpkTkQwY2UyM2dOcDdpY0hVVHJ0OTlhSnlZRy9G?=
+ =?utf-8?B?WWpYZ3MxbXNPNEZRMyttUDZhN0pJOFBrZjRrN0thL0tvNlJWeUZ5dDVGZExE?=
+ =?utf-8?B?blRMdkpGWXFIWkorekw1K0RPMlFYbkhLd2k2S09oOTdpaW5mYlY1M0ZjT2lK?=
+ =?utf-8?B?M2hRYXEvZVk1VDJjNE5UczAyczZHRUd5U2psTnl0cjdKNTl3ck5EdFErYnJn?=
+ =?utf-8?B?U2Uxc3lnYVZCVlR4M1ExeVBzRG5xL3EvWWFkMEtYOE9FdGw1cWx1WjFqYlBT?=
+ =?utf-8?B?MFU5bnpEaTNrVy91S0NYaSt2UFFFN2ZQdG12eFB4WEJIanNyZXhFcjBoNkdl?=
+ =?utf-8?B?QlVCUEdyTnR1ckZhY2pCcFVycHcwc3dSN0NEb3FDS2pnTVNKY3pOTDhoMW1p?=
+ =?utf-8?B?Z21USERZS1ZXZGIzelVhR1prMUF5S1ZoOStHWW53emtRamNwd1AveFAwUk92?=
+ =?utf-8?B?WHNraWU5akxFL1h2QnRVNk40RnZYaFNBYzZpOFFqUDI2S2dsekhKd05mQUQy?=
+ =?utf-8?B?aWlZWjJxOTVBbHBBV2UyOEpHMlF0dWtDaXlSTU9wWnlZT2dmWVRucG5HMVUx?=
+ =?utf-8?B?ZTZ0ajhTdHJRb0VNVjhNaUpYTFM2Z3JLTmIzc3oxZjhtL2JPRlh0YXBzRm05?=
+ =?utf-8?B?THRSTUZpWUdTMWwwL0JqeWtKcjdvWVlBSktNT1Ird0FrUC9ONStlOXNHblJ6?=
+ =?utf-8?B?dHovK1dReG9Bd1BkZnp2cEExeHFlQi91Z3NlYUdueWt4N002SStJWllLZ2JF?=
+ =?utf-8?B?cjJhVHBYRE4zTUV4U2tMVjhMRk5GSWJ2ZzZaandvVDU0c2R5SnlwREh0ekpL?=
+ =?utf-8?B?ejNkcjlkTXZLUDJLNkJYa3dmcHZ3QmQzeGU3RW92NnRRakRROEdrVTlWTzM0?=
+ =?utf-8?B?QUZVK3IxaXdUalRHb2VlUHppNmVmNlZKSE1GcW43WWRTSG5KdGFrTnM4QjJP?=
+ =?utf-8?B?RFJicW9ObzBNTE1jdkFxb0lndGFPSVFtTUVhR29ZNmFIUUQrSUVjeEEzN1ZE?=
+ =?utf-8?B?WU1YMnNLNDFNZnJ1Zk9tWDlsaHJiWUdYVHFSVkVoNlRWVGZWdWNZdz09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a53b64d6-32ce-4c62-f473-08da4f0ef290
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4206.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jun 2022 20:38:04.7505
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: OqF/rND3TQ1TpgTCM6QDPHQaVukBn/HXDUI1MXI4GCZT/RJTz8S4EekEZH5ZBR/HdGpyUXv/stDpQnCy1yYNCQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB2841
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Michael Kawano <mkawano@linux.ibm.com>
 
-As vfio-ccw devices are created/destroyed, the uuid of the associated
-mdevs that are recorded in $S390DBF/vfio_ccw_msg/sprintf get lost.
-This is because a pointer to the UUID is stored instead of the UUID
-itself, and that memory may have been repurposed if/when the logs are
-examined. The result is usually garbage UUID data in the logs, though
-there is an outside chance of an oops happening here.
 
-Simply remove the UUID from the traces, as the subchannel number will
-provide useful configuration information for problem determination,
-and is stored directly into the log instead of a pointer.
+On 6/14/2022 10:24 AM, Christoph Hellwig wrote:
+> Every driver just print a number, simply add a method to the mdev_driver
+> to return it and provide a standard sysfs show function.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-As we were the only consumer of mdev_uuid(), remove that too.
-
-Cc: Kirti Wankhede <kwankhede@nvidia.com>
-Signed-off-by: Michael Kawano <mkawano@linux.ibm.com>
-Fixes: 60e05d1cf0875 ("vfio-ccw: add some logging")
-Fixes: b7701dfbf9832 ("vfio-ccw: Register a chp_event callback for vfio-ccw")
-[farman: reworded commit message, added Fixes: tags]
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_drv.c |  5 ++---
- drivers/s390/cio/vfio_ccw_fsm.c | 26 ++++++++++++--------------
- drivers/s390/cio/vfio_ccw_ops.c |  8 ++++----
- include/linux/mdev.h            |  5 -----
- 4 files changed, 18 insertions(+), 26 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index ee182cfb467d..35055eb94115 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -14,7 +14,6 @@
- #include <linux/init.h>
- #include <linux/device.h>
- #include <linux/slab.h>
--#include <linux/uuid.h>
- #include <linux/mdev.h>
- 
- #include <asm/isc.h>
-@@ -358,8 +357,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
- 		return 0;
- 
- 	trace_vfio_ccw_chp_event(private->sch->schid, mask, event);
--	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
--			   mdev_uuid(private->mdev), sch->schid.cssid,
-+	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: mask=0x%x event=%d\n",
-+			   sch->schid.cssid,
- 			   sch->schid.ssid, sch->schid.sch_no,
- 			   mask, event);
- 
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index 8483a266051c..bbcc5b486749 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -10,7 +10,6 @@
-  */
- 
- #include <linux/vfio.h>
--#include <linux/mdev.h>
- 
- #include "ioasm.h"
- #include "vfio_ccw_private.h"
-@@ -242,7 +241,6 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 	union orb *orb;
- 	union scsw *scsw = &private->scsw;
- 	struct ccw_io_region *io_region = private->io_region;
--	struct mdev_device *mdev = private->mdev;
- 	char *errstr = "request";
- 	struct subchannel_id schid = get_schid(private);
- 
-@@ -256,8 +254,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 		if (orb->tm.b) {
- 			io_region->ret_code = -EOPNOTSUPP;
- 			VFIO_CCW_MSG_EVENT(2,
--					   "%pUl (%x.%x.%04x): transport mode\n",
--					   mdev_uuid(mdev), schid.cssid,
-+					   "sch %x.%x.%04x: transport mode\n",
-+					   schid.cssid,
- 					   schid.ssid, schid.sch_no);
- 			errstr = "transport mode";
- 			goto err_out;
-@@ -265,8 +263,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 		io_region->ret_code = cp_init(&private->cp, orb);
- 		if (io_region->ret_code) {
- 			VFIO_CCW_MSG_EVENT(2,
--					   "%pUl (%x.%x.%04x): cp_init=%d\n",
--					   mdev_uuid(mdev), schid.cssid,
-+					   "sch %x.%x.%04x: cp_init=%d\n",
-+					   schid.cssid,
- 					   schid.ssid, schid.sch_no,
- 					   io_region->ret_code);
- 			errstr = "cp init";
-@@ -276,8 +274,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 		io_region->ret_code = cp_prefetch(&private->cp);
- 		if (io_region->ret_code) {
- 			VFIO_CCW_MSG_EVENT(2,
--					   "%pUl (%x.%x.%04x): cp_prefetch=%d\n",
--					   mdev_uuid(mdev), schid.cssid,
-+					   "sch %x.%x.%04x: cp_prefetch=%d\n",
-+					   schid.cssid,
- 					   schid.ssid, schid.sch_no,
- 					   io_region->ret_code);
- 			errstr = "cp prefetch";
-@@ -289,8 +287,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 		io_region->ret_code = fsm_io_helper(private);
- 		if (io_region->ret_code) {
- 			VFIO_CCW_MSG_EVENT(2,
--					   "%pUl (%x.%x.%04x): fsm_io_helper=%d\n",
--					   mdev_uuid(mdev), schid.cssid,
-+					   "sch %x.%x.%04x: fsm_io_helper=%d\n",
-+					   schid.cssid,
- 					   schid.ssid, schid.sch_no,
- 					   io_region->ret_code);
- 			errstr = "cp fsm_io_helper";
-@@ -300,16 +298,16 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 		return;
- 	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
- 		VFIO_CCW_MSG_EVENT(2,
--				   "%pUl (%x.%x.%04x): halt on io_region\n",
--				   mdev_uuid(mdev), schid.cssid,
-+				   "sch %x.%x.%04x: halt on io_region\n",
-+				   schid.cssid,
- 				   schid.ssid, schid.sch_no);
- 		/* halt is handled via the async cmd region */
- 		io_region->ret_code = -EOPNOTSUPP;
- 		goto err_out;
- 	} else if (scsw->cmd.fctl & SCSW_FCTL_CLEAR_FUNC) {
- 		VFIO_CCW_MSG_EVENT(2,
--				   "%pUl (%x.%x.%04x): clear on io_region\n",
--				   mdev_uuid(mdev), schid.cssid,
-+				   "sch %x.%x.%04x: clear on io_region\n",
-+				   schid.cssid,
- 				   schid.ssid, schid.sch_no);
- 		/* clear is handled via the async cmd region */
- 		io_region->ret_code = -EOPNOTSUPP;
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index b49e2e9db2dc..0e05bff78b8e 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -131,8 +131,8 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
- 	private->mdev = mdev;
- 	private->state = VFIO_CCW_STATE_IDLE;
- 
--	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: create\n",
--			   mdev_uuid(mdev), private->sch->schid.cssid,
-+	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: create\n",
-+			   private->sch->schid.cssid,
- 			   private->sch->schid.ssid,
- 			   private->sch->schid.sch_no);
- 
-@@ -154,8 +154,8 @@ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
- {
- 	struct vfio_ccw_private *private = dev_get_drvdata(mdev->dev.parent);
- 
--	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: remove\n",
--			   mdev_uuid(mdev), private->sch->schid.cssid,
-+	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: remove\n",
-+			   private->sch->schid.cssid,
- 			   private->sch->schid.ssid,
- 			   private->sch->schid.sch_no);
- 
-diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index bb539794f54a..47ad3b104d9e 100644
---- a/include/linux/mdev.h
-+++ b/include/linux/mdev.h
-@@ -65,11 +65,6 @@ struct mdev_driver {
- 	struct device_driver driver;
- };
- 
--static inline const guid_t *mdev_uuid(struct mdev_device *mdev)
--{
--	return &mdev->uuid;
--}
--
- extern struct bus_type mdev_bus_type;
- 
- int mdev_register_device(struct device *dev, struct mdev_driver *mdev_driver);
--- 
-2.32.0
+Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
 
