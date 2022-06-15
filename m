@@ -2,21 +2,21 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C93EC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 06:28:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63DF4C43334
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 06:29:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352231AbiFOG2q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 02:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44726 "EHLO
+        id S1353225AbiFOG34 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 02:29:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236311AbiFOG2q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 02:28:46 -0400
+        with ESMTP id S236311AbiFOG34 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 02:29:56 -0400
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60BEB36E39;
-        Tue, 14 Jun 2022 23:28:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99CFF3A5E9;
+        Tue, 14 Jun 2022 23:29:55 -0700 (PDT)
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 37FB567373; Wed, 15 Jun 2022 08:28:41 +0200 (CEST)
-Date:   Wed, 15 Jun 2022 08:28:40 +0200
+        id F0D3D67373; Wed, 15 Jun 2022 08:29:52 +0200 (CEST)
+Date:   Wed, 15 Jun 2022 08:29:52 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     "Tian, Kevin" <kevin.tian@intel.com>
 Cc:     Christoph Hellwig <hch@lst.de>,
@@ -32,42 +32,28 @@ Cc:     Christoph Hellwig <hch@lst.de>,
         "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
         "intel-gvt-dev@lists.freedesktop.org" 
         <intel-gvt-dev@lists.freedesktop.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Subject: Re: [PATCH 03/13] vfio/mdev: simplify mdev_type handling
-Message-ID: <20220615062840.GB22728@lst.de>
-References: <20220614045428.278494-1-hch@lst.de> <20220614045428.278494-4-hch@lst.de> <BN9PR11MB5276A3DCE429292860FD85F58CAA9@BN9PR11MB5276.namprd11.prod.outlook.com>
+Subject: Re: [PATCH 13/13] vfio/mdev: add mdev available instance checking
+ to the core
+Message-ID: <20220615062952.GC22728@lst.de>
+References: <20220614045428.278494-1-hch@lst.de> <20220614045428.278494-14-hch@lst.de> <BN9PR11MB5276BB7AA39243BA5A21CFEC8CAA9@BN9PR11MB5276.namprd11.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <BN9PR11MB5276A3DCE429292860FD85F58CAA9@BN9PR11MB5276.namprd11.prod.outlook.com>
+In-Reply-To: <BN9PR11MB5276BB7AA39243BA5A21CFEC8CAA9@BN9PR11MB5276.namprd11.prod.outlook.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 14, 2022 at 10:06:16AM +0000, Tian, Kevin wrote:
-> > +	gvt->mdev_types = kcalloc(num_types, sizeof(*gvt->mdev_types),
-> > +			     GFP_KERNEL);
-> > +	if (!gvt->mdev_types) {
-> > +		kfree(gvt->types);
-> > +		return -ENOMEM;
-> > +	}
-> > +
-> >  	min_low = MB_TO_BYTES(32);
-> >  	for (i = 0; i < num_types; ++i) {
-> >  		if (low_avail / vgpu_types[i].low_mm == 0)
-> > @@ -150,19 +157,21 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
-> >  						   high_avail /
-> > vgpu_types[i].high_mm);
+On Tue, Jun 14, 2022 at 10:32:11AM +0000, Tian, Kevin wrote:
+> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> > [count instances per-parent instead of per-type]
 > 
-> there is a memory leak a few lines above:
-> 
-> if (vgpu_types[i].weight < 1 ||
-> 	vgpu_types[i].weight > VGPU_MAX_WEIGHT)
-> 	return -EINVAL;
-> 
-> both old code and this patch forgot to free the buffers upon error.
+> per-parent counting works only if the parent doesn't have overlapping
+> instances between types. This is probably worth a clarification in doc.
 
-Yeah.  I'll add a patch to the beginning of the series to fix the
-existing leak and will then make sure to not leak the new allocation
-either.
+Yes.  Two cases right now just have a single type, and the third wants
+this per-parent counting.  The original patch from Jason actually got
+this wrong.
