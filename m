@@ -2,193 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AB49CCA473
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 15:46:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ED9AC43334
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 18:24:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231167AbiFOPqK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 11:46:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40556 "EHLO
+        id S1346397AbiFOSYY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 14:24:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229752AbiFOPqK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 11:46:10 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 049F3286CD;
-        Wed, 15 Jun 2022 08:46:05 -0700 (PDT)
-Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 1D77E5A9;
-        Wed, 15 Jun 2022 17:46:03 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1655307963;
-        bh=m3A5dqZop5odCJRCkgs9BvSWyBpz30/KNAeaIHJZ1q0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gz+qyRs9G+48QItleZ7QvFKhIzWdHGgYD3bsSj4cvZevz+vnv/bHuU11OCDz2zfvV
-         mVSOAOmfirc3j3SuYgvLYBpRzrMfP0UyUXAilgSvgVHGUDVUOChMlva/17o7wLGv0O
-         tPxdzNanUqOciJtQpE5RO6ZydGGmlUaux55rBxfs=
-Date:   Wed, 15 Jun 2022 18:45:52 +0300
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Christian =?utf-8?B?R8O2dHRzY2hl?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Arnd Bergmann <arnd@arndb.de>, Ondrej Zary <linux@zary.sk>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        David Yang <davidcomponentone@gmail.com>,
-        Colin Ian King <colin.king@intel.com>,
-        Yang Guang <yang.guang5@zte.com.cn>,
-        Wan Jiabing <wanjiabing@vivo.com>,
-        Julia Lawall <Julia.Lawall@inria.fr>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v3 4/8] drivers: use new capable_any functionality
-Message-ID: <Yqn+sCXTHeTH5v+R@pendragon.ideasonboard.com>
-References: <20220502160030.131168-8-cgzones@googlemail.com>
- <20220615152623.311223-1-cgzones@googlemail.com>
- <20220615152623.311223-3-cgzones@googlemail.com>
+        with ESMTP id S245078AbiFOSYX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 14:24:23 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3CF5A252AC;
+        Wed, 15 Jun 2022 11:24:22 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B2EF0153B;
+        Wed, 15 Jun 2022 11:24:21 -0700 (PDT)
+Received: from e120937-lin (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id B39013F73B;
+        Wed, 15 Jun 2022 11:24:18 -0700 (PDT)
+Date:   Wed, 15 Jun 2022 19:24:08 +0100
+From:   Cristian Marussi <cristian.marussi@arm.com>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        virtualization <virtualization@lists.linux-foundation.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        eperezma <eperezma@redhat.com>, Cindy Lu <lulu@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org, conghui.chen@intel.com,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        netdev <netdev@vger.kernel.org>, pankaj.gupta.linux@gmail.com,
+        sudeep.holla@arm.com, Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
+Message-ID: <YqojyHuocSoZ0v/Y@e120937-lin>
+References: <CACGkMEs05ZisiPW+7H6Omp80MzmZWZCpc1mf5Vd99C3H-KUtgA@mail.gmail.com>
+ <20220613041416-mutt-send-email-mst@kernel.org>
+ <CACGkMEsT_fWdPxN1cTWOX=vu-ntp3Xo4j46-ZKALeSXr7DmJFQ@mail.gmail.com>
+ <20220613045606-mutt-send-email-mst@kernel.org>
+ <CACGkMEtAQck7Nr6SP_pD0MGT3njnwZSyT=xPyYzUU3c5GNNM_w@mail.gmail.com>
+ <CACGkMEvUFJkC=mnvL2PSH6-3RMcJUk84f-9X46JVcj2vTAr4SQ@mail.gmail.com>
+ <20220613052644-mutt-send-email-mst@kernel.org>
+ <CACGkMEstGvhETXThuwO+tLVBuRgQb8uC_6DdAM8ZxOi5UKBRbg@mail.gmail.com>
+ <Yqi7UhasBDPKCpuV@e120937-lin>
+ <CACGkMEv2A7ZHQTrdg9H=xZScAf2DE=Dguaz60ykd4KQGNLrn2Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220615152623.311223-3-cgzones@googlemail.com>
+In-Reply-To: <CACGkMEv2A7ZHQTrdg9H=xZScAf2DE=Dguaz60ykd4KQGNLrn2Q@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Christian,
+On Wed, Jun 15, 2022 at 09:41:18AM +0800, Jason Wang wrote:
+> On Wed, Jun 15, 2022 at 12:46 AM Cristian Marussi
+> <cristian.marussi@arm.com> wrote:
 
-Thank you for the patch.
+Hi Jason,
 
-On Wed, Jun 15, 2022 at 05:26:18PM +0200, Christian Göttsche wrote:
-> Use the new added capable_any function in appropriate cases, where a
-> task is required to have any of two capabilities.
+> >
+> > On Tue, Jun 14, 2022 at 03:40:21PM +0800, Jason Wang wrote:
+> > > On Mon, Jun 13, 2022 at 5:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> >
+
+[snip]
+
+> > >
+> > > >  arm_scmi
+> > >
+> > > It looks to me the singleton device could be used by SCMI immediately after
+> > >
+> > >         /* Ensure initialized scmi_vdev is visible */
+> > >         smp_store_mb(scmi_vdev, vdev);
+> > >
+> > > So we probably need to do virtio_device_ready() before that. It has an
+> > > optional rx queue but the filling is done after the above assignment,
+> > > so it's safe. And the callback looks safe is a callback is triggered
+> > > after virtio_device_ready() buy before the above assignment.
+> > >
+> >
+> > I wanted to give it a go at this series testing it on the context of
+> > SCMI but it does not apply
+> >
+> > - not on a v5.18:
+> >
+> > 17:33 $ git rebase -i v5.18
+> > 17:33 $ git am ./v6_20220527_jasowang_rework_on_the_irq_hardening_of_virtio.mbx
+> > Applying: virtio: use virtio_device_ready() in virtio_device_restore()
+> > Applying: virtio: use virtio_reset_device() when possible
+> > Applying: virtio: introduce config op to synchronize vring callbacks
+> > Applying: virtio-pci: implement synchronize_cbs()
+> > Applying: virtio-mmio: implement synchronize_cbs()
+> > error: patch failed: drivers/virtio/virtio_mmio.c:345
+> > error: drivers/virtio/virtio_mmio.c: patch does not apply
+> > Patch failed at 0005 virtio-mmio: implement synchronize_cbs()
+> >
+> > - neither on a v5.19-rc2:
+> >
+> > 17:33 $ git rebase -i v5.19-rc2
+> > 17:35 $ git am ./v6_20220527_jasowang_rework_on_the_irq_hardening_of_virtio.mbx
+> > Applying: virtio: use virtio_device_ready() in virtio_device_restore()
+> > error: patch failed: drivers/virtio/virtio.c:526
+> > error: drivers/virtio/virtio.c: patch does not apply
+> > Patch failed at 0001 virtio: use virtio_device_ready() in
+> > virtio_device_restore()
+> > hint: Use 'git am --show-current-patch=diff' to see the failed patch
+> > When you have resolved this problem, run "git am --continue".
+> >
+> > ... what I should take as base ?
 > 
-> Reorder CAP_SYS_ADMIN last.
+> It should have already been included in rc2, so there's no need to
+> apply patch manually.
 > 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+I tested this series as included in v5.19-rc2 (WITHOUT adding a virtio_device_ready
+in SCMI virtio as you mentioned above ... if I got it right) and I have NOT seen any
+issue around SCMI virtio using my usual test setup (using both SCMI vqueues).
 
-> ---
-> v3:
->    rename to capable_any()
-> ---
->  drivers/media/common/saa7146/saa7146_video.c     | 2 +-
->  drivers/media/pci/bt8xx/bttv-driver.c            | 3 +--
->  drivers/media/pci/saa7134/saa7134-video.c        | 3 +--
->  drivers/media/platform/nxp/fsl-viu.c             | 2 +-
->  drivers/media/test-drivers/vivid/vivid-vid-cap.c | 2 +-
->  drivers/net/caif/caif_serial.c                   | 2 +-
->  drivers/s390/block/dasd_eckd.c                   | 2 +-
->  7 files changed, 7 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/media/common/saa7146/saa7146_video.c b/drivers/media/common/saa7146/saa7146_video.c
-> index 2296765079a4..f0d08935b096 100644
-> --- a/drivers/media/common/saa7146/saa7146_video.c
-> +++ b/drivers/media/common/saa7146/saa7146_video.c
-> @@ -469,7 +469,7 @@ static int vidioc_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuf
->  
->  	DEB_EE("VIDIOC_S_FBUF\n");
->  
-> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
->  		return -EPERM;
->  
->  	/* check args */
-> diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
-> index d40b537f4e98..7098cff2ea51 100644
-> --- a/drivers/media/pci/bt8xx/bttv-driver.c
-> +++ b/drivers/media/pci/bt8xx/bttv-driver.c
-> @@ -2567,8 +2567,7 @@ static int bttv_s_fbuf(struct file *file, void *f,
->  	const struct bttv_format *fmt;
->  	int retval;
->  
-> -	if (!capable(CAP_SYS_ADMIN) &&
-> -		!capable(CAP_SYS_RAWIO))
-> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
->  		return -EPERM;
->  
->  	/* check args */
-> diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
-> index 4d8974c9fcc9..23104c04a9aa 100644
-> --- a/drivers/media/pci/saa7134/saa7134-video.c
-> +++ b/drivers/media/pci/saa7134/saa7134-video.c
-> @@ -1797,8 +1797,7 @@ static int saa7134_s_fbuf(struct file *file, void *f,
->  	struct saa7134_dev *dev = video_drvdata(file);
->  	struct saa7134_format *fmt;
->  
-> -	if (!capable(CAP_SYS_ADMIN) &&
-> -	   !capable(CAP_SYS_RAWIO))
-> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
->  		return -EPERM;
->  
->  	/* check args */
-> diff --git a/drivers/media/platform/nxp/fsl-viu.c b/drivers/media/platform/nxp/fsl-viu.c
-> index afc96f6db2a1..81a90c113dc6 100644
-> --- a/drivers/media/platform/nxp/fsl-viu.c
-> +++ b/drivers/media/platform/nxp/fsl-viu.c
-> @@ -803,7 +803,7 @@ static int vidioc_s_fbuf(struct file *file, void *priv, const struct v4l2_frameb
->  	const struct v4l2_framebuffer *fb = arg;
->  	struct viu_fmt *fmt;
->  
-> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
->  		return -EPERM;
->  
->  	/* check args */
-> diff --git a/drivers/media/test-drivers/vivid/vivid-vid-cap.c b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
-> index b9caa4b26209..918913e47069 100644
-> --- a/drivers/media/test-drivers/vivid/vivid-vid-cap.c
-> +++ b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
-> @@ -1253,7 +1253,7 @@ int vivid_vid_cap_s_fbuf(struct file *file, void *fh,
->  	if (dev->multiplanar)
->  		return -ENOTTY;
->  
-> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
->  		return -EPERM;
->  
->  	if (dev->overlay_cap_owner)
-> diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
-> index 688075859ae4..ca3f82a0e3a6 100644
-> --- a/drivers/net/caif/caif_serial.c
-> +++ b/drivers/net/caif/caif_serial.c
-> @@ -326,7 +326,7 @@ static int ldisc_open(struct tty_struct *tty)
->  	/* No write no play */
->  	if (tty->ops->write == NULL)
->  		return -EOPNOTSUPP;
-> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_TTY_CONFIG))
-> +	if (!capable_any(CAP_SYS_TTY_CONFIG, CAP_SYS_ADMIN))
->  		return -EPERM;
->  
->  	/* release devices to avoid name collision */
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-> index 836838f7d686..66f6db7a11fc 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
-> @@ -5330,7 +5330,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
->  	char psf0, psf1;
->  	int rc;
->  
-> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
->  		return -EACCES;
->  	psf0 = psf1 = 0;
->  
+No anomalies even when using SCMI virtio in atomic/polling mode.
 
--- 
-Regards,
+Adding a virtio_device_ready() at the end of the SCMI virtio probe()
+works fine either, it does not make any difference in my setup.
+(both using QEMU and kvmtool with this latter NOT supporting
+ virtio_V1...not sure if it makes a difference but I thought was worth
+ mentioning)
 
-Laurent Pinchart
+Thanks,
+Cristian
+
