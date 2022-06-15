@@ -2,130 +2,95 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 862A1C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 11:14:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D182CCA482
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 14:37:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230055AbiFOLN7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 07:13:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40194 "EHLO
+        id S1344676AbiFOOh5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 10:37:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243558AbiFOLN1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 07:13:27 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9513B03D;
-        Wed, 15 Jun 2022 04:13:26 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25FAbsfg011334;
-        Wed, 15 Jun 2022 11:13:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=csDdvx+atFc4IFUFG//B+LyG9gsn7+/OKEPNkF2FqKY=;
- b=rG/hytbw3rgwFey1iYCi9ugxMKu6O+cfOIYkRRBJEEF9Q2iyusXSqIh46r2QvXrzNFDr
- SBv+ln7kLbDWkX9euge/nDEo5sHhFe9/MK5KH+ztz7Vts1YtSk4INimnheE8FWcH84Pz
- AxmICbtF8omtTxboMwTuKBuk1+MtybDuBRVzqcuCuWLVesBbof3Zz1DZT4Q3D3E/B+Y6
- TjwwTQhQVCjUqRwiw0ojkJTxXrFJsom0k1t4sxJtTM1X56Yw2chLjIaJVlbBongK9Oex
- 0rL4xIEEr8UjEIMfY8bF8BpHmG9E1uPabwLt21L/VeSzgcbMDz2qABR2Y6XOEVxV6UMb oQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gpr3g4efr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Jun 2022 11:13:25 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25FAh6UM024131;
-        Wed, 15 Jun 2022 11:13:24 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gpr3g4ef2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Jun 2022 11:13:24 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25FB6x7f015900;
-        Wed, 15 Jun 2022 11:13:22 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma02fra.de.ibm.com with ESMTP id 3gmjp94ds4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Jun 2022 11:13:22 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25FBDJqW19857878
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Jun 2022 11:13:19 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 599F252050;
-        Wed, 15 Jun 2022 11:13:19 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.1.67])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 9006C5204E;
-        Wed, 15 Jun 2022 11:13:18 +0000 (GMT)
-Date:   Wed, 15 Jun 2022 13:13:16 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, borntraeger@de.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
-        mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: Re: [PATCH v11 14/19] KVM: s390: pv: cleanup leftover protected VMs
- if needed
-Message-ID: <20220615131316.6336eb6d@p-imbrenda>
-In-Reply-To: <44b2b227-9757-b7a2-41a0-cbea0e2bbbdc@linux.ibm.com>
-References: <20220603065645.10019-1-imbrenda@linux.ibm.com>
-        <20220603065645.10019-15-imbrenda@linux.ibm.com>
-        <0a13397a-86e0-7c25-0044-7a5733f61730@linux.ibm.com>
-        <20220615121916.77b039af@p-imbrenda>
-        <44b2b227-9757-b7a2-41a0-cbea0e2bbbdc@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        with ESMTP id S230160AbiFOOhz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 10:37:55 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4708D13CE1;
+        Wed, 15 Jun 2022 07:37:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=75kgVCcqOPOLeu4JBiLLFab/dM4uNZ1dcLuvpDx9ZCg=; b=kAIWl67VuUe8cBDkmFOZTh4b+J
+        Uy6PgE2+CwIEzhFEfsXCTAadcMkk5TefuTIBHvgzxNrjmUz+/r/f3fMBR5i8mMC7UweLMh9MkeJoD
+        97gkOJRUGibA77qDy9s4vL7NkQkS1Sv+TX4WpruLFHmbGvImVgE9LeYadgdIraA8AGxMlB+PxaWy/
+        1adKvJuvvpCbTsZosCqi5SMDlMupfKEgEY7JpKMS8HhvbF7gyowCTheRqW0YX0S9D05qpW9G1fKLt
+        DJUWQ6k8Tz/HxaHb6kuJRSWnDBXrsJA/DQco3hh/lFSm8XLWvSeNFNfH2bKr+ugXM0hH/Gw2zl2s+
+        laFslj7w==;
+Received: from 179.red-81-39-194.dynamicip.rima-tde.net ([81.39.194.179] helo=[192.168.15.167])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1o1U8m-002LYs-SW; Wed, 15 Jun 2022 16:37:04 +0200
+Message-ID: <362f6520-8209-1721-823c-11928338f57d@igalia.com>
+Date:   Wed, 15 Jun 2022 11:36:39 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH 24/30] panic: Refactor the panic path
+Content-Language: en-US
+To:     Petr Mladek <pmladek@suse.com>
+Cc:     bhe@redhat.com, d.hatayama@jp.fujitsu.com,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Mark Rutland <mark.rutland@arm.com>, mikelley@microsoft.com,
+        vkuznets@redhat.com, akpm@linux-foundation.org,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com, gregkh@linuxfoundation.org,
+        hidehiro.kawai.ez@hitachi.com, jgross@suse.com,
+        john.ogness@linutronix.de, keescook@chromium.org, luto@kernel.org,
+        mhiramat@kernel.org, mingo@redhat.com, paulmck@kernel.org,
+        peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, will@kernel.org
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-25-gpiccoli@igalia.com>
+ <87fskzuh11.fsf@email.froward.int.ebiederm.org>
+ <0d084eed-4781-c815-29c7-ac62c498e216@igalia.com> <Yqic0R8/UFqTbbMD@alley>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <Yqic0R8/UFqTbbMD@alley>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: juiPRvCgQW3jYTedCvH_lGwbhVZ6ZJma
-X-Proofpoint-GUID: HL0Hle144Ba_E4Z-h_dv5ye5nfshGXKO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-15_03,2022-06-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 adultscore=0 phishscore=0 priorityscore=1501 clxscore=1015
- bulkscore=0 suspectscore=0 spamscore=0 mlxlogscore=968 mlxscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206150043
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 15 Jun 2022 12:57:39 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
+Perfect Petr, thanks for your feedback!
 
-[...]
+I'll be out for some weeks, but after that what I'm doing is to split
+the series in 2 parts:
 
-> >> I think we should switch this patch and the next one and add this struct
-> >> to the next patch. The list work below makes more sense once the next
-> >> patch has been read.  
-> > 
-> > but the next patch will leave leftovers in some circumstances, and
-> > those won't be cleaned up without this patch.
-> > 
-> > having this patch first means that when the next patch is applied, the
-> > leftovers are already taken care of  
-> 
-> Then I opt for squashing the patch.
-> 
-> Without the next patch prepared_for_async_deinit will always be NULL and 
-> this code is completely unneeded, no?
+(a) The general fixes, which should be reviewed by subsystem maintainers
+and even merged individually by them.
 
-correct. I had split them to make them smaller and easier to review
+(b) The proper panic refactor, which includes the notifiers list split,
+etc. I'll think about what I consider the best solution for the
+crash_dump required ones, and will try to split in very simple patches
+to make it easier to review.
 
-I will squash them if you think it's better
+Cheers,
 
-> 
-> >   
-> >>>    static void kvm_s390_clear_pv_state(struct kvm *kvm)
-> >>>    {
-> >>>    	kvm->arch.pv.handle = 0;
-> >>> @@ -158,23 +171,88 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
-> >>>    	return -ENOMEM;
-> >>>    }
-> >>>        
-> >>  
-> >>>        
-> >>  
-> >   
-> 
 
+Guilherme
