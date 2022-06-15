@@ -2,99 +2,219 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8281C43334
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 10:06:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CF63C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 10:15:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240583AbiFOKGx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 06:06:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50330 "EHLO
+        id S242859AbiFOKPU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 06:15:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238275AbiFOKGw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 06:06:52 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0E8E3BF8D;
-        Wed, 15 Jun 2022 03:06:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=X4eey67g7t7O8BPfmN7/7q5QPXgKgTakp0SBwPI8Wwc=; b=A9gwmKAW+XiQ9/DOSyqS8RJYDi
-        kLftzCd0j9LecehqiL/heefWcKRALCLCgCI6c1Tu5XFO6iOIW6t+mnQs40w8vhM6UYlb40E5XJBPF
-        lKAnJla+8pJmZnFEzggotql2iqWkR6j9Zs2v1tzI0Tv7jH5KJkwPqo+cyU5aKyalw/pGa4Reo+XZv
-        PEn0pc1fJcgZFYxVz0OgVmIKIZgY6CnfbUvLbCqdGhdjNewgT5wNDSwB5e7Lww1K+HxgKb148dm8C
-        JROyYYP3CAoRJLlfsHBxkBl9Nzc8osG+72C0hwxIGsRVAhBUjT7MU4jDf1dnmODn0sh/dPc9+WyRn
-        +zQOBI0Q==;
-Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1o1Pv7-000xmS-0e; Wed, 15 Jun 2022 10:06:41 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 4C5433001C3;
-        Wed, 15 Jun 2022 12:06:39 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 1A817201A4F6D; Wed, 15 Jun 2022 12:06:39 +0200 (CEST)
-Date:   Wed, 15 Jun 2022 12:06:39 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Ard Biesheuvel <ardb@kernel.org>, linux-kernel@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 3/3] jump_label: make initial NOP patching the special
- case
-Message-ID: <YqmvL2Biw3TnIl7a@hirez.programming.kicks-ass.net>
-References: <20220608104512.1176209-1-ardb@kernel.org>
- <20220608104512.1176209-4-ardb@kernel.org>
- <Yqmr6fvu4OYkarCm@FVFF77S0Q05N>
+        with ESMTP id S1346907AbiFOKNe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 06:13:34 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1184D25E94
+        for <linux-s390@vger.kernel.org>; Wed, 15 Jun 2022 03:13:31 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id y196so11014417pfb.6
+        for <linux-s390@vger.kernel.org>; Wed, 15 Jun 2022 03:13:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=u65QQc2UhosWLMahxlQMn59AukfWR4oEL4oKp6IP8R4=;
+        b=p6mwc20X/Q1hFeLzxCcgv78Ie6ePALgDnjKy0f6FJRwbFLlEtcyClUGIdIrRdeQuXG
+         S/APdh60P9Vj8ZWvK21slVtmWATXSGVi+5VECU1WfwLJvu2C/wmcawnZDXRiot0hlSHm
+         Rj7uCUvqbhfhVQA2GJoevnDtzp3l7dads+GM0V7twfGct+XRmzBvtEqdoi5foez5H8Tl
+         y+0lXd+AX5G7s1qiOthMz582qdHInuCvPvzrWtGgxndpyZsnunHSHy2OoTApYkKzSehV
+         bDdojCchjZBnfLQaL4EpQdwXR+4O+F/a96TGh2BXnAkuyMFutgthOpv/gugFEo+C2bE3
+         9Itg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=u65QQc2UhosWLMahxlQMn59AukfWR4oEL4oKp6IP8R4=;
+        b=MMqKZugYZHRQ8goNqziVv0jmOVWchKGmrXaVerKSSHpEbRJAPqW70dtDL+RvPbAE8F
+         MS1yWA+eMMy/3DZaSRDWg5+kYCe3WZxIQy31/VZoeMGMh/8Wc4j6vx/R5AlAeP1EoPLq
+         uZvmIbDd3QHZoBw5S+0PH/B2CXZjR9ef2dm57HQ76dK53iLeAOwqeMjVzV6uTDkyTt2Q
+         109yN0FqQYufO9wfzf2hgqxTnWsOBjk8gZd8gsbUrYi2szdyKrvrjxijmMK25/Apd8YA
+         2SAKWbfLlgQyaN/JYhkdvPdRqXXyPZ51MHSYeHtObrGVf2E5b5gMyX890auI+HMGV1o9
+         AL3w==
+X-Gm-Message-State: AOAM532RdYAjG/yfc+MeklpFgepZlW19NHkLmCLSCSKaJDSefcLR7QvW
+        Cyn9/+GQsiyYumAdu5xmbtwW0w==
+X-Google-Smtp-Source: ABdhPJyRk1EuvqaSy5Q9Ox2cFgvalWMPQnJzgUhcIvPfkO5QikvHoHYqXNW1DdxHoCrhz1YsvIMCUg==
+X-Received: by 2002:a63:81c3:0:b0:3fc:c510:1a3 with SMTP id t186-20020a6381c3000000b003fcc51001a3mr8220683pgd.581.1655288010235;
+        Wed, 15 Jun 2022 03:13:30 -0700 (PDT)
+Received: from [10.255.194.85] ([139.177.225.252])
+        by smtp.gmail.com with ESMTPSA id jd13-20020a170903260d00b0016184e7b013sm8885181plb.36.2022.06.15.03.13.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Jun 2022 03:13:27 -0700 (PDT)
+Message-ID: <0e27425e-1fb6-bc7c-9845-71dc805897c3@bytedance.com>
+Date:   Wed, 15 Jun 2022 18:13:12 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yqmr6fvu4OYkarCm@FVFF77S0Q05N>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.10.0
+Subject: Re: Re: [PATCH 0/5 v1] mm, oom: Introduce per numa node oom for
+ CONSTRAINT_MEMORY_POLICY
+Content-Language: en-US
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     akpm@linux-foundation.org, songmuchun@bytedance.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        ebiederm@xmission.com, keescook@chromium.org,
+        viro@zeniv.linux.org.uk, rostedt@goodmis.org, mingo@redhat.com,
+        peterz@infradead.org, acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, david@redhat.com, imbrenda@linux.ibm.com,
+        apopple@nvidia.com, adobriyan@gmail.com,
+        stephen.s.brennan@oracle.com, ohoono.kwon@samsung.com,
+        haolee.swjtu@gmail.com, kaleshsingh@google.com,
+        zhengqi.arch@bytedance.com, peterx@redhat.com, shy828301@gmail.com,
+        surenb@google.com, ccross@google.com, vincent.whitchurch@axis.com,
+        tglx@linutronix.de, bigeasy@linutronix.de, fenghua.yu@intel.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org
+References: <20220512044634.63586-1-ligang.bdlg@bytedance.com>
+ <YoJ/ioXwGTdCywUE@dhcp22.suse.cz>
+From:   Gang Li <ligang.bdlg@bytedance.com>
+In-Reply-To: <YoJ/ioXwGTdCywUE@dhcp22.suse.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 10:52:41AM +0100, Mark Rutland wrote:
-> On Wed, Jun 08, 2022 at 12:45:12PM +0200, Ard Biesheuvel wrote:
-> > Instead of defaulting to patching NOP opcodes at init time, and leaving
-> > it to the architectures to override this if this is not needed, switch
-> > to a model where doing nothing is the default. This is the common case
-> > by far, as only MIPS requires NOP patching at init time. On all other
-> > architectures, the correct encodings are emitted by the compiler and so
-> > no initial patching is needed.
-> > 
-> > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> > ---
-> >  Documentation/staging/static-keys.rst |  3 ---
-> >  arch/arc/kernel/jump_label.c          | 13 -------------
-> >  arch/arm/kernel/jump_label.c          |  6 ------
-> >  arch/arm64/kernel/jump_label.c        | 11 -----------
-> >  arch/mips/include/asm/jump_label.h    |  2 ++
-> >  arch/parisc/kernel/jump_label.c       | 11 -----------
-> >  arch/riscv/kernel/jump_label.c        | 12 ------------
-> >  arch/s390/kernel/jump_label.c         |  5 -----
-> >  arch/x86/kernel/jump_label.c          | 13 -------------
-> >  kernel/jump_label.c                   | 14 +++-----------
-> >  10 files changed, 5 insertions(+), 85 deletions(-)
+Hi, I've done some benchmarking in the last few days.
+
+On 2022/5/17 00:44, Michal Hocko wrote:
+> Sorry, I have only now found this email thread. The limitation of the
+> NUMA constrained oom is well known and long standing. Basically the
+> whole thing is a best effort as we are lacking per numa node memory
+> stats. I can see that you are trying to fill up that gap but this is
+> not really free. Have you measured the runtime overhead? Accounting is
+> done in a very performance sensitive paths and it would be rather
+> unfortunate to make everybody pay the overhead while binding to a
+> specific node or sets of nodes is not the most common usecase.
+
+## CPU consumption
+
+According to the result of Unixbench. There is less than one percent 
+performance loss in most cases.
+
+On 40c512g machine.
+
+40 parallel copies of tests:
++----------+----------+-----+----------+---------+---------+---------+
+| numastat | FileCopy | ... |   Pipe   |  Fork   | syscall |  total  |
++----------+----------+-----+----------+---------+---------+---------+
+| off      | 2920.24  | ... | 35926.58 | 6980.14 | 2617.18 | 8484.52 |
+| on       | 2919.15  | ... | 36066.07 | 6835.01 | 2724.82 | 8461.24 |
+| overhead | 0.04%    | ... | -0.39%   | 2.12%   | -3.95%  | 0.28%   |
++----------+----------+-----+----------+---------+---------+---------+
+
+1 parallel copy of tests:
++----------+----------+-----+---------+--------+---------+---------+
+| numastat | FileCopy | ... |  Pipe   |  Fork  | syscall |  total  |
++----------+----------+-----+---------+--------+---------+---------+
+| off      | 1515.37  | ... | 1473.97 | 546.88 | 1152.37 | 1671.2  |
+| on       | 1508.09  | ... | 1473.75 | 532.61 | 1148.83 | 1662.72 |
+| overhead | 0.48%    | ... | 0.01%   | 2.68%  | 0.31%   | 0.51%   |
++----------+----------+-----+---------+--------+---------+---------+
+
+## MEM consumption
+
+per task_struct:
+sizeof(int) * num_possible_nodes() + sizeof(int*)
+typically 4 * 2 + 8 bytes
+
+per mm_struct:
+sizeof(atomic_long_t) * num_possible_nodes() + sizeof(atomic_long_t*)
+typically 8 * 2 + 8 bytes
+
+zap_pte_range:
+sizeof(int) * num_possible_nodes() + sizeof(int*)
+typically 4 * 2 + 8 bytes
+
+> Also have you tried to have a look at cpusets? Those should be easier to
+> make a proper selection as it should be possible to iterate over tasks
+> belonging to a specific cpuset much more easier - essentialy something
+> similar to memcg oom killer. We do not do that right now and by a very
+> brief look at the CONSTRAINT_CPUSET it seems that this code is not
+> really doing much these days. Maybe that would be a more appropriate way
+> to deal with more precise node aware oom killing?
+
+Looks like both CONSTRAINT_MEMORY_POLICY and CONSTRAINT_CPUSET can
+be uesd to deal with node aware oom killing.
+
+I think we can calculate badness in this way:
+    If constraint=CONSTRAINT_MEMORY_POLICY, get badness by `nodemask`.
+    If constraint=CONSTRAINT_CPUSET, get badness by `mems_allowed`.
+
+example code:
+```
+long oom_badness(struct task_struct *p, struct oom_control *oc)
+	long points;
+
+	...
+
+	if (unlikely(oc->constraint == CONSTRAINT_MEMORY_POLICY)) {
+		for_each_node_mask(nid, oc->nodemask)
+			points += get_mm_counter(p->mm, -1, nid)
+	} else if (unlikely(oc->constraint == CONSTRAINT_CPUSET)) {
+		for_each_node_mask(nid, cpuset_current_mems_allowed)
+			points += get_mm_counter(p->mm, -1, nid)
+	} else {
+		points = get_mm_rss(p->mm);
+	}
+	points += get_mm_counter(p->mm, MM_SWAPENTS, NUMA_NO_NODE) \
+		+ mm_pgtables_bytes(p->mm) / PAGE_SIZE;
+
+	...
+
+}
+```
+
 > 
-> I have one minor comment below, but either way this is a nice cleanup (and I'm
-> always happy to see __weak functions disappear), so FWIW:
-
-(I've got a new found hatred for __weak after having had to fix so many
-objtool issues with it, so yeah, that).
-
+> [...]
+>>   21 files changed, 317 insertions(+), 111 deletions(-)
 > 
->   Acked-by: Mark Rutland <mark.rutland@arm.com>
+> The code footprint is not free either. And more importantnly does this
+> even work much more reliably? I can see quite some NUMA_NO_NODE
+> accounting (e.g. copy_pte_range!).Is this somehow fixable?
 
-With the thing Mark pointed out fixed:
+> Also how do those numbers add up. Let's say you increase the counter as
+> NUMA_NO_NODE but later on during the clean up you decrease based on the
+> page node?
+ > Last but not least I am really not following MM_NO_TYPE concept. I can
+ > only see add_mm_counter users without any decrements. What is going on
+ > there?
 
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+There are two usage scenarios of NUMA_NO_NODE in this patch.
 
-(although, I'll probably be the one to eventually apply these I suppose,
-unless they're needed in a different tree?)
+1. placeholder when swap pages in and out of swapfile.
+```
+	// mem to swapfile
+	dec_mm_counter(vma->vm_mm, MM_ANONPAGES, page_to_nid(page));
+	inc_mm_counter(vma->vm_mm, MM_SWAPENTS, NUMA_NO_NODE);
+
+	// swapfile to mem
+	inc_mm_counter(vma->vm_mm, MM_ANONPAGES, page_to_nid(page));
+	dec_mm_counter(vma->vm_mm, MM_SWAPENTS, NUMA_NO_NODE);
+```
+
+In *_mm_counter(vma->vm_mm, MM_SWAPENTS, NUMA_NO_NODE),
+NUMA_NO_NODE is a placeholder. It means this page does not exist in any
+node anymore.
+
+2. placeholder in `add_mm_rss_vec` and `sync_mm_rss` for per process mm 
+counter synchronization with SPLIT_RSS_COUNTING enabled.
+
+
+MM_NO_TYPE is also a placeholder in `*_mm_counter`, `add_mm_rss_vec` and 
+`sync_mm_rss`.
+
+These placeholders are very strange. Maybe I should introduce a helper
+function for mm->rss_stat.numa_count counting instead of using
+placeholder.
+
+
