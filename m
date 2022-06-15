@@ -2,162 +2,202 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7BA1CCA47D
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 20:58:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5EA2C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 21:26:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349654AbiFOU6R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 16:58:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52518 "EHLO
+        id S1347775AbiFOV0R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 17:26:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349720AbiFOU6O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 16:58:14 -0400
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2066.outbound.protection.outlook.com [40.107.220.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CCBECE13;
-        Wed, 15 Jun 2022 13:58:07 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DsS8aZCMsrYUA/O995Rv+0x8O1YBDIniBj9LSZ9MMGXzkeUcro72WfHc1+bwlsZhDV6CowZaMwATHX1ir/Xr5KTVM8vAls/liwdTPGC4ynGJ2JlWJ0DSP/CvBVIefcipdoQg6kN9c/KCp8BHByCzB1/z0td6XRKU+Aeh8GVvTbzaX/20WirqCFNfeU8cnYQ7sLl9Z09LJ/HYkgK81Da7yfFgXEpiiJaNLalewZfSMP/IdQuXbjcA28xsPktSbZKMK3NW/By93yF2sZTKCi9jaaz+RO/lcCeZ/SLEEdUHpFPMH+ioUwxi0Wd36qbNUO4krROQI5Zi8lscKxoulrdMOg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yOKjiEmfwH2B9oJHMMbxEYS8J5nnGN09QQdXBjAcu9c=;
- b=SBeFjhtpA/jZc9orRA5l7yl9jLidNkG4FhRvhMNfrveyg1ilKUAIEFm0hvJPy3XhThJTq4ZYP6TXI+Tr7cod20uQmpnZF+WTTBi8ogSxeTzdl4ByWeJiyZwegOImvjR9FHyVLZju1qPWJ3PgLwI+5m3EsemNh2UV0nEQTwueDAfvdyiq8TLd9IoQ9DYCnPgeCrRmFmT7sX8zGGlhCzO6qpQAK0CDd9o/2FCguZr87m9M6CAYZCtHM+tIrv3CKgrhLSyGTEa/nA6aF22hytFQCdNoc2zRywzopxpGwMYqdtcWZySpe8mqPpcf1nnZ2BXee3xVIY0XCbM3i5vFTa7G+g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yOKjiEmfwH2B9oJHMMbxEYS8J5nnGN09QQdXBjAcu9c=;
- b=FdQ+D+ifLdtWW26NT/0f3+GHZda/jo3wVd21X13i+eS5WZ+mmZRGMqRss5z6RtUEOZKYkLM7x10cfgUtmvK+0y0b8c3cz0ayJqD0z+HxO6U+JpO9Etzl4hEWS2zY+y7GIFjJbohLKd3MpanSSdr8kHPmO+gy9LwVSnqv2vAGi74iGap7wm1xD1LMM/ceYraHghSqibGLvgFyoikEUvGsI9eef+9Kq+zHvCRQR6I7N7UjCuC90eCCCAMfuy3/UHtTB+X6yOyFOM6ORz9ejp+WZDGONdfxDYbTcGi+UEMNimxkkvG8nG0XsFm5jG4wumHKt3L254DjsK4jAJaGCihncA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4206.namprd12.prod.outlook.com (2603:10b6:208:1d5::18)
- by SN6PR12MB2687.namprd12.prod.outlook.com (2603:10b6:805:73::26) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.14; Wed, 15 Jun
- 2022 20:58:04 +0000
-Received: from MN2PR12MB4206.namprd12.prod.outlook.com
- ([fe80::d5df:ac97:8e92:fc14]) by MN2PR12MB4206.namprd12.prod.outlook.com
- ([fe80::d5df:ac97:8e92:fc14%7]) with mapi id 15.20.5332.022; Wed, 15 Jun 2022
- 20:58:04 +0000
-Message-ID: <e747730e-ffa0-4573-985f-a444e14040a6@nvidia.com>
-Date:   Thu, 16 Jun 2022 02:27:51 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH v2 01/10] vfio/ccw: Remove UUID from s390 debug log
-Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Michael Kawano <mkawano@linux.ibm.com>,
-        Neo Jia <cjia@nvidia.com>, Tarun Gupta <targupta@nvidia.com>,
-        Dheeraj Nigam <dnigam@nvidia.com>
-References: <20220615203318.3830778-1-farman@linux.ibm.com>
- <20220615203318.3830778-2-farman@linux.ibm.com>
-X-Nvconfidentiality: public
-From:   Kirti Wankhede <kwankhede@nvidia.com>
-In-Reply-To: <20220615203318.3830778-2-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MA1P287CA0019.INDP287.PROD.OUTLOOK.COM
- (2603:1096:a00:35::35) To MN2PR12MB4206.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::18)
+        with ESMTP id S1346775AbiFOV0P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 17:26:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856445621C;
+        Wed, 15 Jun 2022 14:26:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2155361778;
+        Wed, 15 Jun 2022 21:26:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0651C3411A;
+        Wed, 15 Jun 2022 21:26:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655328373;
+        bh=C7SBMi7ghKBLQo7MHmIHsy7eWtSdXq8eTAqAwVvVPfw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rcYBdB9v2iJolM6fd27OAYzgDAh4Cy36Z7LWBpda/a/SgPCwn9xHu/xsTl0o0PoAY
+         SDWwvGa6oWW820UDU6Jc02SuNLbRnkJFOQVwHgARir+e+zZY2YYmSygPZks1a6y3Ds
+         URcIAW8dSzvf2PvwOefgZcSyVjUseugdFY03G/WaZrjHpsue9BMdMgV/6QSVfrrb8T
+         HBYs8Z1/kOPfZU6aIUJtdFd1gH4nSJbil/mnEhsnjRnWKGFlJqJnnCZ5QjEvuHpB9f
+         WFwZw2bJeWIQ2/RB+5zvSIptEsCuVnGlMNxUSbksXDmUo/nUflwAwou4zwqCvuobWa
+         8/YxoqDiXQD1Q==
+Date:   Thu, 16 Jun 2022 00:24:04 +0300
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     Luis Chamberlain <mcgrof@kernel.org>,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Jarkko Sakkinen <jarkko@profian.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Nathaniel McCallum <nathaniel@profian.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Marco Elver <elver@google.com>,
+        Dan Li <ashimida@linux.alibaba.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Song Liu <song@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Chen Zhongjin <chenzhongjin@huawei.com>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Mark Brown <broonie@kernel.org>,
+        Luis Machado <luis.machado@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Joey Gouly <joey.gouly@arm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dave Anglin <dave.anglin@bell.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Daniel Axtens <dja@axtens.net>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Guo Ren <guoren@kernel.org>, Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@atishpatra.org>,
+        Changbin Du <changbin.du@intel.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Liao Chang <liaochang1@huawei.com>,
+        Philipp Tomsich <philipp.tomsich@vrull.eu>,
+        Wu Caize <zepan@sipeed.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Tobias Huschle <huschle@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Michael Roth <michael.roth@amd.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@igalia.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>
+Subject: Re: [PATCH] kprobes: Enable tracing for mololithic kernel images
+Message-ID: <YqpN9NAkAKhgiunQ@iki.fi>
+References: <20220608000014.3054333-1-jarkko@profian.com>
+ <YqGlmpbx8HTrWmpF@shell.armlinux.org.uk>
+ <YqH5TfN9w35kHFLU@bombadil.infradead.org>
+ <Yqh+k7Udth0IOBrd@iki.fi>
+ <144b7e90-5d75-7e2c-4e54-8a73f914dfdf@csgroup.eu>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 8471659a-ed8a-4b0e-d8bf-08da4f11bda8
-X-MS-TrafficTypeDiagnostic: SN6PR12MB2687:EE_
-X-Microsoft-Antispam-PRVS: <SN6PR12MB2687C2CDADF96E61C4C4C5A4DCAD9@SN6PR12MB2687.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: /FM7JvczfUPPkWEPwQwTCfb/7pr2u1Oh2UxNrBDPJljGr7QrBWXk5wmYBaFMSdp/pTl5LzungYQPlAPcyz0phRO+YMSe2qpUvE2UyiET73LxL4MQvtgWUhiRxOrzENjxhoDaYUxS4er3VB3xmnG0FvXogaUQcLzarHx2UmGAQMhZlUN9gWxtVDNrwadOj5qhduULrBInblX3gsnCHvIr/f0F725f42OnRXvZH9WeyURhRjXlseIfhkhjENsYtUzOfecmZQrn2WxSSLNpBV23vMxHvKGCcMPbz8oDyFIb8TwUrzUSEl4Sp9OUVPaYLK3jPHZa/wMH+KrbL3/8ZrFJ/X0wixOrNJQdtx/Os6V0KVPhHwOfoOwZgl7kbFWC6FM50VUZxDI+RUfJwCiUUSwP/QrXu9yxMTFqVkpXqTgP0E8fPJ1j6OmC45+kCz36CneKjCCOEXJCBW1ykG46s6tJzLsX11pUuaJeheYiPkemJVeaeomrkJB31FvT7QSwtI6zu1Cbl+uLXKrANHL3QhHNW258AiBFAdvsIQEUcp+oOPMxsi48rYQ/rUYN9sgPHiVaplZBk5aqBDkGThFMsMU/ifXSa9+p0QXe/KDTtT5y5umjMY8JM6rKwusQrnlhB5gxkF0urXHVnASxjeJjjo1aYctcJpYZHlkyG4Sj1q1CVxVdXqp7h2nAkilTrZOQZ+hQFgCM9eUS430zPhHsIzU45qouWvLM6lfiuZUUNHsQWA8=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4206.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(2906002)(8676002)(86362001)(31696002)(66556008)(55236004)(31686004)(53546011)(66946007)(316002)(6506007)(66476007)(110136005)(54906003)(38100700002)(6666004)(8936002)(2616005)(186003)(36756003)(83380400001)(508600001)(6512007)(26005)(6486002)(4326008)(107886003)(5660300002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bVNwRWxSeGZndGMxbm96YjY1YUhmS1NhZmF1VmZCVVZZVHlQdTFrQUVyVURU?=
- =?utf-8?B?VjFMVUdHSUlhRFFHdnZraTFrWnhRZGlHSW5LUnFBeTRZQmhaV2F1dXViUElU?=
- =?utf-8?B?eE1CdUNBZFk4SUdrcFNwU1BPV0FoUEJab2NpaDY5a25aUUNBc1BNYWw2OFUw?=
- =?utf-8?B?UmJSQTJ0QkEyN2tQS2lCeEE0aENiMW9QNC92RFlRUkJhNGx2a1VBUTJnSmli?=
- =?utf-8?B?MVp5L0gxLzRjOGZCQ1R1YVN1Q0N0OXJlcnk0bXp2OFVWb05yRVhtdklQYkZq?=
- =?utf-8?B?VjdMZDZiWjVaUWNPZHRNcEFjcEtLODNIbHhLTEVNS1VFcWJsaC9nOWxBYkNl?=
- =?utf-8?B?ZkwyK2ZqeHN5Q3lVcEVHUGFTTytEUnBoNWpIaU1VSEViUXZPQWlLM0JrZDE1?=
- =?utf-8?B?N0V0ZHphRG5BR0sxOUFVM09tZUVRZ1JidUFETkw4UUk5QVZ0OGR6cnhJREtr?=
- =?utf-8?B?QWhqUnM4Ty9Zb0paMzMyQklnSDdFdExYT0NZYjFGRWxKK05pbkUyMVIyR2Y1?=
- =?utf-8?B?ZGJPQkhaYmthZTBad01zZEpUVWs1WGVhb3ZaMmo1RWFKbWdxWGxuUDh0YjJQ?=
- =?utf-8?B?TnFRblFPV0NhVXBNWm9ZbUdLUDJlTjRDUUc3K2NML0NLdEdaRGhuTzNncWcw?=
- =?utf-8?B?Nmc1UlRuZThueDkrejQ2c1V2bXZZNGVjbytERys5OXZNT3Z2Yk51ZlA5bCtv?=
- =?utf-8?B?bjBtZ2xzcUN2MElyeFdmYWlHb0s3c0p6SWdKSnplOVQxMlBkdWx4Ykdjb09i?=
- =?utf-8?B?Y1pIL1JuOE5NaEF6dVpHc2ZoMnJFUkRESlFRUThoZ1lkYmJISjhFK1MzNHRO?=
- =?utf-8?B?SndVRWsxcGlLQ3p2WUU5dlNocHBaUVQ0THpkQ0tZK0hBKzlEMU53b28rVERn?=
- =?utf-8?B?VElEeUxBalk5bG95NFBCdmg5WkU5ZmpIWnZSYlBJcHdtdHI4bm5xTThsZTQ0?=
- =?utf-8?B?Tlk3NmY3UlRpQXdGeTllNks3dFEza3NmYUwwZjZRMnUyQlZZT2lFWW9peG9a?=
- =?utf-8?B?dkM4YjM3TjkybTZIOXJTdWYxQlNMYzJsSjNQcXczaFJyR0RVejNmSnBDalhT?=
- =?utf-8?B?TUFZeTBmbE5MdlI2MUdIaXZMVFpqNlMwYmk1c1ZCZ2xVUGdpdmVOYjUxQTBz?=
- =?utf-8?B?eTJjQzY2bWhKelVuUXZvUCtwOUd2bjRMWlJqNnVoWStpbzZPY3RzWjNydUdq?=
- =?utf-8?B?NjVNNW5SVlZlUXkrUHE3bktxOGVha1JjRW1EWDFyUllRc2NOUVI1Nmw1d1JU?=
- =?utf-8?B?TStzTkVYM1NCYzhNKzVqdERKd2NZcjhMOUoxTGxUbGxVZTFsNVVOQmNYOUlj?=
- =?utf-8?B?SnVIMEVlNGNjUXcxcFhPRVlWMlU2Mng2VWRzZ0Y4bWdFUzl0ZVhLR1FteTkx?=
- =?utf-8?B?elRVZUIrVnlRKy9EbmVjQ01rUytuZ3RtcEQvM3dVQ2pGYlN6Sy82OVU2Q1R0?=
- =?utf-8?B?MGF3V2ZmeUtYYjVtR2tmQS90RVUxSUF2cm84K2dJY0k0YTJKLzhvRXdXd2ln?=
- =?utf-8?B?RHFkN1p1aHNIT0dLYjFySEtwd3pZaHFwbUdaSVlKanM5NWhuUmZBb0tzaHVv?=
- =?utf-8?B?Sk5QREFWUndlNUlkRnBoSm1jVHMvUDBFQ1lML05NUnZzVHRPa2VSVjlNK0VB?=
- =?utf-8?B?azdFa0kzSTd6b280eGJ5bituYlYwMjM1UU1wUDlMUjRzL2g3cjhVZWJrTEE4?=
- =?utf-8?B?em9LeERTd2pqMGFWNDA2dWw4WkJvOXJsQmwvVXdXbDFYZk04ZkphQ1JUWEpz?=
- =?utf-8?B?eTZydTQwTWdDWStHcitlTE9YNk9BN2g4NWd1VzF2cGVKZDdKd1NPT0QrdkdU?=
- =?utf-8?B?bEJmT3FlV3VGUCsvUUl4Q0dMdVBHYVAvOFZSR2dZY3NKdTNDVVprVUtxSjU5?=
- =?utf-8?B?dFFoU2ZCMEFJTzVzajBqSFlCOGdyQytUTVN6MmNTODJwWlpSQi9yNGtneWhN?=
- =?utf-8?B?dlJlRVNSemRtcEVhQWlhdWR3bFBIYjU2K0M2WXIzdFliaHAzOG1jMFpQeW1P?=
- =?utf-8?B?SkFvZ3Z4Y2RreEtBeFVIS0pwRFlvMEp1cWZjNnBUSC9wSHBTZHRPOE5DbW9W?=
- =?utf-8?B?bzFZbnBHaHh2N3MvdEV4eWM4ZHF6RGQ3d1NKcnhZQWhPdlUzY2FxU0p6YTVM?=
- =?utf-8?B?cDBIZWhRRnF6TnpnZTIyQWJRbmtFeFMzdVBlYVNGeVR4YUtlUHVkc1VPOURW?=
- =?utf-8?B?SlNJL0trMXIxZFBwOFUrQjJGU1F5U3ZXZUR2UGNkOE1zdmg5RmhGYW9odWo0?=
- =?utf-8?B?Q1E0dVViTEE0VXpocHI1SnJqNE1ZbjZpaG9QaFNuY2tFSW9veEhUdTloTGdT?=
- =?utf-8?B?TDgvWUR6UjB5U3ZmeHdKUWU2Q0g3bm1zOWlHc3UwMUZ3VHJ3ZmgyVlFnT2oy?=
- =?utf-8?Q?oU/ujrfLvSn5HH6g=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8471659a-ed8a-4b0e-d8bf-08da4f11bda8
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4206.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jun 2022 20:58:04.4312
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +cWZfcIlDoesJiEvmqoBPIgXBzeyM+NMrPg3XoOuzVDISqoRiaLXPtvhG+c3Ubr4j9ny1bwrEb3rlpg03ob1WA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR12MB2687
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <144b7e90-5d75-7e2c-4e54-8a73f914dfdf@csgroup.eu>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 6/16/2022 2:03 AM, Eric Farman wrote:
-> From: Michael Kawano <mkawano@linux.ibm.com>
+On Tue, Jun 14, 2022 at 12:36:25PM +0000, Christophe Leroy wrote:
 > 
-> As vfio-ccw devices are created/destroyed, the uuid of the associated
-> mdevs that are recorded in $S390DBF/vfio_ccw_msg/sprintf get lost.
-> This is because a pointer to the UUID is stored instead of the UUID
-> itself, and that memory may have been repurposed if/when the logs are
-> examined. The result is usually garbage UUID data in the logs, though
-> there is an outside chance of an oops happening here.
 > 
-> Simply remove the UUID from the traces, as the subchannel number will
-> provide useful configuration information for problem determination,
-> and is stored directly into the log instead of a pointer.
+> Le 14/06/2022 à 14:26, Jarkko Sakkinen a écrit :
+> > On Thu, Jun 09, 2022 at 06:44:45AM -0700, Luis Chamberlain wrote:
+> >> On Thu, Jun 09, 2022 at 08:47:38AM +0100, Russell King (Oracle) wrote:
+> >>> On Wed, Jun 08, 2022 at 02:59:27AM +0300, Jarkko Sakkinen wrote:
+> >>>> diff --git a/arch/arm/kernel/Makefile b/arch/arm/kernel/Makefile
+> >>>> index 553866751e1a..d2bb954cd54f 100644
+> >>>> --- a/arch/arm/kernel/Makefile
+> >>>> +++ b/arch/arm/kernel/Makefile
+> >>>> @@ -44,6 +44,11 @@ obj-$(CONFIG_CPU_IDLE)		+= cpuidle.o
+> >>>>   obj-$(CONFIG_ISA_DMA_API)	+= dma.o
+> >>>>   obj-$(CONFIG_FIQ)		+= fiq.o fiqasm.o
+> >>>>   obj-$(CONFIG_MODULES)		+= armksyms.o module.o
+> >>>> +ifeq ($(CONFIG_MODULES),y)
+> >>>> +obj-y				+= module_alloc.o
+> >>>> +else
+> >>>> +obj-$(CONFIG_KPROBES)		+= module_alloc.o
+> >>>> +endif
+> >>>
+> >>> Doesn't:
+> >>>
+> >>> obj-$(CONFIG_MODULES)		+= module_alloc.o
+> >>> obj-$(CONFIG_KPROBES)		+= module_alloc.o
+> >>
+> >> That just begs for a new kconfig symbol for the object, and for
+> >> the object then to be built with it.
+> >>
+> >> The archs which override the default can use ARCH_HAS_VM_ALLOC_EXEC.
+> >> Please note that the respective free is important as well and its
+> >> not clear if we need an another define for the free. Someone has
+> >> to do that work. We want to ensure to noexec the code on free and
+> >> this can vary on each arch.
+> > 
+> > Let me check if I understand this (not 100% sure).
+> > 
+> > So if arch define ARCH_HAS_VMALLOC_EXEC, then this would set
+> > config flag CONFIG_VMALLOC_EXEC, which would be used to include
+> > the compilation unit?
+> > 
 > 
-> As we were the only consumer of mdev_uuid(), remove that too.
+> I guess you have two possible approaches.
 > 
-> Cc: Kirti Wankhede <kwankhede@nvidia.com>
-> Signed-off-by: Michael Kawano <mkawano@linux.ibm.com>
-> Fixes: 60e05d1cf0875 ("vfio-ccw: add some logging")
-> Fixes: b7701dfbf9832 ("vfio-ccw: Register a chp_event callback for vfio-ccw")
-> [farman: reworded commit message, added Fixes: tags]
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
+> Either architectures select CONFIG_ARCH_HAS_VMALLOC_EXEC at all time and 
+> then you add a CONFIG_VMALLOC_EXEC which depends on 
+> CONFIG_ARCH_HAS_VMALLOC_EXEC and CONFIG_MODULES or CONFIG_KPROBES,
+> 
+> Or architectures select CONFIG_ARCH_HAS_VMALLOC_EXEC only when either 
+> CONFIG_MODULES or CONFIG_KPROBES is selected, in that case there is no 
+> need for a CONFIG_VMALLOC_EXEC.
 
-Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
+Right, got it now. Thanks for the elaboration.
 
+> Christophe
+
+BR, Jarkko
