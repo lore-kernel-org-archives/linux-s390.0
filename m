@@ -2,212 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92530C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 10:19:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71371C43334
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Jun 2022 10:21:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344821AbiFOKTa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 06:19:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37038 "EHLO
+        id S1347533AbiFOKV5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 06:21:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237034AbiFOKT3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 06:19:29 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8BF427F1;
-        Wed, 15 Jun 2022 03:19:26 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25F8Bx8Z020509;
-        Wed, 15 Jun 2022 10:19:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=Ysak+bOxf2WK1p19LI1YGYc6xtN+QIwFGyYHHce1LNw=;
- b=fl/as7pRKi3oyNScMPATmNbfNK0YO0fx4MY8Nmx1KOKF45ra5zOxC46BcuDxhAgmdwGK
- 8lpqil8DUVLtYPtuBo3s/WrMiboehDAE0U/MUvsUqtvXpF1BL52bO891dH1n0IbDYo+x
- hGpL4Vh6U73FJEjLhUIn2R0jCQgPGTaqu0L8aPUqriUYr9UZtt0kdBrc8nDjtdVBtKn4
- XZQA/Kqa39MSQkedDiHf4IZi487So2B+yR1jIrzx4Sz5BamJE/ARFacj7/VxP8Sx0KEF
- ADQVS/obYxeom9+IYE3vZVps/emG0sH2ULTbDPKr8pQaPEmeAnWadTVVgG2TdHMmFKzy xw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gq8e4raju-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Jun 2022 10:19:25 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25F8Rclr016427;
-        Wed, 15 Jun 2022 10:19:25 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gq8e4raj6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Jun 2022 10:19:25 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25FA6TT1018252;
-        Wed, 15 Jun 2022 10:19:23 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3gmjp94c9b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Jun 2022 10:19:23 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25FAJNmS25493976
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Jun 2022 10:19:24 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3648411C04A;
-        Wed, 15 Jun 2022 10:19:20 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5D63411C050;
-        Wed, 15 Jun 2022 10:19:19 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.1.67])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Jun 2022 10:19:19 +0000 (GMT)
-Date:   Wed, 15 Jun 2022 12:19:16 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, borntraeger@de.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
-        mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: Re: [PATCH v11 14/19] KVM: s390: pv: cleanup leftover protected VMs
- if needed
-Message-ID: <20220615121916.77b039af@p-imbrenda>
-In-Reply-To: <0a13397a-86e0-7c25-0044-7a5733f61730@linux.ibm.com>
-References: <20220603065645.10019-1-imbrenda@linux.ibm.com>
-        <20220603065645.10019-15-imbrenda@linux.ibm.com>
-        <0a13397a-86e0-7c25-0044-7a5733f61730@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        with ESMTP id S242728AbiFOKVq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 06:21:46 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20EFA5130A;
+        Wed, 15 Jun 2022 03:20:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 626BDCE1EAF;
+        Wed, 15 Jun 2022 10:20:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A222FC3411C;
+        Wed, 15 Jun 2022 10:20:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1655288435;
+        bh=ADWNwalPsj7wlzAK4STHI1I3vbvADJHLuzQJhszxX8c=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=Y7wogYQbzqKyD6JEqXbaMxzp/l8MWvg+8x9iOIJ+wpI+Ktjxakhgy/0uDZVfe/73b
+         Aq+okQgvH8mxgO8oRvY+kYStktMkS3/ksME5k6wZoo/WN5cgyUgeXEWDLIFRn4gMtZ
+         vIQEymiSa90u/BGkczf9XwvnVz4N2tpkuHjTf7YEnaAufwbuXcH0ym6IaIwYvhF0b1
+         7ygSeQoPdgvK/1avI8sHeS8nRRAZ0pucud/TEcCijnRkUp8e5K+o8ypNiR2QsKkyz+
+         oSdFGBlTJMRVEtLSQSdbHiwCjJVt5UvyBKm8GBE2b25/2Qs3eNrg18F4/1fxaX8D6Y
+         lnsfzZkCSi6bw==
+Received: by mail-ot1-f50.google.com with SMTP id s20-20020a056830439400b0060c3e43b548so8499707otv.7;
+        Wed, 15 Jun 2022 03:20:35 -0700 (PDT)
+X-Gm-Message-State: AOAM5306pP1JuWW0En0s8WX5ZOa74779Pa/KGiSFZvHv1GTKr7GePTH+
+        dy6vQS+vm5aNs5eJUujddrZdv5vJJliFKv7s/5c=
+X-Google-Smtp-Source: ABdhPJwWPYfdpESn/ZfR63iU+BQ4uVPMs4SdDmopyiZZb6tFOGP0dMOcdj9I8c73xtXC57WSh/UYFNp5DHskI5jx+vs=
+X-Received: by 2002:a9d:37a3:0:b0:60c:5427:1f56 with SMTP id
+ x32-20020a9d37a3000000b0060c54271f56mr3970819otb.71.1655288434829; Wed, 15
+ Jun 2022 03:20:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: YMSFfob9GrASPT3jG10CkjicSGUSQwCW
-X-Proofpoint-GUID: n1uBPQq9KFPwu3vX7eKS_Wchr_NSB4Rq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-15_03,2022-06-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 malwarescore=0 mlxlogscore=999 spamscore=0 adultscore=0
- impostorscore=0 phishscore=0 clxscore=1015 mlxscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206150039
+References: <20220608104512.1176209-1-ardb@kernel.org> <20220608104512.1176209-4-ardb@kernel.org>
+ <Yqmr6fvu4OYkarCm@FVFF77S0Q05N> <YqmvL2Biw3TnIl7a@hirez.programming.kicks-ass.net>
+In-Reply-To: <YqmvL2Biw3TnIl7a@hirez.programming.kicks-ass.net>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Wed, 15 Jun 2022 12:20:23 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXHUQMA5A54KnVDR+dbwVv+H25xCJyUBpTkrYF7FgpNr8w@mail.gmail.com>
+Message-ID: <CAMj1kXHUQMA5A54KnVDR+dbwVv+H25xCJyUBpTkrYF7FgpNr8w@mail.gmail.com>
+Subject: Re: [PATCH 3/3] jump_label: make initial NOP patching the special case
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        "open list:S390" <linux-s390@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 15 Jun 2022 11:59:36 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On Wed, 15 Jun 2022 at 12:06, Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> On Wed, Jun 15, 2022 at 10:52:41AM +0100, Mark Rutland wrote:
+> > On Wed, Jun 08, 2022 at 12:45:12PM +0200, Ard Biesheuvel wrote:
+> > > Instead of defaulting to patching NOP opcodes at init time, and leaving
+> > > it to the architectures to override this if this is not needed, switch
+> > > to a model where doing nothing is the default. This is the common case
+> > > by far, as only MIPS requires NOP patching at init time. On all other
+> > > architectures, the correct encodings are emitted by the compiler and so
+> > > no initial patching is needed.
+> > >
+> > > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> > > ---
+> > >  Documentation/staging/static-keys.rst |  3 ---
+> > >  arch/arc/kernel/jump_label.c          | 13 -------------
+> > >  arch/arm/kernel/jump_label.c          |  6 ------
+> > >  arch/arm64/kernel/jump_label.c        | 11 -----------
+> > >  arch/mips/include/asm/jump_label.h    |  2 ++
+> > >  arch/parisc/kernel/jump_label.c       | 11 -----------
+> > >  arch/riscv/kernel/jump_label.c        | 12 ------------
+> > >  arch/s390/kernel/jump_label.c         |  5 -----
+> > >  arch/x86/kernel/jump_label.c          | 13 -------------
+> > >  kernel/jump_label.c                   | 14 +++-----------
+> > >  10 files changed, 5 insertions(+), 85 deletions(-)
+> >
+> > I have one minor comment below, but either way this is a nice cleanup (and I'm
+> > always happy to see __weak functions disappear), so FWIW:
+>
+> (I've got a new found hatred for __weak after having had to fix so many
+> objtool issues with it, so yeah, that).
+>
+> >
+> >   Acked-by: Mark Rutland <mark.rutland@arm.com>
+>
+> With the thing Mark pointed out fixed:
+>
+> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+>
+> (although, I'll probably be the one to eventually apply these I suppose,
+> unless they're needed in a different tree?)
 
-> On 6/3/22 08:56, Claudio Imbrenda wrote:
-> > In upcoming patches it will be possible to start tearing down a
-> > protected VM, and finish the teardown concurrently in a different
-> > thread.  
-> 
-> s/,/
-> s/the/its/
+Not really - this just came up when Jason was looking into how to
+enable jump labels extremely early on every single architecture, but
+fortunately, that issue got fixed in a different way.
 
-will fix
-
-> 
-> > 
-> > Protected VMs that are pending for tear down ("leftover") need to be
-> > cleaned properly when the userspace process (e.g. qemu) terminates.
-> > 
-> > This patch makes sure that all "leftover" protected VMs are always
-> > properly torn down.  
-> 
-> So we're handling the kvm_arch_destroy_vm() case here, right?
-
-yes
-
-> Maybe add that in a more prominent way and rework the subject:
-> 
-> KVM: s390: pv: cleanup leftover PV VM shells on VM shutdown
-
-ok, I'll change the description and rework the subject
-
-> 
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >   arch/s390/include/asm/kvm_host.h |   2 +
-> >   arch/s390/kvm/kvm-s390.c         |   2 +
-> >   arch/s390/kvm/pv.c               | 109 ++++++++++++++++++++++++++++---
-> >   3 files changed, 104 insertions(+), 9 deletions(-)
-> > 
-> > diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> > index 5824efe5fc9d..cca8e05e0a71 100644
-> > --- a/arch/s390/include/asm/kvm_host.h
-> > +++ b/arch/s390/include/asm/kvm_host.h
-> > @@ -924,6 +924,8 @@ struct kvm_s390_pv {
-> >   	u64 guest_len;
-> >   	unsigned long stor_base;
-> >   	void *stor_var;
-> > +	void *prepared_for_async_deinit;
-> > +	struct list_head need_cleanup;
-> >   	struct mmu_notifier mmu_notifier;
-> >   };
-> >   
-> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> > index fe1fa896def7..369de8377116 100644
-> > --- a/arch/s390/kvm/kvm-s390.c
-> > +++ b/arch/s390/kvm/kvm-s390.c
-> > @@ -2890,6 +2890,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
-> >   	kvm_s390_vsie_init(kvm);
-> >   	if (use_gisa)
-> >   		kvm_s390_gisa_init(kvm);
-> > +	INIT_LIST_HEAD(&kvm->arch.pv.need_cleanup);
-> > +	kvm->arch.pv.prepared_for_async_deinit = NULL;
-> >   	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
-> >   
-> >   	return 0;
-> > diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-> > index 6cffea26c47f..8471c17d538c 100644
-> > --- a/arch/s390/kvm/pv.c
-> > +++ b/arch/s390/kvm/pv.c
-> > @@ -17,6 +17,19 @@
-> >   #include <linux/mmu_notifier.h>
-> >   #include "kvm-s390.h"
-> >   
-> > +/**
-> > + * @struct leftover_pv_vm  
-> 
-> Any other ideas on naming these VMs?
-
-not really
-
-> Also I'd turn that around: pv_vm_leftover
-
-I mean, it's a leftover protected VM, it felt more natural to name it
-that way
-
-> 
-> > + * Represents a "leftover" protected VM that is still registered with the
-> > + * Ultravisor, but which does not correspond any longer to an active KVM VM.
-> > + */
-> > +struct leftover_pv_vm {
-> > +	struct list_head list;
-> > +	unsigned long old_gmap_table;
-> > +	u64 handle;
-> > +	void *stor_var;
-> > +	unsigned long stor_base;
-> > +};
-> > +  
-> 
-> I think we should switch this patch and the next one and add this struct 
-> to the next patch. The list work below makes more sense once the next 
-> patch has been read.
-
-but the next patch will leave leftovers in some circumstances, and
-those won't be cleaned up without this patch.
-
-having this patch first means that when the next patch is applied, the
-leftovers are already taken care of
-
-> >   static void kvm_s390_clear_pv_state(struct kvm *kvm)
-> >   {
-> >   	kvm->arch.pv.handle = 0;
-> > @@ -158,23 +171,88 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
-> >   	return -ENOMEM;
-> >   }
-> >     
-> 
-> >     
-> 
-
+I'll respin and resend and leave it to you to apply them whenever convenient.
