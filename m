@@ -2,178 +2,145 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33841C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Jun 2022 00:03:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90359CCA473
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Jun 2022 01:50:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352091AbiFPADo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Jun 2022 20:03:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41186 "EHLO
+        id S1350420AbiFPBuZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Jun 2022 21:50:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349267AbiFPADX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 20:03:23 -0400
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam07on2066.outbound.protection.outlook.com [40.107.212.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA04F54FB2;
-        Wed, 15 Jun 2022 17:03:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PLhClgszpCY4VaUsMMhk3H3PIX2PL/ZmJQqRdw/jwJUbLRA3DksAoOL1zqdCA4tQDPlnxG9RKUyqggMluYyGF6lSPGpVeEq5cOjtDrkTLKIZf+m2LUFJAeQiDd0Do7+AYvN2WPI+AJPT0IHWqiqZSVyM9RT4aQWu/9ua66tJXetAhYr01MsxvxVGvLKN8ng584lEmtSfJEyk1Rxz7llKM3a2I1nCWdBGysX4roDbjy/b1l0ZpC/nIhdpn1hhWd1fZ+MvMGWW1v9Tj23RPcMzXth1s3b1dxujPOp16mWbbB6h47GNYJZwy4hzbTMzcVq8ubFUJjBL9JzSDzyndRL1zQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gn+Ww60SCEC5BMKh9fNN8EM7WCO1nBT0MqihO3MBanQ=;
- b=mMmDMiE9aRmxhABur9CGDPyXOQONJp1XzVaPG3vJL+TeAGIdFwcBQq0WTyjRD7vHL4Ui9abtIURAA7GAfHT4foVPK5+1OZMGpQ4XRnjG98xAx8xMNPmvyop34RZeQybMaiz4miAlP+pRc1B52XH7Wvl3BsAvehgB3pj3YimwV1y1qyifNTmnDItoJ6KC4eGk2D/jyWvhBBWMVHn+YG2tFPa7YPh9LGEF0Qc/wM4NKc6Nt664ITOHvMci+WSWfFdBpzXXwQBFxjKIZlb7z1f8y93I9rlxVj7y+QyqeEglqjLxsAQJbPOX61PYeJa1bJpyaaHKVsQWnkxhKxGaRtGXiw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.234) smtp.rcpttodomain=linux.intel.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gn+Ww60SCEC5BMKh9fNN8EM7WCO1nBT0MqihO3MBanQ=;
- b=L8CQkNe3tiQ7ZPC/rAUx99lBFumMXUvuo3C5a1Wlht/kRXtXdfM5pk5WO0PftJ/TKPr0yJIn446+tf9deo+5tYzmsFUJMomeLadBBNl7jb5uj/N2cy+/HAS3N+sYHuc2AixoInwEimTO3tSPznmZ/WFTuLk5qhsxoPOvt0va+1m6ySNetV/X9mCOl0K8aULxV9GreCqwvwjLbVRHambzxZJXbVFjPI0HOxTm62YAlbi0FUvDuNqBeLnj4mIVvT5F5vYylT/mCyKH/QjAU7SuSTp97Soulsz4sv3+/iWFoG+HL5wxnEShwShcsonvMq5sHTXI1hZWY72ids2JBdG2fA==
-Received: from BN9PR03CA0783.namprd03.prod.outlook.com (2603:10b6:408:13f::8)
- by BN8PR12MB3459.namprd12.prod.outlook.com (2603:10b6:408:65::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.15; Thu, 16 Jun
- 2022 00:03:18 +0000
-Received: from BN8NAM11FT053.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:13f:cafe::68) by BN9PR03CA0783.outlook.office365.com
- (2603:10b6:408:13f::8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.16 via Frontend
- Transport; Thu, 16 Jun 2022 00:03:18 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.234)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.234 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.234; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (12.22.5.234) by
- BN8NAM11FT053.mail.protection.outlook.com (10.13.177.209) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5332.12 via Frontend Transport; Thu, 16 Jun 2022 00:03:17 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by
- DRHQMAIL101.nvidia.com (10.27.9.10) with Microsoft SMTP Server (TLS) id
- 15.0.1497.32; Thu, 16 Jun 2022 00:03:17 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Wed, 15 Jun 2022 17:03:16 -0700
-Received: from Asurada-Nvidia.nvidia.com (10.127.8.11) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server id 15.2.986.22 via Frontend
- Transport; Wed, 15 Jun 2022 17:03:14 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     <joro@8bytes.org>, <will@kernel.org>, <marcan@marcan.st>,
-        <sven@svenpeter.dev>, <robin.murphy@arm.com>,
-        <robdclark@gmail.com>, <baolu.lu@linux.intel.com>,
-        <matthias.bgg@gmail.com>, <orsonzhai@gmail.com>,
-        <baolin.wang7@gmail.com>, <zhang.lyra@gmail.com>,
-        <jean-philippe@linaro.org>, <alex.williamson@redhat.com>,
-        <jgg@nvidia.com>, <kevin.tian@intel.com>
-CC:     <suravee.suthikulpanit@amd.com>, <alyssa@rosenzweig.io>,
-        <dwmw2@infradead.org>, <yong.wu@mediatek.com>,
-        <mjrosato@linux.ibm.com>, <gerald.schaefer@linux.ibm.com>,
-        <thierry.reding@gmail.com>, <vdumpa@nvidia.com>,
-        <jonathanh@nvidia.com>, <cohuck@redhat.com>,
-        <thunder.leizhen@huawei.com>, <tglx@linutronix.de>,
-        <christophe.jaillet@wanadoo.fr>, <john.garry@huawei.com>,
-        <chenxiang66@hisilicon.com>, <saiprakash.ranjan@codeaurora.org>,
-        <isaacm@codeaurora.org>, <yangyingliang@huawei.com>,
-        <jordan@cosmicpenguin.net>, <iommu@lists.linux-foundation.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-arm-msm@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>,
-        <virtualization@lists.linux-foundation.org>, <kvm@vger.kernel.org>
-Subject: [PATCH v2 3/5] vfio/iommu_type1: Remove the domain->ops comparison
-Date:   Wed, 15 Jun 2022 17:03:02 -0700
-Message-ID: <20220616000304.23890-4-nicolinc@nvidia.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220616000304.23890-1-nicolinc@nvidia.com>
-References: <20220616000304.23890-1-nicolinc@nvidia.com>
+        with ESMTP id S1350246AbiFPBuS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jun 2022 21:50:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 19C3C580F7
+        for <linux-s390@vger.kernel.org>; Wed, 15 Jun 2022 18:50:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655344217;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Mfnj3kbt/mcFDC8cZyL7mlTMEbSGwlIrcY0mmV2SXko=;
+        b=jMvgI0vwYwJZqmZk5ChEEZ6iHe7CEXkLNaxZXBNZrPMnZ5zr4QU7NEC6uC6b/ppIyCkd7X
+        vcyPYEwEGVsig9Y9eXKDBK+WLYIjjg2dBOtq2zE+smQFqSy8E49VFOU8pZrSz1SqLuBBaN
+        1FtndXpAN+civPuSV/GCnaABgwRNLto=
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
+ [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-120-zAK7ZzKGMDqnJCTM5YCYWA-1; Wed, 15 Jun 2022 21:50:15 -0400
+X-MC-Unique: zAK7ZzKGMDqnJCTM5YCYWA-1
+Received: by mail-pg1-f199.google.com with SMTP id 15-20020a63020f000000b003fca9ebc5cbso7328812pgc.22
+        for <linux-s390@vger.kernel.org>; Wed, 15 Jun 2022 18:50:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Mfnj3kbt/mcFDC8cZyL7mlTMEbSGwlIrcY0mmV2SXko=;
+        b=Qvm+BNjTrmqZ7x9GBbEXuds25Umj5ory3tezwemBYdQH4tE2wRDHutJuAsTfq+X6yS
+         s/ZPAYBnoyJ13fypWLNTLhi4a6rUj0TBZOnm+bCHXPtdDslLOI+cef+1PnqrKijuqmwa
+         EzXAb88FdmhC2HKdE1hyiFnhP/Nw2nzCA9IevDw6KIkXByHMkWZefIm8dYSWuows/dP4
+         auy4AfGE44r21khtSNBUyte93cz1lKXJnFJHNYs1ig0C4v0BYyZkbxcXw4RPO3iN6NtE
+         RJGf8AReSNKAW3BGJKfiogHBU//wj02hxFVdnKB3lcNL68GP8mfc5pz/XHirCEeyNVM7
+         aQlQ==
+X-Gm-Message-State: AJIora9yPsS7wgkFQcMOzNwtXxtvTWCDzMCifhKvEloQv30T4BRwPQUY
+        jog5JbmalhMcZKxGZsra/RbeD6WjUcs8nKUNVD3ZzXNnjpCgkGDj5UudoM5FJ/IwL8zejrQuPQ8
+        2ZMaic2zs4GvdK5G55kCWqA==
+X-Received: by 2002:a63:1e1d:0:b0:401:a251:767e with SMTP id e29-20020a631e1d000000b00401a251767emr2357354pge.26.1655344214531;
+        Wed, 15 Jun 2022 18:50:14 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1sEarbrrVxjiXB2Z4yglIOjHVgXmEDqqN6H9xo+0t/vhcHtsIxwYcmDDYcM0diomczP0LPViQ==
+X-Received: by 2002:a63:1e1d:0:b0:401:a251:767e with SMTP id e29-20020a631e1d000000b00401a251767emr2357317pge.26.1655344214223;
+        Wed, 15 Jun 2022 18:50:14 -0700 (PDT)
+Received: from localhost ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id k16-20020a17090aaa1000b001e3351cb7fbsm2464671pjq.28.2022.06.15.18.50.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jun 2022 18:50:13 -0700 (PDT)
+Date:   Thu, 16 Jun 2022 09:46:50 +0800
+From:   Coiby Xu <coxu@redhat.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>
+Cc:     Baoquan He <bhe@redhat.com>,
+        Michal =?utf-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>,
+        Heiko Carstens <hca@linux.ibm.com>, akpm@linux-foundation.org,
+        kexec@lists.infradead.org, keyrings@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Dave Young <dyoung@redhat.com>, Will Deacon <will@kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
+        Philipp Rudo <prudo@linux.ibm.com>,
+        linux-security-module@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-integrity <linux-integrity@vger.kernel.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: Re: [PATCH v8 4/4] kexec, KEYS, s390: Make use of built-in and
+ secondary keyring for signature verification
+Message-ID: <20220616014650.wd6saed72breqeyb@Rk>
+References: <20220512070123.29486-1-coxu@redhat.com>
+ <20220512070123.29486-5-coxu@redhat.com>
+ <YoTYm6Fo1vBUuJGu@osiris>
+ <20220519003902.GE156677@MiWiFi-R3L-srv>
+ <c47299b899da4ad4b6d3ad637022ad82c8ed6ed2.camel@linux.ibm.com>
+ <YoZSl84aJYTscgfO@MiWiFi-R3L-srv>
+ <20220519171134.GN163591@kunlun.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: fcd232c9-3ab5-411d-da0c-08da4f2b9e09
-X-MS-TrafficTypeDiagnostic: BN8PR12MB3459:EE_
-X-Microsoft-Antispam-PRVS: <BN8PR12MB345913323C8921E0DF08421EABAC9@BN8PR12MB3459.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: GviFizYT14J0RnxQmWu1nulpkpTsZwgFwWF4UlTM5ExmP+5ZdJ5aQVsspfzwHt7o7nrgTfIaHNLp31mdqKc4ThrvPt3i5HEFh3SbROjXRA5U5vlDQljy1kyjbuh8qdHWyaN3Iq4jdtU7t2uGRaZKDUIJkOzBaEERMSqulQpv7YLukkLHcSmCT/CVdvxic5ToJDBH9HSeKrKI6Yw6hLKq4W7+wG9UOXuuCrBEWJQa362K20fn/LmO9cBD4Wq8c141hHnk0F3pSdXUTW0XjFVRPafh2CLIL+O3oAXNawzTXSKLeIM0/6vLlvfFnq7Q+sryhI5H0lFzFMSMpR7oSgB9lkwUSPn4TPx0v7MJi6QXfhaMScvZkqSZGTPAHegrOIaFWqMHAxoPWOONfGbCsjtqBZFhRzh9YuRweeacTTAi4zbFOE0zRYlrd6BRuWmBzA2HPFjlyzFyHgozAmoxCkLQ4ajbVU6c7TJHkH3tXDYz5USmNe0wRKesRIYmPPR/9gn6MX0hwHRowqHzWFgyjbo/CO+evkAQn2iEgfVa4wRQ/ANXcG4yjP7gpvlFDubF8tLhKRbOy6Ls3FeEsMfu9eIzawphJbc/qeQPYCieMaNUWIrUK6cfE5tKtS3JPzRx5V4TW3jhFV+GItPsqVCyWvUe7TzkbMPh41OsNzT65JFpYSPKxC9TC42W3YJ7wCtzsLW4iXQT5+zzVcnpf17GCH5BMzNfAUS/7UNEq23XrP1NCZ78QW88yMeHTQuVEc3TMw444QBqDlSc2R2y3CTiXF08ed/UHL4nurXzG7q6hU4qO6P8+gui1S/YfIFp00qSi108DhkKOiyNPUhEsCTjWC35nz6iFPT62wEICl17PCOdMM0=
-X-Forefront-Antispam-Report: CIP:12.22.5.234;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(36840700001)(46966006)(40470700004)(6666004)(7696005)(2906002)(5660300002)(82310400005)(8676002)(83380400001)(36860700001)(4326008)(336012)(8936002)(508600001)(7416002)(966005)(47076005)(40460700003)(86362001)(81166007)(7406005)(426003)(2616005)(54906003)(1076003)(70206006)(921005)(356005)(316002)(70586007)(110136005)(26005)(186003)(36756003)(83996005)(2101003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2022 00:03:17.8261
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: fcd232c9-3ab5-411d-da0c-08da4f2b9e09
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.234];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT053.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB3459
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20220519171134.GN163591@kunlun.suse.cz>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The domain->ops validation was added, as a precaution, for mixed-driver
-systems. However, at this moment only one iommu driver is possible. So
-remove it.
+Hi Mimi,
 
-Per discussion with Robin, in future when many can be permitted we will
-rely on the IOMMU core code to check the domain->ops:
-https://lore.kernel.org/linux-iommu/6575de6d-94ba-c427-5b1e-967750ddff23@arm.com/
+>> >
+>> > This patch set could probably go through KEYS/KEYRINGS_INTEGRITY, but
+>> > it's kind of late to be asking.  Has it been in linux-next?  Should I
+>> > assume this patch set has been fully tested or can we get some "tags"?
+>>
+[...]
+>>
+>> IIRC, Coiby has tested it on x86_64/arm64, not sure if he took test on
+>> s390. No, this hasn't been in linux-next.
 
-Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
----
- drivers/vfio/vfio_iommu_type1.c | 32 +++++++++++---------------------
- 1 file changed, 11 insertions(+), 21 deletions(-)
+For arm64, recently I did a new round of test and the patches works as
+expected,
+   1. Build 5.19.0-rc2
+   2. generate keys and add them to .secondary_trusted_keys, MOK, UEFI
+      db; 
+   3. sign different kernel images with different keys including keys
+      from .builtin_trusted_key, .secondary_trusted_keys keyring, UEFI db
+      key and MOK key 
+   4. Without lockdown, all kernel images can be kexec'ed; with lockdown
+      enabled, only the kernel image signed by the key from
+      .builtin_trusted_key can be kexec'ed
 
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index f4e3b423a453..11be5f95580b 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -2277,29 +2277,19 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
- 			domain->domain->ops->enforce_cache_coherency(
- 				domain->domain);
- 
--	/*
--	 * Try to match an existing compatible domain.  We don't want to
--	 * preclude an IOMMU driver supporting multiple bus_types and being
--	 * able to include different bus_types in the same IOMMU domain, so
--	 * we test whether the domains use the same iommu_ops rather than
--	 * testing if they're on the same bus_type.
--	 */
-+	/* Try to match an existing compatible domain */
- 	list_for_each_entry(d, &iommu->domain_list, next) {
--		if (d->domain->ops == domain->domain->ops) {
--			iommu_detach_group(domain->domain, group->iommu_group);
--			if (!iommu_attach_group(d->domain,
--						group->iommu_group)) {
--				list_add(&group->next, &d->group_list);
--				iommu_domain_free(domain->domain);
--				kfree(domain);
--				goto done;
--			}
--
--			ret = iommu_attach_group(domain->domain,
--						 group->iommu_group);
--			if (ret)
--				goto out_domain;
-+		iommu_detach_group(domain->domain, group->iommu_group);
-+		if (!iommu_attach_group(d->domain, group->iommu_group)) {
-+			list_add(&group->next, &d->group_list);
-+			iommu_domain_free(domain->domain);
-+			kfree(domain);
-+			goto done;
- 		}
-+
-+		ret = iommu_attach_group(domain->domain,  group->iommu_group);
-+		if (ret)
-+			goto out_domain;
- 	}
- 
- 	vfio_test_domain_fgsp(domain);
+Then I build a new kernel with the patches applied and confirm all
+kernel images can be kexec'ed.
+
+>
+>I used the s390 code on powerpc and there it did not work because the
+>built-in key was needed to verify the kernel.
+>
+>I did not really run this on s390, only ported the fix I needed on
+>powerpc back to s390.
+
+For 390, I commented out the code that skips signature verification
+when secure boot is not enabled since I couldn't find a machine that
+supports secure boot and confirm before applying the patch, kernel
+images signed by keys from .builtin_trusted_key, .secondary_trusted_keys
+couldn't be kexec'ed when lockdown is enabled; after applying the
+patch, those kernel images could be kexec'ed. 
+
+>
+>Thanks
+>
+>Michal
+>
+
 -- 
-2.17.1
+Best regards,
+Coiby
 
