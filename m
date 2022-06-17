@@ -2,123 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66833CCA480
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 15:26:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E569C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 16:15:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382767AbiFQP0q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Jun 2022 11:26:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54364 "EHLO
+        id S230163AbiFQQPs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Jun 2022 12:15:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382720AbiFQP0p (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 11:26:45 -0400
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED4E42CDFD;
-        Fri, 17 Jun 2022 08:26:44 -0700 (PDT)
-Received: by mail-qv1-f49.google.com with SMTP id cu16so6304141qvb.7;
-        Fri, 17 Jun 2022 08:26:44 -0700 (PDT)
+        with ESMTP id S229763AbiFQQPs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 12:15:48 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 40C08220FA
+        for <linux-s390@vger.kernel.org>; Fri, 17 Jun 2022 09:15:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655482546;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=G9hj+GC+aBxxfrK7yuFLDUJOFaX8GPKOTNDfbOgBveY=;
+        b=UgzTbiM7C/OtPS42a/pxfF48F9Wy0xRN3NtxKB2p4Hwli4MS/opfP5zuPp+4YP4hqqOXr/
+        J71Baj+zruD0aLBXSw3jr5xNBEtAu1Lkp9Qx37SIBpQx/ZP0ke4i3RX3krOUuddsvyRgxR
+        rQwhmkF9yBj3LJJEGIhzY7r0RLxqcv0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-672-VO8PoQDUNCyqoKvjjUsPhA-1; Fri, 17 Jun 2022 12:15:44 -0400
+X-MC-Unique: VO8PoQDUNCyqoKvjjUsPhA-1
+Received: by mail-wm1-f69.google.com with SMTP id o3-20020a05600c510300b0039743540ac7so1699667wms.5
+        for <linux-s390@vger.kernel.org>; Fri, 17 Jun 2022 09:15:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nxeOkeINDpzy3OEEqm+X2I0MEyWZgikOx3MDeUuxZIA=;
-        b=x352egzjQ+bgWBPvIOmHwrWHqtJYzKs6aPO2F8bLrEH9JwpqkX/8NsU9XVQkI5fKwV
-         6ltnZCkL9bPTM/vaZYzpAuRgmNkrTuwem4mmLvu42R49EykYrgqHQDfD4WdKzop+Db51
-         xuYOVSO3jIMn16mYfmHh/GrkHReTvLUcD9zrC5hTqBVwG40E4ykj2L0gOQlsS7J+rzoj
-         1D/hAzkZ7UfSBzFb223OuZgruktaAftR32nSZwts7o4Wsccqp6B4ey5E5RbKdI/n/1rl
-         CTXDLH4J1RuCSY1/ysET+h5VPadAiCXvXei41bhvjpiumn4BmftMo0pVAQ6E8ajug0lt
-         Va4g==
-X-Gm-Message-State: AJIora/bHuAycwqoF7x7xcQ4vk/j3wsHR06DlCn9FXbTEyhjtOztZEsh
-        +s9zIUbqnxtCQbIoY2J9QJQiM/dZuJC8cQ==
-X-Google-Smtp-Source: AGRyM1sIcwLrFMLBTl9Zjr0d8MQNxHkWGqCz9qYTJ1djfdjakA8ISv2WHTFx3VpDrDScxXOd1IppdA==
-X-Received: by 2002:ac8:5d93:0:b0:305:2b38:af70 with SMTP id d19-20020ac85d93000000b003052b38af70mr8952987qtx.383.1655479604039;
-        Fri, 17 Jun 2022 08:26:44 -0700 (PDT)
-Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com. [209.85.219.181])
-        by smtp.gmail.com with ESMTPSA id v63-20020a372f42000000b006a6a5d1e240sm4298333qkh.34.2022.06.17.08.26.42
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=G9hj+GC+aBxxfrK7yuFLDUJOFaX8GPKOTNDfbOgBveY=;
+        b=qSVuEx3sltq2VoGrBJ+Qh5AFfanl0fp+pQCaQrXZ3wPJyjGEkzEftOlGcInCRXBr7L
+         HegmG2MyAtfb6Y2xPNnEOwPfMWHCp3ZXZhbF4fP9kEhlMFye34/0qnZu67e6bTIENvkj
+         FfR0VZU0Ztn2MrgtDOJ4l1UK3Bly+Ljak7OslXin7MbIpZTbXBcstGKrsKMqteKut0Fv
+         kBQg5BNfodN0RL8NN8RTcMsZ2KuUgg2ahcWQQtr2b4xQRCsNIwvmJWSiAArmreoU2Km6
+         puFQQ5DXFY0FVEGZ1rT2kpHR3Z2GZGlTPOuGFC6vMJKAqrBESYp3BneYVgLZuEjLMAhC
+         dKYg==
+X-Gm-Message-State: AOAM533GaC0p4ss5OQdwcjlfuIuEVpB2g01Rt2hsKpDIW/p/aPAEZ/dF
+        btY95z4rP1Eg753UT3M5yzTgWKMVFNQCynehaxAftFdRwQjTk3JnJPR2KkKY1sRJ3tAvcewA3/a
+        wXWkO3w2pWgt294ncucwJFA==
+X-Received: by 2002:a05:600c:1e1c:b0:39c:65a1:7c3a with SMTP id ay28-20020a05600c1e1c00b0039c65a17c3amr21846093wmb.6.1655482543313;
+        Fri, 17 Jun 2022 09:15:43 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxNQe0PgFJtejDko6ChfFkosKXqzaWavu1x2uNghCcippSLjJ1BbZ5IDIaHpE1QnmVpjqgpaQ==
+X-Received: by 2002:a05:600c:1e1c:b0:39c:65a1:7c3a with SMTP id ay28-20020a05600c1e1c00b0039c65a17c3amr21846038wmb.6.1655482542887;
+        Fri, 17 Jun 2022 09:15:42 -0700 (PDT)
+Received: from [192.168.0.3] (ip-109-42-114-75.web.vodafone.de. [109.42.114.75])
+        by smtp.gmail.com with ESMTPSA id c7-20020a05600c0a4700b003942a244f51sm8708616wmq.42.2022.06.17.09.15.40
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 17 Jun 2022 08:26:43 -0700 (PDT)
-Received: by mail-yb1-f181.google.com with SMTP id k2so7838468ybj.3;
-        Fri, 17 Jun 2022 08:26:42 -0700 (PDT)
-X-Received: by 2002:a05:6902:905:b0:64a:2089:f487 with SMTP id
- bu5-20020a056902090500b0064a2089f487mr11481017ybb.202.1655479602392; Fri, 17
- Jun 2022 08:26:42 -0700 (PDT)
+        Fri, 17 Jun 2022 09:15:42 -0700 (PDT)
+Message-ID: <08c0cf37-afd2-bad3-d1e4-88667e3e5b69@redhat.com>
+Date:   Fri, 17 Jun 2022 18:15:39 +0200
 MIME-Version: 1.0
-References: <20220616210518.125287-1-mike.kravetz@oracle.com>
- <20220616210518.125287-2-mike.kravetz@oracle.com> <YqyMhmAjrQ4C+EyA@xz-m1.local>
-In-Reply-To: <YqyMhmAjrQ4C+EyA@xz-m1.local>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Fri, 17 Jun 2022 17:26:31 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdU-qdNMqwtpm+PMixKoicYHPokAQqWAh-Vw-sjZz_z7xA@mail.gmail.com>
-Message-ID: <CAMuHMdU-qdNMqwtpm+PMixKoicYHPokAQqWAh-Vw-sjZz_z7xA@mail.gmail.com>
-Subject: Re: [PATCH 1/4] hugetlb: skip to end of PT page mapping when pte not present
-To:     Peter Xu <peterx@redhat.com>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux MM <linux-mm@kvack.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
-        James Houghton <jthoughton@google.com>,
-        Mina Almasry <almasrymina@google.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v9 10/21] vfio/pci: introduce CONFIG_VFIO_PCI_ZDEV_KVM
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, pasic@linux.ibm.com,
+        pbonzini@redhat.com, corbet@lwn.net, jgg@nvidia.com,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220606203325.110625-1-mjrosato@linux.ibm.com>
+ <20220606203325.110625-11-mjrosato@linux.ibm.com>
+ <025699e6-b870-2648-d4a4-ffbc5fff22e8@redhat.com>
+ <ac5cd90a-c92b-1bad-fbec-d1ca6287e826@linux.ibm.com>
+ <69ec8abd-c579-46d0-08cd-2714de91b6cb@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <69ec8abd-c579-46d0-08cd-2714de91b6cb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Peter,
+On 14/06/2022 10.56, Pierre Morel wrote:
+> 
+> 
+> On 6/8/22 15:15, Matthew Rosato wrote:
+>> On 6/8/22 2:19 AM, Thomas Huth wrote:
+>>> On 06/06/2022 22.33, Matthew Rosato wrote:
+>>>> The current contents of vfio-pci-zdev are today only useful in a KVM
+>>>> environment; let's tie everything currently under vfio-pci-zdev to
+>>>> this Kconfig statement and require KVM in this case, reducing complexity
+>>>> (e.g. symbol lookups).
+>>>>
+>>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> 
+> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+> 
+> 
+>>>> ---
+>>>>   drivers/vfio/pci/Kconfig      | 11 +++++++++++
+>>>>   drivers/vfio/pci/Makefile     |  2 +-
+>>>>   include/linux/vfio_pci_core.h |  2 +-
+>>>>   3 files changed, 13 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+>>>> index 4da1914425e1..f9d0c908e738 100644
+>>>> --- a/drivers/vfio/pci/Kconfig
+>>>> +++ b/drivers/vfio/pci/Kconfig
+>>>> @@ -44,6 +44,17 @@ config VFIO_PCI_IGD
+>>>>         To enable Intel IGD assignment through vfio-pci, say Y.
+>>>>   endif
+>>>> +config VFIO_PCI_ZDEV_KVM
+>>>> +    bool "VFIO PCI extensions for s390x KVM passthrough"
+>>>> +    depends on S390 && KVM
+>>>> +    default y
+>>>> +    help
+>>>> +      Support s390x-specific extensions to enable support for enhancements
+>>>> +      to KVM passthrough capabilities, such as interpretive execution of
+>>>> +      zPCI instructions.
+>>>> +
+>>>> +      To enable s390x KVM vfio-pci extensions, say Y.
+>>>
+>>> Is it still possible to disable CONFIG_VFIO_PCI_ZDEV_KVM ? Looking at the 
+>>> later patches (e.g. 20/21 where you call kvm_s390_pci_zpci_op() from 
+>>> kvm-s390.c), it rather seems to me that it currently cannot be disabled 
+>>> independently (as long as KVM is enabled).
+>>
+>> Yes, you can build with, for example, CONFIG_VFIO_PCI_ZDEV_KVM=n and 
+>> CONFIG_KVM=m -- I tested it again just now.  The result is kvm and 
+>> vfio-pci are built and vfio-pci works, but none of the vfio-pci-zdev 
+>> extensions are available (including zPCI interpretation).
+>>
+>> This is accomplished via the placement of some IS_ENABLED checks.  Some 
+>> calls (e.g. AEN init) are fenced by IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM).  
+>> There are also some areas that are fenced off via a call to 
+>> kvm_s390_pci_interp_allowed() which also includes an IS_ENABLED check 
+>> along with checks for facility and cpu id.
+>>
+>> Using patch 20 as an example, KVM_CAP_S390_ZPCI_OP will always be reported 
+>> as unavailable to userspace if CONFIG_VFIO_PCI_ZDEV_KVM=n due to the call 
+>> to kvm_s390_pci_interp_allowed().  If userspace sends us the ioctl anyway, 
+>> we will return -EINVAL because there is again a 
+>> IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM) check before we read the ioctl args 
+>> from userspace.
+> 
+> Yes and the code will not be generated by the compiler in patch 20 after the 
+> break if CONFIG_VFIO_PCI_ZDEV_KVM is not enabled.
+> 
+> +    case KVM_S390_ZPCI_OP: {
+> +        struct kvm_s390_zpci_op args;
+> +
+> +        r = -EINVAL;
+> +        if (!IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM))
+> +            break;
+> 
+> Code not generated----v
+> 
+> +        if (copy_from_user(&args, argp, sizeof(args))) {
+> +            r = -EFAULT;
+> +            break;
+> +        }
+> +        r = kvm_s390_pci_zpci_op(kvm, &args);
+> +        break;
+> 
+> ----------^
 
-On Fri, Jun 17, 2022 at 4:22 PM Peter Xu <peterx@redhat.com> wrote:
-> On Thu, Jun 16, 2022 at 02:05:15PM -0700, Mike Kravetz wrote:
-> > @@ -6877,6 +6896,39 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
-> >       return (pte_t *)pmd;
-> >  }
-> >
-> > +/*
-> > + * Return a mask that can be used to update an address to the last huge
-> > + * page in a page table page mapping size.  Used to skip non-present
-> > + * page table entries when linearly scanning address ranges.  Architectures
-> > + * with unique huge page to page table relationships can define their own
-> > + * version of this routine.
-> > + */
-> > +unsigned long hugetlb_mask_last_page(struct hstate *h)
-> > +{
-> > +     unsigned long hp_size = huge_page_size(h);
-> > +
-> > +     switch (hp_size) {
-> > +     case P4D_SIZE:
-> > +             return PGDIR_SIZE - P4D_SIZE;
-> > +     case PUD_SIZE:
-> > +             return P4D_SIZE - PUD_SIZE;
-> > +     case PMD_SIZE:
-> > +             return PUD_SIZE - PMD_SIZE;
-> > +     default:
->
-> Should we add a WARN_ON_ONCE() if it should never trigger?
+OK, good to know, thanks for the clarification!
 
-And with panic_on_warn, it'll panic only once ;-)
+  Thomas
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
