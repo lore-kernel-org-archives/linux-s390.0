@@ -2,151 +2,361 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC34FC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 22:06:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1DFAC43334
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 22:42:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245202AbiFQWGe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Jun 2022 18:06:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53076 "EHLO
+        id S237578AbiFQWmn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Jun 2022 18:42:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244217AbiFQWGd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 18:06:33 -0400
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam07on2065.outbound.protection.outlook.com [40.107.212.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03CBD59BA8;
-        Fri, 17 Jun 2022 15:06:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oFRh5cYNogJ7ksibKfqNM/i9DGS1l0XXbKZhLFnCdlNcwQm9z+BJcGoLPyMlKCeUN4lqEbbwniKnUkf6opMe1ACdbGiiMZMzG8DJOCu+zM7ZKhxQ/p25UxE3d+aMF2TqxKp3mM/4yEpF1V0JKGCjj6DOaSeUFxiB3CAO9UPIHBH22rXwUANR/yG/1pWlO4Q+k87YCYnCTM2LYnJKFsY0y6oF66lSjgcEIR0n5axc8pCfhlQaueGEjqUL4aoU5gxVen4oFnEKd5dsPDnBgrWDQMlke36NHkaBgBPFxBXDBbhxMowNC/87oHr+G5zJ1FapZNuTLLhs/m+20AYHIKtxyg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=hTgB7vTW2DPvpjS8cJT1N+y7fKQ/UCYMjeuyLHfdu5c=;
- b=X3x72aa3dUitO3FMiGUf5j6F0Id8OGZDgzLTYcdU3SIcOAotnWiSYUsYpCCzuLv+SMt2LoAdCC1QJNgcA8o/EbHOrl9ZlBt2JAbTJrZO8fqfJoNcJCAU+Tpe0PlWS3e7NhyKMgncPY6Vd/4fIvY4+64TI9u1CeVmiB2NdsC+X8bA6YhiATgdOx1kp8KrdGaqv14ibU4bbcfRQp/5s6zs/g9yp1AfP+RMgintzgeHWcLl2mvrEShlGsHVg7Q7tpfmCoeTAHQF/T+9M4NeJ0oFBRb1RWCkJibeuMX8USr736W646yDBggcTGCELkgDiOEGFlNPLeNjvsQnm5DdScQQ4g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.236) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hTgB7vTW2DPvpjS8cJT1N+y7fKQ/UCYMjeuyLHfdu5c=;
- b=P94Xp6AwCIPviQA8vsmChA0WpUXMwO2sTaTz7wFH+CVmr7Fz10OOlhsaN+gxfw+5zIIGD9EHbsfR6IZKg9Smi4EoPZoGxQtC6RU9QNf3QNvqwlX6CXZImPoxraBveljBc0y2MPsOiyrfI4HaagubhffipjsOKugTQnB0OuecvAg/XSYSTCntRp22ilgb3Ik99s8RDJMseFpGS25919WUi0yG/LLfA80/+JGTdG9oruAKGi4mayBuSQroN/4Rg5HvkhNIrvP5ZTuneTJTZVQbZEHA1CBnZMxD5PrPd7jewGcbQhnXGNG7mIL7s3PBZzCSBy/BCoWCCplcr8Vihvni5A==
-Received: from BN6PR14CA0004.namprd14.prod.outlook.com (2603:10b6:404:79::14)
- by MWHPR12MB1248.namprd12.prod.outlook.com (2603:10b6:300:12::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.14; Fri, 17 Jun
- 2022 22:06:31 +0000
-Received: from BN8NAM11FT005.eop-nam11.prod.protection.outlook.com
- (2603:10b6:404:79:cafe::3d) by BN6PR14CA0004.outlook.office365.com
- (2603:10b6:404:79::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.16 via Frontend
- Transport; Fri, 17 Jun 2022 22:06:30 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.236)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.236 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.236; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (12.22.5.236) by
- BN8NAM11FT005.mail.protection.outlook.com (10.13.176.69) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5353.14 via Frontend Transport; Fri, 17 Jun 2022 22:06:30 +0000
-Received: from drhqmail203.nvidia.com (10.126.190.182) by
- DRHQMAIL109.nvidia.com (10.27.9.19) with Microsoft SMTP Server (TLS) id
- 15.0.1497.32; Fri, 17 Jun 2022 22:06:29 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 17 Jun 2022 15:06:28 -0700
-Received: from Asurada-Nvidia (10.127.8.11) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22 via Frontend
- Transport; Fri, 17 Jun 2022 15:06:27 -0700
-Date:   Fri, 17 Jun 2022 15:06:25 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     Christoph Hellwig <hch@infradead.org>
-CC:     <kwankhede@nvidia.com>, <corbet@lwn.net>, <hca@linux.ibm.com>,
-        <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
-        <zhenyuw@linux.intel.com>, <zhi.a.wang@intel.com>,
-        <jani.nikula@linux.intel.com>, <joonas.lahtinen@linux.intel.com>,
-        <rodrigo.vivi@intel.com>, <tvrtko.ursulin@linux.intel.com>,
-        <airlied@linux.ie>, <daniel@ffwll.ch>, <farman@linux.ibm.com>,
-        <mjrosato@linux.ibm.com>, <pasic@linux.ibm.com>,
-        <vneethv@linux.ibm.com>, <oberpar@linux.ibm.com>,
-        <freude@linux.ibm.com>, <akrowiak@linux.ibm.com>,
-        <jjherne@linux.ibm.com>, <alex.williamson@redhat.com>,
-        <cohuck@redhat.com>, <jgg@nvidia.com>, <kevin.tian@intel.com>,
-        <jchrist@linux.ibm.com>, <kvm@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>,
-        <intel-gvt-dev@lists.freedesktop.org>,
-        <intel-gfx@lists.freedesktop.org>,
-        <dri-devel@lists.freedesktop.org>
-Subject: Re: [RFT][PATCH v1 6/6] vfio: Replace phys_pfn with phys_page for
- vfio_pin_pages()
-Message-ID: <Yqz64VK1IQ0QzXEe@Asurada-Nvidia>
-References: <20220616235212.15185-1-nicolinc@nvidia.com>
- <20220616235212.15185-7-nicolinc@nvidia.com>
- <YqxBLbu8yPJiwK6Z@infradead.org>
+        with ESMTP id S230101AbiFQWmm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 18:42:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 64E16324
+        for <linux-s390@vger.kernel.org>; Fri, 17 Jun 2022 15:42:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655505754;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=OTdPx5+yg54joXBGHhFhsEioTV2y8HB7TYmqriY0P/s=;
+        b=L5lnSO3NlZ3P0+LocWVXp/g+veQFlZHTPba2b7sBMQtZ3o2XDiZHiYlkCSeeeFk7MDKbJC
+        MdCTJ5YapCHn6tK+jiThEGs41QBSL3lCPojexH1qof73Z1F7e85MlOgr13E8Jp8l9D0qQu
+        BvxRZhDQ1ECKBV91RKCAHjpCZXs5134=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-186-KN9JFDx0OxiDZM5DGvYpYw-1; Fri, 17 Jun 2022 18:42:33 -0400
+X-MC-Unique: KN9JFDx0OxiDZM5DGvYpYw-1
+Received: by mail-io1-f72.google.com with SMTP id m65-20020a6b3f44000000b00669c2aae17dso3218723ioa.23
+        for <linux-s390@vger.kernel.org>; Fri, 17 Jun 2022 15:42:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=OTdPx5+yg54joXBGHhFhsEioTV2y8HB7TYmqriY0P/s=;
+        b=GQ8QzJPWVO0OErKaG5h9A7XeTV9po2Vvmhw+UzBUV24MmTk/OSug6E1dbjE4ni1h9L
+         YJ79yV8GUzsS9Dd7lzg5W2TeUUoiYAXtEIm7fyx1Ne6izuqSWVr2OGXnzhgoUCLu4ar2
+         3qaCs0/MBRDwGAt5nKCOjAVt7qH07Sv0C7hbsKKatNJVBL7/8feeIwJDX23BskWsQ/Nl
+         /OvNFgTHFY7cN3P/XGEszM9+l2ITM64ALs7JmYTigyqloaOZvxRay3JE5CQSFrBud524
+         VYuZ9b17S/hVYhEDJDSKg9nVQvSQi3VAUju4LS825HBB1tpAqzBX0FJiNdZz06tTA2Ql
+         6wcg==
+X-Gm-Message-State: AJIora9Xx91aJ1fXi0E06x89oOOUB/vDtbEU/rdJtn7XoRHCWIOp4kb8
+        MKPojBGTrl26t8tLqF56cSUD8Q66M20r7h0cT6qx5Dkbl+J7v3cZP2sVIBhonBpMrERK3Tg3NOs
+        6PVyfWBxtXiccP8f117Nx/w==
+X-Received: by 2002:a05:6638:1450:b0:332:6b4:e894 with SMTP id l16-20020a056638145000b0033206b4e894mr6841527jad.296.1655505752854;
+        Fri, 17 Jun 2022 15:42:32 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uNEcAt8SSX4bZnGw1qPWK4YbDI5hMUg+5nUZ7xhQS3+O/pk1MG5mLbuRT+jmzXg3mXbbLYyA==
+X-Received: by 2002:a05:6638:1450:b0:332:6b4:e894 with SMTP id l16-20020a056638145000b0033206b4e894mr6841515jad.296.1655505752540;
+        Fri, 17 Jun 2022 15:42:32 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id i14-20020a926d0e000000b002d82d069930sm2828845ilc.41.2022.06.17.15.42.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jun 2022 15:42:32 -0700 (PDT)
+Date:   Fri, 17 Jun 2022 16:42:30 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v2 1/2] vfio: Replace the DMA unmapping notifier with a
+ callback
+Message-ID: <20220617164230.049c59f4.alex.williamson@redhat.com>
+In-Reply-To: <1-v2-80aa110d03ce+24b-vfio_unmap_notif_jgg@nvidia.com>
+References: <0-v2-80aa110d03ce+24b-vfio_unmap_notif_jgg@nvidia.com>
+        <1-v2-80aa110d03ce+24b-vfio_unmap_notif_jgg@nvidia.com>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <YqxBLbu8yPJiwK6Z@infradead.org>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: ac732851-9c52-4aca-3bb4-08da50ada1ec
-X-MS-TrafficTypeDiagnostic: MWHPR12MB1248:EE_
-X-Microsoft-Antispam-PRVS: <MWHPR12MB12484B57147A74B12A07BAF6ABAF9@MWHPR12MB1248.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 5CEUDW86WAUmkYzdN9N+pfgFV3kjHrdDwoU2fyfVTySxA5tp0H3TPXRyOU9PeSwHMzaN6MC5S6l7nFt3AzghMzZamgResq4QME2a9Bz6z6kDMXS0p1Xs0klxmTp5ABtdwjPtxE5UGmKpvVdnP2V/gCxXoUpnG0sHnzfm5SwlNW+o93pC/uTNWcNCEZI2xyX7pSv6I49zk2T3/TGP8nN0/JP0n+gQYtf9sg6Ljctnqgl72FRj4/5XSQpupB11VGZLzqfAXiALNub2kBVIMIjUAmCoLjPGDG6yjjRYQAo3a4v7t2O1prKr/yIOrSl5qV0vdP3KkA+OfYfnMmR6NHK0cgEQvha2eIb5T9PDcSwtdozIusmMpfP2n1pHx0dqaroURCVO6KA8piB/ZzK7lDEzQ3ei9T7MaK2xXMTerF7UTmxJu3kHj72Hem3Kqqv6x7Vifh+jYSG4U+HATjkPEcYU03BCu+hErSRs0e/6Ni6JMIE2es3DKxlsvlSkuu2S3BckyncvqM3+pSeiTVV+LYecQPQqfaMIYwzF1CcjHv+BHoKF7xIJWfqBnwjTG3hQTlzGV4KwwFxPQSph2fi2QELOGHF1XPUApP/ZVyH0WCt5LcvvuciiNJ9qAujv79lg2Be+OgoYFC3X+xIpztvu1qQAFmE0mLoENM0RTN4LFDhtSeUGGkxx+Vg3aJ0O+/mBCGEyw3zNBAOlVrI6dWiTtmNr4Q==
-X-Forefront-Antispam-Report: CIP:12.22.5.236;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(46966006)(40470700004)(36840700001)(6916009)(54906003)(316002)(26005)(55016003)(8936002)(81166007)(82310400005)(498600001)(9686003)(83380400001)(47076005)(5660300002)(426003)(336012)(7406005)(40460700003)(70206006)(7416002)(356005)(36860700001)(186003)(2906002)(4326008)(33716001)(8676002)(86362001)(70586007)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jun 2022 22:06:30.0805
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: ac732851-9c52-4aca-3bb4-08da50ada1ec
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.236];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT005.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR12MB1248
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 17, 2022 at 01:54:05AM -0700, Christoph Hellwig wrote:
-> There is a bunch of code an comments in the iommu type1 code that
-> suggest we can pin memory that is not page backed.  
+On Tue,  7 Jun 2022 20:02:11 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
+> diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
+> index 61e71c1154be67..f005b644ab9e69 100644
+> --- a/drivers/vfio/vfio.c
+> +++ b/drivers/vfio/vfio.c
+> @@ -1077,8 +1077,20 @@ static void vfio_device_unassign_container(struct vfio_device *device)
+>  	up_write(&device->group->group_rwsem);
+>  }
+>  
+> +static int vfio_iommu_notifier(struct notifier_block *nb, unsigned long action,
+> +			       void *data)
+> +{
+> +	struct vfio_device *vfio_device =
+> +		container_of(nb, struct vfio_device, iommu_nb);
+> +	struct vfio_iommu_type1_dma_unmap *unmap = data;
+> +
+> +	vfio_device->ops->dma_unmap(vfio_device, unmap->iova, unmap->size);
+> +	return NOTIFY_OK;
+> +}
+> +
+>  static struct file *vfio_device_open(struct vfio_device *device)
+>  {
+> +	struct vfio_iommu_driver *iommu_driver;
+>  	struct file *filep;
+>  	int ret;
+>  
+> @@ -1109,6 +1121,18 @@ static struct file *vfio_device_open(struct vfio_device *device)
+>  			if (ret)
+>  				goto err_undo_count;
+>  		}
+> +
+> +		iommu_driver = device->group->container->iommu_driver;
+> +		if (device->ops->dma_unmap && iommu_driver &&
+> +		    iommu_driver->ops->register_notifier) {
+> +			unsigned long events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+> +
+> +			device->iommu_nb.notifier_call = vfio_iommu_notifier;
+> +			iommu_driver->ops->register_notifier(
+> +				device->group->container->iommu_data, &events,
+> +				&device->iommu_nb);
+> +		}
+> +
+>  		up_read(&device->group->group_rwsem);
+>  	}
+>  	mutex_unlock(&device->dev_set->lock);
+> @@ -1143,8 +1167,16 @@ static struct file *vfio_device_open(struct vfio_device *device)
+>  err_close_device:
+>  	mutex_lock(&device->dev_set->lock);
+>  	down_read(&device->group->group_rwsem);
+> -	if (device->open_count == 1 && device->ops->close_device)
+> +	if (device->open_count == 1 && device->ops->close_device) {
+>  		device->ops->close_device(device);
+> +
+> +		iommu_driver = device->group->container->iommu_driver;
+> +		if (device->ops->dma_unmap && iommu_driver &&
+> +		    iommu_driver->ops->register_notifier)
 
-Would you mind explaining the use case for pinning memory that
-isn't page backed? And do we have such use case so far?
+Test for register_notifier callback...
 
-> >  int vfio_pin_pages(struct vfio_device *device, dma_addr_t iova,
-> > +		   int npage, int prot, struct page **phys_page)
-> 
-> I don't think phys_page makes much sense as an argument name.
-> I'd just call this pages.
+> +			iommu_driver->ops->unregister_notifier(
+> +				device->group->container->iommu_data,
+> +				&device->iommu_nb);
 
-OK.
+use unregister_notifier callback.  Same below.
 
-> > +			phys_page[i] = pfn_to_page(vpfn->pfn);
-> 
-> Please store the actual page pointer in the vfio_pfn structure.
+> +	}
+>  err_undo_count:
+>  	device->open_count--;
+>  	if (device->open_count == 0 && device->kvm)
+> @@ -1339,12 +1371,20 @@ static const struct file_operations vfio_group_fops = {
+>  static int vfio_device_fops_release(struct inode *inode, struct file *filep)
+>  {
+>  	struct vfio_device *device = filep->private_data;
+> +	struct vfio_iommu_driver *iommu_driver;
+>  
+>  	mutex_lock(&device->dev_set->lock);
+>  	vfio_assert_device_open(device);
+>  	down_read(&device->group->group_rwsem);
+>  	if (device->open_count == 1 && device->ops->close_device)
+>  		device->ops->close_device(device);
+> +
+> +	iommu_driver = device->group->container->iommu_driver;
+> +	if (device->ops->dma_unmap && iommu_driver &&
+> +	    iommu_driver->ops->register_notifier)
+> +		iommu_driver->ops->unregister_notifier(
+> +			device->group->container->iommu_data,
+> +			&device->iommu_nb);
+>  	up_read(&device->group->group_rwsem);
+>  	device->open_count--;
+>  	if (device->open_count == 0)
+> @@ -2027,90 +2067,6 @@ int vfio_dma_rw(struct vfio_device *device, dma_addr_t user_iova, void *data,
+>  }
+>  EXPORT_SYMBOL(vfio_dma_rw);
+>  
+> -static int vfio_register_iommu_notifier(struct vfio_group *group,
+> -					unsigned long *events,
+> -					struct notifier_block *nb)
+> -{
+> -	struct vfio_container *container;
+> -	struct vfio_iommu_driver *driver;
+> -	int ret;
+> -
+> -	lockdep_assert_held_read(&group->group_rwsem);
+> -
+> -	container = group->container;
+> -	driver = container->iommu_driver;
+> -	if (likely(driver && driver->ops->register_notifier))
+> -		ret = driver->ops->register_notifier(container->iommu_data,
+> -						     events, nb);
+> -	else
+> -		ret = -ENOTTY;
+> -
+> -	return ret;
+> -}
+> -
+> -static int vfio_unregister_iommu_notifier(struct vfio_group *group,
+> -					  struct notifier_block *nb)
+> -{
+> -	struct vfio_container *container;
+> -	struct vfio_iommu_driver *driver;
+> -	int ret;
+> -
+> -	lockdep_assert_held_read(&group->group_rwsem);
+> -
+> -	container = group->container;
+> -	driver = container->iommu_driver;
+> -	if (likely(driver && driver->ops->unregister_notifier))
+> -		ret = driver->ops->unregister_notifier(container->iommu_data,
+> -						       nb);
+> -	else
+> -		ret = -ENOTTY;
+> -
+> -	return ret;
+> -}
+> -
+> -int vfio_register_notifier(struct vfio_device *device,
+> -			   enum vfio_notify_type type, unsigned long *events,
+> -			   struct notifier_block *nb)
+> -{
+> -	struct vfio_group *group = device->group;
+> -	int ret;
+> -
+> -	if (!nb || !events || (*events == 0) ||
+> -	    !vfio_assert_device_open(device))
+> -		return -EINVAL;
+> -
+> -	switch (type) {
+> -	case VFIO_IOMMU_NOTIFY:
+> -		ret = vfio_register_iommu_notifier(group, events, nb);
+> -		break;
+> -	default:
+> -		ret = -EINVAL;
+> -	}
+> -	return ret;
+> -}
+> -EXPORT_SYMBOL(vfio_register_notifier);
+> -
+> -int vfio_unregister_notifier(struct vfio_device *device,
+> -			     enum vfio_notify_type type,
+> -			     struct notifier_block *nb)
+> -{
+> -	struct vfio_group *group = device->group;
+> -	int ret;
+> -
+> -	if (!nb || !vfio_assert_device_open(device))
+> -		return -EINVAL;
+> -
+> -	switch (type) {
+> -	case VFIO_IOMMU_NOTIFY:
+> -		ret = vfio_unregister_iommu_notifier(group, nb);
+> -		break;
+> -	default:
+> -		ret = -EINVAL;
+> -	}
+> -	return ret;
+> -}
+> -EXPORT_SYMBOL(vfio_unregister_notifier);
+> -
+>  /*
+>   * Module/class support
+>   */
+> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
+> index a6713022115155..cb2e4e9baa8fe8 100644
+> --- a/drivers/vfio/vfio.h
+> +++ b/drivers/vfio/vfio.h
+> @@ -33,6 +33,11 @@ enum vfio_iommu_notify_type {
+>  	VFIO_IOMMU_CONTAINER_CLOSE = 0,
+>  };
+>  
+> +/* events for register_notifier() */
+> +enum {
+> +	VFIO_IOMMU_NOTIFY_DMA_UNMAP = 1,
+> +};
 
-OK.
+Can't say I understand why this changed from BIT(0) to an enum, the
+event mask is meant to be a bitfield.  Using the notifier all the way
+to the device was meant to avoid future callbacks on the device.  If we
+now have a dma_unmap on the device, should the whole infrastructure be
+tailored to that one task?  For example a dma_unmap_nb on the device,
+{un}register_dma_unmap_notifier on the iommu ops,
+vfio_dma_unmap_notifier, etc?  Thanks,
 
-> >  		remote_vaddr = dma->vaddr + (iova - dma->iova);
-> > -		ret = vfio_pin_page_external(dma, remote_vaddr, &phys_pfn[i],
-> > +		ret = vfio_pin_page_external(dma, remote_vaddr, &phys_pfn,
-> >  					     do_accounting);
-> 
-> Please just return the actual page from vaddr_get_pfns through
-> vfio_pin_pages_remote and vfio_pin_page_external, maybe even as a prep
-> patch as that is a fair amount of churn.
+Alex
 
-I can do that. I tried once, but there were just too much changes
-inside type1 code that felt like a chain reaction. If we plan to
-eventually replace with IOMMUFD implementations, these changes in
-type1 might not be necessary, I thought.
+> +
+>  /**
+>   * struct vfio_iommu_driver_ops - VFIO IOMMU driver callbacks
+>   */
+> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+> index aa888cc517578e..b76623e3b92fca 100644
+> --- a/include/linux/vfio.h
+> +++ b/include/linux/vfio.h
+> @@ -44,6 +44,7 @@ struct vfio_device {
+>  	unsigned int open_count;
+>  	struct completion comp;
+>  	struct list_head group_next;
+> +	struct notifier_block iommu_nb;
+>  };
+>  
+>  /**
+> @@ -60,6 +61,8 @@ struct vfio_device {
+>   * @match: Optional device name match callback (return: 0 for no-match, >0 for
+>   *         match, -errno for abort (ex. match with insufficient or incorrect
+>   *         additional args)
+> + * @dma_unmap: Called when userspace unmaps IOVA from the container
+> + *             this device is attached to.
+>   * @device_feature: Optional, fill in the VFIO_DEVICE_FEATURE ioctl
+>   * @migration_set_state: Optional callback to change the migration state for
+>   *         devices that support migration. It's mandatory for
+> @@ -85,6 +88,7 @@ struct vfio_device_ops {
+>  	int	(*mmap)(struct vfio_device *vdev, struct vm_area_struct *vma);
+>  	void	(*request)(struct vfio_device *vdev, unsigned int count);
+>  	int	(*match)(struct vfio_device *vdev, char *buf);
+> +	void	(*dma_unmap)(struct vfio_device *vdev, u64 iova, u64 length);
+>  	int	(*device_feature)(struct vfio_device *device, u32 flags,
+>  				  void __user *arg, size_t argsz);
+>  	struct file *(*migration_set_state)(
+> @@ -154,23 +158,6 @@ extern int vfio_unpin_pages(struct vfio_device *device, unsigned long *user_pfn,
+>  extern int vfio_dma_rw(struct vfio_device *device, dma_addr_t user_iova,
+>  		       void *data, size_t len, bool write);
+>  
+> -/* each type has independent events */
+> -enum vfio_notify_type {
+> -	VFIO_IOMMU_NOTIFY = 0,
+> -};
+> -
+> -/* events for VFIO_IOMMU_NOTIFY */
+> -#define VFIO_IOMMU_NOTIFY_DMA_UNMAP	BIT(0)
+> -
+> -extern int vfio_register_notifier(struct vfio_device *device,
+> -				  enum vfio_notify_type type,
+> -				  unsigned long *required_events,
+> -				  struct notifier_block *nb);
+> -extern int vfio_unregister_notifier(struct vfio_device *device,
+> -				    enum vfio_notify_type type,
+> -				    struct notifier_block *nb);
+> -
+> -
+>  /*
+>   * Sub-module helpers
+>   */
+
