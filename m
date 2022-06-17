@@ -2,80 +2,81 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90DEBC43334
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 08:54:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C430C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 09:51:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381378AbiFQIyO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Jun 2022 04:54:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42200 "EHLO
+        id S1380989AbiFQJvp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Jun 2022 05:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381372AbiFQIyN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 04:54:13 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886453B032;
-        Fri, 17 Jun 2022 01:54:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=8nZ1ta+BsGc00ew4rYHJjg70RdBuVGkJ01/aKd/F76M=; b=22UofexgYSmp52aMwe+HIOOhvH
-        HYrP5hQF/Y99IdWt/OJ7frq9bDlj6D/Gp2E2LfXGLyDec9bdW3ElpSca05pMX63lDBDkaRyZilvm3
-        s0jUbrt1CiiZKRQ7vdxJZ9yVK90jEAwy2ITMbKKpviGKsecKQDJYrt7hAOD3RKzBVjb7fHmOaLxxP
-        cWKZd5500xnwfiechgxDSX2HIctMCobu1VuwMbdK3f6uiymnj2Jg8g0IZBPG77/wBQcXmkLcVlGR6
-        ssra39uhQZxgkJ+zs68oXh47Qe6h+fzmWqqiKHEwunXSUDLK/l3ieRfYn9Q5bYSjpMZjludDm3YY1
-        UaH6OBmw==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1o27jx-006UvK-VQ; Fri, 17 Jun 2022 08:54:05 +0000
-Date:   Fri, 17 Jun 2022 01:54:05 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Nicolin Chen <nicolinc@nvidia.com>
-Cc:     kwankhede@nvidia.com, corbet@lwn.net, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
-        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
-        rodrigo.vivi@intel.com, tvrtko.ursulin@linux.intel.com,
-        airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com,
-        akrowiak@linux.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, cohuck@redhat.com, jgg@nvidia.com,
-        kevin.tian@intel.com, jchrist@linux.ibm.com, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: Re: [RFT][PATCH v1 6/6] vfio: Replace phys_pfn with phys_page for
- vfio_pin_pages()
-Message-ID: <YqxBLbu8yPJiwK6Z@infradead.org>
-References: <20220616235212.15185-1-nicolinc@nvidia.com>
- <20220616235212.15185-7-nicolinc@nvidia.com>
+        with ESMTP id S1381174AbiFQJvn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 05:51:43 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23AE4692A4;
+        Fri, 17 Jun 2022 02:51:43 -0700 (PDT)
+Date:   Fri, 17 Jun 2022 11:51:38 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1655459500;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Bibq7Q6QM7w+swDPtmlvZ3luRS+p/L2t/kOLJ5BkOk4=;
+        b=VsQuETL6Zs1I7YQO+CiAH4cbNMsgnzIQrW06+38+snWb8jfBz2YBeJtXUHT6AEGEhswftS
+        wPCXv4xNcLlzWgoGB0o5n3z9z72l0ez4ICsJwsWQunt7SDFsFEddJkcJfVLNv+qlcQY9BS
+        yLhmPyn0z/5Hev6M3UCnxv2Mvub/3U+wljyX41d8tACULcjyDp47osWVJhNm2nV57vgswx
+        xjf4FZ+0q4/kh991jULqc+UGbsJ5SHjX9Msk8lNZd4GhuSV/ZXjlAktU0ZxmiAA8VmTTZd
+        akAlE6539ghv041rCCcLFe7sRuK9aE7yiAfjCeo3+L7uIqbojUfjVz/7PLPAbA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1655459500;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Bibq7Q6QM7w+swDPtmlvZ3luRS+p/L2t/kOLJ5BkOk4=;
+        b=wQtx51djjoHimkvi3J2kc2u/aAGBNRk/jz74DKLWGZni8doppvPCweO8zYHH/+0sc2vlY4
+        JbRtDWdHqqokFBCQ==
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>,
+        Rich Felker <dalias@libc.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>
+Subject: Re: [PATCH] arch/*: Disable softirq stacks on PREEMPT_RT.
+Message-ID: <YqxOqsgCFgGuzvnr@linutronix.de>
+References: <YqjQ5kso7czrmYPW@linutronix.de>
+ <YqmC1aAm+O7RD2IH@infradead.org>
+ <CAK8P3a1QmeAscV-Ory-Dae4RoLvDSPEjEgFGQHR9U8jUervGuA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20220616235212.15185-7-nicolinc@nvidia.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <CAK8P3a1QmeAscV-Ory-Dae4RoLvDSPEjEgFGQHR9U8jUervGuA@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There is a bunch of code an comments in the iommu type1 code that
-suggest we can pin memory that is not page backed.  
+On 2022-06-15 17:41:45 [+0200], Arnd Bergmann wrote:
+> Applied to the asm-generic tree with the above fixup, thanks!
 
->  int vfio_pin_pages(struct vfio_device *device, dma_addr_t iova,
-> +		   int npage, int prot, struct page **phys_page)
+Thank you Arnd.
 
-I don't think phys_page makes much sense as an argument name.
-I'd just call this pages.
+>       Arnd
 
-> +			phys_page[i] = pfn_to_page(vpfn->pfn);
-
-Please store the actual page pointer in the vfio_pfn structure.
-
->  		remote_vaddr = dma->vaddr + (iova - dma->iova);
-> -		ret = vfio_pin_page_external(dma, remote_vaddr, &phys_pfn[i],
-> +		ret = vfio_pin_page_external(dma, remote_vaddr, &phys_pfn,
->  					     do_accounting);
-
-Please just return the actual page from vaddr_get_pfns through
-vfio_pin_pages_remote and vfio_pin_page_external, maybe even as a prep
-patch as that is a fair amount of churn.
+Sebastian
