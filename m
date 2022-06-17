@@ -2,138 +2,102 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77995CCA480
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 14:15:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCA9DC43334
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 14:34:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382459AbiFQOPm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Jun 2022 10:15:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51952 "EHLO
+        id S1382611AbiFQOej (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Jun 2022 10:34:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381579AbiFQOPl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 10:15:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9CBB14755C
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jun 2022 07:15:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655475339;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=45WsYeBZBgVP+tO+Yp5wRnejBKTYaIp3okpekaDuC30=;
-        b=exSbu3g2/R4OGiKaC+iCLPWAArp3zQ1sb3m25obkVyrTKXoF/RCGdte30TOtE6K7xBcEOM
-        /1nC6q982RJ5wp2vrfKIVKiuvQutUJ7n57m85BWXJD0v8BZjzasVyb/YDmDIiqdCMdeHJr
-        QrxYOAlWvgVEB5AD0K22SHYk3lEyzkI=
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
- [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-503-vBa6M_orPDCydOD20lCxCA-1; Fri, 17 Jun 2022 10:15:38 -0400
-X-MC-Unique: vBa6M_orPDCydOD20lCxCA-1
-Received: by mail-io1-f69.google.com with SMTP id q4-20020a5ea604000000b0066a486a98d9so2570444ioi.20
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jun 2022 07:15:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=45WsYeBZBgVP+tO+Yp5wRnejBKTYaIp3okpekaDuC30=;
-        b=eknpJVvUdy8MtGpYySzGdF6V0R3QsF3D2maZE4Glr8VA3OaKFkpJToQH3g2hZEHBgR
-         KwVb36k3sxchjRwz972UtQh8fzzciEqLA+HmGhB5N5qrgZhBCOuLmT/mDE1F8NRXdbaE
-         til3UB7fC1oka2sI00/2aW9YPYXE3WEcscQ+nYiE4fkrNpKAlYLdpzUj5IlQ0YFIVTja
-         rSdCxSdrX9azgr0a5vmmQjukJzEXS9MZwVfStOHpH23ImCUxo/BQt891eRzK6hbo3slx
-         NMqRcozziBb7nrc9chLHlP+NutfPD9ZoZseA8XP/EWBd/0Bl2cunStpT3wXEhYE+yx1p
-         bMWg==
-X-Gm-Message-State: AJIora+u6KggctuPu5hLgHpUfEtfJqCuuDNaQ1Z+iqwPYwdwxnwG2Zai
-        e6UPe970YQfXXppU6lXv05pGDUcl50UWZ+kEcpGcZGlmuFkcNTTkjlT29vG9hZ+hyectU1E7zh3
-        ufXlGVf/c3MguvaIao0W6Ng==
-X-Received: by 2002:a92:da4c:0:b0:2d5:4942:151c with SMTP id p12-20020a92da4c000000b002d54942151cmr5595285ilq.54.1655475337978;
-        Fri, 17 Jun 2022 07:15:37 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1t5+pBPw8qcp/W9vVk3R5y0UpR770R+5zi051+5lmo73AcdTcYx/JcpFCItROcYKy2t53b2mA==
-X-Received: by 2002:a92:da4c:0:b0:2d5:4942:151c with SMTP id p12-20020a92da4c000000b002d54942151cmr5595259ilq.54.1655475337682;
-        Fri, 17 Jun 2022 07:15:37 -0700 (PDT)
-Received: from xz-m1.local (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
-        by smtp.gmail.com with ESMTPSA id h22-20020a02c736000000b0033792143bf5sm649986jao.67.2022.06.17.07.15.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jun 2022 07:15:36 -0700 (PDT)
-Date:   Fri, 17 Jun 2022 10:15:34 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Muchun Song <songmuchun@bytedance.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
-        James Houghton <jthoughton@google.com>,
-        Mina Almasry <almasrymina@google.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        catalin.marinas@arm.com, will@kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 1/4] hugetlb: skip to end of PT page mapping when pte not
- present
-Message-ID: <YqyMhmAjrQ4C+EyA@xz-m1.local>
-References: <20220616210518.125287-1-mike.kravetz@oracle.com>
- <20220616210518.125287-2-mike.kravetz@oracle.com>
+        with ESMTP id S231490AbiFQOei (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 10:34:38 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1DCB5000F;
+        Fri, 17 Jun 2022 07:34:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=zCYLBNrpsWXnOqcC5wJ/hD9iA4hBnMBniae3jFnLY4g=; b=V9GiLKMHEe+HEZjsJZ2Pb5P6ea
+        d9D0pHgbo5JQRZoFL9HsbHI9Gdr4THYdrwvU9KtY2IcnhaclV//MKCurCrfsFBLpDYU+0XWi6zy00
+        CStKpcL2cDfbTxFxY0Tf8zjpQNcUymWJ+YlY+fvPV1PcHXf0aNed562ttdg9wfTK0LHPZcFN+moY9
+        tMgzajAbEMzya03pEkrkuFtIIygfEX8crLwpznvIEfcuhfXxChDJxrCJuIvuwz9tf/8Nlf/KxPo9t
+        V2t5D5TgWuKJjFc4BX7Pk7tMX90ySuSVuqT+pniMH+AdHEAlxqqdkTfsfegVm8+GJB4P0Y2RxckVb
+        hytS0s1Q==;
+Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3] helo=worktop.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1o2D2o-002tnV-Hz; Fri, 17 Jun 2022 14:33:54 +0000
+Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 065709816B5; Fri, 17 Jun 2022 16:33:54 +0200 (CEST)
+Date:   Fri, 17 Jun 2022 16:33:53 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        virtualization <virtualization@lists.linux-foundation.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        eperezma <eperezma@redhat.com>, Cindy Lu <lulu@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org, conghui.chen@intel.com,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        netdev <netdev@vger.kernel.org>, pankaj.gupta.linux@gmail.com,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        sudeep.holla@arm.com, Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
+Message-ID: <YqyQ0bMF1EM8E6BW@worktop.programming.kicks-ass.net>
+References: <CACGkMEtAQck7Nr6SP_pD0MGT3njnwZSyT=xPyYzUU3c5GNNM_w@mail.gmail.com>
+ <CACGkMEvUFJkC=mnvL2PSH6-3RMcJUk84f-9X46JVcj2vTAr4SQ@mail.gmail.com>
+ <20220613052644-mutt-send-email-mst@kernel.org>
+ <CACGkMEstGvhETXThuwO+tLVBuRgQb8uC_6DdAM8ZxOi5UKBRbg@mail.gmail.com>
+ <20220614114839-mutt-send-email-mst@kernel.org>
+ <CACGkMEthExrqFNkOzLGwaffvHw=Tc3MXPtTTiRsnpFDGKPRP=A@mail.gmail.com>
+ <20220616130945-mutt-send-email-mst@kernel.org>
+ <CACGkMEuSX-wg-VQzVLRhE_9wmQVpCQo5cxQ-by3N6v7gaBNsrg@mail.gmail.com>
+ <20220617013147-mutt-send-email-mst@kernel.org>
+ <CACGkMEuaxpgGt38anCYfQfy_OOKf0HCmSonC7cBD9-jrgWQ+Ow@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220616210518.125287-2-mike.kravetz@oracle.com>
+In-Reply-To: <CACGkMEuaxpgGt38anCYfQfy_OOKf0HCmSonC7cBD9-jrgWQ+Ow@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi, Mike,
+On Fri, Jun 17, 2022 at 03:26:16PM +0800, Jason Wang wrote:
+> On Fri, Jun 17, 2022 at 1:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Fri, Jun 17, 2022 at 09:24:57AM +0800, Jason Wang wrote:
+> > > On Fri, Jun 17, 2022 at 1:11 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Wed, Jun 15, 2022 at 09:38:18AM +0800, Jason Wang wrote:
+> > > > > On Tue, Jun 14, 2022 at 11:49 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > >
+> > > > > > On Tue, Jun 14, 2022 at 03:40:21PM +0800, Jason Wang wrote:
+> > > > > > > On Mon, Jun 13, 2022 at 5:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > >
+> > > > > > > > On Mon, Jun 13, 2022 at 05:14:59PM +0800, Jason Wang wrote:
+> > > > > > > > > On Mon, Jun 13, 2022 at 5:08 PM Jason Wang <jasowang@redhat.com> wrote:
+> > > > > > > > > >
+> > > > > > > > > > On Mon, Jun 13, 2022 at 4:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > > > > >
+> > > > > > > > > > > On Mon, Jun 13, 2022 at 04:51:08PM +0800, Jason Wang wrote:
+> > > > > > > > > > > > On Mon, Jun 13, 2022 at 4:19 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > On Mon, Jun 13, 2022 at 04:07:09PM +0800, Jason Wang wrote:
+> > > > > > > > > > > > > > On Mon, Jun 13, 2022 at 3:23 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > > > > > > > > >
+> > > > > > > > > > > > > > > On Mon, Jun 13, 2022 at 01:26:59PM +0800, Jason Wang wrote:
+> > > > > > > > > > > > > > > > On Sat, Jun 11, 2022 at 1:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > > > > > > > > > > >
+> > > > > > > > > > > > > > > > > On Fri, May 27, 2022 at 02:01:19PM +0800, Jason Wang wrote:
+> > > > > > > > > > > > > > > > > > This is a rework on the previous IRQ hardening that is done for
 
-On Thu, Jun 16, 2022 at 02:05:15PM -0700, Mike Kravetz wrote:
-> @@ -6877,6 +6896,39 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
->  	return (pte_t *)pmd;
->  }
->  
-> +/*
-> + * Return a mask that can be used to update an address to the last huge
-> + * page in a page table page mapping size.  Used to skip non-present
-> + * page table entries when linearly scanning address ranges.  Architectures
-> + * with unique huge page to page table relationships can define their own
-> + * version of this routine.
-> + */
-> +unsigned long hugetlb_mask_last_page(struct hstate *h)
-> +{
-> +	unsigned long hp_size = huge_page_size(h);
-> +
-> +	switch (hp_size) {
-> +	case P4D_SIZE:
-> +		return PGDIR_SIZE - P4D_SIZE;
-> +	case PUD_SIZE:
-> +		return P4D_SIZE - PUD_SIZE;
-> +	case PMD_SIZE:
-> +		return PUD_SIZE - PMD_SIZE;
-> +	default:
-
-Should we add a WARN_ON_ONCE() if it should never trigger?
-
-> +		break; /* Should never happen */
-> +	}
-> +
-> +	return ~(0UL);
-> +}
-> +
-> +#else
-> +
-> +/* See description above.  Architectures can provide their own version. */
-> +__weak unsigned long hugetlb_mask_last_page(struct hstate *h)
-> +{
-> +	return ~(0UL);
-
-I'm wondering whether it's better to return 0 rather than ~0 by default.
-Could an arch with !CONFIG_ARCH_WANT_GENERAL_HUGETLB wrongly skip some
-valid address ranges with ~0, or perhaps I misread?
-
-Thanks,
-
--- 
-Peter Xu
-
+Guys; have you heard about trimming emails on reply?
