@@ -2,81 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C430C43334
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 09:51:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91082C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Jun 2022 11:01:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380989AbiFQJvp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Jun 2022 05:51:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38484 "EHLO
+        id S1381171AbiFQLBl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Jun 2022 07:01:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381174AbiFQJvn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 05:51:43 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23AE4692A4;
-        Fri, 17 Jun 2022 02:51:43 -0700 (PDT)
-Date:   Fri, 17 Jun 2022 11:51:38 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1655459500;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Bibq7Q6QM7w+swDPtmlvZ3luRS+p/L2t/kOLJ5BkOk4=;
-        b=VsQuETL6Zs1I7YQO+CiAH4cbNMsgnzIQrW06+38+snWb8jfBz2YBeJtXUHT6AEGEhswftS
-        wPCXv4xNcLlzWgoGB0o5n3z9z72l0ez4ICsJwsWQunt7SDFsFEddJkcJfVLNv+qlcQY9BS
-        yLhmPyn0z/5Hev6M3UCnxv2Mvub/3U+wljyX41d8tACULcjyDp47osWVJhNm2nV57vgswx
-        xjf4FZ+0q4/kh991jULqc+UGbsJ5SHjX9Msk8lNZd4GhuSV/ZXjlAktU0ZxmiAA8VmTTZd
-        akAlE6539ghv041rCCcLFe7sRuK9aE7yiAfjCeo3+L7uIqbojUfjVz/7PLPAbA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1655459500;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Bibq7Q6QM7w+swDPtmlvZ3luRS+p/L2t/kOLJ5BkOk4=;
-        b=wQtx51djjoHimkvi3J2kc2u/aAGBNRk/jz74DKLWGZni8doppvPCweO8zYHH/+0sc2vlY4
-        JbRtDWdHqqokFBCQ==
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Rich Felker <dalias@libc.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>
-Subject: Re: [PATCH] arch/*: Disable softirq stacks on PREEMPT_RT.
-Message-ID: <YqxOqsgCFgGuzvnr@linutronix.de>
-References: <YqjQ5kso7czrmYPW@linutronix.de>
- <YqmC1aAm+O7RD2IH@infradead.org>
- <CAK8P3a1QmeAscV-Ory-Dae4RoLvDSPEjEgFGQHR9U8jUervGuA@mail.gmail.com>
+        with ESMTP id S233957AbiFQLBk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jun 2022 07:01:40 -0400
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56D026C0DF;
+        Fri, 17 Jun 2022 04:01:37 -0700 (PDT)
+Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.226])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4LPbfJ20Xgz6H6l9;
+        Fri, 17 Jun 2022 18:59:52 +0800 (CST)
+Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
+ fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Fri, 17 Jun 2022 13:01:34 +0200
+Received: from localhost.localdomain (10.69.192.58) by
+ lhreml724-chm.china.huawei.com (10.201.108.75) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Fri, 17 Jun 2022 12:01:30 +0100
+From:   John Garry <john.garry@huawei.com>
+To:     <axboe@kernel.dk>, <damien.lemoal@opensource.wdc.com>,
+        <bvanassche@acm.org>, <hch@lst.de>, <jejb@linux.ibm.com>,
+        <martin.petersen@oracle.com>, <hare@suse.de>, <satishkh@cisco.com>,
+        <sebaddel@cisco.com>, <kartilak@cisco.com>
+CC:     <linux-rdma@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
+        <linux-nvme@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <linux-scsi@vger.kernel.org>, <mpi3mr-linuxdrv.pdl@broadcom.com>,
+        <linux-block@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <nbd@other.debian.org>, John Garry <john.garry@huawei.com>
+Subject: [PATCH 0/5] blk-mq: Add a flag for reserved requests series
+Date:   Fri, 17 Jun 2022 18:55:15 +0800
+Message-ID: <1655463320-241202-1-git-send-email-john.garry@huawei.com>
+X-Mailer: git-send-email 2.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a1QmeAscV-Ory-Dae4RoLvDSPEjEgFGQHR9U8jUervGuA@mail.gmail.com>
+Content-Type: text/plain
+X-Originating-IP: [10.69.192.58]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-06-15 17:41:45 [+0200], Arnd Bergmann wrote:
-> Applied to the asm-generic tree with the above fixup, thanks!
+In [0] I included "blk-mq: Add a flag for reserved requests" to identify
+if a request is 'reserved' for special handling. Doing this is easier than
+passing a 'reserved' arg to the blk_mq_ops callbacks. Indeed, only 1x
+timeout implementation or blk-mq iter function actually uses the
+'reserved' arg (or 3x if you count SCSI core and FNIC SCSI driver). So
+this series drops the 'reserved' arg for these timeout and iter functions.
+Christoph suggested that I try to upstream now.
 
-Thank you Arnd.
+About the SCSI changes, I can leave them in place if people prefer.
 
->       Arnd
+Based on following:
+c13794dbe936 (block/for-5.20/block) block: Directly use ida_alloc()/free()
 
-Sebastian
+[0] https://lore.kernel.org/linux-scsi/1654770559-101375-1-git-send-email-john.garry@huawei.com/T/#m22aa9f89e55835edc2e650d43f7e3219a3a1a324
+
+John Garry (5):
+  scsi: core: Remove reserved request time-out handling
+  blk-mq: Add a flag for reserved requests
+  blk-mq: Drop blk_mq_ops.timeout 'reserved' arg
+  scsi: fnic: Drop reserved request handling
+  blk-mq: Drop 'reserved' member of busy_tag_iter_fn
+
+ block/blk-mq-debugfs.c              |  2 +-
+ block/blk-mq-tag.c                  | 13 +++++--------
+ block/blk-mq.c                      | 22 +++++++++++++---------
+ block/bsg-lib.c                     |  2 +-
+ drivers/block/mtip32xx/mtip32xx.c   | 11 +++++------
+ drivers/block/nbd.c                 |  5 ++---
+ drivers/block/null_blk/main.c       |  2 +-
+ drivers/infiniband/ulp/srp/ib_srp.c |  3 +--
+ drivers/mmc/core/queue.c            |  3 +--
+ drivers/nvme/host/apple.c           |  3 +--
+ drivers/nvme/host/core.c            |  2 +-
+ drivers/nvme/host/fc.c              |  6 ++----
+ drivers/nvme/host/nvme.h            |  2 +-
+ drivers/nvme/host/pci.c             |  2 +-
+ drivers/nvme/host/rdma.c            |  3 +--
+ drivers/nvme/host/tcp.c             |  3 +--
+ drivers/s390/block/dasd.c           |  2 +-
+ drivers/s390/block/dasd_int.h       |  2 +-
+ drivers/scsi/aacraid/comminit.c     |  2 +-
+ drivers/scsi/aacraid/linit.c        |  2 +-
+ drivers/scsi/fnic/fnic_scsi.c       | 14 ++++----------
+ drivers/scsi/hosts.c                | 14 ++++++--------
+ drivers/scsi/mpi3mr/mpi3mr_os.c     | 16 ++++------------
+ drivers/scsi/scsi_lib.c             | 12 ++----------
+ include/linux/blk-mq.h              | 10 ++++++++--
+ include/scsi/scsi_host.h            |  2 +-
+ 26 files changed, 67 insertions(+), 93 deletions(-)
+
+-- 
+2.35.3
+
