@@ -2,333 +2,167 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 916DDCCA480
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 12:50:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F00F8CCA479
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 15:36:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241866AbiFTMu1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 08:50:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33014 "EHLO
+        id S240153AbiFTPgg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Jun 2022 11:36:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231730AbiFTMu0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 08:50:26 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FEF62C3;
-        Mon, 20 Jun 2022 05:50:25 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25KC6rld009175;
-        Mon, 20 Jun 2022 12:50:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=MM9qviSh6Q+gTGXsfRZhcNfyoQIg+w+Icyq9ToekYBs=;
- b=RWSVNfeECgAcjXiQRPeY/m8ukEBxbfye+apSFBm6EecQDjqELR83bfCYfwiuOFliBW4O
- uf2OaA0C0IAhEBvV/AzjeeRwKRbjzcG5cREFhMKI1txU4z3BC8UD0lP/EWottZZEwzef
- e1pISTz4dQbHbdZ6FVTOxxj05yoz/wXMEnsf7xFKLIyelEtWQB7+hENnnyqYEP2Ble9o
- LZHkA4b+5H5UVu71M+f0q/G0CpqEERTW+FK1YLTeub5SyY/SzWufa93kwJAobA08v6Br
- 2xDjRheqL67XyVebJFvrNs+A3ZgpNCyIPqtG9eRo+I3poFD3HhMY5tX7pemtrMjkjB6g hg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsrb614cf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 12:50:24 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25KAtOj9021616;
-        Mon, 20 Jun 2022 12:50:23 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsrb614bw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 12:50:23 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25KCa6Lg011373;
-        Mon, 20 Jun 2022 12:50:22 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3gs6b8tgxm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 12:50:21 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25KCoIEI20709820
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Jun 2022 12:50:18 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8A72BA4053;
-        Mon, 20 Jun 2022 12:50:18 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CBE16A4051;
-        Mon, 20 Jun 2022 12:50:17 +0000 (GMT)
-Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.62.140])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 20 Jun 2022 12:50:17 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, pmorel@linux.ibm.com,
-        wintera@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com
-Subject: [PATCH v10 3/3] KVM: s390: resetting the Topology-Change-Report
-Date:   Mon, 20 Jun 2022 14:54:37 +0200
-Message-Id: <20220620125437.37122-4-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20220620125437.37122-1-pmorel@linux.ibm.com>
-References: <20220620125437.37122-1-pmorel@linux.ibm.com>
+        with ESMTP id S240728AbiFTPgd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 11:36:33 -0400
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2072.outbound.protection.outlook.com [40.107.243.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0932814D3B;
+        Mon, 20 Jun 2022 08:36:33 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ipm6XsXR3XMoRqJncOojL2E6Fv+VSYsgOPT2CLtTxArq0W0v6GpxYJLt3EMKwZag8KPzZmIUnsZQWwSW2KKpQ9hxIsMWmj340VzpLZxGyKX6bRg6WVjKhMx+orEFAjmGW7Zp96bCJJ4aJn9VtLYTe6yVWbFm8oJV+1AivDg95CqtvZdexSJyC4RAgmuJBoU6aX80gZT02U5vsMzFipIkAabrUFP7bFs+SHp1s+xh3+xqb7eotjVT+DUOOOnZbMHdw1CcVAMGi76NtdPL+ImMNhmlQ+cAWTA4Cm2EdaSjzcBx5JXjOwp674F4QaPnzs11fDGL+2b25tHtMs0leqJexA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=XxExLSLje0IsPubQt3DEVni75/KwiaOILS42XzkUvGY=;
+ b=Ilas+esHwLm8+FLwwQYGiWoZvuP2JWDy9idEBnJeUyDlI7uTPkDU5M3xT7jToghL68wZxBRzZT4MfsqAWcoAfP7DnB3Zzp5GUT1k+cm+w8X6uTMocdCL1fUCJMxo1N5vnHklatq2NO1x0LBAvv78NL6ZJdGTovnOvQeq240xUPQNlM9hfMWTez2hd61Jv3UzOrO8f8dB9CwV+RJ8o/xuOZKql7ZEkEg3pnfKvwRJ0YNL93Ztw7yqk2YN3UbPx2IlMO1l/Y1rQYt9P777tR8VqpoPIsrVI1tAURpFlWUrS1W859bA1mhAI4yurE0quePumD2+pkmJLMMJ7dRK45OPpA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XxExLSLje0IsPubQt3DEVni75/KwiaOILS42XzkUvGY=;
+ b=jxASaIkrt8oJ1etwInaRX0uwuKHHLplY+FMPVq/s4UYOg/BvXlCaxuHEGA0Fsxp0zNFl7aXxA/dtxbiuuDjoXYWv16r3e+gOf/LKr8O2W8Pd7HCcjcFdV6+2Ak/JrOiBKH/sCu8gXUo9WZbSeT4TcdcZ+/Z4XcZAI//ta62ERxIqOa9G+VKlZd8cKSwGO/TgAEbTiTxSqoFVcTawfJnP6RZ6hJvgWxktShMVT6YcbdRGdtO26H+4D+w7FsCa+5Drokk2Cl43XUroQqI8Q4957mephX2h5GRkcUba85fJR6WlWF8pokOhtv//w9MztyMzaTYqGMDi9cubjEYUOU95fg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by BY5PR12MB3794.namprd12.prod.outlook.com (2603:10b6:a03:1aa::28) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.14; Mon, 20 Jun
+ 2022 15:36:31 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb%3]) with mapi id 15.20.5353.022; Mon, 20 Jun 2022
+ 15:36:31 +0000
+Date:   Mon, 20 Jun 2022 12:36:28 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     Nicolin Chen <nicolinc@nvidia.com>, kwankhede@nvidia.com,
+        corbet@lwn.net, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
+        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
+        rodrigo.vivi@intel.com, tvrtko.ursulin@linux.intel.com,
+        airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com,
+        akrowiak@linux.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com, cohuck@redhat.com,
+        kevin.tian@intel.com, jchrist@linux.ibm.com, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: Re: [RFT][PATCH v1 6/6] vfio: Replace phys_pfn with phys_page for
+ vfio_pin_pages()
+Message-ID: <20220620153628.GA5502@nvidia.com>
+References: <20220616235212.15185-1-nicolinc@nvidia.com>
+ <20220616235212.15185-7-nicolinc@nvidia.com>
+ <YqxBLbu8yPJiwK6Z@infradead.org>
+ <20220620030046.GB5219@nvidia.com>
+ <YrAK87zjdOqUF6gB@infradead.org>
+ <YrAVuxMEkV4Wytci@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YrAVuxMEkV4Wytci@infradead.org>
+X-ClientProxiedBy: MW4P220CA0005.NAMP220.PROD.OUTLOOK.COM
+ (2603:10b6:303:115::10) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: G0To1EClj_X2f3Tz__NoJxVOgcKawI5w
-X-Proofpoint-GUID: 8vGgjoAXEPQz2RniSNz-eSAnxDkqJ4Bz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-20_05,2022-06-17_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- spamscore=0 phishscore=0 mlxscore=0 mlxlogscore=999 impostorscore=0
- suspectscore=0 priorityscore=1501 adultscore=0 lowpriorityscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206200059
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: e282e9b6-c05b-4e66-1963-08da52d2a5dd
+X-MS-TrafficTypeDiagnostic: BY5PR12MB3794:EE_
+X-Microsoft-Antispam-PRVS: <BY5PR12MB3794099CB9611D2E36FD1B7DC2B09@BY5PR12MB3794.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Wt1ZsE06Wa31OUiH/4sISpZcCjPh0ORWltRH8WiWERo1OD8NBVYjopikouY1IbRHV3T26ykAoZ8Iq7L0s94fSQnqpeoZMQrlzdisHN+/5gtQb9pP2g0AcqKG2YwNwqBTQIYyr1W8I6oiq00DQLLcenb90ekC9XlKeIFMOO4Jm6EPVfST4W7q+WlWxw5Y4IWPBYqDYhuGZ/HXIZerYYBwI/rW5wZxvjid1wjjF6Jf6Z+yloAxhOFNihydZtMspvAVIGs1JYJ66iFVhKQGX1D2dep1s/ykWlTl+1qsKExposcx65OzgvBuFeWfHw4NNgBkTU8BCaip7EBotf+wy06b9XYwUUhjiL64GLpu3fAbGG6RBBUyXgWLRdRcQgDGzghtQE00CLoBdSNR7qJkDuh46tmpwpYhw0LLeK74BvJgCiEMh+PEtC0cCiBFNKm8wDN+W0mMI5y0pmqonXg1nH/gvgTgNucfDGm8tih7J0zWAvPeDNYQOTKENogEAAyyNFD0P7CbGX3/eaUmZtua0cD4sX1zN+PwN3j0HjSfddO3pv6o6dnHvpQXG7KRL13vr0E63znT0hbN9SS7PNXRYUVOVvWDcGeKR5UCgRephcjm+CyjR1xz+CWH3ljht4ZmWFmOOUXNkLb5y8CFUtgknUKhtQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(346002)(376002)(396003)(136003)(39860400002)(7416002)(5660300002)(7406005)(186003)(41300700001)(66476007)(6512007)(26005)(33656002)(38100700002)(66946007)(8676002)(4326008)(66556008)(1076003)(2616005)(36756003)(6916009)(316002)(6666004)(2906002)(6486002)(8936002)(478600001)(86362001)(6506007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?MFrMjvpYjPTzQhVzhXqeHisd1VLlV/VyeEXaP+smyVNdHEJVKk5ACx8jICZ0?=
+ =?us-ascii?Q?seYauzwjkrj60rwhKZzR5f38hogWoQNRfqFh53Evvu/d13AixiORokWVVG8d?=
+ =?us-ascii?Q?dbFZfQi/WLTBiAam+7v8/xGJmWaiP99/lnhyewH1GapBXnF6SALPUqiB0FHB?=
+ =?us-ascii?Q?0cbF5L21iHqVzf3Bk2jd7/B20w22cYMhcSPZH66KOBcNdkBXtztFdH12kqPe?=
+ =?us-ascii?Q?P/75VIRmLUA7bFlsmlSFHBayNNRkc1v1gKQ6CdaTDdrlsCDjb3gWIcKd1114?=
+ =?us-ascii?Q?MmeUUxoaizikPx5PQDIOVd4Bly6zFl0jwxYHJrXYCbnhjBkLdctqm5KOAdyG?=
+ =?us-ascii?Q?7SbcYln+AO+UWqyYdkJsEI7gCCWzI3B5P39SRuxZYn7aHIVAgUDLPVJf8Ksi?=
+ =?us-ascii?Q?5XAVtk75GQ7eJAaBFWLokC+xddyR452jySL7+ZRv7fd9LmB0L1644lpRoohF?=
+ =?us-ascii?Q?W1Qk2ZWQDTFdOz/pxDXQULnkx11E7OEOa1b9NzPO55+e2SmsfMvabNSgizlF?=
+ =?us-ascii?Q?FYF66isIfB1Ies4gQYnU3yj0rE4ql/mEWyB3kQifanDA+UnqeigzyaK8Kox/?=
+ =?us-ascii?Q?9AW5FUtR/T304rAUqwCVjxWwJ2mqqFqYjqTtvPCQIWZ0BPfGsLKJ5lbVxmq9?=
+ =?us-ascii?Q?oycpwWUD1w4tYL0hwKMdmhu8HUam+kbFPwTexR9qvvni6g46JBBXX60MRtjw?=
+ =?us-ascii?Q?SZ35IQFw2YRsliA4O1NjxFeGJU3L7rBB4k1yAIHPLnFGktkCT8I9CeWDa6ll?=
+ =?us-ascii?Q?QPI0g8EbdCcEqUdHgCb6LGDbCbCwRFOwJ46EpklyJZ20aLT6j+yJG0Fg/vjH?=
+ =?us-ascii?Q?zNw0NmtvRNCXkrSCvkSKE5t4DSVEIHwC+kNlr60yIs34tSEcz1X5ikL9HHjJ?=
+ =?us-ascii?Q?39zjKeumI03T1SYqTfZW89BBUza7ceIhT9gaGfQ6Y6xz4oCbCtBwTaTM0NL/?=
+ =?us-ascii?Q?n55AqyOhHPTNK0/2kipdXvPG8p5ECkKb/+kCtGyfbQk2/YBDr4AAq2nrHjJ+?=
+ =?us-ascii?Q?UVYI/nH2Pu1dTII7RzcoB5JQp97hfoQ0Vt2XUHhzbFA+p0fxo+W4XxI1zOfy?=
+ =?us-ascii?Q?yLn0tCb19XkeIzv0nHwWwDxSGCHXzyNtCl5RlvAJ5vxZdH+U4YVk9muzasM5?=
+ =?us-ascii?Q?ZTay6lGFzcYSgKVJiB5OfyNrVMKB3FI8kNbAQXoOLF6dvr3I7KiZ9+Y7wbnZ?=
+ =?us-ascii?Q?LxdwosQZvGoM+P6fBsAB1VCQetXLbIFY4Mnfunvd7RXKyaW3yGmFtccSXSr2?=
+ =?us-ascii?Q?iAmMniGF0FNCq7m+hZsX6rqIxhH6iEBXfoUaAH1rCU9R7AxNNg8801xCkrbU?=
+ =?us-ascii?Q?PC7yYLgrcjenlrC/8M82tOeXDuxanSYgP9JbHMTMps3ZwE8q1WFZezp6klj4?=
+ =?us-ascii?Q?mJcq4+HktNtxozPDID89VpHz8v1l/J63fQMCqt7IgdS3SHSdbg8oAtRNuXa4?=
+ =?us-ascii?Q?dyXi9AwyrrozeVNGsPJ/B9WqaxbIZeBrAkCG5I9EFZ7Qtx/tUJrOQreChaOR?=
+ =?us-ascii?Q?BKuKm1UrZzHqMbDWUgPo94LKp+c0rtmz4So9Cgi86AQYdRsH3Rxe64lBEUBC?=
+ =?us-ascii?Q?BvVsW+EsQVVS1Y0REmWqGthpZW67+1AfQKiNnJ4PBrg0KBNBGz703REI1OI7?=
+ =?us-ascii?Q?sdM7YNh6+lob5Pie4VEmzVYy/1ihY9+W/RQaa4RkKuC5gX7TQ8t4owzXXmBZ?=
+ =?us-ascii?Q?5DfmjNwZFE2bVujaLukvZrFeADGi+m0K0RHtRRHE4XEIpp76Nd2znDUnbFp/?=
+ =?us-ascii?Q?nXEaa7iHRA=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e282e9b6-c05b-4e66-1963-08da52d2a5dd
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jun 2022 15:36:30.8186
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: lqmMCY6R9ngDAW1/DoezGpwxppoHEaXlifgiXmdUvpbMS4IpKaReVgYzE21BqcC9
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB3794
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-During a subsystem reset the Topology-Change-Report is cleared.
-Let's give userland the possibility to clear the MTCR in the case
-of a subsystem reset.
+On Sun, Jun 19, 2022 at 11:37:47PM -0700, Christoph Hellwig wrote:
+> On Sun, Jun 19, 2022 at 10:51:47PM -0700, Christoph Hellwig wrote:
+> > On Mon, Jun 20, 2022 at 12:00:46AM -0300, Jason Gunthorpe wrote:
+> > > On Fri, Jun 17, 2022 at 01:54:05AM -0700, Christoph Hellwig wrote:
+> > > > There is a bunch of code an comments in the iommu type1 code that
+> > > > suggest we can pin memory that is not page backed.  
+> > > 
+> > > AFAIK you can.. The whole follow_pte() mechanism allows raw PFNs to be
+> > > loaded into the type1 maps and the pin API will happily return
+> > > them. This happens in almost every qemu scenario because PCI MMIO BAR
+> > > memory ends up routed down this path.
+> > 
+> > Indeed, my read wasn't deep enough.  Which means that we can't change
+> > the ->pin_pages interface to return a struct pages array, as we don't
+> > have one for those.
+> 
+> Actually.  gvt requires a struct page, and both s390 seem to require
+> normal non-I/O, non-remapped kernel pointers.  So I think for the
+> vfio_pin_pages we can assume that we only want page backed memory and
+> remove the follow_fault_pfn case entirely.   But we'll probably have
+> to keep it for the vfio_iommu_replay case that is not tied to
+> emulated IOMMU drivers.
 
-To migrate the MTCR, we give userland the possibility to
-query the MTCR state.
+Right, that is my thinking - since all drivers actually need a struct
+page we should have the API return a working struct page and have the
+VFIO layer isolate the non-struct page stuff so it never leaks out of
+this API.
 
-We indicate KVM support for the CPU topology facility with a new
-KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
+This nicely fixes the various problems in all the drivers if io memory
+comes down this path.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- Documentation/virt/kvm/api.rst   | 31 +++++++++++
- arch/s390/include/uapi/asm/kvm.h | 10 ++++
- arch/s390/kvm/kvm-s390.c         | 96 ++++++++++++++++++++++++++++++++
- include/uapi/linux/kvm.h         |  1 +
- 4 files changed, 138 insertions(+)
+It is also why doing too much surgery deeper into type 1 probably
+isn't too worthwhile as it still needs raw pfns in its data
+structures for iommu modes.
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 11e00a46c610..326f8b7e7671 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -7956,6 +7956,37 @@ should adjust CPUID leaf 0xA to reflect that the PMU is disabled.
- When enabled, KVM will exit to userspace with KVM_EXIT_SYSTEM_EVENT of
- type KVM_SYSTEM_EVENT_SUSPEND to process the guest suspend request.
- 
-+8.37 KVM_CAP_S390_CPU_TOPOLOGY
-+------------------------------
-+
-+:Capability: KVM_CAP_S390_CPU_TOPOLOGY
-+:Architectures: s390
-+:Type: vm
-+
-+This capability indicates that KVM will provide the S390 CPU Topology
-+facility which consist of the interpretation of the PTF instruction for
-+the Function Code 2 along with interception and forwarding of both the
-+PTF instruction with Function Codes 0 or 1 and the STSI(15,1,x)
-+instruction to the userland hypervisor.
-+
-+The stfle facility 11, CPU Topology facility, should not be provided
-+to the guest without this capability.
-+
-+When this capability is present, KVM provides a new attribute group
-+on vm fd, KVM_S390_VM_CPU_TOPOLOGY.
-+This new attribute allows to get, set or clear the Modified Change
-+Topology Report (MTCR) bit of the SCA through the kvm_device_attr
-+structure.
-+
-+Getting the MTCR bit is realized by using a kvm_device_attr attr
-+entry value of KVM_GET_DEVICE_ATTR and with kvm_device_attr addr
-+entry pointing to the address of a struct kvm_cpu_topology.
-+The value of the MTCR is return by the bit mtcr of the structure.
-+
-+When using KVM_SET_DEVICE_ATTR the MTCR is set by using the
-+attr->attr value KVM_S390_VM_CPU_TOPO_MTCR_SET and cleared by
-+using KVM_S390_VM_CPU_TOPO_MTCR_CLEAR.
-+
- 9. Known KVM API problems
- =========================
- 
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 7a6b14874d65..df5e8279ffd0 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -74,6 +74,7 @@ struct kvm_s390_io_adapter_req {
- #define KVM_S390_VM_CRYPTO		2
- #define KVM_S390_VM_CPU_MODEL		3
- #define KVM_S390_VM_MIGRATION		4
-+#define KVM_S390_VM_CPU_TOPOLOGY	5
- 
- /* kvm attributes for mem_ctrl */
- #define KVM_S390_VM_MEM_ENABLE_CMMA	0
-@@ -171,6 +172,15 @@ struct kvm_s390_vm_cpu_subfunc {
- #define KVM_S390_VM_MIGRATION_START	1
- #define KVM_S390_VM_MIGRATION_STATUS	2
- 
-+/* kvm attributes for cpu topology */
-+#define KVM_S390_VM_CPU_TOPO_MTCR_CLEAR	0
-+#define KVM_S390_VM_CPU_TOPO_MTCR_SET	1
-+
-+struct kvm_cpu_topology {
-+	__u16 mtcr : 1;
-+	__u16 reserved : 15;
-+};
-+
- /* for KVM_GET_REGS and KVM_SET_REGS */
- struct kvm_regs {
- 	/* general purpose regs for s390 */
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 95b96019ca8e..ae39041bb149 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -606,6 +606,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_PROTECTED:
- 		r = is_prot_virt_host();
- 		break;
-+	case KVM_CAP_S390_CPU_TOPOLOGY:
-+		r = test_facility(11);
-+		break;
- 	default:
- 		r = 0;
- 	}
-@@ -817,6 +820,20 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
- 		icpt_operexc_on_all_vcpus(kvm);
- 		r = 0;
- 		break;
-+	case KVM_CAP_S390_CPU_TOPOLOGY:
-+		r = -EINVAL;
-+		mutex_lock(&kvm->lock);
-+		if (kvm->created_vcpus) {
-+			r = -EBUSY;
-+		} else if (test_facility(11)) {
-+			set_kvm_facility(kvm->arch.model.fac_mask, 11);
-+			set_kvm_facility(kvm->arch.model.fac_list, 11);
-+			r = 0;
-+		}
-+		mutex_unlock(&kvm->lock);
-+		VM_EVENT(kvm, 3, "ENABLE: CPU TOPOLOGY %s",
-+			 r ? "(not available)" : "(success)");
-+		break;
- 	default:
- 		r = -EINVAL;
- 		break;
-@@ -1710,6 +1727,76 @@ static void kvm_s390_sca_set_mtcr(struct kvm *kvm)
- 	ipte_unlock(kvm);
- }
- 
-+/**
-+ * kvm_s390_sca_clear_mtcr
-+ * @kvm: guest KVM description
-+ *
-+ * Is only relevant if the topology facility is present,
-+ * the caller should check KVM facility 11
-+ *
-+ * Updates the Multiprocessor Topology-Change-Report to signal
-+ * the guest with a topology change.
-+ */
-+static void kvm_s390_sca_clear_mtcr(struct kvm *kvm)
-+{
-+	struct bsca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
-+
-+	ipte_lock(kvm);
-+	sca->utility &= ~SCA_UTILITY_MTCR;
-+	ipte_unlock(kvm);
-+}
-+
-+static int kvm_s390_set_topology(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	if (!test_kvm_facility(kvm, 11))
-+		return -ENXIO;
-+
-+	switch (attr->attr) {
-+	case KVM_S390_VM_CPU_TOPO_MTCR_SET:
-+		kvm_s390_sca_set_mtcr(kvm);
-+		break;
-+	case KVM_S390_VM_CPU_TOPO_MTCR_CLEAR:
-+		kvm_s390_sca_clear_mtcr(kvm);
-+		break;
-+	}
-+	return 0;
-+}
-+
-+/**
-+ * kvm_s390_sca_get_mtcr
-+ * @kvm: guest KVM description
-+ *
-+ * Is only relevant if the topology facility is present,
-+ * the caller should check KVM facility 11
-+ *
-+ * reports to QEMU the Multiprocessor Topology-Change-Report.
-+ */
-+static int kvm_s390_sca_get_mtcr(struct kvm *kvm)
-+{
-+	struct bsca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
-+	int val;
-+
-+	ipte_lock(kvm);
-+	val = sca->utility & SCA_UTILITY_MTCR;
-+	ipte_unlock(kvm);
-+
-+	return val;
-+}
-+
-+static int kvm_s390_get_topology(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	struct kvm_cpu_topology topo = {};
-+
-+	if (!test_kvm_facility(kvm, 11))
-+		return -ENXIO;
-+
-+	topo.mtcr = kvm_s390_sca_get_mtcr(kvm) ? 1 : 0;
-+	if (copy_to_user((void __user *)attr->addr, &topo, sizeof(topo)))
-+		return -EFAULT;
-+
-+	return 0;
-+}
-+
- static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- {
- 	int ret;
-@@ -1730,6 +1817,9 @@ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_MIGRATION:
- 		ret = kvm_s390_vm_set_migration(kvm, attr);
- 		break;
-+	case KVM_S390_VM_CPU_TOPOLOGY:
-+		ret = kvm_s390_set_topology(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -1755,6 +1845,9 @@ static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_MIGRATION:
- 		ret = kvm_s390_vm_get_migration(kvm, attr);
- 		break;
-+	case KVM_S390_VM_CPU_TOPOLOGY:
-+		ret = kvm_s390_get_topology(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -1828,6 +1921,9 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_MIGRATION:
- 		ret = 0;
- 		break;
-+	case KVM_S390_VM_CPU_TOPOLOGY:
-+		ret = test_kvm_facility(kvm, 11) ? 0 : -ENXIO;
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 5088bd9f1922..33317d820032 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1157,6 +1157,7 @@ struct kvm_ppc_resize_hpt {
- #define KVM_CAP_VM_TSC_CONTROL 214
- #define KVM_CAP_SYSTEM_EVENT_DATA 215
- #define KVM_CAP_ARM_SYSTEM_SUSPEND 216
-+#define KVM_CAP_S390_CPU_TOPOLOGY 217
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
--- 
-2.31.1
-
+Thanks,
+Jason
