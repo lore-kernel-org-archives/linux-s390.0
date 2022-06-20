@@ -2,129 +2,212 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E02ACCA47E
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 09:20:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 562C5C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 09:26:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235536AbiFTJUJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 05:20:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59534 "EHLO
+        id S240600AbiFTJ0F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Jun 2022 05:26:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240695AbiFTJUB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 05:20:01 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6173F10FE0;
-        Mon, 20 Jun 2022 02:19:27 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25K7lUEc017255;
-        Mon, 20 Jun 2022 09:19:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- content-transfer-encoding : in-reply-to; s=pp1;
- bh=FzeBKmN39vXTAfSSfM90CNWpQANatZcaEcbUjiMYvSY=;
- b=MoVF/j1Vl2smv+UDh8BEPve9GWjKd2hYdcL18pUziEHs3Pxs8jkxXRRv4nphDNkkaqT9
- wR75xqc5prUdv2CVOG6difjPSR0Ns7QfPI3EizNp5O9Sq87t/BC3XsA2AAo7F9F68ERS
- LNrqZ7dSSdL+RyobLnxKCpWC99fex5hkbniuy8VN++J1S3zEGH0c+tRxx5hmXGAxJwvP
- 5xVAMLvvizD1yvIkjJioOpY+Tmwkv9d2ZAJR4vBWC3Fn8B6E2ZMH0wW8t1sh/s8KZRU7
- 2Vsx8/i+iEacDp3F7rI1iuP22Lc3K777lf6fLiOBIbZ8QpRTQyilM1YFcyGHl5yr3kHT 3A== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsr0uc6c1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 09:19:24 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25K95B8V012320;
-        Mon, 20 Jun 2022 09:19:22 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04fra.de.ibm.com with ESMTP id 3gs6b8ss58-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 09:19:21 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25K9JJAl21430570
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Jun 2022 09:19:19 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E6B0511C054;
-        Mon, 20 Jun 2022 09:19:18 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 14CF711C04A;
-        Mon, 20 Jun 2022 09:19:18 +0000 (GMT)
-Received: from osiris (unknown [9.145.85.139])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 20 Jun 2022 09:19:18 +0000 (GMT)
-Date:   Mon, 20 Jun 2022 11:19:16 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     Juergen Gross <jgross@suse.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
+        with ESMTP id S240657AbiFTJ0D (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 05:26:03 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01E4B13D10;
+        Mon, 20 Jun 2022 02:25:59 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id AB70B21BE8;
+        Mon, 20 Jun 2022 09:25:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1655717157; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=XBlrnCPI0/xnKQl5KGOw1GKuAPUdEdNPBNt5Ay7eoOI=;
+        b=dO1NomBeWvEiR64l5uqRAzuOJp2LW7O9huaXuOE7OZQA3ErfInF/7fJLx5SO2xr6kxNqFU
+        hjIlOZoc4Nwx95JABhhgUfRNjUSwddfrShPH8m7hWtNla0B1iXsbXkKdfyf5VsKFiIOogb
+        gIhnm+uoNJtjqJfOK+Yge+1vm5DkQZs=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 64040134CA;
+        Mon, 20 Jun 2022 09:25:57 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id GQ4iFiU9sGJqQwAAMHmgww
+        (envelope-from <jgross@suse.com>); Mon, 20 Jun 2022 09:25:57 +0000
+Message-ID: <c9a84a02-ca69-fc2a-c738-a796b7197693@suse.com>
+Date:   Mon, 20 Jun 2022 11:25:56 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH] s390/kvm: avoid hypfs error message
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH] s390/kvm: avoid hypfs error message
-Message-ID: <YrA7lHb38Sj74+4U@osiris>
 References: <20220607123314.10255-1-jgross@suse.com>
  <5431f626-9bd3-ed54-9889-aafbba9ca3e0@suse.com>
  <9ef06123-b44f-b009-5bf5-60ad27bbede7@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9ef06123-b44f-b009-5bf5-60ad27bbede7@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: DShGIKbkWfWtWuKs20pnR-ESL0UlFJZJ
-X-Proofpoint-ORIG-GUID: DShGIKbkWfWtWuKs20pnR-ESL0UlFJZJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-20_05,2022-06-17_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- malwarescore=0 mlxlogscore=872 lowpriorityscore=0 bulkscore=0 adultscore=0
- priorityscore=1501 clxscore=1011 spamscore=0 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206200043
+ <YrA7lHb38Sj74+4U@osiris>
+From:   Juergen Gross <jgross@suse.com>
+In-Reply-To: <YrA7lHb38Sj74+4U@osiris>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------4wvW5BnLWg4RPNnojLZUqMbV"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 20, 2022 at 09:18:37AM +0200, Christian Borntraeger wrote:
-> Am 20.06.22 um 08:03 schrieb Juergen Gross:
-> > Ping?
-> > 
-> > On 07.06.22 14:33, Juergen Gross wrote:
-> > > When booting under KVM the following error messages are issued:
-> > > 
-> > > hypfs.7f5705: The hardware system does not support hypfs
-> > > hypfs.7a79f0: Initialization of hypfs failed with rc=-61
-> > > 
-> > > While being documented, they can easily be avoided by bailing out of
-> > > hypfs_init() early in case of running as a KVM guest.
-> > > 
-> > > Signed-off-by: Juergen Gross <jgross@suse.com>
-> > > ---
-> > >   arch/s390/hypfs/inode.c | 3 +++
-> > >   1 file changed, 3 insertions(+)
-> > > 
-> > > diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-> > > index 5c97f48cea91..bdf078f3c641 100644
-> > > --- a/arch/s390/hypfs/inode.c
-> > > +++ b/arch/s390/hypfs/inode.c
-> > > @@ -464,6 +464,9 @@ static int __init hypfs_init(void)
-> > >   {
-> > >       int rc;
-> > > +    if (MACHINE_IS_KVM)
-> > > +        return -ENODATA;
-> > > +
-> > >       hypfs_dbfs_init();
-> > >       if (hypfs_diag_init()) {
-> 
-> In case KVM implements hypfs this check would then be wrong.
-> Question to people on CC/TO.
-> Would it be an option to still check with KVM but avoid the error message.
-> So basically changing hypfs_diag_init and fail_dbfs_exit to check
-> for KVM on error?
-> Or is this worse?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------4wvW5BnLWg4RPNnojLZUqMbV
+Content-Type: multipart/mixed; boundary="------------lg4ubjF34QQKveTbJfDlqdPS";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Heiko Carstens <hca@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Alexander Gordeev <agordeev@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>
+Message-ID: <c9a84a02-ca69-fc2a-c738-a796b7197693@suse.com>
+Subject: Re: [PATCH] s390/kvm: avoid hypfs error message
+References: <20220607123314.10255-1-jgross@suse.com>
+ <5431f626-9bd3-ed54-9889-aafbba9ca3e0@suse.com>
+ <9ef06123-b44f-b009-5bf5-60ad27bbede7@linux.ibm.com>
+ <YrA7lHb38Sj74+4U@osiris>
+In-Reply-To: <YrA7lHb38Sj74+4U@osiris>
 
-I'd say just move the pr_err("Initialization of hypfs failed with...")
-one label above to fail_hypfs_diag_exit. Then we still get the message
-that the hardware system doesn't support hypfs, which seems to be
-wanted, and the error message only appears for an error.
+--------------lg4ubjF34QQKveTbJfDlqdPS
+Content-Type: multipart/mixed; boundary="------------OTD3babxZnoRhlLyvx66oRE3"
 
-Even though I personally dislike printing everything to the console
-this seems to be what is/was preferred. So let's keep that.
+--------------OTD3babxZnoRhlLyvx66oRE3
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+T24gMjAuMDYuMjIgMTE6MTksIEhlaWtvIENhcnN0ZW5zIHdyb3RlOg0KPiBPbiBNb24sIEp1
+biAyMCwgMjAyMiBhdCAwOToxODozN0FNICswMjAwLCBDaHJpc3RpYW4gQm9ybnRyYWVnZXIg
+d3JvdGU6DQo+PiBBbSAyMC4wNi4yMiB1bSAwODowMyBzY2hyaWViIEp1ZXJnZW4gR3Jvc3M6
+DQo+Pj4gUGluZz8NCj4+Pg0KPj4+IE9uIDA3LjA2LjIyIDE0OjMzLCBKdWVyZ2VuIEdyb3Nz
+IHdyb3RlOg0KPj4+PiBXaGVuIGJvb3RpbmcgdW5kZXIgS1ZNIHRoZSBmb2xsb3dpbmcgZXJy
+b3IgbWVzc2FnZXMgYXJlIGlzc3VlZDoNCj4+Pj4NCj4+Pj4gaHlwZnMuN2Y1NzA1OiBUaGUg
+aGFyZHdhcmUgc3lzdGVtIGRvZXMgbm90IHN1cHBvcnQgaHlwZnMNCj4+Pj4gaHlwZnMuN2E3
+OWYwOiBJbml0aWFsaXphdGlvbiBvZiBoeXBmcyBmYWlsZWQgd2l0aCByYz0tNjENCj4+Pj4N
+Cj4+Pj4gV2hpbGUgYmVpbmcgZG9jdW1lbnRlZCwgdGhleSBjYW4gZWFzaWx5IGJlIGF2b2lk
+ZWQgYnkgYmFpbGluZyBvdXQgb2YNCj4+Pj4gaHlwZnNfaW5pdCgpIGVhcmx5IGluIGNhc2Ug
+b2YgcnVubmluZyBhcyBhIEtWTSBndWVzdC4NCj4+Pj4NCj4+Pj4gU2lnbmVkLW9mZi1ieTog
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPg0KPj4+PiAtLS0NCj4+Pj4gIMKgIGFy
+Y2gvczM5MC9oeXBmcy9pbm9kZS5jIHwgMyArKysNCj4+Pj4gIMKgIDEgZmlsZSBjaGFuZ2Vk
+LCAzIGluc2VydGlvbnMoKykNCj4+Pj4NCj4+Pj4gZGlmZiAtLWdpdCBhL2FyY2gvczM5MC9o
+eXBmcy9pbm9kZS5jIGIvYXJjaC9zMzkwL2h5cGZzL2lub2RlLmMNCj4+Pj4gaW5kZXggNWM5
+N2Y0OGNlYTkxLi5iZGYwNzhmM2M2NDEgMTAwNjQ0DQo+Pj4+IC0tLSBhL2FyY2gvczM5MC9o
+eXBmcy9pbm9kZS5jDQo+Pj4+ICsrKyBiL2FyY2gvczM5MC9oeXBmcy9pbm9kZS5jDQo+Pj4+
+IEBAIC00NjQsNiArNDY0LDkgQEAgc3RhdGljIGludCBfX2luaXQgaHlwZnNfaW5pdCh2b2lk
+KQ0KPj4+PiAgwqAgew0KPj4+PiAgwqDCoMKgwqDCoCBpbnQgcmM7DQo+Pj4+ICvCoMKgwqAg
+aWYgKE1BQ0hJTkVfSVNfS1ZNKQ0KPj4+PiArwqDCoMKgwqDCoMKgwqAgcmV0dXJuIC1FTk9E
+QVRBOw0KPj4+PiArDQo+Pj4+ICDCoMKgwqDCoMKgIGh5cGZzX2RiZnNfaW5pdCgpOw0KPj4+
+PiAgwqDCoMKgwqDCoCBpZiAoaHlwZnNfZGlhZ19pbml0KCkpIHsNCj4+DQo+PiBJbiBjYXNl
+IEtWTSBpbXBsZW1lbnRzIGh5cGZzIHRoaXMgY2hlY2sgd291bGQgdGhlbiBiZSB3cm9uZy4N
+Cj4+IFF1ZXN0aW9uIHRvIHBlb3BsZSBvbiBDQy9UTy4NCj4+IFdvdWxkIGl0IGJlIGFuIG9w
+dGlvbiB0byBzdGlsbCBjaGVjayB3aXRoIEtWTSBidXQgYXZvaWQgdGhlIGVycm9yIG1lc3Nh
+Z2UuDQo+PiBTbyBiYXNpY2FsbHkgY2hhbmdpbmcgaHlwZnNfZGlhZ19pbml0IGFuZCBmYWls
+X2RiZnNfZXhpdCB0byBjaGVjaw0KPj4gZm9yIEtWTSBvbiBlcnJvcj8NCj4+IE9yIGlzIHRo
+aXMgd29yc2U/DQo+IA0KPiBJJ2Qgc2F5IGp1c3QgbW92ZSB0aGUgcHJfZXJyKCJJbml0aWFs
+aXphdGlvbiBvZiBoeXBmcyBmYWlsZWQgd2l0aC4uLiIpDQo+IG9uZSBsYWJlbCBhYm92ZSB0
+byBmYWlsX2h5cGZzX2RpYWdfZXhpdC4gVGhlbiB3ZSBzdGlsbCBnZXQgdGhlIG1lc3NhZ2UN
+Cj4gdGhhdCB0aGUgaGFyZHdhcmUgc3lzdGVtIGRvZXNuJ3Qgc3VwcG9ydCBoeXBmcywgd2hp
+Y2ggc2VlbXMgdG8gYmUNCj4gd2FudGVkLCBhbmQgdGhlIGVycm9yIG1lc3NhZ2Ugb25seSBh
+cHBlYXJzIGZvciBhbiBlcnJvci4NCj4gDQo+IEV2ZW4gdGhvdWdoIEkgcGVyc29uYWxseSBk
+aXNsaWtlIHByaW50aW5nIGV2ZXJ5dGhpbmcgdG8gdGhlIGNvbnNvbGUNCj4gdGhpcyBzZWVt
+cyB0byBiZSB3aGF0IGlzL3dhcyBwcmVmZXJyZWQuIFNvIGxldCdzIGtlZXAgdGhhdC4NCg0K
+V29ya3MgZm9yIG1lLg0KDQpXb3VsZCB5b3UgYmUgZmluZSB3aXRoIGFkZGl0aW9uYWxseToN
+Cg0KQEAgX19pbml0IGludCBoeXBmc19kaWFnX2luaXQodm9pZCkNCiAgICAgICAgICBpbnQg
+cmM7DQoNCiAgICAgICAgICBpZiAoZGlhZzIwNF9wcm9iZSgpKSB7DQotICAgICAgICAgICAg
+ICAgIHByX2VycigiVGhlIGhhcmR3YXJlIHN5c3RlbSBkb2VzIG5vdCBzdXBwb3J0IGh5cGZz
+XG4iKTsNCisgICAgICAgICAgICAgICAgcHJfaW5mbygiVGhlIGhhcmR3YXJlIHN5c3RlbSBk
+b2VzIG5vdCBzdXBwb3J0IGh5cGZzXG4iKTsNCiAgICAgICAgICAgICAgICAgIHJldHVybiAt
+RU5PREFUQTsNCiAgICAgICAgICB9DQoNCkFzIHRoaXMgbm90IHJlYWxseSBhbiBlcnJvci4N
+Cg0KDQpKdWVyZ2VuDQo=
+--------------OTD3babxZnoRhlLyvx66oRE3
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------OTD3babxZnoRhlLyvx66oRE3--
+
+--------------lg4ubjF34QQKveTbJfDlqdPS--
+
+--------------4wvW5BnLWg4RPNnojLZUqMbV
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmKwPSQFAwAAAAAACgkQsN6d1ii/Ey/8
+9gf/UyomhLFdZjBJiJk1gD884zBzv+SMVCnUqOc0z8LFBfwxw6xMAEC16lXezMjGBSTMdUJQ2Xtg
+zixPguGJUXP9uhVaoahWiK0Sb0KMUKAvwusTS69iRzVqIu+PJYj0sk+p+PYcHoDmC0cWEMA/rMcH
+WJcLpm+SB1P6cgSCeT+JDmlri39tLCX1zszO577CKgXv1cQUOGPCLKKMNVbT66F0+MV5zIt/2bca
+NMCKoEMfUFWelfzk4M5j2ZkIg9PbXwhUF0juOXxrybG7O0T68GRz6rAkmysMiRifTM4pqfd2MngZ
+vX6Dip+EJ1JI8TwtOEzAqIcPCvKwFeGBZlsWe68Neg==
+=I2YW
+-----END PGP SIGNATURE-----
+
+--------------4wvW5BnLWg4RPNnojLZUqMbV--
