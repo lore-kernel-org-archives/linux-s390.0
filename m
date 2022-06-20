@@ -2,85 +2,75 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E11C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 11:03:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 207FAC43334
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 11:14:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241092AbiFTLDc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 07:03:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53874 "EHLO
+        id S241870AbiFTLOm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Jun 2022 07:14:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240146AbiFTLDb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 07:03:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE5312AA2;
-        Mon, 20 Jun 2022 04:03:27 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CEA3B8108C;
-        Mon, 20 Jun 2022 11:03:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E842C3411C;
-        Mon, 20 Jun 2022 11:03:24 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="DFTzjwGR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1655723002;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=XCzTJV39Spaf8xMntkyuVAWW186G7M690N665AOiqfk=;
-        b=DFTzjwGRSPlUI4JRPx49WGas67S5luQNT3sO44uqmW65LM/Q+gAQp7KBSGA5js3G0rzVX8
-        ssHLJZdTeOo7HfCSp4HhIDTQLWlYtbng9iWf/vmrDVj15b42YNZI8pfaaaRdxxx68YMScn
-        UO+dw4P6FJeXC7n59l5gyc3ibbnT7fM=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 29d6483a (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 20 Jun 2022 11:03:22 +0000 (UTC)
-Date:   Mon, 20 Jun 2022 13:03:19 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Harald Freudenberger <freude@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Ingo Franzki <ifranzki@linux.ibm.com>,
-        Juergen Christ <jchrist@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390/archrandom: simplify back to earlier design
-Message-ID: <YrBT97lARo2QAWVF@zx2c4.com>
-References: <20220610111041.2709-1-Jason@zx2c4.com>
- <1e6dd1baa9a5d7a665917793e2df785c@linux.ibm.com>
+        with ESMTP id S241874AbiFTLO1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 07:14:27 -0400
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D562175A9;
+        Mon, 20 Jun 2022 04:13:17 -0700 (PDT)
+Received: from fraeml704-chm.china.huawei.com (unknown [172.18.147.226])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4LRRlt2yjBz6H6lq;
+        Mon, 20 Jun 2022 19:11:06 +0800 (CST)
+Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
+ fraeml704-chm.china.huawei.com (10.206.15.53) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2375.24; Mon, 20 Jun 2022 13:12:58 +0200
+Received: from [10.195.35.72] (10.195.35.72) by lhreml724-chm.china.huawei.com
+ (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Mon, 20 Jun
+ 2022 12:12:57 +0100
+Message-ID: <b98ad03b-e599-6023-3b34-ebefb590bf8c@huawei.com>
+Date:   Mon, 20 Jun 2022 12:12:55 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1e6dd1baa9a5d7a665917793e2df785c@linux.ibm.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH 5/5] blk-mq: Drop 'reserved' member of busy_tag_iter_fn
+To:     Bart Van Assche <bvanassche@acm.org>, <axboe@kernel.dk>,
+        <damien.lemoal@opensource.wdc.com>, <hch@lst.de>,
+        <jejb@linux.ibm.com>, <martin.petersen@oracle.com>, <hare@suse.de>,
+        <satishkh@cisco.com>, <sebaddel@cisco.com>, <kartilak@cisco.com>
+CC:     <linux-rdma@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
+        <linux-nvme@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <linux-scsi@vger.kernel.org>, <mpi3mr-linuxdrv.pdl@broadcom.com>,
+        <linux-block@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <nbd@other.debian.org>
+References: <1655463320-241202-1-git-send-email-john.garry@huawei.com>
+ <1655463320-241202-6-git-send-email-john.garry@huawei.com>
+ <017cae1e-b45f-04fd-d34c-22ae736b28e5@acm.org>
+ <a18fa379-5a9b-ff45-3be4-b253efd96a50@huawei.com>
+ <c6a0eb8d-ad51-01b1-bc17-758acc37f216@acm.org>
+From:   John Garry <john.garry@huawei.com>
+In-Reply-To: <c6a0eb8d-ad51-01b1-bc17-758acc37f216@acm.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.195.35.72]
+X-ClientProxiedBy: lhreml744-chm.china.huawei.com (10.201.108.194) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Harald,
+On 17/06/2022 17:55, Bart Van Assche wrote:
+>>
+>> It's not totally necessary. Since local variable 'reserved' would now 
+>> only be used once I thought it was better to get rid of it.
+>>
+>> I can keep it if you really think that is better.
+> 
+> I'd prefer that these changes are either left out or that these are 
+> moved into a separate patch. I think that will make this patch series 
+> easier to review.
 
-On Mon, Jun 20, 2022 at 12:54:11PM +0200, Harald Freudenberger wrote:
-> Hi Jason, I've been on vacation and now seen your s390 arch random 
-> rework.
-> Your assumption is right. The hw TRNG we have on the s390 platform is
-> relatively expensive and I had to learn that directly calling the TRNG
-> as part of an arch_get_random_{long,int} is not the right way. As we
-> also have a NIST 800-90A conform PRNG in hardware, I used it as some
-> kind of caching the TRNG random data.
+Personally I think that this is a trivial change and does not merit a 
+separate patch. Other reviewers seem to agree. Anyway, if you feel 
+strongly about this then I can put in another patch.
 
-Indeed that's what I saw. I actually think this kind of caching is
-undesirable from an rng perspective too, since it essentially means we
-have two software rngs, with different lifetimes and semantics on key
-duration. So getting rid of that seems like a benefit.
-
-> With all the changes in random.c there is no need to provide any
-> arch_get_random_{long,int}() implementation any more.
-> However, the arch_get_random_seed functions should provide TRNG
-> values to random.c and so I'll have a close look onto your changes.
-
-Right, that's what my patch does.
-
-> Thanks for your patches, I'll come back with some feedback.
-
-Thanks, looking forward. Please be sure to read v3 of the bunch I sent
-(rather than this v1 you're replying to here):
-https://lore.kernel.org/lkml/20220610222023.378448-1-Jason@zx2c4.com/
-
-Jason
+Thanks,
+John
