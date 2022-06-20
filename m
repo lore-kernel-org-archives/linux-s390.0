@@ -2,82 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B799CCA479
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 07:37:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1820DC43334
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 09:13:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236311AbiFTHhd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 03:37:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38010 "EHLO
+        id S239136AbiFTJN6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Jun 2022 05:13:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231954AbiFTHhc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 03:37:32 -0400
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E30EE32;
-        Mon, 20 Jun 2022 00:37:31 -0700 (PDT)
-Received: from fraeml708-chm.china.huawei.com (unknown [172.18.147.206])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4LRLzF1D8vz6H6l9;
-        Mon, 20 Jun 2022 15:35:37 +0800 (CST)
-Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
- fraeml708-chm.china.huawei.com (10.206.15.36) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 20 Jun 2022 09:37:28 +0200
-Received: from [10.195.35.72] (10.195.35.72) by lhreml724-chm.china.huawei.com
- (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Mon, 20 Jun
- 2022 08:37:26 +0100
-Message-ID: <b033027d-2600-0c7a-a74a-133bda610f2c@huawei.com>
-Date:   Mon, 20 Jun 2022 08:37:25 +0100
+        with ESMTP id S234626AbiFTJN5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 05:13:57 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DDD1B84D;
+        Mon, 20 Jun 2022 02:13:54 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25K8kr6F010058;
+        Mon, 20 Jun 2022 09:13:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=nt5IlIyzyHgTgxTWNHW6T/YuGcNz1Ky46jJWZsFmvAQ=;
+ b=jkjXpL33qhreHk/06XuV6AYOI28YBvxnxQXKbUx311XJNV4kNpAeoBwxSe+O6SAEviF2
+ LKW8XfoZqNZ6jOtkcaATKOWs0MFzR/83/fPVd/SNW0lYHzJ4psyxW9WhD9GgkRgZ8or1
+ KoiXvCUJzdv3do1CCa9PfhRMiSYJz4XXjlqwjV7VTyXEjw5obu03AY03Qt0h069EPyzS
+ bJ9lQuPwCrENL0aBTftPrk18dPf3LgSUgoFpegZCdaXtpPRQQaA5kjX2FqHB1GBHR1g3
+ 13G73JkaL7I7Pd3JkZ5On9gtSl7mPD9HIhqwi4/TAvaZMJhJOJ3YnKiSsgcojG42i0nr jA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsr1aknv2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jun 2022 09:13:53 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25K8rHLa019602;
+        Mon, 20 Jun 2022 09:13:53 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsr1aknty-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jun 2022 09:13:53 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25K96veJ020586;
+        Mon, 20 Jun 2022 09:13:51 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3gs5yhj89b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jun 2022 09:13:51 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25K9DmUh17564046
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 20 Jun 2022 09:13:48 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0EC6B11C04C;
+        Mon, 20 Jun 2022 09:13:48 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 89CE411C052;
+        Mon, 20 Jun 2022 09:13:47 +0000 (GMT)
+Received: from [9.145.19.23] (unknown [9.145.19.23])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 20 Jun 2022 09:13:47 +0000 (GMT)
+Message-ID: <ca855209-59b1-f17e-dd1d-7106410d0342@linux.ibm.com>
+Date:   Mon, 20 Jun 2022 11:13:46 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH 1/5] scsi: core: Remove reserved request time-out handling
-To:     Christoph Hellwig <hch@lst.de>
-CC:     <axboe@kernel.dk>, <damien.lemoal@opensource.wdc.com>,
-        <bvanassche@acm.org>, <jejb@linux.ibm.com>,
-        <martin.petersen@oracle.com>, <hare@suse.de>, <satishkh@cisco.com>,
-        <sebaddel@cisco.com>, <kartilak@cisco.com>,
-        <linux-rdma@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-        <linux-nvme@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-        <linux-scsi@vger.kernel.org>, <mpi3mr-linuxdrv.pdl@broadcom.com>,
-        <linux-block@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <nbd@other.debian.org>
-References: <1655463320-241202-1-git-send-email-john.garry@huawei.com>
- <1655463320-241202-2-git-send-email-john.garry@huawei.com>
- <20220620055828.GA10192@lst.de>
-From:   John Garry <john.garry@huawei.com>
-In-Reply-To: <20220620055828.GA10192@lst.de>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v11 16/19] KVM: s390: pv: api documentation for
+ asynchronous destroy
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
+        david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        mimu@linux.ibm.com, nrb@linux.ibm.com
+References: <20220603065645.10019-1-imbrenda@linux.ibm.com>
+ <20220603065645.10019-17-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220603065645.10019-17-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.195.35.72]
-X-ClientProxiedBy: lhreml744-chm.china.huawei.com (10.201.108.194) To
- lhreml724-chm.china.huawei.com (10.201.108.75)
-X-CFilter-Loop: Reflected
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: LavpEDHOoaCuDqkjZ5bCJId5Q7X487ma
+X-Proofpoint-GUID: M-1x24M-57p5nf0HQw506XCj21Cdjmp5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-20_05,2022-06-17_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 spamscore=0 phishscore=0 impostorscore=0 malwarescore=0
+ suspectscore=0 adultscore=0 mlxscore=0 clxscore=1015 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206200043
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 20/06/2022 06:58, Christoph Hellwig wrote:
-> On Fri, Jun 17, 2022 at 06:55:16PM +0800, John Garry wrote:
->> The SCSI code does not currently support reserved commands. As such,
->> requests which time-out would never be reserved, and scsi_timeout()
->> 'reserved' arg should never be set.
->>
->> Remove handling for reserved requests and drop wrapper scsi_timeout() as
->> it now just calls scsi_times_out() always.
+On 6/3/22 08:56, Claudio Imbrenda wrote:
+> Add documentation for the new commands added to the KVM_S390_PV_COMMAND
+> ioctl.
 > 
-> Please rename scsi_times_out to scsi_timeout so it still matches the
-> method name.
->
-
-ok, note that some code comments and Documentation reference 
-scsi_times_out() so I will need to fix them up also.
-
-
-> Otherwise looks good:
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+>   Documentation/virt/kvm/api.rst | 25 ++++++++++++++++++++++---
+>   1 file changed, 22 insertions(+), 3 deletions(-)
 > 
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> 
-> .
+> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+> index 11e00a46c610..97d35b30ce3b 100644
+> --- a/Documentation/virt/kvm/api.rst
+> +++ b/Documentation/virt/kvm/api.rst
+> @@ -5143,11 +5143,13 @@ KVM_PV_ENABLE
+>     =====      =============================
+>   
+>   KVM_PV_DISABLE
+> -
+>     Deregister the VM from the Ultravisor and reclaim the memory that
+>     had been donated to the Ultravisor, making it usable by the kernel
+> -  again.  All registered VCPUs are converted back to non-protected
+> -  ones.
+> +  again. All registered VCPUs are converted back to non-protected
+> +  ones. If a previous VM had been prepared for asynchonous teardown
+> +  with KVM_PV_ASYNC_DISABLE_PREPARE and not actually torn down with
+> +  KVM_PV_ASYNC_DISABLE, it will be torn down in this call together with
+> +  the current VM.
+>   
+>   KVM_PV_VM_SET_SEC_PARMS
+>     Pass the image header from VM memory to the Ultravisor in
+> @@ -5160,6 +5162,23 @@ KVM_PV_VM_VERIFY
+>     Verify the integrity of the unpacked image. Only if this succeeds,
+>     KVM is allowed to start protected VCPUs.
+>   
+> +KVM_PV_ASYNC_DISABLE_PREPARE
+> +  Prepare the current protected VM for asynchronous teardown. Most
+> +  resources used by the current protected VM will be set aside for a
 
-Cheers,
-John
+We should state that leftover UV state needs cleanup, namely secure 
+storage and the configuration.
