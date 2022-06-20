@@ -2,105 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9D71C43334
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 09:45:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BD8BC43334
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 09:48:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239572AbiFTJpk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 05:45:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49612 "EHLO
+        id S232170AbiFTJsA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Jun 2022 05:48:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238713AbiFTJpj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 05:45:39 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E937812AEE;
-        Mon, 20 Jun 2022 02:45:38 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id A84461F9DB;
-        Mon, 20 Jun 2022 09:45:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1655718337; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=8NRL4MTr+OVt80rHTjkzINGiVUeJeAQKiy0ovCOZrXg=;
-        b=IvM1fU4+d3dJcrdW400ARz411NoEVShQHwHeHUjej3/ZB9IECB4YKSP1JxQQRn6bkkI/Id
-        Y5lNulb7ThvDZrToFUiwHyrH7P8EV7O8P1C4MbA99i6h5bgIdS6GrTwX0DHL0UvUyLtFcs
-        JgZCiCf9LTu7/REhgihtHiBqosGrK8M=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 67AE5134CA;
-        Mon, 20 Jun 2022 09:45:37 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id gOTtF8FBsGKWTQAAMHmgww
-        (envelope-from <jgross@suse.com>); Mon, 20 Jun 2022 09:45:37 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S239153AbiFTJr6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 05:47:58 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCE6AD73;
+        Mon, 20 Jun 2022 02:47:54 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25K84ijV016693;
+        Mon, 20 Jun 2022 09:47:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=Np/O7yFPUqiCUfl0PLi5bRkE4/j0Xw9+ugO+BGmcTvE=;
+ b=Zo3NxBUJlQ3LllllOInjSaJqU5Hz6inLRxMcGJfdkXQ/p8EjN7AFO5KC5yX2tLIYHnHb
+ 1bW1ORq9cwDX8pyngREd0QP+l0khl4imzmoEF9VhxOUBafxJti2u4MHiZfTfNp5M1M/p
+ V4jl3w04ccEtlfLHjppZKZDXSaEWgDbTRKEeaMA3T8WgRb7UBqNsOa4TE6wcPke7h33g
+ 0E6+GZ8QDJ52NAZC5RC0hu2OZ5KHVvJ3RB8Oy2ab/jHscXHC2VZRTIXvzNeSRRv0vLjo
+ WwI/HoSCbcN7deAaroKNLjVqRr3LIF7kaFFETwmhiYOduc4G4TP2roiv57UBIGt2Hzn3 cQ== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsrqt4a4r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jun 2022 09:47:51 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25K9ZK71028242;
+        Mon, 20 Jun 2022 09:47:49 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3gs6b8t9cs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jun 2022 09:47:49 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25K9ljSB20054360
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 20 Jun 2022 09:47:45 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CCB25A405F;
+        Mon, 20 Jun 2022 09:47:45 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7BB5BA4054;
+        Mon, 20 Jun 2022 09:47:45 +0000 (GMT)
+Received: from osiris (unknown [9.145.85.139])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 20 Jun 2022 09:47:45 +0000 (GMT)
+Date:   Mon, 20 Jun 2022 11:47:44 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH v2] s390/kvm: avoid hypfs error message
-Date:   Mon, 20 Jun 2022 11:45:34 +0200
-Message-Id: <20220620094534.18967-1-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
+Subject: Re: [PATCH v2] s390/kvm: avoid hypfs error message
+Message-ID: <YrBCQDr01R2URj1I@osiris>
+References: <20220620094534.18967-1-jgross@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220620094534.18967-1-jgross@suse.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: iYwO6U0Q9dTtKbx58AQqCs275ZS5QFup
+X-Proofpoint-ORIG-GUID: iYwO6U0Q9dTtKbx58AQqCs275ZS5QFup
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-20_05,2022-06-17_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=606
+ bulkscore=0 impostorscore=0 mlxscore=0 phishscore=0 suspectscore=0
+ lowpriorityscore=0 malwarescore=0 priorityscore=1501 spamscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206200044
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When booting under KVM the following error messages are issued:
+On Mon, Jun 20, 2022 at 11:45:34AM +0200, Juergen Gross wrote:
+> When booting under KVM the following error messages are issued:
+> 
+> hypfs.7f5705: The hardware system does not support hypfs
+> hypfs.7a79f0: Initialization of hypfs failed with rc=-61
+> 
+> Demote the severity of first message from "error" to "info" and issue
+> the second message only in other error cases.
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> ---
+> V2:
+> - don't bail out if KVM, but avoid error messages instead (Christian
+>   Borntraeger)
+> ---
+>  arch/s390/hypfs/hypfs_diag.c | 2 +-
+>  arch/s390/hypfs/inode.c      | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 
-hypfs.7f5705: The hardware system does not support hypfs
-hypfs.7a79f0: Initialization of hypfs failed with rc=-61
-
-Demote the severity of first message from "error" to "info" and issue
-the second message only in other error cases.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V2:
-- don't bail out if KVM, but avoid error messages instead (Christian
-  Borntraeger)
----
- arch/s390/hypfs/hypfs_diag.c | 2 +-
- arch/s390/hypfs/inode.c      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
-index f0bc4dc3e9bf..6511d15ace45 100644
---- a/arch/s390/hypfs/hypfs_diag.c
-+++ b/arch/s390/hypfs/hypfs_diag.c
-@@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
- 	int rc;
- 
- 	if (diag204_probe()) {
--		pr_err("The hardware system does not support hypfs\n");
-+		pr_info("The hardware system does not support hypfs\n");
- 		return -ENODATA;
- 	}
- 
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index 5c97f48cea91..ee919bfc8186 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -496,9 +496,9 @@ static int __init hypfs_init(void)
- 	hypfs_vm_exit();
- fail_hypfs_diag_exit:
- 	hypfs_diag_exit();
-+	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
- fail_dbfs_exit:
- 	hypfs_dbfs_exit();
--	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
- 	return rc;
- }
- device_initcall(hypfs_init)
--- 
-2.35.3
-
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
