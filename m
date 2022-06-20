@@ -2,133 +2,287 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDBCBC43334
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 11:32:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65B91C43334
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 12:50:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239789AbiFTLcL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 07:32:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
+        id S241235AbiFTMuY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Jun 2022 08:50:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232549AbiFTLcK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 07:32:10 -0400
+        with ESMTP id S229690AbiFTMuX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 08:50:23 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B361659C;
-        Mon, 20 Jun 2022 04:32:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC672C3;
+        Mon, 20 Jun 2022 05:50:23 -0700 (PDT)
 Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25K9lqKu014285;
-        Mon, 20 Jun 2022 11:32:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=jVK9wEHh9LZRmdSSR3RPiJgDvlpS/1VQQpJjOHSTab0=;
- b=oygUGqBa7ycL8mx/OsywQTa3pk8zMctBovo4rC7Ab8fGYjkJ+kJlLsJt0e+KqjtGcyEP
- WrpJfcXrj/zcoMaRLE3AswFGdOitqiOuUOs7dDKRVGGGHmEYgaHrH+o9eKD+AVj4Jb+r
- JfGsxxwvGP1/OsXAaHmJPIhiimo8rRc96Jx/RhMknEo/nLjipO4eqO78t1D9/i9+OG5x
- O8ttdT2MR4sNm1EMW1aBXzaMAKCd7jkCkbC0Zo+XiPXLml1j82512naZ2+PpZ5ddRCxL
- 08NKMCDteuRNOFBrXrer95bKWmgsXF2j/+3/usQ0nn08EaPLv5HdsM75nB4A57UnXyrO EA== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsr0ufa3u-1
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25KC5TMV032767;
+        Mon, 20 Jun 2022 12:50:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=3DwiYxmDd0APKvshXNHFVRSOuNmyc0gCYDA2b4ZZ0Ko=;
+ b=eAE0vqYuyfxAtBXbfMIe43s3jPuedwhtkdUsloWHG+6h+hofOcYqX0m4TNovt99Jb/Dy
+ wOHKj2LlEndML7N11ujJiteVaEWC7ao2c4Wc/q3TmRZk3VHTiH/5QlQJtK66IXlGZXzI
+ OxFdTlHFEawsf7aUQ+vQ/Ya/xt+Cz7O6nZTTUvc9/ystq5/slZDDHAjrpw0o3FLeBMyw
+ 2W0HbNkMQC73NB6agojjFq7XCkNWC8TheyMcmGgS8ssv92aNNKt6Bc4+q0ax29JNI03J
+ 38lEKF1VVM+7UCKFYIm4JIu6C1M0oj2S9D03rurCHcwd7hFa5kxVHB+DI/p5TWAKCFXz bg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsr0uhgme-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 11:32:06 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25KBLq2T013053;
-        Mon, 20 Jun 2022 11:32:04 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3gs6b92e0d-1
+        Mon, 20 Jun 2022 12:50:22 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25KCVBbT004832;
+        Mon, 20 Jun 2022 12:50:22 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsr0uhgju-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 11:32:04 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25KBW1mG19464534
+        Mon, 20 Jun 2022 12:50:22 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25KCZ6nb008321;
+        Mon, 20 Jun 2022 12:50:19 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma02fra.de.ibm.com with ESMTP id 3gs6b8syhu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jun 2022 12:50:19 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25KCoGns17826124
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Jun 2022 11:32:01 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0C3AC11C054;
-        Mon, 20 Jun 2022 11:32:01 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C3A9211C04A;
-        Mon, 20 Jun 2022 11:32:00 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 20 Jun 2022 11:32:00 +0000 (GMT)
-Date:   Mon, 20 Jun 2022 13:31:59 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Juergen Gross <jgross@suse.com>
+        Mon, 20 Jun 2022 12:50:16 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 337DDA4040;
+        Mon, 20 Jun 2022 12:50:16 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 79BFAA4051;
+        Mon, 20 Jun 2022 12:50:15 +0000 (GMT)
+Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.62.140])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 20 Jun 2022 12:50:15 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v2] s390/kvm: avoid hypfs error message
-Message-ID: <YrBarz+NVJmS+bBb@tuxmaker.boeblingen.de.ibm.com>
-References: <20220620094534.18967-1-jgross@suse.com>
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, pmorel@linux.ibm.com,
+        wintera@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com
+Subject: [PATCH v10 0/3] s390x: KVM: CPU Topology
+Date:   Mon, 20 Jun 2022 14:54:34 +0200
+Message-Id: <20220620125437.37122-1-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220620094534.18967-1-jgross@suse.com>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4zcbB7HEji5h78Opc3VL9WADUSoFH-jM
-X-Proofpoint-ORIG-GUID: 4zcbB7HEji5h78Opc3VL9WADUSoFH-jM
+X-Proofpoint-GUID: vA4pVF_LMeQeRO0ICtBGdEehG_JX62Wg
+X-Proofpoint-ORIG-GUID: usMS3epPWyS34AT1H7phIctfOn22EFD_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
  definitions=2022-06-20_05,2022-06-17_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- malwarescore=0 mlxlogscore=931 lowpriorityscore=0 bulkscore=0 adultscore=0
- priorityscore=1501 clxscore=1011 spamscore=0 impostorscore=0
+ malwarescore=0 mlxlogscore=999 lowpriorityscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 clxscore=1015 spamscore=0 impostorscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206200054
+ engine=8.12.0-2204290000 definitions=main-2206200059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 20, 2022 at 11:45:34AM +0200, Juergen Gross wrote:
-> When booting under KVM the following error messages are issued:
-> 
-> hypfs.7f5705: The hardware system does not support hypfs
-> hypfs.7a79f0: Initialization of hypfs failed with rc=-61
-> 
-> Demote the severity of first message from "error" to "info" and issue
-> the second message only in other error cases.
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+Hi all,
 
-Applied, thanks!
+This new spin suppress the check for real cpu migration and
+modify the checking of valid function code inside the interception
+of the STSI instruction.
 
-> ---
-> V2:
-> - don't bail out if KVM, but avoid error messages instead (Christian
->   Borntraeger)
-> ---
->  arch/s390/hypfs/hypfs_diag.c | 2 +-
->  arch/s390/hypfs/inode.c      | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
-> index f0bc4dc3e9bf..6511d15ace45 100644
-> --- a/arch/s390/hypfs/hypfs_diag.c
-> +++ b/arch/s390/hypfs/hypfs_diag.c
-> @@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
->  	int rc;
->  
->  	if (diag204_probe()) {
-> -		pr_err("The hardware system does not support hypfs\n");
-> +		pr_info("The hardware system does not support hypfs\n");
->  		return -ENODATA;
->  	}
->  
-> diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-> index 5c97f48cea91..ee919bfc8186 100644
-> --- a/arch/s390/hypfs/inode.c
-> +++ b/arch/s390/hypfs/inode.c
-> @@ -496,9 +496,9 @@ static int __init hypfs_init(void)
->  	hypfs_vm_exit();
->  fail_hypfs_diag_exit:
->  	hypfs_diag_exit();
-> +	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
->  fail_dbfs_exit:
->  	hypfs_dbfs_exit();
-> -	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
->  	return rc;
->  }
->  device_initcall(hypfs_init)
-> -- 
-> 2.35.3
-> 
+The series provides:
+0- Modification of the ipte lock handling to use KVM instead of the
+   vcpu as an argument because ipte lock work on SCA which is uniq
+   per KVM structure and common to all vCPUs.
+1- interception of the STSI instruction forwarding the CPU topology
+2- interpretation of the PTF instruction
+3- a KVM capability for the userland hypervisor to ask KVM to 
+   setup PTF interpretation.
+4- KVM ioctl to get and set the MTCR bit of the SCA in order to
+   migrate this bit during a migration.
+
+
+0- Foreword
+
+The S390 CPU topology is reported using two instructions:
+- PTF, to get information if the CPU topology did change since last
+  PTF instruction or a subsystem reset.
+- STSI, to get the topology information, consisting of the topology
+  of the CPU inside the sockets, of the sockets inside the books etc.
+
+The PTF(2) instruction report a change if the STSI(15.1.2) instruction
+will report a difference with the last STSI(15.1.2) instruction*.
+With the SIE interpretation, the PTF(2) instruction will report a
+change to the guest if the host sets the SCA.MTCR bit.
+
+*The STSI(15.1.2) instruction reports:
+- The cores address within a socket
+- The polarization of the cores
+- The CPU type of the cores
+- If the cores are dedicated or not
+
+We decided to implement the CPU topology for S390 in several steps:
+
+- first we report CPU hotplug
+
+In future development we will provide:
+
+- modification of the CPU mask inside sockets
+- handling of shared CPUs
+- reporting of the CPU Type
+- reporting of the polarization
+
+
+1- Interception of STSI
+
+To provide Topology information to the guest through the STSI
+instruction, we forward STSI with Function Code 15 to the
+userland hypervisor which will take care to provide the right
+information to the guest.
+
+To let the guest use both the PTF instruction  to check if a topology
+change occurred and sthe STSI_15.x.x instruction we add a new KVM
+capability to enable the topology facility.
+
+2- Interpretation of PTF with FC(2)
+
+The PTF instruction reports a topology change if there is any change
+with a previous STSI(15.1.2) SYSIB.
+
+Changes inside a STSI(15.1.2) SYSIB occur if CPU bits are set or clear
+inside the CPU Topology List Entry CPU mask field, which happens with
+changes in CPU polarization, dedication, CPU types and adding or
+removing CPUs in a socket.
+
+Considering that the KVM guests currently only supports:
+- horizontal polarization
+- type 3 (Linux) CPU
+
+And that we decide to support only:
+- dedicated CPUs on the host
+- pinned vCPUs on the guest
+
+the creation of vCPU will is the only trigger to set the MTCR bit for
+a guest.
+
+The reporting to the guest is done using the Multiprocessor
+Topology-Change-Report (MTCR) bit of the utility entry of the guest's
+SCA which will be cleared during the interpretation of PTF.
+
+Regards,
+Pierre
+
+Pierre Morel (3):
+  KVM: s390: ipte lock for SCA access should be contained in KVM
+  KVM: s390: guest support for topology function
+  KVM: s390: resetting the Topology-Change-Report
+
+ Documentation/virt/kvm/api.rst   |  31 ++++++++
+ arch/s390/include/asm/kvm_host.h |  11 ++-
+ arch/s390/include/uapi/asm/kvm.h |  10 +++
+ arch/s390/kvm/gaccess.c          |  96 ++++++++++++------------
+ arch/s390/kvm/gaccess.h          |   6 +-
+ arch/s390/kvm/kvm-s390.c         | 123 ++++++++++++++++++++++++++++++-
+ arch/s390/kvm/priv.c             |  21 ++++--
+ arch/s390/kvm/vsie.c             |   3 +
+ include/uapi/linux/kvm.h         |   1 +
+ 9 files changed, 240 insertions(+), 62 deletions(-)
+
+-- 
+2.31.1
+
+Changelog:
+
+from v9 to v10
+
+- Suppression of the check on real CPU migration
+  (Christian)
+
+- Changed the check on fc in handle_stsi
+  (David)
+
+from v8 to v9
+
+- bug correction in kvm_s390_topology_changed
+  (Heiko)
+
+- simplification for ipte_lock/unlock to use kvm
+  as arg instead of vcpu and test on sclp.has_siif
+  instead of the SIE ECA_SII.
+  (David)
+
+- use of a single value for reporting if the
+  topology changed instead of a structure
+  (David)
+
+from v7 to v8
+
+- implement reset handling
+  (Janosch)
+
+- change the way to check if the topology changed
+  (Nico, Heiko)
+
+from v6 to v7
+
+- rebase
+
+from v5 to v6
+
+- make the subject more accurate
+  (Claudio)
+
+- Change the kvm_s390_set_mtcr() function to have vcpu in the name
+  (Janosch)
+
+- Replace the checks on ECB_PTF wit the check of facility 11
+  (Janosch)
+
+- modify kvm_arch_vcpu_load, move the check in a function in
+  the header file
+  (Janosh)
+
+- No magical number replace the "new cpu value" of -1 with a define
+  (Janosch)
+
+- Make the checks for STSI validity clearer
+  (Janosch)
+
+from v4 tp v5
+
+- modify the way KVM_CAP is tested to be OK with vsie
+  (David)
+
+from v3 to v4
+
+- squatch both patches
+  (David)
+
+- Added Documentation
+  (David)
+
+- Modified the detection for new vCPUs
+  (Pierre)
+
+from v2 to v3
+
+- use PTF interpretation
+  (Christian)
+
+- optimize arch_update_cpu_topology using PTF
+  (Pierre)
+
+from v1 to v2:
+
+- Add a KVM capability to let QEMU know we support PTF and STSI 15
+  (David)
+
+- check KVM facility 11 before accepting STSI fc 15
+  (David)
+
+- handle all we can in userland
+  (David)
+
+- add tracing to STSI fc 15
+  (Connie)
+
