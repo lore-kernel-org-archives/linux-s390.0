@@ -2,180 +2,82 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20EB8C43334
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 06:03:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4F35C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 06:32:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238518AbiFTGD1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 02:03:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39700 "EHLO
+        id S236737AbiFTGcS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Jun 2022 02:32:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238502AbiFTGDV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 02:03:21 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865055FF1;
-        Sun, 19 Jun 2022 23:03:20 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 432821F916;
-        Mon, 20 Jun 2022 06:03:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1655704999; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Gv9EGbhHKTU9NAIzd5Fwb9sAZGrgO5CTCjt3oCBuAAc=;
-        b=ifGeYyEecXtzyzBHhtx0iLHzGIzv0JnsYRL7bPucqrxYTOX0SwrN6yw/VU0+Z5rd7G0aGg
-        ABGHfNibUwmaCy6VpVZJyC1hqBSMA7FgderqocB9nnYm04PsAxftqTeOWMqTXp3SJIrOts
-        +9xcLW5uzLdkS+YryOgCvGmUbFjRUQw=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0427813638;
-        Mon, 20 Jun 2022 06:03:18 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id umzVOqYNsGL/YgAAMHmgww
-        (envelope-from <jgross@suse.com>); Mon, 20 Jun 2022 06:03:18 +0000
-Message-ID: <5431f626-9bd3-ed54-9889-aafbba9ca3e0@suse.com>
-Date:   Mon, 20 Jun 2022 08:03:18 +0200
+        with ESMTP id S230121AbiFTGcR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 02:32:17 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2FCBE1E;
+        Sun, 19 Jun 2022 23:32:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=oft8FlbmjHBjJqlnhBPI4YswqmZIF+Cnzz/NNEVVT+E=; b=1XYMUd/2v7vTlQnwMxOtngE7gl
+        uwvrBST6y4aRz4Rgyvs1Y/GfkVLkbhk9d65Dd91y++7i+PqcFe6tCmlR+p33CmdHLdA35CWJYcePw
+        582xxxz0W6kCtRcoz/CEhxGuRbDDcLtU6Xk48x6+/+sT1PImmNtk7swPaJ7QXb98J/ksnWRhgjRlN
+        JYADWPL56pc3Z65TUqHDycWlrfcK4kbex92PdAEcrOUaRvRPjKi6OC3quFJwvaTFkQYZYwAljpqer
+        nFr7/BVhfFvNN0DndogwkjF/DFNbwsRgdmzo1VzYU85R2BQGpzVo1k8icWLT0CF2BbVKoScyfRHZo
+        1mM1DdVg==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1o3AxD-00GRZI-Uf; Mon, 20 Jun 2022 06:32:07 +0000
+Date:   Sun, 19 Jun 2022 23:32:07 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        Nicolin Chen <nicolinc@nvidia.com>, kwankhede@nvidia.com,
+        corbet@lwn.net, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
+        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
+        rodrigo.vivi@intel.com, tvrtko.ursulin@linux.intel.com,
+        airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com,
+        akrowiak@linux.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com, cohuck@redhat.com,
+        kevin.tian@intel.com, jchrist@linux.ibm.com, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: Re: [RFT][PATCH v1 5/6] vfio/ccw: Add kmap_local_page() for memcpy
+Message-ID: <YrAUZ7hXy2FcZcjl@infradead.org>
+References: <20220616235212.15185-1-nicolinc@nvidia.com>
+ <20220616235212.15185-6-nicolinc@nvidia.com>
+ <Yqw+7gM3Lz96UFdz@infradead.org>
+ <20220620025726.GA5219@nvidia.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH] s390/kvm: avoid hypfs error message
-Content-Language: en-US
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-References: <20220607123314.10255-1-jgross@suse.com>
-From:   Juergen Gross <jgross@suse.com>
-In-Reply-To: <20220607123314.10255-1-jgross@suse.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------JgAyFWNqVwFMFl2oFcsEXtqa"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220620025726.GA5219@nvidia.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------JgAyFWNqVwFMFl2oFcsEXtqa
-Content-Type: multipart/mixed; boundary="------------dhzp00Q81Bwnv5shN4Kh1pv3";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>
-Message-ID: <5431f626-9bd3-ed54-9889-aafbba9ca3e0@suse.com>
-Subject: Re: [PATCH] s390/kvm: avoid hypfs error message
-References: <20220607123314.10255-1-jgross@suse.com>
-In-Reply-To: <20220607123314.10255-1-jgross@suse.com>
+On Sun, Jun 19, 2022 at 11:57:26PM -0300, Jason Gunthorpe wrote:
+> The remark about io memory is because on s390 memcpy() will crash even
+> on ioremapped memory, you have to use the memcpy_to/fromio() which
+> uses the special s390 io access instructions.
 
---------------dhzp00Q81Bwnv5shN4Kh1pv3
-Content-Type: multipart/mixed; boundary="------------fasRUmpl5lg2YranrntzxJB7"
+Yes.  The same is true for various other architectures, inluding arm64
+under the right circumstances.
 
---------------fasRUmpl5lg2YranrntzxJB7
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+> This helps because we now block io memory from ever getting into these
+> call paths. I'm pretty sure this is a serious security bug, but would
+> let the IBM folks remark as I don't know it all that well..
 
-UGluZz8NCg0KT24gMDcuMDYuMjIgMTQ6MzMsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+IFdo
-ZW4gYm9vdGluZyB1bmRlciBLVk0gdGhlIGZvbGxvd2luZyBlcnJvciBtZXNzYWdlcyBhcmUg
-aXNzdWVkOg0KPiANCj4gaHlwZnMuN2Y1NzA1OiBUaGUgaGFyZHdhcmUgc3lzdGVtIGRvZXMg
-bm90IHN1cHBvcnQgaHlwZnMNCj4gaHlwZnMuN2E3OWYwOiBJbml0aWFsaXphdGlvbiBvZiBo
-eXBmcyBmYWlsZWQgd2l0aCByYz0tNjENCj4gDQo+IFdoaWxlIGJlaW5nIGRvY3VtZW50ZWQs
-IHRoZXkgY2FuIGVhc2lseSBiZSBhdm9pZGVkIGJ5IGJhaWxpbmcgb3V0IG9mDQo+IGh5cGZz
-X2luaXQoKSBlYXJseSBpbiBjYXNlIG9mIHJ1bm5pbmcgYXMgYSBLVk0gZ3Vlc3QuDQo+IA0K
-PiBTaWduZWQtb2ZmLWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+DQo+IC0t
-LQ0KPiAgIGFyY2gvczM5MC9oeXBmcy9pbm9kZS5jIHwgMyArKysNCj4gICAxIGZpbGUgY2hh
-bmdlZCwgMyBpbnNlcnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvYXJjaC9zMzkwL2h5
-cGZzL2lub2RlLmMgYi9hcmNoL3MzOTAvaHlwZnMvaW5vZGUuYw0KPiBpbmRleCA1Yzk3ZjQ4
-Y2VhOTEuLmJkZjA3OGYzYzY0MSAxMDA2NDQNCj4gLS0tIGEvYXJjaC9zMzkwL2h5cGZzL2lu
-b2RlLmMNCj4gKysrIGIvYXJjaC9zMzkwL2h5cGZzL2lub2RlLmMNCj4gQEAgLTQ2NCw2ICs0
-NjQsOSBAQCBzdGF0aWMgaW50IF9faW5pdCBoeXBmc19pbml0KHZvaWQpDQo+ICAgew0KPiAg
-IAlpbnQgcmM7DQo+ICAgDQo+ICsJaWYgKE1BQ0hJTkVfSVNfS1ZNKQ0KPiArCQlyZXR1cm4g
-LUVOT0RBVEE7DQo+ICsNCj4gICAJaHlwZnNfZGJmc19pbml0KCk7DQo+ICAgDQo+ICAgCWlm
-IChoeXBmc19kaWFnX2luaXQoKSkgew0KDQo=
---------------fasRUmpl5lg2YranrntzxJB7
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+Prevent as in crash when trying to convert it to a page?
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+> As for the kmap, I thought it was standard practice even if it is a
+> non-highmem? Aren't people trying to use this for other security
+> stuff these days?
 
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------fasRUmpl5lg2YranrntzxJB7--
-
---------------dhzp00Q81Bwnv5shN4Kh1pv3--
-
---------------JgAyFWNqVwFMFl2oFcsEXtqa
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmKwDaYFAwAAAAAACgkQsN6d1ii/Ey/a
-BQgAhxz9eio2otyh5DRhmdEQwOo4DB8l1E7hy0c0vIza/9vFFc1+BaB3j/UrMATjWxkmiX2dVagB
-ujeBDwMMWM7Q0K9+YRJfkiDFtJaPELYhhWrdSWoo/pACjQKgHh29VklwSTLWAlpK0dC/kWv8b7sR
-CFI6XgKkSmpZyWmUhPG5zseruVCA6Q3SEilh2x5yyAoJBq+2b2uF2e7RrWwOtidNe3LDUExuRfn7
-dZZUAlYVxXfGuM67589tLE2CQ5/HpnnZACIxsbQ1medTLCEuXb6oBncvR+QxM18/PCweZ/Qwd8y5
-4OSDgIlYrZgvnEWfdZ8skAdnOtKC32+tVKAuseZ4DQ==
-=8nr5
------END PGP SIGNATURE-----
-
---------------JgAyFWNqVwFMFl2oFcsEXtqa--
+Ira has been lookin into the protection keys, although they don't
+apply to s390.  Either way I don't object to using kmap, but the
+commit log doesn't make much sense to me.
