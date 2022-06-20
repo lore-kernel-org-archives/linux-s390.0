@@ -2,75 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 207FAC43334
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 11:14:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDBCBC43334
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 11:32:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241870AbiFTLOm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 07:14:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33714 "EHLO
+        id S239789AbiFTLcL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Jun 2022 07:32:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241874AbiFTLO1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 07:14:27 -0400
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D562175A9;
-        Mon, 20 Jun 2022 04:13:17 -0700 (PDT)
-Received: from fraeml704-chm.china.huawei.com (unknown [172.18.147.226])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4LRRlt2yjBz6H6lq;
-        Mon, 20 Jun 2022 19:11:06 +0800 (CST)
-Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
- fraeml704-chm.china.huawei.com (10.206.15.53) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2375.24; Mon, 20 Jun 2022 13:12:58 +0200
-Received: from [10.195.35.72] (10.195.35.72) by lhreml724-chm.china.huawei.com
- (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Mon, 20 Jun
- 2022 12:12:57 +0100
-Message-ID: <b98ad03b-e599-6023-3b34-ebefb590bf8c@huawei.com>
-Date:   Mon, 20 Jun 2022 12:12:55 +0100
+        with ESMTP id S232549AbiFTLcK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 07:32:10 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B361659C;
+        Mon, 20 Jun 2022 04:32:09 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25K9lqKu014285;
+        Mon, 20 Jun 2022 11:32:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=jVK9wEHh9LZRmdSSR3RPiJgDvlpS/1VQQpJjOHSTab0=;
+ b=oygUGqBa7ycL8mx/OsywQTa3pk8zMctBovo4rC7Ab8fGYjkJ+kJlLsJt0e+KqjtGcyEP
+ WrpJfcXrj/zcoMaRLE3AswFGdOitqiOuUOs7dDKRVGGGHmEYgaHrH+o9eKD+AVj4Jb+r
+ JfGsxxwvGP1/OsXAaHmJPIhiimo8rRc96Jx/RhMknEo/nLjipO4eqO78t1D9/i9+OG5x
+ O8ttdT2MR4sNm1EMW1aBXzaMAKCd7jkCkbC0Zo+XiPXLml1j82512naZ2+PpZ5ddRCxL
+ 08NKMCDteuRNOFBrXrer95bKWmgsXF2j/+3/usQ0nn08EaPLv5HdsM75nB4A57UnXyrO EA== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsr0ufa3u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jun 2022 11:32:06 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25KBLq2T013053;
+        Mon, 20 Jun 2022 11:32:04 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3gs6b92e0d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jun 2022 11:32:04 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25KBW1mG19464534
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 20 Jun 2022 11:32:01 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0C3AC11C054;
+        Mon, 20 Jun 2022 11:32:01 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C3A9211C04A;
+        Mon, 20 Jun 2022 11:32:00 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 20 Jun 2022 11:32:00 +0000 (GMT)
+Date:   Mon, 20 Jun 2022 13:31:59 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v2] s390/kvm: avoid hypfs error message
+Message-ID: <YrBarz+NVJmS+bBb@tuxmaker.boeblingen.de.ibm.com>
+References: <20220620094534.18967-1-jgross@suse.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH 5/5] blk-mq: Drop 'reserved' member of busy_tag_iter_fn
-To:     Bart Van Assche <bvanassche@acm.org>, <axboe@kernel.dk>,
-        <damien.lemoal@opensource.wdc.com>, <hch@lst.de>,
-        <jejb@linux.ibm.com>, <martin.petersen@oracle.com>, <hare@suse.de>,
-        <satishkh@cisco.com>, <sebaddel@cisco.com>, <kartilak@cisco.com>
-CC:     <linux-rdma@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-        <linux-nvme@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-        <linux-scsi@vger.kernel.org>, <mpi3mr-linuxdrv.pdl@broadcom.com>,
-        <linux-block@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <nbd@other.debian.org>
-References: <1655463320-241202-1-git-send-email-john.garry@huawei.com>
- <1655463320-241202-6-git-send-email-john.garry@huawei.com>
- <017cae1e-b45f-04fd-d34c-22ae736b28e5@acm.org>
- <a18fa379-5a9b-ff45-3be4-b253efd96a50@huawei.com>
- <c6a0eb8d-ad51-01b1-bc17-758acc37f216@acm.org>
-From:   John Garry <john.garry@huawei.com>
-In-Reply-To: <c6a0eb8d-ad51-01b1-bc17-758acc37f216@acm.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.195.35.72]
-X-ClientProxiedBy: lhreml744-chm.china.huawei.com (10.201.108.194) To
- lhreml724-chm.china.huawei.com (10.201.108.75)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220620094534.18967-1-jgross@suse.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4zcbB7HEji5h78Opc3VL9WADUSoFH-jM
+X-Proofpoint-ORIG-GUID: 4zcbB7HEji5h78Opc3VL9WADUSoFH-jM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-20_05,2022-06-17_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ malwarescore=0 mlxlogscore=931 lowpriorityscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 clxscore=1011 spamscore=0 impostorscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206200054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 17/06/2022 17:55, Bart Van Assche wrote:
->>
->> It's not totally necessary. Since local variable 'reserved' would now 
->> only be used once I thought it was better to get rid of it.
->>
->> I can keep it if you really think that is better.
+On Mon, Jun 20, 2022 at 11:45:34AM +0200, Juergen Gross wrote:
+> When booting under KVM the following error messages are issued:
 > 
-> I'd prefer that these changes are either left out or that these are 
-> moved into a separate patch. I think that will make this patch series 
-> easier to review.
+> hypfs.7f5705: The hardware system does not support hypfs
+> hypfs.7a79f0: Initialization of hypfs failed with rc=-61
+> 
+> Demote the severity of first message from "error" to "info" and issue
+> the second message only in other error cases.
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
 
-Personally I think that this is a trivial change and does not merit a 
-separate patch. Other reviewers seem to agree. Anyway, if you feel 
-strongly about this then I can put in another patch.
+Applied, thanks!
 
-Thanks,
-John
+> ---
+> V2:
+> - don't bail out if KVM, but avoid error messages instead (Christian
+>   Borntraeger)
+> ---
+>  arch/s390/hypfs/hypfs_diag.c | 2 +-
+>  arch/s390/hypfs/inode.c      | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
+> index f0bc4dc3e9bf..6511d15ace45 100644
+> --- a/arch/s390/hypfs/hypfs_diag.c
+> +++ b/arch/s390/hypfs/hypfs_diag.c
+> @@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
+>  	int rc;
+>  
+>  	if (diag204_probe()) {
+> -		pr_err("The hardware system does not support hypfs\n");
+> +		pr_info("The hardware system does not support hypfs\n");
+>  		return -ENODATA;
+>  	}
+>  
+> diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+> index 5c97f48cea91..ee919bfc8186 100644
+> --- a/arch/s390/hypfs/inode.c
+> +++ b/arch/s390/hypfs/inode.c
+> @@ -496,9 +496,9 @@ static int __init hypfs_init(void)
+>  	hypfs_vm_exit();
+>  fail_hypfs_diag_exit:
+>  	hypfs_diag_exit();
+> +	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+>  fail_dbfs_exit:
+>  	hypfs_dbfs_exit();
+> -	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+>  	return rc;
+>  }
+>  device_initcall(hypfs_init)
+> -- 
+> 2.35.3
+> 
