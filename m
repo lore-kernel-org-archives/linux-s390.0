@@ -2,133 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1820DC43334
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 09:13:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6776C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 09:14:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239136AbiFTJN6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 05:13:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53524 "EHLO
+        id S240584AbiFTJOo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Jun 2022 05:14:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234626AbiFTJN5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 05:13:57 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DDD1B84D;
-        Mon, 20 Jun 2022 02:13:54 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25K8kr6F010058;
-        Mon, 20 Jun 2022 09:13:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=nt5IlIyzyHgTgxTWNHW6T/YuGcNz1Ky46jJWZsFmvAQ=;
- b=jkjXpL33qhreHk/06XuV6AYOI28YBvxnxQXKbUx311XJNV4kNpAeoBwxSe+O6SAEviF2
- LKW8XfoZqNZ6jOtkcaATKOWs0MFzR/83/fPVd/SNW0lYHzJ4psyxW9WhD9GgkRgZ8or1
- KoiXvCUJzdv3do1CCa9PfhRMiSYJz4XXjlqwjV7VTyXEjw5obu03AY03Qt0h069EPyzS
- bJ9lQuPwCrENL0aBTftPrk18dPf3LgSUgoFpegZCdaXtpPRQQaA5kjX2FqHB1GBHR1g3
- 13G73JkaL7I7Pd3JkZ5On9gtSl7mPD9HIhqwi4/TAvaZMJhJOJ3YnKiSsgcojG42i0nr jA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsr1aknv2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 09:13:53 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25K8rHLa019602;
-        Mon, 20 Jun 2022 09:13:53 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gsr1aknty-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 09:13:53 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25K96veJ020586;
-        Mon, 20 Jun 2022 09:13:51 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 3gs5yhj89b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Jun 2022 09:13:51 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25K9DmUh17564046
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Jun 2022 09:13:48 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0EC6B11C04C;
-        Mon, 20 Jun 2022 09:13:48 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 89CE411C052;
-        Mon, 20 Jun 2022 09:13:47 +0000 (GMT)
-Received: from [9.145.19.23] (unknown [9.145.19.23])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 20 Jun 2022 09:13:47 +0000 (GMT)
-Message-ID: <ca855209-59b1-f17e-dd1d-7106410d0342@linux.ibm.com>
-Date:   Mon, 20 Jun 2022 11:13:46 +0200
+        with ESMTP id S240449AbiFTJOl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 05:14:41 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49445DF4F;
+        Mon, 20 Jun 2022 02:14:40 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id F19351F9DB;
+        Mon, 20 Jun 2022 09:14:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1655716479; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mun6kkTBka4blPimiza/vyI98J12pl71BNv2YPF93hs=;
+        b=bQPoC/IzexlGKG3xbmu3XikL5TKSkhgS5T07klrUkcFLGqcHoqBGCaGdQcMZPdGiIB2ZuP
+        76bJjH9inHuqUmLVL4gLYPcyLrGDP/zGgwhLYJXtT2B1wXC5pWzNyGgn8geag9BQKYC+sz
+        3RTyZ6REJGQ4EYDlzMy2B1ah20feulM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1655716479;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mun6kkTBka4blPimiza/vyI98J12pl71BNv2YPF93hs=;
+        b=sueMt3Y0uPvZleSXDT55HMwsiGA3lkffNlA/3s4vc0UnNp+lvi+U/2QWJ8thEVQGUUkY1f
+        leZGidcxy4MKkzCA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id CC68E134CA;
+        Mon, 20 Jun 2022 09:14:38 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 0kh8MX46sGJtPQAAMHmgww
+        (envelope-from <hare@suse.de>); Mon, 20 Jun 2022 09:14:38 +0000
+Message-ID: <8bde22c7-1c7e-3593-3217-3a4434769a96@suse.de>
+Date:   Mon, 20 Jun 2022 11:14:38 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH v11 16/19] KVM: s390: pv: api documentation for
- asynchronous destroy
+ Thunderbird/91.4.0
+Subject: Re: [PATCH 1/5] scsi: core: Remove reserved request time-out handling
 Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
-        david@redhat.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
-        mimu@linux.ibm.com, nrb@linux.ibm.com
-References: <20220603065645.10019-1-imbrenda@linux.ibm.com>
- <20220603065645.10019-17-imbrenda@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220603065645.10019-17-imbrenda@linux.ibm.com>
+To:     John Garry <john.garry@huawei.com>, axboe@kernel.dk,
+        damien.lemoal@opensource.wdc.com, bvanassche@acm.org, hch@lst.de,
+        jejb@linux.ibm.com, martin.petersen@oracle.com, satishkh@cisco.com,
+        sebaddel@cisco.com, kartilak@cisco.com
+Cc:     linux-rdma@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org, mpi3mr-linuxdrv.pdl@broadcom.com,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        nbd@other.debian.org
+References: <1655463320-241202-1-git-send-email-john.garry@huawei.com>
+ <1655463320-241202-2-git-send-email-john.garry@huawei.com>
+From:   Hannes Reinecke <hare@suse.de>
+In-Reply-To: <1655463320-241202-2-git-send-email-john.garry@huawei.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LavpEDHOoaCuDqkjZ5bCJId5Q7X487ma
-X-Proofpoint-GUID: M-1x24M-57p5nf0HQw506XCj21Cdjmp5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-20_05,2022-06-17_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 spamscore=0 phishscore=0 impostorscore=0 malwarescore=0
- suspectscore=0 adultscore=0 mlxscore=0 clxscore=1015 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206200043
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/3/22 08:56, Claudio Imbrenda wrote:
-> Add documentation for the new commands added to the KVM_S390_PV_COMMAND
-> ioctl.
+On 6/17/22 12:55, John Garry wrote:
+> The SCSI code does not currently support reserved commands. As such,
+> requests which time-out would never be reserved, and scsi_timeout()
+> 'reserved' arg should never be set.
 > 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> Remove handling for reserved requests and drop wrapper scsi_timeout() as
+> it now just calls scsi_times_out() always.
+> 
+> Signed-off-by: John Garry <john.garry@huawei.com>
 > ---
->   Documentation/virt/kvm/api.rst | 25 ++++++++++++++++++++++---
->   1 file changed, 22 insertions(+), 3 deletions(-)
+>   drivers/scsi/scsi_error.c |  3 ++-
+>   drivers/scsi/scsi_lib.c   | 12 ++----------
+>   drivers/scsi/scsi_priv.h  |  3 ++-
+>   3 files changed, 6 insertions(+), 12 deletions(-)
 > 
-> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-> index 11e00a46c610..97d35b30ce3b 100644
-> --- a/Documentation/virt/kvm/api.rst
-> +++ b/Documentation/virt/kvm/api.rst
-> @@ -5143,11 +5143,13 @@ KVM_PV_ENABLE
->     =====      =============================
->   
->   KVM_PV_DISABLE
-> -
->     Deregister the VM from the Ultravisor and reclaim the memory that
->     had been donated to the Ultravisor, making it usable by the kernel
-> -  again.  All registered VCPUs are converted back to non-protected
-> -  ones.
-> +  again. All registered VCPUs are converted back to non-protected
-> +  ones. If a previous VM had been prepared for asynchonous teardown
-> +  with KVM_PV_ASYNC_DISABLE_PREPARE and not actually torn down with
-> +  KVM_PV_ASYNC_DISABLE, it will be torn down in this call together with
-> +  the current VM.
->   
->   KVM_PV_VM_SET_SEC_PARMS
->     Pass the image header from VM memory to the Ultravisor in
-> @@ -5160,6 +5162,23 @@ KVM_PV_VM_VERIFY
->     Verify the integrity of the unpacked image. Only if this succeeds,
->     KVM is allowed to start protected VCPUs.
->   
-> +KVM_PV_ASYNC_DISABLE_PREPARE
-> +  Prepare the current protected VM for asynchronous teardown. Most
-> +  resources used by the current protected VM will be set aside for a
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-We should state that leftover UV state needs cleanup, namely secure 
-storage and the configuration.
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke		           Kernel Storage Architect
+hare@suse.de			                  +49 911 74053 688
+SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 36809 (AG Nürnberg), GF: Felix Imendörffer
