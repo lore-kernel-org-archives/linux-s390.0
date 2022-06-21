@@ -2,140 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07550C43334
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Jun 2022 15:40:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEE34C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Jun 2022 09:16:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237912AbiFTPkE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Jun 2022 11:40:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41128 "EHLO
+        id S1347810AbiFUJQm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Jun 2022 05:16:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235125AbiFTPkD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jun 2022 11:40:03 -0400
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2052.outbound.protection.outlook.com [40.107.244.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0452C19038;
-        Mon, 20 Jun 2022 08:40:01 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=nFkw6ujbqsMmplRRN7CPmTwo+lXUr7z8vS9rAdIitPmc/3jRDbFyBWEieiVEzzx+/2x6TWOU9LuKy/+7Bx2N77iYV6pSVvnS3jxsDmvas5e1yCFAobuzfvLYW4VNz8/uIsott2kWALHhvwshKf9XPfJkizj9o1qUru9tdHDxWYsQC0oEgezAtyizy0GoiUpG/l9jzU7JesKp5y10RmxEyZITEWaNcsX8mX1B+7OcGjekG8ImJgGElHzVKkQ2iawzwZbHM4EY3fzxLphFmVEzeu3TVYuM0w9Cw6BHIe5+K/IgysL2XieOQkxPEB0629Cx5ykw60RVY+PAQ4/uE0IiAg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nlN0ECtgKqc9UPB2Mw1zDNRx3uQQ6vHbqj8pAhUgp80=;
- b=Sh/Gj5waDKWKLAYfBPooRasTD+YdwqSGDj4W6SvAwkoBD9X87d7ogRuRu8fw1LD4yH9S1CUa8mobWPFfyW+ShVu4GG07ITYhKbFr/hfhARjjs65Hj/SHl+/OdwjTD24l2KSRdXYy1uArJ8Ooa9mM2260QfYjqMX4/aFis5TYQfAm/BLaIK3RPDu8FQETMNmku9/gqeeIenZ4b9R4xGWYecMZZedo1ZjOQRLxmkULTaCTxvv3TlD/xCcxg+KHazS4khmTwC9A0VkoEjsZpPl9+7MemDOP3wB7OgD+aqSsp6CvoNFq+Frufog30SW3WH61IFID1sb2GPEFKUJ7td1v3g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nlN0ECtgKqc9UPB2Mw1zDNRx3uQQ6vHbqj8pAhUgp80=;
- b=Ly9VsLJaYcD3c+5L9/eSe00YYA2YFCyDkru91LAmgISrQJKHb1TzXOCZZV6uOtYdnqa1GMTxXKBu08TNDElJp/MNBEu9koh27GwYZV9YiAqZF4+C1qX8wJlAn/GZFJc0qNCQM+as7kkIPe2XH8GFlnItFk2zrcRfkgbfr3n3vmef8xoqA2rxwicMvYw2VN7P7eVF4Q9CzmqHGG9bNCFG2Ap9SK6K1ydllMFB1FbA2pnAUBZBCbVOaGOMFBuY7K9WFr693sysEd1WvzcLQMJqh/l8NBxhJJT2iTxzpItqW2W+5iVSO5Mv51UuEZNS6QzrCxcVOmTp7K6YQZBR9jKQQQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by MWHPR12MB1438.namprd12.prod.outlook.com (2603:10b6:300:14::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.19; Mon, 20 Jun
- 2022 15:39:59 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ac35:7c4b:3282:abfb]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ac35:7c4b:3282:abfb%3]) with mapi id 15.20.5353.022; Mon, 20 Jun 2022
- 15:39:59 +0000
-Date:   Mon, 20 Jun 2022 12:39:56 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Nicolin Chen <nicolinc@nvidia.com>, kwankhede@nvidia.com,
-        corbet@lwn.net, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
-        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
-        rodrigo.vivi@intel.com, tvrtko.ursulin@linux.intel.com,
-        airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com,
-        akrowiak@linux.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, cohuck@redhat.com,
-        kevin.tian@intel.com, jchrist@linux.ibm.com, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: Re: [RFT][PATCH v1 5/6] vfio/ccw: Add kmap_local_page() for memcpy
-Message-ID: <20220620153956.GB5502@nvidia.com>
-References: <20220616235212.15185-1-nicolinc@nvidia.com>
- <20220616235212.15185-6-nicolinc@nvidia.com>
- <Yqw+7gM3Lz96UFdz@infradead.org>
- <20220620025726.GA5219@nvidia.com>
- <YrAUZ7hXy2FcZcjl@infradead.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YrAUZ7hXy2FcZcjl@infradead.org>
-X-ClientProxiedBy: MW4PR04CA0290.namprd04.prod.outlook.com
- (2603:10b6:303:89::25) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S1347916AbiFUJQk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jun 2022 05:16:40 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2407A12D05
+        for <linux-s390@vger.kernel.org>; Tue, 21 Jun 2022 02:16:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655802998;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=xE1eQ7rSn112nzVYfSbRI8lphkzHLYug/d5ePoCHz4Q=;
+        b=goKyP+aklRUZf+MPowtTuvBZheKaH30YI4mp2NRlWx/Qn842ASId2E25dx7FHij4WDT2tK
+        PQHNIXHKDB0GmGAQEkBcbrKbOKQ4tfoAI6Yu+2qQ2WQzd51pNjLZYi/msej9Ap6BdaSnr9
+        C1UgLIM7IhHedXqS5fIMG2jeslbDO60=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-73-ETFWK0YNNTm6xaO8-uYDiQ-1; Tue, 21 Jun 2022 05:16:34 -0400
+X-MC-Unique: ETFWK0YNNTm6xaO8-uYDiQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id ADBB8811E81;
+        Tue, 21 Jun 2022 09:16:33 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.229])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5593C1121314;
+        Tue, 21 Jun 2022 09:16:33 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Jason Wang <jasowang@redhat.com>, pasic@linux.ibm.com,
+        jasowang@redhat.com, mst@redhat.com
+Cc:     gor@linux.ibm.com, borntraeger@de.ibm.com, agordeev@linux.ibm.com,
+        linux-s390@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH V2] virtio: disable notification hardening by default
+In-Reply-To: <20220620024158.2505-1-jasowang@redhat.com>
+Organization: Red Hat GmbH
+References: <20220620024158.2505-1-jasowang@redhat.com>
+User-Agent: Notmuch/0.36 (https://notmuchmail.org)
+Date:   Tue, 21 Jun 2022 11:16:31 +0200
+Message-ID: <87y1xq8jgw.fsf@redhat.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 6fd6a13e-7a08-40fd-bef5-08da52d32203
-X-MS-TrafficTypeDiagnostic: MWHPR12MB1438:EE_
-X-Microsoft-Antispam-PRVS: <MWHPR12MB143881D7476AEB391A9CCDC6C2B09@MWHPR12MB1438.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: r2pus2Ue9T65ZRSnnC3dET066yVpFWrdfBz9Pdy/X/eQ1SFKMR5ANK7rUlpDStsZvsfSQVBZm53ApFk8ohA2Iv6qyVAffWyOPhGteQbvRihPFby63pHxN8p32NALvG8Ld7OFh9fuXGgx3hcwIgMG+M3yTC53ubxLwE2TVqbMpJQX+iFdl1vxEX1akMqN8p6Flu7XfOAiRF3BQt7nq+mjlK3V8H1oEP8bBZzxOmnva4gaBB9Gyjrkbkx86soKG00r0+d7Ulh0J9iSgue1Uo5bm5yLNljRI1XVu7cPCddofRr67m7iMD2NQ74+fZ9fe61TUYCriP5lvrMZ9ansapDFR7s04JScrrXBNRlgFVeLVkzugggMnJvCLEvBNXIQftaa/sZf2oK7qcl0Vxm+5rq2pJc7vgjBdmDbA3xI+84BOacWw9g24hwJyH0h5JkMr6cD5SjD6+OHSYEyqJ+v0Z12PhT96Aa6ttEoo33QhooUj3a0K3Rz4pKfR8KLQ84jnaP4qy0pimo0svKAWoU/rx5pG7v51WHOHnJBvP6LJ7jtBbu2cSV6TNA/1JQv6Abn1B1P++2PwzDzi049GOyrW4iWpvllhxW8MOVBTpq+jMPEsQZPrz4/5nIJHKWySTk//HNNUkI1+fwMveVo2ttqpz9k3A==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(33656002)(38100700002)(86362001)(6486002)(5660300002)(7416002)(498600001)(8936002)(7406005)(2906002)(4744005)(316002)(6916009)(66946007)(8676002)(66556008)(186003)(6666004)(4326008)(66476007)(1076003)(83380400001)(6506007)(2616005)(6512007)(26005)(36756003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?1bAV/LX1Q6td4b/COvDCMcTzQUO0nh8Tjv+Ndpm7eyM7zlZp1vzuT98YF4zR?=
- =?us-ascii?Q?K7V0WoGwIalBR2a8sPJC0MjGy2euJCqQgenskAkg+hdhWo5dTsdUeOwO+bvG?=
- =?us-ascii?Q?ohEkE26BnmehXvXVmWyHIj13XEOoYGJvoqPYK5hEfoXbPFE5UclIWK2kHOYL?=
- =?us-ascii?Q?EPLEhG/RW8VNBSBmpnudiMYODo3x1Lor8UhNRu7sJ2TfhOBw4S7a0qTodmi4?=
- =?us-ascii?Q?GQVHrTzvKUZ6lUP8oLTF+SEY9SAa89NKcejvHuiDijuHKonwjL53MDwgMuyj?=
- =?us-ascii?Q?YxLkhrV0hCJvQsx+Bv7sQTimAbZ+qNpFlgBVNVRkA0ttcqau9C5YFy5MTwZB?=
- =?us-ascii?Q?LHjxHDxpGiMqUdoxk//kApZhCAakcvrG/54JismLy04WFOujjbvs81sXTjYU?=
- =?us-ascii?Q?ZuaffpPZLnsbldlfFNIFS0UYlej3O5y7zoiAcbSosEjuE0Nhym+W4dTqHQme?=
- =?us-ascii?Q?IvmRMU6FcOwUXgDl0aEz9JBywBfhMu2HG+jVunVxOR++JAZKC9JZHNz/kQDX?=
- =?us-ascii?Q?B7439OjguoQ9vsSA0pLL+1s3PwQjvXloiQC9nxUg2tMknNU3xsVx079i8a6b?=
- =?us-ascii?Q?hMeDWHIQVHkZwkWq4Eh/wtYiL5F2yLnulMJRjN3OhftP5/Umm8rS2XRPEhuT?=
- =?us-ascii?Q?pK6alLYQgWmSFxksnmICyBmocCb1wT0R6DlhVaAjycDsqjDqrokjovmURtXj?=
- =?us-ascii?Q?bswc5ET7ro7Q2rHZgbXz+mEPb9nUEuw88kbL/RhIndhDnT6W53fBQpXYC8Hq?=
- =?us-ascii?Q?EPa7HRTNy0jKYM7k0PXcT8hPGzeQtvNeWd4dLNp1I5uq529r65uQ/qirD0NG?=
- =?us-ascii?Q?u8x0WSmQJex4NH1prtwQBj9hJ2Yd1yd4boSitIGxrgPqHpe8na7x9yHYbGtk?=
- =?us-ascii?Q?R36ZzE8rjHvvU7tAJGG5qBEKMiYcjgS19WTJMqlAWKCrnEXSkx22vh2rH7/j?=
- =?us-ascii?Q?QJNlQLZuAP8IZQxS0oEeIVV+HWB0vsctj36zKNbeqBxCS8cMADzAiW9uuWpO?=
- =?us-ascii?Q?zP6ZU72pG+Q6NJ1fho56TRs8B1ySCb28L1/3i8h7oiZGvkSQolxPMHzlHzH9?=
- =?us-ascii?Q?6ALVHljSydKRAXtl91qqQelZZXvSPuEtcm0HZf3CD8fly8WIYb1AJkKLq/Ep?=
- =?us-ascii?Q?6rOmjBxI0KpsSFaAGXvnK3Btfpb/4Iivt5ejcWEmDN+vwh6PmNTozLCZF+ri?=
- =?us-ascii?Q?B0r6RYjO4jRmFS+p664cQLeDpWlgs8tjEibh4qwfdEa5A2fa+rfB0/ku03fo?=
- =?us-ascii?Q?g5BFutFM4oE3JtyR3YJacSt5cIOMb15Ou9+SjFBl2zUly5tFFQNZjtT8vD9S?=
- =?us-ascii?Q?5KZUvjlEdAk0lEq612VtVpx7fZVPEGMbSpgT071rO5Qe2TSLfUmIfvRmMZdp?=
- =?us-ascii?Q?PB744YBl/p5+y//mPre9jNuse0Aj8gJssji/bqlWTcN83CaXLE4e8SIT6GSf?=
- =?us-ascii?Q?HskkfcRsJ/XJD0s0v45Gy1OzlYXTxfyp5uVyA3+NgLporGV4z8rUrkA8PPG5?=
- =?us-ascii?Q?AnfxZUrRvPtsbYRzV0xY5/bX+uo0uEmyGS8T+Gru9qsy+jp7URPr6qqFD1hg?=
- =?us-ascii?Q?qW/GhqAx9pIE2FD0wjb5S4YiVhLqHwD+u7CxiwyUTs/DSjlrSWzotzhWAwAL?=
- =?us-ascii?Q?E8Hjq8pIZNH+PegoKTujLR3YEihaQwLXLxx/jEU1lkjirmQQkv7Uwa5/LJI+?=
- =?us-ascii?Q?mWitMAC00nMkL5+VgHyQnzp0bqgWhFrY1Y1swtvUE87mjNR8pv2nIoS6WGu8?=
- =?us-ascii?Q?wDIQRuYxHQ=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6fd6a13e-7a08-40fd-bef5-08da52d32203
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jun 2022 15:39:59.0938
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ypkdjmQKYzu99BoR8eEEDGyyqZyTcXpU+sMTbeHaZ9OuYig3xUdm2XVUO21vSEo4
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR12MB1438
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Jun 19, 2022 at 11:32:07PM -0700, Christoph Hellwig wrote:
+On Mon, Jun 20 2022, Jason Wang <jasowang@redhat.com> wrote:
 
-> > This helps because we now block io memory from ever getting into these
-> > call paths. I'm pretty sure this is a serious security bug, but would
-> > let the IBM folks remark as I don't know it all that well..
-> 
-> Prevent as in crash when trying to convert it to a page?
+> We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
+> harden vring IRQ"). It works with the assumption that the driver or
+> core can properly call virtio_device_ready() at the right
+> place. Unfortunately, this seems to be not true and uncover various
+> bugs of the existing drivers, mainly the issue of using
+> virtio_device_ready() incorrectly.
+>
+> So let's having a Kconfig option and disable it by default. It gives
+> us a breath to fix the drivers and then we can consider to enable it
+> by default.
+>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> Changes since V1:
+> - tweak the Kconfig prompt
+> - don't hold spinlock for IRQ path in s390
+> ---
+>  drivers/s390/virtio/virtio_ccw.c |  4 ++++
+>  drivers/virtio/Kconfig           | 11 +++++++++++
+>  drivers/virtio/virtio.c          |  2 ++
+>  drivers/virtio/virtio_ring.c     | 12 ++++++++++++
+>  include/linux/virtio_config.h    |  2 ++
+>  5 files changed, 31 insertions(+)
+>
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 97e51c34e6cf..89bbf7ccfdd1 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -1136,8 +1136,10 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+>  			vcdev->err = -EIO;
+>  	}
+>  	virtio_ccw_check_activity(vcdev, activity);
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  	/* Interrupts are disabled here */
+>  	read_lock(&vcdev->irq_lock);
 
-That or when calling memcpy() on an IO memory PFN that the guest
-passed into the dma s/g list the ccw driver is processing.
+Should we add a comment that this pairs with
+virtio_ccw_synchronize_cbs()? Just to avoid future headscratching as to
+why this lock is only needed when notification hardening is enabled.
 
-Jason
+> +#endif
+>  	for_each_set_bit(i, indicators(vcdev),
+>  			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
+>  		/* The bit clear must happen before the vring kick. */
+> @@ -1146,7 +1148,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+>  		vq = virtio_ccw_vq_by_ind(vcdev, i);
+>  		vring_interrupt(0, vq);
+>  	}
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  	read_unlock(&vcdev->irq_lock);
+> +#endif
+>  	if (test_bit(0, indicators2(vcdev))) {
+>  		virtio_config_changed(&vcdev->vdev);
+>  		clear_bit(0, indicators2(vcdev));
+> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> index b5adf6abd241..96ec56d44b91 100644
+> --- a/drivers/virtio/Kconfig
+> +++ b/drivers/virtio/Kconfig
+> @@ -35,6 +35,17 @@ menuconfig VIRTIO_MENU
+>  
+>  if VIRTIO_MENU
+>  
+> +config VIRTIO_HARDEN_NOTIFICATION
+> +        bool "Harden virtio notification"
+> +        help
+> +          Enable this to harden the device notifications and supress
+> +          the ones that are illegal.
+
+"...and suppress those that happen at a time where notifications are
+illegal." ?
+
+> +
+> +          Experimental: not all drivers handle this correctly at this
+> +          point.
+
+"Note that several drivers still have bugs that may cause crashes or
+hangs when correct handling of notifications is enforced; depending on
+the subset of drivers and devices you use, this may or may not work."
+
+Or is that too verbose?
+
+> +
+> +          If unsure, say N.
+> +
+>  config VIRTIO_PCI
+>  	tristate "PCI driver for virtio devices"
+>  	depends on PCI
+
+The ifdeffery looks a big ugly, but I don't have a better idea.
+
