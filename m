@@ -2,62 +2,69 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6866EC43334
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Jun 2022 22:46:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7069AC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Jun 2022 23:47:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354829AbiFUWqQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Jun 2022 18:46:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44882 "EHLO
+        id S232140AbiFUXr3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Jun 2022 19:47:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353562AbiFUWqQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jun 2022 18:46:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 12F4832073
-        for <linux-s390@vger.kernel.org>; Tue, 21 Jun 2022 15:46:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655851573;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=f/+1/Xy/oMl85EwlznQPMBlg4SJKLxQKry9nxTTQZbw=;
-        b=Q6EgHwfJgZlfTH4nHyXJzUb537WddlI24XuoDAWvAzUeWeNVDZxSrzfXiOTNz9kEP1iLSg
-        7FkqcVKGn8hs6h9zTa2nxhR48b8/OCmWZbGbDUId983u8ev3ebhVX6PKvO/VWFmUYekuz/
-        X/LJxUnKAePi6Wo7DSEl8zhoo6Od8Fo=
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
- [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-381-4HDxisRLNJ2x9xqtyAS3jw-1; Tue, 21 Jun 2022 18:46:06 -0400
-X-MC-Unique: 4HDxisRLNJ2x9xqtyAS3jw-1
-Received: by mail-il1-f197.google.com with SMTP id 3-20020a056e0220c300b002d3d7ebdfdeso10008721ilq.16
-        for <linux-s390@vger.kernel.org>; Tue, 21 Jun 2022 15:46:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=f/+1/Xy/oMl85EwlznQPMBlg4SJKLxQKry9nxTTQZbw=;
-        b=kweg1DvmMue8+8AtWMST21vj1xVzRj53IIPDXPuuOst+zbSb+/KGR5nHr7K/61Oh+f
-         bm+im9bAphXNVDnCYquYooTELBrmhG4q0qb+2CdfbM9xfQTei7pcfdv6EjaFgPWe8A9b
-         J8f1R/I/fsCJrOMk0c+EYkElIm2a4g+VPItqH4c4WKRXXxZooG3snEi2N29pmv0wNzBB
-         bRbLECu35teROGxbEW76o25HRDNUDZ8qkTCm10L7MaqJBi4Z2wdyga/eF2IxgB0MCbsq
-         rOhUXtlPYE3c6ZvPy5z5GGycj/AVWN8ciqwuoE1CjjmQmCQK6H3F3lXnn2Lz1CReXMiC
-         wn2g==
-X-Gm-Message-State: AJIora/9Xf/RJp5qFmTuP0/x8fPOg/Z2iRZ9VGmH2OwcUn2ZEjHk4MCb
-        s/yKYcoOnWUrudM+NT6v94gNB51Jl1DHm4lK8TJ7YZni1dan+75MYfuZVj8kzI8Ye17NQwGYuly
-        +2YoMFXiernKmsx++oI58jw==
-X-Received: by 2002:a6b:ba43:0:b0:669:a9b2:48fb with SMTP id k64-20020a6bba43000000b00669a9b248fbmr192956iof.125.1655851566105;
-        Tue, 21 Jun 2022 15:46:06 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tCBBV2lQEfTtXWwkhfe9gHC1iihjOMaGFwTYEcz2D9BCipjXjT/6swp6lkrYHefJSlpm5AwA==
-X-Received: by 2002:a6b:ba43:0:b0:669:a9b2:48fb with SMTP id k64-20020a6bba43000000b00669a9b248fbmr192927iof.125.1655851565803;
-        Tue, 21 Jun 2022 15:46:05 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id m3-20020a056638224300b00339c015fd84sm2073679jas.59.2022.06.21.15.46.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jun 2022 15:46:05 -0700 (PDT)
-Date:   Tue, 21 Jun 2022 16:46:02 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Nicolin Chen <nicolinc@nvidia.com>
-Cc:     <joro@8bytes.org>, <will@kernel.org>, <marcan@marcan.st>,
+        with ESMTP id S229982AbiFUXr2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jun 2022 19:47:28 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2041.outbound.protection.outlook.com [40.107.220.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FFBA31500;
+        Tue, 21 Jun 2022 16:47:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kCi8pM01KDslTxSC1v0wpTaefyN5VX3ILYNNAlmIfSFbtAeX+iua2UixPzeaAtOtYzKAeEJwZpCRx0Fm1Giz5rSDggLQCfY/Ez2r23VeQtTLUEmxIvqFg7rFcHkhKoXDPcX4uwI7ShLxeMSUrz+j8HHDih06F1ToIgP8kze58wFBL3DihmKhEjK56u0gKQ8QzGS3LUe5sXqRxIpe7SjrPLAJBoNH7BaNRP1u+O6w1MAl7ZKQ4KmyRH6FwY2g4VQK4ZGj0V+/eYhBJjqToRycLrirJFYSU8QYx7rGSz1BwZohexSzC7BdBA4WAFRuY1ImV0eUvbJ3265xvvtWpcTrOA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=aqJHOQmxrxlatNO2xMwYxJVq0MrIa0oXWWVFnxwgEkU=;
+ b=kyyEjv8pKRQyS4xhF2jWhFMnPkSN6fQfYmU8rHgRfrAUuAknwC+J9Ct0vlC8Gawbgqr34rAiwTL8n8wCUOdZotajLpMV/HukCNA3aq+UPDoXtVDWxTdvtuZjfNlOlUbj6huTi/9+E3RoJ9Mh076agEQSy8OTdVJA80Imt6SFSLCD9fNoDqBX1gG8vDGcuvTH3iemqXoRaqc53m0j7vDkGbpDCe2GamO+1Cpsip7rBzdJyE1XWRAf4tKYOBfa+qoLIKpHFfMnsnCGAY9xG2bicJarlCSrG4lsclS3nST3Ram8oczITdlKcQzuY8/LhLZKLH9UepGxfRa1QQPssg05PA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.238) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
+ (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
+ (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=aqJHOQmxrxlatNO2xMwYxJVq0MrIa0oXWWVFnxwgEkU=;
+ b=IN9npoapkbB8oXv441aT7uIWUmJRTWO3QfDBLJ3NXVgbNQRgzEawfifkbG/+QCyCIMfbLPRYA/bB2baK8ZQ0SpQDhdc/2QUTxsTMsbVvoJNKEhiw5yW+VkWniwDd9xwWPgxyL5gDmjW1qA5AWop/EiikrCtwVaJmFyhP897Ae5FYRwk0vLTe9sCoCetmO9RRMfSur6oO1htHE8sTl4igEuJ0svwp5K02vk7hjj1tQLaC7RrSbxkjJZC0/mfhpRy20zcjiIdkPQ6RqYzcp7b5ceBhd0ncWuUr7j1KSOLkqhiTVjriw9pZmqMhiZL0YCaMbn/ooiYR0ZjXlM7NHJMBEg==
+Received: from DS7PR03CA0295.namprd03.prod.outlook.com (2603:10b6:5:3ad::30)
+ by BYAPR12MB3479.namprd12.prod.outlook.com (2603:10b6:a03:dc::26) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.21; Tue, 21 Jun
+ 2022 23:47:25 +0000
+Received: from DM6NAM11FT025.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:3ad:cafe::13) by DS7PR03CA0295.outlook.office365.com
+ (2603:10b6:5:3ad::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.20 via Frontend
+ Transport; Tue, 21 Jun 2022 23:47:24 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.238; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.238) by
+ DM6NAM11FT025.mail.protection.outlook.com (10.13.172.197) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5373.15 via Frontend Transport; Tue, 21 Jun 2022 23:47:24 +0000
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by DRHQMAIL105.nvidia.com
+ (10.27.9.14) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Tue, 21 Jun
+ 2022 23:47:24 +0000
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail204.nvidia.com
+ (10.129.68.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Tue, 21 Jun
+ 2022 16:47:23 -0700
+Received: from Asurada-Nvidia (10.127.8.12) by mail.nvidia.com (10.129.68.7)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22 via Frontend
+ Transport; Tue, 21 Jun 2022 16:47:18 -0700
+Date:   Tue, 21 Jun 2022 16:47:16 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+CC:     <joro@8bytes.org>, <will@kernel.org>, <marcan@marcan.st>,
         <sven@svenpeter.dev>, <robin.murphy@arm.com>,
         <robdclark@gmail.com>, <baolu.lu@linux.intel.com>,
         <matthias.bgg@gmail.com>, <orsonzhai@gmail.com>,
@@ -81,77 +88,110 @@ Cc:     <joro@8bytes.org>, <will@kernel.org>, <marcan@marcan.st>,
         <virtualization@lists.linux-foundation.org>, <kvm@vger.kernel.org>
 Subject: Re: [PATCH v2 2/5] vfio/iommu_type1: Prefer to reuse domains vs
  match enforced cache coherency
-Message-ID: <20220621164602.4079bf43.alex.williamson@redhat.com>
-In-Reply-To: <20220616000304.23890-3-nicolinc@nvidia.com>
+Message-ID: <YrJYhIiivpiJ1t4f@Asurada-Nvidia>
 References: <20220616000304.23890-1-nicolinc@nvidia.com>
-        <20220616000304.23890-3-nicolinc@nvidia.com>
-Organization: Red Hat
+ <20220616000304.23890-3-nicolinc@nvidia.com>
+ <20220621164602.4079bf43.alex.williamson@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20220621164602.4079bf43.alex.williamson@redhat.com>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 83bbd326-a75f-47d9-b6a0-08da53e06440
+X-MS-TrafficTypeDiagnostic: BYAPR12MB3479:EE_
+X-Microsoft-Antispam-PRVS: <BYAPR12MB3479D56EB2C3CE3D32569B32ABB39@BYAPR12MB3479.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 8NwIxgGiwtZsX9DG5RYiN32gAOfze5/tHQkp+2/EouFLvJOnuWFOd471Cz5Jl5gYgAUOXfqy5Wr+5NtKJVEZ3Qg+R0CJeF6/IcgIDERf3FtOBJWDpvn9hiQcVDgi2B7o3V8XlxyOC10oADVBAkVSS74F4DgmBYUJMd9ZIY43esDyXNhzvjM6V09g5UD+6hca2/FXncFjBzrplsG7I44g51AEMOepe6dTXA//7yT7sIF6SMzkoQcDqaav8L/RndMvpXmKm4GU+AIFjhCTry0vSif6jeOoeZeB2wIuSfqAEv3VW1BQzOxN7i08+GZKCc1WjnVnnACf45HViXnBFNxg4syidc2AaVEvBtgnkoGl9+BHSx1ckgrGQOCBF6+zXvFAW/5m7JE2gkBKPK/QBoeQ14bBIMMzaz7eSqW1CHUKFJoqFzljM6XYJuZtP6Fj5xxFfTlF94tQ0UcUuUpbhVL5cL34n/9lsR0bs5CyhLZnyo2DbKH3dpwdlgYIKbiYEkhUwExPOrhJMU1cy8uY6FvdXHBuH23fGLzk3Me+8aqbERqrg2yzKpjWfJzpVMFutxwNK8hMTf765uI03HoY3cbDw4s4uJtkQdvIfyLewn84BzCBpbqEw9kJ4o+qQPTS+7PK6MsD+/HGyGP8+EwwwKlH6FzkcX7edz/VyZrbCBOs/KNc+0CV/KhlbnMdjF8UpYRqkxkSlBn3f1+ls7XECv+7fI7ahSW39MDxPyuAmH2YyCZndmi6C684ASePTby+pJkT
+X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(136003)(39860400002)(396003)(346002)(376002)(36840700001)(40470700004)(46966006)(70586007)(54906003)(2906002)(7406005)(40460700003)(7416002)(6916009)(8676002)(186003)(81166007)(70206006)(36860700001)(33716001)(4326008)(47076005)(55016003)(8936002)(426003)(82740400003)(9686003)(40480700001)(356005)(26005)(336012)(478600001)(82310400005)(41300700001)(86362001)(316002)(83380400001)(5660300002)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jun 2022 23:47:24.4682
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 83bbd326-a75f-47d9-b6a0-08da53e06440
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT025.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3479
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 15 Jun 2022 17:03:01 -0700
-Nicolin Chen <nicolinc@nvidia.com> wrote:
+On Tue, Jun 21, 2022 at 04:46:02PM -0600, Alex Williamson wrote:
+> External email: Use caution opening links or attachments
+> 
+> 
+> On Wed, 15 Jun 2022 17:03:01 -0700
+> Nicolin Chen <nicolinc@nvidia.com> wrote:
+> 
+> > From: Jason Gunthorpe <jgg@nvidia.com>
+> >
+> > The KVM mechanism for controlling wbinvd is based on OR of the coherency
+> > property of all devices attached to a guest, no matter those devices are
+> > attached to a single domain or multiple domains.
+> >
+> > So, there is no value in trying to push a device that could do enforced
+> > cache coherency to a dedicated domain vs re-using an existing domain
+> > which is non-coherent since KVM won't be able to take advantage of it.
+> > This just wastes domain memory.
+> >
+> > Simplify this code and eliminate the test. This removes the only logic
+> > that needed to have a dummy domain attached prior to searching for a
+> > matching domain and simplifies the next patches.
+> >
+> > It's unclear whether we want to further optimize the Intel driver to
+> > update the domain coherency after a device is detached from it, at
+> > least not before KVM can be verified to handle such dynamics in related
+> > emulation paths (wbinvd, vcpu load, write_cr0, ept, etc.). In reality
+> > we don't see an usage requiring such optimization as the only device
+> > which imposes such non-coherency is Intel GPU which even doesn't
+> > support hotplug/hot remove.
+> 
+> The 2nd paragraph above is quite misleading in this respect.  I think
+> it would be more accurate to explain that the benefit to using separate
+> domains was that devices attached to domains supporting enforced cache
+> coherency always mapped with the attributes necessary to provide that
+> feature, therefore if a non-enforced domain was dropped, the associated
+> group removal would re-trigger an evaluation by KVM.  We can then go on
+> to discuss that in practice the only known cases of such mixed domains
+> included an Intel IGD device behind an IOMMU lacking snoop control,
+> where such devices do not support hotplug, therefore this scenario lacks
+> testing and is not considered sufficiently relevant to support.  Thanks,
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> 
-> The KVM mechanism for controlling wbinvd is based on OR of the coherency
-> property of all devices attached to a guest, no matter those devices are
-> attached to a single domain or multiple domains.
-> 
-> So, there is no value in trying to push a device that could do enforced
-> cache coherency to a dedicated domain vs re-using an existing domain
-> which is non-coherent since KVM won't be able to take advantage of it.
-> This just wastes domain memory.
-> 
-> Simplify this code and eliminate the test. This removes the only logic
-> that needed to have a dummy domain attached prior to searching for a
-> matching domain and simplifies the next patches.
-> 
-> It's unclear whether we want to further optimize the Intel driver to
-> update the domain coherency after a device is detached from it, at
-> least not before KVM can be verified to handle such dynamics in related
-> emulation paths (wbinvd, vcpu load, write_cr0, ept, etc.). In reality
-> we don't see an usage requiring such optimization as the only device
-> which imposes such non-coherency is Intel GPU which even doesn't
-> support hotplug/hot remove.
+Thanks for the input. I integrated that into the commit log:
 
-The 2nd paragraph above is quite misleading in this respect.  I think
-it would be more accurate to explain that the benefit to using separate
-domains was that devices attached to domains supporting enforced cache
-coherency always mapped with the attributes necessary to provide that
-feature, therefore if a non-enforced domain was dropped, the associated
-group removal would re-trigger an evaluation by KVM.  We can then go on
-to discuss that in practice the only known cases of such mixed domains
-included an Intel IGD device behind an IOMMU lacking snoop control,
-where such devices do not support hotplug, therefore this scenario lacks
-testing and is not considered sufficiently relevant to support.  Thanks,
+    vfio/iommu_type1: Prefer to reuse domains vs match enforced cache coherency
 
-Alex
+    The KVM mechanism for controlling wbinvd is based on OR of the coherency
+    property of all devices attached to a guest, no matter whether those
+    devices are attached to a single domain or multiple domains.
 
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
-> ---
->  drivers/vfio/vfio_iommu_type1.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-> index c13b9290e357..f4e3b423a453 100644
-> --- a/drivers/vfio/vfio_iommu_type1.c
-> +++ b/drivers/vfio/vfio_iommu_type1.c
-> @@ -2285,9 +2285,7 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
->  	 * testing if they're on the same bus_type.
->  	 */
->  	list_for_each_entry(d, &iommu->domain_list, next) {
-> -		if (d->domain->ops == domain->domain->ops &&
-> -		    d->enforce_cache_coherency ==
-> -			    domain->enforce_cache_coherency) {
-> +		if (d->domain->ops == domain->domain->ops) {
->  			iommu_detach_group(domain->domain, group->iommu_group);
->  			if (!iommu_attach_group(d->domain,
->  						group->iommu_group)) {
+    On the other hand, the benefit to using separate domains was that those
+    devices attached to domains supporting enforced cache coherency always
+    mapped with the attributes necessary to provide that feature, therefore
+    if a non-enforced domain was dropped, the associated group removal would
+    re-trigger an evaluation by KVM.
 
+    In practice however, the only known cases of such mixed domains included
+    an Intel IGD device behind an IOMMU lacking snoop control, where such
+    devices do not support hotplug, therefore this scenario lacks testing and
+    is not considered sufficiently relevant to support.
+
+    After all, KVM won't take advantage of trying to push a device that could
+    do enforced cache coherency to a dedicated domain vs re-using an existing
+    domain, which is non-coherent.
+
+    Simplify this code and eliminate the test. This removes the only logic
+    that needed to have a dummy domain attached prior to searching for a
+    matching domain and simplifies the next patches.
+
+    It's unclear whether we want to further optimize the Intel driver to
+    update the domain coherency after a device is detached from it, at
+    least not before KVM can be verified to handle such dynamics in related
+    emulation paths (wbinvd, vcpu load, write_cr0, ept, etc.). In reality
+    we don't see an usage requiring such optimization as the only device
+    which imposes such non-coherency is Intel GPU which even doesn't
+    support hotplug/hot remove.
