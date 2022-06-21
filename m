@@ -2,115 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD4BEC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Jun 2022 11:58:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D588CCA473
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Jun 2022 14:30:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348758AbiFUL6N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Jun 2022 07:58:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40318 "EHLO
+        id S1351570AbiFUOag (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Jun 2022 10:30:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350269AbiFUL6M (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jun 2022 07:58:12 -0400
+        with ESMTP id S1351611AbiFUOa2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jun 2022 10:30:28 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A368DFC7;
-        Tue, 21 Jun 2022 04:58:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4E0240AD;
+        Tue, 21 Jun 2022 07:30:25 -0700 (PDT)
 Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25LADi03032637;
-        Tue, 21 Jun 2022 11:58:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=ld8ONx1WoaWgPX/hqnxfo4AHapYxdwGCb8SdAeAAbkk=;
- b=K79IfWdNAvE7lzBL1Qh4nGlUP/iB5HoAW9VEAvxW064hjSvDZW37ye/YTUpetu1Xes3D
- EcQtRPfKCVd9lwBzQsrGShGP6Xwr+lRxc6dtCi4JMouoLImFNamALxGsLse6ciAROM80
- HcckcrP7It6UHi7DetzTsA4svc8c08GVO5dwX/nnHfnfMM59u8cMIvN8uMq7FjIl/Sg7
- 0Bvvf7tR+6Nb2cLIFxsrwGR4KjYLwS5L7yVUcZqvG7ZfNqPdpXJ6nU8OZStjagMuw/+e
- Vm83aayaeVmsDeJUlvvkpuDRNpS2t2awMMqhcgXvTqQCoDyrFbb1KRkaApSv7Mo46Z5C QA== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3guc202tjk-1
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25LDgB4f005613;
+        Tue, 21 Jun 2022 14:30:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=6pOwNAyArI5fu9X3UCd3YjXYl2ijc1yhbKEl0vYmtDs=;
+ b=KMlz8VWaKkZBelKku3jw1KAgD0lz8tQoBNkCvnqataxnl2BGV2zIJF/qV/j7Wg/UuRgH
+ ksE5oULHCy1KEkivN2ecmMqsO+8CV2WZt/6vAV8UHkSfoFf6zwlw3uPYr2adjFfeGsrT
+ PPS6+bBK83oaQPU0LhzGVsol8F7PXCgW/t33XmLDNow67+NiT1AE0GE//AFL4o0UufvN
+ C75axzJrDuK5Ezi0lxBBjRNWwEdudYXIz0SX/nHi8RoztRpdBOViwM8yy9rZ9QqCAqQM
+ 6Tq6vo2in+97w1H8EyMGpkKrtzNGYM9aLCgsr6l3k+See8fgHFrlKc1pJCO/WfYwi2+h Aw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3guf3qswhf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Jun 2022 11:58:07 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25LBpEpG022601;
-        Tue, 21 Jun 2022 11:58:04 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3gs6b933xf-1
+        Tue, 21 Jun 2022 14:30:25 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25LDgFDe005723;
+        Tue, 21 Jun 2022 14:30:25 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3guf3qswg5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Jun 2022 11:58:04 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25LBw0Xi19923372
+        Tue, 21 Jun 2022 14:30:25 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25LELkhB015296;
+        Tue, 21 Jun 2022 14:30:22 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 3gs6b8v6fw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Jun 2022 14:30:22 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25LEUIxo23134596
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 21 Jun 2022 11:58:00 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D7E78A404D;
-        Tue, 21 Jun 2022 11:58:00 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 85F02A4040;
-        Tue, 21 Jun 2022 11:58:00 +0000 (GMT)
-Received: from [9.152.224.195] (unknown [9.152.224.195])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 21 Jun 2022 11:58:00 +0000 (GMT)
-Message-ID: <09b411b2-0e1f-26d5-c0ea-8ee6504bdcfd@linux.ibm.com>
-Date:   Tue, 21 Jun 2022 13:58:00 +0200
+        Tue, 21 Jun 2022 14:30:18 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ECA534C046;
+        Tue, 21 Jun 2022 14:30:17 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 66A934C044;
+        Tue, 21 Jun 2022 14:30:17 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 21 Jun 2022 14:30:17 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v3 1/3] s390x: Fix sclp facility bit numbers
+Date:   Tue, 21 Jun 2022 16:30:13 +0200
+Message-Id: <20220621143015.748290-2-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220621143015.748290-1-scgl@linux.ibm.com>
+References: <20220621143015.748290-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.9.1
-Subject: Re: [PATCH] net: s390: drop unexpected word "the" in the comments
-Content-Language: en-US
-To:     Jiang Jian <jiangjian@cdjrlc.com>
-Cc:     wenjia@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220621113740.103317-1-jiangjian@cdjrlc.com>
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20220621113740.103317-1-jiangjian@cdjrlc.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 65iRLLqjKaKQYaC7OLXIcWFLbFDgQeU1
-X-Proofpoint-GUID: 65iRLLqjKaKQYaC7OLXIcWFLbFDgQeU1
+X-Proofpoint-ORIG-GUID: BQ4bXCqZuMSmY19NuO0zv_xgLQfKnr8I
+X-Proofpoint-GUID: pDd5ElWlc0owAhBecPRlQ6_c-RGU6-y0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
- definitions=2022-06-21_04,2022-06-21_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 clxscore=1011 bulkscore=0 malwarescore=0 phishscore=0
- impostorscore=0 mlxlogscore=999 lowpriorityscore=0 spamscore=0
- suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206210050
+ definitions=2022-06-21_06,2022-06-21_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ lowpriorityscore=0 malwarescore=0 adultscore=0 suspectscore=0
+ clxscore=1015 priorityscore=1501 spamscore=0 mlxlogscore=999 bulkscore=0
+ mlxscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206210062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+sclp_feat_check takes care of adjusting the bit numbering such that they
+can be defined as they are in the documentation.
 
+Fixes: 4dd649c8 ("lib: s390x: sclp: Extend feature probing")
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/sclp.h | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-On 21.06.22 13:37, Jiang Jian wrote:
-> there is an unexpected word "the" in the comments that need to be dropped
-> 
-> file: ./drivers/s390/net/qeth_core_main.c
-> line: 3568
-> 
-> * have to request a PCI to be sure the the PCI
-> changed to
-> * have to request a PCI to be sure the PCI
-> 
-> Signed-off-by: Jiang Jian <jiangjian@cdjrlc.com>
-> ---
->  drivers/s390/net/qeth_core_main.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-> index 9e54fe76a9b2..35d4b398c197 100644
-> --- a/drivers/s390/net/qeth_core_main.c
-> +++ b/drivers/s390/net/qeth_core_main.c
-> @@ -3565,7 +3565,7 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
->  			if (!atomic_read(&queue->set_pci_flags_count)) {
->  				/*
->  				 * there's no outstanding PCI any more, so we
-> -				 * have to request a PCI to be sure the the PCI
-> +				 * have to request a PCI to be sure the PCI
->  				 * will wake at some time in the future then we
->  				 * can flush packed buffers that might still be
->  				 * hanging around, which can happen if no
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index e48a5a3d..3488f4d2 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -134,13 +134,13 @@ struct sclp_facilities {
+ };
+ 
+ /* bit number within a certain byte */
+-#define SCLP_FEAT_85_BIT_GSLS		7
+-#define SCLP_FEAT_98_BIT_KSS		0
+-#define SCLP_FEAT_116_BIT_64BSCAO	7
+-#define SCLP_FEAT_116_BIT_CMMA		6
+-#define SCLP_FEAT_116_BIT_ESCA		3
+-#define SCLP_FEAT_117_BIT_PFMFI		6
+-#define SCLP_FEAT_117_BIT_IBS		5
++#define SCLP_FEAT_85_BIT_GSLS		0
++#define SCLP_FEAT_98_BIT_KSS		7
++#define SCLP_FEAT_116_BIT_64BSCAO	0
++#define SCLP_FEAT_116_BIT_CMMA		1
++#define SCLP_FEAT_116_BIT_ESCA		4
++#define SCLP_FEAT_117_BIT_PFMFI		1
++#define SCLP_FEAT_117_BIT_IBS		2
+ 
+ typedef struct ReadInfo {
+ 	SCCBHeader h;
+-- 
+2.36.1
 
-Acked-by: Alexandra Winter <wintera@linux.ibm.com>
