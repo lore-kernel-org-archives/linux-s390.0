@@ -2,81 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DF16C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Jun 2022 09:59:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50533CCA483
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Jun 2022 11:22:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230147AbiFUJ75 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Jun 2022 05:59:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39038 "EHLO
+        id S1348439AbiFULWI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Jun 2022 07:22:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232156AbiFUJ6a (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jun 2022 05:58:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8CF8B26AF5
-        for <linux-s390@vger.kernel.org>; Tue, 21 Jun 2022 02:58:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655805508;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=H4C/sB5um4hN9/XHAJjRJCQS2mg0bGELmgXp1B2D5DI=;
-        b=SnKPglmiRnjfL0kweB63w93nV7KvirobonvhqyRxpoRrG+EZLsAZC7kRBhxOQsfeUciaXV
-        uN1JdjjlJLAyi0PAX9v0MLmJFyCO7RivSk5IVjV0zmXgZbWaYxm7PRv02iBfBCWoemftbV
-        wokibeTAboSZ6mSwblTncQO/d5GnnBk=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-613-88tBitKPN0CK2RYLsijSLA-1; Tue, 21 Jun 2022 05:58:21 -0400
-X-MC-Unique: 88tBitKPN0CK2RYLsijSLA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F208F101E9BC;
-        Tue, 21 Jun 2022 09:58:20 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.229])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9F16F1121314;
-        Tue, 21 Jun 2022 09:58:20 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>, mst <mst@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        kvm <kvm@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH V2] virtio: disable notification hardening by default
-In-Reply-To: <CACGkMEun6C9RgQVGq1B8BJMd9DyRQkSXj8shXVVhDymQYQLxgA@mail.gmail.com>
-Organization: Red Hat GmbH
-References: <20220620024158.2505-1-jasowang@redhat.com>
- <87y1xq8jgw.fsf@redhat.com>
- <CACGkMEun6C9RgQVGq1B8BJMd9DyRQkSXj8shXVVhDymQYQLxgA@mail.gmail.com>
-User-Agent: Notmuch/0.36 (https://notmuchmail.org)
-Date:   Tue, 21 Jun 2022 11:58:19 +0200
-Message-ID: <87sfny8hj8.fsf@redhat.com>
+        with ESMTP id S229685AbiFULWH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jun 2022 07:22:07 -0400
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2792A24E;
+        Tue, 21 Jun 2022 04:22:05 -0700 (PDT)
+Received: from fraeml701-chm.china.huawei.com (unknown [172.18.147.206])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4LS3xZ43Xgz67Zm5;
+        Tue, 21 Jun 2022 19:21:38 +0800 (CST)
+Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
+ fraeml701-chm.china.huawei.com (10.206.15.50) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2375.24; Tue, 21 Jun 2022 13:22:00 +0200
+Received: from localhost.localdomain (10.69.192.58) by
+ lhreml724-chm.china.huawei.com (10.201.108.75) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Tue, 21 Jun 2022 12:21:55 +0100
+From:   John Garry <john.garry@huawei.com>
+To:     <axboe@kernel.dk>, <damien.lemoal@opensource.wdc.com>,
+        <bvanassche@acm.org>, <hch@lst.de>, <jejb@linux.ibm.com>,
+        <martin.petersen@oracle.com>, <hare@suse.de>, <satishkh@cisco.com>,
+        <sebaddel@cisco.com>, <kartilak@cisco.com>
+CC:     <linux-doc@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
+        <linux-mmc@vger.kernel.org>, <linux-nvme@lists.infradead.org>,
+        <linux-s390@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+        <mpi3mr-linuxdrv.pdl@broadcom.com>, <linux-block@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <nbd@other.debian.org>,
+        John Garry <john.garry@huawei.com>
+Subject: [PATCH v2 0/6] blk-mq: Add a flag for reserved requests series
+Date:   Tue, 21 Jun 2022 19:15:37 +0800
+Message-ID: <1655810143-67784-1-git-send-email-john.garry@huawei.com>
+X-Mailer: git-send-email 2.8.1
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
+X-Originating-IP: [10.69.192.58]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 21 2022, Jason Wang <jasowang@redhat.com> wrote:
+In [0] I included "blk-mq: Add a flag for reserved requests" to identify
+if a request is 'reserved' for special handling. Doing this is easier than
+passing a 'reserved' arg to the blk_mq_ops callbacks. Indeed, only 1x
+timeout implementation or blk-mq iter function actually uses the
+'reserved' arg (or 3x if you count SCSI core and FNIC SCSI driver). So
+this series drops the 'reserved' arg for these timeout and iter functions.
+Christoph suggested that I try to upstream now.
 
-> On Tue, Jun 21, 2022 at 5:16 PM Cornelia Huck <cohuck@redhat.com> wrote:
->>
->> The ifdeffery looks a big ugly, but I don't have a better idea.
->
-> I guess you meant the ccw part, I leave the spinlock here in V1, but
-> Michael prefers to have that.
+Differences to v1:
+- Use "scsi_timeout" as name for SCSI timeout function and update docs
+- Add RB tags (thanks!)
+- Split out patch to drop local variables for 'reserved', as requested by
+  Bart
 
-Not doing the locking dance is good; I think the #ifdefs all over are a
-bit ugly, but as I said, I can't think of a good, less-ugly way...
+Based on following:
+6dbcddf6e76b (block/for-5.20/block) block: bfq: Fix kernel-doc headers
 
-> In the future, we may consider removing that, one possible way is to
-> have a per driver boolean for the hardening.
+[0] https://lore.kernel.org/linux-scsi/1654770559-101375-1-git-send-email-john.garry@huawei.com/T/#m22aa9f89e55835edc2e650d43f7e3219a3a1a324
 
-As in "we've reviewed and tested this driver, so let's turn it on for
-every device bound to it"?
+John Garry (6):
+  scsi: core: Remove reserved request time-out handling
+  blk-mq: Add a flag for reserved requests
+  blk-mq: Drop blk_mq_ops.timeout 'reserved' arg
+  scsi: fnic: Drop reserved request handling
+  blk-mq: Drop 'reserved' arg of busy_tag_iter_fn
+  blk-mq: Drop local variable for reserved tag
+
+ Documentation/scsi/scsi_eh.rst          |  3 +--
+ Documentation/scsi/scsi_mid_low_api.rst |  2 +-
+ block/blk-mq-debugfs.c                  |  2 +-
+ block/blk-mq-tag.c                      | 13 +++++--------
+ block/blk-mq.c                          | 22 +++++++++++++---------
+ block/bsg-lib.c                         |  2 +-
+ drivers/block/mtip32xx/mtip32xx.c       | 11 +++++------
+ drivers/block/nbd.c                     |  5 ++---
+ drivers/block/null_blk/main.c           |  2 +-
+ drivers/infiniband/ulp/srp/ib_srp.c     |  3 +--
+ drivers/mmc/core/queue.c                |  3 +--
+ drivers/nvme/host/apple.c               |  3 +--
+ drivers/nvme/host/core.c                |  2 +-
+ drivers/nvme/host/fc.c                  |  6 ++----
+ drivers/nvme/host/nvme.h                |  2 +-
+ drivers/nvme/host/pci.c                 |  2 +-
+ drivers/nvme/host/rdma.c                |  3 +--
+ drivers/nvme/host/tcp.c                 |  3 +--
+ drivers/s390/block/dasd.c               |  2 +-
+ drivers/s390/block/dasd_int.h           |  2 +-
+ drivers/scsi/aacraid/comminit.c         |  2 +-
+ drivers/scsi/aacraid/linit.c            |  2 +-
+ drivers/scsi/fnic/fnic_scsi.c           | 14 ++++----------
+ drivers/scsi/hosts.c                    | 14 ++++++--------
+ drivers/scsi/mpi3mr/mpi3mr_os.c         | 16 ++++------------
+ drivers/scsi/scsi_error.c               |  6 +++---
+ drivers/scsi/scsi_lib.c                 |  8 --------
+ drivers/scsi/scsi_priv.h                |  2 +-
+ include/linux/blk-mq.h                  | 10 ++++++++--
+ include/scsi/scsi_host.h                |  2 +-
+ 30 files changed, 71 insertions(+), 98 deletions(-)
+
+-- 
+2.25.1
 
