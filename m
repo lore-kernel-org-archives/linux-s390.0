@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C783FC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Jun 2022 15:52:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59074C43334
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Jun 2022 15:52:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233534AbiFUPwZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Jun 2022 11:52:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
+        id S1351728AbiFUPw0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Jun 2022 11:52:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353158AbiFUPv4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jun 2022 11:51:56 -0400
+        with ESMTP id S1353178AbiFUPwA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jun 2022 11:52:00 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A5042C677;
-        Tue, 21 Jun 2022 08:51:55 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25LF4Sec017618;
-        Tue, 21 Jun 2022 15:51:53 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71B422CE32;
+        Tue, 21 Jun 2022 08:51:59 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25LEpoYK012145;
+        Tue, 21 Jun 2022 15:51:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=iB6pQpXXp5oitQrruuVuvU6eR7LE2YacAO7Tb+4LW84=;
- b=CrOFpUXZ7I3Mixgnc1v3fb9JH/MYr5QurD/i62iY14qSC7M9cKmfkN1wOGn+4cz6Vo7L
- UB5TvBwbj/XIkw30/cSK6JleFT+ER6Lh46TOhxkTrvI2GLQMbT83X1sOkcjTIFetrH5f
- +SXBOOA7Y//fHpLc25lmjLhgifalG9EKaMtKcIGKuStcnJ3tm2BV5oJw6ksqmX5XO7f+
- 0CPTEUCy97snhZdyT8L+frkMcDnf63ODU5xGQXqBMbmpTxWcJHzWAlUyTqxh3Wx6tnlc
- uGBvDDhW8oY38lUmm6Q3gyM4FkoNcfrAOD03EWzV6LHaWrDPppCjRTXbY+iQWkfkYx2G IA== 
+ bh=fiCQefzDGOS6Z2Yq4Nby58tdoRI98P1py3D+WCHaDyw=;
+ b=I22Y+NfB8+IYjggzsAyUG9aOvaW36OJDFdaXiAfBJvfXtGJkPaiSj/IvDCmSgLNSNj9K
+ dviBRrwP02jmXJhY9cREfY6rPCL/uIa/Xv24PRMsNG6hRaAaW3mesJ8zKzZhGXBgeTPs
+ xPdFnao3ZlgWDErSS+iIfrDqN0ZN3uZmX9MQy5XTya2ZBgR74WTjIFAwTpOcV1F903ww
+ UEBXPol/jUmX/9uxIEt+ZlADtfYhLZuGzIQBbLGwwIpEHWDz7Pl7Mu6fqgvobU+JjFgC
+ e8APPepokey00VdRtChOb/Mq/0H35qYrK/hyoe/M9hUfj6yWRftDBzJV2WZc67nr4Rg+ CA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gugaeses5-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gug489uhb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Jun 2022 15:51:53 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25LFgNRp010961;
-        Tue, 21 Jun 2022 15:51:52 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gugaeserv-1
+        Tue, 21 Jun 2022 15:51:57 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25LErh48015834;
+        Tue, 21 Jun 2022 15:51:56 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gug489uh1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Jun 2022 15:51:52 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25LFZDfl021700;
-        Tue, 21 Jun 2022 15:51:52 GMT
-Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
-        by ppma05wdc.us.ibm.com with ESMTP id 3gs6b9cvrp-1
+        Tue, 21 Jun 2022 15:51:56 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25LFZtjB005563;
+        Tue, 21 Jun 2022 15:51:56 GMT
+Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
+        by ppma04dal.us.ibm.com with ESMTP id 3gs6b9t501-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Jun 2022 15:51:52 +0000
+        Tue, 21 Jun 2022 15:51:56 +0000
 Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25LFppWk15860116
+        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25LFps0s30015820
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 21 Jun 2022 15:51:51 GMT
+        Tue, 21 Jun 2022 15:51:54 GMT
 Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 026A913604F;
-        Tue, 21 Jun 2022 15:51:51 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 9DAFD136051;
+        Tue, 21 Jun 2022 15:51:54 +0000 (GMT)
 Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0030D136059;
-        Tue, 21 Jun 2022 15:51:50 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 8349E136059;
+        Tue, 21 Jun 2022 15:51:53 +0000 (GMT)
 Received: from li-fed795cc-2ab6-11b2-a85c-f0946e4a8dff.ibm.com.com (unknown [9.160.18.227])
         by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 21 Jun 2022 15:51:49 +0000 (GMT)
+        Tue, 21 Jun 2022 15:51:53 +0000 (GMT)
 From:   Tony Krowiak <akrowiak@linux.ibm.com>
 To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -64,89 +64,145 @@ Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
         borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
         pasic@linux.ibm.com, alex.williamson@redhat.com,
         kwankhede@nvidia.com, fiuczy@linux.ibm.com
-Subject: [PATCH v20 13/20] s390/vfio-ap: hot plug/unplug of AP devices when probed/removed
-Date:   Tue, 21 Jun 2022 11:51:27 -0400
-Message-Id: <20220621155134.1932383-14-akrowiak@linux.ibm.com>
+Subject: [PATCH v20 16/20] s390/vfio-ap: sysfs attribute to display the guest's matrix
+Date:   Tue, 21 Jun 2022 11:51:30 -0400
+Message-Id: <20220621155134.1932383-17-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220621155134.1932383-1-akrowiak@linux.ibm.com>
 References: <20220621155134.1932383-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2Ox72RIEfU0zora3xrvP11r_8hm4KpAX
-X-Proofpoint-GUID: qwjTSO7FdwnOWGMJpY-M53zfq0SIelSy
+X-Proofpoint-GUID: EjJ83_8T_90QEevjkHRocLCGh0D8MHJW
+X-Proofpoint-ORIG-GUID: zxVAagXMMuRrLS8O8KN872pSJ03W8xzG
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
  definitions=2022-06-21_08,2022-06-21_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- lowpriorityscore=0 adultscore=0 mlxlogscore=999 priorityscore=1501
- spamscore=0 mlxscore=0 suspectscore=0 clxscore=1015 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 malwarescore=0 bulkscore=0 priorityscore=1501 suspectscore=0
+ mlxlogscore=999 clxscore=1015 phishscore=0 adultscore=0 impostorscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2206210066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When an AP queue device is probed or removed, if the mediated device is
-attached to a KVM guest, the mediated device's adapter, domain and
-control domain bitmaps must be filtered to update the guest's APCB and if
-any changes are detected, the guest's APCB must then be hot plugged into
-the guest to reflect those changes to the guest.
+The matrix of adapters and domains configured in a guest's APCB may
+differ from the matrix of adapters and domains assigned to the matrix mdev,
+so this patch introduces a sysfs attribute to display the matrix of
+adapters and domains that are or will be assigned to the APCB of a guest
+that is or will be using the matrix mdev. For a matrix mdev denoted by
+$uuid, the guest matrix can be displayed as follows:
+
+   cat /sys/devices/vfio_ap/matrix/$uuid/guest_matrix
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 48 ++++++++++++++++++++++---------
+ 1 file changed, 35 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 93e932458590..090e033cff69 100644
+index d6f60072c63f..41fc2072a77b 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1782,9 +1782,11 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
+@@ -1422,28 +1422,24 @@ static ssize_t control_domains_show(struct device *dev,
+ }
+ static DEVICE_ATTR_RO(control_domains);
  
- 	if (matrix_mdev) {
- 		vfio_ap_mdev_link_queue(matrix_mdev, q);
--		vfio_ap_mdev_filter_matrix(matrix_mdev->matrix.apm,
--					   matrix_mdev->matrix.aqm,
--					   matrix_mdev);
-+
-+		if (vfio_ap_mdev_filter_matrix(matrix_mdev->matrix.apm,
-+					       matrix_mdev->matrix.aqm,
-+					       matrix_mdev))
-+			vfio_ap_mdev_update_guest_apcb(matrix_mdev);
- 	}
- 	dev_set_drvdata(&apdev->device, q);
- 	release_update_locks_for_mdev(matrix_mdev);
-@@ -1794,7 +1796,7 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
- 
- void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
+-static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+-			   char *buf)
++static ssize_t vfio_ap_mdev_matrix_show(struct ap_matrix *matrix, char *buf)
  {
--	unsigned long apid;
-+	unsigned long apid, apqi;
- 	struct vfio_ap_queue *q;
- 	struct ap_matrix_mdev *matrix_mdev;
+-	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
+ 	char *bufpos = buf;
+ 	unsigned long apid;
+ 	unsigned long apqi;
+ 	unsigned long apid1;
+ 	unsigned long apqi1;
+-	unsigned long napm_bits = matrix_mdev->matrix.apm_max + 1;
+-	unsigned long naqm_bits = matrix_mdev->matrix.aqm_max + 1;
++	unsigned long napm_bits = matrix->apm_max + 1;
++	unsigned long naqm_bits = matrix->aqm_max + 1;
+ 	int nchars = 0;
+ 	int n;
  
-@@ -1807,8 +1809,17 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
- 		vfio_ap_unlink_queue_fr_mdev(q);
+-	apid1 = find_first_bit_inv(matrix_mdev->matrix.apm, napm_bits);
+-	apqi1 = find_first_bit_inv(matrix_mdev->matrix.aqm, naqm_bits);
+-
+-	mutex_lock(&matrix_dev->mdevs_lock);
++	apid1 = find_first_bit_inv(matrix->apm, napm_bits);
++	apqi1 = find_first_bit_inv(matrix->aqm, naqm_bits);
  
- 		apid = AP_QID_CARD(q->apqn);
--		if (test_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm))
--			clear_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm);
-+		apqi = AP_QID_QUEUE(q->apqn);
-+
-+		/*
-+		 * If the queue is assigned to the guest's APCB, then remove
-+		 * the adapter's APID from the APCB and hot it into the guest.
-+		 */
-+		if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
-+		    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm)) {
-+			clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
-+			vfio_ap_mdev_update_guest_apcb(matrix_mdev);
-+		}
+ 	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
+-		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
+-			for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
++		for_each_set_bit_inv(apid, matrix->apm, napm_bits) {
++			for_each_set_bit_inv(apqi, matrix->aqm,
+ 					     naqm_bits) {
+ 				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
+ 					    apqi);
+@@ -1452,25 +1448,50 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+ 			}
+ 		}
+ 	} else if (apid1 < napm_bits) {
+-		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
++		for_each_set_bit_inv(apid, matrix->apm, napm_bits) {
+ 			n = sprintf(bufpos, "%02lx.\n", apid);
+ 			bufpos += n;
+ 			nchars += n;
+ 		}
+ 	} else if (apqi1 < naqm_bits) {
+-		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, naqm_bits) {
++		for_each_set_bit_inv(apqi, matrix->aqm, naqm_bits) {
+ 			n = sprintf(bufpos, ".%04lx\n", apqi);
+ 			bufpos += n;
+ 			nchars += n;
+ 		}
  	}
  
- 	vfio_ap_mdev_reset_queue(q, 1);
++	return nchars;
++}
++
++static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
++			   char *buf)
++{
++	ssize_t nchars;
++	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
++
++	mutex_lock(&matrix_dev->mdevs_lock);
++	nchars = vfio_ap_mdev_matrix_show(&matrix_mdev->matrix, buf);
+ 	mutex_unlock(&matrix_dev->mdevs_lock);
+ 
+ 	return nchars;
+ }
+ static DEVICE_ATTR_RO(matrix);
+ 
++static ssize_t guest_matrix_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	ssize_t nchars;
++	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
++
++	mutex_lock(&matrix_dev->mdevs_lock);
++	nchars = vfio_ap_mdev_matrix_show(&matrix_mdev->shadow_apcb, buf);
++	mutex_unlock(&matrix_dev->mdevs_lock);
++
++	return nchars;
++}
++static DEVICE_ATTR_RO(guest_matrix);
++
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+@@ -1480,6 +1501,7 @@ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_unassign_control_domain.attr,
+ 	&dev_attr_control_domains.attr,
+ 	&dev_attr_matrix.attr,
++	&dev_attr_guest_matrix.attr,
+ 	NULL,
+ };
+ 
 -- 
 2.35.3
 
