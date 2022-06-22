@@ -2,124 +2,176 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9116C43334
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Jun 2022 08:32:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C749CCA483
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Jun 2022 10:20:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353596AbiFVIcr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Jun 2022 04:32:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57962 "EHLO
+        id S234849AbiFVKUn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Jun 2022 06:20:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354016AbiFVIcq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jun 2022 04:32:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 051191113
-        for <linux-s390@vger.kernel.org>; Wed, 22 Jun 2022 01:32:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655886763;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=kbGRJbqhqaDpYURUd1iIYFpog7R3QIPoGbLyON7y9kw=;
-        b=NxbF1xGA74jrkn6kNR3sV3M8u+EmpVZUrKaIxrXs8tDpmNdGwq+legna7k6HhnNyrATm9Z
-        H/mVEujZxp9k49ZW9SdKU12+BLMD76CjS5b/V/SlhMJSYjGF3Zo+iZYRTr3+4MTWnXxQzr
-        Qw3gKRoc2yviJgDE47aRNgcLObYEXts=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-607-iNEYmxvyPGeSc7eIoTibxA-1; Wed, 22 Jun 2022 04:32:29 -0400
-X-MC-Unique: iNEYmxvyPGeSc7eIoTibxA-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 54B5F1C04B49;
-        Wed, 22 Jun 2022 08:32:28 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.153])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id DC7EA40C5BF;
-        Wed, 22 Jun 2022 08:32:27 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Jason Wang <jasowang@redhat.com>, pasic@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
-        agordeev@linux.ibm.com, mst@redhat.com, jasowang@redhat.com,
-        linux-s390@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     ben@decadent.org.uk, david@redhat.com
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-In-Reply-To: <20220622012940.21441-1-jasowang@redhat.com>
-Organization: Red Hat GmbH
-References: <20220622012940.21441-1-jasowang@redhat.com>
-User-Agent: Notmuch/0.36 (https://notmuchmail.org)
-Date:   Wed, 22 Jun 2022 10:32:26 +0200
-Message-ID: <87h74d85et.fsf@redhat.com>
+        with ESMTP id S231415AbiFVKUj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jun 2022 06:20:39 -0400
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E32783AA73;
+        Wed, 22 Jun 2022 03:20:34 -0700 (PDT)
+Received: by mail-lj1-x231.google.com with SMTP id b7so18773021ljr.6;
+        Wed, 22 Jun 2022 03:20:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=BRog1sj+gmItJaQDKR7qvCAZWvkZ7pMz9+40o0vf0Gk=;
+        b=UUojOJ/3GhSFIDFWciEjoZf31boWvOwfY/A6y80DZ2AqPaRsjijeEEkpKd45yfIx5X
+         T5qwiHEcn+WfjIIofETUIL7tz5LDB4zY9kp9MXSk6OQPXBGINu1crWi36K4nlSPbmcb5
+         ns2UU7VZZeTIkiEYmto2v5NIYv2eILa9rB1/5m64RuLA/T0D6ZO6Un72OVDXzcAUPK+l
+         PPhyMaBqxhtQ7JBQjyj1kQGTXUr7u1jwMg9s0CMFPrR/rrEjUDhn9YWO0WIMfv01mIdK
+         RsQBg9tKET+3y74+Bak6nDomvtwsGEXS410Cmc+nH5udKp7knt0HGyjhmQU3pC/HNiwM
+         N4RQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=BRog1sj+gmItJaQDKR7qvCAZWvkZ7pMz9+40o0vf0Gk=;
+        b=FheO+cy32fujFLeN0t4RprwiTB8WoEVxbuGjzxirEtBdGoDx+N9/d7Yh3Fm9l0aB++
+         iXOcOerjYSf+e6GZYlWm99/qPyU+t0R8Xv5G85fjZXoOJQMlxVlFTtm4Q3wm42R3sXXt
+         CNB+HCG/dicGaOSLsbiXkGie4gKWNNZZ2ZW80wcaUMFYzx1UEcDD5cugLflBubriaKI0
+         DkKuv90a8Pg2W9bIYwgab3V6VeU/ilT3X6lJUrHeTclVpKaQZUtx8WrVDZsG+O34TSiT
+         M3xOFTu1l2rlHv4dWU0dDU/erxi6mAHIWZExHkRhnB4M8QAl/Pailwf8ziGviqXZbeCm
+         Tdhg==
+X-Gm-Message-State: AJIora+t8Y0OEHd7cHT6l1bbMhBjtQszBKiiU5Pd7rEgSbnzvZgS/GB4
+        hvuRk1dqghj37Irz6ptpVhI=
+X-Google-Smtp-Source: AGRyM1vNLGnKO9vo5sGvPhUVSiHmsOOuuHKaW0/zVzi+GGSxVG3rdNUjYtWUArgnCHBYbBTSu/+bRQ==
+X-Received: by 2002:a05:651c:2105:b0:255:90b3:835c with SMTP id a5-20020a05651c210500b0025590b3835cmr1466695ljq.414.1655893233121;
+        Wed, 22 Jun 2022 03:20:33 -0700 (PDT)
+Received: from [192.168.1.7] ([212.22.223.21])
+        by smtp.gmail.com with ESMTPSA id be25-20020a05651c171900b0025a877115e1sm265981ljb.76.2022.06.22.03.20.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 22 Jun 2022 03:20:32 -0700 (PDT)
+Subject: Re: [PATCH v3 0/3] virtio: support requiring restricted access per
+ device
+To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
+        x86@kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-arch@vger.kernel.org
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        linux-arm-kernel@lists.infradead.org
+References: <20220622063838.8854-1-jgross@suse.com>
+From:   Oleksandr <olekstysh@gmail.com>
+Message-ID: <7eb66aec-df40-4e12-8211-8a6db4ad6060@gmail.com>
+Date:   Wed, 22 Jun 2022 13:20:30 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
+In-Reply-To: <20220622063838.8854-1-jgross@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 22 2022, Jason Wang <jasowang@redhat.com> wrote:
 
-> We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
-> harden vring IRQ"). It works with the assumption that the driver or
-> core can properly call virtio_device_ready() at the right
-> place. Unfortunately, this seems to be not true and uncover various
-> bugs of the existing drivers, mainly the issue of using
-> virtio_device_ready() incorrectly.
+On 22.06.22 09:38, Juergen Gross wrote:
+
+Hello Juergen
+
+> Instead of an all or nothing approach add support for requiring
+> restricted memory access per device.
 >
-> So let's having a Kconfig option and disable it by default. It gives
-
-s/having/have/
-
-> us a breath to fix the drivers and then we can consider to enable it
-> by default.
+> Changes in V3:
+> - new patches 1 + 2
+> - basically complete rework of patch 3
 >
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Changes since V2:
-> - Tweak the Kconfig help
-> - Add comment for the read_lock() pairing in virtio_ccw
-> ---
->  drivers/s390/virtio/virtio_ccw.c |  9 ++++++++-
->  drivers/virtio/Kconfig           | 13 +++++++++++++
->  drivers/virtio/virtio.c          |  2 ++
->  drivers/virtio/virtio_ring.c     | 12 ++++++++++++
->  include/linux/virtio_config.h    |  2 ++
->  5 files changed, 37 insertions(+), 1 deletion(-)
+> Juergen Gross (3):
+>    virtio: replace restricted mem access flag with callback
+>    kernel: remove platform_has() infrastructure
+>    xen: don't require virtio with grants for non-PV guests
 >
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 97e51c34e6cf..1f6a358f65f0 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -1136,8 +1136,13 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
->  			vcdev->err = -EIO;
->  	}
->  	virtio_ccw_check_activity(vcdev, activity);
-> -	/* Interrupts are disabled here */
-> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> +	/*
-> +	 * Paried with virtio_ccw_synchronize_cbs() and interrupts are
+>   MAINTAINERS                            |  8 --------
+>   arch/arm/xen/enlighten.c               |  4 +++-
+>   arch/s390/mm/init.c                    |  4 ++--
+>   arch/x86/mm/mem_encrypt_amd.c          |  4 ++--
+>   arch/x86/xen/enlighten_hvm.c           |  4 +++-
+>   arch/x86/xen/enlighten_pv.c            |  5 ++++-
+>   drivers/virtio/Kconfig                 |  4 ++++
+>   drivers/virtio/Makefile                |  1 +
+>   drivers/virtio/virtio.c                |  4 ++--
+>   drivers/virtio/virtio_anchor.c         | 18 +++++++++++++++++
+>   drivers/xen/Kconfig                    |  9 +++++++++
+>   drivers/xen/grant-dma-ops.c            | 10 ++++++++++
+>   include/asm-generic/Kbuild             |  1 -
+>   include/asm-generic/platform-feature.h |  8 --------
+>   include/linux/platform-feature.h       | 19 ------------------
+>   include/linux/virtio_anchor.h          | 19 ++++++++++++++++++
+>   include/xen/xen-ops.h                  |  6 ++++++
+>   include/xen/xen.h                      |  8 --------
+>   kernel/Makefile                        |  2 +-
+>   kernel/platform-feature.c              | 27 --------------------------
+>   20 files changed, 84 insertions(+), 81 deletions(-)
+>   create mode 100644 drivers/virtio/virtio_anchor.c
+>   delete mode 100644 include/asm-generic/platform-feature.h
+>   delete mode 100644 include/linux/platform-feature.h
+>   create mode 100644 include/linux/virtio_anchor.h
+>   delete mode 100644 kernel/platform-feature.c
 
-s/Paried/Paired/
-
-> +	 * disabled here.
-> +	 */
->  	read_lock(&vcdev->irq_lock);
-> +#endif
->  	for_each_set_bit(i, indicators(vcdev),
->  			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
->  		/* The bit clear must happen before the vring kick. */
-> @@ -1146,7 +1151,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
->  		vq = virtio_ccw_vq_by_ind(vcdev, i);
->  		vring_interrupt(0, vq);
->  	}
-> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
->  	read_unlock(&vcdev->irq_lock);
-> +#endif
->  	if (test_bit(0, indicators2(vcdev))) {
->  		virtio_config_changed(&vcdev->vdev);
->  		clear_bit(0, indicators2(vcdev));
+I have tested the series on Arm64 guest using Xen hypervisor and didn't 
+notice any issues.
 
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+I assigned two virtio-mmio devices to the guest:
+#1 - grant dma device (required DT binding is present, so 
+xen_is_grant_dma_device() returns true), virtio-mmio modern transport 
+(backend offers VIRTIO_F_VERSION_1, VIRTIO_F_ACCESS_PLATFORM)
+#2 - non grant dma device (required DT binding is absent, so 
+xen_is_grant_dma_device() returns false), virtio-mmio legacy transport 
+(backend does not offer these flags)
+
+
+# CONFIG_XEN_VIRTIO is not set
+
+both works, and both do not use grant mappings for virtio
+
+
+CONFIG_XEN_VIRTIO=y
+# CONFIG_XEN_VIRTIO_FORCE_GRANT is not set
+
+both works, #1 uses grant mappings for virtio, #2 does not use it
+
+
+CONFIG_XEN_VIRTIO=y
+CONFIG_XEN_VIRTIO_FORCE_GRANT=y
+
+only #1 works and uses grant mappings for virtio, #2 was rejected by 
+validation in virtio_features_ok()
+
+
+You can add my:
+Tested-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com> # Arm64 
+guest using Xen
+
+
+>
+-- 
+Regards,
+
+Oleksandr Tyshchenko
 
