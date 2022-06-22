@@ -2,116 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A188C43334
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Jun 2022 07:55:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9116C43334
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Jun 2022 08:32:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232097AbiFVHzD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Jun 2022 03:55:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55926 "EHLO
+        id S1353596AbiFVIcr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Jun 2022 04:32:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350096AbiFVHy6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jun 2022 03:54:58 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0FB9B34666;
-        Wed, 22 Jun 2022 00:54:56 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id AC87913D5;
-        Wed, 22 Jun 2022 00:54:56 -0700 (PDT)
-Received: from [10.57.85.1] (unknown [10.57.85.1])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2E50B3F66F;
-        Wed, 22 Jun 2022 00:54:50 -0700 (PDT)
-Message-ID: <6e1280c5-4b22-ebb3-3912-6c72bc169982@arm.com>
-Date:   Wed, 22 Jun 2022 08:54:45 +0100
+        with ESMTP id S1354016AbiFVIcq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jun 2022 04:32:46 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 051191113
+        for <linux-s390@vger.kernel.org>; Wed, 22 Jun 2022 01:32:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655886763;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=kbGRJbqhqaDpYURUd1iIYFpog7R3QIPoGbLyON7y9kw=;
+        b=NxbF1xGA74jrkn6kNR3sV3M8u+EmpVZUrKaIxrXs8tDpmNdGwq+legna7k6HhnNyrATm9Z
+        H/mVEujZxp9k49ZW9SdKU12+BLMD76CjS5b/V/SlhMJSYjGF3Zo+iZYRTr3+4MTWnXxQzr
+        Qw3gKRoc2yviJgDE47aRNgcLObYEXts=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-607-iNEYmxvyPGeSc7eIoTibxA-1; Wed, 22 Jun 2022 04:32:29 -0400
+X-MC-Unique: iNEYmxvyPGeSc7eIoTibxA-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 54B5F1C04B49;
+        Wed, 22 Jun 2022 08:32:28 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.153])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id DC7EA40C5BF;
+        Wed, 22 Jun 2022 08:32:27 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Jason Wang <jasowang@redhat.com>, pasic@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
+        agordeev@linux.ibm.com, mst@redhat.com, jasowang@redhat.com,
+        linux-s390@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     ben@decadent.org.uk, david@redhat.com
+Subject: Re: [PATCH V3] virtio: disable notification hardening by default
+In-Reply-To: <20220622012940.21441-1-jasowang@redhat.com>
+Organization: Red Hat GmbH
+References: <20220622012940.21441-1-jasowang@redhat.com>
+User-Agent: Notmuch/0.36 (https://notmuchmail.org)
+Date:   Wed, 22 Jun 2022 10:32:26 +0200
+Message-ID: <87h74d85et.fsf@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v2 3/5] vfio/iommu_type1: Remove the domain->ops
- comparison
-Content-Language: en-GB
-To:     Nicolin Chen <nicolinc@nvidia.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     "joro@8bytes.org" <joro@8bytes.org>,
-        "will@kernel.org" <will@kernel.org>,
-        "marcan@marcan.st" <marcan@marcan.st>,
-        "sven@svenpeter.dev" <sven@svenpeter.dev>,
-        "robdclark@gmail.com" <robdclark@gmail.com>,
-        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
-        "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
-        "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
-        "baolin.wang7@gmail.com" <baolin.wang7@gmail.com>,
-        "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
-        "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
-        "dwmw2@infradead.org" <dwmw2@infradead.org>,
-        "yong.wu@mediatek.com" <yong.wu@mediatek.com>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        "vdumpa@nvidia.com" <vdumpa@nvidia.com>,
-        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "thunder.leizhen@huawei.com" <thunder.leizhen@huawei.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "christophe.jaillet@wanadoo.fr" <christophe.jaillet@wanadoo.fr>,
-        "john.garry@huawei.com" <john.garry@huawei.com>,
-        "chenxiang66@hisilicon.com" <chenxiang66@hisilicon.com>,
-        "saiprakash.ranjan@codeaurora.org" <saiprakash.ranjan@codeaurora.org>,
-        "isaacm@codeaurora.org" <isaacm@codeaurora.org>,
-        "yangyingliang@huawei.com" <yangyingliang@huawei.com>,
-        "jordan@cosmicpenguin.net" <jordan@cosmicpenguin.net>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-mediatek@lists.infradead.org" 
-        <linux-mediatek@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-References: <20220616000304.23890-1-nicolinc@nvidia.com>
- <20220616000304.23890-4-nicolinc@nvidia.com>
- <BL1PR11MB52717050DBDE29A81637BBFA8CAC9@BL1PR11MB5271.namprd11.prod.outlook.com>
- <YqutYjgtFOTXCF0+@Asurada-Nvidia>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <YqutYjgtFOTXCF0+@Asurada-Nvidia>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-06-16 23:23, Nicolin Chen wrote:
-> On Thu, Jun 16, 2022 at 06:40:14AM +0000, Tian, Kevin wrote:
-> 
->>> The domain->ops validation was added, as a precaution, for mixed-driver
->>> systems. However, at this moment only one iommu driver is possible. So
->>> remove it.
->>
->> It's true on a physical platform. But I'm not sure whether a virtual platform
->> is allowed to include multiple e.g. one virtio-iommu alongside a virtual VT-d
->> or a virtual smmu. It might be clearer to claim that (as Robin pointed out)
->> there is plenty more significant problems than this to solve instead of simply
->> saying that only one iommu driver is possible if we don't have explicit code
->> to reject such configuration. 😊
-> 
-> Will edit this part. Thanks!
+On Wed, Jun 22 2022, Jason Wang <jasowang@redhat.com> wrote:
 
-Oh, physical platforms with mixed IOMMUs definitely exist already. The 
-main point is that while bus_set_iommu still exists, the core code 
-effectively *does* prevent multiple drivers from registering - even in 
-emulated cases like the example above, virtio-iommu and VT-d would both 
-try to bus_set_iommu(&pci_bus_type), and one of them will lose. The 
-aspect which might warrant clarification is that there's no combination 
-of supported drivers which claim non-overlapping buses *and* could 
-appear in the same system - even if you tried to contrive something by 
-emulating, say, VT-d (PCI) alongside rockchip-iommu (platform), you 
-could still only describe one or the other due to ACPI vs. Devicetree.
+> We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
+> harden vring IRQ"). It works with the assumption that the driver or
+> core can properly call virtio_device_ready() at the right
+> place. Unfortunately, this seems to be not true and uncover various
+> bugs of the existing drivers, mainly the issue of using
+> virtio_device_ready() incorrectly.
+>
+> So let's having a Kconfig option and disable it by default. It gives
 
-Thanks,
-Robin.
+s/having/have/
+
+> us a breath to fix the drivers and then we can consider to enable it
+> by default.
+>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> Changes since V2:
+> - Tweak the Kconfig help
+> - Add comment for the read_lock() pairing in virtio_ccw
+> ---
+>  drivers/s390/virtio/virtio_ccw.c |  9 ++++++++-
+>  drivers/virtio/Kconfig           | 13 +++++++++++++
+>  drivers/virtio/virtio.c          |  2 ++
+>  drivers/virtio/virtio_ring.c     | 12 ++++++++++++
+>  include/linux/virtio_config.h    |  2 ++
+>  5 files changed, 37 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 97e51c34e6cf..1f6a358f65f0 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -1136,8 +1136,13 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+>  			vcdev->err = -EIO;
+>  	}
+>  	virtio_ccw_check_activity(vcdev, activity);
+> -	/* Interrupts are disabled here */
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+> +	/*
+> +	 * Paried with virtio_ccw_synchronize_cbs() and interrupts are
+
+s/Paried/Paired/
+
+> +	 * disabled here.
+> +	 */
+>  	read_lock(&vcdev->irq_lock);
+> +#endif
+>  	for_each_set_bit(i, indicators(vcdev),
+>  			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
+>  		/* The bit clear must happen before the vring kick. */
+> @@ -1146,7 +1151,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+>  		vq = virtio_ccw_vq_by_ind(vcdev, i);
+>  		vring_interrupt(0, vq);
+>  	}
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  	read_unlock(&vcdev->irq_lock);
+> +#endif
+>  	if (test_bit(0, indicators2(vcdev))) {
+>  		virtio_config_changed(&vcdev->vdev);
+>  		clear_bit(0, indicators2(vcdev));
+
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+
