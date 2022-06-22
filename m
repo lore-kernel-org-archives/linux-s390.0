@@ -2,113 +2,76 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D66D7C43334
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Jun 2022 13:49:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4488BC43334
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Jun 2022 14:07:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352952AbiFVNtI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Jun 2022 09:49:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40022 "EHLO
+        id S1357897AbiFVOHz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Jun 2022 10:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245383AbiFVNtF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jun 2022 09:49:05 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C86B2DF4;
-        Wed, 22 Jun 2022 06:49:04 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25MDArmE024447;
-        Wed, 22 Jun 2022 13:48:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=yqoJqnd9xUomrOebKVypCVBPsGWc5ALg73aN0cSqt4s=;
- b=IU7kiSOkqGxcnlfPcPeiuN+q3LiZX8MYuvUIbyb4/ONq+V2lj2qTKJM56W6CdxvD6g79
- wGI6pjpFdZlyxNkIklIIF+/nwFsyVqB/2LTtPb5fEZi2LkoU0jRjrTUGDv+gJYOJxD+H
- 8zfE9JbBicpLAX+m3w8oB1nuUwxDfxox+3tYzoldsr3o7Be5sioWT6LGyQQ3BNW0aGRs
- lmdax/NoyK8Mtm/9wBZhrv+WS8R/RJ3k7u+Mm218qdLI/vvOsaag5UMzPTwXxisAiLX8
- 33xEAF4iqd0xveznR+mfrr7PBSNeFmLv88mchVHmZb07GK7cfX5nhgD757/iZg/bD/GW Dw== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gv30rjk2u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Jun 2022 13:48:56 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25MDZZdZ016870;
-        Wed, 22 Jun 2022 13:48:54 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3gs6b8wqn3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Jun 2022 13:48:54 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25MDmp5J23396686
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Jun 2022 13:48:51 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 61E7211C050;
-        Wed, 22 Jun 2022 13:48:51 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DD9E811C04A;
-        Wed, 22 Jun 2022 13:48:50 +0000 (GMT)
-Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.144.178])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed, 22 Jun 2022 13:48:50 +0000 (GMT)
-Date:   Wed, 22 Jun 2022 15:48:49 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] s390/purgatory: remove duplicated build rule of
- kexec-purgatory.o
-Message-ID: <YrMdwXwHE0qLRZLC@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-References: <20220613170902.1775211-1-masahiroy@kernel.org>
- <20220613170902.1775211-3-masahiroy@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220613170902.1775211-3-masahiroy@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 9COnH_cmQ2jsqsy_JhWizitY4xL8iNbE
-X-Proofpoint-GUID: 9COnH_cmQ2jsqsy_JhWizitY4xL8iNbE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-22_04,2022-06-22_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=884
- clxscore=1015 impostorscore=0 malwarescore=0 mlxscore=0 priorityscore=1501
- lowpriorityscore=0 adultscore=0 suspectscore=0 phishscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2206220069
+        with ESMTP id S1357914AbiFVOHy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jun 2022 10:07:54 -0400
+Received: from smtpbg.qq.com (smtpbg138.qq.com [106.55.201.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FACEC72
+        for <linux-s390@vger.kernel.org>; Wed, 22 Jun 2022 07:07:52 -0700 (PDT)
+X-QQ-mid: bizesmtp81t1655906846trebwzja
+Received: from ubuntu.localdomain ( [106.117.78.84])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Wed, 22 Jun 2022 22:07:22 +0800 (CST)
+X-QQ-SSF: 01000000008000B0B000B00A0000000
+X-QQ-FEAT: 1npaVEgjlkIwMbFnQPtwJv0BZBcdNG8yP83XgmY+2RAS5Gx7hH9Ag/haCwB/e
+        8kCdzW5zmlpTXiQZWiELlpbXRy3cwLQwtOFvsG0qBEfyKRICQqKXIFcDgimTeKm2rDfMBRu
+        FrElx4NL5Kx2sVTGocMs2vDo2oGXdzxcAXbk4QF+CuINMH7BMeFbQXRM9Dh2j9QTMFGY/Kb
+        Aln4ivMovz8yE0VwMFOvGJ+RmVZo4sqLWyATAmC6aHU6XyxmIdoWWkixY/sd1of/4H3mA+2
+        UOcZQ+wqGqf472TBQd99OpHJwYKNAi1vB4ceh1qKpxjK2vdLzX/n0UwyOQZqO8IdgXl23Kd
+        VG1YJAERwCq58PQEyeCeE3yYAm7ArdeeSIxWreG
+X-QQ-GoodBg: 0
+From:   Jiang Jian <jiangjian@cdjrlc.com>
+To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Cc:     david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiang Jian <jiangjian@cdjrlc.com>
+Subject: [PATCH] KVM: s390: drop unexpected word 'and' in the comments
+Date:   Wed, 22 Jun 2022 22:07:20 +0800
+Message-Id: <20220622140720.7617-1-jiangjian@cdjrlc.com>
+X-Mailer: git-send-email 2.17.1
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:cdjrlc.com:qybgspam:qybgspam10
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 14, 2022 at 02:09:02AM +0900, Masahiro Yamada wrote:
-> This is equivalent to the pattern rule in scripts/Makefile.build.
-> 
-> Having the dependency on $(obj)/purgatory.ro is enough.
-> 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
-> 
->  arch/s390/purgatory/Makefile | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-> index 3e2c17ba04de..d237bc6841cb 100644
-> --- a/arch/s390/purgatory/Makefile
-> +++ b/arch/s390/purgatory/Makefile
-> @@ -48,7 +48,6 @@ OBJCOPYFLAGS_purgatory.ro += --remove-section='.note.*'
->  $(obj)/purgatory.ro: $(obj)/purgatory $(obj)/purgatory.chk FORCE
->  		$(call if_changed,objcopy)
->  
-> -$(obj)/kexec-purgatory.o: $(obj)/kexec-purgatory.S $(obj)/purgatory.ro FORCE
-> -	$(call if_changed_rule,as_o_S)
-> +$(obj)/kexec-purgatory.o: $(obj)/purgatory.ro
->  
->  obj-y += kexec-purgatory.o
+there is an unexpected word 'and' in the comments that need to be dropped
 
-Applied, thanks!
+file: arch/s390/kvm/interrupt.c
+line: 705
 
-> -- 
-> 2.32.0
-> 
+* Subsystem damage are the only two and and are indicated by
+
+changed to:
+
+* Subsystem damage are the only two and are indicated by
+
+Signed-off-by: Jiang Jian <jiangjian@cdjrlc.com>
+---
+ arch/s390/kvm/interrupt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index af96dc0549a4..1e3fb2d4d448 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -702,7 +702,7 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
+ 	/*
+ 	 * We indicate floating repressible conditions along with
+ 	 * other pending conditions. Channel Report Pending and Channel
+-	 * Subsystem damage are the only two and and are indicated by
++	 * Subsystem damage are the only two and are indicated by
+ 	 * bits in mcic and masked in cr14.
+ 	 */
+ 	if (test_and_clear_bit(IRQ_PEND_MCHK_REP, &fi->pending_irqs)) {
+-- 
+2.17.1
+
