@@ -2,73 +2,86 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74D81C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Jun 2022 15:15:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89A82C43334
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Jun 2022 15:44:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231410AbiFWPPt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Jun 2022 11:15:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34240 "EHLO
+        id S230520AbiFWPow (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Jun 2022 11:44:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231329AbiFWPPt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 11:15:49 -0400
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF3E43A5E0
-        for <linux-s390@vger.kernel.org>; Thu, 23 Jun 2022 08:15:48 -0700 (PDT)
-Received: by mail-pg1-x531.google.com with SMTP id e63so17941229pgc.5
-        for <linux-s390@vger.kernel.org>; Thu, 23 Jun 2022 08:15:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Itay7Y2xxargq/J6Y/NurU6/Z+HFhZkczjPHvFJ5w4k=;
-        b=QRTrJBy4cdY9/GL2IfCMWoERkieO1ztaHrelylTalu+w6fND9Ru7WTU/7L5ili5jVQ
-         VmZQTyzxUR6mg3t0KwRzEpjkIDMLQU1j/CS4+v0VA8aK6Q0fkXK7bw6b6ve8hAPyj0XW
-         AyGiMzRxvi8U8zP/b9b8nXZN4EehwGiJlp5Fs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Itay7Y2xxargq/J6Y/NurU6/Z+HFhZkczjPHvFJ5w4k=;
-        b=2yaj6b/jc4Um3FpcVt+mUn8hcVZNqsVbZUFAXwr2cZ33Ibq+s2AwMueyrqbC8AbalP
-         VoJyZsuSEY3wb1gdhD3Aaob0+D7pbbfUxyR4xhHc+n3p4yzPO7jKw4cVZyIVI6FV5Qfv
-         WozT1bmEVCUNxXFT690fmLtLfraVC8RM6IK5KtuLbx3OVpXNx3YohCv+ZEI+163lyz+0
-         YqrWvhpxVaDIier0y0fK4gAv9LFaC/2KL8OhvnA22jLKAcIHUb9+Jri59nlYyPMM9Zu2
-         K0moKB6QCEkrSYnJ7DnRtMnklDj8sTwiu3ub+FqPG6SPH2AyuDJjDMjfmUycsyUyas0v
-         kRdg==
-X-Gm-Message-State: AJIora+th8DYkvA4Hn2GliYdAZu0MntZA8gJMGdz2a7k9V05BpfBMDKY
-        3PJjBL/hMYdjW2K2QMb3OS2fuw==
-X-Google-Smtp-Source: AGRyM1twFv4L8nR2YdNrvbFQ2Ymi/KFdsUtfmdfENtOYdNtCP5sVA1YaYvN6GkAKRUHQTy0exGde+w==
-X-Received: by 2002:a63:698a:0:b0:40c:4714:2425 with SMTP id e132-20020a63698a000000b0040c47142425mr7858173pgc.548.1655997348116;
-        Thu, 23 Jun 2022 08:15:48 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id v20-20020a17090331d400b001641047544bsm14938197ple.103.2022.06.23.08.15.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jun 2022 08:15:47 -0700 (PDT)
-Date:   Thu, 23 Jun 2022 08:15:46 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Jiang Jian <jiangjian@cdjrlc.com>
-Cc:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        oberpar@linux.ibm.com, bjorn.andersson@linaro.org,
-        liaoyu15@huawei.com, andriy.shevchenko@linux.intel.com,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/sclp: Fix typo in comments
-Message-ID: <202206230815.08ED0F225@keescook>
-References: <20220622142713.14187-1-jiangjian@cdjrlc.com>
+        with ESMTP id S229579AbiFWPow (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 11:44:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A9236B6A;
+        Thu, 23 Jun 2022 08:44:51 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDD49B82435;
+        Thu, 23 Jun 2022 15:44:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39956C3411B;
+        Thu, 23 Jun 2022 15:44:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1655999088;
+        bh=E/PWTSDjWAEtShzaTXlO2ocUe9kuMzdsrUobTKa3QUY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=J0aZZhsAqPnPW8NoqNs5vPFs+OSvJMQ10fhAh6psx+vyxETEOge7pEWQcF+xDHZmB
+         G+tvZnyTLz2HutznxlAeM72u1enfJiWm45rmztBw8uHXKbS1cs4BA4cNPoInE7aqV7
+         gCIsfQ0tdDv6sikaY+jIaJyF7PNJ/aZ1PlOkr9aY=
+Date:   Thu, 23 Jun 2022 17:44:45 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc:     stable@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: please consider for stable: "s390/mm: use non-quiescing sske for
+ KVM switch to keyed guest"
+Message-ID: <YrSKbXdkSJ0UfBul@kroah.com>
+References: <20220623151520.73354-1-borntraeger@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220622142713.14187-1-jiangjian@cdjrlc.com>
+In-Reply-To: <20220623151520.73354-1-borntraeger@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 22, 2022 at 10:27:13PM +0800, Jiang Jian wrote:
-> Remove the repeated word 'and' from comments
+On Thu, Jun 23, 2022 at 05:15:20PM +0200, Christian Borntraeger wrote:
+> stable team, please consider
+> commit 3ae11dbcfac906a8c3a480e98660a823130dc16a
+> It will noticeable reduce system overhead when this happens on multiple CPUs.
 > 
-> Signed-off-by: Jiang Jian <jiangjian@cdjrlc.com>
+> ----snip----
+> commit 3ae11dbcfac906a8c3a480e98660a823130dc16a
+>     s390/mm: use non-quiescing sske for KVM switch to keyed guest
+>     
+>     The switch to a keyed guest does not require a classic sske as the other
+>     guest CPUs are not accessing the key before the switch is complete.
+>     By using the NQ SSKE things are faster especially with multiple guests.
+> 
+>     
+> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Suggested-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Link: https://lore.kernel.org/r/20220530092706.11637-3-borntraeger@linux.ibm.com
+> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> 
+> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+> index 697df02362af..4909dcd762e8 100644
+> --- a/arch/s390/mm/pgtable.c
+> +++ b/arch/s390/mm/pgtable.c
+> @@ -748,7 +748,7 @@ void ptep_zap_key(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+>  	pgste_val(pgste) |= PGSTE_GR_BIT | PGSTE_GC_BIT;
+>  	ptev = pte_val(*ptep);
+>  	if (!(ptev & _PAGE_INVALID) && (ptev & _PAGE_WRITE))
+> -		page_set_storage_key(ptev & PAGE_MASK, PAGE_DEFAULT_KEY, 1);
+> +		page_set_storage_key(ptev & PAGE_MASK, PAGE_DEFAULT_KEY, 0);
+>  	pgste_set_unlock(ptep, pgste);
+>  	preempt_enable();
+>  }
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
+Now queued up to all stable branches (as you didn't mention
+otherwise...)
 
--- 
-Kees Cook
+thanks,
+
+greg k-h
