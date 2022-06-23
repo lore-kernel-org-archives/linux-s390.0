@@ -2,116 +2,75 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCE14C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Jun 2022 10:09:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 727DFC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Jun 2022 10:21:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230126AbiFWKJe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Jun 2022 06:09:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40516 "EHLO
+        id S229812AbiFWKVo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Jun 2022 06:21:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229723AbiFWKJd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 06:09:33 -0400
-Received: from conssluserg-02.nifty.com (conssluserg-02.nifty.com [210.131.2.81])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B940449C8E;
-        Thu, 23 Jun 2022 03:09:31 -0700 (PDT)
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44]) (authenticated)
-        by conssluserg-02.nifty.com with ESMTP id 25NA94Bt030361;
-        Thu, 23 Jun 2022 19:09:05 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-02.nifty.com 25NA94Bt030361
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1655978945;
-        bh=VrNJeZOOoxsp333/0m3wcHIZFYPss3hVZ7DqYZoPrEM=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=zQA+le9IcciER0KVbr4wwcg45cS/xUXk6UDnJ05NNPEGXAy6mZvYU29OYi6lOmJEZ
-         dgJmSlfrN/J3ioaPTbHcRP3MoR+bi3wKC1A39Uo2werJvmHuTh+/N/DBHshfLa8h5x
-         1KA0M+tYRkk+3Q/ZxW+NLhk85uUAOY73kSuCeYWHH7L5ysp8UFD+4GXrw5K3NkSPR+
-         W6hjnCN2C9Ge++kHVdNZ/U3gkZpnVYBOKl210mKwOkTz2HnSRPi4mXnacffBqQEj02
-         pjI2FX0cR8u0o4ODTO59clnyBCn/+T/9FmhWxTBCNy0Au3mLtcyF3iKsTMZj/rgNEJ
-         g60XnIXZ1PYkQ==
-X-Nifty-SrcIP: [209.85.221.44]
-Received: by mail-wr1-f44.google.com with SMTP id i10so23445662wrc.0;
-        Thu, 23 Jun 2022 03:09:05 -0700 (PDT)
-X-Gm-Message-State: AJIora+W09s21WkSli2lBE5mN+rHZP5FXSCm3zhba9uSrCUR71XykZL8
-        mR85CoELnkw2HxYWY8t9FC3eoYEAM7fRuNkVpHQ=
-X-Google-Smtp-Source: AGRyM1u7Aj3TAT/slcXrcHpTGlaaLYJnoGxhHEYAeEWyxd0XvUfEyAr2bl7pqK36JG8IT4+F4pFKmCDdxplz3OpMf4c=
-X-Received: by 2002:adf:e104:0:b0:21b:9938:b07a with SMTP id
- t4-20020adfe104000000b0021b9938b07amr7634574wrz.682.1655978943781; Thu, 23
- Jun 2022 03:09:03 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220613170902.1775211-1-masahiroy@kernel.org>
- <20220613170902.1775211-2-masahiroy@kernel.org> <YrMdnEB686tSGARZ@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-In-Reply-To: <YrMdnEB686tSGARZ@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Thu, 23 Jun 2022 19:08:27 +0900
-X-Gmail-Original-Message-ID: <CAK7LNATHTwxfNC9QJDGBiw+z4LN-wFmXsAKXOsVa_JU0K-nuUw@mail.gmail.com>
-Message-ID: <CAK7LNATHTwxfNC9QJDGBiw+z4LN-wFmXsAKXOsVa_JU0K-nuUw@mail.gmail.com>
-Subject: Re: [PATCH 2/3] s390/purgatory: hard-code obj-y in Makefile
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S229482AbiFWKVn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 06:21:43 -0400
+Received: from smtpbg.qq.com (smtpbg139.qq.com [175.27.65.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC9545F76;
+        Thu, 23 Jun 2022 03:21:38 -0700 (PDT)
+X-QQ-mid: bizesmtp85t1655979680turd5q1a
+Received: from ubuntu.localdomain ( [106.117.99.68])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Thu, 23 Jun 2022 18:21:15 +0800 (CST)
+X-QQ-SSF: 01000000008000B0C000B00A0000000
+X-QQ-FEAT: rCzLTtzQ0gf/XOGQRUZH29h41mOjzoysKu1Ok+a1VzOeVG+7B8mAb8HhmtU0Q
+        crIPTIDikgc4Nx/q5sPaY4MVJbYg0HWHUqXJYTOF5MIxidKJvuz4C3aCbHKdLx26yKTKqGU
+        QnWLBe/iCNG6Dz3PwX+csFQo/MCKXRR9zZp6zVmxhbUzLuoansLqK9Qll8frgFaXUwaHpaN
+        +Q2ebvykfB4mIN8Uj1lQU07YgtnZmAsF9QIxfHDagdwiV2LegKSDuvEEvzhZ4vxEgUmXUEu
+        pNG+CQNjppNCnGHKcrntojcFfrHc5yIjomWEnQk9NYx0qKoNRGqeBSGm9rZsDy8W+amIp+2
+        Vkb+Y/zv+Xbiuw2rFM2Za7aW5MDKw==
+X-QQ-GoodBg: 0
+From:   Jiang Jian <jiangjian@cdjrlc.com>
+To:     sth@linux.ibm.com, hoeppner@linux.ibm.com
+Cc:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiang Jian <jiangjian@cdjrlc.com>
+Subject: [PATCH] s390/dasd: drop unexpected word 'for' in comments
+Date:   Thu, 23 Jun 2022 18:21:14 +0800
+Message-Id: <20220623102114.33249-1-jiangjian@cdjrlc.com>
+X-Mailer: git-send-email 2.17.1
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:cdjrlc.com:qybgspam:qybgspam6
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 22, 2022 at 10:48 PM Alexander Gordeev
-<agordeev@linux.ibm.com> wrote:
->
-> On Tue, Jun 14, 2022 at 02:09:01AM +0900, Masahiro Yamada wrote:
-> > The purgatory/ directory is entirely guarded in arch/s390/Kbuild.
-> > CONFIG_ARCH_HAS_KEXEC_PURGATORY is bool type.
-> >
-> > $(CONFIG_ARCH_HAS_KEXEC_PURGATORY) is always 'y' when Kbuild visits
-> > this Makefile for building.
-> >
-> > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> > ---
-> >
-> >  arch/s390/purgatory/Makefile | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-> > index 360ada80d20c..3e2c17ba04de 100644
-> > --- a/arch/s390/purgatory/Makefile
-> > +++ b/arch/s390/purgatory/Makefile
-> > @@ -51,4 +51,4 @@ $(obj)/purgatory.ro: $(obj)/purgatory $(obj)/purgatory.chk FORCE
-> >  $(obj)/kexec-purgatory.o: $(obj)/kexec-purgatory.S $(obj)/purgatory.ro FORCE
-> >       $(call if_changed_rule,as_o_S)
-> >
-> > -obj-$(CONFIG_ARCH_HAS_KEXEC_PURGATORY) += kexec-purgatory.o
-> > +obj-y += kexec-purgatory.o
->
-> Applied, thanks!
->
-> BTW, it looks like x86 and riscv also need similar change.
+there is an unexpected word 'for' in the comments that need to be dropped
 
-A patch for x86 exists:
+file - drivers/s390/block/dasd.c
+line - 1728
 
-https://lore.kernel.org/all/20220616072407.2317131-1-masahiroy@kernel.org/
+	/* check for for attention message */
 
+changed to:
 
-I will send riscv patches later.
+	/* check for attention message */
 
+Signed-off-by: Jiang Jian <jiangjian@cdjrlc.com>
+---
+ drivers/s390/block/dasd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> In addition, x86 use of CONFIG_ARCH_HAS_KEXEC_PURGATORY vs CONFIG_KEXEC_FILE
-> is not consistent with other architectures (may be even incorrect?).
-
-I thought of this when I reworked Makefiles,
-but did not touch this part.
-
-
->
-> > --
-> > 2.32.0
-> >
-
-
-
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index ba6d78789660..35b94aa02f15 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1725,7 +1725,7 @@ void dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
+ 		dasd_put_device(device);
+ 	}
+ 
+-	/* check for for attention message */
++	/* check for attention message */
+ 	if (scsw_dstat(&irb->scsw) & DEV_STAT_ATTENTION) {
+ 		device = dasd_device_from_cdev_locked(cdev);
+ 		if (!IS_ERR(device)) {
 -- 
-Best Regards
-Masahiro Yamada
+2.17.1
+
