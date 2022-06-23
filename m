@@ -2,140 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8A2EC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Jun 2022 21:38:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D770ACCA47E
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Jun 2022 22:50:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230217AbiFWViE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Jun 2022 17:38:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53410 "EHLO
+        id S229724AbiFWWuh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Jun 2022 18:50:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230175AbiFWVh6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 17:37:58 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2042.outbound.protection.outlook.com [40.107.92.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5A731036;
-        Thu, 23 Jun 2022 14:37:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=mJvCq3HSnZ01SA+Xt1hLGTCgY1PIGFZ5twxw6zqs1Hpuc2k69UkxabF2YKuKEgMFV8iAQ0XeBH9ZuMt0fc1G4hCc/pXa+8gni0YkEagvB5HlZcmHldPwtyJ8W2ioUtwQIimHTIYEfMSk7MlvIXCNUUpTo+aa7GjpOClWGPTdw8n0qcL+i5DA1XTwjhPNaECdjU/nIDr6a+OGwmJ7FbsJ+tyjAnTZOuqj9oka1a7B3SlIMPUVAZd3jYConUBI6/nkaCPiFiSXBfl8tIKCUy8Xd7B/r0XfI3j1RYAfZxMEr9/efYlUcB/k4ivsnEzlxXxxApC3y8nHWd7i7aXsa8Wh+A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=wHRZnfYJP2uQ5SD8sfT6YfF2Ht2bFznXmjUK8+kJ51I=;
- b=jUTuC15I2sGg0wQW2YSBItaUoHpQqyJIYOAsezRrVmWjOBKHUWUwis2N8GG1TG5/5yMY6o8PMDAY8KUGWuiUIMOv+EvKACICqGIgT7oOqJyKv8p/Mr7BQzskbgodsNFXIM7APl1rs3NP/gq3orWdepaZeCuTLNixMlZoC79q6fb/BoC96bQIXZ4sAnqjCIIREV8ZGVQXqVnWSpuWVBtlX8pUYD8NXskLy8L5aqXcSK0LaAIcIKVXaqs/JNfKJgwuCHrqCKJoAycAmhYWArhC27p7pbIgwQTNT0+xqTZ1dJWQ4RZd3oanymalSzkURAhHlO9h8XfqSThxxFrNOcab8A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wHRZnfYJP2uQ5SD8sfT6YfF2Ht2bFznXmjUK8+kJ51I=;
- b=QpqcvC3zPjVSONhyKNHKMSGGaBNRfNn/9Pb+ooSQhD90KKI+ef6sTQ9m8js0w6RNwpcOg9IZviGcrVK2HyfXrUsRxMtceSVQ3t8RNqu87nPMftxwFKbiAmjpFYV0WZbNdnxhIs5u5gaLDNcSm0OUAW0TGiinGN2Px3PPYIv47Jpa3cuAzH/lTIgGQa+PEtcVXph5vt23bdFQlW886LXYaZruXMrpMf4a1YVZKn4VNix/pHO2GA9I+fsRqkTXQaWs7zvwz36UKoGvFlKYXxhcrtgSnaV2d96do6WZh00cefD+34Nj6gDdaVV8ITQRN3iCs614W9ODDNJkSVQLxTZ8bg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by BN7PR12MB2802.namprd12.prod.outlook.com (2603:10b6:408:25::33) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5373.16; Thu, 23 Jun
- 2022 21:37:53 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ac35:7c4b:3282:abfb]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ac35:7c4b:3282:abfb%3]) with mapi id 15.20.5373.016; Thu, 23 Jun 2022
- 21:37:53 +0000
-Date:   Thu, 23 Jun 2022 18:37:52 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        intel-gvt-dev@lists.freedesktop.org
-Subject: Re: [PATCH 12/13] vfio/mdev: consolidate all the description sysfs
- into the core code
-Message-ID: <20220623213752.GG38911@nvidia.com>
-References: <20220614045428.278494-1-hch@lst.de>
- <20220614045428.278494-13-hch@lst.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220614045428.278494-13-hch@lst.de>
-X-ClientProxiedBy: BL1PR13CA0239.namprd13.prod.outlook.com
- (2603:10b6:208:2bf::34) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S229587AbiFWWug (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 18:50:36 -0400
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2136527F4;
+        Thu, 23 Jun 2022 15:50:35 -0700 (PDT)
+Received: by mail-oi1-x22c.google.com with SMTP id bd16so1386404oib.6;
+        Thu, 23 Jun 2022 15:50:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Y+Dg0mM96GxdgWzW8Q0806WYRu+tu0Ie+VcO+cMcI4U=;
+        b=FYk61bvDh5JwGf5WdZIwNZW8B6+57IJxN4Nk3SgOVQUCUsYiOm3ErEX+kq3vz0b1jl
+         ehO4ycV50KjmXNOG82d4ajlgj9CqbebkKJ4SWJJqHREo4pk+ilQPgbCv6IB6zHid79iP
+         rqmZHNnlfQ/rPeGGBvDbNZN9ZMa975cK8vv+RyGLosEe6hd4C5Y35Ob1uvZYTwiiw7Y6
+         b7DLV4jzyNghScUUIIDElRVSlbKCQALz3tZIOKZJAGj2eZTZ+H5JRAhWbVmRsDvMSzlp
+         R9wiUFpG2WjWK042boAletT6C5cPLJc0Zo+RjXzFx7sR8PaYb7ukt2dzVz3wkwtF6YIr
+         Md9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Y+Dg0mM96GxdgWzW8Q0806WYRu+tu0Ie+VcO+cMcI4U=;
+        b=VdVX1KljLiXQtwwWL+4BBgDe5GU+eIyxjseEaV403AReEJ0gt3ZoqHVlw8xyr7DeT+
+         flJy5IRLl1Db1zCP2UqBkY/Ace2yLfZSkJiv7jwrSg/GGpsKSNhnk7FbcCqghgJkMr6w
+         NDYOKI4pmMh9ZeX+k7DgsJGxXSReAAJsFUTXVBWj6+MCNlu6StTrx9+MfnHYr7r3+4Vf
+         SvsR3y4h6smzBcPFn3e0KzzrQ4ulI174rgSKx1xNQJ+cL5u3preoHgaRnfc+MCV1APfw
+         zJSy5HNyddC1YN6ZX/nCfOkHk+jHgt2DUq1sZC+/WkNeFXJ27RWSmN9D3Lpx6ApL/n7j
+         Kxvg==
+X-Gm-Message-State: AJIora9pUBzBhvdnFmGSBw0s9iTRpH4/E8LkjTxCMG12DPyIwcQfa48+
+        0Yqg4hCC3dzhTju87nJhPnvph/bFFtOCg4jPYmA8JWxT1p0=
+X-Google-Smtp-Source: AGRyM1uj/Q9s5zKn4L4uThaMvEnMiPzOqEF1sLtJVqTO12h9dB2vaIo0yv0Uh2i5b+OALrND/sp8sTGWW12NFpQK0Us=
+X-Received: by 2002:a05:6808:179a:b0:32f:fd4:3ad6 with SMTP id
+ bg26-20020a056808179a00b0032f0fd43ad6mr199172oib.190.1656024634956; Thu, 23
+ Jun 2022 15:50:34 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: f8bbf5eb-1a11-4861-a7ff-08da5560a0fa
-X-MS-TrafficTypeDiagnostic: BN7PR12MB2802:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: jgJ9EqN6DPVUcxj+z2eKSMO7fYNlSSy9MHJ3R+Z6wCWrVqrdOnPtvGv/9MTiMJsV7bP3diydNlsR2B9aeSkAbepgM3W1uJ1Aeg5gXqQP6IGHrLddTeua73LGudISJH6+MQeROl3UX8IbJZjMUVGcrRXRsOs8QVvWOXJsGeudOGg7QZnIEMjin5pC0da9SGG/gxPGx6drYlZ0QDuA9McNKOaCAXsqkX70LOeyNxOitcZEvf2Rx1Ug3OCzwKfyTWAmVtg3YhxMLaoLCHrKw7wuYCWXxqb31UayE7n729+/TdqVg3RhfUoSH+OBpoTZdaJ/SkBJA+HBDZuPEl5hMg6u8DNeLGmCNal7fY/4rb0oqtq8qrBn/YqADNcv745Y15YQnNvKixTs4KfW8b+4VGW5xnrhfZbf2FkRyF1+oBbligWRqmZTl5kMYexWIkohLCvFB5Wi6ef+VK5moJbpD2IQ98ynhzTmqNLokSspOvdQsXmaae1c7BCFj/B1eHNS8dbTeA4XGcYS/7yT6ADbz2w5YH0d1Qqxp0YYXd/kb5XvfLMRuPZo9PNVRb2YjWoUDlLO+LmigGh7RcGsCPnPVZD4uSixnmAel1ErlxS+0AyQNduOW0EQglG6Rrx2DYc4anHKFY2SE9vHV5CIZUp+k2MqGUmAp0x4MbBALdZloAhK0eDuOOdhZ0GWkj7wZVDxvm/dL2aK83MpbnemXy8v0ZgZsZqFb90uC8NFo10rTjCZHQhqyV69a2WA0aZj01fNAIsk
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(136003)(396003)(346002)(376002)(39860400002)(366004)(478600001)(26005)(1076003)(6512007)(5660300002)(2616005)(6486002)(41300700001)(86362001)(186003)(8936002)(4744005)(2906002)(83380400001)(7416002)(33656002)(38100700002)(8676002)(66556008)(316002)(4326008)(66476007)(66946007)(6916009)(6506007)(36756003)(54906003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?HI1VoRiyfqZcv+3IZ85TUosB4BYc5OVZawfc5JgVSNQnwSoSL/vzinnlJbE1?=
- =?us-ascii?Q?YxVG96Xm2K3lkuRVHKYyIUVaoDEgswza5F5xZ+fZu8tu1H6YV03IlS+09ERJ?=
- =?us-ascii?Q?PPXyw/h51/FLFatMUlXdzByMDdSMkz/pCGT/vphQSRllL3axB71KSOO+FBuT?=
- =?us-ascii?Q?7CGaaC8KFYERMACQxuO8h8QakPfT5VWNZzgksC56DlD1tPxZrVPq07IlO8Vv?=
- =?us-ascii?Q?QyPaAKAup7jY447QCHH7bLMHXFb1i83Z937CewbPFI+JypKGdIMbJai4e+Vm?=
- =?us-ascii?Q?VFtDG/wXXUUvwD4RAnjsV10oyIFyyhiSk0UMHvbQUi6y112oi+Grid/r6M/b?=
- =?us-ascii?Q?tg7Iq4bO/CpOgm+so72z7QZVRkju58Q5OcMItbIIFOW27kb6XxYsD2hldXjV?=
- =?us-ascii?Q?w8fWX3RAyO3q7ELizDf00irNjdiaXLU4m0lrORFYMyvSRfYAET0HNtAIyqyx?=
- =?us-ascii?Q?jOb2htDr2v/EBS6amw++UEmSDn2QHcxZB4UtkUBcgSo5MzaC8ZzapwhEwuq7?=
- =?us-ascii?Q?8ctvPHRsqP06hofjO2iu5rtdAfvzpF3Gbst36nUymBRZb4DhJYoy3LCa/XHq?=
- =?us-ascii?Q?PHsy+r4Qvwo9mfD5Sisuu2xnz6+LYxrn0v/jsCziaid/GHkSGZmhZJpcfV42?=
- =?us-ascii?Q?t32o5Hl5yFWBlKVt4eJI2Nclcr64IyvPdtl/wl9rlcOLqnH/AaAENzxURaDb?=
- =?us-ascii?Q?MCpWRix/yEoIxOc+zV2jT4fjoYtzBhkk6+e55fXTzF80d8PLl3HEYlS2Xb4H?=
- =?us-ascii?Q?7dJP9PPJiqls+QhgETrE4Z55aQxiPk+Z17RtZL4H4NNpX2khOTFYH1dEfuSi?=
- =?us-ascii?Q?Q/Qcy4AK3wS/5e60XZfmnDmvVQnsNmm91Iyw5a5IAOyjrfGV/Dx0KHBognIB?=
- =?us-ascii?Q?CC4eAIXWIcA4iSI2oiBr4dJrH1A4XxBIONFZXmBneaq+UxIXBubO5kH8HFo0?=
- =?us-ascii?Q?LO8JFwb6b9YzAO4UOpS1zIVp+3auLPosBynP1eVXri/FnHSNMUDnisUuQx/B?=
- =?us-ascii?Q?Sq08ubuH43t4txjizQGYu/4phFkkdZkOlBBCmNivqt+fLFDlcWJr7ie6avEd?=
- =?us-ascii?Q?LyijJh7Ukz4eVWrFTxt36j4pNmPvs1/j0y09sggob0850iZTo2SNn3wFtwnz?=
- =?us-ascii?Q?mj8Hcu4gV9zdv2njtkMwuhFJ0f398b0zDpQJJ9YHZDVj5wEsyhvV7TNpTDZA?=
- =?us-ascii?Q?uxPsILns5LAMOuWp3OBGIX9HgHts5L26LqQjcnd/pLrZdNETOv8t7tJByIqD?=
- =?us-ascii?Q?12jS3Xh+gaL5oOgW9mu4s2aoYlzqKojNNfojwTDlLHLx9dafzPP+XgtKYFox?=
- =?us-ascii?Q?HQLsxGPN9thUS3BIGoNuFHdoaKei35bGMxuzbF/9zOJO3M7P9U3mj0bo0jGn?=
- =?us-ascii?Q?iARU3R42OBY4blaPOGdQz+N3K2kIjZMPHmlS3bHrZyenMewx7t1tCmB+2v+D?=
- =?us-ascii?Q?k3x9TxOWMZsAkVaZ2jdk8empmMDUYPUbpUhgHvaabIqtpRO6KIRuzkROWFh3?=
- =?us-ascii?Q?+5WVzQ9qRbmKGKANe8125oJDSs+kjsA5YijetBBdDSirhKaznL3D+Cv4/17g?=
- =?us-ascii?Q?zJduicpuMcT16o1cAU6tXLGlW/kGP0j0FdhVEG/e?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f8bbf5eb-1a11-4861-a7ff-08da5560a0fa
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jun 2022 21:37:53.4536
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: QUCAjAQrVZ0w7PNdKvbnOsjPqQ30zhmSyxvdZyG6044X8VaxV3eMr+A0DTUiXpRE
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PR12MB2802
+References: <20220619150456.GB34471@xsang-OptiPlex-9020> <20220622172857.37db0d29@kernel.org>
+ <CADvbK_csvmkKe46hT9792=+Qcjor2EvkkAnr--CJK3NGX-N9BQ@mail.gmail.com>
+In-Reply-To: <CADvbK_csvmkKe46hT9792=+Qcjor2EvkkAnr--CJK3NGX-N9BQ@mail.gmail.com>
+From:   Xin Long <lucien.xin@gmail.com>
+Date:   Thu, 23 Jun 2022 18:50:07 -0400
+Message-ID: <CADvbK_eQUmb942vC+bG+NRzM1ki1LiCydEDR1AezZ35Jvsdfnw@mail.gmail.com>
+Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        kernel test robot <oliver.sang@intel.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        network dev <netdev@vger.kernel.org>,
+        linux-s390@vger.kernel.org, mptcp@lists.linux.dev,
+        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
+        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
+        Huang Ying <ying.huang@intel.com>, feng.tang@intel.com,
+        zhengjun.xing@linux.intel.com, fengwei.yin@intel.com,
+        Ying Xu <yinxu@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 14, 2022 at 06:54:27AM +0200, Christoph Hellwig wrote:
-> Every driver just emits a string, simply add a method to the mdev_driver
-> to return it and provide a standard sysfs show function.
-> 
-> Remove the now unused types_attrs field in struct mdev_driver and the
-> support code for it.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
-> ---
->  .../driver-api/vfio-mediated-device.rst       |  4 +-
->  drivers/gpu/drm/i915/gvt/kvmgt.c              | 18 +++------
->  drivers/vfio/mdev/mdev_driver.c               |  2 +-
->  drivers/vfio/mdev/mdev_sysfs.c                | 40 +++++++++++++++----
->  include/linux/mdev.h                          | 19 +--------
->  samples/vfio-mdev/mbochs.c                    | 11 +----
->  samples/vfio-mdev/mdpy.c                      | 11 +----
->  7 files changed, 46 insertions(+), 59 deletions(-)
+On Wed, Jun 22, 2022 at 11:08 PM Xin Long <lucien.xin@gmail.com> wrote:
+>
+> Yes, I'm working on it. I couldn't see the regression in my env with
+> the 'reproduce' script attached.
+> I will try with lkp tomorrow.
+>
+> Thanks.
+>
+> On Wed, Jun 22, 2022 at 8:29 PM Jakub Kicinski <kuba@kernel.org> wrote:
+> >
+> > Could someone working on SCTP double check this is a real regression?
+> > Feels like the regression reports are flowing at such rate its hard
+> > to keep up.
+> >
+> > >
+> > > commit:
+> > >   7c80b038d2 ("net: fix sk_wmem_schedule() and sk_rmem_schedule() err=
+ors")
+> > >   4890b686f4 ("net: keep sk->sk_forward_alloc as small as possible")
+> > >
+> > > 7c80b038d23e1f4c 4890b686f4088c90432149bd6de
+> > > ---------------- ---------------------------
+> > >          %stddev     %change         %stddev
+> > >              \          |                \
+> > >      15855           -69.4%       4854        netperf.Throughput_Mbps
+> > >     570788           -69.4%     174773        netperf.Throughput_tota=
+l_Mbps
+...
+> > >       0.00            +5.1        5.10 =C2=B1  5%  perf-profile.callt=
+race.cycles-pp.__sk_mem_reduce_allocated.sctp_wfree.skb_release_head_state.=
+consume_skb.sctp_chunk_put
+> > >       0.17 =C2=B1141%      +5.3        5.42 =C2=B1  6%  perf-profile.=
+calltrace.cycles-pp.skb_release_head_state.consume_skb.sctp_chunk_put.sctp_=
+outq_sack.sctp_cmd_interpreter
+> > >       0.00            +5.3        5.35 =C2=B1  6%  perf-profile.callt=
+race.cycles-pp.sctp_wfree.skb_release_head_state.consume_skb.sctp_chunk_put=
+.sctp_outq_sack
+> > >       0.00            +5.5        5.51 =C2=B1  6%  perf-profile.callt=
+race.cycles-pp.__sk_mem_reduce_allocated.skb_release_head_state.kfree_skb_r=
+eason.sctp_recvmsg.inet_recvmsg
+> > >       0.00            +5.7        5.65 =C2=B1  6%  perf-profile.callt=
+race.cycles-pp.skb_release_head_state.kfree_skb_reason.sctp_recvmsg.inet_re=
+cvmsg.____sys_recvmsg
+...
+> > >       0.00            +4.0        4.04 =C2=B1  6%  perf-profile.child=
+ren.cycles-pp.mem_cgroup_charge_skmem
+> > >       2.92 =C2=B1  6%      +4.2        7.16 =C2=B1  6%  perf-profile.=
+children.cycles-pp.sctp_outq_sack
+> > >       0.00            +4.3        4.29 =C2=B1  6%  perf-profile.child=
+ren.cycles-pp.__sk_mem_raise_allocated
+> > >       0.00            +4.3        4.32 =C2=B1  6%  perf-profile.child=
+ren.cycles-pp.__sk_mem_schedule
+> > >       1.99 =C2=B1  6%      +4.4        6.40 =C2=B1  6%  perf-profile.=
+children.cycles-pp.consume_skb
+> > >       1.78 =C2=B1  6%      +4.6        6.42 =C2=B1  6%  perf-profile.=
+children.cycles-pp.kfree_skb_reason
+> > >       0.37 =C2=B1  8%      +5.0        5.40 =C2=B1  6%  perf-profile.=
+children.cycles-pp.sctp_wfree
+> > >       0.87 =C2=B1  9%     +10.3       11.20 =C2=B1  6%  perf-profile.=
+children.cycles-pp.skb_release_head_state
+> > >       0.00           +10.7       10.66 =C2=B1  6%  perf-profile.child=
+ren.cycles-pp.__sk_mem_reduce_allocated
+...
+> > >       0.00            +1.2        1.19 =C2=B1  7%  perf-profile.self.=
+cycles-pp.try_charge_memcg
+> > >       0.00            +2.0        1.96 =C2=B1  6%  perf-profile.self.=
+cycles-pp.page_counter_uncharge
+> > >       0.00            +2.1        2.07 =C2=B1  5%  perf-profile.self.=
+cycles-pp.page_counter_try_charge
+> > >       1.09 =C2=B1  8%      +2.8        3.92 =C2=B1  6%  perf-profile.=
+self.cycles-pp.native_queued_spin_lock_slowpath
+> > >       0.29 =C2=B1  6%      +3.5        3.81 =C2=B1  6%  perf-profile.=
+self.cycles-pp.sctp_eat_data
+> > >       0.00            +7.8        7.76 =C2=B1  6%  perf-profile.self.=
+cycles-pp.__sk_mem_reduce_allocated
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+From the perf data, we can see __sk_mem_reduce_allocated() is the one
+using CPU the most more than before, and mem_cgroup APIs are also
+called in this function. It means the mem cgroup must be enabled in
+the test env, which may explain why I couldn't reproduce it.
 
-Jason
+The Commit 4890b686f4 ("net: keep sk->sk_forward_alloc as small as
+possible") uses sk_mem_reclaim(checking reclaimable >=3D PAGE_SIZE) to
+reclaim the memory, which is *more frequent* to call
+__sk_mem_reduce_allocated() than before (checking reclaimable >=3D
+SK_RECLAIM_THRESHOLD). It might be cheap when
+mem_cgroup_sockets_enabled is false, but I'm not sure if it's still
+cheap when mem_cgroup_sockets_enabled is true.
+
+I think SCTP netperf could trigger this, as the CPU is the bottleneck
+for SCTP netperf testing, which is more sensitive to the extra
+function calls than TCP.
+
+Can we re-run this testing without mem cgroup enabled?
+
+Thanks.
