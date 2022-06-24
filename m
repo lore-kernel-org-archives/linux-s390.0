@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9737CCA482
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:59:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A51BCCA47C
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:59:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231970AbiFXC7Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Jun 2022 22:59:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45200 "EHLO
+        id S231758AbiFXC70 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Jun 2022 22:59:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230512AbiFXC6n (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:58:43 -0400
-Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D5060F30;
-        Thu, 23 Jun 2022 19:57:47 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHEw.nF_1656039460;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHEw.nF_1656039460)
+        with ESMTP id S230176AbiFXC7K (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:59:10 -0400
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91771C75;
+        Thu, 23 Jun 2022 19:57:55 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R591e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHEuWCB_1656039465;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHEuWCB_1656039465)
           by smtp.aliyun-inc.com;
-          Fri, 24 Jun 2022 10:57:41 +0800
+          Fri, 24 Jun 2022 10:57:46 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v10 35/41] virtio: add helper virtio_find_vqs_ctx_size()
-Date:   Fri, 24 Jun 2022 10:56:15 +0800
-Message-Id: <20220624025621.128843-36-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v10 37/41] virtio_net: get ringparam by virtqueue_get_vring_max_size()
+Date:   Fri, 24 Jun 2022 10:56:17 +0800
+Message-Id: <20220624025621.128843-38-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
 References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
@@ -66,38 +66,34 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduce helper virtio_find_vqs_ctx_size() to call find_vqs and specify
-the maximum size of each vq ring.
+Use virtqueue_get_vring_max_size() in virtnet_get_ringparam() to set
+tx,rx_max_pending.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- include/linux/virtio_config.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/virtio_net.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 9db735c05500..ebe0d8656daa 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -239,6 +239,18 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
- 				      ctx, desc);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index c320d5e0bf6c..c3e2ab5704b4 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2254,10 +2254,10 @@ static void virtnet_get_ringparam(struct net_device *dev,
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 
+-	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq[0].vq);
+-	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq[0].vq);
+-	ring->rx_pending = ring->rx_max_pending;
+-	ring->tx_pending = ring->tx_max_pending;
++	ring->rx_max_pending = virtqueue_get_vring_max_size(vi->rq[0].vq);
++	ring->tx_max_pending = virtqueue_get_vring_max_size(vi->sq[0].vq);
++	ring->rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
++	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
  }
  
-+static inline
-+int virtio_find_vqs_ctx_size(struct virtio_device *vdev, u32 nvqs,
-+			     struct virtqueue *vqs[],
-+			     vq_callback_t *callbacks[],
-+			     const char * const names[],
-+			     u32 sizes[],
-+			     const bool *ctx, struct irq_affinity *desc)
-+{
-+	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, sizes,
-+				      ctx, desc);
-+}
-+
- /**
-  * virtio_synchronize_cbs - synchronize with virtqueue callbacks
-  * @vdev: the device
+ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
 -- 
 2.31.0
 
