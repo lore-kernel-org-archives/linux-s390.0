@@ -2,34 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EC1FC3F2D4
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 05:20:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F163FCCA480
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 05:21:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230113AbiFXFUq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Jun 2022 01:20:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45754 "EHLO
+        id S230453AbiFXFVw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Jun 2022 01:21:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbiFXFUo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 01:20:44 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3280367E79;
-        Thu, 23 Jun 2022 22:20:44 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1BB59176A;
-        Thu, 23 Jun 2022 22:20:44 -0700 (PDT)
-Received: from [10.162.41.7] (unknown [10.162.41.7])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CB2DF3F66F;
-        Thu, 23 Jun 2022 22:20:36 -0700 (PDT)
-Message-ID: <33bdac1e-207a-192b-bf43-818abfa49fe1@arm.com>
-Date:   Fri, 24 Jun 2022 10:50:33 +0530
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH V4 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across
- platforms
-Content-Language: en-US
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     linux-mm@kvack.org, christophe.leroy@csgroup.eu,
+        with ESMTP id S229478AbiFXFVt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 01:21:49 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A24868020;
+        Thu, 23 Jun 2022 22:21:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=QYAP6IdYxL4kkP1mhFiWFjHH5BifnWV+2KXEJB5WN44=; b=vzFJlocgeN9Sn5a6VlqTMFsTGY
+        spn+jb0ZGmZFBUPtgTeT5l3ETwKxU8cJw9juEpT490/JJZ8T84TkG9jSA1WN13ix1Rg/6JtCx7A6Y
+        Qr5aim01kpLR8tF9eVuG4M3oLni2WsyOxRwUbkBurz8n3uAL8OPxWTHyPbZNlT0sCjd4abNX7GsQL
+        k+ihqoWOlZdrzK8sGGb8Xw764sspo87RnfFrOiFIl3aO1VLj+Y4OI76Lc/+blZNDfJnhhwnPtzGsj
+        Omz4DbGrmtJ6CuJeOcV6bqdsmqHsoyWJZkPQxsLlDnpY0lM8GjBxxjyIaableNzgWQSj/EPV39I2D
+        97JcYzwg==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1o4blI-000aUe-MC; Fri, 24 Jun 2022 05:21:44 +0000
+Date:   Thu, 23 Jun 2022 22:21:44 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Anshuman Khandual <anshuman.khandual@arm.com>
+Cc:     Christoph Hellwig <hch@infradead.org>, linux-mm@kvack.org,
+        christophe.leroy@csgroup.eu,
         Andrew Morton <akpm@linux-foundation.org>,
         linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
         x86@kernel.org, openrisc@lists.librecores.org,
@@ -41,32 +42,26 @@ Cc:     linux-mm@kvack.org, christophe.leroy@csgroup.eu,
         linux-snps-arc@lists.infradead.org,
         linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org,
         linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH V4 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across
+ platforms
+Message-ID: <YrVJ6GaSzD/4kD6M@infradead.org>
 References: <20220624044339.1533882-1-anshuman.khandual@arm.com>
  <YrVHvv0spuMsC1In@infradead.org>
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <YrVHvv0spuMsC1In@infradead.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+ <33bdac1e-207a-192b-bf43-818abfa49fe1@arm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <33bdac1e-207a-192b-bf43-818abfa49fe1@arm.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 6/24/22 10:42, Christoph Hellwig wrote:
-> On Fri, Jun 24, 2022 at 10:13:13AM +0530, Anshuman Khandual wrote:
->> vm_get_page_prot(), in order for it to be reused on platforms that do not
->> require custom implementation. Finally, ARCH_HAS_VM_GET_PAGE_PROT can just
->> be dropped, as all platforms now define and export vm_get_page_prot(), via
->> looking up a private and static protection_map[] array. protection_map[]
->> data type is the following for all platforms without deviation (except the
->> powerpc one which is shared between 32 and 64 bit platforms), keeping it
->> unchanged for now.
->>
->> static pgprot_t protection_map[16] __ro_after_init
+On Fri, Jun 24, 2022 at 10:50:33AM +0530, Anshuman Khandual wrote:
+> > On most architectures this should be const now, only very few ever
+> > modify it.
 > 
-> On most architectures this should be const now, only very few ever
-> modify it.
+> Will make it a 'static const pgprot_t protection_map[16] __ro_after_init'
+> on platforms that do not change the protection_map[] even during boot.
 
-Will make it a 'static const pgprot_t protection_map[16] __ro_after_init'
-on platforms that do not change the protection_map[] even during boot.
+No need for __ro_after_init when it is already declarated const.
