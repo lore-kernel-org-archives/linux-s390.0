@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57822C43334
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:57:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 342A7CCA47C
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:57:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231383AbiFXC5A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Jun 2022 22:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44102 "EHLO
+        id S231419AbiFXC5B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Jun 2022 22:57:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231171AbiFXC45 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:56:57 -0400
-Received: from out30-45.freemail.mail.aliyun.com (out30-45.freemail.mail.aliyun.com [115.124.30.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C21360F07;
-        Thu, 23 Jun 2022 19:56:46 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R251e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHF1U8u_1656039395;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHF1U8u_1656039395)
+        with ESMTP id S231316AbiFXC46 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:56:58 -0400
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8EA560F23;
+        Thu, 23 Jun 2022 19:56:48 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHEw.TN_1656039401;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHEw.TN_1656039401)
           by smtp.aliyun-inc.com;
-          Fri, 24 Jun 2022 10:56:36 +0800
+          Fri, 24 Jun 2022 10:56:43 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v10 06/41] virtio_ring: extract the logic of freeing vring
-Date:   Fri, 24 Jun 2022 10:55:46 +0800
-Message-Id: <20220624025621.128843-7-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v10 09/41] virtio_ring: split: introduce vring_free_split()
+Date:   Fri, 24 Jun 2022 10:55:49 +0800
+Message-Id: <20220624025621.128843-10-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
 References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
@@ -66,55 +66,36 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduce vring_free() to free the vring of vq.
+Free the structure struct vring_vritqueue_split.
 
-Subsequent patches will use vring_free() alone.
+Subsequent patches require it.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/virtio/virtio_ring.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 1376956040d9..9338c01df1bf 100644
+index 7bc1eecff7fe..f39282555190 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -2285,14 +2285,10 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+@@ -934,6 +934,16 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
+ 	return NULL;
  }
- EXPORT_SYMBOL_GPL(vring_new_virtqueue);
  
--void vring_del_virtqueue(struct virtqueue *_vq)
-+static void vring_free(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
--	spin_lock(&vq->vq.vdev->vqs_list_lock);
--	list_del(&_vq->list);
--	spin_unlock(&vq->vq.vdev->vqs_list_lock);
--
- 	if (vq->we_own_ring) {
- 		if (vq->packed_ring) {
- 			vring_free_queue(vq->vq.vdev,
-@@ -2323,6 +2319,18 @@ void vring_del_virtqueue(struct virtqueue *_vq)
- 		kfree(vq->split.desc_state);
- 		kfree(vq->split.desc_extra);
- 	}
++static void vring_free_split(struct vring_virtqueue_split *vring,
++			     struct virtio_device *vdev)
++{
++	vring_free_queue(vdev, vring->queue_size_in_bytes, vring->vring.desc,
++			 vring->queue_dma_addr);
++
++	kfree(vring->desc_state);
++	kfree(vring->desc_extra);
 +}
 +
-+void vring_del_virtqueue(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	spin_lock(&vq->vq.vdev->vqs_list_lock);
-+	list_del(&_vq->list);
-+	spin_unlock(&vq->vq.vdev->vqs_list_lock);
-+
-+	vring_free(_vq);
-+
- 	kfree(vq);
- }
- EXPORT_SYMBOL_GPL(vring_del_virtqueue);
+ static struct virtqueue *vring_create_virtqueue_split(
+ 	unsigned int index,
+ 	unsigned int num,
 -- 
 2.31.0
 
