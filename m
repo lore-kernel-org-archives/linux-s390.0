@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6369CCCA480
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:57:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EB09CCA489
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:57:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231489AbiFXC5i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Jun 2022 22:57:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44516 "EHLO
+        id S231582AbiFXC5l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Jun 2022 22:57:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231490AbiFXC5L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:57:11 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F3F62BF7;
-        Thu, 23 Jun 2022 19:57:06 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHF1UFn_1656039419;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHF1UFn_1656039419)
+        with ESMTP id S231199AbiFXC5N (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:57:13 -0400
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A22E162BD1;
+        Thu, 23 Jun 2022 19:57:11 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R261e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHF1UHS_1656039424;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHF1UHS_1656039424)
           by smtp.aliyun-inc.com;
-          Fri, 24 Jun 2022 10:57:01 +0800
+          Fri, 24 Jun 2022 10:57:05 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v10 17/41] virtio_ring: packed: introduce vring_free_packed
-Date:   Fri, 24 Jun 2022 10:55:57 +0800
-Message-Id: <20220624025621.128843-18-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v10 19/41] virtio_ring: packed: extract the logic of alloc state and extra
+Date:   Fri, 24 Jun 2022 10:55:59 +0800
+Message-Id: <20220624025621.128843-20-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
 References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
@@ -66,47 +66,100 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Free the structure struct vring_vritqueue_packed.
+Separate the logic for alloc desc_state and desc_extra, which will
+be called separately by subsequent patches.
 
-Subsequent patches require it.
+Use struct vring_packed to pass desc_state, desc_extra.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/virtio/virtio_ring.c | 48 +++++++++++++++++++++++++-----------
+ 1 file changed, 34 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 1ba00e73d601..a72b929f51fb 100644
+index 4b1a7a940012..33271535c839 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -1807,6 +1807,27 @@ static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num)
- 	return desc_extra;
+@@ -1879,6 +1879,33 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring,
+ 	return -ENOMEM;
  }
  
-+static void vring_free_packed(struct vring_virtqueue_packed *vring,
-+			      struct virtio_device *vdev)
++static int vring_alloc_state_extra_packed(struct vring_virtqueue_packed *vring)
 +{
-+	if (vring->vring.desc)
-+		vring_free_queue(vdev, vring->ring_size_in_bytes,
-+				 vring->vring.desc, vring->ring_dma_addr);
++	struct vring_desc_state_packed *state;
++	struct vring_desc_extra *extra;
++	u32 num = vring->vring.num;
 +
-+	if (vring->vring.driver)
-+		vring_free_queue(vdev, vring->event_size_in_bytes,
-+				 vring->vring.driver,
-+				 vring->driver_event_dma_addr);
++	state = kmalloc_array(num, sizeof(struct vring_desc_state_packed), GFP_KERNEL);
++	if (!state)
++		goto err_desc_state;
 +
-+	if (vring->vring.device)
-+		vring_free_queue(vdev, vring->event_size_in_bytes,
-+				 vring->vring.device,
-+				 vring->device_event_dma_addr);
++	memset(state, 0, num * sizeof(struct vring_desc_state_packed));
 +
-+	kfree(vring->desc_state);
-+	kfree(vring->desc_extra);
++	extra = vring_alloc_desc_extra(num);
++	if (!extra)
++		goto err_desc_extra;
++
++	vring->desc_state = state;
++	vring->desc_extra = extra;
++
++	return 0;
++
++err_desc_extra:
++	kfree(state);
++err_desc_state:
++	return -ENOMEM;
 +}
 +
  static struct virtqueue *vring_create_virtqueue_packed(
  	unsigned int index,
  	unsigned int num,
+@@ -1893,6 +1920,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ {
+ 	struct vring_virtqueue_packed vring = {};
+ 	struct vring_virtqueue *vq;
++	int err;
+ 
+ 	if (vring_alloc_queue_packed(&vring, vdev, num))
+ 		goto err_ring;
+@@ -1929,21 +1957,15 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 	vq->packed.event_flags_shadow = 0;
+ 	vq->packed.avail_used_flags = 1 << VRING_PACKED_DESC_F_AVAIL;
+ 
+-	vq->packed.desc_state = kmalloc_array(num,
+-			sizeof(struct vring_desc_state_packed),
+-			GFP_KERNEL);
+-	if (!vq->packed.desc_state)
+-		goto err_desc_state;
++	err = vring_alloc_state_extra_packed(&vring);
++	if (err)
++		goto err_state_extra;
+ 
+-	memset(vq->packed.desc_state, 0,
+-		num * sizeof(struct vring_desc_state_packed));
++	vq->packed.desc_state = vring.desc_state;
++	vq->packed.desc_extra = vring.desc_extra;
+ 
+ 	virtqueue_init(vq, num);
+ 
+-	vq->packed.desc_extra = vring_alloc_desc_extra(num);
+-	if (!vq->packed.desc_extra)
+-		goto err_desc_extra;
+-
+ 	/* No callback?  Tell other side not to bother us. */
+ 	if (!callback) {
+ 		vq->packed.event_flags_shadow = VRING_PACKED_EVENT_FLAG_DISABLE;
+@@ -1956,9 +1978,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 	spin_unlock(&vdev->vqs_list_lock);
+ 	return &vq->vq;
+ 
+-err_desc_extra:
+-	kfree(vq->packed.desc_state);
+-err_desc_state:
++err_state_extra:
+ 	kfree(vq);
+ err_vq:
+ 	vring_free_packed(&vring, vdev);
 -- 
 2.31.0
 
