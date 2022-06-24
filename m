@@ -2,292 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04E89C43334
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 06:32:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB4C5C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 06:34:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230053AbiFXGb7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Jun 2022 02:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42240 "EHLO
+        id S230146AbiFXGe2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Jun 2022 02:34:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230026AbiFXGb5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 02:31:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 284BE5DF32
-        for <linux-s390@vger.kernel.org>; Thu, 23 Jun 2022 23:31:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656052315;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=fkwre6WoTaZ3HcBGKyAfeqBPtQ+kpW2QzG2weDAdapc=;
-        b=WMmdrzyqOioWiaDMYT8iKfePxi292ECdFvbhi3SNvlzh1xkL4FySZBFTerRFwPmTJrGemv
-        S2nVT7lvzMOc6S7HStxtUDZM6grbBpC9uPhrsPTZLoz62aFeGmJHhOIMYt9bzuKS9hsZ3R
-        C60mRM7edCq1STsxhTHqVWFrhOqIiX0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-2-8DpVUd1PPRCNtp2Pp_ziBw-1; Fri, 24 Jun 2022 02:31:53 -0400
-X-MC-Unique: 8DpVUd1PPRCNtp2Pp_ziBw-1
-Received: by mail-wm1-f72.google.com with SMTP id v125-20020a1cac83000000b0039c832fbd02so2586545wme.4
-        for <linux-s390@vger.kernel.org>; Thu, 23 Jun 2022 23:31:53 -0700 (PDT)
+        with ESMTP id S229476AbiFXGe1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 02:34:27 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD82D56F89
+        for <linux-s390@vger.kernel.org>; Thu, 23 Jun 2022 23:34:26 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id d14so1842588pjs.3
+        for <linux-s390@vger.kernel.org>; Thu, 23 Jun 2022 23:34:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=71jGypN6c61twJSnmBdGUmoPeKpzoJtu/qf5Lc4Vgtg=;
+        b=GQWOciPs4SH+KIoLH/4jvpooIeGL/uKMB5IIRmqHwKrVMCLTNkhEHTFWG3stILKRer
+         cinAgcMsxDf4RTBxejYoy941btEr/eLYCO+GF0ql1oaFb5jWx60AuACLQuEvlaLYrFZf
+         UgRAAkZWXt6lWFMzYjbN06dquy9miTA8f1PyXmTEZJcjuxIApu2/k+3F3LqT6WPZStaK
+         L7ajnIeNJmeLEocSQsgypUZxz1YBXMny857DRCdVvb2g8M2IoTpQy8wBz8KkiaITpwjR
+         N+Jfv3+DvM/5n9lutIQWyD9cIG3lm6BebIyNWT6S8ze0LdBcVOk9Wq+EciVzzoisMPoO
+         SYeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=fkwre6WoTaZ3HcBGKyAfeqBPtQ+kpW2QzG2weDAdapc=;
-        b=KGeC5KNIk+Kuln0zzMAxTRLdTNAjQeSylyPt9Zz1E8Qq3pTj7FgDqvySBgdPlnoemj
-         tPgjG8H+TE/OtdUPXvXPOZTNJck1Ygpf54y+cn06FUIsUXPxairMdEbeLLI36WqJ3Aj8
-         QxRgQVCMYEBrfRggK52GEs5rB/dAWuvGwC+GkzKzUxsnKQJVrKdyH7Djm3c7LOZBzoK5
-         MKJJnNP3TfFMn2zEnM0KkpmkRNf1uDHmQM7VL4+1jBU0UauZxyj30k1yhP6aBIWkW2u9
-         uTBxNOpq364MAqW5B8Vbkp6XFCku3sINFjJfy2VTmhv+i7lgUNH6Oc/0W6+iif4sPq0F
-         rd5g==
-X-Gm-Message-State: AJIora9unTEZYXteLgw7AM4Pox0F7dexczU/+p3dPrzBI4eTwDneulLA
-        +AW+nm92N5ufrrZ1I/nV3gHsvkH91ttT+F+Ug++w4jmcqEUOEWpB6UXrPvLOREH1C9TR8hRnqyt
-        gDfhRFmd9OI2XG/ax2EKeVg==
-X-Received: by 2002:a5d:6481:0:b0:219:8930:6e48 with SMTP id o1-20020a5d6481000000b0021989306e48mr11516421wri.574.1656052312302;
-        Thu, 23 Jun 2022 23:31:52 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1vRwBTxtgCODqWGWtTx/7SSJNNx7vYLqsQ5RQvPSrwfQn6gMWJQbS/U+j9i6mC+QbxjMDDN1g==
-X-Received: by 2002:a5d:6481:0:b0:219:8930:6e48 with SMTP id o1-20020a5d6481000000b0021989306e48mr11516397wri.574.1656052311996;
-        Thu, 23 Jun 2022 23:31:51 -0700 (PDT)
-Received: from redhat.com ([2.55.188.216])
-        by smtp.gmail.com with ESMTPSA id r21-20020a05600c35d500b003a02f957245sm5754978wmq.26.2022.06.23.23.31.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jun 2022 23:31:51 -0700 (PDT)
-Date:   Fri, 24 Jun 2022 02:31:46 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        kvm <kvm@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-Message-ID: <20220624022622-mutt-send-email-mst@kernel.org>
-References: <20220622012940.21441-1-jasowang@redhat.com>
- <20220622025047-mutt-send-email-mst@kernel.org>
- <CACGkMEtJY2ioD0L8ifTrCPatG6-NqQ01V=d2L1FeoweKV74LaA@mail.gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=71jGypN6c61twJSnmBdGUmoPeKpzoJtu/qf5Lc4Vgtg=;
+        b=a/XGTn+GZ6dvx4fvenZNGUGFIBzh6vW+WRcEkXq9dpz/CBC2lLPPmt7uyRb3Xw8/LE
+         ROZyQif+CDrM14ROgqqGo/eo3JDzQjc2H1tTe/WNeAmpGAFlXn8G3crodLtEa0oam3Il
+         JyOB1IT/yrcvmx55zmIOCtGVE97/KNbSGJVyDZ1no0fC+ypFcEHF2X97w8hen3b3z3gt
+         bQc62LfOm+NZBy9EPuNOv/2hC1v4n4J2WaoTKBpFs0HvgxA7Gy7cy8iIg8+cTOxBBW4Q
+         g0/ajnBTy565OQ8H+d4dwk3q7s1t3/1+/Z7yQCnSMixgEDe8gIMsu1xKGUZsiAwfGmIi
+         SbFg==
+X-Gm-Message-State: AJIora/oBQ+zhQF5W+B8LuXHd3d71WSTyVL0wesP1yb9cLfvlVLsQ3os
+        Y0cTDOVOkzdmVWa32KEQp75L5xZ6mL3p8torA+tk+Q==
+X-Google-Smtp-Source: AGRyM1sH/6oaYCwlqeMz2fZ1ORa63Fgtzz9yKrkfpjijNf1stMa7F1Ub33v8l06714/cZs/6t1k6jgJJALnl6rgV8ZY=
+X-Received: by 2002:a17:902:f685:b0:16a:3c40:e3b5 with SMTP id
+ l5-20020a170902f68500b0016a3c40e3b5mr15658634plg.106.1656052466148; Thu, 23
+ Jun 2022 23:34:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACGkMEtJY2ioD0L8ifTrCPatG6-NqQ01V=d2L1FeoweKV74LaA@mail.gmail.com>
+References: <20220619150456.GB34471@xsang-OptiPlex-9020> <20220622172857.37db0d29@kernel.org>
+ <CADvbK_csvmkKe46hT9792=+Qcjor2EvkkAnr--CJK3NGX-N9BQ@mail.gmail.com>
+ <CADvbK_eQUmb942vC+bG+NRzM1ki1LiCydEDR1AezZ35Jvsdfnw@mail.gmail.com>
+ <20220623185730.25b88096@kernel.org> <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
+In-Reply-To: <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
+From:   Shakeel Butt <shakeelb@google.com>
+Date:   Thu, 23 Jun 2022 23:34:15 -0700
+Message-ID: <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
+Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
+To:     Eric Dumazet <edumazet@google.com>, Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Muchun Song <songmuchun@bytedance.com>
+Cc:     Jakub Kicinski <kuba@kernel.org>, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        kernel test robot <oliver.sang@intel.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        network dev <netdev@vger.kernel.org>,
+        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
+        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
+        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
+        Huang Ying <ying.huang@intel.com>,
+        "Tang, Feng" <feng.tang@intel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 22, 2022 at 03:09:31PM +0800, Jason Wang wrote:
-> On Wed, Jun 22, 2022 at 3:03 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+CCing memcg folks.
+
+The thread starts at
+https://lore.kernel.org/all/20220619150456.GB34471@xsang-OptiPlex-9020/
+
+On Thu, Jun 23, 2022 at 9:14 PM Eric Dumazet <edumazet@google.com> wrote:
+>
+> On Fri, Jun 24, 2022 at 3:57 AM Jakub Kicinski <kuba@kernel.org> wrote:
 > >
-> > On Wed, Jun 22, 2022 at 09:29:40AM +0800, Jason Wang wrote:
-> > > We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
-> > > harden vring IRQ"). It works with the assumption that the driver or
-> > > core can properly call virtio_device_ready() at the right
-> > > place. Unfortunately, this seems to be not true and uncover various
-> > > bugs of the existing drivers, mainly the issue of using
-> > > virtio_device_ready() incorrectly.
+> > On Thu, 23 Jun 2022 18:50:07 -0400 Xin Long wrote:
+> > > From the perf data, we can see __sk_mem_reduce_allocated() is the one
+> > > using CPU the most more than before, and mem_cgroup APIs are also
+> > > called in this function. It means the mem cgroup must be enabled in
+> > > the test env, which may explain why I couldn't reproduce it.
 > > >
-> > > So let's having a Kconfig option and disable it by default. It gives
-> > > us a breath to fix the drivers and then we can consider to enable it
-> > > by default.
+> > > The Commit 4890b686f4 ("net: keep sk->sk_forward_alloc as small as
+> > > possible") uses sk_mem_reclaim(checking reclaimable >= PAGE_SIZE) to
+> > > reclaim the memory, which is *more frequent* to call
+> > > __sk_mem_reduce_allocated() than before (checking reclaimable >=
+> > > SK_RECLAIM_THRESHOLD). It might be cheap when
+> > > mem_cgroup_sockets_enabled is false, but I'm not sure if it's still
+> > > cheap when mem_cgroup_sockets_enabled is true.
 > > >
-> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > I think SCTP netperf could trigger this, as the CPU is the bottleneck
+> > > for SCTP netperf testing, which is more sensitive to the extra
+> > > function calls than TCP.
+> > >
+> > > Can we re-run this testing without mem cgroup enabled?
 > >
-> >
-> > OK I will queue, but I think the problem is fundamental.
-> 
-> If I understand correctly, you want some core IRQ work?
+> > FWIW I defer to Eric, thanks a lot for double checking the report
+> > and digging in!
+>
+> I did tests with TCP + memcg and noticed a very small additional cost
+> in memcg functions,
+> because of suboptimal layout:
+>
+> Extract of an internal Google bug, update from June 9th:
+>
+> --------------------------------
+> I have noticed a minor false sharing to fetch (struct
+> mem_cgroup)->css.parent, at offset 0xc0,
+> because it shares the cache line containing struct mem_cgroup.memory,
+> at offset 0xd0
+>
+> Ideally, memcg->socket_pressure and memcg->parent should sit in a read
+> mostly cache line.
+> -----------------------
+>
+> But nothing that could explain a "-69.4% regression"
+>
+> memcg has a very similar strategy of per-cpu reserves, with
+> MEMCG_CHARGE_BATCH being 32 pages per cpu.
+>
+> It is not clear why SCTP with 10K writes would overflow this reserve constantly.
+>
+> Presumably memcg experts will have to rework structure alignments to
+> make sure they can cope better
+> with more charge/uncharge operations, because we are not going back to
+> gigantic per-socket reserves,
+> this simply does not scale.
 
-Yes.
+Yes I agree. As you pointed out there are fields which are mostly
+read-only but sharing cache lines with fields which get updated and
+definitely need work.
 
-> As discussed
-> before, it doesn't solve all the problems, we still need to do per
-> driver audit.
-> 
-> Thanks
+However can we first confirm if memcg charging is really the issue
+here as I remember these intel lkp tests are configured to run in root
+memcg and the kernel does not associate root memcg to any socket (see
+mem_cgroup_sk_alloc()).
 
-Maybe, but we don't need to tie things to device_ready then.
-We can do
+If these tests are running in non-root memcg, is this cgroup v1 or v2?
+The memory counter and the 32 pages per cpu stock are only used on v2.
+For v1, there is no per-cpu stock and there is a separate tcpmem page
+counter and on v1 the network memory accounting has to be enabled
+explicitly i.e. not enabled by default.
 
-- disable irqs
-- device ready
-- setup everything
-- enable irqs
+There is definite possibility of slowdown on v1 but let's first
+confirm the memcg setup used for this testing environment.
 
+Feng, can you please explain the memcg setup on these test machines
+and if the tests are run in root or non-root memcg?
 
-and this works for most things, the only issue is
-this deadlocks if "setup everything" waits for interrupts.
-
-
-With the current approach there's really no good time:
-1.- setup everything
-- device ready
-
-can cause kicks before device is ready
-
-2.- device ready
-- setup everything
-
-can cause callbacks before setup.
-
-So I prefer the 1. and fix the hardening in the core.
-
-
-> >
-> >
-> > > ---
-> > > Changes since V2:
-> > > - Tweak the Kconfig help
-> > > - Add comment for the read_lock() pairing in virtio_ccw
-> > > ---
-> > >  drivers/s390/virtio/virtio_ccw.c |  9 ++++++++-
-> > >  drivers/virtio/Kconfig           | 13 +++++++++++++
-> > >  drivers/virtio/virtio.c          |  2 ++
-> > >  drivers/virtio/virtio_ring.c     | 12 ++++++++++++
-> > >  include/linux/virtio_config.h    |  2 ++
-> > >  5 files changed, 37 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > > index 97e51c34e6cf..1f6a358f65f0 100644
-> > > --- a/drivers/s390/virtio/virtio_ccw.c
-> > > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > > @@ -1136,8 +1136,13 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> > >                       vcdev->err = -EIO;
-> > >       }
-> > >       virtio_ccw_check_activity(vcdev, activity);
-> > > -     /* Interrupts are disabled here */
-> > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > +     /*
-> > > +      * Paried with virtio_ccw_synchronize_cbs() and interrupts are
-> > > +      * disabled here.
-> > > +      */
-> > >       read_lock(&vcdev->irq_lock);
-> > > +#endif
-> > >       for_each_set_bit(i, indicators(vcdev),
-> > >                        sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
-> > >               /* The bit clear must happen before the vring kick. */
-> > > @@ -1146,7 +1151,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> > >               vq = virtio_ccw_vq_by_ind(vcdev, i);
-> > >               vring_interrupt(0, vq);
-> > >       }
-> > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > >       read_unlock(&vcdev->irq_lock);
-> > > +#endif
-> > >       if (test_bit(0, indicators2(vcdev))) {
-> > >               virtio_config_changed(&vcdev->vdev);
-> > >               clear_bit(0, indicators2(vcdev));
-> > > diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> > > index b5adf6abd241..c04f370a1e5c 100644
-> > > --- a/drivers/virtio/Kconfig
-> > > +++ b/drivers/virtio/Kconfig
-> > > @@ -35,6 +35,19 @@ menuconfig VIRTIO_MENU
-> > >
-> > >  if VIRTIO_MENU
-> > >
-> > > +config VIRTIO_HARDEN_NOTIFICATION
-> > > +        bool "Harden virtio notification"
-> > > +        help
-> > > +          Enable this to harden the device notifications and suppress
-> > > +          those that happen at a time where notifications are illegal.
-> > > +
-> > > +          Experimental: Note that several drivers still have bugs that
-> > > +          may cause crashes or hangs when correct handling of
-> > > +          notifications is enforced; depending on the subset of
-> > > +          drivers and devices you use, this may or may not work.
-> > > +
-> > > +          If unsure, say N.
-> > > +
-> > >  config VIRTIO_PCI
-> > >       tristate "PCI driver for virtio devices"
-> > >       depends on PCI
-> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > index ef04a96942bf..21dc08d2f32d 100644
-> > > --- a/drivers/virtio/virtio.c
-> > > +++ b/drivers/virtio/virtio.c
-> > > @@ -220,6 +220,7 @@ static int virtio_features_ok(struct virtio_device *dev)
-> > >   * */
-> > >  void virtio_reset_device(struct virtio_device *dev)
-> > >  {
-> > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > >       /*
-> > >        * The below virtio_synchronize_cbs() guarantees that any
-> > >        * interrupt for this line arriving after
-> > > @@ -228,6 +229,7 @@ void virtio_reset_device(struct virtio_device *dev)
-> > >        */
-> > >       virtio_break_device(dev);
-> > >       virtio_synchronize_cbs(dev);
-> > > +#endif
-> > >
-> > >       dev->config->reset(dev);
-> > >  }
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > index 13a7348cedff..d9d3b6e201fb 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -1688,7 +1688,11 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> > >       vq->we_own_ring = true;
-> > >       vq->notify = notify;
-> > >       vq->weak_barriers = weak_barriers;
-> > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > >       vq->broken = true;
-> > > +#else
-> > > +     vq->broken = false;
-> > > +#endif
-> > >       vq->last_used_idx = 0;
-> > >       vq->event_triggered = false;
-> > >       vq->num_added = 0;
-> > > @@ -2135,9 +2139,13 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> > >       }
-> > >
-> > >       if (unlikely(vq->broken)) {
-> > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > >               dev_warn_once(&vq->vq.vdev->dev,
-> > >                             "virtio vring IRQ raised before DRIVER_OK");
-> > >               return IRQ_NONE;
-> > > +#else
-> > > +             return IRQ_HANDLED;
-> > > +#endif
-> > >       }
-> > >
-> > >       /* Just a hint for performance: so it's ok that this can be racy! */
-> > > @@ -2180,7 +2188,11 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > >       vq->we_own_ring = false;
-> > >       vq->notify = notify;
-> > >       vq->weak_barriers = weak_barriers;
-> > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > >       vq->broken = true;
-> > > +#else
-> > > +     vq->broken = false;
-> > > +#endif
-> > >       vq->last_used_idx = 0;
-> > >       vq->event_triggered = false;
-> > >       vq->num_added = 0;
-> > > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > > index 9a36051ceb76..d15c3cdda2d2 100644
-> > > --- a/include/linux/virtio_config.h
-> > > +++ b/include/linux/virtio_config.h
-> > > @@ -257,6 +257,7 @@ void virtio_device_ready(struct virtio_device *dev)
-> > >
-> > >       WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-> > >
-> > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > >       /*
-> > >        * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> > >        * will see the driver specific setup if it sees vq->broken
-> > > @@ -264,6 +265,7 @@ void virtio_device_ready(struct virtio_device *dev)
-> > >        */
-> > >       virtio_synchronize_cbs(dev);
-> > >       __virtio_unbreak_device(dev);
-> > > +#endif
-> > >       /*
-> > >        * The transport should ensure the visibility of vq->broken
-> > >        * before setting DRIVER_OK. See the comments for the transport
-> > > --
-> > > 2.25.1
-> >
-
+thanks,
+Shakeel
