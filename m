@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFB60CCA47C
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A1BCCCA491
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:56:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231251AbiFXC4p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Jun 2022 22:56:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43654 "EHLO
+        id S231230AbiFXC4o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Jun 2022 22:56:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231199AbiFXC4n (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:56:43 -0400
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D47DE56C0A;
-        Thu, 23 Jun 2022 19:56:41 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R551e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHEo9BB_1656039392;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHEo9BB_1656039392)
+        with ESMTP id S231133AbiFXC4l (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:56:41 -0400
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CC75609D3;
+        Thu, 23 Jun 2022 19:56:37 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHF16Gr_1656039390;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHF16Gr_1656039390)
           by smtp.aliyun-inc.com;
-          Fri, 24 Jun 2022 10:56:34 +0800
+          Fri, 24 Jun 2022 10:56:31 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v10 05/41] virtio_ring: remove the arg vq of vring_alloc_desc_extra()
-Date:   Fri, 24 Jun 2022 10:55:45 +0800
-Message-Id: <20220624025621.128843-6-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v10 04/41] virtio_ring: update the document of the virtqueue_detach_unused_buf for queue reset
+Date:   Fri, 24 Jun 2022 10:55:44 +0800
+Message-Id: <20220624025621.128843-5-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
 References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
@@ -66,50 +66,30 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The parameter vq of vring_alloc_desc_extra() is useless. This patch
-removes this parameter.
-
-Subsequent patches will call this function to avoid passing useless
-arguments.
+Added documentation for virtqueue_detach_unused_buf, allowing it to be
+called on queue reset.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/virtio/virtio_ring.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 3afa0eed5602..1376956040d9 100644
+index 68f55336566c..3afa0eed5602 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -1617,8 +1617,7 @@ static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
- 	return NULL;
- }
- 
--static struct vring_desc_extra *vring_alloc_desc_extra(struct vring_virtqueue *vq,
--						       unsigned int num)
-+static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num)
+@@ -2108,8 +2108,8 @@ EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
+  * @_vq: the struct virtqueue we're talking about.
+  *
+  * Returns NULL or the "data" token handed to virtqueue_add_*().
+- * This is not valid on an active queue; it is useful only for device
+- * shutdown.
++ * This is not valid on an active queue; it is useful for device
++ * shutdown or the reset queue.
+  */
+ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
  {
- 	struct vring_desc_extra *desc_extra;
- 	unsigned int i;
-@@ -1736,7 +1735,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	/* Put everything in free lists. */
- 	vq->free_head = 0;
- 
--	vq->packed.desc_extra = vring_alloc_desc_extra(vq, num);
-+	vq->packed.desc_extra = vring_alloc_desc_extra(num);
- 	if (!vq->packed.desc_extra)
- 		goto err_desc_extra;
- 
-@@ -2217,7 +2216,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	if (!vq->split.desc_state)
- 		goto err_state;
- 
--	vq->split.desc_extra = vring_alloc_desc_extra(vq, vring.num);
-+	vq->split.desc_extra = vring_alloc_desc_extra(vring.num);
- 	if (!vq->split.desc_extra)
- 		goto err_extra;
- 
 -- 
 2.31.0
 
