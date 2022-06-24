@@ -2,216 +2,215 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1235ECCA473
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 07:27:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D796CCA47E
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 08:49:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229480AbiFXH1h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Jun 2022 03:27:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53378 "EHLO
+        id S230220AbiFXItT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Jun 2022 04:49:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiFXH1g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 03:27:36 -0400
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0C334D612;
-        Fri, 24 Jun 2022 00:27:34 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0VHG.Bjb_1656055647;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHG.Bjb_1656055647)
+        with ESMTP id S229683AbiFXItS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 04:49:18 -0400
+Received: from out199-12.us.a.mail.aliyun.com (out199-12.us.a.mail.aliyun.com [47.90.199.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A304563AB;
+        Fri, 24 Jun 2022 01:49:15 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VHGM-Tl_1656060550;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHGM-Tl_1656060550)
           by smtp.aliyun-inc.com;
-          Fri, 24 Jun 2022 15:27:28 +0800
-Message-ID: <1656055406.7931285-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v10 00/41] virtio pci support VIRTIO_F_RING_RESET
-Date:   Fri, 24 Jun 2022 15:23:26 +0800
+          Fri, 24 Jun 2022 16:49:11 +0800
+Message-ID: <1656060115.233734-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH V3] virtio: disable notification hardening by default
+Date:   Fri, 24 Jun 2022 16:41:55 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     virtualization@lists.linux-foundation.org,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        kangjie.xu@linux.alibaba.com
-References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
- <20220624025954-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220624025954-mutt-send-email-mst@kernel.org>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     ben@decadent.org.uk, cohuck@redhat.com, pasic@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
+        agordeev@linux.ibm.com, mst@redhat.com, jasowang@redhat.com,
+        linux-s390@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220622012940.21441-1-jasowang@redhat.com>
+In-Reply-To: <20220622012940.21441-1-jasowang@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 24 Jun 2022 03:00:12 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Fri, Jun 24, 2022 at 10:55:40AM +0800, Xuan Zhuo wrote:
-> > The virtio spec already supports the virtio queue reset function. This patch set
-> > is to add this function to the kernel. The relevant virtio spec information is
-> > here:
-> >
-> >     https://github.com/oasis-tcs/virtio-spec/issues/124
-> >     https://github.com/oasis-tcs/virtio-spec/issues/139
-> >
-> > Also regarding MMIO support for queue reset, I plan to support it after this
-> > patch is passed.
-> >
-> > This patch set implements the refactoring of vring. Finally, the
-> > virtuque_resize() interface is provided based on the reset function of the
-> > transport layer.
-> >
-> > Test environment:
-> >     Host: 4.19.91
-> >     Qemu: QEMU emulator version 6.2.50 (with vq reset support)
-> >     Test Cmd:  ethtool -G eth1 rx $1 tx $2; ethtool -g eth1
-> >
-> >     The default is split mode, modify Qemu virtio-net to add PACKED feature to test
-> >     packed mode.
-> >
-> > Qemu code:
-> >     https://github.com/fengidri/qemu/compare/89f3bfa3265554d1d591ee4d7f1197b6e3397e84...master
+On Wed, 22 Jun 2022 09:29:40 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
+> harden vring IRQ"). It works with the assumption that the driver or
+> core can properly call virtio_device_ready() at the right
+> place. Unfortunately, this seems to be not true and uncover various
+> bugs of the existing drivers, mainly the issue of using
+> virtio_device_ready() incorrectly.
 >
->
-> Pls rebase on top of my latest tree, there are some conflicts.
+> So let's having a Kconfig option and disable it by default. It gives
+> us a breath to fix the drivers and then we can consider to enable it
+> by default.
 
-OK, I'll pull your latest version before committing the next version.
+
+hi, I have a question.
+
+What should we do when the queue is reset and CONFIG_VIRTIO_HARDEN_NOTIFICATION
+is off?
+
+Since disable_irq() cannot be used, we should trust the device not to send irqs
+again. So we don't have to do anything?
 
 Thanks.
 
 >
-> > In order to simplify the review of this patch set, the function of reusing
-> > the old buffers after resize will be introduced in subsequent patch sets.
-> >
-> > Please review. Thanks.
-> >
-> > v10:
-> >   1. on top of the harden vring IRQ
-> >   2. factor out split and packed from struct vring_virtqueue
-> >   3. some suggest from @Jason Wang
-> >
-> > v9:
-> >   1. Provide a virtqueue_resize() interface directly
-> >   2. A patch set including vring resize, virtio pci reset, virtio-net resize
-> >   3. No more separate structs
-> >
-> > v8:
-> >   1. Provide a virtqueue_reset() interface directly
-> >   2. Split the two patch sets, this is the first part
-> >   3. Add independent allocation helper for allocating state, extra
-> >
-> > v7:
-> >   1. fix #6 subject typo
-> >   2. fix #6 ring_size_in_bytes is uninitialized
-> >   3. check by: make W=12
-> >
-> > v6:
-> >   1. virtio_pci: use synchronize_irq(irq) to sync the irq callbacks
-> >   2. Introduce virtqueue_reset_vring() to implement the reset of vring during
-> >      the reset process. May use the old vring if num of the vq not change.
-> >   3. find_vqs() support sizes to special the max size of each vq
-> >
-> > v5:
-> >   1. add virtio-net support set_ringparam
-> >
-> > v4:
-> >   1. just the code of virtio, without virtio-net
-> >   2. Performing reset on a queue is divided into these steps:
-> >     1. reset_vq: reset one vq
-> >     2. recycle the buffer from vq by virtqueue_detach_unused_buf()
-> >     3. release the ring of the vq by vring_release_virtqueue()
-> >     4. enable_reset_vq: re-enable the reset queue
-> >   3. Simplify the parameters of enable_reset_vq()
-> >   4. add container structures for virtio_pci_common_cfg
-> >
-> > v3:
-> >   1. keep vq, irq unreleased
-> >
-> > *** BLURB HERE ***
-> >
-> > Xuan Zhuo (41):
-> >   remoteproc: rename len of rpoc_vring to num
-> >   virtio: add helper virtqueue_get_vring_max_size()
-> >   virtio: struct virtio_config_ops add callbacks for queue_reset
-> >   virtio_ring: update the document of the virtqueue_detach_unused_buf
-> >     for queue reset
-> >   virtio_ring: remove the arg vq of vring_alloc_desc_extra()
-> >   virtio_ring: extract the logic of freeing vring
-> >   virtio_ring: split vring_virtqueue
-> >   virtio_ring: introduce virtqueue_init()
-> >   virtio_ring: split: introduce vring_free_split()
-> >   virtio_ring: split: extract the logic of alloc queue
-> >   virtio_ring: split: extract the logic of alloc state and extra
-> >   virtio_ring: split: extract the logic of attach vring
-> >   virtio_ring: split: extract the logic of vring init
-> >   virtio_ring: split: introduce virtqueue_reinit_split()
-> >   virtio_ring: split: reserve vring_align, may_reduce_num
-> >   virtio_ring: split: introduce virtqueue_resize_split()
-> >   virtio_ring: packed: introduce vring_free_packed
-> >   virtio_ring: packed: extract the logic of alloc queue
-> >   virtio_ring: packed: extract the logic of alloc state and extra
-> >   virtio_ring: packed: extract the logic of attach vring
-> >   virtio_ring: packed: extract the logic of vring init
-> >   virtio_ring: packed: introduce virtqueue_reinit_packed()
-> >   virtio_ring: packed: introduce virtqueue_resize_packed()
-> >   virtio_ring: introduce virtqueue_resize()
-> >   virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
-> >   virtio: queue_reset: add VIRTIO_F_RING_RESET
-> >   virtio: allow to unbreak/break virtqueue individually
-> >   virtio_pci: update struct virtio_pci_common_cfg
-> >   virtio_pci: introduce helper to get/set queue reset
-> >   virtio_pci: extract the logic of active vq for modern pci
-> >   virtio_pci: support VIRTIO_F_RING_RESET
-> >   virtio: find_vqs() add arg sizes
-> >   virtio_pci: support the arg sizes of find_vqs()
-> >   virtio_mmio: support the arg sizes of find_vqs()
-> >   virtio: add helper virtio_find_vqs_ctx_size()
-> >   virtio_net: set the default max ring size by find_vqs()
-> >   virtio_net: get ringparam by virtqueue_get_vring_max_size()
-> >   virtio_net: split free_unused_bufs()
-> >   virtio_net: support rx queue resize
-> >   virtio_net: support tx queue resize
-> >   virtio_net: support set_ringparam
-> >
-> >  arch/um/drivers/virtio_uml.c             |   3 +-
-> >  drivers/net/virtio_net.c                 | 209 +++++-
-> >  drivers/platform/mellanox/mlxbf-tmfifo.c |   3 +
-> >  drivers/remoteproc/remoteproc_core.c     |   4 +-
-> >  drivers/remoteproc/remoteproc_virtio.c   |  13 +-
-> >  drivers/s390/virtio/virtio_ccw.c         |   4 +
-> >  drivers/virtio/virtio_mmio.c             |  11 +-
-> >  drivers/virtio/virtio_pci_common.c       |  32 +-
-> >  drivers/virtio/virtio_pci_common.h       |   3 +-
-> >  drivers/virtio/virtio_pci_legacy.c       |   8 +-
-> >  drivers/virtio/virtio_pci_modern.c       | 157 ++++-
-> >  drivers/virtio/virtio_pci_modern_dev.c   |  39 ++
-> >  drivers/virtio/virtio_ring.c             | 794 +++++++++++++++++------
-> >  drivers/virtio/virtio_vdpa.c             |   3 +
-> >  include/linux/remoteproc.h               |   4 +-
-> >  include/linux/virtio.h                   |   9 +
-> >  include/linux/virtio_config.h            |  38 +-
-> >  include/linux/virtio_pci_modern.h        |   2 +
-> >  include/uapi/linux/virtio_config.h       |   7 +-
-> >  include/uapi/linux/virtio_pci.h          |  14 +
-> >  20 files changed, 1063 insertions(+), 294 deletions(-)
-> >
-> > --
-> > 2.31.0
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> Changes since V2:
+> - Tweak the Kconfig help
+> - Add comment for the read_lock() pairing in virtio_ccw
+> ---
+>  drivers/s390/virtio/virtio_ccw.c |  9 ++++++++-
+>  drivers/virtio/Kconfig           | 13 +++++++++++++
+>  drivers/virtio/virtio.c          |  2 ++
+>  drivers/virtio/virtio_ring.c     | 12 ++++++++++++
+>  include/linux/virtio_config.h    |  2 ++
+>  5 files changed, 37 insertions(+), 1 deletion(-)
 >
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 97e51c34e6cf..1f6a358f65f0 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -1136,8 +1136,13 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+>  			vcdev->err = -EIO;
+>  	}
+>  	virtio_ccw_check_activity(vcdev, activity);
+> -	/* Interrupts are disabled here */
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+> +	/*
+> +	 * Paried with virtio_ccw_synchronize_cbs() and interrupts are
+> +	 * disabled here.
+> +	 */
+>  	read_lock(&vcdev->irq_lock);
+> +#endif
+>  	for_each_set_bit(i, indicators(vcdev),
+>  			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
+>  		/* The bit clear must happen before the vring kick. */
+> @@ -1146,7 +1151,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+>  		vq = virtio_ccw_vq_by_ind(vcdev, i);
+>  		vring_interrupt(0, vq);
+>  	}
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  	read_unlock(&vcdev->irq_lock);
+> +#endif
+>  	if (test_bit(0, indicators2(vcdev))) {
+>  		virtio_config_changed(&vcdev->vdev);
+>  		clear_bit(0, indicators2(vcdev));
+> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> index b5adf6abd241..c04f370a1e5c 100644
+> --- a/drivers/virtio/Kconfig
+> +++ b/drivers/virtio/Kconfig
+> @@ -35,6 +35,19 @@ menuconfig VIRTIO_MENU
+>
+>  if VIRTIO_MENU
+>
+> +config VIRTIO_HARDEN_NOTIFICATION
+> +        bool "Harden virtio notification"
+> +        help
+> +          Enable this to harden the device notifications and suppress
+> +          those that happen at a time where notifications are illegal.
+> +
+> +          Experimental: Note that several drivers still have bugs that
+> +          may cause crashes or hangs when correct handling of
+> +          notifications is enforced; depending on the subset of
+> +          drivers and devices you use, this may or may not work.
+> +
+> +          If unsure, say N.
+> +
+>  config VIRTIO_PCI
+>  	tristate "PCI driver for virtio devices"
+>  	depends on PCI
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index ef04a96942bf..21dc08d2f32d 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -220,6 +220,7 @@ static int virtio_features_ok(struct virtio_device *dev)
+>   * */
+>  void virtio_reset_device(struct virtio_device *dev)
+>  {
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  	/*
+>  	 * The below virtio_synchronize_cbs() guarantees that any
+>  	 * interrupt for this line arriving after
+> @@ -228,6 +229,7 @@ void virtio_reset_device(struct virtio_device *dev)
+>  	 */
+>  	virtio_break_device(dev);
+>  	virtio_synchronize_cbs(dev);
+> +#endif
+>
+>  	dev->config->reset(dev);
+>  }
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 13a7348cedff..d9d3b6e201fb 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -1688,7 +1688,11 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>  	vq->we_own_ring = true;
+>  	vq->notify = notify;
+>  	vq->weak_barriers = weak_barriers;
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  	vq->broken = true;
+> +#else
+> +	vq->broken = false;
+> +#endif
+>  	vq->last_used_idx = 0;
+>  	vq->event_triggered = false;
+>  	vq->num_added = 0;
+> @@ -2135,9 +2139,13 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+>  	}
+>
+>  	if (unlikely(vq->broken)) {
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  		dev_warn_once(&vq->vq.vdev->dev,
+>  			      "virtio vring IRQ raised before DRIVER_OK");
+>  		return IRQ_NONE;
+> +#else
+> +		return IRQ_HANDLED;
+> +#endif
+>  	}
+>
+>  	/* Just a hint for performance: so it's ok that this can be racy! */
+> @@ -2180,7 +2188,11 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+>  	vq->we_own_ring = false;
+>  	vq->notify = notify;
+>  	vq->weak_barriers = weak_barriers;
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  	vq->broken = true;
+> +#else
+> +	vq->broken = false;
+> +#endif
+>  	vq->last_used_idx = 0;
+>  	vq->event_triggered = false;
+>  	vq->num_added = 0;
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index 9a36051ceb76..d15c3cdda2d2 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -257,6 +257,7 @@ void virtio_device_ready(struct virtio_device *dev)
+>
+>  	WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
+>
+> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  	/*
+>  	 * The virtio_synchronize_cbs() makes sure vring_interrupt()
+>  	 * will see the driver specific setup if it sees vq->broken
+> @@ -264,6 +265,7 @@ void virtio_device_ready(struct virtio_device *dev)
+>  	 */
+>  	virtio_synchronize_cbs(dev);
+>  	__virtio_unbreak_device(dev);
+> +#endif
+>  	/*
+>  	 * The transport should ensure the visibility of vq->broken
+>  	 * before setting DRIVER_OK. See the comments for the transport
+> --
+> 2.25.1
+>
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
