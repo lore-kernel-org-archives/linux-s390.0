@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86DA6CCA483
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:56:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFB60CCA47C
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 02:56:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231196AbiFXC4n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Jun 2022 22:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43622 "EHLO
+        id S231251AbiFXC4p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Jun 2022 22:56:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230512AbiFXC4l (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:56:41 -0400
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBCE45DC08;
-        Thu, 23 Jun 2022 19:56:35 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R681e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHEo99q_1656039388;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHEo99q_1656039388)
+        with ESMTP id S231199AbiFXC4n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jun 2022 22:56:43 -0400
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D47DE56C0A;
+        Thu, 23 Jun 2022 19:56:41 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R551e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHEo9BB_1656039392;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHEo9BB_1656039392)
           by smtp.aliyun-inc.com;
-          Fri, 24 Jun 2022 10:56:29 +0800
+          Fri, 24 Jun 2022 10:56:34 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v10 03/41] virtio: struct virtio_config_ops add callbacks for queue_reset
-Date:   Fri, 24 Jun 2022 10:55:43 +0800
-Message-Id: <20220624025621.128843-4-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v10 05/41] virtio_ring: remove the arg vq of vring_alloc_desc_extra()
+Date:   Fri, 24 Jun 2022 10:55:45 +0800
+Message-Id: <20220624025621.128843-6-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
 References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
@@ -66,50 +66,50 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-reset can be divided into the following four steps (example):
- 1. transport: notify the device to reset the queue
- 2. vring:     recycle the buffer submitted
- 3. vring:     reset/resize the vring (may re-alloc)
- 4. transport: mmap vring to device, and enable the queue
+The parameter vq of vring_alloc_desc_extra() is useless. This patch
+removes this parameter.
 
-In order to support queue reset, add two callbacks(reset_vq,
-enable_reset_vq) in struct virtio_config_ops to implement steps 1 and 4.
+Subsequent patches will call this function to avoid passing useless
+arguments.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- include/linux/virtio_config.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/virtio/virtio_ring.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 9a36051ceb76..13a466c17969 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -78,6 +78,16 @@ struct virtio_shm_region {
-  * @set_vq_affinity: set the affinity for a virtqueue (optional).
-  * @get_vq_affinity: get the affinity for a virtqueue (optional).
-  * @get_shm_region: get a shared memory region based on the index.
-+ * @reset_vq: reset a queue individually (optional).
-+ *	vq: the virtqueue
-+ *	Returns 0 on success or error status
-+ *	reset_vq will guarantee that the callbacks are disabled and synchronized.
-+ *	Except for the callback, the caller should guarantee that the vring is
-+ *	not accessed by any functions of virtqueue.
-+ * @enable_reset_vq: enable a reset queue
-+ *	vq: the virtqueue
-+ *	Returns 0 on success or error status
-+ *	If reset_vq is set, then enable_reset_vq must also be set.
-  */
- typedef void vq_callback_t(struct virtqueue *);
- struct virtio_config_ops {
-@@ -104,6 +114,8 @@ struct virtio_config_ops {
- 			int index);
- 	bool (*get_shm_region)(struct virtio_device *vdev,
- 			       struct virtio_shm_region *region, u8 id);
-+	int (*reset_vq)(struct virtqueue *vq);
-+	int (*enable_reset_vq)(struct virtqueue *vq);
- };
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 3afa0eed5602..1376956040d9 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1617,8 +1617,7 @@ static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
+ 	return NULL;
+ }
  
- /* If driver didn't advertise the feature, it will never appear. */
+-static struct vring_desc_extra *vring_alloc_desc_extra(struct vring_virtqueue *vq,
+-						       unsigned int num)
++static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num)
+ {
+ 	struct vring_desc_extra *desc_extra;
+ 	unsigned int i;
+@@ -1736,7 +1735,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 	/* Put everything in free lists. */
+ 	vq->free_head = 0;
+ 
+-	vq->packed.desc_extra = vring_alloc_desc_extra(vq, num);
++	vq->packed.desc_extra = vring_alloc_desc_extra(num);
+ 	if (!vq->packed.desc_extra)
+ 		goto err_desc_extra;
+ 
+@@ -2217,7 +2216,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 	if (!vq->split.desc_state)
+ 		goto err_state;
+ 
+-	vq->split.desc_extra = vring_alloc_desc_extra(vq, vring.num);
++	vq->split.desc_extra = vring_alloc_desc_extra(vring.num);
+ 	if (!vq->split.desc_extra)
+ 		goto err_extra;
+ 
 -- 
 2.31.0
 
