@@ -2,200 +2,67 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17DD7C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 06:08:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28885C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Jun 2022 06:10:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230333AbiFXGIS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Jun 2022 02:08:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51696 "EHLO
+        id S230018AbiFXGJ6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Jun 2022 02:09:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229932AbiFXGIH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 02:08:07 -0400
-Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8FFEDFE5
-        for <linux-s390@vger.kernel.org>; Thu, 23 Jun 2022 23:08:05 -0700 (PDT)
-Received: by mail-yb1-xb2f.google.com with SMTP id d5so2845263yba.5
-        for <linux-s390@vger.kernel.org>; Thu, 23 Jun 2022 23:08:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SeaKrMM2DGf9AmKtqHuEPGi8mQgc3169/28hZsaIXsU=;
-        b=FqiQk1iwQhSOXqbIhgVqSjXUfZlndtlBhMmS3D2jY6aNk61b+pcUKRo2ByWWbfcn6g
-         8X+pd75XhEdBKwAdwg+alHdpfKkV43RstivYkdaY/WlCeljzGFN2LKxz9cDqpvJ1vpPZ
-         aIPQMNcoLoHdyUMr+VcjSHUisnUSwFJkjg9tNvVR1ORlao3PzRO0ovn7NTponI3t9vXl
-         tg2ddeMBpINdPGMnBEQLUuloASNfsn3mg0iymryzg7WWRzL9+xdZbxu6/LoaLNP+8P9i
-         dC/SKDmyeAehjCmCvWYSUSEZv2xgCYyIOxMZIemDJX2tXHPrPJdcx7UAIJOmJo3UeP9f
-         LpFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SeaKrMM2DGf9AmKtqHuEPGi8mQgc3169/28hZsaIXsU=;
-        b=3GvAHUawpWFPrhhbJNHr7c4QSV30Y8k8w0AmRyyFkpl6JiGp5oUM1Bz2/zO0rOt43d
-         GD9pDvuMiMSqzXe2CNqur8XAMp0v8p6WHY2ZnLAqBrT24IA7jcuKZ9DAVB2/PM4KLkct
-         xWoAutz2/ZFI5m63zhmerxqXtuXyAj4hadjpd9dt3F3VN1LsRdczSnlxVlBBwRTkT22r
-         wjLEmTz5Iw3YUAQ5XZOpHjTXa+Q8qpNELQcBAi5OYs8ZB9DFNaQcWTw567E+eQYrNnQE
-         xulNCMhMQeYo/k+A7w+DWp60jerZX2aKirQHcqQ+OwEXWtY6RbNR6td9zSuBI1L53WHo
-         hK1w==
-X-Gm-Message-State: AJIora/iC3vc70cnWgabcO6xk9q4htz9vW9uZfA6Sjv/AHrXCpPQ+kI1
-        N1Twk/neTSS9hoP39tsR5agcVFMAAyIysaMGlcyO3w==
-X-Google-Smtp-Source: AGRyM1slb9bCxz7eLioJNPBNzDFAyfhH0Oa34pXwYuxwl4FMz+2hZHqAadj2IjKe9S3LUAuLPMF+yyknHn7GLi11iqU=
-X-Received: by 2002:a25:8181:0:b0:668:c835:eb7c with SMTP id
- p1-20020a258181000000b00668c835eb7cmr13491867ybk.598.1656050884788; Thu, 23
- Jun 2022 23:08:04 -0700 (PDT)
+        with ESMTP id S229469AbiFXGJ5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 02:09:57 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4D679DFDA;
+        Thu, 23 Jun 2022 23:09:56 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1D62B11FB;
+        Thu, 23 Jun 2022 23:09:56 -0700 (PDT)
+Received: from [10.162.41.7] (unknown [10.162.41.7])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0BA523F66F;
+        Thu, 23 Jun 2022 23:09:48 -0700 (PDT)
+Message-ID: <4a20d826-af0f-0d2c-162e-8797c2603ab1@arm.com>
+Date:   Fri, 24 Jun 2022 11:39:46 +0530
 MIME-Version: 1.0
-References: <20220619150456.GB34471@xsang-OptiPlex-9020> <20220622172857.37db0d29@kernel.org>
- <CADvbK_csvmkKe46hT9792=+Qcjor2EvkkAnr--CJK3NGX-N9BQ@mail.gmail.com>
- <CADvbK_eQUmb942vC+bG+NRzM1ki1LiCydEDR1AezZ35Jvsdfnw@mail.gmail.com>
- <20220623185730.25b88096@kernel.org> <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
- <20220624051351.GA72171@shbuild999.sh.intel.com> <CANn89iLwwN7hRsJD_skbcRNY9sBtPh1fhULKco5wosx_i4x6gg@mail.gmail.com>
- <20220624060053.GD79500@shbuild999.sh.intel.com>
-In-Reply-To: <20220624060053.GD79500@shbuild999.sh.intel.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Fri, 24 Jun 2022 08:07:53 +0200
-Message-ID: <CANn89i+rniKCC-ZiCvJ7KRtnxgYx-=xFVTOYU1E0h2nhLhn39w@mail.gmail.com>
-Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
-To:     Feng Tang <feng.tang@intel.com>
-Cc:     Jakub Kicinski <kuba@kernel.org>, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        network dev <netdev@vger.kernel.org>,
-        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
-        Huang Ying <ying.huang@intel.com>,
-        zhengjun.xing@linux.intel.com, fengwei.yin@intel.com,
-        Ying Xu <yinxu@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH V4 02/26] mm/mmap: Define DECLARE_VM_GET_PAGE_PROT
+Content-Language: en-US
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     linux-mm@kvack.org, christophe.leroy@csgroup.eu,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        x86@kernel.org, openrisc@lists.librecores.org,
+        linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org,
+        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20220624044339.1533882-1-anshuman.khandual@arm.com>
+ <20220624044339.1533882-3-anshuman.khandual@arm.com>
+ <YrVHEw6bjUf62Eh5@infradead.org>
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <YrVHEw6bjUf62Eh5@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 24, 2022 at 8:01 AM Feng Tang <feng.tang@intel.com> wrote:
->
-> On Fri, Jun 24, 2022 at 07:45:00AM +0200, Eric Dumazet wrote:
-> > On Fri, Jun 24, 2022 at 7:14 AM Feng Tang <feng.tang@intel.com> wrote:
-> > >
-> > > Hi Eric,
-> > >
-> > > On Fri, Jun 24, 2022 at 06:13:51AM +0200, Eric Dumazet wrote:
-> > > > On Fri, Jun 24, 2022 at 3:57 AM Jakub Kicinski <kuba@kernel.org> wrote:
-> > > > >
-> > > > > On Thu, 23 Jun 2022 18:50:07 -0400 Xin Long wrote:
-> > > > > > From the perf data, we can see __sk_mem_reduce_allocated() is the one
-> > > > > > using CPU the most more than before, and mem_cgroup APIs are also
-> > > > > > called in this function. It means the mem cgroup must be enabled in
-> > > > > > the test env, which may explain why I couldn't reproduce it.
-> > > > > >
-> > > > > > The Commit 4890b686f4 ("net: keep sk->sk_forward_alloc as small as
-> > > > > > possible") uses sk_mem_reclaim(checking reclaimable >= PAGE_SIZE) to
-> > > > > > reclaim the memory, which is *more frequent* to call
-> > > > > > __sk_mem_reduce_allocated() than before (checking reclaimable >=
-> > > > > > SK_RECLAIM_THRESHOLD). It might be cheap when
-> > > > > > mem_cgroup_sockets_enabled is false, but I'm not sure if it's still
-> > > > > > cheap when mem_cgroup_sockets_enabled is true.
-> > > > > >
-> > > > > > I think SCTP netperf could trigger this, as the CPU is the bottleneck
-> > > > > > for SCTP netperf testing, which is more sensitive to the extra
-> > > > > > function calls than TCP.
-> > > > > >
-> > > > > > Can we re-run this testing without mem cgroup enabled?
-> > > > >
-> > > > > FWIW I defer to Eric, thanks a lot for double checking the report
-> > > > > and digging in!
-> > > >
-> > > > I did tests with TCP + memcg and noticed a very small additional cost
-> > > > in memcg functions,
-> > > > because of suboptimal layout:
-> > > >
-> > > > Extract of an internal Google bug, update from June 9th:
-> > > >
-> > > > --------------------------------
-> > > > I have noticed a minor false sharing to fetch (struct
-> > > > mem_cgroup)->css.parent, at offset 0xc0,
-> > > > because it shares the cache line containing struct mem_cgroup.memory,
-> > > > at offset 0xd0
-> > > >
-> > > > Ideally, memcg->socket_pressure and memcg->parent should sit in a read
-> > > > mostly cache line.
-> > > > -----------------------
-> > > >
-> > > > But nothing that could explain a "-69.4% regression"
-> > >
-> > > We can double check that.
-> > >
-> > > > memcg has a very similar strategy of per-cpu reserves, with
-> > > > MEMCG_CHARGE_BATCH being 32 pages per cpu.
-> > >
-> > > We have proposed patch to increase the batch numer for stats
-> > > update, which was not accepted as it hurts the accuracy and
-> > > the data is used by many tools.
-> > >
-> > > > It is not clear why SCTP with 10K writes would overflow this reserve constantly.
-> > > >
-> > > > Presumably memcg experts will have to rework structure alignments to
-> > > > make sure they can cope better
-> > > > with more charge/uncharge operations, because we are not going back to
-> > > > gigantic per-socket reserves,
-> > > > this simply does not scale.
-> > >
-> > > Yes, the memcg statitics and charge/unchage update is very sensitive
-> > > with the data alignemnt layout, and can easily trigger peformance
-> > > changes, as we've seen quite some similar cases in the past several
-> > > years.
-> > >
-> > > One pattern we've seen is, even if a memcg stats updating or charge
-> > > function only takes about 2%~3% of the CPU cycles in perf-profile data,
-> > > once it got affected, the peformance change could be amplified to up to
-> > > 60% or more.
-> > >
-> >
-> > Reorganizing "struct mem_cgroup" to put "struct page_counter memory"
-> > in a separate cache line would be beneficial.
->
-> That may help.
->
-> And I also want to say the benchmarks(especially micro one) are very
-> sensitive to the layout of mem_cgroup. As the 'page_counter' is 112
-> bytes in size, I recently made a patch to make it cacheline aligned
-> (take 2 cachelines), which improved some hackbench/netperf test
-> cases, but caused huge (49%) drop for some vm-scalability tests.
->
-> > Many low hanging fruits, assuming nobody will use __randomize_layout on it ;)
-> >
-> > Also some fields are written even if their value is not changed.
-> >
-> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-> > index abec50f31fe64100f4be5b029c7161b3a6077a74..53d9c1e581e78303ef73942e2b34338567987b74
-> > 100644
-> > --- a/mm/memcontrol.c
-> > +++ b/mm/memcontrol.c
-> > @@ -7037,10 +7037,12 @@ bool mem_cgroup_charge_skmem(struct mem_cgroup
-> > *memcg, unsigned int nr_pages,
-> >                 struct page_counter *fail;
-> >
-> >                 if (page_counter_try_charge(&memcg->tcpmem, nr_pages, &fail)) {
-> > -                       memcg->tcpmem_pressure = 0;
-> > +                       if (READ_ONCE(memcg->tcpmem_pressure))
-> > +                               WRITE_ONCE(memcg->tcpmem_pressure, 0);
-> >                         return true;
-> >                 }
-> > -               memcg->tcpmem_pressure = 1;
-> > +               if (!READ_ONCE(memcg->tcpmem_pressure))
-> > +                       WRITE_ONCE(memcg->tcpmem_pressure, 1);
-> >                 if (gfp_mask & __GFP_NOFAIL) {
-> >                         page_counter_charge(&memcg->tcpmem, nr_pages);
-> >                         return true;
->
-> I will also try this patch, which may take some time.
 
-Note that applications can opt-in reserving memory for one socket,
-using SO_RESERVE_MEM
 
-This can be used for jobs with a controlled number of sockets, as this
-will avoid many charge/uncharge operations.
+On 6/24/22 10:39, Christoph Hellwig wrote:
+> On Fri, Jun 24, 2022 at 10:13:15AM +0530, Anshuman Khandual wrote:
+>> This just converts the generic vm_get_page_prot() implementation into a new
+>> macro i.e DECLARE_VM_GET_PAGE_PROT which later can be used across platforms
+>> when enabling them with ARCH_HAS_VM_GET_PAGE_PROT. This does not create any
+>> functional change.
+> 
+> mm.h is a huhe header included by almost everything in the kernel.
+> I'd rather have it in something only included in a few files.  If we
+> can't find anything suitable it might be worth to add a header just
+> for this even.
+
+I guess <linux/pgtable.h> should be better ?
