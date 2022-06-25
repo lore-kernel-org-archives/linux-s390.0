@@ -2,211 +2,179 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A4A6C43334
-	for <linux-s390@archiver.kernel.org>; Sat, 25 Jun 2022 02:36:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7083CCA489
+	for <linux-s390@archiver.kernel.org>; Sat, 25 Jun 2022 03:08:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231936AbiFYCgt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Jun 2022 22:36:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54662 "EHLO
+        id S232401AbiFYDIQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Jun 2022 23:08:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230224AbiFYCgs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 22:36:48 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D634B4FC6F;
-        Fri, 24 Jun 2022 19:36:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656124607; x=1687660607;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=7UU7ei0p3fZSOJ/8dN+UbHzSxDz0FQ0Q5dZSwXjI5YY=;
-  b=enZXhQdXu0gU926aT9UgsQGLe8rA0saF+NEhAHXPTheuT0nE504NBs5x
-   QsJQKKNvAn0D2yP7U/ZKJwvwD6rd+Qkemw7rrt0Niu/sf8KSBn8NC06/X
-   FNS+rjb6JFyQ0MFpwSEYa4XCB6lzemG/RobASaJGQtc5EdFCRGzHMNUH/
-   ePlTNsJK5aLMbtVyx9bpzcX+yj40vFdHmD0onAVigxKHP0swqWGoIVPJh
-   WD2LTUI4UUqh5ED/RyYbBC8/rYkoK/8RnXbPSP6zi+y3kJ5nCM3HrFPhW
-   kR5ukeMtbMBko3nQEzHSpxig2VIVJDla217BDACSKe22wPZZItpMFZR2L
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10388"; a="261557120"
-X-IronPort-AV: E=Sophos;i="5.92,221,1650956400"; 
-   d="scan'208";a="261557120"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2022 19:36:47 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,221,1650956400"; 
-   d="scan'208";a="678785905"
-Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.138])
-  by FMSMGA003.fm.intel.com with ESMTP; 24 Jun 2022 19:36:42 -0700
-Date:   Sat, 25 Jun 2022 10:36:42 +0800
-From:   Feng Tang <feng.tang@intel.com>
-To:     Shakeel Butt <shakeelb@google.com>,
-        Eric Dumazet <edumazet@google.com>
-Cc:     Eric Dumazet <edumazet@google.com>, Linux MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        network dev <netdev@vger.kernel.org>,
-        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
-Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
-Message-ID: <20220625023642.GA40868@shbuild999.sh.intel.com>
-References: <20220619150456.GB34471@xsang-OptiPlex-9020>
- <20220622172857.37db0d29@kernel.org>
- <CADvbK_csvmkKe46hT9792=+Qcjor2EvkkAnr--CJK3NGX-N9BQ@mail.gmail.com>
- <CADvbK_eQUmb942vC+bG+NRzM1ki1LiCydEDR1AezZ35Jvsdfnw@mail.gmail.com>
- <20220623185730.25b88096@kernel.org>
- <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
- <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
- <20220624070656.GE79500@shbuild999.sh.intel.com>
- <20220624144358.lqt2ffjdry6p5u4d@google.com>
+        with ESMTP id S232365AbiFYDHn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jun 2022 23:07:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C65A68026;
+        Fri, 24 Jun 2022 20:07:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C2ADB82475;
+        Sat, 25 Jun 2022 03:07:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2182C341CC;
+        Sat, 25 Jun 2022 03:07:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1656126456;
+        bh=oXHgCaP4HoPf+EWVcl07MPhIxJZH52Q6LkxiX0QDRik=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=FU+dZqhPCI7WaKDA+AjLnOS95m8QPJ0z8ReiNhcC2P4NI+ZrmxNZzDJ5YJTkaoQPc
+         SatgzVUTcSgwyHrsucOh+GM4g3/1+h+GgSSKqGqW1IBs4BT6j/vgsdecXBdHRGrd/2
+         AqxR5wuq64YrbhfjN2MwpcKf3vhLfmFGvSGSPpQJKPSvpHYebZMLXmOJS28s2TD7Ve
+         tSI/XbxbVWusqsHNpvvUVuXqKWV5X3nWDwd3AKdS2EZyyoyoyyVia9ScMoTkLyaHef
+         IZZEeQ2fgwO8fwjgwOcJcINmgNazhx1HiRXE5XjDpGoZob6l6d4Fa9hcpl/FGH0gH1
+         y2/GNgWsUtZKQ==
+Received: by mail-vs1-f46.google.com with SMTP id j6so4003947vsi.0;
+        Fri, 24 Jun 2022 20:07:36 -0700 (PDT)
+X-Gm-Message-State: AJIora+L/I8qzYYGqACA9sPMVCWF03KAQmylgjMtCh/4w05cfILkhlqw
+        3+GkJifoO+lqj8vGEffm2A6BMQlhqU7Tssmu+HI=
+X-Google-Smtp-Source: AGRyM1vKaBnKP+OKs0X53+qz3soArX9HkvW+CKQD7jqShPo7H3ehVP4Gjy9lyocTRtcrWI2zFmWCsaDUISHvTXAw0RU=
+X-Received: by 2002:a05:6102:3e93:b0:353:a8fb:e922 with SMTP id
+ m19-20020a0561023e9300b00353a8fbe922mr711833vsv.51.1656126455677; Fri, 24 Jun
+ 2022 20:07:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220624144358.lqt2ffjdry6p5u4d@google.com>
+References: <20220624044339.1533882-1-anshuman.khandual@arm.com> <20220624044339.1533882-18-anshuman.khandual@arm.com>
+In-Reply-To: <20220624044339.1533882-18-anshuman.khandual@arm.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Sat, 25 Jun 2022 11:07:24 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTQXpYggbN8vbv+XVkORDEBbUAJJaJsbN2ZtSbjGfem1Tg@mail.gmail.com>
+Message-ID: <CAJF2gTQXpYggbN8vbv+XVkORDEBbUAJJaJsbN2ZtSbjGfem1Tg@mail.gmail.com>
+Subject: Re: [PATCH V4 17/26] csky/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+To:     Anshuman Khandual <anshuman.khandual@arm.com>
+Cc:     Linux-MM <linux-mm@kvack.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Openrisc <openrisc@lists.librecores.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linux-alpha@vger.kernel.org,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-ia64@vger.kernel.org,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        linux-m68k@lists.linux-m68k.org,
+        linux-snps-arc@lists.infradead.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-um@lists.infradead.org, linux-sh@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 24, 2022 at 02:43:58PM +0000, Shakeel Butt wrote:
-> On Fri, Jun 24, 2022 at 03:06:56PM +0800, Feng Tang wrote:
-> > On Thu, Jun 23, 2022 at 11:34:15PM -0700, Shakeel Butt wrote:
-> [...]
-> > > 
-> > > Feng, can you please explain the memcg setup on these test machines
-> > > and if the tests are run in root or non-root memcg?
-> > 
-> > I don't know the exact setup, Philip/Oliver from 0Day can correct me.
-> > 
-> > I logged into a test box which runs netperf test, and it seems to be
-> > cgoup v1 and non-root memcg. The netperf tasks all sit in dir:
-> > '/sys/fs/cgroup/memory/system.slice/lkp-bootstrap.service'
-> > 
-> 
-> Thanks Feng. Can you check the value of memory.kmem.tcp.max_usage_in_bytes
-> in /sys/fs/cgroup/memory/system.slice/lkp-bootstrap.service after making
-> sure that the netperf test has already run?
+For csky part.
 
-memory.kmem.tcp.max_usage_in_bytes:0
+Acked-by: Guo Ren <guoren@kernel.org>
 
-And here is more memcg stats (let me know if you want to check more)
 
-/sys/fs/cgroup/memory/system.slice/lkp-bootstrap.service# grep . memory.*
-memory.failcnt:0
-memory.kmem.failcnt:0
-memory.kmem.limit_in_bytes:9223372036854771712
-memory.kmem.max_usage_in_bytes:47861760
-memory.kmem.tcp.failcnt:0
-memory.kmem.tcp.limit_in_bytes:9223372036854771712
-memory.kmem.tcp.max_usage_in_bytes:0
-memory.kmem.tcp.usage_in_bytes:0
-memory.kmem.usage_in_bytes:40730624
-memory.limit_in_bytes:9223372036854771712
-memory.max_usage_in_bytes:642424832
-memory.memsw.failcnt:0
-memory.memsw.limit_in_bytes:9223372036854771712
-memory.memsw.max_usage_in_bytes:642424832
-memory.memsw.usage_in_bytes:639549440
-memory.move_charge_at_immigrate:0
-memory.numa_stat:total=144073 N0=124819 N1=19254
-memory.numa_stat:file=0 N0=0 N1=0
-memory.numa_stat:anon=77721 N0=58502 N1=19219
-memory.numa_stat:unevictable=66352 N0=66317 N1=35
-memory.numa_stat:hierarchical_total=144073 N0=124819 N1=19254
-memory.numa_stat:hierarchical_file=0 N0=0 N1=0
-memory.numa_stat:hierarchical_anon=77721 N0=58502 N1=19219
-memory.numa_stat:hierarchical_unevictable=66352 N0=66317 N1=35
-memory.oom_control:oom_kill_disable 0
-memory.oom_control:under_oom 0
-memory.oom_control:oom_kill 0
-grep: memory.pressure_level: Invalid argument
-memory.soft_limit_in_bytes:9223372036854771712
-memory.stat:cache 282562560
-memory.stat:rss 307884032
-memory.stat:rss_huge 239075328
-memory.stat:shmem 10784768
-memory.stat:mapped_file 3444736
-memory.stat:dirty 0
-memory.stat:writeback 0
-memory.stat:swap 0
-memory.stat:pgpgin 1018918
-memory.stat:pgpgout 932902
-memory.stat:pgfault 2130513
-memory.stat:pgmajfault 0
-memory.stat:inactive_anon 310272000
-memory.stat:active_anon 8073216
-memory.stat:inactive_file 0
-memory.stat:active_file 0
-memory.stat:unevictable 271777792
-memory.stat:hierarchical_memory_limit 9223372036854771712
-memory.stat:hierarchical_memsw_limit 9223372036854771712
-memory.stat:total_cache 282562560
-memory.stat:total_rss 307884032
-memory.stat:total_rss_huge 239075328
-memory.stat:total_shmem 10784768
-memory.stat:total_mapped_file 3444736
-memory.stat:total_dirty 0
-memory.stat:total_writeback 0
-memory.stat:total_swap 0
-memory.stat:total_pgpgin 1018918
-memory.stat:total_pgpgout 932902
-memory.stat:total_pgfault 2130513
-memory.stat:total_pgmajfault 0
-memory.stat:total_inactive_anon 310272000
-memory.stat:total_active_anon 8073216
-memory.stat:total_inactive_file 0
-memory.stat:total_active_file 0
-memory.stat:total_unevictable 271777792
-memory.swappiness:60
-memory.usage_in_bytes:639549440
-memory.use_hierarchy:1
+On Fri, Jun 24, 2022 at 12:48 PM Anshuman Khandual
+<anshuman.khandual@arm.com> wrote:
+>
+> This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
+> vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
+> up a private and static protection_map[] array. Subsequently all __SXXX and
+> __PXXX macros can be dropped which are no longer needed.
+>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: linux-csky@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> ---
+>  arch/csky/Kconfig               |  1 +
+>  arch/csky/include/asm/pgtable.h | 18 ------------------
+>  arch/csky/mm/init.c             | 20 ++++++++++++++++++++
+>  3 files changed, 21 insertions(+), 18 deletions(-)
+>
+> diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
+> index 21d72b078eef..588b8a9c68ed 100644
+> --- a/arch/csky/Kconfig
+> +++ b/arch/csky/Kconfig
+> @@ -6,6 +6,7 @@ config CSKY
+>         select ARCH_HAS_GCOV_PROFILE_ALL
+>         select ARCH_HAS_SYNC_DMA_FOR_CPU
+>         select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+> +       select ARCH_HAS_VM_GET_PAGE_PROT
+>         select ARCH_USE_BUILTIN_BSWAP
+>         select ARCH_USE_QUEUED_RWLOCKS
+>         select ARCH_WANT_FRAME_POINTERS if !CPU_CK610 && $(cc-option,-mbacktrace)
+> diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
+> index bbe245117777..229a5f4ad7fc 100644
+> --- a/arch/csky/include/asm/pgtable.h
+> +++ b/arch/csky/include/asm/pgtable.h
+> @@ -77,24 +77,6 @@
+>  #define MAX_SWAPFILES_CHECK() \
+>                 BUILD_BUG_ON(MAX_SWAPFILES_SHIFT != 5)
+>
+> -#define __P000 PAGE_NONE
+> -#define __P001 PAGE_READ
+> -#define __P010 PAGE_READ
+> -#define __P011 PAGE_READ
+> -#define __P100 PAGE_READ
+> -#define __P101 PAGE_READ
+> -#define __P110 PAGE_READ
+> -#define __P111 PAGE_READ
+> -
+> -#define __S000 PAGE_NONE
+> -#define __S001 PAGE_READ
+> -#define __S010 PAGE_WRITE
+> -#define __S011 PAGE_WRITE
+> -#define __S100 PAGE_READ
+> -#define __S101 PAGE_READ
+> -#define __S110 PAGE_WRITE
+> -#define __S111 PAGE_WRITE
+> -
+>  extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+>  #define ZERO_PAGE(vaddr)       (virt_to_page(empty_zero_page))
+>
+> diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+> index bf2004aa811a..1bf7b2a748fd 100644
+> --- a/arch/csky/mm/init.c
+> +++ b/arch/csky/mm/init.c
+> @@ -197,3 +197,23 @@ void __init fixaddr_init(void)
+>         vaddr = __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
+>         fixrange_init(vaddr, vaddr + PMD_SIZE, swapper_pg_dir);
+>  }
+> +
+> +static pgprot_t protection_map[16] __ro_after_init = {
+> +       [VM_NONE]                                       = PAGE_NONE,
+> +       [VM_READ]                                       = PAGE_READ,
+> +       [VM_WRITE]                                      = PAGE_READ,
+> +       [VM_WRITE | VM_READ]                            = PAGE_READ,
+> +       [VM_EXEC]                                       = PAGE_READ,
+> +       [VM_EXEC | VM_READ]                             = PAGE_READ,
+> +       [VM_EXEC | VM_WRITE]                            = PAGE_READ,
+> +       [VM_EXEC | VM_WRITE | VM_READ]                  = PAGE_READ,
+> +       [VM_SHARED]                                     = PAGE_NONE,
+> +       [VM_SHARED | VM_READ]                           = PAGE_READ,
+> +       [VM_SHARED | VM_WRITE]                          = PAGE_WRITE,
+> +       [VM_SHARED | VM_WRITE | VM_READ]                = PAGE_WRITE,
+> +       [VM_SHARED | VM_EXEC]                           = PAGE_READ,
+> +       [VM_SHARED | VM_EXEC | VM_READ]                 = PAGE_READ,
+> +       [VM_SHARED | VM_EXEC | VM_WRITE]                = PAGE_WRITE,
+> +       [VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]      = PAGE_WRITE
+> +};
+> +DECLARE_VM_GET_PAGE_PROT
+> --
+> 2.25.1
+>
 
-> If this is non-zero then network memory accounting is enabled and the
-> slowdown is expected.
 
-From the perf-profile data in original report, both
-__sk_mem_raise_allocated() and __sk_mem_reduce_allocated() are called
-much more often, which call memcg charge/uncharge functions.
+--
+Best Regards
+ Guo Ren
 
-IIUC, the call chain is:
-
-__sk_mem_raise_allocated
-    sk_memory_allocated_add
-    mem_cgroup_charge_skmem
-        charge memcg->tcpmem (for cgroup v2)
-	try_charge memcg (for v1)
-
-Also from Eric's one earlier commit log:
-
-"
-net: implement per-cpu reserves for memory_allocated
-...
-This means we are going to call sk_memory_allocated_add()
-and sk_memory_allocated_sub() more often.
-...
-"
-
-So this slowdown is related to the more calling of charge/uncharge? 
-
-Thanks,
-Feng
-
-> > And the rootfs is a debian based rootfs
-> > 
-> > Thanks,
-> > Feng
-> > 
-> > 
-> > > thanks,
-> > > Shakeel
+ML: https://lore.kernel.org/linux-csky/
