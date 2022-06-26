@@ -2,166 +2,196 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 615EDCCA481
-	for <linux-s390@archiver.kernel.org>; Sat, 25 Jun 2022 04:05:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61D49C43334
+	for <linux-s390@archiver.kernel.org>; Sun, 26 Jun 2022 07:58:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231830AbiFYEFB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 25 Jun 2022 00:05:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53544 "EHLO
+        id S234065AbiFZH6f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 26 Jun 2022 03:58:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231300AbiFYEE7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 25 Jun 2022 00:04:59 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B6AB7D3;
-        Fri, 24 Jun 2022 21:04:58 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id h192so4113735pgc.4;
-        Fri, 24 Jun 2022 21:04:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=WBt/btUb8fidp7Od3hgblEREGwTCWyy1gmQjOCfY3fU=;
-        b=U/9jOhfyin/xPm7/lhb3QQD5hUeqWoso3ZUE4nrDpj+uCxrVZoUa6Nd3Ck/My6d0yi
-         uppYCT29YGR4+ED265rzl5CvHaPa9jAGrevS8NrjQCL2swa/6jIuJFW7ijxN5Kwk3kBm
-         JV3zRaXX17ljjVxLWEmEYneBMjkOzcbgPwAATblJGSLPQW9zrru3NcHlbevjvxhjXf2X
-         4fZUXrqKoxs5SGRwhMih22jCYG6mLHxDBQ9QA+V/Ap/ZmZMWhJBLgf3cIDLH/WvFpZqO
-         6XUFzNOC5pd+9LH1sxuFUCYfWolIKgEMvYZ3auh92ECWjOyrr+qjV1d2Dawwr5UE8zHy
-         fSYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=WBt/btUb8fidp7Od3hgblEREGwTCWyy1gmQjOCfY3fU=;
-        b=JlHATJqtj6UdYHVGZ3CXdT+D7fwYr68iu2Qjj4caqKs2kusi0GO+PewAE7ZSSW6j0A
-         gM6IutqEb8xXS7Ea3QEY2Cm+rAn7fl/JT/HM3VFBuvipltzTJe94IFeeA0FGtZww++IB
-         uabcFiTF9n/hvnCLf2vhTQuhushhCJ0cpD+G8nArzqIdshVqvhkPTSXWVp0ZByDzi5Zg
-         SSD4RSUiJuWU0j/yDei7k9FaHxw9NM2bqDzOHSKb+O3xDoYPdTXEdqyJR6QkKvIKuSSn
-         989EveowvJ8YlFPzT/D45w0rEiKAolRaqu7FyYpqZ5B9irT5fgqsiaXAqM762bbP2MZj
-         8Kzw==
-X-Gm-Message-State: AJIora+whcGAISbWTdpT/3NY0fjUo89XspbU4H+HMcr18OkcsDI3JtFr
-        A6pbBqnU92qt9CslA6XrRFl2F2HH4kqsCA==
-X-Google-Smtp-Source: AGRyM1vLmqY6wDucr+TwoJMOmf3PJcPGDXbsAVQaOC2Ok2+1xpNGLbPuxQdolETx+44LH2D87vYqmw==
-X-Received: by 2002:a63:44:0:b0:40c:9f98:a172 with SMTP id 65-20020a630044000000b0040c9f98a172mr1947422pga.65.1656129897973;
-        Fri, 24 Jun 2022 21:04:57 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
-        by smtp.gmail.com with ESMTPSA id n1-20020a170902e54100b00168adae4eb2sm2579898plf.262.2022.06.24.21.04.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jun 2022 21:04:57 -0700 (PDT)
-Date:   Sat, 25 Jun 2022 13:04:55 +0900
-From:   Stafford Horne <shorne@gmail.com>
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-csky@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-riscv@lists.infradead.org, Jonas Bonn <jonas@southpole.se>,
-        linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        x86@kernel.org, christophe.leroy@csgroup.eu, hch@infradead.org,
-        linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org,
-        openrisc@lists.librecores.org,
-        linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-alpha@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH V4 10/26] openrisc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Message-ID: <YraJZ7OahapN5Y6z@antec>
-References: <20220624044339.1533882-1-anshuman.khandual@arm.com>
- <20220624044339.1533882-11-anshuman.khandual@arm.com>
+        with ESMTP id S233948AbiFZH6e (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Jun 2022 03:58:34 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD4F12D03;
+        Sun, 26 Jun 2022 00:58:33 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25Q64Pvl025285;
+        Sun, 26 Jun 2022 07:58:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=XZ90HtNDrlRjkiJkulFjUc8f67d4YhL3Kx3bFG8OuUA=;
+ b=CSGvo7GpN5YCxmrbK/tIUTc+JZTqN4ZLc+WHmkDHA/NjREwnoCnDe+WOajL84uP2uU31
+ UluZkljR0GR1vutz2MpI/jHPJk9H3hhZ8WiVpXccBOooIz2hbldluTm8LEyHbGbz3sNb
+ 2szy4NmkG2RotrMOeSRekjxCS6dPpvRWAUMzgPozxpYVEryoTNeqoQGiqRRxjdHV3PMl
+ +1mk8GEQAs4mlu+cdIUidg1VkOwtRm9TNeav9H8DDdjxOX7W8v7FIp/ovEr6MZ6hVlxh
+ 2vXKFmEAPCV7j5YAR3No6i/vMgEIEaRRq63pUJV5UYB1z0nuoq3HonAp3PAMuE+lIJml fg== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gxc046sh2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 26 Jun 2022 07:58:00 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25Q7pWED012856;
+        Sun, 26 Jun 2022 07:57:58 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3gwt08s2a1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 26 Jun 2022 07:57:58 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25Q7vtdl14549294
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 26 Jun 2022 07:57:55 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E984DAE04D;
+        Sun, 26 Jun 2022 07:57:54 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 66C62AE045;
+        Sun, 26 Jun 2022 07:57:54 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.144.178])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sun, 26 Jun 2022 07:57:54 +0000 (GMT)
+Date:   Sun, 26 Jun 2022 09:57:52 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] jump_label: s390: avoid pointless initial NOP
+ patching
+Message-ID: <YrgRgKgBPs+oOVB3@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <20220615154142.1574619-1-ardb@kernel.org>
+ <20220615154142.1574619-2-ardb@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220624044339.1533882-11-anshuman.khandual@arm.com>
+In-Reply-To: <20220615154142.1574619-2-ardb@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: b5QUtcNkKcJxrnkTgswLWrjaXCRAC_M2
+X-Proofpoint-GUID: b5QUtcNkKcJxrnkTgswLWrjaXCRAC_M2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-25_11,2022-06-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
+ suspectscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0 adultscore=0
+ mlxscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206260026
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 24, 2022 at 10:13:23AM +0530, Anshuman Khandual wrote:
-> This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
-> vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
-> up a private and static protection_map[] array. Subsequently all __SXXX and
-> __PXXX macros can be dropped which are no longer needed.
+On Wed, Jun 15, 2022 at 05:41:40PM +0200, Ard Biesheuvel wrote:
+> Patching NOPs into other NOPs at boot time serves no purpose, so let's
+> use the same NOP encodings at compile time and runtime.
 > 
-> Cc: Jonas Bonn <jonas@southpole.se>
-> Cc: openrisc@lists.librecores.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 > ---
->  arch/openrisc/Kconfig               |  1 +
->  arch/openrisc/include/asm/pgtable.h | 18 ------------------
->  arch/openrisc/mm/init.c             | 20 ++++++++++++++++++++
->  3 files changed, 21 insertions(+), 18 deletions(-)
+>  arch/s390/include/asm/jump_label.h |  5 ++---
+>  arch/s390/kernel/jump_label.c      | 23 +++++---------------
+>  2 files changed, 7 insertions(+), 21 deletions(-)
 > 
-> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-> index e814df4c483c..fe0dfb50eb86 100644
-> --- a/arch/openrisc/Kconfig
-> +++ b/arch/openrisc/Kconfig
-> @@ -10,6 +10,7 @@ config OPENRISC
->  	select ARCH_HAS_DMA_SET_UNCACHED
->  	select ARCH_HAS_DMA_CLEAR_UNCACHED
->  	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
-> +	select ARCH_HAS_VM_GET_PAGE_PROT
->  	select COMMON_CLK
->  	select OF
->  	select OF_EARLY_FLATTREE
-> diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
-> index c3abbf71e09f..dcae8aea132f 100644
-> --- a/arch/openrisc/include/asm/pgtable.h
-> +++ b/arch/openrisc/include/asm/pgtable.h
-> @@ -176,24 +176,6 @@ extern void paging_init(void);
->  	__pgprot(_PAGE_ALL | _PAGE_SRE | _PAGE_SWE \
->  		 | _PAGE_SHARED | _PAGE_DIRTY | _PAGE_EXEC | _PAGE_CI)
+> diff --git a/arch/s390/include/asm/jump_label.h b/arch/s390/include/asm/jump_label.h
+> index 916cfcb36d8a..895f774bbcc5 100644
+> --- a/arch/s390/include/asm/jump_label.h
+> +++ b/arch/s390/include/asm/jump_label.h
+> @@ -10,7 +10,6 @@
+>  #include <linux/stringify.h>
 >  
-> -#define __P000	PAGE_NONE
-> -#define __P001	PAGE_READONLY_X
-> -#define __P010	PAGE_COPY
-> -#define __P011	PAGE_COPY_X
-> -#define __P100	PAGE_READONLY
-> -#define __P101	PAGE_READONLY_X
-> -#define __P110	PAGE_COPY
-> -#define __P111	PAGE_COPY_X
-> -
-> -#define __S000	PAGE_NONE
-> -#define __S001	PAGE_READONLY_X
-> -#define __S010	PAGE_SHARED
-> -#define __S011	PAGE_SHARED_X
-> -#define __S100	PAGE_READONLY
-> -#define __S101	PAGE_READONLY_X
-> -#define __S110	PAGE_SHARED
-> -#define __S111	PAGE_SHARED_X
-> -
->  /* zero page used for uninitialized stuff */
->  extern unsigned long empty_zero_page[2048];
->  #define ZERO_PAGE(vaddr) (virt_to_page(empty_zero_page))
-> diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-> index 3a021ab6f1ae..a654b9dcba91 100644
-> --- a/arch/openrisc/mm/init.c
-> +++ b/arch/openrisc/mm/init.c
-> @@ -208,3 +208,23 @@ void __init mem_init(void)
->  	mem_init_done = 1;
->  	return;
+>  #define JUMP_LABEL_NOP_SIZE 6
+> -#define JUMP_LABEL_NOP_OFFSET 2
+>  
+>  #ifdef CONFIG_CC_IS_CLANG
+>  #define JUMP_LABEL_STATIC_KEY_CONSTRAINT "i"
+> @@ -21,12 +20,12 @@
+>  #endif
+>  
+>  /*
+> - * We use a brcl 0,2 instruction for jump labels at compile time so it
+> + * We use a brcl 0,<offset> instruction for jump labels so it
+>   * can be easily distinguished from a hotpatch generated instruction.
+>   */
+>  static __always_inline bool arch_static_branch(struct static_key *key, bool branch)
+>  {
+> -	asm_volatile_goto("0:	brcl	0,"__stringify(JUMP_LABEL_NOP_OFFSET)"\n"
+> +	asm_volatile_goto("0:	brcl 0,%l[label]\n"
+
+Please, use tab after brcl, not space.
+
+>  			  ".pushsection __jump_table,\"aw\"\n"
+>  			  ".balign	8\n"
+>  			  ".long	0b-.,%l[label]-.\n"
+> diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
+> index 6bec000c6c1c..d764f0d229ab 100644
+> --- a/arch/s390/kernel/jump_label.c
+> +++ b/arch/s390/kernel/jump_label.c
+> @@ -44,14 +44,8 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
+>  	panic("Corrupted kernel text");
 >  }
-> +
-> +static pgprot_t protection_map[16] __ro_after_init = {
-> +	[VM_NONE]					= PAGE_NONE,
-> +	[VM_READ]					= PAGE_READONLY_X,
-> +	[VM_WRITE]					= PAGE_COPY,
-> +	[VM_WRITE | VM_READ]				= PAGE_COPY_X,
-> +	[VM_EXEC]					= PAGE_READONLY,
-> +	[VM_EXEC | VM_READ]				= PAGE_READONLY_X,
-> +	[VM_EXEC | VM_WRITE]				= PAGE_COPY,
-> +	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_COPY_X,
-> +	[VM_SHARED]					= PAGE_NONE,
-> +	[VM_SHARED | VM_READ]				= PAGE_READONLY_X,
-> +	[VM_SHARED | VM_WRITE]				= PAGE_SHARED,
-> +	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_SHARED_X,
-> +	[VM_SHARED | VM_EXEC]				= PAGE_READONLY,
-> +	[VM_SHARED | VM_EXEC | VM_READ]			= PAGE_READONLY_X,
-> +	[VM_SHARED | VM_EXEC | VM_WRITE]		= PAGE_SHARED,
-> +	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_SHARED_X
-> +};
-> +DECLARE_VM_GET_PAGE_PROT
+>  
+> -static struct insn orignop = {
+> -	.opcode = 0xc004,
+> -	.offset = JUMP_LABEL_NOP_OFFSET >> 1,
+> -};
+> -
+>  static void jump_label_transform(struct jump_entry *entry,
+> -				 enum jump_label_type type,
+> -				 int init)
+> +				 enum jump_label_type type)
+>  {
+>  	void *code = (void *)jump_entry_code(entry);
+>  	struct insn old, new;
+> @@ -63,27 +57,22 @@ static void jump_label_transform(struct jump_entry *entry,
+>  		jump_label_make_branch(entry, &old);
+>  		jump_label_make_nop(entry, &new);
+>  	}
+> -	if (init) {
+> -		if (memcmp(code, &orignop, sizeof(orignop)))
+> -			jump_label_bug(entry, &orignop, &new);
+> -	} else {
+> -		if (memcmp(code, &old, sizeof(old)))
+> -			jump_label_bug(entry, &old, &new);
+> -	}
+> +	if (memcmp(code, &old, sizeof(old)))
+> +		jump_label_bug(entry, &old, &new);
+>  	s390_kernel_write(code, &new, sizeof(new));
+>  }
+>  
+>  void arch_jump_label_transform(struct jump_entry *entry,
+>  			       enum jump_label_type type)
+>  {
+> -	jump_label_transform(entry, type, 0);
+> +	jump_label_transform(entry, type);
+>  	text_poke_sync();
+>  }
+>  
+>  bool arch_jump_label_transform_queue(struct jump_entry *entry,
+>  				     enum jump_label_type type)
+>  {
+> -	jump_label_transform(entry, type, 0);
+> +	jump_label_transform(entry, type);
+>  	return true;
+>  }
+>  
+> @@ -95,6 +84,4 @@ void arch_jump_label_transform_apply(void)
+>  void __init_or_module arch_jump_label_transform_static(struct jump_entry *entry,
+>  						       enum jump_label_type type)
+>  {
+> -	jump_label_transform(entry, type, 1);
+> -	text_poke_sync();
+>  }
 
-Looks good.
 
-Acked-by: Stafford Horne <shorne@gmail.com>
+With the comment above:
 
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+
+Thanks!
+
+> -- 
+> 2.35.1
+> 
