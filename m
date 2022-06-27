@@ -2,130 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDF7AC43334
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 15:24:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E995C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 15:25:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237969AbiF0PYV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 11:24:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
+        id S237863AbiF0PZe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 11:25:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237958AbiF0PYU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 11:24:20 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359E218371;
-        Mon, 27 Jun 2022 08:24:20 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25RFERGI004251;
-        Mon, 27 Jun 2022 15:24:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=EQjW0gU0Q/3PbhYeyUAfp156cLyZ43HMqk/twIUrBDs=;
- b=nsWiAPlmsJ2NSCrq4IlsPfWntLv4NwbuNm8DpSeNuf1c4mTtB/3Y69n7Ty/aXu5QzTGG
- +GKxrkHS4dPcE2o5CeSY7tEUBe9rTXN+y5flD8zLcxCNBdN7zFQsSPvkaC7sha5bIiPz
- MgoP6PcIXsGdKAyHFwRmc+jQqpVlda+cKfKY3iWrqT8G00IhcHRN2rIHBhxDNjxdt7o2
- I/M6ZM4Wt2Yys7SC8+RUiZ9Hu040+KhP/ywpPInTIn0oUPuv7061mDXEPAzkh1L3mB0q
- n5Ap/7aiKrEG3h2BfPS3VoZyGbdqWCncfCF+iSaCDBkL7/jSr2Th7uOs0i7XGT0ZxWGh uA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyf0v8aeg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 15:24:19 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25RFI8eo022124;
-        Mon, 27 Jun 2022 15:24:19 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyf0v8acv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 15:24:19 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25RF5heG011361;
-        Mon, 27 Jun 2022 15:24:16 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 3gwt08tdcq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 15:24:16 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25RFOD6s19071356
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 27 Jun 2022 15:24:13 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A041952051;
-        Mon, 27 Jun 2022 15:24:13 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 5E09B5204F;
-        Mon, 27 Jun 2022 15:24:13 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v2] s390x/intercept: Test invalid prefix argument to SET PREFIX
-Date:   Mon, 27 Jun 2022 17:24:11 +0200
-Message-Id: <20220627152412.2243255-1-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S238014AbiF0PZd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 11:25:33 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7993718B29;
+        Mon, 27 Jun 2022 08:25:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656343532; x=1687879532;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=xJP9OefAMxCTgdzZDCaOuKXFij4QIj41i5jxXMS1AdM=;
+  b=f+F119vY0+Oa3b+eLjeAwSBqKVjPEWXrHqBv6amHvJPB4/H1Kn/2k3Zh
+   hopZmpI/JyDcOMxE7OoyZdVNZFW5Bf9xiVO0BjTZP/m3d7l1zBd3dD0Z+
+   fBLQj5Q/KmkEKaCKmb9mSHOMmE765RCvNQA1OIUsyhw7XPyZdrjIv0pB9
+   eOPq3CBIsj0KypMKzc76MTyRfFNo2digNiMOiHI2+70WiJf1LOk1HXYf1
+   gQ29WwDOaoaOu/B1PT/GvnkZuzmOpPlm24jTax0eS7qPUU8dkUgUvOAX2
+   7tofhsMkbcEHKBhD1JW4kqgYl7m/L24q3k4LaTbSfrjN6nMSqrcReG/VU
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10391"; a="279013691"
+X-IronPort-AV: E=Sophos;i="5.92,226,1650956400"; 
+   d="scan'208";a="279013691"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jun 2022 08:13:04 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,226,1650956400"; 
+   d="scan'208";a="766731304"
+Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.138])
+  by orsmga005.jf.intel.com with ESMTP; 27 Jun 2022 08:12:58 -0700
+Date:   Mon, 27 Jun 2022 23:12:58 +0800
+From:   Feng Tang <feng.tang@intel.com>
+To:     Shakeel Butt <shakeelb@google.com>
+Cc:     Eric Dumazet <edumazet@google.com>, Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        kernel test robot <oliver.sang@intel.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        network dev <netdev@vger.kernel.org>,
+        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
+        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
+        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
+Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
+Message-ID: <20220627151258.GB20878@shbuild999.sh.intel.com>
+References: <20220623185730.25b88096@kernel.org>
+ <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
+ <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
+ <20220624070656.GE79500@shbuild999.sh.intel.com>
+ <20220624144358.lqt2ffjdry6p5u4d@google.com>
+ <20220625023642.GA40868@shbuild999.sh.intel.com>
+ <20220627023812.GA29314@shbuild999.sh.intel.com>
+ <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
+ <20220627123415.GA32052@shbuild999.sh.intel.com>
+ <CALvZod7i_=7bNZR-LAXBPXJFxj-1KBuYs+rmG0iABAE1T90BPg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FsbYJtmqrYtNca-0p2ElCOoszOmvvDI9
-X-Proofpoint-GUID: jwfiNOfR9dw3DRX8U9KgxNSWZFIpDH03
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-27_06,2022-06-24_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- priorityscore=1501 adultscore=0 lowpriorityscore=0 impostorscore=0
- suspectscore=0 spamscore=0 mlxlogscore=936 bulkscore=0 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206270065
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALvZod7i_=7bNZR-LAXBPXJFxj-1KBuYs+rmG0iABAE1T90BPg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-According to the architecture, SET PREFIX must try to access the new
-prefix area and recognize an addressing exception if the area is not
-accessible.
-Test that the exception occurs when we try to set a prefix higher
-than the available memory.
+On Mon, Jun 27, 2022 at 07:52:55AM -0700, Shakeel Butt wrote:
+> On Mon, Jun 27, 2022 at 5:34 AM Feng Tang <feng.tang@intel.com> wrote:
+> > Yes, 1% is just around noise level for a microbenchmark.
+> >
+> > I went check the original test data of Oliver's report, the tests was
+> > run 6 rounds and the performance data is pretty stable (0Day's report
+> > will show any std deviation bigger than 2%)
+> >
+> > The test platform is a 4 sockets 72C/144T machine, and I run the
+> > same job (nr_tasks = 25% * nr_cpus) on one CascadeLake AP (4 nodes)
+> > and one Icelake 2 sockets platform, and saw 75% and 53% regresson on
+> > them.
+> >
+> > In the first email, there is a file named 'reproduce', it shows the
+> > basic test process:
+> >
+> > "
+> >   use 'performane' cpufre  governor for all CPUs
+> >
+> >   netserver -4 -D
+> >   modprobe sctp
+> >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
+> >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
+> >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
+> >   (repeat 36 times in total)
+> >   ...
+> >
+> > "
+> >
+> > Which starts 36 (25% of nr_cpus) netperf clients. And the clients number
+> > also matters, I tried to increase the client number from 36 to 72(50%),
+> > and the regression is changed from 69.4% to 73.7%
+> >
+> 
+> Am I understanding correctly that this 69.4% (or 73.7%) regression is
+> with cgroup v2?
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
----
+Yes.
 
-v1 -> v2
- * report skip if we're running with too much memory (thanks Claudio)
+> Eric did the experiments on v2 but on real hardware where the
+> performance impact was negligible.
+> 
+> BTW do you see similar regression for tcp as well or just sctp?
 
+Yes, I run TCP_SENDFILE case with 'send_size'==10K, it hits a
+70%+ regressioin. 
 
- s390x/intercept.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
-
-diff --git a/s390x/intercept.c b/s390x/intercept.c
-index 86e57e11..54bed5a4 100644
---- a/s390x/intercept.c
-+++ b/s390x/intercept.c
-@@ -74,6 +74,22 @@ static void test_spx(void)
- 	expect_pgm_int();
- 	asm volatile(" spx 0(%0) " : : "r"(-8L));
- 	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
-+
-+	new_prefix = get_ram_size() & 0x7fffe000;
-+	if (get_ram_size() - new_prefix < 2 * PAGE_SIZE) {
-+		expect_pgm_int();
-+		asm volatile("spx	%0 " : : "Q"(new_prefix));
-+		check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
-+
-+		/*
-+		 * Cannot test inaccessibility of the second page the same way.
-+		 * If we try to use the last page as first half of the prefix
-+		 * area and our ram size is a multiple of 8k, after SPX aligns
-+		 * the address to 8k we have a completely accessible area.
-+		 */
-+	} else {
-+		report_skip("inaccessible prefix area");
-+	}
- }
- 
- /* Test the STORE CPU ADDRESS instruction */
-
-base-commit: 110c69492b53f0070e1bbce986fb635e72a423b4
--- 
-2.36.1
-
+Thanks,
+Feng
