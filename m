@@ -2,128 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 728C7C43334
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 16:19:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2F1FC43334
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 16:25:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234321AbiF0QTq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 12:19:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52480 "EHLO
+        id S238541AbiF0QZf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 12:25:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234392AbiF0QTn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 12:19:43 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D214F1164;
-        Mon, 27 Jun 2022 09:19:42 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25RGBtph008528;
-        Mon, 27 Jun 2022 16:19:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to : sender :
- content-transfer-encoding : mime-version; s=pp1;
- bh=W0B/i2Y7BR/Muar1OIEMjEWG0aYzUrrG7nThEq4hGUU=;
- b=ZWoNGEMhXDrJuCsZ8oE0lv3uacSVF8Bj4w1EU4oON1Xpo2Dsguk39MPQoaYEzoQwq3V4
- 5XIS8IwFjN4S3K2o7nF7dDZXeOJB1Npj92r0i8T7KueQuyj8ongNUtsVIChl/eZ23hwV
- SIGh59uicvodGMiqMo9sQ0JYK9xsfGN2GUeLPe0xMJqg7zRP4GqsqtMQPJhhQzIDQDQA
- 4Tm4bK9WefIxB7w77WF7gVOz1zXASDh2XiaSfUvtlrNswOKXh98HuhFeFGfkQepje/rZ
- 117IVQ+gn2rD4p6kQxDulwwMlsqGxm9ANiFlhfEVrCvj6yLe/zII4+c1NmFGPmVkwh+r NA== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyfut86d1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 16:19:38 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25RG78nr028323;
-        Mon, 27 Jun 2022 16:19:36 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06fra.de.ibm.com with ESMTP id 3gwsmhtfgd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 16:19:36 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25RGJWCM22348068
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 27 Jun 2022 16:19:32 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D8AB74C04A;
-        Mon, 27 Jun 2022 16:19:32 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C4E124C040;
-        Mon, 27 Jun 2022 16:19:32 +0000 (GMT)
-Received: from t480-pf1aa2c2 (unknown [9.152.212.237])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 27 Jun 2022 16:19:32 +0000 (GMT)
-Received: from bblock by t480-pf1aa2c2 with local (Exim 4.94.2)
-        (envelope-from <bblock@linux.ibm.com>)
-        id 1o5rSZ-001mnt-1x; Mon, 27 Jun 2022 18:19:35 +0200
-Date:   Mon, 27 Jun 2022 16:19:34 +0000
-From:   Benjamin Block <bblock@linux.ibm.com>
-To:     Jiang Jian <jiangjian@cdjrlc.com>
-Cc:     maier@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scsi: zfcp: drop unexpected word "the" in the comments
-Message-ID: <YrnYlsI2PZvJN6Ez@t480-pf1aa2c2.fritz.box>
-References: <20220621114207.106405-1-jiangjian@cdjrlc.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20220621114207.106405-1-jiangjian@cdjrlc.com>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lXcoYxQVasJsgb08JDp5bMUT33-iqVC4
-X-Proofpoint-GUID: lXcoYxQVasJsgb08JDp5bMUT33-iqVC4
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S236841AbiF0QZd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 12:25:33 -0400
+Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17D73FD2A
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 09:25:32 -0700 (PDT)
+Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-31bf3656517so184077b3.12
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 09:25:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=iAKbjN/cfvJPKH/ugt3ybbCNo8kM3ZVPMiqHDruEifg=;
+        b=RbOhXfsOqEDMRENO38mrpSrXxxDYigIIL0iGHtE8xCdU+DUoAXKdt3N63SVhhS9bj+
+         vE2UFnU2Zf22D0Ic4nq6JinMhf0Rjku6ueYypwbmUvx4P4JuaSisipOX5K8x7shK1He1
+         Sk/Gw+rOyqohify/KsKnjlLAviBaC9Vo8OtebbrJ5fNeCpt6gqGuma5db02XQdqbiN/9
+         1Ag08g5+15n3bnIIqqmQnHSAO7DPvRcyWTP8d5sJSPb1SSC2xw97478ugS1gXgiYTaO6
+         gI/ywCGguebiSzo0OFIw5YW2u7W3NCNfDYEl+SNNPS0N8N6VKJwV+q1Cupj+aXeASM/M
+         Lang==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iAKbjN/cfvJPKH/ugt3ybbCNo8kM3ZVPMiqHDruEifg=;
+        b=X+QOTuDDIch5EvfFQJwW8081yO+LQdrqjMDNWMSUgF1weJutx5XDVhUkCfE3psEMvr
+         KPU2SHzkWbRxKIs/KCdvMGVIRrD7fNUB6umEYPX3VPOtWGv4bV7ESZvzhiHeA+yla2+T
+         K9Kwx8qVN7agxwJRgR/jiP+WGN9yysyZImJPqh8xnMytiVq2BeXcLjHnK/qjcOYZIgqV
+         3W9RyGDUqCW2mZSJYhOc0JzdIaU9IPnZWMQRJ9CVoMqkoDD0Ar1CWcXyaVZ+cPe8I0qA
+         9zhPgq7049/C98wiZtcjksh5W5GdCID+jJJu2hd8scKH0mpHWcwUPaoC0/f5WOAeCrzD
+         BmeA==
+X-Gm-Message-State: AJIora/2XEncoOjPbWYsFDEMcj6HiU85CY4T3ov23PLMJce4H3vHjFmB
+        uBvzz3numzBFPJ/1zSKwBtHtWQPtgx3cecnE+U53EQ==
+X-Google-Smtp-Source: AGRyM1vH55ursM9GjUkBbRtmBX4QDoHDlEEpNJpUs5A6vX12LOpEiXhq4y8+47q5BzoyFRCpabSxvoZUSxVB0BpYoPY=
+X-Received: by 2002:a81:bd51:0:b0:31b:db72:88a1 with SMTP id
+ n17-20020a81bd51000000b0031bdb7288a1mr3087923ywk.208.1656347131154; Mon, 27
+ Jun 2022 09:25:31 -0700 (PDT)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-27_06,2022-06-24_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- bulkscore=0 clxscore=1011 lowpriorityscore=0 impostorscore=0 adultscore=0
- spamscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2206270068
+References: <20220623185730.25b88096@kernel.org> <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
+ <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
+ <20220624070656.GE79500@shbuild999.sh.intel.com> <20220624144358.lqt2ffjdry6p5u4d@google.com>
+ <20220625023642.GA40868@shbuild999.sh.intel.com> <20220627023812.GA29314@shbuild999.sh.intel.com>
+ <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
+ <20220627123415.GA32052@shbuild999.sh.intel.com> <CALvZod7i_=7bNZR-LAXBPXJFxj-1KBuYs+rmG0iABAE1T90BPg@mail.gmail.com>
+ <20220627151258.GB20878@shbuild999.sh.intel.com>
+In-Reply-To: <20220627151258.GB20878@shbuild999.sh.intel.com>
+From:   Shakeel Butt <shakeelb@google.com>
+Date:   Mon, 27 Jun 2022 09:25:20 -0700
+Message-ID: <CALvZod5fxjZSWp=ikxhKN+JRaoWA4_ErNaJg1fieci3LY+-7qg@mail.gmail.com>
+Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
+To:     Feng Tang <feng.tang@intel.com>
+Cc:     Eric Dumazet <edumazet@google.com>, Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        kernel test robot <oliver.sang@intel.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        network dev <netdev@vger.kernel.org>,
+        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
+        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
+        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 21, 2022 at 07:42:07PM +0800, Jiang Jian wrote:
-> there is an unexpected word "the" in the comments that need to be dropped
-> 
-> file: ./drivers/s390/scsi/zfcp_diag.h
-> line: 5
-> * Definitions for handling diagnostics in the the zfcp device driver.
-> changed to
-> * Definitions for handling diagnostics in the zfcp device driver.
-> 
-> Signed-off-by: Jiang Jian <jiangjian@cdjrlc.com>
-> ---
->  drivers/s390/scsi/zfcp_diag.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/scsi/zfcp_diag.h b/drivers/s390/scsi/zfcp_diag.h
-> index da55133da8fe..15c25fefe91a 100644
-> --- a/drivers/s390/scsi/zfcp_diag.h
-> +++ b/drivers/s390/scsi/zfcp_diag.h
-> @@ -2,7 +2,7 @@
->  /*
->   * zfcp device driver
->   *
-> - * Definitions for handling diagnostics in the the zfcp device driver.
-> + * Definitions for handling diagnostics in the zfcp device driver.
+On Mon, Jun 27, 2022 at 8:25 AM Feng Tang <feng.tang@intel.com> wrote:
+>
+> On Mon, Jun 27, 2022 at 07:52:55AM -0700, Shakeel Butt wrote:
+> > On Mon, Jun 27, 2022 at 5:34 AM Feng Tang <feng.tang@intel.com> wrote:
+> > > Yes, 1% is just around noise level for a microbenchmark.
+> > >
+> > > I went check the original test data of Oliver's report, the tests was
+> > > run 6 rounds and the performance data is pretty stable (0Day's report
+> > > will show any std deviation bigger than 2%)
+> > >
+> > > The test platform is a 4 sockets 72C/144T machine, and I run the
+> > > same job (nr_tasks = 25% * nr_cpus) on one CascadeLake AP (4 nodes)
+> > > and one Icelake 2 sockets platform, and saw 75% and 53% regresson on
+> > > them.
+> > >
+> > > In the first email, there is a file named 'reproduce', it shows the
+> > > basic test process:
+> > >
+> > > "
+> > >   use 'performane' cpufre  governor for all CPUs
+> > >
+> > >   netserver -4 -D
+> > >   modprobe sctp
+> > >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
+> > >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
+> > >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
+> > >   (repeat 36 times in total)
+> > >   ...
+> > >
+> > > "
+> > >
+> > > Which starts 36 (25% of nr_cpus) netperf clients. And the clients number
+> > > also matters, I tried to increase the client number from 36 to 72(50%),
+> > > and the regression is changed from 69.4% to 73.7%
+> > >
+> >
+> > Am I understanding correctly that this 69.4% (or 73.7%) regression is
+> > with cgroup v2?
+>
+> Yes.
+>
+> > Eric did the experiments on v2 but on real hardware where the
+> > performance impact was negligible.
+> >
+> > BTW do you see similar regression for tcp as well or just sctp?
+>
+> Yes, I run TCP_SENDFILE case with 'send_size'==10K, it hits a
+> 70%+ regressioin.
+>
 
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Thanks Feng. I think we should start with squeezing whatever we can
+from layout changes and then try other approaches like increasing
+batch size or something else. I can take a stab at this next week.
 
-Thanks, I'll queue this, and will send it the next time we send patches
-for scsi.
-
->   *
->   * Copyright IBM Corp. 2018, 2020
->   */
-> -- 
-> 2.17.1
-> 
-
--- 
-Best Regards, Benjamin Block  / Linux on IBM Z Kernel Development / IBM Systems
-IBM Deutschland Research & Development GmbH    /    https://www.ibm.com/privacy
-Vorsitz. AufsR.: Gregor Pillen         /         Geschäftsführung: David Faller
-Sitz der Gesellschaft: Böblingen / Registergericht: AmtsG Stuttgart, HRB 243294
+thanks,
+Shakeel
