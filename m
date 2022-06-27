@@ -2,303 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1B98C43334
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 16:26:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E7FEC43334
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 16:35:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238714AbiF0Q0Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 12:26:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56506 "EHLO
+        id S239485AbiF0Qf5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 12:35:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237876AbiF0Q0P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 12:26:15 -0400
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38310FD2A
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 09:26:13 -0700 (PDT)
-Received: by mail-yb1-xb2d.google.com with SMTP id d5so17641492yba.5
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 09:26:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=0o8BHvdouHjDX6xouAXOA71Zh+Aq3Bg25pMCWdlg9b8=;
-        b=coLTvVYf1AMKsLzXaSyW9avdObFVi9AfgpRcJ3zIuN2nVUgZoKqGl3XnOQ3w3IBd/1
-         RT3FtAvVINKwpFTt77CkGAN8ynsuJpqn9OZRYUNEGRazUoVdLKZfpxVG9gl4cZukIK/s
-         StqHeKVJ1Q6XWubOJBqkX+hUNXu5YbKyT9lGh906qe4hL/IkDHkwssiw2d3+fujLchaS
-         hjx30y2d9tUGcp/U2ILmrakRTs3wOy2TXgxcM1wUZCcj9Uei71JzG8DUgS8/Npso+2Ue
-         C/KXjBRMC8BIiyiRRnxp5o8G+yys/v8rZia0oajmilb3P1WiKR30Aw0D3J8u/hG+qZcz
-         fMzg==
+        with ESMTP id S235069AbiF0Qf5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 12:35:57 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7525FDEB0
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 09:35:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1656347755;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ajZ6rDuNIkxlTWf9Tu/rlCccLsTD5TfeTqcQISFWLfw=;
+        b=aL0JQ/8XmzmSj0GUZgT3V969XHM0+qy5GoaZblqIRe0U1YEb0b6fN3lHUqsm0Z4tWd530U
+        eLDQMB/jvpxHXAXHjw0Yw6IBLm/TZVZDNaZOAl0DkxKGJFlcMbHIYicjXmenMWqkSjSVwH
+        sJuTClQwIghQdAUQVU7IoqL4i+Corxc=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-141-35DaHwMkNbCrZklgWCTg-A-1; Mon, 27 Jun 2022 12:35:54 -0400
+X-MC-Unique: 35DaHwMkNbCrZklgWCTg-A-1
+Received: by mail-il1-f200.google.com with SMTP id h5-20020a056e021b8500b002d8f50441a2so5926652ili.13
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 09:35:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0o8BHvdouHjDX6xouAXOA71Zh+Aq3Bg25pMCWdlg9b8=;
-        b=f9tKVTcrh7B/GlUBVRrz/TA3ueDsxgXdO8Kc1Y8urRhR6MBVnoAKj6BkEJV51J7YXG
-         GFge1VdxUKTENVuQjR6sXHNVVVEYL0Ypng0e9GxoOefh3fokCnlSfYM/Eck4ibxNJSnk
-         k+Dl0M53G8Yh7SYzPwi3pGUPPuLRt4sC7z8vTvMcKLyY1fdaJJyZgf1jUGKYlvVkd/2K
-         wA8iwx6WxTUm5rGinVnRlGXeUhxfFpiJ3k7ZBZ3GcRpNRZnSQZ8JjdbdvxGpKyCW49Qs
-         DsZpwftDsTZEVQoWbrg72Jo+aNIpU4tKEBFdO16UJB6Hj0LTbiepLrNIEKz5wmmm2aEf
-         vBVw==
-X-Gm-Message-State: AJIora/4VH1kPw7hMnvGNS+bsSZp+Xd23+d5mFSgDvHJU1kDIbs9dNTD
-        CYhh3I6zPZWhlCn8Wj2IAADzxajj5+D5HuOo8pkERQ==
-X-Google-Smtp-Source: AGRyM1s0MqnD80CYxEr2lK9IvxFEYG/vi3Am7ZnmtVk6YJWfQ/VqVCGjeQpqkXoSL7sHEyiR5W9TioXepiFA50JNq2c=
-X-Received: by 2002:a25:d957:0:b0:66c:9476:708f with SMTP id
- q84-20020a25d957000000b0066c9476708fmr11293785ybg.427.1656347172053; Mon, 27
- Jun 2022 09:26:12 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=ajZ6rDuNIkxlTWf9Tu/rlCccLsTD5TfeTqcQISFWLfw=;
+        b=1LMOibOxx1YgWT5WSRG0c1x6k0ypOf1AFDL5XqB8RryGv+6+I23YOrSk0gBinpksBp
+         QRdMvK8epP7CO2TV1F953GQrlwQvyQTPBSMjXGU8cGslHb7Ve5KeVAsX6LVv7snXuhw7
+         kq1wQV2mcSAS89SyWMBvTJnfD4LL9rtxw4gQswHUGJ8R1hd8Iyn3Wfx1fGdfpHnwupe1
+         tDj6VKn6gXwtthNJ7lzyXpLcCQ5AqpGtykC/awVk/FCGTroFTpl0UEq9B92ih1dJwwUx
+         7ox2XqbOBr7iQ1wiYXvLIVa9O9N6+N3wHdviJoFow+mCDXMm8OnTfX1wKmgg5vBNOG80
+         uD+Q==
+X-Gm-Message-State: AJIora82QDjYbFcui3Dx/ixHkfU+4Y4eyShb57HgcYrZ3wtDJ/4KMk+/
+        A0XnGy+/nkZFXNu59Npus94JXhv0Ua01DMtVQ3+NStej08maeu3dynzXBFwahAntdpL62Hjy04s
+        L2lJ6Yxezm+tJvEP3l7D4ag==
+X-Received: by 2002:a05:6638:dc6:b0:332:3565:397a with SMTP id m6-20020a0566380dc600b003323565397amr7957166jaj.312.1656347753688;
+        Mon, 27 Jun 2022 09:35:53 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vv1JOb9B1ol8/IGTBQLrpbIC5YwburDgiT1ESupNJ64ipmLjowP6AySpptuL2gZYgDyI57hw==
+X-Received: by 2002:a05:6638:dc6:b0:332:3565:397a with SMTP id m6-20020a0566380dc600b003323565397amr7957152jaj.312.1656347753485;
+        Mon, 27 Jun 2022 09:35:53 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id p20-20020a02b014000000b00339c015fd84sm4957144jah.59.2022.06.27.09.35.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jun 2022 09:35:52 -0700 (PDT)
+Date:   Mon, 27 Jun 2022 10:35:51 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     kwankhede@nvidia.com, farman@linux.ibm.com, mjrosato@linux.ibm.com,
+        pasic@linux.ibm.com, diana.craciun@oss.nxp.com, cohuck@redhat.com,
+        eric.auger@redhat.com, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, yishaih@nvidia.com, hch@lst.de
+Subject: Re: [PATCH] vfio: de-extern-ify function prototypes
+Message-ID: <20220627103551.48b34517.alex.williamson@redhat.com>
+In-Reply-To: <20220610164407.25feeb23.alex.williamson@redhat.com>
+References: <165471414407.203056.474032786990662279.stgit@omen>
+        <20220610000434.GE1343366@nvidia.com>
+        <20220610164407.25feeb23.alex.williamson@redhat.com>
+Organization: Red Hat
 MIME-Version: 1.0
-References: <20220623185730.25b88096@kernel.org> <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
- <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
- <20220624070656.GE79500@shbuild999.sh.intel.com> <20220624144358.lqt2ffjdry6p5u4d@google.com>
- <20220625023642.GA40868@shbuild999.sh.intel.com> <20220627023812.GA29314@shbuild999.sh.intel.com>
- <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
- <20220627123415.GA32052@shbuild999.sh.intel.com> <CANn89iJAoYCebNbXpNMXRoDUkFMhg9QagetVU9NZUq+GnLMgqQ@mail.gmail.com>
- <20220627144822.GA20878@shbuild999.sh.intel.com>
-In-Reply-To: <20220627144822.GA20878@shbuild999.sh.intel.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Mon, 27 Jun 2022 18:25:59 +0200
-Message-ID: <CANn89iLSWm-c4XE79rUsxzOp3VwXVDhOEPTQnWgeQ48UwM=u7Q@mail.gmail.com>
-Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
-To:     Feng Tang <feng.tang@intel.com>
-Cc:     Shakeel Butt <shakeelb@google.com>, Linux MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        network dev <netdev@vger.kernel.org>,
-        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 4:48 PM Feng Tang <feng.tang@intel.com> wrote:
->
-> On Mon, Jun 27, 2022 at 04:07:55PM +0200, Eric Dumazet wrote:
-> > On Mon, Jun 27, 2022 at 2:34 PM Feng Tang <feng.tang@intel.com> wrote:
-> > >
-> > > On Mon, Jun 27, 2022 at 10:46:21AM +0200, Eric Dumazet wrote:
-> > > > On Mon, Jun 27, 2022 at 4:38 AM Feng Tang <feng.tang@intel.com> wrote:
-> > > [snip]
-> > > > > > >
-> > > > > > > Thanks Feng. Can you check the value of memory.kmem.tcp.max_usage_in_bytes
-> > > > > > > in /sys/fs/cgroup/memory/system.slice/lkp-bootstrap.service after making
-> > > > > > > sure that the netperf test has already run?
-> > > > > >
-> > > > > > memory.kmem.tcp.max_usage_in_bytes:0
-> > > > >
-> > > > > Sorry, I made a mistake that in the original report from Oliver, it
-> > > > > was 'cgroup v2' with a 'debian-11.1' rootfs.
-> > > > >
-> > > > > When you asked about cgroup info, I tried the job on another tbox, and
-> > > > > the original 'job.yaml' didn't work, so I kept the 'netperf' test
-> > > > > parameters and started a new job which somehow run with a 'debian-10.4'
-> > > > > rootfs and acutally run with cgroup v1.
-> > > > >
-> > > > > And as you mentioned cgroup version does make a big difference, that
-> > > > > with v1, the regression is reduced to 1% ~ 5% on different generations
-> > > > > of test platforms. Eric mentioned they also got regression report,
-> > > > > but much smaller one, maybe it's due to the cgroup version?
-> > > >
-> > > > This was using the current net-next tree.
-> > > > Used recipe was something like:
-> > > >
-> > > > Make sure cgroup2 is mounted or mount it by mount -t cgroup2 none $MOUNT_POINT.
-> > > > Enable memory controller by echo +memory > $MOUNT_POINT/cgroup.subtree_control.
-> > > > Create a cgroup by mkdir $MOUNT_POINT/job.
-> > > > Jump into that cgroup by echo $$ > $MOUNT_POINT/job/cgroup.procs.
-> > > >
-> > > > <Launch tests>
-> > > >
-> > > > The regression was smaller than 1%, so considered noise compared to
-> > > > the benefits of the bug fix.
-> > >
-> > > Yes, 1% is just around noise level for a microbenchmark.
-> > >
-> > > I went check the original test data of Oliver's report, the tests was
-> > > run 6 rounds and the performance data is pretty stable (0Day's report
-> > > will show any std deviation bigger than 2%)
-> > >
-> > > The test platform is a 4 sockets 72C/144T machine, and I run the
-> > > same job (nr_tasks = 25% * nr_cpus) on one CascadeLake AP (4 nodes)
-> > > and one Icelake 2 sockets platform, and saw 75% and 53% regresson on
-> > > them.
-> > >
-> > > In the first email, there is a file named 'reproduce', it shows the
-> > > basic test process:
-> > >
-> > > "
-> > >   use 'performane' cpufre  governor for all CPUs
-> > >
-> > >   netserver -4 -D
-> > >   modprobe sctp
-> > >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
-> > >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
-> > >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
-> > >   (repeat 36 times in total)
-> > >   ...
-> > >
-> > > "
-> > >
-> > > Which starts 36 (25% of nr_cpus) netperf clients. And the clients number
-> > > also matters, I tried to increase the client number from 36 to 72(50%),
-> > > and the regression is changed from 69.4% to 73.7%"
-> > >
-> >
-> > This seems like a lot of opportunities for memcg folks :)
-> >
-> > struct page_counter has poor field placement [1], and no per-cpu cache.
-> >
-> > [1] "atomic_long_t usage" is sharing cache line with read mostly fields.
-> >
-> > (struct mem_cgroup also has poor field placement, mainly because of
-> > struct page_counter)
-> >
-> >     28.69%  [kernel]       [k] copy_user_enhanced_fast_string
-> >     16.13%  [kernel]       [k] intel_idle_irq
-> >      6.46%  [kernel]       [k] page_counter_try_charge
-> >      6.20%  [kernel]       [k] __sk_mem_reduce_allocated
-> >      5.68%  [kernel]       [k] try_charge_memcg
-> >      5.16%  [kernel]       [k] page_counter_cancel
->
-> Yes, I also analyzed the perf-profile data, and made some layout changes
-> which could recover the changes from 69% to 40%.
->
-> 7c80b038d23e1f4c 4890b686f4088c90432149bd6de 332b589c49656a45881bca4ecc0
-> ---------------- --------------------------- ---------------------------
->      15722           -69.5%       4792           -40.8%       9300        netperf.Throughput_Mbps
->
->
-> diff --git a/include/linux/cgroup-defs.h b/include/linux/cgroup-defs.h
-> index 1bfcfb1af352..aa37bd39116c 100644
-> --- a/include/linux/cgroup-defs.h
-> +++ b/include/linux/cgroup-defs.h
-> @@ -179,14 +179,13 @@ struct cgroup_subsys_state {
->         atomic_t online_cnt;
->
->         /* percpu_ref killing and RCU release */
-> -       struct work_struct destroy_work;
->         struct rcu_work destroy_rwork;
-> -
-> +       struct cgroup_subsys_state *parent;
-> +       struct work_struct destroy_work;
->         /*
->          * PI: the parent css.  Placed here for cache proximity to following
->          * fields of the containing structure.
->          */
-> -       struct cgroup_subsys_state *parent;
->  };
->
->  /*
-> diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-> index 9ecead1042b9..963b88ab9930 100644
-> --- a/include/linux/memcontrol.h
-> +++ b/include/linux/memcontrol.h
-> @@ -239,9 +239,6 @@ struct mem_cgroup {
->         /* Private memcg ID. Used to ID objects that outlive the cgroup */
->         struct mem_cgroup_id id;
->
-> -       /* Accounted resources */
-> -       struct page_counter memory;             /* Both v1 & v2 */
-> -
->         union {
->                 struct page_counter swap;       /* v2 only */
->                 struct page_counter memsw;      /* v1 only */
-> @@ -251,6 +248,9 @@ struct mem_cgroup {
->         struct page_counter kmem;               /* v1 only */
->         struct page_counter tcpmem;             /* v1 only */
->
-> +       /* Accounted resources */
-> +       struct page_counter memory;             /* Both v1 & v2 */
-> +
->         /* Range enforcement for interrupt charges */
->         struct work_struct high_work;
->
-> @@ -313,7 +313,6 @@ struct mem_cgroup {
->         atomic_long_t           memory_events[MEMCG_NR_MEMORY_EVENTS];
->         atomic_long_t           memory_events_local[MEMCG_NR_MEMORY_EVENTS];
->
-> -       unsigned long           socket_pressure;
->
->         /* Legacy tcp memory accounting */
->         bool                    tcpmem_active;
-> @@ -349,6 +348,7 @@ struct mem_cgroup {
->  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
->         struct deferred_split deferred_split_queue;
->  #endif
-> +       unsigned long           socket_pressure;
->
->         struct mem_cgroup_per_node *nodeinfo[];
->  };
->
+On Fri, 10 Jun 2022 16:44:07 -0600
+Alex Williamson <alex.williamson@redhat.com> wrote:
 
-I simply did the following and got much better results.
+> On Thu, 9 Jun 2022 21:04:34 -0300
+> Jason Gunthorpe <jgg@nvidia.com> wrote:
+> 
+> > On Wed, Jun 08, 2022 at 12:55:13PM -0600, Alex Williamson wrote:  
+> > > The use of 'extern' in function prototypes has been disrecommended in
+> > > the kernel coding style for several years now, remove them from all vfio
+> > > related files so contributors no longer need to decide between style and
+> > > consistency.
+> > > 
+> > > Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+> > > ---
+> > > 
+> > > A patch in the same vein was proposed about a year ago, but tied to an ill
+> > > fated series and forgotten.  Now that we're at the beginning of a new
+> > > development cycle, I'd like to propose kicking off the v5.20 vfio next
+> > > branch with this patch and would kindly ask anyone with pending respins or
+> > > significant conflicts to rebase on top of this patch.  Thanks!    
+> > 
+> > Can you stick it in your branch please?  
+> 
+> Thanks for the R-b, it was my plan today to put it in my next branch,
+> but I can't currently test vfio on mainline due to:
+> 
+> https://lore.kernel.org/all/165490039431.944052.12458624139225785964.stgit@omen/
+> 
+> I'll get this in once there's a mainline base where vfio still works.  Thanks,
 
-But I am not sure if updates to ->usage are really needed that often...
+This has now been resolved in rc4 via 034e5afad921 ("mm: re-allow
+pinning of zero pfns").  I've rebased to rc4 and pushed this patch out
+to the vfio next branch.  Thanks,
 
+Alex
 
-diff --git a/include/linux/page_counter.h b/include/linux/page_counter.h
-index 679591301994d316062f92b275efa2459a8349c9..e267be4ba849760117d9fd041e22c2a44658ab36
-100644
---- a/include/linux/page_counter.h
-+++ b/include/linux/page_counter.h
-@@ -3,12 +3,15 @@
- #define _LINUX_PAGE_COUNTER_H
-
- #include <linux/atomic.h>
-+#include <linux/cache.h>
- #include <linux/kernel.h>
- #include <asm/page.h>
-
- struct page_counter {
--       atomic_long_t usage;
--       unsigned long min;
-+       /* contended cache line. */
-+       atomic_long_t usage ____cacheline_aligned_in_smp;
-+
-+       unsigned long min ____cacheline_aligned_in_smp;
-        unsigned long low;
-        unsigned long high;
-        unsigned long max;
-@@ -27,12 +30,6 @@ struct page_counter {
-        unsigned long watermark;
-        unsigned long failcnt;
-
--       /*
--        * 'parent' is placed here to be far from 'usage' to reduce
--        * cache false sharing, as 'usage' is written mostly while
--        * parent is frequently read for cgroup's hierarchical
--        * counting nature.
--        */
-        struct page_counter *parent;
- };
-
-
-
-> And some of these are specific for network and may not be a universal
-> win, though I think the 'cgroup_subsys_state' could keep the
-> read-mostly 'parent' away from following written-mostly counters.
->
-> Btw, I tried your debug patch which compiled fail with 0Day's kbuild
-> system, but it did compile ok on my local machine.
->
-> Thanks,
-> Feng
->
-> >
-> > > Thanks,
-> > > Feng
-> > >
-> > > > >
-> > > > > Thanks,
-> > > > > Feng
