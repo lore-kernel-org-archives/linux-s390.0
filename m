@@ -2,217 +2,185 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B33B5C43334
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 17:16:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18827C43334
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 17:36:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235920AbiF0RQG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 13:16:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36636 "EHLO
+        id S239562AbiF0RgH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 13:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239917AbiF0RQF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 13:16:05 -0400
-X-Greylist: delayed 62 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 27 Jun 2022 10:16:03 PDT
-Received: from mailrelay4-1.pub.mailoutpod1-cph3.one.com (mailrelay4-1.pub.mailoutpod1-cph3.one.com [46.30.210.185])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A70262DE
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 10:16:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ravnborg.org; s=rsa1;
-        h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
-         from:date:from;
-        bh=7lcoTIguoCU25UtATqw0zpenNexDp4klBKBcas47lUI=;
-        b=DnMKzuyWChdqVj0eyu9qk+S12hDc5E1lpoUVu+RwnrA66JDBO9VVaJjjgy7iZh0CwjBX0Tb2UW9eA
-         IDL3blt0HWe+7nCJ6LBbtgtWCdYTIJf7JxMi5tEKyk04dMJhxQKgJhN19n7gZmip7ExOCH60av6Zc+
-         fpOnPKVrkcE6dB7IpmBBA5V/48B5nOCXs0dWxrIHUJoi6B5gDTxnps7C32yW7RQiRmwMZofOskZtJ1
-         g5yggk+VyjJho8A1QsSz/r/K9taqv0SWrqNZr//W7DugrtnSjHFKtDOi/ahsacud1GZwml0SRslSij
-         +WBGlPijIt3aAxUmrpMXX3P747L7FOQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed;
-        d=ravnborg.org; s=ed1;
-        h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
-         from:date:from;
-        bh=7lcoTIguoCU25UtATqw0zpenNexDp4klBKBcas47lUI=;
-        b=0c4FfNqt1mwTyFHOd20j3eJXx+yZAcz5xOVj+2VVBhkRNfl+lcYaMnmV/txPP7q97nUwiERp2Rz/D
-         LTtF3EvDA==
-X-HalOne-Cookie: be347a0a6f76c63821867329f3b288b192d004df
-X-HalOne-ID: ab689703-f63c-11ec-8236-d0431ea8bb10
-Received: from mailproxy2.cst.dirpod3-cph3.one.com (80-162-45-141-cable.dk.customer.tdc.net [80.162.45.141])
-        by mailrelay4.pub.mailoutpod1-cph3.one.com (Halon) with ESMTPSA
-        id ab689703-f63c-11ec-8236-d0431ea8bb10;
-        Mon, 27 Jun 2022 17:14:58 +0000 (UTC)
-Date:   Mon, 27 Jun 2022 19:14:56 +0200
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     linux-mm@kvack.org, hch@infradead.org, christophe.leroy@csgroup.eu,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
-        x86@kernel.org, openrisc@lists.librecores.org,
-        linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org,
-        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH V5 04/26] sparc/mm: Move protection_map[] inside the
- platform
-Message-ID: <YrnlkLbyYSbI0EQw@ravnborg.org>
-References: <20220627045833.1590055-1-anshuman.khandual@arm.com>
- <20220627045833.1590055-5-anshuman.khandual@arm.com>
+        with ESMTP id S236554AbiF0RgG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 13:36:06 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E168B7E8;
+        Mon, 27 Jun 2022 10:36:04 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25RHP21I013046;
+        Mon, 27 Jun 2022 17:36:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=nRVbFCYhUMHhsowGXbDWnUYPdU6+yLSTiQDDJzrrjrc=;
+ b=hK8hLc0dRv2LBAXKuqr6G/ppq2YDKj9aACE1J95z6t4fbtS36KyWlU0G1yRAo6z+b5w/
+ D3wbRdzy67ZYO2BR5v85cYAcaOxxui1rEZ+OSkoYBE+9w0K2hQ3UBCeYTTFNFCSYbdMw
+ WlfjrJpli+PfJQKme8S4EhIbRtBwjD8XCukog1w+gtMFWlTSROmwwSzSvQTpCjCL/C6t
+ anrYzaf/xn8cHpoY/vX5cseU86ELCexrklY0rQzxSWKTb3kNBsCS3ncNJQEozBQcg/xG
+ 7NmdrP+XSGpzUkRJIjUQ+Mg1l42gasqMrkDMYqICpqVV9c1Ow+Yb5TaAU4Axp/F0kctr 6A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gygxa088c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 17:36:03 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25RHP3Jc013060;
+        Mon, 27 Jun 2022 17:36:03 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gygxa087e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 17:36:02 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25RHa1FJ009965;
+        Mon, 27 Jun 2022 17:36:01 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3gwt08tgqh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 17:36:01 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25RHZvlo14746070
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 27 Jun 2022 17:35:58 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DB32511C050;
+        Mon, 27 Jun 2022 17:35:57 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 266D111C04C;
+        Mon, 27 Jun 2022 17:35:57 +0000 (GMT)
+Received: from [9.171.84.214] (unknown [9.171.84.214])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 27 Jun 2022 17:35:57 +0000 (GMT)
+Message-ID: <b1a9af63-7b05-d5d6-af00-849e8b1c9d73@linux.ibm.com>
+Date:   Mon, 27 Jun 2022 19:40:25 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220627045833.1590055-5-anshuman.khandual@arm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v10 2/3] KVM: s390: guest support for topology function
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
+        thuth@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        wintera@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com
+References: <20220620125437.37122-1-pmorel@linux.ibm.com>
+ <20220620125437.37122-3-pmorel@linux.ibm.com>
+ <20220624113225.019a9294@p-imbrenda>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <20220624113225.019a9294@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: bafHGAm5NoMRKBxtZH5ZhcESvphLtSqG
+X-Proofpoint-GUID: XYKGHWWB9KaOcgUYtZJWU6yNqFg-U9us
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-27_06,2022-06-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ clxscore=1015 mlxscore=0 suspectscore=0 mlxlogscore=999 spamscore=0
+ priorityscore=1501 lowpriorityscore=0 phishscore=0 malwarescore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206270071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Anshuman,
 
-On Mon, Jun 27, 2022 at 10:28:11AM +0530, Anshuman Khandual wrote:
-> This moves protection_map[] inside the platform and while here, also enable
-> ARCH_HAS_VM_GET_PAGE_PROT on 32 bit platforms via DECLARE_VM_GET_PAGE_PROT.
+
+On 6/24/22 11:32, Claudio Imbrenda wrote:
+> On Mon, 20 Jun 2022 14:54:36 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: sparclinux@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
->  arch/sparc/Kconfig                  |  2 +-
->  arch/sparc/include/asm/pgtable_32.h | 19 -------------------
->  arch/sparc/include/asm/pgtable_64.h | 19 -------------------
->  arch/sparc/mm/init_32.c             | 20 ++++++++++++++++++++
->  arch/sparc/mm/init_64.c             |  3 +++
->  5 files changed, 24 insertions(+), 39 deletions(-)
+>> We report a topology change to the guest for any CPU hotplug.
+>>
+>> The reporting to the guest is done using the Multiprocessor
+>> Topology-Change-Report (MTCR) bit of the utility entry in the guest's
+>> SCA which will be cleared during the interpretation of PTF.
+>>
+>> On every vCPU creation we set the MCTR bit to let the guest know the
+>> next time he uses the PTF with command 2 instruction that the
+>> topology changed and that he should use the STSI(15.1.x) instruction
+>> to get the topology details.
+>>
+>> STSI(15.1.x) gives information on the CPU configuration topology.
+>> Let's accept the interception of STSI with the function code 15 and
+>> let the userland part of the hypervisor handle it when userland
+>> support the CPU Topology facility.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm_host.h | 11 ++++++++---
+>>   arch/s390/kvm/kvm-s390.c         | 27 ++++++++++++++++++++++++++-
+>>   arch/s390/kvm/priv.c             | 15 +++++++++++----
+>>   arch/s390/kvm/vsie.c             |  3 +++
+>>   4 files changed, 48 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+>> index 766028d54a3e..bb54196d4ed6 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -97,15 +97,19 @@ struct bsca_block {
+>>   	union ipte_control ipte_control;
+>>   	__u64	reserved[5];
+>>   	__u64	mcn;
+>> -	__u64	reserved2;
+>> +#define SCA_UTILITY_MTCR	0x8000
+>> +	__u16	utility;
+>> +	__u8	reserved2[6];
+>>   	struct bsca_entry cpu[KVM_S390_BSCA_CPU_SLOTS];
+>>   };
+>>   
+>>   struct esca_block {
+>>   	union ipte_control ipte_control;
+>> -	__u64   reserved1[7];
+>> +	__u64   reserved1[6];
+>> +	__u16	utility;
+>> +	__u8	reserved2[6];
+>>   	__u64   mcn[4];
+>> -	__u64   reserved2[20];
+>> +	__u64   reserved3[20];
+>>   	struct esca_entry cpu[KVM_S390_ESCA_CPU_SLOTS];
+>>   };
+>>   
+>> @@ -249,6 +253,7 @@ struct kvm_s390_sie_block {
+>>   #define ECB_SPECI	0x08
+>>   #define ECB_SRSI	0x04
+>>   #define ECB_HOSTPROTINT	0x02
+>> +#define ECB_PTF		0x01
+>>   	__u8	ecb;			/* 0x0061 */
+>>   #define ECB2_CMMA	0x80
+>>   #define ECB2_IEP	0x20
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 8fcb56141689..95b96019ca8e 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -1691,6 +1691,25 @@ static int kvm_s390_get_cpu_model(struct kvm *kvm, struct kvm_device_attr *attr)
+>>   	return ret;
+>>   }
+>>   
+>> +/**
+>> + * kvm_s390_sca_set_mtcr
 > 
-> diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-> index ba449c47effd..09f868613a4d 100644
-> --- a/arch/sparc/Kconfig
-> +++ b/arch/sparc/Kconfig
-> @@ -13,6 +13,7 @@ config 64BIT
->  config SPARC
->  	bool
->  	default y
-> +	select ARCH_HAS_VM_GET_PAGE_PROT
->  	select ARCH_MIGHT_HAVE_PC_PARPORT if SPARC64 && PCI
->  	select ARCH_MIGHT_HAVE_PC_SERIO
->  	select DMA_OPS
-> @@ -84,7 +85,6 @@ config SPARC64
->  	select PERF_USE_VMALLOC
->  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
->  	select HAVE_C_RECORDMCOUNT
-> -	select ARCH_HAS_VM_GET_PAGE_PROT
->  	select HAVE_ARCH_AUDITSYSCALL
->  	select ARCH_SUPPORTS_ATOMIC_RMW
->  	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
-> diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
-> index 4866625da314..8ff549004fac 100644
-> --- a/arch/sparc/include/asm/pgtable_32.h
-> +++ b/arch/sparc/include/asm/pgtable_32.h
-> @@ -64,25 +64,6 @@ void paging_init(void);
->  
->  extern unsigned long ptr_in_current_pgd;
->  
-> -/*         xwr */
-> -#define __P000  PAGE_NONE
-> -#define __P001  PAGE_READONLY
-> -#define __P010  PAGE_COPY
-> -#define __P011  PAGE_COPY
-> -#define __P100  PAGE_READONLY
-> -#define __P101  PAGE_READONLY
-> -#define __P110  PAGE_COPY
-> -#define __P111  PAGE_COPY
-> -
-> -#define __S000	PAGE_NONE
-> -#define __S001	PAGE_READONLY
-> -#define __S010	PAGE_SHARED
-> -#define __S011	PAGE_SHARED
-> -#define __S100	PAGE_READONLY
-> -#define __S101	PAGE_READONLY
-> -#define __S110	PAGE_SHARED
-> -#define __S111	PAGE_SHARED
-> -
->  /* First physical page can be anywhere, the following is needed so that
->   * va-->pa and vice versa conversions work properly without performance
->   * hit for all __pa()/__va() operations.
-> diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
-> index 4679e45c8348..a779418ceba9 100644
-> --- a/arch/sparc/include/asm/pgtable_64.h
-> +++ b/arch/sparc/include/asm/pgtable_64.h
-> @@ -187,25 +187,6 @@ bool kern_addr_valid(unsigned long addr);
->  #define _PAGE_SZHUGE_4U	_PAGE_SZ4MB_4U
->  #define _PAGE_SZHUGE_4V	_PAGE_SZ4MB_4V
->  
-> -/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
-> -#define __P000	__pgprot(0)
-> -#define __P001	__pgprot(0)
-> -#define __P010	__pgprot(0)
-> -#define __P011	__pgprot(0)
-> -#define __P100	__pgprot(0)
-> -#define __P101	__pgprot(0)
-> -#define __P110	__pgprot(0)
-> -#define __P111	__pgprot(0)
-> -
-> -#define __S000	__pgprot(0)
-> -#define __S001	__pgprot(0)
-> -#define __S010	__pgprot(0)
-> -#define __S011	__pgprot(0)
-> -#define __S100	__pgprot(0)
-> -#define __S101	__pgprot(0)
-> -#define __S110	__pgprot(0)
-> -#define __S111	__pgprot(0)
-> -
->  #ifndef __ASSEMBLY__
->  
->  pte_t mk_pte_io(unsigned long, pgprot_t, int, unsigned long);
-> diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-> index 1e9f577f084d..8693e4e28b86 100644
-> --- a/arch/sparc/mm/init_32.c
-> +++ b/arch/sparc/mm/init_32.c
-> @@ -302,3 +302,23 @@ void sparc_flush_page_to_ram(struct page *page)
->  		__flush_page_to_ram(vaddr);
->  }
->  EXPORT_SYMBOL(sparc_flush_page_to_ram);
-> +
-> +static pgprot_t protection_map[16] __ro_after_init = {
-This can be const - like done for powerpc and others.
-sparc32 and sparc64 uses each their own - and I do not see sparc32 do
-any modifications to protection_map.
+> the format for kdoc is:
+> 
+> 	function_name - very short description
+> 
+> please add a very short description. something like:
+> 
+> 	kvm_s390_sca_set_mtcr - update mtcr to signal topology change
 
-With this change:
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
 
-> +	[VM_NONE]					= PAGE_NONE,
-> +	[VM_READ]					= PAGE_READONLY,
-> +	[VM_WRITE]					= PAGE_COPY,
-> +	[VM_WRITE | VM_READ]				= PAGE_COPY,
-> +	[VM_EXEC]					= PAGE_READONLY,
-> +	[VM_EXEC | VM_READ]				= PAGE_READONLY,
-> +	[VM_EXEC | VM_WRITE]				= PAGE_COPY,
-> +	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_COPY,
-> +	[VM_SHARED]					= PAGE_NONE,
-> +	[VM_SHARED | VM_READ]				= PAGE_READONLY,
-> +	[VM_SHARED | VM_WRITE]				= PAGE_SHARED,
-> +	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_SHARED,
-> +	[VM_SHARED | VM_EXEC]				= PAGE_READONLY,
-> +	[VM_SHARED | VM_EXEC | VM_READ]			= PAGE_READONLY,
-> +	[VM_SHARED | VM_EXEC | VM_WRITE]		= PAGE_SHARED,
-> +	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_SHARED
-> +};
-> +DECLARE_VM_GET_PAGE_PROT
-> diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-> index f6174df2d5af..d6faee23c77d 100644
-> --- a/arch/sparc/mm/init_64.c
-> +++ b/arch/sparc/mm/init_64.c
-> @@ -2634,6 +2634,9 @@ void vmemmap_free(unsigned long start, unsigned long end,
->  }
->  #endif /* CONFIG_SPARSEMEM_VMEMMAP */
->  
-> +/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
-> +static pgprot_t protection_map[16] __ro_after_init;
-> +
->  static void prot_init_common(unsigned long page_none,
->  			     unsigned long page_shared,
->  			     unsigned long page_copy,
-> -- 
-> 2.25.1
+OK, thanks,
+
+Pierre
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
