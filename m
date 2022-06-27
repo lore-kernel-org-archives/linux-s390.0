@@ -2,177 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65047CCA47E
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 08:46:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC0A2C43334
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 09:28:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233325AbiF0Iqf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 04:46:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40582 "EHLO
+        id S234028AbiF0J2h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 05:28:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233053AbiF0Iqf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 04:46:35 -0400
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8C076354
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 01:46:33 -0700 (PDT)
-Received: by mail-yb1-xb36.google.com with SMTP id h187so13329559ybg.0
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 01:46:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4vsOnIc+C2gY1UVlbVz/JDciMvgYEap1WYGcSJm7nik=;
-        b=izm5TvVaySgpwnEQF9/y67fAWYu9B2xhHcC5MrbsqfKRyBWcvUJOefttP3U8C7H5yK
-         cf/c+G/MDFeL9d3jWR3ZM1W+uRZZqwp2hTAlphjRcQ4y5gzmknF6zrBjrzS5Oq9593TH
-         prMhKu/+/nH//vvJzE+A8myFZw0Vf2YB5togDcAyh2pSj1lg7+NXGygkUac2Pq5BEBXO
-         5+wwtXrzIkpK6w7dEXtmMbM9imlU0I4M6KLt1i3bZoyGQ30Vb87yxIZpNyIgjCBXAtgw
-         DSd6AsFRpnuauM1qBq8q0T/kLZUm8tLjA1oB1Fx/TPENkDLwNudIWg8vpilEWofAkp3b
-         qS3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4vsOnIc+C2gY1UVlbVz/JDciMvgYEap1WYGcSJm7nik=;
-        b=HerZkM4+v+4tLpuQzGXRooxtF2B9UK/U/QwQohU8ocA4df59gpYE/EvvrGy50kteKl
-         QOhBXemT9r7Ctcyfa9gH760F0eRifSCS0hg5ehgf9bGrlMp8LhfVFPXNKhbIhL9/E9mz
-         o+uBYqQUjvNH4Bb5VGgTnWQpPqyd/GReCtZSbVAO+AT9rDOHy7GjS4rkc80o7TqV6xIz
-         yIdf7cNXG+KnKPnk2u/NOMSmatVfICR8n8CL8ECReayqqHpQDD2WjWZnWH/wQE3WH5tB
-         5yHosT0E08NtbQA6fP5PiTbHr5lKHNdUknhump0sUErWxbuVkPmTGAJVKcdjdU7ssJYg
-         FGOg==
-X-Gm-Message-State: AJIora/HI3LEWWD7/trtirLZnS1UVJnsh0XDNgfiRBqTau+FxeH0E/1P
-        iD57ShgWtlbfctMfqR+w8mTO5u6omJT7z4aIODN+wg==
-X-Google-Smtp-Source: AGRyM1tmdR+Xbj5kJ69vq4foOyHTSytqN33Xz6MWmkpMcamFreKrameDkaAL4/75vWqZ0Cye+/NLca9lf7qZmNQ/HPM=
-X-Received: by 2002:a25:6c5:0:b0:669:a17a:2289 with SMTP id
- 188-20020a2506c5000000b00669a17a2289mr12352386ybg.231.1656319592797; Mon, 27
- Jun 2022 01:46:32 -0700 (PDT)
+        with ESMTP id S234045AbiF0J21 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 05:28:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B3F963CF;
+        Mon, 27 Jun 2022 02:28:25 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25R8DSsP029787;
+        Mon, 27 Jun 2022 09:28:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=XGSUXB3Rcsiln6Kp4JHxXDV3T+MukAKiofOmAn6K9FA=;
+ b=Q5b886FlV11rBGoN7GKImaVBllKgG4qk+8CXwCJ09cHOkvNDojUETWBLsafDeofNW1sQ
+ lydWc4sQpLSkkgd0xQlj4/Pk3zfcRyxQVtTAG1L6f8o5VeY4ousyz1T2rSl/sc7m8x56
+ grue5xJ+OA4uGnoEwN0kl5gfttfQ2RiB1DXca13JbQe5XxBKo0RECfBHCgsIHTNM1qDy
+ 6JxQg6eZruUNWgjs8htCfAQkSA/BTpXxzo1w65zN/eDXjgJG/G3HD9BuI+V8L3PtBRM2
+ lyYQrk1jrvsmU+HK6L/w/0PzffBQjyu0gcYHl4ITX89lGoNSL7fXNxQePIihKShKfZ+o Zg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gy8ug1wbx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 09:28:24 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25R8DxV4030520;
+        Mon, 27 Jun 2022 09:28:24 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gy8ug1wb7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 09:28:24 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25R9LU0r014505;
+        Mon, 27 Jun 2022 09:28:22 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3gwsmj2nsv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 09:28:22 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25R9SPKa24248742
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 27 Jun 2022 09:28:25 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 41830A4040;
+        Mon, 27 Jun 2022 09:28:19 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C2BA7A404D;
+        Mon, 27 Jun 2022 09:28:18 +0000 (GMT)
+Received: from [9.145.155.49] (unknown [9.145.155.49])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 27 Jun 2022 09:28:18 +0000 (GMT)
+Message-ID: <19169d83-ad31-da70-b3bb-bd7ba43e6484@linux.ibm.com>
+Date:   Mon, 27 Jun 2022 11:28:18 +0200
 MIME-Version: 1.0
-References: <20220619150456.GB34471@xsang-OptiPlex-9020> <20220622172857.37db0d29@kernel.org>
- <CADvbK_csvmkKe46hT9792=+Qcjor2EvkkAnr--CJK3NGX-N9BQ@mail.gmail.com>
- <CADvbK_eQUmb942vC+bG+NRzM1ki1LiCydEDR1AezZ35Jvsdfnw@mail.gmail.com>
- <20220623185730.25b88096@kernel.org> <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
- <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
- <20220624070656.GE79500@shbuild999.sh.intel.com> <20220624144358.lqt2ffjdry6p5u4d@google.com>
- <20220625023642.GA40868@shbuild999.sh.intel.com> <20220627023812.GA29314@shbuild999.sh.intel.com>
-In-Reply-To: <20220627023812.GA29314@shbuild999.sh.intel.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Mon, 27 Jun 2022 10:46:21 +0200
-Message-ID: <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
-Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
-To:     Feng Tang <feng.tang@intel.com>
-Cc:     Shakeel Butt <shakeelb@google.com>, Linux MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        network dev <netdev@vger.kernel.org>,
-        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, scgl@linux.ibm.com, nrb@linux.ibm.com,
+        thuth@redhat.com
+References: <20220624144518.66573-1-imbrenda@linux.ibm.com>
+ <20220624144518.66573-4-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2 3/3] lib: s390x: better smp interrupt
+ checks
+In-Reply-To: <20220624144518.66573-4-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: C85qOWR_UfaN6IIVSzAC9gsZs66nm6bM
+X-Proofpoint-GUID: c9dFpqbIRrqyzD70Pmr-4XSN0vEuRZTQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-27_06,2022-06-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
+ spamscore=0 priorityscore=1501 impostorscore=0 mlxscore=0
+ lowpriorityscore=0 phishscore=0 suspectscore=0 malwarescore=0
+ clxscore=1015 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206270039
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 4:38 AM Feng Tang <feng.tang@intel.com> wrote:
->
-> On Sat, Jun 25, 2022 at 10:36:42AM +0800, Feng Tang wrote:
-> > On Fri, Jun 24, 2022 at 02:43:58PM +0000, Shakeel Butt wrote:
-> > > On Fri, Jun 24, 2022 at 03:06:56PM +0800, Feng Tang wrote:
-> > > > On Thu, Jun 23, 2022 at 11:34:15PM -0700, Shakeel Butt wrote:
-> > > [...]
-> > > > >
-> > > > > Feng, can you please explain the memcg setup on these test machines
-> > > > > and if the tests are run in root or non-root memcg?
-> > > >
-> > > > I don't know the exact setup, Philip/Oliver from 0Day can correct me.
-> > > >
-> > > > I logged into a test box which runs netperf test, and it seems to be
-> > > > cgoup v1 and non-root memcg. The netperf tasks all sit in dir:
-> > > > '/sys/fs/cgroup/memory/system.slice/lkp-bootstrap.service'
-> > > >
-> > >
-> > > Thanks Feng. Can you check the value of memory.kmem.tcp.max_usage_in_bytes
-> > > in /sys/fs/cgroup/memory/system.slice/lkp-bootstrap.service after making
-> > > sure that the netperf test has already run?
-> >
-> > memory.kmem.tcp.max_usage_in_bytes:0
->
-> Sorry, I made a mistake that in the original report from Oliver, it
-> was 'cgroup v2' with a 'debian-11.1' rootfs.
->
-> When you asked about cgroup info, I tried the job on another tbox, and
-> the original 'job.yaml' didn't work, so I kept the 'netperf' test
-> parameters and started a new job which somehow run with a 'debian-10.4'
-> rootfs and acutally run with cgroup v1.
->
-> And as you mentioned cgroup version does make a big difference, that
-> with v1, the regression is reduced to 1% ~ 5% on different generations
-> of test platforms. Eric mentioned they also got regression report,
-> but much smaller one, maybe it's due to the cgroup version?
+On 6/24/22 16:45, Claudio Imbrenda wrote:
+> Use per-CPU flags and callbacks for Program and Extern interrupts,
+> instead of global variables.
+> 
+> This allows for more accurate error handling; a CPU waiting for an
+> interrupt will not have it "stolen" by a different CPU that was not
+> supposed to wait for one, and now two CPUs can wait for interrupts at
+> the same time.
+> 
+> This will significantly improve error reporting and debugging when
+> things go wrong.
+> 
+> Both program interrupts and extern interrupts are now CPU-bound, even
+> though some extern interrupts are floating (notably, the SCLP
+> interrupt). In those cases, the testcases should mask interrupts and/or
+> expect them appropriately according to need.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   lib/s390x/asm/arch_def.h | 17 +++++++++++-
+>   lib/s390x/smp.h          |  8 +-----
+>   lib/s390x/interrupt.c    | 57 +++++++++++++++++++++++++++++-----------
+>   lib/s390x/smp.c          | 11 ++++++++
+>   4 files changed, 70 insertions(+), 23 deletions(-)
+[...]
+>   
+> +struct lowcore *smp_get_lowcore(uint16_t idx)
+> +{
+> +	if (THIS_CPU->idx == idx)
+> +		return &lowcore;
+> +
+> +	check_idx(idx);
+> +	return cpus[idx].lowcore;
+> +}
 
-This was using the current net-next tree.
-Used recipe was something like:
+This function is unused.
 
-Make sure cgroup2 is mounted or mount it by mount -t cgroup2 none $MOUNT_POINT.
-Enable memory controller by echo +memory > $MOUNT_POINT/cgroup.subtree_control.
-Create a cgroup by mkdir $MOUNT_POINT/job.
-Jump into that cgroup by echo $$ > $MOUNT_POINT/job/cgroup.procs.
+> +
+>   int smp_sigp(uint16_t idx, uint8_t order, unsigned long parm, uint32_t *status)
+>   {
+>   	check_idx(idx);
+> @@ -253,6 +262,7 @@ static int smp_cpu_setup_nolock(uint16_t idx, struct psw psw)
+>   
+>   	/* Copy all exception psws. */
+>   	memcpy(lc, cpus[0].lowcore, 512);
+> +	lc->this_cpu = cpus + idx;
 
-<Launch tests>
+Why not:
+lc->this_cpu = &cpus[idx];
 
-The regression was smaller than 1%, so considered noise compared to
-the benefits of the bug fix.
+>   
+>   	/* Setup stack */
+>   	cpus[idx].stack = (uint64_t *)alloc_pages(2);
+> @@ -325,6 +335,7 @@ void smp_setup(void)
+>   	for (i = 0; i < num; i++) {
+>   		cpus[i].addr = entry[i].address;
+>   		cpus[i].active = false;
+> +		cpus[i].idx = i;
+>   		/*
+>   		 * Fill in the boot CPU. If the boot CPU is not at index 0,
+>   		 * swap it with the one at index 0. This guarantees that the
 
->
-> Thanks,
-> Feng
->
-> > And here is more memcg stats (let me know if you want to check more)
-> >
-> > > If this is non-zero then network memory accounting is enabled and the
-> > > slowdown is expected.
-> >
-> > >From the perf-profile data in original report, both
-> > __sk_mem_raise_allocated() and __sk_mem_reduce_allocated() are called
-> > much more often, which call memcg charge/uncharge functions.
-> >
-> > IIUC, the call chain is:
-> >
-> > __sk_mem_raise_allocated
-> >     sk_memory_allocated_add
-> >     mem_cgroup_charge_skmem
-> >         charge memcg->tcpmem (for cgroup v2)
-> >       try_charge memcg (for v1)
-> >
-> > Also from Eric's one earlier commit log:
-> >
-> > "
-> > net: implement per-cpu reserves for memory_allocated
-> > ...
-> > This means we are going to call sk_memory_allocated_add()
-> > and sk_memory_allocated_sub() more often.
-> > ...
-> > "
-> >
-> > So this slowdown is related to the more calling of charge/uncharge?
-> >
-> > Thanks,
-> > Feng
-> >
-> > > > And the rootfs is a debian based rootfs
-> > > >
-> > > > Thanks,
-> > > > Feng
-> > > >
-> > > >
-> > > > > thanks,
-> > > > > Shakeel
