@@ -2,354 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42F0FC43334
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 07:34:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2877C43334
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 07:45:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232940AbiF0HeB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 03:34:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44350 "EHLO
+        id S233096AbiF0Hpt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 03:45:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232929AbiF0HeA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 03:34:00 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0345E5F7B
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 00:33:58 -0700 (PDT)
+        with ESMTP id S233098AbiF0Hpr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 03:45:47 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E99F660EA
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 00:45:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656315238;
+        s=mimecast20190719; t=1656315944;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=ypbA/x/XeITK+EUaU9py/YIxnRpzKySd3OWhwxkkYG4=;
-        b=IAu4KXuowRb+eAdsPoLeOt3B31p1hg4JDf+AbZXwYPLnoHSp46VvFzYHn5xo1XJ4H4U8N0
-        vdZbRgotv88keazlHqwT8McqhPROuJ9JjDLYILU0lIXwNysXChe5uZ0Nhl1uRZmXl3pLVp
-        M0NLdVIU7YLsYvj/XT4zBevXnheWsqM=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=DJ8lTv8mNQFqfIpLLTdJ5wTzmtewiqdkMpwZ7L0k0po=;
+        b=CvbzazEhsnrxYlxxmqXKq/wjdpjt4q5JJ31r+UR+Ij8/avZTeFuFOdeNX48Nv4Xn6IDWrN
+        SHSE1HW0dgpkA9BVDWgLHCxZZiPe367TXVSyHAPXs3mJlc8BtGzamdkLRoZe9vtIsSaiaa
+        L3yhwunItgVpG8j5fcrHpaCNKGtcnFw=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-232-ziOSAtvIMS-cUsBojpML7A-1; Mon, 27 Jun 2022 03:33:56 -0400
-X-MC-Unique: ziOSAtvIMS-cUsBojpML7A-1
-Received: by mail-ed1-f69.google.com with SMTP id i9-20020a05640242c900b004373cd1c4d5so5709212edc.2
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 00:33:56 -0700 (PDT)
+ us-mta-81-dZJNX9wZNEa8p16mDvlLZg-1; Mon, 27 Jun 2022 03:45:43 -0400
+X-MC-Unique: dZJNX9wZNEa8p16mDvlLZg-1
+Received: by mail-lf1-f70.google.com with SMTP id i3-20020a056512318300b0047f86b47910so4312124lfe.14
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 00:45:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ypbA/x/XeITK+EUaU9py/YIxnRpzKySd3OWhwxkkYG4=;
-        b=UAYIQzqQNQuyTUh7yK3M8CbICq9x3TDJOTi7ezyb1xXk2R1JQgGLg6oWDBGS2va6FH
-         d1j1/oMp2hsdJksG5CNpvR/YIVbxmo+wjKyhJqDTgTG/b7NfqSZ3YiPngn2lAw3fsRuX
-         k1jiWKiLjxK0NmU71sV7OiDlpwfsBNfpAoj0YL8eFyHzGoH0m4ImBVSqjejDPpHPEOkh
-         As8EJstN0EFV1geSm9NUcdg+wcSR+ALeZZVHQQVWPbIgLCSW1d7jHrqmtZxv3n7DGWPN
-         vzShdbUr4QMBYoXPywbTH/JAk3RJbCX9kDSQyfzh8sMNwbqee4fFBIPzYbdgiVYfo074
-         3i9A==
-X-Gm-Message-State: AJIora/UathFz3MMkXZSz3eVnyYrW9KC+/f+z6sz67QMLzhQdb6ULvDY
-        lnNXkZXmITqAaNja78KOIa2/wizG0rSt7/R8ij0webdR5jnXEiHokN8zLlTKBD+MnQKTXGSIGvI
-        /FXUhYmzrk9k5w4IVXO/JzA==
-X-Received: by 2002:a17:906:4786:b0:722:e5ac:7d96 with SMTP id cw6-20020a170906478600b00722e5ac7d96mr11900217ejc.172.1656315235082;
-        Mon, 27 Jun 2022 00:33:55 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1ujqjIy1o8hLspcvZz89Vflp+g2fYqLeLKZU481KJLINYgwrCKAfw3S9rjNJyd3DeAhgNTI8A==
-X-Received: by 2002:a17:906:4786:b0:722:e5ac:7d96 with SMTP id cw6-20020a170906478600b00722e5ac7d96mr11900193ejc.172.1656315234781;
-        Mon, 27 Jun 2022 00:33:54 -0700 (PDT)
-Received: from redhat.com ([2.54.45.90])
-        by smtp.gmail.com with ESMTPSA id k20-20020a1709063fd400b00722f66fb36csm4612334ejj.112.2022.06.27.00.33.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jun 2022 00:33:54 -0700 (PDT)
-Date:   Mon, 27 Jun 2022 03:33:50 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DJ8lTv8mNQFqfIpLLTdJ5wTzmtewiqdkMpwZ7L0k0po=;
+        b=pBIN20cnlCIt4WMH9yItiMd4RLx6XTP/RQ1IMi+hIgDEdyS/KHdl8hpb8hGeetcC+x
+         XPub05vzPLz/jBifAsqv57GAMUYZOxjOX1bCUYDc9SCObkoGIZeJTUjxKzsB1kllWYAm
+         SSDihAP62WNkBj5xaEiLphlP4WuWjZvXUR8RjDymTX6hQnFeciJfC3lBQsFEUliktOjF
+         PtpsBvuQPaTNmNLOpiAVqYWgVNk7mj1zqMHTQaRh3+tLwC5+Gr7K8aKWs+zWNBA9723I
+         xVaERw/DS5sOG5pUvv9zwQfmIyzuCkfkj4yGmlbz5Vlj/U6K4A2ul4IyYtG+tTq1W3Rz
+         +Ikg==
+X-Gm-Message-State: AJIora9wsAZSEb3RbqUID1Rs5ZpfZwHIvL0aZm1YS9SMEsd8+DIRDKVr
+        FFGGxTc671qOuZrdYrlPS+k7eKaA423lS8dooX2Y6j2hq6LoLJs3/MGLncZLhjvZa7+vcKut5X6
+        PBIL9zGRucJwUfIvEyijBQKOtPn4F334CHr+6kw==
+X-Received: by 2002:a2e:aaa5:0:b0:25b:ae57:4ad7 with SMTP id bj37-20020a2eaaa5000000b0025bae574ad7mr6113590ljb.323.1656315941392;
+        Mon, 27 Jun 2022 00:45:41 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vViYYUTuYJvHrB7a6J1t+RbESIVnJ/fW5l8pDtbVNhAjJvWLMAazge0YptM+fayabkTwGDETijvn1jNEjsB7g=
+X-Received: by 2002:a2e:aaa5:0:b0:25b:ae57:4ad7 with SMTP id
+ bj37-20020a2eaaa5000000b0025bae574ad7mr6113578ljb.323.1656315941180; Mon, 27
+ Jun 2022 00:45:41 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
+ <20220624025621.128843-26-xuanzhuo@linux.alibaba.com> <20220624025817-mutt-send-email-mst@kernel.org>
+ <CACGkMEseptD=45j3kQr0yciRxR679Jcig=292H07-RYC2vXmFQ@mail.gmail.com> <20220627023841-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220627023841-mutt-send-email-mst@kernel.org>
+From:   Jason Wang <jasowang@redhat.com>
+Date:   Mon, 27 Jun 2022 15:45:30 +0800
+Message-ID: <CACGkMEvy8xF2T_vubKeUEPC2aroO_fbB0Xe8nnxK4OBUgAS+Gw@mail.gmail.com>
+Subject: Re: [PATCH v10 25/41] virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        virtualization <virtualization@lists.linux-foundation.org>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
         Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        virtualization <virtualization@lists.linux-foundation.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm <kvm@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-Message-ID: <20220627024049-mutt-send-email-mst@kernel.org>
-References: <20220622012940.21441-1-jasowang@redhat.com>
- <20220622025047-mutt-send-email-mst@kernel.org>
- <CACGkMEtJY2ioD0L8ifTrCPatG6-NqQ01V=d2L1FeoweKV74LaA@mail.gmail.com>
- <20220624022622-mutt-send-email-mst@kernel.org>
- <CACGkMEuurobpUWmDL8zmZ6T6Ygc0OEMx6vx2EDCSoGNnZQ0r-w@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACGkMEuurobpUWmDL8zmZ6T6Ygc0OEMx6vx2EDCSoGNnZQ0r-w@mail.gmail.com>
+        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
+        kangjie.xu@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 10:50:17AM +0800, Jason Wang wrote:
-> On Fri, Jun 24, 2022 at 2:31 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Jun 22, 2022 at 03:09:31PM +0800, Jason Wang wrote:
-> > > On Wed, Jun 22, 2022 at 3:03 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Wed, Jun 22, 2022 at 09:29:40AM +0800, Jason Wang wrote:
-> > > > > We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
-> > > > > harden vring IRQ"). It works with the assumption that the driver or
-> > > > > core can properly call virtio_device_ready() at the right
-> > > > > place. Unfortunately, this seems to be not true and uncover various
-> > > > > bugs of the existing drivers, mainly the issue of using
-> > > > > virtio_device_ready() incorrectly.
-> > > > >
-> > > > > So let's having a Kconfig option and disable it by default. It gives
-> > > > > us a breath to fix the drivers and then we can consider to enable it
-> > > > > by default.
-> > > > >
-> > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > >
-> > > >
-> > > > OK I will queue, but I think the problem is fundamental.
+On Mon, Jun 27, 2022 at 2:39 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Mon, Jun 27, 2022 at 10:30:42AM +0800, Jason Wang wrote:
+> > On Fri, Jun 24, 2022 at 2:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > > >
-> > > If I understand correctly, you want some core IRQ work?
-> >
-> > Yes.
-> >
-> > > As discussed
-> > > before, it doesn't solve all the problems, we still need to do per
-> > > driver audit.
+> > > On Fri, Jun 24, 2022 at 10:56:05AM +0800, Xuan Zhuo wrote:
+> > > > Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
+> > > > here https://github.com/oasis-tcs/virtio-spec/issues/89
+> > > >
+> > > > For not breaks uABI, add a new struct virtio_pci_common_cfg_notify.
 > > >
-> > > Thanks
+> > > What exactly is meant by not breaking uABI?
+> > > Users are supposed to be prepared for struct size to change ... no?
 > >
-> > Maybe, but we don't need to tie things to device_ready then.
-> > We can do
+> > Not sure, any doc for this?
 > >
-> > - disable irqs
-> > - device ready
-> > - setup everything
-> > - enable irqs
+> > Thanks
+>
+>
+> Well we have this:
+>
+>         The drivers SHOULD only map part of configuration structure
+>         large enough for device operation.  The drivers MUST handle
+>         an unexpectedly large \field{length}, but MAY check that \field{length}
+>         is large enough for device operation.
+
+Yes, but that's the device/driver interface. What's done here is the
+userspace/kernel.
+
+Userspace may break if it uses e.g sizeof(struct virtio_pci_common_cfg)?
+
+Thanks
+
+>
+>
+>
 > >
-> >
-> > and this works for most things, the only issue is
-> > this deadlocks if "setup everything" waits for interrupts.
-> >
-> >
-> > With the current approach there's really no good time:
-> > 1.- setup everything
-> > - device ready
-> >
-> > can cause kicks before device is ready
-> >
-> > 2.- device ready
-> > - setup everything
-> >
-> > can cause callbacks before setup.
-> >
-> > So I prefer the 1. and fix the hardening in the core.
-> 
-> So my question is:
-> 
-> 1) do similar hardening like config interrupt
-> or
-> 2) per transport notification work (e.g for PCI core IRQ work)
-> 
-> 1) seems easier and universal, but we pay little overhead which could
-> be eliminated by the config option.
-
-I doubt 1 is easy and I am not even sure core IRQ changes will help.
-My concern with adding overhead is that I'm not sure these are not just
-wasted CPU cycles.  We spent a bunch of time on irq hardening and so far
-we are still at the "all drivers need to be fixed" stage.
-
-The reason config was kind of easy is that config interrupt is rarely
-vital for device function so arbitrarily deferring that does not lead to
-deadlocks - what you are trying to do with VQ interrupts is
-fundamentally different. Things are especially bad if we just drop
-an interrupt but deferring can lead to problems too.
-
-Consider as an example
-    virtio-net: fix race between ndo_open() and virtio_device_ready()
-if you just defer vq interrupts you get deadlocks.
-
-
-
-So, thinking about all this, how about a simple per vq flag meaning
-"this vq was kicked since reset"?
-
-If driver does not kick then it's not ready to get callbacks, right?
-
-Sounds quite clean, but we need to think through memory ordering
-concerns - I guess it's only when we change the value so
-	if (!vq->kicked) {
-		vq->kicked = true;
-		mb();
-	}
-
-will do the trick, right?
-
-need to think about the reset path - it already synchronizes callbacks
-and already can lose interrupts so we just need to clear vq->kicked
-before that, right?
-
-
-> 2) seems require more work in the IRQ core and it can not work for all
-> transports (e.g vDPA would be kind of difficult)
-> 
-> Thanks
-
-Hmm I don't really get why would it be difficult.
-VDPA is mostly PCI isn't it? With PCI both level INT#x and edge MSI
-have interrupt masking support.
-
-
-> >
-> >
+> > >
+> > >
+> > > > Since I want to add queue_reset after queue_notify_data, I submitted
+> > > > this patch first.
 > > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > > > ---
+> > > >  include/uapi/linux/virtio_pci.h | 7 +++++++
+> > > >  1 file changed, 7 insertions(+)
 > > > >
-> > > > > ---
-> > > > > Changes since V2:
-> > > > > - Tweak the Kconfig help
-> > > > > - Add comment for the read_lock() pairing in virtio_ccw
-> > > > > ---
-> > > > >  drivers/s390/virtio/virtio_ccw.c |  9 ++++++++-
-> > > > >  drivers/virtio/Kconfig           | 13 +++++++++++++
-> > > > >  drivers/virtio/virtio.c          |  2 ++
-> > > > >  drivers/virtio/virtio_ring.c     | 12 ++++++++++++
-> > > > >  include/linux/virtio_config.h    |  2 ++
-> > > > >  5 files changed, 37 insertions(+), 1 deletion(-)
-> > > > >
-> > > > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > > > > index 97e51c34e6cf..1f6a358f65f0 100644
-> > > > > --- a/drivers/s390/virtio/virtio_ccw.c
-> > > > > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > > > > @@ -1136,8 +1136,13 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> > > > >                       vcdev->err = -EIO;
-> > > > >       }
-> > > > >       virtio_ccw_check_activity(vcdev, activity);
-> > > > > -     /* Interrupts are disabled here */
-> > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > > +     /*
-> > > > > +      * Paried with virtio_ccw_synchronize_cbs() and interrupts are
-> > > > > +      * disabled here.
-> > > > > +      */
-> > > > >       read_lock(&vcdev->irq_lock);
-> > > > > +#endif
-> > > > >       for_each_set_bit(i, indicators(vcdev),
-> > > > >                        sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
-> > > > >               /* The bit clear must happen before the vring kick. */
-> > > > > @@ -1146,7 +1151,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> > > > >               vq = virtio_ccw_vq_by_ind(vcdev, i);
-> > > > >               vring_interrupt(0, vq);
-> > > > >       }
-> > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > >       read_unlock(&vcdev->irq_lock);
-> > > > > +#endif
-> > > > >       if (test_bit(0, indicators2(vcdev))) {
-> > > > >               virtio_config_changed(&vcdev->vdev);
-> > > > >               clear_bit(0, indicators2(vcdev));
-> > > > > diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> > > > > index b5adf6abd241..c04f370a1e5c 100644
-> > > > > --- a/drivers/virtio/Kconfig
-> > > > > +++ b/drivers/virtio/Kconfig
-> > > > > @@ -35,6 +35,19 @@ menuconfig VIRTIO_MENU
-> > > > >
-> > > > >  if VIRTIO_MENU
-> > > > >
-> > > > > +config VIRTIO_HARDEN_NOTIFICATION
-> > > > > +        bool "Harden virtio notification"
-> > > > > +        help
-> > > > > +          Enable this to harden the device notifications and suppress
-> > > > > +          those that happen at a time where notifications are illegal.
-> > > > > +
-> > > > > +          Experimental: Note that several drivers still have bugs that
-> > > > > +          may cause crashes or hangs when correct handling of
-> > > > > +          notifications is enforced; depending on the subset of
-> > > > > +          drivers and devices you use, this may or may not work.
-> > > > > +
-> > > > > +          If unsure, say N.
-> > > > > +
-> > > > >  config VIRTIO_PCI
-> > > > >       tristate "PCI driver for virtio devices"
-> > > > >       depends on PCI
-> > > > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > > > index ef04a96942bf..21dc08d2f32d 100644
-> > > > > --- a/drivers/virtio/virtio.c
-> > > > > +++ b/drivers/virtio/virtio.c
-> > > > > @@ -220,6 +220,7 @@ static int virtio_features_ok(struct virtio_device *dev)
-> > > > >   * */
-> > > > >  void virtio_reset_device(struct virtio_device *dev)
-> > > > >  {
-> > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > >       /*
-> > > > >        * The below virtio_synchronize_cbs() guarantees that any
-> > > > >        * interrupt for this line arriving after
-> > > > > @@ -228,6 +229,7 @@ void virtio_reset_device(struct virtio_device *dev)
-> > > > >        */
-> > > > >       virtio_break_device(dev);
-> > > > >       virtio_synchronize_cbs(dev);
-> > > > > +#endif
-> > > > >
-> > > > >       dev->config->reset(dev);
-> > > > >  }
-> > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > > > index 13a7348cedff..d9d3b6e201fb 100644
-> > > > > --- a/drivers/virtio/virtio_ring.c
-> > > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > > @@ -1688,7 +1688,11 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> > > > >       vq->we_own_ring = true;
-> > > > >       vq->notify = notify;
-> > > > >       vq->weak_barriers = weak_barriers;
-> > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > >       vq->broken = true;
-> > > > > +#else
-> > > > > +     vq->broken = false;
-> > > > > +#endif
-> > > > >       vq->last_used_idx = 0;
-> > > > >       vq->event_triggered = false;
-> > > > >       vq->num_added = 0;
-> > > > > @@ -2135,9 +2139,13 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> > > > >       }
-> > > > >
-> > > > >       if (unlikely(vq->broken)) {
-> > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > >               dev_warn_once(&vq->vq.vdev->dev,
-> > > > >                             "virtio vring IRQ raised before DRIVER_OK");
-> > > > >               return IRQ_NONE;
-> > > > > +#else
-> > > > > +             return IRQ_HANDLED;
-> > > > > +#endif
-> > > > >       }
-> > > > >
-> > > > >       /* Just a hint for performance: so it's ok that this can be racy! */
-> > > > > @@ -2180,7 +2188,11 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > > > >       vq->we_own_ring = false;
-> > > > >       vq->notify = notify;
-> > > > >       vq->weak_barriers = weak_barriers;
-> > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > >       vq->broken = true;
-> > > > > +#else
-> > > > > +     vq->broken = false;
-> > > > > +#endif
-> > > > >       vq->last_used_idx = 0;
-> > > > >       vq->event_triggered = false;
-> > > > >       vq->num_added = 0;
-> > > > > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > > > > index 9a36051ceb76..d15c3cdda2d2 100644
-> > > > > --- a/include/linux/virtio_config.h
-> > > > > +++ b/include/linux/virtio_config.h
-> > > > > @@ -257,6 +257,7 @@ void virtio_device_ready(struct virtio_device *dev)
-> > > > >
-> > > > >       WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-> > > > >
-> > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > >       /*
-> > > > >        * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> > > > >        * will see the driver specific setup if it sees vq->broken
-> > > > > @@ -264,6 +265,7 @@ void virtio_device_ready(struct virtio_device *dev)
-> > > > >        */
-> > > > >       virtio_synchronize_cbs(dev);
-> > > > >       __virtio_unbreak_device(dev);
-> > > > > +#endif
-> > > > >       /*
-> > > > >        * The transport should ensure the visibility of vq->broken
-> > > > >        * before setting DRIVER_OK. See the comments for the transport
-> > > > > --
-> > > > > 2.25.1
+> > > > diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> > > > index 3a86f36d7e3d..22bec9bd0dfc 100644
+> > > > --- a/include/uapi/linux/virtio_pci.h
+> > > > +++ b/include/uapi/linux/virtio_pci.h
+> > > > @@ -166,6 +166,13 @@ struct virtio_pci_common_cfg {
+> > > >       __le32 queue_used_hi;           /* read-write */
+> > > >  };
 > > > >
-> >
+> > > > +struct virtio_pci_common_cfg_notify {
+> > > > +     struct virtio_pci_common_cfg cfg;
+> > > > +
+> > > > +     __le16 queue_notify_data;       /* read-write */
+> > > > +     __le16 padding;
+> > > > +};
+> > > > +
+> > > >  /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
+> > > >  struct virtio_pci_cfg_cap {
+> > > >       struct virtio_pci_cap cap;
+> > > > --
+> > > > 2.31.0
+> > >
+>
 
