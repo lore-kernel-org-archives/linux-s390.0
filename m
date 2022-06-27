@@ -2,142 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52632C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 08:35:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65047CCA47E
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 08:46:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233025AbiF0IfU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 04:35:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33916 "EHLO
+        id S233325AbiF0Iqf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 04:46:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230096AbiF0IfS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 04:35:18 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A5D2625F;
-        Mon, 27 Jun 2022 01:35:17 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25R8MQT3006510;
-        Mon, 27 Jun 2022 08:35:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=6DlWVYA8hMNjFBiZ87iwSCITxHGwTcyAmb3K65dXJhY=;
- b=rRtumoFLpM1BfgP6ELoG/TamJJ25MW5ejahyMJGU2WR2uau6fXGxHR3Eu+8XopnkPhnV
- NlmM5iwtYkl3ATxqGCBW75VS/wIpAXFht4Bdqq4QcYWx7llAuc7TQkH4T+A0qMhwqz9L
- FjHT8NRwrg3lYGDa6IGMBLQow+a/sv0O6vYsml+X4A1vXgRcENqpCo4QVTIOoGnnV/zr
- p0mDod8ri7+INOXVJWqd3+fB1RI1pVqzVldqriGCAeCHMlQ61FKt5/wzOmWrnikPTOs3
- gjWh6cuxH2m+P0+3UfWocWRAOc85vQLzxLyyavLY9wH3veeyHhszNVuwhbw1Ogzrhvmt zg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gy8yy88jp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 08:35:16 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25R8P6pW018538;
-        Mon, 27 Jun 2022 08:35:16 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gy8yy88j4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 08:35:16 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25R8KqdW027610;
-        Mon, 27 Jun 2022 08:35:14 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03ams.nl.ibm.com with ESMTP id 3gwt08tj7v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Jun 2022 08:35:14 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25R8ZBoW14746028
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 27 Jun 2022 08:35:11 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B536CA4051;
-        Mon, 27 Jun 2022 08:35:11 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 71111A404D;
-        Mon, 27 Jun 2022 08:35:11 +0000 (GMT)
-Received: from [9.145.155.49] (unknown [9.145.155.49])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 27 Jun 2022 08:35:11 +0000 (GMT)
-Message-ID: <6e6e4e06-a32f-c5b7-0b3a-f9f62ed164df@linux.ibm.com>
-Date:   Mon, 27 Jun 2022 10:35:11 +0200
+        with ESMTP id S233053AbiF0Iqf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 04:46:35 -0400
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8C076354
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 01:46:33 -0700 (PDT)
+Received: by mail-yb1-xb36.google.com with SMTP id h187so13329559ybg.0
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 01:46:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4vsOnIc+C2gY1UVlbVz/JDciMvgYEap1WYGcSJm7nik=;
+        b=izm5TvVaySgpwnEQF9/y67fAWYu9B2xhHcC5MrbsqfKRyBWcvUJOefttP3U8C7H5yK
+         cf/c+G/MDFeL9d3jWR3ZM1W+uRZZqwp2hTAlphjRcQ4y5gzmknF6zrBjrzS5Oq9593TH
+         prMhKu/+/nH//vvJzE+A8myFZw0Vf2YB5togDcAyh2pSj1lg7+NXGygkUac2Pq5BEBXO
+         5+wwtXrzIkpK6w7dEXtmMbM9imlU0I4M6KLt1i3bZoyGQ30Vb87yxIZpNyIgjCBXAtgw
+         DSd6AsFRpnuauM1qBq8q0T/kLZUm8tLjA1oB1Fx/TPENkDLwNudIWg8vpilEWofAkp3b
+         qS3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4vsOnIc+C2gY1UVlbVz/JDciMvgYEap1WYGcSJm7nik=;
+        b=HerZkM4+v+4tLpuQzGXRooxtF2B9UK/U/QwQohU8ocA4df59gpYE/EvvrGy50kteKl
+         QOhBXemT9r7Ctcyfa9gH760F0eRifSCS0hg5ehgf9bGrlMp8LhfVFPXNKhbIhL9/E9mz
+         o+uBYqQUjvNH4Bb5VGgTnWQpPqyd/GReCtZSbVAO+AT9rDOHy7GjS4rkc80o7TqV6xIz
+         yIdf7cNXG+KnKPnk2u/NOMSmatVfICR8n8CL8ECReayqqHpQDD2WjWZnWH/wQE3WH5tB
+         5yHosT0E08NtbQA6fP5PiTbHr5lKHNdUknhump0sUErWxbuVkPmTGAJVKcdjdU7ssJYg
+         FGOg==
+X-Gm-Message-State: AJIora/HI3LEWWD7/trtirLZnS1UVJnsh0XDNgfiRBqTau+FxeH0E/1P
+        iD57ShgWtlbfctMfqR+w8mTO5u6omJT7z4aIODN+wg==
+X-Google-Smtp-Source: AGRyM1tmdR+Xbj5kJ69vq4foOyHTSytqN33Xz6MWmkpMcamFreKrameDkaAL4/75vWqZ0Cye+/NLca9lf7qZmNQ/HPM=
+X-Received: by 2002:a25:6c5:0:b0:669:a17a:2289 with SMTP id
+ 188-20020a2506c5000000b00669a17a2289mr12352386ybg.231.1656319592797; Mon, 27
+ Jun 2022 01:46:32 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [kvm-unit-tests PATCH v2 1/3] lib: s390x: add functions to set
- and clear PSW bits
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, scgl@linux.ibm.com, nrb@linux.ibm.com,
-        thuth@redhat.com
-References: <20220624144518.66573-1-imbrenda@linux.ibm.com>
- <20220624144518.66573-2-imbrenda@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220624144518.66573-2-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LKvK5l0oSJ01FppKH4VWWEyFJ2264CsH
-X-Proofpoint-GUID: JT2Khc2yPeO6K034ezwMkmlEpSNTfyG0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-27_06,2022-06-24_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 malwarescore=0 mlxscore=0 phishscore=0 impostorscore=0
- lowpriorityscore=0 mlxlogscore=999 bulkscore=0 adultscore=0 clxscore=1015
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206270036
+References: <20220619150456.GB34471@xsang-OptiPlex-9020> <20220622172857.37db0d29@kernel.org>
+ <CADvbK_csvmkKe46hT9792=+Qcjor2EvkkAnr--CJK3NGX-N9BQ@mail.gmail.com>
+ <CADvbK_eQUmb942vC+bG+NRzM1ki1LiCydEDR1AezZ35Jvsdfnw@mail.gmail.com>
+ <20220623185730.25b88096@kernel.org> <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
+ <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
+ <20220624070656.GE79500@shbuild999.sh.intel.com> <20220624144358.lqt2ffjdry6p5u4d@google.com>
+ <20220625023642.GA40868@shbuild999.sh.intel.com> <20220627023812.GA29314@shbuild999.sh.intel.com>
+In-Reply-To: <20220627023812.GA29314@shbuild999.sh.intel.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Mon, 27 Jun 2022 10:46:21 +0200
+Message-ID: <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
+Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
+To:     Feng Tang <feng.tang@intel.com>
+Cc:     Shakeel Butt <shakeelb@google.com>, Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        kernel test robot <oliver.sang@intel.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        network dev <netdev@vger.kernel.org>,
+        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
+        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
+        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/24/22 16:45, Claudio Imbrenda wrote:
-> Add some functions to set and/or clear bits in the PSW.
-> This should improve code readability.
-> 
+On Mon, Jun 27, 2022 at 4:38 AM Feng Tang <feng.tang@intel.com> wrote:
+>
+> On Sat, Jun 25, 2022 at 10:36:42AM +0800, Feng Tang wrote:
+> > On Fri, Jun 24, 2022 at 02:43:58PM +0000, Shakeel Butt wrote:
+> > > On Fri, Jun 24, 2022 at 03:06:56PM +0800, Feng Tang wrote:
+> > > > On Thu, Jun 23, 2022 at 11:34:15PM -0700, Shakeel Butt wrote:
+> > > [...]
+> > > > >
+> > > > > Feng, can you please explain the memcg setup on these test machines
+> > > > > and if the tests are run in root or non-root memcg?
+> > > >
+> > > > I don't know the exact setup, Philip/Oliver from 0Day can correct me.
+> > > >
+> > > > I logged into a test box which runs netperf test, and it seems to be
+> > > > cgoup v1 and non-root memcg. The netperf tasks all sit in dir:
+> > > > '/sys/fs/cgroup/memory/system.slice/lkp-bootstrap.service'
+> > > >
+> > >
+> > > Thanks Feng. Can you check the value of memory.kmem.tcp.max_usage_in_bytes
+> > > in /sys/fs/cgroup/memory/system.slice/lkp-bootstrap.service after making
+> > > sure that the netperf test has already run?
+> >
+> > memory.kmem.tcp.max_usage_in_bytes:0
+>
+> Sorry, I made a mistake that in the original report from Oliver, it
+> was 'cgroup v2' with a 'debian-11.1' rootfs.
+>
+> When you asked about cgroup info, I tried the job on another tbox, and
+> the original 'job.yaml' didn't work, so I kept the 'netperf' test
+> parameters and started a new job which somehow run with a 'debian-10.4'
+> rootfs and acutally run with cgroup v1.
+>
+> And as you mentioned cgroup version does make a big difference, that
+> with v1, the regression is reduced to 1% ~ 5% on different generations
+> of test platforms. Eric mentioned they also got regression report,
+> but much smaller one, maybe it's due to the cgroup version?
 
-Also we introduce PSW_MASK_KEY and re-order the PSW_MASK_* constants so 
-they are descending in value.
+This was using the current net-next tree.
+Used recipe was something like:
 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->   lib/s390x/asm/arch_def.h | 58 +++++++++++++++++++++++++++++++++++-----
->   lib/s390x/asm/pgtable.h  |  2 --
->   lib/s390x/mmu.c          | 14 +---------
->   lib/s390x/sclp.c         |  7 +----
->   s390x/diag288.c          |  6 ++---
->   s390x/selftest.c         |  4 +--
->   s390x/skrf.c             | 12 +++------
->   s390x/smp.c              | 18 +++----------
->   8 files changed, 63 insertions(+), 58 deletions(-)
-> 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 78b257b7..b0052848 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -46,9 +46,10 @@ struct psw {
->   #define AS_SECN				2
->   #define AS_HOME				3
->   
-> -#define PSW_MASK_EXT			0x0100000000000000UL
-> -#define PSW_MASK_IO			0x0200000000000000UL
->   #define PSW_MASK_DAT			0x0400000000000000UL
-> +#define PSW_MASK_IO			0x0200000000000000UL
-> +#define PSW_MASK_EXT			0x0100000000000000UL
-> +#define PSW_MASK_KEY			0x00F0000000000000UL
->   #define PSW_MASK_WAIT			0x0002000000000000UL
->   #define PSW_MASK_PSTATE			0x0001000000000000UL
->   #define PSW_MASK_EA			0x0000000100000000UL
-> @@ -313,6 +314,53 @@ static inline void load_psw_mask(uint64_t mask)
->   		: "+r" (tmp) :  "a" (&psw) : "memory", "cc" );
->   }
->   
-> +/**
-> + * psw_mask_set_clear_bits - sets and clears bits from the current PSW mask
-> + * @clear: bitmask of bits that will be cleared
-> + * @set: bitmask of bits that will be set
-> + *
-> + * Bits will be cleared first, and then set, so if (@clear & @set != 0) then
-> + * the bits in the intersection will be set.
-> + */
-> +static inline void psw_mask_set_clear_bits(uint64_t clear, uint64_t set)
+Make sure cgroup2 is mounted or mount it by mount -t cgroup2 none $MOUNT_POINT.
+Enable memory controller by echo +memory > $MOUNT_POINT/cgroup.subtree_control.
+Create a cgroup by mkdir $MOUNT_POINT/job.
+Jump into that cgroup by echo $$ > $MOUNT_POINT/job/cgroup.procs.
 
-This function isn't used at all, no?
+<Launch tests>
+
+The regression was smaller than 1%, so considered noise compared to
+the benefits of the bug fix.
+
+>
+> Thanks,
+> Feng
+>
+> > And here is more memcg stats (let me know if you want to check more)
+> >
+> > > If this is non-zero then network memory accounting is enabled and the
+> > > slowdown is expected.
+> >
+> > >From the perf-profile data in original report, both
+> > __sk_mem_raise_allocated() and __sk_mem_reduce_allocated() are called
+> > much more often, which call memcg charge/uncharge functions.
+> >
+> > IIUC, the call chain is:
+> >
+> > __sk_mem_raise_allocated
+> >     sk_memory_allocated_add
+> >     mem_cgroup_charge_skmem
+> >         charge memcg->tcpmem (for cgroup v2)
+> >       try_charge memcg (for v1)
+> >
+> > Also from Eric's one earlier commit log:
+> >
+> > "
+> > net: implement per-cpu reserves for memory_allocated
+> > ...
+> > This means we are going to call sk_memory_allocated_add()
+> > and sk_memory_allocated_sub() more often.
+> > ...
+> > "
+> >
+> > So this slowdown is related to the more calling of charge/uncharge?
+> >
+> > Thanks,
+> > Feng
+> >
+> > > > And the rootfs is a debian based rootfs
+> > > >
+> > > > Thanks,
+> > > > Feng
+> > > >
+> > > >
+> > > > > thanks,
+> > > > > Shakeel
