@@ -2,129 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E995C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 15:25:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E573C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 16:18:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237863AbiF0PZe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 11:25:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40802 "EHLO
+        id S235753AbiF0QSW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 12:18:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238014AbiF0PZd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 11:25:33 -0400
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7993718B29;
-        Mon, 27 Jun 2022 08:25:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656343532; x=1687879532;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=xJP9OefAMxCTgdzZDCaOuKXFij4QIj41i5jxXMS1AdM=;
-  b=f+F119vY0+Oa3b+eLjeAwSBqKVjPEWXrHqBv6amHvJPB4/H1Kn/2k3Zh
-   hopZmpI/JyDcOMxE7OoyZdVNZFW5Bf9xiVO0BjTZP/m3d7l1zBd3dD0Z+
-   fBLQj5Q/KmkEKaCKmb9mSHOMmE765RCvNQA1OIUsyhw7XPyZdrjIv0pB9
-   eOPq3CBIsj0KypMKzc76MTyRfFNo2digNiMOiHI2+70WiJf1LOk1HXYf1
-   gQ29WwDOaoaOu/B1PT/GvnkZuzmOpPlm24jTax0eS7qPUU8dkUgUvOAX2
-   7tofhsMkbcEHKBhD1JW4kqgYl7m/L24q3k4LaTbSfrjN6nMSqrcReG/VU
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10391"; a="279013691"
-X-IronPort-AV: E=Sophos;i="5.92,226,1650956400"; 
-   d="scan'208";a="279013691"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jun 2022 08:13:04 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,226,1650956400"; 
-   d="scan'208";a="766731304"
-Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.138])
-  by orsmga005.jf.intel.com with ESMTP; 27 Jun 2022 08:12:58 -0700
-Date:   Mon, 27 Jun 2022 23:12:58 +0800
-From:   Feng Tang <feng.tang@intel.com>
-To:     Shakeel Butt <shakeelb@google.com>
-Cc:     Eric Dumazet <edumazet@google.com>, Linux MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        network dev <netdev@vger.kernel.org>,
-        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
-Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
-Message-ID: <20220627151258.GB20878@shbuild999.sh.intel.com>
-References: <20220623185730.25b88096@kernel.org>
- <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
- <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
- <20220624070656.GE79500@shbuild999.sh.intel.com>
- <20220624144358.lqt2ffjdry6p5u4d@google.com>
- <20220625023642.GA40868@shbuild999.sh.intel.com>
- <20220627023812.GA29314@shbuild999.sh.intel.com>
- <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
- <20220627123415.GA32052@shbuild999.sh.intel.com>
- <CALvZod7i_=7bNZR-LAXBPXJFxj-1KBuYs+rmG0iABAE1T90BPg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        with ESMTP id S235328AbiF0QSU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 12:18:20 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE661025;
+        Mon, 27 Jun 2022 09:18:18 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25RFsbDN006833;
+        Mon, 27 Jun 2022 16:18:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to : sender :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=MJ7JgmQeaf0NWBCP66YkXoDpeI0ijF+m62QKhIfAnHg=;
+ b=fYub/yOjaDQ9Ty7yCt9mpagft9iEo/e46t0vXUNcMIjGB8d4jZNS9KM4VkHFHNtpL6Aq
+ o/sMZByD7nEleS2iLYPaUIGBDi7zEwytVFasDI79SXskWYpif6xVR18ucvVrOfw/ECp5
+ 846AjzAyASyle6cyBo9Zp1qhO34pm5KeKKbRIH/ZLAMO2TZ3mGveCNK962paPlg4Bzxj
+ Yiw25SvA7AaaOQKnUAQ8o9v8ZBVENf2M7P0FLN1xWJ2qhDq8WYptBHUj/h8s1RTCX9c4
+ iPDL3Ev+zdpJ+XmCFXcCT8TKgEyyCjqF0OthjC+C4PXywjBIzDM46fIVaAW/MzFkJGzf BA== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyfkwrwea-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 16:18:14 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25RG4sxS007197;
+        Mon, 27 Jun 2022 16:18:12 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3gwsmj37va-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 16:18:11 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25RGI8kp24576468
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 27 Jun 2022 16:18:08 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B2F95AE04D;
+        Mon, 27 Jun 2022 16:18:08 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9FEF5AE045;
+        Mon, 27 Jun 2022 16:18:08 +0000 (GMT)
+Received: from t480-pf1aa2c2 (unknown [9.152.212.237])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 27 Jun 2022 16:18:08 +0000 (GMT)
+Received: from bblock by t480-pf1aa2c2 with local (Exim 4.94.2)
+        (envelope-from <bblock@linux.ibm.com>)
+        id 1o5rRC-001mmC-Sr; Mon, 27 Jun 2022 18:18:10 +0200
+Date:   Mon, 27 Jun 2022 16:18:10 +0000
+From:   Benjamin Block <bblock@linux.ibm.com>
+To:     Zhang Jiaming <jiaming@nfschina.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     gor@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        liqiong@nfschina.com, renyu@nfschina.com
+Subject: Re: [PATCH] s390/qdio: Fix spelling mistake
+Message-ID: <YrnYQtO2Zuae06OP@t480-pf1aa2c2.fritz.box>
+References: <20220623060543.12870-1-jiaming@nfschina.com>
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <CALvZod7i_=7bNZR-LAXBPXJFxj-1KBuYs+rmG0iABAE1T90BPg@mail.gmail.com>
+In-Reply-To: <20220623060543.12870-1-jiaming@nfschina.com>
+Sender: Benjamin Block <bblock@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: jiDO5YKv2NP7h6Q00vVXyYx8iGfEH9Yq
+X-Proofpoint-GUID: jiDO5YKv2NP7h6Q00vVXyYx8iGfEH9Yq
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-27_06,2022-06-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 impostorscore=0 spamscore=0 bulkscore=0 adultscore=0
+ mlxlogscore=999 clxscore=1011 phishscore=0 mlxscore=0 suspectscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206270068
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 07:52:55AM -0700, Shakeel Butt wrote:
-> On Mon, Jun 27, 2022 at 5:34 AM Feng Tang <feng.tang@intel.com> wrote:
-> > Yes, 1% is just around noise level for a microbenchmark.
-> >
-> > I went check the original test data of Oliver's report, the tests was
-> > run 6 rounds and the performance data is pretty stable (0Day's report
-> > will show any std deviation bigger than 2%)
-> >
-> > The test platform is a 4 sockets 72C/144T machine, and I run the
-> > same job (nr_tasks = 25% * nr_cpus) on one CascadeLake AP (4 nodes)
-> > and one Icelake 2 sockets platform, and saw 75% and 53% regresson on
-> > them.
-> >
-> > In the first email, there is a file named 'reproduce', it shows the
-> > basic test process:
-> >
-> > "
-> >   use 'performane' cpufre  governor for all CPUs
-> >
-> >   netserver -4 -D
-> >   modprobe sctp
-> >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
-> >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
-> >   netperf -4 -H 127.0.0.1 -t SCTP_STREAM_MANY -c -C -l 300 -- -m 10K  &
-> >   (repeat 36 times in total)
-> >   ...
-> >
-> > "
-> >
-> > Which starts 36 (25% of nr_cpus) netperf clients. And the clients number
-> > also matters, I tried to increase the client number from 36 to 72(50%),
-> > and the regression is changed from 69.4% to 73.7%
-> >
+On Thu, Jun 23, 2022 at 02:05:43PM +0800, Zhang Jiaming wrote:
+> Change 'defineable' to 'definable'.
+> Change 'paramater' to 'parameter'.
 > 
-> Am I understanding correctly that this 69.4% (or 73.7%) regression is
-> with cgroup v2?
-
-Yes.
-
-> Eric did the experiments on v2 but on real hardware where the
-> performance impact was negligible.
+> Signed-off-by: Zhang Jiaming <jiaming@nfschina.com>
+> ---
+>  arch/s390/include/asm/qdio.h | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> BTW do you see similar regression for tcp as well or just sctp?
+> diff --git a/arch/s390/include/asm/qdio.h b/arch/s390/include/asm/qdio.h
+> index 54ae2dc65e3b..2f983e0b95e0 100644
+> --- a/arch/s390/include/asm/qdio.h
+> +++ b/arch/s390/include/asm/qdio.h
+> @@ -133,9 +133,9 @@ struct slibe {
+>   * @sb_count: number of storage blocks
+>   * @sba: storage block element addresses
+>   * @dcount: size of storage block elements
+> - * @user0: user defineable value
+> - * @res4: reserved paramater
+> - * @user1: user defineable value
+> + * @user0: user definable value
+> + * @res4: reserved parameter
+> + * @user1: user definable value
 
-Yes, I run TCP_SENDFILE case with 'send_size'==10K, it hits a
-70%+ regressioin. 
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 
-Thanks,
-Feng
+Heiko, Alexander, can you queue this please? Don't think we need any
+more reviews here.
+
+>   */
+>  struct qaob {
+>  	u64 res0[6];
+> -- 
+> 2.25.1
+> 
+
+-- 
+Best Regards, Benjamin Block  / Linux on IBM Z Kernel Development / IBM Systems
+IBM Deutschland Research & Development GmbH    /    https://www.ibm.com/privacy
+Vorsitz. AufsR.: Gregor Pillen         /         Geschäftsführung: David Faller
+Sitz der Gesellschaft: Böblingen / Registergericht: AmtsG Stuttgart, HRB 243294
