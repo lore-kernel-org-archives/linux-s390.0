@@ -2,166 +2,217 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A9ACCCA473
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 17:05:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B33B5C43334
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 17:16:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235574AbiF0RFc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 13:05:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54222 "EHLO
+        id S235920AbiF0RQG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 13:16:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237015AbiF0RFa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 13:05:30 -0400
-Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E72F517E1B
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 10:05:29 -0700 (PDT)
-Received: by mail-yb1-xb2f.google.com with SMTP id l11so17765574ybu.13
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 10:05:29 -0700 (PDT)
+        with ESMTP id S239917AbiF0RQF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 13:16:05 -0400
+X-Greylist: delayed 62 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 27 Jun 2022 10:16:03 PDT
+Received: from mailrelay4-1.pub.mailoutpod1-cph3.one.com (mailrelay4-1.pub.mailoutpod1-cph3.one.com [46.30.210.185])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A70262DE
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 10:16:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=llT1Zq6sh+MENUn7ZyFpz597NkMTivkH2nO9uzDfXJc=;
-        b=hSVoyAPeZyTQ6QXLkInesPxCelw6q0JD7Hv9wsjbBHfFEdOnkZ2yvmx7AxA0Eh7LxL
-         5Br6FVTxPc7BCLirBQW+hf6peNUEzFOJvMNCPTWbaY6WN9blx5shC/VN1xq1zWQk2JZ1
-         sS/2tZbkP1G2ZnHwZpk9zwBdhJ9ydoT9I0699o4AHA7THbqNqWgs5cnENYiYAtskraqf
-         2kuwhXGgUbZwhBqFcRROjY03fkDh2BbMWkIszSqN8qA6NqD5lLk+ogy+J7EmL2CUFVJn
-         nJe4Drn1fXkyqf+a9IdT7HZr+7cy2fG3pgzM+tc/VZUqb+6vNOgyaO4phFEdxPZxjP+9
-         brQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=llT1Zq6sh+MENUn7ZyFpz597NkMTivkH2nO9uzDfXJc=;
-        b=zB3zaZrg+7h99y4jKYdfSGTNjf7cbkEtdHPfdpFqAvrxjsDRxmRKBbQo62ADoRSHiA
-         H/QXgA9ofsY/hunbnKqEhMKDgToqarmSReIrlO8A55/TaVMJ8HD3/Fa0rryXIxvXCacg
-         kDGlOrIKsd8djpCBUkwfc1ktjK/OhHvmTeAG8PjtQUbw0G+S2IpbztCH1l+yxoXX4fGl
-         eCuFTFDlAznFi8oZlh+6I07BXKiYI/f4Su0sSY9F0O53WFn4uE6zf4UbMwB13LzgBeM/
-         mNPHOePMG88SFJtzA/4iETUqBUV31HZf1Qo52+5o9cb0ftZwY1fW2NRva71JTPEJE7RT
-         Oy1w==
-X-Gm-Message-State: AJIora+PrVapNj90IcVt+j2APUuJdjNf3gDdAXKK1zWo8ZbOzxiPXdw6
-        +YYs9NYsyXRmCXY7+oyAetLjCZKs1EUW1yk+lf8Fvg==
-X-Google-Smtp-Source: AGRyM1v+tQ4QFlzlRJhm1Rkgi+oPwKgFtB3zGgIAUGtDZNUytR6VX29Z8irDx5YhFCtKUwVtXFd5otJlwfAxhslH2Mk=
-X-Received: by 2002:a25:d957:0:b0:66c:9476:708f with SMTP id
- q84-20020a25d957000000b0066c9476708fmr11488633ybg.427.1656349528655; Mon, 27
- Jun 2022 10:05:28 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220623185730.25b88096@kernel.org> <CANn89iLidqjiiV8vxr7KnUg0JvfoS9+TRGg=8ANZ8NBRjeQxsQ@mail.gmail.com>
- <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
- <20220624070656.GE79500@shbuild999.sh.intel.com> <20220624144358.lqt2ffjdry6p5u4d@google.com>
- <20220625023642.GA40868@shbuild999.sh.intel.com> <20220627023812.GA29314@shbuild999.sh.intel.com>
- <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
- <20220627123415.GA32052@shbuild999.sh.intel.com> <CANn89iJAoYCebNbXpNMXRoDUkFMhg9QagetVU9NZUq+GnLMgqQ@mail.gmail.com>
- <20220627144822.GA20878@shbuild999.sh.intel.com> <CANn89iLSWm-c4XE79rUsxzOp3VwXVDhOEPTQnWgeQ48UwM=u7Q@mail.gmail.com>
- <CALvZod60OHC4iQnyBd16evCHXa_8ucpHiRnm9iNErQeUOycGZw@mail.gmail.com>
-In-Reply-To: <CALvZod60OHC4iQnyBd16evCHXa_8ucpHiRnm9iNErQeUOycGZw@mail.gmail.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Mon, 27 Jun 2022 19:05:17 +0200
-Message-ID: <CANn89iLnOBGk+P33MRAkNwVLQC+s1M36m+cg1d4pJ970ecdxcg@mail.gmail.com>
-Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
-To:     Shakeel Butt <shakeelb@google.com>
-Cc:     Feng Tang <feng.tang@intel.com>, Linux MM <linux-mm@kvack.org>,
+        d=ravnborg.org; s=rsa1;
+        h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
+         from:date:from;
+        bh=7lcoTIguoCU25UtATqw0zpenNexDp4klBKBcas47lUI=;
+        b=DnMKzuyWChdqVj0eyu9qk+S12hDc5E1lpoUVu+RwnrA66JDBO9VVaJjjgy7iZh0CwjBX0Tb2UW9eA
+         IDL3blt0HWe+7nCJ6LBbtgtWCdYTIJf7JxMi5tEKyk04dMJhxQKgJhN19n7gZmip7ExOCH60av6Zc+
+         fpOnPKVrkcE6dB7IpmBBA5V/48B5nOCXs0dWxrIHUJoi6B5gDTxnps7C32yW7RQiRmwMZofOskZtJ1
+         g5yggk+VyjJho8A1QsSz/r/K9taqv0SWrqNZr//W7DugrtnSjHFKtDOi/ahsacud1GZwml0SRslSij
+         +WBGlPijIt3aAxUmrpMXX3P747L7FOQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed;
+        d=ravnborg.org; s=ed1;
+        h=in-reply-to:content-type:mime-version:references:message-id:subject:cc:to:
+         from:date:from;
+        bh=7lcoTIguoCU25UtATqw0zpenNexDp4klBKBcas47lUI=;
+        b=0c4FfNqt1mwTyFHOd20j3eJXx+yZAcz5xOVj+2VVBhkRNfl+lcYaMnmV/txPP7q97nUwiERp2Rz/D
+         LTtF3EvDA==
+X-HalOne-Cookie: be347a0a6f76c63821867329f3b288b192d004df
+X-HalOne-ID: ab689703-f63c-11ec-8236-d0431ea8bb10
+Received: from mailproxy2.cst.dirpod3-cph3.one.com (80-162-45-141-cable.dk.customer.tdc.net [80.162.45.141])
+        by mailrelay4.pub.mailoutpod1-cph3.one.com (Halon) with ESMTPSA
+        id ab689703-f63c-11ec-8236-d0431ea8bb10;
+        Mon, 27 Jun 2022 17:14:58 +0000 (UTC)
+Date:   Mon, 27 Jun 2022 19:14:56 +0200
+From:   Sam Ravnborg <sam@ravnborg.org>
+To:     Anshuman Khandual <anshuman.khandual@arm.com>
+Cc:     linux-mm@kvack.org, hch@infradead.org, christophe.leroy@csgroup.eu,
         Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        network dev <netdev@vger.kernel.org>,
-        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        x86@kernel.org, openrisc@lists.librecores.org,
+        linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org,
+        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH V5 04/26] sparc/mm: Move protection_map[] inside the
+ platform
+Message-ID: <YrnlkLbyYSbI0EQw@ravnborg.org>
+References: <20220627045833.1590055-1-anshuman.khandual@arm.com>
+ <20220627045833.1590055-5-anshuman.khandual@arm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220627045833.1590055-5-anshuman.khandual@arm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 6:48 PM Shakeel Butt <shakeelb@google.com> wrote:
->
-> On Mon, Jun 27, 2022 at 9:26 AM Eric Dumazet <edumazet@google.com> wrote:
-> >
-> [...]
-> > >
-> >
-> > I simply did the following and got much better results.
-> >
-> > But I am not sure if updates to ->usage are really needed that often...
->
-> I suspect we need to improve the per-cpu memcg stock usage here. Were
-> the updates mostly from uncharge path or charge path or that's
-> irrelevant?
+Hi Anshuman,
 
-I wonder if the cache is always used...
+On Mon, Jun 27, 2022 at 10:28:11AM +0530, Anshuman Khandual wrote:
+> This moves protection_map[] inside the platform and while here, also enable
+> ARCH_HAS_VM_GET_PAGE_PROT on 32 bit platforms via DECLARE_VM_GET_PAGE_PROT.
+> 
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: sparclinux@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> ---
+>  arch/sparc/Kconfig                  |  2 +-
+>  arch/sparc/include/asm/pgtable_32.h | 19 -------------------
+>  arch/sparc/include/asm/pgtable_64.h | 19 -------------------
+>  arch/sparc/mm/init_32.c             | 20 ++++++++++++++++++++
+>  arch/sparc/mm/init_64.c             |  3 +++
+>  5 files changed, 24 insertions(+), 39 deletions(-)
+> 
+> diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+> index ba449c47effd..09f868613a4d 100644
+> --- a/arch/sparc/Kconfig
+> +++ b/arch/sparc/Kconfig
+> @@ -13,6 +13,7 @@ config 64BIT
+>  config SPARC
+>  	bool
+>  	default y
+> +	select ARCH_HAS_VM_GET_PAGE_PROT
+>  	select ARCH_MIGHT_HAVE_PC_PARPORT if SPARC64 && PCI
+>  	select ARCH_MIGHT_HAVE_PC_SERIO
+>  	select DMA_OPS
+> @@ -84,7 +85,6 @@ config SPARC64
+>  	select PERF_USE_VMALLOC
+>  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+>  	select HAVE_C_RECORDMCOUNT
+> -	select ARCH_HAS_VM_GET_PAGE_PROT
+>  	select HAVE_ARCH_AUDITSYSCALL
+>  	select ARCH_SUPPORTS_ATOMIC_RMW
+>  	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+> diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
+> index 4866625da314..8ff549004fac 100644
+> --- a/arch/sparc/include/asm/pgtable_32.h
+> +++ b/arch/sparc/include/asm/pgtable_32.h
+> @@ -64,25 +64,6 @@ void paging_init(void);
+>  
+>  extern unsigned long ptr_in_current_pgd;
+>  
+> -/*         xwr */
+> -#define __P000  PAGE_NONE
+> -#define __P001  PAGE_READONLY
+> -#define __P010  PAGE_COPY
+> -#define __P011  PAGE_COPY
+> -#define __P100  PAGE_READONLY
+> -#define __P101  PAGE_READONLY
+> -#define __P110  PAGE_COPY
+> -#define __P111  PAGE_COPY
+> -
+> -#define __S000	PAGE_NONE
+> -#define __S001	PAGE_READONLY
+> -#define __S010	PAGE_SHARED
+> -#define __S011	PAGE_SHARED
+> -#define __S100	PAGE_READONLY
+> -#define __S101	PAGE_READONLY
+> -#define __S110	PAGE_SHARED
+> -#define __S111	PAGE_SHARED
+> -
+>  /* First physical page can be anywhere, the following is needed so that
+>   * va-->pa and vice versa conversions work properly without performance
+>   * hit for all __pa()/__va() operations.
+> diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
+> index 4679e45c8348..a779418ceba9 100644
+> --- a/arch/sparc/include/asm/pgtable_64.h
+> +++ b/arch/sparc/include/asm/pgtable_64.h
+> @@ -187,25 +187,6 @@ bool kern_addr_valid(unsigned long addr);
+>  #define _PAGE_SZHUGE_4U	_PAGE_SZ4MB_4U
+>  #define _PAGE_SZHUGE_4V	_PAGE_SZ4MB_4V
+>  
+> -/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
+> -#define __P000	__pgprot(0)
+> -#define __P001	__pgprot(0)
+> -#define __P010	__pgprot(0)
+> -#define __P011	__pgprot(0)
+> -#define __P100	__pgprot(0)
+> -#define __P101	__pgprot(0)
+> -#define __P110	__pgprot(0)
+> -#define __P111	__pgprot(0)
+> -
+> -#define __S000	__pgprot(0)
+> -#define __S001	__pgprot(0)
+> -#define __S010	__pgprot(0)
+> -#define __S011	__pgprot(0)
+> -#define __S100	__pgprot(0)
+> -#define __S101	__pgprot(0)
+> -#define __S110	__pgprot(0)
+> -#define __S111	__pgprot(0)
+> -
+>  #ifndef __ASSEMBLY__
+>  
+>  pte_t mk_pte_io(unsigned long, pgprot_t, int, unsigned long);
+> diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
+> index 1e9f577f084d..8693e4e28b86 100644
+> --- a/arch/sparc/mm/init_32.c
+> +++ b/arch/sparc/mm/init_32.c
+> @@ -302,3 +302,23 @@ void sparc_flush_page_to_ram(struct page *page)
+>  		__flush_page_to_ram(vaddr);
+>  }
+>  EXPORT_SYMBOL(sparc_flush_page_to_ram);
+> +
+> +static pgprot_t protection_map[16] __ro_after_init = {
+This can be const - like done for powerpc and others.
+sparc32 and sparc64 uses each their own - and I do not see sparc32 do
+any modifications to protection_map.
 
-stock = this_cpu_ptr(&memcg_stock);
-if (memcg == stock->cached && stock->nr_pages >= nr_pages) {
+With this change:
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
 
-Apparently the per-cpu cache is only used for one memcg at a time ?
-
-Not sure how this would scale to hosts with dozens of memcgs.
-
-Maybe we could add some metrics to have an idea of the cache hit/miss ratio :/
-
-
->
-> I think doing full drain (i.e. drain_stock()) within __refill_stock()
-> when the local cache is larger than MEMCG_CHARGE_BATCH is not best.
-> Rather we should always keep at least MEMCG_CHARGE_BATCH for such
-> scenarios.
->
-> >
-> >
-> > diff --git a/include/linux/page_counter.h b/include/linux/page_counter.h
-> > index 679591301994d316062f92b275efa2459a8349c9..e267be4ba849760117d9fd041e22c2a44658ab36
-> > 100644
-> > --- a/include/linux/page_counter.h
-> > +++ b/include/linux/page_counter.h
-> > @@ -3,12 +3,15 @@
-> >  #define _LINUX_PAGE_COUNTER_H
-> >
-> >  #include <linux/atomic.h>
-> > +#include <linux/cache.h>
-> >  #include <linux/kernel.h>
-> >  #include <asm/page.h>
-> >
-> >  struct page_counter {
-> > -       atomic_long_t usage;
-> > -       unsigned long min;
-> > +       /* contended cache line. */
-> > +       atomic_long_t usage ____cacheline_aligned_in_smp;
-> > +
-> > +       unsigned long min ____cacheline_aligned_in_smp;
->
-> Do we need to align 'min' too?
-
-Probably if there is a hierarchy ...
-
-propagate_protected_usage() seems to have potential high cost.
-
-
->
-> >         unsigned long low;
-> >         unsigned long high;
-> >         unsigned long max;
-> > @@ -27,12 +30,6 @@ struct page_counter {
-> >         unsigned long watermark;
-> >         unsigned long failcnt;
-> >
-> > -       /*
-> > -        * 'parent' is placed here to be far from 'usage' to reduce
-> > -        * cache false sharing, as 'usage' is written mostly while
-> > -        * parent is frequently read for cgroup's hierarchical
-> > -        * counting nature.
-> > -        */
-> >         struct page_counter *parent;
-> >  };
-> >
-> >
-> >
+> +	[VM_NONE]					= PAGE_NONE,
+> +	[VM_READ]					= PAGE_READONLY,
+> +	[VM_WRITE]					= PAGE_COPY,
+> +	[VM_WRITE | VM_READ]				= PAGE_COPY,
+> +	[VM_EXEC]					= PAGE_READONLY,
+> +	[VM_EXEC | VM_READ]				= PAGE_READONLY,
+> +	[VM_EXEC | VM_WRITE]				= PAGE_COPY,
+> +	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_COPY,
+> +	[VM_SHARED]					= PAGE_NONE,
+> +	[VM_SHARED | VM_READ]				= PAGE_READONLY,
+> +	[VM_SHARED | VM_WRITE]				= PAGE_SHARED,
+> +	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_SHARED,
+> +	[VM_SHARED | VM_EXEC]				= PAGE_READONLY,
+> +	[VM_SHARED | VM_EXEC | VM_READ]			= PAGE_READONLY,
+> +	[VM_SHARED | VM_EXEC | VM_WRITE]		= PAGE_SHARED,
+> +	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_SHARED
+> +};
+> +DECLARE_VM_GET_PAGE_PROT
+> diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
+> index f6174df2d5af..d6faee23c77d 100644
+> --- a/arch/sparc/mm/init_64.c
+> +++ b/arch/sparc/mm/init_64.c
+> @@ -2634,6 +2634,9 @@ void vmemmap_free(unsigned long start, unsigned long end,
+>  }
+>  #endif /* CONFIG_SPARSEMEM_VMEMMAP */
+>  
+> +/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
+> +static pgprot_t protection_map[16] __ro_after_init;
+> +
+>  static void prot_init_common(unsigned long page_none,
+>  			     unsigned long page_shared,
+>  			     unsigned long page_copy,
+> -- 
+> 2.25.1
