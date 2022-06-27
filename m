@@ -2,191 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67170CCA47F
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 08:14:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52632C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 08:35:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbiF0IOj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 04:14:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
+        id S233025AbiF0IfU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 04:35:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232059AbiF0IOh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 04:14:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0BD21626B
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 01:14:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656317675;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=pajM9hI9fI/87uBaTeYfHZ+TkaK2uNfPmDfKI6EwRtM=;
-        b=EyZZHRmoVJ+rehBBd3oEfBipAtm9T5wlssvDIk1u1sv/gm/Rh1wOari7YQyZeRBvCseanR
-        Qf1J3k5Lt2xsXd/89FTE13s9BMbu6ji049gm20KXV9n8sq95QA81MFDzSWpjd5snxK0aDV
-        CJ6pZMNJ+1VjUNpo4iIpeANxM/bDA3E=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-434-bdR0FpW2PJSUu-UpKiujTw-1; Mon, 27 Jun 2022 04:14:33 -0400
-X-MC-Unique: bdR0FpW2PJSUu-UpKiujTw-1
-Received: by mail-lj1-f197.google.com with SMTP id d24-20020a2eb058000000b0025a7f5ccae6so835189ljl.14
-        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 01:14:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pajM9hI9fI/87uBaTeYfHZ+TkaK2uNfPmDfKI6EwRtM=;
-        b=3Kwk3m2t10UcFyME+kuwtffwygqrgXuzt3AhXGRz3cjumQQTbONuAqxwUpj7855SFo
-         XieilXKnE8D8W2XDGkk+dw0xXBdpADEz2j2HT96mrihwJwMcB9jUo6L/2IaQWkp3sP8r
-         iul+zcFZ3yom4sQ9iH1HEeqz2D3Kd9Tf62WrsUBz9afnvsGvWibwffhD14Otd5vxhG81
-         p8g9b3Hp9q0Mkfsaiyym014h1m9amBcrs99B5D3si6Y/3uDqEwtrzDZpqK8eTRbbbLFG
-         9RnTZKcqt3iYDsw1WUXv5ITa2xiv6XhkRK4kZLbAYOvYXuAwCxKPbR7nNy/QMwY8gK1n
-         B5Ug==
-X-Gm-Message-State: AJIora/fNDEV1uhIm1uX/GmgLaudgxS1nAxAeHdvkPn3vqZYNtEM8esv
-        jmSQGYqy+vFTQbXn5FiQcE8SVyADCsoi5q6Ehy26Rgb3XYXbJQjdAh83pKYV6gVYJDSD7tIeVXy
-        iPhcqFJv79ZHAGV6zOWjQyr8McIBnm/B5cI2zYQ==
-X-Received: by 2002:a05:6512:3f0f:b0:47f:6f89:326 with SMTP id y15-20020a0565123f0f00b0047f6f890326mr7309029lfa.124.1656317672140;
-        Mon, 27 Jun 2022 01:14:32 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1stSWl4OiPqPtvMuSHVstpPhV2ncpnK2QP/uZDvpStVqiSUc6+7r6HgRqJbkG0p8fApLKYURBWKalbv9dZOpEk=
-X-Received: by 2002:a05:6512:3f0f:b0:47f:6f89:326 with SMTP id
- y15-20020a0565123f0f00b0047f6f890326mr7309001lfa.124.1656317671894; Mon, 27
- Jun 2022 01:14:31 -0700 (PDT)
+        with ESMTP id S230096AbiF0IfS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 04:35:18 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A5D2625F;
+        Mon, 27 Jun 2022 01:35:17 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25R8MQT3006510;
+        Mon, 27 Jun 2022 08:35:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6DlWVYA8hMNjFBiZ87iwSCITxHGwTcyAmb3K65dXJhY=;
+ b=rRtumoFLpM1BfgP6ELoG/TamJJ25MW5ejahyMJGU2WR2uau6fXGxHR3Eu+8XopnkPhnV
+ NlmM5iwtYkl3ATxqGCBW75VS/wIpAXFht4Bdqq4QcYWx7llAuc7TQkH4T+A0qMhwqz9L
+ FjHT8NRwrg3lYGDa6IGMBLQow+a/sv0O6vYsml+X4A1vXgRcENqpCo4QVTIOoGnnV/zr
+ p0mDod8ri7+INOXVJWqd3+fB1RI1pVqzVldqriGCAeCHMlQ61FKt5/wzOmWrnikPTOs3
+ gjWh6cuxH2m+P0+3UfWocWRAOc85vQLzxLyyavLY9wH3veeyHhszNVuwhbw1Ogzrhvmt zg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gy8yy88jp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 08:35:16 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25R8P6pW018538;
+        Mon, 27 Jun 2022 08:35:16 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gy8yy88j4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 08:35:16 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25R8KqdW027610;
+        Mon, 27 Jun 2022 08:35:14 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3gwt08tj7v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Jun 2022 08:35:14 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25R8ZBoW14746028
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 27 Jun 2022 08:35:11 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B536CA4051;
+        Mon, 27 Jun 2022 08:35:11 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 71111A404D;
+        Mon, 27 Jun 2022 08:35:11 +0000 (GMT)
+Received: from [9.145.155.49] (unknown [9.145.155.49])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 27 Jun 2022 08:35:11 +0000 (GMT)
+Message-ID: <6e6e4e06-a32f-c5b7-0b3a-f9f62ed164df@linux.ibm.com>
+Date:   Mon, 27 Jun 2022 10:35:11 +0200
 MIME-Version: 1.0
-References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
- <20220624025621.128843-26-xuanzhuo@linux.alibaba.com> <20220624025817-mutt-send-email-mst@kernel.org>
- <CACGkMEseptD=45j3kQr0yciRxR679Jcig=292H07-RYC2vXmFQ@mail.gmail.com>
- <20220627023841-mutt-send-email-mst@kernel.org> <CACGkMEvy8xF2T_vubKeUEPC2aroO_fbB0Xe8nnxK4OBUgAS+Gw@mail.gmail.com>
- <20220627034733-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220627034733-mutt-send-email-mst@kernel.org>
-From:   Jason Wang <jasowang@redhat.com>
-Date:   Mon, 27 Jun 2022 16:14:20 +0800
-Message-ID: <CACGkMEtpjUBaUML=fEs5hR66rzNTBhBXOmfpzyXV1F-6BqvsGg@mail.gmail.com>
-Subject: Re: [PATCH v10 25/41] virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm <kvm@vger.kernel.org>,
-        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
-        kangjie.xu@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [kvm-unit-tests PATCH v2 1/3] lib: s390x: add functions to set
+ and clear PSW bits
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, scgl@linux.ibm.com, nrb@linux.ibm.com,
+        thuth@redhat.com
+References: <20220624144518.66573-1-imbrenda@linux.ibm.com>
+ <20220624144518.66573-2-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220624144518.66573-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: LKvK5l0oSJ01FppKH4VWWEyFJ2264CsH
+X-Proofpoint-GUID: JT2Khc2yPeO6K034ezwMkmlEpSNTfyG0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-27_06,2022-06-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 malwarescore=0 mlxscore=0 phishscore=0 impostorscore=0
+ lowpriorityscore=0 mlxlogscore=999 bulkscore=0 adultscore=0 clxscore=1015
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206270036
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 3:58 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Mon, Jun 27, 2022 at 03:45:30PM +0800, Jason Wang wrote:
-> > On Mon, Jun 27, 2022 at 2:39 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Mon, Jun 27, 2022 at 10:30:42AM +0800, Jason Wang wrote:
-> > > > On Fri, Jun 24, 2022 at 2:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > >
-> > > > > On Fri, Jun 24, 2022 at 10:56:05AM +0800, Xuan Zhuo wrote:
-> > > > > > Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
-> > > > > > here https://github.com/oasis-tcs/virtio-spec/issues/89
-> > > > > >
-> > > > > > For not breaks uABI, add a new struct virtio_pci_common_cfg_notify.
-> > > > >
-> > > > > What exactly is meant by not breaking uABI?
-> > > > > Users are supposed to be prepared for struct size to change ... no?
-> > > >
-> > > > Not sure, any doc for this?
-> > > >
-> > > > Thanks
-> > >
-> > >
-> > > Well we have this:
-> > >
-> > >         The drivers SHOULD only map part of configuration structure
-> > >         large enough for device operation.  The drivers MUST handle
-> > >         an unexpectedly large \field{length}, but MAY check that \field{length}
-> > >         is large enough for device operation.
-> >
-> > Yes, but that's the device/driver interface. What's done here is the
-> > userspace/kernel.
-> >
-> > Userspace may break if it uses e.g sizeof(struct virtio_pci_common_cfg)?
-> >
-> > Thanks
->
-> Hmm I guess there's risk... but then how are we going to maintain this
-> going forward?  Add a new struct on any change?
+On 6/24/22 16:45, Claudio Imbrenda wrote:
+> Add some functions to set and/or clear bits in the PSW.
+> This should improve code readability.
+> 
 
-This is the way we have used it for the past 5 or more years. I don't
-see why this must be handled in the vq reset feature.
+Also we introduce PSW_MASK_KEY and re-order the PSW_MASK_* constants so 
+they are descending in value.
 
->Can we at least
-> prevent this going forward somehow?
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   lib/s390x/asm/arch_def.h | 58 +++++++++++++++++++++++++++++++++++-----
+>   lib/s390x/asm/pgtable.h  |  2 --
+>   lib/s390x/mmu.c          | 14 +---------
+>   lib/s390x/sclp.c         |  7 +----
+>   s390x/diag288.c          |  6 ++---
+>   s390x/selftest.c         |  4 +--
+>   s390x/skrf.c             | 12 +++------
+>   s390x/smp.c              | 18 +++----------
+>   8 files changed, 63 insertions(+), 58 deletions(-)
+> 
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index 78b257b7..b0052848 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -46,9 +46,10 @@ struct psw {
+>   #define AS_SECN				2
+>   #define AS_HOME				3
+>   
+> -#define PSW_MASK_EXT			0x0100000000000000UL
+> -#define PSW_MASK_IO			0x0200000000000000UL
+>   #define PSW_MASK_DAT			0x0400000000000000UL
+> +#define PSW_MASK_IO			0x0200000000000000UL
+> +#define PSW_MASK_EXT			0x0100000000000000UL
+> +#define PSW_MASK_KEY			0x00F0000000000000UL
+>   #define PSW_MASK_WAIT			0x0002000000000000UL
+>   #define PSW_MASK_PSTATE			0x0001000000000000UL
+>   #define PSW_MASK_EA			0x0000000100000000UL
+> @@ -313,6 +314,53 @@ static inline void load_psw_mask(uint64_t mask)
+>   		: "+r" (tmp) :  "a" (&psw) : "memory", "cc" );
+>   }
+>   
+> +/**
+> + * psw_mask_set_clear_bits - sets and clears bits from the current PSW mask
+> + * @clear: bitmask of bits that will be cleared
+> + * @set: bitmask of bits that will be set
+> + *
+> + * Bits will be cleared first, and then set, so if (@clear & @set != 0) then
+> + * the bits in the intersection will be set.
+> + */
+> +static inline void psw_mask_set_clear_bits(uint64_t clear, uint64_t set)
 
-Like have some padding?
-
-Thanks
-
->
->
-> > >
-> > >
-> > >
-> > > >
-> > > > >
-> > > > >
-> > > > > > Since I want to add queue_reset after queue_notify_data, I submitted
-> > > > > > this patch first.
-> > > > > >
-> > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > > > > ---
-> > > > > >  include/uapi/linux/virtio_pci.h | 7 +++++++
-> > > > > >  1 file changed, 7 insertions(+)
-> > > > > >
-> > > > > > diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-> > > > > > index 3a86f36d7e3d..22bec9bd0dfc 100644
-> > > > > > --- a/include/uapi/linux/virtio_pci.h
-> > > > > > +++ b/include/uapi/linux/virtio_pci.h
-> > > > > > @@ -166,6 +166,13 @@ struct virtio_pci_common_cfg {
-> > > > > >       __le32 queue_used_hi;           /* read-write */
-> > > > > >  };
-> > > > > >
-> > > > > > +struct virtio_pci_common_cfg_notify {
-> > > > > > +     struct virtio_pci_common_cfg cfg;
-> > > > > > +
-> > > > > > +     __le16 queue_notify_data;       /* read-write */
-> > > > > > +     __le16 padding;
-> > > > > > +};
-> > > > > > +
-> > > > > >  /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
-> > > > > >  struct virtio_pci_cfg_cap {
-> > > > > >       struct virtio_pci_cap cap;
-> > > > > > --
-> > > > > > 2.31.0
-> > > > >
-> > >
->
-
+This function isn't used at all, no?
