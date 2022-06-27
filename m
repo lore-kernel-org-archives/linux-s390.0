@@ -2,86 +2,147 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDB15CCA47F
-	for <linux-s390@archiver.kernel.org>; Sun, 26 Jun 2022 13:59:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15B5ACCA481
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Jun 2022 02:31:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234520AbiFZN7B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 26 Jun 2022 09:59:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41272 "EHLO
+        id S231817AbiF0Ca7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 26 Jun 2022 22:30:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230497AbiFZN7A (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Jun 2022 09:59:00 -0400
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82DE9DEF1;
-        Sun, 26 Jun 2022 06:58:59 -0700 (PDT)
-Received: by mail-wr1-f52.google.com with SMTP id v14so9497042wra.5;
-        Sun, 26 Jun 2022 06:58:59 -0700 (PDT)
+        with ESMTP id S231388AbiF0Ca6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 26 Jun 2022 22:30:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2B3102BDB
+        for <linux-s390@vger.kernel.org>; Sun, 26 Jun 2022 19:30:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1656297056;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=kJbcwB7EfNKpZ99plzFtpzkiIgmO0GfWqgxD6ydKGBA=;
+        b=O+AVCCYAVcZ+unyq4WDBIyDHCnIFtjwZo6ua7+oY0je044DHpfBv0eDeF6Hz3+NTx89/1S
+        2yOBQnJsh5l/n1+5eSWxKWMcIuxw2OsDc75iVnp4Om5NxZxK6A893PBKr0Et8zHNpxxIiJ
+        Wxeq0YhxOcC/pmsRN5NePbhyJaEOap4=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-210-exdayK7fOBS0nJqwmnZ3pw-1; Sun, 26 Jun 2022 22:30:54 -0400
+X-MC-Unique: exdayK7fOBS0nJqwmnZ3pw-1
+Received: by mail-lf1-f72.google.com with SMTP id j7-20020a056512398700b004811ba582d2so411786lfu.5
+        for <linux-s390@vger.kernel.org>; Sun, 26 Jun 2022 19:30:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=2AbSkeFZUioPAQ3a70nNyeL3mIPEJabq4zioJ0USaqA=;
-        b=geSJHIbg5t3jd54nRzJoLOR/s7fT7SkWRtJuYJnPsWfbEZyqK4XKlBl3ZvBskPd2oj
-         k/soBnos/N0cL8mZfrCw6KqM7WOgIyQzDzmP9esNMGls56ISU6KAGcithnhQnqvmBlRz
-         wjrFKNY5pvcjCBvfS4Ieron3r35hz1SP8j7aNwuBcUFA4SV+Ik7OChn9qc3++2EUzzs1
-         miSJsOflGOYxku9ZqzRgrbdcdDq78z/EjEmt3o1By8yXjKw9uottB0Nl1j1B9PsOLh5T
-         4ZGjMsfNctiLedXxhlTrwnPNpy8PmrVDvEb8aiUMiKcK5cj8ubAowDLWjrsYHD9IRpw2
-         PTog==
-X-Gm-Message-State: AJIora9lifaGOyMShuRarCPnfspoj6gOeu5wlIVQUn0lNDkCtTMAMvJ7
-        RdRMC7ybQnQAMkBmnLQqQOw=
-X-Google-Smtp-Source: AGRyM1tsNjy9pUQ2/KlwB69wacP4xwTylLY6Td/+6NMMtK1xKOX8O1lC5Yu/j8LwK2/38EbSaAC5PA==
-X-Received: by 2002:adf:f102:0:b0:21b:8bba:5025 with SMTP id r2-20020adff102000000b0021b8bba5025mr8255000wro.174.1656251938109;
-        Sun, 26 Jun 2022 06:58:58 -0700 (PDT)
-Received: from [192.168.64.180] (bzq-219-42-90.isdn.bezeqint.net. [62.219.42.90])
-        by smtp.gmail.com with ESMTPSA id l16-20020adffe90000000b0021b9a4a75e2sm7723716wrr.30.2022.06.26.06.58.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 26 Jun 2022 06:58:57 -0700 (PDT)
-Message-ID: <bb9ba2df-ca20-1126-4393-d2f1e6ba6a1b@grimberg.me>
-Date:   Sun, 26 Jun 2022 16:58:55 +0300
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kJbcwB7EfNKpZ99plzFtpzkiIgmO0GfWqgxD6ydKGBA=;
+        b=pjbI6JYJ70BZE+okl6KCp2k1rhlUxdny+0ZeXUmiu8bwCAGdIB//X3SbDp6UFhuPhR
+         YxOiGmNSWh/pruLn98tK3gqJSQe5bdmtkGunmOc0Hd9qbIg38Nk9XOJR6tliv+D48FXo
+         ZklOjkqppNAIo6/SwPwetgJTF6g+i+hrjW9PrZGIyU/9CMuEk5/wHKgN3cFHXzfRvmD0
+         v5qMuBbjTcUMe9CLGhFPoVP2xzNk6sXVuINT68JAD5AxTpJsswWvUB1M3eWY8fnrwXA2
+         IwsqTufS6GcoeKqPq4h2ifZee05InWl79EbVjCkhs2mRTIW56hs1F9vJ5S/PT4dYfaM/
+         CLZw==
+X-Gm-Message-State: AJIora+k9uxg2qX58Jzeuyji35t1gdektP16CGa/1RZVLjOp95LlJft6
+        aeKS4+bUkqTp0oPi7PpSsXiY1OiO63YGlbW4wJUlkcuoBIalix4HaLcx2CqPHx88bTqaIki5Uiz
+        cjcoIOE36+z5GnVYybUgB1erSZrEo4YemBHXQxg==
+X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id p37-20020a05651213a500b0047dc1d9dea8mr6773775lfa.442.1656297053240;
+        Sun, 26 Jun 2022 19:30:53 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1ur82ARcDJaALzWVAunDCgq4vaJSklh1IynesHEAuaeWnmZYcX/Br+tGQmrs/x93fW3c+90sT9mKBAdQ35aQEI=
+X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
+ p37-20020a05651213a500b0047dc1d9dea8mr6773770lfa.442.1656297053073; Sun, 26
+ Jun 2022 19:30:53 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH v2 5/6] blk-mq: Drop 'reserved' arg of busy_tag_iter_fn
-Content-Language: en-US
-To:     John Garry <john.garry@huawei.com>, axboe@kernel.dk,
-        damien.lemoal@opensource.wdc.com, bvanassche@acm.org, hch@lst.de,
-        jejb@linux.ibm.com, martin.petersen@oracle.com, hare@suse.de,
-        satishkh@cisco.com, sebaddel@cisco.com, kartilak@cisco.com
-Cc:     linux-doc@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        mpi3mr-linuxdrv.pdl@broadcom.com, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org, nbd@other.debian.org
-References: <1655810143-67784-1-git-send-email-john.garry@huawei.com>
- <1655810143-67784-6-git-send-email-john.garry@huawei.com>
-From:   Sagi Grimberg <sagi@grimberg.me>
-In-Reply-To: <1655810143-67784-6-git-send-email-john.garry@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
+ <20220624025621.128843-26-xuanzhuo@linux.alibaba.com> <20220624025817-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220624025817-mutt-send-email-mst@kernel.org>
+From:   Jason Wang <jasowang@redhat.com>
+Date:   Mon, 27 Jun 2022 10:30:42 +0800
+Message-ID: <CACGkMEseptD=45j3kQr0yciRxR679Jcig=292H07-RYC2vXmFQ@mail.gmail.com>
+Subject: Re: [PATCH v10 25/41] virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        virtualization <virtualization@lists.linux-foundation.org>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm <kvm@vger.kernel.org>,
+        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
+        kangjie.xu@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Fri, Jun 24, 2022 at 2:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Fri, Jun 24, 2022 at 10:56:05AM +0800, Xuan Zhuo wrote:
+> > Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
+> > here https://github.com/oasis-tcs/virtio-spec/issues/89
+> >
+> > For not breaks uABI, add a new struct virtio_pci_common_cfg_notify.
+>
+> What exactly is meant by not breaking uABI?
+> Users are supposed to be prepared for struct size to change ... no?
+
+Not sure, any doc for this?
+
+Thanks
 
 
-On 6/21/22 14:15, John Garry wrote:
-> We no longer use the 'reserved' arg in busy_tag_iter_fn for any iter
-> function so it may be dropped.
-> 
-> Signed-off-by: John Garry <john.garry@huawei.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Hannes Reinecke <hare@suse.de>
-> ---
->   block/blk-mq-debugfs.c              |  2 +-
->   block/blk-mq-tag.c                  |  7 +++----
->   block/blk-mq.c                      | 10 ++++------
->   drivers/block/mtip32xx/mtip32xx.c   |  6 +++---
->   drivers/block/nbd.c                 |  2 +-
->   drivers/infiniband/ulp/srp/ib_srp.c |  3 +--
->   drivers/nvme/host/core.c            |  2 +-
->   drivers/nvme/host/fc.c              |  3 +--
->   drivers/nvme/host/nvme.h            |  2 +-
+>
+>
+> > Since I want to add queue_reset after queue_notify_data, I submitted
+> > this patch first.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  include/uapi/linux/virtio_pci.h | 7 +++++++
+> >  1 file changed, 7 insertions(+)
+> >
+> > diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> > index 3a86f36d7e3d..22bec9bd0dfc 100644
+> > --- a/include/uapi/linux/virtio_pci.h
+> > +++ b/include/uapi/linux/virtio_pci.h
+> > @@ -166,6 +166,13 @@ struct virtio_pci_common_cfg {
+> >       __le32 queue_used_hi;           /* read-write */
+> >  };
+> >
+> > +struct virtio_pci_common_cfg_notify {
+> > +     struct virtio_pci_common_cfg cfg;
+> > +
+> > +     __le16 queue_notify_data;       /* read-write */
+> > +     __le16 padding;
+> > +};
+> > +
+> >  /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
+> >  struct virtio_pci_cfg_cap {
+> >       struct virtio_pci_cap cap;
+> > --
+> > 2.31.0
+>
 
-for the nvme bits:
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
