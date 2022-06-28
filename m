@@ -2,285 +2,169 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0232BCCA479
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 17:23:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D598FCCA483
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 17:55:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233258AbiF1RXi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 13:23:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37700 "EHLO
+        id S232499AbiF1RzE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 13:55:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233231AbiF1RXh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 13:23:37 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5500C2DA8C;
-        Tue, 28 Jun 2022 10:23:36 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SHGokm023387;
-        Tue, 28 Jun 2022 17:23:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=USbFFO10uk2ZizlRZ9dGQG8VXNHtbAJ18ezn20c7b5Y=;
- b=FKW4yluAfI3wGxcGgjG+HAiSDKhtHjVaRhpeCzcImfr1Y+Wvrk8gEPd575zq1UgOUZzk
- GAbnOJXuO0igo60XvyWiuDnAS0pbX1FRCPveyxOF93AJHWPjynDfNugoecOYBEtfrl3G
- eHW187gLEz+b1T5m0CvSPhnDVouMngodyYKBxFkXP0P0oHBY67DFwEAN59m7HCaLq66b
- 9e89S6iRorLN4LF25RyULCcyU8SYzDuKI9ttK/fn3CRAcPyHSC8500WxLZ84ZBFK8oyp
- I2q7KTtpIBWNIj7bCORbGLau+HvB/SnWWmT8Mc82OszVCwdM5ljNalzUfQI0R4sL5dlt +A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h05rv0bd8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 17:23:35 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SHMNY1026177;
-        Tue, 28 Jun 2022 17:23:34 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h05rv0bcm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 17:23:34 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SHKbI2019188;
-        Tue, 28 Jun 2022 17:23:32 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3gwt08uvu0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 17:23:32 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SHNaRB32309512
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Jun 2022 17:23:36 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6A4E9AE053;
-        Tue, 28 Jun 2022 17:23:29 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C6F0AE045;
-        Tue, 28 Jun 2022 17:23:28 +0000 (GMT)
-Received: from [9.171.41.104] (unknown [9.171.41.104])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Jun 2022 17:23:28 +0000 (GMT)
-Message-ID: <13c7d30e-e5e1-2b73-2305-8e82465df9ed@linux.ibm.com>
-Date:   Tue, 28 Jun 2022 19:27:56 +0200
+        with ESMTP id S232594AbiF1RzD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 13:55:03 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03270EAE
+        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 10:55:00 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id x1-20020a17090abc8100b001ec7f8a51f5so16755420pjr.0
+        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 10:54:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Ifakbg1KSXljeCc2KlqlOz+XfzIBohlTVCEx+b5hm2Y=;
+        b=Lpc3rw2lUDFTgNuiFkNi7vJ3FOoQQ8sPNV+A/xT7kPgFFi5TelrrdXlIUbrL4j9GT+
+         3+ei8DuymmFwmq4TMtVSFXVwj/BEoFuIu2AqPN9i6R5zOS+ndUs4OIvpg1Fj2tZP3rAs
+         mZTqNdFC15vlNUFmjWu7inrraPu1BA3Mkzqts=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Ifakbg1KSXljeCc2KlqlOz+XfzIBohlTVCEx+b5hm2Y=;
+        b=Akys70DnEaCan1JmXxd9428opiAf8oFuWVKjpfneGVL4anwQxYDArWsLKSKdhgos6/
+         hgfkD1ciSB0bnQgWoWvhCbmm7QEt9xugrQ3gte2TtQUOpGApAM1x+B2VuqKSKptIJNgw
+         gswc6KV4HtY4kIIeH059vvrXFsgo8GDYhLA3ZX8fGHEzuLp/qKjjNDKdsXBNgg15v0JX
+         SGjCZ3X0qfWOo+AsiGmfY9+4H4Yj+X4qMgXL7/B8kVXR7OE/a9xBScCLTuIQeoxP1PRU
+         tF1hOi8FcHhuwTKOC7b+TesHi5RknRRQCzwRZOaGVHji5qFM2Y1Ok1GC/8vfRqtW/H6a
+         /XjA==
+X-Gm-Message-State: AJIora/Zlo9Rp5JDLfS2qyFAZDAc7LNA5Q33G5n6fdLX9pwmVOsZXo2j
+        IQPi2ZMvdfzkqXtusgvgXd2XKg==
+X-Google-Smtp-Source: AGRyM1vNNODoy68cNcew+BOwykVJS5AyiEbndqdKVVh3DpwTH+wUBJ1HcGxnO6zSsyx2Hva19xbd8w==
+X-Received: by 2002:a17:90b:3b52:b0:1ec:db2a:b946 with SMTP id ot18-20020a17090b3b5200b001ecdb2ab946mr838564pjb.229.1656438899502;
+        Tue, 28 Jun 2022 10:54:59 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id f15-20020a170902ff0f00b0016a84d232a6sm5432810plj.46.2022.06.28.10.54.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jun 2022 10:54:59 -0700 (PDT)
+Date:   Tue, 28 Jun 2022 10:54:58 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Daniel Borkmann <daniel@iogearbox.net>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        linux-kernel@vger.kernel.org, x86@kernel.org, dm-devel@redhat.com,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-can@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        linux1394-devel@lists.sourceforge.net, io-uring@vger.kernel.org,
+        lvs-devel@vger.kernel.org, linux-mtd@lists.infradead.org,
+        kasan-dev@googlegroups.com, linux-mmc@vger.kernel.org,
+        nvdimm@lists.linux.dev, netfilter-devel@vger.kernel.org,
+        coreteam@netfilter.org, linux-perf-users@vger.kernel.org,
+        linux-raid@vger.kernel.org, linux-sctp@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        v9fs-developer@lists.sourceforge.net, linux-rdma@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH][next] treewide: uapi: Replace zero-length arrays with
+ flexible-array members
+Message-ID: <202206281009.4332AA33@keescook>
+References: <20220627180432.GA136081@embeddedor>
+ <6bc1e94c-ce1d-a074-7d0c-8dbe6ce22637@iogearbox.net>
+ <20220628004052.GM23621@ziepe.ca>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v10 3/3] KVM: s390: resetting the Topology-Change-Report
-Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, wintera@linux.ibm.com,
-        seiden@linux.ibm.com, nrb@linux.ibm.com
-References: <20220620125437.37122-1-pmorel@linux.ibm.com>
- <20220620125437.37122-4-pmorel@linux.ibm.com>
- <03c79e51-7a0b-f406-d4d2-b10f43b6a7a1@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <03c79e51-7a0b-f406-d4d2-b10f43b6a7a1@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8GrcA_fKmoyP24pui1Gwfcbb63SFzkwM
-X-Proofpoint-ORIG-GUID: fTVj-4qGhpVQrIwYjw4QYUWWjAKrORO4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-28_10,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 adultscore=0 bulkscore=0 priorityscore=1501 phishscore=0
- clxscore=1015 malwarescore=0 impostorscore=0 mlxlogscore=999
- suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206280068
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220628004052.GM23621@ziepe.ca>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Jun 27, 2022 at 09:40:52PM -0300, Jason Gunthorpe wrote:
+> On Mon, Jun 27, 2022 at 08:27:37PM +0200, Daniel Borkmann wrote:
+> > [...]
+> > Fyi, this breaks BPF CI:
+> > 
+> > https://github.com/kernel-patches/bpf/runs/7078719372?check_suite_focus=true
+> > 
+> >   [...]
+> >   progs/map_ptr_kern.c:314:26: error: field 'trie_key' with variable sized type 'struct bpf_lpm_trie_key' not at the end of a struct or class is a GNU extension [-Werror,-Wgnu-variable-sized-type-not-at-end]
+> >           struct bpf_lpm_trie_key trie_key;
+> >                                   ^
 
+The issue here seems to be a collision between "unknown array size"
+and known sizes:
 
-On 6/28/22 18:41, Janis Schoetterl-Glausch wrote:
-> On 6/20/22 14:54, Pierre Morel wrote:
->> During a subsystem reset the Topology-Change-Report is cleared.
->> Let's give userland the possibility to clear the MTCR in the case
->> of a subsystem reset.
->>
->> To migrate the MTCR, we give userland the possibility to
->> query the MTCR state.
->>
->> We indicate KVM support for the CPU topology facility with a new
->> KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   Documentation/virt/kvm/api.rst   | 31 +++++++++++
->>   arch/s390/include/uapi/asm/kvm.h | 10 ++++
->>   arch/s390/kvm/kvm-s390.c         | 96 ++++++++++++++++++++++++++++++++
->>   include/uapi/linux/kvm.h         |  1 +
->>   4 files changed, 138 insertions(+)
->>
->> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
->> index 11e00a46c610..326f8b7e7671 100644
->> --- a/Documentation/virt/kvm/api.rst
->> +++ b/Documentation/virt/kvm/api.rst
->> @@ -7956,6 +7956,37 @@ should adjust CPUID leaf 0xA to reflect that the PMU is disabled.
->>   When enabled, KVM will exit to userspace with KVM_EXIT_SYSTEM_EVENT of
->>   type KVM_SYSTEM_EVENT_SUSPEND to process the guest suspend request.
->>
->> +8.37 KVM_CAP_S390_CPU_TOPOLOGY
->> +------------------------------
->> +
->> +:Capability: KVM_CAP_S390_CPU_TOPOLOGY
->> +:Architectures: s390
->> +:Type: vm
->> +
->> +This capability indicates that KVM will provide the S390 CPU Topology
->> +facility which consist of the interpretation of the PTF instruction for
->> +the Function Code 2 along with interception and forwarding of both the
->> +PTF instruction with Function Codes 0 or 1 and the STSI(15,1,x)
->> +instruction to the userland hypervisor.
-> 
-> The way the code is written, STSI 15.x.x is forwarded to user space,
-> might actually make sense to future proof the code by restricting that
-> to 15.1.2-6 in priv.c.
->> +
->> +The stfle facility 11, CPU Topology facility, should not be provided
->> +to the guest without this capability.
->> +
->> +When this capability is present, KVM provides a new attribute group
->> +on vm fd, KVM_S390_VM_CPU_TOPOLOGY.
->> +This new attribute allows to get, set or clear the Modified Change
->> +Topology Report (MTCR) bit of the SCA through the kvm_device_attr
->> +structure.
->> +
->> +Getting the MTCR bit is realized by using a kvm_device_attr attr
->> +entry value of KVM_GET_DEVICE_ATTR and with kvm_device_attr addr
->> +entry pointing to the address of a struct kvm_cpu_topology.
->> +The value of the MTCR is return by the bit mtcr of the structure.
->> +
->> +When using KVM_SET_DEVICE_ATTR the MTCR is set by using the
->> +attr->attr value KVM_S390_VM_CPU_TOPO_MTCR_SET and cleared by
->> +using KVM_S390_VM_CPU_TOPO_MTCR_CLEAR.
->> +
->>   9. Known KVM API problems
->>   =========================
->>
->> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
->> index 7a6b14874d65..df5e8279ffd0 100644
->> --- a/arch/s390/include/uapi/asm/kvm.h
->> +++ b/arch/s390/include/uapi/asm/kvm.h
->> @@ -74,6 +74,7 @@ struct kvm_s390_io_adapter_req {
->>   #define KVM_S390_VM_CRYPTO		2
->>   #define KVM_S390_VM_CPU_MODEL		3
->>   #define KVM_S390_VM_MIGRATION		4
->> +#define KVM_S390_VM_CPU_TOPOLOGY	5
->>
->>   /* kvm attributes for mem_ctrl */
->>   #define KVM_S390_VM_MEM_ENABLE_CMMA	0
->> @@ -171,6 +172,15 @@ struct kvm_s390_vm_cpu_subfunc {
->>   #define KVM_S390_VM_MIGRATION_START	1
->>   #define KVM_S390_VM_MIGRATION_STATUS	2
->>
->> +/* kvm attributes for cpu topology */
->> +#define KVM_S390_VM_CPU_TOPO_MTCR_CLEAR	0
->> +#define KVM_S390_VM_CPU_TOPO_MTCR_SET	1
-> 
-> Are you going to transition to a set-value-provided-by-user API with the next series?
-> I don't particularly like that MTCR is user visible, it's kind of an implementation detail.
+struct bpf_lpm_trie_key {
+        __u32   prefixlen;      /* up to 32 for AF_INET, 128 for AF_INET6 */
+        __u8    data[0];        /* Arbitrary size */
+};
 
-It is not the same structure as the hardware structure.
-Even it looks like it.
+struct lpm_key {
+	struct bpf_lpm_trie_key trie_key;
+	__u32 data;
+};
 
-I am OK to use something else, like a u8
-in that case I need to say userland that the size of the data returned 
-by get KVM_S390_VM_CPU_TOPOLOGY is u8.
+This is treating trie_key as a header, which it's not: it's a complete
+structure. :)
 
-I find this is a lack in the definition of the kvm_device_attr, it 
-should have a size entry.
+Perhaps:
 
-All other user of kvm_device_attr have structures and it is easy to the 
-userland to get the size using the sizeof(struct...) one can say that 
-userland knows that the parameter for topology is a u8 but that hurt me 
-somehow.
-May be it is stupid, for the other calls the user has to know the name 
-of the structure anyway.
+struct lpm_key {
+        __u32 prefixlen;
+        __u32 data;
+};
 
-Then we can say the value of u8 bit 1 is the value of the mtcr.
-OK for me.
-
-What do you think?
+I don't see anything else trying to include bpf_lpm_trie_key.
 
 > 
->> +
->> +struct kvm_cpu_topology {
->> +	__u16 mtcr : 1;
+> This will break the rdma-core userspace as well, with a similar
+> error:
 > 
-> So I'd give this a more descriptive name, report_topology_change/topo_change_report_pending ?
-> 
->> +	__u16 reserved : 15;
-> 
-> Are these bits for future proofing? If so a few more would do no harm IMO.
->> +};
-> 
-> The use of a bit field in uapi surprised my, but I guess it's fine and kvm_sync_regs has them too.
->> +
->>   /* for KVM_GET_REGS and KVM_SET_REGS */
->>   struct kvm_regs {
->>   	/* general purpose regs for s390 */
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 95b96019ca8e..ae39041bb149 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -606,6 +606,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->>   	case KVM_CAP_S390_PROTECTED:
->>   		r = is_prot_virt_host();
->>   		break;
->> +	case KVM_CAP_S390_CPU_TOPOLOGY:
->> +		r = test_facility(11);
->> +		break;
->>   	default:
->>   		r = 0;
->>   	}
->> @@ -817,6 +820,20 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
->>   		icpt_operexc_on_all_vcpus(kvm);
->>   		r = 0;
->>   		break;
->> +	case KVM_CAP_S390_CPU_TOPOLOGY:
->> +		r = -EINVAL;
->> +		mutex_lock(&kvm->lock);
->> +		if (kvm->created_vcpus) {
->> +			r = -EBUSY;
->> +		} else if (test_facility(11)) {
->> +			set_kvm_facility(kvm->arch.model.fac_mask, 11);
->> +			set_kvm_facility(kvm->arch.model.fac_list, 11);
->> +			r = 0;
->> +		}
->> +		mutex_unlock(&kvm->lock);
->> +		VM_EVENT(kvm, 3, "ENABLE: CPU TOPOLOGY %s",
-> 
-> Most of the other cases spell out the cap, so it'd be "ENABLE: CAP_S390_CPU_TOPOLOGY %s".
+> /usr/bin/clang-13 -DVERBS_DEBUG -Dibverbs_EXPORTS -Iinclude -I/usr/include/libnl3 -I/usr/include/drm -g -O2 -fdebug-prefix-map=/__w/1/s=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -Wmissing-prototypes -Wmissing-declarations -Wwrite-strings -Wformat=2 -Wcast-function-type -Wformat-nonliteral -Wdate-time -Wnested-externs -Wshadow -Wstrict-prototypes -Wold-style-definition -Werror -Wredundant-decls -g -fPIC   -std=gnu11 -MD -MT libibverbs/CMakeFiles/ibverbs.dir/cmd_flow.c.o -MF libibverbs/CMakeFiles/ibverbs.dir/cmd_flow.c.o.d -o libibverbs/CMakeFiles/ibverbs.dir/cmd_flow.c.o   -c ../libibverbs/cmd_flow.c
+> In file included from ../libibverbs/cmd_flow.c:33:
+> In file included from include/infiniband/cmd_write.h:36:
+> In file included from include/infiniband/cmd_ioctl.h:41:
+> In file included from include/infiniband/verbs.h:48:
+> In file included from include/infiniband/verbs_api.h:66:
+> In file included from include/infiniband/ib_user_ioctl_verbs.h:38:
+> include/rdma/ib_user_verbs.h:436:34: error: field 'base' with variable sized type 'struct ib_uverbs_create_cq_resp' not at the end of a struct or class is a GNU extension [-Werror,-Wgnu-variable-sized-type-not-at-end]
+>         struct ib_uverbs_create_cq_resp base;
+>                                         ^
+> include/rdma/ib_user_verbs.h:644:34: error: field 'base' with variable sized type 'struct ib_uverbs_create_qp_resp' not at the end of a struct or class is a GNU extension [-Werror,-Wgnu-variable-sized-type-not-at-end]
+>         struct ib_uverbs_create_qp_resp base;
 
-OK
+This looks very similar, a struct of unknown size is being treated as a
+header struct:
 
-> 
->> +			 r ? "(not available)" : "(success)");
->> +		break;
->>   	default:
->>   		r = -EINVAL;
->>   		break;
->> @@ -1710,6 +1727,76 @@ static void kvm_s390_sca_set_mtcr(struct kvm *kvm)
->>   	ipte_unlock(kvm);
->>   }
->>
-> 
-> Some brainstorming function names:
-> 
-> kvm_s390_get_topo_change_report
-> kvm_s390_(un|re)set_topo_change_report
-> kvm_s390_(publish|revoke|unpublish)_topo_change_report
-> kvm_s390_(report|signal|revoke)_topology_change
+struct ib_uverbs_create_cq_resp {
+        __u32 cq_handle;
+        __u32 cqe;
+        __aligned_u64 driver_data[0];
+};
 
-kvm_s390_update_topology_change_report ?
+struct ib_uverbs_ex_create_cq_resp {
+        struct ib_uverbs_create_cq_resp base;
+        __u32 comp_mask;
+        __u32 response_length;
+};
 
-> 
-> [...]
-> 
+And it only gets used here:
+
+                DECLARE_UVERBS_WRITE(IB_USER_VERBS_CMD_CREATE_CQ,
+                                     ib_uverbs_create_cq,
+                                     UAPI_DEF_WRITE_UDATA_IO(
+                                             struct ib_uverbs_create_cq,
+                                             struct ib_uverbs_create_cq_resp),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     UAPI_DEF_METHOD_NEEDS_FN(create_cq)),
+
+which must also be assuming it's a header. So probably better to just
+drop the driver_data field? I don't see anything using it (that I can
+find) besides as a sanity-check that the field exists and is at the end
+of the struct.
 
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+Kees Cook
