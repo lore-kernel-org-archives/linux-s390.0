@@ -2,102 +2,250 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B90DCCA481
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 18:44:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C1EBCCA479
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 21:59:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233000AbiF1SoK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 14:44:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44726 "EHLO
+        id S229960AbiF1V7W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 17:59:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232433AbiF1SoJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 14:44:09 -0400
-Received: from mail-qv1-xf30.google.com (mail-qv1-xf30.google.com [IPv6:2607:f8b0:4864:20::f30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3D5423BC7
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 11:44:06 -0700 (PDT)
-Received: by mail-qv1-xf30.google.com with SMTP id y14so21341119qvs.10
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 11:44:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=srd0vxfduo9pXREXizXvQ1Gwi/kEACFP1rdXcY0Aglg=;
-        b=QDfPPT0fYl+zbzIvYII9znFGb4s02ZWc7rdJXgoVlQii3pb6MPHXUbo2NQcshGpobE
-         dWlWXPBgu4AcM4BoWih7Z1Nr6ImLeGEz2FZoCblM4qyf8MsycIzs6ej4nXX7nwNpGP6Q
-         WS2wAoLm7tunOmWFHsCTXENR5aJ2dwangh3Hiy+KajaZLCQ31/GJ39i5LG+HlW0f/4Yp
-         DzCT3gMR3JvAVHruRt3NJZXTCo87e7XIf3RRiCTD40KLgGYQ8Oy9U016RK3fPhyNykEI
-         VcI+7whSObzV9gDqoR9iwpi6V1hWpQPbHnX1dl7fE5ec/owdsM9r7W03JXKpNXxaLmSi
-         lJng==
+        with ESMTP id S229899AbiF1V7U (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 17:59:20 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E0E9C2126B
+        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 14:59:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1656453559;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0WWZ2h4Ou+3qMEe93oAVSbUord2r1cb1r0isXElizxU=;
+        b=JdtYOBgFizAz/a3qmBadfkNf1Is5K7SIDuTwV51pn4L2C2o6jBbPAKVRy+vJfGRYoCdXm0
+        xhGx1xB1bRVDBdP6XJTCoyTgX3HgJIKst3gzcWZ9i9/Qr2sSxau8aWLcJPdcJZEZxxQMUv
+        QV/gcco8/9aK9B9lVd6T4p1pWFwT4ow=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-14-UAdlw6_JOHGQpvZYkN46aw-1; Tue, 28 Jun 2022 17:59:17 -0400
+X-MC-Unique: UAdlw6_JOHGQpvZYkN46aw-1
+Received: by mail-il1-f200.google.com with SMTP id l2-20020a056e0212e200b002d9258029c4so8132498iln.22
+        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 14:59:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=srd0vxfduo9pXREXizXvQ1Gwi/kEACFP1rdXcY0Aglg=;
-        b=AohGLKq/fD7bI653wtYpq7gw3iKh5pk9nIcP1LCUpyj1HaN2cbdFyNV2lEWmi2PeUj
-         vHnRWo4fx/mtqSYsiCGp92CllG6B8m1PDtqNMVPE3edesnx9rdfZ/Sws58IIIt/us4Os
-         p+gOkpJ5EeK0/ToZI0FeGm2iH6SU2vs3I5t1BU939wsGDPIFztVcbx45Lf73nfuabHI9
-         lzs4h+mJmIlvjCdRq2lhbeZkuFp8V9Yu5+Ctbc0oPHwDGwetqnfQXm+8LbDtLR/kKzy0
-         fkrl34E185c70lKvevswwqnhbjFKMQuHdV66I9HNcOdJH7YrAT8SDhfeHgUO98z3lgoG
-         EnkQ==
-X-Gm-Message-State: AJIora8edQIcHpD0nzddiQAG0qDXg87zCNCjC6it3FGdJcwlqdH9BwE3
-        Agqrz3ZF7f/fU0EvCIdLmWGl6w==
-X-Google-Smtp-Source: AGRyM1uBRJ6m7mmrK5Ju1JW1doBHC+UzIgAGX/xwYqaVx3XSmh4juFCDP3TjiYp7BZ5iZ3elpoeXxg==
-X-Received: by 2002:a05:622a:7:b0:31b:74bd:1597 with SMTP id x7-20020a05622a000700b0031b74bd1597mr6494688qtw.677.1656441846052;
-        Tue, 28 Jun 2022 11:44:06 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
-        by smtp.gmail.com with ESMTPSA id h9-20020ac85149000000b003050bd1f7c9sm9708477qtn.76.2022.06.28.11.44.04
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=0WWZ2h4Ou+3qMEe93oAVSbUord2r1cb1r0isXElizxU=;
+        b=Ul24GtBA+KZvvsbvTGEd3B/oK7rIy0gAFmEeIQswSuzU5GZ+Ue/8nxChkCBjFRthnw
+         HkUixsr4CIZSFFda9kD0ioPxjPQqRcrKeJHP+CBjuWyzZgXM/WyWNfWi3cC7ZH7dbsHu
+         e2GjitjcOyoUQ9ITX+9WpcfabOLo5AfjMevq4mXCtYGp1y+RH7gaY4vKp4afRzQxRKLL
+         t9b/vP6B6sr0k6KD4iv5GC+ay12MmEntoaBsYuyeVmtnMeNHLtx75OWW19zLvvfCWMRc
+         yUiY9f/rye4WnBrC1ztKZkf4zC/LmTH02iXSVvN9vZnxYx0V+VU8Nxi55fi2FOy23Opp
+         PJsA==
+X-Gm-Message-State: AJIora8/VsYa9OF3QiQv/QJu50/vA/x1iPwz6rr10LYijiLvKpwYqgw2
+        PSpqsqTs/fR9TmlUCBQGokgd0VkVi39f0ooU25KdPkKIh/8IHqrhEpvVHhjvEu2y3NdGIPsfzt0
+        DNlqZERXJp6qABT9nfJlCYg==
+X-Received: by 2002:a05:6638:2481:b0:331:df8f:95e0 with SMTP id x1-20020a056638248100b00331df8f95e0mr151525jat.280.1656453557030;
+        Tue, 28 Jun 2022 14:59:17 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uu173+2OVxjSfaHP4q7qPxTBslWKjv/6lZ3otZt97K6XFUw2pYJUvcwU+lNS0e5TZF4qkCKA==
+X-Received: by 2002:a05:6638:2481:b0:331:df8f:95e0 with SMTP id x1-20020a056638248100b00331df8f95e0mr151513jat.280.1656453556820;
+        Tue, 28 Jun 2022 14:59:16 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id r19-20020a02c853000000b00339dfb793aesm6603705jao.86.2022.06.28.14.59.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 11:44:05 -0700 (PDT)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1o6GBw-0035y2-Fs; Tue, 28 Jun 2022 15:44:04 -0300
-Date:   Tue, 28 Jun 2022 15:44:04 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Daniel Borkmann <daniel@iogearbox.net>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        linux-kernel@vger.kernel.org, x86@kernel.org, dm-devel@redhat.com,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-can@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        linux1394-devel@lists.sourceforge.net, io-uring@vger.kernel.org,
-        lvs-devel@vger.kernel.org, linux-mtd@lists.infradead.org,
-        kasan-dev@googlegroups.com, linux-mmc@vger.kernel.org,
-        nvdimm@lists.linux.dev, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org, linux-perf-users@vger.kernel.org,
-        linux-raid@vger.kernel.org, linux-sctp@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        v9fs-developer@lists.sourceforge.net, linux-rdma@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH][next] treewide: uapi: Replace zero-length arrays with
- flexible-array members
-Message-ID: <20220628184404.GS23621@ziepe.ca>
-References: <20220627180432.GA136081@embeddedor>
- <6bc1e94c-ce1d-a074-7d0c-8dbe6ce22637@iogearbox.net>
- <20220628004052.GM23621@ziepe.ca>
- <202206281009.4332AA33@keescook>
+        Tue, 28 Jun 2022 14:59:16 -0700 (PDT)
+Date:   Tue, 28 Jun 2022 15:59:15 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+        Kevin Tian <kevin.tian@intel.com>
+Subject: Re: [PATCH 04/13] vfio/mdev: simplify mdev_type handling
+Message-ID: <20220628155915.060ba2d9.alex.williamson@redhat.com>
+In-Reply-To: <20220628051435.695540-5-hch@lst.de>
+References: <20220628051435.695540-1-hch@lst.de>
+        <20220628051435.695540-5-hch@lst.de>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202206281009.4332AA33@keescook>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 28, 2022 at 10:54:58AM -0700, Kees Cook wrote:
+On Tue, 28 Jun 2022 07:14:26 +0200
+Christoph Hellwig <hch@lst.de> wrote:
+...
+> diff --git a/drivers/gpu/drm/i915/gvt/vgpu.c b/drivers/gpu/drm/i915/gvt/vgpu.c
+> index 5c828556cefd7..cea8113d2200e 100644
+> --- a/drivers/gpu/drm/i915/gvt/vgpu.c
+> +++ b/drivers/gpu/drm/i915/gvt/vgpu.c
+> @@ -131,6 +131,11 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
+>  	if (!gvt->types)
+>  		return -ENOMEM;
+>  
+> +	gvt->mdev_types = kcalloc(num_types, sizeof(*gvt->mdev_types),
+> +			     GFP_KERNEL);
+> +	if (!gvt->mdev_types)
+> +		goto out_free_types;
+> +
+>  	min_low = MB_TO_BYTES(32);
+>  	for (i = 0; i < num_types; ++i) {
+>  		if (low_avail / vgpu_types[i].low_mm == 0)
+> @@ -142,7 +147,7 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
+>  
+>  		if (vgpu_types[i].weight < 1 ||
+>  					vgpu_types[i].weight > VGPU_MAX_WEIGHT)
+> -			goto out_free_types;
+> +			goto out_free_mdev_types;
+>  
+>  		gvt->types[i].weight = vgpu_types[i].weight;
+>  		gvt->types[i].resolution = vgpu_types[i].edid;
+> @@ -150,24 +155,28 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
+>  						   high_avail / vgpu_types[i].high_mm);
+>  
+>  		if (GRAPHICS_VER(gvt->gt->i915) == 8)
+> -			sprintf(gvt->types[i].name, "GVTg_V4_%s",
+> +			sprintf(gvt->types[i].type.sysfs_name, "GVTg_V4_%s",
+>  				vgpu_types[i].name);
+>  		else if (GRAPHICS_VER(gvt->gt->i915) == 9)
+> -			sprintf(gvt->types[i].name, "GVTg_V5_%s",
+> +			sprintf(gvt->types[i].type.sysfs_name, "GVTg_V5_%s",
+>  				vgpu_types[i].name);
 
- 
-> which must also be assuming it's a header. So probably better to just
-> drop the driver_data field? I don't see anything using it (that I can
-> find) besides as a sanity-check that the field exists and is at the end
-> of the struct.
+Nit, sysfs_name is an arbitrary size, shouldn't we use snprintf() here
+to make a good example?
 
-The field is guaranteeing alignment of the following structure. IIRC
-there are a few cases that we don't have a u64 already to force this.
+>  		gvt_dbg_core("type[%d]: %s avail %u low %u high %u fence %u weight %u res %s\n",
+> -			     i, gvt->types[i].name,
+> +			     i, gvt->types[i].type.sysfs_name,
+>  			     gvt->types[i].avail_instance,
+>  			     gvt->types[i].low_gm_size,
+>  			     gvt->types[i].high_gm_size, gvt->types[i].fence,
+>  			     gvt->types[i].weight,
+>  			     vgpu_edid_str(gvt->types[i].resolution));
+> +
+> +		gvt->mdev_types[i] = &gvt->types[i].type;
+>  	}
+>  
+>  	gvt->num_types = i;
+>  	return 0;
+>  
+> +out_free_mdev_types:
+> +	kfree(gvt->mdev_types);
+>  out_free_types:
+>  	kfree(gvt->types);
+>  	return -EINVAL;
+...
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+> index 9192a21085ce4..25b8d42a522ac 100644
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -95,23 +95,13 @@ static ssize_t available_instances_show(struct mdev_type *mtype,
+>  }
+>  static MDEV_TYPE_ATTR_RO(available_instances);
+>  
+> -static struct attribute *mdev_types_attrs[] = {
+> +static const struct attribute *mdev_types_attrs[] = {
+>  	&mdev_type_attr_name.attr,
+>  	&mdev_type_attr_device_api.attr,
+>  	&mdev_type_attr_available_instances.attr,
+>  	NULL,
+>  };
+>  
+> -static struct attribute_group mdev_type_group = {
+> -	.name  = "io",
+> -	.attrs = mdev_types_attrs,
+> -};
+> -
+> -static struct attribute_group *mdev_type_groups[] = {
+> -	&mdev_type_group,
+> -	NULL,
+> -};
+> -
+>  static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+>  {
+>  	struct vfio_ccw_private *private = dev_get_drvdata(mdev->dev.parent);
+> @@ -654,13 +644,16 @@ struct mdev_driver vfio_ccw_mdev_driver = {
+>  	},
+>  	.probe = vfio_ccw_mdev_probe,
+>  	.remove = vfio_ccw_mdev_remove,
+> -	.supported_type_groups  = mdev_type_groups,
+> +	.types_attrs = mdev_types_attrs,
+>  };
+>  
+>  int vfio_ccw_mdev_reg(struct subchannel *sch)
+>  {
+> +	sprintf(sch->mdev_type.sysfs_name, "io");
 
-Jason
+Here too, but this gets randomly changed to an strcat() in patch 09/
+and pretty_name is added in 10/, also with an strcat().  Staying with
+snprintf() seems easier to get both overflow and termination.
+
+> +	sch->mdev_types[0] = &sch->mdev_type;
+>  	return mdev_register_parent(&sch->parent, &sch->dev,
+> -				    &vfio_ccw_mdev_driver);
+> +				    &vfio_ccw_mdev_driver, sch->mdev_types,
+> +				    1);
+>  }
+>  
+>  void vfio_ccw_mdev_unreg(struct subchannel *sch)
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index 834945150dc9f..ff25858b2ebbe 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -537,23 +537,13 @@ static ssize_t device_api_show(struct mdev_type *mtype,
+>  
+>  static MDEV_TYPE_ATTR_RO(device_api);
+>  
+> -static struct attribute *vfio_ap_mdev_type_attrs[] = {
+> +static const struct attribute *vfio_ap_mdev_type_attrs[] = {
+>  	&mdev_type_attr_name.attr,
+>  	&mdev_type_attr_device_api.attr,
+>  	&mdev_type_attr_available_instances.attr,
+>  	NULL,
+>  };
+>  
+> -static struct attribute_group vfio_ap_mdev_hwvirt_type_group = {
+> -	.name = VFIO_AP_MDEV_TYPE_HWVIRT,
+> -	.attrs = vfio_ap_mdev_type_attrs,
+> -};
+> -
+> -static struct attribute_group *vfio_ap_mdev_type_groups[] = {
+> -	&vfio_ap_mdev_hwvirt_type_group,
+> -	NULL,
+> -};
+> -
+>  struct vfio_ap_queue_reserved {
+>  	unsigned long *apid;
+>  	unsigned long *apqi;
+> @@ -1472,7 +1462,7 @@ static struct mdev_driver vfio_ap_matrix_driver = {
+>  	},
+>  	.probe = vfio_ap_mdev_probe,
+>  	.remove = vfio_ap_mdev_remove,
+> -	.supported_type_groups = vfio_ap_mdev_type_groups,
+> +	.types_attrs = vfio_ap_mdev_type_attrs,
+>  };
+>  
+>  int vfio_ap_mdev_register(void)
+> @@ -1485,8 +1475,11 @@ int vfio_ap_mdev_register(void)
+>  	if (ret)
+>  		return ret;
+>  
+> +	strcpy(matrix_dev->mdev_type.sysfs_name, VFIO_AP_MDEV_TYPE_HWVIRT);
+
+And then this might as well be an snprintf() as well too.
+
+Series looks good to me otherwise, hopefully the mdev driver owners
+will add some acks.  Thanks,
+
+Alex
+
