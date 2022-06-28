@@ -2,82 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC3A4C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 07:02:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F130EC43334
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 07:28:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244420AbiF1HC6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 03:02:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39540 "EHLO
+        id S243288AbiF1H17 convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 03:27:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343892AbiF1HCk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 03:02:40 -0400
-X-Greylist: delayed 909 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 28 Jun 2022 00:02:38 PDT
-Received: from sender-of-o52.zoho.in (sender-of-o52.zoho.in [103.117.158.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D913327152
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 00:02:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1656398840; cv=none; 
-        d=zohomail.in; s=zohoarc; 
-        b=elbxiBPgCFU3Q1HeSZO3T8aGAHTd7WBPWTrQUtxH99UOQQGLfonylpAqEMnGaIDrFkx1synYywGZACJw7PgHKxxO9hlGJKeerQQCm/hKb1JPoOOMzoyYiqgRj3EK8UyrRbV6eG+v9UthpEgczMsTUiYzdIoIot9+8bU4Q6GlCzE=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.in; s=zohoarc; 
-        t=1656398840; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
-        bh=HRFI+eRTirvZRFeTRPwa50gFz5/7YOJxbkzkaz1APeo=; 
-        b=UD7QxIJjRGdKPD2/0fdixEKyX7I8dLW/lSOmSrR9WClyT+GMpSadNyOMElXveJlBDkuuqkxi8PLxfqL1AdjXpXU9egqqqVl4CKObe087P891gOOuRn2Nvf/us3Y/OcAWVePlFFY4+InQZxeE8QsXWyODIiV4rOXkZKuIvc7BB+U=
-ARC-Authentication-Results: i=1; mx.zohomail.in;
-        dkim=pass  header.i=siddh.me;
-        spf=pass  smtp.mailfrom=code@siddh.me;
-        dmarc=pass header.from=<code@siddh.me>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1656398840;
-        s=zmail; d=siddh.me; i=code@siddh.me;
-        h=From:From:To:To:Cc:Cc:Message-ID:Subject:Subject:Date:Date:MIME-Version:Content-Transfer-Encoding:Content-Type:Message-Id:Reply-To;
-        bh=HRFI+eRTirvZRFeTRPwa50gFz5/7YOJxbkzkaz1APeo=;
-        b=IwR5aSq0pFdUwm9fE5cj4I1c+7n4CBylMdgFHnPZL55IuDKWZaR/7Lemx8vDSMLZ
-        sUNrNz6su04MiJ53GAkTSRKaMnfTSYQLdJyJXZ0VNzot50G3mLVIv8HlVkaWzg2OGhO
-        FN9M0IxMSWe8cUV0SXdXlWw9Jf1cSVXponQ5TpzA=
-Received: from localhost.localdomain (103.249.233.51 [103.249.233.51]) by mx.zoho.in
-        with SMTPS id 1656398838723609.1768701113493; Tue, 28 Jun 2022 12:17:18 +0530 (IST)
-From:   Siddh Raman Pant <code@siddh.me>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     linux-kernel-mentees@lists.linuxfoundation.org
-Message-ID: <20220628064621.14427-1-code@siddh.me>
-Subject: [PATCH] MAINTAINERS: Add tools/testing/crypto/chacha20-s390/
-Date:   Tue, 28 Jun 2022 12:16:21 +0530
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S242985AbiF1H1h (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 03:27:37 -0400
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C165B2CE26;
+        Tue, 28 Jun 2022 00:27:35 -0700 (PDT)
+Received: by mail-qv1-f41.google.com with SMTP id i17so18728446qvo.13;
+        Tue, 28 Jun 2022 00:27:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=hwgLtruPC06mcRCnQAsf+kJqHCP1mf00hTNnpiQ34M0=;
+        b=3tQxdeTXaeHedyn+zuV/55ACvAhAXmWcP4mEBFJ7jzsyYq6RsSgMON/8hhCXyPFuse
+         MLSN3K1iygLYNzbYfsEUEZlABb1G1eppIZbae+40fb4YMxpctrE+lrJz3qET/ldo5zGd
+         37edeyXGnan1cSc5wL4OCPTZESLkJDeXBVsf5Jitdq4F2SUoLicy4d+r65QQwFBoAQaF
+         rVmUy/gVspn4buiPbwq5cSH0lOm6yf061HBv7eJrhJeCu9Xa08CHGXWzt6wFcbBU42zO
+         cc0C2wJwrVFqggLP3rTWVXzc4tL0SV7qsxw7pHWn+6UvTIPwY9qNnceTZYR/8yu6Ppqr
+         0hkQ==
+X-Gm-Message-State: AJIora91XfpVhN+yRTRlxkAy8ZQagB28kxgOh0hSO/dgpIY4a+cEmxEM
+        RRrXPZ914wNJxYzvqW7oNwha7fO41WOfPA==
+X-Google-Smtp-Source: AGRyM1vuyurBth3w/1QAUlj3nOiF8B4hIrD4wqWY4IUnkxCMfrPNbOyI3fDTEu0sS0pUw3shJaj5og==
+X-Received: by 2002:a05:622a:647:b0:306:6b30:bd0a with SMTP id a7-20020a05622a064700b003066b30bd0amr12004710qtb.327.1656401254977;
+        Tue, 28 Jun 2022 00:27:34 -0700 (PDT)
+Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com. [209.85.128.182])
+        by smtp.gmail.com with ESMTPSA id f14-20020a05620a408e00b006a5d2eb58b2sm11643530qko.33.2022.06.28.00.27.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Jun 2022 00:27:34 -0700 (PDT)
+Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-3176b6ed923so107319457b3.11;
+        Tue, 28 Jun 2022 00:27:33 -0700 (PDT)
+X-Received: by 2002:a81:a092:0:b0:318:5c89:a935 with SMTP id
+ x140-20020a81a092000000b003185c89a935mr20762801ywg.383.1656401253054; Tue, 28
+ Jun 2022 00:27:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-ZohoMailClient: External
-Content-Type: text/plain; charset=utf8
+References: <20220627180432.GA136081@embeddedor>
+In-Reply-To: <20220627180432.GA136081@embeddedor>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 28 Jun 2022 09:27:21 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdU27TG_rpd=WTRPRcY22A4j4aN-6d_8OmK2aNpX06G3ig@mail.gmail.com>
+Message-ID: <CAMuHMdU27TG_rpd=WTRPRcY22A4j4aN-6d_8OmK2aNpX06G3ig@mail.gmail.com>
+Subject: Re: [PATCH][next] treewide: uapi: Replace zero-length arrays with
+ flexible-array members
+To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>, dm-devel@redhat.com,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        KVM list <kvm@vger.kernel.org>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        netdev <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
+        linux-btrfs <linux-btrfs@vger.kernel.org>,
+        linux-can@vger.kernel.org,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux1394-devel@lists.sourceforge.net, io-uring@vger.kernel.org,
+        lvs-devel@vger.kernel.org,
+        MTD Maling List <linux-mtd@lists.infradead.org>,
+        kasan-dev <kasan-dev@googlegroups.com>,
+        Linux MMC List <linux-mmc@vger.kernel.org>,
+        nvdimm@lists.linux.dev,
+        NetFilter <netfilter-devel@vger.kernel.org>,
+        coreteam@netfilter.org, linux-perf-users@vger.kernel.org,
+        linux-raid@vger.kernel.org, linux-sctp@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        scsi <linux-scsi@vger.kernel.org>,
+        target-devel <target-devel@vger.kernel.org>,
+        USB list <linux-usb@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        V9FS Developers <v9fs-developer@lists.sourceforge.net>,
+        linux-rdma <linux-rdma@vger.kernel.org>,
+        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
+        linux-hardening@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This adds the maintainers' information for the
-s390 ChaCha20 self-test module.
+Hi Gustavo,
 
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
----
- MAINTAINERS | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Thanks for your patch!
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index fe5daf141501..0fcacd715b1c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17438,6 +17438,14 @@ F:=09Documentation/s390/
- F:=09arch/s390/
- F:=09drivers/s390/
-=20
-+S390 CHACHA20 SELFTEST
-+M:=09Vladis Dronov <vdronov@redhat.com>
-+M:=09Herbert Xu <herbert@gondor.apana.org.au>
-+R:=09Harald Freudenberger <freude@linux.ibm.com>
-+L:=09linux-s390@vger.kernel.org
-+S:=09Supported
-+F:=09tools/testing/crypto/chacha20-s390/
-+
- S390 COMMON I/O LAYER
- M:=09Vineeth Vijayan <vneethv@linux.ibm.com>
- M:=09Peter Oberparleiter <oberpar@linux.ibm.com>
---=20
-2.35.1
+On Mon, Jun 27, 2022 at 8:04 PM Gustavo A. R. Silva
+<gustavoars@kernel.org> wrote:
+> There is a regular need in the kernel to provide a way to declare
+> having a dynamically sized set of trailing elements in a structure.
+> Kernel code should always use “flexible array members”[1] for these
+> cases. The older style of one-element or zero-length arrays should
+> no longer be used[2].
 
+These rules apply to the kernel, but uapi is not considered part of the
+kernel, so different rules apply.  Uapi header files should work with
+whatever compiler that can be used for compiling userspace.
 
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
