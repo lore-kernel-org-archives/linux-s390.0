@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7F93CCA47E
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 05:17:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 485C1C43334
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 05:17:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244874AbiF1FRj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 01:17:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34606 "EHLO
+        id S244847AbiF1FRm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 01:17:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244810AbiF1FRM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 01:17:12 -0400
+        with ESMTP id S244849AbiF1FRU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 01:17:20 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E593D227;
-        Mon, 27 Jun 2022 22:15:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFA1BC2D;
+        Mon, 27 Jun 2022 22:15:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=WXNDi6MJsGPkUZHH8pqvwPmMHpnwEDPtVlRxNGRHdMs=; b=TzWbPZSMGzIXnRVewVHRaWTGNS
-        TNexdzaTZcCZnMcDUvfd5Pw6JbHdryssTCxbv2KAbPd0NAH1d5M3FWw9wEdOUGql9pA8YsPDcd8Py
-        UpcL+eHObYcMBrF934erHB0iuWUCiO6WaA6Y5qvCHEJSrBGV1hxZsCMT3DyfaZQK7LWTeIS/YkR/k
-        iBujpJcY4m/yJtsBesGDqgAgBCLOsX1N4jOY0CEHck6CglHVg5/U+C6H3jfs6iAYVm6dbOQUmnVxO
-        yv9mqkEVL2qBHpPklwQBBQzPpFuxpFCcIcTX1+Uak6jBTNA7qDfkWALeLkJvkzkk9jC2b+1SDUATh
-        DO2cxbZA==;
+        bh=c9kP/2K2zwqYLlgVJNG+HSypnL1Y4h5BY8F9DCIeDug=; b=ojkI84iiLXq2hNPThuA4FvvYjO
+        tX/cl4XJ8cZMLqb0Cg1KxRwepcbP+bWWtl841OsVTAe5vfvC8WGZ/i+/hHBtL+AxGvhUCPQYdqDRk
+        URmBf2gt70zON6PeK/7Hmuh/q4wcoMlcl8yXoAuGn7YLYzh6ic/9z6kleWroLZzuvNJTUuN+OdsRy
+        CC2/AJPkZ/JnMUe6hN/ro/u+m8n9v67Wn56ja7S71kfUbS/fE4EokgO9e9/gYHzDgJgVKTXpyqgrG
+        panajzvHr+F4HuqICYCGIrDj/wuAVSCL8Fvp+tlSBXJxumVbpQbSSw/b13GlLNYiUZ7MCRWU45mzB
+        KZkQ7dow==;
 Received: from [2001:4bb8:199:3788:e965:1541:b076:2977] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1o63Z6-004KuH-7s; Tue, 28 Jun 2022 05:15:08 +0000
+        id 1o63ZB-004Kwb-N5; Tue, 28 Jun 2022 05:15:14 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Kirti Wankhede <kwankhede@nvidia.com>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
@@ -38,11 +38,10 @@ To:     Kirti Wankhede <kwankhede@nvidia.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
         Alex Williamson <alex.williamson@redhat.com>
 Cc:     Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        Kevin Tian <kevin.tian@intel.com>
-Subject: [PATCH 11/13] vfio/mdev: consolidate all the available_instance sysfs into the core code
-Date:   Tue, 28 Jun 2022 07:14:33 +0200
-Message-Id: <20220628051435.695540-12-hch@lst.de>
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org
+Subject: [PATCH 13/13] vfio/mdev: add mdev available instance checking to the core
+Date:   Tue, 28 Jun 2022 07:14:35 +0200
+Message-Id: <20220628051435.695540-14-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220628051435.695540-1-hch@lst.de>
 References: <20220628051435.695540-1-hch@lst.de>
@@ -53,439 +52,367 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Every driver just print a number, simply add a method to the mdev_driver
-to return it and provide a standard sysfs show function.
+Many of the mdev drivers use a simple counter for keeping track of the
+available instances. Move this code to the core code and store the counter
+in the mdev_parent. Implement it using correct locking, fixing mdpy.
 
+Drivers just provide the value in the mdev_driver at registration time
+and the core code takes care of maintaining it and exposing the value in
+sysfs.
+
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+[count instances per-parent instead of per-type]
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
 ---
- .../driver-api/vfio-mediated-device.rst       |  3 +-
- drivers/gpu/drm/i915/gvt/gvt.h                |  1 -
- drivers/gpu/drm/i915/gvt/kvmgt.c              | 34 +++++++++-----
- drivers/gpu/drm/i915/gvt/vgpu.c               | 44 ++-----------------
- drivers/s390/cio/vfio_ccw_ops.c               | 14 ++----
- drivers/s390/crypto/vfio_ap_ops.c             | 16 ++-----
- drivers/vfio/mdev/mdev_sysfs.c                | 11 +++++
- include/linux/mdev.h                          |  2 +
- samples/vfio-mdev/mbochs.c                    | 10 ++---
- samples/vfio-mdev/mdpy.c                      |  9 ++--
- samples/vfio-mdev/mtty.c                      | 16 ++-----
- 11 files changed, 55 insertions(+), 105 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c       |  1 -
+ drivers/s390/cio/vfio_ccw_ops.c       | 14 +-------------
+ drivers/s390/cio/vfio_ccw_private.h   |  2 --
+ drivers/s390/crypto/vfio_ap_ops.c     | 21 +++------------------
+ drivers/s390/crypto/vfio_ap_private.h |  2 --
+ drivers/vfio/mdev/mdev_core.c         | 12 ++++++++++++
+ include/linux/mdev.h                  |  3 +++
+ samples/vfio-mdev/mdpy.c              | 23 ++++-------------------
+ 8 files changed, 23 insertions(+), 55 deletions(-)
 
-diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentation/driver-api/vfio-mediated-device.rst
-index 334e649360353..1e19ba588a34f 100644
---- a/Documentation/driver-api/vfio-mediated-device.rst
-+++ b/Documentation/driver-api/vfio-mediated-device.rst
-@@ -105,6 +105,7 @@ structure to represent a mediated device's driver::
-      struct mdev_driver {
- 	     int  (*probe)  (struct mdev_device *dev);
- 	     void (*remove) (struct mdev_device *dev);
-+	     unsigned int (*get_available)(struct mdev_type *mtype);
- 	     const struct attribute * const *types_attrs;
- 	     struct device_driver    driver;
-      };
-@@ -209,7 +210,7 @@ Directories and files under the sysfs for Each Physical Device
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 750d0315f1f5b..449c76b29a3b5 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -149,7 +149,6 @@ static struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch)
+ 	INIT_LIST_HEAD(&private->crw);
+ 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
+ 	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
+-	atomic_set(&private->avail, 1);
  
- * available_instances
- 
--  This attribute should show the number of devices of type <type-id> that can be
-+  This attribute shows the number of devices of type <type-id> that can be
-   created.
- 
- * [device]
-diff --git a/drivers/gpu/drm/i915/gvt/gvt.h b/drivers/gpu/drm/i915/gvt/gvt.h
-index 0ccb9bb7180cd..91d1da18bdf40 100644
---- a/drivers/gpu/drm/i915/gvt/gvt.h
-+++ b/drivers/gpu/drm/i915/gvt/gvt.h
-@@ -299,7 +299,6 @@ struct intel_gvt_firmware {
- #define NR_MAX_INTEL_VGPU_TYPES 20
- struct intel_vgpu_type {
- 	struct mdev_type type;
--	unsigned int avail_instance;
- 	unsigned int low_gm_size;
- 	unsigned int high_gm_size;
- 	unsigned int fence;
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index 191e64ef70acf..0e14bf94534c4 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -113,16 +113,6 @@ static void kvmgt_page_track_flush_slot(struct kvm *kvm,
- 		struct kvm_memory_slot *slot,
- 		struct kvm_page_track_notifier_node *node);
- 
--static ssize_t available_instances_show(struct mdev_type *mtype,
--					struct mdev_type_attribute *attr,
--					char *buf)
--{
--	struct intel_vgpu_type *type =
--		container_of(mtype, struct intel_vgpu_type, type);
--
--	return sprintf(buf, "%u\n", type->avail_instance);
--}
--
- static ssize_t description_show(struct mdev_type *mtype,
- 				struct mdev_type_attribute *attr, char *buf)
- {
-@@ -138,11 +128,9 @@ static ssize_t description_show(struct mdev_type *mtype,
- 		       type->weight);
- }
- 
--static MDEV_TYPE_ATTR_RO(available_instances);
- static MDEV_TYPE_ATTR_RO(description);
- 
- static const struct attribute *gvt_type_attrs[] = {
--	&mdev_type_attr_available_instances.attr,
- 	&mdev_type_attr_description.attr,
- 	NULL,
- };
-@@ -1570,6 +1558,27 @@ static void intel_vgpu_remove(struct mdev_device *mdev)
- 	intel_gvt_destroy_vgpu(vgpu);
- }
- 
-+static unsigned int intel_vgpu_get_available(struct mdev_type *mtype)
-+{
-+	struct intel_vgpu_type *type =
-+		container_of(mtype, struct intel_vgpu_type, type);
-+	struct intel_gvt *gvt = kdev_to_i915(mtype->parent->dev)->gvt;
-+	unsigned int low_gm_avail, high_gm_avail, fence_avail;
-+
-+	mutex_lock(&gvt->lock);
-+	low_gm_avail = gvt_aperture_sz(gvt) - HOST_LOW_GM_SIZE -
-+		gvt->gm.vgpu_allocated_low_gm_size;
-+	high_gm_avail = gvt_hidden_sz(gvt) - HOST_HIGH_GM_SIZE -
-+		gvt->gm.vgpu_allocated_high_gm_size;
-+	fence_avail = gvt_fence_sz(gvt) - HOST_FENCE -
-+		gvt->fence.vgpu_allocated_fence_num;
-+	mutex_unlock(&gvt->lock);
-+
-+	return min3(low_gm_avail / type->low_gm_size,
-+		    high_gm_avail / type->high_gm_size,
-+		    fence_avail / type->fence);
-+}
-+
- static struct mdev_driver intel_vgpu_mdev_driver = {
- 	.device_api	= VFIO_DEVICE_API_PCI_STRING,
- 	.driver = {
-@@ -1579,6 +1588,7 @@ static struct mdev_driver intel_vgpu_mdev_driver = {
- 	},
- 	.probe		= intel_vgpu_probe,
- 	.remove		= intel_vgpu_remove,
-+	.get_available	= intel_vgpu_get_available,
- 	.types_attrs	= gvt_type_attrs,
- };
- 
-diff --git a/drivers/gpu/drm/i915/gvt/vgpu.c b/drivers/gpu/drm/i915/gvt/vgpu.c
-index cea8113d2200e..77757f539ac31 100644
---- a/drivers/gpu/drm/i915/gvt/vgpu.c
-+++ b/drivers/gpu/drm/i915/gvt/vgpu.c
-@@ -151,8 +151,6 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
- 
- 		gvt->types[i].weight = vgpu_types[i].weight;
- 		gvt->types[i].resolution = vgpu_types[i].edid;
--		gvt->types[i].avail_instance = min(low_avail / vgpu_types[i].low_mm,
--						   high_avail / vgpu_types[i].high_mm);
- 
- 		if (GRAPHICS_VER(gvt->gt->i915) == 8)
- 			sprintf(gvt->types[i].type.sysfs_name, "GVTg_V4_%s",
-@@ -163,7 +161,8 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
- 
- 		gvt_dbg_core("type[%d]: %s avail %u low %u high %u fence %u weight %u res %s\n",
- 			     i, gvt->types[i].type.sysfs_name,
--			     gvt->types[i].avail_instance,
-+			     min(low_avail / vgpu_types[i].low_mm,
-+				 high_avail / vgpu_types[i].high_mm),
- 			     gvt->types[i].low_gm_size,
- 			     gvt->types[i].high_gm_size, gvt->types[i].fence,
- 			     gvt->types[i].weight,
-@@ -188,36 +187,6 @@ void intel_gvt_clean_vgpu_types(struct intel_gvt *gvt)
- 	kfree(gvt->types);
- }
- 
--static void intel_gvt_update_vgpu_types(struct intel_gvt *gvt)
--{
--	int i;
--	unsigned int low_gm_avail, high_gm_avail, fence_avail;
--	unsigned int low_gm_min, high_gm_min, fence_min;
--
--	/* Need to depend on maxium hw resource size but keep on
--	 * static config for now.
--	 */
--	low_gm_avail = gvt_aperture_sz(gvt) - HOST_LOW_GM_SIZE -
--		gvt->gm.vgpu_allocated_low_gm_size;
--	high_gm_avail = gvt_hidden_sz(gvt) - HOST_HIGH_GM_SIZE -
--		gvt->gm.vgpu_allocated_high_gm_size;
--	fence_avail = gvt_fence_sz(gvt) - HOST_FENCE -
--		gvt->fence.vgpu_allocated_fence_num;
--
--	for (i = 0; i < gvt->num_types; i++) {
--		low_gm_min = low_gm_avail / gvt->types[i].low_gm_size;
--		high_gm_min = high_gm_avail / gvt->types[i].high_gm_size;
--		fence_min = fence_avail / gvt->types[i].fence;
--		gvt->types[i].avail_instance = min(min(low_gm_min, high_gm_min),
--						   fence_min);
--
--		gvt_dbg_core("update type[%d]: %s avail %u low %u high %u fence %u\n",
--		       i, gvt->types[i].type.sysfs_name,
--		       gvt->types[i].avail_instance, gvt->types[i].low_gm_size,
--		       gvt->types[i].high_gm_size, gvt->types[i].fence);
--	}
--}
--
- /**
-  * intel_gvt_active_vgpu - activate a virtual GPU
-  * @vgpu: virtual GPU
-@@ -313,10 +282,6 @@ void intel_gvt_destroy_vgpu(struct intel_vgpu *vgpu)
- 	intel_vgpu_dmabuf_cleanup(vgpu);
- 	mutex_unlock(&vgpu->vgpu_lock);
- 
--	mutex_lock(&gvt->lock);
--	intel_gvt_update_vgpu_types(gvt);
--	mutex_unlock(&gvt->lock);
--
- 	vfree(vgpu);
- }
- 
-@@ -503,11 +468,8 @@ struct intel_vgpu *intel_gvt_create_vgpu(struct intel_gvt *gvt,
- 
- 	mutex_lock(&gvt->lock);
- 	vgpu = __intel_gvt_create_vgpu(gvt, &param);
--	if (!IS_ERR(vgpu)) {
--		/* calculate left instance change for types */
--		intel_gvt_update_vgpu_types(gvt);
-+	if (!IS_ERR(vgpu))
- 		intel_gvt_update_reg_whitelist(vgpu);
--	}
- 	mutex_unlock(&gvt->lock);
- 
- 	return vgpu;
+ 	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
+ 				       GFP_KERNEL);
 diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 35389f4b67dc5..94cc62b808088 100644
+index 94cc62b808088..b89ac599a9087 100644
 --- a/drivers/s390/cio/vfio_ccw_ops.c
 +++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -70,20 +70,12 @@ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
+@@ -70,13 +70,6 @@ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
  	return NOTIFY_DONE;
  }
  
--static ssize_t available_instances_show(struct mdev_type *mtype,
--					struct mdev_type_attribute *attr,
--					char *buf)
-+static unsigned int vfio_ccw_get_available(struct mdev_type *mtype)
- {
- 	struct vfio_ccw_private *private = dev_get_drvdata(mtype->parent->dev);
- 
--	return sprintf(buf, "%d\n", atomic_read(&private->avail));
-+	return atomic_read(&private->avail);
- }
--static MDEV_TYPE_ATTR_RO(available_instances);
+-static unsigned int vfio_ccw_get_available(struct mdev_type *mtype)
+-{
+-	struct vfio_ccw_private *private = dev_get_drvdata(mtype->parent->dev);
 -
--static const struct attribute *mdev_types_attrs[] = {
--	&mdev_type_attr_available_instances.attr,
--	NULL,
--};
- 
+-	return atomic_read(&private->avail);
+-}
+-
  static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
  {
-@@ -628,7 +620,7 @@ struct mdev_driver vfio_ccw_mdev_driver = {
+ 	struct vfio_ccw_private *private = dev_get_drvdata(mdev->dev.parent);
+@@ -85,9 +78,6 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+ 	if (private->state == VFIO_CCW_STATE_NOT_OPER)
+ 		return -ENODEV;
+ 
+-	if (atomic_dec_if_positive(&private->avail) < 0)
+-		return -EPERM;
+-
+ 	memset(&private->vdev, 0, sizeof(private->vdev));
+ 	vfio_init_group_dev(&private->vdev, &mdev->dev,
+ 			    &vfio_ccw_dev_ops);
+@@ -108,7 +98,6 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+ 
+ err_atomic:
+ 	vfio_uninit_group_dev(&private->vdev);
+-	atomic_inc(&private->avail);
+ 	private->mdev = NULL;
+ 	private->state = VFIO_CCW_STATE_IDLE;
+ 	return ret;
+@@ -135,7 +124,6 @@ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
+ 	vfio_uninit_group_dev(&private->vdev);
+ 	cp_free(&private->cp);
+ 	private->mdev = NULL;
+-	atomic_inc(&private->avail);
+ }
+ 
+ static int vfio_ccw_mdev_open_device(struct vfio_device *vdev)
+@@ -613,6 +601,7 @@ static const struct vfio_device_ops vfio_ccw_dev_ops = {
+ 
+ struct mdev_driver vfio_ccw_mdev_driver = {
+ 	.device_api = VFIO_DEVICE_API_CCW_STRING,
++	.max_instances = 1,
+ 	.driver = {
+ 		.name = "vfio_ccw_mdev",
+ 		.owner = THIS_MODULE,
+@@ -620,7 +609,6 @@ struct mdev_driver vfio_ccw_mdev_driver = {
  	},
  	.probe = vfio_ccw_mdev_probe,
  	.remove = vfio_ccw_mdev_remove,
--	.types_attrs = mdev_types_attrs,
-+	.get_available = vfio_ccw_get_available,
+-	.get_available = vfio_ccw_get_available,
  };
  
  int vfio_ccw_mdev_reg(struct subchannel *sch)
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index b7163bac8cc75..9be5baed0cb7f 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -72,7 +72,6 @@ struct vfio_ccw_crw {
+  * @sch: pointer to the subchannel
+  * @state: internal state of the device
+  * @completion: synchronization helper of the I/O completion
+- * @avail: available for creating a mediated device
+  * @mdev: pointer to the mediated device
+  * @nb: notifier for vfio events
+  * @io_region: MMIO region to input/output I/O arguments/results
+@@ -96,7 +95,6 @@ struct vfio_ccw_private {
+ 	struct subchannel	*sch;
+ 	int			state;
+ 	struct completion	*completion;
+-	atomic_t		avail;
+ 	struct mdev_device	*mdev;
+ 	struct notifier_block	nb;
+ 	struct ccw_io_region	*io_region;
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index d6b2e819a615e..5e6cc43413117 100644
+index 5e6cc43413117..3d1108f1b7556 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -511,21 +511,11 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
- 	atomic_inc(&matrix_dev->available_instances);
+@@ -461,14 +461,9 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+ 	struct ap_matrix_mdev *matrix_mdev;
+ 	int ret;
+ 
+-	if ((atomic_dec_if_positive(&matrix_dev->available_instances) < 0))
+-		return -EPERM;
+-
+ 	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
+-	if (!matrix_mdev) {
+-		ret = -ENOMEM;
+-		goto err_dec_available;
+-	}
++	if (!matrix_mdev)
++		return -ENOMEM;
+ 	vfio_init_group_dev(&matrix_mdev->vdev, &mdev->dev,
+ 			    &vfio_ap_matrix_dev_ops);
+ 
+@@ -491,8 +486,6 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+ 	mutex_unlock(&matrix_dev->lock);
+ 	vfio_uninit_group_dev(&matrix_mdev->vdev);
+ 	kfree(matrix_mdev);
+-err_dec_available:
+-	atomic_inc(&matrix_dev->available_instances);
+ 	return ret;
  }
  
--static ssize_t available_instances_show(struct mdev_type *mtype,
--					struct mdev_type_attribute *attr,
--					char *buf)
-+static unsigned int vfio_ap_mdev_get_available(struct mdev_type *mtype)
- {
--	return sprintf(buf, "%d\n",
--		       atomic_read(&matrix_dev->available_instances));
-+	return atomic_read(&matrix_dev->available_instances);
+@@ -508,12 +501,6 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+ 	mutex_unlock(&matrix_dev->lock);
+ 	vfio_uninit_group_dev(&matrix_mdev->vdev);
+ 	kfree(matrix_mdev);
+-	atomic_inc(&matrix_dev->available_instances);
+-}
+-
+-static unsigned int vfio_ap_mdev_get_available(struct mdev_type *mtype)
+-{
+-	return atomic_read(&matrix_dev->available_instances);
  }
  
--static MDEV_TYPE_ATTR_RO(available_instances);
--
--static const struct attribute *vfio_ap_mdev_type_attrs[] = {
--	&mdev_type_attr_available_instances.attr,
--	NULL,
--};
--
  struct vfio_ap_queue_reserved {
- 	unsigned long *apid;
- 	unsigned long *apqi;
-@@ -1445,7 +1435,7 @@ static struct mdev_driver vfio_ap_matrix_driver = {
+@@ -1427,6 +1414,7 @@ static const struct vfio_device_ops vfio_ap_matrix_dev_ops = {
+ 
+ static struct mdev_driver vfio_ap_matrix_driver = {
+ 	.device_api = VFIO_DEVICE_API_AP_STRING,
++	.max_instances = MAX_ZDEV_ENTRIES_EXT,
+ 	.driver = {
+ 		.name = "vfio_ap_mdev",
+ 		.owner = THIS_MODULE,
+@@ -1435,15 +1423,12 @@ static struct mdev_driver vfio_ap_matrix_driver = {
  	},
  	.probe = vfio_ap_mdev_probe,
  	.remove = vfio_ap_mdev_remove,
--	.types_attrs = vfio_ap_mdev_type_attrs,
-+	.get_available = vfio_ap_mdev_get_available,
+-	.get_available = vfio_ap_mdev_get_available,
  };
  
  int vfio_ap_mdev_register(void)
-diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/vfio/mdev/mdev_sysfs.c
-index 76b0c6f8f0c6b..3d87447b67484 100644
---- a/drivers/vfio/mdev/mdev_sysfs.c
-+++ b/drivers/vfio/mdev/mdev_sysfs.c
-@@ -91,10 +91,21 @@ static ssize_t name_show(struct mdev_type *mtype,
+ {
+ 	int ret;
  
- static MDEV_TYPE_ATTR_RO(name);
+-	atomic_set(&matrix_dev->available_instances, MAX_ZDEV_ENTRIES_EXT);
+-
+ 	ret = mdev_register_driver(&vfio_ap_matrix_driver);
+ 	if (ret)
+ 		return ret;
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index 5dc5050d03791..b808b343b771f 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -28,7 +28,6 @@
+  * struct ap_matrix_dev - Contains the data for the matrix device.
+  *
+  * @device:	generic device structure associated with the AP matrix device
+- * @available_instances: number of mediated matrix devices that can be created
+  * @info:	the struct containing the output from the PQAP(QCI) instruction
+  * @mdev_list:	the list of mediated matrix devices created
+  * @lock:	mutex for locking the AP matrix device. This lock will be
+@@ -40,7 +39,6 @@
+  */
+ struct ap_matrix_dev {
+ 	struct device device;
+-	atomic_t available_instances;
+ 	struct ap_config_info info;
+ 	struct list_head mdev_list;
+ 	struct mutex lock;
+diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
+index 93f8caf2e5f77..775efbfed1f35 100644
+--- a/drivers/vfio/mdev/mdev_core.c
++++ b/drivers/vfio/mdev/mdev_core.c
+@@ -70,6 +70,7 @@ int mdev_register_parent(struct mdev_parent *parent, struct device *dev,
+ 	parent->mdev_driver = mdev_driver;
+ 	parent->types = types;
+ 	parent->nr_types = nr_types;
++	parent->available_instances = mdev_driver->max_instances;
  
-+static ssize_t available_instances_show(struct mdev_type *mtype,
-+					struct mdev_type_attribute *attr,
-+					char *buf)
-+{
-+	struct mdev_driver *drv = mtype->parent->mdev_driver;
+ 	if (!mdev_bus_compat_class) {
+ 		mdev_bus_compat_class = class_compat_register("mdev_bus");
+@@ -115,12 +116,15 @@ EXPORT_SYMBOL(mdev_unregister_parent);
+ static void mdev_device_release(struct device *dev)
+ {
+ 	struct mdev_device *mdev = to_mdev_device(dev);
++	struct mdev_parent *parent = mdev->type->parent;
+ 
+ 	/* Pairs with the get in mdev_device_create() */
+ 	kobject_put(&mdev->type->kobj);
+ 
+ 	mutex_lock(&mdev_list_lock);
+ 	list_del(&mdev->next);
++	if (!parent->mdev_driver->get_available)
++		parent->available_instances++;
+ 	mutex_unlock(&mdev_list_lock);
+ 
+ 	dev_dbg(&mdev->dev, "MDEV: destroying\n");
+@@ -144,6 +148,14 @@ int mdev_device_create(struct mdev_type *type, const guid_t *uuid)
+ 		}
+ 	}
+ 
++	if (!drv->get_available) {
++		if (!parent->available_instances) {
++			mutex_unlock(&mdev_list_lock);
++			return -EUSERS;
++		}
++		parent->available_instances--;
++	}
 +
-+	return sysfs_emit(buf, "%u\n", drv->get_available(mtype));
-+}
-+static MDEV_TYPE_ATTR_RO(available_instances);
-+
- static struct attribute *mdev_types_core_attrs[] = {
- 	&mdev_type_attr_create.attr,
- 	&mdev_type_attr_device_api.attr,
- 	&mdev_type_attr_name.attr,
-+	&mdev_type_attr_available_instances.attr,
- 	NULL,
- };
- 
+ 	mdev = kzalloc(sizeof(*mdev), GFP_KERNEL);
+ 	if (!mdev) {
+ 		mutex_unlock(&mdev_list_lock);
 diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index 21e869a951050..9e7a2296431d5 100644
+index 968494a9f72e3..9ea470e61d7d9 100644
 --- a/include/linux/mdev.h
 +++ b/include/linux/mdev.h
-@@ -72,6 +72,7 @@ struct mdev_type_attribute {
+@@ -45,6 +45,7 @@ struct mdev_parent {
+ 	struct rw_semaphore unreg_sem;
+ 	struct mdev_type **types;
+ 	unsigned int nr_types;
++	unsigned int available_instances;
+ };
+ 
+ static inline struct mdev_device *to_mdev_device(struct device *dev)
+@@ -55,6 +56,7 @@ static inline struct mdev_device *to_mdev_device(struct device *dev)
+ /**
+  * struct mdev_driver - Mediated device driver
   * @device_api: string to return for the device_api sysfs
++ * @max_instances: maximum number of instances supported (optional)
   * @probe: called when new device created
   * @remove: called when device removed
-+ * @get_available: Return the max number of instances that can be created
-  * @types_attrs: attributes to the type kobjects.
-  * @driver: device driver structure
+  * @get_available: Return the max number of instances that can be created
+@@ -63,6 +65,7 @@ static inline struct mdev_device *to_mdev_device(struct device *dev)
   **/
-@@ -79,6 +80,7 @@ struct mdev_driver {
+ struct mdev_driver {
  	const char *device_api;
++	unsigned int max_instances;
  	int (*probe)(struct mdev_device *dev);
  	void (*remove)(struct mdev_device *dev);
-+	unsigned int (*get_available)(struct mdev_type *mtype);
- 	const struct attribute * const *types_attrs;
- 	struct device_driver driver;
- };
-diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-index c8271168a96ad..e61be7f8a9863 100644
---- a/samples/vfio-mdev/mbochs.c
-+++ b/samples/vfio-mdev/mbochs.c
-@@ -1344,21 +1344,16 @@ static ssize_t description_show(struct mdev_type *mtype,
- }
- static MDEV_TYPE_ATTR_RO(description);
- 
--static ssize_t available_instances_show(struct mdev_type *mtype,
--					struct mdev_type_attribute *attr,
--					char *buf)
-+static unsigned int mbochs_get_available(struct mdev_type *mtype)
- {
- 	struct mbochs_type *type =
- 		container_of(mtype, struct mbochs_type, type);
--	int count = atomic_read(&mbochs_avail_mbytes) / type->mbytes;
- 
--	return sprintf(buf, "%d\n", count);
-+	return atomic_read(&mbochs_avail_mbytes) / type->mbytes;
- }
--static MDEV_TYPE_ATTR_RO(available_instances);
- 
- static const struct attribute *mdev_types_attrs[] = {
- 	&mdev_type_attr_description.attr,
--	&mdev_type_attr_available_instances.attr,
- 	NULL,
- };
- 
-@@ -1380,6 +1375,7 @@ static struct mdev_driver mbochs_driver = {
- 	},
- 	.probe = mbochs_probe,
- 	.remove	= mbochs_remove,
-+	.get_available = mbochs_get_available,
- 	.types_attrs = mdev_types_attrs,
- };
- 
+ 	unsigned int (*get_available)(struct mdev_type *mtype);
 diff --git a/samples/vfio-mdev/mdpy.c b/samples/vfio-mdev/mdpy.c
-index 6091c642ee102..2f59078909c9d 100644
+index 250b7ea2df2e4..7f7ac5491407e 100644
 --- a/samples/vfio-mdev/mdpy.c
 +++ b/samples/vfio-mdev/mdpy.c
-@@ -660,17 +660,13 @@ static ssize_t description_show(struct mdev_type *mtype,
+@@ -42,11 +42,6 @@
+ 
+ MODULE_LICENSE("GPL v2");
+ 
+-static int max_devices = 4;
+-module_param_named(count, max_devices, int, 0444);
+-MODULE_PARM_DESC(count, "number of " MDPY_NAME " devices");
+-
+-
+ #define MDPY_TYPE_1 "vga"
+ #define MDPY_TYPE_2 "xga"
+ #define MDPY_TYPE_3 "hd"
+@@ -93,7 +88,6 @@ static struct class	*mdpy_class;
+ static struct cdev	mdpy_cdev;
+ static struct device	mdpy_dev;
+ static struct mdev_parent mdpy_parent;
+-static u32		mdpy_count;
+ static const struct vfio_device_ops mdpy_dev_ops;
+ 
+ /* State of each mdev device */
+@@ -234,9 +228,6 @@ static int mdpy_probe(struct mdev_device *mdev)
+ 	u32 fbsize;
+ 	int ret;
+ 
+-	if (mdpy_count >= max_devices)
+-		return -ENOMEM;
+-
+ 	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
+ 	if (mdev_state == NULL)
+ 		return -ENOMEM;
+@@ -265,8 +256,6 @@ static int mdpy_probe(struct mdev_device *mdev)
+ 	mdpy_create_config_space(mdev_state);
+ 	mdpy_reset(mdev_state);
+ 
+-	mdpy_count++;
+-
+ 	ret = vfio_register_emulated_iommu_dev(&mdev_state->vdev);
+ 	if (ret)
+ 		goto err_mem;
+@@ -293,8 +282,6 @@ static void mdpy_remove(struct mdev_device *mdev)
+ 	kfree(mdev_state->vconfig);
+ 	vfio_uninit_group_dev(&mdev_state->vdev);
+ 	kfree(mdev_state);
+-
+-	mdpy_count--;
  }
- static MDEV_TYPE_ATTR_RO(description);
  
--static ssize_t available_instances_show(struct mdev_type *mtype,
--					struct mdev_type_attribute *attr,
--					char *buf)
-+static unsigned int mdpy_get_available(struct mdev_type *mtype)
- {
--	return sprintf(buf, "%d\n", max_devices - mdpy_count);
-+	return max_devices - mdpy_count;
+ static ssize_t mdpy_read(struct vfio_device *vdev, char __user *buf,
+@@ -658,11 +645,6 @@ static ssize_t mdpy_show_description(struct mdev_type *mtype, char *buf)
+ 		       type->width, type->height);
  }
--static MDEV_TYPE_ATTR_RO(available_instances);
  
- static const struct attribute *mdev_types_attrs[] = {
- 	&mdev_type_attr_description.attr,
--	&mdev_type_attr_available_instances.attr,
- 	NULL,
- };
+-static unsigned int mdpy_get_available(struct mdev_type *mtype)
+-{
+-	return max_devices - mdpy_count;
+-}
+-
+ static const struct vfio_device_ops mdpy_dev_ops = {
+ 	.read = mdpy_read,
+ 	.write = mdpy_write,
+@@ -672,6 +654,7 @@ static const struct vfio_device_ops mdpy_dev_ops = {
  
-@@ -691,6 +687,7 @@ static struct mdev_driver mdpy_driver = {
+ static struct mdev_driver mdpy_driver = {
+ 	.device_api = VFIO_DEVICE_API_PCI_STRING,
++	.max_instances = 4,
+ 	.driver = {
+ 		.name = "mdpy",
+ 		.owner = THIS_MODULE,
+@@ -680,7 +663,6 @@ static struct mdev_driver mdpy_driver = {
  	},
  	.probe = mdpy_probe,
  	.remove	= mdpy_remove,
-+	.get_available = mdpy_get_available,
- 	.types_attrs = mdev_types_attrs,
+-	.get_available = mdpy_get_available,
+ 	.show_description = mdpy_show_description,
  };
  
-diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
-index b95a4491265c5..f6e8ec8240066 100644
---- a/samples/vfio-mdev/mtty.c
-+++ b/samples/vfio-mdev/mtty.c
-@@ -1247,23 +1247,13 @@ static const struct attribute_group *mdev_dev_groups[] = {
- 	NULL,
- };
- 
--static ssize_t available_instances_show(struct mdev_type *mtype,
--					struct mdev_type_attribute *attr,
--					char *buf)
-+static unsigned int mtty_get_available(struct mdev_type *mtype)
- {
- 	struct mtty_type *type = container_of(mtype, struct mtty_type, type);
- 
--	return sprintf(buf, "%d\n", atomic_read(&mdev_avail_ports) /
--			type->nr_ports);
-+	return atomic_read(&mdev_avail_ports) / type->nr_ports;
+@@ -757,5 +739,8 @@ static void __exit mdpy_dev_exit(void)
+ 	mdpy_class = NULL;
  }
  
--static MDEV_TYPE_ATTR_RO(available_instances);
--
--static const struct attribute *mdev_types_attrs[] = {
--	&mdev_type_attr_available_instances.attr,
--	NULL,
--};
--
- static const struct vfio_device_ops mtty_dev_ops = {
- 	.name = "vfio-mtty",
- 	.read = mtty_read,
-@@ -1281,7 +1271,7 @@ static struct mdev_driver mtty_driver = {
- 	},
- 	.probe = mtty_probe,
- 	.remove	= mtty_remove,
--	.types_attrs = mdev_types_attrs,
-+	.get_available = mtty_get_available,
- };
- 
- static void mtty_device_release(struct device *dev)
++module_param_named(count, mdpy_driver.max_instances, int, 0444);
++MODULE_PARM_DESC(count, "number of " MDPY_NAME " devices");
++
+ module_init(mdpy_dev_init)
+ module_exit(mdpy_dev_exit)
 -- 
 2.30.2
 
