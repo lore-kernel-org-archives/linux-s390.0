@@ -2,158 +2,230 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF58FC43334
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 14:02:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC508C43334
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 14:08:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347253AbiF1OCu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 10:02:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41400 "EHLO
+        id S231200AbiF1OIo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 10:08:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347267AbiF1OCp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 10:02:45 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A567369FB;
-        Tue, 28 Jun 2022 07:02:44 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SDilM0016406;
-        Tue, 28 Jun 2022 14:02:39 GMT
+        with ESMTP id S230216AbiF1OIn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 10:08:43 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2F5A344F9;
+        Tue, 28 Jun 2022 07:08:39 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SDl5OR024488;
+        Tue, 28 Jun 2022 14:08:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=5/QMaliZipWecbQgYNAZovL+fmzTZDinlxHWslcC+dE=;
- b=blp9Kq+BwBf/teu6/ZuMozeByp2hkXTtZ4x80qjpPHH+V7unWG7lr3OZo6l7z5Kr9TNm
- F3tMOu8Xuu+993lDWbTuNoSxbv+f2I1+6fA2Im7cc5/0tAVeZRLkzrIs6iykr/ewHr8H
- FlNOGKn8Gly4InXAspaUfx5d62R3N8XhwzYVIgNcY2OwP79h1LQuy9JcsKFvJr5VmzAa
- nN68y1xQQmauz6Y9F2VrUuO7z9S7V2YgP3sZS+o+Ut3sGETnVX56K/b8UbrdInjh1CuM
- Hk5yu9Bz9NFwjT/wyuZ5SQsnjaIBiM7aZN2XZnJ5+FN9miYwaN6bCuluas8qHnTw91gq Lw== 
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=7riHetwsZja9iqIaIFin/9/Q1Fkp3NdrY6lmORCAiBk=;
+ b=esjeHXRhmXA9PFPyZ9S/v1xcJpb1Yp+v5aJ2X24IUo1tckg5heXxWSIro2FRYgM9WBFA
+ 0CwbIR4TYtQ16sp4hVBoPu+xSnRmPsme5qQOAGkviuEVVacnvuXIPUQHlxvR5G/5/9Vj
+ fBWn4y8OGAaly5HctxUIpebT96CItecIL7R34J4UAmMIBfHxsKE0mHU3XaN2PvRbvBfJ
+ i1+CsO18Oi1XjuSu60AAxGusqvsYKpY4N6CYP8zwnOSMZx4femy6ZZ2rCLZ7+78hStso
+ V4q6BrX5XLdrMUW+NZAm5L1gyRGDBS2fXsbXXW9+r3yrorcnf63UQD8utXWujkNYLexs 7A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02swgprf-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02u2rnxa-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 14:02:39 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SDk5xO021402;
-        Tue, 28 Jun 2022 14:02:38 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02swgpq4-1
+        Tue, 28 Jun 2022 14:08:39 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SDmqA4005477;
+        Tue, 28 Jun 2022 14:08:38 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02u2rnvu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 14:02:38 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SDplhr013472;
-        Tue, 28 Jun 2022 14:02:37 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma01fra.de.ibm.com with ESMTP id 3gwt08upq8-1
+        Tue, 28 Jun 2022 14:08:38 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SE6cWG021572;
+        Tue, 28 Jun 2022 14:08:36 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 3gwt08vyk4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 14:02:36 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SE2Xe520054336
+        Tue, 28 Jun 2022 14:08:36 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SE7XIq18547074
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Jun 2022 14:02:33 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 99F7FA4062;
-        Tue, 28 Jun 2022 14:02:33 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 79CDBA4054;
-        Tue, 28 Jun 2022 14:02:32 +0000 (GMT)
-Received: from [9.171.60.225] (unknown [9.171.60.225])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Jun 2022 14:02:32 +0000 (GMT)
-Message-ID: <66447089-921d-3665-963d-b9303b411f7f@linux.ibm.com>
-Date:   Tue, 28 Jun 2022 16:02:32 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH v9 00/21] KVM: s390: enable zPCI for interpretive
- execution
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        linux-s390@vger.kernel.org, alex.williamson@redhat.com,
-        pbonzini@redhat.com
-Cc:     cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
-        pmorel@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, corbet@lwn.net, jgg@nvidia.com,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-References: <20220606203325.110625-1-mjrosato@linux.ibm.com>
- <f86e2e05-114a-cc9e-8f3a-96b36889063d@linux.ibm.com>
- <c98e7c10-272c-2bbb-6909-046d57d721d1@linux.ibm.com>
- <425d3030-94e2-efeb-60fd-08516443a06a@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <425d3030-94e2-efeb-60fd-08516443a06a@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: imExGSBWA-3QoTOSX8w9x6m5dWp2eZ1V
-X-Proofpoint-ORIG-GUID: 46GAodoAsTfTdwPcHQQxYfJKwqZuuSvK
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 28 Jun 2022 14:07:33 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F0839AE051;
+        Tue, 28 Jun 2022 14:08:32 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 364E7AE04D;
+        Tue, 28 Jun 2022 14:08:32 +0000 (GMT)
+Received: from [9.171.41.104] (unknown [9.171.41.104])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 28 Jun 2022 14:08:32 +0000 (GMT)
+Message-ID: <7924cf38-83cb-5d5c-9ad9-a4faaa89f9d5@linux.ibm.com>
+Date:   Tue, 28 Jun 2022 16:13:00 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v10 2/3] KVM: s390: guest support for topology function
+Content-Language: en-US
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, wintera@linux.ibm.com,
+        seiden@linux.ibm.com, nrb@linux.ibm.com
+References: <20220620125437.37122-1-pmorel@linux.ibm.com>
+ <20220620125437.37122-3-pmorel@linux.ibm.com>
+ <207a01aa-d92c-4a17-7b2f-aed59da4ce09@linux.ibm.com>
+ <28c52d15-aa80-09a8-297c-f5ae2b798998@linux.ibm.com>
+ <851dd253-8412-ed5f-3a97-980b3a3850cc@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <851dd253-8412-ed5f-3a97-980b3a3850cc@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: I4Xd5lH4qaYJa8t5wLiP3Xh6h--bEVb5
+X-Proofpoint-GUID: bSvTFrU8ngXwtBFHTa3WajqUdXkf5Pee
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-06-28_07,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
- suspectscore=0 clxscore=1015 mlxscore=0 adultscore=0 priorityscore=1501
- bulkscore=0 mlxlogscore=999 phishscore=0 malwarescore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2206280059
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 mlxscore=0 bulkscore=0 phishscore=0 mlxlogscore=999
+ malwarescore=0 impostorscore=0 priorityscore=1501 clxscore=1015
+ adultscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2204290000 definitions=main-2206280059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-Am 28.06.22 um 15:40 schrieb Matthew Rosato:
-> On 6/28/22 8:35 AM, Christian Borntraeger wrote:
->> Am 27.06.22 um 22:57 schrieb Matthew Rosato:
->>> On 6/6/22 4:33 PM, Matthew Rosato wrote:
->>>> Enable interpretive execution of zPCI instructions + adapter interruption
->>>> forwarding for s390x KVM vfio-pci.  This is done by triggering a routine
->>>> when the VFIO group is associated with the KVM guest, transmitting to
->>>> firmware a special token (GISA designation) to enable that specific guest
->>>> for interpretive execution on that zPCI device.  Load/store interpreation
->>>> enablement is then controlled by userspace (based upon whether or not a
->>>> SHM bit is placed in the virtual function handle).  Adapter Event
->>>> Notification interpretation is controlled from userspace via a new KVM
->>>> ioctl.
->>>>
->>>> By allowing intepretation of zPCI instructions and firmware delivery of
->>>> interrupts to guests, we can reduce the frequency of guest SIE exits for
->>>> zPCI.
->>>>
->>>>  From the perspective of guest configuration, you passthrough zPCI devices
->>>> in the same manner as before, with intepretation support being used by
->>>> default if available in kernel+qemu.
->>>>
->>>> Will follow up with a link the most recent QEMU series.
->>>>
->>>> Changelog v8->v9:
->>>> - Rebase on top of 5.19-rc1, adjust ioctl and capability defines
->>>> - s/kzdev = 0/kzdev = NULL/ (Alex)
->>>> - rename vfio_pci_zdev_open to vfio_pci_zdev_open_device (Jason)
->>>> - rename vfio_pci_zdev_release to vfio_pci_zdev_close_device (Jason)
->>>> - make vfio_pci_zdev_close_device return void, instead WARN_ON or ignore
->>>>    errors in lower level function (kvm_s390_pci_unregister_kvm) (Jason)
->>>> - remove notifier accidentally left in struct zpci_dev + associated
->>>>    include statment (Jason)
->>>> - Remove patch 'KVM: s390: introduce CPU feature for zPCI Interpretation'
->>>>    based on discussion in QEMU thread.
->>>>
->>>
->>> Ping -- I'm hoping this can make the next merge window, but there are still 2 patches left without any review tag (16 & 17).
+On 6/28/22 14:18, Janis Schoetterl-Glausch wrote:
+> On 6/28/22 12:58, Pierre Morel wrote:
 >>
->> Yes, I will queue this (as is). Ideally you would rebase this on top of kvm/next but I can also do while applying.
->> Let me know if you want to respin with the Nits from Pierre.
+>>
+>> On 6/28/22 10:59, Janis Schoetterl-Glausch wrote:
+>>> On 6/20/22 14:54, Pierre Morel wrote:
+>>>> We report a topology change to the guest for any CPU hotplug.
+>>>>
+>>>> The reporting to the guest is done using the Multiprocessor
+>>>> Topology-Change-Report (MTCR) bit of the utility entry in the guest's
+>>>> SCA which will be cleared during the interpretation of PTF.
+>>>>
+>>>> On every vCPU creation we set the MCTR bit to let the guest know the
+>>>> next time he uses the PTF with command 2 instruction that the
+>>>> topology changed and that he should use the STSI(15.1.x) instruction
+>>>> to get the topology details.
+>>>>
+>>>> STSI(15.1.x) gives information on the CPU configuration topology.
+>>>> Let's accept the interception of STSI with the function code 15 and
+>>>> let the userland part of the hypervisor handle it when userland
+>>>> support the CPU Topology facility.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> ---
+>>>>    arch/s390/include/asm/kvm_host.h | 11 ++++++++---
+>>>>    arch/s390/kvm/kvm-s390.c         | 27 ++++++++++++++++++++++++++-
+>>>>    arch/s390/kvm/priv.c             | 15 +++++++++++----
+>>>>    arch/s390/kvm/vsie.c             |  3 +++
+>>>>    4 files changed, 48 insertions(+), 8 deletions(-)
+>>>>
+>>> [...]
+>>>
+>>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>>> index 8fcb56141689..95b96019ca8e 100644
+>>>> --- a/arch/s390/kvm/kvm-s390.c
+>>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>>> @@ -1691,6 +1691,25 @@ static int kvm_s390_get_cpu_model(struct kvm *kvm, struct kvm_device_attr *attr)
+>>>>        return ret;
+>>>>    }
+>>>>
+>>>> +/**
+>>>> + * kvm_s390_sca_set_mtcr
+>>>
+>>> I wonder if there is a better name, kvm_s390_report_topology_change maybe?
+>>>
+>>>> + * @kvm: guest KVM description
+>>>> + *
+>>>> + * Is only relevant if the topology facility is present,
+>>>> + * the caller should check KVM facility 11
+>>>> + *
+>>>> + * Updates the Multiprocessor Topology-Change-Report to signal
+>>>> + * the guest with a topology change.
+>>>> + */
+>>>> +static void kvm_s390_sca_set_mtcr(struct kvm *kvm)
+>>>> +{
+>>>
+>>> Do we need a sca_lock read_section here? If we don't why not?
+>>> Did not see one up the stack, but I might have overlooked something.
+>>
+>> Yes we do.
+>> As I said about your well justified comment in a previous mail, ipte_lock is not the right thing to use here and I will replace with an inter locked update.
 > 
-> Ah, sorry -- I assume you mean Paolo's kvm/next?  I tried now and see some conflicts with the ioctl patch.
+> Not sure I'm understanding you right, you're saying we need both? i.e.:
 > 
-> Why don't I rebase on top of kvm/next along with these couple of changes from Pierre and send this as a v10 for you to queue.
+> struct bsca_block *sca;
 > 
-> While at it, there's one other issue to be aware of -- There will also be small merge conflicts with a patch that just hit vfio-next, "vfio: de-extern-ify function prototypes" - My series already avoids adding externs to new prototypes, but adjacent code changes will cause a conflict with patches 10 and 17.
+> read_lock(&vcpu->kvm->arch.sca_lock);
+> sca = kvm->arch.sca;
+> atomic_or(SCA_UTILITY_MTCR, &sca->utility);
+> read_unlock(&vcpu->kvm->arch.sca_lock);
 > 
-> Not sure what the best way to proceed there is.
-> 
-> https://lore.kernel.org/kvm/165471414407.203056.474032786990662279.stgit@omen/
+> Obviously you would need to change the definition of the utility field and could not use a bit field like Janosch
+> suggested, unless you want to use a cmpxchg loop.
+> It's a bit ugly that utility is a two byte value.
+> Maybe there is a nicer way to set that bit, OR (OI, OIY) seem appropriate, but I don't know if they have a nice
+> abstraction in Linux or if you'd need inline asm.
 
-I think Linus can sort out if the conflicts are trivial. As an alternative Alex could carry these patches, but then we have a merge conflict between him and KVM.
-Alex/Paolo, shall I do a topic branch that you both can merge?
+I was think to something like this because it is what is used most of 
+the time when a bit is to be change concurrently with firmware.
+
+
++union sca_utility {
++       __u16 val;
++       struct {
++               __u16 mtcr : 1;
++               __u16 reserved : 15;
++       };
++};
++
+  struct bsca_block {
+         union ipte_control ipte_control;
+         __u64   reserved[5];
+         __u64   mcn;
+-       __u64   reserved2;
++       union sca_utility utility;
++       __u8    reserved2[6];
+         struct bsca_entry cpu[KVM_S390_BSCA_CPU_SLOTS];
+  }
+
+....
+
+static void kvm_s390_sca_set_mtcr(struct kvm *kvm, int val)
+{
+         struct bsca_block *sca = kvm->arch.sca;
+         union sca_utility new, old;
+
+         read_lock(&kvm->arch.sca_lock);
+         do {
+                 old = READ_ONCE(sca->utility);
+                 new = old;
+                 new.mtcr = val ? 1 : 0;
+         } while (cmpxchg(&sca->utility.val, old.val, new.val) != old.val);
+         read_lock(&kvm->arch.sca_lock);
+}
+
+>>
+>>>
+>>>> +    struct bsca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
+>>>> +
+>>>> +    ipte_lock(kvm);
+>>>> +    sca->utility |= SCA_UTILITY_MTCR;
+>>>> +    ipte_unlock(kvm);
+>>>> +}
+>>>> +
+>>>
+>>> [...]
+>>>
+>>
+> 
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
