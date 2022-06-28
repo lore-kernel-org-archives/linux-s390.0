@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA96EC43334
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 13:56:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17401CCA480
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 13:56:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346908AbiF1N4h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 09:56:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33650 "EHLO
+        id S1344704AbiF1N4j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 09:56:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346259AbiF1N4b (ORCPT
+        with ESMTP id S230507AbiF1N4b (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 09:56:31 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92E1F3336F;
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5896133885;
         Tue, 28 Jun 2022 06:56:30 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SDlEe7020719;
-        Tue, 28 Jun 2022 13:56:29 GMT
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SDfll1002464;
+        Tue, 28 Jun 2022 13:56:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=9Jy/lxaIMvsbgkqVtkBljfb5OpijIlsVL8zS7JB9Lv0=;
- b=VLRgSaxEVEjnXtKMiR/5dHI7ZINEKiQWHvNzHJjjbkCl6ATBD3ja6u3oyHm0FAHpeyra
- IYh8e3npa9mFEpQjUoXd3PsRqp+p8637vhPTA2ySrIsRRkydpccOK5aMng4RY5xjOfvF
- 8NI8Nzfyu3o5L6+ds1CusibdAb4uPr9Iq0qtesB+lyxWQETgmjv5UtB6yOJCdGM0O2mq
- t/VCULPOQliBGCuVcbbeyB9pFKq56g7bUAtnCaMAe2pqnjXc0gmq/74B9zvSAJzyC38M
- k23qcELzjWb+CSKlYxeukHpcudZ2US5vNgIRxUL4Yq7k4nl5vmeVIkmBlxi03/SmfFv0 Aw== 
+ bh=6wxhhhmiqcTckrvJaOSqk3Fo4q+aBPKcaiuU1Frunfs=;
+ b=ZfqqCKILHg6Z9wEDsEuOQHx6jOxgzqQ/8pvvs/6iRecjF38JHgPVeoIucqGe8tsE2ETD
+ oCEg1mmuiAQbCaFS8Is/qGAscdErzZJ9lzO5aBCLHbktvAPgrBhcUoyUN3aWAh6Nn8GN
+ FVRMc4Ng9xGjVX30/5eTph09/5ymvS94qlJAbGUGA6+p5RH+3YCm7rzDHZ2qq33FGNWn
+ shZM+Ng4wD8QdgXWflZIbudz76f6++hl2Ul7iri4SC2NPevuq0T4ngX6AltFAG363J7s
+ keEwYTuUfeI/e5OAwAfgQRnLr//w0uJ/gMAOHEI2gemr+Tn5eqmMEFmaQZIXu1S7XC9d zw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02u7raxk-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02rn8mhy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 28 Jun 2022 13:56:29 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SDmDqb023838;
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SDhJOZ009034;
         Tue, 28 Jun 2022 13:56:29 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02u7raww-1
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02rn8mg6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 28 Jun 2022 13:56:29 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SDoeMB004286;
-        Tue, 28 Jun 2022 13:56:27 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3gwt08vy10-1
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SDoc5a029772;
+        Tue, 28 Jun 2022 13:56:26 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06fra.de.ibm.com with ESMTP id 3gwsmhuq8j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 13:56:27 +0000
+        Tue, 28 Jun 2022 13:56:26 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SDuVEt33358178
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SDuN1X17236424
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Jun 2022 13:56:31 GMT
+        Tue, 28 Jun 2022 13:56:23 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 557CF4C044;
-        Tue, 28 Jun 2022 13:56:24 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 752004C04A;
+        Tue, 28 Jun 2022 13:56:23 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F17684C04E;
+        by IMSVA (Postfix) with ESMTP id 1C3B84C044;
         Tue, 28 Jun 2022 13:56:23 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.40])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
@@ -63,72 +63,117 @@ Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
         mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: [PATCH v12 10/18] s390/mm: KVM: pv: when tearing down, try to destroy protected pages
-Date:   Tue, 28 Jun 2022 15:56:11 +0200
-Message-Id: <20220628135619.32410-11-imbrenda@linux.ibm.com>
+Subject: [PATCH v12 08/18] KVM: s390: pv: Add kvm_s390_cpus_from_pv to kvm-s390.h and add documentation
+Date:   Tue, 28 Jun 2022 15:56:09 +0200
+Message-Id: <20220628135619.32410-9-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220628135619.32410-1-imbrenda@linux.ibm.com>
 References: <20220628135619.32410-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: q9djnWwsuzDtZ7v52vpXUp6y8_A71uNL
-X-Proofpoint-ORIG-GUID: u8N4cVuSZ1l9C2r2UYcOZAFobKxnChVJ
+X-Proofpoint-GUID: 6XpSh8efHfolygRUpWDseW2ehVtPDqiR
+X-Proofpoint-ORIG-GUID: jBoNNrLoxye7ASCkjIdrtAqzWj5KwtRT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-06-28_07,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 priorityscore=1501 mlxscore=0 malwarescore=0 suspectscore=0
- mlxlogscore=862 phishscore=0 impostorscore=0 adultscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
+ suspectscore=0 clxscore=1015 adultscore=0 mlxlogscore=999 spamscore=0
+ bulkscore=0 priorityscore=1501 mlxscore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2206280057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When ptep_get_and_clear_full is called for a mm teardown, we will now
-attempt to destroy the secure pages. This will be faster than export.
+Future changes make it necessary to call this function from pv.c.
 
-In case it was not a teardown, or if for some reason the destroy page
-UVC failed, we try with an export page, like before.
+While we are at it, let's properly document kvm_s390_cpus_from_pv() and
+kvm_s390_cpus_to_pv().
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 36 ++++++++++++++++++++++++++++++------
+ arch/s390/kvm/kvm-s390.h |  1 +
+ 2 files changed, 31 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index f16403ba81ec..cf81acf3879c 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1182,9 +1182,22 @@ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
- 	} else {
- 		res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
- 	}
--	/* At this point the reference through the mapping is still present */
--	if (mm_is_protected(mm) && pte_present(res))
--		uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
-+	/* Nothing to do */
-+	if (!mm_is_protected(mm) || !pte_present(res))
-+		return res;
-+	/*
-+	 * At this point the reference through the mapping is still present.
-+	 * The notifier should have destroyed all protected vCPUs at this
-+	 * point, so the destroy should be successful.
-+	 */
-+	if (full && !uv_destroy_owned_page(pte_val(res) & PAGE_MASK))
-+		return res;
-+	/*
-+	 * If something went wrong and the page could not be destroyed, or
-+	 * if this is not a mm teardown, the slower export is used as
-+	 * fallback instead.
-+	 */
-+	uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
- 	return res;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 8fcb56141689..40e61631b13d 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2166,12 +2166,25 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+ 	return r;
  }
  
+-static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
++/**
++ * kvm_s390_cpus_from_pv - Convert all protected vCPUs in a protected VM to
++ * non protected.
++ * @kvm: the VM whose protected vCPUs are to be converted
++ * @rc: return value for the RC field of the UVC (in case of error)
++ * @rrc: return value for the RRC field of the UVC (in case of error)
++ *
++ * Does not stop in case of error, tries to convert as many
++ * CPUs as possible. In case of error, the RC and RRC of the last error are
++ * returned.
++ *
++ * Return: 0 in case of success, otherwise -EIO
++ */
++int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
+ {
+ 	struct kvm_vcpu *vcpu;
+-	u16 rc, rrc;
+-	int ret = 0;
+ 	unsigned long i;
++	u16 _rc, _rrc;
++	int ret = 0;
+ 
+ 	/*
+ 	 * We ignore failures and try to destroy as many CPUs as possible.
+@@ -2183,9 +2196,9 @@ static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
+ 	 */
+ 	kvm_for_each_vcpu(i, vcpu, kvm) {
+ 		mutex_lock(&vcpu->mutex);
+-		if (kvm_s390_pv_destroy_cpu(vcpu, &rc, &rrc) && !ret) {
+-			*rcp = rc;
+-			*rrcp = rrc;
++		if (kvm_s390_pv_destroy_cpu(vcpu, &_rc, &_rrc) && !ret) {
++			*rc = _rc;
++			*rrc = _rrc;
+ 			ret = -EIO;
+ 		}
+ 		mutex_unlock(&vcpu->mutex);
+@@ -2196,6 +2209,17 @@ static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
+ 	return ret;
+ }
+ 
++/**
++ * kvm_s390_cpus_to_pv - Convert all non-protected vCPUs in a protected VM
++ * to protected.
++ * @kvm: the VM whose protected vCPUs are to be converted
++ * @rc: return value for the RC field of the UVC (in case of error)
++ * @rrc: return value for the RRC field of the UVC (in case of error)
++ *
++ * Tries to undo the conversion in case of error.
++ *
++ * Return: 0 in case of success, otherwise -EIO
++ */
+ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
+ {
+ 	unsigned long i;
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 497d52a83c78..107499e411ad 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -374,6 +374,7 @@ int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu);
+ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu);
+ void kvm_s390_set_cpu_timer(struct kvm_vcpu *vcpu, __u64 cputm);
+ __u64 kvm_s390_get_cpu_timer(struct kvm_vcpu *vcpu);
++int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rc, u16 *rrc);
+ 
+ /* implemented in diag.c */
+ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
 -- 
 2.36.1
 
