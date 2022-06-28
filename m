@@ -2,125 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C6A2C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 08:40:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A640C43334
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 08:59:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343970AbiF1Ikv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 04:40:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35174 "EHLO
+        id S245445AbiF1I7P (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 04:59:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343976AbiF1Ikt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 04:40:49 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E96F02C640;
-        Tue, 28 Jun 2022 01:40:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656405648; x=1687941648;
-  h=date:from:to:cc:subject:message-id:reply-to:references:
-   mime-version:in-reply-to;
-  bh=1Tgdz4FPq/Kbs1ys+mOYQECaWJi1Szc24CrwfxeyUAY=;
-  b=AJG6UIJi7GwdFWUit4yg/KFyroYVpEToZNcNk5xJ/moAYtP3ERgpuTwu
-   7Nmx9zXYrj7zPYY7pkCo7vaDVlEBJpNoUnUzRAvJZAicpy/RooiKQbA/b
-   yfIrcOlf3sbUMX7H/S3uFPbXCZ3nWM7VQNHAiAncr5VKWTRiWnfRz/9D+
-   ocaLpbzm8Pdl0NgNoik/biH9pOeZaP7xsCFGTx6h7W6fOmTabsRhNI5CI
-   Bo3LXU0l2+U0tWvtrmryd89+CWxG8HvP2mfx2nf4zpBHpewUED1dJNI/I
-   H4r4AvQTZrwfoM6tDay9Ip1JvOYYUcQc4nAp9MLw5oQoQH2Liod7+x+9n
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10391"; a="345674667"
-X-IronPort-AV: E=Sophos;i="5.92,227,1650956400"; 
-   d="asc'?scan'208";a="345674667"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2022 01:40:48 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,227,1650956400"; 
-   d="asc'?scan'208";a="646820987"
-Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.159.108])
-  by fmsmga008.fm.intel.com with ESMTP; 28 Jun 2022 01:40:45 -0700
-Date:   Tue, 28 Jun 2022 16:17:49 +0800
-From:   Zhenyu Wang <zhenyuw@linux.intel.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        Kevin Tian <kevin.tian@intel.com>
-Subject: Re: [PATCH 01/13] drm/i915/gvt: fix a memory leak in
- intel_gvt_init_vgpu_types
-Message-ID: <20220628081749.GJ1089@zhen-hp.sh.intel.com>
-Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
-References: <20220628051435.695540-1-hch@lst.de>
- <20220628051435.695540-2-hch@lst.de>
+        with ESMTP id S243923AbiF1I7N (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 04:59:13 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EB19EAB;
+        Tue, 28 Jun 2022 01:59:12 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25S8kK8r025506;
+        Tue, 28 Jun 2022 08:59:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NJGYOtCXqHINCz1gB/ROdNxdoURtR0qXerIDni39BIE=;
+ b=Kj+D2AaGJBMJ2oysdaOAHdGC4Xw5hPyNYSRJyduqCHNem7sdGRDBmBqfb4aybAAya9BN
+ Kq8J/w9FBPaULVjCUyVqCqp4yDINdBDDRN2K+kQO9qZzAuPBhdDjp2mIVeVwp9I5Yyd7
+ K9eMbZq7Ua1WGv+aY1KOAmfqnJ1dwPH04YMcoqvviBBcCp0kFDmrPOxvCh5fsuCTfNDM
+ rd2bwR43taZqlSuAbR/DUPreg68AqEutAUFeADkpbZ7MerZm84tRh2+LJ9h95L3Yq0Gj
+ 2dmiAS6I2fBDBOWX1Don1xYFpOwTv1vPIEro7+Xv5rNQUUxIhhRG60ixKc2Pypg090jd DQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyxdy0a8h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jun 2022 08:59:11 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25S8vmYY023106;
+        Tue, 28 Jun 2022 08:59:10 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyxdy0a7h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jun 2022 08:59:10 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25S8ogvN017242;
+        Tue, 28 Jun 2022 08:59:08 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 3gwt08vhef-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jun 2022 08:59:08 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25S8x5Gm22216990
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 28 Jun 2022 08:59:05 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AE5A1A4054;
+        Tue, 28 Jun 2022 08:59:05 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 276FEA405B;
+        Tue, 28 Jun 2022 08:59:04 +0000 (GMT)
+Received: from [9.171.42.158] (unknown [9.171.42.158])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 28 Jun 2022 08:59:03 +0000 (GMT)
+Message-ID: <207a01aa-d92c-4a17-7b2f-aed59da4ce09@linux.ibm.com>
+Date:   Tue, 28 Jun 2022 10:59:03 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="YzdYn+D7cUqe+VA3"
-Content-Disposition: inline
-In-Reply-To: <20220628051435.695540-2-hch@lst.de>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v10 2/3] KVM: s390: guest support for topology function
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, wintera@linux.ibm.com,
+        seiden@linux.ibm.com, nrb@linux.ibm.com
+References: <20220620125437.37122-1-pmorel@linux.ibm.com>
+ <20220620125437.37122-3-pmorel@linux.ibm.com>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <20220620125437.37122-3-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 860zfobV2qBY6qSuhgetDywiU7s0RGhA
+X-Proofpoint-ORIG-GUID: Zm5aoLnQUkF1x_3ZV6vOGLl-qLAwG7PX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-27_09,2022-06-24_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 impostorscore=0
+ mlxlogscore=999 malwarescore=0 adultscore=0 mlxscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206280035
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
---YzdYn+D7cUqe+VA3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On 2022.06.28 07:14:23 +0200, Christoph Hellwig wrote:
-> gvt->types needs to be freed on error.
->=20
-> Reported-by: Kevin Tian <kevin.tian@intel.com>
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+On 6/20/22 14:54, Pierre Morel wrote:
+> We report a topology change to the guest for any CPU hotplug.
+> 
+> The reporting to the guest is done using the Multiprocessor
+> Topology-Change-Report (MTCR) bit of the utility entry in the guest's
+> SCA which will be cleared during the interpretation of PTF.
+> 
+> On every vCPU creation we set the MCTR bit to let the guest know the
+> next time he uses the PTF with command 2 instruction that the
+> topology changed and that he should use the STSI(15.1.x) instruction
+> to get the topology details.
+> 
+> STSI(15.1.x) gives information on the CPU configuration topology.
+> Let's accept the interception of STSI with the function code 15 and
+> let the userland part of the hypervisor handle it when userland
+> support the CPU Topology facility.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > ---
->  drivers/gpu/drm/i915/gvt/vgpu.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/gpu/drm/i915/gvt/vgpu.c b/drivers/gpu/drm/i915/gvt/v=
-gpu.c
-> index 46da19b3225d2..5c828556cefd7 100644
-> --- a/drivers/gpu/drm/i915/gvt/vgpu.c
-> +++ b/drivers/gpu/drm/i915/gvt/vgpu.c
-> @@ -142,7 +142,7 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
-> =20
->  		if (vgpu_types[i].weight < 1 ||
->  					vgpu_types[i].weight > VGPU_MAX_WEIGHT)
-> -			return -EINVAL;
-> +			goto out_free_types;
-> =20
->  		gvt->types[i].weight =3D vgpu_types[i].weight;
->  		gvt->types[i].resolution =3D vgpu_types[i].edid;
-> @@ -167,6 +167,10 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
-> =20
->  	gvt->num_types =3D i;
->  	return 0;
-> +
-> +out_free_types:
-> +	kfree(gvt->types);
-> +	return -EINVAL;
+>  arch/s390/include/asm/kvm_host.h | 11 ++++++++---
+>  arch/s390/kvm/kvm-s390.c         | 27 ++++++++++++++++++++++++++-
+>  arch/s390/kvm/priv.c             | 15 +++++++++++----
+>  arch/s390/kvm/vsie.c             |  3 +++
+>  4 files changed, 48 insertions(+), 8 deletions(-)
+> 
+[...]
+
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 8fcb56141689..95b96019ca8e 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1691,6 +1691,25 @@ static int kvm_s390_get_cpu_model(struct kvm *kvm, struct kvm_device_attr *attr)
+>  	return ret;
 >  }
-> =20
->  void intel_gvt_clean_vgpu_types(struct intel_gvt *gvt)
-> --=20
+> 
+> +/**
+> + * kvm_s390_sca_set_mtcr
 
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+I wonder if there is a better name, kvm_s390_report_topology_change maybe?
 
-Thanks!
+> + * @kvm: guest KVM description
+> + *
+> + * Is only relevant if the topology facility is present,
+> + * the caller should check KVM facility 11
+> + *
+> + * Updates the Multiprocessor Topology-Change-Report to signal
+> + * the guest with a topology change.
+> + */
+> +static void kvm_s390_sca_set_mtcr(struct kvm *kvm)
+> +{
 
---YzdYn+D7cUqe+VA3
-Content-Type: application/pgp-signature; name="signature.asc"
+Do we need a sca_lock read_section here? If we don't why not?
+Did not see one up the stack, but I might have overlooked something.
 
------BEGIN PGP SIGNATURE-----
+> +	struct bsca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
+> +
+> +	ipte_lock(kvm);
+> +	sca->utility |= SCA_UTILITY_MTCR;
+> +	ipte_unlock(kvm);
+> +}
+> +
 
-iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCYrq5IQAKCRCxBBozTXgY
-J6+gAKCTyEVOxYue24PgMxjCL5YjuTa+dQCffMU/QCouKpn91rIuZuHx0f1TU9M=
-=vk2C
------END PGP SIGNATURE-----
+[...]
 
---YzdYn+D7cUqe+VA3--
