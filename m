@@ -2,139 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 615B0C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 09:03:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 784D7C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 09:41:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238179AbiF1JDv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 05:03:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32852 "EHLO
+        id S241390AbiF1Jln (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 05:41:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234531AbiF1JDv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 05:03:51 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B455911144;
-        Tue, 28 Jun 2022 02:03:50 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25S8hv0b021734;
-        Tue, 28 Jun 2022 09:03:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=EsjfSYc3Ykvoarlegm0oLfBwEtbmBAHBL2pvMklrxsQ=;
- b=KTdE7fe1vVrFTEb6XlC13DPpAHFyBYBU1UFLvkvQ8gWg4a2cDuMeimJC/oG0kqfinAY7
- Ai75gX876Yk2wVrnzl/ICQ8Y5FEHbo6/JaiTuAU++JazVwT9+HUP/Y2oQyLlCDz3Ntdg
- ceFJs2j+pl3eDJM9Yj3G01gf+zOYRjcr6sONpJISSt7JCHm5Cr/DnzWsDZH8d9audafb
- +MO57ZbUUd6xGBTnEdbUojK3lgqmYGZKf0ERVHVGUkhkzmmnkKL0Cul3FySFwjYIGGvH
- f1fwT33ttMCwv/lQRaFx3ixxbW4DGRqlLjExuY1cG5nuGIY+TzOoqilKjvhNzB6brtRx oA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyxcwrhd7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 09:03:50 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25S8i9u0022190;
-        Tue, 28 Jun 2022 09:03:49 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyxcwrhc1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 09:03:49 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25S8oeSV024113;
-        Tue, 28 Jun 2022 09:03:47 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06fra.de.ibm.com with ESMTP id 3gwsmhucy6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 09:03:47 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25S93iUN23003630
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Jun 2022 09:03:44 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3421D52050;
-        Tue, 28 Jun 2022 09:03:44 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.40])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id EC0905204E;
-        Tue, 28 Jun 2022 09:03:43 +0000 (GMT)
-Date:   Tue, 28 Jun 2022 11:03:42 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v2] s390x/intercept: Test invalid prefix
- argument to SET PREFIX
-Message-ID: <20220628110342.5b83f459@p-imbrenda>
-In-Reply-To: <20220627152412.2243255-1-scgl@linux.ibm.com>
-References: <20220627152412.2243255-1-scgl@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        with ESMTP id S1343497AbiF1Jlm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 05:41:42 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1A61E3F9;
+        Tue, 28 Jun 2022 02:41:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656409301; x=1687945301;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=PPoQhqKCB97rvXZTFEj4u3mjLEZTjYRt6RxNC0y82Jo=;
+  b=EWsQaILIJdCHa03cwT3qA27ZeXELl0uKrnC1gS3PFF1UxCVKzgDDBK41
+   QLCgYbD7GTGAC//llLK7D8UZsl9A7m9k/0fNkvR2ktpcx7IcOIgJ+PBDS
+   vjnH+BUFNYaEb5uf4t/UP1EVfHsWxyzx/5mYi2IFEwhELyIdxTzN1tLzA
+   QjYUUmNRyrr/2TqESfKRX1Xj12KgcFxYihpioyl8o4xUlsgffb8+82J9K
+   2lPIkhYepYzwABLFJxjhiai6kjVaTVB6TDwAkZ0rsBjJnKBnw9TAEWINi
+   9k9Be4srvISUPtQmy85aJOD+HC0y8IUAaypwgK+fb9qLFng3pvfgqTbgN
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10391"; a="280453630"
+X-IronPort-AV: E=Sophos;i="5.92,227,1650956400"; 
+   d="scan'208";a="280453630"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2022 02:41:40 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,227,1650956400"; 
+   d="scan'208";a="622885580"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by orsmga001.jf.intel.com with ESMTP; 28 Jun 2022 02:41:40 -0700
+Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.27; Tue, 28 Jun 2022 02:41:39 -0700
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.27 via Frontend Transport; Tue, 28 Jun 2022 02:41:39 -0700
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (104.47.58.107)
+ by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2308.27; Tue, 28 Jun 2022 02:41:39 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=eru8dCPfe/m4Fas3CxxAAiz2TKWpdBV/QMXHJMZ0XsgLMLFVGb0Al39xN7P/buuF/W2SgUY/RGnUhB2Z03u3cgqI7EEdqZ49n8+ZGD2rjJ+n/613UgYOUYI4HnuBb4en9BpjDUNZRvOXpyBzzYiMifuq8JThKsQOC0F9skYASTP+VggqXlo9DwW8D510xwejt+jL9Sxq+wmGN1IwGpS3l8ZBaruLNHK73cA+diWoUofmbxzuqqR3FIJlRIQF4jgDz/TE7QjMLeCw61r2b6n1iLAbnkzNlpg61rdbf1ouMs8MgXaqlqrP+KTKwjulv9985KOKjerN0/Oldej4qW6MHg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=PPoQhqKCB97rvXZTFEj4u3mjLEZTjYRt6RxNC0y82Jo=;
+ b=W0Rzq/Kg+HF0+JczUf4mZFnP5r5TV0kvvkKnOnwez1NjWdO4eqlQLuZ4xY4C5IL5nbBjFsRJwIdl4XIxWOm/upyshKBN3zdL7Tv5kybUDQG0O6rFsFdo2gjTNdZ2rgIVmF0AgD10znhP1cszQsq1U7Z6J5ZvnMbzoRKb+U5KH+3fBwsMCysvQz5inscDb3y21VYI1eALkN2ib821HeVbiGHa5kJ2d3oYksjK7yTj1ZIi9OLSrZjZr66fnEkr+qCqVBHY57D+5oSu55SzBVjnH4eHUTzMra5iyHhKFIoewoVOlOzAxjSq8EVE32BCfXS1udmnVxfKJjoNvpirv6DDDQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by DM6PR11MB3721.namprd11.prod.outlook.com (2603:10b6:5:142::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5373.16; Tue, 28 Jun
+ 2022 09:41:38 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::8435:5a99:1e28:b38c]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::8435:5a99:1e28:b38c%2]) with mapi id 15.20.5373.018; Tue, 28 Jun 2022
+ 09:41:38 +0000
+From:   "Tian, Kevin" <kevin.tian@intel.com>
+To:     Christoph Hellwig <hch@lst.de>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        "Wang, Zhi A" <zhi.a.wang@intel.com>,
+        "Alex Williamson" <alex.williamson@redhat.com>
+CC:     Jason Gunthorpe <jgg@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>
+Subject: RE: [PATCH 01/13] drm/i915/gvt: fix a memory leak in
+ intel_gvt_init_vgpu_types
+Thread-Topic: [PATCH 01/13] drm/i915/gvt: fix a memory leak in
+ intel_gvt_init_vgpu_types
+Thread-Index: AQHYiq38LgOdw9BtOEazH/PR8ELOWK1kkQbg
+Date:   Tue, 28 Jun 2022 09:41:38 +0000
+Message-ID: <BN9PR11MB5276798C4BEEFF0A6B2794C78CB89@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20220628051435.695540-1-hch@lst.de>
+ <20220628051435.695540-2-hch@lst.de>
+In-Reply-To: <20220628051435.695540-2-hch@lst.de>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 9de7cf5b-d75b-4bd5-9885-08da58ea6609
+x-ms-traffictypediagnostic: DM6PR11MB3721:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: wysCH2+in62bgOetPlxh2pG2JwcN/19QfWU6WrN+vLYBbRAF6etMr41gWpoG+Bjzif9FsTxkeXOD0M1QXIyTYONVMWbMjilkTJBtfbu/DLjIPZMiQQaC+K6NBW6rcGocAUIM2EGikOpTbkxCIMkyPkIRdNvi6olMwMMc4q84d5jaDc+fn08lr/6+9mfi34NHCwuiVrvGTX5DO6slYfPAMnfP6E6je6RfIoTMPmsCOrijD/q1JxYJnzuwXLtses8FLJ1z2vwN2zZcW5Vp99LvVseqKDeuaqkeQvfWhTA7tfVdIsZT1PD7GHzbzKJgV1oXJtVn0QQ0cxd71+MP5AdytdKpREaIOj8ivtQKIiJR5ahkvdQNdTKW/tpUW9DvN8kHqUxJjFwx0WJL1rKxn5TV6DIFx9uPFVnWvCyfMb5Mj7WLAmw7YrV15ndmnf/JGjBPrKPaRBPk1CwAHyorQr6WqilaMtsVk6jaBDON823+1vEKtfODcedYJEkQRX+Vf3tXZsGBhOHhzn7wR5yeSGzgpPWtKhmesoSHuqKcFXxY3szpd1TsRq/H91VyveQrwnc3SR8U/9P29QgTHe8rWs4664THFHpYA48R6lE3PYy3Qj+4imIIA7fIYCBXhb3t7RfluefK4c/SAYK8M6TXQVl0zvZdnKA+xSN3UgJ6UeXP6bEnVNbItKR/xHLuMyWAGk1HRWPg2JUEDdEbXFVnJ5UwoPyzNZ+kQ7x+kd/GlQIC8BwdggAG4aw4TIzve2EYTKtjpyKmqaEyKvgTcFiL5eDjibm6rJl6DsZTO/6aLvEQy9s9kNMA1M7iYeupv9/ulBRy
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(346002)(396003)(136003)(376002)(39860400002)(366004)(71200400001)(55016003)(921005)(66476007)(26005)(82960400001)(64756008)(66446008)(66556008)(6506007)(110136005)(316002)(2906002)(33656002)(8936002)(8676002)(9686003)(86362001)(66946007)(38100700002)(7416002)(54906003)(52536014)(478600001)(41300700001)(5660300002)(38070700005)(122000001)(4326008)(186003)(76116006)(558084003)(7696005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?tIHWPVEYzBe0Q0RMg0NXFLz9/zxMoA9qFhv7hq90lnmV5sBmaui9IxS6unFP?=
+ =?us-ascii?Q?aDjmOPh/96MwV03n+di789QaHPnemhkIvDwAxRidxZ2NdrKotHq236g/q3bx?=
+ =?us-ascii?Q?DEDKRT81mgL/ssyq/3TdEK0fBafWGnzDiZneATSjvei3vxLs1QHN83poR6Lj?=
+ =?us-ascii?Q?HR218CTeLw23kV2tzYI/qSjtHzwVFqMdLAu0aSZpk/Telrt2FlmwXDGVBtbd?=
+ =?us-ascii?Q?KJ/8wXZH5UZdK/Bz/KB1hoJmxnRCwygY3GL8w0WOaxydRDpRqtITKEEmvR+m?=
+ =?us-ascii?Q?rywKB+fjTJwcZtNiBFE9+qiNAqFmid1n4UcYFMSXSYDEdwOGCIb6yVFWUZPq?=
+ =?us-ascii?Q?GNJ7c2LdZcUktkQXn3jXRx2RpGGnscOMdzWDRTGsDkAhFOGgTm4845qDsPV7?=
+ =?us-ascii?Q?cSxWxfVKyQjjfKPtDS4w2r1gstz7lHo/HVu+3OEpZ2TjpNl2Wr2X+AG5AJZb?=
+ =?us-ascii?Q?mmTY1xx3W94gwJnCDyp96UO+0BuymeeY657OTxC32+6+2PRfegKnpHT3lDkd?=
+ =?us-ascii?Q?oQ343Pot0qinjtfIANp7z1OX3TJEgPMU9+FRhmL8UHGziEAQIPLj6RqKxtSI?=
+ =?us-ascii?Q?jXXNKA56IaR6HvqVFVJQtbZknbniZgCSLPjmoYHreb6IpyM/e9aS12atBZDN?=
+ =?us-ascii?Q?JdXV5Ou9bStr+qugi4JnCcwXNFFEkTCe1xa3xhDpzCKvDufbg3voGV+q2GZ2?=
+ =?us-ascii?Q?KVMooLucyBpHM21ismcagiYD0oOo3onUHcNryYhPiDfZOP+DqCpsi8vgIIT5?=
+ =?us-ascii?Q?OzcrdS34Ymald4ieXNYKweH1SjKJ7x01/HpSwTNrDlknqBH7IY6MD7crkZTk?=
+ =?us-ascii?Q?k905E6aS6zlGGcs181tgXROc4+thjBvA+xkgZwYLzn0ilzLS6nm9CckX/1Cu?=
+ =?us-ascii?Q?75dFDsCrAHDoBTSL5ueM+ElOMX9qIyOKqMDqnTU5kRu7jcZjgjpT3iTtLHAi?=
+ =?us-ascii?Q?a27/2VXYQHlgHUzKG8ztZoh1Mug5pzUHpRsVgZSVB09ARk+hRV8tzrMwBTIr?=
+ =?us-ascii?Q?K2RhMrzLoBqlp7qDkfeIBV0YDwLgLcLZ1svbamcWIftul2XcOUTWCzlwIGmM?=
+ =?us-ascii?Q?CNXzTWmFxZJraAp7Pdtjmi4KnENiobONipMwzxBu7HBrgSbx4rnd2WgBiofu?=
+ =?us-ascii?Q?pGIblsF/wuzxt5t44ks8GIitcD95df4Bky+nqZGy4u6deCjlLCMNYrE8aaKc?=
+ =?us-ascii?Q?XPumrgUcb2nLwQ5myj2b/Da2kwISLEqFTsOpWNSWapuB8GMnvAC52YAmoQP0?=
+ =?us-ascii?Q?urY/2wD47eOkm+yUWOk2nCQUiztIqW6gB0zPwFB4Q8hHtPvfARAjpNKP8mr8?=
+ =?us-ascii?Q?Xn6/iK8xRUwLOk+mdAWD5GPqd9d+T182wThmFhsH8YU9EJNai6/tHa2nJDBE?=
+ =?us-ascii?Q?8SeSAsmKR0Umz1UJuMjV7CXM1HvXYGKE8jQtkQD74LHbjjMWQ5wjk2wpDuCZ?=
+ =?us-ascii?Q?N2VtQ8FQjlFSHkSnwSC+x46FIvY7K74J9/w1GT/6yTxff02k09mk/dkfqvHM?=
+ =?us-ascii?Q?kBaYpcTPgiFcZEBU5W9NmgU2jzetQSFGfla81lCgLVtGv0STojd2meO6TqYG?=
+ =?us-ascii?Q?nmbkGX0eVc3enF6CbWKmccPT5P/63AxNLRHaX73F?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: VLYaAqdk1lQ0UbUaLJx9LimrOT7_TxLt
-X-Proofpoint-GUID: yG7TQc7NUa2qRtu1UAM9CwGX_pbRSQDt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-27_09,2022-06-24_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 suspectscore=0 bulkscore=0 phishscore=0 spamscore=0
- clxscore=1015 malwarescore=0 lowpriorityscore=0 adultscore=0
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206280037
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9de7cf5b-d75b-4bd5-9885-08da58ea6609
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Jun 2022 09:41:38.3218
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: QcA3oRPCDl+aBywFjBfQfGIHxjKPh43PjJ4HZgTOjkSUk4fEa5LVVPiw0ocF3V/eT/sEoWxoehQLQo/eUc2mBg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB3721
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 27 Jun 2022 17:24:11 +0200
-Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
+> From: Christoph Hellwig <hch@lst.de>
+> Sent: Tuesday, June 28, 2022 1:14 PM
+>=20
+> gvt->types needs to be freed on error.
+>=20
+> Reported-by: Kevin Tian <kevin.tian@intel.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-> According to the architecture, SET PREFIX must try to access the new
-> prefix area and recognize an addressing exception if the area is not
-> accessible.
-> Test that the exception occurs when we try to set a prefix higher
-> than the available memory.
-> 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-
-thanks, queued
-
-> ---
-> 
-> v1 -> v2
->  * report skip if we're running with too much memory (thanks Claudio)
-> 
-> 
->  s390x/intercept.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
-> 
-> diff --git a/s390x/intercept.c b/s390x/intercept.c
-> index 86e57e11..54bed5a4 100644
-> --- a/s390x/intercept.c
-> +++ b/s390x/intercept.c
-> @@ -74,6 +74,22 @@ static void test_spx(void)
->  	expect_pgm_int();
->  	asm volatile(" spx 0(%0) " : : "r"(-8L));
->  	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
-> +
-> +	new_prefix = get_ram_size() & 0x7fffe000;
-> +	if (get_ram_size() - new_prefix < 2 * PAGE_SIZE) {
-> +		expect_pgm_int();
-> +		asm volatile("spx	%0 " : : "Q"(new_prefix));
-> +		check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
-> +
-> +		/*
-> +		 * Cannot test inaccessibility of the second page the same way.
-> +		 * If we try to use the last page as first half of the prefix
-> +		 * area and our ram size is a multiple of 8k, after SPX aligns
-> +		 * the address to 8k we have a completely accessible area.
-> +		 */
-> +	} else {
-> +		report_skip("inaccessible prefix area");
-> +	}
->  }
->  
->  /* Test the STORE CPU ADDRESS instruction */
-> 
-> base-commit: 110c69492b53f0070e1bbce986fb635e72a423b4
-
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
