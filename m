@@ -2,115 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C9CACCA480
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 13:38:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB4E7C43334
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 13:40:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346753AbiF1NhW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 09:37:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40350 "EHLO
+        id S1346300AbiF1NkT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 09:40:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346546AbiF1NhA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 09:37:00 -0400
-Received: from mail-qv1-xf29.google.com (mail-qv1-xf29.google.com [IPv6:2607:f8b0:4864:20::f29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C3A2BB17
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 06:36:54 -0700 (PDT)
-Received: by mail-qv1-xf29.google.com with SMTP id o43so19965391qvo.4
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 06:36:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=gN4ZNyT9GRZ46Vwx3CUzNgwGxKE3ptwelsb3O/2waMc=;
-        b=SRPS2zIET11DP06FAnMANUW30rX+F+KLnmvgpItTZuHDiHMYbx191l+udZ0BIKVo+p
-         DUqKNFcRnPxEdciA9v/rjMoUuUABeinU5a59o91m7mO0ei+LjGwfeqP1sFK6bST4r2Sc
-         +kwNrequilw+r3whlSvEqjUrw7uEou8aBEv26lUqmckZs7QEO1gxqNAIdKmR6ixdoBBW
-         VwXL+VitONeiHER4+6czyOuvux/gSa01CsajOGl6xQeKgTZdOU9/PF5ai6yeP3/8Na6A
-         VkyCaiWAoLiX3IML+rZ/qAH9obhof6Stg3VEpk4n7D6sOfmWV6A4zI2itZ9nI+NyrBEn
-         GAtg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=gN4ZNyT9GRZ46Vwx3CUzNgwGxKE3ptwelsb3O/2waMc=;
-        b=aPCtjraBi9rPGk3muUcSqjsfaNjTW4u6G7qFxY82PzmfiTEu5BCzvBGJpmB+Sx/Vm5
-         9+SAZi8tGkLTftubuueAtXI0CYYyFvzhzm7CfGaXTWAMdMmeobDdv0+fsb1MrWIsRQu8
-         Zis62q5HC9+ZZjZu+/312mN1QivY0MvQH9nUGWsgpTBJhpQBicvgRz0GKR0N9aaATuqt
-         rhcxPkotNPV6O7CSiLjxQvc93iM+OlJvHWjj19G4oD3xVH/cL8RcaQU7uL0nxtRnD7bb
-         lxBWel8luwNuDKlJkrAYeYD+lBn1hJN4PCgYnpyaabQQepxvZgBvcOsam5/O6nHveb7b
-         0r5A==
-X-Gm-Message-State: AJIora82Lg07EQKjPesY/VUCuW/b1Vp8p3lgLRdal5VdrOWq/+oYOwRm
-        mqyvXJ+pDf/xaN7Cjn7Vn5H9tg==
-X-Google-Smtp-Source: AGRyM1uooXTVlKXYemR9EvbrrQp4i2XA4BpQT09bjvN7I6xIwm3cKCnpXCNHNGqwd+HxVz52pv3Omw==
-X-Received: by 2002:ac8:5b0d:0:b0:31b:f519:4107 with SMTP id m13-20020ac85b0d000000b0031bf5194107mr1237416qtw.331.1656423413317;
-        Tue, 28 Jun 2022 06:36:53 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
-        by smtp.gmail.com with ESMTPSA id s10-20020a05620a29ca00b006a79479657fsm708363qkp.108.2022.06.28.06.36.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 06:36:52 -0700 (PDT)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1o6BOd-002vAA-VA; Tue, 28 Jun 2022 10:36:51 -0300
-Date:   Tue, 28 Jun 2022 10:36:51 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc:     Daniel Borkmann <daniel@iogearbox.net>,
-        Kees Cook <keescook@chromium.org>,
-        linux-kernel@vger.kernel.org, x86@kernel.org, dm-devel@redhat.com,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-can@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        linux1394-devel@lists.sourceforge.net, io-uring@vger.kernel.org,
-        lvs-devel@vger.kernel.org, linux-mtd@lists.infradead.org,
-        kasan-dev@googlegroups.com, linux-mmc@vger.kernel.org,
-        nvdimm@lists.linux.dev, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org, linux-perf-users@vger.kernel.org,
-        linux-raid@vger.kernel.org, linux-sctp@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        v9fs-developer@lists.sourceforge.net, linux-rdma@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH][next] treewide: uapi: Replace zero-length arrays with
- flexible-array members
-Message-ID: <20220628133651.GO23621@ziepe.ca>
-References: <20220627180432.GA136081@embeddedor>
- <6bc1e94c-ce1d-a074-7d0c-8dbe6ce22637@iogearbox.net>
- <20220628004052.GM23621@ziepe.ca>
- <20220628005825.GA161566@embeddedor>
- <20220628022129.GA8452@embeddedor>
+        with ESMTP id S1346388AbiF1NkS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 09:40:18 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665C227171;
+        Tue, 28 Jun 2022 06:40:17 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SDB1Sn016705;
+        Tue, 28 Jun 2022 13:40:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=FBgDUWz9zu+SVcHFsLwmqLmheCUV+tCagUD444+K/iM=;
+ b=nP9nGTSpJTTxLCM/e7EHiIx/Ndo31kBdhG01AiT+nVxGGOIJd+VYZVpA7fXPpKTNr8JK
+ /l/54zwUbAFYlGGx64R6SFaLrZnHYD5PIseGAUQykf8TjO8d0h7b+rWGKVzSRHNHT9wJ
+ Sxx9ZG1Kwhg4BMHR/dLp1+6xhPFq7sZHJnpo4ZWDe0dGXiJsQ6Fy/UonAOXQ0aXSEq8X
+ dF0D8+rbJG3YU66L9xcBB9mTfMcGWNA/IdbhiFAsG1ozb8eg7vTcGuo1FzK/8gdGuyNN
+ BkroJEpsq1eUs4k7bFbEk9xRt7UNEms7wnhXIi6IaTh/IY/jjnpFV5gh/7QA9quWN9h6 9g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h01tjaa5b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jun 2022 13:40:15 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SDC7x4021996;
+        Tue, 28 Jun 2022 13:40:13 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h01tjaa0t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jun 2022 13:40:13 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SDb8C7025960;
+        Tue, 28 Jun 2022 13:40:11 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma01dal.us.ibm.com with ESMTP id 3gwt09857t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jun 2022 13:40:11 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SDeAWv32834002
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 28 Jun 2022 13:40:10 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4C2B9AC05E;
+        Tue, 28 Jun 2022 13:40:10 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CE79AAC05B;
+        Tue, 28 Jun 2022 13:40:02 +0000 (GMT)
+Received: from [9.163.8.193] (unknown [9.163.8.193])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 28 Jun 2022 13:40:02 +0000 (GMT)
+Message-ID: <425d3030-94e2-efeb-60fd-08516443a06a@linux.ibm.com>
+Date:   Tue, 28 Jun 2022 09:40:01 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH v9 00/21] KVM: s390: enable zPCI for interpretive
+ execution
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
+        jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220606203325.110625-1-mjrosato@linux.ibm.com>
+ <f86e2e05-114a-cc9e-8f3a-96b36889063d@linux.ibm.com>
+ <c98e7c10-272c-2bbb-6909-046d57d721d1@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <c98e7c10-272c-2bbb-6909-046d57d721d1@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: jBnlD9HRmTZN25V0BQZsmMSBZ2YhhOAb
+X-Proofpoint-ORIG-GUID: 2Jd4WNhrYwTB9D6Hdj11r_eT12oohFQV
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220628022129.GA8452@embeddedor>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-06-28_07,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ priorityscore=1501 phishscore=0 adultscore=0 malwarescore=0
+ lowpriorityscore=0 clxscore=1015 bulkscore=0 spamscore=0 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206280057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 28, 2022 at 04:21:29AM +0200, Gustavo A. R. Silva wrote:
+On 6/28/22 8:35 AM, Christian Borntraeger wrote:
+> Am 27.06.22 um 22:57 schrieb Matthew Rosato:
+>> On 6/6/22 4:33 PM, Matthew Rosato wrote:
+>>> Enable interpretive execution of zPCI instructions + adapter 
+>>> interruption
+>>> forwarding for s390x KVM vfio-pci.  This is done by triggering a routine
+>>> when the VFIO group is associated with the KVM guest, transmitting to
+>>> firmware a special token (GISA designation) to enable that specific 
+>>> guest
+>>> for interpretive execution on that zPCI device.  Load/store 
+>>> interpreation
+>>> enablement is then controlled by userspace (based upon whether or not a
+>>> SHM bit is placed in the virtual function handle).  Adapter Event
+>>> Notification interpretation is controlled from userspace via a new KVM
+>>> ioctl.
+>>>
+>>> By allowing intepretation of zPCI instructions and firmware delivery of
+>>> interrupts to guests, we can reduce the frequency of guest SIE exits for
+>>> zPCI.
+>>>
+>>>  From the perspective of guest configuration, you passthrough zPCI 
+>>> devices
+>>> in the same manner as before, with intepretation support being used by
+>>> default if available in kernel+qemu.
+>>>
+>>> Will follow up with a link the most recent QEMU series.
+>>>
+>>> Changelog v8->v9:
+>>> - Rebase on top of 5.19-rc1, adjust ioctl and capability defines
+>>> - s/kzdev = 0/kzdev = NULL/ (Alex)
+>>> - rename vfio_pci_zdev_open to vfio_pci_zdev_open_device (Jason)
+>>> - rename vfio_pci_zdev_release to vfio_pci_zdev_close_device (Jason)
+>>> - make vfio_pci_zdev_close_device return void, instead WARN_ON or ignore
+>>>    errors in lower level function (kvm_s390_pci_unregister_kvm) (Jason)
+>>> - remove notifier accidentally left in struct zpci_dev + associated
+>>>    include statment (Jason)
+>>> - Remove patch 'KVM: s390: introduce CPU feature for zPCI 
+>>> Interpretation'
+>>>    based on discussion in QEMU thread.
+>>>
+>>
+>> Ping -- I'm hoping this can make the next merge window, but there are 
+>> still 2 patches left without any review tag (16 & 17).
+> 
+> Yes, I will queue this (as is). Ideally you would rebase this on top of 
+> kvm/next but I can also do while applying.
+> Let me know if you want to respin with the Nits from Pierre.
 
-> > > Though maybe we could just switch off -Wgnu-variable-sized-type-not-at-end  during configuration ?
+Ah, sorry -- I assume you mean Paolo's kvm/next?  I tried now and see 
+some conflicts with the ioctl patch.
 
-> We need to think in a different strategy.
+Why don't I rebase on top of kvm/next along with these couple of changes 
+from Pierre and send this as a v10 for you to queue.
 
-I think we will need to switch off the warning in userspace - this is
-doable for rdma-core.
+While at it, there's one other issue to be aware of -- There will also 
+be small merge conflicts with a patch that just hit vfio-next, "vfio: 
+de-extern-ify function prototypes" - My series already avoids adding 
+externs to new prototypes, but adjacent code changes will cause a 
+conflict with patches 10 and 17.
 
-On the other hand, if the goal is to enable the array size check
-compiler warning I would suggest focusing only on those structs that
-actually hit that warning in the kernel. IIRC infiniband doesn't
-trigger it because it just pointer casts the flex array to some other
-struct.
+Not sure what the best way to proceed there is.
 
-It isn't actually an array it is a placeholder for a trailing
-structure, so it is never indexed.
-
-This is also why we hit the warning because the convient way for
-userspace to compose the message is to squash the header and trailer
-structs together in a super struct on the stack, then invoke the
-ioctl.
-
-Jason 
+https://lore.kernel.org/kvm/165471414407.203056.474032786990662279.stgit@omen/
