@@ -2,125 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A54C7CCA47E
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 08:28:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C6A2C43334
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 08:40:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244948AbiF1I2F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 04:28:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50828 "EHLO
+        id S1343970AbiF1Ikv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 04:40:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343982AbiF1I1l (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 04:27:41 -0400
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2793F0C;
-        Tue, 28 Jun 2022 01:27:39 -0700 (PDT)
-Received: from fraeml707-chm.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4LXHkl0stbz6GDGM;
-        Tue, 28 Jun 2022 16:26:55 +0800 (CST)
-Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
- fraeml707-chm.china.huawei.com (10.206.15.35) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 28 Jun 2022 10:27:37 +0200
-Received: from [10.126.174.22] (10.126.174.22) by
- lhreml724-chm.china.huawei.com (10.201.108.75) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 28 Jun 2022 09:27:36 +0100
-Message-ID: <b530d4ac-2d7b-0989-c5da-6b6351a0a68f@huawei.com>
-Date:   Tue, 28 Jun 2022 09:27:37 +0100
+        with ESMTP id S1343976AbiF1Ikt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 04:40:49 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E96F02C640;
+        Tue, 28 Jun 2022 01:40:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656405648; x=1687941648;
+  h=date:from:to:cc:subject:message-id:reply-to:references:
+   mime-version:in-reply-to;
+  bh=1Tgdz4FPq/Kbs1ys+mOYQECaWJi1Szc24CrwfxeyUAY=;
+  b=AJG6UIJi7GwdFWUit4yg/KFyroYVpEToZNcNk5xJ/moAYtP3ERgpuTwu
+   7Nmx9zXYrj7zPYY7pkCo7vaDVlEBJpNoUnUzRAvJZAicpy/RooiKQbA/b
+   yfIrcOlf3sbUMX7H/S3uFPbXCZ3nWM7VQNHAiAncr5VKWTRiWnfRz/9D+
+   ocaLpbzm8Pdl0NgNoik/biH9pOeZaP7xsCFGTx6h7W6fOmTabsRhNI5CI
+   Bo3LXU0l2+U0tWvtrmryd89+CWxG8HvP2mfx2nf4zpBHpewUED1dJNI/I
+   H4r4AvQTZrwfoM6tDay9Ip1JvOYYUcQc4nAp9MLw5oQoQH2Liod7+x+9n
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10391"; a="345674667"
+X-IronPort-AV: E=Sophos;i="5.92,227,1650956400"; 
+   d="asc'?scan'208";a="345674667"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2022 01:40:48 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,227,1650956400"; 
+   d="asc'?scan'208";a="646820987"
+Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.159.108])
+  by fmsmga008.fm.intel.com with ESMTP; 28 Jun 2022 01:40:45 -0700
+Date:   Tue, 28 Jun 2022 16:17:49 +0800
+From:   Zhenyu Wang <zhenyuw@linux.intel.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+        Kevin Tian <kevin.tian@intel.com>
+Subject: Re: [PATCH 01/13] drm/i915/gvt: fix a memory leak in
+ intel_gvt_init_vgpu_types
+Message-ID: <20220628081749.GJ1089@zhen-hp.sh.intel.com>
+Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
+References: <20220628051435.695540-1-hch@lst.de>
+ <20220628051435.695540-2-hch@lst.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH v2 0/6] blk-mq: Add a flag for reserved requests series
-To:     <axboe@kernel.dk>
-CC:     <linux-doc@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
-        <linux-mmc@vger.kernel.org>, <linux-nvme@lists.infradead.org>,
-        <linux-s390@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-        <mpi3mr-linuxdrv.pdl@broadcom.com>, <linux-block@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <nbd@other.debian.org>,
-        <damien.lemoal@opensource.wdc.com>, <jejb@linux.ibm.com>,
-        <hch@lst.de>, <martin.petersen@oracle.com>, <kartilak@cisco.com>,
-        <bvanassche@acm.org>, <satishkh@cisco.com>, <hare@suse.de>,
-        <sebaddel@cisco.com>
-References: <1655810143-67784-1-git-send-email-john.garry@huawei.com>
-From:   John Garry <john.garry@huawei.com>
-In-Reply-To: <1655810143-67784-1-git-send-email-john.garry@huawei.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.126.174.22]
-X-ClientProxiedBy: lhreml726-chm.china.huawei.com (10.201.108.77) To
- lhreml724-chm.china.huawei.com (10.201.108.75)
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="YzdYn+D7cUqe+VA3"
+Content-Disposition: inline
+In-Reply-To: <20220628051435.695540-2-hch@lst.de>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 21/06/2022 12:15, John Garry wrote:
 
-Hi Jens,
+--YzdYn+D7cUqe+VA3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-about this series, would you be ok to pick this up for merging? Do you 
-find the changes acceptable?
+On 2022.06.28 07:14:23 +0200, Christoph Hellwig wrote:
+> gvt->types needs to be freed on error.
+>=20
+> Reported-by: Kevin Tian <kevin.tian@intel.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/gpu/drm/i915/gvt/vgpu.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/gpu/drm/i915/gvt/vgpu.c b/drivers/gpu/drm/i915/gvt/v=
+gpu.c
+> index 46da19b3225d2..5c828556cefd7 100644
+> --- a/drivers/gpu/drm/i915/gvt/vgpu.c
+> +++ b/drivers/gpu/drm/i915/gvt/vgpu.c
+> @@ -142,7 +142,7 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
+> =20
+>  		if (vgpu_types[i].weight < 1 ||
+>  					vgpu_types[i].weight > VGPU_MAX_WEIGHT)
+> -			return -EINVAL;
+> +			goto out_free_types;
+> =20
+>  		gvt->types[i].weight =3D vgpu_types[i].weight;
+>  		gvt->types[i].resolution =3D vgpu_types[i].edid;
+> @@ -167,6 +167,10 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
+> =20
+>  	gvt->num_types =3D i;
+>  	return 0;
+> +
+> +out_free_types:
+> +	kfree(gvt->types);
+> +	return -EINVAL;
+>  }
+> =20
+>  void intel_gvt_clean_vgpu_types(struct intel_gvt *gvt)
+> --=20
 
-Thanks,
-John
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 
-> In [0] I included "blk-mq: Add a flag for reserved requests" to identify
-> if a request is 'reserved' for special handling. Doing this is easier than
-> passing a 'reserved' arg to the blk_mq_ops callbacks. Indeed, only 1x
-> timeout implementation or blk-mq iter function actually uses the
-> 'reserved' arg (or 3x if you count SCSI core and FNIC SCSI driver). So
-> this series drops the 'reserved' arg for these timeout and iter functions.
-> Christoph suggested that I try to upstream now.
-> 
-> Differences to v1:
-> - Use "scsi_timeout" as name for SCSI timeout function and update docs
-> - Add RB tags (thanks!)
-> - Split out patch to drop local variables for 'reserved', as requested by
->    Bart
-> 
-> Based on following:
-> 6dbcddf6e76b (block/for-5.20/block) block: bfq: Fix kernel-doc headers
-> 
-> [0] https://lore.kernel.org/linux-scsi/1654770559-101375-1-git-send-email-john.garry@huawei.com/T/#m22aa9f89e55835edc2e650d43f7e3219a3a1a324
-> 
-> John Garry (6):
->    scsi: core: Remove reserved request time-out handling
->    blk-mq: Add a flag for reserved requests
->    blk-mq: Drop blk_mq_ops.timeout 'reserved' arg
->    scsi: fnic: Drop reserved request handling
->    blk-mq: Drop 'reserved' arg of busy_tag_iter_fn
->    blk-mq: Drop local variable for reserved tag
-> 
->   Documentation/scsi/scsi_eh.rst          |  3 +--
->   Documentation/scsi/scsi_mid_low_api.rst |  2 +-
->   block/blk-mq-debugfs.c                  |  2 +-
->   block/blk-mq-tag.c                      | 13 +++++--------
->   block/blk-mq.c                          | 22 +++++++++++++---------
->   block/bsg-lib.c                         |  2 +-
->   drivers/block/mtip32xx/mtip32xx.c       | 11 +++++------
->   drivers/block/nbd.c                     |  5 ++---
->   drivers/block/null_blk/main.c           |  2 +-
->   drivers/infiniband/ulp/srp/ib_srp.c     |  3 +--
->   drivers/mmc/core/queue.c                |  3 +--
->   drivers/nvme/host/apple.c               |  3 +--
->   drivers/nvme/host/core.c                |  2 +-
->   drivers/nvme/host/fc.c                  |  6 ++----
->   drivers/nvme/host/nvme.h                |  2 +-
->   drivers/nvme/host/pci.c                 |  2 +-
->   drivers/nvme/host/rdma.c                |  3 +--
->   drivers/nvme/host/tcp.c                 |  3 +--
->   drivers/s390/block/dasd.c               |  2 +-
->   drivers/s390/block/dasd_int.h           |  2 +-
->   drivers/scsi/aacraid/comminit.c         |  2 +-
->   drivers/scsi/aacraid/linit.c            |  2 +-
->   drivers/scsi/fnic/fnic_scsi.c           | 14 ++++----------
->   drivers/scsi/hosts.c                    | 14 ++++++--------
->   drivers/scsi/mpi3mr/mpi3mr_os.c         | 16 ++++------------
->   drivers/scsi/scsi_error.c               |  6 +++---
->   drivers/scsi/scsi_lib.c                 |  8 --------
->   drivers/scsi/scsi_priv.h                |  2 +-
->   include/linux/blk-mq.h                  | 10 ++++++++--
->   include/scsi/scsi_host.h                |  2 +-
->   30 files changed, 71 insertions(+), 98 deletions(-)
-> 
+Thanks!
 
+--YzdYn+D7cUqe+VA3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCYrq5IQAKCRCxBBozTXgY
+J6+gAKCTyEVOxYue24PgMxjCL5YjuTa+dQCffMU/QCouKpn91rIuZuHx0f1TU9M=
+=vk2C
+-----END PGP SIGNATURE-----
+
+--YzdYn+D7cUqe+VA3--
