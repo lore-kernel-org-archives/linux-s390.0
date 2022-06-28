@@ -2,168 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F1B8CCA47B
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 02:22:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 269CEC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 03:12:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243608AbiF1CW5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 22:22:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60944 "EHLO
+        id S231942AbiF1DMt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 23:12:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243804AbiF1CWB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 22:22:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B476248F4;
-        Mon, 27 Jun 2022 19:21:37 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26F64B818E4;
-        Tue, 28 Jun 2022 02:21:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3298C341CB;
-        Tue, 28 Jun 2022 02:21:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656382894;
-        bh=pqPD6qoEi8JT199in7jg5DAol4iF8DjKFPgIGYlvQoc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GyqsByaDXQg5yOq6smuSw5cw5zuxTHl+rHrYo/OlHMZ1OuAvd9ONI8/jqrzLdImbD
-         VTWK7UP5itlkHBzyKuMpIHQb6qIkgBzcX3Jxv+GaaOi42Ij7zVfd0aNVRCj/2kEQLZ
-         O6R0SdzzjedD8BThjNur1AhOSXcjIOf8wUfiJdziqd597shekW5NqBhdePKYvvXsYS
-         oJiSFkiCFnaZl7loW+605mJuFv8NTwWJO3O6z94S5MRsftmK5FPbSEThNMZ5b+uoVL
-         ifMihZ1oD6Ug5EuhwczB9HuCayJu7LpnnMklqlMLvNn/Nf3BKVwwKkKVP3/5TDDlCW
-         d3gJG/ZMvv/2g==
-Date:   Tue, 28 Jun 2022 04:21:29 +0200
-From:   "Gustavo A. R. Silva" <gustavoars@kernel.org>
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     Daniel Borkmann <daniel@iogearbox.net>,
-        Kees Cook <keescook@chromium.org>,
-        linux-kernel@vger.kernel.org, x86@kernel.org, dm-devel@redhat.com,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-can@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        linux1394-devel@lists.sourceforge.net, io-uring@vger.kernel.org,
-        lvs-devel@vger.kernel.org, linux-mtd@lists.infradead.org,
-        kasan-dev@googlegroups.com, linux-mmc@vger.kernel.org,
-        nvdimm@lists.linux.dev, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org, linux-perf-users@vger.kernel.org,
-        linux-raid@vger.kernel.org, linux-sctp@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        v9fs-developer@lists.sourceforge.net, linux-rdma@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH][next] treewide: uapi: Replace zero-length arrays with
- flexible-array members
-Message-ID: <20220628022129.GA8452@embeddedor>
-References: <20220627180432.GA136081@embeddedor>
- <6bc1e94c-ce1d-a074-7d0c-8dbe6ce22637@iogearbox.net>
- <20220628004052.GM23621@ziepe.ca>
- <20220628005825.GA161566@embeddedor>
+        with ESMTP id S232051AbiF1DMg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 23:12:36 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C929024F09;
+        Mon, 27 Jun 2022 20:12:34 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 71983150C;
+        Mon, 27 Jun 2022 20:12:34 -0700 (PDT)
+Received: from [10.162.42.7] (unknown [10.162.42.7])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0D7AC3F792;
+        Mon, 27 Jun 2022 20:12:26 -0700 (PDT)
+Message-ID: <f26804cf-e342-5826-8f01-4b087a7baa63@arm.com>
+Date:   Tue, 28 Jun 2022 08:42:24 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220628005825.GA161566@embeddedor>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH V5 04/26] sparc/mm: Move protection_map[] inside the
+ platform
+Content-Language: en-US
+To:     Sam Ravnborg <sam@ravnborg.org>
+Cc:     linux-mm@kvack.org, hch@infradead.org, christophe.leroy@csgroup.eu,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        x86@kernel.org, openrisc@lists.librecores.org,
+        linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org,
+        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>
+References: <20220627045833.1590055-1-anshuman.khandual@arm.com>
+ <20220627045833.1590055-5-anshuman.khandual@arm.com>
+ <YrnlkLbyYSbI0EQw@ravnborg.org>
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <YrnlkLbyYSbI0EQw@ravnborg.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 28, 2022 at 02:58:25AM +0200, Gustavo A. R. Silva wrote:
-> On Mon, Jun 27, 2022 at 09:40:52PM -0300, Jason Gunthorpe wrote:
-> > On Mon, Jun 27, 2022 at 08:27:37PM +0200, Daniel Borkmann wrote:
-> > > On 6/27/22 8:04 PM, Gustavo A. R. Silva wrote:
-> > > > There is a regular need in the kernel to provide a way to declare
-> > > > having a dynamically sized set of trailing elements in a structure.
-> > > > Kernel code should always use “flexible array members”[1] for these
-> > > > cases. The older style of one-element or zero-length arrays should
-> > > > no longer be used[2].
-> > > > 
-> > > > This code was transformed with the help of Coccinelle:
-> > > > (linux-5.19-rc2$ spatch --jobs $(getconf _NPROCESSORS_ONLN) --sp-file script.cocci --include-headers --dir . > output.patch)
-> > > > 
-> > > > @@
-> > > > identifier S, member, array;
-> > > > type T1, T2;
-> > > > @@
-> > > > 
-> > > > struct S {
-> > > >    ...
-> > > >    T1 member;
-> > > >    T2 array[
-> > > > - 0
-> > > >    ];
-> > > > };
-> > > > 
-> > > > -fstrict-flex-arrays=3 is coming and we need to land these changes
-> > > > to prevent issues like these in the short future:
-> > > > 
-> > > > ../fs/minix/dir.c:337:3: warning: 'strcpy' will always overflow; destination buffer has size 0,
-> > > > but the source string has length 2 (including NUL byte) [-Wfortify-source]
-> > > > 		strcpy(de3->name, ".");
-> > > > 		^
-> > > > 
-> > > > Since these are all [0] to [] changes, the risk to UAPI is nearly zero. If
-> > > > this breaks anything, we can use a union with a new member name.
-> > > > 
-> > > > [1] https://en.wikipedia.org/wiki/Flexible_array_member
-> > > > [2] https://www.kernel.org/doc/html/v5.16/process/deprecated.html#zero-length-and-one-element-arrays
-> > > > 
-> > > > Link: https://github.com/KSPP/linux/issues/78
-> > > > Build-tested-by: https://lore.kernel.org/lkml/62b675ec.wKX6AOZ6cbE71vtF%25lkp@intel.com/
-> > > > Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-> > > > ---
-> > > > Hi all!
-> > > > 
-> > > > JFYI: I'm adding this to my -next tree. :)
-> > > 
-> > > Fyi, this breaks BPF CI:
-> > > 
-> > > https://github.com/kernel-patches/bpf/runs/7078719372?check_suite_focus=true
-> > > 
-> > >   [...]
-> > >   progs/map_ptr_kern.c:314:26: error: field 'trie_key' with variable sized type 'struct bpf_lpm_trie_key' not at the end of a struct or class is a GNU extension [-Werror,-Wgnu-variable-sized-type-not-at-end]
-> > >           struct bpf_lpm_trie_key trie_key;
-> > >                                   ^
-> > 
-> > This will break the rdma-core userspace as well, with a similar
-> > error:
-> > 
-> > /usr/bin/clang-13 -DVERBS_DEBUG -Dibverbs_EXPORTS -Iinclude -I/usr/include/libnl3 -I/usr/include/drm -g -O2 -fdebug-prefix-map=/__w/1/s=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -Wmissing-prototypes -Wmissing-declarations -Wwrite-strings -Wformat=2 -Wcast-function-type -Wformat-nonliteral -Wdate-time -Wnested-externs -Wshadow -Wstrict-prototypes -Wold-style-definition -Werror -Wredundant-decls -g -fPIC   -std=gnu11 -MD -MT libibverbs/CMakeFiles/ibverbs.dir/cmd_flow.c.o -MF libibverbs/CMakeFiles/ibverbs.dir/cmd_flow.c.o.d -o libibverbs/CMakeFiles/ibverbs.dir/cmd_flow.c.o   -c ../libibverbs/cmd_flow.c
-> > In file included from ../libibverbs/cmd_flow.c:33:
-> > In file included from include/infiniband/cmd_write.h:36:
-> > In file included from include/infiniband/cmd_ioctl.h:41:
-> > In file included from include/infiniband/verbs.h:48:
-> > In file included from include/infiniband/verbs_api.h:66:
-> > In file included from include/infiniband/ib_user_ioctl_verbs.h:38:
-> > include/rdma/ib_user_verbs.h:436:34: error: field 'base' with variable sized type 'struct ib_uverbs_create_cq_resp' not at the end of a struct or class is a GNU extension [-Werror,-Wgnu-variable-sized-type-not-at-end]
-> >         struct ib_uverbs_create_cq_resp base;
-> >                                         ^
-> > include/rdma/ib_user_verbs.h:644:34: error: field 'base' with variable sized type 'struct ib_uverbs_create_qp_resp' not at the end of a struct or class is a GNU extension [-Werror,-Wgnu-variable-sized-type-not-at-end]
-> >         struct ib_uverbs_create_qp_resp base;
-> > 
-> > Which is why I gave up trying to change these..
-> > 
-> > Though maybe we could just switch off -Wgnu-variable-sized-type-not-at-end  during configuration ?
+
+
+On 6/27/22 22:44, Sam Ravnborg wrote:
+> Hi Anshuman,
 > 
-> No. I think now we can easily workaround these sorts of problems with
-> something like this:
+> On Mon, Jun 27, 2022 at 10:28:11AM +0530, Anshuman Khandual wrote:
+>> This moves protection_map[] inside the platform and while here, also enable
+>> ARCH_HAS_VM_GET_PAGE_PROT on 32 bit platforms via DECLARE_VM_GET_PAGE_PROT.
+>>
+>> Cc: "David S. Miller" <davem@davemloft.net>
+>> Cc: sparclinux@vger.kernel.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>>  arch/sparc/Kconfig                  |  2 +-
+>>  arch/sparc/include/asm/pgtable_32.h | 19 -------------------
+>>  arch/sparc/include/asm/pgtable_64.h | 19 -------------------
+>>  arch/sparc/mm/init_32.c             | 20 ++++++++++++++++++++
+>>  arch/sparc/mm/init_64.c             |  3 +++
+>>  5 files changed, 24 insertions(+), 39 deletions(-)
+>>
+>> diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+>> index ba449c47effd..09f868613a4d 100644
+>> --- a/arch/sparc/Kconfig
+>> +++ b/arch/sparc/Kconfig
+>> @@ -13,6 +13,7 @@ config 64BIT
+>>  config SPARC
+>>  	bool
+>>  	default y
+>> +	select ARCH_HAS_VM_GET_PAGE_PROT
+>>  	select ARCH_MIGHT_HAVE_PC_PARPORT if SPARC64 && PCI
+>>  	select ARCH_MIGHT_HAVE_PC_SERIO
+>>  	select DMA_OPS
+>> @@ -84,7 +85,6 @@ config SPARC64
+>>  	select PERF_USE_VMALLOC
+>>  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+>>  	select HAVE_C_RECORDMCOUNT
+>> -	select ARCH_HAS_VM_GET_PAGE_PROT
+>>  	select HAVE_ARCH_AUDITSYSCALL
+>>  	select ARCH_SUPPORTS_ATOMIC_RMW
+>>  	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+>> diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
+>> index 4866625da314..8ff549004fac 100644
+>> --- a/arch/sparc/include/asm/pgtable_32.h
+>> +++ b/arch/sparc/include/asm/pgtable_32.h
+>> @@ -64,25 +64,6 @@ void paging_init(void);
+>>  
+>>  extern unsigned long ptr_in_current_pgd;
+>>  
+>> -/*         xwr */
+>> -#define __P000  PAGE_NONE
+>> -#define __P001  PAGE_READONLY
+>> -#define __P010  PAGE_COPY
+>> -#define __P011  PAGE_COPY
+>> -#define __P100  PAGE_READONLY
+>> -#define __P101  PAGE_READONLY
+>> -#define __P110  PAGE_COPY
+>> -#define __P111  PAGE_COPY
+>> -
+>> -#define __S000	PAGE_NONE
+>> -#define __S001	PAGE_READONLY
+>> -#define __S010	PAGE_SHARED
+>> -#define __S011	PAGE_SHARED
+>> -#define __S100	PAGE_READONLY
+>> -#define __S101	PAGE_READONLY
+>> -#define __S110	PAGE_SHARED
+>> -#define __S111	PAGE_SHARED
+>> -
+>>  /* First physical page can be anywhere, the following is needed so that
+>>   * va-->pa and vice versa conversions work properly without performance
+>>   * hit for all __pa()/__va() operations.
+>> diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
+>> index 4679e45c8348..a779418ceba9 100644
+>> --- a/arch/sparc/include/asm/pgtable_64.h
+>> +++ b/arch/sparc/include/asm/pgtable_64.h
+>> @@ -187,25 +187,6 @@ bool kern_addr_valid(unsigned long addr);
+>>  #define _PAGE_SZHUGE_4U	_PAGE_SZ4MB_4U
+>>  #define _PAGE_SZHUGE_4V	_PAGE_SZ4MB_4V
+>>  
+>> -/* These are actually filled in at boot time by sun4{u,v}_pgprot_init() */
+>> -#define __P000	__pgprot(0)
+>> -#define __P001	__pgprot(0)
+>> -#define __P010	__pgprot(0)
+>> -#define __P011	__pgprot(0)
+>> -#define __P100	__pgprot(0)
+>> -#define __P101	__pgprot(0)
+>> -#define __P110	__pgprot(0)
+>> -#define __P111	__pgprot(0)
+>> -
+>> -#define __S000	__pgprot(0)
+>> -#define __S001	__pgprot(0)
+>> -#define __S010	__pgprot(0)
+>> -#define __S011	__pgprot(0)
+>> -#define __S100	__pgprot(0)
+>> -#define __S101	__pgprot(0)
+>> -#define __S110	__pgprot(0)
+>> -#define __S111	__pgprot(0)
+>> -
+>>  #ifndef __ASSEMBLY__
+>>  
+>>  pte_t mk_pte_io(unsigned long, pgprot_t, int, unsigned long);
+>> diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
+>> index 1e9f577f084d..8693e4e28b86 100644
+>> --- a/arch/sparc/mm/init_32.c
+>> +++ b/arch/sparc/mm/init_32.c
+>> @@ -302,3 +302,23 @@ void sparc_flush_page_to_ram(struct page *page)
+>>  		__flush_page_to_ram(vaddr);
+>>  }
+>>  EXPORT_SYMBOL(sparc_flush_page_to_ram);
+>> +
+>> +static pgprot_t protection_map[16] __ro_after_init = {
+> This can be const - like done for powerpc and others.
+> sparc32 and sparc64 uses each their own - and I do not see sparc32 do
+> any modifications to protection_map.
+
+Indeed protection_map[] arrays are independent both for sparc32 and spacr64.
+sparc32 platform never changes the protection_map[] array during boot. Sure,
+will make it into a const instead. Thanks for pointing this out.
+
 > 
-> 	struct flex {
-> 		any_type any_member;
-> 		union {
-> 			type array[0];
-> 			__DECLARE_FLEX_ARRAY(type, array_flex);
-> 		};
-> 	};
-
-Mmmh... nope; this doesn't work[1].
-
-We need to think in a different strategy.
-
---
-Gustavo
-
-[1] https://godbolt.org/z/av79Pqbfz
+> With this change:
+> Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+> 
