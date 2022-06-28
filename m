@@ -2,156 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A640C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 08:59:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 615B0C43334
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 09:03:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245445AbiF1I7P (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 04:59:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56768 "EHLO
+        id S238179AbiF1JDv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 05:03:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243923AbiF1I7N (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 04:59:13 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EB19EAB;
-        Tue, 28 Jun 2022 01:59:12 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25S8kK8r025506;
-        Tue, 28 Jun 2022 08:59:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+        with ESMTP id S234531AbiF1JDv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 05:03:51 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B455911144;
+        Tue, 28 Jun 2022 02:03:50 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25S8hv0b021734;
+        Tue, 28 Jun 2022 09:03:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=NJGYOtCXqHINCz1gB/ROdNxdoURtR0qXerIDni39BIE=;
- b=Kj+D2AaGJBMJ2oysdaOAHdGC4Xw5hPyNYSRJyduqCHNem7sdGRDBmBqfb4aybAAya9BN
- Kq8J/w9FBPaULVjCUyVqCqp4yDINdBDDRN2K+kQO9qZzAuPBhdDjp2mIVeVwp9I5Yyd7
- K9eMbZq7Ua1WGv+aY1KOAmfqnJ1dwPH04YMcoqvviBBcCp0kFDmrPOxvCh5fsuCTfNDM
- rd2bwR43taZqlSuAbR/DUPreg68AqEutAUFeADkpbZ7MerZm84tRh2+LJ9h95L3Yq0Gj
- 2dmiAS6I2fBDBOWX1Don1xYFpOwTv1vPIEro7+Xv5rNQUUxIhhRG60ixKc2Pypg090jd DQ== 
+ bh=EsjfSYc3Ykvoarlegm0oLfBwEtbmBAHBL2pvMklrxsQ=;
+ b=KTdE7fe1vVrFTEb6XlC13DPpAHFyBYBU1UFLvkvQ8gWg4a2cDuMeimJC/oG0kqfinAY7
+ Ai75gX876Yk2wVrnzl/ICQ8Y5FEHbo6/JaiTuAU++JazVwT9+HUP/Y2oQyLlCDz3Ntdg
+ ceFJs2j+pl3eDJM9Yj3G01gf+zOYRjcr6sONpJISSt7JCHm5Cr/DnzWsDZH8d9audafb
+ +MO57ZbUUd6xGBTnEdbUojK3lgqmYGZKf0ERVHVGUkhkzmmnkKL0Cul3FySFwjYIGGvH
+ f1fwT33ttMCwv/lQRaFx3ixxbW4DGRqlLjExuY1cG5nuGIY+TzOoqilKjvhNzB6brtRx oA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyxdy0a8h-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyxcwrhd7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 08:59:11 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25S8vmYY023106;
-        Tue, 28 Jun 2022 08:59:10 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyxdy0a7h-1
+        Tue, 28 Jun 2022 09:03:50 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25S8i9u0022190;
+        Tue, 28 Jun 2022 09:03:49 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3gyxcwrhc1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 08:59:10 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25S8ogvN017242;
-        Tue, 28 Jun 2022 08:59:08 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3gwt08vhef-1
+        Tue, 28 Jun 2022 09:03:49 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25S8oeSV024113;
+        Tue, 28 Jun 2022 09:03:47 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06fra.de.ibm.com with ESMTP id 3gwsmhucy6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 08:59:08 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25S8x5Gm22216990
+        Tue, 28 Jun 2022 09:03:47 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25S93iUN23003630
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Jun 2022 08:59:05 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AE5A1A4054;
-        Tue, 28 Jun 2022 08:59:05 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 276FEA405B;
-        Tue, 28 Jun 2022 08:59:04 +0000 (GMT)
-Received: from [9.171.42.158] (unknown [9.171.42.158])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Jun 2022 08:59:03 +0000 (GMT)
-Message-ID: <207a01aa-d92c-4a17-7b2f-aed59da4ce09@linux.ibm.com>
-Date:   Tue, 28 Jun 2022 10:59:03 +0200
+        Tue, 28 Jun 2022 09:03:44 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3421D52050;
+        Tue, 28 Jun 2022 09:03:44 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.40])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id EC0905204E;
+        Tue, 28 Jun 2022 09:03:43 +0000 (GMT)
+Date:   Tue, 28 Jun 2022 11:03:42 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v2] s390x/intercept: Test invalid prefix
+ argument to SET PREFIX
+Message-ID: <20220628110342.5b83f459@p-imbrenda>
+In-Reply-To: <20220627152412.2243255-1-scgl@linux.ibm.com>
+References: <20220627152412.2243255-1-scgl@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v10 2/3] KVM: s390: guest support for topology function
-Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, wintera@linux.ibm.com,
-        seiden@linux.ibm.com, nrb@linux.ibm.com
-References: <20220620125437.37122-1-pmorel@linux.ibm.com>
- <20220620125437.37122-3-pmorel@linux.ibm.com>
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-In-Reply-To: <20220620125437.37122-3-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 860zfobV2qBY6qSuhgetDywiU7s0RGhA
-X-Proofpoint-ORIG-GUID: Zm5aoLnQUkF1x_3ZV6vOGLl-qLAwG7PX
+X-Proofpoint-ORIG-GUID: VLYaAqdk1lQ0UbUaLJx9LimrOT7_TxLt
+X-Proofpoint-GUID: yG7TQc7NUa2qRtu1UAM9CwGX_pbRSQDt
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-06-27_09,2022-06-24_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- priorityscore=1501 phishscore=0 lowpriorityscore=0 impostorscore=0
- mlxlogscore=999 malwarescore=0 adultscore=0 mlxscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206280035
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 suspectscore=0 bulkscore=0 phishscore=0 spamscore=0
+ clxscore=1015 malwarescore=0 lowpriorityscore=0 adultscore=0
+ impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206280037
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/20/22 14:54, Pierre Morel wrote:
-> We report a topology change to the guest for any CPU hotplug.
+On Mon, 27 Jun 2022 17:24:11 +0200
+Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
+
+> According to the architecture, SET PREFIX must try to access the new
+> prefix area and recognize an addressing exception if the area is not
+> accessible.
+> Test that the exception occurs when we try to set a prefix higher
+> than the available memory.
 > 
-> The reporting to the guest is done using the Multiprocessor
-> Topology-Change-Report (MTCR) bit of the utility entry in the guest's
-> SCA which will be cleared during the interpretation of PTF.
-> 
-> On every vCPU creation we set the MCTR bit to let the guest know the
-> next time he uses the PTF with command 2 instruction that the
-> topology changed and that he should use the STSI(15.1.x) instruction
-> to get the topology details.
-> 
-> STSI(15.1.x) gives information on the CPU configuration topology.
-> Let's accept the interception of STSI with the function code 15 and
-> let the userland part of the hypervisor handle it when userland
-> support the CPU Topology facility.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+
+thanks, queued
+
 > ---
->  arch/s390/include/asm/kvm_host.h | 11 ++++++++---
->  arch/s390/kvm/kvm-s390.c         | 27 ++++++++++++++++++++++++++-
->  arch/s390/kvm/priv.c             | 15 +++++++++++----
->  arch/s390/kvm/vsie.c             |  3 +++
->  4 files changed, 48 insertions(+), 8 deletions(-)
 > 
-[...]
-
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 8fcb56141689..95b96019ca8e 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1691,6 +1691,25 @@ static int kvm_s390_get_cpu_model(struct kvm *kvm, struct kvm_device_attr *attr)
->  	return ret;
+> v1 -> v2
+>  * report skip if we're running with too much memory (thanks Claudio)
+> 
+> 
+>  s390x/intercept.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+> 
+> diff --git a/s390x/intercept.c b/s390x/intercept.c
+> index 86e57e11..54bed5a4 100644
+> --- a/s390x/intercept.c
+> +++ b/s390x/intercept.c
+> @@ -74,6 +74,22 @@ static void test_spx(void)
+>  	expect_pgm_int();
+>  	asm volatile(" spx 0(%0) " : : "r"(-8L));
+>  	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
+> +
+> +	new_prefix = get_ram_size() & 0x7fffe000;
+> +	if (get_ram_size() - new_prefix < 2 * PAGE_SIZE) {
+> +		expect_pgm_int();
+> +		asm volatile("spx	%0 " : : "Q"(new_prefix));
+> +		check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
+> +
+> +		/*
+> +		 * Cannot test inaccessibility of the second page the same way.
+> +		 * If we try to use the last page as first half of the prefix
+> +		 * area and our ram size is a multiple of 8k, after SPX aligns
+> +		 * the address to 8k we have a completely accessible area.
+> +		 */
+> +	} else {
+> +		report_skip("inaccessible prefix area");
+> +	}
 >  }
+>  
+>  /* Test the STORE CPU ADDRESS instruction */
 > 
-> +/**
-> + * kvm_s390_sca_set_mtcr
-
-I wonder if there is a better name, kvm_s390_report_topology_change maybe?
-
-> + * @kvm: guest KVM description
-> + *
-> + * Is only relevant if the topology facility is present,
-> + * the caller should check KVM facility 11
-> + *
-> + * Updates the Multiprocessor Topology-Change-Report to signal
-> + * the guest with a topology change.
-> + */
-> +static void kvm_s390_sca_set_mtcr(struct kvm *kvm)
-> +{
-
-Do we need a sca_lock read_section here? If we don't why not?
-Did not see one up the stack, but I might have overlooked something.
-
-> +	struct bsca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
-> +
-> +	ipte_lock(kvm);
-> +	sca->utility |= SCA_UTILITY_MTCR;
-> +	ipte_unlock(kvm);
-> +}
-> +
-
-[...]
+> base-commit: 110c69492b53f0070e1bbce986fb635e72a423b4
 
