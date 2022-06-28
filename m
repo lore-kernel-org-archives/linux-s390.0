@@ -2,60 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D708DCCA479
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 14:31:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26A42CCA485
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 14:31:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346606AbiF1ObP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 10:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41420 "EHLO
+        id S1346661AbiF1ObQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 10:31:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345211AbiF1ObN (ORCPT
+        with ESMTP id S1346539AbiF1ObN (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 10:31:13 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD2A43123E;
-        Tue, 28 Jun 2022 07:31:09 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SEHSFG003066;
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17B5531388;
+        Tue, 28 Jun 2022 07:31:10 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SEH09f028940;
         Tue, 28 Jun 2022 14:31:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=Fn+4yQI4FI5DQIfDEpp5Q/cZNvdG9LB2yZSnfKlqZPg=;
- b=qx5HCfFspgoKajlgbiMe1uXS6Fy+TRV0A6GrG6JzvuYRzpZGWzNyAEnRBN5D1iRdP7yy
- XZWqtZighKoztHqlj3Eofbkd8SPMgdiB+hGoKTmKx/FeqtcEFOt2Ao4WB2nJP1U+U3Q+
- 5mzrEefXxdKjXuahA6TVocxiYr1pHiDfASvtaP4ZdKJVdWEBkJ/MUXvpuaNk68pG3rkH
- FtpnVhhedqnWJw9UPR6pTWK8Qva85jNRfdUTX9LCcFt+Bp3EYH2T+EaJgsseC2mnVrgo
- VzhQ36dwQKzsB94ygPivENJFSjREEsM2Vq/PhPQLtByOh1lo4ueyvElZfUF/bEpEeM6S Fg== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=VDvAOC9IBHLsG7T0+yCHF0Na5NSX7aR9kmK/JjSN6kc=;
+ b=cUoHXCfQF1UbS/e1RM3rQT6gQmQvZcQCOSKn/nyOMIKeydWfQLYOCb9tXbAqOnF9b6KJ
+ +dOQOTr3ksCgkhvC3rSi2rVh/LNjFoVU4PIasJN5UM9ENWrod938EFOmRrMiomcyiRhU
+ OG5HidcLvco6qbEyCbGu3EpYIVGF2wQm1X1Yhdc63TPQsArTs/4+qIGMqXe0tVceWyEI
+ FzlQTxjvbMawdT4bSZf/QIXP3wIejqhNL2/LfvOggHU7FuKg/ftpB+z/FGidMkrUJJmO
+ iA+WxV3+IJBTE99TrGAdnQWIBzy1QII8rJZUS2DXv5LeDHiwG4qeO6xx88ofpFTpDRGU kw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h039d8gcu-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h03968h2r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 28 Jun 2022 14:31:06 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SEHphi005301;
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SEHLsI030160;
         Tue, 28 Jun 2022 14:31:06 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h039d8gbq-1
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h03968h1j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 28 Jun 2022 14:31:06 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SEL0am007215;
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SELdUn022017;
         Tue, 28 Jun 2022 14:31:04 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3gwt08w099-1
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3gwsmj51fp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 28 Jun 2022 14:31:04 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SEV0wn24052146
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SEV16q23658950
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Jun 2022 14:31:00 GMT
+        Tue, 28 Jun 2022 14:31:01 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B8E39A405F;
-        Tue, 28 Jun 2022 14:31:00 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 61E02A4054;
+        Tue, 28 Jun 2022 14:31:01 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7788AA4054;
-        Tue, 28 Jun 2022 14:31:00 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 2054AA4060;
+        Tue, 28 Jun 2022 14:31:01 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Jun 2022 14:31:00 +0000 (GMT)
+        Tue, 28 Jun 2022 14:31:01 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Bjorn Helgaas <bhelgaas@google.com>
 Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
@@ -63,83 +64,90 @@ Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
         Pierre Morel <pmorel@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v6 0/5] PCI: Rework pci_scan_slot() and isolated PCI functions
-Date:   Tue, 28 Jun 2022 16:30:55 +0200
-Message-Id: <20220628143100.3228092-1-schnelle@linux.ibm.com>
+Subject: [PATCH v6 2/5] PCI: Split out next_ari_fn() from next_fn()
+Date:   Tue, 28 Jun 2022 16:30:57 +0200
+Message-Id: <20220628143100.3228092-3-schnelle@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Vo2EDyzjxD1PkJ7VkejKTUTd_oGZnsq3
-X-Proofpoint-GUID: 4uLeYoZvn_uiEhrtXqhJC6KMY7hSdf0L
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20220628143100.3228092-1-schnelle@linux.ibm.com>
+References: <20220628143100.3228092-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6hHpoGfa25fy2Psn1FDo1WXDdL-Gf6ow
+X-Proofpoint-GUID: SHbbB6ql_HsRo1ZRxJH3cYGcPgj0_0lr
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-06-28_07,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
- malwarescore=0 mlxlogscore=710 priorityscore=1501 mlxscore=0 bulkscore=0
- adultscore=0 impostorscore=0 suspectscore=0 lowpriorityscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ suspectscore=0 priorityscore=1501 adultscore=0 mlxlogscore=951
+ clxscore=1015 phishscore=0 spamscore=0 impostorscore=0 lowpriorityscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2206280059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Bjorn,
+In commit b1bd58e448f2 ("PCI: Consolidate "next-function" functions")
+the next_fn() function subsumed the traditional and ARI based next
+function determination. This got rid of some needlessly complex function
+pointer handling but also reduced the separation between these very
+different methods of finding the next function. With the next_fn()
+cleaned up a bit we can re-introduce this separation by moving out the
+ARI handling while sticking with direct function calls.
 
-In an earlier version[0], I sought to apply the existing jailhouse special case
-for isolated PCI functions to s390. As Bjorn noted in[1] there appears to be
-some potential for cleaning things up and removing duplication.
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ drivers/pci/probe.c | 30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
-This series attempts to do this cleanup (Patches 1 through 3) followed by enabling
-isolated PCI functions for s390 (Patches 4 and 5).
-
-Testing:
-- On s390 with SR-IOV and a ConnectX NIC with PF 1 but not PF 0 passed throug
-  i.e. the isolated function case. Also of course with just VFs and an NVMe.
-- On x86_64 on a desktop system where ARI is disabled and with an SR-IOV NIC
-  with non-contiguous VFs as well as the usual other PCI devices.
-
-Thanks,
-Niklas
-
-[0] https://lore.kernel.org/linux-pci/20220404095346.2324666-1-schnelle@linux.ibm.com/
-[1] https://lore.kernel.org/linux-pci/20220408224514.GA353445@bhelgaas/
-
-Changes v5 -> v6:
-- Added a patch (2) which separates the ARI case into its own function
-- Some whitespace changes to remove unnecesssary empty lines
-Changes v4 -> v5:
-- Remove unintended whitespace change in patch 1
-Changes v3 -> v4:
-- Use a do {} while loop in pci_scan_slot() as it is simpler (Bjorn)
-- Explicitly check "fn == 0" as it is not a pointer or bool (Bjorn)
-- Keep the "!dev" check in the ARI branch of next_fn() (Bjorn)
-- Moved the "fn == 0 && !dev" condition out of next_fn() into pci_scan_slot().
-  This allows us to keep the "!dev" case in the ARI branch and means there are
-  no new conditions in next_fn() making it easier to verify that its behavior
-  is equivalent to the existing code.
-- Guard the assignment of dev->multifunction with "fn > 0"
-  instead of "nr > 0". This matches the existing logic more closely and works
-  for the jailhouse case which unconditionally sets dev->multifunction for
-  "fn > 0". This also means fn == 0 is the single "first iteration" test.
-- Remove some unneeded whitespace in patch 2
-
-Changes v2 -> v3:
-- Removed now unused nr_devs variable (kernel test robot)
-
-Niklas Schnelle (5):
-  PCI: Clean up pci_scan_slot()
-  PCI: Split out next_ari_fn() from next_fn()
-  PCI: Move jailhouse's isolated function handling to pci_scan_slot()
-  PCI: Extend isolated function probing to s390
-  s390/pci: allow zPCI zbus without a function zero
-
- arch/s390/pci/pci_bus.c    | 82 +++++++++---------------------------
- drivers/pci/probe.c        | 86 ++++++++++++++++++--------------------
- include/linux/hypervisor.h |  8 ++++
- 3 files changed, 68 insertions(+), 108 deletions(-)
-
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index b05d0ed83a24..2c737dce757e 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -2579,26 +2579,30 @@ struct pci_dev *pci_scan_single_device(struct pci_bus *bus, int devfn)
+ }
+ EXPORT_SYMBOL(pci_scan_single_device);
+ 
+-static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
++static int next_ari_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
+ {
+ 	int pos;
+ 	u16 cap = 0;
+ 	unsigned int next_fn;
+ 
+-	if (pci_ari_enabled(bus)) {
+-		if (!dev)
+-			return -ENODEV;
+-		pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
+-		if (!pos)
+-			return -ENODEV;
++	if (!dev)
++		return -ENODEV;
++	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
++	if (!pos)
++		return -ENODEV;
++
++	pci_read_config_word(dev, pos + PCI_ARI_CAP, &cap);
++	next_fn = PCI_ARI_CAP_NFN(cap);
++	if (next_fn <= fn)
++		return -ENODEV;	/* protect against malformed list */
+ 
+-		pci_read_config_word(dev, pos + PCI_ARI_CAP, &cap);
+-		next_fn = PCI_ARI_CAP_NFN(cap);
+-		if (next_fn <= fn)
+-			return -ENODEV;	/* protect against malformed list */
++	return next_fn;
++}
+ 
+-		return next_fn;
+-	}
++static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
++{
++	if (pci_ari_enabled(bus))
++		return next_ari_fn(bus, dev, fn);
+ 
+ 	if (fn >= 7)
+ 		return -ENODEV;
 -- 
 2.32.0
 
