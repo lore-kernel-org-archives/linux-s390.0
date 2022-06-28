@@ -2,157 +2,203 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4B7EC43334
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 03:49:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EC4FCCA483
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 03:50:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243642AbiF1Dtg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Jun 2022 23:49:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39626 "EHLO
+        id S243725AbiF1Du4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Jun 2022 23:50:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243577AbiF1Dte (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 23:49:34 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 399AC20BED;
-        Mon, 27 Jun 2022 20:49:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656388173; x=1687924173;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=JCJ3t15hN0kX/PrCxPVD3oswwqwAU6aCjICQKC2sqZE=;
-  b=l5N3Q/+iOgc6ZujH8OeWhX+z7eZZX9M6KmVGgHRpS4oyB/c1VZfUYoL6
-   hCzyTKYKqFEoRpWOQHTpqJe2ZvtOYDEPd2HDng8aHF01KRZe9w1kimA3Y
-   felQVH7z9egx7WHAbSDQi1wZiID6ef9vWyp8GYoRqgS5RnkqtGciyBoo4
-   Ct89J93MfFMfQWxbWW0qffJRzWgNDQvk0ffhkus0tzWpMB2HwLTajiXLw
-   Kd41XDT5uoUvCnDpa42Z/KuGZZ+tKhSOEChTjDC7Q7LtTFbYO3GS6/4qH
-   zUXFezg/F9+pr9DUa8oH+fen71mJ7bs4g8tjoRPwIFVsC9Ttk6RRGeRnQ
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10391"; a="280385326"
-X-IronPort-AV: E=Sophos;i="5.92,227,1650956400"; 
-   d="scan'208";a="280385326"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jun 2022 20:49:32 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,227,1650956400"; 
-   d="scan'208";a="564924431"
-Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.138])
-  by orsmga006.jf.intel.com with ESMTP; 27 Jun 2022 20:49:27 -0700
-Date:   Tue, 28 Jun 2022 11:49:26 +0800
-From:   Feng Tang <feng.tang@intel.com>
-To:     Eric Dumazet <edumazet@google.com>
-Cc:     Shakeel Butt <shakeelb@google.com>, Linux MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        network dev <netdev@vger.kernel.org>,
-        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
-Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
-Message-ID: <20220628034926.GA69004@shbuild999.sh.intel.com>
-References: <CALvZod7kULCvHAuk53FE-XBOi4-BbLdY3HCg6jfCZTJDxYsZow@mail.gmail.com>
- <20220624070656.GE79500@shbuild999.sh.intel.com>
- <20220624144358.lqt2ffjdry6p5u4d@google.com>
- <20220625023642.GA40868@shbuild999.sh.intel.com>
- <20220627023812.GA29314@shbuild999.sh.intel.com>
- <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
- <20220627123415.GA32052@shbuild999.sh.intel.com>
- <CANn89iJAoYCebNbXpNMXRoDUkFMhg9QagetVU9NZUq+GnLMgqQ@mail.gmail.com>
- <20220627144822.GA20878@shbuild999.sh.intel.com>
- <CANn89iLSWm-c4XE79rUsxzOp3VwXVDhOEPTQnWgeQ48UwM=u7Q@mail.gmail.com>
+        with ESMTP id S243736AbiF1Duy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Jun 2022 23:50:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7E808275F7
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 20:50:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1656388252;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=+975o4HdegrupgTYhPbvnyYUQdH0R2GibVRKHSbKEcc=;
+        b=LX2/LfrNgsoa+WIXLj332Qqu306HJNAUL9BjWReQGXhU//Z7CrH8MCZ+HIr5VQK/EikvhQ
+        h5TERSMRWdQttwLTUa5jkoBGfoGB6iit+VBKNYQSpPddyhvpf3aZBgEimESAty2SZ3Wzfz
+        GoD4wvF3hvHBK1OVdIrW6tZvERIyajo=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-274-_DgpHHXiOvan5QLa9AuAVw-1; Mon, 27 Jun 2022 23:50:50 -0400
+X-MC-Unique: _DgpHHXiOvan5QLa9AuAVw-1
+Received: by mail-lf1-f71.google.com with SMTP id o23-20020ac24357000000b0047f95f582c6so5610324lfl.7
+        for <linux-s390@vger.kernel.org>; Mon, 27 Jun 2022 20:50:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+975o4HdegrupgTYhPbvnyYUQdH0R2GibVRKHSbKEcc=;
+        b=VhycyF9LXY9z5E1b/ZF191JHVui0S/lvSMzGDd4WrcQ9OTqUmRmr+MTb4hisGYVzCy
+         oC6LxtIo+yvPQ67nCV8/SZRZfeU2CuIXV9H/bM8lKe8CyXDb9kdDT1HPgYJ3KGEhkH/P
+         zG9R+AclEQ88N7GZ0atD/bBm9X7/RicEnee3n5xK7eEw+JMuQG6cLHfMYUWF6fI//7WP
+         xjw6Hd5hwUTNqmfNiwElESc/bj0lAwoeT3uV5UWWtEUiwJi0pLAwnpSvE8UoaxgSMLKx
+         ig1EkOeuybufzvGzWmr4Q/FoUX1us/D6z7WMSnA8Qz3ExKXMYK7Hjp0KgHBcJ/u28msn
+         30cw==
+X-Gm-Message-State: AJIora+d099PSjIqQNUgbcGMfmTxzNAVL2oN/cmroO57HRclcowescmZ
+        UjHHWBjhXNDjB910gd0rTFL0vhqJ5tYkOPc7ktGM+2xu6d5gdlXveqIE8GoQzuFlFYZ3Eq1pGGe
+        ENGX1nvMVKiKZrmutnnt9KIWqKvrVXKhrkS1MsQ==
+X-Received: by 2002:a05:651c:1610:b0:25a:75fa:f9cc with SMTP id f16-20020a05651c161000b0025a75faf9ccmr8674240ljq.243.1656388249139;
+        Mon, 27 Jun 2022 20:50:49 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1tjY+72bx25qnPwQDk6LWPEXCBbrRqbAnQ8tRhgmXYhxHtwRjzmOSFbir/cX88DZYSOY4uvlAuO4TUdaFMXKdU=
+X-Received: by 2002:a05:651c:1610:b0:25a:75fa:f9cc with SMTP id
+ f16-20020a05651c161000b0025a75faf9ccmr8674233ljq.243.1656388248927; Mon, 27
+ Jun 2022 20:50:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANn89iLSWm-c4XE79rUsxzOp3VwXVDhOEPTQnWgeQ48UwM=u7Q@mail.gmail.com>
+References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
+ <20220624025621.128843-26-xuanzhuo@linux.alibaba.com> <20220624025817-mutt-send-email-mst@kernel.org>
+ <CACGkMEseptD=45j3kQr0yciRxR679Jcig=292H07-RYC2vXmFQ@mail.gmail.com>
+ <20220627023841-mutt-send-email-mst@kernel.org> <CACGkMEvy8xF2T_vubKeUEPC2aroO_fbB0Xe8nnxK4OBUgAS+Gw@mail.gmail.com>
+ <20220627034733-mutt-send-email-mst@kernel.org> <CACGkMEtpjUBaUML=fEs5hR66rzNTBhBXOmfpzyXV1F-6BqvsGg@mail.gmail.com>
+ <20220627074723-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220627074723-mutt-send-email-mst@kernel.org>
+From:   Jason Wang <jasowang@redhat.com>
+Date:   Tue, 28 Jun 2022 11:50:37 +0800
+Message-ID: <CACGkMEv0zdgG6SAaxRwkpObEFX_KRB1ovezNiHX+QXsYhE=qaQ@mail.gmail.com>
+Subject: Re: [PATCH v10 25/41] virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        virtualization <virtualization@lists.linux-foundation.org>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm <kvm@vger.kernel.org>,
+        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
+        kangjie.xu@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 27, 2022 at 06:25:59PM +0200, Eric Dumazet wrote:
-> On Mon, Jun 27, 2022 at 4:48 PM Feng Tang <feng.tang@intel.com> wrote:
+On Mon, Jun 27, 2022 at 7:53 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Mon, Jun 27, 2022 at 04:14:20PM +0800, Jason Wang wrote:
+> > On Mon, Jun 27, 2022 at 3:58 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > > On Mon, Jun 27, 2022 at 03:45:30PM +0800, Jason Wang wrote:
+> > > > On Mon, Jun 27, 2022 at 2:39 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > >
+> > > > > On Mon, Jun 27, 2022 at 10:30:42AM +0800, Jason Wang wrote:
+> > > > > > On Fri, Jun 24, 2022 at 2:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > >
+> > > > > > > On Fri, Jun 24, 2022 at 10:56:05AM +0800, Xuan Zhuo wrote:
+> > > > > > > > Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
+> > > > > > > > here https://github.com/oasis-tcs/virtio-spec/issues/89
+> > > > > > > >
+> > > > > > > > For not breaks uABI, add a new struct virtio_pci_common_cfg_notify.
+> > > > > > >
+> > > > > > > What exactly is meant by not breaking uABI?
+> > > > > > > Users are supposed to be prepared for struct size to change ... no?
+> > > > > >
+> > > > > > Not sure, any doc for this?
+> > > > > >
+> > > > > > Thanks
+> > > > >
+> > > > >
+> > > > > Well we have this:
+> > > > >
+> > > > >         The drivers SHOULD only map part of configuration structure
+> > > > >         large enough for device operation.  The drivers MUST handle
+> > > > >         an unexpectedly large \field{length}, but MAY check that \field{length}
+> > > > >         is large enough for device operation.
+> > > >
+> > > > Yes, but that's the device/driver interface. What's done here is the
+> > > > userspace/kernel.
+> > > >
+> > > > Userspace may break if it uses e.g sizeof(struct virtio_pci_common_cfg)?
+> > > >
+> > > > Thanks
+> > >
+> > > Hmm I guess there's risk... but then how are we going to maintain this
+> > > going forward?  Add a new struct on any change?
 > >
-> > Yes, I also analyzed the perf-profile data, and made some layout changes
-> > which could recover the changes from 69% to 40%.
+> > This is the way we have used it for the past 5 or more years. I don't
+> > see why this must be handled in the vq reset feature.
 > >
-> > 7c80b038d23e1f4c 4890b686f4088c90432149bd6de 332b589c49656a45881bca4ecc0
-> > ---------------- --------------------------- ---------------------------
-> >      15722           -69.5%       4792           -40.8%       9300        netperf.Throughput_Mbps
+> > >Can we at least
+> > > prevent this going forward somehow?
 > >
-> 
-> I simply did the following and got much better results.
-> 
-> But I am not sure if updates to ->usage are really needed that often...
-> 
-> 
-> diff --git a/include/linux/page_counter.h b/include/linux/page_counter.h
-> index 679591301994d316062f92b275efa2459a8349c9..e267be4ba849760117d9fd041e22c2a44658ab36
-> 100644
-> --- a/include/linux/page_counter.h
-> +++ b/include/linux/page_counter.h
-> @@ -3,12 +3,15 @@
->  #define _LINUX_PAGE_COUNTER_H
-> 
->  #include <linux/atomic.h>
-> +#include <linux/cache.h>
->  #include <linux/kernel.h>
->  #include <asm/page.h>
-> 
->  struct page_counter {
-> -       atomic_long_t usage;
-> -       unsigned long min;
-> +       /* contended cache line. */
-> +       atomic_long_t usage ____cacheline_aligned_in_smp;
-> +
-> +       unsigned long min ____cacheline_aligned_in_smp;
->         unsigned long low;
->         unsigned long high;
->         unsigned long max;
-> @@ -27,12 +30,6 @@ struct page_counter {
->         unsigned long watermark;
->         unsigned long failcnt;
-> 
-> -       /*
-> -        * 'parent' is placed here to be far from 'usage' to reduce
-> -        * cache false sharing, as 'usage' is written mostly while
-> -        * parent is frequently read for cgroup's hierarchical
-> -        * counting nature.
-> -        */
->         struct page_counter *parent;
->  };
+> > Like have some padding?
+> >
+> > Thanks
+>
+> Maybe - this is what QEMU does ...
 
-I just tested it, it does perform better (the 4th is with your patch),
-some perf-profile data is also listed.
+Do you want this to be addressed in this series (it's already very huge anyhow)?
 
- 7c80b038d23e1f4c 4890b686f4088c90432149bd6de 332b589c49656a45881bca4ecc0 e719635902654380b23ffce908d 
----------------- --------------------------- --------------------------- --------------------------- 
-     15722           -69.5%       4792           -40.8%       9300           -27.9%      11341        netperf.Throughput_Mbps
+Thanks
 
-      0.00            +0.3        0.26 ±  5%      +0.5        0.51            +1.3        1.27 ±  2%pp.self.__sk_mem_raise_allocated
-      0.00            +0.3        0.32 ± 15%      +1.7        1.74 ±  2%      +0.4        0.40 ±  2%  pp.self.propagate_protected_usage
-      0.00            +0.8        0.82 ±  7%      +0.9        0.90            +0.8        0.84        pp.self.__mod_memcg_state
-      0.00            +1.2        1.24 ±  4%      +1.0        1.01            +1.4        1.44        pp.self.try_charge_memcg
-      0.00            +2.1        2.06            +2.1        2.13            +2.1        2.11        pp.self.page_counter_uncharge
-      0.00            +2.1        2.14 ±  4%      +2.7        2.71            +2.6        2.60 ±  2%  pp.self.page_counter_try_charge
-      1.12 ±  4%      +3.1        4.24            +1.1        2.22            +1.4        2.51        pp.self.native_queued_spin_lock_slowpath
-      0.28 ±  9%      +3.8        4.06 ±  4%      +0.2        0.48            +0.4        0.68        pp.self.sctp_eat_data
-      0.00            +8.2        8.23            +0.8        0.83            +1.3        1.26        pp.self.__sk_mem_reduce_allocated
+>
+> > >
+> > >
+> > > > >
+> > > > >
+> > > > >
+> > > > > >
+> > > > > > >
+> > > > > > >
+> > > > > > > > Since I want to add queue_reset after queue_notify_data, I submitted
+> > > > > > > > this patch first.
+> > > > > > > >
+> > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > > > > > > > ---
+> > > > > > > >  include/uapi/linux/virtio_pci.h | 7 +++++++
+> > > > > > > >  1 file changed, 7 insertions(+)
+> > > > > > > >
+> > > > > > > > diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> > > > > > > > index 3a86f36d7e3d..22bec9bd0dfc 100644
+> > > > > > > > --- a/include/uapi/linux/virtio_pci.h
+> > > > > > > > +++ b/include/uapi/linux/virtio_pci.h
+> > > > > > > > @@ -166,6 +166,13 @@ struct virtio_pci_common_cfg {
+> > > > > > > >       __le32 queue_used_hi;           /* read-write */
+> > > > > > > >  };
+> > > > > > > >
+> > > > > > > > +struct virtio_pci_common_cfg_notify {
+> > > > > > > > +     struct virtio_pci_common_cfg cfg;
+> > > > > > > > +
+> > > > > > > > +     __le16 queue_notify_data;       /* read-write */
+> > > > > > > > +     __le16 padding;
+> > > > > > > > +};
+> > > > > > > > +
+> > > > > > > >  /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
+> > > > > > > >  struct virtio_pci_cfg_cap {
+> > > > > > > >       struct virtio_pci_cap cap;
+> > > > > > > > --
+> > > > > > > > 2.31.0
+> > > > > > >
+> > > > >
+> > >
+>
 
-And the size of 'mem_cgroup' is increased from 4224 Bytes to 4608.
-
-Another info is the perf hotspos are slightly different between
-tcp and sctp test cases.
-
-Thanks,
-Feng
