@@ -2,130 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BEE2CCA47F
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 13:57:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57D5BC43334
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 13:57:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345989AbiF1N5J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 09:57:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33844 "EHLO
+        id S1346158AbiF1N5L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 09:57:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345982AbiF1N4d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 09:56:33 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CF2F338A6;
-        Tue, 28 Jun 2022 06:56:32 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SDlD1T020642;
+        with ESMTP id S1346956AbiF1N4c (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 09:56:32 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C390A33892;
+        Tue, 28 Jun 2022 06:56:31 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25SDAr35015630;
         Tue, 28 Jun 2022 13:56:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=HNG0pvMhGgxFerG2GWrJAfenLfiSwl0sPYL3hqEYyQ0=;
- b=HsddZcmSvIDZPdFoGMQMIZU9ZSdRC2SxYlC2t5gov9M3o13VtdgnHxbxjCxz/Zohh9JP
- 8TE+AjuWIjGC+XxsLscKiG/R5XzN1iSSwCDUE2bjKDdmPvvPcKEyB02mnUPv3/f5cJrO
- 9iBAa61kMl7YRDJEuT4a9VaJSaYuj9SBF6KFrxoQje7teWSGNnvQFdS3e4sFoCvuJtmp
- 4YGBzpBuhLq7pJM09ZSD31zp09TOGlMQ755GM/qH4meEw45Rc3Ft0KO9hd5rVTwC7nNK
- 6xaWzi+wehou+s/kngryq+JEDYVfxm2NPlYTHPOL7NhYSDjsG7eI5EfY8KRxs8j2nA0l iw== 
+ bh=4PDDYu47xYi5NlXnaGbJcUyWy+VgpQ4eNVpki9Xu4RY=;
+ b=KUG0cz7MB2oLaitah+qJLhHTi2ggiIwHXsdi3o88t3oRcZZg2IN2qUk7apW1kZZkVm6o
+ 4zD2j5LcfvN912pP1CAt9egNuKMx3u9Yx3inGFR1HTUL5v80WUSZnLSurU0AEPih/cDU
+ /tFCNgh4aYZbj9uEvLZ0RAdAtBndNanQKLvKa38R50p2qTtjKWe1LG/n1cHdcdq1X2Mh
+ TS81gbBwMwpw7VnLXp6BDabomcmwhJL6eKz0POhJKcF3vJLc8qp6EM+Qv8LOG1c5SIhK
+ 9hI68vQuUn1OxuPh6oY8OtaqzFQY0DN8v4h356r/hVZYz4lAnjQOgJHH41HWlp3ZsF9U HQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02u7rayd-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h01tjb26m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 28 Jun 2022 13:56:31 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SDlZEP022226;
-        Tue, 28 Jun 2022 13:56:30 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h02u7ravq-1
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25SDCJRO022500;
+        Tue, 28 Jun 2022 13:56:31 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h01tjb25e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 13:56:27 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SDoutf007874;
-        Tue, 28 Jun 2022 13:56:26 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3gwt08vxru-1
+        Tue, 28 Jun 2022 13:56:30 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25SDqGFP006564;
+        Tue, 28 Jun 2022 13:56:28 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3gwt093pe0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jun 2022 13:56:26 +0000
+        Tue, 28 Jun 2022 13:56:28 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SDuNbA17236422
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25SDtP1422806910
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Jun 2022 13:56:23 GMT
+        Tue, 28 Jun 2022 13:55:25 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0CBB94C040;
-        Tue, 28 Jun 2022 13:56:23 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3181A4C040;
+        Tue, 28 Jun 2022 13:56:25 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9E22F4C044;
-        Tue, 28 Jun 2022 13:56:22 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CAC444C046;
+        Tue, 28 Jun 2022 13:56:24 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.40])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Jun 2022 13:56:22 +0000 (GMT)
+        Tue, 28 Jun 2022 13:56:24 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
         mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: [PATCH v12 07/18] KVM: s390: pv: clear the state without memset
-Date:   Tue, 28 Jun 2022 15:56:08 +0200
-Message-Id: <20220628135619.32410-8-imbrenda@linux.ibm.com>
+Subject: [PATCH v12 12/18] KVM: s390: pv: destroy the configuration before its memory
+Date:   Tue, 28 Jun 2022 15:56:13 +0200
+Message-Id: <20220628135619.32410-13-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220628135619.32410-1-imbrenda@linux.ibm.com>
 References: <20220628135619.32410-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xp2nWcsrAq2MQ3keFh0sx2bxDyPoIp-t
-X-Proofpoint-ORIG-GUID: WN4HzELgJRloQgWlQS7t94zAHfEdRI2_
+X-Proofpoint-GUID: -gq5wcgaTqoDLhZ9bWMWZru2_wzwWN_3
+X-Proofpoint-ORIG-GUID: U7CGtxIq8nEq0jUwgV18U7BPt72O-x1v
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-06-28_07,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 priorityscore=1501 mlxscore=0 malwarescore=0 suspectscore=0
- mlxlogscore=800 phishscore=0 impostorscore=0 adultscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ priorityscore=1501 phishscore=0 adultscore=0 malwarescore=0
+ lowpriorityscore=0 clxscore=1015 bulkscore=0 spamscore=0 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2206280057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Do not use memset to clean the whole struct kvm_s390_pv; instead,
-explicitly clear the fields that need to be cleared.
+Move the Destroy Secure Configuration UVC before the loop to destroy
+the memory. If the protected VM has memory, it will be cleaned up and
+made accessible by the Destroy Secure Configuration UVC. The struct
+page for the relevant pages will still have the protected bit set, so
+the loop is still needed to clean that up.
 
-Upcoming patches will introduce new fields in the struct kvm_s390_pv
-that will not need to be cleared.
+Switching the order of those two operations does not change the
+outcome, but it is significantly faster.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/pv.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/s390/kvm/pv.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index f3134d79f8e1..9eca80afedce 100644
+index a389555d62e7..6cffea26c47f 100644
 --- a/arch/s390/kvm/pv.c
 +++ b/arch/s390/kvm/pv.c
-@@ -16,6 +16,14 @@
- #include <linux/sched/mm.h>
- #include "kvm-s390.h"
- 
-+static void kvm_s390_clear_pv_state(struct kvm *kvm)
-+{
-+	kvm->arch.pv.handle = 0;
-+	kvm->arch.pv.guest_len = 0;
-+	kvm->arch.pv.stor_base = 0;
-+	kvm->arch.pv.stor_var = NULL;
-+}
-+
- int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+@@ -163,6 +163,9 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
  {
  	int cc;
-@@ -110,7 +118,7 @@ static void kvm_s390_pv_dealloc_vm(struct kvm *kvm)
- 	vfree(kvm->arch.pv.stor_var);
- 	free_pages(kvm->arch.pv.stor_base,
- 		   get_order(uv_info.guest_base_stor_len));
--	memset(&kvm->arch.pv, 0, sizeof(kvm->arch.pv));
-+	kvm_s390_clear_pv_state(kvm);
- }
  
- static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
++	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
++			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
++	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+ 	/*
+ 	 * if the mm still has a mapping, make all its pages accessible
+ 	 * before destroying the guest
+@@ -172,9 +175,6 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+ 		mmput(kvm->mm);
+ 	}
+ 
+-	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
+-			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
+-	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+ 	if (!cc) {
+ 		atomic_dec(&kvm->mm->context.protected_count);
+ 		kvm_s390_pv_dealloc_vm(kvm);
 -- 
 2.36.1
 
