@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62593CCA47C
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Jun 2022 06:59:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 401DCC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Jun 2022 06:59:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232613AbiF2G73 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Jun 2022 02:59:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37490 "EHLO
+        id S232748AbiF2G7i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Jun 2022 02:59:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232609AbiF2G64 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jun 2022 02:58:56 -0400
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69CFD3467B;
-        Tue, 28 Jun 2022 23:57:58 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R701e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHmddpj_1656485870;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHmddpj_1656485870)
+        with ESMTP id S232749AbiF2G7E (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jun 2022 02:59:04 -0400
+Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9334C1;
+        Tue, 28 Jun 2022 23:58:01 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHmluoc_1656485874;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHmluoc_1656485874)
           by smtp.aliyun-inc.com;
-          Wed, 29 Jun 2022 14:57:51 +0800
+          Wed, 29 Jun 2022 14:57:56 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v11 25/40] virtio: allow to unbreak/break virtqueue individually
-Date:   Wed, 29 Jun 2022 14:56:41 +0800
-Message-Id: <20220629065656.54420-26-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v11 27/40] virtio_pci: struct virtio_pci_common_cfg add queue_reset
+Date:   Wed, 29 Jun 2022 14:56:43 +0800
+Message-Id: <20220629065656.54420-28-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
 References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
@@ -66,65 +66,42 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch allows the new introduced
-__virtqueue_break()/__virtqueue_unbreak() to break/unbreak the
-virtqueue.
+Add queue_reset in virtio_pci_common_cfg.
+
+ https://github.com/oasis-tcs/virtio-spec/issues/124
+ https://github.com/oasis-tcs/virtio-spec/issues/139
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 24 ++++++++++++++++++++++++
- include/linux/virtio.h       |  3 +++
- 2 files changed, 27 insertions(+)
+ include/linux/virtio_pci_modern.h | 2 +-
+ include/uapi/linux/virtio_pci.h   | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 5ec43607cc15..7b02be7fce67 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2744,6 +2744,30 @@ unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
- }
- EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
+diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+index 9f31dde46f57..beebc7a4a31d 100644
+--- a/include/linux/virtio_pci_modern.h
++++ b/include/linux/virtio_pci_modern.h
+@@ -30,7 +30,7 @@ struct virtio_pci_common_cfg {
+ 	__le32 queue_used_lo;		/* read-write */
+ 	__le32 queue_used_hi;		/* read-write */
+ 	__le16 queue_notify_data;	/* read-write */
+-	__le16 padding;
++	__le16 queue_reset;		/* read-write */
+ };
  
-+/*
-+ * This function should only be called by the core, not directly by the driver.
-+ */
-+void __virtqueue_break(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
-+	WRITE_ONCE(vq->broken, true);
-+}
-+EXPORT_SYMBOL_GPL(__virtqueue_break);
-+
-+/*
-+ * This function should only be called by the core, not directly by the driver.
-+ */
-+void __virtqueue_unbreak(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
-+	WRITE_ONCE(vq->broken, false);
-+}
-+EXPORT_SYMBOL_GPL(__virtqueue_unbreak);
-+
- bool virtqueue_is_broken(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 1272566adec6..dc474a0d48d1 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -138,6 +138,9 @@ bool is_virtio_device(struct device *dev);
- void virtio_break_device(struct virtio_device *dev);
- void __virtio_unbreak_device(struct virtio_device *dev);
+ struct virtio_pci_modern_device {
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index 748b3eb62d2f..4f0a8d86cb11 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -177,6 +177,7 @@ struct virtio_pci_cfg_cap {
+ #define VIRTIO_PCI_COMMON_Q_USEDLO	48
+ #define VIRTIO_PCI_COMMON_Q_USEDHI	52
+ #define VIRTIO_PCI_COMMON_Q_NDATA	56
++#define VIRTIO_PCI_COMMON_Q_RESET	58
  
-+void __virtqueue_break(struct virtqueue *_vq);
-+void __virtqueue_unbreak(struct virtqueue *_vq);
-+
- void virtio_config_changed(struct virtio_device *dev);
- #ifdef CONFIG_PM_SLEEP
- int virtio_device_freeze(struct virtio_device *dev);
+ #endif /* VIRTIO_PCI_NO_MODERN */
+ 
 -- 
 2.31.0
 
