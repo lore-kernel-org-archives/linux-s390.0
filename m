@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAA57CCA47F
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Jun 2022 07:01:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2610C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Jun 2022 07:01:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232956AbiF2HBc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Jun 2022 03:01:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40502 "EHLO
+        id S232974AbiF2HB4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Jun 2022 03:01:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232861AbiF2G7y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jun 2022 02:59:54 -0400
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFD3536B48;
-        Tue, 28 Jun 2022 23:58:25 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHml8Io_1656485898;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHml8Io_1656485898)
+        with ESMTP id S232869AbiF2G74 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jun 2022 02:59:56 -0400
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAE2C37017;
+        Tue, 28 Jun 2022 23:58:29 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHml8K4_1656485902;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHml8K4_1656485902)
           by smtp.aliyun-inc.com;
-          Wed, 29 Jun 2022 14:58:19 +0800
+          Wed, 29 Jun 2022 14:58:23 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v11 38/40] virtio_net: support rx queue resize
-Date:   Wed, 29 Jun 2022 14:56:54 +0800
-Message-Id: <20220629065656.54420-39-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v11 40/40] virtio_net: support set_ringparam
+Date:   Wed, 29 Jun 2022 14:56:56 +0800
+Message-Id: <20220629065656.54420-41-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
 References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
@@ -66,55 +66,83 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch implements the resize function of the rx queues.
-Based on this function, it is possible to modify the ring num of the
-queue.
+Support set_ringparam based on virtio queue reset.
+
+Users can use ethtool -G eth0 <ring_num> to modify the ring size of
+virtio-net.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/net/virtio_net.c | 48 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 9fe222a3663a..6ab16fd193e5 100644
+index fd358462f802..cc554cbac431 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -278,6 +278,8 @@ struct padded_vnet_hdr {
- 	char padding[12];
- };
- 
-+static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
-+
- static bool is_xdp_frame(void *ptr)
- {
- 	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-@@ -1846,6 +1848,26 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	return NETDEV_TX_OK;
+@@ -2330,6 +2330,53 @@ static void virtnet_get_ringparam(struct net_device *dev,
+ 	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
  }
  
-+static int virtnet_rx_resize(struct virtnet_info *vi,
-+			     struct receive_queue *rq, u32 ring_num)
++static int virtnet_set_ringparam(struct net_device *dev,
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
 +{
-+	int err, qindex;
++	struct virtnet_info *vi = netdev_priv(dev);
++	u32 rx_pending, tx_pending;
++	struct receive_queue *rq;
++	struct send_queue *sq;
++	int i, err;
 +
-+	qindex = rq - vi->rq;
++	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
++		return -EINVAL;
 +
-+	napi_disable(&rq->napi);
++	rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
++	tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
 +
-+	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
-+	if (err)
-+		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
++	if (ring->rx_pending == rx_pending &&
++	    ring->tx_pending == tx_pending)
++		return 0;
 +
-+	if (!try_fill_recv(vi, rq, GFP_KERNEL))
-+		schedule_delayed_work(&vi->refill, 0);
++	if (ring->rx_pending > virtqueue_get_vring_max_size(vi->rq[0].vq))
++		return -EINVAL;
 +
-+	virtnet_napi_enable(rq->vq, &rq->napi);
-+	return err;
++	if (ring->tx_pending > virtqueue_get_vring_max_size(vi->sq[0].vq))
++		return -EINVAL;
++
++	for (i = 0; i < vi->max_queue_pairs; i++) {
++		rq = vi->rq + i;
++		sq = vi->sq + i;
++
++		if (ring->tx_pending != tx_pending) {
++			err = virtnet_tx_resize(vi, sq, ring->tx_pending);
++			if (err)
++				return err;
++		}
++
++		if (ring->rx_pending != rx_pending) {
++			err = virtnet_rx_resize(vi, rq, ring->rx_pending);
++			if (err)
++				return err;
++		}
++	}
++
++	return 0;
 +}
 +
- /*
-  * Send command via the control virtqueue and check status.  Commands
-  * supported by the hypervisor, as indicated by feature bits, should
+ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
+ {
+ 	struct net_device *dev = vi->dev;
+@@ -2817,6 +2864,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ 	.get_drvinfo = virtnet_get_drvinfo,
+ 	.get_link = ethtool_op_get_link,
+ 	.get_ringparam = virtnet_get_ringparam,
++	.set_ringparam = virtnet_set_ringparam,
+ 	.get_strings = virtnet_get_strings,
+ 	.get_sset_count = virtnet_get_sset_count,
+ 	.get_ethtool_stats = virtnet_get_ethtool_stats,
 -- 
 2.31.0
 
