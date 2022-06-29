@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6259CCA47C
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Jun 2022 07:00:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94EE4CCA47C
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Jun 2022 07:00:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232700AbiF2HAK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Jun 2022 03:00:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40112 "EHLO
+        id S232574AbiF2HAi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Jun 2022 03:00:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232673AbiF2G7c (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jun 2022 02:59:32 -0400
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA57CBF9;
-        Tue, 28 Jun 2022 23:58:06 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHmddsp_1656485879;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHmddsp_1656485879)
+        with ESMTP id S232820AbiF2G7i (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jun 2022 02:59:38 -0400
+Received: from out30-45.freemail.mail.aliyun.com (out30-45.freemail.mail.aliyun.com [115.124.30.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247441580E;
+        Tue, 28 Jun 2022 23:58:15 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VHmjf2R_1656485887;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VHmjf2R_1656485887)
           by smtp.aliyun-inc.com;
-          Wed, 29 Jun 2022 14:58:00 +0800
+          Wed, 29 Jun 2022 14:58:08 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v11 29/40] virtio_pci: extract the logic of active vq for modern pci
-Date:   Wed, 29 Jun 2022 14:56:45 +0800
-Message-Id: <20220629065656.54420-30-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v11 33/40] virtio_mmio: support the arg sizes of find_vqs()
+Date:   Wed, 29 Jun 2022 14:56:49 +0800
+Message-Id: <20220629065656.54420-34-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
 References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
@@ -66,87 +66,48 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduce vp_active_vq() to configure vring to backend after vq attach
-vring. And configure vq vector if necessary.
+Virtio MMIO support the new parameter sizes of find_vqs().
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_pci_modern.c | 46 ++++++++++++++++++------------
- 1 file changed, 28 insertions(+), 18 deletions(-)
+ drivers/virtio/virtio_mmio.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index e7e0b8c850f6..9041d9a41b7d 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -176,6 +176,29 @@ static void vp_reset(struct virtio_device *vdev)
- 	vp_synchronize_vectors(vdev);
- }
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 5e3ba3cc7fd0..c888fee18caf 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -360,7 +360,7 @@ static void vm_synchronize_cbs(struct virtio_device *vdev)
  
-+static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
-+{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
-+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
-+	unsigned long index;
-+
-+	index = vq->index;
-+
-+	/* activate the queue */
-+	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
-+	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
-+				virtqueue_get_avail_addr(vq),
-+				virtqueue_get_used_addr(vq));
-+
-+	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
-+		msix_vec = vp_modern_queue_vector(mdev, index, msix_vec);
-+		if (msix_vec == VIRTIO_MSI_NO_VECTOR)
-+			return -EBUSY;
-+	}
-+
-+	return 0;
-+}
-+
- static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
+ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 				  void (*callback)(struct virtqueue *vq),
+-				  const char *name, bool ctx)
++				  const char *name, u32 size, bool ctx)
  {
- 	return vp_modern_config_vector(&vp_dev->mdev, vector);
-@@ -220,32 +243,19 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 
- 	vq->num_max = num;
- 
--	/* activate the queue */
--	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
--	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
--				virtqueue_get_avail_addr(vq),
--				virtqueue_get_used_addr(vq));
-+	err = vp_active_vq(vq, msix_vec);
-+	if (err)
-+		goto err;
- 
- 	vq->priv = (void __force *)vp_modern_map_vq_notify(mdev, index, NULL);
- 	if (!vq->priv) {
- 		err = -ENOMEM;
--		goto err_map_notify;
--	}
--
--	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
--		msix_vec = vp_modern_queue_vector(mdev, index, msix_vec);
--		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
--			err = -EBUSY;
--			goto err_assign_vector;
--		}
-+		goto err;
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+ 	struct virtio_mmio_vq_info *info;
+@@ -395,8 +395,11 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 		goto error_new_virtqueue;
  	}
  
- 	return vq;
++	if (!size || size > num)
++		size = num;
++
+ 	/* Create the vring */
+-	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
++	vq = vring_create_virtqueue(index, size, VIRTIO_MMIO_VRING_ALIGN, vdev,
+ 				 true, true, ctx, vm_notify, callback, name);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+@@ -497,6 +500,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 		}
  
--err_assign_vector:
--	if (!mdev->notify_base)
--		pci_iounmap(mdev->pci_dev, (void __iomem __force *)vq->priv);
--err_map_notify:
-+err:
- 	vring_del_virtqueue(vq);
- 	return ERR_PTR(err);
- }
+ 		vqs[i] = vm_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
++				     sizes ? sizes[i] : 0,
+ 				     ctx ? ctx[i] : false);
+ 		if (IS_ERR(vqs[i])) {
+ 			vm_del_vqs(vdev);
 -- 
 2.31.0
 
