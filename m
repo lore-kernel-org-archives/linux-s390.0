@@ -2,351 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AACA8C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Jun 2022 08:52:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38A4EC43334
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Jun 2022 12:18:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231834AbiF2Iwu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Jun 2022 04:52:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36130 "EHLO
+        id S233456AbiF2MSB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Jun 2022 08:18:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229861AbiF2Iwt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jun 2022 04:52:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 04BF73CFFB
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jun 2022 01:52:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656492767;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=tjHgFOOMuwf6AeuJnxaWU75Wb4tjTVtbPHKN66dUZeM=;
-        b=P6wc4tFAKlEzZV5kWhaOgDPZTxkW1ix0B7HJESdtbpG4aS1atRVknKx1Rl3Mjyg48Ramwm
-        n1ecSI3vboP000pKFuq0eAe8P5E4MjuvZANWHh84lXpougIfE6dBGa/CsF2FsSH4L+xcJI
-        RSA7AzL5iPJw26Jl0akgrGMDpvXSINE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-117-kbFbEea-M9OMvfxYLBODMA-1; Wed, 29 Jun 2022 04:52:45 -0400
-X-MC-Unique: kbFbEea-M9OMvfxYLBODMA-1
-Received: by mail-wr1-f72.google.com with SMTP id u9-20020adfa189000000b0021b8b3c8f74so2211773wru.12
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jun 2022 01:52:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=tjHgFOOMuwf6AeuJnxaWU75Wb4tjTVtbPHKN66dUZeM=;
-        b=bkMWZunSIcKoB9U/Ag00HUJaxkjd422ZGata2Ipi26TdzE551x+f7Cne80sFUk7PkK
-         bNfbOo6DsQadD3ljGNHKislzM2E+GsTYl3ofB7xVMm/tA0BOrhat8ZVrb0SCm13wbVom
-         WWtvaS0bnGRgiPD1dXVxsgnv9XBQF1y27fOMNbJFE5V722YrM6AaNFwyzp+Pp75CU94c
-         +hILsTwmmVsg1qqpr/t0FruU60B2RL+ddyYT0d9cFa+zY8jfcvQ8i3OpmrtDNn2y6LgV
-         DfH04gSEGfIpKyIU9M0CHJozyYWZ6m/gAjXJJriVgmyQzRaXvlG3z7Nmg81kt59BSpbz
-         AS8w==
-X-Gm-Message-State: AJIora9nYV8IytZSSc1EZbtxAbpFig159XuPgH4m0psQmNRRIPtE+Tpn
-        4Eofn+TEp6uOnv8JjYMQcX4x3U/mCnRL66cJ2uMdaXR1y5veGm0s+KEMIQVWvr/c95rtezEBeS7
-        0/xvTCn5Ztk8SIng0ugbq/A==
-X-Received: by 2002:adf:d1e9:0:b0:21b:c8f8:3c16 with SMTP id g9-20020adfd1e9000000b0021bc8f83c16mr1873036wrd.659.1656492763816;
-        Wed, 29 Jun 2022 01:52:43 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tnrgKv64tg1zyPl055DmvcOx5lZT7xnZAKvFjKTcNvVC5btuOpowGMnA/4sz0hlWnQATLe7A==
-X-Received: by 2002:adf:d1e9:0:b0:21b:c8f8:3c16 with SMTP id g9-20020adfd1e9000000b0021bc8f83c16mr1873015wrd.659.1656492763509;
-        Wed, 29 Jun 2022 01:52:43 -0700 (PDT)
-Received: from redhat.com ([2.52.23.204])
-        by smtp.gmail.com with ESMTPSA id l20-20020a05600c4f1400b003a02b9c47e4sm2953183wmq.27.2022.06.29.01.52.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jun 2022 01:52:42 -0700 (PDT)
-Date:   Wed, 29 Jun 2022 04:52:37 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
+        with ESMTP id S233453AbiF2MRs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jun 2022 08:17:48 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2060.outbound.protection.outlook.com [40.107.92.60])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6827231340;
+        Wed, 29 Jun 2022 05:17:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DyrMJ5aK/aw9W+Mr5EDicVikmTCX1WsIe0Pkhlw4rCi6+wVr5ON0CxF4+iLxHnMoGoh+zOE6Q8cf2f6vcG29/eHN4wwZgi968TYQ63+A4tlG7hbmYiDaen11/PA40I3lAv/EH5exOll5QuziuEFrUzvgTOkPI2pB4AYsf4ce24JfB95p1BFC1wd0Nr3afte5a9dv9QE+/ftYJFc6xccaDM86qSZcyQXwlShcDmG7S7iuExgV0Q0q9jPFVa2CwOf9nsf5UsD3QOhd+umNIx+1bUmMdsLfGKPzR4u1RhF4Uf9nJgjngZvTLW29L0TObvPm/gU0WtF/AAJnpe4R4NyujQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=csq6VlZcJEO5HlTS49064aX5FhKLh5OFmvCMk7SyhYg=;
+ b=N41wH9OXOD3NcA+8QCQVFRM2xtkTWSPgdUPSsRhoZRbMZYtGl9q17FfEPI6mcUlvlvT5ioFEs/xQXSg5JS3FZueQKmgQFqB9xwfoRnf0RqXuA9RMXXFEsdaBkXVm3LT4oB7oSkyg/jd2t2hfwIUXNQgW3mMCa2JvKFBzXVTKJvxmRTU3YYw0N/O3B59TQUyEHLa13al+f50RSqBeZ8utej4obIgQw7adxrr87m/cI7C1oUAHd30n+FC6vTTSIG7GKLM1nyuCRH+SXCIX90Rxg5gIoIO2n0R0TccKHojcDUPXsUOyGus83iA2f1WLW0jWAa2OJEc61+JKnk5KXfd5RQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=csq6VlZcJEO5HlTS49064aX5FhKLh5OFmvCMk7SyhYg=;
+ b=ogwjbCVBY9OStXn8wRpnfGP23GGyapfCCilhevx16Wy0ZY4G4WuSzba0TMSmi6XZJIZX05zot9DNx7JxjP9GPxyf2CwG6EcZINrVqDvGpuUurzAWfYM9xMcD1brPMgiUfYdNnA4bUZYrehfQAMzyEugeyuu0NIgFCsq/5fSnMBFdMNfQrg+yvCf1cUfH1WCHjsl9w3lOm2YXcukQzaOr1U4uCSMqptpUUPJvXzS3xV5Rn4poXuHw2C6Z5PULZ5O5zR7MXfo+glD3L3JNdTksUpCjLJM6qSMj+93wKN2B/wt/NQxG8BnEn93u0/YGwJsxcnSQXZtSYamLpKnXKl89zw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by CH0PR12MB5372.namprd12.prod.outlook.com (2603:10b6:610:d7::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5395.14; Wed, 29 Jun
+ 2022 12:17:10 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb%3]) with mapi id 15.20.5373.022; Wed, 29 Jun 2022
+ 12:17:10 +0000
+Date:   Wed, 29 Jun 2022 09:17:09 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
         Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        kvm <kvm@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-Message-ID: <20220629044514-mutt-send-email-mst@kernel.org>
-References: <CACGkMEvrDXDN7FH1vKoYCob2rkxUsctE_=g61kzHSZ8tNNr6vA@mail.gmail.com>
- <20220627053820-mutt-send-email-mst@kernel.org>
- <CACGkMEvcs+9_SHmO1s3nyzgU7oq7jhU2gircVVR3KDsGDikh5Q@mail.gmail.com>
- <20220628004614-mutt-send-email-mst@kernel.org>
- <CACGkMEsC4A+3WejLSOZoH3enXtai=+JyRNbxcpzK4vODYzhaFw@mail.gmail.com>
- <CACGkMEvu0D0XD7udz0ebVjNM0h5+K9Rjd-5ed=PY_+-aduzG2g@mail.gmail.com>
- <20220629022223-mutt-send-email-mst@kernel.org>
- <CACGkMEuwvzkbPUSFueCOjit7pRJ81v3-W3SZD+7jQJN8btEFdg@mail.gmail.com>
- <20220629030600-mutt-send-email-mst@kernel.org>
- <CACGkMEvnUj622FyROUftifSB47wytPg0YAdVO7fdRQmCE+WuBg@mail.gmail.com>
-MIME-Version: 1.0
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+        Kevin Tian <kevin.tian@intel.com>
+Subject: Re: [PATCH 04/13] vfio/mdev: simplify mdev_type handling
+Message-ID: <20220629121709.GI693670@nvidia.com>
+References: <20220628051435.695540-1-hch@lst.de>
+ <20220628051435.695540-5-hch@lst.de>
+ <20220628155915.060ba2d9.alex.williamson@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CACGkMEvnUj622FyROUftifSB47wytPg0YAdVO7fdRQmCE+WuBg@mail.gmail.com>
+In-Reply-To: <20220628155915.060ba2d9.alex.williamson@redhat.com>
+X-ClientProxiedBy: MN2PR01CA0026.prod.exchangelabs.com (2603:10b6:208:10c::39)
+ To MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 2df90611-0a08-4d03-885d-08da59c94ab9
+X-MS-TrafficTypeDiagnostic: CH0PR12MB5372:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: oK95/DwLuS+PqFSv5tYTvXxgWNiuRRwolKVKMM6MoBZ2c36Aekdo4wg+TUOTYODpuYW9N00pgbNVgVtw0nwNOZPNaOhPuU5Nb9+yKG6NAkMepB1bbhbMY1yAtaN/Lb1bjm23wlV9umjzIf/4R/Qt8o3E9+sRSHg7igXCxsNlMBoKQA1+X8bbOeJLLoBar0p1F3TXl4MUC4RDJvCQ0m+MV+r5+DJ57FU//wVypVj8wRtG23UIDfSpdggq4My0KpC5WIdHBWp4mSFz7NAtmv+zEAc55wUQzIy3loRYaHfd/DiaKlQt4cbqQWC7+X9Vp81NrV33FRzuynC25j3r5ArhYMg6xCuEwHpyv7SeSS3iVzZltaz4EX1NgfjI2nHgzTaT0LTdohJ7a1ZgLlWd7UhfpE7TiFHCsOGDRXhZ+C1rdlFVvSRaJ6aj7SHdwfRjEPIOpcy62KSxRMqdnmK3v8UQSIUJGnm/w3cxWRLZe1bUUJ0TcfMaGvv99K0wjJxZx931qATFkJ4cP9ZhZ1bex4sB6NTNcqITUTaeVq630RgpIZbExunkrMp+uq7z3Qn7xZL8ccT9RXrDZxg3zMBsAZKVArh6fuIo3naie6fAJqd+y69XBiIIbTU3rs90MKclzzdWExTUM9cGoyCRsyRhKbOGFDFpVVHAg/eteFgm8ku9r00f+Eg4NmUiwmF+C3uqJ5+1+WaKOlOknedpk0BdT1/mwLz0lwSKIpSOTqnxiYTei3vE0lP3wxfQzs+owwA2aWkc/eE12msgLK6FP9l8xcVMLSg2Z2FbH6zSYC12+KkKygs=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(39860400002)(136003)(396003)(376002)(366004)(346002)(5660300002)(1076003)(41300700001)(2616005)(7416002)(8936002)(186003)(478600001)(6506007)(86362001)(33656002)(4744005)(6486002)(2906002)(26005)(6512007)(36756003)(54906003)(38100700002)(6916009)(66556008)(66476007)(4326008)(8676002)(66946007)(316002)(83380400001)(27376004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?DjIeAfBOqEctSvuzHKa13UmmcWMxwgyl48qdIEgqKEnLYp3egPGMI3GtG1CI?=
+ =?us-ascii?Q?t5zKfKXFljDc5dhzFgnnqbFZCJvX5397DGTybW4ZDJlRXJPDVDt1ZSODI+VI?=
+ =?us-ascii?Q?NzNnJIBoVSAe7E0Bri/hoaa7GG1PBUyWIkx45IQHc0Oxm8Diw7OHYayYQu8s?=
+ =?us-ascii?Q?VpGmoA9Tq/6/noGz3qSLTlc+BvyinTBG+HoIc301Eqd73bYQ/l0Wau8Mwnnf?=
+ =?us-ascii?Q?qxaqxaIxPqxj37UtvncZo5MDHbooycMMq3s0pdEWRPaHQrwn4r0RY6bmCy+X?=
+ =?us-ascii?Q?Q1Z5/fWzskC6/4tMvzo05IPbC/MblLYojHOEGzc0l8TXwjFQ3EHlIUHVJd6I?=
+ =?us-ascii?Q?OtHwAt42MgIe0TQEF5bp5jj9ZVVhqcToDEvTE+yd6WpZ2nR2usj1Tn/yP+nJ?=
+ =?us-ascii?Q?4bgTutXFM+jTVBpXMH1VgFR1uNA37FU16bA6b0QwEq/5kmx/7tp6PY6nsTwX?=
+ =?us-ascii?Q?PCMDC31fPjAUIxGe8sfBBRedIbD1RJ5dI1D77il/+Zk6vw+eyXdqUINrhrfK?=
+ =?us-ascii?Q?SLEwDnoJIWOtcxFYOivCtrG+7nfF5vPqw+Z1Fb4k6iPs0+e/W/NylY8UroJQ?=
+ =?us-ascii?Q?6vbl4Zlek4m8zoYa01wxMpn2KOR2fxv0JaVh81CruVIKor+9HLDON2Kf+SyN?=
+ =?us-ascii?Q?+ZI4byHMDjWRJMj6hhhiIlxXB6rvAI5vaKYPgUgobtUnh3PUzlnl2tE4K1b0?=
+ =?us-ascii?Q?gPUxLiKgp8Omxy/d7E3T3ItjMGl4zprLgjwX59FAg8BR0oLKeIHbWAoRA8cQ?=
+ =?us-ascii?Q?qMTNPBH2xzeqIqh6Ngjuhh+NLnhcDbio7nWRroqY3xrzwkMXqPWGhNiLPUnk?=
+ =?us-ascii?Q?oNJxLsG7DcGHcaefhavwInDYhFTr/oGhaZrllOgVYXwR/McroCwMaZvHJEuo?=
+ =?us-ascii?Q?E6i/PBIL1Wncqaw47Ev/N8lw0t8PDKo4y32km8OgpgKd8nJHKrUWYXGCxW5z?=
+ =?us-ascii?Q?H/ei1f98rNO/++68/9zZlGelpSOPKvZ46Ijx0pODexF/+882imBnI9FmWGmB?=
+ =?us-ascii?Q?NSzd+I35skfcQ7rZ0uQR7eyhw+bAlc1Fs8GS8AmOhUS3c7F99tRCNQGt9O0n?=
+ =?us-ascii?Q?M8syCsm3BgNhDgaut4s6fQpJIEih/spBtK8YhW/ONHPHohvFNScNR9siJyIf?=
+ =?us-ascii?Q?Ggzg8Ljhs+T4XlIxyfANE3febi9BRIaAJAAnGKz2Tbf+6RNniU7Q6+PK2Vzw?=
+ =?us-ascii?Q?hQjPn/3NWSDQkkSzdCkadXKXJjC5iF97ai5pW0yT/pH/GMWP0c6vNtcSvVJm?=
+ =?us-ascii?Q?xFcnj9WKz+RtmvTJnfBA6sc/BQed85DjRgCOghpgiveyyN6/bH6oFvr8izdj?=
+ =?us-ascii?Q?qS2fjAIGrHAVSZ+3vUl3m2JL+aLLLnW5IcJOuAUBk2aJEaMqh0vEpHeU10B2?=
+ =?us-ascii?Q?lqd0ymq3WNSi/rCsBguR3d7dYvW/B7+vUDs20ZtQgYU0I9ZkKGIXpJHtaxWz?=
+ =?us-ascii?Q?WaoqP9b4JFhHHjbmE6wwYuO2uH7owO3IV1AFdbFSnPVDQAThIEgK/eFBpqTm?=
+ =?us-ascii?Q?9fZbMfNH2c+qdR4Xx7f2iIHPkRQGaRqDdL2X44likux3+hK22y3GJLXicOeB?=
+ =?us-ascii?Q?z4akJjDmvHN2+iRE5h5roqFRbGtfqTzxdY+iIvNs?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2df90611-0a08-4d03-885d-08da59c94ab9
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jun 2022 12:17:10.4712
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: fiJ2I/rdf0NyRLt2JwyYcpX1Y6Sgc1foPg3Vggwi/1H2x+2h/QTWgSNlUwgzyJRM
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR12MB5372
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 29, 2022 at 04:34:36PM +0800, Jason Wang wrote:
-> On Wed, Jun 29, 2022 at 3:15 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Jun 29, 2022 at 03:02:21PM +0800, Jason Wang wrote:
-> > > On Wed, Jun 29, 2022 at 2:31 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Wed, Jun 29, 2022 at 12:07:11PM +0800, Jason Wang wrote:
-> > > > > On Tue, Jun 28, 2022 at 2:17 PM Jason Wang <jasowang@redhat.com> wrote:
-> > > > > >
-> > > > > > On Tue, Jun 28, 2022 at 1:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Tue, Jun 28, 2022 at 11:49:12AM +0800, Jason Wang wrote:
-> > > > > > > > > Heh. Yea sure. But things work fine for people. What is the chance
-> > > > > > > > > your review found and fixed all driver bugs?
-> > > > > > > >
-> > > > > > > > I don't/can't audit all bugs but the race between open/close against
-> > > > > > > > ready/reset. It looks to me a good chance to fix them all but if you
-> > > > > > > > think differently, let me know
-> > > > > > > >
-> > > > > > > > > After two attempts
-> > > > > > > > > I don't feel like hoping audit will fix all bugs.
-> > > > > > > >
-> > > > > > > > I've started the auditing and have 15+ patches in the queue. (only
-> > > > > > > > covers bluetooth, console, pmem, virtio-net and caif). Spotting the
-> > > > > > > > issue is not hard but the testing, It would take at least the time of
-> > > > > > > > one release to finalize I guess.
-> > > > > > >
-> > > > > > > Absolutely. So I am looking for a way to implement hardening that does
-> > > > > > > not break existing drivers.
-> > > > > >
-> > > > > > I totally agree with you to seek a way without bothering the drivers.
-> > > > > > Just wonder if this is possbile.
-> > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > The reason config was kind of easy is that config interrupt is rarely
-> > > > > > > > > > > vital for device function so arbitrarily deferring that does not lead to
-> > > > > > > > > > > deadlocks - what you are trying to do with VQ interrupts is
-> > > > > > > > > > > fundamentally different. Things are especially bad if we just drop
-> > > > > > > > > > > an interrupt but deferring can lead to problems too.
-> > > > > > > > > >
-> > > > > > > > > > I'm not sure I see the difference, disable_irq() stuffs also delay the
-> > > > > > > > > > interrupt processing until enable_irq().
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > Absolutely. I am not at all sure disable_irq fixes all problems.
-> > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > Consider as an example
-> > > > > > > > > > >     virtio-net: fix race between ndo_open() and virtio_device_ready()
-> > > > > > > > > > > if you just defer vq interrupts you get deadlocks.
-> > > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > I don't see a deadlock here, maybe you can show more detail on this?
-> > > > > > > > >
-> > > > > > > > > What I mean is this: if we revert the above commit, things still
-> > > > > > > > > work (out of spec, but still). If we revert and defer interrupts until
-> > > > > > > > > device ready then ndo_open that triggers before device ready deadlocks.
-> > > > > > > >
-> > > > > > > > Ok, I guess you meant on a hypervisor that is strictly written with spec.
-> > > > > > >
-> > > > > > > I mean on hypervisor that starts processing queues after getting a kick
-> > > > > > > even without DRIVER_OK.
-> > > > > >
-> > > > > > Oh right.
-> > > > > >
-> > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > So, thinking about all this, how about a simple per vq flag meaning
-> > > > > > > > > > > "this vq was kicked since reset"?
-> > > > > > > > > >
-> > > > > > > > > > And ignore the notification if vq is not kicked? It sounds like the
-> > > > > > > > > > callback needs to be synchronized with the kick.
-> > > > > > > > >
-> > > > > > > > > Note we only need to synchronize it when it changes, which is
-> > > > > > > > > only during initialization and reset.
-> > > > > > > >
-> > > > > > > > Yes.
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > If driver does not kick then it's not ready to get callbacks, right?
-> > > > > > > > > > >
-> > > > > > > > > > > Sounds quite clean, but we need to think through memory ordering
-> > > > > > > > > > > concerns - I guess it's only when we change the value so
-> > > > > > > > > > >         if (!vq->kicked) {
-> > > > > > > > > > >                 vq->kicked = true;
-> > > > > > > > > > >                 mb();
-> > > > > > > > > > >         }
-> > > > > > > > > > >
-> > > > > > > > > > > will do the trick, right?
-> > > > > > > > > >
-> > > > > > > > > > There's no much difference with the existing approach:
-> > > > > > > > > >
-> > > > > > > > > > 1) your proposal implicitly makes callbacks ready in virtqueue_kick()
-> > > > > > > > > > 2) my proposal explicitly makes callbacks ready via virtio_device_ready()
-> > > > > > > > > >
-> > > > > > > > > > Both require careful auditing of all the existing drivers to make sure
-> > > > > > > > > > no kick before DRIVER_OK.
-> > > > > > > > >
-> > > > > > > > > Jason, kick before DRIVER_OK is out of spec, sure. But it is unrelated
-> > > > > > > > > to hardening
-> > > > > > > >
-> > > > > > > > Yes but with your proposal, it seems to couple kick with DRIVER_OK somehow.
-> > > > > > >
-> > > > > > > I don't see how - my proposal ignores DRIVER_OK issues.
-> > > > > >
-> > > > > > Yes, what I meant is, in your proposal, the first kick after rest is a
-> > > > > > hint that the driver is ok (but actually it could not).
-> > > > > >
-> > > > > > >
-> > > > > > > > > and in absence of config interrupts is generally easily
-> > > > > > > > > fixed just by sticking virtio_device_ready early in initialization.
-> > > > > > > >
-> > > > > > > > So if the kick is done before the subsystem registration, there's
-> > > > > > > > still a window in the middle (assuming we stick virtio_device_ready()
-> > > > > > > > early):
-> > > > > > > >
-> > > > > > > > virtio_device_ready()
-> > > > > > > > virtqueue_kick()
-> > > > > > > > /* the window */
-> > > > > > > > subsystem_registration()
-> > > > > > >
-> > > > > > > Absolutely, however, I do not think we really have many such drivers
-> > > > > > > since this has been known as a wrong thing to do since the beginning.
-> > > > > > > Want to try to find any?
-> > > > > >
-> > > > > > Yes, let me try and update.
-> > > > >
-> > > > > This is basically the device that have an RX queue, so I've found the
-> > > > > following drivers:
-> > > > >
-> > > > > scmi, mac80211_hwsim, vsock, bt, balloon.
-> > > >
-> > > > Looked and I don't see it yet. Let's consider
-> > > > ./net/vmw_vsock/virtio_transport.c for example. Assuming we block
-> > > > callbacks until the first kick, what is the issue with probe exactly?
-> > >
-> > > We need to make sure the callback can survive when it runs before sub
-> > > system registration.
-> >
-> > With my proposal no - only if we also kick before registration.
-> > So I do not see the issue yet.
-> >
-> > Consider ./net/vmw_vsock/virtio_transport.c
-> >
-> > kicks: virtio_transport_send_pkt_work,
-> > virtio_vsock_rx_fill, virtio_vsock_event_fill
-> >
-> > which of these triggers before we are ready to
-> > handle callbacks?
+On Tue, Jun 28, 2022 at 03:59:15PM -0600, Alex Williamson wrote:
+> > +	strcpy(matrix_dev->mdev_type.sysfs_name, VFIO_AP_MDEV_TYPE_HWVIRT);
 > 
-> So:
-> 
-> virtio_vsock_vqs_init()
->     virtio_device_ready()
->     virtio_vsock_rx_fill() /* kick there */
-> rcu_assign_pointer(the_virtio_vsock, vsock)
-> 
-> It means at least virtio_vsock_rx_done()/virtio_vsock_workqueue needs
-> to survive. I don't say it has a bug but we do need to audit the code
-> in this case. The implication is: the virtqueue callback should be
-> written with no assumption that the driver has registered in the
-> subsystem. We don't or can't assume all drivers are written in this
-> way.
+> And then this might as well be an snprintf() as well too.
 
+Kees has setup FORTIFY so the above will actually throw a compile
+warning in build bots if the array size is too small. Changing it to
+snprintf would loose this and cause undetected string truncation.
 
-I thought you said you audited code and found bugs.
-
-My claim is that simply because qemu starts processing
-packets immediately upon kick, if bugs like this
-existed we would have noticed by now.
-
-In this case the_virtio_vsock is used for xmit things,
-callbacks do not seem to use it at all.
-
-> >
-> >
-> > > >
-> > > >
-> > > > > >
-> > > > > > >I couldn't ... except maybe bluetooth
-> > > > > > > but that's just maintainer nacking fixes saying he'll fix it
-> > > > > > > his way ...
-> > > > > > >
-> > > > > > > > And during remove(), we get another window:
-> > > > > > > >
-> > > > > > > > subsysrem_unregistration()
-> > > > > > > > /* the window */
-> > > > > > > > virtio_device_reset()
-> > > > > > >
-> > > > > > > Same here.
-> > > > >
-> > > > > Basically for the drivers that set driver_ok before registration,
-> > > >
-> > > > I don't see what does driver_ok have to do with it.
-> > >
-> > > I meant for those driver, in probe they do()
-> > >
-> > > virtio_device_ready()
-> > > subsystem_register()
-> > >
-> > > In remove() they do
-> > >
-> > > subsystem_unregister()
-> > > virtio_device_reset()
-> > >
-> > > for symmetry
-> >
-> > Let's leave remove alone for now. I am close to 100% sure we have *lots*
-> > of issues around it, but while probe is unavoidable remove can be
-> > avoided by blocking hotplug.
-> 
-> Unbind can trigger this path as well.
-> 
-> >
-> >
-> > > >
-> > > > > so
-> > > > > we have a lot:
-> > > > >
-> > > > > blk, net, mac80211_hwsim, scsi, vsock, bt, crypto, gpio, gpu, i2c,
-> > > > > iommu, caif, pmem, input, mem
-> > > > >
-> > > > > So I think there's no easy way to harden the notification without
-> > > > > auditing the driver one by one (especially considering the driver may
-> > > > > use bh or workqueue). The problem is the notification hardening
-> > > > > depends on a correct or race-free probe/remove. So we need to fix the
-> > > > > issues in probe/remove then do the hardening on the notification.
-> > > > >
-> > > > > Thanks
-> > > >
-> > > > So if drivers kick but are not ready to get callbacks then let's fix
-> > > > that first of all, these are racy with existing qemu even ignoring
-> > > > spec compliance.
-> > >
-> > > Yes, (the patches I've posted so far exist even with a well-behaved device).
-> > >
-> > > Thanks
-> >
-> > patches you posted deal with DRIVER_OK spec compliance.
-> > I do not see patches for kicks before callbacks are ready to run.
-> 
-> Yes.
-> 
-> Thanks
-> 
-> >
-> > > >
-> > > >
-> > > > --
-> > > > MST
-> > > >
-> >
-
+Jason
