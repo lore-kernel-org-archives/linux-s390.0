@@ -2,250 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C1EBCCA479
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Jun 2022 21:59:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21AE6C43334
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Jun 2022 00:58:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229960AbiF1V7W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Jun 2022 17:59:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58580 "EHLO
+        id S230118AbiF2A6Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Jun 2022 20:58:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229899AbiF1V7U (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 17:59:20 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E0E9C2126B
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 14:59:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656453559;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0WWZ2h4Ou+3qMEe93oAVSbUord2r1cb1r0isXElizxU=;
-        b=JdtYOBgFizAz/a3qmBadfkNf1Is5K7SIDuTwV51pn4L2C2o6jBbPAKVRy+vJfGRYoCdXm0
-        xhGx1xB1bRVDBdP6XJTCoyTgX3HgJIKst3gzcWZ9i9/Qr2sSxau8aWLcJPdcJZEZxxQMUv
-        QV/gcco8/9aK9B9lVd6T4p1pWFwT4ow=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-14-UAdlw6_JOHGQpvZYkN46aw-1; Tue, 28 Jun 2022 17:59:17 -0400
-X-MC-Unique: UAdlw6_JOHGQpvZYkN46aw-1
-Received: by mail-il1-f200.google.com with SMTP id l2-20020a056e0212e200b002d9258029c4so8132498iln.22
-        for <linux-s390@vger.kernel.org>; Tue, 28 Jun 2022 14:59:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=0WWZ2h4Ou+3qMEe93oAVSbUord2r1cb1r0isXElizxU=;
-        b=Ul24GtBA+KZvvsbvTGEd3B/oK7rIy0gAFmEeIQswSuzU5GZ+Ue/8nxChkCBjFRthnw
-         HkUixsr4CIZSFFda9kD0ioPxjPQqRcrKeJHP+CBjuWyzZgXM/WyWNfWi3cC7ZH7dbsHu
-         e2GjitjcOyoUQ9ITX+9WpcfabOLo5AfjMevq4mXCtYGp1y+RH7gaY4vKp4afRzQxRKLL
-         t9b/vP6B6sr0k6KD4iv5GC+ay12MmEntoaBsYuyeVmtnMeNHLtx75OWW19zLvvfCWMRc
-         yUiY9f/rye4WnBrC1ztKZkf4zC/LmTH02iXSVvN9vZnxYx0V+VU8Nxi55fi2FOy23Opp
-         PJsA==
-X-Gm-Message-State: AJIora8/VsYa9OF3QiQv/QJu50/vA/x1iPwz6rr10LYijiLvKpwYqgw2
-        PSpqsqTs/fR9TmlUCBQGokgd0VkVi39f0ooU25KdPkKIh/8IHqrhEpvVHhjvEu2y3NdGIPsfzt0
-        DNlqZERXJp6qABT9nfJlCYg==
-X-Received: by 2002:a05:6638:2481:b0:331:df8f:95e0 with SMTP id x1-20020a056638248100b00331df8f95e0mr151525jat.280.1656453557030;
-        Tue, 28 Jun 2022 14:59:17 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uu173+2OVxjSfaHP4q7qPxTBslWKjv/6lZ3otZt97K6XFUw2pYJUvcwU+lNS0e5TZF4qkCKA==
-X-Received: by 2002:a05:6638:2481:b0:331:df8f:95e0 with SMTP id x1-20020a056638248100b00331df8f95e0mr151513jat.280.1656453556820;
-        Tue, 28 Jun 2022 14:59:16 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id r19-20020a02c853000000b00339dfb793aesm6603705jao.86.2022.06.28.14.59.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 14:59:16 -0700 (PDT)
-Date:   Tue, 28 Jun 2022 15:59:15 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        Kevin Tian <kevin.tian@intel.com>
-Subject: Re: [PATCH 04/13] vfio/mdev: simplify mdev_type handling
-Message-ID: <20220628155915.060ba2d9.alex.williamson@redhat.com>
-In-Reply-To: <20220628051435.695540-5-hch@lst.de>
-References: <20220628051435.695540-1-hch@lst.de>
-        <20220628051435.695540-5-hch@lst.de>
-Organization: Red Hat
+        with ESMTP id S230114AbiF2A6X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Jun 2022 20:58:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6120CE2C;
+        Tue, 28 Jun 2022 17:58:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D61EFB8210B;
+        Wed, 29 Jun 2022 00:58:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E470C341C8;
+        Wed, 29 Jun 2022 00:58:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1656464299;
+        bh=qzXzyU3Yxwkc5XoKYIl4dSB/mDLg7UqRnK4AC6snhZQ=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=hiakdTfXzYVHnt8rotaaK4/4vf9Jm1h+sYAUrz+zMLPSM5E4rWUFyo8rGX5PESKLl
+         SY2grO9EbqiR2Nh8X1DlSWeFnUzx1cg+HuylAwTsj3sr/+ORIBdOpNsXMOnWmuN6ka
+         e2KJOMM1+ScuOsUPDAC1TZ/o0/sRKF5JLy0VULpTw8abuMurRFrQ2sdxT5B5uo3PDr
+         DXaHPlaEBpEPp5jGAs1Zib5nV/ajkGe5CzC/WOwT8Mrm5V0CYmaFpYEomoQw4Cf14U
+         D6FpTXAQNTrIUIZxZWmpBkwKNqx6a/kMQOdKaXi3gnqvGIHJkYKlz1LMjrtMKpRGng
+         Lgc0rh6qy+uLA==
+Date:   Tue, 28 Jun 2022 17:58:17 -0700 (PDT)
+From:   Stefano Stabellini <sstabellini@kernel.org>
+X-X-Sender: sstabellini@ubuntu-linux-20-04-desktop
+To:     Juergen Gross <jgross@suse.com>
+cc:     xen-devel@lists.xenproject.org, x86@kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-arch@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v3 0/3] virtio: support requiring restricted access per
+ device
+In-Reply-To: <20220622063838.8854-1-jgross@suse.com>
+Message-ID: <alpine.DEB.2.22.394.2206281758050.4389@ubuntu-linux-20-04-desktop>
+References: <20220622063838.8854-1-jgross@suse.com>
+User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 28 Jun 2022 07:14:26 +0200
-Christoph Hellwig <hch@lst.de> wrote:
-...
-> diff --git a/drivers/gpu/drm/i915/gvt/vgpu.c b/drivers/gpu/drm/i915/gvt/vgpu.c
-> index 5c828556cefd7..cea8113d2200e 100644
-> --- a/drivers/gpu/drm/i915/gvt/vgpu.c
-> +++ b/drivers/gpu/drm/i915/gvt/vgpu.c
-> @@ -131,6 +131,11 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
->  	if (!gvt->types)
->  		return -ENOMEM;
->  
-> +	gvt->mdev_types = kcalloc(num_types, sizeof(*gvt->mdev_types),
-> +			     GFP_KERNEL);
-> +	if (!gvt->mdev_types)
-> +		goto out_free_types;
-> +
->  	min_low = MB_TO_BYTES(32);
->  	for (i = 0; i < num_types; ++i) {
->  		if (low_avail / vgpu_types[i].low_mm == 0)
-> @@ -142,7 +147,7 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
->  
->  		if (vgpu_types[i].weight < 1 ||
->  					vgpu_types[i].weight > VGPU_MAX_WEIGHT)
-> -			goto out_free_types;
-> +			goto out_free_mdev_types;
->  
->  		gvt->types[i].weight = vgpu_types[i].weight;
->  		gvt->types[i].resolution = vgpu_types[i].edid;
-> @@ -150,24 +155,28 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
->  						   high_avail / vgpu_types[i].high_mm);
->  
->  		if (GRAPHICS_VER(gvt->gt->i915) == 8)
-> -			sprintf(gvt->types[i].name, "GVTg_V4_%s",
-> +			sprintf(gvt->types[i].type.sysfs_name, "GVTg_V4_%s",
->  				vgpu_types[i].name);
->  		else if (GRAPHICS_VER(gvt->gt->i915) == 9)
-> -			sprintf(gvt->types[i].name, "GVTg_V5_%s",
-> +			sprintf(gvt->types[i].type.sysfs_name, "GVTg_V5_%s",
->  				vgpu_types[i].name);
+On Wed, 22 Jun 2022, Juergen Gross wrote:
+> Instead of an all or nothing approach add support for requiring
+> restricted memory access per device.
+> 
+> Changes in V3:
+> - new patches 1 + 2
+> - basically complete rework of patch 3
+> 
+> Juergen Gross (3):
+>   virtio: replace restricted mem access flag with callback
+>   kernel: remove platform_has() infrastructure
+>   xen: don't require virtio with grants for non-PV guests
 
-Nit, sysfs_name is an arbitrary size, shouldn't we use snprintf() here
-to make a good example?
 
->  		gvt_dbg_core("type[%d]: %s avail %u low %u high %u fence %u weight %u res %s\n",
-> -			     i, gvt->types[i].name,
-> +			     i, gvt->types[i].type.sysfs_name,
->  			     gvt->types[i].avail_instance,
->  			     gvt->types[i].low_gm_size,
->  			     gvt->types[i].high_gm_size, gvt->types[i].fence,
->  			     gvt->types[i].weight,
->  			     vgpu_edid_str(gvt->types[i].resolution));
-> +
-> +		gvt->mdev_types[i] = &gvt->types[i].type;
->  	}
->  
->  	gvt->num_types = i;
->  	return 0;
->  
-> +out_free_mdev_types:
-> +	kfree(gvt->mdev_types);
->  out_free_types:
->  	kfree(gvt->types);
->  	return -EINVAL;
-...
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index 9192a21085ce4..25b8d42a522ac 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -95,23 +95,13 @@ static ssize_t available_instances_show(struct mdev_type *mtype,
->  }
->  static MDEV_TYPE_ATTR_RO(available_instances);
->  
-> -static struct attribute *mdev_types_attrs[] = {
-> +static const struct attribute *mdev_types_attrs[] = {
->  	&mdev_type_attr_name.attr,
->  	&mdev_type_attr_device_api.attr,
->  	&mdev_type_attr_available_instances.attr,
->  	NULL,
->  };
->  
-> -static struct attribute_group mdev_type_group = {
-> -	.name  = "io",
-> -	.attrs = mdev_types_attrs,
-> -};
-> -
-> -static struct attribute_group *mdev_type_groups[] = {
-> -	&mdev_type_group,
-> -	NULL,
-> -};
-> -
->  static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
->  {
->  	struct vfio_ccw_private *private = dev_get_drvdata(mdev->dev.parent);
-> @@ -654,13 +644,16 @@ struct mdev_driver vfio_ccw_mdev_driver = {
->  	},
->  	.probe = vfio_ccw_mdev_probe,
->  	.remove = vfio_ccw_mdev_remove,
-> -	.supported_type_groups  = mdev_type_groups,
-> +	.types_attrs = mdev_types_attrs,
->  };
->  
->  int vfio_ccw_mdev_reg(struct subchannel *sch)
->  {
-> +	sprintf(sch->mdev_type.sysfs_name, "io");
+On the whole series:
 
-Here too, but this gets randomly changed to an strcat() in patch 09/
-and pretty_name is added in 10/, also with an strcat().  Staying with
-snprintf() seems easier to get both overflow and termination.
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
 
-> +	sch->mdev_types[0] = &sch->mdev_type;
->  	return mdev_register_parent(&sch->parent, &sch->dev,
-> -				    &vfio_ccw_mdev_driver);
-> +				    &vfio_ccw_mdev_driver, sch->mdev_types,
-> +				    1);
->  }
->  
->  void vfio_ccw_mdev_unreg(struct subchannel *sch)
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 834945150dc9f..ff25858b2ebbe 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -537,23 +537,13 @@ static ssize_t device_api_show(struct mdev_type *mtype,
->  
->  static MDEV_TYPE_ATTR_RO(device_api);
->  
-> -static struct attribute *vfio_ap_mdev_type_attrs[] = {
-> +static const struct attribute *vfio_ap_mdev_type_attrs[] = {
->  	&mdev_type_attr_name.attr,
->  	&mdev_type_attr_device_api.attr,
->  	&mdev_type_attr_available_instances.attr,
->  	NULL,
->  };
->  
-> -static struct attribute_group vfio_ap_mdev_hwvirt_type_group = {
-> -	.name = VFIO_AP_MDEV_TYPE_HWVIRT,
-> -	.attrs = vfio_ap_mdev_type_attrs,
-> -};
-> -
-> -static struct attribute_group *vfio_ap_mdev_type_groups[] = {
-> -	&vfio_ap_mdev_hwvirt_type_group,
-> -	NULL,
-> -};
-> -
->  struct vfio_ap_queue_reserved {
->  	unsigned long *apid;
->  	unsigned long *apqi;
-> @@ -1472,7 +1462,7 @@ static struct mdev_driver vfio_ap_matrix_driver = {
->  	},
->  	.probe = vfio_ap_mdev_probe,
->  	.remove = vfio_ap_mdev_remove,
-> -	.supported_type_groups = vfio_ap_mdev_type_groups,
-> +	.types_attrs = vfio_ap_mdev_type_attrs,
->  };
->  
->  int vfio_ap_mdev_register(void)
-> @@ -1485,8 +1475,11 @@ int vfio_ap_mdev_register(void)
->  	if (ret)
->  		return ret;
->  
-> +	strcpy(matrix_dev->mdev_type.sysfs_name, VFIO_AP_MDEV_TYPE_HWVIRT);
 
-And then this might as well be an snprintf() as well too.
-
-Series looks good to me otherwise, hopefully the mdev driver owners
-will add some acks.  Thanks,
-
-Alex
-
+>  MAINTAINERS                            |  8 --------
+>  arch/arm/xen/enlighten.c               |  4 +++-
+>  arch/s390/mm/init.c                    |  4 ++--
+>  arch/x86/mm/mem_encrypt_amd.c          |  4 ++--
+>  arch/x86/xen/enlighten_hvm.c           |  4 +++-
+>  arch/x86/xen/enlighten_pv.c            |  5 ++++-
+>  drivers/virtio/Kconfig                 |  4 ++++
+>  drivers/virtio/Makefile                |  1 +
+>  drivers/virtio/virtio.c                |  4 ++--
+>  drivers/virtio/virtio_anchor.c         | 18 +++++++++++++++++
+>  drivers/xen/Kconfig                    |  9 +++++++++
+>  drivers/xen/grant-dma-ops.c            | 10 ++++++++++
+>  include/asm-generic/Kbuild             |  1 -
+>  include/asm-generic/platform-feature.h |  8 --------
+>  include/linux/platform-feature.h       | 19 ------------------
+>  include/linux/virtio_anchor.h          | 19 ++++++++++++++++++
+>  include/xen/xen-ops.h                  |  6 ++++++
+>  include/xen/xen.h                      |  8 --------
+>  kernel/Makefile                        |  2 +-
+>  kernel/platform-feature.c              | 27 --------------------------
+>  20 files changed, 84 insertions(+), 81 deletions(-)
+>  create mode 100644 drivers/virtio/virtio_anchor.c
+>  delete mode 100644 include/asm-generic/platform-feature.h
+>  delete mode 100644 include/linux/platform-feature.h
+>  create mode 100644 include/linux/virtio_anchor.h
+>  delete mode 100644 kernel/platform-feature.c
+> 
+> -- 
+> 2.35.3
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
