@@ -2,261 +2,225 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09020C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 12:49:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 672C9C43334
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 13:48:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234874AbiF3MtU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Jun 2022 08:49:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59214 "EHLO
+        id S235373AbiF3Nsd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Jun 2022 09:48:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234815AbiF3MtS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 08:49:18 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BABB3FD9D;
-        Thu, 30 Jun 2022 05:49:17 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25UCNHVO021290;
-        Thu, 30 Jun 2022 12:49:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=z82onWhMH2MeNyfwc0u66x2ucSnI99TbyunPSGwrsdI=;
- b=OR3KXOn+/968sEfA9DIFSLxLoFGYsrakgpKMeJCBt5ixGiN9tGnLO3ze5mr1vFarF1bU
- yw0ywSC5WI6mHtvo0Pov/P3bYXHTV9G1E/6yc/VplFzknxmqcdmKVlWETvl4WuHmiquC
- bmaVQJL4n3eATPSFPwDgO/szBXriu1E1+B2cvIqkb5stZr0fZi2RSODYyckDpDYC6CZk
- qyK8w4GksmMS73tT6hW0ybJQ490pvgUIFiebXgVEQgmOK7ss/oqO29pgMG3ly9h967Xp
- d+LsGFSaC8B+sUgUpa7nPi/AZkcbp15j1/f60RlYqfUXZFVjexohnkB8p/ktU6PKu1Mm Kw== 
+        with ESMTP id S235328AbiF3NsZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 09:48:25 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F35B3F;
+        Thu, 30 Jun 2022 06:48:12 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25UCDrGq020205;
+        Thu, 30 Jun 2022 13:48:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=VBzEleevmCzWJ6OisOj4iS/4qhw8EyiVXBFSegjwXZY=;
+ b=C/5TfTYyQWFUBzJE6bQu3ekV1jNt0ay3Nf4KYdds973Hc2OSdqMlfLOogWJk3SBrOtSJ
+ dofUaO4Kk4nhLhcCp2A4H3ycn2ZxDZmowyA63QC74Dalfa03+7nyEhojYH9Dh9XqHbuu
+ J3+3zIF0gTroTpFwU6/Y6K0buRu1SSnb+VurzkJViHrAI6LViU+v/jjHJQHp8V9YtCx0
+ DKjl+v9Bfy3A8BJEFyjY8rLN32WDjMbaOS0RUXnIu0wmThgUvk3YtgfKddjbAnXfFxKL
+ Ez5Yi43d66GVSPNkNUIZ9yrJfnK/98MolZRotMqriGTMi/TnAP8eR+YtzwdTHSJN7YgA Nw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1bsn0jqd-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1bn7jvj2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 12:49:14 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25UCav0I007066;
-        Thu, 30 Jun 2022 12:49:14 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1bsn0jpu-1
+        Thu, 30 Jun 2022 13:48:09 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25UDm8MC009284;
+        Thu, 30 Jun 2022 13:48:08 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1bn7jvh7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 12:49:14 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25UCd7Ig023320;
-        Thu, 30 Jun 2022 12:49:12 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3gwt09046w-1
+        Thu, 30 Jun 2022 13:48:08 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25UDZC4I025362;
+        Thu, 30 Jun 2022 13:48:07 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3gwt0906ba-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 12:49:11 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25UCn8QT17694980
+        Thu, 30 Jun 2022 13:48:06 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25UDm3Nh21758346
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 30 Jun 2022 12:49:08 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B52755204E;
-        Thu, 30 Jun 2022 12:49:08 +0000 (GMT)
-Received: from [9.171.69.2] (unknown [9.171.69.2])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4FFA352050;
-        Thu, 30 Jun 2022 12:49:08 +0000 (GMT)
-Message-ID: <54426ccd-8c1d-c4e5-6fec-07c77c0f3d59@linux.ibm.com>
-Date:   Thu, 30 Jun 2022 14:53:37 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v6 5/5] s390/pci: allow zPCI zbus without a function zero
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Thu, 30 Jun 2022 13:48:03 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9BA69A4053;
+        Thu, 30 Jun 2022 13:48:03 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 36CA7A4051;
+        Thu, 30 Jun 2022 13:48:03 +0000 (GMT)
+Received: from sig-9-145-189-166.de.ibm.com (unknown [9.145.189.166])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 30 Jun 2022 13:48:03 +0000 (GMT)
+Message-ID: <7741c617519b786750fbe04029fbb6295c8d6c85.camel@linux.ibm.com>
+Subject: Re: [PATCH v6 1/5] PCI: Clean up pci_scan_slot()
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Pierre Morel <pmorel@linux.ibm.com>,
         Bjorn Helgaas <bhelgaas@google.com>
 Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
         linux-kernel@vger.kernel.org
+Date:   Thu, 30 Jun 2022 15:48:02 +0200
+In-Reply-To: <17c30662-7285-0e1a-91fb-071fa2cfc733@linux.ibm.com>
 References: <20220628143100.3228092-1-schnelle@linux.ibm.com>
- <20220628143100.3228092-6-schnelle@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <20220628143100.3228092-6-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+         <20220628143100.3228092-2-schnelle@linux.ibm.com>
+         <17c30662-7285-0e1a-91fb-071fa2cfc733@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: s4_fxW1o1PXuqSjfHBSRDmuuGzXdE0vP
-X-Proofpoint-GUID: uVzBkvkvE5Cixpdp_DbF1bgW1waVTp2K
+X-Proofpoint-ORIG-GUID: zvHSVEJwUFI_CdMISzlYF1qxfVIL38A4
+X-Proofpoint-GUID: 0A6OmlGGFSs0oxaGd9aaOcnAMRZrvtTO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-30_07,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 bulkscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
- malwarescore=0 spamscore=0 impostorscore=0 adultscore=0 mlxlogscore=999
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206300050
+ definitions=2022-06-30_09,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ mlxlogscore=846 lowpriorityscore=0 suspectscore=0 priorityscore=1501
+ phishscore=0 clxscore=1015 adultscore=0 mlxscore=0 spamscore=0 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206300054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 6/28/22 16:31, Niklas Schnelle wrote:
-> Currently the zPCI code block PCI bus creation and probing of a zPCI
-> zbus unless there is a PCI function with devfn 0. This is always the
-> case for the PCI functions with hidden RID but may keep PCI functions
-> from a multi-function PCI device with RID information invisible until
-> the function 0 becomes visible. Worse as a PCI bus is necessary to even
-> present a PCI hotplug slot even that remains invisible.
+On Thu, 2022-06-30 at 14:40 +0200, Pierre Morel wrote:
 > 
-> With the probing of these so called isolated PCI functions enabled for
-> s390 in common code this restriction is no longer necessary. On network
-> cards with multiple ports and a PF per port this also allows using each
-> port on its own while still providing the physical PCI topology
-> information in the devfn needed to associate VFs with their parent PF.
+> On 6/28/22 16:30, Niklas Schnelle wrote:
+> > While determining the next PCI function is factored out of
+> > pci_scan_slot() into next_fn() the former still handles the first
+> > function as a special case. This duplicates the code from the scan loop.
+> > 
+> > Furthermore the non ARI branch of next_fn() is generally hard to
+> > understand and especially the check for multifunction devices is hidden
+> > in the handling of NULL devices for non-contiguous multifunction. It
+> > also signals that no further functions need to be scanned by returning
+> > 0 via wraparound and this is a valid function number.
+> > 
+> > Improve upon this by transforming the conditions in next_fn() to be
+> > easier to understand.
+> > 
+> > By changing next_fn() to return -ENODEV instead of 0 when there is no
+> > next function we can then handle the initial function inside the loop
+> > and deduplicate the shared handling. This also makes it more explicit
+> > that only function 0 must exist.
+> > 
+> > No functional change is intended.
+> > 
+> > Cc: Jan Kiszka <jan.kiszka@siemens.com>
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> >   drivers/pci/probe.c | 38 +++++++++++++++++++-------------------
+> >   1 file changed, 19 insertions(+), 19 deletions(-)
+> > 
+> > diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> > index 17a969942d37..b05d0ed83a24 100644
+> > --- a/drivers/pci/probe.c
+> > +++ b/drivers/pci/probe.c
+> > @@ -2579,8 +2579,7 @@ struct pci_dev *pci_scan_single_device(struct pci_bus *bus, int devfn)
+> >   }
+> >   EXPORT_SYMBOL(pci_scan_single_device);
+> >   
+> > -static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *dev,
+> > -			    unsigned int fn)
+> > +static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
+> >   {
+> >   	int pos;
+> >   	u16 cap = 0;
+> > @@ -2588,24 +2587,26 @@ static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *dev,
+> >   
+> >   	if (pci_ari_enabled(bus)) {
+> >   		if (!dev)
+> > -			return 0;
+> > +			return -ENODEV;
+> >   		pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
+> >   		if (!pos)
+> > -			return 0;
+> > +			return -ENODEV;
+> >   
+> >   		pci_read_config_word(dev, pos + PCI_ARI_CAP, &cap);
+> >   		next_fn = PCI_ARI_CAP_NFN(cap);
+> >   		if (next_fn <= fn)
+> > -			return 0;	/* protect against malformed list */
+> > +			return -ENODEV;	/* protect against malformed list */
+> >   
+> >   		return next_fn;
+> >   	}
+> >   
+> > -	/* dev may be NULL for non-contiguous multifunction devices */
+> > -	if (!dev || dev->multifunction)
+> > -		return (fn + 1) % 8;
+> > +	if (fn >= 7)
+> > +		return -ENODEV;
+> > +	/* only multifunction devices may have more functions */
+> > +	if (dev && !dev->multifunction)
+> > +		return -ENODEV;
+> >   
+> > -	return 0;
+> > +	return fn + 1;
 > 
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
->   arch/s390/pci/pci_bus.c | 82 ++++++++++-------------------------------
->   1 file changed, 20 insertions(+), 62 deletions(-)
+> No more % 8 ?
+> Even it disapear later shouldn't we keep it ?
+
+The "% 8" became unnecessary due to the explicit "if (fn >= 7)"
+above.
+The original "% 8" did what I referred to in the commit message with
+"It [the function] also signals that no further functions need to be
+scanned by returning 0 via wraparound and this is a valid function
+number.". Instead we now explicitly return -ENODEV in this case.
+
 > 
-> diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-> index 5d77acbd1c87..6a8da1b742ae 100644
-> --- a/arch/s390/pci/pci_bus.c
-> +++ b/arch/s390/pci/pci_bus.c
-> @@ -145,9 +145,6 @@ int zpci_bus_scan_bus(struct zpci_bus *zbus)
->   	struct zpci_dev *zdev;
->   	int devfn, rc, ret = 0;
->   
-> -	if (!zbus->function[0])
-> -		return 0;
-> -
->   	for (devfn = 0; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
->   		zdev = zbus->function[devfn];
->   		if (zdev && zdev->state == ZPCI_FN_STATE_CONFIGURED) {
-> @@ -184,26 +181,26 @@ void zpci_bus_scan_busses(void)
->   
->   /* zpci_bus_create_pci_bus - Create the PCI bus associated with this zbus
->    * @zbus: the zbus holding the zdevices
-> - * @f0: function 0 of the bus
-> + * @fr: PCI root function that will determine the bus's domain, and bus speeed
->    * @ops: the pci operations
->    *
-> - * Function zero is taken as a parameter as this is used to determine the
-> - * domain, multifunction property and maximum bus speed of the entire bus.
-> + * The PCI function @fr determines the domain (its UID), multifunction property
-> + * and maximum bus speed of the entire bus.
->    *
->    * Return: 0 on success, an error code otherwise
->    */
-> -static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *f0, struct pci_ops *ops)
-> +static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, struct pci_ops *ops)
->   {
->   	struct pci_bus *bus;
->   	int domain;
->   
-> -	domain = zpci_alloc_domain((u16)f0->uid);
-> +	domain = zpci_alloc_domain((u16)fr->uid);
->   	if (domain < 0)
->   		return domain;
->   
->   	zbus->domain_nr = domain;
-> -	zbus->multifunction = f0->rid_available;
-> -	zbus->max_bus_speed = f0->max_bus_speed;
-> +	zbus->multifunction = fr->rid_available;
-> +	zbus->max_bus_speed = fr->max_bus_speed;
->   
->   	/*
->   	 * Note that the zbus->resources are taken over and zbus->resources
-> @@ -303,47 +300,6 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
->   	}
->   }
->   
-> -/* zpci_bus_create_hotplug_slots - Add hotplug slot(s) for device added to bus
-> - * @zdev: the zPCI device that was newly added
-> - *
-> - * Add the hotplug slot(s) for the newly added PCI function. Normally this is
-> - * simply the slot for the function itself. If however we are adding the
-> - * function 0 on a zbus, it might be that we already registered functions on
-> - * that zbus but could not create their hotplug slots yet so add those now too.
-> - *
-> - * Return: 0 on success, an error code otherwise
-> - */
-> -static int zpci_bus_create_hotplug_slots(struct zpci_dev *zdev)
-> -{
-> -	struct zpci_bus *zbus = zdev->zbus;
-> -	int devfn, rc = 0;
-> -
-> -	rc = zpci_init_slot(zdev);
-> -	if (rc)
-> -		return rc;
-> -	zdev->has_hp_slot = 1;
-> -
-> -	if (zdev->devfn == 0 && zbus->multifunction) {
-> -		/* Now that function 0 is there we can finally create the
-> -		 * hotplug slots for those functions with devfn != 0 that have
-> -		 * been parked in zbus->function[] waiting for us to be able to
-> -		 * create the PCI bus.
-> -		 */
-> -		for  (devfn = 1; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
-> -			zdev = zbus->function[devfn];
-> -			if (zdev && !zdev->has_hp_slot) {
-> -				rc = zpci_init_slot(zdev);
-> -				if (rc)
-> -					return rc;
-> -				zdev->has_hp_slot = 1;
-> -			}
-> -		}
-> -
-> -	}
-> -
-> -	return rc;
-> -}
-> -
->   static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
->   {
->   	int rc = -EINVAL;
-> @@ -352,21 +308,19 @@ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
->   		pr_err("devfn %04x is already assigned\n", zdev->devfn);
->   		return rc;
->   	}
-> +
-
-Unnecessary CR
-
->   	zdev->zbus = zbus;
->   	zbus->function[zdev->devfn] = zdev;
->   	zpci_nb_devices++;
->   
-> -	if (zbus->bus) {
-> -		if (zbus->multifunction && !zdev->rid_available) {
-> -			WARN_ONCE(1, "rid_available not set for multifunction\n");
-> -			goto error;
-> -		}
-> -
-> -		zpci_bus_create_hotplug_slots(zdev);
-> -	} else {
-> -		/* Hotplug slot will be created once function 0 appears */
-> -		zbus->multifunction = 1;
-> +	if (zbus->multifunction && !zdev->rid_available) {
-> +		WARN_ONCE(1, "rid_available not set for multifunction\n");
-> +		goto error;
->   	}
-> +	rc = zpci_init_slot(zdev);
-> +	if (rc)
-> +		goto error;
-> +	zdev->has_hp_slot = 1;
->   
->   	return 0;
->   
-> @@ -400,7 +354,11 @@ int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
->   			return -ENOMEM;
->   	}
->   
-> -	if (zdev->devfn == 0) {
-> +	if (!zbus->bus) {
-> +		/* The UID of the first PCI function registered with a zpci_bus
-> +		 * is used as the domain number for that bus. Currently there
-> +		 * is exactly one zpci_bus per domain.
-> +		 */
->   		rc = zpci_bus_create_pci_bus(zbus, zdev, ops);
->   		if (rc)
->   			goto error;
+> 
+> 
+> >   }
+> >   
+> >   static int only_one_child(struct pci_bus *bus)
+> > @@ -2643,26 +2644,25 @@ static int only_one_child(struct pci_bus *bus)
+> >    */
+> >   int pci_scan_slot(struct pci_bus *bus, int devfn)
+> >   {
+> > -	unsigned int fn, nr = 0;
+> >   	struct pci_dev *dev;
+> > +	int fn = 0, nr = 0;
+> >   
+> >   	if (only_one_child(bus) && (devfn > 0))
+> >   		return 0; /* Already scanned the entire slot */
+> >   
+> > -	dev = pci_scan_single_device(bus, devfn);
+> > -	if (!dev)
+> > -		return 0;
+> > -	if (!pci_dev_is_added(dev))
+> > -		nr++;
+> > -
+> > -	for (fn = next_fn(bus, dev, 0); fn > 0; fn = next_fn(bus, dev, fn)) {
+> > +	do {
+> >   		dev = pci_scan_single_device(bus, devfn + fn);
+> >   		if (dev) {
+> >   			if (!pci_dev_is_added(dev))
+> >   				nr++;
+> > -			dev->multifunction = 1;
+> > +			if (fn > 0)
+> > +				dev->multifunction = 1;
+> > +		} else if (fn == 0) {
+> > +			/* function 0 is required */
+> > +			break;
+> >   		}
+> > -	}
+> > +		fn = next_fn(bus, dev, fn);
+> > +	} while (fn >= 0);
+> >   
+> >   	/* Only one slot has PCIe device */
+> >   	if (bus->self && nr)
+> > 
+> 
+> Otherwise LGTM
 > 
 
+Thanks for taking a look!
 
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
