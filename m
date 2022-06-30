@@ -2,74 +2,73 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E45C1C43334
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 17:49:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3F40C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 17:56:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235857AbiF3Rty (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Jun 2022 13:49:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42384 "EHLO
+        id S235357AbiF3R4M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Jun 2022 13:56:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235426AbiF3Rtx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 13:49:53 -0400
+        with ESMTP id S230363AbiF3R4K (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 13:56:10 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CEC59205FD
-        for <linux-s390@vger.kernel.org>; Thu, 30 Jun 2022 10:49:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 856DD37AAE
+        for <linux-s390@vger.kernel.org>; Thu, 30 Jun 2022 10:56:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656611390;
+        s=mimecast20190719; t=1656611768;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=YX1bR12sGvuZbq9kc/Zna9+NJHM/jYjFY2F171r8rlg=;
-        b=L7mAx/RZ+XYMbPFN/Jy0xRINtK/d37o0HT8fDgN22qhFd68eESCa1rkthm37aiW7/1SMUm
-        IO78tSjN83Z079W/xmlMNhQ+006wdKGanvyyElZqoJwGKM4ysT4lWomcAAqCk40fEQJRMu
-        iVNiB4Sxq+eSST78+xH39MM69WjxjaY=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=3hutr3rlRIoBI0yHWIgB4iXy7e3e90UBk0hpHVegM/w=;
+        b=XbTYmF+pAx190tswN6jMBMPV9pAAA1kWEf/6OSTbs5NAtcCGgH13DD7buMGxlJhcptOII7
+        7PX/WD9P9SbNsCHtCUq3pMbaRKJYfqXDf9tZIg47wclaFPpNJk7h5AI29WZ8gxSwNyU9hx
+        eqqYzL68iPBLN2Lg6jPzgNNTYfaVY1w=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-121-IsKmLYhHMz6YtcigJxRtDg-1; Thu, 30 Jun 2022 13:49:49 -0400
-X-MC-Unique: IsKmLYhHMz6YtcigJxRtDg-1
-Received: by mail-wm1-f71.google.com with SMTP id j19-20020a05600c191300b003a048196712so1820660wmq.4
-        for <linux-s390@vger.kernel.org>; Thu, 30 Jun 2022 10:49:49 -0700 (PDT)
+ us-mta-593-7Addm35LPwOiaxf_HwRLYg-1; Thu, 30 Jun 2022 13:56:01 -0400
+X-MC-Unique: 7Addm35LPwOiaxf_HwRLYg-1
+Received: by mail-wm1-f69.google.com with SMTP id n18-20020a05600c501200b003a050cc39a0so4399012wmr.7
+        for <linux-s390@vger.kernel.org>; Thu, 30 Jun 2022 10:56:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:subject:in-reply-to
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=YX1bR12sGvuZbq9kc/Zna9+NJHM/jYjFY2F171r8rlg=;
-        b=JQt3SrxpKUvB5GZe+Xm3NRUzONs8GUVWVL8PsdS9lre3q/x8+9Kie+GJYoND+//5Va
-         skNQw79SB5wEhDy0nrIRDA13yjPYQ1l+Sj5QBbxZxPnhR3CMGnbe4YyuWBtA6zGLCup6
-         v3hr7N7jHbrt+A6vCecdi+oeIHyMgU8rQEt0Dz56MVQbiGcRtVQYL1VTHAKMr4W1VtKO
-         okuxaUJgtdv+RIQEdSs77bG9lOZXXgr1alil2/lErXrKTQTFhFVG+oMBZnnzZI1/gA7Z
-         Lqenl+TUh+fDlb5TQ0B7CGQcdN4aT7u0xjlqahQ0E/lXWnWPjOtR3mTfuM0VLD2VmlS1
-         fRTQ==
-X-Gm-Message-State: AJIora/mgYDyP/97pWlxNLpSfld+zcPCefUpY7rYaoA7y4xR/MEe2JYO
-        wwAXyhqmQzjsqBWODzC7ZP6IqQhDBJp10qsFwVr7txlbMBaI04qe86HfCTF2bY1twcPdKGaW7w2
-        S8W9iqjIFfDlpbX5RyODIcA==
-X-Received: by 2002:adf:dd41:0:b0:21b:8201:4b66 with SMTP id u1-20020adfdd41000000b0021b82014b66mr9327802wrm.706.1656611388771;
-        Thu, 30 Jun 2022 10:49:48 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uWjW9eRkAyab6fCKtroJUXnnMkhiwou47+TLsOjeMsrON96jn2Br3Na/FWb8Fr3dppv3zjvQ==
-X-Received: by 2002:adf:dd41:0:b0:21b:8201:4b66 with SMTP id u1-20020adfdd41000000b0021b82014b66mr9327786wrm.706.1656611388401;
-        Thu, 30 Jun 2022 10:49:48 -0700 (PDT)
+        bh=3hutr3rlRIoBI0yHWIgB4iXy7e3e90UBk0hpHVegM/w=;
+        b=6OWqvqlpn8IMGy91FAxo7o+MfmV8SBeQCIj9JXRSjEQM1FU/EQft/xfImiOt2O/d/d
+         miPO8yM9oHyiOLcSJaTXcR/9XfJQ0QV8HDsypb4L3EXXVGfUD3tsDmGDD4GsJzDKBTda
+         0EGI6SjmfAwyb5f7JVgvHuEbKm7n6l5tN+DMl0Lu0//uaXf5ZwmJ03QRoyQluwP1Ewwk
+         AHxOdchX9WXbgo9fAw8V4DTccJYoKDFE9cI+NTSdMWwuGW7qBqfgISd1HaGzIDZFcsf4
+         ooys2KQoh/KdP8+KxKw0TJc7bV/gL0Vw7lRX1+eBhWOx753kRY3EoPlVruwTP37D+bh7
+         zFsQ==
+X-Gm-Message-State: AJIora+syVu5I7xapVEEFVGxLRzd8ES2piyI/b+WK425U3IntQSXQHpi
+        83kRVxQ27EUV0oq9keGnE0M4dMML4bWLqafywRYT0XWIrgCAiIAgrbu3Ccwp3Vh8PicAMswY+g4
+        BoJbm3Ud7MmsXrBKGTH7JWg==
+X-Received: by 2002:a05:6000:88:b0:21d:2d0d:e1e4 with SMTP id m8-20020a056000008800b0021d2d0de1e4mr8410479wrx.525.1656611760466;
+        Thu, 30 Jun 2022 10:56:00 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vpQnXc+h+ne+5eOxK2vvakOSnNeImuvCM3KprOYxuahjkKyMa8chy2G0Xz2+2m9A4k1eV01Q==
+X-Received: by 2002:a05:6000:88:b0:21d:2d0d:e1e4 with SMTP id m8-20020a056000008800b0021d2d0de1e4mr8410452wrx.525.1656611760139;
+        Thu, 30 Jun 2022 10:56:00 -0700 (PDT)
 Received: from [192.168.0.5] (ip-109-43-179-66.web.vodafone.de. [109.43.179.66])
-        by smtp.gmail.com with ESMTPSA id p28-20020a1c545c000000b003a02de5de80sm3400129wmi.4.2022.06.30.10.49.46
+        by smtp.gmail.com with ESMTPSA id m12-20020adfe0cc000000b0021d4155cd6fsm1328964wri.53.2022.06.30.10.55.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Jun 2022 10:49:46 -0700 (PDT)
-Message-ID: <60f5b2f9-7c97-865c-075b-cb690bdcb082@redhat.com>
-Date:   Thu, 30 Jun 2022 19:49:45 +0200
+        Thu, 30 Jun 2022 10:55:59 -0700 (PDT)
+Message-ID: <1dd3c230-da8e-023d-59b4-8c455c4a4836@redhat.com>
+Date:   Thu, 30 Jun 2022 19:55:58 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.10.0
+Subject: Re: [kvm-unit-tests PATCH v1 2/3] s390x: add extint loop test
 Content-Language: en-US
 To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
 References: <20220630113059.229221-1-nrb@linux.ibm.com>
- <20220630113059.229221-2-nrb@linux.ibm.com>
+ <20220630113059.229221-3-nrb@linux.ibm.com>
 From:   Thomas Huth <thuth@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH v1 1/3] runtime: add support for panic
- tests
-In-Reply-To: <20220630113059.229221-2-nrb@linux.ibm.com>
+In-Reply-To: <20220630113059.229221-3-nrb@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -77,103 +76,20 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 30/06/2022 13.30, Nico Boehr wrote:
-> QEMU suports a guest state "guest-panicked" which indicates something in
-
-s/suports/supports/
-
-> the guest went wrong, for example on s390x, when an external interrupt
-> loop was triggered.
+> The CPU timer interrupt stays pending as long as the CPU timer value is
+> negative. This can lead to interruption loops when the ext_new_psw mask
+> has external interrupts enabled.
 > 
-> Since the guest does not continue to run when it is in the
-> guest-panicked state, it is currently impossible to write panicking
-> tests in kvm-unit-tests. Support from the runtime is needed to check
-> that the guest enters the guest-panicked state.
-> 
-> Similar to migration tests, add a new group panic. Tests in this
-> group must enter the guest-panicked state to succeed.
-> 
-> The runtime will spawn a QEMU instance, connect to the QMP and listen
-> for events. To parse the QMP protocol, jq[1] is used. Same as with
-> netcat in the migration tests, panic tests won't run if jq is not
-> installed.
-> 
-> The guest is created in the stopped state and only continued when
-> connection to the QMP was successful. This ensures no events are missed
-> between QEMU start and the connect to the QMP.
-> 
-> [1] https://stedolan.github.io/jq/
+> QEMU is able to detect this situation and panic the guest, so add a test
+> for it.
 > 
 > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 > ---
->   s390x/run             |  2 +-
->   scripts/arch-run.bash | 47 +++++++++++++++++++++++++++++++++++++++++++
->   scripts/runtime.bash  |  3 +++
->   3 files changed, 51 insertions(+), 1 deletion(-)
-> 
-> diff --git a/s390x/run b/s390x/run
-> index 24138f6803be..f1111dbdbe62 100755
-> --- a/s390x/run
-> +++ b/s390x/run
-> @@ -30,7 +30,7 @@ M+=",accel=$ACCEL"
->   command="$qemu -nodefaults -nographic $M"
->   command+=" -chardev stdio,id=con0 -device sclpconsole,chardev=con0"
->   command+=" -kernel"
-> -command="$(migration_cmd) $(timeout_cmd) $command"
-> +command="$(panic_cmd) $(migration_cmd) $(timeout_cmd) $command"
->   
->   # We return the exit code via stdout, not via the QEMU return code
->   run_qemu_status $command "$@"
-> diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-> index 0dfaf017db0a..5663a1ddb09e 100644
-> --- a/scripts/arch-run.bash
-> +++ b/scripts/arch-run.bash
-> @@ -104,6 +104,12 @@ qmp ()
->   	echo '{ "execute": "qmp_capabilities" }{ "execute":' "$2" '}' | ncat -U $1
->   }
->   
-> +qmp_events ()
-> +{
-> +	while ! test -S "$1"; do sleep 0.1; done
-> +	echo '{ "execute": "qmp_capabilities" }{ "execute": "cont" }' | ncat --no-shutdown -U $1 | jq -c 'select(has("event"))'
-
-Break the long line into two or three?
-
-> +}
-> +
->   run_migration ()
->   {
->   	if ! command -v ncat >/dev/null 2>&1; then
-> @@ -164,6 +170,40 @@ run_migration ()
->   	return $ret
->   }
->   
-> +run_panic ()
-> +{
-> +	if ! command -v ncat >/dev/null 2>&1; then
-> +		echo "${FUNCNAME[0]} needs ncat (netcat)" >&2
-> +		return 77
-> +	fi
-> +
-> +	if ! command -v jq >/dev/null 2>&1; then
-> +		echo "${FUNCNAME[0]} needs jq" >&2
-> +		return 77
-> +	fi
-> +
-> +	qmp=$(mktemp -u -t panic-qmp.XXXXXXXXXX)
-> +
-> +	trap 'kill 0; exit 2' INT TERM
-> +	trap 'rm -f ${qmp}' RETURN EXIT
-> +
-> +	# start VM stopped so we don't miss any events
-> +	eval "$@" -chardev socket,id=mon1,path=${qmp},server=on,wait=off \
-> +		-mon chardev=mon1,mode=control -S &
-> +
-> +	panic_event_count=$(qmp_events ${qmp} | jq -c 'select(.event == "GUEST_PANICKED")' | wc -l)
-> +	if [ $panic_event_count -lt 1 ]; then
-
-Maybe put double-quotes around $panic_event_count , just to be sure?
-
-With the nits fixed:
+>   s390x/Makefile      |  1 +
+>   s390x/extint-loop.c | 64 +++++++++++++++++++++++++++++++++++++++++++++
+>   s390x/unittests.cfg |  4 +++
+>   3 files changed, 69 insertions(+)
+>   create mode 100644 s390x/extint-loop.c
 
 Reviewed-by: Thomas Huth <thuth@redhat.com>
 
