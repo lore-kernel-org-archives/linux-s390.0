@@ -2,139 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D560C43334
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 20:37:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 947A4CCA47F
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 20:37:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237241AbiF3UhI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Jun 2022 16:37:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59306 "EHLO
+        id S237262AbiF3UhK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Jun 2022 16:37:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236312AbiF3UhA (ORCPT
+        with ESMTP id S237007AbiF3UhA (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 16:37:00 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A73148805;
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9920F48812;
         Thu, 30 Jun 2022 13:36:58 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25UKHZG0007399;
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25UK2xPB003314;
         Thu, 30 Jun 2022 20:36:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=vOimfbnASql1J9NDGudwfphbD0E5SYcVc+dLLZy6uqI=;
- b=fiK+ENKFJDiDVqoAkxnGf5CLkNQ0iI9YBX8Jn7z0aJ3IoTcuZD6QzE5cXH9fNU1hnCYa
- ewi8fcpu5YmwiYQkJxpNSsWV9+OQcH+OoX39p3PI8Up1yqPNf63iJYgP4gSmWfJwwA40
- wWktJnhaDr8bOiLhmHtn/DXW/Iv0rOjhIj4z7sInDvnK/fGEBJYenCd6xP5T/b+8CWSg
- m5Z1WDm6Wa0nJNhOBmo1VnaZDcVhjK4VVPhndKdOOHrVORvfnSmg9sZypimuWkem3vpl
- ZzChUNZsiQnhghlO8Sxx8UZgnWo6pIagUsiFZw42is7pQAO3CgmuIaiZ/xJQPpsIb1wm Iw== 
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=XVCFn3mz+ghgpMJyFPOty9LjaDNRv1CT8zuNp4iVUi8=;
+ b=sFcKNoxvntN98euhtVB80c0ZBYjrHCIfmV+DgzfSVV0cPP0BtvbHbDG/xEj+kotmmYNc
+ NEwzdMnjnneflld41QioaowRR3qtvrglrZZVuuInLUjFmysgb3vTRfaQoOQW5bzFRfJv
+ FlNAZ8CmuhIEHyRrWnTG0M+St2WqfCFr+UqaUDOpRYJL4fNhXCEISnzAqkzj5p5gwiv1
+ 1lluqJdbaKxCbRPnxFx0Qxo8yTvZbakgoid0ltbP/1m2jv5gopnfHG873LMe44+sGpC8
+ aA/vWZlCvnJ7AiSXYJBadR2pj9QywrRCsYbRGH8IFduN+HgvXMzCbauYLtI5ZCTP/z0k Tg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1jr30f41-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 20:36:55 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25UKJQFX011126;
-        Thu, 30 Jun 2022 20:36:54 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1jr30f38-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1jhbs1w6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 30 Jun 2022 20:36:54 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25UKLwre009730;
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25UKKPd7021455;
+        Thu, 30 Jun 2022 20:36:54 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1jhbs1vj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Jun 2022 20:36:54 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25UKKe0q032745;
         Thu, 30 Jun 2022 20:36:52 GMT
 Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3gwsmj8q1v-1
+        by ppma02fra.de.ibm.com with ESMTP id 3gwt08xg0u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 30 Jun 2022 20:36:52 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25UKanUL16253328
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25UKanmn20054388
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Thu, 30 Jun 2022 20:36:49 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0FEBEA4055;
+        by IMSVA (Postfix) with ESMTP id 0C066A4051;
         Thu, 30 Jun 2022 20:36:49 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F247CA4053;
+        by IMSVA (Postfix) with ESMTP id ED68EA404D;
         Thu, 30 Jun 2022 20:36:48 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
         Thu, 30 Jun 2022 20:36:48 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id F09B4E0291; Thu, 30 Jun 2022 22:36:48 +0200 (CEST)
+        id E9885E0261; Thu, 30 Jun 2022 22:36:48 +0200 (CEST)
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>
 Cc:     Jason Gunthorpe <jgg@nvidia.com>,
         Alex Williamson <alex.williamson@redhat.com>,
         Cornelia Huck <cohuck@redhat.com>,
         Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v3 03/11] vfio/ccw: Do not change FSM state in subchannel event
-Date:   Thu, 30 Jun 2022 22:36:39 +0200
-Message-Id: <20220630203647.2529815-4-farman@linux.ibm.com>
+        linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>
+Subject: [PATCH v3 00/11] s390/vfio-ccw rework
+Date:   Thu, 30 Jun 2022 22:36:36 +0200
+Message-Id: <20220630203647.2529815-1-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220630203647.2529815-1-farman@linux.ibm.com>
-References: <20220630203647.2529815-1-farman@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bzg1LmAamkXu8fQJJCgnJdwGg8wQRoEj
-X-Proofpoint-ORIG-GUID: CCdVZSYnISs3KsciWr8D9AJdsU9dq04S
+X-Proofpoint-ORIG-GUID: uf2IQdHBYVlrLsaxa8MOuXOIo377WaCt
+X-Proofpoint-GUID: mFJ43KvhO8jT46DxQTTcbHOxhLB8MRv7
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-06-30_14,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=597 mlxscore=0
- lowpriorityscore=0 bulkscore=0 adultscore=0 malwarescore=0 phishscore=0
- impostorscore=0 priorityscore=1501 suspectscore=0 clxscore=1015
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 malwarescore=0 phishscore=0 mlxlogscore=742 spamscore=0
+ bulkscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0 suspectscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2206300077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The routine vfio_ccw_sch_event() is tasked with handling subchannel events,
-specifically machine checks, on behalf of vfio-ccw. It correctly calls
-cio_update_schib(), and if that fails (meaning the subchannel is gone)
-it makes an FSM event call to mark the subchannel Not Operational.
+Here's an updated pass through the first chunk of vfio-ccw rework.
 
-If that worked, however, then it decides that if the FSM state was already
-Not Operational (implying the subchannel just came back), then it should
-simply change the FSM to partially- or fully-open.
+As with v2, this is all internal to vfio-ccw, with the exception of
+the removal of mdev_uuid from include/linux/mdev.h in patch 1.
 
-Remove this trickery, since a subchannel returning will require more
-probing than simply "oh all is well again" to ensure it works correctly.
+There is one conflict with the vfio-next branch [2], on patch 6.
 
-Fixes: bbe37e4cb8970 ("vfio: ccw: introduce a finite state machine")
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_drv.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+The remainder of the work that Jason Gunthorpe originally started [1]
+in this space remains for a future day.
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 179eb614fa5b..279ad2161f17 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -301,19 +301,11 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	if (work_pending(&sch->todo_work))
- 		goto out_unlock;
- 
--	if (cio_update_schib(sch)) {
--		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
--		rc = 0;
--		goto out_unlock;
--	}
--
--	private = dev_get_drvdata(&sch->dev);
--	if (private->state == VFIO_CCW_STATE_NOT_OPER) {
--		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
--				 VFIO_CCW_STATE_STANDBY;
--	}
- 	rc = 0;
- 
-+	if (cio_update_schib(sch))
-+		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
-+
- out_unlock:
- 	spin_unlock_irqrestore(sch->lock, flags);
- 
+v2-v3:
+ - [KW, MR, JG] Added r-b's (Thank You!)
+ - Patch 7 (new):
+   - [MR] Add better debug to fsm_notoper
+ - Patch 8:
+   - [MR] Call fsm_notoper for the OPEN event from STANDBY state
+   - [EF] Drop FSM state=STANDBY in vfio_ccw_sch_probe()
+     (it is handled in FSM, and was dropped by patch 10)
+ - Patch 9:
+   - [MR] Call fsm_close for the CLOSE event from STANDBY state
+v2: https://lore.kernel.org/r/20220615203318.3830778-1-farman@linux.ibm.com/
+v1: https://lore.kernel.org/r/20220602171948.2790690-1-farman@linux.ibm.com/
+
+Footnotes:
+[1] https://lore.kernel.org/r/0-v3-57c1502c62fd+2190-ccw_mdev_jgg@nvidia.com/
+
+Cc: Kirti Wankhede <kwankhede@nvidia.com>
+
+Eric Farman (10):
+  vfio/ccw: Fix FSM state if mdev probe fails
+  vfio/ccw: Do not change FSM state in subchannel event
+  vfio/ccw: Remove private->mdev
+  vfio/ccw: Pass enum to FSM event jumptable
+  vfio/ccw: Flatten MDEV device (un)register
+  vfio/ccw: Update trace data for not operational event
+  vfio/ccw: Create an OPEN FSM Event
+  vfio/ccw: Create a CLOSE FSM event
+  vfio/ccw: Refactor vfio_ccw_mdev_reset
+  vfio/ccw: Move FSM open/close to MDEV open/close
+
+Michael Kawano (1):
+  vfio/ccw: Remove UUID from s390 debug log
+
+ drivers/s390/cio/vfio_ccw_async.c   |  1 -
+ drivers/s390/cio/vfio_ccw_drv.c     | 59 +++++-------------
+ drivers/s390/cio/vfio_ccw_fsm.c     | 97 ++++++++++++++++++++++++-----
+ drivers/s390/cio/vfio_ccw_ops.c     | 77 +++++++----------------
+ drivers/s390/cio/vfio_ccw_private.h |  9 +--
+ include/linux/mdev.h                |  5 --
+ 6 files changed, 123 insertions(+), 125 deletions(-)
+
 -- 
 2.32.0
 
