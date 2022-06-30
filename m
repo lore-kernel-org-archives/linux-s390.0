@@ -2,130 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E61C6C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 16:24:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3DDDC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 17:11:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235718AbiF3QYT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Jun 2022 12:24:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33282 "EHLO
+        id S234841AbiF3RLT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Jun 2022 13:11:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229756AbiF3QYS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 12:24:18 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 131763152A;
-        Thu, 30 Jun 2022 09:24:14 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25UFrHBn016677;
-        Thu, 30 Jun 2022 16:24:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : reply-to : subject : to : cc : references : from :
- in-reply-to : content-type : content-transfer-encoding; s=pp1;
- bh=VsXVub7i69OlSmt75b8fF6Rqo68g9H4j1XIDXGV7yoU=;
- b=JN/6JAfGGaa4KrUM1TuAJWE26nr9KGqWfuuhTdmKa5zXfi0hIMUUed+sba9QSNDqP8Hc
- 3YJPMaBlHEGDRbn8MMRJdRBv0v2eFFNYIfT6G1LXmnCAyMP5zEGkOSVh8wRZ5dxzhJ2V
- xYSksb5jKjaCP0x6kWiZHBsnZbS4gQegki7+8JyOJ5n85NCxKKkGfDEjn0Xx5doAs9Zv
- ivppMSpvv/r0E2rNaFJrvLqUwEQydhArEKcHqIW4rIEjSeqPQ3kf/tehYMwRdIA0IVQ7
- hzZQn+iu4ByGyTBgxTXar1B6XmRWYfzP9JNbfEN3lle2Pi3ru1Q5uA2/s41Evz1ywHUE ow== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1ev590u3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 16:24:05 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25UFrv7a018774;
-        Thu, 30 Jun 2022 16:24:05 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1ev590tf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 16:24:05 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25UGMCmg030961;
-        Thu, 30 Jun 2022 16:24:04 GMT
-Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
-        by ppma03dal.us.ibm.com with ESMTP id 3gwt0b36dk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 16:24:04 +0000
-Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
-        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25UGO2UL27525502
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 30 Jun 2022 16:24:02 GMT
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B7426BE051;
-        Thu, 30 Jun 2022 16:24:02 +0000 (GMT)
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8791CBE04F;
-        Thu, 30 Jun 2022 16:24:01 +0000 (GMT)
-Received: from [9.160.92.179] (unknown [9.160.92.179])
-        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu, 30 Jun 2022 16:24:01 +0000 (GMT)
-Message-ID: <17a7c3f9-4566-899e-ed29-4e4c0d25ad7f@linux.ibm.com>
-Date:   Thu, 30 Jun 2022 12:24:01 -0400
+        with ESMTP id S235411AbiF3RLR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 13:11:17 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0D0073EF30
+        for <linux-s390@vger.kernel.org>; Thu, 30 Jun 2022 10:11:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1656609074;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JUOdzSO2oUbBwTqVsnQybwkshzKjPN1FQaK1nqX25to=;
+        b=Iyqp/Hl9xBEgsitO36OnkNKNArrNvPinAEqNhgafXFZaI8FJJ6ujegGOuLhP1eZSh0d1uz
+        a8XJOuAazL8Q62Tv3rG338V8K1v56H6JvMx5ACOQNTmxz8rZGb2DmMX/4KPL4VhfDdY3/o
+        g+VHD/onmX9qAy141Duf7GVbXqq0KbQ=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-307-Ho44U6HkMr6XZIaXBLFZZw-1; Thu, 30 Jun 2022 13:11:12 -0400
+X-MC-Unique: Ho44U6HkMr6XZIaXBLFZZw-1
+Received: by mail-wm1-f72.google.com with SMTP id p22-20020a05600c359600b0039c7b23a1c7so1689238wmq.2
+        for <linux-s390@vger.kernel.org>; Thu, 30 Jun 2022 10:11:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=JUOdzSO2oUbBwTqVsnQybwkshzKjPN1FQaK1nqX25to=;
+        b=2EXi/ofPeVNpaQBxMn+aYjg52mEKrFgC3jqwWS9oVBJTUe1MQfIOz35WAsWM39adIs
+         iW2sMWQVKxyAkTjcVBsg96fcYzEt5k/rduF2wuH9nPj4gGiRMY/2nMukw0R8CkWCNJ47
+         2kBGbtm1haXyikzb70tjXgR1nVJ0+Z70ziUDNOCwfmyYzm3Mv+qXO8BGGj3hcQckxIQQ
+         ymXfN3R7Eewt8oYiwXNJoywz//t9yumx+qsfuNQlHa5is18CegNqRt7P8G+HHchNaRfK
+         8Gpfv3gDhhYv/j2RS1ZoRAE3tw1yFr1y93LHLSWqhG5xtf+4f27NRUWZbFkgR7OY7GBg
+         FnPQ==
+X-Gm-Message-State: AJIora9L0LT3NAtwwk+iMnBc/WQTYUrI5uiZoOvSpYmjdecQW8C1rGZb
+        lDamhTf/rf1fGCYUTUeJMj3+O2hMU9ndZ9apK23Cr2kz8A5E9a4CjvLc3aiuBIfTO/s4STzCD7G
+        dWMfew7dAbvVhX4DWVJqNeQ==
+X-Received: by 2002:a05:600c:1d96:b0:3a0:30b6:bb1a with SMTP id p22-20020a05600c1d9600b003a030b6bb1amr12787108wms.93.1656609070902;
+        Thu, 30 Jun 2022 10:11:10 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1s10GRhnhicYja7eIwUqagyOtGj985hy18rMk27XChhm0UIb5PrlgWH3C/QnwSYivs8HJgcbQ==
+X-Received: by 2002:a05:600c:1d96:b0:3a0:30b6:bb1a with SMTP id p22-20020a05600c1d9600b003a030b6bb1amr12787092wms.93.1656609070585;
+        Thu, 30 Jun 2022 10:11:10 -0700 (PDT)
+Received: from [192.168.0.5] (ip-109-43-179-66.web.vodafone.de. [109.43.179.66])
+        by smtp.gmail.com with ESMTPSA id m9-20020a056000024900b0020c5253d907sm3704470wrz.83.2022.06.30.10.11.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Jun 2022 10:11:09 -0700 (PDT)
+Message-ID: <c58d2ce5-66c0-2072-5788-9463a6003888@redhat.com>
+Date:   Thu, 30 Jun 2022 19:11:08 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Reply-To: jjherne@linux.ibm.com
-Subject: Re: [PATCH 08/13] vfio/mdev: remove mtype_get_parent_dev
+ Thunderbird/91.10.0
+Subject: Re: [kvm-unit-tests PATCH v1 3/3] s390x: add pgm spec interrupt loop
+ test
 Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        Kevin Tian <kevin.tian@intel.com>
-References: <20220628051435.695540-1-hch@lst.de>
- <20220628051435.695540-9-hch@lst.de>
-From:   "Jason J. Herne" <jjherne@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <20220628051435.695540-9-hch@lst.de>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
+References: <20220630113059.229221-1-nrb@linux.ibm.com>
+ <20220630113059.229221-4-nrb@linux.ibm.com>
+ <dd270d92-a5dc-8a75-0edc-e9fdbb254cc9@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <dd270d92-a5dc-8a75-0edc-e9fdbb254cc9@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ySV7g_ZkRnY77ocr37erDuKsnPOV1GRq
-X-Proofpoint-ORIG-GUID: cuwRpwHpbp7COLTm-QA_wxCYQf8N7Ocq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-06-30_11,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 clxscore=1011 lowpriorityscore=0 adultscore=0 spamscore=0
- impostorscore=0 phishscore=0 bulkscore=0 malwarescore=0 mlxscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206300064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/28/22 01:14, Christoph Hellwig wrote:
-> Just open code the dereferences in the only user.
+On 30/06/2022 16.38, Janis Schoetterl-Glausch wrote:
+> On 6/30/22 13:30, Nico Boehr wrote:
+>> An invalid PSW causes a program interrupt. When an invalid PSW is
+>> introduced in the pgm_new_psw, an interrupt loop occurs as soon as a
+>> program interrupt is caused.
+>>
+>> QEMU should detect that and panick the guest, hence add a test for it.
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
-> ---
->   drivers/s390/cio/vfio_ccw_ops.c |  3 +--
->   drivers/vfio/mdev/mdev_core.c   | 10 ----------
->   include/linux/mdev.h            |  2 --
->   3 files changed, 1 insertion(+), 14 deletions(-)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index 25b8d42a522ac..43d53736dfe3c 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -88,8 +88,7 @@ static ssize_t available_instances_show(struct mdev_type *mtype,
->   					struct mdev_type_attribute *attr,
->   					char *buf)
->   {
-> -	struct vfio_ccw_private *private =
-> -		dev_get_drvdata(mtype_get_parent_dev(mtype));
-> +	struct vfio_ccw_private *private = dev_get_drvdata(mtype->parent->dev);
->   
->   	return sprintf(buf, "%d\n", atomic_read(&private->avail));
-Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
+> Why is that, after all in LPAR it would just spin, right?
 
--- 
--- Jason J. Herne (jjherne@linux.ibm.com)
+Not sure what the LPAR is doing, but the guest is certainly completely 
+unusable, so a panic event is the right thing to do here for QEMU.
+
+> Also, panicK.
+> How do you assert that the guest doesn't spin forever, is there a timeout?
+
+I agree, it would be good to have a "timeout" set in the unittests.cfg for 
+this test here (some few seconds should be enough).
+
+  Thomas
+
