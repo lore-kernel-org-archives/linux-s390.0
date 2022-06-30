@@ -2,253 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22660C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 06:40:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64642C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 08:22:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232234AbiF3GkX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Jun 2022 02:40:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
+        id S231852AbiF3IWh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Jun 2022 04:22:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232577AbiF3GkT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 02:40:19 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6146D2F000
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jun 2022 23:40:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656571217;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=jAHrr0+GxDfej1qVCdn75eKSnjxER8aot4sqAySqnyU=;
-        b=E1+tDCdJXYf4BieRl7LEUwZg2bF4UzzGJTAUvfOMqe1LtR2LelLMd283/kiqBN7oWiWFlZ
-        +xDD54z5OIOwD2I3lK9iJYfvyEcJYcXCCfz0SNeUogZVNOoMuMGTulloRwZcK6Ip4+4NtD
-        pkiTrNGTJbJhgTohzH33zUNKJ1FqMRc=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-443-Ok9fF_55PMCajn5CjwdZZg-1; Thu, 30 Jun 2022 02:40:15 -0400
-X-MC-Unique: Ok9fF_55PMCajn5CjwdZZg-1
-Received: by mail-lj1-f198.google.com with SMTP id i23-20020a2e9417000000b0025a739223d1so2838767ljh.4
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jun 2022 23:40:15 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jAHrr0+GxDfej1qVCdn75eKSnjxER8aot4sqAySqnyU=;
-        b=w8iPTUQFArEccO0/KgVjckcDwpwPAItCviVwHnNaYgTII5H6HVL1aVTdmfHb29K/Sq
-         pDM+VbUJXfVq9aAZgW9tuq74iJj1kL6aNU0ZCsoytZajQZBzjZDg0uNmggUH/PygCouz
-         W7qJlso/qfDH8Gmuln9yWH1V9zG7G8BIGqGF5w0PqMZC7YpCph0LdzQsWy+1gQrVT/3b
-         WSiSLgtUZ6tmhpHF2Agz9/GTg1zjmMBR0WmwjM6xSBZt3Dw2W5Obo4KmAQcZXEySbonn
-         KgBde6nef6mRc8CBLaqNI8lEeH0h9tFLUJVbwnGsuMMJVDRgL0eBKExmu2rLeGJFM+rf
-         OAHA==
-X-Gm-Message-State: AJIora8m2S+fXQ8qs+HALgtTK5YEF3r6MQN6UCxfUtPShYD7JG/BhtOr
-        Sx8Ft0M1tS4KLZFiFC3PWzue7RxC8a7r9l2BU1uc0xsbAizejYMXuurNx7sTIXd8WmFNIMt8JOI
-        1GpM4TxrguOGZ3iK8Ke5DbTxUY4H4Aa6vBXufCA==
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id bp13-20020a056512158d00b0047f718c28b5mr4753536lfb.397.1656571213820;
-        Wed, 29 Jun 2022 23:40:13 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tAA0XU6ZzbOAb5pqi3g/cuvZsx0P7N9Yp/LWOT+IpPh+uRjEGCtW9glE4GIh09HeOKg0ELev5VqROwEDkQfbM=
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
- bp13-20020a056512158d00b0047f718c28b5mr4753513lfb.397.1656571213588; Wed, 29
- Jun 2022 23:40:13 -0700 (PDT)
+        with ESMTP id S233644AbiF3IWT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 04:22:19 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2E1AD102;
+        Thu, 30 Jun 2022 01:21:53 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BC83F1BCB;
+        Thu, 30 Jun 2022 01:21:52 -0700 (PDT)
+Received: from [10.57.85.25] (unknown [10.57.85.25])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D6A263F66F;
+        Thu, 30 Jun 2022 01:21:47 -0700 (PDT)
+Message-ID: <e5799215-8b55-90a8-7ca4-35f85ffb5969@arm.com>
+Date:   Thu, 30 Jun 2022 09:21:42 +0100
 MIME-Version: 1.0
-References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com> <20220629065656.54420-6-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20220629065656.54420-6-xuanzhuo@linux.alibaba.com>
-From:   Jason Wang <jasowang@redhat.com>
-Date:   Thu, 30 Jun 2022 14:40:02 +0800
-Message-ID: <CACGkMEvfFV8w34=SiS4XFyEH5+EEkb9JqYg0t_rKpU1rRBMLiQ@mail.gmail.com>
-Subject: Re: [PATCH v11 05/40] virtio_ring: split vring_virtqueue
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc:     virtualization <virtualization@lists.linux-foundation.org>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm <kvm@vger.kernel.org>,
-        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
-        kangjie.xu@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v3 1/5] iommu: Return -EMEDIUMTYPE for incompatible domain
+ and device/group
+Content-Language: en-GB
+To:     Nicolin Chen <nicolinc@nvidia.com>, Yong Wu <yong.wu@mediatek.com>
+Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Baolu Lu <baolu.lu@linux.intel.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "jordan@cosmicpenguin.net" <jordan@cosmicpenguin.net>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+        "will@kernel.org" <will@kernel.org>,
+        "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
+        "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
+        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
+        "yangyingliang@huawei.com" <yangyingliang@huawei.com>,
+        "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
+        "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
+        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "christophe.jaillet@wanadoo.fr" <christophe.jaillet@wanadoo.fr>,
+        "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "dwmw2@infradead.org" <dwmw2@infradead.org>,
+        "marcan@marcan.st" <marcan@marcan.st>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "baolin.wang7@gmail.com" <baolin.wang7@gmail.com>,
+        "linux-mediatek@lists.infradead.org" 
+        <linux-mediatek@lists.infradead.org>
+References: <20220623200029.26007-1-nicolinc@nvidia.com>
+ <20220623200029.26007-2-nicolinc@nvidia.com>
+ <270eec00-8aee-2288-4069-d604e6da2925@linux.intel.com>
+ <YrUk8IINqDEZLfIa@Asurada-Nvidia>
+ <8a5e9c81ab1487154828af3ca21e62e39bcce18c.camel@mediatek.com>
+ <BN9PR11MB527629DEF740C909A7B7BEB38CB49@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <19cfb1b85a347c70c6b0937bbbca4a176a724454.camel@mediatek.com>
+ <20220624181943.GV4147@nvidia.com> <YrysUpY4mdzA0h76@Asurada-Nvidia>
+From:   Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <YrysUpY4mdzA0h76@Asurada-Nvidia>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 29, 2022 at 2:57 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
->
-> Separate the two inline structures(split and packed) from the structure
-> vring_virtqueue.
->
-> In this way, we can use these two structures later to pass parameters
-> and retain temporary variables.
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+On 2022-06-29 20:47, Nicolin Chen wrote:
+> On Fri, Jun 24, 2022 at 03:19:43PM -0300, Jason Gunthorpe wrote:
+>> On Fri, Jun 24, 2022 at 06:35:49PM +0800, Yong Wu wrote:
+>>
+>>>>> It's not used in VFIO context. "return 0" just satisfy the iommu
+>>>>> framework to go ahead. and yes, here we only allow the shared
+>>>>> "mapping-domain" (All the devices share a domain created
+>>>>> internally).
+>>
+>> What part of the iommu framework is trying to attach a domain and
+>> wants to see success when the domain was not actually attached ?
+>>
+>>>> What prevent this driver from being used in VFIO context?
+>>>
+>>> Nothing prevent this. Just I didn't test.
+>>
+>> This is why it is wrong to return success here.
+> 
+> Hi Yong, would you or someone you know be able to confirm whether
+> this "return 0" is still a must or not?
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+ From memory, it is unfortunately required, due to this driver being in 
+the rare position of having to support multiple devices in a single 
+address space on 32-bit ARM. Since the old ARM DMA code doesn't 
+understand groups, the driver sets up its own canonical 
+dma_iommu_mapping to act like a default domain, but then has to politely 
+say "yeah OK" to arm_setup_iommu_dma_ops() for each device so that they 
+do all end up with the right DMA ops rather than dying in screaming 
+failure (the ARM code's per-device mappings then get leaked, but we 
+can't really do any better).
 
-> ---
->  drivers/virtio/virtio_ring.c | 116 ++++++++++++++++++-----------------
->  1 file changed, 60 insertions(+), 56 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index bb4e8ae09c9b..2806e033a651 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -85,6 +85,64 @@ struct vring_desc_extra {
->         u16 next;                       /* The next desc state in a list. */
->  };
->
-> +struct vring_virtqueue_split {
-> +       /* Actual memory layout for this queue. */
-> +       struct vring vring;
-> +
-> +       /* Last written value to avail->flags */
-> +       u16 avail_flags_shadow;
-> +
-> +       /*
-> +        * Last written value to avail->idx in
-> +        * guest byte order.
-> +        */
-> +       u16 avail_idx_shadow;
-> +
-> +       /* Per-descriptor state. */
-> +       struct vring_desc_state_split *desc_state;
-> +       struct vring_desc_extra *desc_extra;
-> +
-> +       /* DMA address and size information */
-> +       dma_addr_t queue_dma_addr;
-> +       size_t queue_size_in_bytes;
-> +};
-> +
-> +struct vring_virtqueue_packed {
-> +       /* Actual memory layout for this queue. */
-> +       struct {
-> +               unsigned int num;
-> +               struct vring_packed_desc *desc;
-> +               struct vring_packed_desc_event *driver;
-> +               struct vring_packed_desc_event *device;
-> +       } vring;
-> +
-> +       /* Driver ring wrap counter. */
-> +       bool avail_wrap_counter;
-> +
-> +       /* Avail used flags. */
-> +       u16 avail_used_flags;
-> +
-> +       /* Index of the next avail descriptor. */
-> +       u16 next_avail_idx;
-> +
-> +       /*
-> +        * Last written value to driver->flags in
-> +        * guest byte order.
-> +        */
-> +       u16 event_flags_shadow;
-> +
-> +       /* Per-descriptor state. */
-> +       struct vring_desc_state_packed *desc_state;
-> +       struct vring_desc_extra *desc_extra;
-> +
-> +       /* DMA address and size information */
-> +       dma_addr_t ring_dma_addr;
-> +       dma_addr_t driver_event_dma_addr;
-> +       dma_addr_t device_event_dma_addr;
-> +       size_t ring_size_in_bytes;
-> +       size_t event_size_in_bytes;
-> +};
-> +
->  struct vring_virtqueue {
->         struct virtqueue vq;
->
-> @@ -124,64 +182,10 @@ struct vring_virtqueue {
->
->         union {
->                 /* Available for split ring */
-> -               struct {
-> -                       /* Actual memory layout for this queue. */
-> -                       struct vring vring;
-> -
-> -                       /* Last written value to avail->flags */
-> -                       u16 avail_flags_shadow;
-> -
-> -                       /*
-> -                        * Last written value to avail->idx in
-> -                        * guest byte order.
-> -                        */
-> -                       u16 avail_idx_shadow;
-> -
-> -                       /* Per-descriptor state. */
-> -                       struct vring_desc_state_split *desc_state;
-> -                       struct vring_desc_extra *desc_extra;
-> -
-> -                       /* DMA address and size information */
-> -                       dma_addr_t queue_dma_addr;
-> -                       size_t queue_size_in_bytes;
-> -               } split;
-> +               struct vring_virtqueue_split split;
->
->                 /* Available for packed ring */
-> -               struct {
-> -                       /* Actual memory layout for this queue. */
-> -                       struct {
-> -                               unsigned int num;
-> -                               struct vring_packed_desc *desc;
-> -                               struct vring_packed_desc_event *driver;
-> -                               struct vring_packed_desc_event *device;
-> -                       } vring;
-> -
-> -                       /* Driver ring wrap counter. */
-> -                       bool avail_wrap_counter;
-> -
-> -                       /* Avail used flags. */
-> -                       u16 avail_used_flags;
-> -
-> -                       /* Index of the next avail descriptor. */
-> -                       u16 next_avail_idx;
-> -
-> -                       /*
-> -                        * Last written value to driver->flags in
-> -                        * guest byte order.
-> -                        */
-> -                       u16 event_flags_shadow;
-> -
-> -                       /* Per-descriptor state. */
-> -                       struct vring_desc_state_packed *desc_state;
-> -                       struct vring_desc_extra *desc_extra;
-> -
-> -                       /* DMA address and size information */
-> -                       dma_addr_t ring_dma_addr;
-> -                       dma_addr_t driver_event_dma_addr;
-> -                       dma_addr_t device_event_dma_addr;
-> -                       size_t ring_size_in_bytes;
-> -                       size_t event_size_in_bytes;
-> -               } packed;
-> +               struct vring_virtqueue_packed packed;
->         };
->
->         /* How to notify other side. FIXME: commonalize hcalls! */
-> --
-> 2.31.0
->
+The whole mess disappears in the proper default domain conversion, but 
+in the meantime, it's still safe to assume that nobody's doing VFIO with 
+embedded display/video codec/etc. blocks that don't even have reset drivers.
 
+Thanks,
+Robin.
