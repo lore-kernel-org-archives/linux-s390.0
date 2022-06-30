@@ -2,385 +2,235 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3888C43334
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 02:01:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86220CCA47B
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 05:16:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbiF3CBh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Jun 2022 22:01:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57370 "EHLO
+        id S231512AbiF3FQt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Jun 2022 01:16:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbiF3CBg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jun 2022 22:01:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6B6A53B28C
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jun 2022 19:01:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656554491;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=siz7WrYvb8LkyacUeeNLloNPDn/nazktAAvEBoYIVXM=;
-        b=XbIA9+eLT13Yt3zhdnsv0Vhao29dy6KbfX/J3dGShuyQcaGpm8Rom6w1ueEiY7xpwWowl5
-        eRkHaeMe0aBuW711OHc7frb2A+mBjMRWsZ7/QC0FaPdqtmJAEQqbe+uIKaWfPzynOOKsyi
-        BS0s0BWu+2HnzDMpmp7UGg7Laxi2MPs=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-325-wHaR-GmqMt2Lyn2buqbSBA-1; Wed, 29 Jun 2022 22:01:29 -0400
-X-MC-Unique: wHaR-GmqMt2Lyn2buqbSBA-1
-Received: by mail-lf1-f69.google.com with SMTP id b2-20020a0565120b8200b00477a4532448so8530084lfv.22
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jun 2022 19:01:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=siz7WrYvb8LkyacUeeNLloNPDn/nazktAAvEBoYIVXM=;
-        b=ZKsq8zeTn+dP9LNYhf3PuSVi+Q6RhRaPe1cWzr11iOv02618BDzFvp9JZfqhWYLq+W
-         NnOvcPNsmn6ODaVUBLPYpzGmKHCB8mhoEMqC2V3nue94wN86M8Y7LhisWkN2h/6ySOYr
-         8rXhbQlhVH89aTMEEaM0a+pBdWh+ipZWId753NABnson7OK7TezDypTGfrXZYGvOStRT
-         DMU8a8EfjYUTtQJe2kqbCpYMWx97o4AGw7X7rEg8cNZHGBBUVDKtM0nU+rW4vBFFQC31
-         WY14+oDhxlx6DMczqzHwjXIiLF3/CcnO7HOhdfSB4YoilNe7AtlEwiMI+yvS9DaI2NXr
-         7W3Q==
-X-Gm-Message-State: AJIora9sKWE1hfXYY6YrQI5uc3LuaC2zpi898OlUM88Hb+oNj1lniGZW
-        /neJQn+D8TigAwzEnc8jrr0T/XCcY0FU/bGT3GOtng8AhUF1i7YJj+Uv0YIFJqjAMsiG7WZvsS2
-        YiNoyfJg7XPkxPeKblbgzXc5LdGFf9IFCLP3G2w==
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id bp13-20020a056512158d00b0047f718c28b5mr4175585lfb.397.1656554487951;
-        Wed, 29 Jun 2022 19:01:27 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tjUkdchbJhSeBgs/Z1JSiqkCHXviv351LNPgd53SJ8UROkAl3qmLhmyB3zzmalF0rEsqMWYqERweaXeBGLHaw=
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
- bp13-20020a056512158d00b0047f718c28b5mr4175562lfb.397.1656554487568; Wed, 29
- Jun 2022 19:01:27 -0700 (PDT)
+        with ESMTP id S230308AbiF3FQs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 01:16:48 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B207E1D31B;
+        Wed, 29 Jun 2022 22:16:46 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6F0B31477;
+        Wed, 29 Jun 2022 22:16:46 -0700 (PDT)
+Received: from a077893.blr.arm.com (unknown [10.162.41.8])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 62E253F66F;
+        Wed, 29 Jun 2022 22:16:38 -0700 (PDT)
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+To:     linux-mm@kvack.org, akpm@linux-foundation.org
+Cc:     hch@infradead.org, christophe.leroy@csgroup.eu,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        x86@kernel.org, openrisc@lists.librecores.org,
+        linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org,
+        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH V6 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across platforms
+Date:   Thu, 30 Jun 2022 10:46:04 +0530
+Message-Id: <20220630051630.1718927-1-anshuman.khandual@arm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <CACGkMEvrDXDN7FH1vKoYCob2rkxUsctE_=g61kzHSZ8tNNr6vA@mail.gmail.com>
- <20220627053820-mutt-send-email-mst@kernel.org> <CACGkMEvcs+9_SHmO1s3nyzgU7oq7jhU2gircVVR3KDsGDikh5Q@mail.gmail.com>
- <20220628004614-mutt-send-email-mst@kernel.org> <CACGkMEsC4A+3WejLSOZoH3enXtai=+JyRNbxcpzK4vODYzhaFw@mail.gmail.com>
- <CACGkMEvu0D0XD7udz0ebVjNM0h5+K9Rjd-5ed=PY_+-aduzG2g@mail.gmail.com>
- <20220629022223-mutt-send-email-mst@kernel.org> <CACGkMEuwvzkbPUSFueCOjit7pRJ81v3-W3SZD+7jQJN8btEFdg@mail.gmail.com>
- <20220629030600-mutt-send-email-mst@kernel.org> <CACGkMEvnUj622FyROUftifSB47wytPg0YAdVO7fdRQmCE+WuBg@mail.gmail.com>
- <20220629044514-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220629044514-mutt-send-email-mst@kernel.org>
-From:   Jason Wang <jasowang@redhat.com>
-Date:   Thu, 30 Jun 2022 10:01:16 +0800
-Message-ID: <CACGkMEsW02a1LeiWwUgHfVmDEnC8i49h1L7qHmeoLyJyRS6-zA@mail.gmail.com>
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        kvm <kvm@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        David Hildenbrand <david@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 29, 2022 at 4:52 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Wed, Jun 29, 2022 at 04:34:36PM +0800, Jason Wang wrote:
-> > On Wed, Jun 29, 2022 at 3:15 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Wed, Jun 29, 2022 at 03:02:21PM +0800, Jason Wang wrote:
-> > > > On Wed, Jun 29, 2022 at 2:31 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > >
-> > > > > On Wed, Jun 29, 2022 at 12:07:11PM +0800, Jason Wang wrote:
-> > > > > > On Tue, Jun 28, 2022 at 2:17 PM Jason Wang <jasowang@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Tue, Jun 28, 2022 at 1:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > > >
-> > > > > > > > On Tue, Jun 28, 2022 at 11:49:12AM +0800, Jason Wang wrote:
-> > > > > > > > > > Heh. Yea sure. But things work fine for people. What is the chance
-> > > > > > > > > > your review found and fixed all driver bugs?
-> > > > > > > > >
-> > > > > > > > > I don't/can't audit all bugs but the race between open/close against
-> > > > > > > > > ready/reset. It looks to me a good chance to fix them all but if you
-> > > > > > > > > think differently, let me know
-> > > > > > > > >
-> > > > > > > > > > After two attempts
-> > > > > > > > > > I don't feel like hoping audit will fix all bugs.
-> > > > > > > > >
-> > > > > > > > > I've started the auditing and have 15+ patches in the queue. (only
-> > > > > > > > > covers bluetooth, console, pmem, virtio-net and caif). Spotting the
-> > > > > > > > > issue is not hard but the testing, It would take at least the time of
-> > > > > > > > > one release to finalize I guess.
-> > > > > > > >
-> > > > > > > > Absolutely. So I am looking for a way to implement hardening that does
-> > > > > > > > not break existing drivers.
-> > > > > > >
-> > > > > > > I totally agree with you to seek a way without bothering the drivers.
-> > > > > > > Just wonder if this is possbile.
-> > > > > > >
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > > >
-> > > > > > > > > > > > The reason config was kind of easy is that config interrupt is rarely
-> > > > > > > > > > > > vital for device function so arbitrarily deferring that does not lead to
-> > > > > > > > > > > > deadlocks - what you are trying to do with VQ interrupts is
-> > > > > > > > > > > > fundamentally different. Things are especially bad if we just drop
-> > > > > > > > > > > > an interrupt but deferring can lead to problems too.
-> > > > > > > > > > >
-> > > > > > > > > > > I'm not sure I see the difference, disable_irq() stuffs also delay the
-> > > > > > > > > > > interrupt processing until enable_irq().
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > Absolutely. I am not at all sure disable_irq fixes all problems.
-> > > > > > > > > >
-> > > > > > > > > > > >
-> > > > > > > > > > > > Consider as an example
-> > > > > > > > > > > >     virtio-net: fix race between ndo_open() and virtio_device_ready()
-> > > > > > > > > > > > if you just defer vq interrupts you get deadlocks.
-> > > > > > > > > > > >
-> > > > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > I don't see a deadlock here, maybe you can show more detail on this?
-> > > > > > > > > >
-> > > > > > > > > > What I mean is this: if we revert the above commit, things still
-> > > > > > > > > > work (out of spec, but still). If we revert and defer interrupts until
-> > > > > > > > > > device ready then ndo_open that triggers before device ready deadlocks.
-> > > > > > > > >
-> > > > > > > > > Ok, I guess you meant on a hypervisor that is strictly written with spec.
-> > > > > > > >
-> > > > > > > > I mean on hypervisor that starts processing queues after getting a kick
-> > > > > > > > even without DRIVER_OK.
-> > > > > > >
-> > > > > > > Oh right.
-> > > > > > >
-> > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > > >
-> > > > > > > > > > > > So, thinking about all this, how about a simple per vq flag meaning
-> > > > > > > > > > > > "this vq was kicked since reset"?
-> > > > > > > > > > >
-> > > > > > > > > > > And ignore the notification if vq is not kicked? It sounds like the
-> > > > > > > > > > > callback needs to be synchronized with the kick.
-> > > > > > > > > >
-> > > > > > > > > > Note we only need to synchronize it when it changes, which is
-> > > > > > > > > > only during initialization and reset.
-> > > > > > > > >
-> > > > > > > > > Yes.
-> > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > > >
-> > > > > > > > > > > > If driver does not kick then it's not ready to get callbacks, right?
-> > > > > > > > > > > >
-> > > > > > > > > > > > Sounds quite clean, but we need to think through memory ordering
-> > > > > > > > > > > > concerns - I guess it's only when we change the value so
-> > > > > > > > > > > >         if (!vq->kicked) {
-> > > > > > > > > > > >                 vq->kicked = true;
-> > > > > > > > > > > >                 mb();
-> > > > > > > > > > > >         }
-> > > > > > > > > > > >
-> > > > > > > > > > > > will do the trick, right?
-> > > > > > > > > > >
-> > > > > > > > > > > There's no much difference with the existing approach:
-> > > > > > > > > > >
-> > > > > > > > > > > 1) your proposal implicitly makes callbacks ready in virtqueue_kick()
-> > > > > > > > > > > 2) my proposal explicitly makes callbacks ready via virtio_device_ready()
-> > > > > > > > > > >
-> > > > > > > > > > > Both require careful auditing of all the existing drivers to make sure
-> > > > > > > > > > > no kick before DRIVER_OK.
-> > > > > > > > > >
-> > > > > > > > > > Jason, kick before DRIVER_OK is out of spec, sure. But it is unrelated
-> > > > > > > > > > to hardening
-> > > > > > > > >
-> > > > > > > > > Yes but with your proposal, it seems to couple kick with DRIVER_OK somehow.
-> > > > > > > >
-> > > > > > > > I don't see how - my proposal ignores DRIVER_OK issues.
-> > > > > > >
-> > > > > > > Yes, what I meant is, in your proposal, the first kick after rest is a
-> > > > > > > hint that the driver is ok (but actually it could not).
-> > > > > > >
-> > > > > > > >
-> > > > > > > > > > and in absence of config interrupts is generally easily
-> > > > > > > > > > fixed just by sticking virtio_device_ready early in initialization.
-> > > > > > > > >
-> > > > > > > > > So if the kick is done before the subsystem registration, there's
-> > > > > > > > > still a window in the middle (assuming we stick virtio_device_ready()
-> > > > > > > > > early):
-> > > > > > > > >
-> > > > > > > > > virtio_device_ready()
-> > > > > > > > > virtqueue_kick()
-> > > > > > > > > /* the window */
-> > > > > > > > > subsystem_registration()
-> > > > > > > >
-> > > > > > > > Absolutely, however, I do not think we really have many such drivers
-> > > > > > > > since this has been known as a wrong thing to do since the beginning.
-> > > > > > > > Want to try to find any?
-> > > > > > >
-> > > > > > > Yes, let me try and update.
-> > > > > >
-> > > > > > This is basically the device that have an RX queue, so I've found the
-> > > > > > following drivers:
-> > > > > >
-> > > > > > scmi, mac80211_hwsim, vsock, bt, balloon.
-> > > > >
-> > > > > Looked and I don't see it yet. Let's consider
-> > > > > ./net/vmw_vsock/virtio_transport.c for example. Assuming we block
-> > > > > callbacks until the first kick, what is the issue with probe exactly?
-> > > >
-> > > > We need to make sure the callback can survive when it runs before sub
-> > > > system registration.
-> > >
-> > > With my proposal no - only if we also kick before registration.
-> > > So I do not see the issue yet.
-> > >
-> > > Consider ./net/vmw_vsock/virtio_transport.c
-> > >
-> > > kicks: virtio_transport_send_pkt_work,
-> > > virtio_vsock_rx_fill, virtio_vsock_event_fill
-> > >
-> > > which of these triggers before we are ready to
-> > > handle callbacks?
-> >
-> > So:
-> >
-> > virtio_vsock_vqs_init()
-> >     virtio_device_ready()
-> >     virtio_vsock_rx_fill() /* kick there */
-> > rcu_assign_pointer(the_virtio_vsock, vsock)
-> >
-> > It means at least virtio_vsock_rx_done()/virtio_vsock_workqueue needs
-> > to survive. I don't say it has a bug but we do need to audit the code
-> > in this case. The implication is: the virtqueue callback should be
-> > written with no assumption that the driver has registered in the
-> > subsystem. We don't or can't assume all drivers are written in this
-> > way.
->
->
-> I thought you said you audited code and found bugs.
->
-> My claim is that simply because qemu starts processing
-> packets immediately upon kick, if bugs like this
-> existed we would have noticed by now.
+__SXXX/__PXXX macros is an unnecessary abstraction layer in creating the
+generic protection_map[] array which is used for vm_get_page_prot(). This
+abstraction layer can be avoided, if the platforms just define the array
+protection_map[] for all possible vm_flags access permission combinations
+and also export vm_get_page_prot() implementation.
 
-This is true for a well behaved hypervisor. But what we want to deal
-with is the buggy/malicious hypervisors.
+This series drops __SXXX/__PXXX macros from across platforms in the tree.
+First it build protects generic protection_map[] array with '#ifdef __P000'
+and moves it inside platforms which enable ARCH_HAS_VM_GET_PAGE_PROT. Later
+this build protects same array with '#ifdef ARCH_HAS_VM_GET_PAGE_PROT' and
+moves inside remaining platforms while enabling ARCH_HAS_VM_GET_PAGE_PROT.
+This adds a new macro DECLARE_VM_GET_PAGE_PROT defining the current generic
+vm_get_page_prot(), in order for it to be reused on platforms that do not
+require custom implementation. Finally, ARCH_HAS_VM_GET_PAGE_PROT can just
+be dropped, as all platforms now define and export vm_get_page_prot(), via
+looking up a private and static protection_map[] array. protection_map[]
+data type has been changed as 'static const' on all platforms that do not
+change it during boot.
 
->
-> In this case the_virtio_vsock is used for xmit things,
-> callbacks do not seem to use it at all.
+This series applies on v5.19-rc4 and has been build tested for multiple
+platforms. While here it has dropped off all previous tags from folks after
+the current restructuring. Series common CC list has been expanded to cover
+all impacted platforms for wider reach.
 
-So the hypervisor can trigger the notification just after the kick and
-the work function seems to be safe.
+- Anshuman
 
-One another example for this is in virtcons_probe():
+Changes in V6:
 
-        spin_lock_init(&portdev->ports_lock);
-        INIT_LIST_HEAD(&portdev->ports);
-        INIT_LIST_HEAD(&portdev->list);
+- Converted protection_map[] array as 'static const' on sparc32 platform
+- Rebased on v5.19-rc4
+- Collected tags
 
-        virtio_device_ready(portdev->vdev);
+Changes in V5:
 
-        INIT_WORK(&portdev->config_work, &config_work_handler);
-        INIT_WORK(&portdev->control_work, &control_work_handler);
+https://lore.kernel.org/all/20220627045833.1590055-1-anshuman.khandual@arm.com/
 
-in control_intr() we had:
+- Converted most platfomr protection_map[] array as 'static const'
+- Moved DECLARE_VM_GET_PAGE_PROT inside <include/linux/pgtable.h>
+- Moved generic protection_map[] comment near DECLARE_VM_GET_PAGE_PROT
+- Updated some commit messages
 
-static void control_intr(struct virtqueue *vq)
-{
-        struct ports_device *portdev;
+Changes in V4:
 
-        portdev = vq->vdev->priv;
-        schedule_work(&portdev->control_work);
-}
+https://lore.kernel.org/all/20220624044339.1533882-1-anshuman.khandual@arm.com/
 
-So we might crash if the notification is raised just after
-virtio_device_ready().
+- Both protection_map[] and vm_get_page_prot() moves inside all platforms
+- Split patches to create modular changes for individual platforms
+- Add macro DECLARE_VM_GET_PAGE_PROT defining generic vm_get_page_prot()
+- Drop ARCH_HAS_VM_GET_PAGE_PROT
 
-This is not an exact example of when a callback is not ready after
-kick, but it demonstrates that the callback could have assumed that
-all setup has been done when it is called.
+Changes in V3:
 
-Thanks
+https://lore.kernel.org/all/20220616040924.1022607-1-anshuman.khandual@arm.com/
 
->
-> > >
-> > >
-> > > > >
-> > > > >
-> > > > > > >
-> > > > > > > >I couldn't ... except maybe bluetooth
-> > > > > > > > but that's just maintainer nacking fixes saying he'll fix it
-> > > > > > > > his way ...
-> > > > > > > >
-> > > > > > > > > And during remove(), we get another window:
-> > > > > > > > >
-> > > > > > > > > subsysrem_unregistration()
-> > > > > > > > > /* the window */
-> > > > > > > > > virtio_device_reset()
-> > > > > > > >
-> > > > > > > > Same here.
-> > > > > >
-> > > > > > Basically for the drivers that set driver_ok before registration,
-> > > > >
-> > > > > I don't see what does driver_ok have to do with it.
-> > > >
-> > > > I meant for those driver, in probe they do()
-> > > >
-> > > > virtio_device_ready()
-> > > > subsystem_register()
-> > > >
-> > > > In remove() they do
-> > > >
-> > > > subsystem_unregister()
-> > > > virtio_device_reset()
-> > > >
-> > > > for symmetry
-> > >
-> > > Let's leave remove alone for now. I am close to 100% sure we have *lots*
-> > > of issues around it, but while probe is unavoidable remove can be
-> > > avoided by blocking hotplug.
-> >
-> > Unbind can trigger this path as well.
-> >
-> > >
-> > >
-> > > > >
-> > > > > > so
-> > > > > > we have a lot:
-> > > > > >
-> > > > > > blk, net, mac80211_hwsim, scsi, vsock, bt, crypto, gpio, gpu, i2c,
-> > > > > > iommu, caif, pmem, input, mem
-> > > > > >
-> > > > > > So I think there's no easy way to harden the notification without
-> > > > > > auditing the driver one by one (especially considering the driver may
-> > > > > > use bh or workqueue). The problem is the notification hardening
-> > > > > > depends on a correct or race-free probe/remove. So we need to fix the
-> > > > > > issues in probe/remove then do the hardening on the notification.
-> > > > > >
-> > > > > > Thanks
-> > > > >
-> > > > > So if drivers kick but are not ready to get callbacks then let's fix
-> > > > > that first of all, these are racy with existing qemu even ignoring
-> > > > > spec compliance.
-> > > >
-> > > > Yes, (the patches I've posted so far exist even with a well-behaved device).
-> > > >
-> > > > Thanks
-> > >
-> > > patches you posted deal with DRIVER_OK spec compliance.
-> > > I do not see patches for kicks before callbacks are ready to run.
-> >
-> > Yes.
-> >
-> > Thanks
-> >
-> > >
-> > > > >
-> > > > >
-> > > > > --
-> > > > > MST
-> > > > >
-> > >
->
+- Fix build issues on powerpc and riscv
+
+Changes in V2:
+
+https://lore.kernel.org/all/20220613053354.553579-1-anshuman.khandual@arm.com/
+
+- Add 'const' identifier to protection_map[] on powerpc
+- Dropped #ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT check from sparc 32
+- Dropped protection_map[] init from sparc 64
+- Dropped all new platform changes subscribing ARCH_HAS_VM_GET_PAGE_PROT
+- Added a second patch which moves generic protection_map[] array into
+  all remaining platforms (!ARCH_HAS_VM_GET_PAGE_PROT)
+
+Changes in V1:
+
+https://lore.kernel.org/all/20220603101411.488970-1-anshuman.khandual@arm.com/
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: sparclinux@vger.kernel.org
+Cc: x86@kernel.org
+Cc: openrisc@lists.librecores.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-sh@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
+
+Anshuman Khandual (26):
+  mm/mmap: Build protect protection_map[] with __P000
+  mm/mmap: Define DECLARE_VM_GET_PAGE_PROT
+  powerpc/mm: Move protection_map[] inside the platform
+  sparc/mm: Move protection_map[] inside the platform
+  arm64/mm: Move protection_map[] inside the platform
+  x86/mm: Move protection_map[] inside the platform
+  mm/mmap: Build protect protection_map[] with ARCH_HAS_VM_GET_PAGE_PROT
+  microblaze/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  loongarch/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  openrisc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  xtensa/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  hexagon/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  parisc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  alpha/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  nios2/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  riscv/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  csky/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  s390/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  ia64/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  mips/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  m68k/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  arc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  arm/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  um/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  sh/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  mm/mmap: Drop ARCH_HAS_VM_GET_PAGE_PROT
+
+ arch/alpha/include/asm/pgtable.h          | 17 -------
+ arch/alpha/mm/init.c                      | 22 +++++++++
+ arch/arc/include/asm/pgtable-bits-arcv2.h | 18 --------
+ arch/arc/mm/mmap.c                        | 20 +++++++++
+ arch/arm/include/asm/pgtable.h            | 17 -------
+ arch/arm/lib/uaccess_with_memcpy.c        |  2 +-
+ arch/arm/mm/mmu.c                         | 20 +++++++++
+ arch/arm64/Kconfig                        |  1 -
+ arch/arm64/include/asm/pgtable-prot.h     | 18 --------
+ arch/arm64/mm/mmap.c                      | 21 +++++++++
+ arch/csky/include/asm/pgtable.h           | 18 --------
+ arch/csky/mm/init.c                       | 20 +++++++++
+ arch/hexagon/include/asm/pgtable.h        | 27 -----------
+ arch/hexagon/mm/init.c                    | 42 +++++++++++++++++
+ arch/ia64/include/asm/pgtable.h           | 18 --------
+ arch/ia64/mm/init.c                       | 28 +++++++++++-
+ arch/loongarch/include/asm/pgtable-bits.h | 19 --------
+ arch/loongarch/mm/cache.c                 | 46 +++++++++++++++++++
+ arch/m68k/include/asm/mcf_pgtable.h       | 54 ----------------------
+ arch/m68k/include/asm/motorola_pgtable.h  | 22 ---------
+ arch/m68k/include/asm/sun3_pgtable.h      | 17 -------
+ arch/m68k/mm/mcfmmu.c                     | 55 +++++++++++++++++++++++
+ arch/m68k/mm/motorola.c                   | 20 +++++++++
+ arch/m68k/mm/sun3mmu.c                    | 20 +++++++++
+ arch/microblaze/include/asm/pgtable.h     | 17 -------
+ arch/microblaze/mm/init.c                 | 20 +++++++++
+ arch/mips/include/asm/pgtable.h           | 22 ---------
+ arch/mips/mm/cache.c                      |  3 ++
+ arch/nios2/include/asm/pgtable.h          | 16 -------
+ arch/nios2/mm/init.c                      | 20 +++++++++
+ arch/openrisc/include/asm/pgtable.h       | 18 --------
+ arch/openrisc/mm/init.c                   | 20 +++++++++
+ arch/parisc/include/asm/pgtable.h         | 18 --------
+ arch/parisc/mm/init.c                     | 20 +++++++++
+ arch/powerpc/Kconfig                      |  1 -
+ arch/powerpc/include/asm/pgtable.h        | 20 +--------
+ arch/powerpc/mm/pgtable.c                 | 24 ++++++++++
+ arch/riscv/include/asm/pgtable.h          | 20 ---------
+ arch/riscv/mm/init.c                      | 20 +++++++++
+ arch/s390/include/asm/pgtable.h           | 17 -------
+ arch/s390/mm/mmap.c                       | 20 +++++++++
+ arch/sh/include/asm/pgtable.h             | 17 -------
+ arch/sh/mm/mmap.c                         | 20 +++++++++
+ arch/sparc/Kconfig                        |  1 -
+ arch/sparc/include/asm/pgtable_32.h       | 19 --------
+ arch/sparc/include/asm/pgtable_64.h       | 19 --------
+ arch/sparc/mm/init_32.c                   | 20 +++++++++
+ arch/sparc/mm/init_64.c                   |  3 ++
+ arch/um/include/asm/pgtable.h             | 17 -------
+ arch/um/kernel/mem.c                      | 20 +++++++++
+ arch/x86/Kconfig                          |  1 -
+ arch/x86/include/asm/pgtable_types.h      | 19 --------
+ arch/x86/mm/mem_encrypt_amd.c             |  7 ++-
+ arch/x86/mm/pgprot.c                      | 27 +++++++++++
+ arch/x86/um/mem_32.c                      |  2 +-
+ arch/xtensa/include/asm/pgtable.h         | 18 --------
+ arch/xtensa/mm/init.c                     | 20 +++++++++
+ include/linux/mm.h                        |  1 -
+ include/linux/pgtable.h                   | 28 ++++++++++++
+ mm/Kconfig                                |  3 --
+ mm/mmap.c                                 | 47 -------------------
+ 61 files changed, 604 insertions(+), 563 deletions(-)
+
+-- 
+2.25.1
 
