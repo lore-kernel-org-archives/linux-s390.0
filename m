@@ -2,177 +2,216 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AD5EC43334
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 11:31:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECD79C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Jun 2022 12:36:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235073AbiF3LbK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Jun 2022 07:31:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45120 "EHLO
+        id S234395AbiF3MgQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Jun 2022 08:36:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235034AbiF3LbI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 07:31:08 -0400
+        with ESMTP id S234394AbiF3MgP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jun 2022 08:36:15 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65BB251B29;
-        Thu, 30 Jun 2022 04:31:07 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25UBBv2B027286;
-        Thu, 30 Jun 2022 11:31:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=UzEvxgWBqw6ksQ5MpQmL5dA2oLRVIVB75s4SlyEP1e0=;
- b=KdoFq5j6SDnum74kNYTz4aI+hUKukqZZcdUsStNa2tF2So6ckF4lwtsH02of271OO62B
- W8z+f7V9GXWAh7NHqDUdiqj5Qq5l3JsDw5hek18aq/Sc9WDqT99G85jy/cF0k4GMRR28
- cPWAlDGsMUxqPyNgotdOWZhzdHBnZrSJ8YYezFXZyKh4kcvON1bCgdVGV1gChXN3BrIM
- FppjYhPPnBdhmhGrQzNZ2iE01F6RSgex102FLITzgfpl0mvDZIcPmu5iYBrdWXj0qcFk
- HxoY/dJa4Z1SIkJwCKHWYQ9SozkuO5rvbeSS/R8EZOL+jKpOq7jRqv4IS5hrhLlP5sY/ CQ== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C4DB3982F;
+        Thu, 30 Jun 2022 05:36:14 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25UBfvMn024877;
+        Thu, 30 Jun 2022 12:36:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=myC12JeAdbFFP6SHJKO0hewDlMY5COimsUaxqcrVJW0=;
+ b=BCmIEaIwGrV/Zp807RjVz5IJdsGmgCYMJXmIRJw7dl8UPNJDw35acF36i5wHH3AOVV25
+ g9sZFp6yvDlD/l56dnXIZFxj/FkVXIm+l11GbGzjmZfROdPLUMx4crgQ7RmL2F9SsXAb
+ C4de4u3br2+pqdLkAJaTDXUSlk4uKlzES7lXG73HOkwrTIdz/GKoBNjOQyH/l45UGacn
+ 3k0ejJjc8e99CLsrq01EuTwEm9URRvtkaoh+AzXhncQV4v5zBKC+quSTPbAiJsrPFnc6
+ NOs9WrEy1K5U9OY8FzYGry9c6phkfD1gDY65GBdnT4CBJdUF5X7oylBDtBre7lbEkSkR +g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1ar68gjg-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1b68sj17-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 11:31:06 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25UBLMHE005106;
-        Thu, 30 Jun 2022 11:31:06 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1ar68gh7-1
+        Thu, 30 Jun 2022 12:36:11 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 25UBheBX030245;
+        Thu, 30 Jun 2022 12:36:10 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h1b68shyg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 11:31:06 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25UBKU6H017342;
-        Thu, 30 Jun 2022 11:31:03 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3gwt08x0cw-1
+        Thu, 30 Jun 2022 12:36:10 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 25UCNfMK032270;
+        Thu, 30 Jun 2022 12:36:08 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3gwsmj84t6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Jun 2022 11:31:03 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25UBV0YV17236476
+        Thu, 30 Jun 2022 12:36:07 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 25UCa5Uq9634214
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 30 Jun 2022 11:31:00 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 771B2A405F;
-        Thu, 30 Jun 2022 11:31:00 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3D24EA405C;
-        Thu, 30 Jun 2022 11:31:00 +0000 (GMT)
-Received: from a46lp57.lnxne.boe (unknown [9.152.108.100])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 30 Jun 2022 11:31:00 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v1 3/3] s390x: add pgm spec interrupt loop test
-Date:   Thu, 30 Jun 2022 13:30:59 +0200
-Message-Id: <20220630113059.229221-4-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220630113059.229221-1-nrb@linux.ibm.com>
-References: <20220630113059.229221-1-nrb@linux.ibm.com>
+        Thu, 30 Jun 2022 12:36:05 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0140252050;
+        Thu, 30 Jun 2022 12:36:05 +0000 (GMT)
+Received: from [9.171.69.2] (unknown [9.171.69.2])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 971285204F;
+        Thu, 30 Jun 2022 12:36:04 +0000 (GMT)
+Message-ID: <17c30662-7285-0e1a-91fb-071fa2cfc733@linux.ibm.com>
+Date:   Thu, 30 Jun 2022 14:40:34 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v6 1/5] PCI: Clean up pci_scan_slot()
+Content-Language: en-US
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220628143100.3228092-1-schnelle@linux.ibm.com>
+ <20220628143100.3228092-2-schnelle@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <20220628143100.3228092-2-schnelle@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ptMOOHpqhw3AvAfYXAIm1GmA4Fvx2eNw
-X-Proofpoint-ORIG-GUID: B7yiun4N6e9Ds9FdxOB4lwqk7FHk34-z
+X-Proofpoint-GUID: PjATLTWkMNsNt4gmmQyQfAkjEM9ZIW5P
+X-Proofpoint-ORIG-GUID: P2-pxzrGaKPb1qPRa04AoCj0qnWoGRXy
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-06-30_07,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- mlxscore=0 suspectscore=0 clxscore=1015 mlxlogscore=739 priorityscore=1501
- phishscore=0 adultscore=0 spamscore=0 lowpriorityscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2206300045
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
+ adultscore=0 spamscore=0 mlxscore=0 impostorscore=0 malwarescore=0
+ suspectscore=0 mlxlogscore=918 priorityscore=1501 lowpriorityscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2206300050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-An invalid PSW causes a program interrupt. When an invalid PSW is
-introduced in the pgm_new_psw, an interrupt loop occurs as soon as a
-program interrupt is caused.
 
-QEMU should detect that and panick the guest, hence add a test for it.
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
- s390x/Makefile      |  1 +
- s390x/pgmint-loop.c | 46 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |  4 ++++
- 3 files changed, 51 insertions(+)
- create mode 100644 s390x/pgmint-loop.c
+On 6/28/22 16:30, Niklas Schnelle wrote:
+> While determining the next PCI function is factored out of
+> pci_scan_slot() into next_fn() the former still handles the first
+> function as a special case. This duplicates the code from the scan loop.
+> 
+> Furthermore the non ARI branch of next_fn() is generally hard to
+> understand and especially the check for multifunction devices is hidden
+> in the handling of NULL devices for non-contiguous multifunction. It
+> also signals that no further functions need to be scanned by returning
+> 0 via wraparound and this is a valid function number.
+> 
+> Improve upon this by transforming the conditions in next_fn() to be
+> easier to understand.
+> 
+> By changing next_fn() to return -ENODEV instead of 0 when there is no
+> next function we can then handle the initial function inside the loop
+> and deduplicate the shared handling. This also makes it more explicit
+> that only function 0 must exist.
+> 
+> No functional change is intended.
+> 
+> Cc: Jan Kiszka <jan.kiszka@siemens.com>
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+>   drivers/pci/probe.c | 38 +++++++++++++++++++-------------------
+>   1 file changed, 19 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> index 17a969942d37..b05d0ed83a24 100644
+> --- a/drivers/pci/probe.c
+> +++ b/drivers/pci/probe.c
+> @@ -2579,8 +2579,7 @@ struct pci_dev *pci_scan_single_device(struct pci_bus *bus, int devfn)
+>   }
+>   EXPORT_SYMBOL(pci_scan_single_device);
+>   
+> -static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *dev,
+> -			    unsigned int fn)
+> +static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
+>   {
+>   	int pos;
+>   	u16 cap = 0;
+> @@ -2588,24 +2587,26 @@ static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *dev,
+>   
+>   	if (pci_ari_enabled(bus)) {
+>   		if (!dev)
+> -			return 0;
+> +			return -ENODEV;
+>   		pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
+>   		if (!pos)
+> -			return 0;
+> +			return -ENODEV;
+>   
+>   		pci_read_config_word(dev, pos + PCI_ARI_CAP, &cap);
+>   		next_fn = PCI_ARI_CAP_NFN(cap);
+>   		if (next_fn <= fn)
+> -			return 0;	/* protect against malformed list */
+> +			return -ENODEV;	/* protect against malformed list */
+>   
+>   		return next_fn;
+>   	}
+>   
+> -	/* dev may be NULL for non-contiguous multifunction devices */
+> -	if (!dev || dev->multifunction)
+> -		return (fn + 1) % 8;
+> +	if (fn >= 7)
+> +		return -ENODEV;
+> +	/* only multifunction devices may have more functions */
+> +	if (dev && !dev->multifunction)
+> +		return -ENODEV;
+>   
+> -	return 0;
+> +	return fn + 1;
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 92a020234c9f..a600dbfb3f4c 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -35,6 +35,7 @@ tests += $(TEST_DIR)/pv-attest.elf
- tests += $(TEST_DIR)/migration-cmm.elf
- tests += $(TEST_DIR)/migration-skey.elf
- tests += $(TEST_DIR)/extint-loop.elf
-+tests += $(TEST_DIR)/pgmint-loop.elf
- 
- pv-tests += $(TEST_DIR)/pv-diags.elf
- 
-diff --git a/s390x/pgmint-loop.c b/s390x/pgmint-loop.c
-new file mode 100644
-index 000000000000..5b74f26dbc3d
---- /dev/null
-+++ b/s390x/pgmint-loop.c
-@@ -0,0 +1,46 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Program interrupt loop test
-+ *
-+ * Copyright IBM Corp. 2022
-+ *
-+ * Authors:
-+ *  Nico Boehr <nrb@linux.ibm.com>
-+ */
-+#include <libcflat.h>
-+#include <bitops.h>
-+#include <asm/interrupt.h>
-+#include <asm/barrier.h>
-+
-+static void pgm_int_handler(void)
-+{
-+	/*
-+	 * return to pgm_old_psw. This gives us the chance to print the return_fail
-+	 * in case something goes wrong.
-+	 */
-+	asm volatile (
-+		"lpswe %[pgm_old_psw]\n"
-+		:
-+		: [pgm_old_psw] "Q"(lowcore.pgm_old_psw)
-+		: "memory"
-+	);
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("pgmint-loop");
-+
-+	lowcore.pgm_new_psw.addr = (uint64_t) pgm_int_handler;
-+	/* bit 12 set is invalid */
-+	lowcore.pgm_new_psw.mask = extract_psw_mask() | BIT(63 - 12);
-+	mb();
-+
-+	/* cause a pgm int */
-+	*((int *)-4) = 0x42;
-+	mb();
-+
-+	report_fail("survived pgmint loop");
-+
-+	report_prefix_pop();
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 7d408f2d5310..c3073bfc4363 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -188,3 +188,7 @@ groups = migration
- [extint-loop]
- file = extint-loop.elf
- groups = panic
-+
-+[pgmint-loop]
-+file = pgmint-loop.elf
-+groups = panic
+No more % 8 ?
+Even it disapear later shouldn't we keep it ?
+
+
+
+>   }
+>   
+>   static int only_one_child(struct pci_bus *bus)
+> @@ -2643,26 +2644,25 @@ static int only_one_child(struct pci_bus *bus)
+>    */
+>   int pci_scan_slot(struct pci_bus *bus, int devfn)
+>   {
+> -	unsigned int fn, nr = 0;
+>   	struct pci_dev *dev;
+> +	int fn = 0, nr = 0;
+>   
+>   	if (only_one_child(bus) && (devfn > 0))
+>   		return 0; /* Already scanned the entire slot */
+>   
+> -	dev = pci_scan_single_device(bus, devfn);
+> -	if (!dev)
+> -		return 0;
+> -	if (!pci_dev_is_added(dev))
+> -		nr++;
+> -
+> -	for (fn = next_fn(bus, dev, 0); fn > 0; fn = next_fn(bus, dev, fn)) {
+> +	do {
+>   		dev = pci_scan_single_device(bus, devfn + fn);
+>   		if (dev) {
+>   			if (!pci_dev_is_added(dev))
+>   				nr++;
+> -			dev->multifunction = 1;
+> +			if (fn > 0)
+> +				dev->multifunction = 1;
+> +		} else if (fn == 0) {
+> +			/* function 0 is required */
+> +			break;
+>   		}
+> -	}
+> +		fn = next_fn(bus, dev, fn);
+> +	} while (fn >= 0);
+>   
+>   	/* Only one slot has PCIe device */
+>   	if (bus->self && nr)
+> 
+
+Otherwise LGTM
+
+
 -- 
-2.36.1
-
+Pierre Morel
+IBM Lab Boeblingen
