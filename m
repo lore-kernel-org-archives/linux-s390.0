@@ -2,174 +2,202 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20E86C43334
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 21:39:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E082C43334
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 21:45:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiGAVjJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Jul 2022 17:39:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
+        id S230212AbiGAVpG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Jul 2022 17:45:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230452AbiGAVjI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 17:39:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8A9D93123B
-        for <linux-s390@vger.kernel.org>; Fri,  1 Jul 2022 14:39:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656711546;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=RWY3kWxfZygCbZ8DtFwvJsuIX94AnJvjrbxbBhzFyp4=;
-        b=WgD6eiNiteMIsOTMVC6QjCUApRKASb4W05zDLhWs141PqKBixrTPXnl4Pg0xhidvSq3M7H
-        eXsBX2iR/QPub8zDpHjrNZ9xpZVykDaGVIr0QQc6Wd3WGesltOaUlAsvya/J95s7r+6f3M
-        r2B5XCJ6972s+dm+FqakmGZ3zcLz/Gs=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-674-TbfVvqHqNxe78rmBiBqDEQ-1; Fri, 01 Jul 2022 17:39:05 -0400
-X-MC-Unique: TbfVvqHqNxe78rmBiBqDEQ-1
-Received: by mail-qk1-f199.google.com with SMTP id a7-20020a37b107000000b006af3bc02282so2897655qkf.21
-        for <linux-s390@vger.kernel.org>; Fri, 01 Jul 2022 14:39:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=RWY3kWxfZygCbZ8DtFwvJsuIX94AnJvjrbxbBhzFyp4=;
-        b=EWCq7DGy3V8u3TD32QGJscK3/GPX3KjmnLZDopDt0TH/t8k4w+vQaCmVbZHtk6qSg4
-         fjdFm35O4QmTvWgH3NeCz/8v9AwJFizhfyVxT4FvKldu2Kj6w2muzmliGdLsT+oPlvsW
-         w9Mm9C8KeY1DtOUj292FoXn8eMU8ng0L0NN8VpAn8JyvbnAKHmlj4A1z1X7R7wIreZJK
-         XFs0JO2mV/BxLExo8heS4ZpN+6MSwrlzcJf3VTNsdva2TRu5tDmA3dgl7dDfg1AyYoDK
-         DgG76FEs8fLed2mzouIuDTIxwaAFGgQMXnX/6vQp1oIe3KFIib1cYGTslpl9TEUGg8RI
-         7f7w==
-X-Gm-Message-State: AJIora+zmqVLV/c1VoT4sUXaxj0Vd59OFkh3j4vA9ZLmsE79of6QgxH8
-        redjvBMVh14O401UGs7pJdi7L24RG9bp6BTUM9eZiXzb3MVX0RiX/+GcFdUuzjv5/1tCce/y50Z
-        Q4FblK/cDprn93SPTOIKEWg==
-X-Received: by 2002:ac8:57d1:0:b0:31d:3e00:dfdc with SMTP id w17-20020ac857d1000000b0031d3e00dfdcmr433304qta.333.1656711544773;
-        Fri, 01 Jul 2022 14:39:04 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1swwmfVne4y/EzBvAQUyOuDYKIvABxh4t28wun3l/7w/cFJFvRpsGUKAMgz1On+sBS7lX82sg==
-X-Received: by 2002:ac8:57d1:0:b0:31d:3e00:dfdc with SMTP id w17-20020ac857d1000000b0031d3e00dfdcmr433279qta.333.1656711544426;
-        Fri, 01 Jul 2022 14:39:04 -0700 (PDT)
-Received: from [192.168.1.9] (pool-68-163-101-245.bstnma.fios.verizon.net. [68.163.101.245])
-        by smtp.gmail.com with ESMTPSA id q23-20020a37f717000000b006b249cc505fsm3503936qkj.82.2022.07.01.14.39.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 Jul 2022 14:39:03 -0700 (PDT)
-Subject: Re: s390/nospec: add an option to use thunk-extern
-To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-kbuild@vger.kernel.org, "C. Erastus Toe" <ctoe@redhat.com>
-References: <8569429d-57f8-a0cf-8b17-1291f6973d32@redhat.com>
- <cover.thread-d13b6c.your-ad-here.call-01656331067-ext-4899@work.hours>
- <ad6a926e-eed1-a5e2-9f8b-0ea1599bbaed@redhat.com>
- <CAPQ7N1RFyZRCJZc84UxjSQj44ksa6f6ib5B=dVwoqMU9_=s8QA@mail.gmail.com>
-From:   Joe Lawrence <joe.lawrence@redhat.com>
-Message-ID: <e853268a-3e0a-3a88-331b-53c74e8796d6@redhat.com>
-Date:   Fri, 1 Jul 2022 17:39:02 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        with ESMTP id S229570AbiGAVpF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 17:45:05 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2088.outbound.protection.outlook.com [40.107.92.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A80E5C94C;
+        Fri,  1 Jul 2022 14:45:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jI9pn2CQa9tVt/zSVo7mys2gbuXO+DSJzWOl6PXjlIN0yJH2vR5Y1P6+lTVm4oC349Q66VXWoSvXsImmOaIJ/Qx24RzUopFkL6YNcR8y1uLH2A5MPgLrHxf3mDf69wutcIMjFJSxKFNXrQfHf7K2+ESau4dWORBB0Qw0Jst9VlqUUmUKLMXA+2ozllPuo7F+FqJ6sZBIolryhSQXlGqmDXfA4sYcmKak1y7cZODSySxB2dVIjT3+RoL7Pnju/Sra/KRxHQPFpf3iFlFGvJ+FclbjdDt6xWAoIWcu3KtR3WQ9MvsmmUDPvjOr7zCu9EGl5z97X09SiBY5796mnGnBhw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VBSZ/8mCoG3UGXcMOCHLX5phuetsyzqVOcV/4EW2NGc=;
+ b=occ9A/aqGOLEniGSs5RVfKDEYNIigY2cdSuXIsi4qNPbiGX4NbwL2jUNuXbZ6aF7xBgJ9qKpMfrqbsZR6nEzE2oE7RcBrQoVuWoykAdESfkiGeQPYKP6EANb5xqgoqiCgPSDB+zIWg+grBe4yfSRJT+t3QKYoFxz0ePRkkkF7HQQan0MVtripoE0cYT6PWThpC1240GVhReuV28Rh/KGOKeivP9jfOCgGNkBr0IiS7pSheZSiO+yrkii3FStoSDeLQu3PDGNJHqHAjLgQOQVfsLSZghFGMYgL8owqCTpKIuVJIXELW3K2k526LiciFif7Z+acNSIxKgLQTqXyJCMzA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.234) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
+ (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
+ (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VBSZ/8mCoG3UGXcMOCHLX5phuetsyzqVOcV/4EW2NGc=;
+ b=k8pG/fJCFUOLx+I8ynI7pEC7H/lQbxgIAh8DR5xVTImRjjzI/+rLzZmRct2GzDh1baxvIsi5P5OSmjJozRsPQhwRDWHIaPszh5pkZu14uOsiaff2kQRBC03ZzWYAMv3shrXNg/l05mj060+UXVVUGosZ18Lhdnxb5HpiGlaMliPUaX2pDCdkN5MP3LNaxNaheRdx52KGHlE9NU2HfTBBx29sH4XOI4BUWavkbJ2bGxddojzEWo0i+qgaMyoxK5zTAFj8Atsq9OvIVPbsHP0E7avmpYt7ChWV7WRH2QltbbJioSqbVOk+YG+f53wZltG8HvC/pGR9/GsuH6j1rxydBg==
+Received: from BN6PR13CA0063.namprd13.prod.outlook.com (2603:10b6:404:11::25)
+ by BL3PR12MB6547.namprd12.prod.outlook.com (2603:10b6:208:38e::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5395.15; Fri, 1 Jul
+ 2022 21:45:02 +0000
+Received: from BN8NAM11FT030.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:404:11:cafe::6f) by BN6PR13CA0063.outlook.office365.com
+ (2603:10b6:404:11::25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.11 via Frontend
+ Transport; Fri, 1 Jul 2022 21:45:02 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.234)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.234 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.234; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.234) by
+ BN8NAM11FT030.mail.protection.outlook.com (10.13.177.146) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5395.14 via Frontend Transport; Fri, 1 Jul 2022 21:45:02 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by DRHQMAIL101.nvidia.com
+ (10.27.9.10) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Fri, 1 Jul
+ 2022 21:45:01 +0000
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26; Fri, 1 Jul 2022
+ 14:45:00 -0700
+Received: from Asurada-Nvidia.nvidia.com (10.127.8.10) by mail.nvidia.com
+ (10.129.68.6) with Microsoft SMTP Server id 15.2.986.26 via Frontend
+ Transport; Fri, 1 Jul 2022 14:44:58 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     <joro@8bytes.org>, <will@kernel.org>, <marcan@marcan.st>,
+        <sven@svenpeter.dev>, <robin.murphy@arm.com>,
+        <robdclark@gmail.com>, <baolu.lu@linux.intel.com>,
+        <orsonzhai@gmail.com>, <baolin.wang7@gmail.com>,
+        <zhang.lyra@gmail.com>, <jean-philippe@linaro.org>,
+        <alex.williamson@redhat.com>, <jgg@nvidia.com>,
+        <kevin.tian@intel.com>
+CC:     <suravee.suthikulpanit@amd.com>, <alyssa@rosenzweig.io>,
+        <dwmw2@infradead.org>, <mjrosato@linux.ibm.com>,
+        <gerald.schaefer@linux.ibm.com>, <thierry.reding@gmail.com>,
+        <vdumpa@nvidia.com>, <jonathanh@nvidia.com>, <cohuck@redhat.com>,
+        <thunder.leizhen@huawei.com>, <christophe.jaillet@wanadoo.fr>,
+        <chenxiang66@hisilicon.com>, <john.garry@huawei.com>,
+        <yangyingliang@huawei.com>, <iommu@lists.linux-foundation.org>,
+        <iommu@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-arm-msm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <linux-tegra@vger.kernel.org>,
+        <virtualization@lists.linux-foundation.org>, <kvm@vger.kernel.org>
+Subject: [PATCH v5 0/5] cover-letter: Simplify vfio_iommu_type1 attach/detach routine
+Date:   Fri, 1 Jul 2022 14:44:50 -0700
+Message-ID: <20220701214455.14992-1-nicolinc@nvidia.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-In-Reply-To: <CAPQ7N1RFyZRCJZc84UxjSQj44ksa6f6ib5B=dVwoqMU9_=s8QA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: f14d8d5c-a732-4c23-06cf-08da5baaf447
+X-MS-TrafficTypeDiagnostic: BL3PR12MB6547:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: =?us-ascii?Q?7zO5x+QGb3Zd5ZjZKBQKOhFjKUIYy5TCTTzdgh+ejGhsQUx6bBsj/LM6OUG7?=
+ =?us-ascii?Q?n+Hhs2AuSCSyQnVu5q6UHAa5bS5D5pbi+P4etUGyypBJvbPCZEDs2bS3zdpV?=
+ =?us-ascii?Q?Oanv+vjZrGmOFOCvfsbr96fZGC+pYjFwl/Y6jXVXxZomZaqhf+whpPAbw1R4?=
+ =?us-ascii?Q?CYRv8jYJJqMHoklq7+zOwxIfeQgj7a0JaDfYiiWqwTc62nXiYTifIVx8Amtz?=
+ =?us-ascii?Q?AEpUWgrCoCOvPIgfv7h2MwxxHoiyfZQo8Ou2QV5NkrF/0jfG1uBOgXB1Cx5j?=
+ =?us-ascii?Q?WDL6ag9lBplllEzEHv65FiEui3RSdLU5FMV81w5IaM7jDu3ek+xhUxDFUnFM?=
+ =?us-ascii?Q?zYRRrSwHU7MzFPj/eshZ9BM0jm5mhksn5AsNrSDcnjBi+jlQ5ctI4kPqp32I?=
+ =?us-ascii?Q?TBdyTgNlJ26cFV1SgFVG9PIykmrgzGjfoHY3gGtSlDowHAP71XCc+jW3vGzr?=
+ =?us-ascii?Q?hNJUtK9pmiOZ3/z31BWqvpy1jhzDsY0biIrKet4menfTrscKTKIXmYKws9NZ?=
+ =?us-ascii?Q?wIFEU3rwBPNll+3M4uZQ7QRiJWL03AoE3g3JdOHARDV0qQNkC4sCuFgoj+dn?=
+ =?us-ascii?Q?yzRaSoPrFioKNrbXzq1Pw1mE9U5uxMhKIQhoHodLyY2qdXodyyM/iA2OGluu?=
+ =?us-ascii?Q?3hxg9nSt0uEFXnsHP8RdNWLCaHwEmADHrbpW8iBnDzbXl968TzT4TJwQomCw?=
+ =?us-ascii?Q?9Pb99Lx6mJKiLKlVU0uhLwZTxnxF1ycztruf8dSMbSrRX2cNWOIGP0qVJKYD?=
+ =?us-ascii?Q?VsMUzKKttjv2lv+TcQdYG/7rQryAivdApfIArgJmAO1+E42WU3WiyZSPh0x3?=
+ =?us-ascii?Q?PWi/EKiRTIz40LaDtbQaPPD3G9BIq2ZiRjiahDPdWURmgY+03MqZYSWNBQMu?=
+ =?us-ascii?Q?hrYyP3yHEdaXpU0cF0WJFPZbwiPraAdfd9zufM1aDeWDlyadY5jvyCql+2EU?=
+ =?us-ascii?Q?h58tSJdsADRSAgxD2Z6cPMHlnsTJc8piRfQsLnZbMLVxgwRVuawbuOsYhsdF?=
+ =?us-ascii?Q?pMpXISYb4aaZZJalVIX301iqhXefaNwWC/9NOPY+HD1PQyk=3D?=
+X-Forefront-Antispam-Report: CIP:12.22.5.234;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(346002)(376002)(136003)(396003)(39860400002)(46966006)(36840700001)(40470700004)(316002)(7696005)(7416002)(7406005)(26005)(86362001)(5660300002)(8936002)(478600001)(110136005)(70206006)(4326008)(70586007)(8676002)(82740400003)(356005)(6666004)(966005)(81166007)(54906003)(47076005)(336012)(426003)(83380400001)(40480700001)(40460700003)(36756003)(1076003)(186003)(921005)(82310400005)(41300700001)(2906002)(2616005)(36860700001)(83996005)(2101003)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Jul 2022 21:45:02.5335
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: f14d8d5c-a732-4c23-06cf-08da5baaf447
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.234];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT030.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6547
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/1/22 5:18 PM, C. Erastus Toe wrote:
-> On Wed, Jun 29, 2022 at 11:16 AM Joe Lawrence <joe.lawrence@redhat.com
-> <mailto:joe.lawrence@redhat.com>> wrote:
-> 
->     On 6/27/22 8:50 AM, Vasily Gorbik wrote:
->     > Hi Joe,
->     >
->     > sorry for late reply.
->     >
->     >> I couldn't find the upstream patch post for 1d2ad084800e
->     ("s390/nospec:
->     >> add an option to use thunk-extern"), so replying off-list here.  Feel
->     >> free to cc the appropriate list.
->     >>
->     >> Regarding this change, as I understand it, when
->     CONFIG_EXPOLINE_EXTERN=y
->     >> out-of-tree kernel modules will need to link against
->     >> arch/s390x/lib/expoline.o, right?
->     >>
->     >> And if so, shouldn't the top level 'prepare_modules' target create
->     >> expoline.o for this purpose?
->     >
->     > Thanks for bringing this up. I definitely missed out-of-tree
->     kernel modules
->     > build case without a prebuilt kernel. On the other hand this
->     post-linking
->     > trick is a rip off from powerpc:
->     >
->     > KBUILD_LDFLAGS_MODULE += arch/powerpc/lib/crtsavres.o
->     >
->     > So, now I wonder why powerpc doesn't have crtsavres.o in
->     'prepare_modules'.
->     >
->     > Anyhow, below is couple of patches to consider. The first one is
->     > meant to be backportable, as the second one requires 4efd417f298b.
->     >
->     > I had to move expoline.S to a separate directory to be able to
->     call into
->     > its Makefile for 'prepare_modules' and avoid warnings for other
->     targets
->     > defined in the same Makefile. Not sure if there are better kbuild
->     tricks
->     > I could use. Another option I thought about is to keep expoline.S
->     where
->     > it is and add a condition into that Makefile:
->     > expoline_prepare: prepare0
->     >       $(Q)$(MAKE) $(build)=arch/s390/lib expoline_prepare=1
->     arch/s390/lib/expoline.o
->     >
->     > arch/s390/lib/Makefile:
->     > # first target defined
->     > obj-$(CONFIG_EXPOLINE_EXTERN) += expoline.o
->     > ifndef expoline_prepare
->     > # ...other targets...
->     >
->     > Vasily Gorbik (2):
->     >   s390/nospec: build expoline.o for modules_prepare target
->     >   s390/nospec: remove unneeded header includes
->     >
->     >  arch/s390/Makefile                      | 8 +++++++-
->     >  arch/s390/include/asm/nospec-insn.h     | 2 --
->     >  arch/s390/lib/Makefile                  | 3 ++-
->     >  arch/s390/lib/expoline/Makefile         | 3 +++
->     >  arch/s390/lib/{ => expoline}/expoline.S | 0
->     >  5 files changed, 12 insertions(+), 4 deletions(-)
->     >  create mode 100644 arch/s390/lib/expoline/Makefile
->     >  rename arch/s390/lib/{ => expoline}/expoline.S (100%)
->     >
-> 
->     Thanks, Vasily.  We'll test these with OOT and the original gitlab
->     pipeline where we spotted potential issue with packaging and report
->     back.
-> 
-> Hi, 
-> 
-> Successfully tested the first patch in a rhel-9 backport. (had to skip
-> the second as it has dependencies on other patches like [1] that
-> deprecated symbols like __LC_BR_R1. Without those, the build resulted in
-> a flood of: depmod: WARNING: <module>.ko needs unknown symbol __LC_BR_R1.)
-> 
-> For ("s390/nospec: build expoline.o for modules_prepare target"), 
-> Tested-by: C. Erastus Toe <ctoe@redhat.com <mailto:ctoe@redhat.com>> 
-> 
-> [1] 4efd417f298b ("s390: raise minimum supported machine generation to z10")
-> 
+This is a preparatory series for IOMMUFD v2 patches. It enforces error
+code -EMEDIUMTYPE in iommu_attach_device() and iommu_attach_group() when
+an IOMMU domain and a device/group are incompatible. It also drops the
+useless domain->ops check since it won't fail in current environment.
 
-And then for the entire series (tested on top of v5.19-rc4),
-Tested-by: Joe Lawrence <joe.lawrence@redhat.com>
+These allow VFIO iommu code to simplify its group attachment routine, by
+avoiding the extra IOMMU domain allocations and attach/detach sequences
+of the old code.
+
+Worths mentioning the exact match for enforce_cache_coherency is removed
+with this series, since there's very less value in doing that as KVM will
+not be able to take advantage of it -- this just wastes domain memory.
+Instead, we rely on Intel IOMMU driver taking care of that internally.
+
+This is on github:
+https://github.com/nicolinc/iommufd/commits/vfio_iommu_attach
+
+Changelog
+v5:
+ * Rebased on top of Robin's "Simplify bus_type determination".
+ * Fixed a wrong change returning -EMEDIUMTYPE in arm-smmu driver.
+ * Added Baolu's "Reviewed-by".
+v4:
+ * Dropped -EMEDIUMTYPE change in mtk_v1 driver per Robin's input
+ * Added Baolu's and Kevin's Reviewed-by lines
+v3: https://lore.kernel.org/kvm/20220623200029.26007-1-nicolinc@nvidia.com/
+ * Dropped all dev_err since -EMEDIUMTYPE clearly indicates what error.
+ * Updated commit message of enforce_cache_coherency removing patch.
+ * Updated commit message of domain->ops removing patch.
+ * Replaced "goto out_unlock" with simply mutex_unlock() and return.
+ * Added a line of comments for -EMEDIUMTYPE return check.
+ * Moved iommu_get_msi_cookie() into alloc_attach_domain() as a cookie
+   should be logically tied to the lifetime of a domain itself.
+ * Added Kevin's "Reviewed-by".
+v2: https://lore.kernel.org/kvm/20220616000304.23890-1-nicolinc@nvidia.com/
+ * Added -EMEDIUMTYPE to more IOMMU drivers that fit the category.
+ * Changed dev_err to dev_dbg for -EMEDIUMTYPE to avoid kernel log spam.
+ * Dropped iommu_ops patch, and removed domain->ops in VFIO directly,
+   since there's no mixed-driver use case that would fail the sanity.
+ * Updated commit log of the patch removing enforce_cache_coherency.
+ * Fixed a misplace of "num_non_pinned_groups--" in detach_group patch.
+ * Moved "num_non_pinned_groups++" in PATCH-5 to the common path between
+   domain-reusing and new-domain pathways, like the code previously did.
+ * Fixed a typo in EMEDIUMTYPE patch.
+v1: https://lore.kernel.org/kvm/20220606061927.26049-1-nicolinc@nvidia.com/
+
+Jason Gunthorpe (1):
+  vfio/iommu_type1: Prefer to reuse domains vs match enforced cache
+    coherency
+
+Nicolin Chen (4):
+  iommu: Return -EMEDIUMTYPE for incompatible domain and device/group
+  vfio/iommu_type1: Remove the domain->ops comparison
+  vfio/iommu_type1: Clean up update_dirty_scope in detach_group()
+  vfio/iommu_type1: Simplify group attachment
+
+ drivers/iommu/amd/iommu.c                   |   2 +-
+ drivers/iommu/apple-dart.c                  |   4 +-
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c |  15 +-
+ drivers/iommu/arm/arm-smmu/arm-smmu.c       |   5 +-
+ drivers/iommu/arm/arm-smmu/qcom_iommu.c     |   9 +-
+ drivers/iommu/intel/iommu.c                 |  10 +-
+ drivers/iommu/iommu.c                       |  28 ++
+ drivers/iommu/ipmmu-vmsa.c                  |   4 +-
+ drivers/iommu/omap-iommu.c                  |   3 +-
+ drivers/iommu/s390-iommu.c                  |   2 +-
+ drivers/iommu/sprd-iommu.c                  |   6 +-
+ drivers/iommu/tegra-gart.c                  |   2 +-
+ drivers/iommu/virtio-iommu.c                |   3 +-
+ drivers/vfio/vfio_iommu_type1.c             | 352 ++++++++++----------
+ 14 files changed, 229 insertions(+), 216 deletions(-)
 
 -- 
-Joe
+2.17.1
 
