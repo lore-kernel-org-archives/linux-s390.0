@@ -2,66 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A78CCC43334
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 08:55:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9948FC433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 09:00:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236058AbiGAIzZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Jul 2022 04:55:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37932 "EHLO
+        id S234068AbiGAJAS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Jul 2022 05:00:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236068AbiGAIzY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 04:55:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7E11D1BEB8
-        for <linux-s390@vger.kernel.org>; Fri,  1 Jul 2022 01:55:23 -0700 (PDT)
+        with ESMTP id S233411AbiGAJAR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 05:00:17 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 70368192A2
+        for <linux-s390@vger.kernel.org>; Fri,  1 Jul 2022 02:00:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656665722;
+        s=mimecast20190719; t=1656666015;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=lkjeVHLiRKnGx+SDkOMpqWolwraAwFwTa3XTNY2+eNo=;
-        b=BiQ/niCXleD3uwPY3G3/np0TOzvcBKs/6U+ORi5JCLm4ojnjbdjqdA5hVJo07MMgH7JZTV
-        PQ3wCKBxdHEZHlB3JavXIalOGsXa2zusxR71uAQ2rciP2PqOfw2nA0Ad5cZoxMIY8/Upoi
-        nN58IUusREzSIf5IjihKykW1pIe1zLk=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=8lQ6iUMnyQRqa4PGLu8+SgKnRgrhBYKLGeVI6yaxhUA=;
+        b=RDjsMza4BbaVYNboiC8jjABNXleTsbHxCQr2QdOKtJy78s6cPyS5JCNi61Nb3jkL6RxDRj
+        DJStoUkbw+YyefyrytWoDNRmEbiImHv4uM6+cvu5JRbMKJrtPZI2aGCDtZkaBQE2GiIS2n
+        jsBeHTPOPTy6Mb3OjI1kTmnv7jp5E4I=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-111-BhRLToBqOtK9LUf36ywLbw-1; Fri, 01 Jul 2022 04:55:21 -0400
-X-MC-Unique: BhRLToBqOtK9LUf36ywLbw-1
-Received: by mail-pj1-f72.google.com with SMTP id n22-20020a17090ade9600b001ecdd9695c7so1070254pjv.9
-        for <linux-s390@vger.kernel.org>; Fri, 01 Jul 2022 01:55:20 -0700 (PDT)
+ us-mta-410-xdqax1IHPNqEUg0F9_Cngw-1; Fri, 01 Jul 2022 05:00:14 -0400
+X-MC-Unique: xdqax1IHPNqEUg0F9_Cngw-1
+Received: by mail-pj1-f71.google.com with SMTP id u19-20020a17090a891300b001ed01af4131so2586926pjn.1
+        for <linux-s390@vger.kernel.org>; Fri, 01 Jul 2022 02:00:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=lkjeVHLiRKnGx+SDkOMpqWolwraAwFwTa3XTNY2+eNo=;
-        b=CKsLBXyRHxGUbZaQeLmIvPl6uBNheXEtgCZnDPpJ0Lqu+ri/LVZYVWGt9QOfipnLQo
-         4dpLxbXADnOm2xlswuXBa5bTLIK6BoQQZCu3D78ebsQv4SlZl0to48/ydRTRw8zPLvPG
-         pA0nWmYIgRuLpdPyS0fBpIpAcYH8+ykOIddv0K0jk73lN3PVimqqMTAtbUQWS/vvSv+O
-         6DPUxxlnXUaf+7HnUXGIvpgNixOkco+AqFlwzpBKWsmjNJEg3EXi8s9db23V1sGThp19
-         ReuxWbQ0BNYxZ+6iD9JkJ06OHY/5IlDsti6m3c8J8AU7VxKYw749jMseYb+M+qBuGlSm
-         FptA==
-X-Gm-Message-State: AJIora9h93MN22bW053o1hndCc8zMruO8Wu81RuNLhW+3DbcvIjmhxgc
-        5nzUpjH1YDXQYAfAauNqzF/iQGjHn0LeHd2bQDyVU09f4JRauI8XVj9VUxQjmaLq9AhKhsruaAG
-        jXJsoEJ0lYEH9bsvjZUx2jQ==
-X-Received: by 2002:a17:903:2443:b0:16a:2b65:7edd with SMTP id l3-20020a170903244300b0016a2b657eddmr18561905pls.20.1656665720006;
-        Fri, 01 Jul 2022 01:55:20 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1sLP/MnYa3Xp+qYQJlIuiumTLO6KyhDeS6ZBk4hW4qZwr9I7787jFOGOD5WGdVtJecP+R32Tg==
-X-Received: by 2002:a17:903:2443:b0:16a:2b65:7edd with SMTP id l3-20020a170903244300b0016a2b657eddmr18561866pls.20.1656665719734;
-        Fri, 01 Jul 2022 01:55:19 -0700 (PDT)
+        bh=8lQ6iUMnyQRqa4PGLu8+SgKnRgrhBYKLGeVI6yaxhUA=;
+        b=2zU1gPya+ZRxdPb5midmGYr5OQ43lYc3mUYGNbDeq9at122LxboJkKMmkqktL/cd5W
+         nc0rpx0cL59w4miW0TgtWLJ4w4zJPGSWBkOHBdD3oKK59TlVssjWeWWMjYYZuWRY1zuw
+         x51ENhlA9g31oFic4+8BNv5a87ra2LnE+ki7UAHpTg9e1sl4cfEJAegdcq1DBP5KQSE9
+         YQxJl8ijg9CclWmL3M+FRTYxagzF1Y/wjRT7i2TZU129VvwBHECzgdoqYpa/PIJ8qA/G
+         lbLfPEvB1EU/aqnJuWG8sLBafMFF5iF6zEDW7DfBPueav1N615rnpAJIagUB/Rrj7lrK
+         vNwg==
+X-Gm-Message-State: AJIora+jc6xhTSWB8QyUuiqt1kwY2z6nrEi5FolVenqn8wDfLtcGEG8m
+        VTsDM7wJBbWDdd61RZqqDDDnznlpHAOLluXdJUz+BuySLidAz6ykiB9mJSUVY5cA1WPVt7NKmBS
+        CG2YZWqlIZvth2N2CHW83Ew==
+X-Received: by 2002:a63:f102:0:b0:40d:1d1f:770c with SMTP id f2-20020a63f102000000b0040d1d1f770cmr11192898pgi.521.1656666013396;
+        Fri, 01 Jul 2022 02:00:13 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1urKvm6LYkWKw16uIXqxBex7xUdVqhH17lRqnYeTgkb25NL8EQ+hO2PmoLH55tznJBr8D0cFQ==
+X-Received: by 2002:a63:f102:0:b0:40d:1d1f:770c with SMTP id f2-20020a63f102000000b0040d1d1f770cmr11192864pgi.521.1656666013152;
+        Fri, 01 Jul 2022 02:00:13 -0700 (PDT)
 Received: from [10.72.13.237] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id d4-20020a170902654400b001663e1881ecsm14988996pln.306.2022.07.01.01.55.08
+        by smtp.gmail.com with ESMTPSA id y3-20020a17090322c300b001618b70dcc9sm15332754plg.101.2022.07.01.02.00.01
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 Jul 2022 01:55:19 -0700 (PDT)
-Message-ID: <c4d24e5c-1a3e-e577-462e-c9ebde90d659@redhat.com>
-Date:   Fri, 1 Jul 2022 16:55:05 +0800
+        Fri, 01 Jul 2022 02:00:12 -0700 (PDT)
+Message-ID: <e24fec52-72a4-caaf-e31f-0adc5a6593d7@redhat.com>
+Date:   Fri, 1 Jul 2022 17:00:00 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH v11 09/40] virtio_ring: split: extract the logic of alloc
- state and extra
+Subject: Re: [PATCH v11 10/40] virtio_ring: split: extract the logic of attach
+ vring
 Content-Language: en-US
 To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         virtualization@lists.linux-foundation.org
@@ -97,9 +97,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
 References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
- <20220629065656.54420-10-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-11-xuanzhuo@linux.alibaba.com>
 From:   Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220629065656.54420-10-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220629065656.54420-11-xuanzhuo@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -108,142 +108,73 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 
 在 2022/6/29 14:56, Xuan Zhuo 写道:
-> Separate the logic of creating desc_state, desc_extra, and subsequent
-> patches will call it independently.
+> Separate the logic of attach vring, subsequent patches will call it
+> separately.
 >
-> Since only the structure vring is passed into __vring_new_virtqueue(),
-> when creating the function vring_alloc_state_extra_split(), we prefer to
-> use vring_virtqueue_split as a parameter, and it will be more convenient
-> to pass vring_virtqueue_split to some subsequent functions.
+> Since the "struct vring_virtqueue_split split" is created on the
+> stack and has been initialized to 0. So using
+> split->queue_dma_addr/split->queue_size_in_bytes assignment for
+> queue_dma_addr/queue_size_in_bytes can keep the same as the original
+> code.
 >
-> So a new vring_virtqueue_split variable is added in
-> __vring_new_virtqueue().
+> On the other hand, subsequent patches can use the "struct
+> vring_virtqueue_split split" obtained by vring_alloc_queue_split() to
+> directly complete the attach operation.
 >
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+
 > ---
->   drivers/virtio/virtio_ring.c | 58 +++++++++++++++++++++++++-----------
->   1 file changed, 40 insertions(+), 18 deletions(-)
+>   drivers/virtio/virtio_ring.c | 20 +++++++++++++-------
+>   1 file changed, 13 insertions(+), 7 deletions(-)
 >
 > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index a9ceb9c16c54..cedd340d6db7 100644
+> index cedd340d6db7..9025bd373d3b 100644
 > --- a/drivers/virtio/virtio_ring.c
 > +++ b/drivers/virtio/virtio_ring.c
-> @@ -204,6 +204,7 @@ struct vring_virtqueue {
->   #endif
->   };
->   
-> +static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
->   
->   /*
->    * Helpers.
-> @@ -939,6 +940,32 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
+> @@ -940,6 +940,18 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
 >   	return NULL;
 >   }
 >   
-> +static int vring_alloc_state_extra_split(struct vring_virtqueue_split *vring)
+> +static void virtqueue_vring_attach_split(struct vring_virtqueue *vq,
+> +					 struct vring_virtqueue_split *vring)
 > +{
-> +	struct vring_desc_state_split *state;
-> +	struct vring_desc_extra *extra;
-> +	u32 num = vring->vring.num;
+> +	vq->split.queue_dma_addr = vring->queue_dma_addr;
+> +	vq->split.queue_size_in_bytes = vring->queue_size_in_bytes;
 > +
-> +	state = kmalloc_array(num, sizeof(struct vring_desc_state_split), GFP_KERNEL);
-> +	if (!state)
-> +		goto err_state;
+> +	vq->split.vring = vring->vring;
 > +
-> +	extra = vring_alloc_desc_extra(num);
-> +	if (!extra)
-> +		goto err_extra;
-> +
-> +	memset(state, 0, num * sizeof(struct vring_desc_state_split));
-> +
-> +	vring->desc_state = state;
-> +	vring->desc_extra = extra;
-> +	return 0;
-> +
-> +err_extra:
-> +	kfree(state);
-> +err_state:
-> +	return -ENOMEM;
+> +	vq->split.desc_state = vring->desc_state;
+> +	vq->split.desc_extra = vring->desc_extra;
 > +}
 > +
->   static void vring_free_split(struct vring_virtqueue_split *vring,
->   			     struct virtio_device *vdev)
+>   static int vring_alloc_state_extra_split(struct vring_virtqueue_split *vring)
 >   {
-> @@ -2224,7 +2251,7 @@ EXPORT_SYMBOL_GPL(vring_interrupt);
+>   	struct vring_desc_state_split *state;
+> @@ -2287,10 +2299,6 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+>   	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
+>   		!context;
 >   
->   /* Only available for split ring */
->   struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> -					struct vring vring,
-> +					struct vring _vring,
->   					struct virtio_device *vdev,
->   					bool weak_barriers,
->   					bool context,
-> @@ -2232,7 +2259,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
->   					void (*callback)(struct virtqueue *),
->   					const char *name)
->   {
-> +	struct vring_virtqueue_split vring = {};
-
-
-Nit: to reduce the change-set, let's use vring_split here?
-
-Other looks good.
-
-Thanks
-
-
->   	struct vring_virtqueue *vq;
-> +	int err;
->   
->   	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
->   		return NULL;
-> @@ -2261,7 +2290,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
->   	vq->split.queue_dma_addr = 0;
->   	vq->split.queue_size_in_bytes = 0;
->   
-> -	vq->split.vring = vring;
-> +	vq->split.vring = _vring;
+> -	vq->split.queue_dma_addr = 0;
+> -	vq->split.queue_size_in_bytes = 0;
+> -
+> -	vq->split.vring = _vring;
 >   	vq->split.avail_flags_shadow = 0;
 >   	vq->split.avail_idx_shadow = 0;
 >   
-> @@ -2273,30 +2302,23 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
->   					vq->split.avail_flags_shadow);
+> @@ -2310,10 +2318,8 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+>   		return NULL;
 >   	}
 >   
-> -	vq->split.desc_state = kmalloc_array(vring.num,
-> -			sizeof(struct vring_desc_state_split), GFP_KERNEL);
-> -	if (!vq->split.desc_state)
-> -		goto err_state;
-> +	vring.vring = _vring;
->   
-> -	vq->split.desc_extra = vring_alloc_desc_extra(vring.num);
-> -	if (!vq->split.desc_extra)
-> -		goto err_extra;
-> +	err = vring_alloc_state_extra_split(&vring);
-> +	if (err) {
-> +		kfree(vq);
-> +		return NULL;
-> +	}
->   
-> -	memset(vq->split.desc_state, 0, vring.num *
-> -			sizeof(struct vring_desc_state_split));
-> +	vq->split.desc_state = vring.desc_state;
-> +	vq->split.desc_extra = vring.desc_extra;
->   
-> -	virtqueue_init(vq, vq->split.vring.num);
-> +	virtqueue_init(vq, vring.vring.num);
+> -	vq->split.desc_state = vring.desc_state;
+> -	vq->split.desc_extra = vring.desc_extra;
+> -
+>   	virtqueue_init(vq, vring.vring.num);
+> +	virtqueue_vring_attach_split(vq, &vring);
 >   
 >   	spin_lock(&vdev->vqs_list_lock);
 >   	list_add_tail(&vq->vq.list, &vdev->vqs);
->   	spin_unlock(&vdev->vqs_list_lock);
->   	return &vq->vq;
-> -
-> -err_extra:
-> -	kfree(vq->split.desc_state);
-> -err_state:
-> -	kfree(vq);
-> -	return NULL;
->   }
->   EXPORT_SYMBOL_GPL(__vring_new_virtqueue);
->   
 
