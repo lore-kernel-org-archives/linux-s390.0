@@ -2,69 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 423FEC43334
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 18:27:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7444FC433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 18:42:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229768AbiGAS1t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Jul 2022 14:27:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52454 "EHLO
+        id S230230AbiGASmD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Jul 2022 14:42:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229553AbiGAS1s (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 14:27:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4342027CCB;
-        Fri,  1 Jul 2022 11:27:48 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEA5EB82CF1;
-        Fri,  1 Jul 2022 18:27:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 86A9FC341C6;
-        Fri,  1 Jul 2022 18:27:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656700065;
-        bh=8sIslhGMBS7d+Sc6M22c+J6/dd4vq7cVgAEcf1sWHcs=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=ubCn8XgzNt/qPkU16WmZROOfjmB/AbJnbAC9p6VfUhhPkfNKwT/oDi/7lFUlthURM
-         kJ7dZVUp5zofSRTV7VVz451hv4KrYeQc+DyGr+yHZ8wbeS8JFdc39peLndWdK2JTXb
-         eq8n9hc1NVS3QZtAupZPNmG8UTUF4VH5TlHEV59I2F3NWmqUbtHIUMTs4xlOwP+m7G
-         REjr8rrvUijPxJutMzWN7STnfuR4kP/BYR2JLdj27pTE+tefznfL4zwPU8otgRUnUQ
-         wZPLQzxold312yFbKR+U2PM7VpLtudZ9qwJ+BRssrWDTINPeDp9TKcEnM3GHDVbUlj
-         Lj4cjcZ24J0mA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 72C65E49BB8;
-        Fri,  1 Jul 2022 18:27:45 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 5.19-rc5
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <Yr69Mr39dc2xRygV@tuxmaker.boeblingen.de.ibm.com>
-References: <Yr69Mr39dc2xRygV@tuxmaker.boeblingen.de.ibm.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Yr69Mr39dc2xRygV@tuxmaker.boeblingen.de.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.19-5
-X-PR-Tracked-Commit-Id: d7d488f41b41a1b7a1df3c74f2f65eb4585f5d55
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: cec84e7547d3f95b3fa4ded1618cb43d5d98a76a
-Message-Id: <165670006546.28259.10677158995220436426.pr-tracker-bot@kernel.org>
-Date:   Fri, 01 Jul 2022 18:27:45 +0000
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+        with ESMTP id S229553AbiGASmC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 14:42:02 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0FCE28723;
+        Fri,  1 Jul 2022 11:42:01 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 261ILuWf016936;
+        Fri, 1 Jul 2022 18:41:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=1LdrGotNpWAEMNi1KYcWoFPRrX+N02uyi0vtrByAkl4=;
+ b=m0p/0fPxnb5fmH2+fv4kxDMK9XDKF9z+9RcchqF5zgLvBuQBwHJOd7R83p0i/FFQ7jF6
+ IjlI/P/xyf0g/QrpVhlm3zeyr2CdfVayQZiccU2mS+qgFViqwRWrPY3ad2IIwsPo2vb2
+ FgILMg1AhDRYuGPS2GtR1rNk5v2x6gEfghl7JWOU3/RFNiXxwh7XwrdKsnaLPInusAKZ
+ xJgklsRFd3tCcWfMZbLmawo4z6sPnjy5COs305HRRTNJxgIyTcYX+IpRddZcCwkdxLZf
+ Cg+oRI7Efhzhsc6RH8VPxC5xA836WIFH0aLu4mTX3BwJJTXJkP426UTMl9qH6rhZqocs Ig== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h2650gg09-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Jul 2022 18:41:57 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 261Ic9WJ005954;
+        Fri, 1 Jul 2022 18:41:55 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3gwt08yheq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Jul 2022 18:41:55 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 261IfqUD24903958
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 1 Jul 2022 18:41:52 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2D6725204F;
+        Fri,  1 Jul 2022 18:41:52 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id D94DC5204E;
+        Fri,  1 Jul 2022 18:41:51 +0000 (GMT)
+From:   Karsten Graul <kgraul@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Subject: [PATCH net v2] MAINTAINERS: add Wenjia as SMC maintainer
+Date:   Fri,  1 Jul 2022 20:41:43 +0200
+Message-Id: <20220701184143.1216274-1-kgraul@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XATUC9tOQjnMg2T28uUH33dyY5PG6-77
+X-Proofpoint-GUID: XATUC9tOQjnMg2T28uUH33dyY5PG6-77
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-01_11,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 mlxscore=0 clxscore=1015 impostorscore=0 suspectscore=0
+ phishscore=0 bulkscore=0 spamscore=0 adultscore=0 mlxlogscore=868
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2207010073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Fri, 1 Jul 2022 11:24:02 +0200:
+Add Wenjia as maintainer for Shared Memory Communications (SMC)
+Sockets.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.19-5
+Acked-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Acked-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/cec84e7547d3f95b3fa4ded1618cb43d5d98a76a
-
-Thank you!
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d4d3f37f64eb..53537b8d2d81 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -18104,6 +18104,7 @@ F:	drivers/misc/sgi-xp/
+ 
+ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
+ M:	Karsten Graul <kgraul@linux.ibm.com>
++M:	Wenjia Zhang <wenjia@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ S:	Supported
+ W:	http://www.ibm.com/developerworks/linux/linux390/
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.34.1
+
