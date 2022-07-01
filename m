@@ -2,104 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08AC5C43334
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 13:04:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40034C43334
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 14:34:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236519AbiGANEH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Jul 2022 09:04:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32906 "EHLO
+        id S232674AbiGAOe5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Jul 2022 10:34:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235750AbiGANEG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 09:04:06 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CD628E15;
-        Fri,  1 Jul 2022 06:04:06 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 261Cskgh008604;
-        Fri, 1 Jul 2022 13:04:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=ph/f/eKtYqQSFhD7kczZTMspMdgv4w2J7Iu5Rxw/KPs=;
- b=JrZdSbpTlNlO42sFKlYGfYAo1ZZtH4rmwePrFsCkBx2eRVzzh8AXmsZahQLanddA+tHP
- 8wAVy/B3ZDceJm3b8TeE6FGCrlcxVzAb/wOz7VzLLHTlDfcMYT/E4jCfXJGoQc120w/j
- ArcyCVBd1C1dquvfOJSi37+sutedEDyyNlY16C6UDpYVrETpFPOQ02hGI+tBqZBHx2Zm
- dqThxFm/P2XD5dzwCjNgZE+GaloJeobfMpkjg3uJsyi8Q6NpKeO5Y0cxM2lZqPZCZWI+
- leB//dgS/lwNxEnAXGbhijECvA7Etlo02gFaXoUFd2Ja12340V6N6pSMtuGmurwhZIj5 9Q== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h21bk8chr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Jul 2022 13:04:03 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 261CpqIG027825;
-        Fri, 1 Jul 2022 13:03:30 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3gwsmj9s08-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Jul 2022 13:03:29 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 261D3QFg22675736
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 1 Jul 2022 13:03:26 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8C40D4C044;
-        Fri,  1 Jul 2022 13:03:26 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3FD754C040;
-        Fri,  1 Jul 2022 13:03:26 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  1 Jul 2022 13:03:26 +0000 (GMT)
-From:   Karsten Graul <kgraul@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>
-Subject: [PATCH net] MAINTAINERS: add Wenjia as SMC maintainer
-Date:   Fri,  1 Jul 2022 15:02:53 +0200
-Message-Id: <20220701130253.854715-1-kgraul@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: WLHsuiIjkIaYRd1UQFQ1mh7Y84qMEbPF
-X-Proofpoint-ORIG-GUID: WLHsuiIjkIaYRd1UQFQ1mh7Y84qMEbPF
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S232723AbiGAOeg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 10:34:36 -0400
+Received: from sender-of-o51.zoho.in (sender-of-o51.zoho.in [103.117.158.51])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D2276B802;
+        Fri,  1 Jul 2022 07:30:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1656685799; cv=none; 
+        d=zohomail.in; s=zohoarc; 
+        b=WytGit7/VJVzWYVcDuphLiPxX5pT2qBET0QJ9Dd0CLbcFUG7LhWniefl1jAX4d3XLFkbsJTep5InNU5XVdGR1RC57jHOvXlbPt7lG3ukDuFiiu9u0ARs8x2VnVEqztUi++8ZoHknudjQSHsCZd/RdtFFZHJJKsamFIo1gAVLkiI=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.in; s=zohoarc; 
+        t=1656685799; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=afITDBJUJm7jKiQgATQjaUMg82FcalVO6iB2x0vBPY0=; 
+        b=CKwYabmYsBX/aJg2XDvQkmu3dczm8sYcRIBlt4+/aAcp1BBtmkeTbDQpOEYfZ3Rxg3FqG9DBqHDgqOcSUJTJN8+hrH8BafHgvePMU8GLnV7fxGLYRITx65S/StNpVR33QErTujJYLRjPu9tj2U+t9ogckaPNPgGwTNB5tATZUB4=
+ARC-Authentication-Results: i=1; mx.zohomail.in;
+        dkim=pass  header.i=siddh.me;
+        spf=pass  smtp.mailfrom=code@siddh.me;
+        dmarc=pass header.from=<code@siddh.me>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1656685799;
+        s=zmail; d=siddh.me; i=code@siddh.me;
+        h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:References:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+        bh=afITDBJUJm7jKiQgATQjaUMg82FcalVO6iB2x0vBPY0=;
+        b=ZiDJF40QzmHiaKP/ALzgvMTGJNMhVWGK8k5Bin2QCm5HLU92J5mSo1g7p1zBZFDW
+        gbPy/LDQDWGnD7LBXzjb62hKzp0JQ59+6fRqVf92uHGECViJ8NKbtfI0R5hLzoidBl9
+        TwpiKT5AvTK/Rhskt++Aq8A/JeD6H005atm5OK2E=
+Received: from mail.zoho.in by mx.zoho.in
+        with SMTP id 1656685787788483.58861760110744; Fri, 1 Jul 2022 19:59:47 +0530 (IST)
+Date:   Fri, 01 Jul 2022 19:59:47 +0530
+From:   Siddh Raman Pant <code@siddh.me>
+To:     "Shuah Khan" <skhan@linuxfoundation.org>
+Cc:     "linux-s390" <linux-s390@vger.kernel.org>,
+        "linux-kernel" <linux-kernel@vger.kernel.org>,
+        "linux-kernel-mentees" 
+        <linux-kernel-mentees@lists.linuxfoundation.org>
+Message-ID: <181ba2afa51.7d123db0789809.1834230085722405669@siddh.me>
+In-Reply-To: <390aca1b-3b48-e0c1-07a1-ec8c29f0b8af@linuxfoundation.org>
+References: <20220628064621.14427-1-code@siddh.me> <390aca1b-3b48-e0c1-07a1-ec8c29f0b8af@linuxfoundation.org>
+Subject: Re: [PATCH] MAINTAINERS: Add tools/testing/crypto/chacha20-s390/
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-01_07,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- adultscore=0 mlxscore=0 mlxlogscore=868 spamscore=0 bulkscore=0
- clxscore=1011 priorityscore=1501 malwarescore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2207010050
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Importance: Medium
+User-Agent: Zoho Mail
+X-Mailer: Zoho Mail
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add Wenjia as maintainer for Shared Memory Communications (SMC)
-Sockets.
+On Fri, 01 Jul 2022 05:30:27 +0530  Shuah Khan <skhan@linuxfoundation.org> wrote
+> Doesn't look like you cc'ed the maintainers - please do and resend.
 
-Acked-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Acked-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+Sorry for not doing so. I will resend now.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d4d3f37f64eb..e1448aa5c5fa 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18104,6 +18104,7 @@ F:	drivers/misc/sgi-xp/
- 
- SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
- M:	Karsten Graul <kgraul@linux.ibm.com>
-+M:  Wenjia Zhang <wenjia@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
- S:	Supported
- W:	http://www.ibm.com/developerworks/linux/linux390/
--- 
-2.34.1
-
+Thanks,
+Siddh
