@@ -2,66 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE6EFC433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 09:03:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C23A0CCA480
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Jul 2022 09:09:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231955AbiGAJDm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Jul 2022 05:03:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
+        id S233214AbiGAJJf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Jul 2022 05:09:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235168AbiGAJDi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 05:03:38 -0400
+        with ESMTP id S235985AbiGAJJe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Jul 2022 05:09:34 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9EF0D2CE3B
-        for <linux-s390@vger.kernel.org>; Fri,  1 Jul 2022 02:03:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4D08D33A2F
+        for <linux-s390@vger.kernel.org>; Fri,  1 Jul 2022 02:09:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656666215;
+        s=mimecast20190719; t=1656666569;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=D1b6P6ndaF684cAO7Vh4K15FYuoIpDfb/buQv2cS9+s=;
-        b=cwAib/SVcSnosIT6Qru3ZdypKl2x87gVyu/iczePVPCHgqMoqU17FnPOXu9CJ40N7DfNeE
-        UG08uHrs8JotRxb2XgSyKIGWcsU8kOt1cNjaoscMrNurejgtME0JK4BK2hNfH4uAsCSUlw
-        V5ihda7IAKjpJcVkC1z3fvyQrVKyZGk=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=saiQ5wFJJA8eA9HPaDwAsrYblDAAKsPCjYisojMTkZw=;
+        b=FcgJlsXS+Jj7GhH3qNZ0DCfniHmml1vRkQERzXVrbEF353ccSva8BAvsqCC8oximKvzcrz
+        Z7f9O3yOU2PPntH1gBtid/136C4AMSeEsaOzf4I1X1c9pTZTg+E6h8nLAuyzS5M/3QAtqT
+        HndaYb5snwkKJqiNWoNBk4athLN7/MA=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-479-7SqPgskYO-G9UK_4kRiQKw-1; Fri, 01 Jul 2022 05:03:34 -0400
-X-MC-Unique: 7SqPgskYO-G9UK_4kRiQKw-1
-Received: by mail-pl1-f199.google.com with SMTP id u14-20020a17090341ce00b0016a38ec073aso1166356ple.21
-        for <linux-s390@vger.kernel.org>; Fri, 01 Jul 2022 02:03:33 -0700 (PDT)
+ us-mta-587-iwx4rtKPMGKInac9OabMvQ-1; Fri, 01 Jul 2022 05:09:28 -0400
+X-MC-Unique: iwx4rtKPMGKInac9OabMvQ-1
+Received: by mail-pg1-f197.google.com with SMTP id 196-20020a6300cd000000b0040c9c64e7e4so1024183pga.9
+        for <linux-s390@vger.kernel.org>; Fri, 01 Jul 2022 02:09:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=D1b6P6ndaF684cAO7Vh4K15FYuoIpDfb/buQv2cS9+s=;
-        b=cL2t+MCV5+uyUgxA0vlJ2gyPeAPr9cJRgL2NzDLlRwe8/hArE6IfM8t7SeKysD1SrR
-         SfVUyZ0ZMyz53Rp7HDeCQ9t+GBGmQ1zzxn6wiDB3WLparnPD4wNN8Yg9lAjt0L1gF5ys
-         4jP0HJPfKdLOxKvqLddOsWSYXzkxe5FPWvDRfx/uKyq7xIhDnA0J2CyalvtKxU+weJdE
-         /FTMIF8eADXWUfgAtvb9/BcFlABm5rTjQQCRBxN8wjlnRH1ylSfV4CCiRviYewWmFYcU
-         L632AxqbjZ/zt3EedykBrw33bzdtzTaG2LGuHrF61DtzM7bkiwWbVrtWAehQWjfyUfCl
-         fPAw==
-X-Gm-Message-State: AJIora/OHa4p5KlHMDLBbPWxlOwy3SiSG5EAINOwOsXUii26bo0KvhfZ
-        7G3DMTxYb0IlDy5XYO/pCtKD0JqespJZCsExTgFBBTvM2JzcL2frGdHhYSC1iaLQxGmy9CUaYwY
-        5OUg28iOO6VnXgYxk+Bb9nw==
-X-Received: by 2002:a17:903:18c:b0:16b:8f8a:335f with SMTP id z12-20020a170903018c00b0016b8f8a335fmr18699029plg.133.1656666212882;
-        Fri, 01 Jul 2022 02:03:32 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1umuzlHjb+AVT8pHf+MDYjA/xytvg2Ww3qrvKeBf7drySw0yZL85wg1m0wVfhF0UW2aCpNd7Q==
-X-Received: by 2002:a17:903:18c:b0:16b:8f8a:335f with SMTP id z12-20020a170903018c00b0016b8f8a335fmr18699008plg.133.1656666212635;
-        Fri, 01 Jul 2022 02:03:32 -0700 (PDT)
+        bh=saiQ5wFJJA8eA9HPaDwAsrYblDAAKsPCjYisojMTkZw=;
+        b=JYqyVysArVR4fShoEjaJSXHl1+ovKgsQp1VxGDW6TjXe7BNkHgE23lbF3FVynx2Qh3
+         54YoCD1dTLwHfCklhw4d8ocugoJ1YK/MhPE0+s5GlbBfp5eaYBup7HScRoB5F8szLHbE
+         HOh29+ZjmFrX5mNVEBn/u4FZSlHtb8c+4Nyz9uaKqGdOYnC3278NKibIzok2/SHXim2b
+         K1jHORBe6IbukYXQhV8ZOvzKJvgZGU/HHO1kj9XfLI5hPwguy/M6wl2qr+4GFKMpujjb
+         +n8MK8aIDS9FxjJKoF51VG2YHOWyW1NMEy9TFs4N3sTj7O/5fBeb+iciQ7j7kNOwvMwI
+         McXA==
+X-Gm-Message-State: AJIora9Js/DuUFLPNp40sQUlDmjGiZVoJT9qDDUeFAgNpmX+HuIrNgeA
+        zQQ+wW73R7y2HHfxoawXoutoa3k+zr1Xuz6oDGU9sIh4HEbp55RVa9Lc/GZ5njVlOw/Y3mKTpAP
+        QSC2FHvcegQo3X4iL08DENw==
+X-Received: by 2002:a17:90a:fa8c:b0:1ec:9f5c:846d with SMTP id cu12-20020a17090afa8c00b001ec9f5c846dmr15441620pjb.73.1656666567447;
+        Fri, 01 Jul 2022 02:09:27 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vA1dTIazYR3bB1gNFv3RFbJN8Z3XTbc6Oeecp05m0N8NOinTXnkwxvAjkIm4tnkL8fohP/9Q==
+X-Received: by 2002:a17:90a:fa8c:b0:1ec:9f5c:846d with SMTP id cu12-20020a17090afa8c00b001ec9f5c846dmr15441568pjb.73.1656666567223;
+        Fri, 01 Jul 2022 02:09:27 -0700 (PDT)
 Received: from [10.72.13.237] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id s22-20020a17090aba1600b001ec71be4145sm6020700pjr.2.2022.07.01.02.03.21
+        by smtp.gmail.com with ESMTPSA id jj22-20020a170903049600b001674d61c1c6sm14812024plb.272.2022.07.01.02.09.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 Jul 2022 02:03:32 -0700 (PDT)
-Message-ID: <e27e4f98-5f3f-6ad5-b612-163cb967fa8a@redhat.com>
-Date:   Fri, 1 Jul 2022 17:03:19 +0800
+        Fri, 01 Jul 2022 02:09:26 -0700 (PDT)
+Message-ID: <6256ad45-1606-f805-3427-ecee360c011f@redhat.com>
+Date:   Fri, 1 Jul 2022 17:09:13 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH v11 13/40] virtio_ring: split: reserve vring_align,
- may_reduce_num
+Subject: Re: [PATCH v11 14/40] virtio_ring: split: introduce
+ virtqueue_resize_split()
 Content-Language: en-US
 To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         virtualization@lists.linux-foundation.org
@@ -97,9 +97,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
 References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
- <20220629065656.54420-14-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-15-xuanzhuo@linux.alibaba.com>
 From:   Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220629065656.54420-14-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220629065656.54420-15-xuanzhuo@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -108,45 +108,83 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 
 在 2022/6/29 14:56, Xuan Zhuo 写道:
-> In vring_create_virtqueue_split() save vring_align, may_reduce_num to
-> structure vring_virtqueue_split. Used to create a new vring when
-> implementing resize .
+> virtio ring split supports resize.
+>
+> Only after the new vring is successfully allocated based on the new num,
+> we will release the old vring. In any case, an error is returned,
+> indicating that the vring still points to the old vring.
+>
+> In the case of an error, re-initialize(virtqueue_reinit_split()) the
+> virtqueue to ensure that the vring can be used.
+>
+> In addition, vring_align, may_reduce_num are necessary for reallocating
+> vring, so they are retained for creating vq.
 >
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>   drivers/virtio/virtio_ring.c | 32 ++++++++++++++++++++++++++++++++
+>   1 file changed, 32 insertions(+)
+>
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 9c83c5e6d5a9..1aaa1e5f9991 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -212,6 +212,7 @@ struct vring_virtqueue {
+>   };
+>   
+>   static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
+> +static void vring_free(struct virtqueue *_vq);
+>   
+>   /*
+>    * Helpers.
+> @@ -1114,6 +1115,37 @@ static struct virtqueue *vring_create_virtqueue_split(
+>   	return vq;
+>   }
+>   
+> +static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	struct vring_virtqueue_split vring = {};
+> +	struct virtio_device *vdev = _vq->vdev;
+> +	int err;
+> +
+> +	err = vring_alloc_queue_split(&vring, vdev, num, vq->split.vring_align,
+> +				      vq->split.may_reduce_num);
+> +	if (err)
+> +		goto err;
 
+
+It's better to have decouple the allocation future more to avoid any 
+rewind here in the future.
+
+But the patch should be fine.
+
+So
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
 
-> ---
->   drivers/virtio/virtio_ring.c | 9 +++++++++
->   1 file changed, 9 insertions(+)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 4c8972da5423..9c83c5e6d5a9 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -105,6 +105,13 @@ struct vring_virtqueue_split {
->   	/* DMA address and size information */
->   	dma_addr_t queue_dma_addr;
->   	size_t queue_size_in_bytes;
 > +
-> +	/*
-> +	 * The parameters for creating vrings are reserved for creating new
-> +	 * vring.
-> +	 */
-> +	u32 vring_align;
-> +	bool may_reduce_num;
->   };
+> +	err = vring_alloc_state_extra_split(&vring);
+> +	if (err) {
+> +		vring_free_split(&vring, vdev);
+> +		goto err;
+> +	}
+> +
+> +	vring_free(&vq->vq);
+> +
+> +	virtqueue_init(vq, vring.vring.num);
+> +	virtqueue_vring_attach_split(vq, &vring);
+> +	virtqueue_vring_init_split(vq);
+> +
+> +	return 0;
+> +
+> +err:
+> +	virtqueue_reinit_split(vq);
+> +	return -ENOMEM;
+> +}
+> +
 >   
->   struct vring_virtqueue_packed {
-> @@ -1098,6 +1105,8 @@ static struct virtqueue *vring_create_virtqueue_split(
->   		return NULL;
->   	}
->   
-> +	to_vvq(vq)->split.vring_align = vring_align;
-> +	to_vvq(vq)->split.may_reduce_num = may_reduce_num;
->   	to_vvq(vq)->split.queue_dma_addr = vring.queue_dma_addr;
->   	to_vvq(vq)->split.queue_size_in_bytes = vring.queue_size_in_bytes;
->   	to_vvq(vq)->we_own_ring = true;
+>   /*
+>    * Packed ring specific functions - *_packed().
 
