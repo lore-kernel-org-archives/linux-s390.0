@@ -2,98 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C92AC433EF
-	for <linux-s390@archiver.kernel.org>; Sat,  2 Jul 2022 19:42:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61B04C433EF
+	for <linux-s390@archiver.kernel.org>; Sat,  2 Jul 2022 20:44:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231268AbiGBTmJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 2 Jul 2022 15:42:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49166 "EHLO
+        id S229458AbiGBUoR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 2 Jul 2022 16:44:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231217AbiGBTmJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Jul 2022 15:42:09 -0400
-Received: from smtp.smtpout.orange.fr (smtp03.smtpout.orange.fr [80.12.242.125])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F08F1BF5F
-        for <linux-s390@vger.kernel.org>; Sat,  2 Jul 2022 12:42:07 -0700 (PDT)
-Received: from [192.168.1.18] ([90.11.190.129])
-        by smtp.orange.fr with ESMTPA
-        id 7j0Fovq0J26JC7j0Fox7ym; Sat, 02 Jul 2022 21:42:06 +0200
-X-ME-Helo: [192.168.1.18]
-X-ME-Auth: YWZlNiIxYWMyZDliZWIzOTcwYTEyYzlhMmU3ZiQ1M2U2MzfzZDfyZTMxZTBkMTYyNDBjNDJlZmQ3ZQ==
-X-ME-Date: Sat, 02 Jul 2022 21:42:06 +0200
-X-ME-IP: 90.11.190.129
-Message-ID: <62d3cfcd-a32e-59d1-c376-c95e8da1049f@wanadoo.fr>
-Date:   Sat, 2 Jul 2022 21:42:02 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH 1/4] s390/cio: Rename bitmap_size() as idset_bitmap_size()
-Content-Language: en-US
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+        with ESMTP id S229436AbiGBUoR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Jul 2022 16:44:17 -0400
+Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE74AA44F;
+        Sat,  2 Jul 2022 13:44:14 -0700 (PDT)
+Received: by mail-qt1-x836.google.com with SMTP id k14so4551755qtm.3;
+        Sat, 02 Jul 2022 13:44:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=DlqK/gCHCDGy5OSRXAYFxnfYX+I9GxfO75TGVC+FALo=;
+        b=KYrBXP9UYV5NoeyAbdVeawzPP055oU/YPCp4PhRf6nnOZT6ArrIVdgKYCoo6iGYIf+
+         OkpT7KUF7/gAJJpj8Gndr1tT5ooKoE1Njt/nQZMg5AT/yUvpXboiZ/7YVG5kVzxZiDmN
+         33edQoG2f8REKt8wyYDVZqC17/vWVi1BSJtXaVZotBUjJeo0oi9t0rl723v/YXS0e8I4
+         Lm/8Y766tSv3y1tW0SDfNL66UCtAPbt4apAJhXJR5LagbgW6dah2u1jztPJUP5qjESHt
+         gNofLDhtzb34Mw6JCaEQvGQ09YGrqkszp6Jaz3T6qgV/3A+xlFIDrZsvk+nZJb6LBdbT
+         uyBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=DlqK/gCHCDGy5OSRXAYFxnfYX+I9GxfO75TGVC+FALo=;
+        b=jDAFI4ZcvMW6Fa52etnglszLBuQP/gcC47FU58fxtQxjpwcrQlhPZKYKHu3bUrH0lC
+         c+0/K0KqK+8vcUTkTbf6f0L/5+0tGtHgBqUZuyi2vQp6jtTChZ0Jhq2acovHcII1pcEo
+         W2np89DE63CD/nnuGwg/EADgAjyRbpufgZRmxH1YAxqJ8ilGowpkAV102X8lUXhQmPhd
+         EalFAYagwKT21pdWexQk5VLl9BdGMPp+uFgz9ntLWlqiEmNYFNAfiA06a9s83J9+1XFe
+         AWHIqZJwgv8VhBCQ+EG5CzXisrotUA9jaM5sMkWROKu0HC4kZLZP3hxWyqNWA5u3gTXm
+         VLqA==
+X-Gm-Message-State: AJIora8Vcg/Vr4Tovkd9zQk3tGiZ5cmoE6lZh/nKo6KpBY598/eAol+s
+        +gLptBE/ic+lIeQdSnkRlwc=
+X-Google-Smtp-Source: AGRyM1v9Om7l6fke9TMJ9NBQOtPQriWNRvL7GNoiNXCdxK+C+aPoOgahYt70QVZO5kMXfNiYT220JQ==
+X-Received: by 2002:a05:6214:e83:b0:470:54c3:e18e with SMTP id hf3-20020a0562140e8300b0047054c3e18emr22253839qvb.3.1656794653736;
+        Sat, 02 Jul 2022 13:44:13 -0700 (PDT)
+Received: from localhost ([2601:4c1:c100:1230:e838:b1c2:b125:986a])
+        by smtp.gmail.com with ESMTPSA id c19-20020a05622a059300b00304edcfa109sm18513614qtb.33.2022.07.02.13.44.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 02 Jul 2022 13:44:13 -0700 (PDT)
+Date:   Sat, 2 Jul 2022 13:44:12 -0700
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Cc:     agk@redhat.com, snitzer@kernel.org, dm-devel@redhat.com,
         vneethv@linux.ibm.com, oberpar@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com, agordeev@linux.ibm.com,
         borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        almaz.alexandrovich@paragon-software.com, yury.norov@gmail.com,
-        linux@rasmusvillemoes.dk, linux-s390@vger.kernel.org,
-        ntfs3@lists.linux.dev, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org
-Newsgroups: gmane.linux.kernel.janitors,gmane.linux.kernel.device-mapper.devel,gmane.linux.kernel
+        almaz.alexandrovich@paragon-software.com,
+        andriy.shevchenko@linux.intel.com, linux@rasmusvillemoes.dk,
+        linux-s390@vger.kernel.org, ntfs3@lists.linux.dev,
+        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH 0/4] Introduce bitmap_size()
+Message-ID: <YsCuHLTsKGCO/jsL@yury-laptop>
 References: <cover.1656785856.git.christophe.jaillet@wanadoo.fr>
- <3f2ad7fb91948525f6c52e0d36ec223cd3049c88.1656785856.git.christophe.jaillet@wanadoo.fr>
- <YsCUW6vT7LlAv2UE@smile.fi.intel.com>
- <6063ee97-1bbe-2391-78cb-57572851a52c@wanadoo.fr>
- <YsCdSkzSbVz9gnci@smile.fi.intel.com>
-From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-In-Reply-To: <YsCdSkzSbVz9gnci@smile.fi.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1656785856.git.christophe.jaillet@wanadoo.fr>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Le 02/07/2022 à 21:32, Andy Shevchenko a écrit :
-> On Sat, Jul 02, 2022 at 09:24:24PM +0200, Christophe JAILLET wrote:
->> Le 02/07/2022 à 20:54, Andy Shevchenko a écrit :
->>> On Sat, Jul 02, 2022 at 08:29:09PM +0200, Christophe JAILLET wrote:
-> 
-> ...
-> 
->>>> -		memset(set->bitmap, 0, bitmap_size(num_ssid, num_id));
->>>> +		memset(set->bitmap, 0, idset_bitmap_size(num_ssid, num_id));
->>>
->>> Why not to use bitmap_zero()?
-> 
-> ...
-> 
->>>> -	memset(set->bitmap, 0xff, bitmap_size(set->num_ssid, set->num_id));
->>>> +	memset(set->bitmap, 0xff, idset_bitmap_size(set->num_ssid, set->num_id));
->>>
->>> Why not to use bitmap_fill() ?
-> 
->> For this initial step, I wanted to keep changes as minimal as possible (i.e
->> just function renaming)
->>
->> In fact, I plan to send a follow-up patch on this file.
->> This would remove the newly renamed idset_bitmap_size() function, use the
->> bitmap API directly (as you pointed-out) with
->> "set->num_ssid * set->num_id" as size.
->>
->> It is already done this way in idset_is_empty(), so it would be more
->> consistent.
->>
->> If the serie needs a v2 (or if required), I can add an additional 5th patch
->> for it. Otherwise it will send separatly later.
-> 
-> If you use bitmap APIs as I suggested above as the first patch, the rest will
-> have less unneeded churn, no?
-> 
-> 
+On Sat, Jul 02, 2022 at 08:28:53PM +0200, Christophe JAILLET wrote:
+> This serie introduces bitmap_size() which returns the size, in bytes, of a
+> bitmap. Such a function is useful to simplify some drivers that use vmalloc() or
+> other functions to allocate some butmaps.
 
-Makes sense.
+This generally looks like a step in a wrong direction. Bitmap is by
+definition an array of bits. If someone has a reason to handle bitmap
+on a per-byte basis, the guy is probably doing something wrong.
 
-I'll wait for some other potential comments 1 day or 2 and send a v2 
-with the simplification you propose as an initial step.
+We already have quite comprehensive list of functions that help to
+allocate, fill, clear, copy etc bitmap without considering it as an
+array of bytes or words.
 
-Thanks for your feed-back.
+> ... some drivers that use vmalloc() ...
 
-CJ
+If a driver needs vmalloc() for a bitmap, we should introduce
+bitmap_vmalloc(), not bitmap_size().
+
+> It also hides some implementation details about how bitmaps are stored (array of
+> longs)
+
+Sorry, I don't understand that. How bitmap_size() helps to hide a fact that
+bitmap is an array of unsigned longs? (Except that it makes an impression
+that it's an array of bytes.)
+
+> Before introducing this function in patch 3, patch 1 and 2 rename some functions
+> with the same name but with different meaning.
+> 
+> Finaly, patch 4 makes use of the new function in bitmap.h.
+
+You mentioned, you need bitmap_size() to use with vmalloc(), but in
+patch 4, there's no such code. 
+ 
+> Other follow-up patches to simplify some drivers will be proposed later if/when
+> this serie is merged.
+
+This series doesn't show an example of how you're going to use new
+API, and therefore it's hard to judge, do we really need bitmap_size(),
+or we just need more helpers around.
+
+As I already said, bitmaps are evolving in 2nd direction, which is the
+right approach, I think.
+
+Thanks,
+Yury
+
+> Christophe JAILLET (4):
+>   s390/cio: Rename bitmap_size() as idset_bitmap_size()
+>   fs/ntfs3: Rename bitmap_size() as ntfs3_bitmap_size()
+>   bitmap: Introduce bitmap_size()
+>   bitmap: Use bitmap_size()
+> 
+>  drivers/md/dm-clone-metadata.c |  5 -----
+>  drivers/s390/cio/idset.c       |  8 ++++----
+>  fs/ntfs3/bitmap.c              |  4 ++--
+>  fs/ntfs3/fsntfs.c              |  2 +-
+>  fs/ntfs3/index.c               |  6 +++---
+>  fs/ntfs3/ntfs_fs.h             |  2 +-
+>  fs/ntfs3/super.c               |  2 +-
+>  include/linux/bitmap.h         | 15 +++++++++------
+>  lib/math/prime_numbers.c       |  2 --
+>  9 files changed, 21 insertions(+), 25 deletions(-)
+> 
+> -- 
+> 2.34.1
