@@ -2,216 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89592C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 12:13:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 586B9C433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 12:51:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233977AbiGDMNl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Jul 2022 08:13:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51450 "EHLO
+        id S233389AbiGDMv5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Jul 2022 08:51:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233792AbiGDMNi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 08:13:38 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BE48C3B;
-        Mon,  4 Jul 2022 05:13:35 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 264BlO0q004902;
-        Mon, 4 Jul 2022 12:13:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=eex1ESOPI9cZF+dkFiTfwxSy9rJFD2EEyI4eHKszPYg=;
- b=UthrWGccPcIAWxhGX38cLzwOyEMWb7GxU2aCOyxYieNzUtKTzT+ngVyOEHz9SSNsqBzv
- WoCG5W5JCQV9mDgd+UH2OuM3zGJ9FuEFykTaAq7QWGCCauv4f4W+fZoLtzpGtdlK36Js
- HJ2cbnoQpmqedBWsMj6tNRt7XDIVwvLfruqVSoUqY78Xe1H1nEkIjsXnxkAUpEJRih/3
- +nS8KHiM3xZNkFP5ynwzPVFMb6TPLVi83LOlXg8Wi283OFAPEkSykCW8y5m5o2gmFDZz
- PyAtEKnVrX3QOlTiYj9vNCKbbo7l6+otzD/sQAiKG+TRwOjD+KyBqwslKO92xw0r6I9d iw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3yn28muc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jul 2022 12:13:35 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 264CC0OB020461;
-        Mon, 4 Jul 2022 12:13:34 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3yn28mtn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jul 2022 12:13:34 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 264C5aaN019979;
-        Mon, 4 Jul 2022 12:13:32 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3h2dn92p4g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jul 2022 12:13:32 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 264CDTYc23920914
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Jul 2022 12:13:29 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 040C252050;
-        Mon,  4 Jul 2022 12:13:29 +0000 (GMT)
-Received: from a46lp57.lnxne.boe (unknown [9.152.108.100])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C43385204F;
-        Mon,  4 Jul 2022 12:13:28 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v2 1/4] runtime: add support for panic tests
-Date:   Mon,  4 Jul 2022 14:13:25 +0200
-Message-Id: <20220704121328.721841-2-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220704121328.721841-1-nrb@linux.ibm.com>
-References: <20220704121328.721841-1-nrb@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: y3syRKmmahsQsJTZiznckm1KNCmKBquE
-X-Proofpoint-GUID: KL8p-puMkIaEUuBiAPeswLLhoUSTWzZT
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S232129AbiGDMv5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 08:51:57 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5ED1054D;
+        Mon,  4 Jul 2022 05:51:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=mQaCY3+Mowg2tD0+KKloxT+uQZbU8L2SJHLKrJJOWT4=; b=ObYVjvUtNKGv3K16cc1tk+NwbB
+        L2dPyo3RXPGZczkyv458MCfPNX9P1v5RIQxdTOKsW4/fnVMyYQF2/uA3vgAW+ymNqx8s9tL1kMiRd
+        EevJp9VeOrlSztCmbUcwCtfw/nmR7vhOypzzklONFvpUgDYnfApM/kE/9ivx1b7NhqtaU4nTXTxwy
+        eun8DAZJd0NztlViFrZNUix4XmYM/cPSjEHfqFanVNXU2BNVSBPHiGlCO+5omAMpgw/B6rKL/PsjN
+        f14wCVw8vBK8n0hMetokZCqqIpsJhNo0qVKaTJvWbmk31cUex3q1fOlPrsa2gMlbg0Mxn5DCwfMUq
+        uIEK2tqQ==;
+Received: from [2001:4bb8:189:3c4a:8758:74d9:4df6:6417] (helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1o8LYI-008wAp-CW; Mon, 04 Jul 2022 12:51:46 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org
+Subject: simplify the mdev interface v4
+Date:   Mon,  4 Jul 2022 14:51:30 +0200
+Message-Id: <20220704125144.157288-1-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-04_11,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
- priorityscore=1501 mlxscore=0 mlxlogscore=999 bulkscore=0 clxscore=1015
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2207040052
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-QEMU supports a guest state "guest-panicked" which indicates something
-in the guest went wrong, for example on s390x, when an external
-interrupt loop was triggered.
+Hi all,
 
-Since the guest does not continue to run when it is in the
-guest-panicked state, it is currently impossible to write panicking
-tests in kvm-unit-tests. Support from the runtime is needed to check
-that the guest enters the guest-panicked state.
+this series signigicantly simplies the mdev driver interface by following
+the patterns for device model interaction used elsewhere in the kernel.
 
-Similar to migration tests, add a new group panic. Tests in this
-group must enter the guest-panicked state to succeed.
+Changes since v3:
+ - make the sysfs_name and pretty_name fields pointers instead of arrays
+ - add an i915 cleanup to prepare for the above
 
-The runtime will spawn a QEMU instance, connect to the QMP and listen
-for events. To parse the QMP protocol, jq[1] is used. Same as with
-netcat in the migration tests, panic tests won't run if jq is not
-installed.
+Changes since v2:
+ - rebased to vfio/next
+ - fix a pre-existing memory leak in i915 instead of making it worse
+ - never manipulate if ->available_instances if drv->get_available is
+   provided
+ - keep a parent reference for the mdev_type
+ - keep a few of the sysfs.c helper function around
+ - improve the documentation for the parent device lifetime
+ - minor spellig / formatting fixes
 
-The guest is created in the stopped state and only continued when
-connection to the QMP was successful. This ensures no events are missed
-between QEMU start and the connect to the QMP.
+Changes since v1:
+ - embedd the mdev_parent into a different sub-structure in i916
+ - remove headers now inclued by mdev.h from individual source files
+ - pass an array of mdev_types to mdev_register_parent
+ - add additional patches to implement all attributes on the
+   mdev_type in the core code
 
-[1] https://stedolan.github.io/jq/
-
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
----
- s390x/run             |  2 +-
- scripts/arch-run.bash | 49 +++++++++++++++++++++++++++++++++++++++++++
- scripts/runtime.bash  |  3 +++
- 3 files changed, 53 insertions(+), 1 deletion(-)
-
-diff --git a/s390x/run b/s390x/run
-index 24138f6803be..f1111dbdbe62 100755
---- a/s390x/run
-+++ b/s390x/run
-@@ -30,7 +30,7 @@ M+=",accel=$ACCEL"
- command="$qemu -nodefaults -nographic $M"
- command+=" -chardev stdio,id=con0 -device sclpconsole,chardev=con0"
- command+=" -kernel"
--command="$(migration_cmd) $(timeout_cmd) $command"
-+command="$(panic_cmd) $(migration_cmd) $(timeout_cmd) $command"
- 
- # We return the exit code via stdout, not via the QEMU return code
- run_qemu_status $command "$@"
-diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-index 0dfaf017db0a..739490bc7da2 100644
---- a/scripts/arch-run.bash
-+++ b/scripts/arch-run.bash
-@@ -104,6 +104,14 @@ qmp ()
- 	echo '{ "execute": "qmp_capabilities" }{ "execute":' "$2" '}' | ncat -U $1
- }
- 
-+qmp_events ()
-+{
-+	while ! test -S "$1"; do sleep 0.1; done
-+	echo '{ "execute": "qmp_capabilities" }{ "execute": "cont" }' \
-+		| ncat --no-shutdown -U $1 \
-+		| jq -c 'select(has("event"))'
-+}
-+
- run_migration ()
- {
- 	if ! command -v ncat >/dev/null 2>&1; then
-@@ -164,6 +172,40 @@ run_migration ()
- 	return $ret
- }
- 
-+run_panic ()
-+{
-+	if ! command -v ncat >/dev/null 2>&1; then
-+		echo "${FUNCNAME[0]} needs ncat (netcat)" >&2
-+		return 77
-+	fi
-+
-+	if ! command -v jq >/dev/null 2>&1; then
-+		echo "${FUNCNAME[0]} needs jq" >&2
-+		return 77
-+	fi
-+
-+	qmp=$(mktemp -u -t panic-qmp.XXXXXXXXXX)
-+
-+	trap 'kill 0; exit 2' INT TERM
-+	trap 'rm -f ${qmp}' RETURN EXIT
-+
-+	# start VM stopped so we don't miss any events
-+	eval "$@" -chardev socket,id=mon1,path=${qmp},server=on,wait=off \
-+		-mon chardev=mon1,mode=control -S &
-+
-+	panic_event_count=$(qmp_events ${qmp} | jq -c 'select(.event == "GUEST_PANICKED")' | wc -l)
-+	if [ "$panic_event_count" -lt 1 ]; then
-+		echo "FAIL: guest did not panic"
-+		ret=3
-+	else
-+		# some QEMU versions report multiple panic events
-+		echo "PASS: guest panicked"
-+		ret=1
-+	fi
-+
-+	return $ret
-+}
-+
- migration_cmd ()
- {
- 	if [ "$MIGRATION" = "yes" ]; then
-@@ -171,6 +213,13 @@ migration_cmd ()
- 	fi
- }
- 
-+panic_cmd ()
-+{
-+	if [ "$PANIC" = "yes" ]; then
-+		echo "run_panic"
-+	fi
-+}
-+
- search_qemu_binary ()
- {
- 	local save_path=$PATH
-diff --git a/scripts/runtime.bash b/scripts/runtime.bash
-index 7d0180bf14bd..8072f3bb536a 100644
---- a/scripts/runtime.bash
-+++ b/scripts/runtime.bash
-@@ -145,6 +145,9 @@ function run()
-     if find_word "migration" "$groups"; then
-         cmdline="MIGRATION=yes $cmdline"
-     fi
-+    if find_word "panic" "$groups"; then
-+        cmdline="PANIC=yes $cmdline"
-+    fi
-     if [ "$verbose" = "yes" ]; then
-         echo $cmdline
-     fi
--- 
-2.36.1
-
+Diffstat:
+ Documentation/driver-api/vfio-mediated-device.rst |   26 +-
+ Documentation/s390/vfio-ap.rst                    |    2 
+ Documentation/s390/vfio-ccw.rst                   |    2 
+ drivers/gpu/drm/i915/gvt/aperture_gm.c            |   20 +-
+ drivers/gpu/drm/i915/gvt/gvt.h                    |   42 ++--
+ drivers/gpu/drm/i915/gvt/kvmgt.c                  |  168 ++++-------------
+ drivers/gpu/drm/i915/gvt/vgpu.c                   |  210 +++++++---------------
+ drivers/s390/cio/cio.h                            |    4 
+ drivers/s390/cio/vfio_ccw_drv.c                   |    3 
+ drivers/s390/cio/vfio_ccw_ops.c                   |   60 ------
+ drivers/s390/cio/vfio_ccw_private.h               |    2 
+ drivers/s390/crypto/vfio_ap_ops.c                 |   68 +------
+ drivers/s390/crypto/vfio_ap_private.h             |    6 
+ drivers/vfio/mdev/mdev_core.c                     |  185 ++++---------------
+ drivers/vfio/mdev/mdev_driver.c                   |    7 
+ drivers/vfio/mdev/mdev_private.h                  |   32 ---
+ drivers/vfio/mdev/mdev_sysfs.c                    |  186 ++++++++++---------
+ include/linux/mdev.h                              |   77 ++++----
+ samples/vfio-mdev/mbochs.c                        |  103 +++-------
+ samples/vfio-mdev/mdpy.c                          |  115 +++---------
+ samples/vfio-mdev/mtty.c                          |   94 +++------
+ 21 files changed, 458 insertions(+), 954 deletions(-)
