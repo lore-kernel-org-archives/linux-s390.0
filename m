@@ -2,109 +2,131 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51E43C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 11:35:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B226C433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 12:13:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233554AbiGDLfa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Jul 2022 07:35:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46136 "EHLO
+        id S233831AbiGDMNi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Jul 2022 08:13:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233350AbiGDLf3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 07:35:29 -0400
+        with ESMTP id S232898AbiGDMNh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 08:13:37 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC555E88;
-        Mon,  4 Jul 2022 04:35:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BEE5CEF;
+        Mon,  4 Jul 2022 05:13:35 -0700 (PDT)
 Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 264AkWRF023810;
-        Mon, 4 Jul 2022 11:35:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=j8n8QnNWxc6DqyHBFvfTXm1SINLsB982cPLlzWpJtlc=;
- b=j66OKN5uwMVB7s/6u1riOvfh+ddIcPg+MgAJ04w7veGf3G/R87x1sLDpDyI0cawiJ4xT
- gY1kz1USL2qOFnah5h+k2JwTZwpwSPYTESMXn+/o8kffRr45VpwKds8MPKrsJZz46Z66
- 3U+bRum0CWK38VrktNoNeX7qOhua79d2q9jPaTMs0Si6I4VzXj+VeC+LEIYH3qoduoWR
- SeqMsYY/Wa2yInGkXyQE2USxX4w4crN55I21UpXE2OM6lzv/LJF07rx/7irsz/la8+go
- hLVGCBeEtf7G3C5W93BwP1eyBSEuusx6zQHJhwRXnQV1lCPib7Dz7Mz3dtyx/6Zdrev3 og== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3xrh92pn-1
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 264C7puA018277;
+        Mon, 4 Jul 2022 12:13:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=mWCOmnuxzWvLNLfEJ8Vs9dWOw2rUeXUXgIGxyHeUMgs=;
+ b=dTIzz7//73AMV5rAF8rJLkaVhSykACIftmdkVwlzR/C9SNWCXOwFunFjrroX49sYMh/Z
+ PqypnRRk8o2ZgLqjMzGcK4ij/Ciu8BzL0BR0Wtiedd3OWC6YiYT5LxVT1mTxwGgj/Py+
+ u3okNOkKr800SmV4KeI7YGTyo9t/ayJIWpHgeH68Tk2Fb+1/WY2dXLK+xwOQTcYVBvAk
+ XtFZNPDfmStF8uWCtXHkmvsyukdaV98X9bcGthOsOq4N1KqM6VOGbeRjBtDN1mKudmhq
+ mj5jYhiopeZUCveO7uK0CaYzqOWZvcr4YCEiLYvhcU2XjzTQ1ZkLpSaiAKOTpQ8sVPj3 rQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3ypmrdwd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jul 2022 11:35:25 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 264BLK3h017554;
-        Mon, 4 Jul 2022 11:35:24 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04ams.nl.ibm.com with ESMTP id 3h2dn92mtp-1
+        Mon, 04 Jul 2022 12:13:34 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 264C9WV0024618;
+        Mon, 4 Jul 2022 12:13:34 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3ypmrdvu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jul 2022 11:35:23 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 264BY8J124117668
+        Mon, 04 Jul 2022 12:13:34 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 264C5sss008568;
+        Mon, 4 Jul 2022 12:13:32 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3h2d9japg6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Jul 2022 12:13:32 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 264CDTYp23658904
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Jul 2022 11:34:08 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A6793AE04D;
-        Mon,  4 Jul 2022 11:35:20 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4E14CAE053;
-        Mon,  4 Jul 2022 11:35:20 +0000 (GMT)
-Received: from [9.145.42.138] (unknown [9.145.42.138])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  4 Jul 2022 11:35:20 +0000 (GMT)
-Message-ID: <7a4be6a8-6833-f049-3fef-48285a9fe40b@linux.ibm.com>
-Date:   Mon, 4 Jul 2022 13:35:20 +0200
+        Mon, 4 Jul 2022 12:13:29 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3791652050;
+        Mon,  4 Jul 2022 12:13:29 +0000 (GMT)
+Received: from a46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 0445452051;
+        Mon,  4 Jul 2022 12:13:28 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v2 2/4] lib: s390x: add CPU timer functions to time.h
+Date:   Mon,  4 Jul 2022 14:13:26 +0200
+Message-Id: <20220704121328.721841-3-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220704121328.721841-1-nrb@linux.ibm.com>
+References: <20220704121328.721841-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH 1/2] s390/hwcaps: Add HWCAP_UV
-Content-Language: en-US
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org, nrb@linux.ibm.com
-References: <20220701100210.5482-1-seiden@linux.ibm.com>
- <20220701100210.5482-2-seiden@linux.ibm.com>
- <1a2a885b-d408-0426-8e8c-ad1c56f4c215@linux.ibm.com>
- <YsK6ViBvm/330a0i@osiris>
-From:   Steffen Eiden <seiden@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <YsK6ViBvm/330a0i@osiris>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yoadaJZBvzZJnBsB6S75yyigtsUkZyMC
-X-Proofpoint-ORIG-GUID: yoadaJZBvzZJnBsB6S75yyigtsUkZyMC
+X-Proofpoint-GUID: eM_oFtfiXnomEdHj7PNMiILC4QX9ZarG
+X-Proofpoint-ORIG-GUID: T9DP3btdDOIpf0FbYGvBeslnkjKzzshB
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-04_09,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- adultscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 priorityscore=1501 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2207040048
+ definitions=2022-07-04_11,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 suspectscore=0 phishscore=0 impostorscore=0 spamscore=0
+ bulkscore=0 adultscore=0 mlxscore=0 mlxlogscore=892 clxscore=1015
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2207040052
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Upcoming changes will make use of the CPU timer, so add a convenience
+function to set the CPU timer.
 
+Since shifts for both CPU timer and TOD clock are the same, introduce a
+new define TIMING_S390_SHIFT_US. The respective shifts for CPU timer and
+TOD clock reference it, so the semantic difference between the two
+defines is kept.
 
-On 7/4/22 12:00, Heiko Carstens wrote:
-> On Fri, Jul 01, 2022 at 12:10:18PM +0200, Christian Borntraeger wrote:
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ lib/s390x/asm/time.h | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-[ snip ]
-
->> Any preference from your side?
-> 
-> I mentioned already before this RFC that my preferred solution would
-> be to have a solution which extends the existing method to work (also)
-> with facility bits - haven't checked if all existing users could be
-> converted to facility bits, but making it more flexible would work
-> certainly.
-> 
-> If Steffen is willing to do that, that would be very welcome.
-> Otherwise I'll put that on my todo list.
-
-I'll have a look on that.
+diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
+index 7652a151e87a..9ae364afb8a3 100644
+--- a/lib/s390x/asm/time.h
++++ b/lib/s390x/asm/time.h
+@@ -11,9 +11,13 @@
+ #ifndef _ASMS390X_TIME_H_
+ #define _ASMS390X_TIME_H_
+ 
+-#define STCK_SHIFT_US	(63 - 51)
++#define TIMING_S390_SHIFT_US	(63 - 51)
++
++#define STCK_SHIFT_US	TIMING_S390_SHIFT_US
+ #define STCK_MAX	((1UL << 52) - 1)
+ 
++#define CPU_TIMER_SHIFT_US	TIMING_S390_SHIFT_US
++
+ static inline uint64_t get_clock_us(void)
+ {
+ 	uint64_t clk;
+@@ -45,4 +49,14 @@ static inline void mdelay(unsigned long ms)
+ 	udelay(ms * 1000);
+ }
+ 
++static inline void cpu_timer_set(int64_t timeout_ms)
++{
++	int64_t timer_value = (timeout_ms * 1000) << CPU_TIMER_SHIFT_US;
++	asm volatile (
++		"spt %[timer_value]\n"
++		:
++		: [timer_value] "Q" (timer_value)
++	);
++}
++
+ #endif
+-- 
+2.36.1
 
