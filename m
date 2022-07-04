@@ -2,141 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2664C43334
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 11:25:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51E43C433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 11:35:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233350AbiGDLZQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Jul 2022 07:25:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37456 "EHLO
+        id S233554AbiGDLfa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Jul 2022 07:35:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233651AbiGDLZO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 07:25:14 -0400
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C3D4101F8;
-        Mon,  4 Jul 2022 04:25:14 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Cfi6ILfm4xV+r0rj9T2RTLzJmBeZdPRM7C71WkufJzTwXpyT1tDzJRHUkrpJs50mP1liFsVNHdpv2fvA/mstnpr2+kfReG9PfY4OxeSbfcfv7XZdFbKdC6k+awfWoTMHPIAeNB770JGRILtJboDrFxOkjDpS1aN+RxsAIXiB/s+TYmFelXxObX39VotGIHEaF9w7fLY+NHb8w76Fwyll3VX2CGpbcyhQ4frqU98rSn1NVtI+Wp0SSgHJ+Y6v5kclzhFQ+UqduRrgy2/mhkIeVVQuQfAyeg3TFcDw+rxYUJSFSkkoJLrfAx0hR8iK1vtQY/sWOCQVomoWZCE3yrc4SQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3cyYipmzIgffZaMuO3KCre+mbX2ya9GhsyUmg+Fhe7w=;
- b=CoMmHqLoUpPwuWxNpASkUM2wZCPGPmD2C+BGVILO0HY5kqf6wV6IQLPXFFZfH4mkpi1RjAc/y77MxGk2wH+OOSwQDvg4SFzQv+t6m79E2OY7Mm4pFLPlZgx7WfoQ9ZBCsow4wOZpsa5uVK2ZIXWMCV9oAoOSj8I7CgEnPsau2PKM4FRPcxuBLSapHEp43AwN7Fr9peKAVynmjizdznSNHT300dn9IXKi20d366LcSWiWD2AsOorZsVSQmDnWviRRPnBBw3tl2e4pHsV9frMAFcUBMveckOGmbajPwBMsoZd9QqKJZG+LqNCUDC/ST/NxThmZ35UjH/ldtB31ZpNloQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3cyYipmzIgffZaMuO3KCre+mbX2ya9GhsyUmg+Fhe7w=;
- b=t53FuFnn3IGjdp3xJ6rVbzGTRtFZcL2CsXNSHWlpHkdPG4ucAHDWuVxtSA6OubxPUK3+D9jvLONcQvtY/5Wbi/GXW5cU58WXNC3lM8ylhI+N1RiMPD3e17Bc6BSswgKDWT1KALfbwdlp0TCxVm1pCNj+GLTV1U4bC99kUf7ftQixGIKByg2gnK/k412dBIFhWGHDOH8/XaTEGoS3hiPoe5raRT0PIMkLvLhfbTWSh8RB8q3dPk2MUZ4nV23l7ogcrV+XBabQ5cRFCPBNmsZMMSwRKftRGn7J+V1nIv0Kp5ARe/h2+OXCTZdECCeOAGxZFITan7VUqwZm5meyD8Z2hw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (52.135.49.15) by
- MN2PR12MB3741.namprd12.prod.outlook.com (10.255.236.94) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5395.14; Mon, 4 Jul 2022 11:25:12 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ac35:7c4b:3282:abfb]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ac35:7c4b:3282:abfb%3]) with mapi id 15.20.5395.020; Mon, 4 Jul 2022
- 11:25:12 +0000
-Date:   Mon, 4 Jul 2022 08:25:11 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v3 00/11] s390/vfio-ccw rework
-Message-ID: <20220704112511.GO693670@nvidia.com>
-References: <20220630203647.2529815-1-farman@linux.ibm.com>
- <20220630234411.GM693670@nvidia.com>
- <e8f1748eb1bae3e90521b0d5d4471266f4ea7c98.camel@linux.ibm.com>
- <f21307d9-6490-c39d-cff0-2a50c5f1cb35@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f21307d9-6490-c39d-cff0-2a50c5f1cb35@linux.ibm.com>
-X-ClientProxiedBy: BL1PR13CA0213.namprd13.prod.outlook.com
- (2603:10b6:208:2bf::8) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S233350AbiGDLf3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 07:35:29 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC555E88;
+        Mon,  4 Jul 2022 04:35:28 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 264AkWRF023810;
+        Mon, 4 Jul 2022 11:35:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=j8n8QnNWxc6DqyHBFvfTXm1SINLsB982cPLlzWpJtlc=;
+ b=j66OKN5uwMVB7s/6u1riOvfh+ddIcPg+MgAJ04w7veGf3G/R87x1sLDpDyI0cawiJ4xT
+ gY1kz1USL2qOFnah5h+k2JwTZwpwSPYTESMXn+/o8kffRr45VpwKds8MPKrsJZz46Z66
+ 3U+bRum0CWK38VrktNoNeX7qOhua79d2q9jPaTMs0Si6I4VzXj+VeC+LEIYH3qoduoWR
+ SeqMsYY/Wa2yInGkXyQE2USxX4w4crN55I21UpXE2OM6lzv/LJF07rx/7irsz/la8+go
+ hLVGCBeEtf7G3C5W93BwP1eyBSEuusx6zQHJhwRXnQV1lCPib7Dz7Mz3dtyx/6Zdrev3 og== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3xrh92pn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Jul 2022 11:35:25 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 264BLK3h017554;
+        Mon, 4 Jul 2022 11:35:24 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 3h2dn92mtp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Jul 2022 11:35:23 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 264BY8J124117668
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 4 Jul 2022 11:34:08 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A6793AE04D;
+        Mon,  4 Jul 2022 11:35:20 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4E14CAE053;
+        Mon,  4 Jul 2022 11:35:20 +0000 (GMT)
+Received: from [9.145.42.138] (unknown [9.145.42.138])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  4 Jul 2022 11:35:20 +0000 (GMT)
+Message-ID: <7a4be6a8-6833-f049-3fef-48285a9fe40b@linux.ibm.com>
+Date:   Mon, 4 Jul 2022 13:35:20 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a1906524-2d90-4802-48d5-08da5dafdc41
-X-MS-TrafficTypeDiagnostic: MN2PR12MB3741:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: YcW1ow4aBVm9IisaSfF/yQzqXa7xOUZoVJCUcZSyiz/vZmjUjOVXbeVV+szdQPX4nwaaUNhEF434DRAyEZlccsUOtHdYJPVNIvQSwxgU7PcaS5UnBVdBU6TtZLTZKCrYy8cqcPfTwrTmT+nnvUvCoNylRORZOqMq0JMLaj/Y/WOTlCqpY0Klnr6KAES2odaI5ndRRlSzergPC9hgAWv0Oai84X3h55BatOrajxYv2qPOqhsQ2lxWzBrBIsWOK1w1kgid3EiGlHpgOu87dhFPumTO+BdeesmWyvkb74z3LeFyBUdRP7fZ2hqx8q1tdB6K9EUE5amGhirDE3PBW4ZiPXJgXoeqjRKcIe34Ls+sL+LMUQ50U/ZaBpehKCshILz6L7U6H7VM96jw/klWMCC+wbfnkRDI5ktDSPvYXsmrXqTmKuR4eLxb1040EaerZdJcff1zGWD7OwAZH0Jnqjd7MmwRjiPm3hpgm8y0eBuKIniqbRBH4wZXj3j3WpawZFrrwozsDdRMI7pS0pP1MC98cvYYBBZ5FnfUPLA8i/Olmph7d/ivJUzLSi6aaZ2+00QNk4GifbyUJwAgTASG8r09fvlZ0KI5/05jNidI3+RYtwRDVpt0Tl732FD8VlwESAlIzMlnBAVH3D5NH9gapHS4y1yQEfCOAhIThJD7jZeeOD0Nv8IPpavVV1FaUqhyLMK6WfLjJi590LDR+q+W/RNBQHgdnvrOeOH5L3k2I05gPvX2XsDMm1WVD7cPfsCn2I8gm8BIf9eUZxDNCj3ZCXDxDVI8G4qCBBeX9OfWYZimlKwJyxerx2vHfZYkEZz8Xqyh
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(346002)(396003)(136003)(376002)(39860400002)(366004)(8936002)(316002)(8676002)(66556008)(66946007)(1076003)(6916009)(4326008)(54906003)(41300700001)(83380400001)(66476007)(2616005)(38100700002)(26005)(6512007)(6506007)(86362001)(5660300002)(33656002)(2906002)(478600001)(36756003)(6486002)(186003)(27376004);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?MB5uctct78Jn1I20NyVwO32+Rv7+8ARet3hjCRTxWIL+xAQNUKKzZF2g1Hpx?=
- =?us-ascii?Q?TuU5nm7cbvFP0gi9Ry9WVfWDGjaoWPiV+wPSjHQrHbcv/j2Zodt7Yca1IDYT?=
- =?us-ascii?Q?qLgPHYVCpt05JzRY+I40W/bmrU9yrGJE0X+8HT4qH3Pa6P41t/Y3QlvwSP+r?=
- =?us-ascii?Q?TnU4Exg2K78tocG1ApXDg3HMu90sPGi9QP4MQjnN2vtwNVzrV2D91Ta83HGs?=
- =?us-ascii?Q?I+wX+xuyhdTemkKN8h/Izn7FOEadg4k1kO0yUwjSSFr+nRrvwotCcJ4Cg92z?=
- =?us-ascii?Q?2tcAM6Anik/XrQWaM6pdzIaWCiWbsz1HsG5kDWmCjYt3lQDDSbfQq5baXq8X?=
- =?us-ascii?Q?5Evt3kvu53IWB8FUi2OAFJs6bw7zIJ8C3gzNDHFA15h+xY7KaOE+nOZuIvgR?=
- =?us-ascii?Q?KVahCfHB+92e4Q8pOn95VLWbpaCQQs2n+UWTv2PhDUKzi7nb72ljvCxXqBfn?=
- =?us-ascii?Q?StgIOEpPPoNpx7NasqmTUK/Jy8iH09i0i9D0c2tVlFwhFSRs8pD58VY0FHM8?=
- =?us-ascii?Q?ploN3WrKw6ov50WHLm5Zh0YNmJDMHx7NUmFZWwO/ER90B3dSbtvpXEvvWMNL?=
- =?us-ascii?Q?B+QL1Lyc2X3vuU3Q4dpXbqabqbj9Z6bgQhTobgYUy201YOuRdg/V8NZsfHRF?=
- =?us-ascii?Q?Mow3Sz6IVS8qOI77u6bX9D/CpmXivs7o2U/ydkwQ7iQKg0RtjszaTFwRB6Ep?=
- =?us-ascii?Q?aBipjOSLt2USPf0rRhkawTwM+iplEEzR8xrW8dTA1NuFBAgaSkfFG8bIqjnu?=
- =?us-ascii?Q?T9a07VxqOB2hC03s9hcHWqJ3hPHe5Isx2Q8gI/TxCBuUAJSYxYsE+eqigo5X?=
- =?us-ascii?Q?YLD1zCHa2la9Jzr7vL7orHJgBUVx7WUhh4YmUmuQEi2qZy+++G42dW6JUlir?=
- =?us-ascii?Q?wRNzmRmmR1xDQOHOYCTMBcLDqa7EO/iAji6jSq4+aogbulHldlsnP23lZa8w?=
- =?us-ascii?Q?pwJ1hXCcuoCcCuLQPQDtohRoXfFBJJ8yecwK+RaT0PsXCn4+LHB6aomPC567?=
- =?us-ascii?Q?QmFqUzXI2v0/nE2PEMgoX1QvjuGv9kwmDjK+dgFWE+zdiDU6kBK7TMXP+9P1?=
- =?us-ascii?Q?91A45oFZa1HgG00ZO1NrB63m0jd3hqzrz0ENvcdHTyZEFg7BECMt7IdMQqqj?=
- =?us-ascii?Q?1Z5sV9yjLIavD9a7CleMqCciMlf+cHm0or9b5epw3MKGBA4+59kMfts2FA2a?=
- =?us-ascii?Q?Ga39EVHSZZ9WTDICYrFyWNdpE+R/hSizq1dTaxQh6lAg0p5cx2MtMiSml2ry?=
- =?us-ascii?Q?81BsHt3ZraYCMHBgZ3+MAWsmjARojG78b1BooSBYgk6SKN7W5aIxDgNV7i68?=
- =?us-ascii?Q?0Z83hF70OQgIPPaTGKH6qVy399F489z43n4fdoD6EiCEarsx7DfStRM6nPER?=
- =?us-ascii?Q?y2q8/iznqxHosLen4v9v0JCjNZG6mJFXnxLXA1eWx4QNL2Oxt4qrHL43s54Z?=
- =?us-ascii?Q?qJuCnINBI01F3pBTSRs/T46/F9q1osRlMC1Rf6k/ybFDUOYN4eZtkuTxvphD?=
- =?us-ascii?Q?mH1KXMIWcc5iGA/+nyJMG8+LiAyt8RSjwK9CdruBP1ffdOZI0JfiKdKF1H4y?=
- =?us-ascii?Q?5RC777HeIdpPV0HGQ7kCeWhNqD6aeSszg+o1Z/Bn?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a1906524-2d90-4802-48d5-08da5dafdc41
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Jul 2022 11:25:12.3834
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: l8nS65ATqi7CJTA8/PKjO/bbBCBTmAkPjDZ/3Grd/0SUr0udMYyxp6nhnehSDKLN
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3741
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 1/2] s390/hwcaps: Add HWCAP_UV
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org, nrb@linux.ibm.com
+References: <20220701100210.5482-1-seiden@linux.ibm.com>
+ <20220701100210.5482-2-seiden@linux.ibm.com>
+ <1a2a885b-d408-0426-8e8c-ad1c56f4c215@linux.ibm.com>
+ <YsK6ViBvm/330a0i@osiris>
+From:   Steffen Eiden <seiden@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <YsK6ViBvm/330a0i@osiris>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: yoadaJZBvzZJnBsB6S75yyigtsUkZyMC
+X-Proofpoint-ORIG-GUID: yoadaJZBvzZJnBsB6S75yyigtsUkZyMC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-04_09,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ adultscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 clxscore=1015
+ lowpriorityscore=0 malwarescore=0 priorityscore=1501 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2207040048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jul 01, 2022 at 02:48:25PM +0200, Christian Borntraeger wrote:
 
-> Am 01.07.22 um 14:40 schrieb Eric Farman:
-> > On Thu, 2022-06-30 at 20:44 -0300, Jason Gunthorpe wrote:
-> > > On Thu, Jun 30, 2022 at 10:36:36PM +0200, Eric Farman wrote:
-> > > > Here's an updated pass through the first chunk of vfio-ccw rework.
-> > > > 
-> > > > As with v2, this is all internal to vfio-ccw, with the exception of
-> > > > the removal of mdev_uuid from include/linux/mdev.h in patch 1.
-> > > > 
-> > > > There is one conflict with the vfio-next branch [2], on patch 6.
-> > > 
-> > > What tree do you plan to take it through?
-> > 
-> > Don't know. I know Matt's PCI series has a conflict with this same
-> > patch also, but I haven't seen resolution to that. @Christian,
-> > thoughts?
+
+On 7/4/22 12:00, Heiko Carstens wrote:
+> On Fri, Jul 01, 2022 at 12:10:18PM +0200, Christian Borntraeger wrote:
+
+[ snip ]
+
+>> Any preference from your side?
 > 
+> I mentioned already before this RFC that my preferred solution would
+> be to have a solution which extends the existing method to work (also)
+> with facility bits - haven't checked if all existing users could be
+> converted to facility bits, but making it more flexible would work
+> certainly.
 > 
-> What about me making a topic branch that it being merged by Alex AND the KVM tree
-> so that each of the conflicts can be solved in that way?
+> If Steffen is willing to do that, that would be very welcome.
+> Otherwise I'll put that on my todo list.
 
-It make sense, I would base it on Alex's VFIO tree just to avoid
-some conflicts in the first place. Matt can rebase on this, so lets
-get things going?
+I'll have a look on that.
 
-Jason
