@@ -2,147 +2,221 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA46CCA47C
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 01:53:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DC82C433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 02:04:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232842AbiGDBxQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 3 Jul 2022 21:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35848 "EHLO
+        id S229881AbiGDCEv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 3 Jul 2022 22:04:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233187AbiGDBxD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Jul 2022 21:53:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 491D462E6
-        for <linux-s390@vger.kernel.org>; Sun,  3 Jul 2022 18:52:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656899577;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=LvJTmYNgCDsW7BIAISbXmbCfcii4AcKyXZLNndt3pa5qq/CFKcPlIMOVTS7W8VPnbny7TM
-        /VLwyEY2Ef7IcpLhLG14iPyQJy0AN1y4NVoG0K7s2nHgFfIZYriSsBHhh24t2joKK7bsMe
-        ZRaqeuvH4+ewCf6kZMU+IPZ2oWj1DX0=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-279-sGTha2-MMBGjExlxgw_ULw-1; Sun, 03 Jul 2022 21:52:55 -0400
-X-MC-Unique: sGTha2-MMBGjExlxgw_ULw-1
-Received: by mail-pf1-f198.google.com with SMTP id 5-20020a620605000000b00527ca01f8a3so2017708pfg.19
-        for <linux-s390@vger.kernel.org>; Sun, 03 Jul 2022 18:52:55 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=EKB3S+t9joblTD4dGVJ66ccgGM19rPCjcw1kfjw77o8ezm2NXPmRcj5BMy36eHK0L2
-         jLxD7eUs6cFlhGXfewpm7xJPHNn9APqHVWWHXP0aRmsQvdj2Ltx4tc4giUn8Nxl1J1Yd
-         bTAr3rB0BQzhON40Pb4U8UqDRfj83PezOcMFloxrCKeInnIF/Xs6BhyS8uUIsDl6rMk4
-         WCZD+vcSLfEXCoI0qHARfTXiu1WN0OZWFI99IjkWkGYZI/etSp24QH9psXyKZrVxVB3T
-         7Mxcdu2uFplbL8biJTkfgrUWtT7bniyCOx5GKJ8VHynNhCeAYS2yhm3OLgE/8F6PD/fg
-         sXTQ==
-X-Gm-Message-State: AJIora+KXno197CsnXBT/onIdMEqufO5R6qDUoCu3DzEAAgySWTMBAdB
-        gbwMrzG0p+NRmqOQA2sj9bliO6Acva76TVCrBZlnJMO7arNMiev1GqtAEIJopZfHC1E9r304xXG
-        fpfwzlcRrdNaZxr8Di+DEiQ==
-X-Received: by 2002:a17:90a:1485:b0:1ec:788e:a053 with SMTP id k5-20020a17090a148500b001ec788ea053mr31016122pja.16.1656899573983;
-        Sun, 03 Jul 2022 18:52:53 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1u8Sm73HYl29mcEbEmk3Z6a37A8y2OdP5f3idLICxDPGrBoxyTSHxhDRsHAFrxMwDkh5wCuzQ==
-X-Received: by 2002:a17:90a:1485:b0:1ec:788e:a053 with SMTP id k5-20020a17090a148500b001ec788ea053mr31016116pja.16.1656899573776;
-        Sun, 03 Jul 2022 18:52:53 -0700 (PDT)
-Received: from localhost ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id p2-20020a1709027ec200b00168f08d0d12sm16841927plb.89.2022.07.03.18.52.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Jul 2022 18:52:53 -0700 (PDT)
-From:   Coiby Xu <coxu@redhat.com>
-To:     kexec@lists.infradead.org, linux-integrity@vger.kernel.org
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Michal Suchanek <msuchanek@suse.de>,
-        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
-        Philipp Rudo <prudo@linux.ibm.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
+        with ESMTP id S229505AbiGDCEu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Jul 2022 22:04:50 -0400
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5809538BB;
+        Sun,  3 Jul 2022 19:04:47 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R981e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0VIDpTgv_1656900279;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VIDpTgv_1656900279)
+          by smtp.aliyun-inc.com;
+          Mon, 04 Jul 2022 10:04:40 +0800
+Message-ID: <1656900267.44917-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v11 09/40] virtio_ring: split: extract the logic of alloc state and extra
+Date:   Mon, 4 Jul 2022 10:04:27 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        linux-s390@vger.kernel.org (open list:S390),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v9 4/4] kexec, KEYS, s390: Make use of built-in and secondary keyring for signature verification
-Date:   Mon,  4 Jul 2022 09:52:01 +0800
-Message-Id: <20220704015201.59744-5-coxu@redhat.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220704015201.59744-1-coxu@redhat.com>
-References: <20220704015201.59744-1-coxu@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        kangjie.xu@linux.alibaba.com,
+        virtualization@lists.linux-foundation.org
+References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-10-xuanzhuo@linux.alibaba.com>
+ <c4d24e5c-1a3e-e577-462e-c9ebde90d659@redhat.com>
+In-Reply-To: <c4d24e5c-1a3e-e577-462e-c9ebde90d659@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
+On Fri, 1 Jul 2022 16:55:05 +0800, Jason Wang <jasowang@redhat.com> wrote:
+>
+> =E5=9C=A8 2022/6/29 14:56, Xuan Zhuo =E5=86=99=E9=81=93:
+> > Separate the logic of creating desc_state, desc_extra, and subsequent
+> > patches will call it independently.
+> >
+> > Since only the structure vring is passed into __vring_new_virtqueue(),
+> > when creating the function vring_alloc_state_extra_split(), we prefer to
+> > use vring_virtqueue_split as a parameter, and it will be more convenient
+> > to pass vring_virtqueue_split to some subsequent functions.
+> >
+> > So a new vring_virtqueue_split variable is added in
+> > __vring_new_virtqueue().
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >   drivers/virtio/virtio_ring.c | 58 +++++++++++++++++++++++++-----------
+> >   1 file changed, 40 insertions(+), 18 deletions(-)
+> >
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index a9ceb9c16c54..cedd340d6db7 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -204,6 +204,7 @@ struct vring_virtqueue {
+> >   #endif
+> >   };
+> >
+> > +static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int nu=
+m);
+> >
+> >   /*
+> >    * Helpers.
+> > @@ -939,6 +940,32 @@ static void *virtqueue_detach_unused_buf_split(str=
+uct virtqueue *_vq)
+> >   	return NULL;
+> >   }
+> >
+> > +static int vring_alloc_state_extra_split(struct vring_virtqueue_split =
+*vring)
+> > +{
+> > +	struct vring_desc_state_split *state;
+> > +	struct vring_desc_extra *extra;
+> > +	u32 num =3D vring->vring.num;
+> > +
+> > +	state =3D kmalloc_array(num, sizeof(struct vring_desc_state_split), G=
+FP_KERNEL);
+> > +	if (!state)
+> > +		goto err_state;
+> > +
+> > +	extra =3D vring_alloc_desc_extra(num);
+> > +	if (!extra)
+> > +		goto err_extra;
+> > +
+> > +	memset(state, 0, num * sizeof(struct vring_desc_state_split));
+> > +
+> > +	vring->desc_state =3D state;
+> > +	vring->desc_extra =3D extra;
+> > +	return 0;
+> > +
+> > +err_extra:
+> > +	kfree(state);
+> > +err_state:
+> > +	return -ENOMEM;
+> > +}
+> > +
+> >   static void vring_free_split(struct vring_virtqueue_split *vring,
+> >   			     struct virtio_device *vdev)
+> >   {
+> > @@ -2224,7 +2251,7 @@ EXPORT_SYMBOL_GPL(vring_interrupt);
+> >
+> >   /* Only available for split ring */
+> >   struct virtqueue *__vring_new_virtqueue(unsigned int index,
+> > -					struct vring vring,
+> > +					struct vring _vring,
+> >   					struct virtio_device *vdev,
+> >   					bool weak_barriers,
+> >   					bool context,
+> > @@ -2232,7 +2259,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned =
+int index,
+> >   					void (*callback)(struct virtqueue *),
+> >   					const char *name)
+> >   {
+> > +	struct vring_virtqueue_split vring =3D {};
+>
+>
+> Nit: to reduce the change-set, let's use vring_split here?
 
-commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-adds support for KEXEC_SIG verification with keys from platform keyring
-but the built-in keys and secondary keyring are not used.
+Will fix.
 
-Add support for the built-in keys and secondary keyring as x86 does.
+Thanks.
 
-Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-Cc: stable@vger.kernel.org
-Cc: Philipp Rudo <prudo@linux.ibm.com>
-Cc: kexec@lists.infradead.org
-Cc: keyrings@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Coiby Xu <coxu@redhat.com>
----
- arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 8f43575a4dd3..fc6d5f58debe 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -31,6 +31,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
- 	struct module_signature *ms;
- 	unsigned long sig_len;
-+	int ret;
- 
- 	/* Skip signature verification when not secure IPLed. */
- 	if (!ipl_secure_flag)
-@@ -65,11 +66,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 		return -EBADMSG;
- 	}
- 
--	return verify_pkcs7_signature(kernel, kernel_len,
--				      kernel + kernel_len, sig_len,
--				      VERIFY_USE_PLATFORM_KEYRING,
--				      VERIFYING_MODULE_SIGNATURE,
--				      NULL, NULL);
-+	ret = verify_pkcs7_signature(kernel, kernel_len,
-+				     kernel + kernel_len, sig_len,
-+				     VERIFY_USE_SECONDARY_KEYRING,
-+				     VERIFYING_MODULE_SIGNATURE,
-+				     NULL, NULL);
-+	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
-+		ret = verify_pkcs7_signature(kernel, kernel_len,
-+					     kernel + kernel_len, sig_len,
-+					     VERIFY_USE_PLATFORM_KEYRING,
-+					     VERIFYING_MODULE_SIGNATURE,
-+					     NULL, NULL);
-+	return ret;
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
--- 
-2.35.3
-
+>
+> Other looks good.
+>
+> Thanks
+>
+>
+> >   	struct vring_virtqueue *vq;
+> > +	int err;
+> >
+> >   	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
+> >   		return NULL;
+> > @@ -2261,7 +2290,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned =
+int index,
+> >   	vq->split.queue_dma_addr =3D 0;
+> >   	vq->split.queue_size_in_bytes =3D 0;
+> >
+> > -	vq->split.vring =3D vring;
+> > +	vq->split.vring =3D _vring;
+> >   	vq->split.avail_flags_shadow =3D 0;
+> >   	vq->split.avail_idx_shadow =3D 0;
+> >
+> > @@ -2273,30 +2302,23 @@ struct virtqueue *__vring_new_virtqueue(unsigne=
+d int index,
+> >   					vq->split.avail_flags_shadow);
+> >   	}
+> >
+> > -	vq->split.desc_state =3D kmalloc_array(vring.num,
+> > -			sizeof(struct vring_desc_state_split), GFP_KERNEL);
+> > -	if (!vq->split.desc_state)
+> > -		goto err_state;
+> > +	vring.vring =3D _vring;
+> >
+> > -	vq->split.desc_extra =3D vring_alloc_desc_extra(vring.num);
+> > -	if (!vq->split.desc_extra)
+> > -		goto err_extra;
+> > +	err =3D vring_alloc_state_extra_split(&vring);
+> > +	if (err) {
+> > +		kfree(vq);
+> > +		return NULL;
+> > +	}
+> >
+> > -	memset(vq->split.desc_state, 0, vring.num *
+> > -			sizeof(struct vring_desc_state_split));
+> > +	vq->split.desc_state =3D vring.desc_state;
+> > +	vq->split.desc_extra =3D vring.desc_extra;
+> >
+> > -	virtqueue_init(vq, vq->split.vring.num);
+> > +	virtqueue_init(vq, vring.vring.num);
+> >
+> >   	spin_lock(&vdev->vqs_list_lock);
+> >   	list_add_tail(&vq->vq.list, &vdev->vqs);
+> >   	spin_unlock(&vdev->vqs_list_lock);
+> >   	return &vq->vq;
+> > -
+> > -err_extra:
+> > -	kfree(vq->split.desc_state);
+> > -err_state:
+> > -	kfree(vq);
+> > -	return NULL;
+> >   }
+> >   EXPORT_SYMBOL_GPL(__vring_new_virtqueue);
+> >
+>
