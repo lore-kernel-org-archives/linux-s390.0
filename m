@@ -2,206 +2,217 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69DE8C43334
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 07:00:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F17F0C43334
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 08:32:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232807AbiGDHAx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Jul 2022 03:00:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32772 "EHLO
+        id S232637AbiGDIca (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Jul 2022 04:32:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232752AbiGDHAw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 03:00:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6720455A9
-        for <linux-s390@vger.kernel.org>; Mon,  4 Jul 2022 00:00:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656918050;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=QKFiYOhVLexNLZAnyygH6JGx6im3hhRGTkcpFvcfiv0=;
-        b=M4fHphM/2q+qW6AOPJSc5mh5jU9NR56MlYMu3kQ/tIrzh7zZOPd5vE+gKGlBvAlDfrguc5
-        Ur0gPhwCEZVTyT10SSyMBp4rWtZlStTwDEsXo4VQw4UXSqmbFcXDq9R/k8LuHmfcQLBBgl
-        Ebw6tGR9lFjBh4Cach60RQDv/xJc2n4=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-246-zOcXp8jqOoCa6LK95TBRAg-1; Mon, 04 Jul 2022 03:00:49 -0400
-X-MC-Unique: zOcXp8jqOoCa6LK95TBRAg-1
-Received: by mail-wm1-f71.google.com with SMTP id m20-20020a05600c4f5400b003a03aad6bdfso3655828wmq.6
-        for <linux-s390@vger.kernel.org>; Mon, 04 Jul 2022 00:00:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=QKFiYOhVLexNLZAnyygH6JGx6im3hhRGTkcpFvcfiv0=;
-        b=feNK9zULfT0m5YyTD5/X+T8JuMrqt8g9gGDQWYYSY9KsLb7upXFaPTpFxcpHwNzwLJ
-         rcYPV7BTmanzr3RpO5m8Wux0FdiBQ9bYuaA0Caxe4e8000z2wVAZLDKhozoHjff5nvCu
-         rTlQJrDv3qvEz7FOrxv88f/tZdy1qzgJzEF/ixz6KR4qqb00d/JvCpvxiW2kUBDh+yc/
-         DjlpA+Ljz/nqPSghBWHltmN75WQvUjmIXkqF1LcDM7zVOIgJ010B0H6+nDiA7lY9w3SU
-         mm6taLK/xaz/LBMDFZIcRlTEWsoegz2o/Ft0ZKioThNbgDr1/9YZ3ekMQBYeOPi5Ss3t
-         J/dw==
-X-Gm-Message-State: AJIora+I7RfSQ48mFUX8mrh+FFzs0lNLvbNpcK/icZUH3uULt9oZNy6v
-        UE6ns23E3Sx8aNb4XXvR3A62SpLRGC52dd9XY0JCqrcCfyYyLXdtTlp5S5RuKPtCGD5nWiUdWnZ
-        Defas6kptlOvaLyiWkjj9aA==
-X-Received: by 2002:a5d:5050:0:b0:21b:a348:7c0 with SMTP id h16-20020a5d5050000000b0021ba34807c0mr24643683wrt.184.1656918048171;
-        Mon, 04 Jul 2022 00:00:48 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1spniD4B5iaafPVJ5gLTv4/pH5qJd/Sh/qNkdYesfjItgeUTWnDB2+innkMR9U68mUQU8qzzA==
-X-Received: by 2002:a5d:5050:0:b0:21b:a348:7c0 with SMTP id h16-20020a5d5050000000b0021ba34807c0mr24643655wrt.184.1656918047895;
-        Mon, 04 Jul 2022 00:00:47 -0700 (PDT)
-Received: from redhat.com ([2.55.3.188])
-        by smtp.gmail.com with ESMTPSA id o15-20020a05600c510f00b003971fc23185sm14891356wms.20.2022.07.04.00.00.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jul 2022 00:00:47 -0700 (PDT)
-Date:   Mon, 4 Jul 2022 03:00:42 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        kvm <kvm@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-Message-ID: <20220704025850-mutt-send-email-mst@kernel.org>
-References: <20220629022223-mutt-send-email-mst@kernel.org>
- <CACGkMEuwvzkbPUSFueCOjit7pRJ81v3-W3SZD+7jQJN8btEFdg@mail.gmail.com>
- <20220629030600-mutt-send-email-mst@kernel.org>
- <CACGkMEvnUj622FyROUftifSB47wytPg0YAdVO7fdRQmCE+WuBg@mail.gmail.com>
- <20220629044514-mutt-send-email-mst@kernel.org>
- <CACGkMEsW02a1LeiWwUgHfVmDEnC8i49h1L7qHmeoLyJyRS6-zA@mail.gmail.com>
- <20220630043219-mutt-send-email-mst@kernel.org>
- <CACGkMEtgnHDEUOHQxqUFn2ngOpUGcVu4NSQBqfYYZRMPA2H2LQ@mail.gmail.com>
- <20220704021950-mutt-send-email-mst@kernel.org>
- <CACGkMEsVcmerW7xE01JvntnxkomxF5r4H2dQGDP8-xGNZJ87kw@mail.gmail.com>
+        with ESMTP id S233324AbiGDIc3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 04:32:29 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CC9FB483;
+        Mon,  4 Jul 2022 01:32:28 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2648CLxU006927;
+        Mon, 4 Jul 2022 08:32:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=3r7RwSlD2+XPQwynUu5psOoq5b3t5QEyphK3BXPVCSU=;
+ b=jl2Cq+R5I/7Nqk/hKVi6q6GZLjm03qE3SRmWxhfaztkwPeIYTLDx6szgJcIn3XgrYPhn
+ o2c8BZhJnY1j+aGMxUZsaildIY2l3gn4J7xnhFY9f6BjvMqKmH0piR1rf+NMQfeovT0o
+ 9jIHN538ew1Y8iIUV4KHg9RQK/OGgtDSLchip31vYQTi9LzzcBeGHa/JS64Sjmv62SY2
+ fC/V2/wqLM6RPHpDzSr+MgOkJQgrO8ABm5azTAXMEdGQTi/R3JM2E+WByVHPw/NLfsLa
+ lBdFfjwLKRc2ch2kvZZDFNYIjDQtk6mQtsnj3lMYbtN6i/UuDV5RrxdZqAm8GE59Yw+n BQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3vg60eje-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Jul 2022 08:32:27 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2648R4Gi008910;
+        Mon, 4 Jul 2022 08:32:27 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h3vg60ehy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Jul 2022 08:32:27 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2648Kxgw012348;
+        Mon, 4 Jul 2022 08:32:25 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06fra.de.ibm.com with ESMTP id 3h2d9hstau-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Jul 2022 08:32:25 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2648WMxd25166298
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 4 Jul 2022 08:32:22 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EFA9B4203F;
+        Mon,  4 Jul 2022 08:32:21 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AAE5942045;
+        Mon,  4 Jul 2022 08:32:21 +0000 (GMT)
+Received: from [9.145.190.147] (unknown [9.145.190.147])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  4 Jul 2022 08:32:21 +0000 (GMT)
+Message-ID: <4fcdf87c-1ae6-6494-4999-da6b49c6891b@linux.ibm.com>
+Date:   Mon, 4 Jul 2022 10:32:21 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACGkMEsVcmerW7xE01JvntnxkomxF5r4H2dQGDP8-xGNZJ87kw@mail.gmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc:     imbrenda@linux.ibm.com, thuth@redhat.com
+References: <20220630113059.229221-1-nrb@linux.ibm.com>
+ <20220630113059.229221-3-nrb@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 2/3] s390x: add extint loop test
+In-Reply-To: <20220630113059.229221-3-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: qXGKkFS-6fUle3BoRkpycDOzM8NKobyE
+X-Proofpoint-GUID: jLZ2Xo9rPN57v2-Za-w72Eij-UF1oLps
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-04_07,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 adultscore=0 malwarescore=0
+ spamscore=0 suspectscore=0 mlxlogscore=999 impostorscore=0 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2207040034
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jul 04, 2022 at 02:40:16PM +0800, Jason Wang wrote:
-> On Mon, Jul 4, 2022 at 2:22 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Mon, Jul 04, 2022 at 12:23:27PM +0800, Jason Wang wrote:
-> > > > So if there are not examples of callbacks not ready after kick
-> > > > then let us block callbacks until first kick. That is my idea.
-> > >
-> > > Ok, let me try. I need to drain my queue of fixes first.
-> > >
-> > > Thanks
-> >
-> > If we do find issues, another option is blocking callbacks until the
-> > first add. A bit higher overhead as add is a more common operation
-> > but it has even less of a chance to introduce regressions.
+On 6/30/22 13:30, Nico Boehr wrote:
+> The CPU timer interrupt stays pending as long as the CPU timer value is
+> negative. This can lead to interruption loops when the ext_new_psw mask
+> has external interrupts enabled.
 > 
-> So I understand that the case of blocking until first kick but if we
-> block until add it means for drivers:
+> QEMU is able to detect this situation and panic the guest, so add a test
+> for it.
 > 
-> virtqueue_add()
-> virtio_device_ready()
-> virtqueue_kick()
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+>   s390x/Makefile      |  1 +
+>   s390x/extint-loop.c | 64 +++++++++++++++++++++++++++++++++++++++++++++
+>   s390x/unittests.cfg |  4 +++
+>   3 files changed, 69 insertions(+)
+>   create mode 100644 s390x/extint-loop.c
 > 
-> We probably enlarge the window in this case.
-> 
-> Thanks
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index efd5e0c13102..92a020234c9f 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -34,6 +34,7 @@ tests += $(TEST_DIR)/migration.elf
+>   tests += $(TEST_DIR)/pv-attest.elf
+>   tests += $(TEST_DIR)/migration-cmm.elf
+>   tests += $(TEST_DIR)/migration-skey.elf
+> +tests += $(TEST_DIR)/extint-loop.elf
 
-Yes but I don't know whether any drivers call add before they are ready
-to get a callback. The main thing with hardening is not to break
-drivers. Primum non nocere and all that.
+I'd suggest giving these tests a "panic" prefix. panic-loop-extint.c 
+panic-loop-pgm.c
 
+>   
+>   pv-tests += $(TEST_DIR)/pv-diags.elf
+>   
+> diff --git a/s390x/extint-loop.c b/s390x/extint-loop.c
+> new file mode 100644
+> index 000000000000..5276d86a156f
+> --- /dev/null
+> +++ b/s390x/extint-loop.c
+> @@ -0,0 +1,64 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * External interrupt loop test
+> + *
+> + * Copyright IBM Corp. 2022
+> + *
+> + * Authors:
+> + *  Nico Boehr <nrb@linux.ibm.com>
+> + */
+> +#include <libcflat.h>
+> +#include <asm/interrupt.h>
+> +#include <asm/barrier.h>
+> +#include <asm/time.h>
+> +
+> +static void ext_int_handler(void)
+> +{
+> +	/*
+> +	 * return to ext_old_psw. This gives us the chance to print the return_fail
+> +	 * in case something goes wrong.
+> +	 */
+> +	asm volatile (
+> +		"lpswe %[ext_old_psw]\n"
+> +		:
+> +		: [ext_old_psw] "Q"(lowcore.ext_old_psw)
+> +		: "memory"
+> +	);
+> +}
+> +
+> +static void start_cpu_timer(int64_t timeout_ms)
 
-> >
-> > > >
-> > > >
-> > > > > >
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > > >
-> > > > > > > > > > > > >I couldn't ... except maybe bluetooth
-> > > > > > > > > > > > > but that's just maintainer nacking fixes saying he'll fix it
-> > > > > > > > > > > > > his way ...
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > > And during remove(), we get another window:
-> > > > > > > > > > > > > >
-> > > > > > > > > > > > > > subsysrem_unregistration()
-> > > > > > > > > > > > > > /* the window */
-> > > > > > > > > > > > > > virtio_device_reset()
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > Same here.
-> > > > > > > > > > >
-> > > > > > > > > > > Basically for the drivers that set driver_ok before registration,
-> > > > > > > > > >
-> > > > > > > > > > I don't see what does driver_ok have to do with it.
-> > > > > > > > >
-> > > > > > > > > I meant for those driver, in probe they do()
-> > > > > > > > >
-> > > > > > > > > virtio_device_ready()
-> > > > > > > > > subsystem_register()
-> > > > > > > > >
-> > > > > > > > > In remove() they do
-> > > > > > > > >
-> > > > > > > > > subsystem_unregister()
-> > > > > > > > > virtio_device_reset()
-> > > > > > > > >
-> > > > > > > > > for symmetry
-> > > > > > > >
-> > > > > > > > Let's leave remove alone for now. I am close to 100% sure we have *lots*
-> > > > > > > > of issues around it, but while probe is unavoidable remove can be
-> > > > > > > > avoided by blocking hotplug.
-> > > > > > >
-> > > > > > > Unbind can trigger this path as well.
-> > > > > > >
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > > so
-> > > > > > > > > > > we have a lot:
-> > > > > > > > > > >
-> > > > > > > > > > > blk, net, mac80211_hwsim, scsi, vsock, bt, crypto, gpio, gpu, i2c,
-> > > > > > > > > > > iommu, caif, pmem, input, mem
-> > > > > > > > > > >
-> > > > > > > > > > > So I think there's no easy way to harden the notification without
-> > > > > > > > > > > auditing the driver one by one (especially considering the driver may
-> > > > > > > > > > > use bh or workqueue). The problem is the notification hardening
-> > > > > > > > > > > depends on a correct or race-free probe/remove. So we need to fix the
-> > > > > > > > > > > issues in probe/remove then do the hardening on the notification.
-> > > > > > > > > > >
-> > > > > > > > > > > Thanks
-> > > > > > > > > >
-> > > > > > > > > > So if drivers kick but are not ready to get callbacks then let's fix
-> > > > > > > > > > that first of all, these are racy with existing qemu even ignoring
-> > > > > > > > > > spec compliance.
-> > > > > > > > >
-> > > > > > > > > Yes, (the patches I've posted so far exist even with a well-behaved device).
-> > > > > > > > >
-> > > > > > > > > Thanks
-> > > > > > > >
-> > > > > > > > patches you posted deal with DRIVER_OK spec compliance.
-> > > > > > > > I do not see patches for kicks before callbacks are ready to run.
-> > > > > > >
-> > > > > > > Yes.
-> > > > > > >
-> > > > > > > Thanks
-> > > > > > >
-> > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > --
-> > > > > > > > > > MST
-> > > > > > > > > >
-> > > > > > > >
-> > > > > >
-> > > >
-> >
+cpu_timer_set
+
+> +{
+> +#define CPU_TIMER_US_SHIFT 12
+
+The clock and the timer use the same shift so maybe we can rename or 
+reuse time.h constants?
+
+We could rename STCK_SHIFT_US to TIMING_S390_SHIFT_US since we need that 
+for the TOD, todcmp and cputimer.
+
+> +	int64_t timer_value = (timeout_ms * 1000) << CPU_TIMER_US_SHIFT;
+> +	asm volatile (
+> +		"spt %[timer_value]\n"
+> +		:
+> +		: [timer_value] "Q" (timer_value)
+> +	);
+> +}
+> +
+> +int main(void)
+> +{
+> +	struct psw ext_new_psw_orig;
+> +
+> +	report_prefix_push("extint-loop");
+
+This is a QEMU only test so I think we should fence other hypervisors.
+
+> +
+> +	ext_new_psw_orig = lowcore.ext_new_psw;
+> +	lowcore.ext_new_psw.addr = (uint64_t)ext_int_handler;
+> +	lowcore.ext_new_psw.mask |= PSW_MASK_EXT;
+> +
+> +	load_psw_mask(extract_psw_mask() | PSW_MASK_EXT);
+> +	ctl_set_bit(0, CTL0_CLOCK_COMPARATOR);
+> +
+> +	start_cpu_timer(1);
+> +
+> +	mdelay(2000);
+> +
+> +	/* restore previous ext_new_psw so QEMU can properly terminate */
+> +	lowcore.ext_new_psw = ext_new_psw_orig;
+> +
+> +	report_fail("survived extint loop");
+> +
+> +	report_prefix_pop();
+> +	return report_summary();
+> +}
+> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+> index 8e52f560bb1e..7d408f2d5310 100644
+> --- a/s390x/unittests.cfg
+> +++ b/s390x/unittests.cfg
+> @@ -184,3 +184,7 @@ groups = migration
+>   [migration-skey]
+>   file = migration-skey.elf
+>   groups = migration
+> +
+> +[extint-loop]
+> +file = extint-loop.elf
+> +groups = panic
 
