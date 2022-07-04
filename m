@@ -2,107 +2,147 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04979C43334
-	for <linux-s390@archiver.kernel.org>; Sun,  3 Jul 2022 22:55:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA46CCA47C
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 01:53:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229742AbiGCWzn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 3 Jul 2022 18:55:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39170 "EHLO
+        id S232842AbiGDBxQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 3 Jul 2022 21:53:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiGCWzm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Jul 2022 18:55:42 -0400
-Received: from out2.migadu.com (out2.migadu.com [IPv6:2001:41d0:2:aacc::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC2652ADF;
-        Sun,  3 Jul 2022 15:55:41 -0700 (PDT)
-Date:   Sun, 3 Jul 2022 15:55:31 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1656888940;
+        with ESMTP id S233187AbiGDBxD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Jul 2022 21:53:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 491D462E6
+        for <linux-s390@vger.kernel.org>; Sun,  3 Jul 2022 18:52:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1656899577;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=UsoL24ELETfF3MSNiDW9I/K0Flpmei9riTSH6+si7ig=;
-        b=iUInCXasIip4wHrtoL/0lzsYtRCZFSsRqfLRPjoYwSOtiqscSWuPjZHfbG97LiaP3BzDIe
-        0ZXrzFwfVL/E2wq4AmYs4coUwxW0GVnJ6RLTvBjOWag7XFKXgSSe9R92erWjn2FlZkzP5K
-        kLcNL3GRn8tg7m+p4Hc6FjL36mprR04=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Roman Gushchin <roman.gushchin@linux.dev>
-To:     Feng Tang <feng.tang@intel.com>
-Cc:     Shakeel Butt <shakeelb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Linux MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        network dev <netdev@vger.kernel.org>,
-        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
-Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
-Message-ID: <YsIeYzEuj95PWMWO@castle>
-References: <20220625023642.GA40868@shbuild999.sh.intel.com>
- <20220627023812.GA29314@shbuild999.sh.intel.com>
- <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
- <20220627123415.GA32052@shbuild999.sh.intel.com>
- <CANn89iJAoYCebNbXpNMXRoDUkFMhg9QagetVU9NZUq+GnLMgqQ@mail.gmail.com>
- <20220627144822.GA20878@shbuild999.sh.intel.com>
- <CANn89iLSWm-c4XE79rUsxzOp3VwXVDhOEPTQnWgeQ48UwM=u7Q@mail.gmail.com>
- <20220628034926.GA69004@shbuild999.sh.intel.com>
- <CALvZod71Fti8yLC08mdpDk-TLYJVyfVVauWSj1zk=BhN1-GPdA@mail.gmail.com>
- <20220703104353.GB62281@shbuild999.sh.intel.com>
+        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
+        b=LvJTmYNgCDsW7BIAISbXmbCfcii4AcKyXZLNndt3pa5qq/CFKcPlIMOVTS7W8VPnbny7TM
+        /VLwyEY2Ef7IcpLhLG14iPyQJy0AN1y4NVoG0K7s2nHgFfIZYriSsBHhh24t2joKK7bsMe
+        ZRaqeuvH4+ewCf6kZMU+IPZ2oWj1DX0=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-279-sGTha2-MMBGjExlxgw_ULw-1; Sun, 03 Jul 2022 21:52:55 -0400
+X-MC-Unique: sGTha2-MMBGjExlxgw_ULw-1
+Received: by mail-pf1-f198.google.com with SMTP id 5-20020a620605000000b00527ca01f8a3so2017708pfg.19
+        for <linux-s390@vger.kernel.org>; Sun, 03 Jul 2022 18:52:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
+        b=EKB3S+t9joblTD4dGVJ66ccgGM19rPCjcw1kfjw77o8ezm2NXPmRcj5BMy36eHK0L2
+         jLxD7eUs6cFlhGXfewpm7xJPHNn9APqHVWWHXP0aRmsQvdj2Ltx4tc4giUn8Nxl1J1Yd
+         bTAr3rB0BQzhON40Pb4U8UqDRfj83PezOcMFloxrCKeInnIF/Xs6BhyS8uUIsDl6rMk4
+         WCZD+vcSLfEXCoI0qHARfTXiu1WN0OZWFI99IjkWkGYZI/etSp24QH9psXyKZrVxVB3T
+         7Mxcdu2uFplbL8biJTkfgrUWtT7bniyCOx5GKJ8VHynNhCeAYS2yhm3OLgE/8F6PD/fg
+         sXTQ==
+X-Gm-Message-State: AJIora+KXno197CsnXBT/onIdMEqufO5R6qDUoCu3DzEAAgySWTMBAdB
+        gbwMrzG0p+NRmqOQA2sj9bliO6Acva76TVCrBZlnJMO7arNMiev1GqtAEIJopZfHC1E9r304xXG
+        fpfwzlcRrdNaZxr8Di+DEiQ==
+X-Received: by 2002:a17:90a:1485:b0:1ec:788e:a053 with SMTP id k5-20020a17090a148500b001ec788ea053mr31016122pja.16.1656899573983;
+        Sun, 03 Jul 2022 18:52:53 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1u8Sm73HYl29mcEbEmk3Z6a37A8y2OdP5f3idLICxDPGrBoxyTSHxhDRsHAFrxMwDkh5wCuzQ==
+X-Received: by 2002:a17:90a:1485:b0:1ec:788e:a053 with SMTP id k5-20020a17090a148500b001ec788ea053mr31016116pja.16.1656899573776;
+        Sun, 03 Jul 2022 18:52:53 -0700 (PDT)
+Received: from localhost ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id p2-20020a1709027ec200b00168f08d0d12sm16841927plb.89.2022.07.03.18.52.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 Jul 2022 18:52:53 -0700 (PDT)
+From:   Coiby Xu <coxu@redhat.com>
+To:     kexec@lists.infradead.org, linux-integrity@vger.kernel.org
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Michal Suchanek <msuchanek@suse.de>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        Will Deacon <will@kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
+        Philipp Rudo <prudo@linux.ibm.com>, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        linux-s390@vger.kernel.org (open list:S390),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v9 4/4] kexec, KEYS, s390: Make use of built-in and secondary keyring for signature verification
+Date:   Mon,  4 Jul 2022 09:52:01 +0800
+Message-Id: <20220704015201.59744-5-coxu@redhat.com>
+X-Mailer: git-send-email 2.35.3
+In-Reply-To: <20220704015201.59744-1-coxu@redhat.com>
+References: <20220704015201.59744-1-coxu@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220703104353.GB62281@shbuild999.sh.intel.com>
-X-Migadu-Flow: FLOW_OUT
-X-Migadu-Auth-User: linux.dev
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Jul 03, 2022 at 06:43:53PM +0800, Feng Tang wrote:
-> Hi Shakeel,
-> 
-> On Fri, Jul 01, 2022 at 08:47:29AM -0700, Shakeel Butt wrote:
-> > On Mon, Jun 27, 2022 at 8:49 PM Feng Tang <feng.tang@intel.com> wrote:
-> > > I just tested it, it does perform better (the 4th is with your patch),
-> > > some perf-profile data is also listed.
-> > >
-> > >  7c80b038d23e1f4c 4890b686f4088c90432149bd6de 332b589c49656a45881bca4ecc0 e719635902654380b23ffce908d
-> > > ---------------- --------------------------- --------------------------- ---------------------------
-> > >      15722           -69.5%       4792           -40.8%       9300           -27.9%      11341        netperf.Throughput_Mbps
-> > >
-> > >       0.00            +0.3        0.26 ±  5%      +0.5        0.51            +1.3        1.27 ±  2%pp.self.__sk_mem_raise_allocated
-> > >       0.00            +0.3        0.32 ± 15%      +1.7        1.74 ±  2%      +0.4        0.40 ±  2%  pp.self.propagate_protected_usage
-> > >       0.00            +0.8        0.82 ±  7%      +0.9        0.90            +0.8        0.84        pp.self.__mod_memcg_state
-> > >       0.00            +1.2        1.24 ±  4%      +1.0        1.01            +1.4        1.44        pp.self.try_charge_memcg
-> > >       0.00            +2.1        2.06            +2.1        2.13            +2.1        2.11        pp.self.page_counter_uncharge
-> > >       0.00            +2.1        2.14 ±  4%      +2.7        2.71            +2.6        2.60 ±  2%  pp.self.page_counter_try_charge
-> > >       1.12 ±  4%      +3.1        4.24            +1.1        2.22            +1.4        2.51        pp.self.native_queued_spin_lock_slowpath
-> > >       0.28 ±  9%      +3.8        4.06 ±  4%      +0.2        0.48            +0.4        0.68        pp.self.sctp_eat_data
-> > >       0.00            +8.2        8.23            +0.8        0.83            +1.3        1.26        pp.self.__sk_mem_reduce_allocated
-> > >
-> > > And the size of 'mem_cgroup' is increased from 4224 Bytes to 4608.
-> > 
-> > Hi Feng, can you please try two more configurations? Take Eric's patch
-> > of adding ____cacheline_aligned_in_smp in page_counter and for first
-> > increase MEMCG_CHARGE_BATCH to 64 and for second increase it to 128.
-> > Basically batch increases combined with Eric's patch.
-> 
-> With increasing batch to 128, the regression could be reduced to -12.4%.
+From: Michal Suchanek <msuchanek@suse.de>
 
-If we're going to bump it, I wonder if we should scale it dynamically depending
-on the size of the memory cgroup?
+commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+adds support for KEXEC_SIG verification with keys from platform keyring
+but the built-in keys and secondary keyring are not used.
 
-Thanks!
+Add support for the built-in keys and secondary keyring as x86 does.
+
+Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+Cc: stable@vger.kernel.org
+Cc: Philipp Rudo <prudo@linux.ibm.com>
+Cc: kexec@lists.infradead.org
+Cc: keyrings@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Coiby Xu <coxu@redhat.com>
+---
+ arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+index 8f43575a4dd3..fc6d5f58debe 100644
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -31,6 +31,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
+ 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
+ 	struct module_signature *ms;
+ 	unsigned long sig_len;
++	int ret;
+ 
+ 	/* Skip signature verification when not secure IPLed. */
+ 	if (!ipl_secure_flag)
+@@ -65,11 +66,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
+ 		return -EBADMSG;
+ 	}
+ 
+-	return verify_pkcs7_signature(kernel, kernel_len,
+-				      kernel + kernel_len, sig_len,
+-				      VERIFY_USE_PLATFORM_KEYRING,
+-				      VERIFYING_MODULE_SIGNATURE,
+-				      NULL, NULL);
++	ret = verify_pkcs7_signature(kernel, kernel_len,
++				     kernel + kernel_len, sig_len,
++				     VERIFY_USE_SECONDARY_KEYRING,
++				     VERIFYING_MODULE_SIGNATURE,
++				     NULL, NULL);
++	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
++		ret = verify_pkcs7_signature(kernel, kernel_len,
++					     kernel + kernel_len, sig_len,
++					     VERIFY_USE_PLATFORM_KEYRING,
++					     VERIFYING_MODULE_SIGNATURE,
++					     NULL, NULL);
++	return ret;
+ }
+ #endif /* CONFIG_KEXEC_SIG */
+ 
+-- 
+2.35.3
+
