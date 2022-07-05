@@ -2,141 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C804C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 14:23:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B97FC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 14:58:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231243AbiGEOW6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Jul 2022 10:22:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43690 "EHLO
+        id S229814AbiGEO6k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Jul 2022 10:58:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233218AbiGEOWJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 10:22:09 -0400
+        with ESMTP id S229488AbiGEO6j (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 10:58:39 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF6102F7;
-        Tue,  5 Jul 2022 07:21:39 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 265E53JS029319;
-        Tue, 5 Jul 2022 14:21:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D38140DB;
+        Tue,  5 Jul 2022 07:58:38 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 265EjvVr027449;
+        Tue, 5 Jul 2022 14:58:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=PJ6sfBrteaY3d3xMJ6YNRiQMX0P+Yb8RFk/boKnsfdA=;
- b=IcuaBfPCkS3JBXYz13zKb07+pE4O5NfRXxI17vqqWrsxI9QnLGk2v5mZykumnvlyD596
- JnzP3Xr2SmrPg/NxyGSkMxukISXEpNDW3j33H2bcKBWhj45hrAE6dFCgQaTnCmRCgnm8
- 1VqLGH6AeD/AMn8X4+xRRGhCCYZaVMG4FL9e2qViWnvcQdk4Zovx6MAD795soSn2VKfw
- /hrPviNQX29R4lSK2+MqBA+oJK36WrI7OKPOQyC056E7SRQX3uEWTbF6gK1f4Eo/JL3y
- v547QbiLcQC7mzuV16VVZ1sQ4sm7MNQJtYmTjgMMoZcnDwBTE1zwY+Dk7g00wq5ZiBv+ nQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h4pg0s49g-1
+ bh=Y3jDeNk9KPTZ+ANrlUNPxfYLf6ojQp5hQvxuuZxFMs4=;
+ b=GoJkn23rovuO0rXfl6AnkaZqR4w1M7FWOz0g3/SHID9qm60GbfXTCJvJl7/CfrXJLAfx
+ aDfyt5nnnX4cTH5hVPZ6W12QvajAHKAzERMhjrtlKSO2LdF3YnBu8AGHGfVrbGDKuLn/
+ B1rvb+ktEl21SIyGY8IoWVHP+anQUFzN+TniNhR2AQT4WqUZbHuCCSsfvJYLgVjshtWs
+ gbIHgW2kpK6WOb83IFQRK1u0PT3MyKA3UPYjUBtJHkGoYLptltnRfKIHxe7P3/sS5Ntr
+ ykzQy7TknZVxfpSV8DI/n3YIgo9+k2e4d12q510EcOg9wcpQj2Irwrs0q7FvqYRK+CuY fg== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h4pwe91m7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Jul 2022 14:21:26 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 265E59PY030047;
-        Tue, 5 Jul 2022 14:21:26 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h4pg0s48x-1
+        Tue, 05 Jul 2022 14:58:37 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 265Ep1ig017186;
+        Tue, 5 Jul 2022 14:58:36 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04fra.de.ibm.com with ESMTP id 3h2dn8u4nr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Jul 2022 14:21:25 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 265E6SMd031049;
-        Tue, 5 Jul 2022 14:21:24 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3h2d9jc58c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Jul 2022 14:21:24 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 265ELTtp32899530
+        Tue, 05 Jul 2022 14:58:36 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 265EwXQD24969726
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Jul 2022 14:21:29 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CEBA55204F;
-        Tue,  5 Jul 2022 14:21:20 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.76.42])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id 272035204E;
-        Tue,  5 Jul 2022 14:21:20 +0000 (GMT)
-Date:   Tue, 5 Jul 2022 16:21:18 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     dsterba@suse.cz, Qu Wenruo <quwenruo.btrfs@gmx.com>,
-        Jan Kara <jack@suse.cz>, clm@fb.com, josef@toxicpanda.com,
-        dsterba@suse.com, linux-btrfs@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        Tue, 5 Jul 2022 14:58:33 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0B70442041;
+        Tue,  5 Jul 2022 14:58:33 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F87F4203F;
+        Tue,  5 Jul 2022 14:58:32 +0000 (GMT)
+Received: from [9.171.76.195] (unknown [9.171.76.195])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  5 Jul 2022 14:58:32 +0000 (GMT)
+Message-ID: <9a0561c0-68f7-b630-4440-3ca32bf28dc2@linux.ibm.com>
+Date:   Tue, 5 Jul 2022 16:58:30 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v1 1/1] s390/arch_random: Buffer true random data
+Content-Language: en-US
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     Harald Freudenberger <freude@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] btrfs: remove btrfs_writepage_cow_fixup
-Message-ID: <20220705162118.153efe62@thinkpad>
-In-Reply-To: <20220629075837.GA22346@lst.de>
-References: <20220624122334.80603-1-hch@lst.de>
-        <7c30b6a4-e628-baea-be83-6557750f995a@gmx.com>
-        <20220624125118.GA789@lst.de>
-        <20220624130750.cu26nnm6hjrru4zd@quack3.lan>
-        <20220625091143.GA23118@lst.de>
-        <20220627101914.gpoz7f6riezkolad@quack3.lan>
-        <e73be42e-fce5-733a-310d-db9dc5011796@gmx.com>
-        <20220628115356.GB20633@suse.cz>
-        <20220629075837.GA22346@lst.de>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220705112712.4433-1-dengler@linux.ibm.com>
+ <20220705112712.4433-2-dengler@linux.ibm.com> <YsQ6OOrOWPhdynoM@zx2c4.com>
+From:   Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <YsQ6OOrOWPhdynoM@zx2c4.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: qQir0kRs4iE1Xk7GHT__fz80lb2HMA69
-X-Proofpoint-ORIG-GUID: VSjWlvkv1KztAt_UQzmGzsCnbd9pp_os
+X-Proofpoint-ORIG-GUID: xvtIG_GcdClxQN5g4RgVKeTcshOLgqmY
+X-Proofpoint-GUID: xvtIG_GcdClxQN5g4RgVKeTcshOLgqmY
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-05_10,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
- priorityscore=1501 mlxscore=0 impostorscore=0 lowpriorityscore=0
- spamscore=0 bulkscore=0 mlxlogscore=710 adultscore=0 suspectscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2207050061
+ definitions=2022-07-05_11,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 mlxscore=0 spamscore=0 impostorscore=0 lowpriorityscore=0
+ malwarescore=0 adultscore=0 suspectscore=0 mlxlogscore=710 clxscore=1015
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2207050062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 29 Jun 2022 09:58:37 +0200
-Christoph Hellwig <hch@lst.de> wrote:
+Hi Jason,
 
-> On Tue, Jun 28, 2022 at 01:53:56PM +0200, David Sterba wrote:
-> > This would work only for the higher level API where eg. RDMA notifies
-> > the filesystem, but there's still the s390 case that is part of the
-> > hardware architecture. The fixup worker is there as a safety for all
-> > other cases, I'm not fine removing or ignoring it.  
+On 05/07/2022 15:18, Jason A. Donenfeld wrote:
+> Hi Holger,
 > 
-> I'd really like to have a confirmation of this whole s390 theory.
-> s390 does treat some dirtying different than the other architectures,
-> but none of that should leak into the file system API if any way that
-> bypasses ->page_mkwrite.
+> On Tue, Jul 05, 2022 at 01:27:12PM +0200, Holger Dengler wrote:
+>> The trng instruction is very expensive and has a constant runtime for
+>> getting 0 to 32 bytes of (conditioned) true random data. Calling trng for
+>> in arch_get_random_seed_long() for each 8 bytes is too time-consuming,
+>> especially if it is called in interrupt context.
+>>
+>> This implementation buffers the trng data and deliver parts of it to the
 > 
-> Because if it did most file systems would be completely broken on
-> s390.
+> This patch seems to be repeating the same mistake I just cleaned up.
+> Specifically, an advantage of a CPU RNG is that it can always provide
+> *fresh* entropy, so that if, say, the system state is dumped, the CPU
+> will continue to provide fresh new uncompromised values. When you buffer
+> those values, they cease to be fresh.
 
-Could you please be more specific about what exactly you mean with
-"the s390 case that is part of the hardware architecture"?
+You're right, the buffering has the disadvantage, that the random data for the non-first callers are not fresh. But if we only want to have fresh data here, we should avoid this call in interrupt context completely (see below).
 
-One thing that s390 might handle different from others, is that it
-is not using a HW dirty bit in the PTE, but instead a fault-triggered
-SW dirty bit.
+> But more realistically, have you benchmarked this and seen that it's
+> actually required? These functions are called once at boot, and then
+> when the RNG is reseeded, which happens around once a minute. That's
+> pretty darn rare. When you consider all the cycles that are completed
+> over the course of a minute, whatever the cost of the TRNG is seems
+> pretty negligible.
 
-E.g. pte_mkwrite() will mark a PTE as writable (via another SW bit),
-but not clear the HW protection bit, which would then generate a
-fault on first write access. In handle_pte_fault(), the PTE would
-then be marked as dirty via pte_mkdirty(), which also clears the HW
-protection bit, at least for pte_write() PTEs.
-For the !pte_write() COW case, we would go through do_wp_page() like
-everybody else, but probably still end up in some pte_mkdirty()
-eventually, to avoid getting another fault.
+It is true, that the performance of the instruction is not really relevant, but only for calls outside of an interrupt context. I did some ftrace logging for the s390_random_get_seed_long() calls, and - as you said - there are a few calls per minute. But there was also some repeating calls in interrupt context. On systems with a huge interrupt load, this can cause severe performance impacts. I've no concrete performance measurements at the moment, but - as I said - the trng instruction on s390 takes a lot of time and in interrupt context the interrupts are disabled for the complete runtime of the instruction.
 
-Not being familiar with either btrfs, any other fs, or RDMA, I cannot
-really follow the discussion here. Still it seems to me that you are
-not talking about special s390 HW architecture regarding PTE, but
-rather about some (struct) page dirtying on the COW path, which should
-be completely common code and not subject to any s390 special case.
+> So anyway, maybe it'd be best to look at the "big picture" problem you
+> want to solve, rather than what looks to me like an attempt to solve a
+> problem that doesn't exist. Or maybe it does? If so, I'd be interested
+> to know when and how and where and such.
 
-Somewhere in this thread it was also mentioned that "s390 can not do
-page flags update atomically", which I can not confirm, in case this
-was the question. The code in include/linux/page-flags.h seems to
-use normal (arch)_test/set/clear_bit operations, which should always be
-atomic on s390.
+The optimization of the trng calls was not the main goal, but we (Harald and I) thought about how can we provide trng data to in-interrupt callers as well, without doing the trng instruction call in the interrupt context itself. At the moment, I don't see any possibility to do both, fresh data and prevent trng calls in interrupt context BUT provide trng data for in-interrupt-callers. But I'm always open for new ideas.
+
+If the data must be fresh, I would propose not to use any trng-generated data for in-interrupt callers.
+
+> 
+> Jason
+
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
