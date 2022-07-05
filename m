@@ -2,40 +2,39 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98404C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 22:16:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86B95C43334
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 23:12:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230326AbiGEWQH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Jul 2022 18:16:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56942 "EHLO
+        id S232506AbiGEXM3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Jul 2022 19:12:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbiGEWQG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 18:16:06 -0400
-X-Greylist: delayed 1479 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 05 Jul 2022 15:16:02 PDT
-Received: from terminus.zytor.com (terminus.zytor.com [198.137.202.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6295513CD0
-        for <linux-s390@vger.kernel.org>; Tue,  5 Jul 2022 15:16:02 -0700 (PDT)
+        with ESMTP id S232096AbiGEXM1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 19:12:27 -0400
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C518654D;
+        Tue,  5 Jul 2022 16:12:27 -0700 (PDT)
 Received: from [127.0.0.1] ([73.223.250.219])
         (authenticated bits=0)
-        by mail.zytor.com (8.17.1/8.15.2) with ESMTPSA id 265LoZui985421
+        by mail.zytor.com (8.17.1/8.15.2) with ESMTPSA id 265NBnGE1003711
         (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-        Tue, 5 Jul 2022 14:50:35 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 265LoZui985421
+        Tue, 5 Jul 2022 16:11:50 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 265NBnGE1003711
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2022060401; t=1657057837;
-        bh=7KDE2gFVvMSgPsHGHe9MxJdE6fru6CX4ADvVbzCKtT8=;
+        s=2022060401; t=1657062712;
+        bh=Y98dqt5En+kS/P/7IMzby9wcUq/7fVTjOsj4m2LkPGI=;
         h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-        b=lMkaO2FbzS8H3Ku8woeLDFSXdgUMzhKC15vy7VQdtwYs91XormxkElNRd8Q0jV9i9
-         eiuEeplg9WtLAgD8dk0P/U/FI2JDZFmhH/T8n6gsuHuQypPNaaPgdlm8lcT3IA826d
-         UzDQl4+77Pv22WQfoIiMSzqQxzQqc1IuTgDtDrtFRoVtuIPrsj1cfJx2OaI3ruVEcd
-         ATP70kCNxi2r3ncyjkBZdYQrBeDR5ggdHco/GkfmlGdkVPVp5wGkZcp5fbUDTgWEvA
-         6N2BHP8z5Y/b0MLZ6XmVUItrHq/zFjRynAUVqUtBrK9SN/XxO0hSRnfBNnNNBVsgCi
-         U/yxv4tY8favw==
-Date:   Tue, 05 Jul 2022 14:50:34 -0700
+        b=KoHiZKsEicJF3HWW8BYUbNDtijdyk2YC30lpGok5A71WKH5jN4kSF+1k/ILd0x9By
+         qt8xe3MS+M3LxdPaft1n7lcyMixtVdJ5SQYbrobuHAXvXZD91dHJDhsiyrj0xX6oEB
+         UzBMdQKEXifwQOtQj+6um92/xSJJMJAJk/eweAx0I6RYNd0HPoR17l0lZTdhk7AUif
+         NSyyZN5L500jyETF72C6IrByv8jv42HDJSrxzOzuSo6byDKD6nExbO6sf5LLBoXwBl
+         hJl0pswjsA5H80PdAU7gimYJT6uwlh8+RWtIOHDI250cjEOA3EOFzWqjhIcySx1ZiD
+         mZSs9tkVChZvA==
+Date:   Tue, 05 Jul 2022 16:11:45 -0700
 From:   "H. Peter Anvin" <hpa@zytor.com>
-To:     Borislav Petkov <bp@alien8.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-CC:     linux-arm-kernel@lists.infradead.org,
+To:     Borislav Petkov <bp@alien8.de>
+CC:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, x86@kernel.org,
         Catalin Marinas <catalin.marinas@arm.com>,
@@ -48,9 +47,9 @@ CC:     linux-arm-kernel@lists.infradead.org,
         Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH] random: remove CONFIG_ARCH_RANDOM and "nordrand"
 User-Agent: K-9 Mail for Android
-In-Reply-To: <YsSXkNBtB6Ciy9iN@zn.tnic>
-References: <20220705190121.293703-1-Jason@zx2c4.com> <YsSStCQQf008hF2F@zn.tnic> <YsSUkapje04MP2a1@zx2c4.com> <YsSXkNBtB6Ciy9iN@zn.tnic>
-Message-ID: <11C903CC-22A7-48EE-AD63-E71CC8D28B88@zytor.com>
+In-Reply-To: <YsS0ZLQw+QFA7XdJ@zn.tnic>
+References: <20220705190121.293703-1-Jason@zx2c4.com> <YsSStCQQf008hF2F@zn.tnic> <YsSUkapje04MP2a1@zx2c4.com> <YsSXkNBtB6Ciy9iN@zn.tnic> <11C903CC-22A7-48EE-AD63-E71CC8D28B88@zytor.com> <YsS0ZLQw+QFA7XdJ@zn.tnic>
+Message-ID: <805B66CB-D847-4547-B6EE-C4FB72B75765@zytor.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
  charset=utf-8
@@ -59,49 +58,18 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On July 5, 2022 12:57:04 PM PDT, Borislav Petkov <bp@alien8=2Ede> wrote:
->On Tue, Jul 05, 2022 at 09:44:17PM +0200, Jason A=2E Donenfeld wrote:
->> Oh, huh=2E Maybe in that case I should adjust the message to say "consi=
-der
->> using `random=2Etrust_cpu=3D0`," which is the thing that would actually=
- make
->> a security difference=2E
+On July 5, 2022 3:00:04 PM PDT, Borislav Petkov <bp@alien8=2Ede> wrote:
+>On Tue, Jul 05, 2022 at 02:50:34PM -0700, H=2E Peter Anvin wrote:
+>> It's just math=2E The only variable is your confidence level, i=2Ee=2E =
+at
+>> what level do you decide that the likelihood of pure chance is way
+>> smaller than the likelihood of hardware failure=2E
 >
->Why isn't that option documented in
->Documentation/admin-guide/kernel-parameters=2Etxt?
+>That might be but the likelyhood of certain BIOSes dropping the ball
+>after resume is 100%:
 >
->> But actually, one thing that wasn't clear to me was: does `nordrand`
->> affect what userspace sees? While random=2Ec is okay in lots of
->> circumstances, I could imagine `nordrand` playing a role in preventing
->> userspace from using it, which might be desirable=2E Is this the case? =
-If
->> so, I can remove the nordrand chunk from this patch for v2=2E If not, I=
-'ll
->> adjust the text to mention `random=2Etrust_cpu=3D0`=2E
->
->Unfortunately, it doesn't disable the instruction=2E It would be lovely i=
-f
->we had a switch like that=2E=2E=2E
->
->That's why this message is supposed to be noisy so that people can pay
->attention at least=2E
->
->> In the sense that random=2Ec can handle mostly any input without making
->> the quality worse=2E So, you can't accidentally taint it=2E The only ri=
-sk is
->> if it thinks RDRAND is good and trustable when it isn't, but that's wha=
-t
->> `random=2Etrust_cpu=3D0` is for=2E
->
->And that's why I'm saying that if you detect RDRAND returning the
->same thing over and over again, you should simply stop using it=2E
->Automatically=2E Not rely on the user to do anything=2E
+>7879fc4bdc75 ("x86/rdrand: Sanity-check RDRAND output")
 >
 
-It's just math=2E The only variable is your confidence level, i=2Ee=2E at =
-what level do you decide that the likelihood of pure chance is way smaller =
-than the likelihood of hardware failure=2E For example, the likelihood of m=
- n-bit samples in a row being identical is 2^-(n*(m-3/2)), and the likeliho=
-od of the CPU being destroyed by a meterorite in the same microsecond is ab=
-out 2^-100=2E
-
+What I'm wondering is if we shouldn't be simply instrument *every* invocat=
+ion, and set the trust to zero if we ever trip it=2E
