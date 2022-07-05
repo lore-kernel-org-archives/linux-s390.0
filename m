@@ -2,108 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49E44C43334
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 05:00:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A825C43334
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 05:03:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbiGEFAe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Jul 2022 01:00:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33084 "EHLO
+        id S229551AbiGEFDi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Jul 2022 01:03:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbiGEFAd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 01:00:33 -0400
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 960C813CEA;
-        Mon,  4 Jul 2022 22:00:32 -0700 (PDT)
+        with ESMTP id S229453AbiGEFDh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 01:03:37 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C13BC5FBE;
+        Mon,  4 Jul 2022 22:03:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656997232; x=1688533232;
+  t=1656997412; x=1688533412;
   h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=bqRp1IxoetQDUHTUe7ctAtgUSeYkiq7MsRv1B+UfGX4=;
-  b=myuztOVgn5IZTCed9quutMVBlSj3gEqaSEyZWmzIMkh4Cub7wEKDcMqg
-   l0D6iCdZ92WC7EfGgk70DeV4k/mzv6jrOa3FoKW7T6idlBYdaL9lKoEN3
-   FXP0wFmXd4ssaoGGmKKlIcQXWvQ3R9HZVv0jpnHnunkSYCbQwRh75AAHr
-   RsY8IvflEwqK8Qbb7PYX8/K8WhXwzEinYpWR7g/sL63KaCs8TwXt72LyA
-   eTFNnbFGs1tQP+6Ce+Hi1R5YPNRoWVH0hWjKMfl8gSBBlMmpLuAMZ5bwf
-   2AxEOQtpi9TypmfXk2rgRoHNOLC59P3J9GUYqZ3RFJROy9k3woW6ybs2C
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=0sKczz/MzrkciaGHBhWNdrcBmOzdmGmWF8CNerI1VBk=;
+  b=J7V4aPS53MmoQJre70udgVB1s6En49xD3hUAuTu3oNNw0LtPtNI8vryF
+   XZ4Y0VlzEVML0dX3+ArCrnOijESmP8T90CSiAOaCyZRw9KPTOWmSrd1PR
+   RT7sdh+TFTJFvC1DzyGn3ivkpf+QWr8Xgl8QlTSL/m5we3h8TuDD7wVwv
+   k1poGYIL+W/3YI9mPZaMPFvkrrXJhYmc4Y25QIeJKZlaar1JUCYsLoEIf
+   47+AL0FS3KnRGCZjlbcXP34S1ylzw9VxMRuwgscl47QyMN2mMR0NnEURc
+   yvLvHjHHYYe0TLesNAAM9bcd0qLadJBE0a9Yz1kpErcz10iUcnk9kq3Yy
    Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10398"; a="280805516"
+X-IronPort-AV: E=McAfee;i="6400,9594,10398"; a="272028247"
 X-IronPort-AV: E=Sophos;i="5.92,245,1650956400"; 
-   d="scan'208";a="280805516"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2022 22:00:32 -0700
+   d="scan'208";a="272028247"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2022 22:03:32 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.92,245,1650956400"; 
-   d="scan'208";a="660403877"
-Received: from lkp-server01.sh.intel.com (HELO 68b931ab7ac1) ([10.239.97.150])
-  by fmsmga004.fm.intel.com with ESMTP; 04 Jul 2022 22:00:29 -0700
-Received: from kbuild by 68b931ab7ac1 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1o8afk-000Ilv-N6;
-        Tue, 05 Jul 2022 05:00:28 +0000
-Date:   Tue, 5 Jul 2022 12:59:55 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, jjherne@linux.ibm.com,
-        freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-Subject: Re: [PATCH v20 19/20] s390/Docs: new doc describing lock usage by
- the vfio_ap device driver
-Message-ID: <202207051236.URA7Qn9x-lkp@intel.com>
-References: <20220621155134.1932383-20-akrowiak@linux.ibm.com>
+   d="scan'208";a="625312910"
+Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.138])
+  by orsmga001.jf.intel.com with ESMTP; 04 Jul 2022 22:03:26 -0700
+Date:   Tue, 5 Jul 2022 13:03:26 +0800
+From:   Feng Tang <feng.tang@intel.com>
+To:     Roman Gushchin <roman.gushchin@linux.dev>
+Cc:     Shakeel Butt <shakeelb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        kernel test robot <oliver.sang@intel.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        network dev <netdev@vger.kernel.org>,
+        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
+        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
+        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
+Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
+Message-ID: <20220705050326.GF62281@shbuild999.sh.intel.com>
+References: <20220627023812.GA29314@shbuild999.sh.intel.com>
+ <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
+ <20220627123415.GA32052@shbuild999.sh.intel.com>
+ <CANn89iJAoYCebNbXpNMXRoDUkFMhg9QagetVU9NZUq+GnLMgqQ@mail.gmail.com>
+ <20220627144822.GA20878@shbuild999.sh.intel.com>
+ <CANn89iLSWm-c4XE79rUsxzOp3VwXVDhOEPTQnWgeQ48UwM=u7Q@mail.gmail.com>
+ <20220628034926.GA69004@shbuild999.sh.intel.com>
+ <CALvZod71Fti8yLC08mdpDk-TLYJVyfVVauWSj1zk=BhN1-GPdA@mail.gmail.com>
+ <20220703104353.GB62281@shbuild999.sh.intel.com>
+ <YsIeYzEuj95PWMWO@castle>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20220621155134.1932383-20-akrowiak@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YsIeYzEuj95PWMWO@castle>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Tony,
+On Sun, Jul 03, 2022 at 03:55:31PM -0700, Roman Gushchin wrote:
+> On Sun, Jul 03, 2022 at 06:43:53PM +0800, Feng Tang wrote:
+> > Hi Shakeel,
+> > 
+> > On Fri, Jul 01, 2022 at 08:47:29AM -0700, Shakeel Butt wrote:
+> > > On Mon, Jun 27, 2022 at 8:49 PM Feng Tang <feng.tang@intel.com> wrote:
+> > > > I just tested it, it does perform better (the 4th is with your patch),
+> > > > some perf-profile data is also listed.
+> > > >
+> > > >  7c80b038d23e1f4c 4890b686f4088c90432149bd6de 332b589c49656a45881bca4ecc0 e719635902654380b23ffce908d
+> > > > ---------------- --------------------------- --------------------------- ---------------------------
+> > > >      15722           -69.5%       4792           -40.8%       9300           -27.9%      11341        netperf.Throughput_Mbps
+> > > >
+> > > >       0.00            +0.3        0.26 ±  5%      +0.5        0.51            +1.3        1.27 ±  2%pp.self.__sk_mem_raise_allocated
+> > > >       0.00            +0.3        0.32 ± 15%      +1.7        1.74 ±  2%      +0.4        0.40 ±  2%  pp.self.propagate_protected_usage
+> > > >       0.00            +0.8        0.82 ±  7%      +0.9        0.90            +0.8        0.84        pp.self.__mod_memcg_state
+> > > >       0.00            +1.2        1.24 ±  4%      +1.0        1.01            +1.4        1.44        pp.self.try_charge_memcg
+> > > >       0.00            +2.1        2.06            +2.1        2.13            +2.1        2.11        pp.self.page_counter_uncharge
+> > > >       0.00            +2.1        2.14 ±  4%      +2.7        2.71            +2.6        2.60 ±  2%  pp.self.page_counter_try_charge
+> > > >       1.12 ±  4%      +3.1        4.24            +1.1        2.22            +1.4        2.51        pp.self.native_queued_spin_lock_slowpath
+> > > >       0.28 ±  9%      +3.8        4.06 ±  4%      +0.2        0.48            +0.4        0.68        pp.self.sctp_eat_data
+> > > >       0.00            +8.2        8.23            +0.8        0.83            +1.3        1.26        pp.self.__sk_mem_reduce_allocated
+> > > >
+> > > > And the size of 'mem_cgroup' is increased from 4224 Bytes to 4608.
+> > > 
+> > > Hi Feng, can you please try two more configurations? Take Eric's patch
+> > > of adding ____cacheline_aligned_in_smp in page_counter and for first
+> > > increase MEMCG_CHARGE_BATCH to 64 and for second increase it to 128.
+> > > Basically batch increases combined with Eric's patch.
+> > 
+> > With increasing batch to 128, the regression could be reduced to -12.4%.
+> 
+> If we're going to bump it, I wonder if we should scale it dynamically depending
+> on the size of the memory cgroup?
+ 
+I think it makes sense, or also make it a configurable parameter? From 
+the test reports of 0Day, these charging/counting play critical role
+in performance (easy to see up to 60% performance effect). If user only
+wants memcg for isolating things or doesn't care charging/stats, these
+seem to be extra taxes.
 
-I love your patch! Perhaps something to improve:
+For bumping to 64 or 128, universal improvement is expected with the
+only concern of accuracy.
 
-[auto build test WARNING on s390/features]
-[also build test WARNING on mst-vhost/linux-next linus/master v5.19-rc5 next-20220704]
-[cannot apply to kvms390/next]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+Thanks,
+Feng
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Tony-Krowiak/s390-vfio-ap-dynamic-configuration-support/20220621-235654
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-reproduce: make htmldocs
-
-If you fix the issue, kindly add following tag where applicable
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
->> Documentation/s390/vfio-ap-locking.rst:10: WARNING: Inline emphasis start-string without end-string.
->> Documentation/s390/vfio-ap-locking.rst:15: WARNING: Title underline too short.
->> Documentation/s390/vfio-ap-locking.rst:22: WARNING: Definition list ends without a blank line; unexpected unindent.
-
-vim +10 Documentation/s390/vfio-ap-locking.rst
-
-     9	
-  > 10	struct ap_matrix_dev *matrix_dev;
-    11	struct ap_matrix_mdev *matrix_mdev;
-    12	struct kvm *kvm;
-    13	
-    14	The Matrix Devices Lock (drivers/s390/crypto/vfio_ap_private.h)
-  > 15	--------------------------------------------------------------
-    16	
-    17	struct ap_matrix_dev {
-    18		...
-    19		struct list_head mdev_list;
-    20		struct mutex mdevs_lock;
-    21		...
-  > 22	}
-    23	
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+> Thanks!
