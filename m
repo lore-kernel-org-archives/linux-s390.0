@@ -2,24 +2,24 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2878C43334
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 17:09:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49D56C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 17:09:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233466AbiGERJh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Jul 2022 13:09:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60744 "EHLO
+        id S233273AbiGERJj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Jul 2022 13:09:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233320AbiGERJO (ORCPT
+        with ESMTP id S233326AbiGERJO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 13:09:14 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 083771EC61;
-        Tue,  5 Jul 2022 10:09:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C18271F60F;
+        Tue,  5 Jul 2022 10:09:06 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 35CDC1596;
-        Tue,  5 Jul 2022 10:09:03 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B9F1C1595;
+        Tue,  5 Jul 2022 10:09:06 -0700 (PDT)
 Received: from e121345-lin.cambridge.arm.com (e121345-lin.cambridge.arm.com [10.1.196.40])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 55B863F66F;
-        Tue,  5 Jul 2022 10:09:01 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id DABC03F66F;
+        Tue,  5 Jul 2022 10:09:04 -0700 (PDT)
 From:   Robin Murphy <robin.murphy@arm.com>
 To:     joro@8bytes.org
 Cc:     will@kernel.org, iommu@lists.linux.dev,
@@ -28,9 +28,9 @@ Cc:     will@kernel.org, iommu@lists.linux.dev,
         mjrosato@linux.ibm.com, gerald.schaefer@linux.ibm.com,
         schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v3 11/15] iommu/mtk: Clean up bus_set_iommu()
-Date:   Tue,  5 Jul 2022 18:08:34 +0100
-Message-Id: <2a8ae79721a36c7b8960ce2ecb19ef5e202e36c2.1657034828.git.robin.murphy@arm.com>
+Subject: [PATCH v3 13/15] iommu/tegra-smmu: Clean up bus_set_iommu()
+Date:   Tue,  5 Jul 2022 18:08:36 +0100
+Message-Id: <226d48b93ae94947630ecc237d399f6e2efed0ee.1657034828.git.robin.murphy@arm.com>
 X-Mailer: git-send-email 2.36.1.dirty
 In-Reply-To: <cover.1657034827.git.robin.murphy@arm.com>
 References: <cover.1657034827.git.robin.murphy@arm.com>
@@ -41,100 +41,68 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 Stop calling bus_set_iommu() since it's now unnecessary, and simplify
-the probe failure paths accordingly.
+the probe failure path accordingly.
 
 Signed-off-by: Robin Murphy <robin.murphy@arm.com>
 ---
 
-v3: Rebase around recent probe/remove changes
+v3: No change
 
- drivers/iommu/mtk_iommu.c    | 24 +-----------------------
- drivers/iommu/mtk_iommu_v1.c | 13 +------------
- 2 files changed, 2 insertions(+), 35 deletions(-)
+ drivers/iommu/tegra-smmu.c | 29 ++++++-----------------------
+ 1 file changed, 6 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index bb9dd92c9898..1a0780b65961 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -1239,30 +1239,13 @@ static int mtk_iommu_probe(struct platform_device *pdev)
- 		data->hw_list = &data->hw_list_head;
- 	}
+diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
+index 1fea68e551f1..2e4d2e4c65bb 100644
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -1086,8 +1086,8 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
  
--	if (!iommu_present(&platform_bus_type)) {
--		ret = bus_set_iommu(&platform_bus_type, &mtk_iommu_ops);
--		if (ret)
--			goto out_list_del;
--	}
+ 	/*
+ 	 * This is a bit of a hack. Ideally we'd want to simply return this
+-	 * value. However the IOMMU registration process will attempt to add
+-	 * all devices to the IOMMU when bus_set_iommu() is called. In order
++	 * value. However iommu_device_register() will attempt to add
++	 * all devices to the IOMMU before we get that far. In order
+ 	 * not to rely on global variables to track the IOMMU instance, we
+ 	 * set it here so that it can be looked up from the .probe_device()
+ 	 * callback via the IOMMU device's .drvdata field.
+@@ -1141,32 +1141,15 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
+ 		return ERR_PTR(err);
+ 
+ 	err = iommu_device_register(&smmu->iommu, &tegra_smmu_ops, dev);
+-	if (err)
+-		goto remove_sysfs;
 -
- 	if (MTK_IOMMU_IS_TYPE(data->plat_data, MTK_IOMMU_TYPE_MM)) {
- 		ret = component_master_add_with_match(dev, &mtk_iommu_com_ops, match);
- 		if (ret)
--			goto out_bus_set_null;
--	} else if (MTK_IOMMU_IS_TYPE(data->plat_data, MTK_IOMMU_TYPE_INFRA) &&
--		   MTK_IOMMU_HAS_FLAG(data->plat_data, IFA_IOMMU_PCIE_SUPPORT)) {
+-	err = bus_set_iommu(&platform_bus_type, &tegra_smmu_ops);
+-	if (err < 0)
+-		goto unregister;
+-
 -#ifdef CONFIG_PCI
--		if (!iommu_present(&pci_bus_type)) {
--			ret = bus_set_iommu(&pci_bus_type, &mtk_iommu_ops);
--			if (ret) /* PCIe fail don't affect platform_bus. */
--				goto out_list_del;
--		}
+-	err = bus_set_iommu(&pci_bus_type, &tegra_smmu_ops);
+-	if (err < 0)
+-		goto unset_platform_bus;
 -#endif
-+			goto out_list_del;
- 	}
- 	return ret;
++	if (err) {
++		iommu_device_sysfs_remove(&smmu->iommu);
++		return ERR_PTR(err);
++	}
  
--out_bus_set_null:
--	bus_set_iommu(&platform_bus_type, NULL);
- out_list_del:
- 	list_del(&data->list);
- 	iommu_device_unregister(&data->iommu);
-@@ -1290,11 +1273,6 @@ static int mtk_iommu_remove(struct platform_device *pdev)
- 	if (MTK_IOMMU_IS_TYPE(data->plat_data, MTK_IOMMU_TYPE_MM)) {
- 		device_link_remove(data->smicomm_dev, &pdev->dev);
- 		component_master_del(&pdev->dev, &mtk_iommu_com_ops);
--	} else if (MTK_IOMMU_IS_TYPE(data->plat_data, MTK_IOMMU_TYPE_INFRA) &&
--		   MTK_IOMMU_HAS_FLAG(data->plat_data, IFA_IOMMU_PCIE_SUPPORT)) {
--#ifdef CONFIG_PCI
--		bus_set_iommu(&pci_bus_type, NULL);
--#endif
- 	}
- 	pm_runtime_disable(&pdev->dev);
- 	for (i = 0; i < data->plat_data->banks_num; i++) {
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index e1cb51b9866c..e60e8890e45d 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -696,19 +696,11 @@ static int mtk_iommu_v1_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto out_sysfs_remove;
+ 	if (IS_ENABLED(CONFIG_DEBUG_FS))
+ 		tegra_smmu_debugfs_init(smmu);
  
--	if (!iommu_present(&platform_bus_type)) {
--		ret = bus_set_iommu(&platform_bus_type,  &mtk_iommu_v1_ops);
--		if (ret)
--			goto out_dev_unreg;
--	}
+ 	return smmu;
 -
- 	ret = component_master_add_with_match(dev, &mtk_iommu_v1_com_ops, match);
- 	if (ret)
--		goto out_bus_set_null;
-+		goto out_dev_unreg;
- 	return ret;
- 
--out_bus_set_null:
+-unset_platform_bus: __maybe_unused;
 -	bus_set_iommu(&platform_bus_type, NULL);
- out_dev_unreg:
- 	iommu_device_unregister(&data->iommu);
- out_sysfs_remove:
-@@ -723,9 +715,6 @@ static int mtk_iommu_v1_remove(struct platform_device *pdev)
- 	iommu_device_sysfs_remove(&data->iommu);
- 	iommu_device_unregister(&data->iommu);
- 
--	if (iommu_present(&platform_bus_type))
--		bus_set_iommu(&platform_bus_type, NULL);
+-unregister:
+-	iommu_device_unregister(&smmu->iommu);
+-remove_sysfs:
+-	iommu_device_sysfs_remove(&smmu->iommu);
 -
- 	clk_disable_unprepare(data->bclk);
- 	devm_free_irq(&pdev->dev, data->irq, data);
- 	component_master_del(&pdev->dev, &mtk_iommu_v1_com_ops);
+-	return ERR_PTR(err);
+ }
+ 
+ void tegra_smmu_remove(struct tegra_smmu *smmu)
 -- 
 2.36.1.dirty
 
