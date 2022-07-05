@@ -2,301 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A21DC43334
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 02:23:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49E44C43334
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 05:00:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234260AbiGECXL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Jul 2022 22:23:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49718 "EHLO
+        id S229484AbiGEFAe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Jul 2022 01:00:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231329AbiGECXK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 22:23:10 -0400
-Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B6B12639;
-        Mon,  4 Jul 2022 19:23:07 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0VIPtdPZ_1656987780;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VIPtdPZ_1656987780)
-          by smtp.aliyun-inc.com;
-          Tue, 05 Jul 2022 10:23:01 +0800
-Message-ID: <1656987177.3209145-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v11 08/40] virtio_ring: split: extract the logic of alloc queue
-Date:   Tue, 5 Jul 2022 10:12:57 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        kangjie.xu@linux.alibaba.com,
-        virtualization@lists.linux-foundation.org
-References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
- <20220629065656.54420-9-xuanzhuo@linux.alibaba.com>
- <3e36e44f-1f37-ad02-eb89-833a0856ec4e@redhat.com>
- <1656665158.0036178-3-xuanzhuo@linux.alibaba.com>
- <6daca7fd-ae2a-cd0c-2030-3c6e503a3200@redhat.com>
-In-Reply-To: <6daca7fd-ae2a-cd0c-2030-3c6e503a3200@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229555AbiGEFAd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 01:00:33 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 960C813CEA;
+        Mon,  4 Jul 2022 22:00:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656997232; x=1688533232;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=bqRp1IxoetQDUHTUe7ctAtgUSeYkiq7MsRv1B+UfGX4=;
+  b=myuztOVgn5IZTCed9quutMVBlSj3gEqaSEyZWmzIMkh4Cub7wEKDcMqg
+   l0D6iCdZ92WC7EfGgk70DeV4k/mzv6jrOa3FoKW7T6idlBYdaL9lKoEN3
+   FXP0wFmXd4ssaoGGmKKlIcQXWvQ3R9HZVv0jpnHnunkSYCbQwRh75AAHr
+   RsY8IvflEwqK8Qbb7PYX8/K8WhXwzEinYpWR7g/sL63KaCs8TwXt72LyA
+   eTFNnbFGs1tQP+6Ce+Hi1R5YPNRoWVH0hWjKMfl8gSBBlMmpLuAMZ5bwf
+   2AxEOQtpi9TypmfXk2rgRoHNOLC59P3J9GUYqZ3RFJROy9k3woW6ybs2C
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10398"; a="280805516"
+X-IronPort-AV: E=Sophos;i="5.92,245,1650956400"; 
+   d="scan'208";a="280805516"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2022 22:00:32 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,245,1650956400"; 
+   d="scan'208";a="660403877"
+Received: from lkp-server01.sh.intel.com (HELO 68b931ab7ac1) ([10.239.97.150])
+  by fmsmga004.fm.intel.com with ESMTP; 04 Jul 2022 22:00:29 -0700
+Received: from kbuild by 68b931ab7ac1 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1o8afk-000Ilv-N6;
+        Tue, 05 Jul 2022 05:00:28 +0000
+Date:   Tue, 5 Jul 2022 12:59:55 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     kbuild-all@lists.01.org, jjherne@linux.ibm.com,
+        freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+Subject: Re: [PATCH v20 19/20] s390/Docs: new doc describing lock usage by
+ the vfio_ap device driver
+Message-ID: <202207051236.URA7Qn9x-lkp@intel.com>
+References: <20220621155134.1932383-20-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220621155134.1932383-20-akrowiak@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 4 Jul 2022 11:59:03 +0800, Jason Wang <jasowang@redhat.com> wrote:
->
-> =E5=9C=A8 2022/7/1 16:45, Xuan Zhuo =E5=86=99=E9=81=93:
-> > On Fri, 1 Jul 2022 16:26:25 +0800, Jason Wang <jasowang@redhat.com> wro=
-te:
-> >> =E5=9C=A8 2022/6/29 14:56, Xuan Zhuo =E5=86=99=E9=81=93:
-> >>> Separate the logic of split to create vring queue.
-> >>>
-> >>> This feature is required for subsequent virtuqueue reset vring.
-> >>>
-> >>> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> >>> ---
-> >>>    drivers/virtio/virtio_ring.c | 68 ++++++++++++++++++++++----------=
-----
-> >>>    1 file changed, 42 insertions(+), 26 deletions(-)
-> >>>
-> >>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
-g.c
-> >>> index 49d61e412dc6..a9ceb9c16c54 100644
-> >>> --- a/drivers/virtio/virtio_ring.c
-> >>> +++ b/drivers/virtio/virtio_ring.c
-> >>> @@ -949,28 +949,19 @@ static void vring_free_split(struct vring_virtq=
-ueue_split *vring,
-> >>>    	kfree(vring->desc_extra);
-> >>>    }
-> >>>
-> >>> -static struct virtqueue *vring_create_virtqueue_split(
-> >>> -	unsigned int index,
-> >>> -	unsigned int num,
-> >>> -	unsigned int vring_align,
-> >>> -	struct virtio_device *vdev,
-> >>> -	bool weak_barriers,
-> >>> -	bool may_reduce_num,
-> >>> -	bool context,
-> >>> -	bool (*notify)(struct virtqueue *),
-> >>> -	void (*callback)(struct virtqueue *),
-> >>> -	const char *name)
-> >>> +static int vring_alloc_queue_split(struct vring_virtqueue_split *vri=
-ng,
-> >>> +				   struct virtio_device *vdev,
-> >>> +				   u32 num,
-> >>> +				   unsigned int vring_align,
-> >>> +				   bool may_reduce_num)
-> >>>    {
-> >>> -	struct virtqueue *vq;
-> >>>    	void *queue =3D NULL;
-> >>>    	dma_addr_t dma_addr;
-> >>> -	size_t queue_size_in_bytes;
-> >>> -	struct vring vring;
-> >>>
-> >>>    	/* We assume num is a power of 2. */
-> >>>    	if (num & (num - 1)) {
-> >>>    		dev_warn(&vdev->dev, "Bad virtqueue length %u\n", num);
-> >>> -		return NULL;
-> >>> +		return -EINVAL;
-> >>>    	}
-> >>>
-> >>>    	/* TODO: allocate each queue chunk individually */
-> >>> @@ -981,11 +972,11 @@ static struct virtqueue *vring_create_virtqueue=
-_split(
-> >>>    		if (queue)
-> >>>    			break;
-> >>>    		if (!may_reduce_num)
-> >>> -			return NULL;
-> >>> +			return -ENOMEM;
-> >>>    	}
-> >>>
-> >>>    	if (!num)
-> >>> -		return NULL;
-> >>> +		return -ENOMEM;
-> >>>
-> >>>    	if (!queue) {
-> >>>    		/* Try to get a single page. You are my only hope! */
-> >>> @@ -993,21 +984,46 @@ static struct virtqueue *vring_create_virtqueue=
-_split(
-> >>>    					  &dma_addr, GFP_KERNEL|__GFP_ZERO);
-> >>>    	}
-> >>>    	if (!queue)
-> >>> -		return NULL;
-> >>> +		return -ENOMEM;
-> >>> +
-> >>> +	vring_init(&vring->vring, num, queue, vring_align);
-> >>>
-> >>> -	queue_size_in_bytes =3D vring_size(num, vring_align);
-> >>> -	vring_init(&vring, num, queue, vring_align);
-> >>> +	vring->queue_dma_addr =3D dma_addr;
-> >>> +	vring->queue_size_in_bytes =3D vring_size(num, vring_align);
-> >>> +
-> >>> +	return 0;
-> >>> +}
-> >>> +
-> >>> +static struct virtqueue *vring_create_virtqueue_split(
-> >>> +	unsigned int index,
-> >>> +	unsigned int num,
-> >>> +	unsigned int vring_align,
-> >>> +	struct virtio_device *vdev,
-> >>> +	bool weak_barriers,
-> >>> +	bool may_reduce_num,
-> >>> +	bool context,
-> >>> +	bool (*notify)(struct virtqueue *),
-> >>> +	void (*callback)(struct virtqueue *),
-> >>> +	const char *name)
-> >>> +{
-> >>> +	struct vring_virtqueue_split vring =3D {};
-> >>> +	struct virtqueue *vq;
-> >>> +	int err;
-> >>> +
-> >>> +	err =3D vring_alloc_queue_split(&vring, vdev, num, vring_align,
-> >>> +				      may_reduce_num);
-> >>> +	if (err)
-> >>> +		return NULL;
-> >>>
-> >>> -	vq =3D __vring_new_virtqueue(index, vring, vdev, weak_barriers, con=
-text,
-> >>> -				   notify, callback, name);
-> >>> +	vq =3D __vring_new_virtqueue(index, vring.vring, vdev, weak_barrier=
-s,
-> >>> +				   context, notify, callback, name);
-> >>>    	if (!vq) {
-> >>> -		vring_free_queue(vdev, queue_size_in_bytes, queue,
-> >>> -				 dma_addr);
-> >>> +		vring_free_split(&vring, vdev);
-> >>>    		return NULL;
-> >>>    	}
-> >>>
-> >>> -	to_vvq(vq)->split.queue_dma_addr =3D dma_addr;
-> >>> -	to_vvq(vq)->split.queue_size_in_bytes =3D queue_size_in_bytes;
-> >>> +	to_vvq(vq)->split.queue_dma_addr =3D vring.queue_dma_addr;
-> >>
-> >> Nit: having two queue_dma_addr seems redundant (so did queue_size_in_b=
-ytes).
-> > two?
-> >
-> > Where is the problem I don't understand?
-> >
-> > Thanks.
->
->
-> I meant we had:
->
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 vring.vring =3D _vring;
->
-> in __vring_new_virtqueue().
->
-> This means we'd better initialize vring fully before that?
->
-> E.g
->
-> vring.queue_dma_addr =3D dma_addr;
->
-> ...
->
-> __vring_new_virtqueue()
+Hi Tony,
 
-oh, my bad, maybe the repeated use of the name "vring" led to a
-misunderstanding.
+I love your patch! Perhaps something to improve:
 
-What is passed to __vring_new_virtqueue is the structure struct vring
+[auto build test WARNING on s390/features]
+[also build test WARNING on mst-vhost/linux-next linus/master v5.19-rc5 next-20220704]
+[cannot apply to kvms390/next]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-struct vring {
-	unsigned int num;
+url:    https://github.com/intel-lab-lkp/linux/commits/Tony-Krowiak/s390-vfio-ap-dynamic-configuration-support/20220621-235654
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+reproduce: make htmldocs
 
-	vring_desc_t *desc;
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
 
-	vring_avail_t *avail;
+All warnings (new ones prefixed by >>):
 
-	vring_used_t *used;
-};
+>> Documentation/s390/vfio-ap-locking.rst:10: WARNING: Inline emphasis start-string without end-string.
+>> Documentation/s390/vfio-ap-locking.rst:15: WARNING: Title underline too short.
+>> Documentation/s390/vfio-ap-locking.rst:22: WARNING: Definition list ends without a blank line; unexpected unindent.
 
-And what contains queue_dma_addr is our newly split structure struct
-vring_virtqueue_split
+vim +10 Documentation/s390/vfio-ap-locking.rst
 
-struct vring_virtqueue_split {
-	/* Actual memory layout for this queue. */
-	struct vring vring;
+     9	
+  > 10	struct ap_matrix_dev *matrix_dev;
+    11	struct ap_matrix_mdev *matrix_mdev;
+    12	struct kvm *kvm;
+    13	
+    14	The Matrix Devices Lock (drivers/s390/crypto/vfio_ap_private.h)
+  > 15	--------------------------------------------------------------
+    16	
+    17	struct ap_matrix_dev {
+    18		...
+    19		struct list_head mdev_list;
+    20		struct mutex mdevs_lock;
+    21		...
+  > 22	}
+    23	
 
-	/* Last written value to avail->flags */
-	u16 avail_flags_shadow;
-
-	/*
-	 * Last written value to avail->idx in
-	 * guest byte order.
-	 */
-	u16 avail_idx_shadow;
-
-	/* Per-descriptor state. */
-	struct vring_desc_state_split *desc_state;
-	struct vring_desc_extra *desc_extra;
-
-	/* DMA address and size information */
-	dma_addr_t queue_dma_addr;
-	size_t queue_size_in_bytes;
-
-	/*
-	 * The parameters for creating vrings are reserved for creating new
-	 * vring.
-	 */
-	u32 vring_align;
-	bool may_reduce_num;
-};
-
-We have no way to pass queue_dma_addr into __vring_new_virtqueue. But for t=
-he
-uniformity of the interface, I create a temporary struct vring_virtqueue_sp=
-lit
-vring_split(your suggestion) in __vring_new_virtqueue. Then assign the pass=
-ed
-in struct vring to it
-
-	vring.vring =3D _vring.
-
-So here vring is an empty temporary variable.
-
-As you have replied in other patches, my re-use of the name vring is a mist=
-ake,
-I will change some places to vring_split and vring_packed.
-
-Thanks.
-
-
->
-> Thanks
->
->
-> >
-> >> Thanks
-> >>
-> >>
-> >>> +	to_vvq(vq)->split.queue_size_in_bytes =3D vring.queue_size_in_bytes;
-> >>>    	to_vvq(vq)->we_own_ring =3D true;
-> >>>
-> >>>    	return vq;
->
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
