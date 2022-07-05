@@ -2,246 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8999C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 17:09:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 459C9C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 17:47:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233385AbiGERJo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Jul 2022 13:09:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60368 "EHLO
+        id S232870AbiGERrs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Jul 2022 13:47:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233390AbiGERJU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 13:09:20 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 879DC1FCDE;
-        Tue,  5 Jul 2022 10:09:10 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4070F1595;
-        Tue,  5 Jul 2022 10:09:10 -0700 (PDT)
-Received: from e121345-lin.cambridge.arm.com (e121345-lin.cambridge.arm.com [10.1.196.40])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 611683F66F;
-        Tue,  5 Jul 2022 10:09:08 -0700 (PDT)
-From:   Robin Murphy <robin.murphy@arm.com>
-To:     joro@8bytes.org
-Cc:     will@kernel.org, iommu@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, baolu.lu@linux.intel.com,
-        suravee.suthikulpanit@amd.com, vasant.hegde@amd.com,
-        mjrosato@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v3 15/15] iommu: Clean up bus_set_iommu()
-Date:   Tue,  5 Jul 2022 18:08:38 +0100
-Message-Id: <dc44a2269276e1d0fa6715d4530a51df4e7b781c.1657034828.git.robin.murphy@arm.com>
-X-Mailer: git-send-email 2.36.1.dirty
-In-Reply-To: <cover.1657034827.git.robin.murphy@arm.com>
-References: <cover.1657034827.git.robin.murphy@arm.com>
+        with ESMTP id S231867AbiGERrr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 13:47:47 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 818D91DA60;
+        Tue,  5 Jul 2022 10:47:46 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 265GoWNe027944;
+        Tue, 5 Jul 2022 17:47:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=xP6EvhJHSIVlx0Vjph8NPwyfuRz1b1SjJhWMAVht9Es=;
+ b=KwKWNCZ4cSdVr1JWZHlmauZDPLcvrBv5R5vShYoaBoQkwpE7rO+t3DHZ4Cw6Cmzb/SJT
+ 1zBhUwShOvTekmv5jVd64Y2AdRf3DDiC80tg2xRb5l6+vohN7cFWd4VuKauS8gqDoE71
+ JUKcfZlj/i1bB6Bgvy39pYFIPdE+Jnr4jDFhZJeuLrfAtvFG6chjtwOEJKrTkDN4E6PU
+ GrIsfMqOqSUf47a+Bo+MXiV5BwCJs07hnX4AHAcdXCu/pB0f9i5EB6f5qluvFSONnOQ5
+ MaxNYBI6w9pgVa34fjXfA+UHMX4t5NQHWC4C/BdOvrlRxAMzpeyJee9oQBRiZH89YnJG qA== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h4s61sdwd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Jul 2022 17:47:45 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 265HZYEl008267;
+        Tue, 5 Jul 2022 17:47:43 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3h2dn8vb2f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Jul 2022 17:47:43 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 265Hleh710813896
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 5 Jul 2022 17:47:40 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 00D9042042;
+        Tue,  5 Jul 2022 17:47:40 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F4914203F;
+        Tue,  5 Jul 2022 17:47:39 +0000 (GMT)
+Received: from [9.171.76.195] (unknown [9.171.76.195])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  5 Jul 2022 17:47:39 +0000 (GMT)
+Message-ID: <30e681b2-a411-cdb1-4b46-243db25abeef@linux.ibm.com>
+Date:   Tue, 5 Jul 2022 19:47:37 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v1 1/1] s390/arch_random: Buffer true random data
+Content-Language: en-US
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     Harald Freudenberger <freude@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220705112712.4433-1-dengler@linux.ibm.com>
+ <20220705112712.4433-2-dengler@linux.ibm.com> <YsQ6OOrOWPhdynoM@zx2c4.com>
+ <9a0561c0-68f7-b630-4440-3ca32bf28dc2@linux.ibm.com>
+ <YsRUowTs9n98p9EL@zx2c4.com>
+ <aafbb400-d0cb-99de-8b10-3c39c7b9bae5@linux.ibm.com>
+ <YsRoXObdpCNbtpHS@zx2c4.com>
+From:   Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <YsRoXObdpCNbtpHS@zx2c4.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: h8mwWmFMrB7huOB_h80MG51nvJxj6ORP
+X-Proofpoint-ORIG-GUID: h8mwWmFMrB7huOB_h80MG51nvJxj6ORP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-05_14,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 adultscore=0 mlxscore=0 phishscore=0 suspectscore=0
+ spamscore=0 bulkscore=0 lowpriorityscore=0 mlxlogscore=971 malwarescore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2204290000 definitions=main-2207050076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Clean up the remaining trivial bus_set_iommu() callsites along
-with the implementation. Now drivers only have to know and care
-about iommu_device instances, phew!
+Hi Jason,
 
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
----
+On 05/07/2022 18:35, Jason A. Donenfeld wrote:
+> Hi Holger,
+> 
+> On Tue, Jul 05, 2022 at 06:27:59PM +0200, Holger Dengler wrote:
+>> I saw a few calls in interrupt context during my tracing, but I didn't
+>> look to see which ones they were. Let me figure that out in the next
+>> few days and provide more information on that.
+> 
+> One thing to keep in mind is that it's used at boot time, when
+> technically IRQs are turned off, so it appears like interrupt context
+> depending on which way you squint. But boot time obviously isn't a
+> problem. So be sure that's not the usage you're seeing.
 
-v3: Also catch Intel's cheeky open-coded assignment
+Ok, let me check this. I will also think about the tree-wide cleanup you mentioned in an earlier mail. It looks, that s390 could fill the block.rdseed with a single call.
 
- drivers/iommu/arm/arm-smmu/qcom_iommu.c |  4 ----
- drivers/iommu/fsl_pamu_domain.c         |  4 ----
- drivers/iommu/intel/iommu.c             |  2 --
- drivers/iommu/iommu.c                   | 24 ------------------------
- drivers/iommu/msm_iommu.c               |  2 --
- drivers/iommu/rockchip-iommu.c          |  2 --
- drivers/iommu/s390-iommu.c              |  6 ------
- drivers/iommu/sprd-iommu.c              |  5 -----
- drivers/iommu/sun50i-iommu.c            |  2 --
- include/linux/iommu.h                   |  1 -
- 10 files changed, 52 deletions(-)
+>> For the moment, I would propose to drop the buffering but also return
+>> false, if arch_random_get_seed_long() is called in interrupt context.
+> 
+> As a last ditch, maybe that's best. Maybe... Do you know off hand how
+> many cycles each call takes?
 
-diff --git a/drivers/iommu/arm/arm-smmu/qcom_iommu.c b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-index 4c077c38fbd6..80af00f468b4 100644
---- a/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-+++ b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-@@ -845,8 +845,6 @@ static int qcom_iommu_device_probe(struct platform_device *pdev)
- 		goto err_pm_disable;
- 	}
- 
--	bus_set_iommu(&platform_bus_type, &qcom_iommu_ops);
--
- 	if (qcom_iommu->local_base) {
- 		pm_runtime_get_sync(dev);
- 		writel_relaxed(0xffffffff, qcom_iommu->local_base + SMMU_INTR_SEL_NS);
-@@ -864,8 +862,6 @@ static int qcom_iommu_device_remove(struct platform_device *pdev)
- {
- 	struct qcom_iommu_dev *qcom_iommu = platform_get_drvdata(pdev);
- 
--	bus_set_iommu(&platform_bus_type, NULL);
--
- 	pm_runtime_force_suspend(&pdev->dev);
- 	platform_set_drvdata(pdev, NULL);
- 	iommu_device_sysfs_remove(&qcom_iommu->iommu);
-diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
-index 94b4589dc67c..09aa90c27723 100644
---- a/drivers/iommu/fsl_pamu_domain.c
-+++ b/drivers/iommu/fsl_pamu_domain.c
-@@ -481,11 +481,7 @@ int __init pamu_domain_init(void)
- 	if (ret) {
- 		iommu_device_sysfs_remove(&pamu_iommu);
- 		pr_err("Can't register iommu device\n");
--		return ret;
- 	}
- 
--	bus_set_iommu(&platform_bus_type, &fsl_pamu_ops);
--	bus_set_iommu(&pci_bus_type, &fsl_pamu_ops);
--
- 	return ret;
- }
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 3e02c08802a0..388dd0e22fb9 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -4031,7 +4031,6 @@ static int __init probe_acpi_namespace_devices(void)
- 					continue;
- 				}
- 
--				pn->dev->bus->iommu_ops = &intel_iommu_ops;
- 				ret = iommu_probe_device(pn->dev);
- 				if (ret)
- 					break;
-@@ -4153,7 +4152,6 @@ int __init intel_iommu_init(void)
- 	}
- 	up_read(&dmar_global_lock);
- 
--	bus_set_iommu(&pci_bus_type, &intel_iommu_ops);
- 	if (si_domain && !hw_pass_through)
- 		register_memory_notifier(&intel_iommu_memory_nb);
- 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index acb7b2ab0b79..c10ecb87fd9c 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -1834,30 +1834,6 @@ static int iommu_bus_init(struct bus_type *bus)
- 	return err;
- }
- 
--/**
-- * bus_set_iommu - set iommu-callbacks for the bus
-- * @bus: bus.
-- * @ops: the callbacks provided by the iommu-driver
-- *
-- * This function is called by an iommu driver to set the iommu methods
-- * used for a particular bus. Drivers for devices on that bus can use
-- * the iommu-api after these ops are registered.
-- * This special function is needed because IOMMUs are usually devices on
-- * the bus itself, so the iommu drivers are not initialized when the bus
-- * is set up. With this function the iommu-driver can set the iommu-ops
-- * afterwards.
-- */
--int bus_set_iommu(struct bus_type *bus, const struct iommu_ops *ops)
--{
--	if (bus->iommu_ops && ops && bus->iommu_ops != ops)
--		return -EBUSY;
--
--	bus->iommu_ops = ops;
--
--	return 0;
--}
--EXPORT_SYMBOL_GPL(bus_set_iommu);
--
- bool iommu_present(struct bus_type *bus)
- {
- 	return bus->iommu_ops != NULL;
-diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
-index f09aedfdd462..4a71989406dc 100644
---- a/drivers/iommu/msm_iommu.c
-+++ b/drivers/iommu/msm_iommu.c
-@@ -797,8 +797,6 @@ static int msm_iommu_probe(struct platform_device *pdev)
- 		goto fail;
- 	}
- 
--	bus_set_iommu(&platform_bus_type, &msm_iommu_ops);
--
- 	pr_info("device mapped at %p, irq %d with %d ctx banks\n",
- 		iommu->base, iommu->irq, iommu->ncb);
- 
-diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
-index ab57c4b8fade..a3fc59b814ab 100644
---- a/drivers/iommu/rockchip-iommu.c
-+++ b/drivers/iommu/rockchip-iommu.c
-@@ -1300,8 +1300,6 @@ static int rk_iommu_probe(struct platform_device *pdev)
- 	if (!dma_dev)
- 		dma_dev = &pdev->dev;
- 
--	bus_set_iommu(&platform_bus_type, &rk_iommu_ops);
--
- 	pm_runtime_enable(dev);
- 
- 	for (i = 0; i < iommu->num_irq; i++) {
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index c898bcbbce11..dd957145fb81 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -385,9 +385,3 @@ static const struct iommu_ops s390_iommu_ops = {
- 		.free		= s390_domain_free,
- 	}
- };
--
--static int __init s390_iommu_init(void)
--{
--	return bus_set_iommu(&pci_bus_type, &s390_iommu_ops);
--}
--subsys_initcall(s390_iommu_init);
-diff --git a/drivers/iommu/sprd-iommu.c b/drivers/iommu/sprd-iommu.c
-index bd409bab6286..6770e6a72283 100644
---- a/drivers/iommu/sprd-iommu.c
-+++ b/drivers/iommu/sprd-iommu.c
-@@ -507,9 +507,6 @@ static int sprd_iommu_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto remove_sysfs;
- 
--	if (!iommu_present(&platform_bus_type))
--		bus_set_iommu(&platform_bus_type, &sprd_iommu_ops);
--
- 	ret = sprd_iommu_clk_enable(sdev);
- 	if (ret)
- 		goto unregister_iommu;
-@@ -545,8 +542,6 @@ static int sprd_iommu_remove(struct platform_device *pdev)
- 	iommu_group_put(sdev->group);
- 	sdev->group = NULL;
- 
--	bus_set_iommu(&platform_bus_type, NULL);
--
- 	platform_set_drvdata(pdev, NULL);
- 	iommu_device_sysfs_remove(&sdev->iommu);
- 	iommu_device_unregister(&sdev->iommu);
-diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
-index c54ab477b8fd..e104543b78d9 100644
---- a/drivers/iommu/sun50i-iommu.c
-+++ b/drivers/iommu/sun50i-iommu.c
-@@ -968,8 +968,6 @@ static int sun50i_iommu_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto err_unregister;
- 
--	bus_set_iommu(&platform_bus_type, &sun50i_iommu_ops);
--
- 	return 0;
- 
- err_unregister:
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 5e1afe169549..2cb05ff89f03 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -412,7 +412,6 @@ static inline const struct iommu_ops *dev_iommu_ops(struct device *dev)
- 	return dev->iommu->iommu_dev->ops;
- }
- 
--extern int bus_set_iommu(struct bus_type *bus, const struct iommu_ops *ops);
- extern int bus_iommu_probe(struct bus_type *bus);
- extern bool iommu_present(struct bus_type *bus);
- extern bool device_iommu_capable(struct device *dev, enum iommu_cap cap);
+I don't know the exact number of cycles, but as I mentioned in the coverletter, the trng instruction is one of the specialties of the s390 platform. It looks like an instruction, but it is some kind of firmware executed (it is called millicode). These kind of long-running instructions are also interruptable and can resume.
+
+A trng call runs for minimal ~20-190us for 32 bytes. 20us on newer machine generations, 190us on older ones. These are not 100% exact measurements, but the dimension should be correct.
+
+> 
+>> diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
+>> index 2c6e1c6ecbe7..711357bdc464 100644
+>> --- a/arch/s390/include/asm/archrandom.h
+>> +++ b/arch/s390/include/asm/archrandom.h
+>> @@ -32,7 +32,8 @@ static inline bool __must_check arch_get_random_int(unsigned int *v)
+>>
+>>  static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+>>  {
+>> -       if (static_branch_likely(&s390_arch_random_available)) {
+>> +       if (static_branch_likely(&s390_arch_random_available) &&
+>> +           !in_interrupt()) {
+> 
+> in_interrupt() is deprecated. You want in_hardirq() here. You'll also
+> want to verify that this doesn't prevent random_init() from working.
+> 
+> Jason
+
 -- 
-2.36.1.dirty
-
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
