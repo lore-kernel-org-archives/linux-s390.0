@@ -2,281 +2,203 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A05DEC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 11:06:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5D53C43334
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 11:16:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231280AbiGELGh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Jul 2022 07:06:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55966 "EHLO
+        id S230057AbiGELQP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Jul 2022 07:16:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230251AbiGELGg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 07:06:36 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E8F1400A;
-        Tue,  5 Jul 2022 04:06:35 -0700 (PDT)
-Received: from kwepemi500016.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4LcfvN5WgrzkWbM;
-        Tue,  5 Jul 2022 19:04:32 +0800 (CST)
-Received: from [10.40.193.166] (10.40.193.166) by
- kwepemi500016.china.huawei.com (7.221.188.220) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 5 Jul 2022 19:06:32 +0800
-Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
-To:     Jason Wang <jasowang@redhat.com>, <mst@redhat.com>,
-        <virtualization@lists.linux-foundation.org>,
-        <linux-kernel@vger.kernel.org>
-References: <20220527060120.20964-1-jasowang@redhat.com>
- <20220527060120.20964-9-jasowang@redhat.com>
-CC:     <tglx@linutronix.de>, <peterz@infradead.org>, <paulmck@kernel.org>,
-        <maz@kernel.org>, <pasic@linux.ibm.com>, <cohuck@redhat.com>,
-        <eperezma@redhat.com>, <lulu@redhat.com>, <sgarzare@redhat.com>,
-        <xuanzhuo@linux.alibaba.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        <linux-s390@vger.kernel.org>
-From:   "chenxiang (M)" <chenxiang66@hisilicon.com>
-Message-ID: <df5a9628-3a00-d18c-9cac-ae6460695cb3@hisilicon.com>
-Date:   Tue, 5 Jul 2022 19:06:31 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101
- Thunderbird/45.2.0
+        with ESMTP id S229941AbiGELQO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 07:16:14 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B456813F3A;
+        Tue,  5 Jul 2022 04:16:11 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 1809E1FFEC;
+        Tue,  5 Jul 2022 11:16:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1657019770; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=TaWxCdjvaRes7WYd6QLi0mKZlR/DFE5akzRD/3c4d7Q=;
+        b=tafgg8VIoYtJNLTJM9zO+BZhAdpEZjcPq4vTPCC5msgt80X6QpRwhjFvl/z2Xdb6wqH+AW
+        xsZhiVbkX3KdqgLhAkaMee39rlsQOaBeSbYVAXpHNZepQqnnevMEyKuT0jKNGD7CIZnOkH
+        pU7Etwl/pKP8hdq+R+w3XiAbMruByx0=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 662E313A79;
+        Tue,  5 Jul 2022 11:16:09 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id hzNoF3kdxGJ/JQAAMHmgww
+        (envelope-from <jgross@suse.com>); Tue, 05 Jul 2022 11:16:09 +0000
+Message-ID: <89608dee-20d3-e580-a47c-dfdfdd7e5064@suse.com>
+Date:   Tue, 5 Jul 2022 13:16:08 +0200
 MIME-Version: 1.0
-In-Reply-To: <20220527060120.20964-9-jasowang@redhat.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.40.193.166]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- kwepemi500016.china.huawei.com (7.221.188.220)
-X-CFilter-Loop: Reflected
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v3 0/3] virtio: support requiring restricted access per
+ device
+Content-Language: en-US
+To:     xen-devel@lists.xenproject.org, x86@kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-arch@vger.kernel.org
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        linux-arm-kernel@lists.infradead.org
+References: <20220622063838.8854-1-jgross@suse.com>
+From:   Juergen Gross <jgross@suse.com>
+In-Reply-To: <20220622063838.8854-1-jgross@suse.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------YrKAGapgLp1zY4xUN1376H0w"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------YrKAGapgLp1zY4xUN1376H0w
+Content-Type: multipart/mixed; boundary="------------jpSLB39kfCLZNXM8IIs95MDN";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: xen-devel@lists.xenproject.org, x86@kernel.org,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-arch@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Arnd Bergmann <arnd@arndb.de>, Russell King <linux@armlinux.org.uk>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ linux-arm-kernel@lists.infradead.org
+Message-ID: <89608dee-20d3-e580-a47c-dfdfdd7e5064@suse.com>
+Subject: Re: [PATCH v3 0/3] virtio: support requiring restricted access per
+ device
+References: <20220622063838.8854-1-jgross@suse.com>
+In-Reply-To: <20220622063838.8854-1-jgross@suse.com>
 
-I encounter a issue when testing virtio-balloon on my platform (ARM64) 
-with kernel 5.19-rc4 to boot VM with "-device virtio-balloon ", and
+--------------jpSLB39kfCLZNXM8IIs95MDN
+Content-Type: multipart/mixed; boundary="------------CJCnuUWxe21ySz0VL0WYBQeV"
 
-then change the size of balloon in qemu monitor, but it isn't valid, and 
-the log is as follows:
+--------------CJCnuUWxe21ySz0VL0WYBQeV
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-QEMU 6.1.50 monitor - type 'help' for more information
-(qemu) info balloon
-info balloon
-balloon: actual=4096
-(qemu) balloon 3172
-balloon 3172
-(qemu) info balloon
-info balloon
-balloon: actual=4096
+T24gMjIuMDYuMjIgMDg6MzgsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+IEluc3RlYWQgb2Yg
+YW4gYWxsIG9yIG5vdGhpbmcgYXBwcm9hY2ggYWRkIHN1cHBvcnQgZm9yIHJlcXVpcmluZw0K
+PiByZXN0cmljdGVkIG1lbW9yeSBhY2Nlc3MgcGVyIGRldmljZS4NCj4gDQo+IENoYW5nZXMg
+aW4gVjM6DQo+IC0gbmV3IHBhdGNoZXMgMSArIDINCj4gLSBiYXNpY2FsbHkgY29tcGxldGUg
+cmV3b3JrIG9mIHBhdGNoIDMNCj4gDQo+IEp1ZXJnZW4gR3Jvc3MgKDMpOg0KPiAgICB2aXJ0
+aW86IHJlcGxhY2UgcmVzdHJpY3RlZCBtZW0gYWNjZXNzIGZsYWcgd2l0aCBjYWxsYmFjaw0K
+PiAgICBrZXJuZWw6IHJlbW92ZSBwbGF0Zm9ybV9oYXMoKSBpbmZyYXN0cnVjdHVyZQ0KPiAg
+ICB4ZW46IGRvbid0IHJlcXVpcmUgdmlydGlvIHdpdGggZ3JhbnRzIGZvciBub24tUFYgZ3Vl
+c3RzDQoNCkFueSBmdXJ0aGVyIGNvbW1lbnRzPw0KDQoNCkp1ZXJnZW4NCg==
+--------------CJCnuUWxe21ySz0VL0WYBQeV
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-I git bisect the patch, and find this patch 
-([8b4ec69d7e098a7ddf832e1e7840de53ed474c77] virtio: harden vring IRQ) at 
-last.
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-Do you have any idea about it?
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
 
+--------------CJCnuUWxe21ySz0VL0WYBQeV--
 
-Best regards,
+--------------jpSLB39kfCLZNXM8IIs95MDN--
 
-Xiang Chen
+--------------YrKAGapgLp1zY4xUN1376H0w
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
-在 2022/5/27 14:01, Jason Wang 写道:
-> This is a rework on the previous IRQ hardening that is done for
-> virtio-pci where several drawbacks were found and were reverted:
->
-> 1) try to use IRQF_NO_AUTOEN which is not friendly to affinity managed IRQ
->     that is used by some device such as virtio-blk
-> 2) done only for PCI transport
->
-> The vq->broken is re-used in this patch for implementing the IRQ
-> hardening. The vq->broken is set to true during both initialization
-> and reset. And the vq->broken is set to false in
-> virtio_device_ready(). Then vring_interrupt() can check and return
-> when vq->broken is true. And in this case, switch to return IRQ_NONE
-> to let the interrupt core aware of such invalid interrupt to prevent
-> IRQ storm.
->
-> The reason of using a per queue variable instead of a per device one
-> is that we may need it for per queue reset hardening in the future.
->
-> Note that the hardening is only done for vring interrupt since the
-> config interrupt hardening is already done in commit 22b7050a024d7
-> ("virtio: defer config changed notifications"). But the method that is
-> used by config interrupt can't be reused by the vring interrupt
-> handler because it uses spinlock to do the synchronization which is
-> expensive.
->
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Halil Pasic <pasic@linux.ibm.com>
-> Cc: Cornelia Huck <cohuck@redhat.com>
-> Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
-> Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->   drivers/s390/virtio/virtio_ccw.c       |  4 ++++
->   drivers/virtio/virtio.c                | 15 ++++++++++++---
->   drivers/virtio/virtio_mmio.c           |  5 +++++
->   drivers/virtio/virtio_pci_modern_dev.c |  5 +++++
->   drivers/virtio/virtio_ring.c           | 11 +++++++----
->   include/linux/virtio_config.h          | 20 ++++++++++++++++++++
->   6 files changed, 53 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index c188e4f20ca3..97e51c34e6cf 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -971,6 +971,10 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
->   	ccw->flags = 0;
->   	ccw->count = sizeof(status);
->   	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
-> +	/* We use ssch for setting the status which is a serializing
-> +	 * instruction that guarantees the memory writes have
-> +	 * completed before ssch.
-> +	 */
->   	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_STATUS);
->   	/* Write failed? We assume status is unchanged. */
->   	if (ret)
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index aa1eb5132767..95fac4c97c8b 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -220,6 +220,15 @@ static int virtio_features_ok(struct virtio_device *dev)
->    * */
->   void virtio_reset_device(struct virtio_device *dev)
->   {
-> +	/*
-> +	 * The below virtio_synchronize_cbs() guarantees that any
-> +	 * interrupt for this line arriving after
-> +	 * virtio_synchronize_vqs() has completed is guaranteed to see
-> +	 * vq->broken as true.
-> +	 */
-> +	virtio_break_device(dev);
-> +	virtio_synchronize_cbs(dev);
-> +
->   	dev->config->reset(dev);
->   }
->   EXPORT_SYMBOL_GPL(virtio_reset_device);
-> @@ -428,6 +437,9 @@ int register_virtio_device(struct virtio_device *dev)
->   	dev->config_enabled = false;
->   	dev->config_change_pending = false;
->   
-> +	INIT_LIST_HEAD(&dev->vqs);
-> +	spin_lock_init(&dev->vqs_list_lock);
-> +
->   	/* We always start by resetting the device, in case a previous
->   	 * driver messed it up.  This also tests that code path a little. */
->   	virtio_reset_device(dev);
-> @@ -435,9 +447,6 @@ int register_virtio_device(struct virtio_device *dev)
->   	/* Acknowledge that we've seen the device. */
->   	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
->   
-> -	INIT_LIST_HEAD(&dev->vqs);
-> -	spin_lock_init(&dev->vqs_list_lock);
-> -
->   	/*
->   	 * device_add() causes the bus infrastructure to look for a matching
->   	 * driver.
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index c9699a59f93c..f9a36bc7ac27 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -253,6 +253,11 @@ static void vm_set_status(struct virtio_device *vdev, u8 status)
->   	/* We should never be setting status to 0. */
->   	BUG_ON(status == 0);
->   
-> +	/*
-> +	 * Per memory-barriers.txt, wmb() is not needed to guarantee
-> +	 * that the the cache coherent memory writes have completed
-> +	 * before writing to the MMIO region.
-> +	 */
->   	writel(status, vm_dev->base + VIRTIO_MMIO_STATUS);
->   }
->   
-> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> index 4093f9cca7a6..a0fa14f28a7f 100644
-> --- a/drivers/virtio/virtio_pci_modern_dev.c
-> +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> @@ -467,6 +467,11 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
->   {
->   	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
->   
-> +	/*
-> +	 * Per memory-barriers.txt, wmb() is not needed to guarantee
-> +	 * that the the cache coherent memory writes have completed
-> +	 * before writing to the MMIO region.
-> +	 */
->   	vp_iowrite8(status, &cfg->device_status);
->   }
->   EXPORT_SYMBOL_GPL(vp_modern_set_status);
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 9c231e1fded7..13a7348cedff 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1688,7 +1688,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
->   	vq->we_own_ring = true;
->   	vq->notify = notify;
->   	vq->weak_barriers = weak_barriers;
-> -	vq->broken = false;
-> +	vq->broken = true;
->   	vq->last_used_idx = 0;
->   	vq->event_triggered = false;
->   	vq->num_added = 0;
-> @@ -2134,8 +2134,11 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
->   		return IRQ_NONE;
->   	}
->   
-> -	if (unlikely(vq->broken))
-> -		return IRQ_HANDLED;
-> +	if (unlikely(vq->broken)) {
-> +		dev_warn_once(&vq->vq.vdev->dev,
-> +			      "virtio vring IRQ raised before DRIVER_OK");
-> +		return IRQ_NONE;
-> +	}
->   
->   	/* Just a hint for performance: so it's ok that this can be racy! */
->   	if (vq->event)
-> @@ -2177,7 +2180,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
->   	vq->we_own_ring = false;
->   	vq->notify = notify;
->   	vq->weak_barriers = weak_barriers;
-> -	vq->broken = false;
-> +	vq->broken = true;
->   	vq->last_used_idx = 0;
->   	vq->event_triggered = false;
->   	vq->num_added = 0;
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 25be018810a7..d4edfd7d91bb 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -256,6 +256,26 @@ void virtio_device_ready(struct virtio_device *dev)
->   	unsigned status = dev->config->get_status(dev);
->   
->   	BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-> +
-> +	/*
-> +	 * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> +	 * will see the driver specific setup if it sees vq->broken
-> +	 * as false (even if the notifications come before DRIVER_OK).
-> +	 */
-> +	virtio_synchronize_cbs(dev);
-> +	__virtio_unbreak_device(dev);
-> +	/*
-> +	 * The transport should ensure the visibility of vq->broken
-> +	 * before setting DRIVER_OK. See the comments for the transport
-> +	 * specific set_status() method.
-> +	 *
-> +	 * A well behaved device will only notify a virtqueue after
-> +	 * DRIVER_OK, this means the device should "see" the coherenct
-> +	 * memory write that set vq->broken as false which is done by
-> +	 * the driver when it sees DRIVER_OK, then the following
-> +	 * driver's vring_interrupt() will see vq->broken as false so
-> +	 * we won't lose any notification.
-> +	 */
->   	dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
->   }
->   
+-----BEGIN PGP SIGNATURE-----
 
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmLEHXgFAwAAAAAACgkQsN6d1ii/Ey8f
+dgf9HGUvKWq5gvG8sQv3deiL+6OJosApTovIh1v8jrEiqfeQBmOitoLnVLxgCtmf0St06X0trCWo
+U3lZjAkEtLcKCEmhy+4wRW6uXl4TWieYFFJMycMfQh5eJj+IjcQtF7Zae0heo+JJynWw5t/qcFYS
+y5EFaFYFX5fAKlnZ4XRY0eAgH0UZDXJn+vEFHQ+4Ef5WcmKzQnPhZPNn8Mt64qYMU7vuy3KhsO+V
+QuhjKFCR58eqt0cBq4j/1a8k1f42DVaHdJouTXfF1eVD7Dr3K/KRQsfGTP5pj7EM6WxQQYL+/n7v
+xNyDSvmaDigB79VbVtcrOxorjiTB738EDIDxh6lcJQ==
+=nl6Z
+-----END PGP SIGNATURE-----
+
+--------------YrKAGapgLp1zY4xUN1376H0w--
