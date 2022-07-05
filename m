@@ -2,250 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59C52C43334
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Jul 2022 21:21:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65DB0C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 00:59:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232511AbiGDVV4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Jul 2022 17:21:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35302 "EHLO
+        id S229699AbiGEA7I (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Jul 2022 20:59:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232389AbiGDVVz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 17:21:55 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AEDC6366;
-        Mon,  4 Jul 2022 14:21:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656969714; x=1688505714;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=CYi8Rh5YnjrapcX+sT0MPxpiE7tDmLImz6R+zGheklw=;
-  b=GzSUwwW5mMlfWQI8I+8IoZEiEEJrxOrrA8rTOvti7LsjDNGlKC0sDF3j
-   usIivaXZzseJISTuFbcUr5jCM0Jrvp1NndscQUG3wC8au99Y554xf8gds
-   b2p+khWDD77PF6h+gpFp1lgrHQQL8mZXWw7RxaVSwZK9aFeqwL6hFmJ2N
-   xerysLWbvZUQZrSBu2LHUoKo1Rk9auuwSqSsG5gX78Bt49ONsqXjS7Zgg
-   Y2BiVLzXa/IYy/YMacDNT5AGvLjjEct3VwH+Nflx3YIGixKSEqW/HfQAg
-   u34nc18Yd4LlfnSGc19BhvAx+6FLJFRVl50+qp2S/3IoLUAJ+XEKof96d
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10398"; a="347178176"
-X-IronPort-AV: E=Sophos;i="5.92,243,1650956400"; 
-   d="scan'208";a="347178176"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jul 2022 14:21:53 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,243,1650956400"; 
-   d="scan'208";a="625175303"
-Received: from lkp-server01.sh.intel.com (HELO 68b931ab7ac1) ([10.239.97.150])
-  by orsmga001.jf.intel.com with ESMTP; 04 Jul 2022 14:21:50 -0700
-Received: from kbuild by 68b931ab7ac1 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1o8TVt-000IBE-NZ;
-        Mon, 04 Jul 2022 21:21:49 +0000
-Date:   Tue, 5 Jul 2022 05:20:53 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, jjherne@linux.ibm.com,
-        freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-Subject: Re: [PATCH v20 18/20] s390/vfio-ap: update docs to include dynamic
- config support
-Message-ID: <202207050533.oQ9M1DAt-lkp@intel.com>
-References: <20220621155134.1932383-19-akrowiak@linux.ibm.com>
+        with ESMTP id S229608AbiGEA7I (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jul 2022 20:59:08 -0400
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2086.outbound.protection.outlook.com [40.107.243.86])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46ADF2BEE;
+        Mon,  4 Jul 2022 17:59:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UUu+IHF7fs85ACRCQ6wccWKLwfFtZfssxIledqd+rY+xLuqu2I+77WTdAepF7nwnlE1SwnKhQmiV+nF7lya1wYSUgfsNfkdjWkN6fu1R7s7ygOq30iAzZSiCAGlNLjlhhklGA7dcK/MOBRIncnvhunNnHF+JfFJ5r+GtVzL0UMm1kBm6Z9PE4fve3K+5gu1E11ZyGXh5TdM5z/a5VwmWPp7LDQjGHiLOPI8F9O72i9N18fMaZPzYmZgn/cvhBBNdcfpWvTiM1HUp2vCgHDU06VEzRF/Tn7TCjLjahxWB6+iETKKmdVKbW+MF9GWRarWN93lxcXM8VP9EiH7fTqBTNg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=SH6UrHgCnx5y/EIF5ZWxdzyK3bzafV3gVtEL9z2izpI=;
+ b=awKAb97SVWQUkhCteIGopZ6A1LIZgpZoZ4VlpZt0QanCev7MqnRhaz0UbYcFEQYeSqwlAWHvYlanGVx3Py1hqM6tWB7jf3fy+PLhOokbsWjzpHtft6r7RdgZjXFrlRJ+NjeJnppaTAyNVkAul+7ClLvTt137oBSX1mbHZ42ns4vwasPVqTpxxurKx/8gweJFoPk2nAlC3/lmp4a/9vke9+u1pzjiRmqkajinrl54pmMFQSTMZj4S01DOURJzO87IzVBxNEHITkBz3dWuofT6ULgNs/CyDbcr8Wm3bZMeOaZO0aaF8qIMi5h4Iki2kAps1rmTYDa8k4qBXwqaicRBUg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SH6UrHgCnx5y/EIF5ZWxdzyK3bzafV3gVtEL9z2izpI=;
+ b=CzMivfX8sqO+ZGzjoyQf5y18BmKlHVLV7p+SdnXH+nrEQ07Y9KBb+P/k4O4Vf2J6qjDek1VDD3Hj8dvXqcR1EhOGWNCCYdroQku4FMGMI7Q52iS9Z4E1zmtmwS1OcFKSWcI+pBtblq3zKkj6Yg+EskYNxX74zpUHyQkWBdZTig742cA4WdD47aCskPPb+Fa14FGXWm79zdhQ22Ceghjrlkv/+rJRDbyeo8ec06pZb7UJ400CgcQn3t+gT4583k335X6L0ewBi++esVFGdKmj6TjHhoO4oUdirxeCicr9cg1ignjkw+xQD3P8cLHrr95Ot9sLWha0++LVHqOjcaXBgw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by CY4PR12MB1173.namprd12.prod.outlook.com (2603:10b6:903:41::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5395.17; Tue, 5 Jul
+ 2022 00:59:05 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ac35:7c4b:3282:abfb%3]) with mapi id 15.20.5395.021; Tue, 5 Jul 2022
+ 00:59:05 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Kevin Tian <kevin.tian@intel.com>
+Subject: [PATCH v3 0/2] Remove the VFIO_IOMMU_NOTIFY_DMA_UNMAP notifier
+Date:   Mon,  4 Jul 2022 21:59:02 -0300
+Message-Id: <0-v3-7593f297c43f+56ce-vfio_unmap_notif_jgg@nvidia.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: MN2PR07CA0026.namprd07.prod.outlook.com
+ (2603:10b6:208:1a0::36) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220621155134.1932383-19-akrowiak@linux.ibm.com>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 212edd3c-ea82-439e-fc40-08da5e218eea
+X-MS-TrafficTypeDiagnostic: CY4PR12MB1173:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 0J+1V+4OhxAa2Kpl3gofZZXy7bnEh4bGSSYtscvCfgjCP064dyesdyvBnZ84u55MwZmm/kw7FlcHlxhNYXVtPHbR6We5hw4qrF6V3bbhKGmxOTfU9oEt2/o05zrQKawZDLHQWF+bU2D6PLsMiJwCHNxH4/eJv5xnWTWT0YD4z6WlyKcQXfoKKwvkT1Cx1QJGk73nI7Ux/cPVt0JIb1Tg0eTYBPJrCVIPFJOxlNsIpnamIkrSRO+GUen5GMkOfMGyJhf4mO2WMiCh2W+UV8KGaNTI60fxxHltOK+JWLphP4CgtPvV150vDN3c0HmX8bVDhFyUDNY8btIh6gNWq0/QwQ4Jbk9tvNNR42dEmI7wXTk9a0AausWwcfZDXqZIHigATgikDAp0DvFVwF+U+ZZjqjwXBxOPORfaX9EyF6s6uNw2ARg7p1xgXtvin0aCVtHHUf7gDejaiKhXwPMSB3XCUrrq+UMSj2N6W1wuHIS16r9myBMkO0X6nDwNLvdEK1P41qKrusAkHaDilQq1Ir56HRiGvYQ6GnIX5H86fPwMSig7YA9dLuSOKn648HqM9C4Al5oBhZuwxoq4qhti8AEml98n8s5C+4Out+l8oWS3+i7wwOudrf/2Ud7kOkYdXLqZm0eyVMvXPbjT3cSpmKYBWOr4U8xL4hNmfr+4UgyyaJr71eVqcKNVkR8NKWvXqKoopui+d6e8UUrrT91CwJK9cexKde+sgRcSZLJZjop2ysTa5yQV5EDg2nfcR8lSBB3nlY6YKUMWXM4l30eNYJIZTDBiy2+6Izx2ZcGwgfeSNR21dDXzcSVYLCRUps8IgmB8mD34zXzm+weL7ULzFZZCzSph4uqose+C8TvKRqEEvzWFwL/OjaAwWfAH8WMQjVFCc6WWYTw0DbsDe/lto9Leyqsi83ypAMjkeXPOR/K9+XaNmOVBJOnSHYCiqI1Rh8gf
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(136003)(346002)(366004)(376002)(396003)(39860400002)(110136005)(966005)(6486002)(26005)(54906003)(6512007)(186003)(36756003)(316002)(83380400001)(66946007)(86362001)(2616005)(5660300002)(2906002)(7416002)(7406005)(478600001)(6506007)(8936002)(4326008)(66476007)(66556008)(38100700002)(8676002)(6666004)(41300700001)(921005)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?FZ8POEGdePzTRBnwTcXYGvz9lWrULQFDi33MwcMUifEkXSxNfpFXcGmvCG2y?=
+ =?us-ascii?Q?8XcSwgj2STMcMCpgpyl4j9z/85oRt5YnxLMlgbwKV0MN5Uw1BDbHF3kOSogt?=
+ =?us-ascii?Q?m/zFtC6HctCOMZgC3LYIxaEkPHaibtyvjUcXYTAA5loJnyTcGdikD0HIDuO7?=
+ =?us-ascii?Q?yVxQt0Fl7J9DBet89f2OXTkQx4/2ED73zUDNrioQH5+HPk9d9cpPSFE2Zx9C?=
+ =?us-ascii?Q?J/3DoMXnpk/+VmUBcT/CWOp+mzwgBHUDmGz64dHTZkBJJPF7AD3CLBBCeq0L?=
+ =?us-ascii?Q?n5pNJBADG0b8nGUqX20rTgwtg8M75UqRhgDaF69eqyJZvRI4ffmOVeePuCbU?=
+ =?us-ascii?Q?ZiOwcokJlB7vjkwxur/B93c/eTy3vIidfy68e88/Prs4S7FvwOoZdGHsTsT0?=
+ =?us-ascii?Q?dd8bboI4gfxPBhJijwcAh7mkT4gzKsj2hIr4pqMkzFI73HZdnZdPdCyy9f3a?=
+ =?us-ascii?Q?sL9MHO864g9cGDUQW6d0Y4ErwIE3pAUI+6m4KUE8jRiOlfDD11b0FxUtdSYR?=
+ =?us-ascii?Q?SbMlfHTvgRawWSw1BMj2oV4dfLK/Z8V89hUdMw8gpQpAt2M2iIqfzLgl6/Vm?=
+ =?us-ascii?Q?2MZqBvEs26u7frMksXMpB6axYq8GsPzr36YFyj0uHFp98YIYudx+nkdjSTeS?=
+ =?us-ascii?Q?2atXCI8xk0K7y/rwl27XCS87W9ACzvLigNtYotgYgSWlr7p0iNMzVSOFpoWU?=
+ =?us-ascii?Q?d0iVEWxqpFDIBJYSY47DbzomTaK7dG/RHH0MgTyQ/dPz4rtqFJ/ae+XllGBx?=
+ =?us-ascii?Q?6iBB3U4IEUiFnLjuPrA/P0c7ii0sdU/k5CJyJIOF/MZnHtBhxXtvX4hdM+c7?=
+ =?us-ascii?Q?yOm0Zj4jtLJq8HigS6hCODgOFCRMswtxpo1rG3LPjHm5oQs6PRqg3WtgMPE1?=
+ =?us-ascii?Q?ZK5DTIO8N2oD+dYq5Q35iYNlIomL1hTBra/MEIx51onbjGSomG3HP42hKY68?=
+ =?us-ascii?Q?zjdu5/wtSxrBfR3Xk3lb3DkoIPj1KbzrGZfqHGDiCr8e6NMOXlM3bAnELxpk?=
+ =?us-ascii?Q?RHYD6dCA+nHui39oxZeZlUOPfEd2Eqf9fIyGjocUqpZa990Ch6A1EEsFYAfh?=
+ =?us-ascii?Q?O87EnMj0Ha9WgkYC2E6QynxszVmMOTlq8mx7ACc5Yhx17bQK9Ons0qEaii1s?=
+ =?us-ascii?Q?dMnV0qeXrdmJmqkDlU3UPUHC3wfL9Rp9CGmBEgpnL09Ker+HJWSIP1vTBZbj?=
+ =?us-ascii?Q?gEMvX+woIHEk+QXDcVfKpac3xAWbCQ0WkuKfoj8ISsbZESltf0XoPtKTzgO5?=
+ =?us-ascii?Q?wCeXuRnM2wFrx/pcgzqXT5CKNVi01D9yTodaPI+1vXEGKHIuS/pN6Bd23SIO?=
+ =?us-ascii?Q?hSMdvYfwxfe8jCNehJU/ienf1ogHaHVNYM3YlRMFU/dHxVWMOh49B2752Chz?=
+ =?us-ascii?Q?nfNHjbZe2qUVutzHje5zJwzLfNzrsFQnT0E0AIV+OwF7IF9XpQwiCyLxsxgy?=
+ =?us-ascii?Q?naPivQAVvbnw1gWkeWv2qaHFS0WQ18bZDkIu6/mZJxbwDUrDyQjisdFQ2Xk9?=
+ =?us-ascii?Q?Vwrr77AWxz9+LUGoaFHC5GWCV8nvrsTOa4+VUDhVZTT4V2YE+TFCJ3yJ6MZH?=
+ =?us-ascii?Q?kTNXoJ7hkxyWnFyWm4mv6db1mJGrpDdGN/1ApDA4?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 212edd3c-ea82-439e-fc40-08da5e218eea
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Jul 2022 00:59:05.2448
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: qboS67LafY7z9suGXn6BaMBf+Dv3pB7mh0bq8wYFk7IjLnR3KkWxyRni6cA17div
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1173
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Tony,
+This is the last notifier toward the drivers, replace it with a simple op
+callback in the vfio_device_ops.
 
-I love your patch! Perhaps something to improve:
+v3:
+ - Remove 'nb' doc string from ccw
+ - Rebase on extern removal patch
+ - Check that register_device/unregister_device are either both defined or
+   not
+ - Remove check of dma_unmap during vfio_register_iommu_driver() as it
+   would break the drivers that don't use pin_pages
+ - Don't change VFIO_IOMMU_NOTIFY_DMA_UNMAP to an enum since we are not
+   keeping it anyhow
+v2: https://lore.kernel.org/r/0-v2-80aa110d03ce+24b-vfio_unmap_notif_jgg@nvidia.com
+ - Declare and initialize variables in intel_vgpu_dma_unmap()
+ - Remove 'vendor' when touching comments
+ - Remove kdoc for vfio dma_unmap notifier
+ - Add WARN_ON to vfio_register_emulated_iommu_dev() since dma_unmap is
+   mandatory
+ - Move dma_unmap call loop to vfio_notify_dma_unmap()
+ - Document why the double mutex is being used and why the mutex lock is
+   dropped when calling dma_unmap
+v1: https://lore.kernel.org/r/0-v1-896844109f36+a-vfio_unmap_notif_jgg@nvidia.com
 
-[auto build test WARNING on s390/features]
-[also build test WARNING on mst-vhost/linux-next linus/master v5.19-rc5 next-20220704]
-[cannot apply to kvms390/next]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Tony-Krowiak/s390-vfio-ap-dynamic-configuration-support/20220621-235654
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-reproduce: make htmldocs
+Jason Gunthorpe (2):
+  vfio: Replace the DMA unmapping notifier with a callback
+  vfio: Replace the iommu notifier with a device list
 
-If you fix the issue, kindly add following tag where applicable
-Reported-by: kernel test robot <lkp@intel.com>
+ drivers/gpu/drm/i915/gvt/gvt.h        |   1 -
+ drivers/gpu/drm/i915/gvt/kvmgt.c      |  75 +++++-------------
+ drivers/s390/cio/vfio_ccw_ops.c       |  41 +++-------
+ drivers/s390/cio/vfio_ccw_private.h   |   2 -
+ drivers/s390/crypto/vfio_ap_ops.c     |  53 ++-----------
+ drivers/s390/crypto/vfio_ap_private.h |   3 -
+ drivers/vfio/vfio.c                   | 108 ++++++--------------------
+ drivers/vfio/vfio.h                   |   9 +--
+ drivers/vfio/vfio_iommu_type1.c       | 103 +++++++++++++++---------
+ include/linux/vfio.h                  |  21 +----
+ 10 files changed, 134 insertions(+), 282 deletions(-)
 
-All warnings (new ones prefixed by >>):
 
->> Documentation/s390/vfio-ap.rst:684: WARNING: Inline strong start-string without end-string.
->> Documentation/s390/vfio-ap.rst:684: WARNING: Inline emphasis start-string without end-string.
->> Documentation/s390/vfio-ap.rst:943: WARNING: Title underline too short.
->> Documentation/s390/vfio-ap.rst:998: WARNING: Definition list ends without a blank line; unexpected unindent.
-
-vim +684 Documentation/s390/vfio-ap.rst
-
-   538	
-   539	1. Install the vfio_ap module on the linux host. The dependency chain for the
-   540	   vfio_ap module is:
-   541	   * iommu
-   542	   * s390
-   543	   * zcrypt
-   544	   * vfio
-   545	   * vfio_mdev
-   546	   * vfio_mdev_device
-   547	   * KVM
-   548	
-   549	   To build the vfio_ap module, the kernel build must be configured with the
-   550	   following Kconfig elements selected:
-   551	   * IOMMU_SUPPORT
-   552	   * S390
-   553	   * ZCRYPT
-   554	   * S390_AP_IOMMU
-   555	   * VFIO
-   556	   * VFIO_MDEV
-   557	   * KVM
-   558	
-   559	   If using make menuconfig select the following to build the vfio_ap module::
-   560	
-   561	     -> Device Drivers
-   562		-> IOMMU Hardware Support
-   563		   select S390 AP IOMMU Support
-   564		-> VFIO Non-Privileged userspace driver framework
-   565		   -> Mediated device driver frramework
-   566		      -> VFIO driver for Mediated devices
-   567	     -> I/O subsystem
-   568		-> VFIO support for AP devices
-   569	
-   570	2. Secure the AP queues to be used by the three guests so that the host can not
-   571	   access them. To secure them, there are two sysfs files that specify
-   572	   bitmasks marking a subset of the APQN range as usable only by the default AP
-   573	   queue device drivers. All remaining APQNs are available for use by
-   574	   any other device driver. The vfio_ap device driver is currently the only
-   575	   non-default device driver. The location of the sysfs files containing the
-   576	   masks are::
-   577	
-   578	     /sys/bus/ap/apmask
-   579	     /sys/bus/ap/aqmask
-   580	
-   581	   The 'apmask' is a 256-bit mask that identifies a set of AP adapter IDs
-   582	   (APID). Each bit in the mask, from left to right, corresponds to an APID from
-   583	   0-255. If a bit is set, the APID belongs to the subset of APQNs marked as
-   584	   available only to the default AP queue device drivers.
-   585	
-   586	   The 'aqmask' is a 256-bit mask that identifies a set of AP queue indexes
-   587	   (APQI). Each bit in the mask, from left to right, corresponds to an APQI from
-   588	   0-255. If a bit is set, the APQI belongs to the subset of APQNs marked as
-   589	   available only to the default AP queue device drivers.
-   590	
-   591	   The Cartesian product of the APIDs corresponding to the bits set in the
-   592	   apmask and the APQIs corresponding to the bits set in the aqmask comprise
-   593	   the subset of APQNs that can be used only by the host default device drivers.
-   594	   All other APQNs are available to the non-default device drivers such as the
-   595	   vfio_ap driver.
-   596	
-   597	   Take, for example, the following masks::
-   598	
-   599	      apmask:
-   600	      0x7d00000000000000000000000000000000000000000000000000000000000000
-   601	
-   602	      aqmask:
-   603	      0x8000000000000000000000000000000000000000000000000000000000000000
-   604	
-   605	   The masks indicate:
-   606	
-   607	   * Adapters 1, 2, 3, 4, 5, and 7 are available for use by the host default
-   608	     device drivers.
-   609	
-   610	   * Domain 0 is available for use by the host default device drivers
-   611	
-   612	   * The subset of APQNs available for use only by the default host device
-   613	     drivers are:
-   614	
-   615	     (1,0), (2,0), (3,0), (4.0), (5,0) and (7,0)
-   616	
-   617	   * All other APQNs are available for use by the non-default device drivers.
-   618	
-   619	   The APQN of each AP queue device assigned to the linux host is checked by the
-   620	   AP bus against the set of APQNs derived from the Cartesian product of APIDs
-   621	   and APQIs marked as available to the default AP queue device drivers. If a
-   622	   match is detected,  only the default AP queue device drivers will be probed;
-   623	   otherwise, the vfio_ap device driver will be probed.
-   624	
-   625	   By default, the two masks are set to reserve all APQNs for use by the default
-   626	   AP queue device drivers. There are two ways the default masks can be changed:
-   627	
-   628	   1. The sysfs mask files can be edited by echoing a string into the
-   629	      respective sysfs mask file in one of two formats:
-   630	
-   631	      * An absolute hex string starting with 0x - like "0x12345678" - sets
-   632		the mask. If the given string is shorter than the mask, it is padded
-   633		with 0s on the right; for example, specifying a mask value of 0x41 is
-   634		the same as specifying::
-   635	
-   636		   0x4100000000000000000000000000000000000000000000000000000000000000
-   637	
-   638		Keep in mind that the mask reads from left to right, so the mask
-   639		above identifies device numbers 1 and 7 (01000001).
-   640	
-   641		If the string is longer than the mask, the operation is terminated with
-   642		an error (EINVAL).
-   643	
-   644	      * Individual bits in the mask can be switched on and off by specifying
-   645		each bit number to be switched in a comma separated list. Each bit
-   646		number string must be prepended with a ('+') or minus ('-') to indicate
-   647		the corresponding bit is to be switched on ('+') or off ('-'). Some
-   648		valid values are:
-   649	
-   650		   - "+0"    switches bit 0 on
-   651		   - "-13"   switches bit 13 off
-   652		   - "+0x41" switches bit 65 on
-   653		   - "-0xff" switches bit 255 off
-   654	
-   655		The following example:
-   656	
-   657		      +0,-6,+0x47,-0xf0
-   658	
-   659		Switches bits 0 and 71 (0x47) on
-   660	
-   661		Switches bits 6 and 240 (0xf0) off
-   662	
-   663		Note that the bits not specified in the list remain as they were before
-   664		the operation.
-   665	
-   666	   2. The masks can also be changed at boot time via parameters on the kernel
-   667	      command line like this:
-   668	
-   669		 ap.apmask=0xffff ap.aqmask=0x40
-   670	
-   671		 This would create the following masks::
-   672	
-   673		    apmask:
-   674		    0xffff000000000000000000000000000000000000000000000000000000000000
-   675	
-   676		    aqmask:
-   677		    0x4000000000000000000000000000000000000000000000000000000000000000
-   678	
-   679		 Resulting in these two pools::
-   680	
-   681		    default drivers pool:    adapter 0-15, domain 1
-   682		    alternate drivers pool:  adapter 16-255, domains 0, 2-255
-   683	
- > 684	   Note ***:
-   685	   Changing a mask such that one or more APQNs will be taken from a vfio_ap
-   686	   mediated device (see below) will fail with an error (EBUSY). A message
-   687	   is logged to the kernel ring buffer which can be viewed with the 'dmesg'
-   688	   command. The output identifies each APQN flagged as 'in use' and identifies
-   689	   the vfio_ap mediated device to which it is assigned; for example:
-   690	
-   691	   Userspace may not re-assign queue 05.0054 already assigned to 62177883-f1bb-47f0-914d-32a22e3a8804
-   692	   Userspace may not re-assign queue 04.0054 already assigned to cef03c3c-903d-4ecc-9a83-40694cb8aee4
-   693	
-
+base-commit: d1877e639bc6bf1c3131eda3f9ede73f8da96c22
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.37.0
+
