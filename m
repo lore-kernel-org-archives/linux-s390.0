@@ -2,149 +2,230 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3616C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 18:18:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02EA0C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 18:29:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233190AbiGFSSP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 14:18:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60652 "EHLO
+        id S234395AbiGFS36 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 14:29:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229810AbiGFSSO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 14:18:14 -0400
-Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2062.outbound.protection.outlook.com [40.107.102.62])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 900CB5FF0;
-        Wed,  6 Jul 2022 11:18:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KPnjCVrLTuBZtzVcFPYDvlqsmB4QBs+9IqVB20z8dcDVGdId67+jfB8/OcmD794ENhSUx9RZxK7sBFZQ9rgDtpfHKMFvI8pwon/Lnhps7d/xa/4AnpukQIeNgiLGt3hvFdxXwarfaq0sOLZXYQsuEze/IRRv+uhj8Rt00WGRRody5yCg8CvBvXtfIABTI5XnH3FENdY/IeAcnbVvNa7c+y0bHucFkO4wIi3rs5wo9tR2rJMAyxWK+8AVha5ewcsL6eWMGIuO57N9DCWaRMlwIBL/y/8AdRjJ93/l7Q86bx3BXQg82FmkmnlWrnWg7/PnVCYfYzxJ5avO4DLQqQE1rA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GMNb6Gd9xeLGsPXvzyvZnidg9BndostaRgV2CEO0VcE=;
- b=OvF2di9g+MtsxYV+mm9u6d++Uer53njfA6cVAcvmI1otEnUtPbgiBwlPrmspQbOd7D64beiUCUcb9NzYs3l4OwhP7C7Y+j/dJFK9KjBHj4cf7/g1mgCVIR/uAg4s6XVmfoESDZwclvuSTuMMEfcBAfzCC+Fhe8+P86+h9n8C0/8q2alQ4ShCjdIo3Pw7WfaVIR+a1Rqql8lig7jN/1Hsk7glVP3Ya75t15Y7vdpn3UAIPPKDKllwgPN9sFTRHQBr4/a4YXBOzBI4eU3C8zZTcgqfrpRsDcSPwCY4Cxic9YGNq1UFg4BfINLJi2sqbjur0x/jNGi8oimdUCs06hMaMA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GMNb6Gd9xeLGsPXvzyvZnidg9BndostaRgV2CEO0VcE=;
- b=IQ8uR2kQmoeEED9rj9pVWjuVBKbopmrT4roCmBzLA7F9IdwRLtU5sPpoEBlp0i1Ern8MHewoF2PvSNBkqbJ9m1bQVU6w+W3xAKkMTlvlo37ScalPNeXEEgZBVlQRNfnmGOFgj6wQIhUGNh+aGm0qppQKBAPyQczN40VRceyYmakoRXsEuBJuhIfR3KFlHOs2Qqz3XQRZCCRRSKg1lH1oeymRiVKhaPp8LDy1cKUatT8YCIJQ/Ko4igpyXlgKFyiPi1gAhSbjiZ2JCw+Q31QjSrpdTi8cQk8jERPKrV5VlWebCAc6GbV4o8ETYrA81ZM7SMF1qXJSP18nLCxO3TXCzA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by IA1PR12MB6601.namprd12.prod.outlook.com (2603:10b6:208:3a3::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5395.21; Wed, 6 Jul
- 2022 18:18:12 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ac35:7c4b:3282:abfb]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ac35:7c4b:3282:abfb%3]) with mapi id 15.20.5395.021; Wed, 6 Jul 2022
- 18:18:12 +0000
-Date:   Wed, 6 Jul 2022 15:18:10 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Nicolin Chen <nicolinc@nvidia.com>
-Cc:     kwankhede@nvidia.com, corbet@lwn.net, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        zhenyuw@linux.intel.com, zhi.a.wang@intel.com,
-        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
-        rodrigo.vivi@intel.com, tvrtko.ursulin@linux.intel.com,
-        airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com,
-        akrowiak@linux.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, cohuck@redhat.com,
-        kevin.tian@intel.com, hch@infradead.org, jchrist@linux.ibm.com,
-        kvm@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: Re: [RFT][PATCH v2 9/9] vfio: Replace phys_pfn with pages for
- vfio_pin_pages()
-Message-ID: <20220706181810.GQ693670@nvidia.com>
-References: <20220706062759.24946-1-nicolinc@nvidia.com>
- <20220706062759.24946-10-nicolinc@nvidia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220706062759.24946-10-nicolinc@nvidia.com>
-X-ClientProxiedBy: BL0PR02CA0074.namprd02.prod.outlook.com
- (2603:10b6:208:51::15) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S230443AbiGFS35 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 14:29:57 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 618CBE6;
+        Wed,  6 Jul 2022 11:29:56 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 266I2pNt026835;
+        Wed, 6 Jul 2022 18:29:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5q6jbx68SS0unOLPjlUpw6Z3TUhj8RD1hsIdZAHbL2k=;
+ b=UZp3tHdPL2h0j1lqkou+6iNTQJVuWChyAI3hfcnelNF6GABBL0zZmVQBI22y0bK1ZVa3
+ jga0TN2U2KVYtH0FLbGlhgKBAdRfs0Uv1476wem0n1Vct3HTi8/7OgJXl2oSVvwxvmLT
+ OJ44LxidBvfxFidVigekJ34VsleyiwuikmX/n8VyEmaQCjE/8wmbeeg6ESJFLiel4GmP
+ cDhJ1Zb2QhcGYJOeY3de5qdFottXDtk1sr0ZDn24+w9IzkgJ4FSmHUuKC6OMVc8F8NP+
+ iOBHF95QvbpY2D+12A75Kq+ck6C/58dWnTEJGz6xuoA6ox/OlhAZkoANmUVFeSAqsot5 cw== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5et81fn5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Jul 2022 18:29:55 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 266ILJkc015356;
+        Wed, 6 Jul 2022 18:29:53 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04fra.de.ibm.com with ESMTP id 3h4v6592hb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Jul 2022 18:29:53 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 266ITn2825035128
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 6 Jul 2022 18:29:49 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CD598A404D;
+        Wed,  6 Jul 2022 18:29:49 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6D8C9A4053;
+        Wed,  6 Jul 2022 18:29:49 +0000 (GMT)
+Received: from [9.171.61.129] (unknown [9.171.61.129])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  6 Jul 2022 18:29:49 +0000 (GMT)
+Message-ID: <386ec16c-2561-2fcf-2eea-deaab45f349c@linux.ibm.com>
+Date:   Wed, 6 Jul 2022 20:29:49 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 8207b41e-fbe3-42c2-8022-08da5f7be2e7
-X-MS-TrafficTypeDiagnostic: IA1PR12MB6601:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: jttkk9mPpHSzsoULSp5i2CvHVEq2kHxnr9j+OSNh2PqecARo1i2xAWgsG++q/0ks9lK+6UTItIKWIFTdnWWxLBFufDxTuCejvSotmr5RkUq3Pzi7wtD9CtTGibntX+Wy59rryA/wCFO0ydDmiJ3Roix2mPYO//d8Fb4kzb0nKaGVww1K0KW86/M25zuQShLYkw3SUpTrRqvKc9IWs1hqS76cM2sYPutnnx7vVHMQ86Pm1+AwLUd+vardl2Ad1kT43S6QYsGnl7WhZtyh71jkVUL0l3J4ERTGJ27qcyclpfuSmcRaC+z+uNpr2ivguCXy5rhREZpMxuPqTvZysuUt+kJBpimtOSKBUEzonqc/Z8mi3XUbFjZ/VFDCcQTMOUgwuF5v6ZWIDv9QW9W22cNJZKoRIYNDDkX3dpWdWccgka2fh9JJzk7Nhg9mWiHnD8xHX4k8nbtqs40zdsdgVfXnq1K6PE080gFWefBZOgOB41IUliroHC1FFhofS1R83tV3EDn8yd0EXGbcefy1bNRfMz2Alarexjwpe3KmUKke/Iuc6hVno5tJPFafcBWVKJ97htY0NrvN4dwK4AddHjg9OmS/dTQ2A67gHSn71T3jeI8Yr6jCG3nUVPk7QJPlc6Z6kQ14/XFmnPIdQIkC/E0os9qCKtBmpTvbwCMobsH0LaluHqoLC4jZwMO9cNOJmIeNih0ERWDa1IqFKX04g/RGTMx9pqho2jDFa5Rhy2VgjeO+HdMRlfOs5kFm/Mm4P96Puf7maFiyGZnHdnmEFqmcX6lmfRW0VQtAe/xQoIDGadC8LSMi9GzUgGtAKtNULABC
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(376002)(39860400002)(136003)(366004)(396003)(346002)(1076003)(66946007)(8676002)(4326008)(38100700002)(7406005)(5660300002)(66476007)(66556008)(7416002)(2906002)(86362001)(6506007)(2616005)(8936002)(6862004)(6486002)(478600001)(41300700001)(83380400001)(37006003)(6636002)(316002)(33656002)(6512007)(36756003)(26005)(186003)(27376004);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?PyhFlks/ERCaJ2+h/dHFP90aRbULkoWUm8LjUuh8nrm9qCx25lftiNk3xkJe?=
- =?us-ascii?Q?KI5/HX0373LR4e+PKVFiX4kHMyQ1xOVXTLxDacpa6aod4amiZblMguuJMz7A?=
- =?us-ascii?Q?rlKJlskseFraz8XLmfe1EhVuKSIkhLfHFwEhKRNLuYkPqzovRCiNleYXyN4K?=
- =?us-ascii?Q?IEqYS30Chpf5xM8I0wLgYdgSHqiwXyGBcebwLGay5eOqXSv7jIafHTsagTlv?=
- =?us-ascii?Q?xAleETOPVuoi8dNmXgcmx7kduJpPHKP52B1W3tBPikwwCeJ0z48sRTkFf8WK?=
- =?us-ascii?Q?6WNmFSNnAJeG1GLpBI/PQVEOTueBjfew7jh3eMWS9pdG+GGlAE3iisHVT/tX?=
- =?us-ascii?Q?Vrn7j2uDc8XIxAAkFVdOpyjb1KZuPFtcJmLuwXitUEqEOKECFWNAo97eQMlA?=
- =?us-ascii?Q?8Mh0kkPR1LYxKdRKKF3cybKi+rKV/c7zcIDqyoxoVGX/bRRRC+6FG6fSiemQ?=
- =?us-ascii?Q?rjK9jG5Qyf4DpZ4fIjzKX4PJVE7VxihOx9B2cyhWvmjqnYGpNA45LN6oh9IC?=
- =?us-ascii?Q?PcXTvG0diPQsYZw1RLlrW+CETiIzVgPovJ5jXQP+MSd9dzXoZJ4ugcN1/tzY?=
- =?us-ascii?Q?fEq2bwK+g+/3W2Z0GKEedizxr/srBZ7Q0bxEbnw5TUTNtj7v6l2/T1PCe6DG?=
- =?us-ascii?Q?SpJuNakUd0fJZ8rqKl7Z5dmdQlE4JnTvpXX3QywDwbCmv1fzmnLv8iYITPWc?=
- =?us-ascii?Q?EZcnAgtMNrH9e/xGJlnR5cbY0jbNVBwcbOW/CcYtGX9Vz1w9RTsZQ6qRu04s?=
- =?us-ascii?Q?9B61mTeqkgTI9qvuo85RqyEiY+FOaug3QoBALfF2oDj0N1QXsZDXaohn+AJ6?=
- =?us-ascii?Q?/YUsPSw3ozLnEp3Ky8mELqwueDC4UxHvuwJ7k7Dv4qWeUUMi+VfRfX2lsp21?=
- =?us-ascii?Q?U8yV2wQS7+RRDHTgnTEC+9pe1/rBSm50TO7vpwSOy/MT7IwT6137ide+Yfem?=
- =?us-ascii?Q?NPy9d1y+OM94NN/5yEGX/b0ptQwe7IlnkPhUea5rveIC6xcTBhntZ9Iq3JNP?=
- =?us-ascii?Q?t3NLBIUAwobyLvxPeyNWNxD1sXQkZtNiNN2IgtoWB7zoiirUL38qrXx2EbWt?=
- =?us-ascii?Q?Wb14HImN1I8BL7mjNTf/M5nnJsL2pUypQI7zVXQF50whH6Ppc992Hu2B4zAk?=
- =?us-ascii?Q?rgeMw8kRUPZkiEPHg7REUoUZOayooetXacfIQqY1PaxuKjxD6E9JAluYfqkG?=
- =?us-ascii?Q?OQ1PiTjqf46/MsTNlagUpaGHqutWlxTtY+YNqgY0wihNWhhWD6O2Kr9Mdm1P?=
- =?us-ascii?Q?TBTaUhVyd1vmwpKlAmQoQLNsEC2myFOp3oapCK951ZzYn0pCzLqm6nj2WrkI?=
- =?us-ascii?Q?PiO6FgiBvX57RmcEFvtDazfQVj0KFqUvyA9HwNmbeAtvaW+aryOYx3E16La3?=
- =?us-ascii?Q?ZIFDcxvvB9pe3z69ARMchfb1SrLSICI289BHNzEOs4uPloIq2Et2ylx0osr8?=
- =?us-ascii?Q?WEfSC75XLx7DTzK9Qv8Xv5e5Tvh+WAB03Mt/wMQx1+uAWFkDoTCMLe8Uem9v?=
- =?us-ascii?Q?VRuTd1fB8nK5iW0jr9zjoPs9lRD9gymF4tN71j8sWNwePtZxqlpuk44Bw0wX?=
- =?us-ascii?Q?cr9nWQM3ErkcnSOmxg75aj3PUy8zuskmnwdHFXbJ?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8207b41e-fbe3-42c2-8022-08da5f7be2e7
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jul 2022 18:18:11.9878
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 2eUvxFAUVxGMGVUvHsNX0h6pmRelLngx5jxWHot0QX28txwvBQtpSXyHfZDPleUb
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6601
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v1 1/1] s390/arch_random: Buffer true random data
+Content-Language: en-US
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Harald Freudenberger <freude@linux.ibm.com>
+Cc:     Holger Dengler <dengler@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220705112712.4433-1-dengler@linux.ibm.com>
+ <20220705112712.4433-2-dengler@linux.ibm.com> <YsQ6OOrOWPhdynoM@zx2c4.com>
+ <9a0561c0-68f7-b630-4440-3ca32bf28dc2@linux.ibm.com>
+ <YsRUowTs9n98p9EL@zx2c4.com>
+ <aafbb400-d0cb-99de-8b10-3c39c7b9bae5@linux.ibm.com>
+ <7e65130c6e66ce7a9f9eb469eb7e64e0@linux.ibm.com> <YsW3qWkIwXboHgim@zx2c4.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <YsW3qWkIwXboHgim@zx2c4.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: gxHJEsEoH6RK9Iq8mDNXIpP5NADBNeKX
+X-Proofpoint-GUID: gxHJEsEoH6RK9Iq8mDNXIpP5NADBNeKX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-06_09,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=951 clxscore=1011 impostorscore=0 bulkscore=0 suspectscore=0
+ priorityscore=1501 adultscore=0 phishscore=0 spamscore=0
+ lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2206140000 definitions=main-2207060071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 05, 2022 at 11:27:59PM -0700, Nicolin Chen wrote:
-> Most of the callers of vfio_pin_pages() want "struct page *" and the
-> low-level mm code to pin pages returns a list of "struct page *" too.
-> So there's no gain in converting "struct page *" to PFN in between.
-> 
-> Replace the output parameter "phys_pfn" list with a "pages" list, to
-> simplify callers. This also allows us to replace the vfio_iommu_type1
-> implementation with a more efficient one.
-> 
-> For now, also update vfio_iommu_type1 to fit this new parameter too.
-> 
-> Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
-> ---
->  .../driver-api/vfio-mediated-device.rst       |  2 +-
->  drivers/gpu/drm/i915/gvt/kvmgt.c              | 19 ++++++-------------
->  drivers/s390/cio/vfio_ccw_cp.c                | 19 +++++++++----------
->  drivers/s390/crypto/vfio_ap_ops.c             |  6 +++---
->  drivers/vfio/vfio.c                           |  8 ++++----
->  drivers/vfio/vfio.h                           |  2 +-
->  drivers/vfio/vfio_iommu_type1.c               | 19 +++++++++++--------
->  include/linux/vfio.h                          |  2 +-
->  8 files changed, 36 insertions(+), 41 deletions(-)
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Jason
+Am 06.07.22 um 18:26 schrieb Jason A. Donenfeld:
+> Hi Harald,
+> 
+> On Wed, Jul 06, 2022 at 06:18:27PM +0200, Harald Freudenberger wrote:
+>> On 2022-07-05 18:27, Holger Dengler wrote:
+>>> Hi Jason,
+>>>
+>>> On 05/07/2022 17:11, Jason A. Donenfeld wrote:
+>>>> Hi Holger,
+>>>>
+>>>> On Tue, Jul 05, 2022 at 04:58:30PM +0200, Holger Dengler wrote:
+>>>>> It is true, that the performance of the instruction is not really
+>>>>> relevant, but only for calls outside of an interrupt context. I did
+>>>>> some ftrace logging for the s390_random_get_seed_long() calls, and -
+>>>>> as you said - there are a few calls per minute. But there was also
+>>>>> some repeating calls in interrupt context. On systems with a huge
+>>>>> interrupt load, this can cause severe performance impacts. I've no
+>>>>
+>>>> It'd be interesting to know more about this. The way you get
+>>>> arch_random_get_seed_long() from irq context is:
+>>>>
+>>>> get_random_{bytes,int,long,u32,u64}()
+>>>>    crng_make_state()
+>>>>      crng_reseed() <-- Rarely
+>>>>        extract_entropy()
+>>>>          arch_get_random_seed_long()
+>>>>
+>>>> So if an irq user of get_random_xx() is the unlucky one in the minute
+>>>> span who has to call crng_reseed() then, yea, that'll happen. But I
+>>>> wonder about this luck aspect. What scenarios are you seeing where
+>>>> this
+>>>> happens all the time? Which driver is using random bytes *so* commonly
+>>>> from irq context? Not that, per say, there's anything wrong with that,
+>>>> but it could be eyebrow raising, and might point to de facto solutions
+>>>> that mostly take care of this.
+>>>
+>>> I saw a few calls in interrupt context during my tracing, but I didn't
+>>> look to see which ones they were. Let me figure that out in the next
+>>> few days and provide more information on that.
+>>>
+>>>> One such direction might be making a driver that does such a thing do
+>>>> it
+>>>> a little bit less, somehow. Another direction would be preferring
+>>>> non-irqs to handle crng_reseed(), but not disallowing irqs entirely,
+>>>> with a patch something like the one below. Or maybe there are other
+>>>> ideas.
+>>>
+>>> Reduce the number of trng in interrupt context is a possibility, but -
+>>> in my opinion - only one single trng instruction call in interrupt
+>>> context in one too much.
+>>>
+>>> For the moment, I would propose to drop the buffering but also return
+>>> false, if arch_random_get_seed_long() is called in interrupt context.
+>>>
+>>> diff --git a/arch/s390/include/asm/archrandom.h
+>>> b/arch/s390/include/asm/archrandom.h
+>>> index 2c6e1c6ecbe7..711357bdc464 100644
+>>> --- a/arch/s390/include/asm/archrandom.h
+>>> +++ b/arch/s390/include/asm/archrandom.h
+>>> @@ -32,7 +32,8 @@ static inline bool __must_check
+>>> arch_get_random_int(unsigned int *v)
+>>>
+>>>   static inline bool __must_check arch_get_random_seed_long(unsigned
+>>> long *v)
+>>>   {
+>>> -       if (static_branch_likely(&s390_arch_random_available)) {
+>>> +       if (static_branch_likely(&s390_arch_random_available) &&
+>>> +           !in_interrupt()) {
+>>>                  cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+>>>                  atomic64_add(sizeof(*v), &s390_arch_random_counter);
+>>>                  return true;
+>>>
+>>> (on-top of your commit, without our buffering patch)
+>>>
+>>>>
+>>>> But all this is to say that having some more of the "mundane" details
+>>>> about this might actually help us.
+>>>>
+>>>> Jason
+>>>>
+>>>> diff --git a/drivers/char/random.c b/drivers/char/random.c
+>>>> index e3dd1dd3dd22..81df8cdf2a62 100644
+>>>> --- a/drivers/char/random.c
+>>>> +++ b/drivers/char/random.c
+>>>> @@ -270,6 +270,9 @@ static bool crng_has_old_seed(void)
+>>>>   	static bool early_boot = true;
+>>>>   	unsigned long interval = CRNG_RESEED_INTERVAL;
+>>>>
+>>>> +	if (in_hardirq())
+>>>> +		interval += HZ * 10;
+>>>> +
+>>>>   	if (unlikely(READ_ONCE(early_boot))) {
+>>>>   		time64_t uptime = ktime_get_seconds();
+>>>>   		if (uptime >= CRNG_RESEED_INTERVAL / HZ * 2)
+>>>>
+>>
+>> Hi Holger and Jason
+>> I tried to find out what is the reason of the invocations in interrupt
+>> context.
+>> First I have to admit that there is in fact not much of
+>> arch_get_random_seed_long()
+>> invocation any more in the recent kernel (5.19-rc5). I see about 100
+>> invocations
+>> within 10 minutes with an LPAR running some qperf and dd dumps on dasds
+>> test load.
+>> About half of these invocations is in interrupt context. I
+>> dump_stack()ed some of
+>> these and I always catch the function
+>> kfence_guarded_alloc()
+>>     prandom_u32_max()
+>>       prandom_u32()
+>>         get_random_u32()
+>>           _get_random_bytes()
+>>             crng_make_state()
+>>               crng_reseed()
+>>                 extract_entropy()
+>>                   arch_get_random_seed_long()
+>>
+>> However, with so few invocations it should not make any harm when there
+>> is a
+>> even very expensive trng() invocation in interrupt context.
+>>
+>> But I think we should check, if this is really something to backport to
+>> the older
+>> kernels where arch_get_random_seed_long() is called really frequency.
+> 
+> I backported the current random.c design to old kernels, so the
+> situation there should be the same as in 5.19-rc5.
+> 
+> So if you feel such rare usage is find even in_hardirq(), then I suppose
+> there's nothing more to do here?
+
+I think up to 190µs in interrupt can result in unwanted latencies. Yes it does not
+happen that often and it is smaller than most timeslices of hypervisors.
+So I would likely turn that question around
+what happens if we return false if in_hardirq is true? Any noticeable
+delays in code that uses random numbers?
