@@ -2,95 +2,79 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C37FCCA473
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 12:34:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06579C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 12:35:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231690AbiGFMeo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 08:34:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39378 "EHLO
+        id S231905AbiGFMfZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 08:35:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232149AbiGFMen (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 08:34:43 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BB28EE04
-        for <linux-s390@vger.kernel.org>; Wed,  6 Jul 2022 05:34:41 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id j1-20020a17090aeb0100b001ef777a7befso6804393pjz.0
-        for <linux-s390@vger.kernel.org>; Wed, 06 Jul 2022 05:34:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=hW2431492sCVZamN/p5cUoH7v2KxbwYiYFtMhbuxSSs=;
-        b=aO/ZC+U5LATGWzsMenvtODpWhcejLQ4DmRLha/4SFn11Wf8DcIrFk1B5B3fP0AvXUg
-         F1PUOqzt04jGHL+kW42wdhfxoatgfieaCaFTjTsg/0aPS0d1NSqzbVAWUr48FwKbi2kk
-         bNQBektjLeeE1K2U1dLcbw68C5O909m3ltoYOt5psp5Gsf6ooUgQxbp7vtkJxaFCNVLq
-         JB5JDSboVX7gNuCr6BqOEB2T1vnXsuL9FxkeVt6f0+RSoxgWygebchQshMWMnbZdv7Xg
-         QtsTjaAJP4QGjnj40SClqvGtAh7oHGQx9EV2mY92w7wDa5vthlOb4om9GVvEhy9g8Ujc
-         ZNag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=hW2431492sCVZamN/p5cUoH7v2KxbwYiYFtMhbuxSSs=;
-        b=doHzfXHR3hmNhjMjekDPt3Pz2XmhCuZ7+3JXCTyR18+v+UbGRkN1DlUUiv6xMAiLUJ
-         yQYSiP6U49gxQbIs5OKpqQr30ZLmzwPCsfpLdeSOr6ArzHpv0WdTngFRn0aNMLMQ2Xqw
-         jPQA4wes6cd05VO+rHR5OIiA6Qk2o0sBtfzDfkSLi8/uHqNvutPilrgZYxjfNU0SqmfY
-         /1ljulIvbD3EIF7F8ysuJY3D63mbFWUJwQQuEPHPuF7e7SEhHW2ydk5y5IvuTGjQ/JCZ
-         DHPfbxaG9vBbAGz7hwVeh35yeTNsmRp4P8jowQycBmnqxp9XAre4f0zNSL0KxtfF0YY0
-         ohaw==
-X-Gm-Message-State: AJIora/Ymj016ZlVI14Tr4tU6cHBhbHscnFSKw75vQF8syTFTl4HFj8f
-        0NEntoz/lAFTkCw2omqNB+h4cQ==
-X-Google-Smtp-Source: AGRyM1szJSqnPFX6luEMhyzzQ0Aeywhddc3vVY3+ZKqUe4ppobSQfJg1kQYfqyNYWH89tB/Ll0NihQ==
-X-Received: by 2002:a17:902:ab42:b0:16c:66d:c44d with SMTP id ij2-20020a170902ab4200b0016c066dc44dmr1314197plb.125.1657110880402;
-        Wed, 06 Jul 2022 05:34:40 -0700 (PDT)
-Received: from [127.0.1.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id 84-20020a621957000000b005289cade5b0sm2634560pfz.124.2022.07.06.05.34.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Jul 2022 05:34:39 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     jejb@linux.ibm.com, hare@suse.de, kartilak@cisco.com,
-        Christoph Hellwig <hch@lst.de>, martin.petersen@oracle.com,
-        satishkh@cisco.com, sebaddel@cisco.com,
-        damien.lemoal@opensource.wdc.com, john.garry@huawei.com,
-        bvanassche@acm.org
-Cc:     linux-nvme@lists.infradead.org, nbd@other.debian.org,
-        linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-block@vger.kernel.org, mpi3mr-linuxdrv.pdl@broadcom.com,
-        linux-mmc@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1657109034-206040-1-git-send-email-john.garry@huawei.com>
-References: <1657109034-206040-1-git-send-email-john.garry@huawei.com>
-Subject: Re: [PATCH v3 0/6] blk-mq: Add a flag for reserved requests series
-Message-Id: <165711087866.291548.18135186803736478100.b4-ty@kernel.dk>
-Date:   Wed, 06 Jul 2022 06:34:38 -0600
+        with ESMTP id S232102AbiGFMfY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 08:35:24 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9CFF1B7B4;
+        Wed,  6 Jul 2022 05:35:22 -0700 (PDT)
+Received: from zn.tnic (p200300ea970ff625329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:970f:f625:329c:23ff:fea6:a903])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 6447F1EC0554;
+        Wed,  6 Jul 2022 14:35:17 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1657110917;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=aOfghTrex1dSH5ya2NTo53o75SOki07wRbpatW6WuBk=;
+        b=KCUu0L2dkP2XI8FBDBFzdO0NWi8TMtHxuIX9sQgc8hqhPWfiDc3DIkWjRmLn/A5w4jes+W
+        Kdp/Bzg5kTu+nf6MBnNBJTADx5tph7Hm3ovWxLGauzcr2XCZznaaWbyvFkNYCST3UF4uBO
+        rmMjNumRUWoX4RY3dD2SpM+CD9QRTo4=
+Date:   Wed, 6 Jul 2022 14:35:17 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v3] random: remove CONFIG_ARCH_RANDOM
+Message-ID: <YsWBhaZT5dCQHfwp@zn.tnic>
+References: <20220706003225.335768-1-Jason@zx2c4.com>
+ <20220706105411.406259-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220706105411.406259-1-Jason@zx2c4.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 6 Jul 2022 20:03:48 +0800, John Garry wrote:
-> Can you please consider this series? Thanks
-> 
+On Wed, Jul 06, 2022 at 12:54:11PM +0200, Jason A. Donenfeld wrote:
+> So this commit simplifies things by removing CONFIG_ARCH_RANDOM, keeping
 
-Applied, thanks!
+No need to say "this commit" or "this patch" - just write "as if you are
+giving orders to the codebase to change its behaviour."
 
-[1/6] scsi: core: Remove reserved request time-out handling
-      commit: deef1be18e3fc62ddf04fb3e5e8ff6a301693dcc
-[2/6] blk-mq: Add a flag for reserved requests
-      commit: 99e48cd6855e9535488e3c90d65edd46c6e6fc1b
-[3/6] blk-mq: Drop blk_mq_ops.timeout 'reserved' arg
-      commit: 9bdb4833dd399cbff82cc20893f52bdec66a9eca
-[4/6] scsi: fnic: Drop reserved request handling
-      commit: 1263c1929fb8c375494666ec6d1bac838ff02c25
-[5/6] blk-mq: Drop 'reserved' arg of busy_tag_iter_fn
-      commit: 2dd6532e9591f201e7571b30915db807603ab924
-[6/6] blk-mq: Drop local variable for reserved tag
-      commit: 4cf6e6c0106bf6e6d034fa6043b4428ac2f267fc
+In this case, "So simplify things by ... "
 
-Best regards,
+>  arch/x86/Kconfig                                  |  9 ---------
+>  arch/x86/include/asm/archrandom.h                 | 14 +++++---------
+>  arch/x86/kernel/cpu/rdrand.c                      |  2 --
+
+For those:
+
+Acked-by: Borislav Petkov <bp@suse.de>
+
+Thx.
+
 -- 
-Jens Axboe
+Regards/Gruss,
+    Boris.
 
-
+https://people.kernel.org/tglx/notes-about-netiquette
