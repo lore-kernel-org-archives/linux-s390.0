@@ -2,95 +2,237 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9A05CCA481
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 13:57:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 639FDCCA489
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 13:59:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233324AbiGFN56 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 09:57:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
+        id S233572AbiGFN7p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 09:59:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232833AbiGFN54 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 09:57:56 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17DE017A90;
-        Wed,  6 Jul 2022 06:57:54 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 8B0FE2262B;
-        Wed,  6 Jul 2022 13:57:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1657115873; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kiUjfUaxXUHtTpdwighgqJkP8dPW871+3s1BnMx2Ltw=;
-        b=yvPvbIuuxtdk2ZX8Q8tSoKYC5cW9dKB+5Zw1LzSQH7197bMhDdli0CWLiflL03yBVSxu31
-        3GMcXYJKFvhvNqtUy2cQiQ4XZHsfkN6pzZ7I3g+QRQgLeWpktmJqk3iii4LCOU5lITaQ9i
-        sL2Y/gJxVd14DsEMqswdcEn7ilbN6V4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1657115873;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kiUjfUaxXUHtTpdwighgqJkP8dPW871+3s1BnMx2Ltw=;
-        b=DrSRj0EvDTIpUIt/FJqzoaO8ehUFDCc6m4Kks/eb8UIsdpsS4gF3k4Myi2JAHEtoQp9hzo
-        OUxLU3k8ElQq8jAg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5F0F213A7D;
-        Wed,  6 Jul 2022 13:57:53 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id RZFGFuGUxWKNOAAAMHmgww
-        (envelope-from <hare@suse.de>); Wed, 06 Jul 2022 13:57:53 +0000
-Message-ID: <18d78bd6-2150-f771-9a6e-2b972d2e1192@suse.de>
-Date:   Wed, 6 Jul 2022 15:57:52 +0200
+        with ESMTP id S232981AbiGFN7i (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 09:59:38 -0400
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E4EA18E13;
+        Wed,  6 Jul 2022 06:59:33 -0700 (PDT)
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-31cac89d8d6so71276737b3.2;
+        Wed, 06 Jul 2022 06:59:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Onduqp6mjVbUTy8onn0jWt/mqpI9kGBQEYh+QUeZcBU=;
+        b=0cMUwTkAAVvw+UNO02IWyceWodYmhCDcBP9pequ0hZ1hN3XzdMVPegHdPc9D/E/CfB
+         L2kWvRP4z5KjqsLuu/fSiyz/ZCU7FEXJUfuVjNJc/Dmdq891LnjpdcUELB4uakW9sl3V
+         nM6urUU7UKgxL8lVgXpHZeUNVyTzGaa9ZQvX3o3AVLOVQnhulI1d+Ok2tTqDwvmeAGKZ
+         v+pR84yNvxLCwk0u+Rh67ibdA5e0LB5Hj6ohbH+/JKUjB7V8KaWU1FP+xwEyuJTfPyQ2
+         vYen9kOzd+zuYvRYze3gjvuzvVo4K4cabXJJryPLyBJfVHc6cnL+Y/guIs1Z2JOLASP4
+         /OdQ==
+X-Gm-Message-State: AJIora/9LuZKkijMpe8AtJ/J1dJrHEjvs2XegfMP5EZtc4AyAydXM3GV
+        G/SE1BZglgSvpfi1JAmXJnCIKUDa6ksQ8LoGIcg=
+X-Google-Smtp-Source: AGRyM1tNbC/Hml4tsQcA7xFkjwPTBe4V9sculTi4g4WqVg8ltnNA+flCFfg0CHpb2ZdV5OvqewQ30xyxgoEo0qXCWHo=
+X-Received: by 2002:a81:1b97:0:b0:2db:640f:49d8 with SMTP id
+ b145-20020a811b97000000b002db640f49d8mr45117410ywb.326.1657115972382; Wed, 06
+ Jul 2022 06:59:32 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH v3 6/6] blk-mq: Drop local variable for reserved tag
-Content-Language: en-US
-To:     John Garry <john.garry@huawei.com>, axboe@kernel.dk,
-        damien.lemoal@opensource.wdc.com, bvanassche@acm.org, hch@lst.de,
-        jejb@linux.ibm.com, martin.petersen@oracle.com, satishkh@cisco.com,
-        sebaddel@cisco.com, kartilak@cisco.com
-Cc:     linux-doc@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        mpi3mr-linuxdrv.pdl@broadcom.com, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org, nbd@other.debian.org
-References: <1657109034-206040-1-git-send-email-john.garry@huawei.com>
- <1657109034-206040-7-git-send-email-john.garry@huawei.com>
-From:   Hannes Reinecke <hare@suse.de>
-In-Reply-To: <1657109034-206040-7-git-send-email-john.garry@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20220608142723.103523089@infradead.org> <20220608144516.998681585@infradead.org>
+In-Reply-To: <20220608144516.998681585@infradead.org>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Wed, 6 Jul 2022 15:59:21 +0200
+Message-ID: <CAJZ5v0jSfvUoReFHjA5A+brExnnEKidak-GnjTbY0CKoaWpGVQ@mail.gmail.com>
+Subject: Re: [PATCH 17/36] acpi_idle: Remove tracing
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com,
+        vgupta@kernel.org,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        ulli.kroll@googlemail.com,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Sascha Hauer <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Kevin Hilman <khilman@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>,
+        kernel@xen0n.name, Geert Uytterhoeven <geert@linux-m68k.org>,
+        sammy@sammy.net, Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        dinguyen@kernel.org, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi,
+        Stafford Horne <shorne@gmail.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        David Miller <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        anton.ivanov@cambridgegreys.com,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, acme@kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        jolsa@kernel.org, namhyung@kernel.org,
+        Juergen Gross <jgross@suse.com>, srivatsa@csail.mit.edu,
+        amakhalov@vmware.com, pv-drivers@vmware.com,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Chris Zankel <chris@zankel.net>, jcmvbkbc@gmail.com,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <lenb@kernel.org>, Pavel Machek <pavel@ucw.cz>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Anup Patel <anup@brainfault.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Yury Norov <yury.norov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Petr Mladek <pmladek@suse.com>, senozhatsky@chromium.org,
+        John Ogness <john.ogness@linutronix.de>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        quic_neeraju@quicinc.com, Josh Triplett <josh@joshtriplett.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Benjamin Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        vschneid@redhat.com, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-snps-arc@lists.infradead.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        openrisc@lists.librecores.org,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390@vger.kernel.org,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org, linux-xtensa@linux-xtensa.org,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        linux-tegra <linux-tegra@vger.kernel.org>,
+        linux-arch <linux-arch@vger.kernel.org>, rcu@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/6/22 14:03, John Garry wrote:
-> The local variable is now only referenced once so drop it.
-> 
-> Signed-off-by: John Garry <john.garry@huawei.com>
-> Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-> Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> All the idle routines are called with RCU disabled, as such there must
+> not be any tracing inside.
+>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+
+This actually does some additional code duplication cleanup which
+would be good to mention in the changelog.  Or even move to a separate
+patch for that matter.
+
+Otherwise LGTM.
+
 > ---
->   block/blk-mq-tag.c | 6 ++----
->   1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-
-Cheers,
-
-Hannes
--- 
-Dr. Hannes Reinecke		           Kernel Storage Architect
-hare@suse.de			                  +49 911 74053 688
-SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
-HRB 36809 (AG Nürnberg), GF: Felix Imendörffer
+>  drivers/acpi/processor_idle.c |   24 +++++++++++++-----------
+>  1 file changed, 13 insertions(+), 11 deletions(-)
+>
+> --- a/drivers/acpi/processor_idle.c
+> +++ b/drivers/acpi/processor_idle.c
+> @@ -108,8 +108,8 @@ static const struct dmi_system_id proces
+>  static void __cpuidle acpi_safe_halt(void)
+>  {
+>         if (!tif_need_resched()) {
+> -               safe_halt();
+> -               local_irq_disable();
+> +               raw_safe_halt();
+> +               raw_local_irq_disable();
+>         }
+>  }
+>
+> @@ -524,16 +524,21 @@ static int acpi_idle_bm_check(void)
+>         return bm_status;
+>  }
+>
+> -static void wait_for_freeze(void)
+> +static __cpuidle void io_idle(unsigned long addr)
+>  {
+> +       /* IO port based C-state */
+> +       inb(addr);
+> +
+>  #ifdef CONFIG_X86
+>         /* No delay is needed if we are in guest */
+>         if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
+>                 return;
+>  #endif
+> -       /* Dummy wait op - must do something useless after P_LVL2 read
+> -          because chipsets cannot guarantee that STPCLK# signal
+> -          gets asserted in time to freeze execution properly. */
+> +       /*
+> +        * Dummy wait op - must do something useless after P_LVL2 read
+> +        * because chipsets cannot guarantee that STPCLK# signal
+> +        * gets asserted in time to freeze execution properly.
+> +        */
+>         inl(acpi_gbl_FADT.xpm_timer_block.address);
+>  }
+>
+> @@ -553,9 +558,7 @@ static void __cpuidle acpi_idle_do_entry
+>         } else if (cx->entry_method == ACPI_CSTATE_HALT) {
+>                 acpi_safe_halt();
+>         } else {
+> -               /* IO port based C-state */
+> -               inb(cx->address);
+> -               wait_for_freeze();
+> +               io_idle(cx->address);
+>         }
+>
+>         perf_lopwr_cb(false);
+> @@ -577,8 +580,7 @@ static int acpi_idle_play_dead(struct cp
+>                 if (cx->entry_method == ACPI_CSTATE_HALT)
+>                         safe_halt();
+>                 else if (cx->entry_method == ACPI_CSTATE_SYSTEMIO) {
+> -                       inb(cx->address);
+> -                       wait_for_freeze();
+> +                       io_idle(cx->address);
+>                 } else
+>                         return -ENODEV;
+>
+>
+>
