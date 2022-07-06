@@ -2,93 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99347C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 15:25:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8D31CCA481
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 15:53:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230267AbiGFPZg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 11:25:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38772 "EHLO
+        id S233818AbiGFPxu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 11:53:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231280AbiGFPZV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 11:25:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 849F726AE1;
-        Wed,  6 Jul 2022 08:25:00 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CE2E61FD6;
-        Wed,  6 Jul 2022 15:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3E98C3411C;
-        Wed,  6 Jul 2022 15:24:57 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="MfGZXb8n"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1657121096;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=vjqdS21oaUKcKvXC0EcJ6AHi+otxfA3EET5R3nVpN+M=;
-        b=MfGZXb8npvpYoU43hWe25DYKHe0PBhy4Xe+NehRnPfmEif7iB9fxcAooznnS+za/0ewMYi
-        zAuB8WvEvrHWRsucspGtZ/xyQEiJKL7mObMLaa3ZFdb6jvrPRV4NLOYKbwZbbuDHhY9G4/
-        PSj7+iJoPiYNS8XRwJYx0lk1+GuwlcE=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 36d0362c (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Wed, 6 Jul 2022 15:24:55 +0000 (UTC)
-Date:   Wed, 6 Jul 2022 17:24:49 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] random: remove CONFIG_ARCH_RANDOM and "nordrand"
-Message-ID: <YsWpQWXVeDFXvq0F@zx2c4.com>
-References: <20220705190121.293703-1-Jason@zx2c4.com>
- <YsWiSH4BrY5oNJuM@mit.edu>
+        with ESMTP id S233721AbiGFPxg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 11:53:36 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0995F29C98;
+        Wed,  6 Jul 2022 08:52:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=a0QbMcVLv/lgN4P0ttYxrnTL6szYSy2z4ERhUSiUpBiRGVTU9oH6k4JeK/IozYcR1zi2FVisw4YHFnHgVWU6zfG9XjrzVVioLLFhD2t+9X+ORqt3vbfRV/Pa3Yl6E5sbee9QpaQv4bMX8Ff+SDZhsccD5ngBlE9omt7U3GeBxrJXJs0JO104hE9ONL3asU7944khuW/AokK1HQY5oJJmIKqtCR1RxD+33oII5eIEUcac/kurLhwzaCyCHRtFEyglvP6yhnthpyoDK5ngSG+kD+BavPTe55kwDwYeCbL8ohrJKGyS0AteSsMcnCH7D6VY1SNPpR0123MEYbBR1vjpMw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oHA8NTdDdhgx9P1LM9QYBQEaIXPhazV9+QslQRx+u1I=;
+ b=lNb/8G/4L1mni++GFM+y2du8yl5olTtnO/Z1/0UCgwW1xfwBL83vAJT7rvh6tHGAm45UVyja1tnfFyjpDoSmaWPjyx6EtPRB9beLZ54eg/PAreYm5QkbO1pgfsIGX2LSMOMV/HW/sTg8OZuNMIQ0wVX69xutydGtHi5G0PTmqxlWFCcn4ldlHoInXbglS64gtylyYglvYw5kyDkVQAuLFNU9xHFnG4tVDrWa/xSe64ptihaNKxGKqybWd4S9MP/n9VIwnZglfHucXdIf6f0fOB0IbaUeBdr5Z4m/RwxoIt1ks5Ehzby/370+4ICXNkG+rnwNb4+43WACMyFEp1UrDw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.236) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oHA8NTdDdhgx9P1LM9QYBQEaIXPhazV9+QslQRx+u1I=;
+ b=gX9ZKOcbJ2/U+iV3+97OffLuIUy1C0xInGrtf2PPtZ3WCsz0sEffg6yEfkAgP/JbEdTABgqUv6GYm3HdQrqaBFBmgg8ghYeCtfw2E4hyitPCKYyLrG5c/4DQtVr3pFhEhOHlaPRjzWPih/hVIUrQzQS0eRV0IiAzix1l5RC3VopjUoA2I0zMMomSUynmZFYYb2A8QjYK5LG+/PuIwiZC7nJKB88K9jN4LGK8gSV9oX2ZMhGvJVMyZw4ZlXizIikZE1C9vekMhbrk/hl5L/LTXd07FGJf0fSuLOrhLeXNtatr3EKRZfrCc+6LQeYp3wobWn8uIzs8Kcbi07sHxE5+dg==
+Received: from MWHPR22CA0002.namprd22.prod.outlook.com (2603:10b6:300:ef::12)
+ by CH2PR12MB4151.namprd12.prod.outlook.com (2603:10b6:610:78::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5395.15; Wed, 6 Jul
+ 2022 15:52:16 +0000
+Received: from CO1NAM11FT032.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:300:ef:cafe::bf) by MWHPR22CA0002.outlook.office365.com
+ (2603:10b6:300:ef::12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.16 via Frontend
+ Transport; Wed, 6 Jul 2022 15:52:15 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.236)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.236 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.236; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.236) by
+ CO1NAM11FT032.mail.protection.outlook.com (10.13.174.218) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5417.15 via Frontend Transport; Wed, 6 Jul 2022 15:52:15 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ DRHQMAIL109.nvidia.com (10.27.9.19) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.32; Wed, 6 Jul 2022 15:52:13 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by
+ drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.26; Wed, 6 Jul 2022 08:52:12 -0700
+Received: from Asurada-Nvidia (10.127.8.14) by mail.nvidia.com
+ (10.126.190.182) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26 via Frontend
+ Transport; Wed, 6 Jul 2022 08:52:11 -0700
+Date:   Wed, 6 Jul 2022 08:52:10 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     Christoph Hellwig <hch@infradead.org>
+CC:     <kwankhede@nvidia.com>, <corbet@lwn.net>, <hca@linux.ibm.com>,
+        <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
+        <zhenyuw@linux.intel.com>, <zhi.a.wang@intel.com>,
+        <jani.nikula@linux.intel.com>, <joonas.lahtinen@linux.intel.com>,
+        <rodrigo.vivi@intel.com>, <tvrtko.ursulin@linux.intel.com>,
+        <airlied@linux.ie>, <daniel@ffwll.ch>, <farman@linux.ibm.com>,
+        <mjrosato@linux.ibm.com>, <pasic@linux.ibm.com>,
+        <vneethv@linux.ibm.com>, <oberpar@linux.ibm.com>,
+        <freude@linux.ibm.com>, <akrowiak@linux.ibm.com>,
+        <jjherne@linux.ibm.com>, <alex.williamson@redhat.com>,
+        <cohuck@redhat.com>, <jgg@nvidia.com>, <kevin.tian@intel.com>,
+        <jchrist@linux.ibm.com>, <kvm@vger.kernel.org>,
+        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-s390@vger.kernel.org>,
+        <intel-gvt-dev@lists.freedesktop.org>,
+        <intel-gfx@lists.freedesktop.org>,
+        <dri-devel@lists.freedesktop.org>
+Subject: Re: [RFT][PATCH v2 1/9] vfio: Make vfio_unpin_pages() return void
+Message-ID: <YsWvqvlsccxmuhkv@Asurada-Nvidia>
+References: <20220706062759.24946-1-nicolinc@nvidia.com>
+ <20220706062759.24946-2-nicolinc@nvidia.com>
+ <YsUxurAoglm7GmZP@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <YsWiSH4BrY5oNJuM@mit.edu>
+In-Reply-To: <YsUxurAoglm7GmZP@infradead.org>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 24a2e8ec-6764-4ee8-79fe-08da5f677fe6
+X-MS-TrafficTypeDiagnostic: CH2PR12MB4151:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: aXVZZPtNvCX9FKcwmmGb8hfhwdzryP74DNrE7QZENjJWUI06OlRDVruQvn3gv/vEmFeqD2207mgKe2jfe6f5B32h1dNb6izWzB56fuEB81WZQwM5vry3KzwpC7C/lymOdnhDFtjANfL33IcausV656p6ubkvPsrWtrn2OqCZNn2H60AGyHaerSstfUf90awB9NcbolJFVAq+gjBK96nYyGtBWUr8B77zRAPVViMavEoKzWgpNhOUu52Zd//VuY7M8NGCTJOJ+SvIeHxU4oiM32OOr1iq+bSFC7bGRJBw9bEX8layOQvhjO9/T001hLhEZgtxbFZj7FEbDjpyqUEIkkyoyW/uObP1KSSvNk5xcDHma2QA+COaoeN8lGGCQBakJbbKnl8CbkJRXWjPmUpJyl4IPimQZOFrCirwsCvBxFUMRtmmPPAPd6dnm3jRPhrG52kw/TdAb07swkZwIwgeoagZDN5GkmiZEUgjSoyt8Po0IQFejEg3Ikqfoe50/WvKrpUTKSRNn6SU9WTwiFlYC0/bkXx+syjJkO8XEiVnHI/1I/uORza1zJNb9mafzIrGPfuWr4AV87knnLXLYQzTb5y3lL+CZA2lfsBo5B0+/qhhv3lXfV3d6nSFH/xbi0TALj9qFHSsbS2dMHUORZSJIbJlybXx0tw2hZtO92K0S2n7gXO9sHmB/3+yYFBOAyRvs/chZjM8EDHZJC26wrHWtBN+eIPiFwQYsA4cz1lIombbA0MnsWEE4DPi0ImBtFtYL/iaTLyaR8T3UIlPyGlO7fvmojLTBJZY30tHtF5xDtIGm9Tkj2/GYeo89oiGiZSH+viVO+UiynySkbYNpmqk1GYfpjp7PuJKmHZQ+Strahs=
+X-Forefront-Antispam-Report: CIP:12.22.5.236;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(396003)(39860400002)(346002)(376002)(136003)(46966006)(36840700001)(40470700004)(426003)(336012)(81166007)(47076005)(82310400005)(6916009)(82740400003)(356005)(54906003)(316002)(8936002)(7416002)(5660300002)(7406005)(86362001)(55016003)(70586007)(40480700001)(4326008)(8676002)(33716001)(70206006)(40460700003)(26005)(36860700001)(9686003)(478600001)(2906002)(186003)(41300700001)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jul 2022 15:52:15.7646
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 24a2e8ec-6764-4ee8-79fe-08da5f677fe6
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.236];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT032.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4151
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Ted,
-
-On Wed, Jul 06, 2022 at 10:55:04AM -0400, Theodore Ts'o wrote:
-> On Tue, Jul 05, 2022 at 09:01:21PM +0200, Jason A. Donenfeld wrote:
-> > Later the thinking evolved. With a properly designed RNG, using RDRAND
-> > values alone won't harm anything, even if the outputs are malicious.
+On Tue, Jul 05, 2022 at 11:54:50PM -0700, Christoph Hellwig wrote:
+> > +void vfio_unpin_pages(struct vfio_device *device, unsigned long *user_pfn,
+> > +		      int npage)
+> >  {
+> >  	struct vfio_container *container;
+> >  	struct vfio_iommu_driver *driver;
+> > -	int ret;
+> >  
+> > -	if (!user_pfn || !npage || !vfio_assert_device_open(device))
+> > -		return -EINVAL;
+> > +	if (WARN_ON_ONCE(!user_pfn || !npage || !vfio_assert_device_open(device)))
 > 
-> I personally think it's totally fine to remove nordrand.  However, the
-> reason why it was there was that there were some rather extreme
-> tin-foil-hatters who believed that if (the completely unavailable to
-> the public for auditing) RDRAND implementation *were* malicious *and*
-> the microcode had access to the register file and/or the instruction
-> pipeline, then in theory, a malicious CPU could subvert how the RDRAND
-> is mixed into the getrandom output to force a particular output.
+> This adds an overly long line.  Note that I think in general it is
+> better to have an individual WARN_ON per condition anyway, as that
+> allows to directly pinpoint what went wrong when it triggers.
+
+Following patches are touching this line too. And it'll be shrunk
+to a shorter line eventually by the end of PATCH-9.
+
+Yet, I can separate them as you pointed out.
+
+> > +	if (WARN_ON_ONCE(unlikely(!driver || !driver->ops->unpin_pages)))
+> > +		return;
 > 
-> Personally, I've always considered it to be insane, since a much
-> easier way to compromise a CPU would be to drop a Minix system hidden
-> into the CPU running a web server that had massive security bugs in it
-> that were only discovered years later.  And if you don't trust the CPU
-> manufacture to that extent, you should probably simply not use CPU's
-> from that manufacturer.  :-)
+> I'd just skip this check an let it crash.  If someone calls unpin
+> on something totally random that wasn't even pinned we don't need to
+> handle that gracefully.
 
-That specific attack scenario is actually something I've fixed over the
-last few months, by ensuring that all RDRAND values go through the hash
-function. So even if the CPU is super malicious, it'd still need a hash
-preimage, which isn't considered to be computable for blake2s.
+Makes sense. I can drop that in next version.
 
-Minix in the cpu... haha.. surely that would never happen... haha
-surely...
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
 
-Jason
+Will add to v3. Thanks for the review!
