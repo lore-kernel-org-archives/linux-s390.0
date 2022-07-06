@@ -2,182 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 257E6CCA483
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 06:41:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FF5FC43334
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 06:41:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230138AbiGFGlX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 02:41:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38898 "EHLO
+        id S230154AbiGFGl2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 02:41:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230154AbiGFGlW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 02:41:22 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03438193D0;
-        Tue,  5 Jul 2022 23:41:22 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 266692KH031457;
-        Wed, 6 Jul 2022 06:41:21 GMT
+        with ESMTP id S230177AbiGFGlY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 02:41:24 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EDD9186F8;
+        Tue,  5 Jul 2022 23:41:24 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2665o5pg006547;
+        Wed, 6 Jul 2022 06:41:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=bXbSn5ZS2gOoNPdjDflbyAgbpc4DN25rTeOke7/uth8=;
- b=lTzg8IYb+atX2zgFNDhdo/OSU76P2FBN7zgl6uqQBDQHTrkuJhI4i8Ct5tbQoOfWSe/4
- pyQfC/mDEvvySLOWlejXiKHAiLXlncZrzueWiRd2nnV8dCNqyS8j9LysBbT0Gai9itzT
- uSspY9GeelAHBPl309q+IvyyS4wqFY/0lgJcO5OxUtmz5DGU3QOW5pk4thNSqeibbsXm
- H9BA4KOEL0B4TvLpJ2200YBki/rQEAb9ZiT38TL+PXKxDItBRY1yssFMHmOH9wUIe6WY
- q1LnXicXb+Kl8nycl//0ust1QoGuwyQLMy2HlwikaOa3k64wz1NcVJVuR7quRkQmpZw3 Gg== 
+ bh=CwD5v8xuVf94Vb2f9MDdOd12UjSK2nkD9iVlQyvMht4=;
+ b=fW4K5EO5I1Jf5VyNB/zp2LPBeAF3Ejj2gl09Ru3GbCZ6yaA3iCd7Fy5r0pp1yYvn8E+C
+ SrAVwKq/a8WHmH9hipUwXz1/3vTqz+bgNApmWp1ZnzipGwpmB+Vg4KnbHGMyA0siyXju
+ Jga/PDQbWpA7Y3KnbcBhM0bXmRVyCm7R9iJt/gF6SXszLxwHMuC/mjPUkl0Z7CjvpfyZ
+ /pEFOP7o/UA9axHk7pGF4cnITw6Sqy9uw4cDJh39Hlp77pBnQWzUuqYWGvlFITvjq8RZ
+ rvKt1aYnqkrqBeFG8X5/KWj3XxD8bPjuku9ixGYZCcRfnVkw8bfdd/6IOiN01c4bcyxz Og== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h52bj3wf1-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h54kj92sw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Jul 2022 06:41:21 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2666T684019033;
-        Wed, 6 Jul 2022 06:41:21 GMT
+        Wed, 06 Jul 2022 06:41:23 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2666QN6C039317;
+        Wed, 6 Jul 2022 06:41:22 GMT
 Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h52bj3wej-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h54kj92s8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Jul 2022 06:41:21 +0000
+        Wed, 06 Jul 2022 06:41:22 +0000
 Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2666KCxB029748;
-        Wed, 6 Jul 2022 06:41:18 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma01fra.de.ibm.com with ESMTP id 3h4ukw0drx-1
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2666KXgR029799;
+        Wed, 6 Jul 2022 06:41:20 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3h4ukw0ds0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Jul 2022 06:41:18 +0000
+        Wed, 06 Jul 2022 06:41:20 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2666fFkn24117700
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2666fQ2t31261168
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 6 Jul 2022 06:41:15 GMT
+        Wed, 6 Jul 2022 06:41:26 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6EF6E4C040;
-        Wed,  6 Jul 2022 06:41:15 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 9172E4C04A;
+        Wed,  6 Jul 2022 06:41:17 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BA5B4C044;
-        Wed,  6 Jul 2022 06:41:14 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id A4FCB4C040;
+        Wed,  6 Jul 2022 06:41:16 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  6 Jul 2022 06:41:14 +0000 (GMT)
+        Wed,  6 Jul 2022 06:41:16 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm390 mailing list <kvm390-list@tuxmaker.boeblingen.de.ibm.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         imbrenda@linux.ibm.com, thuth@redhat.com, seiden@linux.ibm.com,
         nrb@linux.ibm.com, scgl@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v2 4/8] s390x: uv-host: Add access exception test
-Date:   Wed,  6 Jul 2022 06:40:20 +0000
-Message-Id: <20220706064024.16573-5-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 6/8] s390x: uv-host: Remove duplicated +
+Date:   Wed,  6 Jul 2022 06:40:22 +0000
+Message-Id: <20220706064024.16573-7-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220706064024.16573-1-frankja@linux.ibm.com>
 References: <20220706064024.16573-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: MJEo-B-sIcdqz--xZrNWZ9oGCE2LARmW
-X-Proofpoint-ORIG-GUID: dlWsL7czKa9fE-o8_a6-p32W-X0Fs3Kl
+X-Proofpoint-GUID: QWjahWOzuftD0np7zQvqEP-0Hq6XvBxV
+X-Proofpoint-ORIG-GUID: S_NLFgYNJn-lHNZrrXcZ0jRO3FxxY757
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-06_02,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
- mlxlogscore=999 impostorscore=0 lowpriorityscore=0 phishscore=0
- malwarescore=0 clxscore=1015 spamscore=0 bulkscore=0 priorityscore=1501
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207060022
+ definitions=2022-07-06_03,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 adultscore=0 phishscore=0
+ priorityscore=1501 mlxlogscore=999 clxscore=1015 malwarescore=0
+ bulkscore=0 mlxscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2206140000 definitions=main-2207060022
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Let's check that we get access exceptions if the UVCB is on an invalid
-page or starts at a valid page and crosses into an invalid one.
+One + is definitely enough here.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 ---
- s390x/uv-host.c | 52 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 52 insertions(+)
+ s390x/uv-host.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/s390x/uv-host.c b/s390x/uv-host.c
-index 0762e690..a626a651 100644
+index 0044e8b9..af3122a8 100644
 --- a/s390x/uv-host.c
 +++ b/s390x/uv-host.c
-@@ -15,12 +15,14 @@
- #include <sclp.h>
- #include <smp.h>
- #include <uv.h>
-+#include <mmu.h>
- #include <asm/page.h>
- #include <asm/sigp.h>
- #include <asm/pgtable.h>
- #include <asm/asm-offsets.h>
- #include <asm/interrupt.h>
- #include <asm/facility.h>
-+#include <asm/pgtable.h>
- #include <asm/uv.h>
- #include <asm-generic/barrier.h>
+@@ -443,7 +443,7 @@ static void test_config_create(void)
+ 	uvcb_cgc.guest_sca = tmp;
  
-@@ -142,6 +144,54 @@ static void test_uv_uninitialized(void)
- 	report_prefix_pop();
- }
- 
-+static void test_access(void)
-+{
-+	struct uv_cb_header *uvcb;
-+	void *pages =  alloc_pages(1);
-+	uint16_t pgm;
-+	int i;
-+
-+	/* Put UVCB on second page which we will protect later */
-+	uvcb = pages + PAGE_SIZE;
-+
-+	report_prefix_push("access");
-+
-+	report_prefix_push("non-crossing");
-+	protect_page(uvcb, PAGE_ENTRY_I);
-+	for (i = 0; cmds[i].name; i++) {
-+		expect_pgm_int();
-+		mb();
-+		uv_call_once(0, (uint64_t)uvcb);
-+		pgm = clear_pgm_int();
-+		report(pgm == PGM_INT_CODE_PAGE_TRANSLATION, "%s", cmds[i].name);
-+	}
-+	report_prefix_pop();
-+
-+	report_prefix_push("crossing");
-+	/*
-+	 * Put the header into the readable page 1, everything after
-+	 * the header will be on the second, invalid page.
-+	 */
-+	uvcb -= 1;
-+	for (i = 0; cmds[i].name; i++) {
-+		uvcb->cmd = cmds[i].cmd;
-+		uvcb->len = cmds[i].len;
-+
-+		expect_pgm_int();
-+		mb();
-+		uv_call_once(0, (uint64_t)uvcb);
-+		pgm = clear_pgm_int();
-+		report(pgm == PGM_INT_CODE_PAGE_TRANSLATION, "%s", cmds[i].name);
-+	}
-+	report_prefix_pop();
-+
-+	uvcb += 1;
-+	unprotect_page(uvcb, PAGE_ENTRY_I);
-+
-+	free_pages(pages);
-+	report_prefix_pop();
-+}
-+
- static void test_config_destroy(void)
- {
- 	int rc;
-@@ -607,6 +657,8 @@ int main(void)
- 	test_init();
- 
- 	setup_vmem();
-+	test_access();
-+
- 	test_config_create();
- 	test_cpu_create();
- 	test_cpu_destroy();
+ 	tmp = uvcb_cgc.guest_sca;
+-	uvcb_cgc.guest_sca = get_max_ram_size() + + PAGE_SIZE * 4;
++	uvcb_cgc.guest_sca = get_max_ram_size() + PAGE_SIZE * 4;
+ 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
+ 	report(uvcb_cgc.header.rc == 0x10d && rc == 1,
+ 	       "sca inaccessible");
 -- 
 2.34.1
 
