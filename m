@@ -2,150 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 323C8CCA47F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 956FFCCA473
 	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 06:41:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230057AbiGFGlU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 02:41:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38830 "EHLO
+        id S230114AbiGFGlV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 02:41:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230030AbiGFGlT (ORCPT
+        with ESMTP id S230043AbiGFGlT (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 02:41:19 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 192F2167CA;
-        Tue,  5 Jul 2022 23:41:19 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2666CSpA031035;
-        Wed, 6 Jul 2022 06:41:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=vwnsrP4U/jryjwEbcceGSR9SMW8gSXe0LLEHVNwy4O0=;
- b=CdduUUk49LBxMVSw/ZSRL/RE3LIQVMrarZ8mdyn6+tYuPLRbNRlQBMt9SJ/7tX813K8O
- 0fmwfMHtIV7BZB5zTOSj9tLjP0XT1tdB1t7QMjLfgTJQ0r6iO0cpy5eGIz35a28KMHaE
- 7/pyEqNMQSth9vLn/KmMqyCoTrA0KUBsz7kCofE5/A7t5h/7u2wOJovvPckrPlZq1p1j
- RxrLHePVWZePQnkPWsAtRs1p08u1wtjmRHA8Zea/7ZuBgr/j9YAge63Pmea1aE3zwEUL
- 50zfDIc9Fq29sKZitmBnygQL5h6xNTVwKqhj/TZtIe9sJlivpCHKUEOgPZLlLcARS5Lk fw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h4vc72t26-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Jul 2022 06:41:18 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2666KTB3010277;
-        Wed, 6 Jul 2022 06:41:18 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h4vc72t1n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Jul 2022 06:41:18 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2666K35R029714;
-        Wed, 6 Jul 2022 06:41:15 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma01fra.de.ibm.com with ESMTP id 3h4ukw0drt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Jul 2022 06:41:15 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2666fCT116449978
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 6 Jul 2022 06:41:12 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 410354C040;
-        Wed,  6 Jul 2022 06:41:12 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5D42B4C04A;
-        Wed,  6 Jul 2022 06:41:11 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  6 Jul 2022 06:41:11 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm390 mailing list <kvm390-list@tuxmaker.boeblingen.de.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        imbrenda@linux.ibm.com, thuth@redhat.com, seiden@linux.ibm.com,
-        nrb@linux.ibm.com, scgl@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v2 1/8] s390x: uv-host: Add access checks for donated memory
-Date:   Wed,  6 Jul 2022 06:40:17 +0000
-Message-Id: <20220706064024.16573-2-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220706064024.16573-1-frankja@linux.ibm.com>
-References: <20220706064024.16573-1-frankja@linux.ibm.com>
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA28B175A1;
+        Tue,  5 Jul 2022 23:41:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6ABBFB810B2;
+        Wed,  6 Jul 2022 06:41:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4558C3411C;
+        Wed,  6 Jul 2022 06:41:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1657089676;
+        bh=yRGgIJUHXkz2TXJ4J6jNOpjIOkNNlk8+GJwy5fMiZ+E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UmBMB+TJVrq4Gw9/pfOPUH8FVR53qIvRVpi+/2bZ4Tl0ovU3eWwkhUstZr8i7ntPH
+         sWDra3CbZPk7FcieK4NosMw8F7902e+ydwYQXfv07XZQthiCA/VjT5a1qR9aUOe2LN
+         7Q6owf5BOUsMUFDooZhriCtR5IVyOMFojtZRxed8=
+Date:   Wed, 6 Jul 2022 08:41:13 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2] random: remove CONFIG_ARCH_RANDOM
+Message-ID: <YsUuiSP1VW1ok69g@kroah.com>
+References: <YsTXI3J+ptkN/vb4@zx2c4.com>
+ <20220706003225.335768-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: HbteIVuQYp08TbHz1JpOP9vkbqvLZa_W
-X-Proofpoint-GUID: lMqOFGPzMo-QS3QlEH3x8K5NZ8imB_D8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-06_03,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
- malwarescore=0 impostorscore=0 lowpriorityscore=0 spamscore=0
- priorityscore=1501 clxscore=1015 mlxlogscore=999 suspectscore=0
- adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207060024
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220706003225.335768-1-Jason@zx2c4.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Let's check if the UV really protected all the memory we donated.
+On Wed, Jul 06, 2022 at 02:32:25AM +0200, Jason A. Donenfeld wrote:
+> When RDRAND was introduced, there was much discussion on whether it
+> should be trusted and how the kernel should handle that. Initially, two
+> mechanisms cropped up, CONFIG_ARCH_RANDOM, a compile time switch, and
+> "nordrand", a boot-time switch.
+> 
+> Later the thinking evolved. With a properly designed RNG, using RDRAND
+> values alone won't harm anything, even if the outputs are malicious.
+> Rather, the issue is whether those values are being *trusted* to be good
+> or not. And so a new set of options were introduced as the real
+> ones that people use -- CONFIG_RANDOM_TRUST_CPU and "random.trust_cpu".
+> With these options, RDRAND is used, but it's not always credited. So in
+> the worst case, it does nothing, and in the best case, maybe it helps.
+> 
+> Along the way, CONFIG_ARCH_RANDOM's meaning got sort of pulled into the
+> center and became something certain platforms force-select.
+> 
+> The old options don't really help with much, and it's a bit odd to have
+> special handling for these instructions when the kernel can deal fine
+> with the existence or untrusted existence or broken existence or
+> non-existence of that CPU capability.
+> 
+> So this commit simplifies things down to the two options that are
+> actually used, and removes the confusing old ones that aren't used or
+> useful. It leaves "nordrand" for now, as the removal of that will take a
+> different route.
+> 
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: H. Peter Anvin <hpa@zytor.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  arch/arm64/Kconfig                                |  8 --------
+>  arch/arm64/include/asm/archrandom.h               | 10 ----------
+>  arch/arm64/kernel/cpufeature.c                    |  2 --
+>  arch/powerpc/Kconfig                              |  3 ---
+>  arch/powerpc/include/asm/archrandom.h             |  3 ---
+>  arch/powerpc/include/asm/machdep.h                |  2 --
+>  arch/powerpc/platforms/microwatt/Kconfig          |  1 -
+>  arch/powerpc/platforms/powernv/Kconfig            |  1 -
+>  arch/powerpc/platforms/pseries/Kconfig            |  1 -
+>  arch/s390/Kconfig                                 | 15 ---------------
+>  arch/s390/configs/zfcpdump_defconfig              |  1 -
+>  arch/s390/crypto/Makefile                         |  2 +-
+>  arch/s390/include/asm/archrandom.h                |  3 ---
+>  arch/x86/Kconfig                                  |  9 ---------
+>  arch/x86/include/asm/archrandom.h                 | 10 +---------
+>  arch/x86/kernel/cpu/rdrand.c                      |  2 --
+>  drivers/char/Kconfig                              |  1 -
+>  drivers/char/hw_random/s390-trng.c                |  9 ---------
+>  include/linux/random.h                            |  9 +--------
+>  .../selftests/wireguard/qemu/kernel.config        |  1 -
+>  20 files changed, 3 insertions(+), 90 deletions(-)
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/uv-host.c | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
 
-diff --git a/s390x/uv-host.c b/s390x/uv-host.c
-index a1a6d120..983cb4a1 100644
---- a/s390x/uv-host.c
-+++ b/s390x/uv-host.c
-@@ -43,6 +43,24 @@ static void cpu_loop(void)
- 	for (;;) {}
- }
- 
-+/*
-+ * Checks if a memory area is protected as secure memory.
-+ * Will return true if all pages are protected, false otherwise.
-+ */
-+static bool access_check_3d(uint64_t *access_ptr, uint64_t len)
-+{
-+	while (len) {
-+		expect_pgm_int();
-+		*access_ptr += 42;
-+		if (clear_pgm_int() != PGM_INT_CODE_SECURE_STOR_ACCESS)
-+			return false;
-+		access_ptr += PAGE_SIZE / sizeof(access_ptr);
-+		len -= PAGE_SIZE;
-+	}
-+
-+	return true;
-+}
-+
- static struct cmd_list cmds[] = {
- 	{ "init", UVC_CMD_INIT_UV, sizeof(struct uv_cb_init), BIT_UVC_CMD_INIT_UV },
- 	{ "create conf", UVC_CMD_CREATE_SEC_CONF, sizeof(struct uv_cb_cgc), BIT_UVC_CMD_CREATE_SEC_CONF },
-@@ -194,6 +212,10 @@ static void test_cpu_create(void)
- 	report(rc == 0 && uvcb_csc.header.rc == UVC_RC_EXECUTED &&
- 	       uvcb_csc.cpu_handle, "success");
- 
-+	rc = access_check_3d((uint64_t *)uvcb_csc.stor_origin,
-+			     uvcb_qui.cpu_stor_len);
-+	report(rc, "Storage protection");
-+
- 	tmp = uvcb_csc.stor_origin;
- 	uvcb_csc.stor_origin = (unsigned long)memalign(PAGE_SIZE, uvcb_qui.cpu_stor_len);
- 	rc = uv_call(0, (uint64_t)&uvcb_csc);
-@@ -292,6 +314,13 @@ static void test_config_create(void)
- 	rc = uv_call(0, (uint64_t)&uvcb_cgc);
- 	report(rc == 0 && uvcb_cgc.header.rc == UVC_RC_EXECUTED, "successful");
- 
-+	rc = access_check_3d((uint64_t *)uvcb_cgc.conf_var_stor_origin, vsize);
-+	report(rc, "Base storage protection");
-+
-+	rc = access_check_3d((uint64_t *)uvcb_cgc.conf_base_stor_origin,
-+			     uvcb_qui.conf_base_phys_stor_len);
-+	report(rc, "Variable storage protection");
-+
- 	uvcb_cgc.header.rc = 0;
- 	uvcb_cgc.header.rrc = 0;
- 	tmp = uvcb_cgc.guest_handle;
--- 
-2.34.1
-
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
