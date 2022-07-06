@@ -2,38 +2,42 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86B95C43334
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Jul 2022 23:12:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4086EC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 00:28:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232506AbiGEXM3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Jul 2022 19:12:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33092 "EHLO
+        id S229828AbiGFA2b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Jul 2022 20:28:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232096AbiGEXM1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 19:12:27 -0400
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C518654D;
-        Tue,  5 Jul 2022 16:12:27 -0700 (PDT)
-Received: from [127.0.0.1] ([73.223.250.219])
-        (authenticated bits=0)
-        by mail.zytor.com (8.17.1/8.15.2) with ESMTPSA id 265NBnGE1003711
-        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-        Tue, 5 Jul 2022 16:11:50 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 265NBnGE1003711
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2022060401; t=1657062712;
-        bh=Y98dqt5En+kS/P/7IMzby9wcUq/7fVTjOsj4m2LkPGI=;
-        h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-        b=KoHiZKsEicJF3HWW8BYUbNDtijdyk2YC30lpGok5A71WKH5jN4kSF+1k/ILd0x9By
-         qt8xe3MS+M3LxdPaft1n7lcyMixtVdJ5SQYbrobuHAXvXZD91dHJDhsiyrj0xX6oEB
-         UzBMdQKEXifwQOtQj+6um92/xSJJMJAJk/eweAx0I6RYNd0HPoR17l0lZTdhk7AUif
-         NSyyZN5L500jyETF72C6IrByv8jv42HDJSrxzOzuSo6byDKD6nExbO6sf5LLBoXwBl
-         hJl0pswjsA5H80PdAU7gimYJT6uwlh8+RWtIOHDI250cjEOA3EOFzWqjhIcySx1ZiD
-         mZSs9tkVChZvA==
-Date:   Tue, 05 Jul 2022 16:11:45 -0700
-From:   "H. Peter Anvin" <hpa@zytor.com>
-To:     Borislav Petkov <bp@alien8.de>
-CC:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        with ESMTP id S229479AbiGFA2b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jul 2022 20:28:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B1F5BAE;
+        Tue,  5 Jul 2022 17:28:30 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC2AFB81A4C;
+        Wed,  6 Jul 2022 00:28:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0E8CC341C7;
+        Wed,  6 Jul 2022 00:28:25 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="ihc73PJ/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1657067303;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=OhugZvecg+oWrbxbccQQJUXAAF4kA6okY4PhlziPCHY=;
+        b=ihc73PJ/0bSh+zgqGgWeUk/Hm5AVBfEF9wPhoIjfU6IXnQq0Evw5IV7MV7pFn+utADjqHU
+        tLwFQa5KqWiwPoKWLREPMkkWzzzxJ/PRlWSblvPAqtP7Fx5tJ5pUAASWYy8W5Va7qsfJ9l
+        a9mKSh5Snj6sDzvYSnoQdLykd2A6bMg=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 53f900aa (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Wed, 6 Jul 2022 00:28:23 +0000 (UTC)
+Date:   Wed, 6 Jul 2022 02:28:19 +0200
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     "H. Peter Anvin" <hpa@zytor.com>
+Cc:     Borislav Petkov <bp@alien8.de>,
         linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, x86@kernel.org,
@@ -46,30 +50,87 @@ CC:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH] random: remove CONFIG_ARCH_RANDOM and "nordrand"
-User-Agent: K-9 Mail for Android
-In-Reply-To: <YsS0ZLQw+QFA7XdJ@zn.tnic>
-References: <20220705190121.293703-1-Jason@zx2c4.com> <YsSStCQQf008hF2F@zn.tnic> <YsSUkapje04MP2a1@zx2c4.com> <YsSXkNBtB6Ciy9iN@zn.tnic> <11C903CC-22A7-48EE-AD63-E71CC8D28B88@zytor.com> <YsS0ZLQw+QFA7XdJ@zn.tnic>
-Message-ID: <805B66CB-D847-4547-B6EE-C4FB72B75765@zytor.com>
+Message-ID: <YsTXI3J+ptkN/vb4@zx2c4.com>
+References: <20220705190121.293703-1-Jason@zx2c4.com>
+ <YsSStCQQf008hF2F@zn.tnic>
+ <YsSUkapje04MP2a1@zx2c4.com>
+ <YsSXkNBtB6Ciy9iN@zn.tnic>
+ <11C903CC-22A7-48EE-AD63-E71CC8D28B88@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <11C903CC-22A7-48EE-AD63-E71CC8D28B88@zytor.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On July 5, 2022 3:00:04 PM PDT, Borislav Petkov <bp@alien8=2Ede> wrote:
->On Tue, Jul 05, 2022 at 02:50:34PM -0700, H=2E Peter Anvin wrote:
->> It's just math=2E The only variable is your confidence level, i=2Ee=2E =
-at
->> what level do you decide that the likelihood of pure chance is way
->> smaller than the likelihood of hardware failure=2E
->
->That might be but the likelyhood of certain BIOSes dropping the ball
->after resume is 100%:
->
->7879fc4bdc75 ("x86/rdrand: Sanity-check RDRAND output")
->
+Hi Borislav, Peter,
 
-What I'm wondering is if we shouldn't be simply instrument *every* invocat=
-ion, and set the trust to zero if we ever trip it=2E
+On Tue, Jul 05, 2022 at 02:50:34PM -0700, H. Peter Anvin wrote:
+> On July 5, 2022 12:57:04 PM PDT, Borislav Petkov <bp@alien8.de> wrote:
+> >On Tue, Jul 05, 2022 at 09:44:17PM +0200, Jason A. Donenfeld wrote:
+> >> Oh, huh. Maybe in that case I should adjust the message to say "consider
+> >> using `random.trust_cpu=0`," which is the thing that would actually make
+> >> a security difference.
+> >
+> >Why isn't that option documented in
+> >Documentation/admin-guide/kernel-parameters.txt?
+
+Maybe you're not grepping the right tree?
+
+zx2c4@thinkpad ~/Projects/random-linux $ grep trust_cpu Documentation/admin-guide/kernel-parameters.txt
+        random.trust_cpu={on,off}
+
+https://git.kernel.org/pub/scm/linux/kernel/git/crng/random.git/tree/Documentation/admin-guide/kernel-parameters.txt#n4506
+
+> >> But actually, one thing that wasn't clear to me was: does `nordrand`
+> >> affect what userspace sees? While random.c is okay in lots of
+> >> circumstances, I could imagine `nordrand` playing a role in preventing
+> >> userspace from using it, which might be desirable. Is this the case? If
+> >> so, I can remove the nordrand chunk from this patch for v2. If not, I'll
+> >> adjust the text to mention `random.trust_cpu=0`.
+> >
+> >Unfortunately, it doesn't disable the instruction. It would be lovely if
+> >we had a switch like that...
+> >
+> >That's why this message is supposed to be noisy so that people can pay
+> >attention at least.
+
+I was wondering if it somehow removed it from cpuid. But I guess that's
+not possible. So okay, no real userspace effect. I think I agree with
+you then:
+
+> >> In the sense that random.c can handle mostly any input without making
+> >> the quality worse. So, you can't accidentally taint it. The only risk is
+> >> if it thinks RDRAND is good and trustable when it isn't, but that's what
+> >> `random.trust_cpu=0` is for.
+> >
+> >And that's why I'm saying that if you detect RDRAND returning the
+> >same thing over and over again, you should simply stop using it.
+> >Automatically. Not rely on the user to do anything.
+> >
+> 
+> It's just math. The only variable is your confidence level, i.e. at
+> what level do you decide that the likelihood of pure chance is way
+> smaller than the likelihood of hardware failure. For example, the
+> likelihood of m n-bit samples in a row being identical is
+> 2^-(n*(m-3/2)), and the likelihood of the CPU being destroyed by a
+> meterorite in the same microsecond is about 2^-100.
+
+I think I'm on board with that general plan of adding a little online
+selftest that's better than what's there now and using that to get rid
+of nordrand. I don't want to instrument every invocation like you
+suggested, because this has effects on forward secrecy (e.g. it's nice
+to burn previous results from memory). But doing a little test at boot
+up better than what we have now seems like a good idea.
+
+So let's do this - I'll send a v2 changing this patch to be a bit more
+boring and just get rid of CONFIG_ARCH_RANDOM. That'll be straight
+forward. And then Peter - do you want to take a stab at doing the
+selftest in order to get rid of nordrand? Or would you prefer I try? It
+sounds like you have a specific idea of what you'd like there, so maybe
+that's best?
+
+For now, v2 of this patch sans nordrand is incoming shortly.
+
+Jason
