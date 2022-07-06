@@ -2,79 +2,95 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD62CC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 13:56:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9A05CCA481
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 13:57:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231454AbiGFN4L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 09:56:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54380 "EHLO
+        id S233324AbiGFN56 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 09:57:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230420AbiGFN4K (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 09:56:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C33FA167EA;
-        Wed,  6 Jul 2022 06:56:06 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S232833AbiGFN54 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 09:57:56 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17DE017A90;
+        Wed,  6 Jul 2022 06:57:54 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F75761E2E;
-        Wed,  6 Jul 2022 13:56:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30861C341C6;
-        Wed,  6 Jul 2022 13:56:04 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="QO+KNfi7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1657115762;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 8B0FE2262B;
+        Wed,  6 Jul 2022 13:57:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1657115873; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=iz7TiYsQg28wABHZ/Sl8o/JBmFyo1X4h6JHxFO/2QFU=;
-        b=QO+KNfi7bosC2YJDjjg+3/p1YBt79iQ4yagiPDOsXPXuswqtg6CW7QzzzzLHe5bYAJajqz
-        lJ1uYpw141WbDpvaa9p1cFXyX5AAi5jWxlLdhhC1cA7kV3FkaOwez6I8Mf7z7lgI0KslPb
-        HD4WDjK1rPD6V6STN+1QfEhFQxvzuOo=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id c2f90772 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Wed, 6 Jul 2022 13:56:01 +0000 (UTC)
-Date:   Wed, 6 Jul 2022 15:55:55 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     "H. Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v3] random: remove CONFIG_ARCH_RANDOM
-Message-ID: <YsWUa7JWsYDYDFBL@zx2c4.com>
-References: <20220706003225.335768-1-Jason@zx2c4.com>
- <20220706105411.406259-1-Jason@zx2c4.com>
- <YsWBhaZT5dCQHfwp@zn.tnic>
+        bh=kiUjfUaxXUHtTpdwighgqJkP8dPW871+3s1BnMx2Ltw=;
+        b=yvPvbIuuxtdk2ZX8Q8tSoKYC5cW9dKB+5Zw1LzSQH7197bMhDdli0CWLiflL03yBVSxu31
+        3GMcXYJKFvhvNqtUy2cQiQ4XZHsfkN6pzZ7I3g+QRQgLeWpktmJqk3iii4LCOU5lITaQ9i
+        sL2Y/gJxVd14DsEMqswdcEn7ilbN6V4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1657115873;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=kiUjfUaxXUHtTpdwighgqJkP8dPW871+3s1BnMx2Ltw=;
+        b=DrSRj0EvDTIpUIt/FJqzoaO8ehUFDCc6m4Kks/eb8UIsdpsS4gF3k4Myi2JAHEtoQp9hzo
+        OUxLU3k8ElQq8jAg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5F0F213A7D;
+        Wed,  6 Jul 2022 13:57:53 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id RZFGFuGUxWKNOAAAMHmgww
+        (envelope-from <hare@suse.de>); Wed, 06 Jul 2022 13:57:53 +0000
+Message-ID: <18d78bd6-2150-f771-9a6e-2b972d2e1192@suse.de>
+Date:   Wed, 6 Jul 2022 15:57:52 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YsWBhaZT5dCQHfwp@zn.tnic>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [PATCH v3 6/6] blk-mq: Drop local variable for reserved tag
+Content-Language: en-US
+To:     John Garry <john.garry@huawei.com>, axboe@kernel.dk,
+        damien.lemoal@opensource.wdc.com, bvanassche@acm.org, hch@lst.de,
+        jejb@linux.ibm.com, martin.petersen@oracle.com, satishkh@cisco.com,
+        sebaddel@cisco.com, kartilak@cisco.com
+Cc:     linux-doc@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        mpi3mr-linuxdrv.pdl@broadcom.com, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org, nbd@other.debian.org
+References: <1657109034-206040-1-git-send-email-john.garry@huawei.com>
+ <1657109034-206040-7-git-send-email-john.garry@huawei.com>
+From:   Hannes Reinecke <hare@suse.de>
+In-Reply-To: <1657109034-206040-7-git-send-email-john.garry@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Borislav,
-
-On Wed, Jul 06, 2022 at 02:35:17PM +0200, Borislav Petkov wrote:
-> On Wed, Jul 06, 2022 at 12:54:11PM +0200, Jason A. Donenfeld wrote:
-> > So this commit simplifies things by removing CONFIG_ARCH_RANDOM, keeping
+On 7/6/22 14:03, John Garry wrote:
+> The local variable is now only referenced once so drop it.
 > 
-> No need to say "this commit" or "this patch" - just write "as if you are
-> giving orders to the codebase to change its behaviour."
+> Signed-off-by: John Garry <john.garry@huawei.com>
+> Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+> Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+> ---
+>   block/blk-mq-tag.c | 6 ++----
+>   1 file changed, 2 insertions(+), 4 deletions(-)
 > 
-> In this case, "So simplify things by ... "
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-Thanks for the tip. I used to do this, and then in the last 3 weeks my
-style unwittingly slipped into this new thing for some reason. I've got
-to send a v+1 anyway for some more build breakage, so I'll fix that up.
+Cheers,
 
-Jason
+Hannes
+-- 
+Dr. Hannes Reinecke		           Kernel Storage Architect
+hare@suse.de			                  +49 911 74053 688
+SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 36809 (AG Nürnberg), GF: Felix Imendörffer
