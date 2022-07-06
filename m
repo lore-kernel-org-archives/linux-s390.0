@@ -2,98 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87CC6C43334
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 10:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A962DCCA482
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 11:15:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233114AbiGFK4o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 06:56:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40528 "EHLO
+        id S233263AbiGFLPn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 07:15:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbiGFK4m (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 06:56:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D635C27CCD
-        for <linux-s390@vger.kernel.org>; Wed,  6 Jul 2022 03:56:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1657105000;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Z/wJBIQMjQXHihYW5LMkQtlLCNLD2Wr07KvMl7IsHW4=;
-        b=h8mUllfxzdLTYnN22VAW1cSesUZ9YTSmbPhU8olOj0j0KsePcRNyuDx84Im5qetcxNHwf9
-        43ghmHb6BvktvZR4RGTg0Qp5HCPo+VQ98v+fdDp7UM3vQwxcXcSO/gOAJV9k4V08tgb+pr
-        bXHPGbujkID6E1J5alVnbc3aHLorKo8=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-647-LMMVFpU2OlOWh6o-h0r6NA-1; Wed, 06 Jul 2022 06:56:37 -0400
-X-MC-Unique: LMMVFpU2OlOWh6o-h0r6NA-1
-Received: by mail-wr1-f72.google.com with SMTP id q12-20020adfab0c000000b0021d6dcb51e8so1559906wrc.13
-        for <linux-s390@vger.kernel.org>; Wed, 06 Jul 2022 03:56:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=Z/wJBIQMjQXHihYW5LMkQtlLCNLD2Wr07KvMl7IsHW4=;
-        b=okEMX3Q8KT88qwmUQ+g3B+gKIw0PuSGpj7zubPVT7W4gwBjFtgPb5V3IcDjNashAl0
-         fuJlldHN0Ezy1oDntO/+CDQPb/6hNOQ83weTezzWwWo+N5UjxdvSYRZuaiHAvDfGL+um
-         FBi0NRy6KxM+M6oAZqQVmR380tiYGqtgK5MYSf15ZofkS4rju40YggpXBeIXgXnvkKaw
-         wDqF+ebSU0ZIl9apDkC+AJvCsch871KnIJGi3z9lqiOGU7T68bjNkQu97TLcuJaHxP1e
-         1r0xn23pS/YJ/E1MCxdLk8P0Rz4DaGrieZZLcZPB5Iht4HEFPGPcOOh7GlxUAEN42H1n
-         IQxA==
-X-Gm-Message-State: AJIora/IxScHUX9WouosLOW35zdEkFH6VUG4hfYKaTLz49NO/xrPLK4w
-        V3FaaAQU4TdU6mIsyoLSPiZ8MRvDHxuhUqnavhL57D/RfBQ+2HOds8LLvCXrTobgh1tO3+QXxWj
-        WPTd0oq3THw6u1d/ddIGjUw==
-X-Received: by 2002:adf:d845:0:b0:21d:7aad:4802 with SMTP id k5-20020adfd845000000b0021d7aad4802mr3960295wrl.298.1657104996676;
-        Wed, 06 Jul 2022 03:56:36 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tVRo3xdQzziMgNyy3w+U0LX+6pVPdWBhaUjBqu26EhEo4yp8pMXXkY8E7GbEjBz4b071ZXcw==
-X-Received: by 2002:adf:d845:0:b0:21d:7aad:4802 with SMTP id k5-20020adfd845000000b0021d7aad4802mr3960271wrl.298.1657104996459;
-        Wed, 06 Jul 2022 03:56:36 -0700 (PDT)
-Received: from [192.168.0.5] (ip-109-43-176-21.web.vodafone.de. [109.43.176.21])
-        by smtp.gmail.com with ESMTPSA id r11-20020adfce8b000000b0021d77625d90sm3176005wrn.79.2022.07.06.03.56.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Jul 2022 03:56:36 -0700 (PDT)
-Message-ID: <932d0d05-5518-da8b-ef9f-986cf6b613e0@redhat.com>
-Date:   Wed, 6 Jul 2022 12:56:35 +0200
+        with ESMTP id S233243AbiGFLPk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 07:15:40 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E2E2427FCE;
+        Wed,  6 Jul 2022 04:15:39 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CFE831042;
+        Wed,  6 Jul 2022 04:15:39 -0700 (PDT)
+Received: from [10.163.43.16] (unknown [10.163.43.16])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 60BFD3F66F;
+        Wed,  6 Jul 2022 04:15:31 -0700 (PDT)
+Message-ID: <ea0f8db8-831b-dcb4-b8c7-ab651f1e1713@arm.com>
+Date:   Wed, 6 Jul 2022 16:45:27 +0530
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH] s390x: split migration test into vector and gs test
+ Thunderbird/91.9.1
+Subject: Re: [PATCH V6 21/26] m68k/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
 Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
-References: <20220704133002.791395-1-nrb@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20220704133002.791395-1-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-csky@vger.kernel.org,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Christoph Hellwig <hch@infradead.org>,
+        arcml <linux-snps-arc@lists.infradead.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        Openrisc <openrisc@lists.librecores.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+References: <20220630051630.1718927-1-anshuman.khandual@arm.com>
+ <20220630051630.1718927-22-anshuman.khandual@arm.com>
+ <CAMuHMdX_Ji7dCzzCc3xw5ic6J=0PaPkyzXKpOgUFjjEkR+yJOw@mail.gmail.com>
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <CAMuHMdX_Ji7dCzzCc3xw5ic6J=0PaPkyzXKpOgUFjjEkR+yJOw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 04/07/2022 15.30, Nico Boehr wrote:
-> Since we now have a few more migration tests, let's split migration.c
-> into two files for vector and gs facilities. Since guarded-storage and vector
-> facilities can be en-/disabled independant of each other, this simplifies the
-> code a bit and makes it clear what the scope of the tests is.
+
+
+On 7/6/22 15:33, Geert Uytterhoeven wrote:
+> Hi Anshuman,
 > 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->   s390x/Makefile                         |   3 +-
->   s390x/migration-gs.c                   | 122 +++++++++++++++++++++++++
->   s390x/{migration.c => migration-vec.c} |  54 +----------
->   s390x/unittests.cfg                    |  15 ++-
->   4 files changed, 136 insertions(+), 58 deletions(-)
->   create mode 100644 s390x/migration-gs.c
->   rename s390x/{migration.c => migration-vec.c} (77%)
+> On Thu, Jun 30, 2022 at 7:19 AM Anshuman Khandual
+> <anshuman.khandual@arm.com> wrote:
+>> This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
+>> vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
+>> up a private and static protection_map[] array. Subsequently all __SXXX and
+>> __PXXX macros can be dropped which are no longer needed.
+>>
+>> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+>> Cc: linux-m68k@lists.linux-m68k.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> 
+> Thanks for your patch!
+> 
+>> --- a/arch/m68k/include/asm/mcf_pgtable.h
+>> +++ b/arch/m68k/include/asm/mcf_pgtable.h
+>> @@ -91,60 +91,6 @@
+>>   * for use. In general, the bit positions are xwr, and P-items are
+>>   * private, the S-items are shared.
+>>   */
+> 
+> The comment above should be removed, too.
 
-Makes sense.
+Sure, will do.
 
-Acked-by: Thomas Huth <thuth@redhat.com>
+> 
+>> -#define __P000         PAGE_NONE
+>> -#define __P001         __pgprot(CF_PAGE_VALID \
+>> -                                | CF_PAGE_ACCESSED \
+>> -                                | CF_PAGE_READABLE)
+> 
+>> --- a/arch/m68k/include/asm/motorola_pgtable.h
+>> +++ b/arch/m68k/include/asm/motorola_pgtable.h
+>> @@ -83,28 +83,6 @@ extern unsigned long mm_cachebits;
+>>  #define PAGE_COPY_C    __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
+>>  #define PAGE_READONLY_C        __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
+> 
+> You might move the *_C definitions above into arch/m68k/mm/motorola.c
+> as well, as they are only used in the latter.
 
-PS: Please have a look at the end of the README.md file to see how to set a 
-better default subjectprefix for k-u-t patches. Thanks!
+Okay, will do.
 
+> 
+>>
+>> -/*
+>> - * The m68k can't do page protection for execute, and considers that the same are read.
+>> - * Also, write permissions imply read permissions. This is the closest we can get..
+>> - */
+>> -#define __P000 PAGE_NONE_C
+>> -#define __P001 PAGE_READONLY_C
+>> -#define __P010 PAGE_COPY_C
+>> -#define __P011 PAGE_COPY_C
+>> -#define __P100 PAGE_READONLY_C
+>> -#define __P101 PAGE_READONLY_C
+>> -#define __P110 PAGE_COPY_C
+>> -#define __P111 PAGE_COPY_C
+>> -
+>> -#define __S000 PAGE_NONE_C
+>> -#define __S001 PAGE_READONLY_C
+>> -#define __S010 PAGE_SHARED_C
+>> -#define __S011 PAGE_SHARED_C
+>> -#define __S100 PAGE_READONLY_C
+>> -#define __S101 PAGE_READONLY_C
+>> -#define __S110 PAGE_SHARED_C
+>> -#define __S111 PAGE_SHARED_C
+>> -
+>>  #define pmd_pgtable(pmd) ((pgtable_t)pmd_page_vaddr(pmd))
+>>
+>>  /*
+>> diff --git a/arch/m68k/include/asm/sun3_pgtable.h b/arch/m68k/include/asm/sun3_pgtable.h
+>> index 5e4e753f0d24..9d919491765b 100644
+>> --- a/arch/m68k/include/asm/sun3_pgtable.h
+>> +++ b/arch/m68k/include/asm/sun3_pgtable.h
+>> @@ -71,23 +71,6 @@
+>>   * protection settings, valid (implying read and execute) and writeable. These
+>>   * are as close as we can get...
+>>   */
+> 
+> The comment above should be removed, too.
+
+Sure, will do.
+
+> 
+>> -#define __P000 PAGE_NONE
+>> -#define __P001 PAGE_READONLY
+> 
+> With the above fixed:
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>> 
+> Gr{oetje,eeting}s,
+> 
+>                         Geert
+> 
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+>                                 -- Linus Torvalds
+> 
