@@ -2,99 +2,190 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA72FCCA47F
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 05:58:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B8DEC43334
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 05:59:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230215AbiGFF6M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 01:58:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40358 "EHLO
+        id S229752AbiGFF7v (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 01:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229617AbiGFF6L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 01:58:11 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0AE201C927;
-        Tue,  5 Jul 2022 22:58:10 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EBF5A1570;
-        Tue,  5 Jul 2022 22:58:09 -0700 (PDT)
-Received: from [10.163.43.16] (unknown [10.163.43.16])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3C01D3F70D;
-        Tue,  5 Jul 2022 22:58:01 -0700 (PDT)
-Message-ID: <8a6ccbae-7d7c-6e08-cc28-eeb649f86112@arm.com>
-Date:   Wed, 6 Jul 2022 11:27:59 +0530
+        with ESMTP id S229672AbiGFF7u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 01:59:50 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1061612AD2;
+        Tue,  5 Jul 2022 22:59:50 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2664ooJA028124;
+        Wed, 6 Jul 2022 05:59:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=0vOH6jGpGgt3Gj5yqVmn/Zy0Gay+texlkqj+T8bHMtY=;
+ b=I91ohvDPA7zmibfzMyVMoYQmFdEWWFPTFR+FKiYq9HYrbwFHiIeXQFHrOUpYl3+hrK9J
+ U21b6hq3wrzqP1cgbfNkqzwx+dJIhdojTt7Rgb0liW+TN9nL1BqrheHfBCQL8iWpCffT
+ T45BL01HvGvL0Lycspar6te3LbFxmTu1pLv7YIw/3Bk1mpd/mJUfRqJl0FPo4SKYmmRO
+ k3GAVSv/Wo+yaOxPCJNnm5Iyb5FI+af01xRnxUC/MtWsb10gtes3UXz9owzOfY28wCX8
+ 4qtSPCvnfSYZRjWd+RJnRJIFTzDjMGWJRGoe3JI2NQDOKfF1ZC7oNO0Z12XRgv0t4/nA tw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h53qs9cfn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Jul 2022 05:59:40 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26659SKH000747;
+        Wed, 6 Jul 2022 05:59:40 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h53qs9cf1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Jul 2022 05:59:39 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2665q0CH019076;
+        Wed, 6 Jul 2022 05:59:37 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 3h4v4jrg9u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Jul 2022 05:59:37 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2665xY8M10748392
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 6 Jul 2022 05:59:34 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 47E9942042;
+        Wed,  6 Jul 2022 05:59:34 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3535442041;
+        Wed,  6 Jul 2022 05:59:34 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed,  6 Jul 2022 05:59:34 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+        id D54EEE02F8; Wed,  6 Jul 2022 07:59:33 +0200 (CEST)
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Matthew Wilcox <willy@infradead.org>, Baoquan He <bhe@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH 1/1] s390/crash: allow multi-segment iterators
+Date:   Wed,  6 Jul 2022 07:59:33 +0200
+Message-Id: <3e713ce3865246766feca8397af2860cbe46854d.1657049033.git.agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <cover.1657049033.git.agordeev@linux.ibm.com>
+References: <cover.1657049033.git.agordeev@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH V6 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across
- platforms
-Content-Language: en-US
-To:     linux-mm@kvack.org, akpm@linux-foundation.org
-Cc:     hch@infradead.org, christophe.leroy@csgroup.eu,
-        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
-        x86@kernel.org, openrisc@lists.librecores.org,
-        linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org,
-        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220630051630.1718927-1-anshuman.khandual@arm.com>
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <20220630051630.1718927-1-anshuman.khandual@arm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: MfM3IyYKNa-KKxwMjbZi4PKiuqo5twjL
+X-Proofpoint-ORIG-GUID: NS5iKenvfA34x_fQxTDx58bNUelv8WWf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-06_02,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ priorityscore=1501 impostorscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ clxscore=1015 spamscore=0 malwarescore=0 phishscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
+ definitions=main-2207060020
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Rework copy_oldmem_page() to allow multi-segment iterators.
+Reuse existing iterate_iovec macro as is and only relevant
+bits from __iterate_and_advance macro.
 
+Fixes: 49b11524d648 ("s390/crash: add missing iterator advance in copy_oldmem_page())
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+---
+ arch/s390/kernel/crash_dump.c | 65 +++++++++++++++++++++++++++--------
+ 1 file changed, 50 insertions(+), 15 deletions(-)
 
-On 6/30/22 10:46, Anshuman Khandual wrote:
-> __SXXX/__PXXX macros is an unnecessary abstraction layer in creating the
-> generic protection_map[] array which is used for vm_get_page_prot(). This
-> abstraction layer can be avoided, if the platforms just define the array
-> protection_map[] for all possible vm_flags access permission combinations
-> and also export vm_get_page_prot() implementation.
-> 
-> This series drops __SXXX/__PXXX macros from across platforms in the tree.
-> First it build protects generic protection_map[] array with '#ifdef __P000'
-> and moves it inside platforms which enable ARCH_HAS_VM_GET_PAGE_PROT. Later
-> this build protects same array with '#ifdef ARCH_HAS_VM_GET_PAGE_PROT' and
-> moves inside remaining platforms while enabling ARCH_HAS_VM_GET_PAGE_PROT.
-> This adds a new macro DECLARE_VM_GET_PAGE_PROT defining the current generic
-> vm_get_page_prot(), in order for it to be reused on platforms that do not
-> require custom implementation. Finally, ARCH_HAS_VM_GET_PAGE_PROT can just
-> be dropped, as all platforms now define and export vm_get_page_prot(), via
-> looking up a private and static protection_map[] array. protection_map[]
-> data type has been changed as 'static const' on all platforms that do not
-> change it during boot.
-> 
-> This series applies on v5.19-rc4 and has been build tested for multiple
-> platforms. While here it has dropped off all previous tags from folks after
-> the current restructuring. Series common CC list has been expanded to cover
-> all impacted platforms for wider reach.
-> 
-> - Anshuman
-> 
-> Changes in V6:
-> 
-> - Converted protection_map[] array as 'static const' on sparc32 platform
-> - Rebased on v5.19-rc4
-> - Collected tags
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index 28124d0fa1d5..ac873245d6f0 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -210,6 +210,52 @@ static int copy_oldmem_user(void __user *dst, unsigned long src, size_t count)
+ 	return 0;
+ }
+ 
++#define iterate_iovec(i, n, base, len, off, __p, STEP) {	\
++	size_t off = 0;						\
++	size_t skip = i->iov_offset;				\
++	do {							\
++		len = min(n, __p->iov_len - skip);		\
++		if (likely(len)) {				\
++			base = __p->iov_base + skip;		\
++			len -= (STEP);				\
++			off += len;				\
++			skip += len;				\
++			n -= len;				\
++			if (skip < __p->iov_len)		\
++				break;				\
++		}						\
++		__p++;						\
++		skip = 0;					\
++	} while (n);						\
++	i->iov_offset = skip;					\
++	n = off;						\
++}
++
++#define __iterate_and_advance(i, n, base, len, off, I, K) {	\
++	if (unlikely(i->count < n))				\
++		n = i->count;					\
++	if (likely(n)) {					\
++		if (likely(iter_is_iovec(i))) {			\
++			const struct iovec *iov = i->iov;	\
++			void __user *base;			\
++			size_t len;				\
++			iterate_iovec(i, n, base, len, off,	\
++						iov, (I))	\
++			i->nr_segs -= iov - i->iov;		\
++			i->iov = iov;				\
++		} else if (iov_iter_is_kvec(i)) {		\
++			const struct kvec *kvec = i->kvec;	\
++			void *base;				\
++			size_t len;				\
++			iterate_iovec(i, n, base, len, off,	\
++						kvec, (K))	\
++			i->nr_segs -= kvec - i->kvec;		\
++			i->kvec = kvec;				\
++		}						\
++		i->count -= n;					\
++	}							\
++}
++
+ /*
+  * Copy one page from "oldmem"
+  */
+@@ -217,25 +263,14 @@ ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn, size_t csize,
+ 			 unsigned long offset)
+ {
+ 	unsigned long src;
+-	int rc;
+ 
+ 	if (!(iter_is_iovec(iter) || iov_iter_is_kvec(iter)))
+ 		return -EINVAL;
+-	/* Multi-segment iterators are not supported */
+-	if (iter->nr_segs > 1)
+-		return -EINVAL;
+-	if (!csize)
+-		return 0;
+ 	src = pfn_to_phys(pfn) + offset;
+-
+-	/* XXX: pass the iov_iter down to a common function */
+-	if (iter_is_iovec(iter))
+-		rc = copy_oldmem_user(iter->iov->iov_base, src, csize);
+-	else
+-		rc = copy_oldmem_kernel(iter->kvec->iov_base, src, csize);
+-	if (rc < 0)
+-		return rc;
+-	iov_iter_advance(iter, csize);
++	__iterate_and_advance(iter, csize, base, len, off,
++		({ copy_oldmem_user(base, src + off, len) < 0 ? csize : 0; }),
++		({ copy_oldmem_kernel(base, src + off, len) < 0 ? csize : 0; })
++	)
+ 	return csize;
+ }
+ 
+-- 
+2.34.1
 
-There are two linux-next based build fixes for this series (listed below), when
-vm_get_page_prot() gets redefined with !CONFIG_MMU. Platform vm_get_page_prot()
-is required only with CONFIG_MMU enabled, otherwise there is a generic fallback
-stub in include/linux/mm.h
-
-https://lore.kernel.org/all/20220705221411.3381797-1-jcmvbkbc@gmail.com/	[xtensa]
-https://lore.kernel.org/all/20220706054002.1936820-1-anshuman.khandual@arm.com/ [sh]
-
-It does not seem CONFIG_MMU can be disabled on other platforms thus exposing a build
-failure. But just to be on the safer side, should all vm_get_page_prot() be wrapped
-around with #ifdef CONFIG_MMU ? In that case will resend the series with above build
-fixes folded back in as well. Please do suggest. Thank you.
-
-- Anshuman
