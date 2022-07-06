@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 090F0C43334
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 12:23:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BAC8C43334
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 12:30:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233620AbiGFMXi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 08:23:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57932 "EHLO
+        id S231799AbiGFMa3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 08:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233632AbiGFMXi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 08:23:38 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067DD19002;
-        Wed,  6 Jul 2022 05:23:36 -0700 (PDT)
+        with ESMTP id S231171AbiGFMa3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 08:30:29 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DD5FBCBA;
+        Wed,  6 Jul 2022 05:30:27 -0700 (PDT)
 Received: from zn.tnic (p200300ea970ff625329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:970f:f625:329c:23ff:fea6:a903])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 6AAC51EC0554;
-        Wed,  6 Jul 2022 14:23:31 +0200 (CEST)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id CC75E1EC0554;
+        Wed,  6 Jul 2022 14:30:21 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1657110211;
+        t=1657110621;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=wRdQIXL+RCAyyd72uEUIKY6ww/WujnqY3JOF3eBRCiU=;
-        b=rdh8t6RFc0gGt9G7tiGczrhFL/KSKJRLZe9z6ziieJGHXPuN46/Wx0tgG2eu18eZZHq/6u
-        XqBPTMWfxRifBHoav2tz0EDz93YQXWAy36Yq4MltpFTjWiu4ZebUZOyXzE/oVOAM+QiOBG
-        FkmSrY+t2bnotZdQZMoN34logw4SzC4=
-Date:   Wed, 6 Jul 2022 14:23:31 +0200
+        bh=A8YeipasNUa+nZK2qY6DMG4HWJuyiUL/qtd8MoraKqk=;
+        b=UydwJakmDSfmpaKz40d0a+zNKNFI7iga7v2uaNqZ/4B/8XS8bL/H8k++sM7V/gnhE9Rr1O
+        EcopuNzg9Kg+kVR20v0qEqUqBfhI4vIaJZZ5Yy9UPH7snM78Ii+XZY+bPGmbYoeSEwCXBv
+        s/QKl04EfA0Hi3H2Kcan8PKuQESvmHM=
+Date:   Wed, 6 Jul 2022 14:30:21 +0200
 From:   Borislav Petkov <bp@alien8.de>
-To:     "H. Peter Anvin" <hpa@zytor.com>
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     "H. Peter Anvin" <hpa@zytor.com>,
         linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, x86@kernel.org,
@@ -44,30 +44,28 @@ Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH] random: remove CONFIG_ARCH_RANDOM and "nordrand"
-Message-ID: <YsV+w77z8iSM7dJQ@zn.tnic>
+Message-ID: <YsWAXYhyuh2WXVuL@zn.tnic>
 References: <20220705190121.293703-1-Jason@zx2c4.com>
  <YsSStCQQf008hF2F@zn.tnic>
  <YsSUkapje04MP2a1@zx2c4.com>
  <YsSXkNBtB6Ciy9iN@zn.tnic>
  <11C903CC-22A7-48EE-AD63-E71CC8D28B88@zytor.com>
- <YsS0ZLQw+QFA7XdJ@zn.tnic>
- <805B66CB-D847-4547-B6EE-C4FB72B75765@zytor.com>
+ <YsTXI3J+ptkN/vb4@zx2c4.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <805B66CB-D847-4547-B6EE-C4FB72B75765@zytor.com>
+In-Reply-To: <YsTXI3J+ptkN/vb4@zx2c4.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 05, 2022 at 04:11:45PM -0700, H. Peter Anvin wrote:
-> What I'm wondering is if we shouldn't be simply instrument *every*
-> invocation, and set the trust to zero if we ever trip it.
+On Wed, Jul 06, 2022 at 02:28:19AM +0200, Jason A. Donenfeld wrote:
+> Maybe you're not grepping the right tree?
+> 
+> zx2c4@thinkpad ~/Projects/random-linux $ grep trust_cpu Documentation/admin-guide/kernel-parameters.txt
+>         random.trust_cpu={on,off}
 
-I guess you can add some logic to rdrand_long() to sanity-check what it
-returns...
-
-But would that be worth the effort?
+I was looking at the wrong option, sorry about that.
 
 -- 
 Regards/Gruss,
