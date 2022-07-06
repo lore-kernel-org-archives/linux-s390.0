@@ -2,194 +2,160 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E443C43334
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 16:26:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EE0BC43334
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Jul 2022 16:33:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233721AbiGFQ0b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 12:26:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52764 "EHLO
+        id S233679AbiGFQd5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 12:33:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233907AbiGFQ02 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 12:26:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 443EE26568;
-        Wed,  6 Jul 2022 09:26:27 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D58C86119F;
-        Wed,  6 Jul 2022 16:26:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40DEEC341C8;
-        Wed,  6 Jul 2022 16:26:25 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="G9bE9vsz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1657124783;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=TGaoaskizVS4bcoAMHWjn1GMWg5VcBxmemnQ5JP+CXM=;
-        b=G9bE9vszLnUC8XSrrd8LaQyfnEWe1NJZmlpsqEayowSRrVA9JC7ZUDvYkvz4EovFg1vUrh
-        CpnPnJCNV6x2r9gzqislxbgio7lxlmSV/3b43DpNjsCU95MPPdi0PTXuyFWui2mZjB0oif
-        d3Rx8S26M+bU1GQr9z3Ehojz2/uWRSE=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 8a8c7030 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Wed, 6 Jul 2022 16:26:23 +0000 (UTC)
-Date:   Wed, 6 Jul 2022 18:26:17 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Harald Freudenberger <freude@linux.ibm.com>
-Cc:     Holger Dengler <dengler@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Juergen Christ <jchrist@linux.ibm.com>,
-        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v1 1/1] s390/arch_random: Buffer true random data
-Message-ID: <YsW3qWkIwXboHgim@zx2c4.com>
-References: <20220705112712.4433-1-dengler@linux.ibm.com>
- <20220705112712.4433-2-dengler@linux.ibm.com>
- <YsQ6OOrOWPhdynoM@zx2c4.com>
- <9a0561c0-68f7-b630-4440-3ca32bf28dc2@linux.ibm.com>
- <YsRUowTs9n98p9EL@zx2c4.com>
- <aafbb400-d0cb-99de-8b10-3c39c7b9bae5@linux.ibm.com>
- <7e65130c6e66ce7a9f9eb469eb7e64e0@linux.ibm.com>
+        with ESMTP id S229822AbiGFQd4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 12:33:56 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05CC82AC7;
+        Wed,  6 Jul 2022 09:33:55 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 266Fl0m4002175;
+        Wed, 6 Jul 2022 16:33:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Ziy2+VpVYG4mwcyycR7DZV+CqdzI92MPpl98qy7giYE=;
+ b=XPUnRgYY3TZtIkdwysZhEmFBJFZGpLjj4qPj2EPuSA9l24JlOqlLfG5eA7Ck+OOoSyCm
+ EQZGfH5XzxW6uULWCn+UEQDp6u6jktRJpl7aJCQq9QsyGlvr0ts5la9tLD2s9HUb78dn
+ ufony1mEdaGliejCRdrxKjwdmYNn/95h/hnvkMv2NrjNoy1mHKiUUi65YRvmCpbuy1Tc
+ JphsvL5lbFclnMsou6BBGn02zFKuAO/vF3GedoSP8Xo8ebtxI4V9yYa8gkwa3jr0wep/
+ 7b5v7z49XqxZZtoKEq0F4HQkrtLlkDlKeFVUkJFsDZyORci4okUEu8KUOb8wTpYpEgYd Zw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5db516wf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Jul 2022 16:33:54 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 266GIkus020383;
+        Wed, 6 Jul 2022 16:33:54 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5db516w0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Jul 2022 16:33:54 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 266GLxNA013811;
+        Wed, 6 Jul 2022 16:33:52 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3h4usd1ct4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Jul 2022 16:33:52 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 266GXnVI22151452
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 6 Jul 2022 16:33:49 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 29D37A4053;
+        Wed,  6 Jul 2022 16:33:49 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AE801A4055;
+        Wed,  6 Jul 2022 16:33:48 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.12.172])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  6 Jul 2022 16:33:48 +0000 (GMT)
+Date:   Wed, 6 Jul 2022 18:33:46 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm390 mailing list <kvm390-list@tuxmaker.boeblingen.de.ibm.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
+        seiden@linux.ibm.com, nrb@linux.ibm.com, scgl@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v2 1/8] s390x: uv-host: Add access checks
+ for donated memory
+Message-ID: <20220706183346.2a027e8b@p-imbrenda>
+In-Reply-To: <20220706064024.16573-2-frankja@linux.ibm.com>
+References: <20220706064024.16573-1-frankja@linux.ibm.com>
+        <20220706064024.16573-2-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <7e65130c6e66ce7a9f9eb469eb7e64e0@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: wUHtfsghoQjmQI47-mziYdzlzyZ1F6iC
+X-Proofpoint-GUID: gFfoUmaUlxtOABi6FKCtRqcQW62fEjT4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-06_09,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ mlxlogscore=999 adultscore=0 phishscore=0 priorityscore=1501
+ suspectscore=0 lowpriorityscore=0 mlxscore=0 impostorscore=0 clxscore=1015
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207060066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Harald,
+On Wed,  6 Jul 2022 06:40:17 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-On Wed, Jul 06, 2022 at 06:18:27PM +0200, Harald Freudenberger wrote:
-> On 2022-07-05 18:27, Holger Dengler wrote:
-> > Hi Jason,
-> > 
-> > On 05/07/2022 17:11, Jason A. Donenfeld wrote:
-> >> Hi Holger,
-> >> 
-> >> On Tue, Jul 05, 2022 at 04:58:30PM +0200, Holger Dengler wrote:
-> >>> It is true, that the performance of the instruction is not really
-> >>> relevant, but only for calls outside of an interrupt context. I did
-> >>> some ftrace logging for the s390_random_get_seed_long() calls, and -
-> >>> as you said - there are a few calls per minute. But there was also
-> >>> some repeating calls in interrupt context. On systems with a huge
-> >>> interrupt load, this can cause severe performance impacts. I've no
-> >> 
-> >> It'd be interesting to know more about this. The way you get
-> >> arch_random_get_seed_long() from irq context is:
-> >> 
-> >> get_random_{bytes,int,long,u32,u64}()
-> >>   crng_make_state()
-> >>     crng_reseed() <-- Rarely
-> >>       extract_entropy()
-> >>         arch_get_random_seed_long()
-> >> 
-> >> So if an irq user of get_random_xx() is the unlucky one in the minute
-> >> span who has to call crng_reseed() then, yea, that'll happen. But I
-> >> wonder about this luck aspect. What scenarios are you seeing where 
-> >> this
-> >> happens all the time? Which driver is using random bytes *so* commonly
-> >> from irq context? Not that, per say, there's anything wrong with that,
-> >> but it could be eyebrow raising, and might point to de facto solutions
-> >> that mostly take care of this.
-> > 
-> > I saw a few calls in interrupt context during my tracing, but I didn't
-> > look to see which ones they were. Let me figure that out in the next
-> > few days and provide more information on that.
-> > 
-> >> One such direction might be making a driver that does such a thing do 
-> >> it
-> >> a little bit less, somehow. Another direction would be preferring
-> >> non-irqs to handle crng_reseed(), but not disallowing irqs entirely,
-> >> with a patch something like the one below. Or maybe there are other
-> >> ideas.
-> > 
-> > Reduce the number of trng in interrupt context is a possibility, but -
-> > in my opinion - only one single trng instruction call in interrupt
-> > context in one too much.
-> > 
-> > For the moment, I would propose to drop the buffering but also return
-> > false, if arch_random_get_seed_long() is called in interrupt context.
-> > 
-> > diff --git a/arch/s390/include/asm/archrandom.h
-> > b/arch/s390/include/asm/archrandom.h
-> > index 2c6e1c6ecbe7..711357bdc464 100644
-> > --- a/arch/s390/include/asm/archrandom.h
-> > +++ b/arch/s390/include/asm/archrandom.h
-> > @@ -32,7 +32,8 @@ static inline bool __must_check
-> > arch_get_random_int(unsigned int *v)
-> > 
-> >  static inline bool __must_check arch_get_random_seed_long(unsigned 
-> > long *v)
-> >  {
-> > -       if (static_branch_likely(&s390_arch_random_available)) {
-> > +       if (static_branch_likely(&s390_arch_random_available) &&
-> > +           !in_interrupt()) {
-> >                 cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
-> >                 atomic64_add(sizeof(*v), &s390_arch_random_counter);
-> >                 return true;
-> > 
-> > (on-top of your commit, without our buffering patch)
-> > 
-> >> 
-> >> But all this is to say that having some more of the "mundane" details
-> >> about this might actually help us.
-> >> 
-> >> Jason
-> >> 
-> >> diff --git a/drivers/char/random.c b/drivers/char/random.c
-> >> index e3dd1dd3dd22..81df8cdf2a62 100644
-> >> --- a/drivers/char/random.c
-> >> +++ b/drivers/char/random.c
-> >> @@ -270,6 +270,9 @@ static bool crng_has_old_seed(void)
-> >>  	static bool early_boot = true;
-> >>  	unsigned long interval = CRNG_RESEED_INTERVAL;
-> >> 
-> >> +	if (in_hardirq())
-> >> +		interval += HZ * 10;
-> >> +
-> >>  	if (unlikely(READ_ONCE(early_boot))) {
-> >>  		time64_t uptime = ktime_get_seconds();
-> >>  		if (uptime >= CRNG_RESEED_INTERVAL / HZ * 2)
-> >> 
+> Let's check if the UV really protected all the memory we donated.
 > 
-> Hi Holger and Jason
-> I tried to find out what is the reason of the invocations in interrupt 
-> context.
-> First I have to admit that there is in fact not much of 
-> arch_get_random_seed_long()
-> invocation any more in the recent kernel (5.19-rc5). I see about 100 
-> invocations
-> within 10 minutes with an LPAR running some qperf and dd dumps on dasds 
-> test load.
-> About half of these invocations is in interrupt context. I 
-> dump_stack()ed some of
-> these and I always catch the function
-> kfence_guarded_alloc()
->    prandom_u32_max()
->      prandom_u32()
->        get_random_u32()
->          _get_random_bytes()
->            crng_make_state()
->              crng_reseed()
->                extract_entropy()
->                  arch_get_random_seed_long()
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  s390x/uv-host.c | 29 +++++++++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
 > 
-> However, with so few invocations it should not make any harm when there 
-> is a
-> even very expensive trng() invocation in interrupt context.
-> 
-> But I think we should check, if this is really something to backport to 
-> the older
-> kernels where arch_get_random_seed_long() is called really frequency.
+> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
+> index a1a6d120..983cb4a1 100644
+> --- a/s390x/uv-host.c
+> +++ b/s390x/uv-host.c
+> @@ -43,6 +43,24 @@ static void cpu_loop(void)
+>  	for (;;) {}
+>  }
+>  
+> +/*
+> + * Checks if a memory area is protected as secure memory.
+> + * Will return true if all pages are protected, false otherwise.
+> + */
+> +static bool access_check_3d(uint64_t *access_ptr, uint64_t len)
+> +{
+> +	while (len) {
+> +		expect_pgm_int();
+> +		*access_ptr += 42;
 
-I backported the current random.c design to old kernels, so the
-situation there should be the same as in 5.19-rc5.
+I'm surprised this works, you will get an (expected) exception when
+reading from the pointer, and then you should get another one (at this
+point unexpected) when writing
 
-So if you feel such rare usage is find even in_hardirq(), then I suppose
-there's nothing more to do here?
+> +		if (clear_pgm_int() != PGM_INT_CODE_SECURE_STOR_ACCESS)
+> +			return false;
+> +		access_ptr += PAGE_SIZE / sizeof(access_ptr);
+> +		len -= PAGE_SIZE;
+> +	}
+> +
+> +	return true;
+> +}
+> +
+>  static struct cmd_list cmds[] = {
+>  	{ "init", UVC_CMD_INIT_UV, sizeof(struct uv_cb_init), BIT_UVC_CMD_INIT_UV },
+>  	{ "create conf", UVC_CMD_CREATE_SEC_CONF, sizeof(struct uv_cb_cgc), BIT_UVC_CMD_CREATE_SEC_CONF },
+> @@ -194,6 +212,10 @@ static void test_cpu_create(void)
+>  	report(rc == 0 && uvcb_csc.header.rc == UVC_RC_EXECUTED &&
+>  	       uvcb_csc.cpu_handle, "success");
+>  
+> +	rc = access_check_3d((uint64_t *)uvcb_csc.stor_origin,
+> +			     uvcb_qui.cpu_stor_len);
+> +	report(rc, "Storage protection");
+> +
+>  	tmp = uvcb_csc.stor_origin;
+>  	uvcb_csc.stor_origin = (unsigned long)memalign(PAGE_SIZE, uvcb_qui.cpu_stor_len);
+>  	rc = uv_call(0, (uint64_t)&uvcb_csc);
+> @@ -292,6 +314,13 @@ static void test_config_create(void)
+>  	rc = uv_call(0, (uint64_t)&uvcb_cgc);
+>  	report(rc == 0 && uvcb_cgc.header.rc == UVC_RC_EXECUTED, "successful");
+>  
+> +	rc = access_check_3d((uint64_t *)uvcb_cgc.conf_var_stor_origin, vsize);
+> +	report(rc, "Base storage protection");
+> +
+> +	rc = access_check_3d((uint64_t *)uvcb_cgc.conf_base_stor_origin,
+> +			     uvcb_qui.conf_base_phys_stor_len);
+> +	report(rc, "Variable storage protection");
+> +
+>  	uvcb_cgc.header.rc = 0;
+>  	uvcb_cgc.header.rrc = 0;
+>  	tmp = uvcb_cgc.guest_handle;
 
-Jason
