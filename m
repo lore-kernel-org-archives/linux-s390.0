@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DAE2C43334
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 00:20:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1A5BC43334
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 01:20:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234703AbiGGAUl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Jul 2022 20:20:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52282 "EHLO
+        id S233131AbiGGBUH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Jul 2022 21:20:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234381AbiGGAUj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 20:20:39 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C0922B271;
-        Wed,  6 Jul 2022 17:20:38 -0700 (PDT)
+        with ESMTP id S230452AbiGGBUG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Jul 2022 21:20:06 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E6E2E69C;
+        Wed,  6 Jul 2022 18:20:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657153238; x=1688689238;
+  t=1657156805; x=1688692805;
   h=message-id:date:mime-version:cc:subject:to:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=kG5jotEa1Wd96n4KXqFgzVT3ccOLgmmy7vGKrfscZe0=;
-  b=hJKjSKPFUwPpQdw+k8xgKh2cBWoSPWCzT88YtJks2p3MfilINCjNcFGX
-   SzfKcv1f4O5vNN7aa6b1aX+CMpbemyWBzv9Oy+yjDgk8R1G6mUl1zwCJh
-   od/oDI4GEL1Us3ev6QbRGR3IGNoE5Soxb+J5mlMJbVcdriwrJWYSH07H0
-   mo1qUg2Wfqtd+qN+xTNQINFuA0d2/t6ZPosNJQsFBAsOWg2GH87VNNFtg
-   4OYQORvAZVtWArMpuZnZICBxqSZdeeQ/JTbcrp3Bx8muC1e7rXqVXHdx+
-   s4tRlRYwxrd7tdiMe6NMlNAV1wuGUjtXLB4P08ckTzA5w+M0FXmATzHep
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10400"; a="263682628"
+  bh=RlBsSE86mhkZ1VM1qqe1zDyK2s+b9dUNIdXAWa4b/3U=;
+  b=MqFen/CH1oWMnHwrQxZifLcU/0coMdEwlj7UwSF/4Ld+8gaIAz3NGKj5
+   Sv1VOQV3QLtWhYfPMnNe0jpKeXAsM4gmAqyuWN9jaDkbCTBYyDD0NvqAk
+   Judq6xeZqP81xniFm+m5FpJpFgFoqIzY5nxf+E/ddHizPxiwRYNk04UMq
+   DGYrWnf5camVm0p4KIK0KYj81gRmmjI51j5g1MQPoa4PJ7dxBC6oR0P7s
+   GozERMKzpmpNUdQYJk5araKAxap27nbE15V916eoMXR1/x6ADlDiuJbqq
+   smFSfZ8Ly47fz+JBT6VLGk1ObYPWEPTffL2eoNHlKpiY3LEs92AABsxeO
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10400"; a="266934029"
 X-IronPort-AV: E=Sophos;i="5.92,251,1650956400"; 
-   d="scan'208";a="263682628"
+   d="scan'208";a="266934029"
 Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2022 17:20:37 -0700
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2022 18:20:04 -0700
 X-IronPort-AV: E=Sophos;i="5.92,251,1650956400"; 
-   d="scan'208";a="650892999"
+   d="scan'208";a="650909261"
 Received: from hualiu-mobl1.ccr.corp.intel.com (HELO [10.249.171.209]) ([10.249.171.209])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2022 17:20:34 -0700
-Message-ID: <28a58a21-a866-b49c-9977-c8d05b320fbd@linux.intel.com>
-Date:   Thu, 7 Jul 2022 08:20:32 +0800
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2022 18:20:01 -0700
+Message-ID: <2aa8aa41-4d9f-5a0f-1ad4-e2e19cbcbe6f@linux.intel.com>
+Date:   Thu, 7 Jul 2022 09:19:59 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.9.1
@@ -47,66 +47,77 @@ Cc:     baolu.lu@linux.intel.com, will@kernel.org, iommu@lists.linux.dev,
         mjrosato@linux.ibm.com, gerald.schaefer@linux.ibm.com,
         schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 03/15] iommu: Always register bus notifiers
+Subject: Re: [PATCH v3 04/15] iommu: Move bus setup to IOMMU device
+ registration
 Content-Language: en-US
 To:     Robin Murphy <robin.murphy@arm.com>, joro@8bytes.org
 References: <cover.1657034827.git.robin.murphy@arm.com>
- <8c380309f264cd0dfc73ba2ec060adc9515af2f2.1657034828.git.robin.murphy@arm.com>
- <1fab4c8a-7bc5-9a50-d48a-0dc590cac7a6@linux.intel.com>
- <3d613192-f673-852e-9c52-b8a913d25616@arm.com>
+ <5b9b608af21b3c4353af042355973bac55397962.1657034828.git.robin.murphy@arm.com>
+ <d6a8e85b-ab7d-f5c9-a8cb-79dd8e68c967@linux.intel.com>
+ <71835610-7798-5fbe-556a-fc44dc9e168b@arm.com>
 From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <3d613192-f673-852e-9c52-b8a913d25616@arm.com>
+In-Reply-To: <71835610-7798-5fbe-556a-fc44dc9e168b@arm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/7/6 21:43, Robin Murphy wrote:
-> On 2022-07-06 02:53, Baolu Lu wrote:
+On 2022/7/6 22:37, Robin Murphy wrote:
+> On 2022-07-06 03:35, Baolu Lu wrote:
 >> On 2022/7/6 01:08, Robin Murphy wrote:
->>>   /*
->>>    * Use a function instead of an array here because the domain-type 
->>> is a
->>>    * bit-field, so an array would waste memory.
->>> @@ -152,6 +172,10 @@ static int __init iommu_subsys_init(void)
->>>               (iommu_cmd_line & IOMMU_CMD_LINE_STRICT) ?
->>>                   "(set via kernel command line)" : "");
->>> +    /* If the system is so broken that this fails, it will WARN 
->>> anyway */
+>>> @@ -202,12 +210,32 @@ int iommu_device_register(struct iommu_device 
+>>> *iommu,
+>>>       spin_lock(&iommu_device_lock);
+>>>       list_add_tail(&iommu->list, &iommu_device_list);
+>>>       spin_unlock(&iommu_device_lock);
+>>> +
+>>> +    for (int i = 0; i < ARRAY_SIZE(iommu_buses); i++) {
+>>> +        struct bus_type *bus = iommu_buses[i];
+>>> +        int err;
+>>> +
+>>> +        if (bus->iommu_ops && bus->iommu_ops != ops) {
+>>> +            err = -EBUSY;
+>>> +        } else {
+>>> +            bus->iommu_ops = ops;
+>>> +            err = bus_iommu_probe(bus);
+>>> +        }
+>>> +        if (err) {
+>>> +            iommu_device_unregister(iommu);
+>>> +            return err;
+>>> +        }
+>>> +    }
+>>> +
+>>>       return 0;
+>>>   }
+>>>   EXPORT_SYMBOL_GPL(iommu_device_register);
 >>
->> Can you please elaborate a bit on this? iommu_bus_init() still return
->> errors.
+>> With bus_set_iommu() retired, my understanding is that now we embrace
+>> the first-come-first-serve policy for bus->iommu_ops setting. This will
+>> lead to problem in different iommu_ops for different bus case. Did I
+>> overlook anything?
 > 
-> Indeed, it's commenting on the fact that we don't try to clean up or 
-> propagate an error value further even if it did ever manage to return 
-> one. I feared that if I strip the error handling out of iommu_bus_init() 
-> itself on the same reasoning, we'll just get constant patches from the 
-> static checker brigade trying to add it back, so it seemed like the 
-> neatest compromise to keep that decision where it's obviously in an 
-> early initcall, rather than in the helper function which can be viewed 
-> out of context. However, I'm happy to either expand this comment or go 
-> the whole way and make iommu_bus_init() return void if you think it's 
-> worthwhile.
+> This is just formalising the de-facto situation that we don't actually 
+> have any combination of drivers that could load on the same system 
+> without already attempting to claim at least one bus in common. It's 
+> also only temporary until the bus ops are removed completely and we 
+> fully support multiple drivers coexisting, which only actually takes a 
+> handful more patches - I've realised I could even bring that change 
+> *ahead* of the big job of converting iommu_domain_alloc() (I'm not 
+> convinced that the tree-wide flag-day patch for that I currently have in 
+> the dev branch is really viable, nor that I've actually got the correct 
+> device at some of the callsites), although whether it's worth the 
+> potentially-surprising behaviour that might result I'm less sure.
+> 
+> If we already had systems where in-tree drivers successfully coexisted 
+> on different buses then I'd have split this up and done something a bit 
+> more involved to keep a vestigial bus_set_iommu() around until the final 
+> bus ops removal, but since we don't, it seemed neatest to do all the 
+> related work in one go.
 
-Thanks for the explanation. It would be helpful if the comment could be
-expanded. In this case, after a long time, people will not consider it
-an oversight. :-)
+Fair enough. I've never seen a mixed system as far. It's fine for us to
+retire bus_set_iommu() for now and then formally support mixed IOMMU
+drivers later.
 
 Best regards,
 baolu
-
-> 
-> Cheers,
-> Robin.
-> 
->>
->>> +    for (int i = 0; i < ARRAY_SIZE(iommu_buses); i++)
->>> +        iommu_bus_init(iommu_buses[i]);
->>> +
->>>       return 0;
->>
->> Best regards,
->> baolu
-> 
-
