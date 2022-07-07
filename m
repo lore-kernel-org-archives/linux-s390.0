@@ -2,112 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F6FBC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 10:58:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12C0EC43334
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 12:34:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234799AbiGGK6n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Jul 2022 06:58:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48708 "EHLO
+        id S234774AbiGGMeL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Jul 2022 08:34:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230187AbiGGK6l (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jul 2022 06:58:41 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 793A94D4D7;
-        Thu,  7 Jul 2022 03:58:40 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 946BC1063;
-        Thu,  7 Jul 2022 03:58:40 -0700 (PDT)
-Received: from [10.57.85.108] (unknown [10.57.85.108])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 524513F66F;
-        Thu,  7 Jul 2022 03:58:38 -0700 (PDT)
-Message-ID: <569e97f6-f78c-1eae-1023-2d5e2df2d40f@arm.com>
-Date:   Thu, 7 Jul 2022 11:58:18 +0100
+        with ESMTP id S232131AbiGGMeL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jul 2022 08:34:11 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CF9120BDA;
+        Thu,  7 Jul 2022 05:34:09 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 267Ap82d004427;
+        Thu, 7 Jul 2022 12:34:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=1vHgShsbwg2jnxELq/Ys8sNZMhkEsAgM8GeGHUfbsXA=;
+ b=fpdb90G7YJueqaA1BaNi+3m3gLYv99zZF8cMM+45704DeqmYGVik6HybQVovJhPCTyhK
+ DmEzvd6eI1Zt+dxOk4ZDOjUc+8wGLZICyhPxQLxrt9xhvx6g7AWtkOBEZAkBI81ChO7K
+ zJgczW1yJ2aWnii7VBinp+C/E7h4ocwv5KS4zgybsbGScT8DoCJPSCTqRXBOrB9b47hb
+ Nv0EME1RYhbL+XTwWWJv2cNBVC+3Sk4TgkZWvdJovsPW814Sc1873CK/BAiiDjFg2dmH
+ JT9D0B5v4/aYWtTbDvefs+zl1bo738wvUwcqDUeKuef66hmINtSTkYG1GPJEbqKV0QW9 1g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5x3p2swb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Jul 2022 12:34:07 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 267CKdPc024779;
+        Thu, 7 Jul 2022 12:34:07 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5x3p2svp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Jul 2022 12:34:07 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 267CKbi2000597;
+        Thu, 7 Jul 2022 12:34:06 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma04dal.us.ibm.com with ESMTP id 3h4uqy5udm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Jul 2022 12:34:06 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 267CY5Q820775370
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 7 Jul 2022 12:34:05 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5A42C2805A;
+        Thu,  7 Jul 2022 12:34:05 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 311FA2805E;
+        Thu,  7 Jul 2022 12:34:03 +0000 (GMT)
+Received: from [9.211.36.1] (unknown [9.211.36.1])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu,  7 Jul 2022 12:34:02 +0000 (GMT)
+Message-ID: <145a84e4-e228-0f18-eebe-7488f8b07d67@linux.ibm.com>
+Date:   Thu, 7 Jul 2022 08:34:02 -0400
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v3 04/15] iommu: Move bus setup to IOMMU device
- registration
-Content-Language: en-GB
-To:     "Tian, Kevin" <kevin.tian@intel.com>,
-        "joro@8bytes.org" <joro@8bytes.org>
-Cc:     "will@kernel.org" <will@kernel.org>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "vasant.hegde@amd.com" <vasant.hegde@amd.com>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
-        "schnelle@linux.ibm.com" <schnelle@linux.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <cover.1657034827.git.robin.murphy@arm.com>
- <5b9b608af21b3c4353af042355973bac55397962.1657034828.git.robin.murphy@arm.com>
- <BN9PR11MB5276ECD0D25C09D6A3686A3B8C839@BN9PR11MB5276.namprd11.prod.outlook.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <BN9PR11MB5276ECD0D25C09D6A3686A3B8C839@BN9PR11MB5276.namprd11.prod.outlook.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH v3 00/11] s390/vfio-ccw rework
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Eric Farman <farman@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+References: <20220630203647.2529815-1-farman@linux.ibm.com>
+ <20220630234411.GM693670@nvidia.com>
+ <e8f1748eb1bae3e90521b0d5d4471266f4ea7c98.camel@linux.ibm.com>
+ <f21307d9-6490-c39d-cff0-2a50c5f1cb35@linux.ibm.com>
+ <20220704112511.GO693670@nvidia.com>
+ <e1ead3e4-9e7d-f026-485b-157d7dc004d3@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <e1ead3e4-9e7d-f026-485b-157d7dc004d3@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: s6LJlfk9LR0M1-dhXCRd7rgqirjZ5167
+X-Proofpoint-GUID: G3VVpAX-YjGPNW5OpgRkeBIcX7bxBUNa
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-07_09,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 mlxlogscore=999 bulkscore=0 phishscore=0 clxscore=1015
+ mlxscore=0 impostorscore=0 spamscore=0 adultscore=0 lowpriorityscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207070050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-07-07 07:51, Tian, Kevin wrote:
->> From: Robin Murphy <robin.murphy@arm.com>
->> Sent: Wednesday, July 6, 2022 1:08 AM
+On 7/7/22 5:06 AM, Christian Borntraeger wrote:
+> 
+> 
+> Am 04.07.22 um 13:25 schrieb Jason Gunthorpe:
+>> On Fri, Jul 01, 2022 at 02:48:25PM +0200, Christian Borntraeger wrote:
 >>
->> @@ -202,12 +210,32 @@ int iommu_device_register(struct iommu_device
->> *iommu,
->>   	spin_lock(&iommu_device_lock);
->>   	list_add_tail(&iommu->list, &iommu_device_list);
->>   	spin_unlock(&iommu_device_lock);
->> +
->> +	for (int i = 0; i < ARRAY_SIZE(iommu_buses); i++) {
->> +		struct bus_type *bus = iommu_buses[i];
->> +		int err;
->> +
->> +		if (bus->iommu_ops && bus->iommu_ops != ops) {
->> +			err = -EBUSY;
->> +		} else {
->> +			bus->iommu_ops = ops;
->> +			err = bus_iommu_probe(bus);
->> +		}
->> +		if (err) {
->> +			iommu_device_unregister(iommu);
->> +			return err;
->> +		}
->> +	}
->> +
+>>> Am 01.07.22 um 14:40 schrieb Eric Farman:
+>>>> On Thu, 2022-06-30 at 20:44 -0300, Jason Gunthorpe wrote:
+>>>>> On Thu, Jun 30, 2022 at 10:36:36PM +0200, Eric Farman wrote:
+>>>>>> Here's an updated pass through the first chunk of vfio-ccw rework.
+>>>>>>
+>>>>>> As with v2, this is all internal to vfio-ccw, with the exception of
+>>>>>> the removal of mdev_uuid from include/linux/mdev.h in patch 1.
+>>>>>>
+>>>>>> There is one conflict with the vfio-next branch [2], on patch 6.
+>>>>>
+>>>>> What tree do you plan to take it through?
+>>>>
+>>>> Don't know. I know Matt's PCI series has a conflict with this same
+>>>> patch also, but I haven't seen resolution to that. @Christian,
+>>>> thoughts?
+>>>
+>>>
+>>> What about me making a topic branch that it being merged by Alex AND 
+>>> the KVM tree
+>>> so that each of the conflicts can be solved in that way?
+>>
+>> It make sense, I would base it on Alex's VFIO tree just to avoid
+>> some conflicts in the first place. Matt can rebase on this, so lets
+>> get things going?
 > 
-> Probably move above into a new function bus_iommu_probe_all():
-> 
-> 	/* probe all buses for devices associated with this iommu */
-> 	err = bus_iommu_probe_all();
-> 	if (err) {
-> 		iommu_device_unregister(iommu);
-> 		return err;
-> 	}
-> 
-> Just  my personal preference on leaving logic in iommu_device_register()
-> more relevant to the iommu instance itself.
+> So yes. Lets rebase on VFIO-next. Ideally Alex would then directly pick 
+> Eric
+> patches.
 
-On reflection I think it makes sense to pull the 
-iommu_device_unregister() out of the loop anyway - I think that's really 
-a left-over from between v1 and v2 when that error case briefly jumped 
-to another cleanup loop, before I realised it was actually trivial for 
-iommu_device_unregister() to clean up for itself.
-
-However I now see I've also missed another opportunity, and the -EBUSY 
-case should be hoisted out of the loop as well, since checking 
-iommu_buses[0] is sufficient. Then it's hopefully much clearer that once 
-the bus ops go away we'll be left with just a single extra line for the 
-loop, as in iommu_device_unregister(). Does that sound reasonable?
-
-> Apart from that:
-> 
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-
-Thanks! (and for the others as well)
-
-Robin.
+@Christian to be clear, do you want me to also rebase the zPCI series on 
+vfio-next then?
