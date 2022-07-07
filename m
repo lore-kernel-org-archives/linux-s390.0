@@ -2,123 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EEABC43334
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 05:22:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CBCCC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 06:01:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbiGGFWO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Jul 2022 01:22:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48306 "EHLO
+        id S232329AbiGGGBb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Jul 2022 02:01:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbiGGFWN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jul 2022 01:22:13 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E81731235;
-        Wed,  6 Jul 2022 22:22:12 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2675GvFU012386;
-        Thu, 7 Jul 2022 05:22:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=+1WB8LXMgfzVJPMaiZ9ErPb4Hm5qyRydXwOHGwyge80=;
- b=c/dSRJBz/6HN0DoBULnK8QqcgKEEt+7r3gmAlAHGoQ1J6qkAUWvp9KHQD2F79ctUXknf
- r4379Bt/Sn1Zq/j1mcilquud789K90lhBn0qy0VXna8h4MxrvEjRXOKwWfuTc46Qhbwc
- 3pEJh5TzfytCiSsFTm94jtShdqVmHY221d7yPDSTBaljUsvCKfk4t+Ol1QeiomJZ4JhE
- JmvtpIkhJUGxk8nN78e/aDgowt4gveFGUfinQP48nSN/qygHUCuNRm5hwe9bUPgU8140
- hEsyO5/HILcgb5bEvsPEV2G+05GXBSPEXPCvtJgmmaP51p36BHeHcqcttGS++BJN+cYm lA== 
+        with ESMTP id S230197AbiGGGBa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jul 2022 02:01:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A90931939;
+        Wed,  6 Jul 2022 23:01:30 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2673E4b7030395;
+        Thu, 7 Jul 2022 06:01:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=71+kH/CtjTUCNfcDn+NS9jAFVfSPvoTRId7bBbYcrro=;
+ b=PT+2ipuHsC+h0TS+YeFUXoyMKapHbsls0zfEVjbsz5OwhKH4R15nvuEVSnFmvUu6gMLQ
+ r4K6WbAt82lSsowPDBz87XvzhcjUbnnFy2JSH0Tjbyi/m1UFwzSbKtlmwyT/Ye/GIPZc
+ z4mgFu6TAu+VeiISBcA44s3XKfc1iDmJN8AIEBnrcru4GXNruXM7YezixMfmVwP/pVFV
+ 27/a2l+uny5KaWvK9O5WJzGByq4ZUw8EZmijb2aLOiGDlhuy148lPM6/cWKTFR+EIGtE
+ fm0+OR0BIfLj2JTyjnEzQ2PfHolFIvgRFIcMyW382igkXZ9eDf+A47OeeRxzNmeGb9LT sA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5s6vg3g3-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5magfh68-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Jul 2022 05:22:03 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2675IJt6016252;
-        Thu, 7 Jul 2022 05:22:02 GMT
+        Thu, 07 Jul 2022 06:01:21 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2675oUZP006091;
+        Thu, 7 Jul 2022 06:01:21 GMT
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5s6vg3fg-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5magfh5a-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Jul 2022 05:22:02 +0000
+        Thu, 07 Jul 2022 06:01:21 +0000
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2675M1Xo004196;
-        Thu, 7 Jul 2022 05:22:01 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3h4usd21yc-1
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2675q0NF030038;
+        Thu, 7 Jul 2022 06:01:19 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3h4usd23dd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Jul 2022 05:22:01 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2675LvbQ24641846
+        Thu, 07 Jul 2022 06:01:19 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26761GBH22151638
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 7 Jul 2022 05:21:57 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 85995AE045;
-        Thu,  7 Jul 2022 05:21:57 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1A700AE04D;
-        Thu,  7 Jul 2022 05:21:57 +0000 (GMT)
-Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.48.113])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu,  7 Jul 2022 05:21:57 +0000 (GMT)
-Date:   Thu, 7 Jul 2022 07:21:55 +0200
+        Thu, 7 Jul 2022 06:01:16 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E7485A405B;
+        Thu,  7 Jul 2022 06:01:15 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D5475A4064;
+        Thu,  7 Jul 2022 06:01:15 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu,  7 Jul 2022 06:01:15 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+        id 9746FE0231; Thu,  7 Jul 2022 08:01:15 +0200 (CEST)
 From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Alexander Egorenkov <egorenar@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 1/1] s390/crash: allow multi-segment iterators
-Message-ID: <YsZtc9MV4buEfNKa@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-References: <cover.1657049033.git.agordeev@linux.ibm.com>
- <3e713ce3865246766feca8397af2860cbe46854d.1657049033.git.agordeev@linux.ibm.com>
- <877d4q3b94.fsf@oc8242746057.ibm.com>
+To:     Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Matthew Wilcox <willy@infradead.org>, Baoquan He <bhe@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH v2 0/1] s390/crash: allow multi-segment iterators
+Date:   Thu,  7 Jul 2022 08:01:14 +0200
+Message-Id: <cover.1657172539.git.agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <877d4q3b94.fsf@oc8242746057.ibm.com>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: GBc8YupEPXwtRkZsnOsNhzGnc4Iph18j
-X-Proofpoint-ORIG-GUID: o5kDKAlqg0Xp9dR6bve_wgoCzY4vUnFN
+X-Proofpoint-ORIG-GUID: z6aApccoeqk47JGsObnhzZlzLTlZlQpN
+X-Proofpoint-GUID: KZ2R2RWF57IQwEjIhsTM-hjGdc7aW8Sc
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-07_03,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 impostorscore=0 suspectscore=0 adultscore=0 spamscore=0
- mlxlogscore=822 mlxscore=0 phishscore=0 malwarescore=0 clxscore=1015
+ definitions=2022-07-07_04,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ suspectscore=0 mlxlogscore=812 mlxscore=0 bulkscore=0 impostorscore=0
+ spamscore=0 phishscore=0 priorityscore=1501 adultscore=0
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207070019
+ engine=8.12.0-2206140000 definitions=main-2207070023
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 06, 2022 at 10:18:15AM +0200, Alexander Egorenkov wrote:
-> > +	__iterate_and_advance(iter, csize, base, len, off,
-> > +		({ copy_oldmem_user(base, src + off, len) < 0 ? csize : 0; }),
-> > +		({ copy_oldmem_kernel(base, src + off, len) < 0 ? csize : 0; })
-> 
-> Question
-> --------
-> About return value of STEP in iterate_iovec().
-> We return "csize" in case copy_oldmem_*() fails.
-> If i'm not mistaken this could lead to an overflow in iterate_iovec():
-> 
->   len -= (STEP);
-> 
-> Because len could be less than csize in case iovec consists of multiple
-> segments, one of which is less than csize.
-> 
-> Better to return len ?
+Unlike other architectures s390 can not use copyout() and memcopy() for
+accessing memory and thus using copy_to_iter() now is not possible. But
+a fix is needed, since 'cp' routine as 'core_collector' for kdump service
+initiates multi-segment iterator.
 
-It certainly better. I'll post the fixed version.
+The reason iterate_iovec() and __iterate_and_advance() macros copied from
+lib/iov_iter.c (thus introducing redundancy) is to avoid custom iterator-
+treating in s390 code. I doubt these macros could be turned public (i.e
+with a follow-up patch), so the intention is to do it like _copy_to_iter()
+does.
 
-> ({ copy_oldmem_user(base, src + off, len) < 0 ? len : 0; })
-> 
-> > +	)
-> >  	return csize;
-> >  }
-> 
-> Another thing is that now we never report any errors in contrast to
-> the version before. This is OK ?
+Changes since v1:
+  - number of bytes left to copy on fail fixed;
 
-I think that is fine. It is consistent with other iterate_and_advance()
-uses and actually converted by read_from_oldmem() to -EFAULT in case of
-incomplete copy.
+Alexander Gordeev (1):
+  s390/crash: allow multi-segment iterators
 
-Thank you!
+ arch/s390/kernel/crash_dump.c | 65 +++++++++++++++++++++++++++--------
+ 1 file changed, 50 insertions(+), 15 deletions(-)
+
+-- 
+2.34.1
+
