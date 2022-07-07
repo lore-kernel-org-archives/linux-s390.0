@@ -2,164 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 238EDCCA47F
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 17:12:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A5A1C43334
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 19:06:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236518AbiGGRMz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Jul 2022 13:12:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52294 "EHLO
+        id S235978AbiGGTGb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Jul 2022 15:06:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232016AbiGGRMy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jul 2022 13:12:54 -0400
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2079.outbound.protection.outlook.com [40.107.223.79])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 590955A2F7;
-        Thu,  7 Jul 2022 10:12:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=eOA2TMoJwhQqk7dk2MaH7pX7OpMCkb983yqolPrTtCBK5Q3QkA5zInsXUWEyLeAJ3Ei22GuC8cbDnq3zIyrl3OC5QIlaqRTMrSjr63/YotUbHS6nsXCgmmtU/xuSeq9boDDvBdYHWuU6IeSCADdYjqA6OtJY4k7h6PjuuctFbLRYigQu5SFV7owqh8jyZb8wzk0bIOidvpiLaJWfyE3rerWAIVE2FRJcWUwYD39nFuml2EgR/WUscClfyRRFRGwPpjyyD2cIJyk2oQdLSd6+cJA5P8PR1FfOi8bKfSx+CJ5WYaYJuZcZw1x/xF0RNX4SKj/8zoqeI4KTHJMEJXXIRw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=zCm6O0YicY8j1qKhujU6AubwGfSH1urWRCyC+VTLzdw=;
- b=lNd6KWSv5ijBFZY7bNvNbgdS5dP47bSUr7Bf2SuEHgseKI76uJe8+TSKVgwlY81qw9zE6f4IQ2DpRPelwDUjRTRjdgGfueeU9JMZPnkhugN+1/TUyM4WBNtHQpXV0wsIwvssXFJ/xvNU6whUAv+zKzzpqi8zzCCBNzOJMG/RCuZVBD2SeyZzYSGSz1M1xDSfwJBMN2OYI/Netor+/tjFE5IisnVoOM3WkFbei0ip6jKAdaNyEUurr8NGueWDetMEeNXIMRYuj0/TLzsFqv+637GxZ8E2J98gEg+2UyE/F9H4cZIGtW/t8cvGA1g07ULDR7qAmBa0h+QA7AL0arGxvw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.236) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zCm6O0YicY8j1qKhujU6AubwGfSH1urWRCyC+VTLzdw=;
- b=B2uak7AWNTdkMEDQeGcqYaPIo2P6AcYAP7pRU3aE7f6Y8RELGR3YDQIa2fD1glwDNVg5tRtmr6E5DmCOoGcxDppWKNnhyQ1i2lDPv+mLg4UTqFvqjv+KdeGU71mFCRwx5fxkjlOplV6mYVC+/DI/QGXivtWqQYDrAdm0DP3XqcpckL1pjWl3uNCKy4fSyUpcJC2hdGldu74UIrHTGoDE+Nn6RYXWQ17ZRzSlPs8zgvQNmNsqrneYe+h3T3qnnbTCKqWcb1O7kCQwnq7fTvYXqnQwOV5Xj9QpyV6l3NJ/OdjkxUAwrZJ2n5GB8DQPMLH3ULTpVMSSrIgRAvxPTTeO4A==
-Received: from BN9PR03CA0550.namprd03.prod.outlook.com (2603:10b6:408:138::15)
- by BL0PR12MB5537.namprd12.prod.outlook.com (2603:10b6:208:1cc::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.16; Thu, 7 Jul
- 2022 17:12:51 +0000
-Received: from BN8NAM11FT068.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:138:cafe::dd) by BN9PR03CA0550.outlook.office365.com
- (2603:10b6:408:138::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.15 via Frontend
- Transport; Thu, 7 Jul 2022 17:12:51 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.236)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.236 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.236; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (12.22.5.236) by
- BN8NAM11FT068.mail.protection.outlook.com (10.13.177.69) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5417.15 via Frontend Transport; Thu, 7 Jul 2022 17:12:51 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by
- DRHQMAIL109.nvidia.com (10.27.9.19) with Microsoft SMTP Server (TLS) id
- 15.0.1497.32; Thu, 7 Jul 2022 17:12:44 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by
- drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.26; Thu, 7 Jul 2022 10:12:43 -0700
-Received: from Asurada-Nvidia (10.127.8.9) by mail.nvidia.com (10.126.190.181)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26 via Frontend
- Transport; Thu, 7 Jul 2022 10:12:42 -0700
-Date:   Thu, 7 Jul 2022 10:12:41 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-CC:     "kwankhede@nvidia.com" <kwankhede@nvidia.com>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "hca@linux.ibm.com" <hca@linux.ibm.com>,
-        "gor@linux.ibm.com" <gor@linux.ibm.com>,
-        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "svens@linux.ibm.com" <svens@linux.ibm.com>,
-        "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        "tvrtko.ursulin@linux.intel.com" <tvrtko.ursulin@linux.intel.com>,
-        "airlied@linux.ie" <airlied@linux.ie>,
-        "daniel@ffwll.ch" <daniel@ffwll.ch>,
-        "farman@linux.ibm.com" <farman@linux.ibm.com>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "pasic@linux.ibm.com" <pasic@linux.ibm.com>,
-        "vneethv@linux.ibm.com" <vneethv@linux.ibm.com>,
-        "oberpar@linux.ibm.com" <oberpar@linux.ibm.com>,
-        "freude@linux.ibm.com" <freude@linux.ibm.com>,
-        "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>,
-        "jjherne@linux.ibm.com" <jjherne@linux.ibm.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "hch@infradead.org" <hch@infradead.org>,
-        "jchrist@linux.ibm.com" <jchrist@linux.ibm.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-Subject: Re: [RFT][PATCH v2 1/9] vfio: Make vfio_unpin_pages() return void
-Message-ID: <YscUCe+2sXdDiQWq@Asurada-Nvidia>
-References: <20220706062759.24946-1-nicolinc@nvidia.com>
- <20220706062759.24946-2-nicolinc@nvidia.com>
- <BN9PR11MB527643D01DFF0AFCED1614488C839@BN9PR11MB5276.namprd11.prod.outlook.com>
+        with ESMTP id S233757AbiGGTGa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jul 2022 15:06:30 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2198157230;
+        Thu,  7 Jul 2022 12:06:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=05SlPgOjw8Ge7G3S7ysnQzpGsSQeCNpy+r8rpobhENo=; b=Vbk/7NvhWFnJ0xBPYy409PU2F8
+        kH3S9RPlLO4ChI+L3vk7Awx/gNAS8+F2row0fMBq+SKGAuDiu2wy62hQlZWqyNgGPUW+72uzuFdPU
+        GXlGo2d+FU8Ot9NIKmZLzmW6vc3MpiNUYehYjIzf0mkLtJoxyjcLI+Roj6gzQrQP71ELtAJpa7DJG
+        j6VOZpP+WyZxGY403J/cpIJ0nCXlcYxJJXqgp4RqxM0oBBl/mMJR3Walhj34C1/qOyxtoZQ2CVctp
+        5xgRVQmJiNiFCjEBn0kP/OUKZIYlNJIf+EXxWjYqpubrKnKAcqykBp9oF4TJbgJN+XQzlkVz5fUK9
+        X+nOKZLQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1o9WpQ-002qNW-3O; Thu, 07 Jul 2022 19:06:20 +0000
+Date:   Thu, 7 Jul 2022 20:06:20 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Baoquan He <bhe@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] s390/crash: allow multi-segment iterators
+Message-ID: <YscurHynz2jO1qoe@casper.infradead.org>
+References: <cover.1657172539.git.agordeev@linux.ibm.com>
+ <613f63d652bb4fa6fb3d2bb38762de6bb066b35a.1657172539.git.agordeev@linux.ibm.com>
+ <YsbXfh3e2rDEKSNw@casper.infradead.org>
+ <YsbgQLNXbHH30phb@ZenIV>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <BN9PR11MB527643D01DFF0AFCED1614488C839@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 5e1701f9-9a97-420b-a2bb-08da603becb1
-X-MS-TrafficTypeDiagnostic: BL0PR12MB5537:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: E3EtjXtySVw3iVeC8HyiwgH+GKSQdY2D8G1Z1uIA8rJprqRgHtvkPdg8LmBSW2yRshP+LUXWq5YXekymlB3Uqe1+9j2GeBElOFeUYinAQ4/TuWZ+GUNCOqONr1L28g99oVfEkI0Gifj/9OX+D1/OlF4VP107R7SrMXGKKPD1z24FUzKSl8e4oZ6jndIoXqiSxUt4WuEjSpefcX8l14r6Z275lq786cPLUQEikndm2aZEX8+ptJ0zLB0d+jwplY0XRhmU+mQSrfG9GoDQf+3nu6aI3LbEm4gB/5GuiC1XGqAqtRkMdVVHLVSHyuWK3frp6ZcDaHPS3LI+2sM+WhN1iRmBtk6wzsBAMMnZWZZ107OwAgwL2BSgwS/csuPzgUQ47qIaJaMEEjE8n4YsKwAtxj/1xeEmzc9mSfJ3heI0iKr1MTlDArrbRw3c711feX37ZgjXUoF0baafOCQrzUL1mS9QqwpJBpY7R+T3ybsHEUxDkaHB+NhFN9R5bReezutEusQ8PvIuVN7IKX98Q0KISATmPHjz3Zi9E27ruwB3CeB49DydcDlqfhhHf5QH1i6AyED/z0ZCmmf607ZXDyOba9g58NUBjnAKQ/hNOmOe99H6XheYesk0zlJD/c7iz3L2ANhvO7Wu8Zn+BAIu3Po9sGRTr4/2Xn7z7YEJoR4JurhLI7QiCWftlcs5aG5H+M8dV21VtPSvduw2zCXifdIY6R/bW1QdFihXv/+DLboNHCPeuQbkmj6WxH/PYXU+z4W0xV9/myO7PAMoxqPRKo+BoFdioo9y2DssvlEIIrqGANedBRZoy7/h7MOCQKqRmJHnFrf9cxyu4Rjae4hYopuHxZ3IxzbUeJ4ZXWCFN3eVyItaamohRaNuR2UPOIF/OH6O
-X-Forefront-Antispam-Report: CIP:12.22.5.236;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(396003)(39860400002)(136003)(346002)(376002)(36840700001)(40470700004)(46966006)(7416002)(7406005)(8936002)(82740400003)(186003)(70206006)(70586007)(5660300002)(47076005)(6862004)(2906002)(426003)(336012)(33716001)(8676002)(356005)(4326008)(36860700001)(26005)(55016003)(9686003)(82310400005)(478600001)(41300700001)(81166007)(86362001)(54906003)(40480700001)(316002)(40460700003)(36900700001)(67856001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jul 2022 17:12:51.5029
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5e1701f9-9a97-420b-a2bb-08da603becb1
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.236];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT068.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB5537
+In-Reply-To: <YsbgQLNXbHH30phb@ZenIV>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 07, 2022 at 08:42:28AM +0000, Tian, Kevin wrote:
-> External email: Use caution opening links or attachments
+On Thu, Jul 07, 2022 at 02:31:44PM +0100, Al Viro wrote:
+> > @@ -73,10 +73,9 @@ int memcpy_hsa_user(void __user *dest, unsigned long src, size_t count)
+> >  		}
+> >  		offset = src % PAGE_SIZE;
+> >  		bytes = min(PAGE_SIZE - offset, count);
+> > -		if (copy_to_user(dest, hsa_buf + offset, bytes))
+> > +		if (copy_to_iter(hsa_buf + offset, bytes, iter) != bytes)
+> >  			return -EFAULT;
 > 
-> 
-> > From: Nicolin Chen <nicolinc@nvidia.com>
-> > Sent: Wednesday, July 6, 2022 2:28 PM
-> >
-> > There's only one caller that checks its return value with a WARN_ON_ONCE,
-> > while all other callers do not check return value at all. So simplify the
-> > API to return void by embedding similar WARN_ON_ONCEs.
-> 
-> While this change keeps the similar effect as before it leads to different
-> policy for same type of errors between pin and unpin paths:
+> Umm...  Then you want iov_iter_revert() on short copy...
 
-I think it's because of the policy that an undo function should not
-fail. Meanwhile, indulging faulty inputs isn't good either.
-
-> e.g.
-> 
-> vfio_unpin_pages():
->         if (WARN_ON_ONCE(!user_pfn || !npage || !vfio_assert_device_open(device)))
->                 return;
-> 
-> vfio_pin_pages():
->         if (!user_pfn || !phys_pfn || !npage ||
->             !vfio_assert_device_open(device))
->                 return -EINVAL;
-> 
-> It sounds a bit weird when reading related code...
-
-Any better way to handle this?
+... maybe better to change the calling convention to return the short
+write and have the caller do it if they care?
