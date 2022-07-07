@@ -2,62 +2,178 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFCCCC43334
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 12:36:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40ACAC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Jul 2022 12:50:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235353AbiGGMga (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Jul 2022 08:36:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36144 "EHLO
+        id S234977AbiGGMud (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Jul 2022 08:50:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234713AbiGGMg1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jul 2022 08:36:27 -0400
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D2524097;
-        Thu,  7 Jul 2022 05:36:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=QfuCQfWw0R4Q88qq2d57w+fLKWKJ84NLA20PhY0262o=; b=kAlWH5ohaNATSdC1GQ+NF2V6wa
-        41jRRwvfAUbq1hdmSbrCRtXj4idHyrlgsPxys7tc+KTCasciNhdDEIKsBbCW14UzM/iYRju60W6e0
-        3OLUH4f4PnHF+cmu1zdW62QPubeaen4F8Kl7rqUKw5LRgrwWsMPHT1T7yQTVuiEVYlWeDpsIDoJj3
-        mkpS6nTh/BWVvMakjPk0qHKzhcmrpEfmunYvnRN+uhV/CL/ny6AFL92yCQ4rBL32t3aOf8iRQq3Tz
-        mseVv320eJqzcAFoCs6bM7UQFtHD7ImIZPNFyVD00AghM9/jdDazuTrHjbX3y/cJJHP4bTjXQnxR7
-        1UgM5z7A==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.95 #2 (Red Hat Linux))
-        id 1o9Qjt-0098gu-Mm;
-        Thu, 07 Jul 2022 12:36:13 +0000
-Date:   Thu, 7 Jul 2022 13:36:13 +0100
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 1/1] s390/crash: allow multi-segment iterators
-Message-ID: <YsbTPShbZDgHUJ7G@ZenIV>
-References: <cover.1657172539.git.agordeev@linux.ibm.com>
- <613f63d652bb4fa6fb3d2bb38762de6bb066b35a.1657172539.git.agordeev@linux.ibm.com>
+        with ESMTP id S233344AbiGGMuc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jul 2022 08:50:32 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 537CE2A412;
+        Thu,  7 Jul 2022 05:50:31 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 267B85tg016848;
+        Thu, 7 Jul 2022 12:49:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=PlMypm8VbcP08LGJlujs3XGqbcicJ/9URreKUsBksuI=;
+ b=q/Pszamyh3B5HDb9S/B7TcIn5gcvMG6Q1eYtJSfwrReBDlgrkstSNuTeN1MUEwXmME+s
+ pfkYYGIhTyJJX6TAb5I+hjyfMT+mqOAnNNgJ+0LfF1nO8oZEXjldquwhrayI+Rl9Hhw1
+ nnntLET/7wyvA4UGWe/goLJK2PcL+bjDmnnrgnm5SEe6jCsmHowEcpFgKl+Br4g4gE9T
+ Oiscp7GxPjBHyc9F2srcaLlYGka8TU86wEmmlWmIO+YAsm8GTqlJ1ea6Ka08rbBECf6D
+ QNPRfrvKvM6YvuAy0/YcclsaSz9cvh0bOcxJWKKz3kQ794MI/+kQgaraA6DcouppSxvB HQ== 
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h5w5acpve-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Jul 2022 12:49:59 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 267CZNbX024918;
+        Thu, 7 Jul 2022 12:49:58 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma01wdc.us.ibm.com with ESMTP id 3h4ud1u9pe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Jul 2022 12:49:58 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 267Cnvxf33292630
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 7 Jul 2022 12:49:57 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BFC4128059;
+        Thu,  7 Jul 2022 12:49:57 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E73FF2805A;
+        Thu,  7 Jul 2022 12:49:54 +0000 (GMT)
+Received: from [9.211.36.1] (unknown [9.211.36.1])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu,  7 Jul 2022 12:49:54 +0000 (GMT)
+Message-ID: <4c25e3ad-0eb6-5c41-48b2-7c10e745bd5d@linux.ibm.com>
+Date:   Thu, 7 Jul 2022 08:49:54 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <613f63d652bb4fa6fb3d2bb38762de6bb066b35a.1657172539.git.agordeev@linux.ibm.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH v3 15/15] iommu: Clean up bus_set_iommu()
+Content-Language: en-US
+To:     Robin Murphy <robin.murphy@arm.com>, joro@8bytes.org
+Cc:     will@kernel.org, iommu@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, baolu.lu@linux.intel.com,
+        suravee.suthikulpanit@amd.com, vasant.hegde@amd.com,
+        gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <cover.1657034827.git.robin.murphy@arm.com>
+ <dc44a2269276e1d0fa6715d4530a51df4e7b781c.1657034828.git.robin.murphy@arm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <dc44a2269276e1d0fa6715d4530a51df4e7b781c.1657034828.git.robin.murphy@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: p2HXZFwf2hk_lYIE5Uci5yo70h5FYbeP
+X-Proofpoint-GUID: p2HXZFwf2hk_lYIE5Uci5yo70h5FYbeP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-07_09,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
+ bulkscore=0 clxscore=1011 priorityscore=1501 impostorscore=0 spamscore=0
+ phishscore=0 adultscore=0 malwarescore=0 suspectscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
+ definitions=main-2207070050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 07, 2022 at 08:01:15AM +0200, Alexander Gordeev wrote:
-> Rework copy_oldmem_page() to allow multi-segment iterators.
-> Reuse existing iterate_iovec macro as is and only relevant
-> bits from __iterate_and_advance macro.
+On 7/5/22 1:08 PM, Robin Murphy wrote:
+> Clean up the remaining trivial bus_set_iommu() callsites along
+> with the implementation. Now drivers only have to know and care
+> about iommu_device instances, phew!
 > 
-> Fixes: 49b11524d648 ("s390/crash: add missing iterator advance in copy_oldmem_page())
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+> ---
+> 
+> v3: Also catch Intel's cheeky open-coded assignment
+> 
 
-To be followed by duplication of every change ever done to those macros?
-Hell, no.  Do it the same way it's done for that _copy_from_iter_flushcache()
-thing - i.e. an ifdef in lib/iov_iter.c and no duplication of that forest of
-macros.
+...
+
+> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+> index c898bcbbce11..dd957145fb81 100644
+> --- a/drivers/iommu/s390-iommu.c
+> +++ b/drivers/iommu/s390-iommu.c
+> @@ -385,9 +385,3 @@ static const struct iommu_ops s390_iommu_ops = {
+>   		.free		= s390_domain_free,
+>   	}
+>   };
+> -
+> -static int __init s390_iommu_init(void)
+> -{
+> -	return bus_set_iommu(&pci_bus_type, &s390_iommu_ops);
+> -}
+> -subsys_initcall(s390_iommu_init);
+
+Previously s390_iommu_ops was only being set for pci_bus_type, but with 
+this series it will now also be set for platform_bus_type.
+
+To tolerate that, this series needs a change along the lines of:
+
+
+From: Matthew Rosato <mjrosato@linux.ibm.com> 
+
+Date: Thu, 7 Jul 2022 08:45:44 -0400 
+
+Subject: [PATCH] iommu/s390: fail probe for non-pci device 
+
+ 
+
+s390-iommu only supports pci_bus_type today 
+
+ 
+
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com> 
+
+--- 
+
+  drivers/iommu/s390-iommu.c | 7 ++++++- 
+
+  1 file changed, 6 insertions(+), 1 deletion(-) 
+
+ 
+
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c 
+
+index dd957145fb81..762f892b4ec3 100644 
+
+--- a/drivers/iommu/s390-iommu.c 
+
++++ b/drivers/iommu/s390-iommu.c 
+
+@@ -185,7 +185,12 @@ static void s390_iommu_detach_device(struct 
+iommu_domain *domain,
+ 
+
+  static struct iommu_device *s390_iommu_probe_device(struct device 
+*dev)
+  { 
+
+-       struct zpci_dev *zdev = to_zpci_dev(dev); 
+
++       struct zpci_dev *zdev; 
+
++ 
+
++       if (!dev_is_pci(dev)) 
+
++               return ERR_PTR(-ENODEV); 
+
++ 
+
++       zdev = to_zpci_dev(dev); 
+
+ 
+
+         return &zdev->iommu_dev; 
+
+  }  return &zdev->iommu_dev; 
+
+  }
