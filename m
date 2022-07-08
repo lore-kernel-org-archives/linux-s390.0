@@ -2,61 +2,37 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E7ECC433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 09:25:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66FDFCCA47B
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 09:37:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237538AbiGHJZr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Jul 2022 05:25:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47604 "EHLO
+        id S237169AbiGHJhj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Jul 2022 05:37:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237487AbiGHJZr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 05:25:47 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DB8DC4
-        for <linux-s390@vger.kernel.org>; Fri,  8 Jul 2022 02:25:45 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id b2so15875307plx.7
-        for <linux-s390@vger.kernel.org>; Fri, 08 Jul 2022 02:25:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=l76lwu0gnwm/BRNuFyHSAOJEi0ORTe8+eknNAmXKjds=;
-        b=rfzaFQGT5WylU8oFzZ3Bm68tK5cbUJbFE9StIG5s9hhsbRmfmyXpTX1vYAFS6j1sbO
-         54fzhiZV7ncHK4Nr8HGnmkIfr2ytnO8L9enycMsyVsVIL1tiXZVpZqSpKlDbdzlr1hkY
-         5SH3l1JlLCIaVKwtkJN3exq1MhVYULNmdtYE+3L2FEtWtbYyCTh7i5U27YS5hNLZS0Xi
-         TkCdvF8KuNND6fSaeYKOvdHkBq2ajs61bZsAjRcCL57hyN0L81gtcBE6SGAlrMn1jLvp
-         TQMFQ82Z2m2T8NG7gNKsoCwNbcmQba3/hsB+SpuTecMd4FglfijuRPwEi0zcwSVVDuyS
-         /4FQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=l76lwu0gnwm/BRNuFyHSAOJEi0ORTe8+eknNAmXKjds=;
-        b=7CQift7UEWPjOLk/kjZ/W5zuFaeQmtK+3WX4qF5unY+Gr5m1fgziCu26VvyMlb7k6Q
-         MF+wUUIrrkwdjM3YE1Pl14fOatdMOsdGNJ2WmD6A7IgSrmHtvfICm+RB+xdV2KbeP8R4
-         UWtD7dfEGhEJqrNdkWPjO6zDBtWoLquJUZZKCaLOTTr+8jnzFvOV4SBQ4X4dIsBTMNqv
-         VmkmdVQjpNxZPENYMizEqRqPg28dGgB7Ua+BW/WMA2d440v00QIqvVLw/X/VLPnR+7GV
-         Dy87Ml8eZiL/FXK9iKg0iuPHgpmSA78Bj5hDibXcW59N+WLNUcySCzzFL268aEVl9qjg
-         Py0Q==
-X-Gm-Message-State: AJIora/daeBTM/8FhyJwLp8OfPYusdUgArE30Ds/LvG57xWNuSnRoUJX
-        bOjjP+eRoLPrwHAuTdIMWTMp3g==
-X-Google-Smtp-Source: AGRyM1uqbelvg6m24YuvTJPV4Xejv5UL/IUxXrRtbsELGOPhY6RycQiwGj2gryVPaBaHnMht6h77RQ==
-X-Received: by 2002:a17:902:e80c:b0:16c:28a6:8aa0 with SMTP id u12-20020a170902e80c00b0016c28a68aa0mr422950plg.119.1657272345465;
-        Fri, 08 Jul 2022 02:25:45 -0700 (PDT)
-Received: from [10.255.210.8] ([139.177.225.241])
-        by smtp.gmail.com with ESMTPSA id z11-20020a1709027e8b00b0016b865ea2ddsm23212195pla.85.2022.07.08.02.25.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 08 Jul 2022 02:25:44 -0700 (PDT)
-Message-ID: <be9303de-3800-c26f-4530-9a29fe044956@bytedance.com>
-Date:   Fri, 8 Jul 2022 17:25:31 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: Re: [PATCH v2 0/5] mm, oom: Introduce per numa node oom for
- CONSTRAINT_{MEMORY_POLICY,CPUSET}
-Content-Language: en-US
-To:     Michal Hocko <mhocko@suse.com>
+        with ESMTP id S234105AbiGHJhi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 05:37:38 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C2E5C9FB;
+        Fri,  8 Jul 2022 02:37:37 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 7C22C21D17;
+        Fri,  8 Jul 2022 09:37:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1657273056; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=pF5t9woP5GK7nrYHCChHnPpig1ebKAkf9WM7m6BgpzY=;
+        b=ShLUEdpxYc7XD3h7H3p2c0Ce+oEtfkQmGRD//brWuBbI5EHHFnb9Azy6FYZEEJjo6Fiybh
+        YxEOE6VrCabpXmn/LDZkYUDcfTwLA+eFskdIIUXll3DbYZKMPq0mHpxf2NWQ3+GV++z9ow
+        33bR6j+Um9l5Xkum6DMu4IYiFMF2J2Y=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id B78522C141;
+        Fri,  8 Jul 2022 09:37:34 +0000 (UTC)
+Date:   Fri, 8 Jul 2022 11:37:31 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Gang Li <ligang.bdlg@bytedance.com>
 Cc:     akpm@linux-foundation.org, surenb@google.com, hca@linux.ibm.com,
         gor@linux.ibm.com, agordeev@linux.ibm.com,
         borntraeger@linux.ibm.com, svens@linux.ibm.com,
@@ -78,25 +54,44 @@ Cc:     akpm@linux-foundation.org, surenb@google.com, hca@linux.ibm.com,
         fenghua.yu@intel.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-mm@kvack.org, linux-perf-users@vger.kernel.org
+Subject: Re: Re: [PATCH v2 0/5] mm, oom: Introduce per numa node oom for
+ CONSTRAINT_{MEMORY_POLICY,CPUSET}
+Message-ID: <Ysf629IWfT5b58oD@dhcp22.suse.cz>
 References: <20220708082129.80115-1-ligang.bdlg@bytedance.com>
  <YsfwyTHE/5py1kHC@dhcp22.suse.cz>
-From:   Gang Li <ligang.bdlg@bytedance.com>
-In-Reply-To: <YsfwyTHE/5py1kHC@dhcp22.suse.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ <be9303de-3800-c26f-4530-9a29fe044956@bytedance.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <be9303de-3800-c26f-4530-9a29fe044956@bytedance.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Oh apologize. I just realized what you mean.
-
-I should try a "cpuset cgroup oom killer" selecting victim from a
-specific cpuset cgroup.
-
-On 2022/7/8 16:54, Michal Hocko wrote:
-> On Fri 08-07-22 16:21:24, Gang Li wrote:
+On Fri 08-07-22 17:25:31, Gang Li wrote:
+> Oh apologize. I just realized what you mean.
 > 
-> We have discussed this in your previous posting and an alternative
-> proposal was to use cpusets to partition NUMA aware workloads and
-> enhance the oom killer to be cpuset aware instead which should be a much
-> easier solution.
+> I should try a "cpuset cgroup oom killer" selecting victim from a
+> specific cpuset cgroup.
+
+yes, that was the idea. Many workloads which really do care about
+particioning the NUMA system tend to use cpusets. In those cases you
+have reasonably defined boundaries and the current OOM killer
+imeplementation is not really aware of that. The oom selection process
+could be enhanced/fixed to select victims from those cpusets similar to
+how memcg oom killer victim selection is done.
+
+There is no additional accounting required for this approach because the
+workload is partitioned on the cgroup level already. Maybe this is not
+really the best fit for all workloads but it should be reasonably simple
+to implement without intrusive or runtime visible changes.
+
+I am not saying per-numa accounting is wrong or a bad idea. I would just
+like to see a stronger justification for that and also some arguments
+why a simpler approach via cpusets is not viable.
+
+Does this make sense to you?
+
+-- 
+Michal Hocko
+SUSE Labs
