@@ -2,95 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42C58C433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 07:52:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4E68C43334
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 08:14:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237268AbiGHHwT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Jul 2022 03:52:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56562 "EHLO
+        id S237722AbiGHIOm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Jul 2022 04:14:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237058AbiGHHwS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 03:52:18 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C432D7D1EE;
-        Fri,  8 Jul 2022 00:52:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657266737; x=1688802737;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=239uULks6zxjGO4uNR0/JzpAO+dLRTWr6fDzTNhSsAA=;
-  b=G1nHxIy7Auw21jq/+Dj9gSjhaf7if+VvPSYPN9mxCwAlLP8Q70KTSKaF
-   Sn9bO5wWU9A4FCrerPpbT8APd4trLrGIIaxasEiNl+E0kGm66UA7917ed
-   CfEuLJCC2iXAgL9spT9ryjBp8PocgGpJq7Y7SXCxsML9Roqr0kzofcC1i
-   dPnGZXBfqWwS3zEGPp284T7dR2BALgLTu1onIKB0Ei+adrJNAzSxjPdK6
-   wBPMcFwZZH9VQf00SnzYvBJeNYTgbIwaOocXhZuCioR4eZFsY8Cv8wUih
-   pID6g4/gb39+cjTberokNjlod7CWS34BukM/tpInv10Kk316DvquRW4UR
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10401"; a="284245073"
-X-IronPort-AV: E=Sophos;i="5.92,254,1650956400"; 
-   d="scan'208";a="284245073"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2022 00:52:17 -0700
-X-IronPort-AV: E=Sophos;i="5.92,254,1650956400"; 
-   d="scan'208";a="621122916"
-Received: from yanc1-mobl.ccr.corp.intel.com (HELO [10.255.28.91]) ([10.255.28.91])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2022 00:52:14 -0700
-Message-ID: <903a1677-4217-d793-6295-3927143d98fb@linux.intel.com>
-Date:   Fri, 8 Jul 2022 15:52:12 +0800
+        with ESMTP id S237628AbiGHIOl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 04:14:41 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD56F7392C;
+        Fri,  8 Jul 2022 01:14:40 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2688CH29017346;
+        Fri, 8 Jul 2022 08:14:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=KjwhQRkfiywh2HTVFoTtksOCx5nrgNL3/4qAheIYzs0=;
+ b=WVQdenRVrLfitup3WLMCy/4R5lBAYQKgBrcPvA23aZBvXbCNEd9++jIW1OFa42WVW9h3
+ ZpC1XmR/5fpZr7dvkUNZRmcpldfQlx0/pJeM7FZDazEOhBHw9yDBaHlyegiK21j72YuP
+ p/RgQyjA/x6WAdT8UpdVt/1P4/TL4UGD9iQkdNNSQ20T8EHGmVXbxk8QRLrGSqrJZp9c
+ XvjIgW2NGfMScKTTHvvV/W8u0vN1v2ES/bvVj86WZvHPPxKcv1dL+dXhS2eWnH9oMC/H
+ 6KFouBEOi7hsJDt/khoHn5Q97YPuH6FDBu1lZz7E2pLc6wtzKW266E1QmTAJGgLwVlIC Lw== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h6guy81jq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 Jul 2022 08:14:25 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26884vMM018005;
+        Fri, 8 Jul 2022 08:14:22 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma02fra.de.ibm.com with ESMTP id 3h4uwp2qb9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 Jul 2022 08:14:22 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2688CxWg22544650
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 8 Jul 2022 08:12:59 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9356942041;
+        Fri,  8 Jul 2022 08:14:19 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2C3B442042;
+        Fri,  8 Jul 2022 08:14:19 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  8 Jul 2022 08:14:19 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     mjrosato@linux.ibm.com
+Cc:     baolu.lu@linux.intel.com, gerald.schaefer@linux.ibm.com,
+        iommu@lists.linux.dev, joro@8bytes.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, robin.murphy@arm.com,
+        schnelle@linux.ibm.com, suravee.suthikulpanit@amd.com,
+        vasant.hegde@amd.com, will@kernel.org
+Subject: [PATCH] iommu/s390: fail probe for non-pci device
+Date:   Fri,  8 Jul 2022 10:14:18 +0200
+Message-Id: <20220708081418.2691301-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <4c25e3ad-0eb6-5c41-48b2-7c10e745bd5d@linux.ibm.com>
+References: <4c25e3ad-0eb6-5c41-48b2-7c10e745bd5d@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Cc:     baolu.lu@linux.intel.com, will@kernel.org, iommu@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        suravee.suthikulpanit@amd.com, vasant.hegde@amd.com,
-        mjrosato@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 01/15] iommu/vt-d: Handle race between registration and
- device probe
-Content-Language: en-US
-To:     Robin Murphy <robin.murphy@arm.com>, joro@8bytes.org
-References: <cover.1657034827.git.robin.murphy@arm.com>
- <894db0ccae854b35c73814485569b634237b5538.1657034828.git.robin.murphy@arm.com>
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <894db0ccae854b35c73814485569b634237b5538.1657034828.git.robin.murphy@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: CPljTlbL3W45HRul6XZibOWR73EZbyAn
+X-Proofpoint-GUID: CPljTlbL3W45HRul6XZibOWR73EZbyAn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-08_06,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1011 suspectscore=0
+ adultscore=0 impostorscore=0 phishscore=0 spamscore=0 mlxlogscore=999
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207080030
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/7/6 01:08, Robin Murphy wrote:
-> That also highlights an issue with intel_iommu_get_resv_regions() taking
-> dmar_global_lock from within a section where intel_iommu_init() already
-> holds it, which already exists via probe_acpi_namespace_devices() when
-> an ANDD device is probed, but gets more obvious with the upcoming change
-> to iommu_device_register(). Since they are both read locks it manages
-> not to deadlock in practice, so I'm leaving it here for someone with
-> more confidence to tackle a larger rework of the locking.
+From: Matthew Rosato <mjrosato@linux.ibm.com>
 
-I am trying to reproduce this problem. Strangely, even if I selected
-CONFIG_LOCKDEP=y, the kernel didn't complain anything. :-)
+s390-iommu only supports pci_bus_type today
 
-In fact the rmrr list in the Intel IOMMU driver is always static after
-parsing the ACPI/DMAR tables. There's no need to protect it with a lock.
-Hence we can safely remove below down/up_read().
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+ drivers/iommu/s390-iommu.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-4512 static void intel_iommu_get_resv_regions(struct device *device,
-4513                                          struct list_head *head)
-4514 {
-4515         int prot = DMA_PTE_READ | DMA_PTE_WRITE;
-4516         struct iommu_resv_region *reg;
-4517         struct dmar_rmrr_unit *rmrr;
-4518         struct device *i_dev;
-4519         int i;
-4520
-4521         down_read(&dmar_global_lock);
-4522         for_each_rmrr_units(rmrr) {
-4523                 for_each_active_dev_scope(rmrr->devices, 
-rmrr->devices_cnt,
-4524                                           i, i_dev) {
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index dd957145fb81..762f892b4ec3 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -185,7 +185,12 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
+ 
+ static struct iommu_device *s390_iommu_probe_device(struct device *dev)
+ {
+-	struct zpci_dev *zdev = to_zpci_dev(dev);
++	struct zpci_dev *zdev;
++
++	if (!dev_is_pci(dev))
++		return ERR_PTR(-ENODEV);
++
++	zdev = to_zpci_dev(dev);
+ 
+ 	return &zdev->iommu_dev;
+ }
+-- 
+2.34.1
 
-Best regards,
-baolu
