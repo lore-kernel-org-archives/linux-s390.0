@@ -2,108 +2,217 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D20AC433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 08:17:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC0DFC43334
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 08:22:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237495AbiGHIR6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Jul 2022 04:17:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51200 "EHLO
+        id S237387AbiGHIWP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Jul 2022 04:22:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236902AbiGHIRz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 04:17:55 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F8048049E;
-        Fri,  8 Jul 2022 01:17:54 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2686bfeG002418;
-        Fri, 8 Jul 2022 08:17:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=xu4rCDT68mfO5MudmK6UmIYbKX3my2hBQzJ60S+24hQ=;
- b=Lyr920IHY24YJdACfJBEbx+YhwQg2zV536m5TfEzFiLuWb9bM4551+eHtC+62umKXNGh
- v/NFJU2uayTkGICCY7Gq0YzsTSmC1y2BQ2OcFyKQ2V96U2JwVg+MRcHdEMYEURPFEL/k
- M3/qUHQt0o1W/uAFQ5ly8pdHc9TCgK1brmj0gI1oGasaDIZ5Wh0UoNxztKvlghseBMDx
- gDwoVcPSEoUllVK8Ld8r3DUZO9V7lHk9I6/yUCWk4sjmvuhpzdJmb27gTHKB+HrMnh2Q
- 9SFGq8Y5D+ntSbxWwQjYJODqmQbKzndjusrSHvJ7Gx7omnj9xIVBtbc0nuSXP/Tl7y96 2A== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h6e9ymfyc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 08:17:36 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 268860be014846;
-        Fri, 8 Jul 2022 08:17:34 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3h4v4jupng-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 08:17:34 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2688HVlG24903996
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 8 Jul 2022 08:17:31 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5B368A4054;
-        Fri,  8 Jul 2022 08:17:31 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ADC66A405F;
-        Fri,  8 Jul 2022 08:17:30 +0000 (GMT)
-Received: from sig-9-145-21-70.uk.ibm.com (unknown [9.145.21.70])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  8 Jul 2022 08:17:30 +0000 (GMT)
-Message-ID: <44c823d7c9ab15579d30734761200c0a6ed44a6f.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 00/15] iommu: Retire bus_set_iommu()
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Robin Murphy <robin.murphy@arm.com>, joro@8bytes.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     will@kernel.org, iommu@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, baolu.lu@linux.intel.com,
-        suravee.suthikulpanit@amd.com, vasant.hegde@amd.com,
-        mjrosato@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Fri, 08 Jul 2022 10:17:30 +0200
-In-Reply-To: <cover.1657034827.git.robin.murphy@arm.com>
-References: <cover.1657034827.git.robin.murphy@arm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: MWVqaxMEq8CD8_OlP2DoJ9y5jxZ7Sui9
-X-Proofpoint-ORIG-GUID: MWVqaxMEq8CD8_OlP2DoJ9y5jxZ7Sui9
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S237299AbiGHIWN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 04:22:13 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F00E581487
+        for <linux-s390@vger.kernel.org>; Fri,  8 Jul 2022 01:22:11 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id o5-20020a17090a3d4500b001ef76490983so1141207pjf.2
+        for <linux-s390@vger.kernel.org>; Fri, 08 Jul 2022 01:22:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TYvSfrHPstnzZJynd8muvpANEKz59daC1D9QhUGyBsM=;
+        b=8S3yywRTtMIjxIbmB2flA4mlE78K7EBRrgf2m5In+lt0C+3X/5Vf/tTjj1izXHBalu
+         AV0aGsKbi/7a+twTRdFq3yHJKSxcSScq9KBDF747wJ3mngNrnukrV5zIqZuVCjPC6R+L
+         G+cXhQGev+W1XhTy+AG5a8ITD0yxuiWjYhpKqrYL3YMtW/19UueJ9ElQrZljBJbgU7TP
+         BHxnHRGSJE1eNT3N49c/c8W93Unt6EWBX4Z00NySj+KqRC7STeodgQIsmeCdswiuMDKj
+         6g/crwKcDMZBCB4I5tAjUyv0EUG7gEh+dOACEqIOqMdkORqq/ko7odDQiWx+9VBB6ZjM
+         dplg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TYvSfrHPstnzZJynd8muvpANEKz59daC1D9QhUGyBsM=;
+        b=UAOqLlLaum4rOV9fzzJ49CAeLxG6YtjAo9muKTvLdJgTAEB5bkV9fEuNBx3MA5am/S
+         JT8gTriMGzp7ozxVSmWvtQVL0WbrKAwkHkK14EkYvZB2ju2UQG+hiXb80qZg5Livu2N0
+         SfhLsvw0fcGImTHVHtthXSXY04OSTgwT9lC3dyN9NlYfLLb4LyuFzFU6ojcJCDH7ZmA3
+         OiLdMm3IrNCOCAsCAR31obrH6QqHxlKZ1g2BufqkTKRIvTy1azWWUZ6EoTxLjrlVTib8
+         fS296kjbIPtp7KbBX9oW/Vw36Y8a7NFz3dPEgjG3lQNrbehAO4FqJk2XDGUawOEIdlTZ
+         YL6w==
+X-Gm-Message-State: AJIora+r8AlZr95BOB2Fw1cq+3Q+oJybkg6UNNq1WZC7Bb+1XMg2LPVS
+        UEGd4lYIZH3CmYprJw+ujPgXmA==
+X-Google-Smtp-Source: AGRyM1tcEE95Ekpp4tq/jJm3aTC46fHNhCwmQGo2VLd2iQl+tjB6CnBUyJJtwF4xhqrjmqieK2tKVg==
+X-Received: by 2002:a17:902:a502:b0:16b:fbd9:7fc5 with SMTP id s2-20020a170902a50200b0016bfbd97fc5mr2516757plq.112.1657268531484;
+        Fri, 08 Jul 2022 01:22:11 -0700 (PDT)
+Received: from C02FT5A6MD6R.bytedance.net ([139.177.225.241])
+        by smtp.gmail.com with ESMTPSA id x65-20020a636344000000b00412b1043f33sm3329291pgb.39.2022.07.08.01.21.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Jul 2022 01:22:10 -0700 (PDT)
+From:   Gang Li <ligang.bdlg@bytedance.com>
+To:     mhocko@suse.com, akpm@linux-foundation.org, surenb@google.com
+Cc:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        viro@zeniv.linux.org.uk, ebiederm@xmission.com,
+        keescook@chromium.org, rostedt@goodmis.org, mingo@redhat.com,
+        peterz@infradead.org, acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, david@redhat.com, imbrenda@linux.ibm.com,
+        adobriyan@gmail.com, yang.yang29@zte.com.cn, brauner@kernel.org,
+        stephen.s.brennan@oracle.com, zhengqi.arch@bytedance.com,
+        haolee.swjtu@gmail.com, xu.xin16@zte.com.cn,
+        Liam.Howlett@Oracle.com, ohoono.kwon@samsung.com,
+        peterx@redhat.com, arnd@arndb.de, shy828301@gmail.com,
+        alex.sierra@amd.com, xianting.tian@linux.alibaba.com,
+        willy@infradead.org, ccross@google.com, vbabka@suse.cz,
+        sujiaxun@uniontech.com, sfr@canb.auug.org.au,
+        vasily.averin@linux.dev, mgorman@suse.de, vvghjk1234@gmail.com,
+        tglx@linutronix.de, luto@kernel.org, bigeasy@linutronix.de,
+        fenghua.yu@intel.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+        Gang Li <ligang.bdlg@bytedance.com>
+Subject: [PATCH v2 0/5] mm, oom: Introduce per numa node oom for CONSTRAINT_{MEMORY_POLICY,CPUSET}
+Date:   Fri,  8 Jul 2022 16:21:24 +0800
+Message-Id: <20220708082129.80115-1-ligang.bdlg@bytedance.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-08_06,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- adultscore=0 priorityscore=1501 malwarescore=0 lowpriorityscore=0
- bulkscore=0 mlxlogscore=780 clxscore=1015 suspectscore=0 impostorscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207080030
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-07-05 at 18:08 +0100, Robin Murphy wrote:
-> v2: https://lore.kernel.org/linux-iommu/cover.1650890638.git.robin.murphy@arm.com/
-> 
-> Hi all,
-> 
-> Here's v3, now with working x86! Having finally made sense of how I
-> broke Intel, I've given AMD the same fix by inspection. I'm still not
-> 100% sure about s390, but it looks like it should probably be OK since
-> it seems to register an IOMMU instance for each PCI device (?!) before
-> disappearing into PCI hotplug code, wherein I assume we should never see
-> a PCI device appear without its IOMMU already registered.
+TLDR
+----
+If a mempolicy or cpuset is in effect, out_of_memory() will select victim
+on specific node to kill. So that kernel can avoid accidental killing on
+NUMA system.
 
-Yes, this is a bit unusual as our PCI architecture doesn't really have
-a notion of an IOMMU device only of I/O translation tables. These are
-then registered per PCI function. PCI functions may share I/O
-translation tables and thus DMA address spaces but this is not done at
-the moment. As Matt already mentioned we do need a small change for
-this patch series. Since that was still mangled in his mail for me I
-just replied with that using "git send-email". With Matt's patch
-applied I can confirm that this works fine for us and does look like a
-useful simplification. So feel free to add my
+Problem
+-------
+Before this patch series, oom will only kill the process with the highest 
+memory usage by selecting process with the highest oom_badness on the
+entire system.
 
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+This works fine on UMA system, but may have some accidental killing on NUMA
+system.
+
+As shown below, if process c.out is bind to Node1 and keep allocating pages
+from Node1, a.out will be killed first. But killing a.out did't free any
+mem on Node1, so c.out will be killed then.
+
+A lot of AMD machines have 8 numa nodes. In these systems, there is a
+greater chance of triggering this problem.
+
+OOM before patches:
+```
+Per-node process memory usage (in MBs)
+PID             Node 0        Node 1    Total
+----------- ---------- ------------- --------
+3095 a.out     3073.34          0.11  3073.45(Killed first. Max mem usage)
+3199 b.out      501.35       1500.00  2001.35
+3805 c.out        1.52 (grow)2248.00  2249.52(Killed then. Node1 is full)
+----------- ---------- ------------- --------
+Total          3576.21       3748.11  7324.31
+```
+
+Solution
+--------
+We store per node rss in mm_rss_stat for each process.
+
+If a page allocation with mempolicy or cpuset in effect triger oom. We will
+calculate oom_badness with rss counter for the corresponding node. Then
+select the process with the highest oom_badness on the corresponding node
+to kill.
+
+OOM after patches:
+```
+Per-node process memory usage (in MBs)
+PID             Node 0        Node 1     Total
+----------- ---------- ------------- ----------
+3095 a.out     3073.34          0.11    3073.45
+3199 b.out      501.35       1500.00    2001.35
+3805 c.out        1.52 (grow)2248.00    2249.52(killed)
+----------- ---------- ------------- ----------
+Total          3576.21       3748.11    7324.31
+```
+
+Overhead
+--------
+CPU:
+
+According to the result of Unixbench. There is less than one percent
+performance loss in most cases.
+
+On 40c512g machine.
+
+40 parallel copies of tests:
++----------+----------+-----+----------+---------+---------+---------+
+| numastat | FileCopy | ... |   Pipe   |  Fork   | syscall |  total  |
++----------+----------+-----+----------+---------+---------+---------+
+| off      | 2920.24  | ... | 35926.58 | 6980.14 | 2617.18 | 8484.52 |
+| on       | 2919.15  | ... | 36066.07 | 6835.01 | 2724.82 | 8461.24 |
+| overhead | 0.04%    | ... | -0.39%   | 2.12%   | -3.95%  | 0.28%   |
++----------+----------+-----+----------+---------+---------+---------+
+
+1 parallel copy of tests:
++----------+----------+-----+---------+--------+---------+---------+
+| numastat | FileCopy | ... |  Pipe   |  Fork  | syscall |  total  |
++----------+----------+-----+---------+--------+---------+---------+
+| off      | 1515.37  | ... | 1473.97 | 546.88 | 1152.37 | 1671.2  |
+| on       | 1508.09  | ... | 1473.75 | 532.61 | 1148.83 | 1662.72 |
+| overhead | 0.48%    | ... | 0.01%   | 2.68%  | 0.31%   | 0.51%   |
++----------+----------+-----+---------+--------+---------+---------+
+
+MEM:
+
+per task_struct:
+sizeof(int) * num_possible_nodes() + sizeof(int*)
+typically 4 * 2 + 8 bytes
+
+per mm_struct:
+sizeof(atomic_long_t) * num_possible_nodes() + sizeof(atomic_long_t*)
+typically 8 * 2 + 8 bytes
+
+zap_pte_range:
+sizeof(int) * num_possible_nodes() + sizeof(int*)
+typically 4 * 2 + 8 bytes 
+
+Changelog
+----------
+v2:
+  - enable per numa node oom for `CONSTRAINT_CPUSET`.
+  - add benchmark result in cover letter.
+
+Gang Li (5):
+  mm: add a new parameter `node` to `get/add/inc/dec_mm_counter`
+  mm: add numa_count field for rss_stat
+  mm: add numa fields for tracepoint rss_stat
+  mm: enable per numa node rss_stat count
+  mm, oom: enable per numa node oom for
+    CONSTRAINT_{MEMORY_POLICY,CPUSET}
+
+ arch/s390/mm/pgtable.c        |   4 +-
+ fs/exec.c                     |   2 +-
+ fs/proc/base.c                |   6 +-
+ fs/proc/task_mmu.c            |  14 ++--
+ include/linux/mm.h            |  59 ++++++++++++-----
+ include/linux/mm_types_task.h |  16 +++++
+ include/linux/oom.h           |   2 +-
+ include/trace/events/kmem.h   |  27 ++++++--
+ kernel/events/uprobes.c       |   6 +-
+ kernel/fork.c                 |  70 +++++++++++++++++++-
+ mm/huge_memory.c              |  13 ++--
+ mm/khugepaged.c               |   4 +-
+ mm/ksm.c                      |   2 +-
+ mm/madvise.c                  |   2 +-
+ mm/memory.c                   | 119 ++++++++++++++++++++++++----------
+ mm/migrate.c                  |   4 ++
+ mm/migrate_device.c           |   2 +-
+ mm/oom_kill.c                 |  69 +++++++++++++++-----
+ mm/rmap.c                     |  19 +++---
+ mm/swapfile.c                 |   6 +-
+ mm/userfaultfd.c              |   2 +-
+ 21 files changed, 335 insertions(+), 113 deletions(-)
+
+-- 
+2.20.1
 
