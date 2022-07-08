@@ -2,64 +2,64 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54E02C433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 22:44:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36C00CCA486
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 22:44:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238688AbiGHWow (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Jul 2022 18:44:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60492 "EHLO
+        id S238619AbiGHWou (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Jul 2022 18:44:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238226AbiGHWos (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 18:44:48 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2054.outbound.protection.outlook.com [40.107.93.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D39D3F301;
-        Fri,  8 Jul 2022 15:44:47 -0700 (PDT)
+        with ESMTP id S238115AbiGHWok (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 18:44:40 -0400
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2046.outbound.protection.outlook.com [40.107.94.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8C9413B47D;
+        Fri,  8 Jul 2022 15:44:39 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oa4zNZVb0HUZiBB1KMYtnmAS05d2qGNmytPNvODcTwR57E2gCCx28oIirkj2+4WeijV9IXsPft9Qnor3hoSwwLjz1gfVLneGvY4600jgxgUPrhgBi2pWOKItAGy3/nE9wo49Tik9JOq21/pRERl2VyOd/WiU/ToSAMWKBXPfmcBecPMxW+9sgx5GEatS9FhCsikSwuDFCBEzIY5T8ut9Nj3WfX9kt7kVUGRSJcv+vw0Lg713Rua/v2v3zP6BpX1iuwo1tzIvNh27Srae1UicfivqvReMXkfcHT6EFzpmZuH9KoIhN5vsnzduP2J8SHVZmjq+Zg1cmnE8RsML1pqezQ==
+ b=Fhh4r9weg9b8HGrm3+i0zAyVHFmHqPDEDGPYKkwXOa3hfH7GIVMfTedDSYJJioBkvYhPxfZfquG0ILUzyqtb6vsVXCaBJ6TofzxzJB29aloajez3rDOCaUHgB2I+0BaMqLZScGJAE36Zh4SENl1C61VY9RE/BAmuhO8Rp0NUL+ccuKpaA+g24r9SH28gmW4+nr0UaseC7+uQ35aDqLPukdVKXGEvFLKUIEdcUxx2Y8AzYyR9cGVBeC7q29enHv1UbjgP/bmDm84ABSRRWm3qm8eruGFtsZzIE86ijbdGWzeEt8YpPFh51SKtyLYsmo6aANUs6KL+jaVYlRVgcMVfew==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KrpzUqe93nJ9GeQOsSbk5MfMSuxr7D8zjv3Jzfyijk4=;
- b=EsdFeqHR6aiQyo7slNnz+ljEgm/AIBnFV0zlz5/FsHQGMh8NctRa6s1UwThhEjG43gTte9C2u1bMOsiZZvmRymWN6oVh5EWnjAow4+SlQYpZ2ooJjz1sovGaiuPXajkjoZzu7FZAdnZBs9wlGoWDlV05wNcMDZ0fRg1W//CtaYksDz7nv/DOdkoLF4uh3DRnlgZJKQq/gUFJPz8q2wZMT2wYGTwDtKC6C0oFvCCCDUuJTKbTJ2+3PIuufQOVTCfu7j7/awA0n6juFdPErqm5Q/UHjAWXOWg0cplv1Ap6xuUCQP/rpLk8/+ovEM3mHmKK+l8DJ1Sw3ODmFltpOwTm+g==
+ bh=enOyPnZ9fYhAr282GGKjIU3HUlbzSSr36trVXmy4pkg=;
+ b=nRlYvrvP4jwgChRSXa21tDvOjrHMKd3TAe+fWxw4FWZt79oE5n+a7Q6B4xfdYmDXy3y/9Fl6Elph1vpvMDWI4jxKuCAFGEnGd9OTi5Z+FRGwNs+SPYawTQTd/9XLUKCpKMqezUxpSVseQlvLNzY+Ums5EfJqczAQmd0lRF+9z/Szs8Up+y5tRbXWP8Qx2okdYGUnQIq9v/KFiLemVYkP2dolqSf6wvmp+lKbsULTqUJWUNq8IUUexONIU7Jqz9TCFlVWYYYZa7JmC2rQaEzmwkmpxU0fs/tQe1op+1TC9ruMIogNWd9iVzEoFmGQhXpJ1rFgVAj9Qm1Gsv9QPBaxew==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.234) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=nvidia.com;
+ 12.22.5.236) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KrpzUqe93nJ9GeQOsSbk5MfMSuxr7D8zjv3Jzfyijk4=;
- b=JsU3SdOsbNz86HgOSkEWX/3NFaVNVp+bBGmacI8lwjWu9C/uzAVx8byYoYoO3PejLGqv3GAIXqJEUDwFl93ThKwj+svA/KC0p4uaZ7sTI/yr62cFS/tZQXSGKKD5KBjqHre0x2lrx8W5GX0Dh3rbiOLbP/K0y3f9f6v2HHTD751TMn5aYt2DY9griioy6SM69xQR++K4rnISQFa8n6N3E3Xm2FN6oByxyDxl3Uj4dtGtzN9p9TaTfUqfBjPjFs08OZCNhEbC9o2xg7StQFmtYSnifavax08BrYUQ6BvfiHm7AR9euN0rrRxFgN/jw1VatT3NugCHFiAzxeAW6aUMiQ==
-Received: from MWHPR22CA0010.namprd22.prod.outlook.com (2603:10b6:300:ef::20)
- by BN9PR12MB5209.namprd12.prod.outlook.com (2603:10b6:408:11a::22) with
+ bh=enOyPnZ9fYhAr282GGKjIU3HUlbzSSr36trVXmy4pkg=;
+ b=GLoojFHIKLW6pq11jvWyi6IqMz9GBxxT/0G9O0Px1sXIJicp4G5tOFYdpRshFUbJkZyw0rRwiXTlECjD8bHqWWHgdkKVC3VpOLXW1B8Vag8FKR2630pvAimVLIzaOB+Ck0HrWCGGvD5It1EMOZveBJxjLo9ErNQP6N9U7c06rK6ELeYtu9AHRgVZooPW+KmNKFScenAx8WCxRcz93egmxsidzleTMZ55Iv50qjN8C2khzR8yxDedT0yH4Swnu46y3kDjQeVEurcHrrvY9oQfxbtZ+eHp4yZUF6irHaJ1YOY9PytiXLbFDC0pZyGQ3AIt0CQ3ZmIeTwX8zfje+Y1xQg==
+Received: from BN0PR03CA0049.namprd03.prod.outlook.com (2603:10b6:408:e7::24)
+ by DM6PR12MB3049.namprd12.prod.outlook.com (2603:10b6:5:11d::19) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.20; Fri, 8 Jul
- 2022 22:44:44 +0000
-Received: from CO1NAM11FT005.eop-nam11.prod.protection.outlook.com
- (2603:10b6:300:ef:cafe::62) by MWHPR22CA0010.outlook.office365.com
- (2603:10b6:300:ef::20) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.21 via Frontend
- Transport; Fri, 8 Jul 2022 22:44:44 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.234)
+ 2022 22:44:38 +0000
+Received: from BN8NAM11FT059.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:e7:cafe::cd) by BN0PR03CA0049.outlook.office365.com
+ (2603:10b6:408:e7::24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.19 via Frontend
+ Transport; Fri, 8 Jul 2022 22:44:38 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.236)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
 Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.234 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.234; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (12.22.5.234) by
- CO1NAM11FT005.mail.protection.outlook.com (10.13.174.147) with Microsoft SMTP
+ 12.22.5.236 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.236; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.236) by
+ BN8NAM11FT059.mail.protection.outlook.com (10.13.177.120) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5417.15 via Frontend Transport; Fri, 8 Jul 2022 22:44:44 +0000
+ 15.20.5417.15 via Frontend Transport; Fri, 8 Jul 2022 22:44:37 +0000
 Received: from drhqmail203.nvidia.com (10.126.190.182) by
- DRHQMAIL101.nvidia.com (10.27.9.10) with Microsoft SMTP Server (TLS) id
- 15.0.1497.32; Fri, 8 Jul 2022 22:44:43 +0000
+ DRHQMAIL109.nvidia.com (10.27.9.19) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.32; Fri, 8 Jul 2022 22:44:36 +0000
 Received: from drhqmail202.nvidia.com (10.126.190.181) by
  drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.26; Fri, 8 Jul 2022 15:44:43 -0700
+ 15.2.986.26; Fri, 8 Jul 2022 15:44:36 -0700
 Received: from Asurada-Nvidia.nvidia.com (10.127.8.13) by mail.nvidia.com
  (10.126.190.181) with Microsoft SMTP Server id 15.2.986.26 via Frontend
- Transport; Fri, 8 Jul 2022 15:44:41 -0700
+ Transport; Fri, 8 Jul 2022 15:44:34 -0700
 From:   Nicolin Chen <nicolinc@nvidia.com>
 To:     <kwankhede@nvidia.com>, <corbet@lwn.net>, <hca@linux.ibm.com>,
         <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
@@ -80,9 +80,9 @@ CC:     <jchrist@linux.ibm.com>, <kvm@vger.kernel.org>,
         <intel-gvt-dev@lists.freedesktop.org>,
         <intel-gfx@lists.freedesktop.org>,
         <dri-devel@lists.freedesktop.org>, <terrence.xu@intel.com>
-Subject: [PATCH v3 06/10] vfio/ap: Change saved_pfn to saved_iova
-Date:   Fri, 8 Jul 2022 15:44:24 -0700
-Message-ID: <20220708224427.1245-7-nicolinc@nvidia.com>
+Subject: [PATCH v3 03/10] vfio/ap: Pass in physical address of ind to ap_aqic()
+Date:   Fri, 8 Jul 2022 15:44:21 -0700
+Message-ID: <20220708224427.1245-4-nicolinc@nvidia.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220708224427.1245-1-nicolinc@nvidia.com>
 References: <20220708224427.1245-1-nicolinc@nvidia.com>
@@ -90,175 +90,118 @@ MIME-Version: 1.0
 Content-Type: text/plain
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: f9aaf7ff-4d73-4622-ae57-08da613373e0
-X-MS-TrafficTypeDiagnostic: BN9PR12MB5209:EE_
+X-MS-Office365-Filtering-Correlation-Id: 287c0baa-72f9-4ea5-a819-08da61337025
+X-MS-TrafficTypeDiagnostic: DM6PR12MB3049:EE_
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: gEinzAzAfz0J6IHSdYvvSlaNPV4Rs4fvpIVpO6WHEv1o2dHRiiFf9/yu4Pa474RU/pNjiWVQm2QZ+j+diYzkkmzr221ZQTUee/OYm2XRMSNrtbDXExGxZQ3H+MBeOAKSBWMbxmPEncq2wJQhv1FMX3CD4JC65Xh7L90ez4+R4b0k/mYB7yTkjgviYRqyedGFxxlGEtx5u10vyqevZ0yoxerApvPo4mli5sShUEt3K9pMDbFT+9xLOiRy1t1gAdher/TxM++VAP6eteBmI0JlcaZz21RBiKem6jY8+BgrntZs1CBtrv93CU7whTBsT50taVGv5/rEF8vtSMf/RG7SrGZcco4SACVzqNrcem++GLoptMqZdG/TxqlE6wJJ/T7GUW5iVaErMji2xjTpMlenjL/Yq8eAAkyjDQjz+qA/ayYmzJCULz34VudPvijMYlzWOwk6rKwTBo9ZAs5RhCXEYKr9/Ag5aiSOPo9UQlDChM4Sy1S0jPJ6nbLN/lh4qAQx1eTzIkEbl4qenJkxNsFhBNkHPekheQ4y13A1zfhxQMt/SLJ6YIfDvFOIjrYq+Z4ujcWjoXmYqRtHkPzaeJo1LQla/HDlXUVAWNlNZPV44VGJ7lY5N89qnb9fnvYhDooxHnVk4IIdmsMOiF15es5yvoqlIDb++Qliobsty6Gs/Lx81ZlfPCkIXSdlF4+ixaZZC3jeNq2P+hkjkoFF42jkO0e1/FRHduJ/1fXhxSI5Mfbt0ZD+IQE6+AudLjP7vXW+ph9dDqI3QzDTubw0TSTTj3wla2K72p8IYl80NQUSTon/ztsaa3igmVv6/LZPLVghnYsdBixkrfiQqB7xP8ssBTrDPjlYdA28RvY8p4ccoQQZmtk2Extx38NG6pgTc7E4nwP2TRRYzzjcKiB+/xqLIJjWBIND8wRvjOJEH1KYlBE=
-X-Forefront-Antispam-Report: CIP:12.22.5.234;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(136003)(396003)(39860400002)(376002)(346002)(36840700001)(40470700004)(46966006)(110136005)(36860700001)(40460700003)(316002)(2906002)(83380400001)(40480700001)(5660300002)(54906003)(36756003)(7406005)(7416002)(8936002)(47076005)(70586007)(82740400003)(81166007)(2616005)(8676002)(4326008)(336012)(70206006)(186003)(356005)(26005)(82310400005)(86362001)(921005)(7696005)(478600001)(1076003)(6666004)(426003)(41300700001)(36900700001)(83996005)(2101003);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: pAKfQOdT9gTFDXJRRNnNesQ+rqCVKHWRPz03KQp0ceXbe2qSSkzFOnp3rf5VkuQTyKX6EIxINK7AMDpfnbijX77RNEZ9ap/+Tz3dAeOVoGNb2ZMqPJNhTd3iVbgseyPa1k0WzzORt7EIM0mIgik6fA+13YZ4DM5CtUPW8pfJc/Ev/D1YscwqQj7eM7q2No2V8cnAEq+O+svLw8+gpd3tfXYek/34sjZxPeXy7Og0WrlErUc5eDHU9ZDc88ce11jbggIqEZbUBZKJNHviBpk0GmrbVg65NXwr8j0NNxFQ/OO8uzmPzVIpjVIW1M0tr/0DBiHc+15h31pY7HSaOzX2hGltON6d4PLltbuUN4P3I7XAheHHs1msk/rAWvWf3MTQrEXBjxfeSP/DLmRjy26PF/7CMw+KpuSAsX45lqDbaFTQXt4jE4LtdydixuQHyM/PmxXFWs06OxYMTGH94Dskxp2X7UJWR+/BwEpeC5vgBrfPBmeJzjZsxEBpyd4D2GMJbgZsZxCxaVy028qv3dJU4qQV5rJ4YuryRUvuefOWpZVRdxXiTtYefkjQvg+XlKBwNAZ47TTYoPkQ1pJxicMNkFswNkxuy39GPBBQupfWQ/7EC5uOcEbgEn4oNQ5UGIsFqytTAN58oU4onWcS2w8Qz5Tk2AqYz8jJ+nGjQH9L8DQGdPA5JrUIztGR8ZcPg8VlppoYNAw4COSDYLfBKv2k++UG6mW3sEUFqvjPqf5hn/q2rcnML4rS2uRdkuBSzmg1R46NcJlvihNTa6YNUudd1lhuOfWRLGfCSQJHxgORRY68EW+HwjmGlk2XSSMStUCWu8Mq5ykZve60/8QxDLOGv3HpCIoMc3rg8Nful8k1a9ZxKonQOaoeikAgUzJz/hRpDQeiydZwyxPJmYIvYOCym5Qoa5hvIiOq3CD2vgD2saQ=
+X-Forefront-Antispam-Report: CIP:12.22.5.236;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(346002)(376002)(396003)(39860400002)(136003)(36840700001)(46966006)(40470700004)(7406005)(316002)(70586007)(70206006)(83380400001)(110136005)(7416002)(26005)(8936002)(478600001)(54906003)(5660300002)(8676002)(36860700001)(40460700003)(36756003)(81166007)(336012)(356005)(82310400005)(4326008)(921005)(426003)(47076005)(86362001)(6666004)(7696005)(82740400003)(1076003)(186003)(41300700001)(2616005)(40480700001)(2906002)(36900700001)(83996005)(2101003);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jul 2022 22:44:44.0427
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jul 2022 22:44:37.7214
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: f9aaf7ff-4d73-4622-ae57-08da613373e0
+X-MS-Exchange-CrossTenant-Network-Message-Id: 287c0baa-72f9-4ea5-a819-08da61337025
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.234];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT005.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.236];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT059.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5209
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The vfio_ap_ops code maintains both nib address and its PFN, which
-is redundant, merely because vfio_pin/unpin_pages API wanted pfn.
-Since vfio_pin/unpin_pages() now accept "iova", change "saved_pfn"
-to "saved_iova" and remove pfn in the vfio_ap_validate_nib().
+The ap_aqic() is called by vfio_ap_irq_enable() where it passes in a
+virt value that's casted from a physical address "h_nib". Inside the
+ap_aqic(), it does virt_to_phys() again.
 
+Since ap_aqic() needs a physical address, let's just pass in a pa of
+ind directly. So change the "ind" to "pa_ind".
+
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 Tested-by: Eric Farman <farman@linux.ibm.com>
 Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     | 42 +++++++++++----------------
- drivers/s390/crypto/vfio_ap_private.h |  4 +--
- 2 files changed, 19 insertions(+), 27 deletions(-)
+ arch/s390/include/asm/ap.h        | 6 +++---
+ drivers/s390/crypto/ap_queue.c    | 2 +-
+ drivers/s390/crypto/vfio_ap_ops.c | 7 ++++---
+ 3 files changed, 8 insertions(+), 7 deletions(-)
 
+diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+index b515cfa62bd9..f508f5025e38 100644
+--- a/arch/s390/include/asm/ap.h
++++ b/arch/s390/include/asm/ap.h
+@@ -227,13 +227,13 @@ struct ap_qirq_ctrl {
+  * ap_aqic(): Control interruption for a specific AP.
+  * @qid: The AP queue number
+  * @qirqctrl: struct ap_qirq_ctrl (64 bit value)
+- * @ind: The notification indicator byte
++ * @pa_ind: Physical address of the notification indicator byte
+  *
+  * Returns AP queue status.
+  */
+ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
+ 					     struct ap_qirq_ctrl qirqctrl,
+-					     void *ind)
++					     phys_addr_t pa_ind)
+ {
+ 	unsigned long reg0 = qid | (3UL << 24);  /* fc 3UL is AQIC */
+ 	union {
+@@ -241,7 +241,7 @@ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
+ 		struct ap_qirq_ctrl qirqctrl;
+ 		struct ap_queue_status status;
+ 	} reg1;
+-	unsigned long reg2 = virt_to_phys(ind);
++	unsigned long reg2 = pa_ind;
+ 
+ 	reg1.qirqctrl = qirqctrl;
+ 
+diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
+index c48b0db824e3..a32457b4cbb8 100644
+--- a/drivers/s390/crypto/ap_queue.c
++++ b/drivers/s390/crypto/ap_queue.c
+@@ -34,7 +34,7 @@ static int ap_queue_enable_irq(struct ap_queue *aq, void *ind)
+ 
+ 	qirqctrl.ir = 1;
+ 	qirqctrl.isc = AP_ISC;
+-	status = ap_aqic(aq->qid, qirqctrl, ind);
++	status = ap_aqic(aq->qid, qirqctrl, virt_to_phys(ind));
+ 	switch (status.response_code) {
+ 	case AP_RESPONSE_NORMAL:
+ 	case AP_RESPONSE_OTHERWISE_CHANGED:
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 8a2018ab3cf0..e8856a7e151c 100644
+index a7d2a95796d3..bb869b28cebd 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -112,7 +112,7 @@ static void vfio_ap_wait_for_irqclear(int apqn)
-  *
-  * Unregisters the ISC in the GIB when the saved ISC not invalid.
-  * Unpins the guest's page holding the NIB when it exists.
-- * Resets the saved_pfn and saved_isc to invalid values.
-+ * Resets the saved_iova and saved_isc to invalid values.
-  */
- static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
- {
-@@ -123,9 +123,9 @@ static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
- 		kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
- 		q->saved_isc = VFIO_AP_ISC_INVALID;
- 	}
--	if (q->saved_pfn && !WARN_ON(!q->matrix_mdev)) {
--		vfio_unpin_pages(&q->matrix_mdev->vdev, q->saved_pfn << PAGE_SHIFT, 1);
--		q->saved_pfn = 0;
-+	if (q->saved_iova && !WARN_ON(!q->matrix_mdev)) {
-+		vfio_unpin_pages(&q->matrix_mdev->vdev, q->saved_iova, 1);
-+		q->saved_iova = 0;
- 	}
- }
+@@ -154,7 +154,7 @@ static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
+ 	int retries = 5;
  
-@@ -189,27 +189,19 @@ static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
-  *
-  * @vcpu: the object representing the vcpu executing the PQAP(AQIC) instruction.
-  * @nib: the location for storing the nib address.
-- * @g_pfn: the location for storing the page frame number of the page containing
-- *	   the nib.
-  *
-  * When the PQAP(AQIC) instruction is executed, general register 2 contains the
-  * address of the notification indicator byte (nib) used for IRQ notification.
-- * This function parses the nib from gr2 and calculates the page frame
-- * number for the guest of the page containing the nib. The values are
-- * stored in @nib and @g_pfn respectively.
-- *
-- * The g_pfn of the nib is then validated to ensure the nib address is valid.
-+ * This function parses and validates the nib from gr2.
-  *
-  * Return: returns zero if the nib address is a valid; otherwise, returns
-  *	   -EINVAL.
-  */
--static int vfio_ap_validate_nib(struct kvm_vcpu *vcpu, unsigned long *nib,
--				unsigned long *g_pfn)
-+static int vfio_ap_validate_nib(struct kvm_vcpu *vcpu, dma_addr_t *nib)
- {
- 	*nib = vcpu->run->s.regs.gprs[2];
--	*g_pfn = *nib >> PAGE_SHIFT;
- 
--	if (kvm_is_error_hva(gfn_to_hva(vcpu->kvm, *g_pfn)))
-+	if (kvm_is_error_hva(gfn_to_hva(vcpu->kvm, *nib >> PAGE_SHIFT)))
- 		return -EINVAL;
- 
- 	return 0;
-@@ -239,34 +231,34 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
- 						 int isc,
- 						 struct kvm_vcpu *vcpu)
- {
--	unsigned long nib;
- 	struct ap_qirq_ctrl aqic_gisa = {};
- 	struct ap_queue_status status = {};
+ 	do {
+-		status = ap_aqic(q->apqn, aqic_gisa, NULL);
++		status = ap_aqic(q->apqn, aqic_gisa, 0);
+ 		switch (status.response_code) {
+ 		case AP_RESPONSE_OTHERWISE_CHANGED:
+ 		case AP_RESPONSE_NORMAL:
+@@ -245,7 +245,8 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
  	struct kvm_s390_gisa *gisa;
  	int nisc;
  	struct kvm *kvm;
--	unsigned long g_pfn, h_pfn;
-+	unsigned long h_pfn;
- 	phys_addr_t h_nib;
-+	dma_addr_t nib;
+-	unsigned long h_nib, g_pfn, h_pfn;
++	unsigned long g_pfn, h_pfn;
++	phys_addr_t h_nib;
  	int ret;
  
  	/* Verify that the notification indicator byte address is valid */
--	if (vfio_ap_validate_nib(vcpu, &nib, &g_pfn)) {
--		VFIO_AP_DBF_WARN("%s: invalid NIB address: nib=%#lx, g_pfn=%#lx, apqn=%#04x\n",
--				 __func__, nib, g_pfn, q->apqn);
-+	if (vfio_ap_validate_nib(vcpu, &nib)) {
-+		VFIO_AP_DBF_WARN("%s: invalid NIB address: nib=%pad, apqn=%#04x\n",
-+				 __func__, &nib, q->apqn);
+@@ -290,7 +291,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+ 	aqic_gisa.ir = 1;
+ 	aqic_gisa.gisa = (uint64_t)gisa >> 4;
  
- 		status.response_code = AP_RESPONSE_INVALID_ADDRESS;
- 		return status;
- 	}
- 
--	ret = vfio_pin_pages(&q->matrix_mdev->vdev, g_pfn << PAGE_SHIFT, 1,
-+	ret = vfio_pin_pages(&q->matrix_mdev->vdev, nib, 1,
- 			     IOMMU_READ | IOMMU_WRITE, &h_pfn);
- 	switch (ret) {
- 	case 1:
- 		break;
- 	default:
- 		VFIO_AP_DBF_WARN("%s: vfio_pin_pages failed: rc=%d,"
--				 "nib=%#lx, g_pfn=%#lx, apqn=%#04x\n",
--				 __func__, ret, nib, g_pfn, q->apqn);
-+				 "nib=%pad, apqn=%#04x\n",
-+				 __func__, ret, &nib, q->apqn);
- 
- 		status.response_code = AP_RESPONSE_INVALID_ADDRESS;
- 		return status;
-@@ -296,12 +288,12 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+-	status = ap_aqic(q->apqn, aqic_gisa, (void *)h_nib);
++	status = ap_aqic(q->apqn, aqic_gisa, h_nib);
+ 	switch (status.response_code) {
  	case AP_RESPONSE_NORMAL:
  		/* See if we did clear older IRQ configuration */
- 		vfio_ap_free_aqic_resources(q);
--		q->saved_pfn = g_pfn;
-+		q->saved_iova = nib;
- 		q->saved_isc = isc;
- 		break;
- 	case AP_RESPONSE_OTHERWISE_CHANGED:
- 		/* We could not modify IRQ setings: clear new configuration */
--		vfio_unpin_pages(&q->matrix_mdev->vdev, g_pfn << PAGE_SHIFT, 1);
-+		vfio_unpin_pages(&q->matrix_mdev->vdev, nib, 1);
- 		kvm_s390_gisc_unregister(kvm, isc);
- 		break;
- 	default:
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index a26efd804d0d..479b205179bd 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -102,13 +102,13 @@ struct ap_matrix_mdev {
-  * struct vfio_ap_queue - contains the data associated with a queue bound to the
-  *			  vfio_ap device driver
-  * @matrix_mdev: the matrix mediated device
-- * @saved_pfn: the guest PFN pinned for the guest
-+ * @saved_iova: the notification indicator byte (nib) address
-  * @apqn: the APQN of the AP queue device
-  * @saved_isc: the guest ISC registered with the GIB interface
-  */
- struct vfio_ap_queue {
- 	struct ap_matrix_mdev *matrix_mdev;
--	unsigned long saved_pfn;
-+	dma_addr_t saved_iova;
- 	int	apqn;
- #define VFIO_AP_ISC_INVALID 0xff
- 	unsigned char saved_isc;
 -- 
 2.17.1
 
