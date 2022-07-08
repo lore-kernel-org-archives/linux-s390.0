@@ -2,112 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4E68C43334
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 08:14:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D20AC433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 08:17:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237722AbiGHIOm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Jul 2022 04:14:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48764 "EHLO
+        id S237495AbiGHIR6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Jul 2022 04:17:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237628AbiGHIOl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 04:14:41 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD56F7392C;
-        Fri,  8 Jul 2022 01:14:40 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2688CH29017346;
-        Fri, 8 Jul 2022 08:14:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=KjwhQRkfiywh2HTVFoTtksOCx5nrgNL3/4qAheIYzs0=;
- b=WVQdenRVrLfitup3WLMCy/4R5lBAYQKgBrcPvA23aZBvXbCNEd9++jIW1OFa42WVW9h3
- ZpC1XmR/5fpZr7dvkUNZRmcpldfQlx0/pJeM7FZDazEOhBHw9yDBaHlyegiK21j72YuP
- p/RgQyjA/x6WAdT8UpdVt/1P4/TL4UGD9iQkdNNSQ20T8EHGmVXbxk8QRLrGSqrJZp9c
- XvjIgW2NGfMScKTTHvvV/W8u0vN1v2ES/bvVj86WZvHPPxKcv1dL+dXhS2eWnH9oMC/H
- 6KFouBEOi7hsJDt/khoHn5Q97YPuH6FDBu1lZz7E2pLc6wtzKW266E1QmTAJGgLwVlIC Lw== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h6guy81jq-1
+        with ESMTP id S236902AbiGHIRz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 04:17:55 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F8048049E;
+        Fri,  8 Jul 2022 01:17:54 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2686bfeG002418;
+        Fri, 8 Jul 2022 08:17:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=xu4rCDT68mfO5MudmK6UmIYbKX3my2hBQzJ60S+24hQ=;
+ b=Lyr920IHY24YJdACfJBEbx+YhwQg2zV536m5TfEzFiLuWb9bM4551+eHtC+62umKXNGh
+ v/NFJU2uayTkGICCY7Gq0YzsTSmC1y2BQ2OcFyKQ2V96U2JwVg+MRcHdEMYEURPFEL/k
+ M3/qUHQt0o1W/uAFQ5ly8pdHc9TCgK1brmj0gI1oGasaDIZ5Wh0UoNxztKvlghseBMDx
+ gDwoVcPSEoUllVK8Ld8r3DUZO9V7lHk9I6/yUCWk4sjmvuhpzdJmb27gTHKB+HrMnh2Q
+ 9SFGq8Y5D+ntSbxWwQjYJODqmQbKzndjusrSHvJ7Gx7omnj9xIVBtbc0nuSXP/Tl7y96 2A== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h6e9ymfyc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 08:14:25 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26884vMM018005;
-        Fri, 8 Jul 2022 08:14:22 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma02fra.de.ibm.com with ESMTP id 3h4uwp2qb9-1
+        Fri, 08 Jul 2022 08:17:36 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 268860be014846;
+        Fri, 8 Jul 2022 08:17:34 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3h4v4jupng-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 08:14:22 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2688CxWg22544650
+        Fri, 08 Jul 2022 08:17:34 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2688HVlG24903996
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 8 Jul 2022 08:12:59 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9356942041;
-        Fri,  8 Jul 2022 08:14:19 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C3B442042;
-        Fri,  8 Jul 2022 08:14:19 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  8 Jul 2022 08:14:19 +0000 (GMT)
+        Fri, 8 Jul 2022 08:17:31 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5B368A4054;
+        Fri,  8 Jul 2022 08:17:31 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ADC66A405F;
+        Fri,  8 Jul 2022 08:17:30 +0000 (GMT)
+Received: from sig-9-145-21-70.uk.ibm.com (unknown [9.145.21.70])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  8 Jul 2022 08:17:30 +0000 (GMT)
+Message-ID: <44c823d7c9ab15579d30734761200c0a6ed44a6f.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 00/15] iommu: Retire bus_set_iommu()
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     mjrosato@linux.ibm.com
-Cc:     baolu.lu@linux.intel.com, gerald.schaefer@linux.ibm.com,
-        iommu@lists.linux.dev, joro@8bytes.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, robin.murphy@arm.com,
-        schnelle@linux.ibm.com, suravee.suthikulpanit@amd.com,
-        vasant.hegde@amd.com, will@kernel.org
-Subject: [PATCH] iommu/s390: fail probe for non-pci device
-Date:   Fri,  8 Jul 2022 10:14:18 +0200
-Message-Id: <20220708081418.2691301-1-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <4c25e3ad-0eb6-5c41-48b2-7c10e745bd5d@linux.ibm.com>
-References: <4c25e3ad-0eb6-5c41-48b2-7c10e745bd5d@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+To:     Robin Murphy <robin.murphy@arm.com>, joro@8bytes.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     will@kernel.org, iommu@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, baolu.lu@linux.intel.com,
+        suravee.suthikulpanit@amd.com, vasant.hegde@amd.com,
+        mjrosato@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Fri, 08 Jul 2022 10:17:30 +0200
+In-Reply-To: <cover.1657034827.git.robin.murphy@arm.com>
+References: <cover.1657034827.git.robin.murphy@arm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: CPljTlbL3W45HRul6XZibOWR73EZbyAn
-X-Proofpoint-GUID: CPljTlbL3W45HRul6XZibOWR73EZbyAn
+X-Proofpoint-GUID: MWVqaxMEq8CD8_OlP2DoJ9y5jxZ7Sui9
+X-Proofpoint-ORIG-GUID: MWVqaxMEq8CD8_OlP2DoJ9y5jxZ7Sui9
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-08_06,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- priorityscore=1501 lowpriorityscore=0 clxscore=1011 suspectscore=0
- adultscore=0 impostorscore=0 phishscore=0 spamscore=0 mlxlogscore=999
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ adultscore=0 priorityscore=1501 malwarescore=0 lowpriorityscore=0
+ bulkscore=0 mlxlogscore=780 clxscore=1015 suspectscore=0 impostorscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2206140000 definitions=main-2207080030
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Matthew Rosato <mjrosato@linux.ibm.com>
+On Tue, 2022-07-05 at 18:08 +0100, Robin Murphy wrote:
+> v2: https://lore.kernel.org/linux-iommu/cover.1650890638.git.robin.murphy@arm.com/
+> 
+> Hi all,
+> 
+> Here's v3, now with working x86! Having finally made sense of how I
+> broke Intel, I've given AMD the same fix by inspection. I'm still not
+> 100% sure about s390, but it looks like it should probably be OK since
+> it seems to register an IOMMU instance for each PCI device (?!) before
+> disappearing into PCI hotplug code, wherein I assume we should never see
+> a PCI device appear without its IOMMU already registered.
 
-s390-iommu only supports pci_bus_type today
+Yes, this is a bit unusual as our PCI architecture doesn't really have
+a notion of an IOMMU device only of I/O translation tables. These are
+then registered per PCI function. PCI functions may share I/O
+translation tables and thus DMA address spaces but this is not done at
+the moment. As Matt already mentioned we do need a small change for
+this patch series. Since that was still mangled in his mail for me I
+just replied with that using "git send-email". With Matt's patch
+applied I can confirm that this works fine for us and does look like a
+useful simplification. So feel free to add my
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- drivers/iommu/s390-iommu.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index dd957145fb81..762f892b4ec3 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -185,7 +185,12 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
- 
- static struct iommu_device *s390_iommu_probe_device(struct device *dev)
- {
--	struct zpci_dev *zdev = to_zpci_dev(dev);
-+	struct zpci_dev *zdev;
-+
-+	if (!dev_is_pci(dev))
-+		return ERR_PTR(-ENODEV);
-+
-+	zdev = to_zpci_dev(dev);
- 
- 	return &zdev->iommu_dev;
- }
--- 
-2.34.1
+Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
