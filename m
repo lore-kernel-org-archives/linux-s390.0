@@ -2,112 +2,212 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51C8EC433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 09:05:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 954B4C43334
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 09:10:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237266AbiGHJFe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Jul 2022 05:05:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59414 "EHLO
+        id S237537AbiGHJKN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Jul 2022 05:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230230AbiGHJFc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 05:05:32 -0400
+        with ESMTP id S237381AbiGHJKN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 05:10:13 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24867C05;
-        Fri,  8 Jul 2022 02:05:32 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2688oiSS020124;
-        Fri, 8 Jul 2022 09:05:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to : sender :
- content-transfer-encoding : mime-version; s=pp1;
- bh=XkARPEYVGEWhIFw6qJEb/Z2vhxP5S+elQY5DtiOkqVM=;
- b=CyKRBTV8L4J8FDpLGevtpbFAkFV9zFvh4sFF/2ez0CGJafXKFCDClbJ3+/GJx0YDAJG2
- 24iieRQ7aUeCgW0H/UUndPFSX77YA70WsvcgjP5iUTP14l3AmCgYxsHx9vzdXOd3bomX
- Moxp1BaFGa97NobiIQ1b40NK/G65sT/VGqGLoRQK/C8v9u4YYaV6xLrk/6+I6MqWl2R4
- vFPjlaCn8t5ob9HtZsqxXRLkSh4DxwLVfnPq/1MWr2UlxUAR15eJlWVmm70RnoSjgvUA
- ASuGcfscNdyv++X2QLzPMbCmoZjPGjWf8ZwCPHPWynJfeGMwtVX/EhtCv/nFmRb1w6i+ uw== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h6he88b0d-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FECCDEC;
+        Fri,  8 Jul 2022 02:10:12 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2688juCD040879;
+        Fri, 8 Jul 2022 09:10:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=KXHtKxUJIvRNwO4J5gvSc2w3rDaCTdwViNXFrB+t+UY=;
+ b=AP/0XKvr2jtl8biTK5zr0JAtmtF2cdc4+osT0UvKm5eIntCw8Chc/uiaMwSsLBcRSsT1
+ 3WqQi1DCOp6kGdtv0SiCsYDjQlsSunoOhTxd3GGEyAcx2hTrW8gAwOzSUGHZzek64DtT
+ UizSN9LFJ/K5sRNYBMKL3rxv1w4jEVQ5g7QxUtKaCPHDoQi9nBY61Ol1CMyLxkfFr7pu
+ JDJzonqPLS22VmYUlL2lnMqlBSGiI0C28hR3+HHpv4ylcL/sCn7xfuQIkj9pN0B6T82k
+ LK2P7eQxxldLZcE62TnSP8aeZsBKlNyv+fVC5uw4xz1a2uUw2zGopxADE6D0s8DzcJwa og== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h6hby8hdt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 09:05:26 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2688Zoui006503;
-        Fri, 8 Jul 2022 09:05:24 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3h4v4jurfr-1
+        Fri, 08 Jul 2022 09:10:12 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2688kfQR001722;
+        Fri, 8 Jul 2022 09:10:11 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h6hby8hcj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 09:05:24 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26895LeF12779852
+        Fri, 08 Jul 2022 09:10:11 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26897gml002509;
+        Fri, 8 Jul 2022 09:10:09 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 3h4ujskrky-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 Jul 2022 09:10:09 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26898j6223855520
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 8 Jul 2022 09:05:21 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 00674A405C;
-        Fri,  8 Jul 2022 09:05:21 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E1961A405B;
-        Fri,  8 Jul 2022 09:05:20 +0000 (GMT)
-Received: from t480-pf1aa2c2 (unknown [9.145.39.141])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri,  8 Jul 2022 09:05:20 +0000 (GMT)
-Received: from bblock by t480-pf1aa2c2 with local (Exim 4.95)
-        (envelope-from <bblock@linux.ibm.com>)
-        id 1o9jvM-005n5n-Hf;
-        Fri, 08 Jul 2022 11:05:20 +0200
-Date:   Fri, 8 Jul 2022 09:05:20 +0000
-From:   Benjamin Block <bblock@linux.ibm.com>
-To:     "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        Fedor Loshakov <loshakov@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jiang Jian <jiangjian@cdjrlc.com>, linux-scsi@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 0/2] zfcp changes for v5.20
-Message-ID: <YsfzUCBsWyyvXICL@t480-pf1aa2c2.fritz.box>
-References: <cover.1657122360.git.bblock@linux.ibm.com>
- <yq11quw620k.fsf@ca-mkp.ca.oracle.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <yq11quw620k.fsf@ca-mkp.ca.oracle.com>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xeOjw2d7w11PPGMiXwC951XhlhvJpzVP
-X-Proofpoint-ORIG-GUID: xeOjw2d7w11PPGMiXwC951XhlhvJpzVP
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Fri, 8 Jul 2022 09:08:45 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 900F45204F;
+        Fri,  8 Jul 2022 09:10:05 +0000 (GMT)
+Received: from [9.145.3.110] (unknown [9.145.3.110])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 404C552050;
+        Fri,  8 Jul 2022 09:10:05 +0000 (GMT)
+Message-ID: <c8f10e41-06f6-a563-8bb6-3b999d4d94d3@linux.ibm.com>
+Date:   Fri, 8 Jul 2022 11:10:04 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [kvm-unit-tests PATCH v2 2/8] s390x: uv-host: Add uninitialized
+ UV tests
+Content-Language: en-US
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        kvm390 mailing list 
+        <kvm390-list@tuxmaker.boeblingen.de.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        imbrenda@linux.ibm.com, thuth@redhat.com, nrb@linux.ibm.com,
+        scgl@linux.ibm.com
+References: <20220706064024.16573-1-frankja@linux.ibm.com>
+ <20220706064024.16573-3-frankja@linux.ibm.com>
+From:   Steffen Eiden <seiden@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <20220706064024.16573-3-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: hgcu5-qrRf0SinPSdD2b5_zSRlpTBWlT
+X-Proofpoint-GUID: qTebMX5XW2Go5iimqBS-Uv1GtcC0Gvzo
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-08_06,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- mlxscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=840 impostorscore=0
- phishscore=0 clxscore=1015 spamscore=0 malwarescore=0 lowpriorityscore=0
+ definitions=2022-07-08_07,2022-06-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ clxscore=1015 priorityscore=1501 adultscore=0 phishscore=0 malwarescore=0
+ bulkscore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=999
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
  definitions=main-2207080032
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 07, 2022 at 05:34:11PM -0400, Martin K. Petersen wrote:
-> 
-> Benjamin,
-> 
-> > here is a (very) small set of changes for the zFCP device driver. The
-> > change from Jiang Jian came in recently, and Julian's patch has been
-> > laying around for quite a while now, so I didn't want to let them
-> > linger any longer in anticipation of any bigger change that might
-> > come.
-> 
-> Applied to 5.20/scsi-staging, thanks!
-> 
 
-Thanks Martin.
 
--- 
-Best Regards, Benjamin Block  / Linux on IBM Z Kernel Development / IBM Systems
-IBM Deutschland Research & Development GmbH    /    https://www.ibm.com/privacy
-Vorsitz. AufsR.: Gregor Pillen         /         Geschäftsführung: David Faller
-Sitz der Gesellschaft: Böblingen / Registergericht: AmtsG Stuttgart, HRB 243294
+On 7/6/22 08:40, Janosch Frank wrote:
+> Let's also test for rc 0x3
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+> ---
+>   s390x/uv-host.c | 79 +++++++++++++++++++++++++++++++++++++++++++++++--
+>   1 file changed, 77 insertions(+), 2 deletions(-)
+> 
+> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
+> index 983cb4a1..5aeacb42 100644
+> --- a/s390x/uv-host.c
+> +++ b/s390x/uv-host.c
+> @@ -101,6 +101,25 @@ static void test_priv(void)
+>   	report_prefix_pop();
+>   }
+>   
+> +static void test_uv_uninitialized(void)
+> +{
+> +	struct uv_cb_header uvcb = {};
+> +	int i;
+> +
+> +	report_prefix_push("uninitialized");
+> +
+> +	for (i = 0; cmds[i].name; i++) {
+> +		if (cmds[i].cmd == UVC_CMD_INIT_UV)
+> +			continue;
+> +		expect_pgm_int();
+> +		uvcb.cmd = cmds[i].cmd;
+> +		uvcb.len = cmds[i].len;
+> +		uv_call_once(0, (uint64_t)&uvcb);
+> +		report(uvcb.rc == UVC_RC_INV_STATE, "%s", cmds[i].name);
+> +	}
+> +	report_prefix_pop();
+> +}
+> +
+>   static void test_config_destroy(void)
+>   {
+>   	int rc;
+> @@ -468,13 +487,68 @@ static void test_invalid(void)
+>   	report_prefix_pop();
+>   }
+>   
+> +static void setup_test_clear(void)
+> +{
+> +	unsigned long vsize;
+> +	int rc;
+> +
+> +	uvcb_cgc.header.cmd = UVC_CMD_CREATE_SEC_CONF;
+> +	uvcb_cgc.header.len = sizeof(uvcb_cgc);
+> +
+> +	uvcb_cgc.guest_stor_origin = 0;
+> +	uvcb_cgc.guest_stor_len = 42 * (1UL << 20);
+> +	vsize = uvcb_qui.conf_base_virt_stor_len +
+> +		((uvcb_cgc.guest_stor_len / (1UL << 20)) * uvcb_qui.conf_virt_var_stor_len);
+> +
+> +	uvcb_cgc.conf_base_stor_origin = (uint64_t)memalign(PAGE_SIZE * 4, uvcb_qui.conf_base_phys_stor_len);
+> +	uvcb_cgc.conf_var_stor_origin = (uint64_t)memalign(PAGE_SIZE, vsize);
+> +	uvcb_cgc.guest_asce = (uint64_t)memalign(PAGE_SIZE, 4 * PAGE_SIZE) | ASCE_DT_SEGMENT | REGION_TABLE_LENGTH | ASCE_P;
+> +	uvcb_cgc.guest_sca = (uint64_t)memalign(PAGE_SIZE * 4, PAGE_SIZE * 4);
+> +
+> +	rc = uv_call(0, (uint64_t)&uvcb_cgc);
+> +	assert(rc == 0);
+> +
+> +	uvcb_csc.header.len = sizeof(uvcb_csc);
+> +	uvcb_csc.header.cmd = UVC_CMD_CREATE_SEC_CPU;
+> +	uvcb_csc.guest_handle = uvcb_cgc.guest_handle;
+> +	uvcb_csc.stor_origin = (unsigned long)memalign(PAGE_SIZE, uvcb_qui.cpu_stor_len);
+> +	uvcb_csc.state_origin = (unsigned long)memalign(PAGE_SIZE, PAGE_SIZE);
+> +
+> +	rc = uv_call(0, (uint64_t)&uvcb_csc);
+> +	assert(rc == 0);
+> +}
+> +
+>   static void test_clear(void)
+>   {
+> -	uint64_t *tmp = (void *)uvcb_init.stor_origin;
+> +	uint64_t *tmp;
+> +
+> +	report_prefix_push("load normal reset");
+> +
+> +	/*
+> +	 * Setup a config and a cpu so we can check if a diag308 reset
+> +	 * clears the donated memory and makes the pages unsecure.
+> +	 */
+> +	setup_test_clear();
+>   
+>   	diag308_load_reset(1);
+>   	sclp_console_setup();
+> -	report(!*tmp, "memory cleared after reset 1");
+> +
+> +	tmp = (void *)uvcb_init.stor_origin;
+> +	report(!*tmp, "uv init donated memory cleared");
+> +
+> +	tmp = (void *)uvcb_cgc.conf_base_stor_origin;
+> +	report(!*tmp, "config base donated memory cleared");
+> +
+> +	tmp = (void *)uvcb_cgc.conf_base_stor_origin;
+> +	report(!*tmp, "config variable donated memory cleared");
+> +
+> +	tmp = (void *)uvcb_csc.stor_origin;
+> +	report(!*tmp, "cpu donated memory cleared after reset 1");
+> +
+> +	/* Check if uninitialized after reset */
+> +	test_uv_uninitialized();
+> +
+> +	report_prefix_pop();
+>   }
+>   
+>   static void setup_vmem(void)
+> @@ -505,6 +579,7 @@ int main(void)
+>   
+>   	test_priv();
+>   	test_invalid();
+> +	test_uv_uninitialized();
+>   	test_query();
+>   	test_init();
+>   
