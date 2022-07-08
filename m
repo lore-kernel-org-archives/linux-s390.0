@@ -2,212 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 954B4C43334
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 09:10:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E7ECC433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 09:25:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237537AbiGHJKN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Jul 2022 05:10:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35140 "EHLO
+        id S237538AbiGHJZr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Jul 2022 05:25:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237381AbiGHJKN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 05:10:13 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FECCDEC;
-        Fri,  8 Jul 2022 02:10:12 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2688juCD040879;
-        Fri, 8 Jul 2022 09:10:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=KXHtKxUJIvRNwO4J5gvSc2w3rDaCTdwViNXFrB+t+UY=;
- b=AP/0XKvr2jtl8biTK5zr0JAtmtF2cdc4+osT0UvKm5eIntCw8Chc/uiaMwSsLBcRSsT1
- 3WqQi1DCOp6kGdtv0SiCsYDjQlsSunoOhTxd3GGEyAcx2hTrW8gAwOzSUGHZzek64DtT
- UizSN9LFJ/K5sRNYBMKL3rxv1w4jEVQ5g7QxUtKaCPHDoQi9nBY61Ol1CMyLxkfFr7pu
- JDJzonqPLS22VmYUlL2lnMqlBSGiI0C28hR3+HHpv4ylcL/sCn7xfuQIkj9pN0B6T82k
- LK2P7eQxxldLZcE62TnSP8aeZsBKlNyv+fVC5uw4xz1a2uUw2zGopxADE6D0s8DzcJwa og== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h6hby8hdt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 09:10:12 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2688kfQR001722;
-        Fri, 8 Jul 2022 09:10:11 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h6hby8hcj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 09:10:11 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26897gml002509;
-        Fri, 8 Jul 2022 09:10:09 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 3h4ujskrky-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 09:10:09 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26898j6223855520
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 8 Jul 2022 09:08:45 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 900F45204F;
-        Fri,  8 Jul 2022 09:10:05 +0000 (GMT)
-Received: from [9.145.3.110] (unknown [9.145.3.110])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 404C552050;
-        Fri,  8 Jul 2022 09:10:05 +0000 (GMT)
-Message-ID: <c8f10e41-06f6-a563-8bb6-3b999d4d94d3@linux.ibm.com>
-Date:   Fri, 8 Jul 2022 11:10:04 +0200
+        with ESMTP id S237487AbiGHJZr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 05:25:47 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DB8DC4
+        for <linux-s390@vger.kernel.org>; Fri,  8 Jul 2022 02:25:45 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id b2so15875307plx.7
+        for <linux-s390@vger.kernel.org>; Fri, 08 Jul 2022 02:25:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=l76lwu0gnwm/BRNuFyHSAOJEi0ORTe8+eknNAmXKjds=;
+        b=rfzaFQGT5WylU8oFzZ3Bm68tK5cbUJbFE9StIG5s9hhsbRmfmyXpTX1vYAFS6j1sbO
+         54fzhiZV7ncHK4Nr8HGnmkIfr2ytnO8L9enycMsyVsVIL1tiXZVpZqSpKlDbdzlr1hkY
+         5SH3l1JlLCIaVKwtkJN3exq1MhVYULNmdtYE+3L2FEtWtbYyCTh7i5U27YS5hNLZS0Xi
+         TkCdvF8KuNND6fSaeYKOvdHkBq2ajs61bZsAjRcCL57hyN0L81gtcBE6SGAlrMn1jLvp
+         TQMFQ82Z2m2T8NG7gNKsoCwNbcmQba3/hsB+SpuTecMd4FglfijuRPwEi0zcwSVVDuyS
+         /4FQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=l76lwu0gnwm/BRNuFyHSAOJEi0ORTe8+eknNAmXKjds=;
+        b=7CQift7UEWPjOLk/kjZ/W5zuFaeQmtK+3WX4qF5unY+Gr5m1fgziCu26VvyMlb7k6Q
+         MF+wUUIrrkwdjM3YE1Pl14fOatdMOsdGNJ2WmD6A7IgSrmHtvfICm+RB+xdV2KbeP8R4
+         UWtD7dfEGhEJqrNdkWPjO6zDBtWoLquJUZZKCaLOTTr+8jnzFvOV4SBQ4X4dIsBTMNqv
+         VmkmdVQjpNxZPENYMizEqRqPg28dGgB7Ua+BW/WMA2d440v00QIqvVLw/X/VLPnR+7GV
+         Dy87Ml8eZiL/FXK9iKg0iuPHgpmSA78Bj5hDibXcW59N+WLNUcySCzzFL268aEVl9qjg
+         Py0Q==
+X-Gm-Message-State: AJIora/daeBTM/8FhyJwLp8OfPYusdUgArE30Ds/LvG57xWNuSnRoUJX
+        bOjjP+eRoLPrwHAuTdIMWTMp3g==
+X-Google-Smtp-Source: AGRyM1uqbelvg6m24YuvTJPV4Xejv5UL/IUxXrRtbsELGOPhY6RycQiwGj2gryVPaBaHnMht6h77RQ==
+X-Received: by 2002:a17:902:e80c:b0:16c:28a6:8aa0 with SMTP id u12-20020a170902e80c00b0016c28a68aa0mr422950plg.119.1657272345465;
+        Fri, 08 Jul 2022 02:25:45 -0700 (PDT)
+Received: from [10.255.210.8] ([139.177.225.241])
+        by smtp.gmail.com with ESMTPSA id z11-20020a1709027e8b00b0016b865ea2ddsm23212195pla.85.2022.07.08.02.25.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 08 Jul 2022 02:25:44 -0700 (PDT)
+Message-ID: <be9303de-3800-c26f-4530-9a29fe044956@bytedance.com>
+Date:   Fri, 8 Jul 2022 17:25:31 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [kvm-unit-tests PATCH v2 2/8] s390x: uv-host: Add uninitialized
- UV tests
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.11.0
+Subject: Re: Re: [PATCH v2 0/5] mm, oom: Introduce per numa node oom for
+ CONSTRAINT_{MEMORY_POLICY,CPUSET}
 Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>,
-        kvm390 mailing list 
-        <kvm390-list@tuxmaker.boeblingen.de.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        imbrenda@linux.ibm.com, thuth@redhat.com, nrb@linux.ibm.com,
-        scgl@linux.ibm.com
-References: <20220706064024.16573-1-frankja@linux.ibm.com>
- <20220706064024.16573-3-frankja@linux.ibm.com>
-From:   Steffen Eiden <seiden@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <20220706064024.16573-3-frankja@linux.ibm.com>
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     akpm@linux-foundation.org, surenb@google.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        viro@zeniv.linux.org.uk, ebiederm@xmission.com,
+        keescook@chromium.org, rostedt@goodmis.org, mingo@redhat.com,
+        peterz@infradead.org, acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, david@redhat.com, imbrenda@linux.ibm.com,
+        adobriyan@gmail.com, yang.yang29@zte.com.cn, brauner@kernel.org,
+        stephen.s.brennan@oracle.com, zhengqi.arch@bytedance.com,
+        haolee.swjtu@gmail.com, xu.xin16@zte.com.cn,
+        Liam.Howlett@oracle.com, ohoono.kwon@samsung.com,
+        peterx@redhat.com, arnd@arndb.de, shy828301@gmail.com,
+        alex.sierra@amd.com, xianting.tian@linux.alibaba.com,
+        willy@infradead.org, ccross@google.com, vbabka@suse.cz,
+        sujiaxun@uniontech.com, sfr@canb.auug.org.au,
+        vasily.averin@linux.dev, mgorman@suse.de, vvghjk1234@gmail.com,
+        tglx@linutronix.de, luto@kernel.org, bigeasy@linutronix.de,
+        fenghua.yu@intel.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org
+References: <20220708082129.80115-1-ligang.bdlg@bytedance.com>
+ <YsfwyTHE/5py1kHC@dhcp22.suse.cz>
+From:   Gang Li <ligang.bdlg@bytedance.com>
+In-Reply-To: <YsfwyTHE/5py1kHC@dhcp22.suse.cz>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hgcu5-qrRf0SinPSdD2b5_zSRlpTBWlT
-X-Proofpoint-GUID: qTebMX5XW2Go5iimqBS-Uv1GtcC0Gvzo
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-08_07,2022-06-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- clxscore=1015 priorityscore=1501 adultscore=0 phishscore=0 malwarescore=0
- bulkscore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
- definitions=main-2207080032
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Oh apologize. I just realized what you mean.
 
+I should try a "cpuset cgroup oom killer" selecting victim from a
+specific cpuset cgroup.
 
-On 7/6/22 08:40, Janosch Frank wrote:
-> Let's also test for rc 0x3
+On 2022/7/8 16:54, Michal Hocko wrote:
+> On Fri 08-07-22 16:21:24, Gang Li wrote:
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->   s390x/uv-host.c | 79 +++++++++++++++++++++++++++++++++++++++++++++++--
->   1 file changed, 77 insertions(+), 2 deletions(-)
-> 
-> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
-> index 983cb4a1..5aeacb42 100644
-> --- a/s390x/uv-host.c
-> +++ b/s390x/uv-host.c
-> @@ -101,6 +101,25 @@ static void test_priv(void)
->   	report_prefix_pop();
->   }
->   
-> +static void test_uv_uninitialized(void)
-> +{
-> +	struct uv_cb_header uvcb = {};
-> +	int i;
-> +
-> +	report_prefix_push("uninitialized");
-> +
-> +	for (i = 0; cmds[i].name; i++) {
-> +		if (cmds[i].cmd == UVC_CMD_INIT_UV)
-> +			continue;
-> +		expect_pgm_int();
-> +		uvcb.cmd = cmds[i].cmd;
-> +		uvcb.len = cmds[i].len;
-> +		uv_call_once(0, (uint64_t)&uvcb);
-> +		report(uvcb.rc == UVC_RC_INV_STATE, "%s", cmds[i].name);
-> +	}
-> +	report_prefix_pop();
-> +}
-> +
->   static void test_config_destroy(void)
->   {
->   	int rc;
-> @@ -468,13 +487,68 @@ static void test_invalid(void)
->   	report_prefix_pop();
->   }
->   
-> +static void setup_test_clear(void)
-> +{
-> +	unsigned long vsize;
-> +	int rc;
-> +
-> +	uvcb_cgc.header.cmd = UVC_CMD_CREATE_SEC_CONF;
-> +	uvcb_cgc.header.len = sizeof(uvcb_cgc);
-> +
-> +	uvcb_cgc.guest_stor_origin = 0;
-> +	uvcb_cgc.guest_stor_len = 42 * (1UL << 20);
-> +	vsize = uvcb_qui.conf_base_virt_stor_len +
-> +		((uvcb_cgc.guest_stor_len / (1UL << 20)) * uvcb_qui.conf_virt_var_stor_len);
-> +
-> +	uvcb_cgc.conf_base_stor_origin = (uint64_t)memalign(PAGE_SIZE * 4, uvcb_qui.conf_base_phys_stor_len);
-> +	uvcb_cgc.conf_var_stor_origin = (uint64_t)memalign(PAGE_SIZE, vsize);
-> +	uvcb_cgc.guest_asce = (uint64_t)memalign(PAGE_SIZE, 4 * PAGE_SIZE) | ASCE_DT_SEGMENT | REGION_TABLE_LENGTH | ASCE_P;
-> +	uvcb_cgc.guest_sca = (uint64_t)memalign(PAGE_SIZE * 4, PAGE_SIZE * 4);
-> +
-> +	rc = uv_call(0, (uint64_t)&uvcb_cgc);
-> +	assert(rc == 0);
-> +
-> +	uvcb_csc.header.len = sizeof(uvcb_csc);
-> +	uvcb_csc.header.cmd = UVC_CMD_CREATE_SEC_CPU;
-> +	uvcb_csc.guest_handle = uvcb_cgc.guest_handle;
-> +	uvcb_csc.stor_origin = (unsigned long)memalign(PAGE_SIZE, uvcb_qui.cpu_stor_len);
-> +	uvcb_csc.state_origin = (unsigned long)memalign(PAGE_SIZE, PAGE_SIZE);
-> +
-> +	rc = uv_call(0, (uint64_t)&uvcb_csc);
-> +	assert(rc == 0);
-> +}
-> +
->   static void test_clear(void)
->   {
-> -	uint64_t *tmp = (void *)uvcb_init.stor_origin;
-> +	uint64_t *tmp;
-> +
-> +	report_prefix_push("load normal reset");
-> +
-> +	/*
-> +	 * Setup a config and a cpu so we can check if a diag308 reset
-> +	 * clears the donated memory and makes the pages unsecure.
-> +	 */
-> +	setup_test_clear();
->   
->   	diag308_load_reset(1);
->   	sclp_console_setup();
-> -	report(!*tmp, "memory cleared after reset 1");
-> +
-> +	tmp = (void *)uvcb_init.stor_origin;
-> +	report(!*tmp, "uv init donated memory cleared");
-> +
-> +	tmp = (void *)uvcb_cgc.conf_base_stor_origin;
-> +	report(!*tmp, "config base donated memory cleared");
-> +
-> +	tmp = (void *)uvcb_cgc.conf_base_stor_origin;
-> +	report(!*tmp, "config variable donated memory cleared");
-> +
-> +	tmp = (void *)uvcb_csc.stor_origin;
-> +	report(!*tmp, "cpu donated memory cleared after reset 1");
-> +
-> +	/* Check if uninitialized after reset */
-> +	test_uv_uninitialized();
-> +
-> +	report_prefix_pop();
->   }
->   
->   static void setup_vmem(void)
-> @@ -505,6 +579,7 @@ int main(void)
->   
->   	test_priv();
->   	test_invalid();
-> +	test_uv_uninitialized();
->   	test_query();
->   	test_init();
->   
+> We have discussed this in your previous posting and an alternative
+> proposal was to use cpusets to partition NUMA aware workloads and
+> enhance the oom killer to be cpuset aware instead which should be a much
+> easier solution.
