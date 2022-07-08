@@ -2,51 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFB58C43334
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 08:23:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F20ACCA47B
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Jul 2022 08:23:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237537AbiGHIXb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Jul 2022 04:23:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55920 "EHLO
+        id S237797AbiGHIXp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Jul 2022 04:23:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237784AbiGHIX3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 04:23:29 -0400
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23D238E
-        for <linux-s390@vger.kernel.org>; Fri,  8 Jul 2022 01:23:26 -0700 (PDT)
-Received: by mail-pg1-x536.google.com with SMTP id q82so14599655pgq.6
-        for <linux-s390@vger.kernel.org>; Fri, 08 Jul 2022 01:23:26 -0700 (PDT)
+        with ESMTP id S237799AbiGHIXo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Jul 2022 04:23:44 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FF4676953
+        for <linux-s390@vger.kernel.org>; Fri,  8 Jul 2022 01:23:43 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id bh13so15828068pgb.4
+        for <linux-s390@vger.kernel.org>; Fri, 08 Jul 2022 01:23:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bytedance-com.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=XuDZzz9tVnB8J2jQEjeJNVf5Aik6JfaRXz4bVLQK2Uk=;
-        b=DIZH2h+N1eb2jQqowZGUpKwgUfWoCe3azh5guhmj8MDrC3dMQ3QvY4azmwaqEt1asq
-         GHX6szMJe7+TQRsqaW0h1F1xH5/Vt3ZOxzJNknCLtw7qSFJ2qUP6Mqz83hJTSlP1HbOB
-         8tVQ64fDYFAZS8zGV8EpvERQDadFWuc3exmymJKUpAWvy9dUz/k/y7FjvJ/Mg02eoB93
-         SmehkHPQYRql9dwypeIAeoVFNVdwvI6Pwx+SqkLHswEmZT22De/evOfaz6cljvVTRzPS
-         K4WLNbqWZ17kl86EY9XjxMWk7dLlqfuPkSJY6giWhrh9Cj3qaJBqcMNYhbFYVrTfrhK1
-         pJ5A==
+        bh=Dk6MSmK/j/2WDmJxChg2RYSfGISqV2zU0kSVVWJjs+I=;
+        b=5apM4sq9VnuX/zLwjXMB3gG7Nl0vvvbBy8OuUw3xkRiNW+vqc/BBW4TCScfsi4530M
+         I0QL8U92qHJXbgm1cnI0F++kzIbhh9prCWsCYlLoxkKIb0Zc0Mg4ERo7QCZWQj++l1g8
+         y/dIEke9Tb155Z0S/Qn03ldboWFKYQL+Nl+LgbSnsoSs3H8tHbYtpLh3CcWW2xjDcN/q
+         ld3hgH1ZJmnIqZmZVYAVQ+P1SApLObvt+Ks5bZ+hpI/ST1LIlNR2kA3uIOXKCSRfXoSe
+         DA5ofD5QUrvbLnEUA8L2lGJgbAxfXBAZYDv05p2NcCfaZ8EFxwCVSMCze1J6lU1g9gOJ
+         2XGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=XuDZzz9tVnB8J2jQEjeJNVf5Aik6JfaRXz4bVLQK2Uk=;
-        b=IEDmJFNDYsWqfdyOZr11a+WeGztIpcoOHtFk3wraQuTZe8IosZddx4DpK7je9TS4gE
-         i3cmU8f7Tb8gaE6r6O/vq6bnM1iBOmLV4oZsAQLzZwzGZtgLVWIY4HSPo4/enQJ0Aj2Q
-         ES1SM5oHSpZCAvkKGRXD/4BYwcSAE2/lzsO+C39HYi+PsunfGtuftJWQaXjMRJH9R1TV
-         6sKqHp1WvVRa3co5HtucEr8thwhs2EemSk8UJNqDG9JsBpN4y3pchJpRqBkKtnaDzeWk
-         AnLCrd55ziQHXPOhuULOs4ipLkubCCo944HOqGh8cx2WR+Jr0axKZPsfMAOQWNNFnJGo
-         lD7A==
-X-Gm-Message-State: AJIora84lKDMrEVuWq6hUpsiSuZtupbpeSZ7HFw2HJYBhe3gq7pf515t
-        UhDk6rvuaQnZRnOdTQ1U1jhQig==
-X-Google-Smtp-Source: AGRyM1uDYINZFh863sauNGlXqipvFwUiPCbVj1rtxjbEOySlvPOW7DbzRdiKgLA6/RsZxnbuDo5Xmw==
-X-Received: by 2002:a65:6e4d:0:b0:411:c102:397e with SMTP id be13-20020a656e4d000000b00411c102397emr2297823pgb.271.1657268606508;
-        Fri, 08 Jul 2022 01:23:26 -0700 (PDT)
+        bh=Dk6MSmK/j/2WDmJxChg2RYSfGISqV2zU0kSVVWJjs+I=;
+        b=aaeYb7bC+1bHn+64S/eKEIVHRhoD3gfukKCE51ztPzLQEtyGGxBmaDrHAnoDLOGBHH
+         4DRd5eOQqWmLPzHwE9mdAlYz+Nm7gMDtP/lEho1MN5OdhW+X/CJcvbwCbUDX+ttEHQsz
+         NPvxEEay+kP20do/D/6jdbnT3q2OZj5myfN5CPC3hluQIarD0FkK4P/mFXDQYoqvlkEh
+         uZotaT6mG/idKyNzzkiXkGIOe5VVdneEXzV56UeWKSkUmjjAEfI3dIyg7XGAkrz1ApUa
+         P8oAg77FnEJh8xsenXc2Zvm8nQ7vMGKOtuLpqd1xKTiXuSuOrL+u+T1dgcUu/STbiP7n
+         /uaA==
+X-Gm-Message-State: AJIora9KK9uYdaj1/Cs2I6QxBCrL3eGBhMo835YB25p1djK5xdw9a1MO
+        Jane16r7pMvEGos1O8ANN71OKg==
+X-Google-Smtp-Source: AGRyM1t2bSeyc+ZhkHZ+dbx7rBPltXk5Bo6WNvlPOj227m8dkbBZjTwJpct0sr4HcWPiEcTQqqV7uQ==
+X-Received: by 2002:a05:6a00:1312:b0:528:2ed8:7e35 with SMTP id j18-20020a056a00131200b005282ed87e35mr2567724pfu.13.1657268622398;
+        Fri, 08 Jul 2022 01:23:42 -0700 (PDT)
 Received: from C02FT5A6MD6R.bytedance.net ([139.177.225.241])
-        by smtp.gmail.com with ESMTPSA id x65-20020a636344000000b00412b1043f33sm3329291pgb.39.2022.07.08.01.23.11
+        by smtp.gmail.com with ESMTPSA id x65-20020a636344000000b00412b1043f33sm3329291pgb.39.2022.07.08.01.23.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Jul 2022 01:23:25 -0700 (PDT)
+        Fri, 08 Jul 2022 01:23:41 -0700 (PDT)
 From:   Gang Li <ligang.bdlg@bytedance.com>
 To:     mhocko@suse.com, akpm@linux-foundation.org, surenb@google.com
 Cc:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
@@ -70,9 +70,9 @@ Cc:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
         Gang Li <ligang.bdlg@bytedance.com>
-Subject: [PATCH v2 4/5] mm: enable per numa node rss_stat count
-Date:   Fri,  8 Jul 2022 16:21:28 +0800
-Message-Id: <20220708082129.80115-5-ligang.bdlg@bytedance.com>
+Subject: [PATCH v2 5/5] mm, oom: enable per numa node oom for CONSTRAINT_{MEMORY_POLICY,CPUSET}
+Date:   Fri,  8 Jul 2022 16:21:29 +0800
+Message-Id: <20220708082129.80115-6-ligang.bdlg@bytedance.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220708082129.80115-1-ligang.bdlg@bytedance.com>
 References: <20220708082129.80115-1-ligang.bdlg@bytedance.com>
@@ -82,134 +82,180 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Now we have all the infrastructure ready. Modify `*_mm_counter`,
-`sync_mm_rss`, `add_mm_counter_fast` and `add_mm_rss_vec` to enable per
-numa node rss_stat count.
+Page allocator will only alloc pages on node indicated by mempolicy or
+cpuset. But oom will still select bad process by total rss usage.
+
+This patch let oom only calculate rss on the given node when
+oc->constraint equals to CONSTRAINT_{MEMORY_POLICY,CPUSET}.
+
+With those constraint, the process with the highest memory consumption on
+the specific node will be killed. oom_kill dmesg now have a new column
+`(%d)nrss`.
+
+It looks like this:
+```
+[ 1471.436027] Tasks state (memory values in pages):
+[ 1471.438518] [  pid  ]   uid  tgid total_vm      rss (01)nrss  pgtables_bytes swapents oom_score_adj name
+[ 1471.554703] [   1011]     0  1011   220005     8589     1872   823296        0             0 node
+[ 1471.707912] [  12399]     0 12399  1311306  1311056   262170 10534912        0             0 a.out
+[ 1471.712429] [  13135]     0 13135   787018   674666   674300  5439488        0             0 a.out
+[ 1471.721506] [  13295]     0 13295      597      188        0    24576        0             0 sh
+[ 1471.734600] oom-kill:constraint=CONSTRAINT_MEMORY_POLICY,nodemask=1,cpuset=/,mems_allowed=0-2,global_oom,task_memcg=/user.slice/user-0.slice/session-3.scope,task=a.out,pid=13135,uid=0
+[ 1471.742583] Out of memory: Killed process 13135 (a.out) total-vm:3148072kB, anon-rss:2697304kB, file-rss:1360kB, shmem-rss:0kB, UID:0 pgtables:5312kB oom_score_adj:0
+[ 1471.849615] oom_reaper: reaped process 13135 (a.out), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
+```
 
 Signed-off-by: Gang Li <ligang.bdlg@bytedance.com>
 ---
- include/linux/mm.h | 42 +++++++++++++++++++++++++++++++++++-------
- mm/memory.c        | 20 ++++++++++++++++++--
- 2 files changed, 53 insertions(+), 9 deletions(-)
+ fs/proc/base.c      |  6 ++++-
+ include/linux/oom.h |  2 +-
+ mm/oom_kill.c       | 55 ++++++++++++++++++++++++++++++++++++++-------
+ 3 files changed, 53 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index a7150ee7439c..4a8e10ebc729 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2028,8 +2028,18 @@ static inline bool get_user_page_fast_only(unsigned long addr,
-  */
- static inline unsigned long get_mm_counter(struct mm_struct *mm, int member, int node)
- {
--	long val = atomic_long_read(&mm->rss_stat.count[member]);
-+	long val;
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 617816168748..92075e9dca06 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -552,8 +552,12 @@ static int proc_oom_score(struct seq_file *m, struct pid_namespace *ns,
+ 	unsigned long totalpages = totalram_pages() + total_swap_pages;
+ 	unsigned long points = 0;
+ 	long badness;
++	struct oom_control oc = {
++		.totalpages =  totalpages,
++		.gfp_mask = 0,
++	};
  
-+	WARN_ON(node == NUMA_NO_NODE && member == MM_NO_TYPE);
-+
-+	if (node == NUMA_NO_NODE)
-+		val = atomic_long_read(&mm->rss_stat.count[member]);
-+	else
-+#ifdef CONFIG_NUMA
-+		val = atomic_long_read(&mm->rss_stat.numa_count[node]);
-+#else
-+		val = 0;
-+#endif
- #ifdef SPLIT_RSS_COUNTING
+-	badness = oom_badness(task, totalpages);
++	badness = oom_badness(task, &oc);
  	/*
- 	 * counter is updated in asynchronous manner and may go to minus.
-@@ -2046,23 +2056,41 @@ void mm_trace_rss_stat(struct mm_struct *mm, int member, long member_count, int
- 
- static inline void add_mm_counter(struct mm_struct *mm, int member, long value, int node)
- {
--	long count = atomic_long_add_return(value, &mm->rss_stat.count[member]);
-+	long member_count = 0, numa_count = 0;
- 
--	mm_trace_rss_stat(mm, member, count, NUMA_NO_NODE, 0, value);
-+	if (member != MM_NO_TYPE)
-+		member_count = atomic_long_add_return(value, &mm->rss_stat.count[member]);
-+#ifdef CONFIG_NUMA
-+	if (node != NUMA_NO_NODE)
-+		numa_count = atomic_long_add_return(value, &mm->rss_stat.numa_count[node]);
-+#endif
-+	mm_trace_rss_stat(mm, member, member_count, node, numa_count, value);
+ 	 * Special case OOM_SCORE_ADJ_MIN for all others scale the
+ 	 * badness value into [0, 2000] range which we have been
+diff --git a/include/linux/oom.h b/include/linux/oom.h
+index 7d0c9c48a0c5..19eaa447ac57 100644
+--- a/include/linux/oom.h
++++ b/include/linux/oom.h
+@@ -98,7 +98,7 @@ static inline vm_fault_t check_stable_address_space(struct mm_struct *mm)
  }
  
- static inline void inc_mm_counter(struct mm_struct *mm, int member, int node)
- {
--	long count = atomic_long_inc_return(&mm->rss_stat.count[member]);
-+	long member_count = 0, numa_count = 0;
+ long oom_badness(struct task_struct *p,
+-		unsigned long totalpages);
++		struct oom_control *oc);
  
--	mm_trace_rss_stat(mm, member, count, NUMA_NO_NODE, 0, 1);
-+	if (member != MM_NO_TYPE)
-+		member_count = atomic_long_inc_return(&mm->rss_stat.count[member]);
-+#ifdef CONFIG_NUMA
-+	if (node != NUMA_NO_NODE)
-+		numa_count = atomic_long_inc_return(&mm->rss_stat.numa_count[node]);
-+#endif
-+	mm_trace_rss_stat(mm, member, member_count, node, numa_count, 1);
+ extern bool out_of_memory(struct oom_control *oc);
+ 
+diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+index e25c37e2e90d..921539e29ae9 100644
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -189,6 +189,18 @@ static bool should_dump_unreclaim_slab(void)
+ 	return (global_node_page_state_pages(NR_SLAB_UNRECLAIMABLE_B) > nr_lru);
  }
  
- static inline void dec_mm_counter(struct mm_struct *mm, int member, int node)
++static inline int get_nid_from_oom_control(struct oom_control *oc)
++{
++	nodemask_t *nodemask;
++	struct zoneref *zoneref;
++
++	nodemask = oc->constraint == CONSTRAINT_MEMORY_POLICY
++			? oc->nodemask : &cpuset_current_mems_allowed;
++
++	zoneref = first_zones_zonelist(oc->zonelist, gfp_zone(oc->gfp_mask), nodemask);
++	return zone_to_nid(zoneref->zone);
++}
++
+ /**
+  * oom_badness - heuristic function to determine which candidate task to kill
+  * @p: task struct of which task we should calculate
+@@ -198,7 +210,7 @@ static bool should_dump_unreclaim_slab(void)
+  * predictable as possible.  The goal is to return the highest value for the
+  * task consuming the most memory to avoid subsequent oom failures.
+  */
+-long oom_badness(struct task_struct *p, unsigned long totalpages)
++long oom_badness(struct task_struct *p, struct oom_control *oc)
  {
--	long count = atomic_long_dec_return(&mm->rss_stat.count[member]);
-+	long member_count = 0, numa_count = 0;
- 
--	mm_trace_rss_stat(mm, member, count, NUMA_NO_NODE, 0, -1);
-+	if (member != MM_NO_TYPE)
-+		member_count = atomic_long_dec_return(&mm->rss_stat.count[member]);
-+#ifdef CONFIG_NUMA
-+	if (node != NUMA_NO_NODE)
-+		numa_count = atomic_long_dec_return(&mm->rss_stat.numa_count[node]);
-+#endif
-+	mm_trace_rss_stat(mm, member, member_count, node, numa_count, -1);
- }
- 
- /* Optimized variant when page is already known not to be PageAnon */
-diff --git a/mm/memory.c b/mm/memory.c
-index b085f368ae11..66c8d10d36cc 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -191,6 +191,14 @@ void sync_mm_rss(struct mm_struct *mm)
- 			current->rss_stat.count[i] = 0;
- 		}
- 	}
-+#ifdef CONFIG_NUMA
-+	for_each_node(i) {
-+		if (current->rss_stat.numa_count[i]) {
-+			add_mm_counter(mm, MM_NO_TYPE, current->rss_stat.numa_count[i], i);
-+			current->rss_stat.numa_count[i] = 0;
-+		}
+ 	long points;
+ 	long adj;
+@@ -227,12 +239,21 @@ long oom_badness(struct task_struct *p, unsigned long totalpages)
+ 	 * The baseline for the badness score is the proportion of RAM that each
+ 	 * task's rss, pagetable and swap space use.
+ 	 */
+-	points = get_mm_rss(p->mm) + get_mm_counter(p->mm, MM_SWAPENTS, NUMA_NO_NODE) +
+-		mm_pgtables_bytes(p->mm) / PAGE_SIZE;
++	if (unlikely(oc->constraint == CONSTRAINT_MEMORY_POLICY ||
++		     oc->constraint == CONSTRAINT_CPUSET)) {
++		int nid_to_find_victim = get_nid_from_oom_control(oc);
++
++		points = get_mm_counter(p->mm, -1, nid_to_find_victim) +
++			get_mm_counter(p->mm, MM_SWAPENTS, NUMA_NO_NODE) +
++			mm_pgtables_bytes(p->mm) / PAGE_SIZE;
++	} else {
++		points = get_mm_rss(p->mm) + get_mm_counter(p->mm, MM_SWAPENTS, NUMA_NO_NODE) +
++			mm_pgtables_bytes(p->mm) / PAGE_SIZE;
 +	}
-+#endif
- 	current->rss_stat.events = 0;
- }
+ 	task_unlock(p);
  
-@@ -198,9 +206,12 @@ static void add_mm_counter_fast(struct mm_struct *mm, int member, int val, int n
+ 	/* Normalize to oom_score_adj units */
+-	adj *= totalpages / 1000;
++	adj *= oc->totalpages / 1000;
+ 	points += adj;
+ 
+ 	return points;
+@@ -338,7 +359,7 @@ static int oom_evaluate_task(struct task_struct *task, void *arg)
+ 		goto select;
+ 	}
+ 
+-	points = oom_badness(task, oc->totalpages);
++	points = oom_badness(task, oc);
+ 	if (points == LONG_MIN || points < oc->chosen_points)
+ 		goto next;
+ 
+@@ -382,6 +403,7 @@ static int dump_task(struct task_struct *p, void *arg)
  {
- 	struct task_struct *task = current;
+ 	struct oom_control *oc = arg;
+ 	struct task_struct *task;
++	unsigned long node_mm_rss;
  
--	if (likely(task->mm == mm))
-+	if (likely(task->mm == mm)) {
- 		task->rss_stat.count[member] += val;
--	else
-+#ifdef CONFIG_NUMA
-+		task->rss_stat.numa_count[node] += val;
-+#endif
-+	} else
- 		add_mm_counter(mm, member, val, node);
- }
- #define inc_mm_counter_fast(mm, member, node) add_mm_counter_fast(mm, member, 1, node)
-@@ -520,6 +531,11 @@ static inline void add_mm_rss_vec(struct mm_struct *mm, int *rss, int *numa_rss)
- 	for (i = 0; i < NR_MM_COUNTERS; i++)
- 		if (rss[i])
- 			add_mm_counter(mm, i, rss[i], NUMA_NO_NODE);
-+#ifdef CONFIG_NUMA
-+	for_each_node(i)
-+		if (numa_rss[i] != 0)
-+			add_mm_counter(mm, MM_NO_TYPE, numa_rss[i], i);
-+#endif
- }
+ 	if (oom_unkillable_task(p))
+ 		return 0;
+@@ -399,9 +421,17 @@ static int dump_task(struct task_struct *p, void *arg)
+ 		return 0;
+ 	}
  
- /*
+-	pr_info("[%7d] %5d %5d %8lu %8lu %8ld %8lu         %5hd %s\n",
++	if (unlikely(oc->constraint == CONSTRAINT_MEMORY_POLICY ||
++		     oc->constraint == CONSTRAINT_CPUSET)) {
++		int nid_to_find_victim = get_nid_from_oom_control(oc);
++
++		node_mm_rss = get_mm_counter(p->mm, -1, nid_to_find_victim);
++	} else {
++		node_mm_rss = 0;
++	}
++	pr_info("[%7d] %5d %5d %8lu %8lu %8lu %8ld %8lu         %5hd %s\n",
+ 		task->pid, from_kuid(&init_user_ns, task_uid(task)),
+-		task->tgid, task->mm->total_vm, get_mm_rss(task->mm),
++		task->tgid, task->mm->total_vm, get_mm_rss(task->mm), node_mm_rss,
+ 		mm_pgtables_bytes(task->mm),
+ 		get_mm_counter(task->mm, MM_SWAPENTS, NUMA_NO_NODE),
+ 		task->signal->oom_score_adj, task->comm);
+@@ -422,8 +452,17 @@ static int dump_task(struct task_struct *p, void *arg)
+  */
+ static void dump_tasks(struct oom_control *oc)
+ {
++	int nid_to_find_victim;
++
++	if (unlikely(oc->constraint == CONSTRAINT_MEMORY_POLICY ||
++		     oc->constraint == CONSTRAINT_CPUSET)) {
++		nid_to_find_victim = get_nid_from_oom_control(oc);
++	} else {
++		nid_to_find_victim = -1;
++	}
+ 	pr_info("Tasks state (memory values in pages):\n");
+-	pr_info("[  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name\n");
++	pr_info("[  pid  ]   uid  tgid total_vm      rss (%02d)nrss  pgtables_bytes swapents"
++		" oom_score_adj name\n", nid_to_find_victim);
+ 
+ 	if (is_memcg_oom(oc))
+ 		mem_cgroup_scan_tasks(oc->memcg, dump_task, oc);
 -- 
 2.20.1
 
