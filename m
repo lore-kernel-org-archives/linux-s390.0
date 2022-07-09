@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFBACCCA480
-	for <linux-s390@archiver.kernel.org>; Sat,  9 Jul 2022 04:55:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C223C43334
+	for <linux-s390@archiver.kernel.org>; Sat,  9 Jul 2022 04:55:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229568AbiGIEzh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 9 Jul 2022 00:55:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46244 "EHLO
+        id S229577AbiGIEzp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 9 Jul 2022 00:55:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiGIEzf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 9 Jul 2022 00:55:35 -0400
+        with ESMTP id S229586AbiGIEzk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 9 Jul 2022 00:55:40 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79445868A9;
-        Fri,  8 Jul 2022 21:55:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C345B868A7;
+        Fri,  8 Jul 2022 21:55:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=lCZLnCQKRYzQrvge4Y+16gfFDn7V2BvZh5LS6U6zyu0=; b=HZyOg1ZwOEPgxMxD/SgBkipumW
-        BL5NKXCMaPOhc1p0eS+06cImdr0HCLL3O6C89/ZPz+ah7S4KK8qT0PL/yd1Nk7qbEpBNnDueTPN7T
-        ZA5aY3dTHqZvc/W6pSKqIkzxRFOKjLNGA1XcsrpNysUn0B7YnEtodcmgeBDsYZkFD+wCZbpMtkYZ1
-        /YZsS0r463CgOMITQHdEj+yjouUhZ58besXNHp0k48z6Kn9Dl1xLtdzFCR+5/D9pLT93ivq15807u
-        65JcZhrkP8geZgYXbBYUkoda5CyFsAinr1wHN+kxA29MBFfx+MMzpo6ubjzotqT38wkodLrRhjn6m
-        L3IwWpmQ==;
+        bh=lC15UqExRwZ2TBvmeMGfOUlbsUZ5TCCaLFNi5kr/3Oc=; b=iFOGaCVKLZ7w9v9ZoZRJ/36MaI
+        z5Cau2cMHTOWHJvrGsxqRT2NR1fYKzVqZgckYQherMRlmRraSufPd+dx//ll49G3WHV9o3eydksvS
+        GapuLZjy1Fg7X3l0HDhZkoZ5L/ln+UpZNQsxVEh66p3rQ4YpC2CRnRRBTXa76PthxyP4Z8YMUSVh9
+        z8zhadX9e7EYuAk2cUgBzVuZYP1r4BVkvXs39CTKJe21RrWI2dREZSpawkNYVLBw1kxuuya+HvQxZ
+        o/Xi406OuuAvfB34SaCI32z6cf8MN4A4Ha/X29YnSMfbyoHCA3pqQXJkVgxCDL0cWArnpCBJwSQZW
+        zktfTcBw==;
 Received: from 213-225-4-185.nat.highway.a1.net ([213.225.4.185] helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oA2V0-00700P-3P; Sat, 09 Jul 2022 04:55:22 +0000
+        id 1oA2V8-00704Q-FI; Sat, 09 Jul 2022 04:55:31 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Kirti Wankhede <kwankhede@nvidia.com>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
@@ -40,9 +40,9 @@ To:     Kirti Wankhede <kwankhede@nvidia.com>,
 Cc:     Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
         Kevin Tian <kevin.tian@intel.com>
-Subject: [PATCH 07/14] vfio/mdev: unexport mdev_bus_type
-Date:   Sat,  9 Jul 2022 06:54:43 +0200
-Message-Id: <20220709045450.609884-8-hch@lst.de>
+Subject: [PATCH 09/14] vfio/mdev: remove mtype_get_parent_dev
+Date:   Sat,  9 Jul 2022 06:54:45 +0200
+Message-Id: <20220709045450.609884-10-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220709045450.609884-1-hch@lst.de>
 References: <20220709045450.609884-1-hch@lst.de>
@@ -53,55 +53,67 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-mdev_bus_type is only used in mdev.ko now, so unexport it.
+Just open code the dereferences in the only user.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
 Reviewed-by: Kevin Tian <kevin.tian@intel.com>
 Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
 ---
- drivers/vfio/mdev/mdev_driver.c  | 1 -
- drivers/vfio/mdev/mdev_private.h | 1 +
- include/linux/mdev.h             | 2 --
- 3 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/s390/cio/vfio_ccw_ops.c |  3 +--
+ drivers/vfio/mdev/mdev_core.c   | 10 ----------
+ include/linux/mdev.h            |  2 --
+ 3 files changed, 1 insertion(+), 14 deletions(-)
 
-diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/vfio/mdev/mdev_driver.c
-index 1da1ecf76a0d5..5b3c94f4fb13d 100644
---- a/drivers/vfio/mdev/mdev_driver.c
-+++ b/drivers/vfio/mdev/mdev_driver.c
-@@ -46,7 +46,6 @@ struct bus_type mdev_bus_type = {
- 	.remove		= mdev_remove,
- 	.match		= mdev_match,
- };
--EXPORT_SYMBOL_GPL(mdev_bus_type);
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index caa8aac13f26f..d232c42088c53 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -76,8 +76,7 @@ static ssize_t available_instances_show(struct mdev_type *mtype,
+ 					struct mdev_type_attribute *attr,
+ 					char *buf)
+ {
+-	struct vfio_ccw_private *private =
+-		dev_get_drvdata(mtype_get_parent_dev(mtype));
++	struct vfio_ccw_private *private = dev_get_drvdata(mtype->parent->dev);
  
- /**
-  * mdev_register_driver - register a new MDEV driver
-diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/vfio/mdev/mdev_private.h
-index ba1b2dbddc0bc..af457b27f6074 100644
---- a/drivers/vfio/mdev/mdev_private.h
-+++ b/drivers/vfio/mdev/mdev_private.h
-@@ -13,6 +13,7 @@
- int  mdev_bus_register(void);
- void mdev_bus_unregister(void);
+ 	return sprintf(buf, "%d\n", atomic_read(&private->avail));
+ }
+diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
+index 75628759a3bf0..93f8caf2e5f77 100644
+--- a/drivers/vfio/mdev/mdev_core.c
++++ b/drivers/vfio/mdev/mdev_core.c
+@@ -23,16 +23,6 @@ static struct class_compat *mdev_bus_compat_class;
+ static LIST_HEAD(mdev_list);
+ static DEFINE_MUTEX(mdev_list_lock);
  
-+extern struct bus_type mdev_bus_type;
- extern const struct attribute_group *mdev_device_groups[];
- 
- #define to_mdev_type_attr(_attr)	\
+-/*
+- * Used in mdev_type_attribute sysfs functions to return the parent struct
+- * device
+- */
+-struct device *mtype_get_parent_dev(struct mdev_type *mtype)
+-{
+-	return mtype->parent->dev;
+-}
+-EXPORT_SYMBOL(mtype_get_parent_dev);
+-
+ /* Caller must hold parent unreg_sem read or write lock */
+ static void mdev_device_remove_common(struct mdev_device *mdev)
+ {
 diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index 4f558de52fd94..6c179d2b89274 100644
+index bbedffcb38d48..e445f809ceca3 100644
 --- a/include/linux/mdev.h
 +++ b/include/linux/mdev.h
-@@ -87,8 +87,6 @@ struct mdev_driver {
- 	struct device_driver driver;
- };
+@@ -51,8 +51,6 @@ static inline struct mdev_device *to_mdev_device(struct device *dev)
+ 	return container_of(dev, struct mdev_device, dev);
+ }
  
--extern struct bus_type mdev_bus_type;
+-struct device *mtype_get_parent_dev(struct mdev_type *mtype);
 -
- int mdev_register_parent(struct mdev_parent *parent, struct device *dev,
- 		struct mdev_driver *mdev_driver, struct mdev_type **types,
- 		unsigned int nr_types);
+ /* interface for exporting mdev supported type attributes */
+ struct mdev_type_attribute {
+ 	struct attribute attr;
 -- 
 2.30.2
 
