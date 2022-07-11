@@ -2,150 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBE50CCA485
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Jul 2022 20:43:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BE32C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Jul 2022 22:52:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231756AbiGKUn5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 11 Jul 2022 16:43:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39140 "EHLO
+        id S230293AbiGKWwn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 11 Jul 2022 18:52:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230373AbiGKUn4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Jul 2022 16:43:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 240E9E26;
-        Mon, 11 Jul 2022 13:43:55 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEAE1B81208;
-        Mon, 11 Jul 2022 20:43:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C5BBC341C0;
-        Mon, 11 Jul 2022 20:43:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1657572232;
-        bh=cp41t+VP5zpzqWweFhXlDmnM1wrue4Oj0YaNSsnkppo=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=aRG3qlu8UFv6GCt770R2iC1Nn/k2d2ZZkq8YVXrKOSkRIGx/97W21I2Zdpp2kvQZZ
-         KuyKHJSCwX7fmQ/aRk1bnlNJ8KyGBKAIf6wfLoaj+ZGY/r7YC8F4ZXLbCSIXay8S3U
-         KO1cCVQmcGHIuoeCVWpgDm8SLn2+onrydiOidsSYmIF+WPeB57GMcSRa0c2AOerTEx
-         8wJNGlnRymBpEln9x5KoLhRbmS/nGaKmk+GXs/cnV0NfNmMTv8Jcr5e9ZRfkzStYWA
-         a4l5nSOt+INBze/1hqe2LjRwOeBcCIZslW2jmgjdP8uyldi4q1iH8r9vF36qh/SNmy
-         6vhOBCbduXcxQ==
-Message-ID: <88328a82-7275-608e-46f2-4203df9d9fe6@kernel.org>
-Date:   Mon, 11 Jul 2022 15:43:45 -0500
+        with ESMTP id S229476AbiGKWwj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Jul 2022 18:52:39 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A3E5C9CF;
+        Mon, 11 Jul 2022 15:52:39 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id os14so11297389ejb.4;
+        Mon, 11 Jul 2022 15:52:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=i2JP/AK/462flQNf3WkuAKr99hiwoo70NGIBG6Typ3w=;
+        b=ErppBv825hWACq85NgILEoUpFIDS7zhQU4dBsF65NWh9mqK1QibzrTz5JjL/oe9P4P
+         xddf9vJAS5jJevier0WxjtSRTzqNqYMTuFMbLyHy18aT7xPi4oZPjKUXEDf3BhSaLDa4
+         4O3xw1J1KLXUrMcEs66ayBXSRlLIZbC064ewsp5aVZAPGfL0CMXNAFyBX/9qyBVJbAOu
+         xoSUM1m6sng8YQvv6Z+b3Z5XjXwnY/UzydMHSmIOJ28NgRuG0eCkAIYDttY9WOuNkv9g
+         v51CIgVGXO+hyPttpvZ9Y8r1QIuDcwQgPgw5HdmKK2Y4Fsxmh65jR/Qqh4XcEPpMGnwl
+         PGqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=i2JP/AK/462flQNf3WkuAKr99hiwoo70NGIBG6Typ3w=;
+        b=NcFknJgVFzO3UqiTfsabJm9c8lvh2/D0/UGn9QcYYwK2kvYyxxu6cVaTtFsk8omazf
+         jzjwukTSs2iA8RR5GzjsJXxcDooqLawZ88w+eubP7S6YSFOFsgCpXmV5m7kRvwF0c6mZ
+         k2T1pLxNZ5pBMT6l3+eQWK6ISAjUV/hm4sKKIPTLTg1uHrsSILq97u9AWqbfQQrCHooC
+         xKMjZzZZY9rcBCBYlWFyeWhTuhA6RkUrb/zpI/1itVWUFj58kZ43gLuoHqRu66t0+hTw
+         pf3ItG5XQ7TaDksNIluk33ToIp8O9K0A5CClui+eon81yN23lPlhFVImlXpuJiMEy+qh
+         udnw==
+X-Gm-Message-State: AJIora97OHHr/7rDTkOhv7qUwJ2hr8NbapZToFXw4WL6KztzqIDXzt0G
+        JZsfag0sBug9gbmllwpJyA3WVGI9f2VE3CPQaH4=
+X-Google-Smtp-Source: AGRyM1u3B9GaqsJzc2ZnGgAx20N9pPna/H/YyY3hApLIj/mDA7Feo0MOU0K0s1MJSpzYriYuHv0RZqEbB9CZJ8ZQIzU=
+X-Received: by 2002:a17:906:8a45:b0:72b:31d4:d537 with SMTP id
+ gx5-20020a1709068a4500b0072b31d4d537mr17046686ejc.170.1657579957647; Mon, 11
+ Jul 2022 15:52:37 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH V7 15/26] nios2/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Content-Language: en-US
-To:     Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org,
-        akpm@linux-foundation.org
-Cc:     hch@infradead.org, christophe.leroy@csgroup.eu,
-        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
-        x86@kernel.org, openrisc@lists.librecores.org,
-        linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org,
-        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220711070600.2378316-1-anshuman.khandual@arm.com>
- <20220711070600.2378316-16-anshuman.khandual@arm.com>
-From:   Dinh Nguyen <dinguyen@kernel.org>
-In-Reply-To: <20220711070600.2378316-16-anshuman.khandual@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20220711034615.482895-1-21cnbao@gmail.com> <20220711034615.482895-3-21cnbao@gmail.com>
+ <13b283fe-10f7-376f-9b8e-856e4d1e0ede@huawei.com>
+In-Reply-To: <13b283fe-10f7-376f-9b8e-856e4d1e0ede@huawei.com>
+From:   Barry Song <21cnbao@gmail.com>
+Date:   Tue, 12 Jul 2022 10:52:24 +1200
+Message-ID: <CAGsJ_4wW=3xsmB1jzcv=sD9OhhPc0v=+odp=JY80vEbMY6OZ_g@mail.gmail.com>
+Subject: Re: [PATCH v2 2/4] mm: rmap: Allow platforms without mm_cpumask to
+ defer TLB flush
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        LAK <linux-arm-kernel@lists.infradead.org>, x86 <x86@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Darren Hart <darren@os.amperecomputing.com>,
+        Yicong Yang <yangyicong@hisilicon.com>, huzhanyuan@oppo.com,
+        =?UTF-8?B?5p2O5Z+56ZSLKHdpbmsp?= <lipeifeng@oppo.com>,
+        =?UTF-8?B?5byg6K+X5piOKFNpbW9uIFpoYW5nKQ==?= 
+        <zhangshiming@oppo.com>, =?UTF-8?B?6YOt5YGl?= <guojian@oppo.com>,
+        real mz <realmz6@gmail.com>, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        Barry Song <v-songbaohua@oppo.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, Jul 12, 2022 at 1:35 AM Kefeng Wang <wangkefeng.wang@huawei.com> wr=
+ote:
+>
+> Hi Barry=EF=BC=8C
+>
+> On 2022/7/11 11:46, Barry Song wrote:
+> > From: Barry Song <v-songbaohua@oppo.com>
+> >
+> > Platforms like ARM64 have hareware TLB shootdown broadcast. They
+> > don't maintain mm_cpumask but just send tlbi and related sync
+> > instructions for TLB flush. task's mm_cpumask is normally empty
+> > in this case. We also allow deferred TLB flush on this kind of
+> > platforms.
+> >
+> > Signed-off-by: Barry Song <v-songbaohua@oppo.com>>
+> > ---
+> ...
+> > diff --git a/mm/Kconfig b/mm/Kconfig
+> > index 169e64192e48..7bf54f57ca01 100644
+> > --- a/mm/Kconfig
+> > +++ b/mm/Kconfig
+> > @@ -951,6 +951,9 @@ config ARCH_HAS_CURRENT_STACK_POINTER
+> >         register alias named "current_stack_pointer", this config can b=
+e
+> >         selected.
+> >
+> > +config ARCH_HAS_MM_CPUMASK
+> > +     bool
+> > +
+> >   config ARCH_HAS_VM_GET_PAGE_PROT
+> >       bool
+> >
+> > diff --git a/mm/rmap.c b/mm/rmap.c
+> > index 5bcb334cd6f2..13d4f9a1d4f1 100644
+> > --- a/mm/rmap.c
+> > +++ b/mm/rmap.c
+> > @@ -692,6 +692,10 @@ static bool should_defer_flush(struct mm_struct *m=
+m, enum ttu_flags flags)
+> >       if (!(flags & TTU_BATCH_FLUSH))
+> >               return false;
+> >
+> > +#ifndef CONFIG_ARCH_HAS_MM_CPUMASK
+> > +     return true;
+> > +#endif
+> > +
+>
+> Here is another option to enable arch's tlbbatch defer
+>
 
+This option is even better than simply having ARCH_HAS_MM_CPUMASK
+since arch might make decisions based on specific hardware characters.
+for example,
+https://lists.ozlabs.org/pipermail/linuxppc-dev/2017-November/165468.html
 
-On 7/11/22 02:05, Anshuman Khandual wrote:
-> This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
-> vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
-> up a private and static protection_map[] array. Subsequently all __SXXX and
-> __PXXX macros can be dropped which are no longer needed.
-> 
-> Cc: Dinh Nguyen <dinguyen@kernel.org>
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
->   arch/nios2/Kconfig               |  1 +
->   arch/nios2/include/asm/pgtable.h | 16 ----------------
->   arch/nios2/mm/init.c             | 20 ++++++++++++++++++++
->   3 files changed, 21 insertions(+), 16 deletions(-)
-> 
-> diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
-> index 4167f1eb4cd8..e0459dffd218 100644
-> --- a/arch/nios2/Kconfig
-> +++ b/arch/nios2/Kconfig
-> @@ -6,6 +6,7 @@ config NIOS2
->   	select ARCH_HAS_SYNC_DMA_FOR_CPU
->   	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
->   	select ARCH_HAS_DMA_SET_UNCACHED
-> +	select ARCH_HAS_VM_GET_PAGE_PROT
->   	select ARCH_NO_SWAP
->   	select COMMON_CLK
->   	select TIMER_OF
-> diff --git a/arch/nios2/include/asm/pgtable.h b/arch/nios2/include/asm/pgtable.h
-> index 262d0609268c..470516d4555e 100644
-> --- a/arch/nios2/include/asm/pgtable.h
-> +++ b/arch/nios2/include/asm/pgtable.h
-> @@ -40,24 +40,8 @@ struct mm_struct;
->    */
->   
->   /* Remove W bit on private pages for COW support */
-> -#define __P000	MKP(0, 0, 0)
-> -#define __P001	MKP(0, 0, 1)
-> -#define __P010	MKP(0, 0, 0)	/* COW */
-> -#define __P011	MKP(0, 0, 1)	/* COW */
-> -#define __P100	MKP(1, 0, 0)
-> -#define __P101	MKP(1, 0, 1)
-> -#define __P110	MKP(1, 0, 0)	/* COW */
-> -#define __P111	MKP(1, 0, 1)	/* COW */
->   
->   /* Shared pages can have exact HW mapping */
-> -#define __S000	MKP(0, 0, 0)
-> -#define __S001	MKP(0, 0, 1)
-> -#define __S010	MKP(0, 1, 0)
-> -#define __S011	MKP(0, 1, 1)
-> -#define __S100	MKP(1, 0, 0)
-> -#define __S101	MKP(1, 0, 1)
-> -#define __S110	MKP(1, 1, 0)
-> -#define __S111	MKP(1, 1, 1)
->   
->   /* Used all over the kernel */
->   #define PAGE_KERNEL __pgprot(_PAGE_PRESENT | _PAGE_CACHED | _PAGE_READ | \
-> diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
-> index 613fcaa5988a..ae24687d12ad 100644
-> --- a/arch/nios2/mm/init.c
-> +++ b/arch/nios2/mm/init.c
-> @@ -124,3 +124,23 @@ const char *arch_vma_name(struct vm_area_struct *vma)
->   {
->   	return (vma->vm_start == KUSER_BASE) ? "[kuser]" : NULL;
->   }
-> +
-> +static const pgprot_t protection_map[16] = {
-> +	[VM_NONE]					= MKP(0, 0, 0),
-> +	[VM_READ]					= MKP(0, 0, 1),
-> +	[VM_WRITE]					= MKP(0, 0, 0),
-> +	[VM_WRITE | VM_READ]				= MKP(0, 0, 1),
-> +	[VM_EXEC]					= MKP(1, 0, 0),
-> +	[VM_EXEC | VM_READ]				= MKP(1, 0, 1),
-> +	[VM_EXEC | VM_WRITE]				= MKP(1, 0, 0),
-> +	[VM_EXEC | VM_WRITE | VM_READ]			= MKP(1, 0, 1),
-> +	[VM_SHARED]					= MKP(0, 0, 0),
-> +	[VM_SHARED | VM_READ]				= MKP(0, 0, 1),
-> +	[VM_SHARED | VM_WRITE]				= MKP(0, 1, 0),
-> +	[VM_SHARED | VM_WRITE | VM_READ]		= MKP(0, 1, 1),
-> +	[VM_SHARED | VM_EXEC]				= MKP(1, 0, 0),
-> +	[VM_SHARED | VM_EXEC | VM_READ]			= MKP(1, 0, 1),
-> +	[VM_SHARED | VM_EXEC | VM_WRITE]		= MKP(1, 1, 0),
-> +	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= MKP(1, 1, 1)
-> +};
-> +DECLARE_VM_GET_PAGE_PROT
++bool arch_tlbbatch_should_defer(struct mm_struct *mm)
++{
++     if (!radix_enabled() || cpu_has_feature(CPU_FTR_POWER9_DD1))
++         return false;
++
++     if (!mm_is_thread_local(mm))
++         return true;
++
++     return false;
++}
 
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
+In this case, having MM_CPUMASK doesn't necessarily mean tlbbatch is needed=
+.
+
+> [1]
+> https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20171101101735.23=
+18-2-khandual@linux.vnet.ibm.com/
+>
+> >       /* If remote CPUs need to be flushed then defer batch the flush *=
+/
+> >       if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
+> >               should_defer =3D true;
+
+Thanks
+Barry
