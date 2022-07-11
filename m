@@ -2,289 +2,253 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47FABCCA47B
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Jul 2022 03:47:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85A12CCA485
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Jul 2022 07:06:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbiGKDr3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 10 Jul 2022 23:47:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44556 "EHLO
+        id S229826AbiGKHGX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 11 Jul 2022 03:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229747AbiGKDrV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 10 Jul 2022 23:47:21 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 669AA18E01;
-        Sun, 10 Jul 2022 20:47:13 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id l12so3380265plk.13;
-        Sun, 10 Jul 2022 20:47:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=kX77QQPavnlmqTPJr+cPH2hNKZO7UlqRRz965T9dDrs=;
-        b=htIXMTHV1qfaPfX3l4XZ4hj+VaUJoyeJxf3BRtOKXsqpYicKtvT6e4VttVAI3DicXN
-         9gM6V/tgXsGAqEJx6fyT+PeWPFlSYsi+4M5SHPDGMW/jL34jf6NoLM0kYfBinO8DT1MR
-         DPdLnhEyAt7VslHXHkcl8xE/RUV8tJufwFlQVmtY3LpgfPw7A4qLCzw/q/dCdkea/U/H
-         el05aKwmbkbJfRsPZasOu7jfAx2d4VJiPcyDUNvV41zJXsh6JXPpax8tmfD7C5+a9ygQ
-         wOaqM8gP36qTLyaFt1jXVEk29x4zttAJoOdz3yRBuZA7IPt8psRkaoiAygE7YyPtwQ1Z
-         E2zQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=kX77QQPavnlmqTPJr+cPH2hNKZO7UlqRRz965T9dDrs=;
-        b=g115UU3ahe9n0y38Ad4AOxAz1AQyqbnp/uZWyykl8fJYz08LkJnmJpnGYsUket7szj
-         Q7YRLFCJ7hgLL0Orit3kP9HgNEWaygXgfsQmpvT7XeWBLw5AAxcIjAFIK1hBaq9wzJIz
-         u0OboYm7lPUrccrWwriSAf69w53saUvHsOEyLEpOfu6neB2WQc/Wk40fiqhG9E+FtkQ0
-         UsbzpHB91mmgKKPV3kswnJHuJ8yUIZOgnKKPeP/Q/MgWaa/naUW2hb6S5DGMmuUkJRcx
-         P9la2cYzacElPQXl+PDM5y5rQT6rVsYcHwyDPKYU94gliWHTTjPbugJuEDZMo+HfFJ5/
-         a09g==
-X-Gm-Message-State: AJIora+jE3RsShYpDXjfLvr427EIQ6tiglxJEMMzElNe+sUqnhSuc7z2
-        sjxbrIYxQ9PdUM8+HHb0dRU=
-X-Google-Smtp-Source: AGRyM1vLe/YZvbOkUYTH5iAqm8VRsVnu2Afj8VTLOnXJSTfR2PgdfzJzSBQsk0Iq2lETGsM8bxMYpQ==
-X-Received: by 2002:a17:90b:1c90:b0:1ee:d804:d2c1 with SMTP id oo16-20020a17090b1c9000b001eed804d2c1mr15473364pjb.92.1657511233142;
-        Sun, 10 Jul 2022 20:47:13 -0700 (PDT)
-Received: from localhost.localdomain (47-72-206-164.dsl.dyn.ihug.co.nz. [47.72.206.164])
-        by smtp.gmail.com with ESMTPSA id a13-20020a170902eccd00b001664d88aab3sm3447949plh.240.2022.07.10.20.47.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 Jul 2022 20:47:12 -0700 (PDT)
-From:   Barry Song <21cnbao@gmail.com>
-To:     akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-arm-kernel@lists.infradead.org, x86@kernel.org,
-        catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
-Cc:     corbet@lwn.net, arnd@arndb.de, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-Subject: [PATCH v2 4/4] arm64: support batched/deferred tlb shootdown during page reclamation
-Date:   Mon, 11 Jul 2022 15:46:15 +1200
-Message-Id: <20220711034615.482895-5-21cnbao@gmail.com>
+        with ESMTP id S229518AbiGKHGV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Jul 2022 03:06:21 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 08E991836A;
+        Mon, 11 Jul 2022 00:06:19 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F0B5223A;
+        Mon, 11 Jul 2022 00:06:19 -0700 (PDT)
+Received: from a077893.arm.com (unknown [10.163.45.183])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id B2CF33F70D;
+        Mon, 11 Jul 2022 00:06:11 -0700 (PDT)
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+To:     linux-mm@kvack.org, akpm@linux-foundation.org
+Cc:     hch@infradead.org, christophe.leroy@csgroup.eu,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        x86@kernel.org, openrisc@lists.librecores.org,
+        linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org,
+        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH V7 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across platforms
+Date:   Mon, 11 Jul 2022 12:35:34 +0530
+Message-Id: <20220711070600.2378316-1-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220711034615.482895-1-21cnbao@gmail.com>
-References: <20220711034615.482895-1-21cnbao@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Barry Song <v-songbaohua@oppo.com>
+__SXXX/__PXXX macros is an unnecessary abstraction layer in creating the
+generic protection_map[] array which is used for vm_get_page_prot(). This
+abstraction layer can be avoided, if the platforms just define the array
+protection_map[] for all possible vm_flags access permission combinations
+and also export vm_get_page_prot() implementation.
 
-on x86, batched and deferred tlb shootdown has lead to 90%
-performance increase on tlb shootdown. on arm64, HW can do
-tlb shootdown without software IPI. But sync tlbi is still
-quite expensive.
+This series drops __SXXX/__PXXX macros from across platforms in the tree.
+First it build protects generic protection_map[] array with '#ifdef __P000'
+and moves it inside platforms which enable ARCH_HAS_VM_GET_PAGE_PROT. Later
+this build protects same array with '#ifdef ARCH_HAS_VM_GET_PAGE_PROT' and
+moves inside remaining platforms while enabling ARCH_HAS_VM_GET_PAGE_PROT.
+This adds a new macro DECLARE_VM_GET_PAGE_PROT defining the current generic
+vm_get_page_prot(), in order for it to be reused on platforms that do not
+require custom implementation. Finally, ARCH_HAS_VM_GET_PAGE_PROT can just
+be dropped, as all platforms now define and export vm_get_page_prot(), via
+looking up a private and static protection_map[] array. protection_map[]
+data type has been changed as 'static const' on all platforms that do not
+change it during boot.
 
-Even running a simplest program which requires swapout can
-prove this is true,
- #include <sys/types.h>
- #include <unistd.h>
- #include <sys/mman.h>
- #include <string.h>
+This series applies on v5.19-rc6 and has been build tested for multiple
+platforms. While here it has dropped off all previous tags from folks after
+the current restructuring. Series common CC list has been expanded to cover
+all impacted platforms for wider reach.
 
- int main()
- {
- #define SIZE (1 * 1024 * 1024)
-         volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
-                                          MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+- Anshuman
 
-         memset(p, 0x88, SIZE);
+Changes in V7:
 
-         for (int k = 0; k < 10000; k++) {
-                 /* swap in */
-                 for (int i = 0; i < SIZE; i += 4096) {
-                         (void)p[i];
-                 }
+- Dropped comments from arch/m68k/include/asm/mcf_pgtable.h per Geert
+- Dropped comments from arch/m68k/include/asm/sun3_pgtable.h per Geert
+- Moved the *_C definitions above into arch/m68k/mm/motorola.c per Geert
+- Folded in following build failure fix patches on linux-next
 
-                 /* swap out */
-                 madvise(p, SIZE, MADV_PAGEOUT);
-         }
- }
+https://lore.kernel.org/all/20220705221411.3381797-1-jcmvbkbc@gmail.com/
+https://lore.kernel.org/all/20220706054002.1936820-1-anshuman.khandual@arm.com/
+https://lore.kernel.org/all/20220708230646.CA9B7C341C0@smtp.kernel.org/	
 
-Perf result on snapdragon 888 with 8 cores by using zRAM
-as the swap block device.
+- Collected tags from Geert
+- Rebased on v5.19-rc6
 
- ~ # perf record taskset -c 4 ./a.out
- [ perf record: Woken up 10 times to write data ]
- [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
- ~ # perf report
- # To display the perf.data header info, please use --header/--header-only options.
- # To display the perf.data header info, please use --header/--header-only options.
- #
- #
- # Total Lost Samples: 0
- #
- # Samples: 60K of event 'cycles'
- # Event count (approx.): 35706225414
- #
- # Overhead  Command  Shared Object      Symbol
- # ........  .......  .................  .............................................................................
- #
-    21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
-     8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
-     6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
-     6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
-     5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
-     3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
-     3.49%  a.out    [kernel.kallsyms]  [k] memset64
-     1.63%  a.out    [kernel.kallsyms]  [k] clear_page
-     1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
-     1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
-     1.23%  a.out    [kernel.kallsyms]  [k] xas_load
-     1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
+Changes in V6:
 
-ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
-swapping in/out a page mapped by only one process. If the
-page is mapped by multiple processes, typically, like more
-than 100 on a phone, the overhead would be much higher as
-we have to run tlb flush 100 times for one single page.
-Plus, tlb flush overhead will increase with the number
-of CPU cores due to the bad scalability of tlb shootdown
-in HW, so those ARM64 servers should expect much higher
-overhead.
+https://lore.kernel.org/all/20220630051630.1718927-1-anshuman.khandual@arm.com/
 
-Further perf annonate shows 95% cpu time of ptep_clear_flush
-is actually used by the final dsb() to wait for the completion
-of tlb flush. This provides us a very good chance to leverage
-the existing batched tlb in kernel. The minimum modification
-is that we only send async tlbi in the first stage and we send
-dsb while we have to sync in the second stage.
+- Converted protection_map[] array as 'static const' on sparc32 platform
+- Rebased on v5.19-rc4
+- Collected tags
 
-With the above simplest micro benchmark, collapsed time to
-finish the program decreases around 5%.
+Changes in V5:
 
-Typical collapsed time w/o patch:
- ~ # time taskset -c 4 ./a.out
- 0.21user 14.34system 0:14.69elapsed
-w/ patch:
- ~ # time taskset -c 4 ./a.out
- 0.22user 13.45system 0:13.80elapsed
+https://lore.kernel.org/all/20220627045833.1590055-1-anshuman.khandual@arm.com/
 
-Also, Yicong Yang added the following observation.
-	Tested with benchmark in the commit on Kunpeng920 arm64 server,
-	observed an improvement around 12.5% with command
-	`time ./swap_bench`.
-		w/o		w/
-	real	0m13.460s	0m11.771s
-	user	0m0.248s	0m0.279s
-	sys	0m12.039s	0m11.458s
+- Converted most platfomr protection_map[] array as 'static const'
+- Moved DECLARE_VM_GET_PAGE_PROT inside <include/linux/pgtable.h>
+- Moved generic protection_map[] comment near DECLARE_VM_GET_PAGE_PROT
+- Updated some commit messages
 
-	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
-	which has been eliminated by this patch:
+Changes in V4:
 
-	[root@localhost yang]# perf record -- ./swap_bench && perf report
-	[...]
-	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
+https://lore.kernel.org/all/20220624044339.1533882-1-anshuman.khandual@arm.com/
 
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Nadav Amit <namit@vmware.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Tested-by: Yicong Yang <yangyicong@hisilicon.com>
-Signed-off-by: Barry Song <v-songbaohua@oppo.com>
----
- .../features/vm/TLB/arch-support.txt          |  2 +-
- arch/arm64/Kconfig                            |  1 +
- arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++++
- arch/arm64/include/asm/tlbflush.h             | 23 +++++++++++++++++--
- 4 files changed, 35 insertions(+), 3 deletions(-)
- create mode 100644 arch/arm64/include/asm/tlbbatch.h
+- Both protection_map[] and vm_get_page_prot() moves inside all platforms
+- Split patches to create modular changes for individual platforms
+- Add macro DECLARE_VM_GET_PAGE_PROT defining generic vm_get_page_prot()
+- Drop ARCH_HAS_VM_GET_PAGE_PROT
 
-diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
-index 1c009312b9c1..2caf815d7c6c 100644
---- a/Documentation/features/vm/TLB/arch-support.txt
-+++ b/Documentation/features/vm/TLB/arch-support.txt
-@@ -9,7 +9,7 @@
-     |       alpha: | TODO |
-     |         arc: | TODO |
-     |         arm: | TODO |
--    |       arm64: | TODO |
-+    |       arm64: |  ok  |
-     |        csky: | TODO |
-     |     hexagon: | TODO |
-     |        ia64: | TODO |
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 1652a9800ebe..e94913a0b040 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -93,6 +93,7 @@ config ARM64
- 	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
- 	select ARCH_SUPPORTS_NUMA_BALANCING
- 	select ARCH_SUPPORTS_PAGE_TABLE_CHECK
-+	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
- 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
- 	select ARCH_WANT_DEFAULT_BPF_JIT
- 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
-diff --git a/arch/arm64/include/asm/tlbbatch.h b/arch/arm64/include/asm/tlbbatch.h
-new file mode 100644
-index 000000000000..fedb0b87b8db
---- /dev/null
-+++ b/arch/arm64/include/asm/tlbbatch.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ARCH_ARM64_TLBBATCH_H
-+#define _ARCH_ARM64_TLBBATCH_H
-+
-+struct arch_tlbflush_unmap_batch {
-+	/*
-+	 * For arm64, HW can do tlb shootdown, so we don't
-+	 * need to record cpumask for sending IPI
-+	 */
-+};
-+
-+#endif /* _ARCH_ARM64_TLBBATCH_H */
-diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
-index 412a3b9a3c25..10364cf8451d 100644
---- a/arch/arm64/include/asm/tlbflush.h
-+++ b/arch/arm64/include/asm/tlbflush.h
-@@ -254,17 +254,24 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
- 	dsb(ish);
- }
- 
--static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-+
-+static inline void __flush_tlb_page_nosync(struct mm_struct *mm,
- 					 unsigned long uaddr)
- {
- 	unsigned long addr;
- 
- 	dsb(ishst);
--	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-+	addr = __TLBI_VADDR(uaddr, ASID(mm));
- 	__tlbi(vale1is, addr);
- 	__tlbi_user(vale1is, addr);
- }
- 
-+static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-+					 unsigned long uaddr)
-+{
-+	return __flush_tlb_page_nosync(vma->vm_mm, uaddr);
-+}
-+
- static inline void flush_tlb_page(struct vm_area_struct *vma,
- 				  unsigned long uaddr)
- {
-@@ -272,6 +279,18 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
- 	dsb(ish);
- }
- 
-+static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
-+					struct mm_struct *mm,
-+					unsigned long uaddr)
-+{
-+	__flush_tlb_page_nosync(mm, uaddr);
-+}
-+
-+static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
-+{
-+	dsb(ish);
-+}
-+
- /*
-  * This is meant to avoid soft lock-ups on large TLB flushing ranges and not
-  * necessarily a performance improvement.
+Changes in V3:
+
+https://lore.kernel.org/all/20220616040924.1022607-1-anshuman.khandual@arm.com/
+
+- Fix build issues on powerpc and riscv
+
+Changes in V2:
+
+https://lore.kernel.org/all/20220613053354.553579-1-anshuman.khandual@arm.com/
+
+- Add 'const' identifier to protection_map[] on powerpc
+- Dropped #ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT check from sparc 32
+- Dropped protection_map[] init from sparc 64
+- Dropped all new platform changes subscribing ARCH_HAS_VM_GET_PAGE_PROT
+- Added a second patch which moves generic protection_map[] array into
+  all remaining platforms (!ARCH_HAS_VM_GET_PAGE_PROT)
+
+Changes in V1:
+
+https://lore.kernel.org/all/20220603101411.488970-1-anshuman.khandual@arm.com/
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: sparclinux@vger.kernel.org
+Cc: x86@kernel.org
+Cc: openrisc@lists.librecores.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-sh@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
+
+
+Anshuman Khandual (26):
+  mm/mmap: Build protect protection_map[] with __P000
+  mm/mmap: Define DECLARE_VM_GET_PAGE_PROT
+  powerpc/mm: Move protection_map[] inside the platform
+  sparc/mm: Move protection_map[] inside the platform
+  arm64/mm: Move protection_map[] inside the platform
+  x86/mm: Move protection_map[] inside the platform
+  mm/mmap: Build protect protection_map[] with ARCH_HAS_VM_GET_PAGE_PROT
+  microblaze/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  loongarch/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  openrisc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  xtensa/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  hexagon/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  parisc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  alpha/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  nios2/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  riscv/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  csky/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  s390/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  ia64/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  mips/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  m68k/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  arc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  arm/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  um/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  sh/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  mm/mmap: Drop ARCH_HAS_VM_GET_PAGE_PROT
+
+ arch/alpha/include/asm/pgtable.h          | 17 -------
+ arch/alpha/mm/init.c                      | 22 +++++++++
+ arch/arc/include/asm/pgtable-bits-arcv2.h | 18 -------
+ arch/arc/mm/mmap.c                        | 20 ++++++++
+ arch/arm/include/asm/pgtable.h            | 17 -------
+ arch/arm/lib/uaccess_with_memcpy.c        |  2 +-
+ arch/arm/mm/mmu.c                         | 20 ++++++++
+ arch/arm64/Kconfig                        |  1 -
+ arch/arm64/include/asm/pgtable-prot.h     | 18 -------
+ arch/arm64/mm/mmap.c                      | 21 ++++++++
+ arch/csky/include/asm/pgtable.h           | 18 -------
+ arch/csky/mm/init.c                       | 20 ++++++++
+ arch/hexagon/include/asm/pgtable.h        | 27 -----------
+ arch/hexagon/mm/init.c                    | 42 ++++++++++++++++
+ arch/ia64/include/asm/pgtable.h           | 18 -------
+ arch/ia64/mm/init.c                       | 28 ++++++++++-
+ arch/loongarch/include/asm/pgtable-bits.h | 19 --------
+ arch/loongarch/mm/cache.c                 | 46 ++++++++++++++++++
+ arch/m68k/include/asm/mcf_pgtable.h       | 59 -----------------------
+ arch/m68k/include/asm/motorola_pgtable.h  | 29 -----------
+ arch/m68k/include/asm/sun3_pgtable.h      | 23 ---------
+ arch/m68k/mm/mcfmmu.c                     | 55 +++++++++++++++++++++
+ arch/m68k/mm/motorola.c                   | 29 +++++++++++
+ arch/m68k/mm/sun3mmu.c                    | 20 ++++++++
+ arch/microblaze/include/asm/pgtable.h     | 17 -------
+ arch/microblaze/mm/init.c                 | 20 ++++++++
+ arch/mips/include/asm/pgtable.h           | 22 ---------
+ arch/mips/mm/cache.c                      |  3 ++
+ arch/nios2/include/asm/pgtable.h          | 16 ------
+ arch/nios2/mm/init.c                      | 20 ++++++++
+ arch/openrisc/include/asm/pgtable.h       | 18 -------
+ arch/openrisc/mm/init.c                   | 20 ++++++++
+ arch/parisc/include/asm/pgtable.h         | 18 -------
+ arch/parisc/mm/init.c                     | 20 ++++++++
+ arch/powerpc/Kconfig                      |  1 -
+ arch/powerpc/include/asm/pgtable.h        | 20 +-------
+ arch/powerpc/mm/pgtable.c                 | 24 +++++++++
+ arch/riscv/include/asm/pgtable.h          | 20 --------
+ arch/riscv/mm/init.c                      | 20 ++++++++
+ arch/s390/include/asm/pgtable.h           | 17 -------
+ arch/s390/mm/mmap.c                       | 20 ++++++++
+ arch/sh/include/asm/pgtable.h             | 17 -------
+ arch/sh/mm/mmap.c                         | 20 ++++++++
+ arch/sparc/Kconfig                        |  1 -
+ arch/sparc/include/asm/pgtable_32.h       | 19 --------
+ arch/sparc/include/asm/pgtable_64.h       | 19 --------
+ arch/sparc/mm/init_32.c                   | 20 ++++++++
+ arch/sparc/mm/init_64.c                   |  3 ++
+ arch/um/include/asm/pgtable.h             | 17 -------
+ arch/um/kernel/mem.c                      | 20 ++++++++
+ arch/x86/Kconfig                          |  1 -
+ arch/x86/include/asm/mem_encrypt.h        |  2 +
+ arch/x86/include/asm/pgtable_types.h      | 19 --------
+ arch/x86/mm/mem_encrypt_amd.c             |  6 +--
+ arch/x86/mm/pgprot.c                      | 28 +++++++++++
+ arch/x86/um/mem_32.c                      |  2 +-
+ arch/xtensa/include/asm/pgtable.h         | 18 -------
+ arch/xtensa/mm/init.c                     | 22 +++++++++
+ include/linux/mm.h                        |  1 -
+ include/linux/pgtable.h                   | 28 +++++++++++
+ mm/Kconfig                                |  3 --
+ mm/mmap.c                                 | 47 ------------------
+ 62 files changed, 617 insertions(+), 581 deletions(-)
+
 -- 
 2.25.1
 
