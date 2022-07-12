@@ -2,216 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB122CCA47C
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 14:33:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A78EC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 14:36:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233446AbiGLOdF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Jul 2022 10:33:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51198 "EHLO
+        id S233602AbiGLOgX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Jul 2022 10:36:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233317AbiGLOc7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 10:32:59 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6893CB6DB6;
-        Tue, 12 Jul 2022 07:32:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657636372; x=1689172372;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=a+ceZCUGe/ap+hQFrd92HyoZ9QEte3GdAy+AwFGYt2M=;
-  b=NKmg6Sn4AIuXJJHK7Zq1dmT+jJw/yjQRByv0HosDnRhkk3At1WtsQpkp
-   xkpU5edK7PgmyS8oJgV/0jWChLbH+WQympXVXT9sTfQE8mfbpO1Z4RKsg
-   /VH3lIzXKm/gxeYRkKxCYAFck8yIC+KZeUnkvK78S5YZtgDnZnIqnpXW5
-   m+XStk3ql+p78uyhUJ494P6EGeNynDy720oUUa4PSNwu9HKo4E3bwgbtP
-   tWFANX0ijpzWs42lDtMeAZkjN46vnH3Lw2Vp8eyo2iTW1FL3OkL6fHDR8
-   5yV5YrVbBk+6m4cagTXmkzEudNrRKbUFux75UfWfYpPY9SR1nx0Iz7L8d
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10405"; a="267986173"
-X-IronPort-AV: E=Sophos;i="5.92,265,1650956400"; 
-   d="scan'208";a="267986173"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2022 07:32:51 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,265,1650956400"; 
-   d="scan'208";a="595305832"
-Received: from irvmail001.ir.intel.com ([10.43.11.63])
-  by orsmga002.jf.intel.com with ESMTP; 12 Jul 2022 07:32:48 -0700
-Received: from newjersey.igk.intel.com (newjersey.igk.intel.com [10.102.20.203])
-        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id 26CEWlWR009263;
-        Tue, 12 Jul 2022 15:32:47 +0100
-From:   Alexander Lobakin <alexandr.lobakin@intel.com>
-To:     Yury Norov <yury.norov@gmail.com>
-Cc:     Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-arch@vger.kernel.org, lkp@lists.01.org, lkp@intel.com
-Subject: Re: [bitops] 0e862838f2: BUG:KASAN:wild-memory-access_in_dmar_parse_one_rhsa
-Date:   Tue, 12 Jul 2022 16:31:23 +0200
-Message-Id: <20220712143123.38008-1-alexandr.lobakin@intel.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <CAAH8bW_fypvDtWEFX32iFSagyAS2Mi+yG+bafTeTynYynBdDWA@mail.gmail.com>
-References: <YsbpTNmDaam8pl+f@xsang-OptiPlex-9020> <YsggZNUQcsKIU9xU@smile.fi.intel.com> <20220711161341.21605-1-alexandr.lobakin@intel.com> <CAAH8bW_fypvDtWEFX32iFSagyAS2Mi+yG+bafTeTynYynBdDWA@mail.gmail.com>
+        with ESMTP id S233640AbiGLOfs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 10:35:48 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D90F7B93FE;
+        Tue, 12 Jul 2022 07:35:45 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26CDBuiW007915;
+        Tue, 12 Jul 2022 14:35:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
+ from : to : cc : subject : reply-to : in-reply-to : references :
+ message-id : content-type : content-transfer-encoding; s=pp1;
+ bh=kGyzR2fpyeLcBebTuOi+d7JoZMaKSe8+x0WfdvqQfUg=;
+ b=fiyQsI2qa0GpRBUEFNxr/mxL/X0zAJdWa/rPpUvfMBB/yoeAifZsdOZjVjYbyd9ouk1W
+ pH5ypuPnqlahBvtci/N9ghVNsUfYVoqiKZoWmns41B1DfEph+AdXrFkG6G4FqWmZPOCv
+ 7YwVl6FHA+3fCNW1U2ggm5LLCwekeERXDEiMuxYRfeS51j58FMVFRfVPqnsXS0O3ySEK
+ Id96mRcuyEX0s6Mn2yjfGs0f6OJyKS+3PuubCguoG7KuSJZdGlMttdccnMEF3w9LXRU3
+ BGFKHkbXUbDSQPULyp0YHgxZC5h9llSn5ea4sgPJiQFqPVgBujm0JT8+TmAg0GT1epdk JA== 
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h98jvm4ws-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jul 2022 14:35:44 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26CEKWgu029571;
+        Tue, 12 Jul 2022 14:35:44 GMT
+Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
+        by ppma03dal.us.ibm.com with ESMTP id 3h71a9kxk5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jul 2022 14:35:44 +0000
+Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
+        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26CEZgel25297300
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Jul 2022 14:35:42 GMT
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 61730BE053;
+        Tue, 12 Jul 2022 14:35:42 +0000 (GMT)
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 05DEBBE04F;
+        Tue, 12 Jul 2022 14:35:41 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.10.229.42])
+        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Jul 2022 14:35:41 +0000 (GMT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+Date:   Tue, 12 Jul 2022 16:35:41 +0200
+From:   Harald Freudenberger <freude@linux.ibm.com>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        jchrist@linux.ibm.com, dengler@linux.ibm.com
+Subject: Re: [PATCH] s390/archrandom: remove CPACF trng invocations in
+ interrupt context
+Reply-To: freude@linux.ibm.com
+In-Reply-To: <Ys1olOgaw44dXeiT@zx2c4.com>
+References: <20220712100829.128574-1-freude@linux.ibm.com>
+ <Ys1Loyu21C48Zm6n@zx2c4.com>
+ <4881578c512c5420315abfef47068df0@linux.ibm.com>
+ <Ys1olOgaw44dXeiT@zx2c4.com>
+User-Agent: Roundcube Webmail/1.4.13
+Message-ID: <ac816519f9d8f4948434acb0db631041@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: dlYjzzuukjachh3QThN5XbF1vkp6nh0M
+X-Proofpoint-ORIG-GUID: dlYjzzuukjachh3QThN5XbF1vkp6nh0M
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-12_08,2022-07-12_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=87 mlxscore=87 malwarescore=0
+ suspectscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=-83
+ impostorscore=0 clxscore=1015 spamscore=87 bulkscore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207120056
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Yury Norov <yury.norov@gmail.com>
-Date: Mon, 11 Jul 2022 11:24:42 -0700
-
-> On Mon, Jul 11, 2022 at 9:15 AM Alexander Lobakin
-> <alexandr.lobakin@intel.com> wrote:
-> >
-> > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Date: Fri, 8 Jul 2022 15:17:40 +0300
-> >
-> >> On Thu, Jul 07, 2022 at 10:10:20PM +0800, kernel test robot wrote:
-> >>>
-> >>> (please be noted we reported
-> >>> "[bitops]  001bea109d: BUG:KASAN:wild-memory-access_in_dmar_parse_one_rhsa"
-> >>> on
-> >>> https://lore.kernel.org/all/YrnGLtDXAveqXGok@xsang-OptiPlex-9020/
-> >>> now we noticed this commit has already been merged into linux-next/master,
-> >>> and the issue is still existing. report again FYI)
-> >>>
-> >>> Greeting,
-> >>>
-> >>> FYI, we noticed the following commit (built with gcc-11):
-> >>>
-> >>> commit: 0e862838f290147ea9c16db852d8d494b552d38d ("bitops: unify non-atomic bitops prototypes across architectures")
-> >>> https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git master
-> >>>
-> >>> in testcase: xfstests
-> >>> version: xfstests-x86_64-c1144bf-1_20220627
-> >>> with following parameters:
-> >>>
-> >>>     disk: 2pmem
-> >>>     fs: ext4
-> >>>     test: ext4-dax
-> >>>     ucode: 0x700001c
-> >>>
-> >>> test-description: xfstests is a regression test suite for xfs and other files ystems.
-> >>> test-url: git://git.kernel.org/pub/scm/fs/xfs/xfstests-dev.git
-> >>>
-> >>>
-> >>> on test machine: 16 threads 1 sockets Intel(R) Xeon(R) CPU D-1541 @ 2.10GHz with 48G memory
-> >>>
-> >>> caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
-> >>>
-> >>>
-> >>>
-> >>> If you fix the issue, kindly add following tag
-> >>> Reported-by: kernel test robot <oliver.sang@intel.com>
-> >>>
-> >>>
-> >>> [ 4.668325][ T0] BUG: KASAN: wild-memory-access in dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> >>> [    4.676149][    T0] Read of size 8 at addr 1fffffff85115558 by task swapper/0/0
-> >>> [    4.683454][    T0]
-> >>> [    4.685638][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.19.0-rc3-00004-g0e862838f290 #1
-> >>> [    4.694331][    T0] Hardware name: Supermicro SYS-5018D-FN4T/X10SDV-8C-TLN4F, BIOS 1.1 03/02/2016
-> >>> [    4.703196][    T0] Call Trace:
-> >>> [    4.706334][    T0]  <TASK>
-> >>> [ 4.709133][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> >>> [ 4.714272][ T0] dump_stack_lvl (lib/dump_stack.c:107 (discriminator 1))
-> >>> [ 4.718632][ T0] kasan_report (mm/kasan/report.c:162 mm/kasan/report.c:493)
-> >>> [ 4.722903][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> >>> [ 4.728042][ T0] kasan_check_range (mm/kasan/generic.c:190)
-> >>> [ 4.732750][ T0] dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> >>> [ 4.737715][ T0] dmar_walk_remapping_entries (drivers/iommu/intel/dmar.c:609)
-> >>> [ 4.743375][ T0] parse_dmar_table (drivers/iommu/intel/dmar.c:671)
-> >>> [ 4.748079][ T0] ? dmar_table_detect (drivers/iommu/intel/dmar.c:633)
-> >>> [ 4.752872][ T0] ? dmar_free_dev_scope (drivers/iommu/intel/dmar.c:408)
-> >>> [ 4.758010][ T0] ? init_dmars (drivers/iommu/intel/iommu.c:3359)
-> >>> [ 4.762370][ T0] ? iommu_resume (drivers/iommu/intel/iommu.c:3419)
-> >>> [ 4.766903][ T0] ? dmar_walk_dsm_resource+0x300/0x300
-> >>> [ 4.772909][ T0] ? dmar_acpi_insert_dev_scope (drivers/iommu/intel/dmar.c:466)
-> >>> [ 4.778655][ T0] ? dmar_check_one_atsr (drivers/iommu/intel/iommu.c:3521)
-> >>> [ 4.783795][ T0] dmar_table_init (drivers/iommu/intel/dmar.c:846)
-> >>> [ 4.788239][ T0] intel_prepare_irq_remapping (drivers/iommu/intel/irq_remapping.c:742)
-> >>> [ 4.793811][ T0] irq_remapping_prepare (drivers/iommu/irq_remapping.c:102)
-> >>> [ 4.798778][ T0] enable_IR_x2apic (arch/x86/kernel/apic/apic.c:1928)
-> >>> [ 4.803395][ T0] default_setup_apic_routing (arch/x86/kernel/apic/probe_64.c:25 (discriminator 1))
-> >>> [ 4.808883][ T0] apic_intr_mode_init (arch/x86/kernel/apic/apic.c:1446)
-> >>> [ 4.813761][ T0] x86_late_time_init (arch/x86/kernel/time.c:101)
-> >>> [ 4.818467][ T0] start_kernel (init/main.c:1101)
-> >>> [ 4.822827][ T0] secondary_startup_64_no_verify (arch/x86/kernel/head_64.S:358)
-> >>
-> >> Seems like related to nodemask APIs.
-> >
-> > It points to arch_test_bit() (node_online() -> test_bit()),
-> > converted from a macro to a function, more precisely, to
-> > variable_test_bit(), which I didn't touch.
-> >
-> > ...oh ok I got it!
-> >
-> > pxm_to_node() can return %NUMA_NO_NODE which equals to -1. The
-> > mentioned commit converts the macro to the function which now takes
-> > `unsigned long` as @nr (bit number). So I guess it gets converted to
-> > %ULONG_MAX - 1.
-> >
-> > Now the question is: what should a bitop do if we have negative bit
-> > number? Because there are 2 solutions:
-> >
-> > 1. (I prefer it) A caller must check that bitop arguments are valid.
-> >    UB for negative (== too big) bit numbers.
-> >    dmar_parse_one_rhsa() must be fixed so that it will check return
-> >    value of pxm_to_node():
-> >
-> >                         int node = pxm_to_node(rhsa->proximity_domain);
-> >
-> > -                       if (!node_online(node))
-> > +                       if (node != NUMA_NO_NODE && !node_online(node))
+On 2022-07-12 14:27, Jason A. Donenfeld wrote:
+> Hi Harald,
 > 
-> Would it make sense to check it inside node_online()?
-
-Probably as a more global improvement. I believe it's used very
-often on hotpath, where it's known it can't be < 0, so for now
-I'd pick the check inside this function.
-
+> On Tue, Jul 12, 2022 at 02:09:35PM +0200, Harald Freudenberger wrote:
+>> > You've gone through the troubles of confirming experimentally what
+>> > in_task() does, but that doesn't answer *why* it should be disallowed
+>> > variously in each one of these contexts.
+>> 
+>> I think, I showed this. The only real occurrences remaining for the
+>> arch_get_random_seed_long() call is within softirq context when the
+>> network layer tries to allocate some skb buffers. My personal feeling
+>> about this is that it does not hurt - but I asked our network guys
+>> and their feedback is clear: no way - every delay there may cause
+>> high bandwidth traffic to stumble and this is to be absolutely 
+>> avoided.
+>> However, they can't give me any measurements.
+>> 
+>> So yes, the intention is now with checking for in_task() to prevent
+>> the trng call in hard and soft interrupt context. But still I'd like
+>> to meet your condition to provide good random at kernel startup.
 > 
-> >                                 node = NUMA_NO_NODE;
-> >
-> > 2. My code is broken, I shouldn't change `long` to `unsigned long`
-> >    or should change it for {constant,variable}_test_bit() as well
-> >    or do something else and let it behave as it was previously
-> >    (it wasn't crashing probably due to a good luck or...).
+> That's too bad, but okay.
 > 
-> This is definitely a NUMA problem. Bitmap has 2 kernel-wide users:
-> cpumasks and numa nodes. Both use negative indexes for their
-> reasons, which is dangerous, as we can see from here, because
-> bitmaps don't support them and don't handle it properly...
+> Final question: do you see any of the in_task() vs in_whatever()
+> semantics changing if arch_get_random_words{,_seed}() is ever
+> implemented, which would reduce the current multitude of calls to the
+> trng to a single call?
 > 
-> Can you please send a fix dmar_parse_one_rhsa() as you suggested,
-> so that I'll add the fix before the beginning of next merge window?
+> Jason
 
-Sure, sending in a couple hours. I guess it would be nice to get
-Acked-by from a maintainer of that subsys (if it won't take too
-long).
+Hm, no, I can't see a way to provide trng random data in any whatever
+interrupt context for the next future. The only enabler would be to
+use a buffer ... I started to get in contact with our hardware guys
+to make the trng data internally buffered and this the invocation
+could be in no time give back random data. But this may be a
+hardware development thing for the next machine generation.
 
-> 
-> Regarding a general path, this is what I'm thinking on (for a while):
->  - #define NUMA_NO_NODE MAX_NUMNODES;
->  - stronger typechecking, like you did in your series;
->  - introduce CONFIG_DEBUG_BITMAP  to catch bad arguments
->    on-the-fly;
-> 
-> I'm working on DEBUG_BITMAP, hopefully submit it for next merge
-> cycle.
+Thanks Jason for your work
 
-I like the idea!
-
-> 
-> Thanks,
-> Yury
-
-Thanks,
-Olek
+Regards
+Harald Freudenberger
