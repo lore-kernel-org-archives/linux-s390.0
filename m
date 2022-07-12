@@ -2,145 +2,199 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73416CCA47C
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 09:39:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8608FC43334
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 10:08:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232576AbiGLJi7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Jul 2022 05:38:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60500 "EHLO
+        id S232873AbiGLKIs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Jul 2022 06:08:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232502AbiGLJiz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 05:38:55 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9928963A2;
-        Tue, 12 Jul 2022 02:38:54 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26C9MfNH006467;
-        Tue, 12 Jul 2022 09:38:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=6aeJAg1iZI9nzEd1LHJNgoB2C234O5R69qc1Bx6wE1Y=;
- b=PhC1rTpoe9U5/0THQi9EnqRNaQUGHuj4BN8zMZkxa5/MFLci5QLrBzJ/SpYZLXXI3zWN
- ItoiLq4cK172Go+oKadZuYRiuqklnBKxTR0gKwPv4F0p5bfycyr3MoLUOM9yOOnJ59qO
- yp23lsWr1pnq/MHRoSFHKUahhwNoq/18TXyENStj9x1gwRqMPqbVw44z93ESji3/rccK
- ukSf1mEzCXhyZZt4vMw1ksK577ec/AMFiDsZr9ofCvCFjRuahN6zUGGYAl3BBmOw1KDr
- BVWj59SFK1JHDarEV3ERA6N4NyEiu8UL09hE6ocSyExVkMnze8R2WcdI4e0kTi+XtcEr zQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9697rfkn-1
+        with ESMTP id S232850AbiGLKIq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 06:08:46 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3007D62C1;
+        Tue, 12 Jul 2022 03:08:36 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26C9r4Xd000665;
+        Tue, 12 Jul 2022 10:08:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=eSHq/Lw6xlRnQULwNWDUKbvDA5yek8lzHeyD2Alq7Os=;
+ b=kNrxpHlKV4m2pzFmEFD8SQDw9/JUx4mwodwnb5DAsLpYbBPZfqtsYPHjVsYrXkxXhxLD
+ CFrh92Vw/PSFOL19Qrl1yYu/7bTM+PhKN9CcuPIZzVWxKXAjjrHTU0zHhypnBwoVRkqk
+ Zen9MDCuYgoYl4oPoHGGjV8hAt9cBCFYq4GDBdEJtcvDq7xhieaRAZbKNhUTuCnGSXkW
+ /NTCfY+Ar8TGWSSdRZLJ1zUX95O3CVF6syoiASpE9C/rAFiiao7NF5sinyXOPAUF0uNy
+ c2nv6zlu8qvUaRlQ14WhidTXsbqVe8mrxnNm+sTDQxLre0GsAjw2pPp87PK5+AYVwXhg rw== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h96qf8bc7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jul 2022 09:38:42 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26C9NjiT017050;
-        Tue, 12 Jul 2022 09:38:42 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9697rfjb-1
+        Tue, 12 Jul 2022 10:08:34 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26CA8Qmw010559;
+        Tue, 12 Jul 2022 10:08:33 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3h71a8v04x-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jul 2022 09:38:42 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26C9MCbC029154;
-        Tue, 12 Jul 2022 09:38:39 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3h8rrn0vsg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jul 2022 09:38:39 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26C9ca0J21627138
+        Tue, 12 Jul 2022 10:08:33 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26CA8T1724510848
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Jul 2022 09:38:36 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 860904C046;
-        Tue, 12 Jul 2022 09:38:36 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1B9044C040;
-        Tue, 12 Jul 2022 09:38:36 +0000 (GMT)
-Received: from [9.152.224.114] (unknown [9.152.224.114])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 12 Jul 2022 09:38:36 +0000 (GMT)
-Message-ID: <8c7993c0-7c53-d609-c731-1c7c25e50a65@de.ibm.com>
-Date:   Tue, 12 Jul 2022 11:38:35 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH next 3/3] Documentation: kvm: extend KVM_S390_ZPCI_OP
- subheading underline
-Content-Language: en-US
-To:     Bagas Sanjaya <bagasdotme@gmail.com>, linux-doc@vger.kernel.org
-Cc:     Stephen Rothwell <sfr@canb.auug.org.au>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220712092954.142027-1-bagasdotme@gmail.com>
- <20220712092954.142027-4-bagasdotme@gmail.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <20220712092954.142027-4-bagasdotme@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 5UhaZwNSk_6ShaMlXXSp1yVnwRUghYm8
-X-Proofpoint-GUID: gzyBMWnMDx0EZfPxClnq1iG1st3N77hq
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 12 Jul 2022 10:08:30 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE4F7AE04D;
+        Tue, 12 Jul 2022 10:08:29 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AB813AE045;
+        Tue, 12 Jul 2022 10:08:29 +0000 (GMT)
+Received: from funtu.com (unknown [9.145.19.45])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Jul 2022 10:08:29 +0000 (GMT)
+From:   Harald Freudenberger <freude@linux.ibm.com>
+To:     linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        Jason@zx2c4.com
+Cc:     jchrist@linux.ibm.com, dengler@linux.ibm.com
+Subject: [PATCH] s390/archrandom: remove CPACF trng invocations in interrupt context
+Date:   Tue, 12 Jul 2022 12:08:29 +0200
+Message-Id: <20220712100829.128574-1-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6bpfoqfIB9h3LWTuQnWx8WLEUUnpHFpI
+X-Proofpoint-GUID: 6bpfoqfIB9h3LWTuQnWx8WLEUUnpHFpI
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-12_05,2022-07-08_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- mlxscore=0 spamscore=0 malwarescore=0 mlxlogscore=999 suspectscore=0
- bulkscore=0 impostorscore=0 clxscore=1011 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2022-07-12_05,2022-07-12_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 bulkscore=0 impostorscore=0 spamscore=0 clxscore=1015
+ suspectscore=0 mlxscore=0 mlxlogscore=719 phishscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2206140000 definitions=main-2207120035
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+This patch introduces two things:
+1) The arch_get_random_seed_int() implementation now always
+   returns false. There is no user in the whole kernel using
+   this function.
+2) For the arch_get_random_seed_long() make sure the CPACF trng
+   instruction is never called in any interrupt context. This
+   is done by adding an additional condition in_task().
 
-Am 12.07.22 um 11:29 schrieb Bagas Sanjaya:
-> Stephen Rothwell reported the htmldocs warning:
-> 
-> Documentation/virt/kvm/api.rst:5959: WARNING: Title underline too short.
-> 
-> 4.137 KVM_S390_ZPCI_OP
-> --------------------
-> 
-> The warning is due to subheading underline on KVM_S390_ZPCI_OP section is
-> short of 2 dashes.
-> 
-> Extend the underline to fix the warning.
-> 
-> Link: https://lore.kernel.org/linux-next/20220711205557.183c3b14@canb.auug.org.au/
-> Fixes: a0c4d1109d6cc5 ("KVM: s390: add KVM_S390_ZPCI_OP to manage guest zPCI devices")
-> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: Pierre Morel <pmorel@linux.ibm.com>
-> Cc: Thomas Huth <thuth@redhat.com>
-> Cc: Matthew Rosato <mjrosato@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: Janosch Frank <frankja@linux.ibm.com>
-> Cc: kvm@vger.kernel.org
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Justification for 2):
 
-will queue this on top of the kvms390 tree.
+There are some constrains to satisfy for the invocation of the
+arch_get_random_seed_long() function:
+- It should provide good random data during kernel initialization.
+- It should not be called in interrupt context as the instruction
+  is relatively heavy weight and may for example make some network
+  loads cause to timeout and buck.
 
-> ---
->   Documentation/virt/kvm/api.rst | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-> index 1ae3508d51c537..e6bd6c6dbd13ec 100644
-> --- a/Documentation/virt/kvm/api.rst
-> +++ b/Documentation/virt/kvm/api.rst
-> @@ -5956,7 +5956,7 @@ KVM_PV_DUMP_CPU
->     The length of the returned data is provided by uv_info.guest_cpu_stor_len.
->   
->   4.137 KVM_S390_ZPCI_OP
-> ---------------------
-> +----------------------
->   
->   :Capability: KVM_CAP_S390_ZPCI_OP
->   :Architectures: s390
+However, it was not clear what kind of interrupt context is exactly
+encountered during kernel init or network traffic eventually calling
+arch_get_random_seed_long().
+
+After some days of investigations it is clear that the s390
+start_kernel function is not running in any interrupt context and
+so the trng is called:
+
+Jul 11 18:33:39 t35lp54 kernel:  [<00000001064e90ca>] arch_get_random_seed_long.part.0+0x32/0x70
+Jul 11 18:33:39 t35lp54 kernel:  [<000000010715f246>] random_init+0xf6/0x238
+Jul 11 18:33:39 t35lp54 kernel:  [<000000010712545c>] start_kernel+0x4a4/0x628
+Jul 11 18:33:39 t35lp54 kernel:  [<000000010590402a>] startup_continue+0x2a/0x40
+
+The condition in_task() is true and the CPACF trng provides random data
+during kernel startup.
+
+The network traffic however, is more difficult. A typical call stack
+looks like this:
+
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5600fc>] extract_entropy.constprop.0+0x23c/0x240
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b560136>] crng_reseed+0x36/0xd8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5604b8>] crng_make_state+0x78/0x340
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5607e0>] _get_random_bytes+0x60/0xf8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b56108a>] get_random_u32+0xda/0x248
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008aefe7a8>] kfence_guarded_alloc+0x48/0x4b8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008aeff35e>] __kfence_alloc+0x18e/0x1b8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008aef7f10>] __kmalloc_node_track_caller+0x368/0x4d8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b611eac>] kmalloc_reserve+0x44/0xa0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b611f98>] __alloc_skb+0x90/0x178
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b6120dc>] __napi_alloc_skb+0x5c/0x118
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b8f06b4>] qeth_extract_skb+0x13c/0x680
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b8f6526>] qeth_poll+0x256/0x3f8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b63d76e>] __napi_poll.constprop.0+0x46/0x2f8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b63dbec>] net_rx_action+0x1cc/0x408
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b937302>] __do_softirq+0x132/0x6b0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008abf46ce>] __irq_exit_rcu+0x13e/0x170
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008abf531a>] irq_exit_rcu+0x22/0x50
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b922506>] do_io_irq+0xe6/0x198
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b935826>] io_int_handler+0xd6/0x110
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b9358a6>] psw_idle_exit+0x0/0xa
+Jul 06 17:37:07 t35lp54 kernel: ([<000000008ab9c59a>] arch_cpu_idle+0x52/0xe0)
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b933cfe>] default_idle_call+0x6e/0xd0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008ac59f4e>] do_idle+0xf6/0x1b0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008ac5a28e>] cpu_startup_entry+0x36/0x40
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008abb0d90>] smp_start_secondary+0x148/0x158
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b935b9e>] restart_int_handler+0x6e/0x90
+
+which confirms that the call is in softirq context. So in_task() covers exactly
+the cases where we want to have CPACF trng called: not in nmi, not in hard irq,
+not in soft irq but in normal task context and during kernel init.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+---
+ arch/s390/include/asm/archrandom.h | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
+
+diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
+index 2c6e1c6ecbe7..9662c9fa7683 100644
+--- a/arch/s390/include/asm/archrandom.h
++++ b/arch/s390/include/asm/archrandom.h
+@@ -2,7 +2,7 @@
+ /*
+  * Kernel interface for the s390 arch_random_* functions
+  *
+- * Copyright IBM Corp. 2017, 2020
++ * Copyright IBM Corp. 2017, 2022
+  *
+  * Author: Harald Freudenberger <freude@de.ibm.com>
+  *
+@@ -14,6 +14,7 @@
+ #ifdef CONFIG_ARCH_RANDOM
+ 
+ #include <linux/static_key.h>
++#include <linux/preempt.h>
+ #include <linux/atomic.h>
+ #include <asm/cpacf.h>
+ 
+@@ -33,20 +34,17 @@ static inline bool __must_check arch_get_random_int(unsigned int *v)
+ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+ 	if (static_branch_likely(&s390_arch_random_available)) {
+-		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+-		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+-		return true;
++		if (in_task()) {
++			cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
++			atomic64_add(sizeof(*v), &s390_arch_random_counter);
++			return true;
++		}
+ 	}
+ 	return false;
+ }
+ 
+ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+-	if (static_branch_likely(&s390_arch_random_available)) {
+-		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+-		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+-		return true;
+-	}
+ 	return false;
+ }
+ 
+-- 
+2.25.1
+
