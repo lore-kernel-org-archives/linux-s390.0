@@ -2,180 +2,309 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 765E7C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 06:38:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A894DC43334
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 07:20:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231857AbiGLGir (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Jul 2022 02:38:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54388 "EHLO
+        id S232018AbiGLHUi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Jul 2022 03:20:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229846AbiGLGip (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 02:38:45 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD5A265A5;
-        Mon, 11 Jul 2022 23:38:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657607923; x=1689143923;
-  h=message-id:date:subject:references:to:cc:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=S44imiRBf5+e3zNgw/jao40V2AX9Qgyc+6H+9uxNsaM=;
-  b=deJOP3RbeRhw5ljGWfBLTMB80hpHdlGUL8z/83av3jGKeMrVIVZiq5sX
-   tEKvJCplLVU4JXzChdiSRDOwrb1abKXyDE5Ol+XtrWIJNiZ6eSlyR46OJ
-   OP6H4drd9miHn98PwLJdMx73o/JDq+ArHTNPYJcqu4wIWDivQv6Ol23KV
-   hMrckXMwVklPQXtaKYc2rJzSVOMd7prL4GWWrrBrYi0kv0+Kj2xwP1HBJ
-   jMg/68P6dpHORrCAj09rL8n2pZevTx+EHFpDs9iNXfis5tb6L7jhhad9B
-   WLVDxPAuczXhKxx2L+FEDZf7nqmue/0RYWuS8Nyb5dGfY637qkcJiMeb5
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10405"; a="264641958"
-X-IronPort-AV: E=Sophos;i="5.92,265,1650956400"; 
-   d="scan'208";a="264641958"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jul 2022 23:38:42 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,265,1650956400"; 
-   d="scan'208";a="599282578"
-Received: from orsmsx604.amr.corp.intel.com ([10.22.229.17])
-  by fmsmga007.fm.intel.com with ESMTP; 11 Jul 2022 23:38:40 -0700
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX604.amr.corp.intel.com (10.22.229.17) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27; Mon, 11 Jul 2022 23:38:40 -0700
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27; Mon, 11 Jul 2022 23:38:39 -0700
-Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
- orsmsx611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27 via Frontend Transport; Mon, 11 Jul 2022 23:38:39 -0700
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (104.47.59.173)
- by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2308.27; Mon, 11 Jul 2022 23:38:39 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Xfh35KTTBE20vH/SQ1WlLvG3v9x+TQoV+04j5Rq8gkk1OKbGBfVUHCW9qVL+deklT6RIdwPWxN3C1BRrQlF79GOoS122k5520h+DElQ6NvRosekgtMjjRxONc+HLOYEDv6DJQp37E1NF6Qa5k7422+xJcJ62l4XISSo7oZ6GBZRFWmDklmsgs3IJahH/tAI5aLpmqrwJVa2Hd3YCnjVOQYhSoWtvmyDcO6QslArGL0Eo+BudeU4FYL5QeV8wj2PSubR/esn+dHeW/+2ePnPM23UwNwdquvHTQjbpfrIiMuKBID8YJp8vXVcvTP631zRCbn56oaQWVIW4HGoN97Eg2g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Z7ygzHSVVWdspKXD/gd/nVnZvAT5523qeW0ZHA3a2gg=;
- b=UWBJJILBmDMxEcKQapSGjqlFfyunroGSthb0qz5n2+gHZxee6KEYoxbSGvuWBveZSuS15Cz4GiFz51T0Xz3Pz+s5iGvffJWo7lspYpWYBYhOOHcfhHhlJpPw7T7rD3hc7pKotFDq+UpfZyuyulqZ7SEqTi4Soe0E6Z0Nat8Pop/HTL0UbQG3fmT6xQyfR/9VHRLZSns1juGs8j8UP9wFZ47R13tbhyRbr0qK/Gy4EsEbceJ2fbt4TgFlnPc2HXviZLrppO4giMEJMNcIdP4HkhDE4GmGJdoVAZPJbIeqt4Ii/v54N6yrbMFXNgSscA1HtizPy+x+hgFNq9HM/ySIZg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from MW4PR11MB5933.namprd11.prod.outlook.com (2603:10b6:303:16a::15)
- by SN6PR11MB3120.namprd11.prod.outlook.com (2603:10b6:805:d6::29) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.16; Tue, 12 Jul
- 2022 06:38:37 +0000
-Received: from MW4PR11MB5933.namprd11.prod.outlook.com
- ([fe80::71d0:716c:7d6d:94c4]) by MW4PR11MB5933.namprd11.prod.outlook.com
- ([fe80::71d0:716c:7d6d:94c4%3]) with mapi id 15.20.5417.026; Tue, 12 Jul 2022
- 06:38:37 +0000
-Message-ID: <abfd747c-42e9-61df-f48d-73ded65989e3@intel.com>
-Date:   Tue, 12 Jul 2022 14:38:29 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Firefox/91.0 Thunderbird/91.11.0
-Subject: [kvms390:pci 13/21] arch/s390/kvm/pci.h: linux/kvm_host.h is included
- more than once.
-References: <202207102117.Guvcj88e-lkp@intel.com>
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-CC:     <kbuild-all@lists.01.org>, <linux-s390@vger.kernel.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>
-From:   kernel test robot <yujie.liu@intel.com>
-In-Reply-To: <202207102117.Guvcj88e-lkp@intel.com>
-X-Forwarded-Message-Id: <202207102117.Guvcj88e-lkp@intel.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SG2PR04CA0173.apcprd04.prod.outlook.com (2603:1096:4::35)
- To MW4PR11MB5933.namprd11.prod.outlook.com (2603:10b6:303:16a::15)
+        with ESMTP id S231820AbiGLHUe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 03:20:34 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CCC98AB2B;
+        Tue, 12 Jul 2022 00:20:27 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26C6Is0o001394;
+        Tue, 12 Jul 2022 07:20:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=zy22s8pMhCNao5oM0vPQHgdMV8SVWT0+1NPYYtQspaw=;
+ b=V5WkxMyzCi0Fb6W7AF4hkTm5Kvf8ZoXF5sASHEk+DJ3yJe6h0TIEtGNmKJGUZ8PH6m79
+ phgOfuhHeBRmpxxI13+4RRSr8JLwyadR8b8kMN2fjyEGzFoMxs4EnY+2LnsDyIew53cC
+ 4DdK1nSXj3Z8oRomGxUzW54VbuM5Plc3fiQ0D7D+ubOo8v12AoywUaQ6xgL2+UMkC4qT
+ outIpGvWk+JLIrmu67caKsEPYqG9VYtrg5cZPgzrGjEai1iPAO2y6QRQpPi5CnB/pj2f
+ UAK7OqnLJA6d7MphTgopNjfbg4YfqjFIfBKBqFN8zpVjo3VN8iRLEH6+COwANwHcePcA lw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h92qdagf1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jul 2022 07:20:26 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26C6oGQD006381;
+        Tue, 12 Jul 2022 07:20:17 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h92qdagec-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jul 2022 07:20:17 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26C76t61012195;
+        Tue, 12 Jul 2022 07:20:15 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 3h71a8jtrd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jul 2022 07:20:15 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26C7KBcc19267868
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Jul 2022 07:20:12 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E2B0B52050;
+        Tue, 12 Jul 2022 07:20:11 +0000 (GMT)
+Received: from [9.171.74.72] (unknown [9.171.74.72])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 2A91E5204E;
+        Tue, 12 Jul 2022 07:20:11 +0000 (GMT)
+Message-ID: <a268d8b7-bbd8-089d-896c-e4e3e4167e46@linux.ibm.com>
+Date:   Tue, 12 Jul 2022 09:24:52 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: e7840175-5ee1-4662-c605-08da63d12684
-X-MS-TrafficTypeDiagnostic: SN6PR11MB3120:EE_
-X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: STI0JGlQ33JLUggvXJ5kAqPtBRkaSMMevTBB4+2TraNwOtEIOpb1rkTSGfFdQxy+JNxIyhpvNSrgw+8AoubOcczS5nTrDvn9TQKyNXMX8DIRhu2V563+4jS3M2nFP7L/kBQbSaU4DPapFFxySg/lrSkwaxmNbiIzhH+yVQOHS1ukLeQQMqb5TsQ3GvBOXJq1M/p+hErSS7XGtXVbI73+AgrZLKJksVOSrqzhcgOZ5/XnrLXO2gSEfLx3tOVuR2UUgEAMKjM1CNeLQfDjR73ONqCxaiVwb7WWP9UyxxxCGPXHQQI+z9CwhZNQh3r+nTURlFrbQdEuw/vgZOtI+2+FHIPbqvugp440A9hPYMdASfp0+VhPjf3w0U8h8R++go0ma1s+FcqtAzE2YeleD5SyU2171hIwbw67STJYkpWyc5tCFHFgBG8fQRKnezfFgxrKnOjuYOlMhxaeckg7MctrZEatbwn1YZ7ZHLv/X6o+ijBoOnKU+HuYQFeOs4CX7439DSUhnsVe0Q2jIrEW5qs6RyfIVAhJelTozzkS7QkcXOW3CjS8TPEV2DvL1VQfNiox64QsplaUjMat+/ZNeFsNCT/quSg9rlcN99qDHEVF9so9Y+9YrlL4FTpWF/83+PvM0RiN9Kv3OLmwn3j1M8Q0H4zi4v7vNJYwLLf5mo6ypFh0NulwjyCICmT7O3cxFSaTU0bA5uDeQPpzen1VH3VrUb7n60AaolAQ512My+oc754RSxhBmwVpw4B2wkbKreJMMJcyffX/lKr+VXMw6AVWyoN3dBQxtE556I6ITmZRdTBky6eOf0Wh/UxNvFl6JUxTt/Swsq4lWYTamMGp00mBlvfHmUSiORZ6KURIurSwguqZyh5RVYewu25rOzNXB7qq0Kj3yMBfoMY8eKXtNqQzhr1+tsVA1EYyqL/nmihDT0o=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR11MB5933.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(136003)(39860400002)(376002)(366004)(396003)(346002)(31686004)(82960400001)(38100700002)(8936002)(6916009)(4326008)(54906003)(66946007)(8676002)(316002)(66476007)(66556008)(36756003)(31696002)(83380400001)(2906002)(478600001)(186003)(966005)(41300700001)(6486002)(26005)(6506007)(6512007)(6666004)(5660300002)(86362001)(2616005)(45980500001)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dmdTQit4R25BRHZQR29mamUxb1JTS2xDSjR3emc4NVp4QSszczR2ZkxnUytr?=
- =?utf-8?B?UHE0M2NWTmllRWt2cjV6OFNpbGZZKzh2ODJBU1Fyc25TMnRTNlNuUDFVZDBI?=
- =?utf-8?B?R3Q5a3VHSWtqUlVvNTRIaTBBaTVwU1htMDQrbnMxd1BKdEtxb0xlQiswY0Vx?=
- =?utf-8?B?ZzRvWTEwT1Q3dEF2MkJzK3M3Nk95Q0FWK2FtSFZFZTh0MGlvUXh4ZnlibjJo?=
- =?utf-8?B?NGI4QWY2VmMvd2xKS1BIWG5md00wU1BIODBJS1JuRXNIeTljaEVZWDR1bGtv?=
- =?utf-8?B?VktyNFZ0SkE5TFlwQ3kxR2txY3RpaUVSOWFZdVdadHZsdWpqV09GVEsxRGdy?=
- =?utf-8?B?U1Nlb0h6YjQ1RTZpb1ZSc0U3TmNGZVJySnllR3dwV3hESEpjNnlOeTNHTEI0?=
- =?utf-8?B?dG9lSTF3Y1pEdzM2NWo1cDBLbCtSb01nc0lKQ0FlamdPYUhaemNQVm5NSUI5?=
- =?utf-8?B?alBWbytKUXZycVQxbkJnQ3lwL3dnNmJoT1V0RmwxWjdrWnlaUEJzcTNiVDA0?=
- =?utf-8?B?LzFYU24xc1c0UXNaaVIrOWkyMStRZkZISUkwSktZWUJvc0wwRFdmamxqUm1V?=
- =?utf-8?B?Z0ZTUWRQWkRTTnJZZUZjSUZvZU1HcjNFQlV6TTlOVU41TXR1ekJaSnJpM2xN?=
- =?utf-8?B?dFdBSXVXUjZkNnJBYk1pT1pnOHAxcEk3cTZOeGo0aEJXMUhZa1hFSDYzZzNP?=
- =?utf-8?B?YU82d0dBOWVyWW1WWHoxWXp0YUtuNjNHLzV1aUFXNFlNcDRyb2FGKzE3OHE2?=
- =?utf-8?B?VFhxdnoyZnFEaEhxVCtWWEhqYi9Takx5ZkNBaC9qTVZwcmtlSlNqbHNZRUdv?=
- =?utf-8?B?NFdraEM2VWhkQldkeUFJY1NXdGcwM2drN0FIcWRNT3k4bXMyMVdEMWhSMy9a?=
- =?utf-8?B?ZXc1QjZqUHozY01xeVM5UGZqU1QvVmJFZUdBUjRvWG0rSDhaSFNXcDFpZ2ZZ?=
- =?utf-8?B?VjRibXM1TGVwVFNWbTZNVDlQRWF1Wk51ZElTRG4rL1hVR2ErRFBnMHBLLzlF?=
- =?utf-8?B?M0lRcnZQdFlsbkVGR21CR2hPTzRzQWUzTlBESDI3NXRIck0vVGkwbnRkU0dG?=
- =?utf-8?B?MTZvcWtGdnhIVUU1eGFOSTBveWhRUVpNU2pyM05JdG15dlE3Yjd5RWJKZnVo?=
- =?utf-8?B?SjlENGxHUlFWUHBmNXlCZThlMmJKUTh4cDMyeEl3TUVyejJQelRrV3V4WC9u?=
- =?utf-8?B?OHRKdndzSGExMmNXT2htejNqcWZBa0VWZFRuQnN2MmRmZGtxOE9sNWo0UlhQ?=
- =?utf-8?B?OHFjb20xckhibE9rQUNFd1B3eWZYbENHdXV6bTEzNHBzV1h1aUNIdXZpaEMx?=
- =?utf-8?B?OGhjQjFYSDJBZndpem9paFRhUWJxakd1VjNnWE9XNFNlSnRYME9SVTY5QXFm?=
- =?utf-8?B?SGptTkptQVh3a2wyZGFpR3RBaWFUQXJGMTQvU1laT2FiT3dZYUsrWFlpVjRD?=
- =?utf-8?B?T1RueUluaUhnckE2dWlpa1BaZ3JCdHFRRit6cEhFaW5DSExRZzhJcTN6N25Z?=
- =?utf-8?B?MkZtd2xoc3BwRTRnZitIbndOR3ZEdHEzbEtPT0p0K1ZISG1NQmhObmp0SjhS?=
- =?utf-8?B?aFFaWkFsTkxpdDl4S05kRnY3WHY0c1k2ZmtmcE0zT05vUlJITXN6Q3ZvbHpU?=
- =?utf-8?B?cXVMU2taNWpOOFlSY0FmZXNmMW8vNmtNa3A0bVU2Nkkxb1RyMGxiTXVXcEJU?=
- =?utf-8?B?b0ZrSURSNlFlaTUyODg0Qkx6ODd3Y0tPaFV0OWRvQzJDN3kyU2Y3dWs2R1FX?=
- =?utf-8?B?R1o1dUl4TzRST2MxUld4dlNyQVROSlpoTzJSMTZ5VGVhcmJqVExyOUtaZUpm?=
- =?utf-8?B?QXdSUmdscE9sYi9LN1RGSmFnVGx5a01BY2FnelZCSUpPdFlRUzBycmZCOHZz?=
- =?utf-8?B?anRQRUdpWnY2TUZKa2pwdm1OWEVYZ3JPdUJQMU0xU1B3ZlMxTUlaSTROK0Rh?=
- =?utf-8?B?TGs2T2lmYnl4U1lhRHFZRHdwWDROVGROajBmS0RzQnFMOCtCbnFDbXBRTXJQ?=
- =?utf-8?B?OUk3SzcyS0tsRnd0UWoxU1Q4WDhCaWF4OEQvakx6OW0vMW5QVmE0cndRdzBy?=
- =?utf-8?B?b29XU1QyVjdkS1JQSWp0WlZscDBjT3ZtNzU4R05RZlN3Yk52MWR2NEZORGJ6?=
- =?utf-8?Q?1jVsp1XGtw9/nVAOPd1CW5Vg6?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: e7840175-5ee1-4662-c605-08da63d12684
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR11MB5933.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jul 2022 06:38:37.8468
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ql4ZS2NB4GwUrlaMSBobV/4GwGtfdTdOQkqollhnhbw7ZteBLHT4SpvrlwfY5m9DfpP99xvekNgZi9LnjGXV7Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR11MB3120
-X-OriginatorOrg: intel.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v12 3/3] KVM: s390: resetting the Topology-Change-Report
+Content-Language: en-US
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, wintera@linux.ibm.com,
+        seiden@linux.ibm.com, nrb@linux.ibm.com
+References: <20220711084148.25017-1-pmorel@linux.ibm.com>
+ <20220711084148.25017-4-pmorel@linux.ibm.com>
+ <58016efc-9053-b743-05d6-4ace4dcdc2a8@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <58016efc-9053-b743-05d6-4ace4dcdc2a8@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: VBY5H5UHEDGKvVYOVMg4Q13ViJB7T7v5
+X-Proofpoint-GUID: 3gwn3EBGftuTAQdU58_-cYVP8hzDRk8g
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-12_05,2022-07-08_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
+ mlxlogscore=999 priorityscore=1501 bulkscore=0 impostorscore=0
+ clxscore=1015 suspectscore=0 adultscore=0 mlxscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207120028
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git pci
-head:   4ac34b94a5342544baa72ce09fc5e825a9d35070
-commit: 73f91b004321f2510fa79e66035dbbf1870fcf56 [13/21] KVM: s390: pci: enable host forwarding of Adapter Event Notifications
-compiler: gcc-11 (Debian 11.3.0-3) 11.3.0
-
-If you fix the issue, kindly add following tag where applicable
-Reported-by: kernel test robot <yujie.liu@intel.com>
 
 
-includecheck warnings: (new ones prefixed by >>)
- >> arch/s390/kvm/pci.h: linux/kvm_host.h is included more than once.
+On 7/11/22 15:22, Janis Schoetterl-Glausch wrote:
+> On 7/11/22 10:41, Pierre Morel wrote:
+>> During a subsystem reset the Topology-Change-Report is cleared.
+>>
+>> Let's give userland the possibility to clear the MTCR in the case
+>> of a subsystem reset.
+>>
+>> To migrate the MTCR, we give userland the possibility to
+>> query the MTCR state.
+>>
+>> We indicate KVM support for the CPU topology facility with a new
+>> KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> 
+> Reviewed-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> 
 
-6438e30714abd (Matthew Rosato 2022-06-06 16:33:15 -0400 @13) #include <linux/kvm_host.h>
-6438e30714abd (Matthew Rosato 2022-06-06 16:33:15 -0400  14) #include <linux/pci.h>
-98b1d33dac5fd (Matthew Rosato 2022-06-06 16:33:16 -0400  15) #include <linux/mutex.h>
-09340b2fca007 (Matthew Rosato 2022-06-06 16:33:20 -0400  16) #include <linux/kvm.h>
-73f91b004321f (Matthew Rosato 2022-06-06 16:33:17 -0400 @17) #include <linux/kvm_host.h>
-98b1d33dac5fd (Matthew Rosato 2022-06-06 16:33:16 -0400  18) #include <asm/airq.h>
-98b1d33dac5fd (Matthew Rosato 2022-06-06 16:33:16 -0400  19) #include <asm/cpu.h>
+Thanks!
+
+> See nits/comments below.
+> 
+>> ---
+>>   Documentation/virt/kvm/api.rst   | 25 ++++++++++++++
+>>   arch/s390/include/uapi/asm/kvm.h |  1 +
+>>   arch/s390/kvm/kvm-s390.c         | 56 ++++++++++++++++++++++++++++++++
+>>   include/uapi/linux/kvm.h         |  1 +
+>>   4 files changed, 83 insertions(+)
+>>
+>> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+>> index 11e00a46c610..5e086125d8ad 100644
+>> --- a/Documentation/virt/kvm/api.rst
+>> +++ b/Documentation/virt/kvm/api.rst
+>> @@ -7956,6 +7956,31 @@ should adjust CPUID leaf 0xA to reflect that the PMU is disabled.
+>>   When enabled, KVM will exit to userspace with KVM_EXIT_SYSTEM_EVENT of
+>>   type KVM_SYSTEM_EVENT_SUSPEND to process the guest suspend request.
+>>   
+>> +8.37 KVM_CAP_S390_CPU_TOPOLOGY
+>> +------------------------------
+>> +
+>> +:Capability: KVM_CAP_S390_CPU_TOPOLOGY
+>> +:Architectures: s390
+>> +:Type: vm
+>> +
+>> +This capability indicates that KVM will provide the S390 CPU Topology
+>> +facility which consist of the interpretation of the PTF instruction for
+>> +the function code 2 along with interception and forwarding of both the
+>> +PTF instruction with function codes 0 or 1 and the STSI(15,1,x)
+> 
+> Is the architecture allowed to extend STSI without a facility?
+> If so, if we say here that STSI 15.1.x is passed to user space, then
+> I think we should have a
+> 
+> if (sel1 != 1)
+> 	goto out_no_data;
+> 
+> or maybe even
+> 
+> if (sel1 != 1 || sel2 < 2 || sel2 > 6)
+> 	goto out_no_data;
+> 
+> in priv.c
+
+I am not a big fan of doing everything in the kernel.
+Here we have no performance issue since it is an error of the guest if 
+it sends a wrong selector.
+
+Even testing the facility or PV in the kernel is for my opinion arguable 
+in the case we do not do any treatment in the kernel.
+
+I do not see what it brings to us, it increase the LOCs and makes the 
+implementation less easy to evolve.
+
+
+> 
+>> +instruction to the userland hypervisor.
+>> +
+>> +The stfle facility 11, CPU Topology facility, should not be indicated
+>> +to the guest without this capability.
+>> +
+>> +When this capability is present, KVM provides a new attribute group
+>> +on vm fd, KVM_S390_VM_CPU_TOPOLOGY.
+>> +This new attribute allows to get, set or clear the Modified Change
+> 
+> get or set, now that there is no explicit clear anymore.
+
+Yes now it is a set to 0 but the action of clearing remains.
+
+> 
+>> +Topology Report (MTCR) bit of the SCA through the kvm_device_attr
+>> +structure.> +
+>> +When getting the Modified Change Topology Report value, the attr->addr
+> 
+> When getting/setting the...
+> 
+>> +must point to a byte where the value will be stored.
+> 
+> ... will be stored/retrieved from.
+
+OK
+
+
+>> +
+>>   9. Known KVM API problems
+>>   =========================
+>>   
+>> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+>> index 7a6b14874d65..a73cf01a1606 100644
+>> --- a/arch/s390/include/uapi/asm/kvm.h
+>> +++ b/arch/s390/include/uapi/asm/kvm.h
+>> @@ -74,6 +74,7 @@ struct kvm_s390_io_adapter_req {
+>>   #define KVM_S390_VM_CRYPTO		2
+>>   #define KVM_S390_VM_CPU_MODEL		3
+>>   #define KVM_S390_VM_MIGRATION		4
+>> +#define KVM_S390_VM_CPU_TOPOLOGY	5
+>>   
+>>   /* kvm attributes for mem_ctrl */
+>>   #define KVM_S390_VM_MEM_ENABLE_CMMA	0
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 70436bfff53a..b18e0b940b26 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -606,6 +606,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>>   	case KVM_CAP_S390_PROTECTED:
+>>   		r = is_prot_virt_host();
+>>   		break;
+>> +	case KVM_CAP_S390_CPU_TOPOLOGY:
+>> +		r = test_facility(11);
+>> +		break;
+>>   	default:
+>>   		r = 0;
+>>   	}
+>> @@ -817,6 +820,20 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+>>   		icpt_operexc_on_all_vcpus(kvm);
+>>   		r = 0;
+>>   		break;
+>> +	case KVM_CAP_S390_CPU_TOPOLOGY:
+>> +		r = -EINVAL;
+>> +		mutex_lock(&kvm->lock);
+>> +		if (kvm->created_vcpus) {
+>> +			r = -EBUSY;
+>> +		} else if (test_facility(11)) {
+>> +			set_kvm_facility(kvm->arch.model.fac_mask, 11);
+>> +			set_kvm_facility(kvm->arch.model.fac_list, 11);
+>> +			r = 0;
+>> +		}
+>> +		mutex_unlock(&kvm->lock);
+>> +		VM_EVENT(kvm, 3, "ENABLE: CAP_S390_CPU_TOPOLOGY %s",
+>> +			 r ? "(not available)" : "(success)");
+>> +		break;
+>>   	default:
+>>   		r = -EINVAL;
+>>   		break;
+>> @@ -1717,6 +1734,36 @@ static void kvm_s390_update_topology_change_report(struct kvm *kvm, bool val)
+>>   	read_unlock(&kvm->arch.sca_lock);
+>>   }
+>>   
+>> +static int kvm_s390_set_topology(struct kvm *kvm, struct kvm_device_attr *attr)
+> 
+> kvm_s390_set_topology_changed maybe?
+> kvm_s390_get_topology_changed below then.
+
+No strong opinion, if you prefer I change this.
+
+> 
+>> +{
+>> +	if (!test_kvm_facility(kvm, 11))
+>> +		return -ENXIO;
+>> +
+>> +	kvm_s390_update_topology_change_report(kvm, !!attr->attr);
+>> +	return 0;
+>> +}
+>> +
+>> +static int kvm_s390_get_topology(struct kvm *kvm, struct kvm_device_attr *attr)
+>> +{
+>> +	union sca_utility utility;
+>> +	struct bsca_block *sca;
+>> +	__u8 topo;
+>> +
+>> +	if (!test_kvm_facility(kvm, 11))
+>> +		return -ENXIO;
+>> +
+>> +	read_lock(&kvm->arch.sca_lock);
+>> +	sca = kvm->arch.sca;
+>> +	utility.val = READ_ONCE(sca->utility.val);
+> 
+> I don't think you need the READ_ONCE anymore, now that there is a lock it should act as a compile barrier.
+
+I think you are right.
+
+>> +	read_unlock(&kvm->arch.sca_lock);
+>> +	topo = utility.mtcr;
+>> +
+>> +	if (copy_to_user((void __user *)attr->addr, &topo, sizeof(topo)))
+> 
+> Why void not u8?
+
+I like to say we write on "topo" with the size of "topo".
+So we do not need to verify the effective size of topo.
+But I understand, it is a UAPI, setting u8 in the copy_to_user makes 
+sense too.
+For my personal opinion, I would have prefer that userland tell us the 
+size it awaits even here, for this special case, since we use a byte, we 
+can not do really wrong.
+
+> 
+>> +		return -EFAULT;
+>> +
+>> +	return 0;
+>> +}
+>> +
+> [...]
+> 
 
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+Pierre Morel
+IBM Lab Boeblingen
