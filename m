@@ -2,99 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16347C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 11:51:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15598CCA47C
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 11:51:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232711AbiGLLvq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Jul 2022 07:51:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34856 "EHLO
+        id S231414AbiGLLvt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Jul 2022 07:51:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232649AbiGLLvk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 07:51:40 -0400
-Received: from out199-1.us.a.mail.aliyun.com (out199-1.us.a.mail.aliyun.com [47.90.199.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64FB0B3D51;
-        Tue, 12 Jul 2022 04:51:36 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VJ7zTHL_1657626690;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VJ7zTHL_1657626690)
+        with ESMTP id S232680AbiGLLvl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 07:51:41 -0400
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DF8EB41A6;
+        Tue, 12 Jul 2022 04:51:38 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VJ87Zt5_1657626694;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VJ87Zt5_1657626694)
           by smtp.aliyun-inc.com;
-          Tue, 12 Jul 2022 19:51:31 +0800
+          Tue, 12 Jul 2022 19:51:34 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, davem@davemloft.net,
         edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH net-next 0/6] net/smc: Introduce virtually contiguous buffers for SMC-R
-Date:   Tue, 12 Jul 2022 19:51:24 +0800
-Message-Id: <1657626690-60367-1-git-send-email-guwen@linux.alibaba.com>
+Subject: [PATCH net-next 3/6] net/smc: Introduce a sysctl for setting SMC-R buffer type
+Date:   Tue, 12 Jul 2022 19:51:27 +0800
+Message-Id: <1657626690-60367-4-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1657626690-60367-1-git-send-email-guwen@linux.alibaba.com>
+References: <1657626690-60367-1-git-send-email-guwen@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On long-running enterprise production servers, high-order contiguous
-memory pages are usually very rare and in most cases we can only get
-fragmented pages.
+This patch introduces the sysctl smcr_buf_type for setting
+the type of SMC-R sndbufs and RMBs.
 
-When replacing TCP with SMC-R in such production scenarios, attempting
-to allocate high-order physically contiguous sndbufs and RMBs may result
-in frequent memory compaction, which will cause unexpected hung issue
-and further stability risks.
+Valid values includes:
 
-So this patch set is aimed to allow SMC-R link group to use virtually
-contiguous sndbufs and RMBs to avoid potential issues mentioned above.
-Whether to use physically or virtually contiguous buffers can be set
-by sysctl smcr_buf_type.
+- SMCR_PHYS_CONT_BUFS, which means use physically contiguous
+  buffers for better performance and is the default value.
 
-Note that using virtually contiguous buffers will bring an acceptable
-performance regression, which can be mainly divided into two parts:
+- SMCR_VIRT_CONT_BUFS, which means use virtually contiguous
+  buffers in case of physically contiguous memory is scarce.
 
-1) regression in data path, which is brought by additional address
-   translation of sndbuf by RNIC in Tx. But in general, translating
-   address through MTT is fast. According to qperf test, this part
-   regression is basically less than 10% in latency and bandwidth.
-   (see patch 5/6 for details)
+- SMCR_MIXED_BUFS, which means first try to use physically
+  contiguous buffers. If not available, then use virtually
+  contiguous buffers.
 
-2) regression in buffer initialization and destruction path, which is
-   brought by additional MR operations of sndbufs. But thanks to link
-   group buffer reuse mechanism, the impact of this kind of regression
-   decreases as times of buffer reuse increases.
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ include/net/netns/smc.h |  1 +
+ net/smc/smc_core.h      |  6 ++++++
+ net/smc/smc_sysctl.c    | 11 +++++++++++
+ 3 files changed, 18 insertions(+)
 
-Patch set overview:
-- Patch 1/6 and 2/6 mainly about simplifying and optimizing DMA sync
-  operation, which will reduce overhead on the data path, especially
-  when using virtually contiguous buffers;
-- Patch 3/6 and 4/6 introduce a sysctl smcr_buf_type to set the type
-  of buffers in new created link group;
-- Patch 5/6 allows SMC-R to use virtually contiguous sndbufs and RMBs,
-  including buffer creation, destruction, MR operation and access;
-- patch 6/6 extends netlink attribute for buffer type of SMC-R link group;
-
-Guangguan Wang (2):
-  net/smc: remove redundant dma sync ops
-  net/smc: optimize for smc_sndbuf_sync_sg_for_device and
-    smc_rmb_sync_sg_for_cpu
-
-Wen Gu (4):
-  net/smc: Introduce a sysctl for setting SMC-R buffer type
-  net/smc: Use sysctl-specified types of buffers in new link group
-  net/smc: Allow virtually contiguous sndbufs or RMBs for SMC-R
-  net/smc: Extend SMC-R link group netlink attribute
-
- include/net/netns/smc.h  |   1 +
- include/uapi/linux/smc.h |   1 +
- net/smc/af_smc.c         |  68 +++++++++++--
- net/smc/smc_clc.c        |   8 +-
- net/smc/smc_clc.h        |   2 +-
- net/smc/smc_core.c       | 246 ++++++++++++++++++++++++++++++-----------------
- net/smc/smc_core.h       |  20 +++-
- net/smc/smc_ib.c         |  44 +++++++--
- net/smc/smc_ib.h         |   2 +
- net/smc/smc_llc.c        |  33 ++++---
- net/smc/smc_rx.c         |  92 ++++++++++++++----
- net/smc/smc_sysctl.c     |  11 +++
- net/smc/smc_tx.c         |  10 +-
- 13 files changed, 391 insertions(+), 147 deletions(-)
-
+diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+index e5389ee..2adbe2b 100644
+--- a/include/net/netns/smc.h
++++ b/include/net/netns/smc.h
+@@ -18,5 +18,6 @@ struct netns_smc {
+ 	struct ctl_table_header		*smc_hdr;
+ #endif
+ 	unsigned int			sysctl_autocorking_size;
++	unsigned int			sysctl_smcr_buf_type;
+ };
+ #endif
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 46ddec5..7652dfa 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -217,6 +217,12 @@ enum smc_lgr_type {				/* redundancy state of lgr */
+ 	SMC_LGR_ASYMMETRIC_LOCAL,	/* local has 1, peer 2 active RNICs */
+ };
+ 
++enum smcr_buf_type {		/* types of SMC-R sndbufs and RMBs */
++	SMCR_PHYS_CONT_BUFS	= 0,
++	SMCR_VIRT_CONT_BUFS	= 1,
++	SMCR_MIXED_BUFS		= 2,
++};
++
+ enum smc_llc_flowtype {
+ 	SMC_LLC_FLOW_NONE	= 0,
+ 	SMC_LLC_FLOW_ADD_LINK	= 2,
+diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+index cf3ab13..0613868 100644
+--- a/net/smc/smc_sysctl.c
++++ b/net/smc/smc_sysctl.c
+@@ -15,6 +15,7 @@
+ #include <net/net_namespace.h>
+ 
+ #include "smc.h"
++#include "smc_core.h"
+ #include "smc_sysctl.h"
+ 
+ static struct ctl_table smc_table[] = {
+@@ -25,6 +26,15 @@
+ 		.mode           = 0644,
+ 		.proc_handler	= proc_douintvec,
+ 	},
++	{
++		.procname	= "smcr_buf_type",
++		.data		= &init_net.smc.sysctl_smcr_buf_type,
++		.maxlen		= sizeof(unsigned int),
++		.mode		= 0644,
++		.proc_handler	= proc_douintvec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_TWO,
++	},
+ 	{  }
+ };
+ 
+@@ -49,6 +59,7 @@ int __net_init smc_sysctl_net_init(struct net *net)
+ 		goto err_reg;
+ 
+ 	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
++	net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
+ 
+ 	return 0;
+ 
 -- 
 1.8.3.1
 
