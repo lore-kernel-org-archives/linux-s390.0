@@ -2,104 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D581AC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 14:44:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56FC6CCA47C
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 15:08:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233242AbiGLOoz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Jul 2022 10:44:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
+        id S233933AbiGLPIG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Jul 2022 11:08:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233756AbiGLOol (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 10:44:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D60AF27FC5;
-        Tue, 12 Jul 2022 07:44:37 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 602D2609FB;
-        Tue, 12 Jul 2022 14:44:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FFE3C341C8;
-        Tue, 12 Jul 2022 14:44:36 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="SKhR9YMk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1657637074;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=FRjN/y/5Q9R+BRYskVsQtLtxtn9xVaAqa0IqqnonwGo=;
-        b=SKhR9YMk3Ua/PF8vT+FV0c1lhYgnfMGvwJLQCyGg58PafsJoX6rC62PcX3LvW9ilZ8/3fm
-        eZlg0SPsqHDjuKknE+Wwmvsayr/p/gE6p1aPEAsFw6oSmDZNch86IMfzsXfxiJRT0kWxXi
-        fZ+bsX2YGegxeuJ/FS9yYoNc8wNIBBQ=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 52b081b0 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Tue, 12 Jul 2022 14:44:34 +0000 (UTC)
-Date:   Tue, 12 Jul 2022 16:44:30 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Harald Freudenberger <freude@linux.ibm.com>
-Cc:     linux390-list@tuxmaker.boeblingen.de.ibm.com,
-        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-        jchrist@linux.ibm.com, dengler@linux.ibm.com
-Subject: Re: [PATCH] s390/archrandom: remove CPACF trng invocations in
- interrupt context
-Message-ID: <Ys2IzgYW4FHTHiu3@zx2c4.com>
-References: <20220712100829.128574-1-freude@linux.ibm.com>
- <Ys1Loyu21C48Zm6n@zx2c4.com>
- <4881578c512c5420315abfef47068df0@linux.ibm.com>
- <Ys1olOgaw44dXeiT@zx2c4.com>
- <ac816519f9d8f4948434acb0db631041@linux.ibm.com>
+        with ESMTP id S233939AbiGLPHD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 11:07:03 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90EE0C54AE
+        for <linux-s390@vger.kernel.org>; Tue, 12 Jul 2022 08:01:18 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id bf13so7769707pgb.11
+        for <linux-s390@vger.kernel.org>; Tue, 12 Jul 2022 08:01:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=C6szfa/YFuVli7Zl8D3g07FtZCaBqKl0sr0C3s801fw=;
+        b=wvGh1LaGBDR/G4joma/N0cvbJnBEIUQnqZL1xqzrAx2II/seQanvVrR3VC/+z7Zjld
+         zVpL3S1Sbap6Qr3EziCQwuz57jjlFSyqAIG//PrF57ckKsOjYnNA74IslrVRV8nnnvRN
+         3wVRUsNjq8E8LfWdZImw+6t4uy2qdxEczsZkafnLIRX6/tVcYH4YdvtrreW/yTwotczk
+         0N6jnX5GZaEEOxdbD89BmI2kjEa6YY8NeG+QQlMPkGzOPlGhGFtT53OgEj7W2CYR3byM
+         LQOFNKZQ1nRsJMbeAYgWlG0zgQMstkobCqEuCJ2MiVopQxFfrxJf8bduX6B6jN534ryq
+         abmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=C6szfa/YFuVli7Zl8D3g07FtZCaBqKl0sr0C3s801fw=;
+        b=tF4CfN5AlrW9NJyJwBlDhzbLWj91baY8IMxBVs7G06rDnnTfRcmm6vTtl64iG1OkM6
+         lJGO1RS3+P462vkH1ISVCVyguxk4J38TlmQQAhUFRQFlRLQZJ/V5onN49ZG+N6UFhmGO
+         CAo1QCXF6AqwkA5wZWN++8Dvz7ibrHFKyW4omvTAeR6WsCx2bMdAgwPYFYQjpI9RA2zX
+         Ax19bxDvpvjbPhfHpSNjMomDJxcwarCEnDVLYorOOTj6k4TeMg11vbtwIaUveViZ22p+
+         Luney+q8k4QwCB+hs7WSDtyWQGZ+rNwaJAsqCrLCfFcygTTAg9Z548VirYh6zG9ma08M
+         RTnA==
+X-Gm-Message-State: AJIora/eTJ7tTExucxTAfxSJJqfNqat9XMzBKfyp8VrJXijgTnb9n0hA
+        9GQ8QSX/o7nFaYUt7FtpLAT3HA==
+X-Google-Smtp-Source: AGRyM1uF2yZ0fhTWiRIzaCuJhrMoYd2YKnjhN3avJPfSwtQ8ASEEXv5DvqmJeYAEZYa99COktBhysA==
+X-Received: by 2002:a63:9752:0:b0:3c6:5a7a:5bd6 with SMTP id d18-20020a639752000000b003c65a7a5bd6mr21070507pgo.390.1657638073175;
+        Tue, 12 Jul 2022 08:01:13 -0700 (PDT)
+Received: from [10.4.113.6] ([139.177.225.234])
+        by smtp.gmail.com with ESMTPSA id l1-20020a170902f68100b0016bfbd99f64sm6892899plg.118.2022.07.12.08.00.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Jul 2022 08:01:12 -0700 (PDT)
+Message-ID: <6f6a2257-3b60-e312-3ee3-fb08b972dbf2@bytedance.com>
+Date:   Tue, 12 Jul 2022 23:00:55 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <ac816519f9d8f4948434acb0db631041@linux.ibm.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.11.0
+Subject: Re: [PATCH v2 0/5] mm, oom: Introduce per numa node oom for
+ CONSTRAINT_{MEMORY_POLICY,CPUSET}
+Content-Language: en-US
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     Gang Li <ligang.bdlg@bytedance.com>, akpm@linux-foundation.org,
+        surenb@google.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, viro@zeniv.linux.org.uk,
+        ebiederm@xmission.com, keescook@chromium.org, rostedt@goodmis.org,
+        mingo@redhat.com, peterz@infradead.org, acme@kernel.org,
+        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
+        jolsa@kernel.org, namhyung@kernel.org, david@redhat.com,
+        imbrenda@linux.ibm.com, adobriyan@gmail.com,
+        yang.yang29@zte.com.cn, brauner@kernel.org,
+        stephen.s.brennan@oracle.com, zhengqi.arch@bytedance.com,
+        haolee.swjtu@gmail.com, xu.xin16@zte.com.cn,
+        Liam.Howlett@oracle.com, ohoono.kwon@samsung.com,
+        peterx@redhat.com, arnd@arndb.de, shy828301@gmail.com,
+        alex.sierra@amd.com, xianting.tian@linux.alibaba.com,
+        willy@infradead.org, ccross@google.com, vbabka@suse.cz,
+        sujiaxun@uniontech.com, sfr@canb.auug.org.au,
+        vasily.averin@linux.dev, mgorman@suse.de, vvghjk1234@gmail.com,
+        tglx@linutronix.de, luto@kernel.org, bigeasy@linutronix.de,
+        fenghua.yu@intel.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+        hezhongkun.hzk@bytedance.com
+References: <20220708082129.80115-1-ligang.bdlg@bytedance.com>
+ <YsfwyTHE/5py1kHC@dhcp22.suse.cz>
+ <41ae31a7-6998-be88-858c-744e31a76b2a@bytedance.com>
+ <Ys14oIHL85d/T7s+@dhcp22.suse.cz>
+From:   Abel Wu <wuyun.abel@bytedance.com>
+In-Reply-To: <Ys14oIHL85d/T7s+@dhcp22.suse.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Harald,
 
-On Tue, Jul 12, 2022 at 04:35:41PM +0200, Harald Freudenberger wrote:
-> On 2022-07-12 14:27, Jason A. Donenfeld wrote:
-> > Hi Harald,
-> > 
-> > On Tue, Jul 12, 2022 at 02:09:35PM +0200, Harald Freudenberger wrote:
-> >> > You've gone through the troubles of confirming experimentally what
-> >> > in_task() does, but that doesn't answer *why* it should be disallowed
-> >> > variously in each one of these contexts.
-> >> 
-> >> I think, I showed this. The only real occurrences remaining for the
-> >> arch_get_random_seed_long() call is within softirq context when the
-> >> network layer tries to allocate some skb buffers. My personal feeling
-> >> about this is that it does not hurt - but I asked our network guys
-> >> and their feedback is clear: no way - every delay there may cause
-> >> high bandwidth traffic to stumble and this is to be absolutely 
-> >> avoided.
-> >> However, they can't give me any measurements.
-> >> 
-> >> So yes, the intention is now with checking for in_task() to prevent
-> >> the trng call in hard and soft interrupt context. But still I'd like
-> >> to meet your condition to provide good random at kernel startup.
-> > 
-> > That's too bad, but okay.
-> > 
-> > Final question: do you see any of the in_task() vs in_whatever()
-> > semantics changing if arch_get_random_words{,_seed}() is ever
-> > implemented, which would reduce the current multitude of calls to the
-> > trng to a single call?
-> > 
-> > Jason
+On 7/12/22 9:35 PM, Michal Hocko Wrote:
+> On Tue 12-07-22 19:12:18, Abel Wu wrote:
+> [...]
+>> I was just going through the mail list and happen to see this. There
+>> is another usecase for us about per-numa memory usage.
+>>
+>> Say we have several important latency-critical services sitting inside
+>> different NUMA nodes without intersection. The need for memory of these
+>> LC services varies, so the free memory of each node is also different.
+>> Then we launch several background containers without cpuset constrains
+>> to eat the left resources. Now the problem is that there doesn't seem
+>> like a proper memory policy available to balance the usage between the
+>> nodes, which could lead to memory-heavy LC services suffer from high
+>> memory pressure and fails to meet the SLOs.
 > 
-> Hm, no, I can't see a way to provide trng random data in any whatever
-> interrupt context for the next future. The only enabler would be to
-> use a buffer ... I started to get in contact with our hardware guys
-> to make the trng data internally buffered and this the invocation
-> could be in no time give back random data. But this may be a
-> hardware development thing for the next machine generation.
+> I do agree that cpusets would be rather clumsy if usable at all in a
+> scenario when you are trying to mix NUMA bound workloads with those
+> that do not have any NUMA proferences. Could you be more specific about
+> requirements here though?
 
-Alrightie then. Well, I'll Ack a v2 that keeps the _int variant. Sounds
-like then we'll be done here.
+Yes, these LC services are highly sensitive to memory access latency
+and bandwidth, so they are provisioned by NUMA node granule to meet
+their performance requirements. While on the other hand, they usually
+do not make full use of cpu/mem resources which increases the TCO of
+our IDCs, so we have to co-locate them with background tasks.
 
-Tangential topic: would be nice to add the TRNG instruction to QEMU's
-TCG so that VMs in CI have a bit of randomness available.
+Some of these LC services are memory-bound but leave much of cpu's
+capacity unused. In this case we hope the co-located background tasks
+to consume some leftover without introducing obvious mm overhead to
+the LC services.
 
-Jason
+> 
+> Let's say you run those latency critical services with "simple" memory
+> policies and mix them with the other workload without any policies in
+> place so they compete over memory. It is not really clear to me how can
+> you achieve any reasonable QoS in such an environment. Your latency
+> critical servises will be more constrained than the non-critical ones
+> yet they are more demanding AFAIU.
+
+Yes, the QoS over memory is the biggest block in the way (the other
+resources are relatively easier). For now, we hacked a new mpol to
+achieve weighted-interleave behavior to balance the memory usage across
+NUMA nodes, and only set memcg protections to the LC services. If the
+memory pressure is still high, the background tasks will be killed.
+Ideas? Thanks!
+
+Abel
