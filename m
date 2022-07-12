@@ -2,190 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F089C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 09:17:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1599CCA483
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Jul 2022 09:30:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230428AbiGLJRN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Jul 2022 05:17:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44296 "EHLO
+        id S232790AbiGLJaI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Jul 2022 05:30:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229621AbiGLJRK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 05:17:10 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C827823F;
-        Tue, 12 Jul 2022 02:17:09 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26C9F9tT025516;
-        Tue, 12 Jul 2022 09:17:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=owkvwMRylodKF+j0xJNN/3K4H/v3uCmowpZ2+D85uqA=;
- b=mK993XXt8WoxoE75i+hm2ZZkuXX8cxUEtoNozB0gG3c18lkcGM3pKzudT5/AeSQZAkM9
- qyTIXyii/YFfxg0O+EZz6pZkob14+LswN9QmAu7GDM1RUvR5HnTxB7cvzxMwzTDKCqFP
- WtJgUBLOZrn6owdG/nCC9lvJlBDQgKHLe4lropfUYSWDO37KxzUSrDoRKWum9vWkliVu
- ASli/Gv5raqxTUK2vqsGmwRGGkFG7GypbcJQfNs1BK0STEXvvbjLBFHf95kLBUYUaEnk
- 6SVn9xsQqa7l8dAPt5EYiuIdCcpkM2DdlO5kKoBwTF4FncjU3/VOPlkbyMvI4tcc+cec yQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h93v0bpw0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jul 2022 09:17:08 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26C9CJtj028860;
-        Tue, 12 Jul 2022 09:17:08 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h93v0bpve-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jul 2022 09:17:08 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26C8o6iN001602;
-        Tue, 12 Jul 2022 09:17:06 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3h70xhuy56-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jul 2022 09:17:06 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26C9H3RN11731362
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Jul 2022 09:17:03 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0FA655204F;
-        Tue, 12 Jul 2022 09:17:03 +0000 (GMT)
-Received: from [9.171.74.72] (unknown [9.171.74.72])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 543E852050;
-        Tue, 12 Jul 2022 09:17:02 +0000 (GMT)
-Message-ID: <5c3d9637-7739-1323-8630-433ff8cb4dc4@linux.ibm.com>
-Date:   Tue, 12 Jul 2022 11:21:43 +0200
+        with ESMTP id S232674AbiGLJaH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jul 2022 05:30:07 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E8639E442;
+        Tue, 12 Jul 2022 02:30:06 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id v7so4944528pfb.0;
+        Tue, 12 Jul 2022 02:30:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=LlZwokCCRr1//JcjppZSf7dBePHepe4POxaFRYgWkT0=;
+        b=ob3lUCfgB/mcNHXQj7p4ewgx3PXsnSrUnRlo8/SpYNZkG7VWGANbKgQ71iTzhHvrTG
+         AD+TtVCsHaBx5iXjEkgzmTyaFh5V9zx1r8mzZRsWLcymvKQLCj5vig9U4NVWgSy02pBE
+         Tgs+HG5j+Jg5XNFmBb5gPZpluVKNA2MECu8Umci8h6Myi0OiJH99Q/j21eK5x01WBADj
+         og47+6TOW02Y/hRoUzFJ/ofyPdLywRTPm48cKYEJCWFEFdmqHlMgb83WwJps7awFg+VT
+         CgSSNRGAnBITgVbET5hp6WWp0oKLWtG4pGbmMZ4vQQaZMigvf3DUj6akMe8TBGB5P1JY
+         z2RQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=LlZwokCCRr1//JcjppZSf7dBePHepe4POxaFRYgWkT0=;
+        b=DW7mdy2FztFSSl1RKuE8FanhEra5SamRy5N/GsIP/1VmfItFx5K6pnyi9dqsszAm9t
+         wuTJzV0qxl/zpqIgWbtZJXr5zcE4On1+wFtA/xTB58zRFEqKtRrnHiyG50U6t53RV0xY
+         dIiT3/aZtjGN9l+ucdPN+jZq35lomKs/V/cunvnppxMaB763w4Q+R1S2Qv8xT1mVgnXX
+         ExzwKw04dva0JrlZmGdfHQUiJcvNkqALWxZ5EOhNheiFXKVevOfpz+icCrv0RA1BAea8
+         BZAOQw7kguvYhKfQfpKsOc+PpZlkCvv/E916uCWwabtwUEuNnbO8S1PvdySpIVd+7aDC
+         7JLg==
+X-Gm-Message-State: AJIora8jqInxb8eKz1M5aHDKNv3er+zgyJv56pzCQDdeTkRb61I3jTq+
+        3eWfF/Nh4wFd6CyTBo1k8QE=
+X-Google-Smtp-Source: AGRyM1sWIISpls1J5deVQlnkYWta8ucsGjsLXdTSKCq7iycbn1xeAQ0VrAm6PQJjkMKZUyT4ZYSZRA==
+X-Received: by 2002:a65:41ca:0:b0:408:aa25:5026 with SMTP id b10-20020a6541ca000000b00408aa255026mr20603164pgq.96.1657618205823;
+        Tue, 12 Jul 2022 02:30:05 -0700 (PDT)
+Received: from debian.me (subs03-180-214-233-9.three.co.id. [180.214.233.9])
+        by smtp.gmail.com with ESMTPSA id 77-20020a630650000000b0041299ef533csm5616514pgg.41.2022.07.12.02.30.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Jul 2022 02:30:04 -0700 (PDT)
+Received: by debian.me (Postfix, from userid 1000)
+        id 01C16103970; Tue, 12 Jul 2022 16:29:59 +0700 (WIB)
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     linux-doc@vger.kernel.org
+Cc:     Bagas Sanjaya <bagasdotme@gmail.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH next 3/3] Documentation: kvm: extend KVM_S390_ZPCI_OP subheading underline
+Date:   Tue, 12 Jul 2022 16:29:54 +0700
+Message-Id: <20220712092954.142027-4-bagasdotme@gmail.com>
+X-Mailer: git-send-email 2.37.0
+In-Reply-To: <20220712092954.142027-1-bagasdotme@gmail.com>
+References: <20220712092954.142027-1-bagasdotme@gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v12 2/3] KVM: s390: guest support for topology function
-Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, wintera@linux.ibm.com,
-        seiden@linux.ibm.com, nrb@linux.ibm.com
-References: <20220711084148.25017-1-pmorel@linux.ibm.com>
- <20220711084148.25017-3-pmorel@linux.ibm.com>
- <92c6d13c-4494-de56-83f4-9d7384444008@linux.ibm.com>
- <1884bc26-b91b-83a7-7f8b-96b6090a0bac@linux.ibm.com>
- <6124248a-24be-b43a-f827-b6bebf9e7f3d@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <6124248a-24be-b43a-f827-b6bebf9e7f3d@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: QmCKDgJcCsJ4T-NBqsRZQ2hw87Vud27N
-X-Proofpoint-GUID: 1o5-9W05gETsspmgDHaDgWJZaXgIyARk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-12_05,2022-07-08_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 suspectscore=0 adultscore=0 priorityscore=1501
- mlxlogscore=999 phishscore=0 bulkscore=0 clxscore=1015 mlxscore=0
- spamscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207120034
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Stephen Rothwell reported the htmldocs warning:
 
+Documentation/virt/kvm/api.rst:5959: WARNING: Title underline too short.
 
-On 7/12/22 10:50, Janis Schoetterl-Glausch wrote:
-> On 7/12/22 09:45, Pierre Morel wrote:
->>
->>
->> On 7/11/22 14:30, Janis Schoetterl-Glausch wrote:
->>> On 7/11/22 10:41, Pierre Morel wrote:
->>>> We report a topology change to the guest for any CPU hotplug.
->>>>
->>>> The reporting to the guest is done using the Multiprocessor
->>>> Topology-Change-Report (MTCR) bit of the utility entry in the guest's
->>>> SCA which will be cleared during the interpretation of PTF.
->>>>
->>>> On every vCPU creation we set the MCTR bit to let the guest know the
->>>> next time it uses the PTF with command 2 instruction that the
->>>> topology changed and that it should use the STSI(15.1.x) instruction
->>>> to get the topology details.
->>>>
->>>> STSI(15.1.x) gives information on the CPU configuration topology.
->>>> Let's accept the interception of STSI with the function code 15 and
->>>> let the userland part of the hypervisor handle it when userland
->>>> supports the CPU Topology facility.
->>>>
->>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>>> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
->>>
->>> Reviewed-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->>
->> Thanks.
->>
->>
->>> See nit below.
->>>> ---
->>>>    arch/s390/include/asm/kvm_host.h | 18 +++++++++++++++---
->>>>    arch/s390/kvm/kvm-s390.c         | 31 +++++++++++++++++++++++++++++++
->>>>    arch/s390/kvm/priv.c             | 22 ++++++++++++++++++----
->>>>    arch/s390/kvm/vsie.c             |  8 ++++++++
->>>>    4 files changed, 72 insertions(+), 7 deletions(-)
->>>>
->>>
->>> [...]
->>>
->>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>>> index 8fcb56141689..70436bfff53a 100644
->>>> --- a/arch/s390/kvm/kvm-s390.c
->>>> +++ b/arch/s390/kvm/kvm-s390.c
->>>> @@ -1691,6 +1691,32 @@ static int kvm_s390_get_cpu_model(struct kvm *kvm, struct kvm_device_attr *attr)
->>>>        return ret;
->>>>    }
->>>>    +/**
->>>> + * kvm_s390_update_topology_change_report - update CPU topology change report
->>>> + * @kvm: guest KVM description
->>>> + * @val: set or clear the MTCR bit
->>>> + *
->>>> + * Updates the Multiprocessor Topology-Change-Report bit to signal
->>>> + * the guest with a topology change.
->>>> + * This is only relevant if the topology facility is present.
->>>> + *
->>>> + * The SCA version, bsca or esca, doesn't matter as offset is the same.
->>>> + */
->>>> +static void kvm_s390_update_topology_change_report(struct kvm *kvm, bool val)
->>>> +{
->>>> +    union sca_utility new, old;
->>>> +    struct bsca_block *sca;
->>>> +
->>>> +    read_lock(&kvm->arch.sca_lock);
->>>> +    do {
->>>> +        sca = kvm->arch.sca;
->>>
->>> I find this assignment being in the loop unintuitive, but it should not make a difference.
->>
->> The price would be an ugly cast.
-> 
-> I don't get what you mean. Nothing about the types changes if you move it before the loop.
+4.137 KVM_S390_ZPCI_OP
+--------------------
 
-Yes right, did wrong understand.
-It is better before.
+The warning is due to subheading underline on KVM_S390_ZPCI_OP section is
+short of 2 dashes.
 
->>
->>
->>>
->>>> +        old = READ_ONCE(sca->utility);
->>>> +        new = old;
->>>> +        new.mtcr = val;
->>>> +    } while (cmpxchg(&sca->utility.val, old.val, new.val) != old.val);
->>>> +    read_unlock(&kvm->arch.sca_lock);
->>>> +}
->>>> +
->>> [...]
->>>
->>
->>
-> 
+Extend the underline to fix the warning.
 
+Link: https://lore.kernel.org/linux-next/20220711205557.183c3b14@canb.auug.org.au/
+Fixes: a0c4d1109d6cc5 ("KVM: s390: add KVM_S390_ZPCI_OP to manage guest zPCI devices")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Pierre Morel <pmorel@linux.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>
+Cc: Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+---
+ Documentation/virt/kvm/api.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 1ae3508d51c537..e6bd6c6dbd13ec 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -5956,7 +5956,7 @@ KVM_PV_DUMP_CPU
+   The length of the returned data is provided by uv_info.guest_cpu_stor_len.
+ 
+ 4.137 KVM_S390_ZPCI_OP
+---------------------
++----------------------
+ 
+ :Capability: KVM_CAP_S390_ZPCI_OP
+ :Architectures: s390
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+An old man doll... just what I always wanted! - Clara
+
