@@ -2,130 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C94BDC43334
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 09:16:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9A66C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 10:46:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235555AbiGMJQa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Jul 2022 05:16:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60582 "EHLO
+        id S235686AbiGMKqM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Jul 2022 06:46:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230193AbiGMJQ2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 05:16:28 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CE46E5DE8;
-        Wed, 13 Jul 2022 02:16:27 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26D8v43D009714;
-        Wed, 13 Jul 2022 09:16:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=erJFkOohpbHECeHIavdOswACvtYQlnKdA0uc1MzG5AA=;
- b=JHug56owbByfziX1g7zSZ8BnIzSNcT88tp2WZecRbGm+3G7jOFpGZGXZAQOs+8NU0sCM
- CrHI32QBuGg1X+6oyhTuXUi54YEx7PPr+9S07K/7bY4XUcwXVVMQUP0g3HLQnNk0T+mW
- kL5croPDBmh53LOZkU/bGT0OwLXuz7yXnAQKWFuWqETfifP3yuhgzesKCF+jabV8PbXb
- /FRojc+B4T71ZsQKnrj0lvQRzQFo9bDo0NVOF9h02nJtF0e4qzo4gePhcYQ4vUTmRBgR
- uudzFma5PjLQawhyhjrQ9Tuj7oZuQCFamTBD0OI37pRh7jJZIiFwgkB0r7rZ4OdFttJS gg== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9u078jab-1
+        with ESMTP id S231169AbiGMKqL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 06:46:11 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E78D2FE500;
+        Wed, 13 Jul 2022 03:46:09 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26DAiSVc006720;
+        Wed, 13 Jul 2022 10:46:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=/jpiMPY4COh6tulFlJAJqSios5yAm/5Oc1GCP3SdHKY=;
+ b=gW2RSvv4WKzLQzjAddNUlaps0NsaoU13PU91k6XLNRSJfbI8qaV6UxHC4gOvAyRjD4cI
+ zP+3T023PA+zGCSKA5m/et68SRMPXmjCjAegwn92fVmQXZWBBpM19oUeMJU+uWczflRi
+ kvPsyKkUUdfyEniMk5Qy2kd2kj2nuxRzAxxHn6ZcURZNeEHKKNh20xFEmKcFkMy0HXRI
+ xHGTAHBAmNPtflEtKxv9qF5J0Et5XdpiJf9RMqHLFIu6FblIlT0vaXTtM0jVbTRjMjcw
+ oVhW1cUqWAB1lgs/tYX2QtEbd2yEVDxE/L4aaCUHsW0SuuSNd9mOgmFrFGFwi5Al5ErR Vg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9u85t1a1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 09:16:25 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26D9693Z023075;
-        Wed, 13 Jul 2022 09:16:23 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3h70xhwe8r-1
+        Wed, 13 Jul 2022 10:46:08 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26DACx5o019429;
+        Wed, 13 Jul 2022 10:46:08 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9u85t19g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 09:16:23 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26D9GKvl24183150
+        Wed, 13 Jul 2022 10:46:08 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26DAZM1Z017481;
+        Wed, 13 Jul 2022 10:46:06 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3h71a8msmf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Jul 2022 10:46:06 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26DAk3op24117576
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Jul 2022 09:16:20 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 50F78A4054;
-        Wed, 13 Jul 2022 09:16:20 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D2B39A405B;
-        Wed, 13 Jul 2022 09:16:19 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.0.75])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 13 Jul 2022 09:16:19 +0000 (GMT)
-Date:   Wed, 13 Jul 2022 11:16:17 +0200
+        Wed, 13 Jul 2022 10:46:03 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 19B72A4051;
+        Wed, 13 Jul 2022 10:46:03 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BC5DBA404D;
+        Wed, 13 Jul 2022 10:46:02 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.0.75])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 13 Jul 2022 10:46:02 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Steffen Eiden <seiden@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org, nrb@linux.ibm.com
-Subject: Re: [PATCH 3/3] s390/uvdevice: autoload module based on CPU
- facility
-Message-ID: <20220713111617.0c7dec70@p-imbrenda>
-In-Reply-To: <02b6537d-97e6-c27b-7621-c5b116995a00@linux.ibm.com>
-References: <20220712105220.325010-1-seiden@linux.ibm.com>
-        <20220712105220.325010-4-seiden@linux.ibm.com>
-        <20220712184924.0d80c474@p-imbrenda>
-        <02b6537d-97e6-c27b-7621-c5b116995a00@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        scgl@linux.ibm.com, nrb@linux.ibm.com, thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v3 0/3] better smp interrupt checks
+Date:   Wed, 13 Jul 2022 12:45:54 +0200
+Message-Id: <20220713104557.168113-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NgSQi5gHLbG1kteJbvIalXW_B4h4Tsou
-X-Proofpoint-ORIG-GUID: NgSQi5gHLbG1kteJbvIalXW_B4h4Tsou
+X-Proofpoint-GUID: -vP5Xq56Zc3Lxm_JCjUAiMHRVdwEMGKO
+X-Proofpoint-ORIG-GUID: 6ZAc-uHGfMkIytOJAc9slVtzuosrBoBT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-12_14,2022-07-13_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 mlxlogscore=999 suspectscore=0 clxscore=1015
- impostorscore=0 adultscore=0 phishscore=0 spamscore=0 bulkscore=0
- mlxscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2206140000 definitions=main-2207130038
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
+ phishscore=0 impostorscore=0 malwarescore=0 adultscore=0 bulkscore=0
+ spamscore=0 priorityscore=1501 clxscore=1015 mlxlogscore=690
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207130043
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 13 Jul 2022 10:39:47 +0200
-Steffen Eiden <seiden@linux.ibm.com> wrote:
+Use per-CPU flags and callbacks for Program and External interrupts
+instead of global variables.
+    
+This allows for more accurate error handling; a CPU waiting for an
+interrupt will not have it "stolen" by a different CPU that was not
+supposed to wait for one, and now two CPUs can wait for interrupts at
+the same time.
 
-> On 7/12/22 18:49, Claudio Imbrenda wrote:
-> > On Tue, 12 Jul 2022 12:52:20 +0200
-> > Steffen Eiden <seiden@linux.ibm.com> wrote:
-> >   
-> >> Make sure the uvdevice driver will be automatically loaded when
-> >> facility 158 is available.
-> >>
-> >> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+Also fix skey.c to be compatible with the new interrupt handling.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Add some utility functions to manipulate bits in the PSW mask, to
+improve readability.
 
-> >> -module_init(uvio_dev_init);
-> >> +module_cpu_feature_match(S390_CPU_FEATURE_UV, uvio_dev_init);  
-> > 
-> > does this still prevent manual loading when the feature is not present?  
-> yes.
-> 
-> Have a look at the macro definition at 'include/linux/cpufeature.h':
-> 
-> Use module_cpu_feature_match(feature, module_init_function) to 
-> 
-> declare that 
-> 
-> [snip]
-> b) the module must not be loaded if CPU feature 'feature' is not present 
-> 
->     (not even by manual insmod).
+v2->v3
+* improve commit messages and fix some comments
+* remove unused psw_mask_set_clear_bits
+* remove ext_cleanup_func from struct cpu
+* minor code style changes
 
-that is what I needed to see :)
+Claudio Imbrenda (3):
+  lib: s390x: add functions to set and clear PSW bits
+  s390x: skey.c: rework the interrupt handler
+  lib: s390x: better smp interrupt checks
 
-> 
-> The test 'facility(158)' just moved to cpu_have_feature() in 
-> '/arch/s390/kernel/cpufeature.c'.
-> >   
-> >>   module_exit(uvio_dev_exit);
-> >>   
-> >>   MODULE_AUTHOR("IBM Corporation");  
-> >   
+ lib/s390x/asm/arch_def.h | 61 ++++++++++++++++++++++++++++++++++------
+ lib/s390x/asm/pgtable.h  |  2 --
+ lib/s390x/smp.h          |  8 +-----
+ lib/s390x/interrupt.c    | 57 +++++++++++++++++++++++++++----------
+ lib/s390x/mmu.c          | 14 +--------
+ lib/s390x/sclp.c         |  7 +----
+ lib/s390x/smp.c          | 11 ++++++++
+ s390x/diag288.c          |  6 ++--
+ s390x/selftest.c         |  4 +--
+ s390x/skey.c             | 23 ++++++---------
+ s390x/skrf.c             | 12 ++------
+ s390x/smp.c              | 18 ++----------
+ 12 files changed, 127 insertions(+), 96 deletions(-)
+
+-- 
+2.36.1
 
