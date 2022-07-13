@@ -2,53 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 671EDC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 12:56:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 455F6C43334
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 12:56:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235389AbiGMM44 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Jul 2022 08:56:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43274 "EHLO
+        id S235447AbiGMM45 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Jul 2022 08:56:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231492AbiGMM4z (ORCPT
+        with ESMTP id S234872AbiGMM4z (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 08:56:55 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85C857393D;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D668174791;
         Wed, 13 Jul 2022 05:56:53 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26DCfhba003346;
-        Wed, 13 Jul 2022 12:56:50 GMT
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26DCtuBa025831;
+        Wed, 13 Jul 2022 12:56:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=6EmDx4KHfWJHSESEM/+TnkRSjEThsLZnSTW530azPfs=;
- b=GmXcEtitMOU8mMDrk/2S9TCwbFG51e5Sc7RjDb7P30NYt7/ZBH7Hkm9ohjSyEFlpEHn+
- Gu+xwE9OVU2dpbxN8wiPCFbSkKmmBPffhMS7n3A4gkeHt5a1BiGVLZTwjdbYE7euJwPa
- qnKXw+NAANdtUybjRLh01Px997JB+Ip8YXzNpDdapoL9EAMhiSsr25rWZTAuHx5Z2MZ3
- k6fRX1Ko+MMmUm/fdhyVLo6zNbcNv/tTMsJ0ZTm2an4dZ3S6GKsYGWktNpG+0DF3vfCt
- VnD8ODlhvmZWA/m79jXSuVQuYtuM8tZUgIpCamZy1udhINZNoF3+klNgcYjhiHQc8t1z 1w== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9x9e8dar-1
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=QmRztB5T21trb1d83bgm0QONGneNMIBgqGlnqTAivic=;
+ b=TxPHXF3BFaGaXo5Alr2mK73qY1xJU8CQzc0CsnD7bHCgOylUUROsW1+rS82qcWHSSxHA
+ wSWXa1z+NGeVRcuPznYX58hu5ihueYiGPG+khAL+qQ+nvEF7lTuSsRob8i7NK7hfcKqq
+ NDtx9uOoBR4R4ZSBv4g54DxdFZwWI+fbRZiVCATGHzS229ZC/VR0ZNvoerjgrmYErx2n
+ 3NdwN9GZ1X7bRa7tkoWM0iTtYLTyXS8g/lY1KHmhig/2OT4JEuD7vEqxYNJQ1Lfz633b
+ Pmp2/zpAkZdwZa1BwXrPGioG3TFhJCFLT72BEXI37WuDwYCB13ht1Dlyn3HGery23nWL NQ== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9wdahnpt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 12:56:50 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26DCoGmk015124;
-        Wed, 13 Jul 2022 12:56:47 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3h71a8wp5q-1
+        Wed, 13 Jul 2022 12:56:51 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26DCpwh0030173;
+        Wed, 13 Jul 2022 12:56:48 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3h8ncngv0h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 12:56:47 +0000
+        Wed, 13 Jul 2022 12:56:48 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26DCuiM113173002
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26DCuuDY23724344
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Jul 2022 12:56:44 GMT
+        Wed, 13 Jul 2022 12:56:56 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9AF18A405B;
-        Wed, 13 Jul 2022 12:56:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 70750A405B;
+        Wed, 13 Jul 2022 12:56:45 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 487F2A405C;
-        Wed, 13 Jul 2022 12:56:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 13738A4054;
+        Wed, 13 Jul 2022 12:56:45 +0000 (GMT)
 Received: from a46lp73.lnxne.boe (unknown [9.152.108.100])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 13 Jul 2022 12:56:44 +0000 (GMT)
+        Wed, 13 Jul 2022 12:56:45 +0000 (GMT)
 From:   Steffen Eiden <seiden@linux.ibm.com>
 To:     Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -58,71 +59,61 @@ To:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Cc:     nrb@linux.ibm.com
-Subject: [PATCH v2 0/3] s390/cpufeature: rework to allow different types of cpufeatures
-Date:   Wed, 13 Jul 2022 14:56:41 +0200
-Message-Id: <20220713125644.16121-1-seiden@linux.ibm.com>
+Subject: [PATCH v2 2/3] s390/cpufeature: allow for facility bits
+Date:   Wed, 13 Jul 2022 14:56:43 +0200
+Message-Id: <20220713125644.16121-3-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.35.3
+In-Reply-To: <20220713125644.16121-1-seiden@linux.ibm.com>
+References: <20220713125644.16121-1-seiden@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: u9dHQVIALGAApagrDseHR4KJXHmVj0Wa
-X-Proofpoint-ORIG-GUID: u9dHQVIALGAApagrDseHR4KJXHmVj0Wa
+X-Proofpoint-ORIG-GUID: Y2MzvbT8-LccOMQDF4UxSVm8PgGVQhfn
+X-Proofpoint-GUID: Y2MzvbT8-LccOMQDF4UxSVm8PgGVQhfn
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-13_01,2022-07-13_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- adultscore=0 impostorscore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
- phishscore=0 malwarescore=0 mlxlogscore=999 priorityscore=1501
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207130050
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 spamscore=0 phishscore=0 malwarescore=0 mlxscore=0
+ mlxlogscore=999 suspectscore=0 impostorscore=0 clxscore=1015 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207130049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Currently the s390 implementaion of cpufeature is limited to elf_hwcap
-bits. Using these to automatically load modules also exposes this
-cpufeature to userspace which, sometimes is not intended.
+From: Heiko Carstens <hca@linux.ibm.com>
 
-Therefore, rework the s390-cpufeature implementation to allow for
-various cpu feature indications, which is not only limited to hwcap bits.
+Allow for facility bits to be used in cpu features.
 
-Add a new type to allow facilities to be a cpufeature without using
-hwcap bits that expose this feature to userspace.
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+---
+ arch/s390/kernel/cpufeature.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Load uvdevice when facility 158 is present.
-
-since v1:
-	* add r-bs from Claudio
-	* worked in comments
-
-Heiko Carstens (2):
-  s390/cpufeature: rework to allow more than only hwcap bits
-  s390/cpufeature: allow for facility bits
-
-Steffen Eiden (1):
-  s390/uvdevice: autoload module based on CPU facility
-
- arch/s390/crypto/aes_s390.c        |  2 +-
- arch/s390/crypto/chacha-glue.c     |  2 +-
- arch/s390/crypto/crc32-vx.c        |  2 +-
- arch/s390/crypto/des_s390.c        |  2 +-
- arch/s390/crypto/ghash_s390.c      |  2 +-
- arch/s390/crypto/prng.c            |  2 +-
- arch/s390/crypto/sha1_s390.c       |  2 +-
- arch/s390/crypto/sha256_s390.c     |  2 +-
- arch/s390/crypto/sha3_256_s390.c   |  2 +-
- arch/s390/crypto/sha3_512_s390.c   |  2 +-
- arch/s390/crypto/sha512_s390.c     |  2 +-
- arch/s390/include/asm/cpufeature.h | 23 ++++++---------
- arch/s390/kernel/Makefile          |  2 +-
- arch/s390/kernel/cpufeature.c      | 46 ++++++++++++++++++++++++++++++
- arch/s390/kernel/processor.c       | 10 -------
- drivers/char/hw_random/s390-trng.c |  2 +-
- drivers/s390/char/uvdevice.c       |  5 ++--
- drivers/s390/crypto/pkey_api.c     |  2 +-
- 18 files changed, 70 insertions(+), 42 deletions(-)
- create mode 100644 arch/s390/kernel/cpufeature.c
-
+diff --git a/arch/s390/kernel/cpufeature.c b/arch/s390/kernel/cpufeature.c
+index 9044c75d8b38..170894730fcc 100644
+--- a/arch/s390/kernel/cpufeature.c
++++ b/arch/s390/kernel/cpufeature.c
+@@ -8,6 +8,7 @@
+ 
+ enum {
+ 	TYPE_HWCAP,
++	TYPE_FACILITY,
+ };
+ 
+ struct s390_cpu_feature {
+@@ -34,6 +35,8 @@ int cpu_have_feature(unsigned int num)
+ 	switch (feature->type) {
+ 	case TYPE_HWCAP:
+ 		return !!(elf_hwcap & BIT(feature->num));
++	case TYPE_FACILITY:
++		return test_facility(feature->num);
+ 	default:
+ 		WARN_ON_ONCE(1);
+ 		return 0;
 -- 
 2.35.3
 
