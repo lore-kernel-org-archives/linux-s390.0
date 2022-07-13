@@ -2,157 +2,179 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2973C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 11:50:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A13A8C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 12:25:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235187AbiGMLu7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Jul 2022 07:50:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42458 "EHLO
+        id S235438AbiGMMZG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Jul 2022 08:25:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234751AbiGMLu6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 07:50:58 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DD7EE4778;
-        Wed, 13 Jul 2022 04:50:58 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26DBhoVk013834;
-        Wed, 13 Jul 2022 11:50:57 GMT
+        with ESMTP id S235326AbiGMMZF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 08:25:05 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 961B3AE3BE;
+        Wed, 13 Jul 2022 05:25:04 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26DCBTEl019816;
+        Wed, 13 Jul 2022 12:25:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+ mime-version : to : cc : references : from : subject : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=/UkvCuVr9MoZkBSPPZJKsdueVOvbPYo5SPwghB6eRCg=;
- b=BQCq1GdfJEyhZ9wku/7qiWtyr+xOC82sDKv4Whzb4VrCdGSiKXcPkfUN4IoWUunPtp6/
- cUeWBI7L6K51UqiW+vX+3v7GlxA8t96FuPAnH2nO+kixUohiJ2xG+c7aLkMU472z0WRX
- c0w6UOxr7H9g9lMivaSrQ9ZssCdU5cwRa3N3wbc9KcfKL4ckDWPk2raMcJ0muXlNY3R+
- HrtBPG9K6WZdGE1xkgIPyrenV4umGi6DgNOhT0NDogjy7PE4tFmFTSWxIlAKS9LtfP00
- p2HyWgq2GClbo9bkwYvGbi2F4GFvKTyMbQU9rc9IdfORfbtH1zelaDd73713UB46VQAl zA== 
+ bh=bqdak1bPkM9fvFJUoBvRCH/xjz23flO9Cyo9q6Bk96g=;
+ b=EBVDr/cBuCmYVMD25eBq9PnoPWPlJTNzw2gzLGbwFHcF63KHhgJ07eawl5N5C++eP5ga
+ oFkcXLiBdihJP9av78baLxtvbB1Sa+dTYB7KCGjIjLuFH/IGEYDbOvXp1J80MLZIlA46
+ I/Ldj5G9+cWk7a8pclOYUGXYhPLMSaI4dMXLyUS/TDwgCr4XpRiNjJlzh4Z0EGNhfCmb
+ JEAE9b1sGyXzGM+UfHsRPBTC9zOsZT3B3zA0O6lx3E2BXkAUnpSCpnTGq971iRv92NGV
+ 0l1EAKH5ozwpj4HlEFRtsDHeslnoTZ44LIYxpWdlyAOaFpGDHZ0afVm0SeVvN9OeXMaH vg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9we4g53y-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9wu9rasd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 11:50:57 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26DBjFA4018326;
-        Wed, 13 Jul 2022 11:50:56 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9we4g538-1
+        Wed, 13 Jul 2022 12:25:04 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26DCC3H4027078;
+        Wed, 13 Jul 2022 12:25:03 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9wu9rare-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 11:50:56 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26DBb5WV010214;
-        Wed, 13 Jul 2022 11:50:54 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 3h71a8m6nd-1
+        Wed, 13 Jul 2022 12:25:03 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26DCN6vP008199;
+        Wed, 13 Jul 2022 12:25:01 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3h8ncnguns-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 11:50:54 +0000
+        Wed, 13 Jul 2022 12:25:01 +0000
 Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26DBopQc17629450
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26DCOw1T25559356
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Jul 2022 11:50:51 GMT
+        Wed, 13 Jul 2022 12:24:58 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6379442041;
-        Wed, 13 Jul 2022 11:50:51 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1042042042;
+        Wed, 13 Jul 2022 12:24:58 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 16B254203F;
-        Wed, 13 Jul 2022 11:50:51 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 943054203F;
+        Wed, 13 Jul 2022 12:24:57 +0000 (GMT)
 Received: from [9.145.184.105] (unknown [9.145.184.105])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 13 Jul 2022 11:50:51 +0000 (GMT)
-Message-ID: <f9435b7b-2d28-a060-8ea7-bbce6b3a30e3@linux.ibm.com>
-Date:   Wed, 13 Jul 2022 13:50:50 +0200
+        Wed, 13 Jul 2022 12:24:57 +0000 (GMT)
+Message-ID: <36962c60-a7db-a5f6-2ecf-c7dcc0152e74@linux.ibm.com>
+Date:   Wed, 13 Jul 2022 14:24:57 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.9.0
-Subject: Re: [kvm-unit-tests PATCH v3 2/3] s390x: skey.c: rework the interrupt
- handler
 Content-Language: en-US
 To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, scgl@linux.ibm.com, nrb@linux.ibm.com,
         thuth@redhat.com
 References: <20220713104557.168113-1-imbrenda@linux.ibm.com>
- <20220713104557.168113-3-imbrenda@linux.ibm.com>
+ <20220713104557.168113-4-imbrenda@linux.ibm.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220713104557.168113-3-imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 3/3] lib: s390x: better smp interrupt
+ checks
+In-Reply-To: <20220713104557.168113-4-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4y-O7YPFx8eFtg1udBjbCZAu_XBISWvx
-X-Proofpoint-GUID: GopPccvSygoXSJYLZyittnvqjlwB6T0k
+X-Proofpoint-GUID: GYd_trmXJSs_E__XnCisripOEO3b1Sus
+X-Proofpoint-ORIG-GUID: 6kgYi59TB7fhCVu2Rgo83P3OzBfhLJv7
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-12_14,2022-07-13_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- spamscore=0 adultscore=0 priorityscore=1501 phishscore=0
- lowpriorityscore=0 impostorscore=0 bulkscore=0 mlxlogscore=999 mlxscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ lowpriorityscore=0 mlxlogscore=999 clxscore=1015 mlxscore=0 suspectscore=0
+ impostorscore=0 priorityscore=1501 bulkscore=0 phishscore=0 spamscore=0
  malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207130047
+ engine=8.12.0-2206140000 definitions=main-2207130049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 7/13/22 12:45, Claudio Imbrenda wrote:
-> The skey test currently uses a cleanup function to work around the
-> issues that arise when the lowcore is not mapped, since the interrupt
-> handler needs to access it.
+> Use per-CPU flags and callbacks for Program and Extern interrupts,
+> instead of global variables.
 > 
-> Instead of a cleanup function, simply disable DAT for the interrupt
-> handler for the tests that remap page 0. This is needed in preparation
-> of and upcoming patch that will cause the interrupt handler to read
-> from lowcore before calling the cleanup function.
+> This allows for more accurate error handling; a CPU waiting for an
+> interrupt will not have it "stolen" by a different CPU that was not
+> supposed to wait for one, and now two CPUs can wait for interrupts at
+> the same time.
+> 
+> This will significantly improve error reporting and debugging when
+> things go wrong.
+> 
+> Both program interrupts and external interrupts are now CPU-bound, even
+> though some external interrupts are floating (notably, the SCLP
+> interrupt). In those cases, the testcases should mask interrupts and/or
+> expect them appropriately according to need.
 > 
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-
 > ---
->   s390x/skey.c | 23 ++++++++---------------
->   1 file changed, 8 insertions(+), 15 deletions(-)
+>   lib/s390x/asm/arch_def.h | 16 ++++++++++-
+>   lib/s390x/smp.h          |  8 +-----
+>   lib/s390x/interrupt.c    | 57 +++++++++++++++++++++++++++++-----------
+>   lib/s390x/smp.c          | 11 ++++++++
+>   4 files changed, 69 insertions(+), 23 deletions(-)
 > 
-> diff --git a/s390x/skey.c b/s390x/skey.c
-> index 445476a0..d2752328 100644
-> --- a/s390x/skey.c
-> +++ b/s390x/skey.c
-> @@ -250,19 +250,6 @@ static void set_prefix_key_1(uint32_t *prefix_ptr)
->   	);
->   }
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index b3282367..03578277 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -41,6 +41,17 @@ struct psw {
+>   	uint64_t	addr;
+>   };
 >   
-> -/*
-> - * We remapped page 0, making the lowcore inaccessible, which breaks the normal
-> - * handler and breaks skipping the faulting instruction.
-> - * Just disable dynamic address translation to make things work.
-> - */
-> -static void dat_fixup_pgm_int(void)
-> -{
-> -	uint64_t psw_mask = extract_psw_mask();
-> -
-> -	psw_mask &= ~PSW_MASK_DAT;
-> -	load_psw_mask(psw_mask);
-> -}
-> -
->   #define PREFIX_AREA_SIZE (PAGE_SIZE * 2)
->   static char lowcore_tmp[PREFIX_AREA_SIZE] __attribute__((aligned(PREFIX_AREA_SIZE)));
+> +struct cpu {
+> +	struct lowcore *lowcore;
+> +	uint64_t *stack;
+> +	void (*pgm_cleanup_func)(void);
+
+We should change the parameter to include the stack frame for easier 
+manipulation of the pre-exception registers, especially the CRs.
+
+> +	uint16_t addr;
+> +	uint16_t idx;
+> +	bool active;
+> +	bool pgm_int_expected;
+> +	bool ext_int_expected;
+> +};
+
+And I'd opt for also integrating the io handling function and getting 
+rid of the unset function to make them all look the same.
+
+Looking at Nico's patches the external handler will follow soon anyway.
+
+
+I'm not 100% happy with having this struct in this file, what kept you 
+from including smp.h?
+
+> +struct lowcore *smp_get_lowcore(uint16_t idx)
+> +{
+> +	if (THIS_CPU->idx == idx)
+> +		return &lowcore;
+> +
+> +	check_idx(idx);
+> +	return cpus[idx].lowcore;
+> +}
+
+I'm waiting for the moment where we need locking in the struct cpu.
+
+> +
+>   int smp_sigp(uint16_t idx, uint8_t order, unsigned long parm, uint32_t *status)
+>   {
+>   	check_idx(idx);
+> @@ -253,6 +262,7 @@ static int smp_cpu_setup_nolock(uint16_t idx, struct psw psw)
 >   
-> @@ -318,7 +305,13 @@ static void test_set_prefix(void)
->   	report(get_prefix() == old_prefix, "did not set prefix");
->   	report_prefix_pop();
+>   	/* Copy all exception psws. */
+>   	memcpy(lc, cpus[0].lowcore, 512);
+> +	lc->this_cpu = &cpus[idx];
 >   
-> -	register_pgm_cleanup_func(dat_fixup_pgm_int);
-> +	/*
-> +	 * Page 0 will be remapped, making the lowcore inaccessible, which
-> +	 * breaks the normal handler and breaks skipping the faulting
-> +	 * instruction. Disable dynamic address translation for the
-> +	 * interrupt handler to make things work.
-> +	 */
-> +	lowcore.pgm_new_psw.mask &= ~PSW_MASK_DAT;
->   
->   	report_prefix_push("remapped page, fetch protection");
->   	set_prefix(old_prefix);
-> @@ -356,7 +349,7 @@ static void test_set_prefix(void)
->   	report_prefix_pop();
->   
->   	ctl_clear_bit(0, CTL0_FETCH_PROTECTION_OVERRIDE);
-> -	register_pgm_cleanup_func(NULL);
-> +	lowcore.pgm_new_psw.mask |= PSW_MASK_DAT;
->   	report_prefix_pop();
->   	set_storage_key(pagebuf, 0x00, 0);
->   	report_prefix_pop();
+>   	/* Setup stack */
+>   	cpus[idx].stack = (uint64_t *)alloc_pages(2);
+> @@ -325,6 +335,7 @@ void smp_setup(void)
+>   	for (i = 0; i < num; i++) {
+>   		cpus[i].addr = entry[i].address;
+>   		cpus[i].active = false;
+> +		cpus[i].idx = i;
+>   		/*
+>   		 * Fill in the boot CPU. If the boot CPU is not at index 0,
+>   		 * swap it with the one at index 0. This guarantees that the
 
