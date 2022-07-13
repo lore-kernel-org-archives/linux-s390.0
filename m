@@ -2,390 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AB95CCA483
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 17:40:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C063C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 23:57:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236277AbiGMRkT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Jul 2022 13:40:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59364 "EHLO
+        id S230104AbiGMX5l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Jul 2022 19:57:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235383AbiGMRkR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 13:40:17 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D612921E2A;
-        Wed, 13 Jul 2022 10:40:16 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26DHC91x010320;
-        Wed, 13 Jul 2022 17:40:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=M4jGGfOsIi26ST4vwH9FddsTDC43lYqcMZsXvMD7QJM=;
- b=rmzCyac3ChPh4ToTgOaDI2K4Rn5qbrB8oLEeqFa0lUXgkid+tzIhfpX9BHqqBdBwWsM1
- gwkc5firuqPveoRUterc6TaQP1so25QUSLBDMjIW0asqWZ+lOjKu6H/Ec6bApjKgj59M
- ibfLTrcK2lfw2gc4q6dzcZDze8pCwrYJEzs3TyrmvSiK0hX2XbijyRClzXYo/pSB7Q9T
- 4b8fHQB9Je4i75bU9RiuHiZi14q/8ghtPiIRreaq6M/+3Y3llkf175xtxqHlaqHWJbr3
- eXI26f6Mn6Ss08kdE6CBxTR3P7dFHPPmb9MWnMtuF+rMUn3KKxqSC0/XEI+fR+p+uh/S YQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ha283gnrv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 17:40:16 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26DHFgX8025793;
-        Wed, 13 Jul 2022 17:40:16 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ha283gnqy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 17:40:15 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26DHK68Q013437;
-        Wed, 13 Jul 2022 17:40:13 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3h71a8wyvx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 17:40:13 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26DHeKjW29819238
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Jul 2022 17:40:20 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2BCD452051;
-        Wed, 13 Jul 2022 17:40:10 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.0.75])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CE24052050;
-        Wed, 13 Jul 2022 17:40:09 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        scgl@linux.ibm.com, nrb@linux.ibm.com, thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v4 3/3] lib: s390x: better smp interrupt checks
-Date:   Wed, 13 Jul 2022 19:40:00 +0200
-Message-Id: <20220713174000.195695-4-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220713174000.195695-1-imbrenda@linux.ibm.com>
-References: <20220713174000.195695-1-imbrenda@linux.ibm.com>
+        with ESMTP id S229495AbiGMX5k (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 19:57:40 -0400
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2065.outbound.protection.outlook.com [40.107.93.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4C6E53D16;
+        Wed, 13 Jul 2022 16:57:39 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=F2FT1kk1/BdPiQpn8wJ0On0/QkqFa32x7QWB3/EfcF4l2/1/+XRPhkt6aYfLPctjvRPPwJzsaWk3SUL8w7H5EwaoGLbigWl6zx+LWbP9kb/V0UJS1AVHuy2WP2dLIQKTnrfkbkn0Rz6gE5inyEqx6m02mmPfY3K/qaNHR1GBPiAM4H1/CPRpIBBTxWKY/WgmdXpQv/1kfNBWShE2DhLHk1iR8P/IWCQOPJbrWObJzuCqyCbfK/GOWKF62pwhcKpH4Nj0dC2dmWHeAyX4Hlyu2SxgorCncjEAj3HE1VTkSi/3Xosvox7qtU44SnM2eCIh0MVgrcCcJVIy3MJuS6ci5g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=J7z8LWlPotPhYXvrQ6ceYiFG0tG3FYUbgZXWcDIauRw=;
+ b=XUxPhtdBl0SUkNc4pDUx6rEYarIeIrAVm/bIGynsfn5UJv/DxgNjz6IzFFJajNYRciJZBROYAW4k8b2suiBzV1/2lv2GoHQsn/RvQndNbEvc5lwF554eDh5mFyPl6qCEkY8PfhfpNea5uMZ5Kot3Kj7ZtYNkuYhJlSskHGb5ofdOjnfXwmAgcNU9dDEWdLWfJyVwvcafUTQQ4Xi1DHD06IWn7JmqKe87DONGNs2MOcaHKklkRm92bBHaBmkIVw+vVvGQAuWUXF5gAJesn8RhElZMld+TwZ6W9+fl5CB0Sc/I+m9VD0xGDLzGIZQsg+vyf4KIQ0ycaX4NG/MwGOhdgg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.238) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
+ (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
+ (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=J7z8LWlPotPhYXvrQ6ceYiFG0tG3FYUbgZXWcDIauRw=;
+ b=U4ITf6oa3UcnRBkWu6LO/zYrlPrgMyOZDCvcXnH0wl00AeBSLgnujHPRADLrsIxaleQ2s36gEWt+WgbhOAm0RyIAREJG5wPFy3zO9+RJ+pdSVKFAwNbMLUM6JpgRbP80wSf+kgtEn0Wg51hSSu/bN3nwqoAAkIwsRyYVnbs2J6sINTsoZ33/8C+B7OBf/l4IboWHi2hY+EIIOo3OiDRpqP0KQ2XjaI/cvLqjHvBee6fU3RXDGStvdGFvQEV84Nk3FIJ99Yz5KDsP1IIKlHGxkBQoi2yyfJtSG8JR8sJAZ5fIBNov1V55jaYuPmvwW8VueCYu48JJt3hW+m2CoBmX3Q==
+Received: from BN9PR03CA0095.namprd03.prod.outlook.com (2603:10b6:408:fd::10)
+ by SA1PR12MB5638.namprd12.prod.outlook.com (2603:10b6:806:229::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.21; Wed, 13 Jul
+ 2022 23:57:37 +0000
+Received: from BN8NAM11FT040.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:fd:cafe::71) by BN9PR03CA0095.outlook.office365.com
+ (2603:10b6:408:fd::10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.26 via Frontend
+ Transport; Wed, 13 Jul 2022 23:57:37 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.238; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.238) by
+ BN8NAM11FT040.mail.protection.outlook.com (10.13.177.166) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5438.12 via Frontend Transport; Wed, 13 Jul 2022 23:57:37 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by DRHQMAIL105.nvidia.com
+ (10.27.9.14) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Wed, 13 Jul
+ 2022 23:57:36 +0000
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26; Wed, 13 Jul
+ 2022 16:57:35 -0700
+Received: from Asurada-Nvidia (10.127.8.13) by mail.nvidia.com (10.129.68.6)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26 via Frontend
+ Transport; Wed, 13 Jul 2022 16:57:34 -0700
+Date:   Wed, 13 Jul 2022 16:57:32 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     <joro@8bytes.org>, Alex Williamson <alex.williamson@redhat.com>
+CC:     <will@kernel.org>, <marcan@marcan.st>, <sven@svenpeter.dev>,
+        <robin.murphy@arm.com>, <robdclark@gmail.com>,
+        <baolu.lu@linux.intel.com>, <orsonzhai@gmail.com>,
+        <baolin.wang7@gmail.com>, <zhang.lyra@gmail.com>,
+        <jean-philippe@linaro.org>, <jgg@nvidia.com>,
+        <kevin.tian@intel.com>, <suravee.suthikulpanit@amd.com>,
+        <alyssa@rosenzweig.io>, <dwmw2@infradead.org>,
+        <mjrosato@linux.ibm.com>, <gerald.schaefer@linux.ibm.com>,
+        <thierry.reding@gmail.com>, <vdumpa@nvidia.com>,
+        <jonathanh@nvidia.com>, <cohuck@redhat.com>,
+        <thunder.leizhen@huawei.com>, <christophe.jaillet@wanadoo.fr>,
+        <chenxiang66@hisilicon.com>, <john.garry@huawei.com>,
+        <yangyingliang@huawei.com>, <iommu@lists.linux.dev>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-arm-msm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <linux-tegra@vger.kernel.org>,
+        <virtualization@lists.linux-foundation.org>, <kvm@vger.kernel.org>
+Subject: Re: [PATCH v5 0/5] cover-letter: Simplify vfio_iommu_type1
+ attach/detach routine
+Message-ID: <Ys9b7GSImp/sHair@Asurada-Nvidia>
+References: <20220701214455.14992-1-nicolinc@nvidia.com>
+ <20220706114217.105f4f61.alex.williamson@redhat.com>
+ <YsXMMCX5LY/3IOtf@Asurada-Nvidia>
+ <20220706120325.4741ff34.alex.williamson@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jntGH7yKb6IuJu91doBGyWDWRu9dMDwP
-X-Proofpoint-ORIG-GUID: N8g8rgvlKwS1UB8e8MS91XajWhRZeOaw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-13_07,2022-07-13_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=917 impostorscore=0 adultscore=0 spamscore=0
- lowpriorityscore=0 suspectscore=0 mlxscore=0 clxscore=1015 phishscore=0
- bulkscore=0 priorityscore=1501 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2206140000 definitions=main-2207130072
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20220706120325.4741ff34.alex.williamson@redhat.com>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: e132a6f9-c9a7-4f8e-9a24-08da652b7689
+X-MS-TrafficTypeDiagnostic: SA1PR12MB5638:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: aa8p8HShc//3A7rH7/TM0CGDp72gv84y1x2PNdYVcx+3D5f/eyPlyydxMpUEQ5QgSldZTWoUDUw3KQAF5pFD5cngfIVMKrnGX4hAyhCJV0KFuC9vyJZ4+ccoW46NQCn9P/v41nXyDpbE8mBgTARYj+UOlPsSn9XVkLsoHsdyd5B5RVf+YhGeK/h15tYgLTNHredsVwoTQqOnaOYz8IwO9B5rMHk+HjgBoU746w4HcWZvkAd2eCU+KlnR1nilhbRJlRkk20soZiDlBALHy0nuWo1iDepNS9SGdHWR4vVN7zBhXUmgSP2lAIwxArGBGxRxCQ+Noga1SWqJN/q0xDoY82BEEUaDsF/ZrXPVSFrTHrsUo3AeJWjOL4FYx9Y0x+egLoNbOwH+4YZP+GMZdxNTh3gs7uDY+NE9hwZHkEDLzQ8TiBZdtYZCMQTz7vSbGqWL0OGdquM199MbvzMqZIIqvAygKhUmvixdcRhx0sxJI1zQFEsutsXbTx29KYtp19f60FHyEBJbPLftCnnqqZhEx7hu9yH+4KtGr9d35/TmJJ5sJtl4sXceFsgbuiKO5KWDoEkv1e8EfFRSI8Q4HOqRJAEwzPMJYXHsQ3k+mni5ZzIzPdL13EORm0JGdfwvtmR8edVUNDVIyJq5KMnYRjx23f9uIWWCSbHtI7i8QKF9R6bGUTr9xHck8JcX974po0vedlVhVhaCj4UaL5o9I2/F8xFL8Kr3s6jaBDO9erhT7cZHfQyEAi4c8hFlAUawiVZAJ02UwW+3TQBkuxUchUJmYshejBGMTj59bgDvho32bF37FyV1ynDXP/kFiS/n6Rbrwypv6X2YwCMbfwroEsOY3J3SEP4DNQM1beG+3FjIBmAd8M1vF3nboXGBgomxvhonpqS+s1g2hFAdvRaYYHZEpZfvLPD2KIdpH0oXaTP2cxyzU2NWLGThAEswn3SQbT92
+X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(136003)(346002)(376002)(39860400002)(396003)(36840700001)(46966006)(40470700004)(8936002)(7416002)(9686003)(7406005)(110136005)(83380400001)(26005)(55016003)(54906003)(186003)(5660300002)(47076005)(478600001)(336012)(316002)(426003)(966005)(8676002)(2906002)(41300700001)(36860700001)(40480700001)(81166007)(33716001)(82740400003)(40460700003)(82310400005)(356005)(4326008)(86362001)(70206006)(70586007)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jul 2022 23:57:37.1356
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e132a6f9-c9a7-4f8e-9a24-08da652b7689
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT040.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB5638
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use per-CPU flags and callbacks for Program and Extern interrupts,
-instead of global variables.
+On Wed, Jul 06, 2022 at 12:03:25PM -0600, Alex Williamson wrote:
 
-This allows for more accurate error handling; a CPU waiting for an
-interrupt will not have it "stolen" by a different CPU that was not
-supposed to wait for one, and now two CPUs can wait for interrupts at
-the same time.
+> On Wed, 6 Jul 2022 10:53:52 -0700
+> Nicolin Chen <nicolinc@nvidia.com> wrote:
+> 
+> > On Wed, Jul 06, 2022 at 11:42:17AM -0600, Alex Williamson wrote:
+> >
+> > > On Fri, 1 Jul 2022 14:44:50 -0700
+> > > Nicolin Chen <nicolinc@nvidia.com> wrote:
+> > >
+> > > > This is a preparatory series for IOMMUFD v2 patches. It enforces error
+> > > > code -EMEDIUMTYPE in iommu_attach_device() and iommu_attach_group() when
+> > > > an IOMMU domain and a device/group are incompatible. It also drops the
+> > > > useless domain->ops check since it won't fail in current environment.
+> > > >
+> > > > These allow VFIO iommu code to simplify its group attachment routine, by
+> > > > avoiding the extra IOMMU domain allocations and attach/detach sequences
+> > > > of the old code.
+> > > >
+> > > > Worths mentioning the exact match for enforce_cache_coherency is removed
+> > > > with this series, since there's very less value in doing that as KVM will
+> > > > not be able to take advantage of it -- this just wastes domain memory.
+> > > > Instead, we rely on Intel IOMMU driver taking care of that internally.
+> > > >
+> > > > This is on github:
+> > > > https://github.com/nicolinc/iommufd/commits/vfio_iommu_attach
+> > >
+> > > How do you foresee this going in, I'm imagining Joerg would merge the
+> > > first patch via the IOMMU tree and provide a topic branch that I'd
+> > > merge into the vfio tree along with the remaining patches.  Sound
+> > > right?  Thanks,
+> >
+> > We don't have any build dependency between the IOMMU change and
+> > VFIO changes, yet, without the IOMMU one, any iommu_attach_group()
+> > failure now would be a hard failure without a chance falling back
+> > to a new_domain, which is slightly different from the current flow.
+> >
+> > For a potential existing use case that relies on reusing existing
+> > domain, I think it'd be safer to have Joerg acking the first change
+> > so you merge them all? Thank!
+> 
+> Works for me, I'll look for buy-in + ack from Joerg.  Thanks,
+> 
+> Alex
 
-This will significantly improve error reporting and debugging when
-things go wrong.
+Joerg, would it be possible for you to ack at the IOMMU patch?
 
-Both program interrupts and external interrupts are now CPU-bound, even
-though some external interrupts are floating (notably, the SCLP
-interrupt). In those cases, the testcases should mask interrupts and/or
-expect them appropriately according to need.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- lib/s390x/asm/arch_def.h  | 17 ++++++++-
- lib/s390x/asm/interrupt.h |  3 +-
- lib/s390x/smp.h           |  8 +---
- lib/s390x/interrupt.c     | 77 +++++++++++++++++++++++++++++++--------
- lib/s390x/smp.c           | 11 ++++++
- s390x/skrf.c              |  2 +-
- 6 files changed, 92 insertions(+), 26 deletions(-)
-
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 358ef82e..6e664f62 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -41,6 +41,18 @@ struct psw {
- 	uint64_t	addr;
- };
- 
-+struct cpu {
-+	struct lowcore *lowcore;
-+	uint64_t *stack;
-+	void (*pgm_cleanup_func)(struct stack_frame_int *);
-+	void (*ext_cleanup_func)(struct stack_frame_int *);
-+	uint16_t addr;
-+	uint16_t idx;
-+	bool active;
-+	bool pgm_int_expected;
-+	bool ext_int_expected;
-+};
-+
- #define AS_PRIM				0
- #define AS_ACCR				1
- #define AS_SECN				2
-@@ -125,7 +137,8 @@ struct lowcore {
- 	uint8_t		pad_0x0280[0x0308 - 0x0280];	/* 0x0280 */
- 	uint64_t	sw_int_crs[16];			/* 0x0308 */
- 	struct psw	sw_int_psw;			/* 0x0388 */
--	uint8_t		pad_0x0310[0x11b0 - 0x0398];	/* 0x0398 */
-+	struct cpu *	this_cpu;			/* 0x0398 */
-+	uint8_t		pad_0x03a0[0x11b0 - 0x03a0];	/* 0x03a0 */
- 	uint64_t	mcck_ext_sa_addr;		/* 0x11b0 */
- 	uint8_t		pad_0x11b8[0x1200 - 0x11b8];	/* 0x11b8 */
- 	uint64_t	fprs_sa[16];			/* 0x1200 */
-@@ -148,6 +161,8 @@ _Static_assert(sizeof(struct lowcore) == 0x1900, "Lowcore size");
- 
- extern struct lowcore lowcore;
- 
-+#define THIS_CPU (lowcore.this_cpu)
-+
- #define PGM_INT_CODE_OPERATION			0x01
- #define PGM_INT_CODE_PRIVILEGED_OPERATION	0x02
- #define PGM_INT_CODE_EXECUTE			0x03
-diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
-index d9ab0bd7..c3d0120f 100644
---- a/lib/s390x/asm/interrupt.h
-+++ b/lib/s390x/asm/interrupt.h
-@@ -37,7 +37,8 @@ union teid {
- 	};
- };
- 
--void register_pgm_cleanup_func(void (*f)(void));
-+void register_pgm_cleanup_func(void (*f)(struct stack_frame_int *));
-+void register_ext_cleanup_func(void (*f)(struct stack_frame_int *));
- void handle_pgm_int(struct stack_frame_int *stack);
- void handle_ext_int(struct stack_frame_int *stack);
- void handle_mcck_int(void);
-diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
-index df184cb8..f4ae973d 100644
---- a/lib/s390x/smp.h
-+++ b/lib/s390x/smp.h
-@@ -12,13 +12,6 @@
- 
- #include <asm/arch_def.h>
- 
--struct cpu {
--	struct lowcore *lowcore;
--	uint64_t *stack;
--	uint16_t addr;
--	bool active;
--};
--
- struct cpu_status {
-     uint64_t    fprs[16];                       /* 0x0000 */
-     uint64_t    grs[16];                        /* 0x0080 */
-@@ -52,5 +45,6 @@ int smp_cpu_setup(uint16_t idx, struct psw psw);
- void smp_teardown(void);
- void smp_setup(void);
- int smp_sigp(uint16_t idx, uint8_t order, unsigned long parm, uint32_t *status);
-+struct lowcore *smp_get_lowcore(uint16_t idx);
- 
- #endif
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 6da20c44..b8dd9e44 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -15,25 +15,36 @@
- #include <fault.h>
- #include <asm/page.h>
- 
--static bool pgm_int_expected;
--static bool ext_int_expected;
--static void (*pgm_cleanup_func)(void);
--
-+/**
-+ * expect_pgm_int - Expect a program interrupt on the current CPU.
-+ */
- void expect_pgm_int(void)
- {
--	pgm_int_expected = true;
-+	THIS_CPU->pgm_int_expected = true;
- 	lowcore.pgm_int_code = 0;
- 	lowcore.trans_exc_id = 0;
- 	mb();
- }
- 
-+/**
-+ * expect_ext_int - Expect an external interrupt on the current CPU.
-+ */
- void expect_ext_int(void)
- {
--	ext_int_expected = true;
-+	THIS_CPU->ext_int_expected = true;
- 	lowcore.ext_int_code = 0;
- 	mb();
- }
- 
-+/**
-+ * clear_pgm_int - Clear program interrupt information
-+ *
-+ * Clear program interrupt information, including the expected program
-+ * interrupt flag.
-+ * No program interrupts are expected after calling this function.
-+ *
-+ * Return: the program interrupt code before clearing
-+ */
- uint16_t clear_pgm_int(void)
- {
- 	uint16_t code;
-@@ -42,10 +53,17 @@ uint16_t clear_pgm_int(void)
- 	code = lowcore.pgm_int_code;
- 	lowcore.pgm_int_code = 0;
- 	lowcore.trans_exc_id = 0;
--	pgm_int_expected = false;
-+	THIS_CPU->pgm_int_expected = false;
- 	return code;
- }
- 
-+/**
-+ * check_pgm_int_code - Check the program interrupt code on the current CPU.
-+ * @code the expected program interrupt code on the current CPU
-+ *
-+ * Check and report if the program interrupt on the current CPU matches the
-+ * expected one.
-+ */
- void check_pgm_int_code(uint16_t code)
- {
- 	mb();
-@@ -54,9 +72,34 @@ void check_pgm_int_code(uint16_t code)
- 	       lowcore.pgm_int_code);
- }
- 
--void register_pgm_cleanup_func(void (*f)(void))
-+/**
-+ * register_pgm_cleanup_func - Register a cleanup function for progam
-+ * interrupts for the current CPU.
-+ * @f the cleanup function to be registered on the current CPU
-+ *
-+ * Register a cleanup function to be called at the end of the normal
-+ * interrupt handling for program interrupts for this CPU.
-+ *
-+ * Pass NULL to unregister a previously registered cleanup function.
-+ */
-+void register_pgm_cleanup_func(void (*f)(struct stack_frame_int *))
-+{
-+	THIS_CPU->pgm_cleanup_func = f;
-+}
-+
-+/**
-+ * register_ext_cleanup_func - Register a cleanup function for external
-+ * interrupts for the current CPU.
-+ * @f the cleanup function to be registered on the current CPU
-+ *
-+ * Register a cleanup function to be called at the end of the normal
-+ * interrupt handling for external interrupts for this CPU.
-+ *
-+ * Pass NULL to unregister a previously registered cleanup function.
-+ */
-+void register_ext_cleanup_func(void (*f)(struct stack_frame_int *))
- {
--	pgm_cleanup_func = f;
-+	THIS_CPU->ext_cleanup_func = f;
- }
- 
- static void fixup_pgm_int(struct stack_frame_int *stack)
-@@ -183,24 +226,23 @@ static void print_pgm_info(struct stack_frame_int *stack)
- 
- void handle_pgm_int(struct stack_frame_int *stack)
- {
--	if (!pgm_int_expected) {
-+	if (!THIS_CPU->pgm_int_expected) {
- 		/* Force sclp_busy to false, otherwise we will loop forever */
- 		sclp_handle_ext();
- 		print_pgm_info(stack);
- 	}
- 
--	pgm_int_expected = false;
-+	THIS_CPU->pgm_int_expected = false;
- 
--	if (pgm_cleanup_func)
--		(*pgm_cleanup_func)();
-+	if (THIS_CPU->pgm_cleanup_func)
-+		THIS_CPU->pgm_cleanup_func(stack);
- 	else
- 		fixup_pgm_int(stack);
- }
- 
- void handle_ext_int(struct stack_frame_int *stack)
- {
--	if (!ext_int_expected &&
--	    lowcore.ext_int_code != EXT_IRQ_SERVICE_SIG) {
-+	if (!THIS_CPU->ext_int_expected && lowcore.ext_int_code != EXT_IRQ_SERVICE_SIG) {
- 		report_abort("Unexpected external call interrupt (code %#x): on cpu %d at %#lx",
- 			     lowcore.ext_int_code, stap(), lowcore.ext_old_psw.addr);
- 		return;
-@@ -210,11 +252,14 @@ void handle_ext_int(struct stack_frame_int *stack)
- 		stack->crs[0] &= ~(1UL << 9);
- 		sclp_handle_ext();
- 	} else {
--		ext_int_expected = false;
-+		THIS_CPU->ext_int_expected = false;
- 	}
- 
- 	if (!(stack->crs[0] & CR0_EXTM_MASK))
- 		lowcore.ext_old_psw.mask &= ~PSW_MASK_EXT;
-+
-+	if (THIS_CPU->ext_cleanup_func)
-+		THIS_CPU->ext_cleanup_func(stack);
- }
- 
- void handle_mcck_int(void)
-diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-index a0495cd9..0d98c17d 100644
---- a/lib/s390x/smp.c
-+++ b/lib/s390x/smp.c
-@@ -39,6 +39,15 @@ int smp_query_num_cpus(void)
- 	return sclp_get_cpu_num();
- }
- 
-+struct lowcore *smp_get_lowcore(uint16_t idx)
-+{
-+	if (THIS_CPU->idx == idx)
-+		return &lowcore;
-+
-+	check_idx(idx);
-+	return cpus[idx].lowcore;
-+}
-+
- int smp_sigp(uint16_t idx, uint8_t order, unsigned long parm, uint32_t *status)
- {
- 	check_idx(idx);
-@@ -253,6 +262,7 @@ static int smp_cpu_setup_nolock(uint16_t idx, struct psw psw)
- 
- 	/* Copy all exception psws. */
- 	memcpy(lc, cpus[0].lowcore, 512);
-+	lc->this_cpu = &cpus[idx];
- 
- 	/* Setup stack */
- 	cpus[idx].stack = (uint64_t *)alloc_pages(2);
-@@ -325,6 +335,7 @@ void smp_setup(void)
- 	for (i = 0; i < num; i++) {
- 		cpus[i].addr = entry[i].address;
- 		cpus[i].active = false;
-+		cpus[i].idx = i;
- 		/*
- 		 * Fill in the boot CPU. If the boot CPU is not at index 0,
- 		 * swap it with the one at index 0. This guarantees that the
-diff --git a/s390x/skrf.c b/s390x/skrf.c
-index 26f70b4e..4cb563c3 100644
---- a/s390x/skrf.c
-+++ b/s390x/skrf.c
-@@ -119,7 +119,7 @@ static void set_flag(int val)
- 	mb();
- }
- 
--static void ecall_cleanup(void)
-+static void ecall_cleanup(struct stack_frame_int *stack)
- {
- 	lowcore.ext_new_psw.mask = PSW_MASK_64;
- 	lowcore.sw_int_crs[0] = BIT_ULL(CTL0_AFP);
--- 
-2.36.1
-
+Thanks!
+Nic
