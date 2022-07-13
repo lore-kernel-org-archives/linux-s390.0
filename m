@@ -2,272 +2,373 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7E92CCA487
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 11:36:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C6A9C43334
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 11:48:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236179AbiGMLgd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Jul 2022 07:36:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58016 "EHLO
+        id S236201AbiGMLr7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Jul 2022 07:47:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236122AbiGMLgb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 07:36:31 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 923B9102722;
-        Wed, 13 Jul 2022 04:36:29 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26DBLQqT023526;
-        Wed, 13 Jul 2022 11:36:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=rFXL5Z38uPZ4gU1+y6hkT7AR9bjyyQrBbbckGUP5koA=;
- b=bc27VY+cGhewoAUXM4D/oar5TCUxDH63FIeIjBTMylP/uJ/0G/JWtQaARrRyXnWveFLV
- jpHJXpgRAao3sFsrdGBN7P4x+7znsivsapdCpttGd3dashiWdDmW+rpt0+4gPPP0+Ne2
- PDkPKfS096ss9JmVIDxHfVqrjTjh93aqOkKkZKHj2tXRIOBwiG49l+tXTcesTL4V7PKV
- 169I9RBQC/7xvnkku1vqsmYiNdXyqemU4vwV5GaiFINGQPHWLrhHom6Ewx0Sbbc7qqsr
- jPqv1d6cwP6CSm3yQUEr3vdHzaFwSBZCWBFH6VcM4cuSNbaLhgDuqU1HClJm3knk7psW vw== 
+        with ESMTP id S235683AbiGMLr6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 07:47:58 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41FA21034C1;
+        Wed, 13 Jul 2022 04:47:57 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26DBfg8n005697;
+        Wed, 13 Jul 2022 11:47:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=YUcXbHF2D5TectjvD8UtAZFzWDowWtVLnU8a9jUiZ6A=;
+ b=olObYkUGBcmtEAY+cNb12fJxAG1CCU+0H6eJ/wZod0fMQFuE5+RgIMj3KDmr1DwgSVJh
+ I+fHdeYc3Dh2aB1c2+RZfMrITQHRdtWvsXZtPXIu5ccJgFxVi0mX4lcLXRYfXFeq38/b
+ IOmMQH2s9AAzcYWeSAmGHfjuIvzH7mUTI8qG+Zl6nIsfZXhmgOI7wkXVHVaavVBwVcKD
+ I/BU5WeVPsiMIDv23bWQyS7EI5by7T486EZFmTCUuYdsuF7kzjnmzUBBW7SaelIwdGLk
+ XELLIAUAmpt1iug/dXp5ev1uAG/qkM8UicV9Ye8sQk3yBPiA4DTdTyZEpdGkhD8xpoul +Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9w3q8abq-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9wd8r417-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 11:36:28 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26DBPbm8006898;
-        Wed, 13 Jul 2022 11:36:28 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9w3q8aae-1
+        Wed, 13 Jul 2022 11:47:56 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26DBhqlh016322;
+        Wed, 13 Jul 2022 11:47:56 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3h9wd8r40n-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 11:36:27 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26DBZPMN001133;
-        Wed, 13 Jul 2022 11:36:26 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3h71a8mup1-1
+        Wed, 13 Jul 2022 11:47:56 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26DBa9wx015125;
+        Wed, 13 Jul 2022 11:47:54 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3h8rrn2gw5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Jul 2022 11:36:26 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26DBaXag33030524
+        Wed, 13 Jul 2022 11:47:53 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26DBlpYH10944870
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Jul 2022 11:36:33 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2514011C054;
-        Wed, 13 Jul 2022 11:36:23 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E31A911C050;
-        Wed, 13 Jul 2022 11:36:22 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 13 Jul 2022 11:36:22 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v1 3/4] s390x: smp: use an array for sigp calls
-Date:   Wed, 13 Jul 2022 13:36:20 +0200
-Message-Id: <20220713113621.14778-4-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220713113621.14778-1-nrb@linux.ibm.com>
-References: <20220713113621.14778-1-nrb@linux.ibm.com>
+        Wed, 13 Jul 2022 11:47:51 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E696542041;
+        Wed, 13 Jul 2022 11:47:50 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8D5764203F;
+        Wed, 13 Jul 2022 11:47:50 +0000 (GMT)
+Received: from [9.145.184.105] (unknown [9.145.184.105])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 13 Jul 2022 11:47:50 +0000 (GMT)
+Message-ID: <9a24dd78-6ad2-bb5d-d100-2133a63f2e14@linux.ibm.com>
+Date:   Wed, 13 Jul 2022 13:47:50 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [kvm-unit-tests PATCH v3 1/3] lib: s390x: add functions to set
+ and clear PSW bits
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, scgl@linux.ibm.com, nrb@linux.ibm.com,
+        thuth@redhat.com
+References: <20220713104557.168113-1-imbrenda@linux.ibm.com>
+ <20220713104557.168113-2-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220713104557.168113-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 43P6-9FKvQfzGDP3frBT9Tylx-vn1jN6
-X-Proofpoint-GUID: dU3Qp-17jvOomMOo89MxG9j-B3gl9etF
+X-Proofpoint-GUID: BAXXd3hhiv-1oaCB2QS5cj8e7gZTrc2M
+X-Proofpoint-ORIG-GUID: SofLe5AjzruuOxfenSwP2sUMoFLp1VFN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-12_14,2022-07-13_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- impostorscore=0 mlxscore=0 priorityscore=1501 lowpriorityscore=0
- malwarescore=0 suspectscore=0 clxscore=1015 phishscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
+ bulkscore=0 impostorscore=0 malwarescore=0 suspectscore=0 mlxlogscore=999
+ priorityscore=1501 phishscore=0 clxscore=1015 mlxscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2206140000 definitions=main-2207130047
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Tests for the SIGP calls are quite similar, so we have a lot of code
-duplication right now. Since upcoming changes will add more cases,
-refactor the code to iterate over an array, similarily as we already do
-for test_invalid().
+On 7/13/22 12:45, Claudio Imbrenda wrote:
+> Add some functions to set and/or clear bits in the PSW.
+> 
+> Also introduce PSW_MASK_KEY and re-order the PSW_MASK_* constants so
+> they are descending in value.
+> 
+> This should improve code readability.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-The receiving CPU is disabled for IO interrupts. This makes sure the
-conditional emergency signal is accepted and doesn't hurt the other
-orders.
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
- s390x/smp.c | 130 ++++++++++++++++++----------------------------------
- 1 file changed, 44 insertions(+), 86 deletions(-)
-
-diff --git a/s390x/smp.c b/s390x/smp.c
-index ea811087587e..857eae206daa 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -43,6 +43,20 @@ static const struct sigp_invalid_cases cases_valid_cpu_addr[] = {
- 
- static uint32_t cpu1_prefix;
- 
-+struct sigp_call_cases {
-+	char name[20];
-+	int call;
-+	uint16_t ext_int_expected_type;
-+	uint32_t cr0_bit;
-+	bool supports_pv;
-+};
-+static const struct sigp_call_cases cases_sigp_call[] = {
-+	{ "emcall",      SIGP_EMERGENCY_SIGNAL,      0x1201, CTL0_EMERGENCY_SIGNAL, true },
-+	{ "cond emcall", SIGP_COND_EMERGENCY_SIGNAL, 0x1201, CTL0_EMERGENCY_SIGNAL, false },
-+	{ "ecall",       SIGP_EXTERNAL_CALL,         0x1202, CTL0_EXTERNAL_CALL,    true },
-+};
-+static const struct sigp_call_cases *current_sigp_call_case;
-+
- static void test_invalid(void)
- {
- 	const struct sigp_invalid_cases *c;
-@@ -289,105 +303,51 @@ static void test_set_prefix(void)
- 
- }
- 
--static void ecall(void)
--{
--	unsigned long mask;
--
--	expect_ext_int();
--	ctl_set_bit(0, CTL0_EXTERNAL_CALL);
--	mask = extract_psw_mask();
--	mask |= PSW_MASK_EXT;
--	load_psw_mask(mask);
--	set_flag(1);
--	while (lowcore.ext_int_code != 0x1202) { mb(); }
--	report_pass("received");
--	set_flag(1);
--}
--
--static void test_ecall(void)
--{
--	struct psw psw;
--	psw.mask = extract_psw_mask();
--	psw.addr = (unsigned long)ecall;
--
--	report_prefix_push("ecall");
--	set_flag(0);
--
--	smp_cpu_start(1, psw);
--	wait_for_flag();
--	set_flag(0);
--	smp_sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
--	wait_for_flag();
--	smp_cpu_stop(1);
--	report_prefix_pop();
--}
--
--static void emcall(void)
-+static void call_received(void)
- {
- 	unsigned long mask;
- 
- 	expect_ext_int();
--	ctl_set_bit(0, CTL0_EMERGENCY_SIGNAL);
-+	ctl_set_bit(0, current_sigp_call_case->cr0_bit);
- 	mask = extract_psw_mask();
- 	mask |= PSW_MASK_EXT;
-+	/* make sure conditional emergency is accepted by disabling IO interrupts */
-+	mask &= ~PSW_MASK_IO;
- 	load_psw_mask(mask);
- 	set_flag(1);
--	while (lowcore.ext_int_code != 0x1201) { mb(); }
-+	while (lowcore.ext_int_code != current_sigp_call_case->ext_int_expected_type)
-+		mb();
- 	report_pass("received");
- 	set_flag(1);
- }
- 
--static void test_emcall(void)
-+static void test_calls(void)
- {
-+	int i;
- 	struct psw psw;
--	psw.mask = extract_psw_mask();
--	psw.addr = (unsigned long)emcall;
--
--	report_prefix_push("emcall");
--	set_flag(0);
--
--	smp_cpu_start(1, psw);
--	wait_for_flag();
--	set_flag(0);
--	smp_sigp(1, SIGP_EMERGENCY_SIGNAL, 0, NULL);
--	wait_for_flag();
--	smp_cpu_stop(1);
--
--	report_prefix_pop();
--}
--
--static void test_cond_emcall(void)
--{
--	uint32_t status = 0;
--	struct psw psw;
--	int cc;
--	psw.mask = extract_psw_mask() & ~PSW_MASK_IO;
--	psw.addr = (unsigned long)emcall;
--
--	report_prefix_push("conditional emergency call");
- 
--	if (uv_os_is_guest()) {
--		report_skip("unsupported under PV");
--		goto out;
-+	for (i = 0; i < ARRAY_SIZE(cases_sigp_call); i++) {
-+		current_sigp_call_case = &cases_sigp_call[i];
-+
-+		report_prefix_push(current_sigp_call_case->name);
-+		if (!current_sigp_call_case->supports_pv && uv_os_is_guest()) {
-+			report_skip("Not supported under PV");
-+			report_prefix_pop();
-+			continue;
-+		}
-+
-+		set_flag(0);
-+		psw.mask = extract_psw_mask();
-+		psw.addr = (unsigned long)call_received;
-+
-+		smp_cpu_start(1, psw);
-+		wait_for_flag();
-+		set_flag(0);
-+		smp_sigp(1, current_sigp_call_case->call, 0, NULL);
-+		wait_for_flag();
-+		smp_cpu_stop(1);
-+		report_prefix_pop();
- 	}
--
--	report_prefix_push("success");
--	set_flag(0);
--
--	smp_cpu_start(1, psw);
--	wait_for_flag();
--	set_flag(0);
--	cc = smp_sigp(1, SIGP_COND_EMERGENCY_SIGNAL, 0, &status);
--	report(!cc, "CC = 0");
--
--	wait_for_flag();
--	smp_cpu_stop(1);
--
--	report_prefix_pop();
--
--out:
--	report_prefix_pop();
--
- }
- 
- static void test_sense_running(void)
-@@ -511,9 +471,7 @@ int main(void)
- 	test_stop_store_status();
- 	test_store_status();
- 	test_set_prefix();
--	test_ecall();
--	test_emcall();
--	test_cond_emcall();
-+	test_calls();
- 	test_sense_running();
- 	test_reset();
- 	test_reset_initial();
--- 
-2.35.3
+> ---
+>   lib/s390x/asm/arch_def.h | 45 +++++++++++++++++++++++++++++++++-------
+>   lib/s390x/asm/pgtable.h  |  2 --
+>   lib/s390x/mmu.c          | 14 +------------
+>   lib/s390x/sclp.c         |  7 +------
+>   s390x/diag288.c          |  6 ++----
+>   s390x/selftest.c         |  4 ++--
+>   s390x/skrf.c             | 12 +++--------
+>   s390x/smp.c              | 18 +++-------------
+>   8 files changed, 50 insertions(+), 58 deletions(-)
+> 
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index 78b257b7..b3282367 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -46,9 +46,10 @@ struct psw {
+>   #define AS_SECN				2
+>   #define AS_HOME				3
+>   
+> -#define PSW_MASK_EXT			0x0100000000000000UL
+> -#define PSW_MASK_IO			0x0200000000000000UL
+>   #define PSW_MASK_DAT			0x0400000000000000UL
+> +#define PSW_MASK_IO			0x0200000000000000UL
+> +#define PSW_MASK_EXT			0x0100000000000000UL
+> +#define PSW_MASK_KEY			0x00F0000000000000UL
+>   #define PSW_MASK_WAIT			0x0002000000000000UL
+>   #define PSW_MASK_PSTATE			0x0001000000000000UL
+>   #define PSW_MASK_EA			0x0000000100000000UL
+> @@ -313,6 +314,40 @@ static inline void load_psw_mask(uint64_t mask)
+>   		: "+r" (tmp) :  "a" (&psw) : "memory", "cc" );
+>   }
+>   
+> +/**
+> + * psw_mask_clear_bits - clears bits from the current PSW mask
+> + * @clear: bitmask of bits that will be cleared
+> + */
+> +static inline void psw_mask_clear_bits(uint64_t clear)
+> +{
+> +	load_psw_mask(extract_psw_mask() & ~clear);
+> +}
+> +
+> +/**
+> + * psw_mask_set_bits - sets bits on the current PSW mask
+> + * @set: bitmask of bits that will be set
+> + */
+> +static inline void psw_mask_set_bits(uint64_t set)
+> +{
+> +	load_psw_mask(extract_psw_mask() | set);
+> +}
+> +
+> +/**
+> + * enable_dat - enable the DAT bit in the current PSW
+> + */
+> +static inline void enable_dat(void)
+> +{
+> +	psw_mask_set_bits(PSW_MASK_DAT);
+> +}
+> +
+> +/**
+> + * disable_dat - disable the DAT bit in the current PSW
+> + */
+> +static inline void disable_dat(void)
+> +{
+> +	psw_mask_clear_bits(PSW_MASK_DAT);
+> +}
+> +
+>   static inline void wait_for_interrupt(uint64_t irq_mask)
+>   {
+>   	uint64_t psw_mask = extract_psw_mask();
+> @@ -327,11 +362,7 @@ static inline void wait_for_interrupt(uint64_t irq_mask)
+>   
+>   static inline void enter_pstate(void)
+>   {
+> -	uint64_t mask;
+> -
+> -	mask = extract_psw_mask();
+> -	mask |= PSW_MASK_PSTATE;
+> -	load_psw_mask(mask);
+> +	psw_mask_set_bits(PSW_MASK_PSTATE);
+>   }
+>   
+>   static inline void leave_pstate(void)
+> diff --git a/lib/s390x/asm/pgtable.h b/lib/s390x/asm/pgtable.h
+> index f166dcc6..7b556ad9 100644
+> --- a/lib/s390x/asm/pgtable.h
+> +++ b/lib/s390x/asm/pgtable.h
+> @@ -247,6 +247,4 @@ static inline void idte_pgdp(unsigned long vaddr, pgdval_t *pgdp)
+>   	idte((unsigned long)(pgdp - pgd_index(vaddr)) | ASCE_DT_REGION1, vaddr);
+>   }
+>   
+> -void configure_dat(int enable);
+> -
+>   #endif /* _ASMS390X_PGTABLE_H_ */
+> diff --git a/lib/s390x/mmu.c b/lib/s390x/mmu.c
+> index c9f8754c..b474d702 100644
+> --- a/lib/s390x/mmu.c
+> +++ b/lib/s390x/mmu.c
+> @@ -29,18 +29,6 @@
+>   
+>   static pgd_t *table_root;
+>   
+> -void configure_dat(int enable)
+> -{
+> -	uint64_t mask;
+> -
+> -	if (enable)
+> -		mask = extract_psw_mask() | PSW_MASK_DAT;
+> -	else
+> -		mask = extract_psw_mask() & ~PSW_MASK_DAT;
+> -
+> -	load_psw_mask(mask);
+> -}
+> -
+>   static void mmu_enable(pgd_t *pgtable)
+>   {
+>   	const uint64_t asce = __pa(pgtable) | ASCE_DT_REGION1 |
+> @@ -51,7 +39,7 @@ static void mmu_enable(pgd_t *pgtable)
+>   	assert(stctg(1) == asce);
+>   
+>   	/* enable dat (primary == 0 set as default) */
+> -	configure_dat(1);
+> +	enable_dat();
+>   
+>   	/* we can now also use DAT unconditionally in our PGM handler */
+>   	lowcore.pgm_new_psw.mask |= PSW_MASK_DAT;
+> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+> index b8204c5f..a806cdb3 100644
+> --- a/lib/s390x/sclp.c
+> +++ b/lib/s390x/sclp.c
+> @@ -48,13 +48,8 @@ static void mem_init(phys_addr_t mem_end)
+>   
+>   void sclp_setup_int(void)
+>   {
+> -	uint64_t mask;
+> -
+>   	ctl_set_bit(0, CTL0_SERVICE_SIGNAL);
+> -
+> -	mask = extract_psw_mask();
+> -	mask |= PSW_MASK_EXT;
+> -	load_psw_mask(mask);
+> +	psw_mask_set_bits(PSW_MASK_EXT);
+>   }
+>   
+>   void sclp_handle_ext(void)
+> diff --git a/s390x/diag288.c b/s390x/diag288.c
+> index e414865b..46dc0ed8 100644
+> --- a/s390x/diag288.c
+> +++ b/s390x/diag288.c
+> @@ -78,16 +78,14 @@ static void test_priv(void)
+>   
+>   static void test_bite(void)
+>   {
+> -	uint64_t mask, time;
+> +	uint64_t time;
+>   
+>   	/* If watchdog doesn't bite, the cpu timer does */
+>   	asm volatile("stck %0" : "=Q" (time) : : "cc");
+>   	time += (uint64_t)(16000 * 1000) << 12;
+>   	asm volatile("sckc %0" : : "Q" (time));
+>   	ctl_set_bit(0, CTL0_CLOCK_COMPARATOR);
+> -	mask = extract_psw_mask();
+> -	mask |= PSW_MASK_EXT;
+> -	load_psw_mask(mask);
+> +	psw_mask_set_bits(PSW_MASK_EXT);
+>   
+>   	/* Arm watchdog */
+>   	lowcore.restart_new_psw.mask = extract_psw_mask() & ~PSW_MASK_EXT;
+> diff --git a/s390x/selftest.c b/s390x/selftest.c
+> index 239bc5e3..13fd36bc 100644
+> --- a/s390x/selftest.c
+> +++ b/s390x/selftest.c
+> @@ -64,9 +64,9 @@ static void test_malloc(void)
+>   	report(tmp != tmp2, "allocated memory addresses differ");
+>   
+>   	expect_pgm_int();
+> -	configure_dat(0);
+> +	disable_dat();
+>   	*tmp = 987654321;
+> -	configure_dat(1);
+> +	enable_dat();
+>   	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
+>   
+>   	free(tmp);
+> diff --git a/s390x/skrf.c b/s390x/skrf.c
+> index 1a811894..26f70b4e 100644
+> --- a/s390x/skrf.c
+> +++ b/s390x/skrf.c
+> @@ -63,11 +63,9 @@ static void test_pfmf(void)
+>   
+>   static void test_psw_key(void)
+>   {
+> -	uint64_t psw_mask = extract_psw_mask() | 0xF0000000000000UL;
+> -
+>   	report_prefix_push("psw key");
+>   	expect_pgm_int();
+> -	load_psw_mask(psw_mask);
+> +	psw_mask_set_bits(PSW_MASK_KEY);
+>   	check_pgm_int_code(PGM_INT_CODE_SPECIAL_OPERATION);
+>   	report_prefix_pop();
+>   }
+> @@ -140,17 +138,13 @@ static void ecall_cleanup(void)
+>   /* Set a key into the external new psw mask and open external call masks */
+>   static void ecall_setup(void)
+>   {
+> -	uint64_t mask;
+> -
+>   	register_pgm_cleanup_func(ecall_cleanup);
+>   	expect_pgm_int();
+>   	/* Put a skey into the ext new psw */
+> -	lowcore.ext_new_psw.mask = 0x00F0000000000000UL | PSW_MASK_64;
+> +	lowcore.ext_new_psw.mask = PSW_MASK_KEY | PSW_MASK_64;
+>   	/* Open up ext masks */
+>   	ctl_set_bit(0, CTL0_EXTERNAL_CALL);
+> -	mask = extract_psw_mask();
+> -	mask |= PSW_MASK_EXT;
+> -	load_psw_mask(mask);
+> +	psw_mask_set_bits(PSW_MASK_EXT);
+>   	/* Tell cpu 0 that we're ready */
+>   	set_flag(1);
+>   }
+> diff --git a/s390x/smp.c b/s390x/smp.c
+> index 6d474d0d..0df4751f 100644
+> --- a/s390x/smp.c
+> +++ b/s390x/smp.c
+> @@ -288,13 +288,9 @@ static void test_set_prefix(void)
+>   
+>   static void ecall(void)
+>   {
+> -	unsigned long mask;
+> -
+>   	expect_ext_int();
+>   	ctl_set_bit(0, CTL0_EXTERNAL_CALL);
+> -	mask = extract_psw_mask();
+> -	mask |= PSW_MASK_EXT;
+> -	load_psw_mask(mask);
+> +	psw_mask_set_bits(PSW_MASK_EXT);
+>   	set_flag(1);
+>   	while (lowcore.ext_int_code != 0x1202) { mb(); }
+>   	report_pass("received");
+> @@ -321,13 +317,9 @@ static void test_ecall(void)
+>   
+>   static void emcall(void)
+>   {
+> -	unsigned long mask;
+> -
+>   	expect_ext_int();
+>   	ctl_set_bit(0, CTL0_EMERGENCY_SIGNAL);
+> -	mask = extract_psw_mask();
+> -	mask |= PSW_MASK_EXT;
+> -	load_psw_mask(mask);
+> +	psw_mask_set_bits(PSW_MASK_EXT);
+>   	set_flag(1);
+>   	while (lowcore.ext_int_code != 0x1201) { mb(); }
+>   	report_pass("received");
+> @@ -466,14 +458,10 @@ static void test_reset_initial(void)
+>   
+>   static void test_local_ints(void)
+>   {
+> -	unsigned long mask;
+> -
+>   	/* Open masks for ecall and emcall */
+>   	ctl_set_bit(0, CTL0_EXTERNAL_CALL);
+>   	ctl_set_bit(0, CTL0_EMERGENCY_SIGNAL);
+> -	mask = extract_psw_mask();
+> -	mask |= PSW_MASK_EXT;
+> -	load_psw_mask(mask);
+> +	psw_mask_set_bits(PSW_MASK_EXT);
+>   	set_flag(1);
+>   }
+>   
 
