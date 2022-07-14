@@ -2,192 +2,90 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87DEEC43334
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Jul 2022 03:29:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5430C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Jul 2022 04:23:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232149AbiGND3I (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Jul 2022 23:29:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48218 "EHLO
+        id S234209AbiGNEXK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Jul 2022 00:23:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbiGND3G (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 23:29:06 -0400
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DE4B7D4;
-        Wed, 13 Jul 2022 20:29:04 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xhao@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0VJHMqdX_1657769336;
-Received: from B-X3VXMD6M-2058.local(mailfrom:xhao@linux.alibaba.com fp:SMTPD_---0VJHMqdX_1657769336)
-          by smtp.aliyun-inc.com;
-          Thu, 14 Jul 2022 11:28:59 +0800
-Reply-To: xhao@linux.alibaba.com
-Subject: Re: [PATCH v2 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
-To:     Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, catalin.marinas@arm.com, will@kernel.org,
-        linux-doc@vger.kernel.org
-Cc:     corbet@lwn.net, arnd@arndb.de, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-References: <20220711034615.482895-1-21cnbao@gmail.com>
-From:   Xin Hao <xhao@linux.alibaba.com>
-Message-ID: <24f5e25b-3946-b92a-975b-c34688005398@linux.alibaba.com>
-Date:   Thu, 14 Jul 2022 11:28:56 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.14.0
+        with ESMTP id S233712AbiGNEWm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Jul 2022 00:22:42 -0400
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E6127CC3;
+        Wed, 13 Jul 2022 21:22:40 -0700 (PDT)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26E3nF2v009267;
+        Thu, 14 Jul 2022 04:22:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2021-07-09;
+ bh=6c0WORp1kWFJyOdGYgbP5guV+K75uCzztk+wVlDmxL4=;
+ b=BUd6N4FvpmIDkk6TBlv5wlUA99T5xGRB0xVuiYP+JTwL7bh2QqPEWdVxuqYd107J3nXA
+ xFoX4WipEqUUQv1iQH2TFoMxEcQjIQKw5jnJYqu5vlUYYx5mRqCC6IfxUKdPKClOmIXk
+ bQulIlgHjwKsCi7Iu5JQy9cKRxzijUI0MwFTtRH7erEc/P4ZzEOcw3dyEKdZWemOWTrO
+ kQllXm4czch3Mes2WwsdKIyZYVmmYS14QvM7jMeBtm2/DZcwZUgHPRSBwvbwoFjoyuK3
+ PDnraZVDDrfCCLHroNti5BkB8E0NnVS2w9942siXoQ8MKB3fANGTzGlerfnCX+2T8ukr tQ== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3h71rg3tpp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 14 Jul 2022 04:22:34 +0000
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 26E4ApYl040463;
+        Thu, 14 Jul 2022 04:22:33 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3h70451jnt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 14 Jul 2022 04:22:33 +0000
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 26E4MWBf023864;
+        Thu, 14 Jul 2022 04:22:32 GMT
+Received: from ca-mkp.mkp.ca.oracle.com (ca-mkp.ca.oracle.com [10.156.108.201])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3h70451jnc-1;
+        Thu, 14 Jul 2022 04:22:32 +0000
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     Benjamin Block <bblock@linux.ibm.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>
+Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Fedor Loshakov <loshakov@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jiang Jian <jiangjian@cdjrlc.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 0/2] zfcp changes for v5.20
+Date:   Thu, 14 Jul 2022 00:22:21 -0400
+Message-Id: <165777182484.7272.9988840297540552966.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <cover.1657122360.git.bblock@linux.ibm.com>
+References: <cover.1657122360.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20220711034615.482895-1-21cnbao@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-GUID: PtPfu1ESeFSaHN59s2i81q0AlgzZ_Bf7
+X-Proofpoint-ORIG-GUID: PtPfu1ESeFSaHN59s2i81q0AlgzZ_Bf7
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi barry.
+On Wed, 6 Jul 2022 17:59:38 +0200, Benjamin Block wrote:
 
-I do some test on Kunpeng arm64 machine use Unixbench.
+> here is a (very) small set of changes for the zFCP device driver. The
+> change from Jiang Jian came in recently, and Julian's patch has been
+> laying around for quite a while now, so I didn't want to let them linger
+> any longer in anticipation of any bigger change that might come.
+> 
+> It would be nice, if you could include them for v5.20.
+> 
+> [...]
 
-The test  result as below.
+Applied to 5.20/scsi-queue, thanks!
 
-One core, we can see the performance improvement above +30%.
-./Run -c 1 -i 1 shell1
-w/o
-System Benchmarks Partial Index              BASELINE RESULT INDEX
-Shell Scripts (1 concurrent)                     42.4 5481.0 1292.7
-========
-System Benchmarks Index Score (Partial Only)                         1292.7
+[1/2] scsi: zfcp: declare zfcp_sdev_attrs as static
+      https://git.kernel.org/mkp/scsi/c/b9787bdfdba5
+[2/2] scsi: zfcp: drop unexpected word "the" in the comments
+      https://git.kernel.org/mkp/scsi/c/9821106213c8
 
-w/
-System Benchmarks Partial Index              BASELINE RESULT INDEX
-Shell Scripts (1 concurrent)                     42.4 6974.6 1645.0
-========
-System Benchmarks Index Score (Partial Only)                         1645.0
-
-
-But with whole cores, there have little performance degradation above -5%
-
-./Run -c 96 -i 1 shell1
-w/o
-Shell Scripts (1 concurrent)                  80765.5 lpm   (60.0 s, 1 
-samples)
-System Benchmarks Partial Index              BASELINE RESULT INDEX
-Shell Scripts (1 concurrent)                     42.4 80765.5 19048.5
-========
-System Benchmarks Index Score (Partial Only)                        19048.5
-
-w
-Shell Scripts (1 concurrent)                  76333.6 lpm   (60.0 s, 1 
-samples)
-System Benchmarks Partial Index              BASELINE RESULT INDEX
-Shell Scripts (1 concurrent)                     42.4 76333.6 18003.2
-========
-System Benchmarks Index Score (Partial Only)                        18003.2
-
----------------------------------------------------------------------------------------------- 
-
-
-After discuss with you, and do some changes in the patch.
-
-ndex a52381a680db..1ecba81f1277 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -727,7 +727,11 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
-         int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
-
-         if (pending != flushed) {
-+#ifdef CONFIG_ARCH_HAS_MM_CPUMASK
-                 flush_tlb_mm(mm);
-+#else
-+               dsb(ish);
-+#endif
-                 /*
-                  * If the new TLB flushing is pending during flushing, leave
-                  * mm->tlb_flush_batched as is, to avoid losing flushing.
-
-there have a performance improvement with whole cores, above +30%
-
-./Run -c 96 -i 1 shell1
-96 CPUs in system; running 96 parallel copies of tests
-
-Shell Scripts (1 concurrent)                 109229.0 lpm   (60.0 s, 1 samples)
-System Benchmarks Partial Index              BASELINE       RESULT    INDEX
-Shell Scripts (1 concurrent)                     42.4     109229.0  25761.6
-                                                                    ========
-System Benchmarks Index Score (Partial Only)                        25761.6
-
-
-Tested-by: Xin Hao<xhao@linux.alibaba.com>
-
-Looking forward to your next version patch.
-
-On 7/11/22 11:46 AM, Barry Song wrote:
-> Though ARM64 has the hardware to do tlb shootdown, the hardware
-> broadcasting is not free.
-> A simplest micro benchmark shows even on snapdragon 888 with only
-> 8 cores, the overhead for ptep_clear_flush is huge even for paging
-> out one page mapped by only one process:
-> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
->
-> While pages are mapped by multiple processes or HW has more CPUs,
-> the cost should become even higher due to the bad scalability of
-> tlb shootdown.
->
-> The same benchmark can result in 16.99% CPU consumption on ARM64
-> server with around 100 cores according to Yicong's test on patch
-> 4/4.
->
-> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
-> 1. only send tlbi instructions in the first stage -
-> 	arch_tlbbatch_add_mm()
-> 2. wait for the completion of tlbi by dsb while doing tlbbatch
-> 	sync in arch_tlbbatch_flush()
-> My testing on snapdragon shows the overhead of ptep_clear_flush
-> is removed by the patchset. The micro benchmark becomes 5% faster
-> even for one page mapped by single process on snapdragon 888.
->
->
-> -v2:
-> 1. Collected Yicong's test result on kunpeng920 ARM64 server;
-> 2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
->     according to the comments of Peter Zijlstra and Dave Hansen
-> 3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
->     is empty according to the comments of Nadav Amit
->
-> Thanks, Yicong, Peter, Dave and Nadav for your testing or reviewing
-> , and comments.
->
-> -v1:
-> https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
->
-> Barry Song (4):
->    Revert "Documentation/features: mark BATCHED_UNMAP_TLB_FLUSH doesn't
->      apply to ARM64"
->    mm: rmap: Allow platforms without mm_cpumask to defer TLB flush
->    mm: rmap: Extend tlbbatch APIs to fit new platforms
->    arm64: support batched/deferred tlb shootdown during page reclamation
->
->   Documentation/features/arch-support.txt       |  1 -
->   .../features/vm/TLB/arch-support.txt          |  2 +-
->   arch/arm/Kconfig                              |  1 +
->   arch/arm64/Kconfig                            |  1 +
->   arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++++
->   arch/arm64/include/asm/tlbflush.h             | 23 +++++++++++++++++--
->   arch/loongarch/Kconfig                        |  1 +
->   arch/mips/Kconfig                             |  1 +
->   arch/openrisc/Kconfig                         |  1 +
->   arch/powerpc/Kconfig                          |  1 +
->   arch/riscv/Kconfig                            |  1 +
->   arch/s390/Kconfig                             |  1 +
->   arch/um/Kconfig                               |  1 +
->   arch/x86/Kconfig                              |  1 +
->   arch/x86/include/asm/tlbflush.h               |  3 ++-
->   mm/Kconfig                                    |  3 +++
->   mm/rmap.c                                     | 14 +++++++----
->   17 files changed, 59 insertions(+), 9 deletions(-)
->   create mode 100644 arch/arm64/include/asm/tlbbatch.h
->
 -- 
-Best Regards!
-Xin Hao
-
+Martin K. Petersen	Oracle Linux Engineering
