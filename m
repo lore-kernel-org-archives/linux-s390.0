@@ -2,164 +2,270 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45786C43334
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Jul 2022 15:17:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55FE6C43334
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Jul 2022 19:39:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232389AbiGNPRD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Jul 2022 11:17:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52370 "EHLO
+        id S239389AbiGNTjL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Jul 2022 15:39:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232135AbiGNPRD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Jul 2022 11:17:03 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 080AD459AB;
-        Thu, 14 Jul 2022 08:17:02 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26EEwjhX024972;
-        Thu, 14 Jul 2022 15:16:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=TDDaVybad1eJo1tWjqcymnOExAMwp7CwDFh/L9Wn1BQ=;
- b=jin5vosk7ImIaOrvpEQqxbt00lvhGVDMxAYLfRqPCZfJyRk+sK8pUtP2VqAQPo3GGz6m
- 1t75Y6Jvlmh/F3i0M/nnlawz7B/E1i/PtIXrBDnSaJv2uJG8DLCjioLzvHN3UE62G1TX
- igsKOv+K8s/HnnI/GH2H8QBBMmoUW/9UeM3s4zsbKf4G1pAYi9leUaUS8EcEUH7JNh5+
- zE1KYAqTRu53HusSv8qCjfqNmDFm0LTsaknhLcPXMN3U0SbjIsNKH5M8uD3KJuuJQ9Y4
- sXNRtnxFsUMv+QxTKMkbKnJb8266x+d/umf7toclSTw4OSLqhhyyPOCeps9M3XYKeB6X qg== 
+        with ESMTP id S231500AbiGNTjB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Jul 2022 15:39:01 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59996BCBB;
+        Thu, 14 Jul 2022 12:39:00 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26EJSnWm018496;
+        Thu, 14 Jul 2022 19:38:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=IBxWt9MDvXqLFjlyajse+ZciF0blvUGo4RHDgg5suro=;
+ b=fkb3aQ5/QsvLcOqMllYXsQ9JtKJ2YD0/fKIYQRkB2dbvj073aBChfgOdK8ofGCY7MKT8
+ EjRQRLnN39owKyyxFNwM5sgl5/F6BJve/fZ6KspBZfLUrVPx9t5PLnJThtQYeJG6egRu
+ HZIKKx9J5Jy+vcguLXbX/HRQgFWVSwddh1UzcUSILTMsfHCMr2L/PDhVaToJxlUXqX8O
+ IexbBcmmX66dEHi1acAmCzWWHVKlXCs9rlO4/KAdvYUNfjfdKToO3bUOe2EzVAANWs3n
+ hwk1crd017s6Hy09A0ph1VQhktVTRpj60Exc7U7Y8n3RZlG/b2UQIdSe2IYVK1ducIgi 8Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hancrrgvw-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hasb307rm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Jul 2022 15:16:53 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26EF0X2t003854;
-        Thu, 14 Jul 2022 15:16:52 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hancrrgv3-1
+        Thu, 14 Jul 2022 19:38:59 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26EJZrls011422;
+        Thu, 14 Jul 2022 19:38:58 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hasb307qp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Jul 2022 15:16:52 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26EF92A5019475;
-        Thu, 14 Jul 2022 15:16:51 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma03dal.us.ibm.com with ESMTP id 3ha4qxxe39-1
+        Thu, 14 Jul 2022 19:38:58 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26EJLRsj001081;
+        Thu, 14 Jul 2022 19:38:56 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3h71a8nnn2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Jul 2022 15:16:51 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26EFGoa213763000
+        Thu, 14 Jul 2022 19:38:56 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26EJcroY23003538
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Jul 2022 15:16:50 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 57BA46E056;
-        Thu, 14 Jul 2022 15:16:50 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A37F76E052;
-        Thu, 14 Jul 2022 15:16:48 +0000 (GMT)
-Received: from [9.211.37.111] (unknown [9.211.37.111])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu, 14 Jul 2022 15:16:48 +0000 (GMT)
-Message-ID: <345053d6-5ecb-066d-8eeb-7637da1d7370@linux.ibm.com>
-Date:   Thu, 14 Jul 2022 17:16:47 +0200
+        Thu, 14 Jul 2022 19:38:53 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 65EF0A404D;
+        Thu, 14 Jul 2022 19:38:53 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9D2B3A4040;
+        Thu, 14 Jul 2022 19:38:52 +0000 (GMT)
+Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.80.107])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 14 Jul 2022 19:38:52 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, pmorel@linux.ibm.com,
+        wintera@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com,
+        scgl@linux.ibm.com
+Subject: [PATCH v13 2/2] KVM: s390: resetting the Topology-Change-Report
+Date:   Thu, 14 Jul 2022 21:43:34 +0200
+Message-Id: <20220714194334.127812-1-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <541d85d3-4864-583c-ff33-d0f566770c9f@linux.ibm.com>
+References: <541d85d3-4864-583c-ff33-d0f566770c9f@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH net-next v2 0/6] net/smc: Introduce virtually contiguous
- buffers for SMC-R
-To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1657791845-1060-1-git-send-email-guwen@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1657791845-1060-1-git-send-email-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: V8MbGJOGymfT2_3iVq_skHNTMXq6T7QS
-X-Proofpoint-ORIG-GUID: ctNzSyokK4q1EpdssQNna2VWjldMnz66
+X-Proofpoint-GUID: PaV5aRKIH9kBbJFindWIy-z0uXGNLXim
+X-Proofpoint-ORIG-GUID: 2xS_a92R5aSfzEeUnXBtYMarn0abVEY1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-14_11,2022-07-14_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
- phishscore=0 impostorscore=0 adultscore=0 lowpriorityscore=0 bulkscore=0
- suspectscore=0 spamscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0
+ definitions=2022-07-14_17,2022-07-14_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0 malwarescore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 bulkscore=0 clxscore=1015
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
- definitions=main-2207140065
+ definitions=main-2207140085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+During a subsystem reset the Topology-Change-Report is cleared.
 
+Let's give userland the possibility to clear the MTCR in the case
+of a subsystem reset.
 
-On 14.07.22 11:43, Wen Gu wrote:
-> On long-running enterprise production servers, high-order contiguous
-> memory pages are usually very rare and in most cases we can only get
-> fragmented pages.
-> 
-> When replacing TCP with SMC-R in such production scenarios, attempting
-> to allocate high-order physically contiguous sndbufs and RMBs may result
-> in frequent memory compaction, which will cause unexpected hung issue
-> and further stability risks.
-> 
-> So this patch set is aimed to allow SMC-R link group to use virtually
-> contiguous sndbufs and RMBs to avoid potential issues mentioned above.
-> Whether to use physically or virtually contiguous buffers can be set
-> by sysctl smcr_buf_type.
-> 
-> Note that using virtually contiguous buffers will bring an acceptable
-> performance regression, which can be mainly divided into two parts:
-> 
-> 1) regression in data path, which is brought by additional address
->     translation of sndbuf by RNIC in Tx. But in general, translating
->     address through MTT is fast. According to qperf test, this part
->     regression is basically less than 10% in latency and bandwidth.
->     (see patch 5/6 for details)
-> 
-> 2) regression in buffer initialization and destruction path, which is
->     brought by additional MR operations of sndbufs. But thanks to link
->     group buffer reuse mechanism, the impact of this kind of regression
->     decreases as times of buffer reuse increases.
-> 
-> Patch set overview:
-> - Patch 1/6 and 2/6 mainly about simplifying and optimizing DMA sync
->    operation, which will reduce overhead on the data path, especially
->    when using virtually contiguous buffers;
-> - Patch 3/6 and 4/6 introduce a sysctl smcr_buf_type to set the type
->    of buffers in new created link group;
-> - Patch 5/6 allows SMC-R to use virtually contiguous sndbufs and RMBs,
->    including buffer creation, destruction, MR operation and access;
-> - patch 6/6 extends netlink attribute for buffer type of SMC-R link group;
-> 
-> v1->v2:
-> - Patch 5/6 fixes build issue on 32bit;
-> - Patch 3/6 adds description of new sysctl in smc-sysctl.rst;
-> 
-> Guangguan Wang (2):
->    net/smc: remove redundant dma sync ops
->    net/smc: optimize for smc_sndbuf_sync_sg_for_device and
->      smc_rmb_sync_sg_for_cpu
-> 
-> Wen Gu (4):
->    net/smc: Introduce a sysctl for setting SMC-R buffer type
->    net/smc: Use sysctl-specified types of buffers in new link group
->    net/smc: Allow virtually contiguous sndbufs or RMBs for SMC-R
->    net/smc: Extend SMC-R link group netlink attribute
-> 
->   Documentation/networking/smc-sysctl.rst |  13 ++
->   include/net/netns/smc.h                 |   1 +
->   include/uapi/linux/smc.h                |   1 +
->   net/smc/af_smc.c                        |  68 +++++++--
->   net/smc/smc_clc.c                       |   8 +-
->   net/smc/smc_clc.h                       |   2 +-
->   net/smc/smc_core.c                      | 246 +++++++++++++++++++++-----------
->   net/smc/smc_core.h                      |  20 ++-
->   net/smc/smc_ib.c                        |  44 +++++-
->   net/smc/smc_ib.h                        |   2 +
->   net/smc/smc_llc.c                       |  33 +++--
->   net/smc/smc_rx.c                        |  92 +++++++++---
->   net/smc/smc_sysctl.c                    |  11 ++
->   net/smc/smc_tx.c                        |  10 +-
->   14 files changed, 404 insertions(+), 147 deletions(-)
-> 
-This idea is very cool! Thank you for your effort! But we still need to 
-verify if this solution can run well on our system. I'll come to you soon.
+To migrate the MTCR, we give userland the possibility to
+query the MTCR state.
+
+We indicate KVM support for the CPU topology facility with a new
+KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ Documentation/virt/kvm/api.rst   | 25 ++++++++++++++++
+ arch/s390/include/uapi/asm/kvm.h |  1 +
+ arch/s390/kvm/kvm-s390.c         | 51 ++++++++++++++++++++++++++++++++
+ include/uapi/linux/kvm.h         |  1 +
+ 4 files changed, 78 insertions(+)
+
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 82baa7682829..892fc2e470d7 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -8159,6 +8159,31 @@ PV guests. The `KVM_PV_DUMP` command is available for the
+ dump related UV data. Also the vcpu ioctl `KVM_S390_PV_CPU_COMMAND` is
+ available and supports the `KVM_PV_DUMP_CPU` subcommand.
+ 
++8.38 KVM_CAP_S390_CPU_TOPOLOGY
++------------------------------
++
++:Capability: KVM_CAP_S390_CPU_TOPOLOGY
++:Architectures: s390
++:Type: vm
++
++This capability indicates that KVM will provide the S390 CPU Topology
++facility which consist of the interpretation of the PTF instruction for
++the function code 2 along with interception and forwarding of both the
++PTF instruction with function codes 0 or 1 and the STSI(15,1,x)
++instruction to the userland hypervisor.
++
++The stfle facility 11, CPU Topology facility, should not be indicated
++to the guest without this capability.
++
++When this capability is present, KVM provides a new attribute group
++on vm fd, KVM_S390_VM_CPU_TOPOLOGY.
++This new attribute allows to get, set or clear the Modified Change
++Topology Report (MTCR) bit of the SCA through the kvm_device_attr
++structure.
++
++When getting the Modified Change Topology Report value, the attr->addr
++must point to a byte where the value will be stored or retrieved from.
++
+ 9. Known KVM API problems
+ =========================
+ 
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 7a6b14874d65..a73cf01a1606 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -74,6 +74,7 @@ struct kvm_s390_io_adapter_req {
+ #define KVM_S390_VM_CRYPTO		2
+ #define KVM_S390_VM_CPU_MODEL		3
+ #define KVM_S390_VM_MIGRATION		4
++#define KVM_S390_VM_CPU_TOPOLOGY	5
+ 
+ /* kvm attributes for mem_ctrl */
+ #define KVM_S390_VM_MEM_ENABLE_CMMA	0
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 330a0cd4b8c8..b2cb13d1c0cd 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -647,6 +647,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_ZPCI_OP:
+ 		r = kvm_s390_pci_interp_allowed();
+ 		break;
++	case KVM_CAP_S390_CPU_TOPOLOGY:
++		r = test_facility(11);
++		break;
+ 	default:
+ 		r = 0;
+ 	}
+@@ -858,6 +861,20 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+ 		icpt_operexc_on_all_vcpus(kvm);
+ 		r = 0;
+ 		break;
++	case KVM_CAP_S390_CPU_TOPOLOGY:
++		r = -EINVAL;
++		mutex_lock(&kvm->lock);
++		if (kvm->created_vcpus) {
++			r = -EBUSY;
++		} else if (test_facility(11)) {
++			set_kvm_facility(kvm->arch.model.fac_mask, 11);
++			set_kvm_facility(kvm->arch.model.fac_list, 11);
++			r = 0;
++		}
++		mutex_unlock(&kvm->lock);
++		VM_EVENT(kvm, 3, "ENABLE: CAP_S390_CPU_TOPOLOGY %s",
++			 r ? "(not available)" : "(success)");
++		break;
+ 	default:
+ 		r = -EINVAL;
+ 		break;
+@@ -1794,6 +1811,31 @@ static void kvm_s390_update_topology_change_report(struct kvm *kvm, bool val)
+ 	read_unlock(&kvm->arch.sca_lock);
+ }
+ 
++static int kvm_s390_set_topo_change_indication(struct kvm *kvm,
++					       struct kvm_device_attr *attr)
++{
++	if (!test_kvm_facility(kvm, 11))
++		return -ENXIO;
++
++	kvm_s390_update_topology_change_report(kvm, !!attr->attr);
++	return 0;
++}
++
++static int kvm_s390_get_topo_change_indication(struct kvm *kvm,
++					       struct kvm_device_attr *attr)
++{
++	u8 topo;
++
++	if (!test_kvm_facility(kvm, 11))
++		return -ENXIO;
++
++	read_lock(&kvm->arch.sca_lock);
++	topo = ((struct bsca_block *)kvm->arch.sca)->utility.mtcr;
++	read_unlock(&kvm->arch.sca_lock);
++
++	return put_user(topo, (u8 __user *)attr->addr);
++}
++
+ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ {
+ 	int ret;
+@@ -1814,6 +1856,9 @@ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	case KVM_S390_VM_MIGRATION:
+ 		ret = kvm_s390_vm_set_migration(kvm, attr);
+ 		break;
++	case KVM_S390_VM_CPU_TOPOLOGY:
++		ret = kvm_s390_set_topo_change_indication(kvm, attr);
++		break;
+ 	default:
+ 		ret = -ENXIO;
+ 		break;
+@@ -1839,6 +1884,9 @@ static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	case KVM_S390_VM_MIGRATION:
+ 		ret = kvm_s390_vm_get_migration(kvm, attr);
+ 		break;
++	case KVM_S390_VM_CPU_TOPOLOGY:
++		ret = kvm_s390_get_topo_change_indication(kvm, attr);
++		break;
+ 	default:
+ 		ret = -ENXIO;
+ 		break;
+@@ -1912,6 +1960,9 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	case KVM_S390_VM_MIGRATION:
+ 		ret = 0;
+ 		break;
++	case KVM_S390_VM_CPU_TOPOLOGY:
++		ret = test_kvm_facility(kvm, 11) ? 0 : -ENXIO;
++		break;
+ 	default:
+ 		ret = -ENXIO;
+ 		break;
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 80216c6cece1..08206212fd36 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1159,6 +1159,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_ARM_SYSTEM_SUSPEND 216
+ #define KVM_CAP_S390_PROTECTED_DUMP 217
+ #define KVM_CAP_S390_ZPCI_OP 221
++#define KVM_CAP_S390_CPU_TOPOLOGY 222
+ 
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
+-- 
+2.31.1
+
