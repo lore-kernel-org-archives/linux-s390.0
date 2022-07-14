@@ -2,147 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B077C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Jul 2022 13:41:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72A07C43334
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Jul 2022 14:12:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239867AbiGNNl3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Jul 2022 09:41:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38758 "EHLO
+        id S240360AbiGNOM0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Jul 2022 10:12:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239869AbiGNNlW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Jul 2022 09:41:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5214F61130
-        for <linux-s390@vger.kernel.org>; Thu, 14 Jul 2022 06:41:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1657806080;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=ZLDVWnto/mdrs/Notqm+NYT9OzYBBXFiZDqMf8B5iUUsbohdqBpjWGZbRAUu4oOfAENE32
-        ss8QkrOPpHeGylfPASD7XLTSUwNlusLZy1bvZsitS+ZupAdwQ3qRGLKjT0dJR5tb1T3Nw7
-        f0WJPmPDfWsWqgp/zVsQrkXvUCmsptg=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-224-mDVVJUcNO9S4iWZEv8MZBA-1; Thu, 14 Jul 2022 09:41:12 -0400
-X-MC-Unique: mDVVJUcNO9S4iWZEv8MZBA-1
-Received: by mail-pl1-f198.google.com with SMTP id i17-20020a170902c95100b0016c449584a9so238157pla.1
-        for <linux-s390@vger.kernel.org>; Thu, 14 Jul 2022 06:41:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Sd8cjBSOdeaVjyH4f3lxl+0xYw15nzSjwpJw6bzSgLk=;
-        b=mdyVs5Net3JHr8FM4Q9FoNg77Mus/RHrG3AeyQFP0SVWjZIi4R9/aJrBTyhKpxI4XJ
-         l0DW5FertuAQKtf5XZJeKU/Wb+m64MpwuFL6Bpti2ver2rYT2WSGoA1uedqIQXZ5PcXe
-         EHjeuVhkjv0IYjO01OJhB54dr3Qo21bEIXAHpRLq9fhLkr3ZIDJhJ4PmGcYEj8LlOPOL
-         pOLtYZeJhsp4CsCABOQAHUXCD6B+NykJmZzXUoKSF8gWTsGhr8qMKNFgNTwfq+haAlbV
-         8QZ7ASoTM9uAZ5cD/tvf4deqoCSLn3YPV3+p2kfGF0RuaeU7wazAVRZN+ozpsZdfIIkU
-         IEkA==
-X-Gm-Message-State: AJIora/kPnNQ1NK7hg7zhXl04+gcCfHSqyc/TVJ+vMHqIL4tPqBHNdiu
-        DstVY5wxltt3H4XWx7n6dhTPllgOW2DPcs8d5wbBo0mVuMpLM1pMCcnr9cIJVlikgSMzZZ+HHby
-        lk52ytxXPGzQbENp1p98+XQ==
-X-Received: by 2002:a17:90b:4b82:b0:1f0:196d:4204 with SMTP id lr2-20020a17090b4b8200b001f0196d4204mr16396530pjb.194.1657806070933;
-        Thu, 14 Jul 2022 06:41:10 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1v6W73kkND0lzdShUq0XCk7I59w6K6H/HhxbM9LJ4h4Bhv+gs6tfqbnzg5qbuZf1Ex6YUHUFA==
-X-Received: by 2002:a17:90b:4b82:b0:1f0:196d:4204 with SMTP id lr2-20020a17090b4b8200b001f0196d4204mr16396483pjb.194.1657806070591;
-        Thu, 14 Jul 2022 06:41:10 -0700 (PDT)
-Received: from localhost ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id h10-20020aa79f4a000000b00528d880a32fsm1663006pfr.78.2022.07.14.06.41.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Jul 2022 06:41:10 -0700 (PDT)
-From:   Coiby Xu <coxu@redhat.com>
-To:     kexec@lists.infradead.org, linux-integrity@vger.kernel.org
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Michal Suchanek <msuchanek@suse.de>,
-        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
-        Philipp Rudo <prudo@linux.ibm.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        linux-s390@vger.kernel.org (open list:S390),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v10 4/4] kexec, KEYS, s390: Make use of built-in and secondary keyring for signature verification
-Date:   Thu, 14 Jul 2022 21:40:27 +0800
-Message-Id: <20220714134027.394370-5-coxu@redhat.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220714134027.394370-1-coxu@redhat.com>
-References: <20220714134027.394370-1-coxu@redhat.com>
+        with ESMTP id S240350AbiGNOMV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Jul 2022 10:12:21 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E42654C82;
+        Thu, 14 Jul 2022 07:12:08 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26ECaxI7031958;
+        Thu, 14 Jul 2022 14:12:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=678zjVBjiVOwXHJhZQpMbyH65qlU4B7o72itmKDXWz4=;
+ b=te6WQXJeFPgHlUAS9ZTh+d4mlFG3Li/FNiCHg2MKyRcXiz5XRi4LtTI6WGiOP+ohnXgg
+ ss8DfGPO1hHnLgg5hbIfDIUXWp++LD1mvuRL2RCgHQ7tdgCcUvlq8F0u3qCp3IdVVKWV
+ QSxhEJ5C+xA9MRjuTMiFlwR9SsKjva7Nh3kUnv8mX0g/r12twz01WULtwiJVukhwGQV/
+ oHEWfzWgK2xqV49nFH5xZMIJrs8RnsSHaxWWngNz3nbynwtzOQrlHw5mtBaZhIpRfnFd
+ 1o7bznvsaU78uRgkua3IWBhHLPPD1W1H1ePspi09Jpw+5qkBv4nbuPpFzhw1cy6t1J3h GA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hak32aq4s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Jul 2022 14:12:07 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26EE08NI028291;
+        Thu, 14 Jul 2022 14:12:07 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hak32aq3q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Jul 2022 14:12:07 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26EE5Q8k015181;
+        Thu, 14 Jul 2022 14:12:04 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3h71a8necr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Jul 2022 14:12:04 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26EEC1BS24904102
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 14 Jul 2022 14:12:01 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5BC23A405B;
+        Thu, 14 Jul 2022 14:12:01 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 97DC4A4054;
+        Thu, 14 Jul 2022 14:12:00 +0000 (GMT)
+Received: from [9.145.62.186] (unknown [9.145.62.186])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 14 Jul 2022 14:12:00 +0000 (GMT)
+Message-ID: <541d85d3-4864-583c-ff33-d0f566770c9f@linux.ibm.com>
+Date:   Thu, 14 Jul 2022 16:12:00 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, wintera@linux.ibm.com, seiden@linux.ibm.com,
+        nrb@linux.ibm.com, scgl@linux.ibm.com
+References: <20220714101824.101601-1-pmorel@linux.ibm.com>
+ <20220714101824.101601-3-pmorel@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v13 2/2] KVM: s390: resetting the Topology-Change-Report
+In-Reply-To: <20220714101824.101601-3-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: HMjFGSPX4U6Gaf9HY3xHKcarm35HOhcO
+X-Proofpoint-GUID: VoOHqQY2O1Xi0R0dvQYg7TLmBxfjvtZF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-14_10,2022-07-14_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ impostorscore=0 phishscore=0 malwarescore=0 adultscore=0 mlxscore=0
+ bulkscore=0 spamscore=0 mlxlogscore=999 clxscore=1015 suspectscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207140060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
+On 7/14/22 12:18, Pierre Morel wrote:
+> During a subsystem reset the Topology-Change-Report is cleared.
+> 
+> Let's give userland the possibility to clear the MTCR in the case
+> of a subsystem reset.
+> 
+> To migrate the MTCR, we give userland the possibility to
+> query the MTCR state.
+> 
+> We indicate KVM support for the CPU topology facility with a new
+> KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Reviewed-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-adds support for KEXEC_SIG verification with keys from platform keyring
-but the built-in keys and secondary keyring are not used.
+Nit below, but:
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-Add support for the built-in keys and secondary keyring as x86 does.
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -1158,6 +1158,7 @@ struct kvm_ppc_resize_hpt {
+>   #define KVM_CAP_SYSTEM_EVENT_DATA 215
+>   #define KVM_CAP_ARM_SYSTEM_SUSPEND 216
+>   #define KVM_CAP_S390_PROTECTED_DUMP 217
+> +#define KVM_CAP_S390_CPU_TOPOLOGY 218
+>   #define KVM_CAP_S390_ZPCI_OP 221
 
-Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-Cc: stable@vger.kernel.org
-Cc: Philipp Rudo <prudo@linux.ibm.com>
-Cc: kexec@lists.infradead.org
-Cc: keyrings@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Coiby Xu <coxu@redhat.com>
----
- arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+Using 222 and moving it a line down might make more sense as 218 is 
+KVM_CAP_X86_TRIPLE_FAULT_EVENT.
 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 8f43575a4dd3..fc6d5f58debe 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -31,6 +31,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
- 	struct module_signature *ms;
- 	unsigned long sig_len;
-+	int ret;
- 
- 	/* Skip signature verification when not secure IPLed. */
- 	if (!ipl_secure_flag)
-@@ -65,11 +66,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 		return -EBADMSG;
- 	}
- 
--	return verify_pkcs7_signature(kernel, kernel_len,
--				      kernel + kernel_len, sig_len,
--				      VERIFY_USE_PLATFORM_KEYRING,
--				      VERIFYING_MODULE_SIGNATURE,
--				      NULL, NULL);
-+	ret = verify_pkcs7_signature(kernel, kernel_len,
-+				     kernel + kernel_len, sig_len,
-+				     VERIFY_USE_SECONDARY_KEYRING,
-+				     VERIFYING_MODULE_SIGNATURE,
-+				     NULL, NULL);
-+	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
-+		ret = verify_pkcs7_signature(kernel, kernel_len,
-+					     kernel + kernel_len, sig_len,
-+					     VERIFY_USE_PLATFORM_KEYRING,
-+					     VERIFYING_MODULE_SIGNATURE,
-+					     NULL, NULL);
-+	return ret;
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
--- 
-2.35.3
+Can you fix this and push both patches to devel?
+Also send the fixed patch as a reply to this message so I can pick it 
+from the list.
+
+next and devel have diverted a bit so I will need to fix this up for 
+next, same for the Documentation entry which will be 6.39 instead of 6.38.
+
+>   
+>   #ifdef KVM_CAP_IRQ_ROUTING
 
