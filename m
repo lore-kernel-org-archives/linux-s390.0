@@ -2,166 +2,192 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C063C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Jul 2022 23:57:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87DEEC43334
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Jul 2022 03:29:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230104AbiGMX5l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Jul 2022 19:57:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34778 "EHLO
+        id S232149AbiGND3I (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Jul 2022 23:29:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229495AbiGMX5k (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 19:57:40 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2065.outbound.protection.outlook.com [40.107.93.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4C6E53D16;
-        Wed, 13 Jul 2022 16:57:39 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=F2FT1kk1/BdPiQpn8wJ0On0/QkqFa32x7QWB3/EfcF4l2/1/+XRPhkt6aYfLPctjvRPPwJzsaWk3SUL8w7H5EwaoGLbigWl6zx+LWbP9kb/V0UJS1AVHuy2WP2dLIQKTnrfkbkn0Rz6gE5inyEqx6m02mmPfY3K/qaNHR1GBPiAM4H1/CPRpIBBTxWKY/WgmdXpQv/1kfNBWShE2DhLHk1iR8P/IWCQOPJbrWObJzuCqyCbfK/GOWKF62pwhcKpH4Nj0dC2dmWHeAyX4Hlyu2SxgorCncjEAj3HE1VTkSi/3Xosvox7qtU44SnM2eCIh0MVgrcCcJVIy3MJuS6ci5g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=J7z8LWlPotPhYXvrQ6ceYiFG0tG3FYUbgZXWcDIauRw=;
- b=XUxPhtdBl0SUkNc4pDUx6rEYarIeIrAVm/bIGynsfn5UJv/DxgNjz6IzFFJajNYRciJZBROYAW4k8b2suiBzV1/2lv2GoHQsn/RvQndNbEvc5lwF554eDh5mFyPl6qCEkY8PfhfpNea5uMZ5Kot3Kj7ZtYNkuYhJlSskHGb5ofdOjnfXwmAgcNU9dDEWdLWfJyVwvcafUTQQ4Xi1DHD06IWn7JmqKe87DONGNs2MOcaHKklkRm92bBHaBmkIVw+vVvGQAuWUXF5gAJesn8RhElZMld+TwZ6W9+fl5CB0Sc/I+m9VD0xGDLzGIZQsg+vyf4KIQ0ycaX4NG/MwGOhdgg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.238) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
- (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
- (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=J7z8LWlPotPhYXvrQ6ceYiFG0tG3FYUbgZXWcDIauRw=;
- b=U4ITf6oa3UcnRBkWu6LO/zYrlPrgMyOZDCvcXnH0wl00AeBSLgnujHPRADLrsIxaleQ2s36gEWt+WgbhOAm0RyIAREJG5wPFy3zO9+RJ+pdSVKFAwNbMLUM6JpgRbP80wSf+kgtEn0Wg51hSSu/bN3nwqoAAkIwsRyYVnbs2J6sINTsoZ33/8C+B7OBf/l4IboWHi2hY+EIIOo3OiDRpqP0KQ2XjaI/cvLqjHvBee6fU3RXDGStvdGFvQEV84Nk3FIJ99Yz5KDsP1IIKlHGxkBQoi2yyfJtSG8JR8sJAZ5fIBNov1V55jaYuPmvwW8VueCYu48JJt3hW+m2CoBmX3Q==
-Received: from BN9PR03CA0095.namprd03.prod.outlook.com (2603:10b6:408:fd::10)
- by SA1PR12MB5638.namprd12.prod.outlook.com (2603:10b6:806:229::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.21; Wed, 13 Jul
- 2022 23:57:37 +0000
-Received: from BN8NAM11FT040.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:fd:cafe::71) by BN9PR03CA0095.outlook.office365.com
- (2603:10b6:408:fd::10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.26 via Frontend
- Transport; Wed, 13 Jul 2022 23:57:37 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.238; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (12.22.5.238) by
- BN8NAM11FT040.mail.protection.outlook.com (10.13.177.166) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5438.12 via Frontend Transport; Wed, 13 Jul 2022 23:57:37 +0000
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by DRHQMAIL105.nvidia.com
- (10.27.9.14) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Wed, 13 Jul
- 2022 23:57:36 +0000
-Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail205.nvidia.com
- (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26; Wed, 13 Jul
- 2022 16:57:35 -0700
-Received: from Asurada-Nvidia (10.127.8.13) by mail.nvidia.com (10.129.68.6)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26 via Frontend
- Transport; Wed, 13 Jul 2022 16:57:34 -0700
-Date:   Wed, 13 Jul 2022 16:57:32 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     <joro@8bytes.org>, Alex Williamson <alex.williamson@redhat.com>
-CC:     <will@kernel.org>, <marcan@marcan.st>, <sven@svenpeter.dev>,
-        <robin.murphy@arm.com>, <robdclark@gmail.com>,
-        <baolu.lu@linux.intel.com>, <orsonzhai@gmail.com>,
-        <baolin.wang7@gmail.com>, <zhang.lyra@gmail.com>,
-        <jean-philippe@linaro.org>, <jgg@nvidia.com>,
-        <kevin.tian@intel.com>, <suravee.suthikulpanit@amd.com>,
-        <alyssa@rosenzweig.io>, <dwmw2@infradead.org>,
-        <mjrosato@linux.ibm.com>, <gerald.schaefer@linux.ibm.com>,
-        <thierry.reding@gmail.com>, <vdumpa@nvidia.com>,
-        <jonathanh@nvidia.com>, <cohuck@redhat.com>,
-        <thunder.leizhen@huawei.com>, <christophe.jaillet@wanadoo.fr>,
-        <chenxiang66@hisilicon.com>, <john.garry@huawei.com>,
-        <yangyingliang@huawei.com>, <iommu@lists.linux.dev>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-arm-msm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>,
-        <virtualization@lists.linux-foundation.org>, <kvm@vger.kernel.org>
-Subject: Re: [PATCH v5 0/5] cover-letter: Simplify vfio_iommu_type1
- attach/detach routine
-Message-ID: <Ys9b7GSImp/sHair@Asurada-Nvidia>
-References: <20220701214455.14992-1-nicolinc@nvidia.com>
- <20220706114217.105f4f61.alex.williamson@redhat.com>
- <YsXMMCX5LY/3IOtf@Asurada-Nvidia>
- <20220706120325.4741ff34.alex.williamson@redhat.com>
+        with ESMTP id S229524AbiGND3G (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Jul 2022 23:29:06 -0400
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DE4B7D4;
+        Wed, 13 Jul 2022 20:29:04 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xhao@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0VJHMqdX_1657769336;
+Received: from B-X3VXMD6M-2058.local(mailfrom:xhao@linux.alibaba.com fp:SMTPD_---0VJHMqdX_1657769336)
+          by smtp.aliyun-inc.com;
+          Thu, 14 Jul 2022 11:28:59 +0800
+Reply-To: xhao@linux.alibaba.com
+Subject: Re: [PATCH v2 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
+To:     Barry Song <21cnbao@gmail.com>, akpm@linux-foundation.org,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        x86@kernel.org, catalin.marinas@arm.com, will@kernel.org,
+        linux-doc@vger.kernel.org
+Cc:     corbet@lwn.net, arnd@arndb.de, linux-kernel@vger.kernel.org,
+        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
+        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
+        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+References: <20220711034615.482895-1-21cnbao@gmail.com>
+From:   Xin Hao <xhao@linux.alibaba.com>
+Message-ID: <24f5e25b-3946-b92a-975b-c34688005398@linux.alibaba.com>
+Date:   Thu, 14 Jul 2022 11:28:56 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20220706120325.4741ff34.alex.williamson@redhat.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: e132a6f9-c9a7-4f8e-9a24-08da652b7689
-X-MS-TrafficTypeDiagnostic: SA1PR12MB5638:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: aa8p8HShc//3A7rH7/TM0CGDp72gv84y1x2PNdYVcx+3D5f/eyPlyydxMpUEQ5QgSldZTWoUDUw3KQAF5pFD5cngfIVMKrnGX4hAyhCJV0KFuC9vyJZ4+ccoW46NQCn9P/v41nXyDpbE8mBgTARYj+UOlPsSn9XVkLsoHsdyd5B5RVf+YhGeK/h15tYgLTNHredsVwoTQqOnaOYz8IwO9B5rMHk+HjgBoU746w4HcWZvkAd2eCU+KlnR1nilhbRJlRkk20soZiDlBALHy0nuWo1iDepNS9SGdHWR4vVN7zBhXUmgSP2lAIwxArGBGxRxCQ+Noga1SWqJN/q0xDoY82BEEUaDsF/ZrXPVSFrTHrsUo3AeJWjOL4FYx9Y0x+egLoNbOwH+4YZP+GMZdxNTh3gs7uDY+NE9hwZHkEDLzQ8TiBZdtYZCMQTz7vSbGqWL0OGdquM199MbvzMqZIIqvAygKhUmvixdcRhx0sxJI1zQFEsutsXbTx29KYtp19f60FHyEBJbPLftCnnqqZhEx7hu9yH+4KtGr9d35/TmJJ5sJtl4sXceFsgbuiKO5KWDoEkv1e8EfFRSI8Q4HOqRJAEwzPMJYXHsQ3k+mni5ZzIzPdL13EORm0JGdfwvtmR8edVUNDVIyJq5KMnYRjx23f9uIWWCSbHtI7i8QKF9R6bGUTr9xHck8JcX974po0vedlVhVhaCj4UaL5o9I2/F8xFL8Kr3s6jaBDO9erhT7cZHfQyEAi4c8hFlAUawiVZAJ02UwW+3TQBkuxUchUJmYshejBGMTj59bgDvho32bF37FyV1ynDXP/kFiS/n6Rbrwypv6X2YwCMbfwroEsOY3J3SEP4DNQM1beG+3FjIBmAd8M1vF3nboXGBgomxvhonpqS+s1g2hFAdvRaYYHZEpZfvLPD2KIdpH0oXaTP2cxyzU2NWLGThAEswn3SQbT92
-X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(136003)(346002)(376002)(39860400002)(396003)(36840700001)(46966006)(40470700004)(8936002)(7416002)(9686003)(7406005)(110136005)(83380400001)(26005)(55016003)(54906003)(186003)(5660300002)(47076005)(478600001)(336012)(316002)(426003)(966005)(8676002)(2906002)(41300700001)(36860700001)(40480700001)(81166007)(33716001)(82740400003)(40460700003)(82310400005)(356005)(4326008)(86362001)(70206006)(70586007)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jul 2022 23:57:37.1356
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e132a6f9-c9a7-4f8e-9a24-08da652b7689
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT040.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB5638
+In-Reply-To: <20220711034615.482895-1-21cnbao@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 06, 2022 at 12:03:25PM -0600, Alex Williamson wrote:
+Hi barry.
 
-> On Wed, 6 Jul 2022 10:53:52 -0700
-> Nicolin Chen <nicolinc@nvidia.com> wrote:
-> 
-> > On Wed, Jul 06, 2022 at 11:42:17AM -0600, Alex Williamson wrote:
-> >
-> > > On Fri, 1 Jul 2022 14:44:50 -0700
-> > > Nicolin Chen <nicolinc@nvidia.com> wrote:
-> > >
-> > > > This is a preparatory series for IOMMUFD v2 patches. It enforces error
-> > > > code -EMEDIUMTYPE in iommu_attach_device() and iommu_attach_group() when
-> > > > an IOMMU domain and a device/group are incompatible. It also drops the
-> > > > useless domain->ops check since it won't fail in current environment.
-> > > >
-> > > > These allow VFIO iommu code to simplify its group attachment routine, by
-> > > > avoiding the extra IOMMU domain allocations and attach/detach sequences
-> > > > of the old code.
-> > > >
-> > > > Worths mentioning the exact match for enforce_cache_coherency is removed
-> > > > with this series, since there's very less value in doing that as KVM will
-> > > > not be able to take advantage of it -- this just wastes domain memory.
-> > > > Instead, we rely on Intel IOMMU driver taking care of that internally.
-> > > >
-> > > > This is on github:
-> > > > https://github.com/nicolinc/iommufd/commits/vfio_iommu_attach
-> > >
-> > > How do you foresee this going in, I'm imagining Joerg would merge the
-> > > first patch via the IOMMU tree and provide a topic branch that I'd
-> > > merge into the vfio tree along with the remaining patches.  Sound
-> > > right?  Thanks,
-> >
-> > We don't have any build dependency between the IOMMU change and
-> > VFIO changes, yet, without the IOMMU one, any iommu_attach_group()
-> > failure now would be a hard failure without a chance falling back
-> > to a new_domain, which is slightly different from the current flow.
-> >
-> > For a potential existing use case that relies on reusing existing
-> > domain, I think it'd be safer to have Joerg acking the first change
-> > so you merge them all? Thank!
-> 
-> Works for me, I'll look for buy-in + ack from Joerg.  Thanks,
-> 
-> Alex
+I do some test on Kunpeng arm64 machine use Unixbench.
 
-Joerg, would it be possible for you to ack at the IOMMU patch?
+The test  result as below.
 
-Thanks!
-Nic
+One core, we can see the performance improvement above +30%.
+./Run -c 1 -i 1 shell1
+w/o
+System Benchmarks Partial Index              BASELINE RESULT INDEX
+Shell Scripts (1 concurrent)                     42.4 5481.0 1292.7
+========
+System Benchmarks Index Score (Partial Only)                         1292.7
+
+w/
+System Benchmarks Partial Index              BASELINE RESULT INDEX
+Shell Scripts (1 concurrent)                     42.4 6974.6 1645.0
+========
+System Benchmarks Index Score (Partial Only)                         1645.0
+
+
+But with whole cores, there have little performance degradation above -5%
+
+./Run -c 96 -i 1 shell1
+w/o
+Shell Scripts (1 concurrent)                  80765.5 lpm   (60.0 s, 1 
+samples)
+System Benchmarks Partial Index              BASELINE RESULT INDEX
+Shell Scripts (1 concurrent)                     42.4 80765.5 19048.5
+========
+System Benchmarks Index Score (Partial Only)                        19048.5
+
+w
+Shell Scripts (1 concurrent)                  76333.6 lpm   (60.0 s, 1 
+samples)
+System Benchmarks Partial Index              BASELINE RESULT INDEX
+Shell Scripts (1 concurrent)                     42.4 76333.6 18003.2
+========
+System Benchmarks Index Score (Partial Only)                        18003.2
+
+---------------------------------------------------------------------------------------------- 
+
+
+After discuss with you, and do some changes in the patch.
+
+ndex a52381a680db..1ecba81f1277 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -727,7 +727,11 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
+         int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
+
+         if (pending != flushed) {
++#ifdef CONFIG_ARCH_HAS_MM_CPUMASK
+                 flush_tlb_mm(mm);
++#else
++               dsb(ish);
++#endif
+                 /*
+                  * If the new TLB flushing is pending during flushing, leave
+                  * mm->tlb_flush_batched as is, to avoid losing flushing.
+
+there have a performance improvement with whole cores, above +30%
+
+./Run -c 96 -i 1 shell1
+96 CPUs in system; running 96 parallel copies of tests
+
+Shell Scripts (1 concurrent)                 109229.0 lpm   (60.0 s, 1 samples)
+System Benchmarks Partial Index              BASELINE       RESULT    INDEX
+Shell Scripts (1 concurrent)                     42.4     109229.0  25761.6
+                                                                    ========
+System Benchmarks Index Score (Partial Only)                        25761.6
+
+
+Tested-by: Xin Hao<xhao@linux.alibaba.com>
+
+Looking forward to your next version patch.
+
+On 7/11/22 11:46 AM, Barry Song wrote:
+> Though ARM64 has the hardware to do tlb shootdown, the hardware
+> broadcasting is not free.
+> A simplest micro benchmark shows even on snapdragon 888 with only
+> 8 cores, the overhead for ptep_clear_flush is huge even for paging
+> out one page mapped by only one process:
+> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+>
+> While pages are mapped by multiple processes or HW has more CPUs,
+> the cost should become even higher due to the bad scalability of
+> tlb shootdown.
+>
+> The same benchmark can result in 16.99% CPU consumption on ARM64
+> server with around 100 cores according to Yicong's test on patch
+> 4/4.
+>
+> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+> 1. only send tlbi instructions in the first stage -
+> 	arch_tlbbatch_add_mm()
+> 2. wait for the completion of tlbi by dsb while doing tlbbatch
+> 	sync in arch_tlbbatch_flush()
+> My testing on snapdragon shows the overhead of ptep_clear_flush
+> is removed by the patchset. The micro benchmark becomes 5% faster
+> even for one page mapped by single process on snapdragon 888.
+>
+>
+> -v2:
+> 1. Collected Yicong's test result on kunpeng920 ARM64 server;
+> 2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
+>     according to the comments of Peter Zijlstra and Dave Hansen
+> 3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
+>     is empty according to the comments of Nadav Amit
+>
+> Thanks, Yicong, Peter, Dave and Nadav for your testing or reviewing
+> , and comments.
+>
+> -v1:
+> https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
+>
+> Barry Song (4):
+>    Revert "Documentation/features: mark BATCHED_UNMAP_TLB_FLUSH doesn't
+>      apply to ARM64"
+>    mm: rmap: Allow platforms without mm_cpumask to defer TLB flush
+>    mm: rmap: Extend tlbbatch APIs to fit new platforms
+>    arm64: support batched/deferred tlb shootdown during page reclamation
+>
+>   Documentation/features/arch-support.txt       |  1 -
+>   .../features/vm/TLB/arch-support.txt          |  2 +-
+>   arch/arm/Kconfig                              |  1 +
+>   arch/arm64/Kconfig                            |  1 +
+>   arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++++
+>   arch/arm64/include/asm/tlbflush.h             | 23 +++++++++++++++++--
+>   arch/loongarch/Kconfig                        |  1 +
+>   arch/mips/Kconfig                             |  1 +
+>   arch/openrisc/Kconfig                         |  1 +
+>   arch/powerpc/Kconfig                          |  1 +
+>   arch/riscv/Kconfig                            |  1 +
+>   arch/s390/Kconfig                             |  1 +
+>   arch/um/Kconfig                               |  1 +
+>   arch/x86/Kconfig                              |  1 +
+>   arch/x86/include/asm/tlbflush.h               |  3 ++-
+>   mm/Kconfig                                    |  3 +++
+>   mm/rmap.c                                     | 14 +++++++----
+>   17 files changed, 59 insertions(+), 9 deletions(-)
+>   create mode 100644 arch/arm64/include/asm/tlbbatch.h
+>
+-- 
+Best Regards!
+Xin Hao
+
