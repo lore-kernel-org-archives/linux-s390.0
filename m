@@ -2,158 +2,251 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AF89CCA47C
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Jul 2022 02:27:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 387FDC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Jul 2022 02:47:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241288AbiGOC1p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Jul 2022 22:27:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39314 "EHLO
+        id S240971AbiGOCr2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Jul 2022 22:47:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbiGOC1o (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Jul 2022 22:27:44 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C70757538B;
-        Thu, 14 Jul 2022 19:27:43 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id 70so3500387pfx.1;
-        Thu, 14 Jul 2022 19:27:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=2PHQEHiPUK5/kMXd0Tiaa/2KkMXqEO7YBVcbpRdWkzU=;
-        b=IEJMJOhzDLt+yfASXyPdeXR1oGGTsGDx3vl/pKDJYU0fM7xGoEYifRYmndgoDBn8V+
-         8KaH2UOTKaWNm2bcmSVrDZgCQRS5bZdc/JErVv0oiKI4D779tqf8qqqo8Y4iLSedLKu6
-         KJvBrd7MyyR0lBJJ++sR+EsLWE8c5/Kb5Z0fTJPJtZS1NwarGIQrRHk8mNKtsfmdVnsk
-         DdHkjkVUI3Go5QJOuWJ7tFYeVZyOTWJ1DVFRKCXBlPEbNV+fVinpn4yVP5n1HJQodgh9
-         gnwtaOMTLLw/5pbt9rN0/tXbYqausx/cGWYNWZ3PmgEiWfJZrxEj2bcNKssaqRx0mKTs
-         9LaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=2PHQEHiPUK5/kMXd0Tiaa/2KkMXqEO7YBVcbpRdWkzU=;
-        b=anzorEmxO85UsEOGY79quda28Vup/O9mu/0P2oIsBhYfxOUJPiVm5chHxphIUi+qG8
-         4JKlUTYDfFuNQ2NdgKL7kYaFgHDjNzvTWC5SPjdUkoc7IK7oy4kcH7iMkaO0zqc19Ov6
-         hEebLt4VbY2sACEh5DmypErbaGEDKMBy4gjp9JnDMGrQ/Jj85i6pIOeVGDj3GkGptVle
-         hWNJ4bjSksMCBcYYStGk9+gXIKB4HVU7U5iqbIG/X7qYXz9/D7dUu2eeEfJNP0HpFm2p
-         mGQ1NyDrUwmqzIrqCUkQMX+c+u8jZJ/nkh6eRtPnlINY5r+zs4qkH0dUbANz428TkgjW
-         u73g==
-X-Gm-Message-State: AJIora8lPZykhRvvBAWD4qPP2kEntgbVxTreeZ7C766wrU0aAjiVrjT1
-        ZbEJ8hknm2iWb1TTMIHV398=
-X-Google-Smtp-Source: AGRyM1tFpAPO14ibbARmvlyA7Dm2i3y8ihIra24Y5oG5D9v2V9oCrT80IZwFQQ8AdtfnaIGZOBL3gA==
-X-Received: by 2002:a63:9547:0:b0:408:be53:b599 with SMTP id t7-20020a639547000000b00408be53b599mr10179125pgn.463.1657852063244;
-        Thu, 14 Jul 2022 19:27:43 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
-        by smtp.gmail.com with ESMTPSA id v22-20020a631516000000b0040caab35e5bsm1998257pgl.89.2022.07.14.19.27.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Jul 2022 19:27:42 -0700 (PDT)
-Date:   Fri, 15 Jul 2022 11:27:41 +0900
-From:   Stafford Horne <shorne@gmail.com>
-To:     Max Filippov <jcmvbkbc@gmail.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "maintainer:X86 ARCHITECTURE..." <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Nick Child <nick.child@ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        "open list:ALPHA PORT" <linux-alpha@vger.kernel.org>,
-        "open list:IA64 (Itanium) PL..." <linux-ia64@vger.kernel.org>,
-        "open list:M68K ARCHITECTURE" <linux-m68k@lists.linux-m68k.org>,
-        linuxppc-dev@lists.ozlabs.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        "open list:SPARC + UltraSPAR..." <sparclinux@vger.kernel.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>, linux-pci@vger.kernel.org,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>
-Subject: Re: [RFC PATCH 1/2] asm-generic: Remove pci.h copying code out to
- architectures
-Message-ID: <YtDQnQOeDF6RID4g@antec>
-References: <20220714214657.2402250-1-shorne@gmail.com>
- <20220714214657.2402250-2-shorne@gmail.com>
- <CAMo8BfKkGRHiFq1vu1ZKkURkUqC+Ee7D42yuKrCeDF+578s9cw@mail.gmail.com>
+        with ESMTP id S240927AbiGOCr1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Jul 2022 22:47:27 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F9747539F;
+        Thu, 14 Jul 2022 19:47:25 -0700 (PDT)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4LkbN218m3zFpxV;
+        Fri, 15 Jul 2022 10:46:26 +0800 (CST)
+Received: from [10.67.102.169] (10.67.102.169) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Fri, 15 Jul 2022 10:47:23 +0800
+CC:     <yangyicong@hisilicon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        LAK <linux-arm-kernel@lists.infradead.org>, x86 <x86@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Darren Hart <darren@os.amperecomputing.com>,
+        <huzhanyuan@oppo.com>,
+        =?UTF-8?B?5p2O5Z+56ZSLKHdpbmsp?= <lipeifeng@oppo.com>,
+        =?UTF-8?B?5byg6K+X5piOKFNpbW9uIFpoYW5nKQ==?= 
+        <zhangshiming@oppo.com>, =?UTF-8?B?6YOt5YGl?= <guojian@oppo.com>,
+        real mz <realmz6@gmail.com>, <linux-mips@vger.kernel.org>,
+        <openrisc@lists.librecores.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        "tiantao (H)" <tiantao6@hisilicon.com>
+Subject: Re: [PATCH v2 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
+To:     Barry Song <21cnbao@gmail.com>, <xhao@linux.alibaba.com>
+References: <20220711034615.482895-1-21cnbao@gmail.com>
+ <24f5e25b-3946-b92a-975b-c34688005398@linux.alibaba.com>
+ <CAGsJ_4zjnmQV6LT3yo--K-qD-92=hBmgfK121=n-Y0oEFX8RnQ@mail.gmail.com>
+From:   Yicong Yang <yangyicong@huawei.com>
+Message-ID: <77e245a3-56b8-d624-187d-d8dacaf8d043@huawei.com>
+Date:   Fri, 15 Jul 2022 10:47:22 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMo8BfKkGRHiFq1vu1ZKkURkUqC+Ee7D42yuKrCeDF+578s9cw@mail.gmail.com>
+In-Reply-To: <CAGsJ_4zjnmQV6LT3yo--K-qD-92=hBmgfK121=n-Y0oEFX8RnQ@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.102.169]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 14, 2022 at 06:45:27PM -0700, Max Filippov wrote:
-> On Thu, Jul 14, 2022 at 2:47 PM Stafford Horne <shorne@gmail.com> wrote:
-> >
-> > The generic pci.h header provides a definition of pci_get_legacy_ide_irq
-> > which is used by architectures that use PC-style interrupt numbers.
-> >
-> > This patch removes the old pci.h in order to make room for a new
-> > pci.h to be used by arm64, riscv, openrisc, etc.
-> >
-> > The existing code in pci.h is moved out to architectures.
-> >
-> > Suggested-by: Arnd Bergmann <arnd@arndb.de>
-> > Link: https://lore.kernel.org/lkml/CAK8P3a0JmPeczfmMBE__vn=Jbvf=nkbpVaZCycyv40pZNCJJXQ@mail.gmail.com/
-> > Signed-off-by: Stafford Horne <shorne@gmail.com>
-> > ---
-> >  arch/alpha/include/asm/pci.h   |  1 -
-> >  arch/ia64/include/asm/pci.h    |  1 -
-> >  arch/m68k/include/asm/pci.h    |  7 +++++--
-> >  arch/powerpc/include/asm/pci.h |  1 -
-> >  arch/s390/include/asm/pci.h    |  6 +++++-
-> >  arch/sparc/include/asm/pci.h   |  5 ++++-
-> >  arch/x86/include/asm/pci.h     |  6 ++++--
-> >  arch/xtensa/include/asm/pci.h  |  6 ++++--
-> >  include/asm-generic/pci.h      | 17 -----------------
-> >  9 files changed, 22 insertions(+), 28 deletions(-)
-> >  delete mode 100644 include/asm-generic/pci.h
+On 2022/7/14 12:51, Barry Song wrote:
+> On Thu, Jul 14, 2022 at 3:29 PM Xin Hao <xhao@linux.alibaba.com> wrote:
+>>
+>> Hi barry.
+>>
+>> I do some test on Kunpeng arm64 machine use Unixbench.
+>>
+>> The test  result as below.
+>>
+>> One core, we can see the performance improvement above +30%.
 > 
-> [...]
+> I am really pleased to see the 30%+ improvement on unixbench on single core.
 > 
-> > diff --git a/arch/xtensa/include/asm/pci.h b/arch/xtensa/include/asm/pci.h
-> > index 8e2b48a268db..f57ede61f5db 100644
-> > --- a/arch/xtensa/include/asm/pci.h
-> > +++ b/arch/xtensa/include/asm/pci.h
-> > @@ -43,7 +43,9 @@
-> >  #define ARCH_GENERIC_PCI_MMAP_RESOURCE 1
-> >  #define arch_can_pci_mmap_io()         1
-> >
-> > -/* Generic PCI */
-> > -#include <asm-generic/pci.h>
+>> ./Run -c 1 -i 1 shell1
+>> w/o
+>> System Benchmarks Partial Index              BASELINE RESULT INDEX
+>> Shell Scripts (1 concurrent)                     42.4 5481.0 1292.7
+>> ========
+>> System Benchmarks Index Score (Partial Only)                         1292.7
+>>
+>> w/
+>> System Benchmarks Partial Index              BASELINE RESULT INDEX
+>> Shell Scripts (1 concurrent)                     42.4 6974.6 1645.0
+>> ========
+>> System Benchmarks Index Score (Partial Only)                         1645.0
+>>
+>>
+>> But with whole cores, there have little performance degradation above -5%
 > 
-> Ok.
+> That is sad as we might get more concurrency between mprotect(), madvise(),
+> mremap(), zap_pte_range() and the deferred tlbi.
 > 
-> > +static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
-> > +{
-> > +       return channel ? 15 : 14;
-> > +}
+>>
+>> ./Run -c 96 -i 1 shell1
+>> w/o
+>> Shell Scripts (1 concurrent)                  80765.5 lpm   (60.0 s, 1
+>> samples)
+>> System Benchmarks Partial Index              BASELINE RESULT INDEX
+>> Shell Scripts (1 concurrent)                     42.4 80765.5 19048.5
+>> ========
+>> System Benchmarks Index Score (Partial Only)                        19048.5
+>>
+>> w
+>> Shell Scripts (1 concurrent)                  76333.6 lpm   (60.0 s, 1
+>> samples)
+>> System Benchmarks Partial Index              BASELINE RESULT INDEX
+>> Shell Scripts (1 concurrent)                     42.4 76333.6 18003.2
+>> ========
+>> System Benchmarks Index Score (Partial Only)                        18003.2
+>>
+>> ----------------------------------------------------------------------------------------------
+>>
+>>
+>> After discuss with you, and do some changes in the patch.
+>>
+>> ndex a52381a680db..1ecba81f1277 100644
+>> --- a/mm/rmap.c
+>> +++ b/mm/rmap.c
+>> @@ -727,7 +727,11 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
+>>          int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
+>>
+>>          if (pending != flushed) {
+>> +#ifdef CONFIG_ARCH_HAS_MM_CPUMASK
+>>                  flush_tlb_mm(mm);
+>> +#else
+>> +               dsb(ish);
+>> +#endif
+>>
 > 
-> This addition does not make sense for the xtensa as it isn't even possible
-> to enable PNP support (the only user of this function) on xtensa.
+> i was guessing the problem might be flush_tlb_batched_pending()
+> so i asked you to change this to verify my guess.
+> 
+>      /*
+>>                   * If the new TLB flushing is pending during flushing, leave
+>>                   * mm->tlb_flush_batched as is, to avoid losing flushing.
+>>
+>> there have a performance improvement with whole cores, above +30%
+> 
+> But I don't think it is a proper patch. There is no guarantee the cpu calling
+> flush_tlb_batched_pending is exactly the cpu sending the deferred
+> tlbi. so the solution is unsafe. But since this temporary code can bring the
+> 30%+ performance improvement back for high concurrency, we have huge
+> potential to finally make it.
+> 
+> Unfortunately I don't have an arm64 server to debug on this. I only have
+> 8 cores which are unlikely to reproduce regression which happens in
+> high concurrency with 96 parallel tasks.
+> 
+> So I'd ask if @yicong or someone else working on kunpeng or other
+> arm64 servers  is able to actually debug and figure out a proper
+> patch for this, then add the patch as 5/5 into this series?
+> 
 
-Thanks for your feedback, this is the kind of feedback I was hoping to fish out
-with this patch.  I will look into completely removing this then.
+sure, Tiantao and I will look into this on Kunpeng 920.
 
--Stafford
+>>
+>> ./Run -c 96 -i 1 shell1
+>> 96 CPUs in system; running 96 parallel copies of tests
+>>
+>> Shell Scripts (1 concurrent)                 109229.0 lpm   (60.0 s, 1 samples)
+>> System Benchmarks Partial Index              BASELINE       RESULT    INDEX
+>> Shell Scripts (1 concurrent)                     42.4     109229.0  25761.6
+>>                                                                     ========
+>> System Benchmarks Index Score (Partial Only)                        25761.6
+>>
+>>
+>> Tested-by: Xin Hao<xhao@linux.alibaba.com>
+> 
+> Thanks for your testing!
+> 
+>>
+>> Looking forward to your next version patch.
+>>
+>> On 7/11/22 11:46 AM, Barry Song wrote:
+>>> Though ARM64 has the hardware to do tlb shootdown, the hardware
+>>> broadcasting is not free.
+>>> A simplest micro benchmark shows even on snapdragon 888 with only
+>>> 8 cores, the overhead for ptep_clear_flush is huge even for paging
+>>> out one page mapped by only one process:
+>>> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+>>>
+>>> While pages are mapped by multiple processes or HW has more CPUs,
+>>> the cost should become even higher due to the bad scalability of
+>>> tlb shootdown.
+>>>
+>>> The same benchmark can result in 16.99% CPU consumption on ARM64
+>>> server with around 100 cores according to Yicong's test on patch
+>>> 4/4.
+>>>
+>>> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+>>> 1. only send tlbi instructions in the first stage -
+>>>       arch_tlbbatch_add_mm()
+>>> 2. wait for the completion of tlbi by dsb while doing tlbbatch
+>>>       sync in arch_tlbbatch_flush()
+>>> My testing on snapdragon shows the overhead of ptep_clear_flush
+>>> is removed by the patchset. The micro benchmark becomes 5% faster
+>>> even for one page mapped by single process on snapdragon 888.
+>>>
+>>>
+>>> -v2:
+>>> 1. Collected Yicong's test result on kunpeng920 ARM64 server;
+>>> 2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
+>>>     according to the comments of Peter Zijlstra and Dave Hansen
+>>> 3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
+>>>     is empty according to the comments of Nadav Amit
+>>>
+>>> Thanks, Yicong, Peter, Dave and Nadav for your testing or reviewing
+>>> , and comments.
+>>>
+>>> -v1:
+>>> https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
+>>>
+>>> Barry Song (4):
+>>>    Revert "Documentation/features: mark BATCHED_UNMAP_TLB_FLUSH doesn't
+>>>      apply to ARM64"
+>>>    mm: rmap: Allow platforms without mm_cpumask to defer TLB flush
+>>>    mm: rmap: Extend tlbbatch APIs to fit new platforms
+>>>    arm64: support batched/deferred tlb shootdown during page reclamation
+>>>
+>>>   Documentation/features/arch-support.txt       |  1 -
+>>>   .../features/vm/TLB/arch-support.txt          |  2 +-
+>>>   arch/arm/Kconfig                              |  1 +
+>>>   arch/arm64/Kconfig                            |  1 +
+>>>   arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++++
+>>>   arch/arm64/include/asm/tlbflush.h             | 23 +++++++++++++++++--
+>>>   arch/loongarch/Kconfig                        |  1 +
+>>>   arch/mips/Kconfig                             |  1 +
+>>>   arch/openrisc/Kconfig                         |  1 +
+>>>   arch/powerpc/Kconfig                          |  1 +
+>>>   arch/riscv/Kconfig                            |  1 +
+>>>   arch/s390/Kconfig                             |  1 +
+>>>   arch/um/Kconfig                               |  1 +
+>>>   arch/x86/Kconfig                              |  1 +
+>>>   arch/x86/include/asm/tlbflush.h               |  3 ++-
+>>>   mm/Kconfig                                    |  3 +++
+>>>   mm/rmap.c                                     | 14 +++++++----
+>>>   17 files changed, 59 insertions(+), 9 deletions(-)
+>>>   create mode 100644 arch/arm64/include/asm/tlbbatch.h
+>>>
+>> --
+>> Best Regards!
+>> Xin Hao
+>>
+> 
+> Thanks
+> Barry
+> .
+> 
