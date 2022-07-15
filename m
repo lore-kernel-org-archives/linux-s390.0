@@ -2,123 +2,207 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53EEDC43334
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Jul 2022 08:03:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6822C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Jul 2022 08:31:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232501AbiGOID3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Jul 2022 04:03:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60316 "EHLO
+        id S232356AbiGOIbv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Jul 2022 04:31:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232491AbiGOID1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Jul 2022 04:03:27 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC4C7E01D;
-        Fri, 15 Jul 2022 01:03:26 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26F7MnnW027336;
-        Fri, 15 Jul 2022 08:03:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=NBUwyhowEQys1JjcN3CXThBF5Vo7fLtS996n4hCauS0=;
- b=MhWfDJCyvHcSth21Rn7xjUnahD+hrqLjCqxKUGMYRlxoVU50vVWC41nAX8pCblOkmw5q
- Hdpu972eNHmoPK0J+gEmnI+XIYTLjsV4mxanurxtyteik8h7BbVrWbG9/cqDsUOu5i//
- 80xYZJvCAgzm4xBrRJ7hZ8aG2S89qAq4AxvffxrMXvO65pDpGdqEUycRYvYwkgRMyaIx
- 9+Xvwkt8h6h3q7Fg7V1hozIDDsoyUPSlEnkc0Pj0ESmL/4PgvfWDv21MOykm/vJP3kIN
- Jm8OXzTOPjhR2uw3fwkO+Qt3gsb5E0uhwG3Mz7HT+Lx56GX2s15i0K+iE4UHidQdBMEH qA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hb3t1gtnh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 15 Jul 2022 08:03:25 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26F7wVKS017500;
-        Fri, 15 Jul 2022 08:03:23 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3h71a903yg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 15 Jul 2022 08:03:22 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26F83Jxo13500694
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 15 Jul 2022 08:03:19 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B4B10A404D;
-        Fri, 15 Jul 2022 08:03:19 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9F1E3A4040;
-        Fri, 15 Jul 2022 08:03:19 +0000 (GMT)
-Received: from vela (unknown [9.145.26.36])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 15 Jul 2022 08:03:19 +0000 (GMT)
-Received: from brueckner by vela with local (Exim 4.94.2)
-        (envelope-from <brueckner@linux.ibm.com>)
-        id 1oCGI9-0002ga-SE; Fri, 15 Jul 2022 10:03:17 +0200
-Date:   Fri, 15 Jul 2022 10:03:17 +0200
-From:   Hendrik Brueckner <brueckner@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Steffen Eiden <seiden@linux.ibm.com>,
+        with ESMTP id S232322AbiGOIbu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Jul 2022 04:31:50 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91157804B5;
+        Fri, 15 Jul 2022 01:31:47 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R971e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0VJOUor5_1657873898;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VJOUor5_1657873898)
+          by smtp.aliyun-inc.com;
+          Fri, 15 Jul 2022 16:31:40 +0800
+Message-ID: <1657873703.9301925-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v11 39/40] virtio_net: support tx queue resize
+Date:   Fri, 15 Jul 2022 16:28:23 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org, nrb@linux.ibm.com
-Subject: Re: [PATCH 1/3] s390/cpufeature: rework to allow more than only
- hwcap bits
-Message-ID: <YtEfReThyg0/jyK+@linux.ibm.com>
-References: <20220712105220.325010-1-seiden@linux.ibm.com>
- <20220712105220.325010-2-seiden@linux.ibm.com>
- <Ys3Kt7nG2jtE8H3H@osiris>
- <4132ba2a-f5ad-25ba-7f74-72369b8a140b@linux.ibm.com>
- <Ys/1ab1BXPw1RWuy@osiris>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Ys/1ab1BXPw1RWuy@osiris>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: OIzIy2TV7U-wGyj2fSInnTs3SmfU5BgO
-X-Proofpoint-ORIG-GUID: OIzIy2TV7U-wGyj2fSInnTs3SmfU5BgO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-15_02,2022-07-14_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
- impostorscore=0 phishscore=0 adultscore=0 malwarescore=0 clxscore=1015
- lowpriorityscore=0 spamscore=0 priorityscore=1501 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207150034
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm <kvm@vger.kernel.org>,
+        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
+        kangjie.xu@linux.alibaba.com,
+        virtualization <virtualization@lists.linux-foundation.org>
+References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-40-xuanzhuo@linux.alibaba.com>
+ <102d3b83-1ae9-a59a-16ce-251c22b7afb0@redhat.com>
+ <1656986432.1164997-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEt8MSS=tcn=Hd6WF9+btT0ccocxEd1ighRgK-V1uiWmCQ@mail.gmail.com>
+In-Reply-To: <CACGkMEt8MSS=tcn=Hd6WF9+btT0ccocxEd1ighRgK-V1uiWmCQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 14, 2022 at 12:52:25PM +0200, Heiko Carstens wrote:
-> > > > +static struct s390_cpu_feature s390_cpu_features[MAX_CPU_FEATURES] = {
-> > > > +	[S390_CPU_FEATURE_ESAN3]	= {.type = TYPE_HWCAP, .num = HWCAP_NR_ESAN3},
-> > > > +	[S390_CPU_FEATURE_ZARCH]	= {.type = TYPE_HWCAP, .num = HWCAP_NR_ZARCH},
-> ...
-> > > I only realized now that you added all HWCAP bits here. It was
-> > > intentional that I added only the two bits which are currently used
-> > > for several reasons:
-> > > 
-> > > - Keep the array as small as possible.
-> > > - No need to keep this array in sync with HWCAPs, if new ones are added.
-> > > - There is a for loop in print_cpu_modalias() which iterates over all
-> > >    MAX_CPU_FEATURES entries; this should be as fast as possible. Adding
-> > >    extra entries burns cycles for no added value.
-> > The loop in print_cpu_modalias() was the reason why I added all
-> > current HWCAPs. The current implementation runs through all HWCAPs
-> > using cpu_have_feature() and I feared that reducing to just MSA and
-> > VXRS has effects in the reporting of CPU-features to userspace.
-> > 
-> > I double checked the output of 'grep features /proc/cpuinfo' and it
-> > stays the same, for 5.19-rc6, 5.19-rc6+this series, 5.19-rc6+this series
-> > with just the two S390_CPU_FEATUREs. I might have misunderstood what happens
-> > in that loop in print_cpu_modalias().
-> 
-> It is used on cpu hotplug to generate a MODALIAS environment
-> variable. You can check that by running "udevadm monitor -p"
-> and then switching a cpu off/on.
-> 
-> This environment variable is then used by systemd/udev to load
-> feature matching modules via kmod.
+On Fri, 8 Jul 2022 14:23:57 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Tue, Jul 5, 2022 at 10:01 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wr=
+ote:
+> >
+> > On Mon, 4 Jul 2022 11:45:52 +0800, Jason Wang <jasowang@redhat.com> wro=
+te:
+> > >
+> > > =E5=9C=A8 2022/6/29 14:56, Xuan Zhuo =E5=86=99=E9=81=93:
+> > > > This patch implements the resize function of the tx queues.
+> > > > Based on this function, it is possible to modify the ring num of the
+> > > > queue.
+> > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > ---
+> > > >   drivers/net/virtio_net.c | 48 +++++++++++++++++++++++++++++++++++=
++++++
+> > > >   1 file changed, 48 insertions(+)
+> > > >
+> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > index 6ab16fd193e5..fd358462f802 100644
+> > > > --- a/drivers/net/virtio_net.c
+> > > > +++ b/drivers/net/virtio_net.c
+> > > > @@ -135,6 +135,9 @@ struct send_queue {
+> > > >     struct virtnet_sq_stats stats;
+> > > >
+> > > >     struct napi_struct napi;
+> > > > +
+> > > > +   /* Record whether sq is in reset state. */
+> > > > +   bool reset;
+> > > >   };
+> > > >
+> > > >   /* Internal representation of a receive virtqueue */
+> > > > @@ -279,6 +282,7 @@ struct padded_vnet_hdr {
+> > > >   };
+> > > >
+> > > >   static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void=
+ *buf);
+> > > > +static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void =
+*buf);
+> > > >
+> > > >   static bool is_xdp_frame(void *ptr)
+> > > >   {
+> > > > @@ -1603,6 +1607,11 @@ static void virtnet_poll_cleantx(struct rece=
+ive_queue *rq)
+> > > >             return;
+> > > >
+> > > >     if (__netif_tx_trylock(txq)) {
+> > > > +           if (READ_ONCE(sq->reset)) {
+> > > > +                   __netif_tx_unlock(txq);
+> > > > +                   return;
+> > > > +           }
+> > > > +
+> > > >             do {
+> > > >                     virtqueue_disable_cb(sq->vq);
+> > > >                     free_old_xmit_skbs(sq, true);
+> > > > @@ -1868,6 +1877,45 @@ static int virtnet_rx_resize(struct virtnet_=
+info *vi,
+> > > >     return err;
+> > > >   }
+> > > >
+> > > > +static int virtnet_tx_resize(struct virtnet_info *vi,
+> > > > +                        struct send_queue *sq, u32 ring_num)
+> > > > +{
+> > > > +   struct netdev_queue *txq;
+> > > > +   int err, qindex;
+> > > > +
+> > > > +   qindex =3D sq - vi->sq;
+> > > > +
+> > > > +   virtnet_napi_tx_disable(&sq->napi);
+> > > > +
+> > > > +   txq =3D netdev_get_tx_queue(vi->dev, qindex);
+> > > > +
+> > > > +   /* 1. wait all ximt complete
+> > > > +    * 2. fix the race of netif_stop_subqueue() vs netif_start_subq=
+ueue()
+> > > > +    */
+> > > > +   __netif_tx_lock_bh(txq);
+> > > > +
+> > > > +   /* Prevent rx poll from accessing sq. */
+> > > > +   WRITE_ONCE(sq->reset, true);
+> > >
+> > >
+> > > Can we simply disable RX NAPI here?
+> >
+> > Disable rx napi is indeed a simple solution. But I hope that when deali=
+ng with
+> > tx, it will not affect rx.
+>
+> Ok, but I think we've already synchronized with tx lock here, isn't it?
 
-See also some notes on the cpu feature in KRN1305 spec (introduced w/ VX
-support).
+Yes, do you have any questions about WRITE_ONCE()? There is a set false ope=
+ration
+later, I did not use lock there, so I used WRITE/READ_ONCE
+uniformly.
+
+Thanks.
+
+>
+> Thanks
+>
+> >
+> > Thanks.
+> >
+> >
+> > >
+> > > Thanks
+> > >
+> > >
+> > > > +
+> > > > +   /* Prevent the upper layer from trying to send packets. */
+> > > > +   netif_stop_subqueue(vi->dev, qindex);
+> > > > +
+> > > > +   __netif_tx_unlock_bh(txq);
+> > > > +
+> > > > +   err =3D virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unus=
+ed_buf);
+> > > > +   if (err)
+> > > > +           netdev_err(vi->dev, "resize tx fail: tx queue index: %d=
+ err: %d\n", qindex, err);
+> > > > +
+> > > > +   /* Memory barrier before set reset and start subqueue. */
+> > > > +   smp_mb();
+> > > > +
+> > > > +   WRITE_ONCE(sq->reset, false);
+> > > > +   netif_tx_wake_queue(txq);
+> > > > +
+> > > > +   virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+> > > > +   return err;
+> > > > +}
+> > > > +
+> > > >   /*
+> > > >    * Send command via the control virtqueue and check status.  Comm=
+ands
+> > > >    * supported by the hypervisor, as indicated by feature bits, sho=
+uld
+> > >
+> >
+>
