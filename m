@@ -2,104 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37B9EC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 12:30:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C911C43334
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 13:13:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240279AbiGSMaO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Jul 2022 08:30:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
+        id S243194AbiGSNNr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Jul 2022 09:13:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239122AbiGSM3L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 08:29:11 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81CE86716F;
-        Tue, 19 Jul 2022 05:11:00 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26JBniK5029911;
-        Tue, 19 Jul 2022 12:11:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=8QpT3wx/wpjk+TM55DGaV6RCEW9PecTqz7PCnRMx2s4=;
- b=P0sQK2wCxJEeR0lKRxlM7FI27JSZaW2Qwk23dqDq5Fy1xXCRJxvgQTYqYpomrm77KTgH
- n5Jvg72tBLZwGpP7djara/+w59ymkdnLi4kKKaYjYFBgpRq9O+rce4CifK/SrZWvbqdc
- BlEM71hHS2aPRItIGnqORcaONWflYwmZ7b1Nj6J5Vmic2oa+IWKH/4xmIvh28TstbweI
- ZfwXGC5gtCD9qKtLaPe4t9ZLp6ACPJ+s1QGqpPUktVVeyUCAlurlQwNqC0l6iLGu0D/6
- vFWAN14rhbB0JJ0nW1HoJoQyKDywugixtydoJ7f2J8gCP9fXtDcM5tYx32lf8YW4ijIG Tg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdv350v7f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 12:10:54 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26JBpn0L009180;
-        Tue, 19 Jul 2022 12:10:14 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdv350tjh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 12:10:14 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26JC6XTC026957;
-        Tue, 19 Jul 2022 12:09:19 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3hbmy8v22w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 12:09:19 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26JC9GsC22413746
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 Jul 2022 12:09:16 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3E97CAE04D;
-        Tue, 19 Jul 2022 12:09:16 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8E116AE053;
-        Tue, 19 Jul 2022 12:09:15 +0000 (GMT)
-Received: from [9.145.157.161] (unknown [9.145.157.161])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 19 Jul 2022 12:09:15 +0000 (GMT)
-Message-ID: <4a0ccd3e-d4df-36a3-0dff-3d366f2b7751@linux.ibm.com>
-Date:   Tue, 19 Jul 2022 14:09:15 +0200
+        with ESMTP id S243500AbiGSNNc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 09:13:32 -0400
+Received: from smtpbg.qq.com (biz-43-154-54-12.mail.qq.com [43.154.54.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D965120B1;
+        Tue, 19 Jul 2022 05:30:18 -0700 (PDT)
+X-QQ-mid: bizesmtp82t1658233738tg1qho8c
+Received: from localhost.localdomain ( [171.223.96.21])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Tue, 19 Jul 2022 20:28:57 +0800 (CST)
+X-QQ-SSF: 01000000002000F0U000C00A0000020
+X-QQ-FEAT: DoD8xN2rKozhiQNtJHhOlHcWfNXQgthF76gR62nSuR1BQTbE1ZbBHWLk/AJ8s
+        3j545u/dr3eNqhYXeYVm2v+4KNQyOOWslAx7CTrKPP2O1NvncR0wIt3AhiBw+gAbYWOUkx8
+        CvjypKcwNVCjo9V4rrUuk9rWeXRoSUTSeiK3uFPh2aMVQGxlMejZiQIqtVxSaipvo03yHDK
+        lhFAzTAsZOdbEeSnc/tHCCDnDYtpwh/mesTjJiZ3PXQsdAAwTIpShY0osvIQds5KVrNm226
+        W3xgeqWdhka821B6mpJ5ukHNT4uDC7ypa8iKpfBIrxL9iLWl4lo6Gq9jzOZ7xJ7pKaLV67k
+        +ACoW+kbIpHJbWEUv0jYSZtT4fNudrcdmJLjEYso2+fB2R5i3XpGatvKFRVGCFnBkasWU1N
+        AtDwevQ/f8k=
+X-QQ-GoodBg: 0
+From:   Jason Wang <wangborong@cdjrlc.com>
+To:     svens@linux.ibm.com
+Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jason Wang <wangborong@cdjrlc.com>
+Subject: [PATCH] s390/net: Fix comment typo
+Date:   Sat, 16 Jul 2022 12:27:00 +0800
+Message-Id: <20220716042700.39915-1-wangborong@cdjrlc.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH v13 0/2] s390x: KVM: CPU Topology
-Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, wintera@linux.ibm.com, seiden@linux.ibm.com,
-        nrb@linux.ibm.com, scgl@linux.ibm.com
-References: <20220714101824.101601-1-pmorel@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220714101824.101601-1-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yFfZKNlvmNYZZD8XLsJAXtrTQZjYVB-F
-X-Proofpoint-ORIG-GUID: eO-WuxWt-VBh2zkFDpm6oo-YMslOKehs
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-18_22,2022-07-19_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- bulkscore=0 impostorscore=0 mlxlogscore=714 spamscore=0 suspectscore=0
- clxscore=1015 lowpriorityscore=0 adultscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207190051
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:cdjrlc.com:qybglogicsvr:qybglogicsvr6
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/14/22 12:18, Pierre Morel wrote:
-> Hi all,
-> 
-> The series provides:
-> 1- interception of the STSI instruction forwarding the CPU topology
-> 2- interpretation of the PTF instruction
-> 3- a KVM capability for the userland hypervisor to ask KVM to
->     setup PTF interpretation.
-> 4- KVM ioctl to get and set the MTCR bit of the SCA in order to
->     migrate this bit during a migration.
-> 
+The double `the' is duplicated in the comment, remove one.
 
-Thanks, picked
+Signed-off-by: Jason Wang <wangborong@cdjrlc.com>
+---
+ drivers/s390/net/qeth_core_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 9e54fe76a9b2..35d4b398c197 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3565,7 +3565,7 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 			if (!atomic_read(&queue->set_pci_flags_count)) {
+ 				/*
+ 				 * there's no outstanding PCI any more, so we
+-				 * have to request a PCI to be sure the the PCI
++				 * have to request a PCI to be sure the PCI
+ 				 * will wake at some time in the future then we
+ 				 * can flush packed buffers that might still be
+ 				 * hanging around, which can happen if no
+-- 
+2.35.1
+
