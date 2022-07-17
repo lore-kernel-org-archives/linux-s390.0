@@ -2,202 +2,639 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78872C43334
-	for <linux-s390@archiver.kernel.org>; Sun, 17 Jul 2022 13:11:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C09C43334
+	for <linux-s390@archiver.kernel.org>; Sun, 17 Jul 2022 20:04:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229801AbiGQNL2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 17 Jul 2022 09:11:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46376 "EHLO
+        id S229999AbiGQUEU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 17 Jul 2022 16:04:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229601AbiGQNL2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 17 Jul 2022 09:11:28 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180A665A7;
-        Sun, 17 Jul 2022 06:11:26 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26HC6l3g029380;
-        Sun, 17 Jul 2022 13:11:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=ts4Yl/PPKdtVWtNzAeuFDOysnRrXSDU2CQRTsQymGcA=;
- b=KgpHWOU6atCFx1g39a+SVNTWWQ4fPn+mZOQAfSQifGnmBbmI5wlvRkA6kEAMB/srwkXt
- ZyQ29WwppBRkYFh65XlGnKQaeKRDVuhcD9T2LUCv1jSuspeetd/FcoRoBJHft2KvQmYn
- yHGyBb9tyK1R21kIN5gbijBweYLIbbf1knvSH3vhMInhEorSf1y84dS6e2LpkULnmuDV
- ighaNryEz9jMaBl2cmtxTk3dJq2FQwOk8EvY+r+kFm9LY+tgmYppLUXxvLrLRvBX3Gg2
- P7PMshOFsDvjWoG00/qcKdIAmTNXfGBlZ4uX3Xm5xLoqW2gtS0P2vvC9XODwFV/30+oL Yw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hchwm0x6a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 17 Jul 2022 13:11:13 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26HCxHHP031072;
-        Sun, 17 Jul 2022 13:11:13 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hchwm0x5s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 17 Jul 2022 13:11:13 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26HD5Buw019259;
-        Sun, 17 Jul 2022 13:11:10 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03fra.de.ibm.com with ESMTP id 3hbmy8h3en-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 17 Jul 2022 13:11:10 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26HD9RAH19464614
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 17 Jul 2022 13:09:27 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 016EFA405B;
-        Sun, 17 Jul 2022 13:11:07 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7EEFFA4054;
-        Sun, 17 Jul 2022 13:11:06 +0000 (GMT)
-Received: from [9.171.37.89] (unknown [9.171.37.89])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Sun, 17 Jul 2022 13:11:06 +0000 (GMT)
-Message-ID: <2db2140b-ce07-f066-bcc2-981a53849bbb@linux.ibm.com>
-Date:   Sun, 17 Jul 2022 15:11:06 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: s390/nospec: add an option to use thunk-extern
-Content-Language: en-US
-To:     Joe Lawrence <joe.lawrence@redhat.com>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        with ESMTP id S229462AbiGQUET (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 17 Jul 2022 16:04:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC9F60C7;
+        Sun, 17 Jul 2022 13:04:17 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46078B80EA0;
+        Sun, 17 Jul 2022 20:04:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 489FBC3411E;
+        Sun, 17 Jul 2022 20:04:13 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="eNc1r2v4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1658088251;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=CPI5tgkGhnSbkbu+IaYL3OZAVqp3IVzDU7SpKnh/ZL8=;
+        b=eNc1r2v4DpPiwFIzO29uyCav1rT6YPUFJsKB7fMYt21D6ZyduVv+TI+xVs2RkBm2hq1RU0
+        chPWHovI27M+C2YGzQxmmczVgFp/IucC2eu9O5Nj7FClzDA+aow/fgf57uiD3NKVJoJRw2
+        VA8jQHT5hXAicyoIYuu61ovvoaKZReQ=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 09a6dc34 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Sun, 17 Jul 2022 20:04:10 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Borislav Petkov <bp@suse.de>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-kbuild@vger.kernel.org, "C. Erastus Toe" <ctoe@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-References: <8569429d-57f8-a0cf-8b17-1291f6973d32@redhat.com>
- <cover.thread-d13b6c.your-ad-here.call-01656331067-ext-4899@work.hours>
- <ad6a926e-eed1-a5e2-9f8b-0ea1599bbaed@redhat.com>
- <CAPQ7N1RFyZRCJZc84UxjSQj44ksa6f6ib5B=dVwoqMU9_=s8QA@mail.gmail.com>
- <e853268a-3e0a-3a88-331b-53c74e8796d6@redhat.com>
-From:   Sumanth Korikkar <sumanthk@linux.ibm.com>
-In-Reply-To: <e853268a-3e0a-3a88-331b-53c74e8796d6@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: WAQoppZEw_Dg8rTtUh_HTFWJhlMBdgB2
-X-Proofpoint-GUID: DjXOoihHmaPcz9im4GJQN65GxsW17nZs
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Johannes Berg <johannes@sipsolutions.net>,
+        Harald Freudenberger <freude@linux.ibm.com>
+Subject: [PATCH v2] random: handle archrandom in plural words
+Date:   Sun, 17 Jul 2022 22:03:56 +0200
+Message-Id: <20220717200356.75060-1-Jason@zx2c4.com>
+In-Reply-To: <YtP1+MJ1tNdJA60l@zx2c4.com>
+References: <YtP1+MJ1tNdJA60l@zx2c4.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-17_06,2022-07-15_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 mlxscore=0 suspectscore=0 impostorscore=0 bulkscore=0
- spamscore=0 phishscore=0 mlxlogscore=999 adultscore=0 malwarescore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207170064
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Joe,
+The archrandom interface was originally designed for x86, which supplies
+RDRAND/RDSEED for receiving random words into registers, resulting in
+one function to generate an int and another to generate a long. However,
+other architectures don't follow this.
 
-c4e789572557 ("s390/nospec: build expoline.o for modules_prepare 
-target") is now in linux.git.
+On arm64, the SMCCC TRNG interface can return between 1 and 3 words. On
+s390, the CPACF TRNG interface can return between 1 and 32 words for the
+same cost as for one word. On UML, the os_getrandom() interface can return
+arbitrary amounts.
 
-Note: arch/s390/lib/expoline.o is moved to 
-arch/s390/lib/expoline/expoline.o. This means kernel-devel package in 
-fedora should also include this updated file path.
+So change the api signature to take a "words" parameter designating the
+maximum number of words requested, and then return the number of words
+generated.
 
-Thanks
+Since callers need to check this return value and loop anyway, each arch
+implementation does not bother implementing its own loop to try again to
+fill the requested number of words. Additionally, all existing callers
+pass in a constant words parameter. Taken together, these two things
+mean that the codegen doesn't really change much for one-word-at-a-time
+platforms, while performance is greatly improved on platforms such as
+s390.
 
-On 7/1/22 23:39, Joe Lawrence wrote:
-> On 7/1/22 5:18 PM, C. Erastus Toe wrote:
->> On Wed, Jun 29, 2022 at 11:16 AM Joe Lawrence <joe.lawrence@redhat.com
->> <mailto:joe.lawrence@redhat.com>> wrote:
->>
->>      On 6/27/22 8:50 AM, Vasily Gorbik wrote:
->>      > Hi Joe,
->>      >
->>      > sorry for late reply.
->>      >
->>      >> I couldn't find the upstream patch post for 1d2ad084800e
->>      ("s390/nospec:
->>      >> add an option to use thunk-extern"), so replying off-list here.  Feel
->>      >> free to cc the appropriate list.
->>      >>
->>      >> Regarding this change, as I understand it, when
->>      CONFIG_EXPOLINE_EXTERN=y
->>      >> out-of-tree kernel modules will need to link against
->>      >> arch/s390x/lib/expoline.o, right?
->>      >>
->>      >> And if so, shouldn't the top level 'prepare_modules' target create
->>      >> expoline.o for this purpose?
->>      >
->>      > Thanks for bringing this up. I definitely missed out-of-tree
->>      kernel modules
->>      > build case without a prebuilt kernel. On the other hand this
->>      post-linking
->>      > trick is a rip off from powerpc:
->>      >
->>      > KBUILD_LDFLAGS_MODULE += arch/powerpc/lib/crtsavres.o
->>      >
->>      > So, now I wonder why powerpc doesn't have crtsavres.o in
->>      'prepare_modules'.
->>      >
->>      > Anyhow, below is couple of patches to consider. The first one is
->>      > meant to be backportable, as the second one requires 4efd417f298b.
->>      >
->>      > I had to move expoline.S to a separate directory to be able to
->>      call into
->>      > its Makefile for 'prepare_modules' and avoid warnings for other
->>      targets
->>      > defined in the same Makefile. Not sure if there are better kbuild
->>      tricks
->>      > I could use. Another option I thought about is to keep expoline.S
->>      where
->>      > it is and add a condition into that Makefile:
->>      > expoline_prepare: prepare0
->>      >       $(Q)$(MAKE) $(build)=arch/s390/lib expoline_prepare=1
->>      arch/s390/lib/expoline.o
->>      >
->>      > arch/s390/lib/Makefile:
->>      > # first target defined
->>      > obj-$(CONFIG_EXPOLINE_EXTERN) += expoline.o
->>      > ifndef expoline_prepare
->>      > # ...other targets...
->>      >
->>      > Vasily Gorbik (2):
->>      >   s390/nospec: build expoline.o for modules_prepare target
->>      >   s390/nospec: remove unneeded header includes
->>      >
->>      >  arch/s390/Makefile                      | 8 +++++++-
->>      >  arch/s390/include/asm/nospec-insn.h     | 2 --
->>      >  arch/s390/lib/Makefile                  | 3 ++-
->>      >  arch/s390/lib/expoline/Makefile         | 3 +++
->>      >  arch/s390/lib/{ => expoline}/expoline.S | 0
->>      >  5 files changed, 12 insertions(+), 4 deletions(-)
->>      >  create mode 100644 arch/s390/lib/expoline/Makefile
->>      >  rename arch/s390/lib/{ => expoline}/expoline.S (100%)
->>      >
->>
->>      Thanks, Vasily.  We'll test these with OOT and the original gitlab
->>      pipeline where we spotted potential issue with packaging and report
->>      back.
->>
->> Hi,
->>
->> Successfully tested the first patch in a rhel-9 backport. (had to skip
->> the second as it has dependencies on other patches like [1] that
->> deprecated symbols like __LC_BR_R1. Without those, the build resulted in
->> a flood of: depmod: WARNING: <module>.ko needs unknown symbol __LC_BR_R1.)
->>
->> For ("s390/nospec: build expoline.o for modules_prepare target"),
->> Tested-by: C. Erastus Toe <ctoe@redhat.com <mailto:ctoe@redhat.com>>
->>
->> [1] 4efd417f298b ("s390: raise minimum supported machine generation to z10")
->>
-> 
-> And then for the entire series (tested on top of v5.19-rc4),
-> Tested-by: Joe Lawrence <joe.lawrence@redhat.com>
-> 
+Cc: Will Deacon <will@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ arch/arm64/include/asm/archrandom.h   | 102 ++++++++++++--------------
+ arch/arm64/kernel/kaslr.c             |   2 +-
+ arch/powerpc/include/asm/archrandom.h |  30 ++------
+ arch/powerpc/kvm/book3s_hv.c          |   2 +-
+ arch/s390/include/asm/archrandom.h    |  29 ++------
+ arch/um/include/asm/archrandom.h      |  21 ++----
+ arch/x86/include/asm/archrandom.h     |  41 +----------
+ arch/x86/kernel/espfix_64.c           |   2 +-
+ drivers/char/random.c                 |  45 ++++++++----
+ include/asm-generic/archrandom.h      |  18 +----
+ include/linux/random.h                |  12 +--
+ 11 files changed, 116 insertions(+), 188 deletions(-)
 
+diff --git a/arch/arm64/include/asm/archrandom.h b/arch/arm64/include/asm/archrandom.h
+index c3b9fa56af67..7a24fdee3e2f 100644
+--- a/arch/arm64/include/asm/archrandom.h
++++ b/arch/arm64/include/asm/archrandom.h
+@@ -58,7 +58,7 @@ static inline bool __arm64_rndrrs(unsigned long *v)
+ 	return ok;
+ }
+ 
+-static inline bool __must_check arch_get_random_long(unsigned long *v)
++static inline size_t __must_check arch_get_random_words(unsigned long *v, size_t words)
+ {
+ 	/*
+ 	 * Only support the generic interface after we have detected
+@@ -66,27 +66,15 @@ static inline bool __must_check arch_get_random_long(unsigned long *v)
+ 	 * cpufeature code and with potential scheduling between CPUs
+ 	 * with and without the feature.
+ 	 */
+-	if (cpus_have_const_cap(ARM64_HAS_RNG) && __arm64_rndr(v))
+-		return true;
+-	return false;
++	if (words && cpus_have_const_cap(ARM64_HAS_RNG) && __arm64_rndr(v))
++		return 1;
++	return 0;
+ }
+ 
+-static inline bool __must_check arch_get_random_int(unsigned int *v)
++static inline size_t __must_check arch_get_random_seed_words(unsigned long *v, size_t words)
+ {
+-	if (cpus_have_const_cap(ARM64_HAS_RNG)) {
+-		unsigned long val;
+-
+-		if (__arm64_rndr(&val)) {
+-			*v = val;
+-			return true;
+-		}
+-	}
+-	return false;
+-}
+-
+-static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+-{
+-	struct arm_smccc_res res;
++	if (!words)
++		return 0;
+ 
+ 	/*
+ 	 * We prefer the SMCCC call, since its semantics (return actual
+@@ -95,10 +83,23 @@ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ 	 * (the output of a pseudo RNG freshly seeded by a TRNG).
+ 	 */
+ 	if (smccc_trng_available) {
+-		arm_smccc_1_1_invoke(ARM_SMCCC_TRNG_RND64, 64, &res);
++		struct arm_smccc_res res;
++
++		words = min_t(size_t, 3, words);
++		arm_smccc_1_1_invoke(ARM_SMCCC_TRNG_RND64, words * 64, &res);
+ 		if ((int)res.a0 >= 0) {
+-			*v = res.a3;
+-			return true;
++			switch (words) {
++			case 3:
++				*v++ = res.a1;
++				fallthrough;
++			case 2:
++				*v++ = res.a2;
++				fallthrough;
++			case 1:
++				*v++ = res.a3;
++				break;
++			}
++			return words;
+ 		}
+ 	}
+ 
+@@ -108,32 +109,9 @@ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ 	 * enough to implement this API if no other entropy source exists.
+ 	 */
+ 	if (cpus_have_const_cap(ARM64_HAS_RNG) && __arm64_rndrrs(v))
+-		return true;
++		return 1;
+ 
+-	return false;
+-}
+-
+-static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+-{
+-	struct arm_smccc_res res;
+-	unsigned long val;
+-
+-	if (smccc_trng_available) {
+-		arm_smccc_1_1_invoke(ARM_SMCCC_TRNG_RND64, 32, &res);
+-		if ((int)res.a0 >= 0) {
+-			*v = res.a3 & GENMASK(31, 0);
+-			return true;
+-		}
+-	}
+-
+-	if (cpus_have_const_cap(ARM64_HAS_RNG)) {
+-		if (__arm64_rndrrs(&val)) {
+-			*v = val;
+-			return true;
+-		}
+-	}
+-
+-	return false;
++	return 0;
+ }
+ 
+ static inline bool __init __early_cpu_has_rndr(void)
+@@ -143,26 +121,40 @@ static inline bool __init __early_cpu_has_rndr(void)
+ 	return (ftr >> ID_AA64ISAR0_EL1_RNDR_SHIFT) & 0xf;
+ }
+ 
+-static inline bool __init __must_check
+-arch_get_random_seed_long_early(unsigned long *v)
++static inline size_t __init __must_check
++arch_get_random_seed_words_early(unsigned long *v, size_t words)
+ {
+ 	WARN_ON(system_state != SYSTEM_BOOTING);
+ 
++	if (!words)
++		return 0;
++
+ 	if (smccc_trng_available) {
+ 		struct arm_smccc_res res;
+ 
+-		arm_smccc_1_1_invoke(ARM_SMCCC_TRNG_RND64, 64, &res);
++		words = min_t(size_t, 3, words);
++		arm_smccc_1_1_invoke(ARM_SMCCC_TRNG_RND64, words * 64, &res);
+ 		if ((int)res.a0 >= 0) {
+-			*v = res.a3;
+-			return true;
++			switch (words) {
++			case 3:
++				*v++ = res.a1;
++				fallthrough;
++			case 2:
++				*v++ = res.a2;
++				fallthrough;
++			case 1:
++				*v++ = res.a3;
++				break;
++			}
++			return words;
+ 		}
+ 	}
+ 
+ 	if (__early_cpu_has_rndr() && __arm64_rndr(v))
+-		return true;
++		return 1;
+ 
+-	return false;
++	return 0;
+ }
+-#define arch_get_random_seed_long_early arch_get_random_seed_long_early
++#define arch_get_random_seed_words_early arch_get_random_seed_words_early
+ 
+ #endif /* _ASM_ARCHRANDOM_H */
+diff --git a/arch/arm64/kernel/kaslr.c b/arch/arm64/kernel/kaslr.c
+index 418b2bba1521..ed77afe16121 100644
+--- a/arch/arm64/kernel/kaslr.c
++++ b/arch/arm64/kernel/kaslr.c
+@@ -106,7 +106,7 @@ u64 __init kaslr_early_init(void)
+ 	 * and supported.
+ 	 */
+ 
+-	if (arch_get_random_seed_long_early(&raw))
++	if (arch_get_random_seed_words_early(&raw, 1))
+ 		seed ^= raw;
+ 
+ 	if (!seed) {
+diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
+index 25ba65df6b1a..bf2182f80480 100644
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -4,34 +4,16 @@
+ 
+ #include <asm/machdep.h>
+ 
+-static inline bool __must_check arch_get_random_long(unsigned long *v)
++static inline size_t __must_check arch_get_random_words(unsigned long *v, size_t words)
+ {
+-	return false;
++	return 0;
+ }
+ 
+-static inline bool __must_check arch_get_random_int(unsigned int *v)
++static inline size_t __must_check arch_get_random_seed_words(unsigned long *v, size_t words)
+ {
+-	return false;
+-}
+-
+-static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+-{
+-	if (ppc_md.get_random_seed)
+-		return ppc_md.get_random_seed(v);
+-
+-	return false;
+-}
+-
+-static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+-{
+-	unsigned long val;
+-	bool rc;
+-
+-	rc = arch_get_random_seed_long(&val);
+-	if (rc)
+-		*v = val;
+-
+-	return rc;
++	if (words && ppc_md.get_random_seed && ppc_md.get_random_seed(v))
++		return 1;
++	return 0;
+ }
+ 
+ #ifdef CONFIG_PPC_POWERNV
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index e08fb3124dca..18b2d80996b6 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -1207,7 +1207,7 @@ int kvmppc_pseries_do_hcall(struct kvm_vcpu *vcpu)
+ 		break;
+ #endif
+ 	case H_RANDOM:
+-		if (!arch_get_random_seed_long(&vcpu->arch.regs.gpr[4]))
++		if (!arch_get_random_seed_words(&vcpu->arch.regs.gpr[4], 1))
+ 			ret = H_HARDWARE;
+ 		break;
+ 	case H_RPT_INVALIDATE:
+diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
+index 0a1c2e66c709..29f1a9bc3867 100644
+--- a/arch/s390/include/asm/archrandom.h
++++ b/arch/s390/include/asm/archrandom.h
+@@ -18,34 +18,19 @@
+ DECLARE_STATIC_KEY_FALSE(s390_arch_random_available);
+ extern atomic64_t s390_arch_random_counter;
+ 
+-static inline bool __must_check arch_get_random_long(unsigned long *v)
++static inline size_t __must_check arch_get_random_words(unsigned long *v, size_t words)
+ {
+-	return false;
++	return 0;
+ }
+ 
+-static inline bool __must_check arch_get_random_int(unsigned int *v)
+-{
+-	return false;
+-}
+-
+-static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+-{
+-	if (static_branch_likely(&s390_arch_random_available)) {
+-		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+-		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+-		return true;
+-	}
+-	return false;
+-}
+-
+-static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
++static inline size_t __must_check arch_get_random_seed_words(unsigned long *v, size_t words)
+ {
+ 	if (static_branch_likely(&s390_arch_random_available)) {
+-		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+-		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+-		return true;
++		cpacf_trng(NULL, 0, (u8 *)v, words * sizeof(*v));
++		atomic64_add(words * sizeof(*v), &s390_arch_random_counter);
++		return words;
+ 	}
+-	return false;
++	return 0;
+ }
+ 
+ #endif /* _ASM_S390_ARCHRANDOM_H */
+diff --git a/arch/um/include/asm/archrandom.h b/arch/um/include/asm/archrandom.h
+index 2f24cb96391d..6bcbd47fcb62 100644
+--- a/arch/um/include/asm/archrandom.h
++++ b/arch/um/include/asm/archrandom.h
+@@ -7,24 +7,19 @@
+ /* This is from <os.h>, but better not to #include that in a global header here. */
+ ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
+ 
+-static inline bool __must_check arch_get_random_long(unsigned long *v)
++static inline size_t __must_check arch_get_random_words(unsigned long *v, size_t words)
+ {
+-	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
+-}
++	ssize_t ret;
+ 
+-static inline bool __must_check arch_get_random_int(unsigned int *v)
+-{
+-	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
+-}
+-
+-static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+-{
+-	return false;
++	ret = os_getrandom(v, words * sizeof(*v), 0);
++	if (ret < 0)
++		return 0;
++	return ret / sizeof(*v);
+ }
+ 
+-static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
++static inline size_t __must_check arch_get_random_seed_words(unsigned long *v, size_t words)
+ {
+-	return false;
++	return 0;
+ }
+ 
+ #endif
+diff --git a/arch/x86/include/asm/archrandom.h b/arch/x86/include/asm/archrandom.h
+index fb235b696175..a1717b81d876 100644
+--- a/arch/x86/include/asm/archrandom.h
++++ b/arch/x86/include/asm/archrandom.h
+@@ -31,20 +31,6 @@ static inline bool __must_check rdrand_long(unsigned long *v)
+ 	return false;
+ }
+ 
+-static inline bool __must_check rdrand_int(unsigned int *v)
+-{
+-	bool ok;
+-	unsigned int retry = RDRAND_RETRY_LOOPS;
+-	do {
+-		asm volatile("rdrand %[out]"
+-			     CC_SET(c)
+-			     : CC_OUT(c) (ok), [out] "=r" (*v));
+-		if (ok)
+-			return true;
+-	} while (--retry);
+-	return false;
+-}
+-
+ static inline bool __must_check rdseed_long(unsigned long *v)
+ {
+ 	bool ok;
+@@ -54,38 +40,19 @@ static inline bool __must_check rdseed_long(unsigned long *v)
+ 	return ok;
+ }
+ 
+-static inline bool __must_check rdseed_int(unsigned int *v)
+-{
+-	bool ok;
+-	asm volatile("rdseed %[out]"
+-		     CC_SET(c)
+-		     : CC_OUT(c) (ok), [out] "=r" (*v));
+-	return ok;
+-}
+-
+ /*
+  * These are the generic interfaces; they must not be declared if the
+  * stubs in <linux/random.h> are to be invoked.
+  */
+ 
+-static inline bool __must_check arch_get_random_long(unsigned long *v)
+-{
+-	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_long(v) : false;
+-}
+-
+-static inline bool __must_check arch_get_random_int(unsigned int *v)
+-{
+-	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_int(v) : false;
+-}
+-
+-static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
++static inline size_t __must_check arch_get_random_words(unsigned long *v, size_t words)
+ {
+-	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_long(v) : false;
++	return words && static_cpu_has(X86_FEATURE_RDRAND) && rdrand_long(v) ? 1 : 0;
+ }
+ 
+-static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
++static inline size_t __must_check arch_get_random_seed_words(unsigned long *v, size_t words)
+ {
+-	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_int(v) : false;
++	return words && static_cpu_has(X86_FEATURE_RDSEED) && rdseed_long(v) ? 1 : 0;
+ }
+ 
+ #ifndef CONFIG_UML
+diff --git a/arch/x86/kernel/espfix_64.c b/arch/x86/kernel/espfix_64.c
+index 4fe7af58cfe1..f46c9ff3c0d4 100644
+--- a/arch/x86/kernel/espfix_64.c
++++ b/arch/x86/kernel/espfix_64.c
+@@ -100,7 +100,7 @@ static void init_espfix_random(void)
+ 	 * This is run before the entropy pools are initialized,
+ 	 * but this is hopefully better than nothing.
+ 	 */
+-	if (!arch_get_random_long(&rand)) {
++	if (!arch_get_random_words(&rand, 1)) {
+ 		/* The constant is an arbitrary large prime */
+ 		rand = rdtsc();
+ 		rand *= 0xc345c6b72fd16123UL;
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 0c6568ae5f68..70d8d1d7e2d7 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -596,12 +596,20 @@ static void extract_entropy(void *buf, size_t len)
+ 		unsigned long rdseed[32 / sizeof(long)];
+ 		size_t counter;
+ 	} block;
+-	size_t i;
++	size_t i, words;
+ 
+-	for (i = 0; i < ARRAY_SIZE(block.rdseed); ++i) {
+-		if (!arch_get_random_seed_long(&block.rdseed[i]) &&
+-		    !arch_get_random_long(&block.rdseed[i]))
+-			block.rdseed[i] = random_get_entropy();
++	for (i = 0; i < ARRAY_SIZE(block.rdseed);) {
++		words = arch_get_random_seed_words(&block.rdseed[i], ARRAY_SIZE(block.rdseed) - i);
++		if (words) {
++			i += words;
++			continue;
++		}
++		words = arch_get_random_words(&block.rdseed[i], ARRAY_SIZE(block.rdseed) - i);
++		if (words) {
++			i += words;
++			continue;
++		}
++		block.rdseed[i++] = random_get_entropy();
+ 	}
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+@@ -776,22 +784,31 @@ static struct notifier_block pm_notifier = { .notifier_call = random_pm_notifica
+ int __init random_init(const char *command_line)
+ {
+ 	ktime_t now = ktime_get_real();
+-	unsigned int i, arch_bits;
+-	unsigned long entropy;
++	size_t i, words, arch_bits;
++	unsigned long entropy[BLAKE2S_BLOCK_SIZE / sizeof(long)];
+ 
+ #if defined(LATENT_ENTROPY_PLUGIN)
+ 	static const u8 compiletime_seed[BLAKE2S_BLOCK_SIZE] __initconst __latent_entropy;
+ 	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
+ #endif
+ 
+-	for (i = 0, arch_bits = BLAKE2S_BLOCK_SIZE * 8;
+-	     i < BLAKE2S_BLOCK_SIZE; i += sizeof(entropy)) {
+-		if (!arch_get_random_seed_long_early(&entropy) &&
+-		    !arch_get_random_long_early(&entropy)) {
+-			entropy = random_get_entropy();
+-			arch_bits -= sizeof(entropy) * 8;
++	for (i = 0, arch_bits = sizeof(entropy) * 8; i < ARRAY_SIZE(entropy);) {
++		words = arch_get_random_seed_words(entropy, ARRAY_SIZE(entropy) - i);
++		if (words) {
++			_mix_pool_bytes(entropy, sizeof(*entropy) * words);
++			i += words;
++			continue;
+ 		}
+-		_mix_pool_bytes(&entropy, sizeof(entropy));
++		words = arch_get_random_words(entropy, ARRAY_SIZE(entropy) - i);
++		if (words) {
++			_mix_pool_bytes(entropy, sizeof(*entropy) * words);
++			i += words;
++			continue;
++		}
++		entropy[0] = random_get_entropy();
++		_mix_pool_bytes(entropy, sizeof(*entropy));
++		arch_bits -= sizeof(*entropy) * 8;
++		++i;
+ 	}
+ 	_mix_pool_bytes(&now, sizeof(now));
+ 	_mix_pool_bytes(utsname(), sizeof(*(utsname())));
+diff --git a/include/asm-generic/archrandom.h b/include/asm-generic/archrandom.h
+index 3a5ee202dd86..ae618916c74c 100644
+--- a/include/asm-generic/archrandom.h
++++ b/include/asm-generic/archrandom.h
+@@ -2,24 +2,14 @@
+ #ifndef __ASM_GENERIC_ARCHRANDOM_H__
+ #define __ASM_GENERIC_ARCHRANDOM_H__
+ 
+-static inline bool __must_check arch_get_random_long(unsigned long *v)
++static inline size_t __must_check arch_get_random_words(unsigned long *v, size_t words)
+ {
+-	return false;
++	return 0;
+ }
+ 
+-static inline bool __must_check arch_get_random_int(unsigned int *v)
++static inline size_t __must_check arch_get_random_seed_words(unsigned long *v, size_t words)
+ {
+-	return false;
+-}
+-
+-static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+-{
+-	return false;
+-}
+-
+-static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+-{
+-	return false;
++	return 0;
+ }
+ 
+ #endif
+diff --git a/include/linux/random.h b/include/linux/random.h
+index 865770e29f3e..0a327a289f09 100644
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -112,19 +112,19 @@ declare_get_random_var_wait(long, unsigned long)
+  * Called from the boot CPU during startup; not valid to call once
+  * secondary CPUs are up and preemption is possible.
+  */
+-#ifndef arch_get_random_seed_long_early
+-static inline bool __init arch_get_random_seed_long_early(unsigned long *v)
++#ifndef arch_get_random_seed_words_early
++static inline size_t __init arch_get_random_seed_words_early(unsigned long *v, size_t words)
+ {
+ 	WARN_ON(system_state != SYSTEM_BOOTING);
+-	return arch_get_random_seed_long(v);
++	return arch_get_random_seed_words(v, words);
+ }
+ #endif
+ 
+-#ifndef arch_get_random_long_early
+-static inline bool __init arch_get_random_long_early(unsigned long *v)
++#ifndef arch_get_random_words_early
++static inline bool __init arch_get_random_words_early(unsigned long *v, size_t words)
+ {
+ 	WARN_ON(system_state != SYSTEM_BOOTING);
+-	return arch_get_random_long(v);
++	return arch_get_random_words(v, words);
+ }
+ #endif
+ 
 -- 
-Sumanth
+2.35.1
+
