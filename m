@@ -2,63 +2,62 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C5B5C43334
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 13:42:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3561CC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 13:42:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234666AbiGRNmJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S234598AbiGRNmJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Mon, 18 Jul 2022 09:42:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36198 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234517AbiGRNmB (ORCPT
+        with ESMTP id S234524AbiGRNmB (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 09:42:01 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352C9205EF;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79180205F8;
         Mon, 18 Jul 2022 06:42:00 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26ID4Yqw010853;
-        Mon, 18 Jul 2022 13:41:54 GMT
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26IDN1je031402;
+        Mon, 18 Jul 2022 13:41:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=z3tJjdpL0+XtAbdTT02pUJH7mrIRQOS4RQYVy9mn/+I=;
- b=cTf7/sOlWyDN/lzV78asG0qmDk+n48znGE8sOBQbr6JLzn4G3WEBVY5rrMTp8o3MkSmi
- CSLck0DhMoSFo5/Yu1xe8x4w0oxFUHfXrP5QQSy+A/DiLPgTNLiFLbU3hKQgqaaZuwEK
- xnIdrOYLIXJrTarQ7OJlpMO4AhFb9BIbZ6X++BjJ1JBQ83FPQ+C5RkD5aeQzDZXnUhJV
- 2tOH1BrMERNzjy6QaUrW4ZmjfhkE83JpbQXlgKzEFjrB2DmsRq2HY6vo1jxJaTMQRZVn
- APSKC8Ucagv3pG+RLyANUSal58NgtoSlXmtbpGdHZU5OiU5jFcbFZUbhFyz+wjpR5TKW 3A== 
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=FPy+DYCthLkQP4vs5sUDtj7RP5kqgPiS+tdgo1D1oxE=;
+ b=FVCYPaWGIhoxvHw2hTxYlsxV5sWSNhb6jCd+Jy8Ol8Z8tOYIO0tP2XrSoMubKzLvBCSU
+ H0wAwLK+l/1cHqN93YNKJbNl6X2Xh0jyvW8KnL7rxMtEwsNeOtLndgB9SueULFxrFqxp
+ V6KYtGwgtE7Kky/wDojhTSUFWfXUI0YE15wLglHBcpjmr78ojbnZdTlJYV3HPrdwEL/C
+ /f05rBuTeMRI/lygV5/vziUH7NP4jV8l/K0315RZFcLj4ymXKblbNdvsFJTFsUTloT9b
+ OU7UCctyACy2SZA17yJEku7N/bu0tJXofohQFC+ax/UKVNpKfYleSvAxLH71UvCqgu+u Pw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hd8371q7v-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hd8bw0upn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 Jul 2022 13:41:52 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26ID4oUg017721;
-        Mon, 18 Jul 2022 13:41:43 GMT
+        Mon, 18 Jul 2022 13:41:53 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26IDPxpu011600;
+        Mon, 18 Jul 2022 13:41:40 GMT
 Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hd8371pg6-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hd8bw0u3h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 Jul 2022 13:41:43 +0000
+        Mon, 18 Jul 2022 13:41:40 +0000
 Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26IDLXsV005080;
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26IDKQF8004421;
         Mon, 18 Jul 2022 13:41:27 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3hbmy8j1ag-1
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04fra.de.ibm.com with ESMTP id 3hbmy8j1ah-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 Jul 2022 13:41:27 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26IDfNns16777598
+        Mon, 18 Jul 2022 13:41:26 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26IDfNok18874710
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Mon, 18 Jul 2022 13:41:23 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9F8CC42041;
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9EA8411C069;
         Mon, 18 Jul 2022 13:41:23 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8B6C14203F;
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8CD3811C064;
         Mon, 18 Jul 2022 13:41:23 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
         Mon, 18 Jul 2022 13:41:23 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-        id 7293FE02A8; Mon, 18 Jul 2022 15:32:41 +0200 (CEST)
+        id 6DE64E01D7; Mon, 18 Jul 2022 15:32:41 +0200 (CEST)
 From:   Alexander Gordeev <agordeev@linux.ibm.com>
 To:     Matthew Wilcox <willy@infradead.org>,
         Alexander Egorenkov <egorenar@linux.ibm.com>,
@@ -67,83 +66,57 @@ Cc:     Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Al Viro <viro@zeniv.linux.org.uk>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v3 2/3] s390/crash: use static swap buffer for copy_to_user_real()
-Date:   Mon, 18 Jul 2022 15:32:40 +0200
-Message-Id: <77d50b4a2359d1791835b6111edaa155eb11c5ea.1658148067.git.agordeev@linux.ibm.com>
+Subject: [PATCH v3 0/3] s390/crash: support multi-segment iterators
+Date:   Mon, 18 Jul 2022 15:32:38 +0200
+Message-Id: <cover.1658148067.git.agordeev@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1658148067.git.agordeev@linux.ibm.com>
-References: <cover.1658148067.git.agordeev@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mnfQqe1d_wwsOKUeIcZD9zKGoEoT8pNW
-X-Proofpoint-GUID: KeznBNHQoCe01GpFto3CN86eUVD_w23B
+X-Proofpoint-GUID: 3QtOpRPL_YcJt0TJb1QrmJDg6qiPeZVb
+X-Proofpoint-ORIG-GUID: M3jVHJ3tNiOSDZM-P796BAXY_X_xJWEU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-18_12,2022-07-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- bulkscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0 spamscore=0
- mlxlogscore=999 phishscore=0 adultscore=0 priorityscore=1501 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
- definitions=main-2207180058
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 adultscore=0 spamscore=0 impostorscore=0 mlxscore=0
+ bulkscore=0 mlxlogscore=999 malwarescore=0 lowpriorityscore=0
+ suspectscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2206140000 definitions=main-2207180058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Currently a temporary page-size buffer is allocated for copying
-oldmem to user space. That limits copy_to_user_real() operation
-only to stages when virtual memory is available and still makes
-it possible to fail while the system is being dumped.
+Hi Matthew et al,
 
-Instead of reallocating single page on each copy_oldmem_page()
-iteration use a statically allocated buffer.
+This series completes 5d8de293c224 ("vmcore: convert copy_oldmem_page() to
+take an iov_iter") for s390.
 
-This also paves the way for a further memcpy_real() rework where
-no swap buffer is needed altogether.
+@Matthew,
+  Please, let me know if you are not okay with Suggested-by tag in patch 3.
 
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
----
- arch/s390/kernel/crash_dump.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+Changes since v2:
+  - Matthew Wilcox suggestion is adopted, with that...
+  - copy_to_iter() is used instead of custom implementation;
 
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 8d7332d4444c..fd9fe93e48b6 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -53,6 +53,7 @@ struct save_area {
- };
- 
- static LIST_HEAD(dump_save_areas);
-+static char memcpy_real_buf[PAGE_SIZE];
- 
- /*
-  * Allocate a save area
-@@ -179,23 +180,18 @@ int copy_oldmem_kernel(void *dst, unsigned long src, size_t count)
- static int copy_to_user_real(void __user *dest, unsigned long src, unsigned long count)
- {
- 	int offs = 0, size, rc;
--	char *buf;
- 
--	buf = (char *)__get_free_page(GFP_KERNEL);
--	if (!buf)
--		return -ENOMEM;
- 	rc = -EFAULT;
- 	while (offs < count) {
- 		size = min(PAGE_SIZE, count - offs);
--		if (memcpy_real(buf, src + offs, size))
-+		if (memcpy_real(memcpy_real_buf, src + offs, size))
- 			goto out;
--		if (copy_to_user(dest + offs, buf, size))
-+		if (copy_to_user(dest + offs, memcpy_real_buf, size))
- 			goto out;
- 		offs += size;
- 	}
- 	rc = 0;
- out:
--	free_page((unsigned long)buf);
- 	return rc;
- }
- 
+Changes since v1:
+  - number of bytes left to copy on fail fixed;
+
+Thanks!
+
+Alexander Gordeev (3):
+  s390/crash: move copy_to_user_real() to crash_dump.c
+  s390/crash: use static swap buffer for copy_to_user_real()
+  s390/crash: support multi-segment iterators
+
+ arch/s390/include/asm/os_info.h |  17 ++++-
+ arch/s390/include/asm/sclp.h    |   4 +-
+ arch/s390/include/asm/uaccess.h |   1 -
+ arch/s390/kernel/crash_dump.c   | 111 +++++++-------------------------
+ arch/s390/mm/maccess.c          |  26 --------
+ drivers/s390/char/zcore.c       |  59 +++++++----------
+ 6 files changed, 65 insertions(+), 153 deletions(-)
+
 -- 
 2.34.1
 
