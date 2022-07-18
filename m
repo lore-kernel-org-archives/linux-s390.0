@@ -2,69 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D66E0C43334
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 12:38:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF495C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 12:45:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233637AbiGRMiq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Jul 2022 08:38:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57424 "EHLO
+        id S235131AbiGRMph (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Jul 2022 08:45:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230249AbiGRMip (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 08:38:45 -0400
-Received: from smtpbg.qq.com (biz-43-154-54-12.mail.qq.com [43.154.54.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F08CA463;
-        Mon, 18 Jul 2022 05:38:40 -0700 (PDT)
-X-QQ-mid: bizesmtp90t1658147897tcggymxm
-Received: from localhost.localdomain ( [171.223.96.21])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Mon, 18 Jul 2022 20:38:15 +0800 (CST)
-X-QQ-SSF: 01000000002000E0U000C00A0000020
-X-QQ-FEAT: lp8jUtqYSiDdRSj78y6Q9aGn5VjwF/dx4jHhwpgxYRE0Sf/tq9V596ETLvsJy
-        U4zpB334unK4JNHyW4wBx6YgA/TM0Dl1Gyma9jjQJDIQd+8iD6ihzpQEJrJQaCQ3RiOvk+O
-        2SHV+kMJaP68oZfZUKK3aHfglcztl2aED8aDMXuQbFqxS+xjVihWZ357V3eo1Ly0iGpo3Qn
-        eMuTj11tQ8wLWDSyCSAmcZdqreEEkcFpZQobMZsCapt001Bjlo94ld8t6TTHhqeTLD4LJ7e
-        CVjS0jf48HgkSxK7RrFmj3Ql4F1hj3v1IkWYA2O7sHagWqs9NqSRvruGvDwNN6bv1qWgDwR
-        F/ZtYb35sp/5Cnl7qV7mwCOoE9nup1M/OQ2vcC0VrpZyUpVS/mPhur31LkWdfDudsEvwHBx
-        N6ly0IIiugM=
-X-QQ-GoodBg: 0
-From:   Jason Wang <wangborong@cdjrlc.com>
-To:     svens@linux.ibm.com
-Cc:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Jason Wang <wangborong@cdjrlc.com>
-Subject: [PATCH] s390/delay: Fix comment typo
-Date:   Fri, 15 Jul 2022 12:36:10 +0800
-Message-Id: <20220715043610.17229-1-wangborong@cdjrlc.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S235156AbiGRMpf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 08:45:35 -0400
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C45AB9C;
+        Mon, 18 Jul 2022 05:45:33 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VJlyRhm_1658148329;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VJlyRhm_1658148329)
+          by smtp.aliyun-inc.com;
+          Mon, 18 Jul 2022 20:45:30 +0800
+Date:   Mon, 18 Jul 2022 20:45:28 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v2 0/6] net/smc: Introduce virtually contiguous
+ buffers for SMC-R
+Message-ID: <YtVV6IWF0cKxJaWe@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <1657791845-1060-1-git-send-email-guwen@linux.alibaba.com>
+ <345053d6-5ecb-066d-8eeb-7637da1d7370@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:cdjrlc.com:qybglogicsvr:qybglogicsvr6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <345053d6-5ecb-066d-8eeb-7637da1d7370@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The double `that' is duplicated in line 19, remove one.
+On Thu, Jul 14, 2022 at 05:16:47PM +0200, Wenjia Zhang wrote:
+> 
+> 
+> On 14.07.22 11:43, Wen Gu wrote:
+> > On long-running enterprise production servers, high-order contiguous
+> > memory pages are usually very rare and in most cases we can only get
+> > fragmented pages.
+> > 
+> > When replacing TCP with SMC-R in such production scenarios, attempting
+> > to allocate high-order physically contiguous sndbufs and RMBs may result
+> > in frequent memory compaction, which will cause unexpected hung issue
+> > and further stability risks.
+> > 
+> > So this patch set is aimed to allow SMC-R link group to use virtually
+> > contiguous sndbufs and RMBs to avoid potential issues mentioned above.
+> > Whether to use physically or virtually contiguous buffers can be set
+> > by sysctl smcr_buf_type.
+> > 
+> > Note that using virtually contiguous buffers will bring an acceptable
+> > performance regression, which can be mainly divided into two parts:
+> > 
+> > 1) regression in data path, which is brought by additional address
+> >     translation of sndbuf by RNIC in Tx. But in general, translating
+> >     address through MTT is fast. According to qperf test, this part
+> >     regression is basically less than 10% in latency and bandwidth.
+> >     (see patch 5/6 for details)
+> > 
+> > 2) regression in buffer initialization and destruction path, which is
+> >     brought by additional MR operations of sndbufs. But thanks to link
+> >     group buffer reuse mechanism, the impact of this kind of regression
+> >     decreases as times of buffer reuse increases.
+> > 
+> > Patch set overview:
+> > - Patch 1/6 and 2/6 mainly about simplifying and optimizing DMA sync
+> >    operation, which will reduce overhead on the data path, especially
+> >    when using virtually contiguous buffers;
+> > - Patch 3/6 and 4/6 introduce a sysctl smcr_buf_type to set the type
+> >    of buffers in new created link group;
+> > - Patch 5/6 allows SMC-R to use virtually contiguous sndbufs and RMBs,
+> >    including buffer creation, destruction, MR operation and access;
+> > - patch 6/6 extends netlink attribute for buffer type of SMC-R link group;
+> > 
+> > v1->v2:
+> > - Patch 5/6 fixes build issue on 32bit;
+> > - Patch 3/6 adds description of new sysctl in smc-sysctl.rst;
+> > 
+> > Guangguan Wang (2):
+> >    net/smc: remove redundant dma sync ops
+> >    net/smc: optimize for smc_sndbuf_sync_sg_for_device and
+> >      smc_rmb_sync_sg_for_cpu
+> > 
+> > Wen Gu (4):
+> >    net/smc: Introduce a sysctl for setting SMC-R buffer type
+> >    net/smc: Use sysctl-specified types of buffers in new link group
+> >    net/smc: Allow virtually contiguous sndbufs or RMBs for SMC-R
+> >    net/smc: Extend SMC-R link group netlink attribute
+> > 
+> >   Documentation/networking/smc-sysctl.rst |  13 ++
+> >   include/net/netns/smc.h                 |   1 +
+> >   include/uapi/linux/smc.h                |   1 +
+> >   net/smc/af_smc.c                        |  68 +++++++--
+> >   net/smc/smc_clc.c                       |   8 +-
+> >   net/smc/smc_clc.h                       |   2 +-
+> >   net/smc/smc_core.c                      | 246 +++++++++++++++++++++-----------
+> >   net/smc/smc_core.h                      |  20 ++-
+> >   net/smc/smc_ib.c                        |  44 +++++-
+> >   net/smc/smc_ib.h                        |   2 +
+> >   net/smc/smc_llc.c                       |  33 +++--
+> >   net/smc/smc_rx.c                        |  92 +++++++++---
+> >   net/smc/smc_sysctl.c                    |  11 ++
+> >   net/smc/smc_tx.c                        |  10 +-
+> >   14 files changed, 404 insertions(+), 147 deletions(-)
+> > 
+> This idea is very cool! Thank you for your effort! But we still need to
+> verify if this solution can run well on our system. I'll come to you soon.
 
-Signed-off-by: Jason Wang <wangborong@cdjrlc.com>
----
- arch/s390/lib/delay.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi Wenjia,
 
-diff --git a/arch/s390/lib/delay.c b/arch/s390/lib/delay.c
-index f7f5adea8940..c32bc8f7c1fd 100644
---- a/arch/s390/lib/delay.c
-+++ b/arch/s390/lib/delay.c
-@@ -16,7 +16,7 @@ void __delay(unsigned long loops)
-         /*
-          * To end the bloody studid and useless discussion about the
-          * BogoMips number I took the liberty to define the __delay
--         * function in a way that that resulting BogoMips number will
-+         * function in a way that resulting BogoMips number will
-          * yield the megahertz number of the cpu. The important function
-          * is udelay and that is done using the tod clock. -- martin.
-          */
--- 
-2.35.1
+We have noticed that SMC community is becoming more active recently.
+More and more companies have shown their interests in SMC.
+Correspondingly, patches are also increasing. We (Alibaba) are trying to
+apply SMC into cloud production environment, extending its abilities and
+enhancing the performance. We also contributed some work to community in
+the past period of time. So we are more than happy to help review SMC
+patches together. If you need, we are very glad to be reviewers to share
+the review work.
 
+Hope to hear from you, thank you.
 
+Best wishes,
+Tony Lu
