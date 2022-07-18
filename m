@@ -2,112 +2,131 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39D74C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 06:55:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7443C43334
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 08:22:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233537AbiGRGzY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Jul 2022 02:55:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34440 "EHLO
+        id S233800AbiGRIWa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Jul 2022 04:22:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233301AbiGRGzW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 02:55:22 -0400
-X-Greylist: delayed 324 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 17 Jul 2022 23:55:20 PDT
-Received: from mx02.puc.rediris.es (outbound1sev.lav.puc.rediris.es [130.206.19.169])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A6EE13D78;
-        Sun, 17 Jul 2022 23:55:20 -0700 (PDT)
-Received: from mta-out02.sim.rediris.es (mta-out02.sim.rediris.es [130.206.24.44])
-        by mx02.puc.rediris.es  with ESMTP id 26I6l6DX004035-26I6l6DZ004035
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Mon, 18 Jul 2022 08:47:07 +0200
-Received: from mta-out02.sim.rediris.es (localhost.localdomain [127.0.0.1])
-        by mta-out02.sim.rediris.es (Postfix) with ESMTPS id E2B90C0F386;
-        Mon, 18 Jul 2022 08:47:04 +0200 (CEST)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mta-out02.sim.rediris.es (Postfix) with ESMTP id 9D9D7C17E64;
-        Mon, 18 Jul 2022 08:47:03 +0200 (CEST)
-X-Amavis-Modified: Mail body modified (using disclaimer) -
-        mta-out02.sim.rediris.es
-Received: from mta-out02.sim.rediris.es ([127.0.0.1])
-        by localhost (mta-out02.sim.rediris.es [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 9qTGP4eSaCwO; Mon, 18 Jul 2022 08:47:03 +0200 (CEST)
-Received: from lt-gp.iram.es (haproxy02.sim.rediris.es [130.206.24.70])
-        by mta-out02.sim.rediris.es (Postfix) with ESMTPA id 625F7C0F386;
-        Mon, 18 Jul 2022 08:46:57 +0200 (CEST)
-Date:   Mon, 18 Jul 2022 08:46:52 +0200
-From:   Gabriel Paubert <paubert@iram.es>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        x86@kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Borislav Petkov <bp@suse.de>, Will Deacon <will@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v2] random: handle archrandom in plural words
-Message-ID: <YtUB3Iola9R0OwN6@lt-gp.iram.es>
-References: <YtP1+MJ1tNdJA60l@zx2c4.com>
- <20220717200356.75060-1-Jason@zx2c4.com>
- <87a697dj9s.fsf@mpe.ellerman.id.au>
+        with ESMTP id S233786AbiGRIW1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 04:22:27 -0400
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1623F1900B;
+        Mon, 18 Jul 2022 01:22:27 -0700 (PDT)
+Received: by mail-qv1-f43.google.com with SMTP id r12so8265037qvm.3;
+        Mon, 18 Jul 2022 01:22:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EQibuB+HRd3lrCPdCHjd5Kptvz7t3wE5RCUTUbzpTH8=;
+        b=NlrPf2Ceni4K+B8ZD1iIzmYW1ljlu/GQcpa6Y3gFvAEaIHCjBYn7M1oR+PFH5bcPDa
+         xSib4vCYKrPj8UNxVwnSTIZLLYk8loGs2ZBxMfYJtNSXFdIe4X/Sxh3hn1PzosQfelLr
+         4wqLNYa48Teo2Ki0Ds2Arv7Uod1adopX4O2hf7Q0Ci4L3i89RJFrb6eos3ll9FZFx3xO
+         t810/hkl9gCfwNzHJ/wIZei+4U7dWLRdx4MtO9mwAT0v9v9rZUI44l+3T3Dl2826C4Fz
+         xuUDf0xaTlhz577ronNrkv0PjQI5nrIANMbO06qX95a6vdMVFA9OEcafXDJXUBd/iLHo
+         KpQw==
+X-Gm-Message-State: AJIora8fB2I1YbexVYBV1YUtiOStH48WSbMTLrE4T9Pb4rNRowUrHP9Y
+        OaMI8kEuTELK8B7yeXr32Ss3i+NbJv68vA==
+X-Google-Smtp-Source: AGRyM1v0AfWpISYzwGkWUx12otwWQtC3/XMcNcCr45toH8/q0KPo9Daexw3wlSCj/xaFjYR96YafYQ==
+X-Received: by 2002:a05:6214:2aa1:b0:473:2cc2:63e with SMTP id js1-20020a0562142aa100b004732cc2063emr20457565qvb.26.1658132546301;
+        Mon, 18 Jul 2022 01:22:26 -0700 (PDT)
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com. [209.85.128.173])
+        by smtp.gmail.com with ESMTPSA id bk34-20020a05620a1a2200b006af1f0af045sm10390047qkb.107.2022.07.18.01.22.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 Jul 2022 01:22:26 -0700 (PDT)
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-31bf3656517so98859317b3.12;
+        Mon, 18 Jul 2022 01:22:25 -0700 (PDT)
+X-Received: by 2002:a81:5404:0:b0:31c:c24d:94b0 with SMTP id
+ i4-20020a815404000000b0031cc24d94b0mr28386378ywb.502.1658132545091; Mon, 18
+ Jul 2022 01:22:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87a697dj9s.fsf@mpe.ellerman.id.au>
-X-FE-Policy-ID: 23:8:4:SYSTEM
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; d=iram.es; s=DKIM; c=relaxed/relaxed;
- h=date:from:to:cc:subject:message-id:references:mime-version:content-type;
- bh=Wg38rCj2x4YYjxQL6BVoKGWVRrD69jESiDVvF8U5xmg=;
- b=W+WzCvv0eeULltUer/AJgfAyg3adRlOqeJJCwsrUFP/G/1bkoAxquvG21QbEnxEpYRVTkoFuvkrF
-        pFNh8TEZdk4pCeDgow0o89jeSjCXtkmJXgaFKDx1itCdOomjBrRbgIeQKUrq8tmiKY1Z5NkfmwGQ
-        155G1h9LL3VMAGWQLv70SdVbh1DkWNIn1mUnMGUmaWmypGQt5UH6NJoiEwPM3hbYPxWOIVkKFHUf
-        E5xXAs1ZvUL2DL1A1D19oeXmI5r8n7qPsXGAh86o8d4DDP7UwdPlWaVPIoson7YntX3H6FrX2DAa
-        27+DFutwLm3R/a3QqGl8Dt0uQsGYqS+KPGbBow==
+References: <20220718004114.3925745-1-shorne@gmail.com> <20220718004114.3925745-2-shorne@gmail.com>
+In-Reply-To: <20220718004114.3925745-2-shorne@gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 18 Jul 2022 10:22:13 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdVP=1ovo62oXaOXT4ipA9Qb61XQ1e4XVVi1gEi+s+wtTQ@mail.gmail.com>
+Message-ID: <CAMuHMdVP=1ovo62oXaOXT4ipA9Qb61XQ1e4XVVi1gEi+s+wtTQ@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] asm-generic: Remove pci.h copying remaining code
+ to x86
+To:     Stafford Horne <shorne@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Nick Child <nick.child@ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jul 18, 2022 at 04:31:11PM +1000, Michael Ellerman wrote:
-> "Jason A. Donenfeld" <Jason@zx2c4.com> writes:
-> > The archrandom interface was originally designed for x86, which supplies
-> > RDRAND/RDSEED for receiving random words into registers, resulting in
-> > one function to generate an int and another to generate a long. However,
-> > other architectures don't follow this.
-> >
-> > On arm64, the SMCCC TRNG interface can return between 1 and 3 words. On
-> > s390, the CPACF TRNG interface can return between 1 and 32 words for the
-> > same cost as for one word. On UML, the os_getrandom() interface can return
-> > arbitrary amounts.
-> >
-> > So change the api signature to take a "words" parameter designating the
-> > maximum number of words requested, and then return the number of words
-> > generated.
-> 
-> On powerpc a word is 32-bits and a doubleword is 64-bits (at least
-> according to the ISA). I think that's also true on other 64-bit
-> architectures.
+On Mon, Jul 18, 2022 at 2:41 AM Stafford Horne <shorne@gmail.com> wrote:
+> The generic pci.h header now only provides a definition of
+> pci_get_legacy_ide_irq which is used by architectures that support PNP.
+> Of the architectures that use asm-generic/pci.h this is only x86.
+>
+> This patch removes the old pci.h in order to make room for a new
+> pci.h to be used by arm64, riscv, openrisc, etc.
+>
+> The existing code in pci.h is moved out to x86.  On other architectures
+> we clean up any outstanding references.
+>
+> Suggested-by: Arnd Bergmann <arnd@arndb.de>
+> Link: https://lore.kernel.org/lkml/CAK8P3a0JmPeczfmMBE__vn=Jbvf=nkbpVaZCycyv40pZNCJJXQ@mail.gmail.com/
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+> Since v2:
+>  - Remove pci_get_legacy_ide_irq in m68k
+> Since v1:
+>  - Remove pci_get_legacy_ide_irq for most architectures as its not needed.
 
-IIRC, this is (or was) not the case on Alpha, where word was defined as
-16 bits. All assembly mnemonics had w for 16 bits, l for 32 bits, and q
-for 64 bits.
+>  arch/m68k/include/asm/pci.h    |  2 --
 
-Blame the PDP-11...
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-	Gabriel
+Gr{oetje,eeting}s,
 
-> 
-> You could avoid any confusion by defining the API in terms of "longs"
-> rather than "words".
-> 
-> But that's just a comment, see what others think.
-> 
-> >  arch/powerpc/include/asm/archrandom.h |  30 ++------
-> >  arch/powerpc/kvm/book3s_hv.c          |   2 +-
-> 
-> Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-> 
-> cheers
- 
+                        Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
