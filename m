@@ -2,153 +2,211 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 830D9CCA485
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 08:40:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41A0FC43334
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 08:56:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233981AbiGRIk6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Jul 2022 04:40:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S233478AbiGRI4s (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Jul 2022 04:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233896AbiGRIk4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 04:40:56 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.74])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38605643D;
-        Mon, 18 Jul 2022 01:40:55 -0700 (PDT)
-Received: from mail-yb1-f175.google.com ([209.85.219.175]) by
- mrelayeu.kundenserver.de (mreue107 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MzyAy-1nHnbX127a-00wzfO; Mon, 18 Jul 2022 10:40:53 +0200
-Received: by mail-yb1-f175.google.com with SMTP id 7so2009864ybw.0;
-        Mon, 18 Jul 2022 01:40:52 -0700 (PDT)
-X-Gm-Message-State: AJIora8X1Aam3ySj99TD9MY7dEOrlzAcfoHZSziEomsOrAjSbgLG0eR3
-        v3RZQoiFJulLqzogfBppia/njAD+HIPZjpj74D0=
-X-Google-Smtp-Source: AGRyM1v6P9bRfP0SGacMoyNgstO+0kAXXfpT0DxcKtXM2lnDi5JkTyHnmtvpqCyUYAbfe++I5HITDjFfLLAjFIN9yoU=
-X-Received: by 2002:a25:9f87:0:b0:669:4345:a8c0 with SMTP id
- u7-20020a259f87000000b006694345a8c0mr25927260ybq.472.1658133650969; Mon, 18
- Jul 2022 01:40:50 -0700 (PDT)
+        with ESMTP id S233580AbiGRI4q (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 04:56:46 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2A98311A14
+        for <linux-s390@vger.kernel.org>; Mon, 18 Jul 2022 01:56:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1658134604;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=OWEVZ0lWemvnjJGr1KMJVEu33/f4lcOHck1LBmLT0x4=;
+        b=bXK6sUu4Fb5JdTRdfgFj8lMrkAEYW6x7Pj6pD65sYv+7C/5VKbi7OjFgLEzgAEqaMw7W4b
+        QwvxRb+992nuk03VXPLSWRXYCWhRl5x2AW5k3OIydsmPx4p65bIo0l/PbCW7OTwLY6O8nq
+        kkF4HFnXtiPW54Bg6YoFdrKD2I9nc4w=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-344-Rr6fCMBQPZSAdrqg6kHT4g-1; Mon, 18 Jul 2022 04:56:36 -0400
+X-MC-Unique: Rr6fCMBQPZSAdrqg6kHT4g-1
+Received: by mail-lf1-f71.google.com with SMTP id m9-20020a056512358900b0048a16de8aa7so3981770lfr.5
+        for <linux-s390@vger.kernel.org>; Mon, 18 Jul 2022 01:56:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=OWEVZ0lWemvnjJGr1KMJVEu33/f4lcOHck1LBmLT0x4=;
+        b=6Cg1wULorbLh3/TNx5FXtCNVd17cCh2xnelHR9727f7Fj2Qh4iuYeCGqpqYiGlfICm
+         Ft5L8fgipkQNiqhrjAwDj17koFxs6aY27XI4bwyj71Sn7JFYCi2q/QvzGW/4oB7faqCt
+         vcygUgom9wk8/EA74kGBNKPTmzNL7aB3HGX8VhMszXvLTQLRAgL7h3bMSPkPYyseyakF
+         S3ztRtgHy6FqxDVu/K6mRFePbIIE5TlqUISozi8rMmbd3lzS8CjwqdkriKTGbfdEbn/w
+         bLn9dc7YvdNVw4XxYlWxZr5t+Lt11PzGAkDMCbFtx99unHaafnyhU8HukpjQ2n7CiQVV
+         QHTw==
+X-Gm-Message-State: AJIora+/DqcgGwKd5Zev8weimWBlhdDPs6hpqH+qabVKe6fFP5m41m0c
+        /9Al2PNHMXijeM3wgXRvTly9hCvUzevQlB1V9Ih/p4wFr/N42bEuDwW27VOuTkAM2pV34R0H7qy
+        IB6xAQslFWtcpzWI+nF1buySqg3ZwTa/bcFLcMA==
+X-Received: by 2002:ac2:4c4c:0:b0:489:fe2c:c877 with SMTP id o12-20020ac24c4c000000b00489fe2cc877mr15771588lfk.238.1658134595388;
+        Mon, 18 Jul 2022 01:56:35 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uT17stmgD/4/ICa/9NkCqW44+T43NZzTbYZlFnn5f6GksCmVOwfYnKSj/DtJ2DugQNpv1qMO4BpXj9dv3Brrw=
+X-Received: by 2002:ac2:4c4c:0:b0:489:fe2c:c877 with SMTP id
+ o12-20020ac24c4c000000b00489fe2cc877mr15771561lfk.238.1658134595164; Mon, 18
+ Jul 2022 01:56:35 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220717033453.2896843-1-shorne@gmail.com> <20220717033453.2896843-2-shorne@gmail.com>
- <YtTif+vNq+gkfqsc@infradead.org>
-In-Reply-To: <YtTif+vNq+gkfqsc@infradead.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 18 Jul 2022 10:40:34 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a02R651U9Md8DHT33FgSp56Baiw4sNCWCFBPcMi0bB1-g@mail.gmail.com>
-Message-ID: <CAK8P3a02R651U9Md8DHT33FgSp56Baiw4sNCWCFBPcMi0bB1-g@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] asm-generic: Remove pci.h copying remaining code
- to x86
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Stafford Horne <shorne@gmail.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
+References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-39-xuanzhuo@linux.alibaba.com> <c0747cbc-685b-85a9-1931-0124124755f2@redhat.com>
+ <1656986375.3420787-1-xuanzhuo@linux.alibaba.com> <CACGkMEu80KP-ULz_CBvauRk_3XsCubMkkWv0uLnbt-wib5KOnA@mail.gmail.com>
+ <1657874178.9766078-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1657874178.9766078-2-xuanzhuo@linux.alibaba.com>
+From:   Jason Wang <jasowang@redhat.com>
+Date:   Mon, 18 Jul 2022 16:56:24 +0800
+Message-ID: <CACGkMEtF5NSXh-=nnsniLqy0pX2Tpyh413S5Bu5vZ6h=d+aHTA@mail.gmail.com>
+Subject: Re: [PATCH v11 38/40] virtio_net: support rx queue resize
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Nick Child <nick.child@ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        alpha <linux-alpha@vger.kernel.org>,
-        "open list:IA64 (Itanium) PLATFORM" <linux-ia64@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        linux-pci <linux-pci@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm <kvm@vger.kernel.org>,
+        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
+        kangjie.xu@linux.alibaba.com,
+        virtualization <virtualization@lists.linux-foundation.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:VA+ADZ1wlySE9Ouh2tYgU0A8V4oQDK6lPEeoN9EGdoubUZTOHeD
- mP3qZxOOrOyzBXf7VEeKAez7oCwQjAB7mSIfnIdxmzayc77FlghLUKmImGs2Qi7jkpQ46Sx
- mlXcKYCf770vn2MC/YUeoNNcpJouPP015V2R2VQElZ6j9Mh5zlTdp7VdWlCdhtq5X1IxSN4
- Vo23t32Imfrki/PvPbzsQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:4b3jq7bjLLE=:a6qWrjWnERxR/3JaIClND/
- DeiDquV6H8SJWHIaREUVCNILb2747FAmBq4hAwESAA8dFrq8z+X3wOvj9jvRGJIZPAFoFQqa+
- 1CGLsM/kx1ZAe97kLjHsfnabr0C3IGizgzLpu8HtdbJGSmKxN+km8B1G0d/NdxP0xrjwDdyB0
- LbEZ/8NkMTReY0kzowLf1LutJ+ECbNyuUsQRC04RJchI9Ezxp3oPUs5AltUscC6wjNg+n4zDc
- lE4tZ3kwy+WVvQjqfV/ScuT277jRzNyjU26FycqDC6jGCq/yp0Sxk7wFwhHYoSz1J4YBP37OA
- H3TVEaSFYEp0BGS8F6wnkG2Xb+qrPxdBJvr7Y4J8XLEiISkKR/lrWtdDyG/HIksfIscUG/zKj
- jS7Q2ChLj2XGo2Pbmk2DHR87gfoysZgStaEjymog1xDKEfpgVL1ft71+i+G8pQvHDzC2c4UwY
- UUOC3FkL7RxJBsxEQ+SoirTqVXh8CA7RTmxZUIQrk2hc8xL9b67lMJ8N78U9Ogk8DzrAzaLk0
- 5OR7JIeoGBsFy2YOiJ321GR04ymgZ846JuKqac+ha58viPaHnohhZhGlGV/D205LOJurQo6g6
- 6wxILAg/bldYxAI3UeRoKKemhZ221RQ8J7fDPCIUH/orpvq3O4Halu/OAiHsnMOC8kmF3fJ9R
- JcZqLRpkowdRcOw7voZhpFbAoSxdwWFKovPN1BZmFXaoi4wB+PGe6W66tFttvCeNXsNDZJ0SR
- cZzf7hR0bkQfwBo6G//PlVEy0sp+ltYv1eVHE36fxEm6tZjW2RpxzIvfyIo6Xh0rKcaelbg+N
- skhOpesKt88SkWklSTgAXKVpaOdJ0/zs3bBkbHWvVJARJweqXTY4hsrAlGgwdBGP9PVPTyWlL
- h2q7+CBWav3EOUiTQMlYzaeCWF4I4m4y7AmXMuE3Q=
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jul 18, 2022 at 6:33 AM Christoph Hellwig <hch@infradead.org> wrote:
+On Fri, Jul 15, 2022 at 4:37 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrot=
+e:
 >
-> On Sun, Jul 17, 2022 at 12:34:52PM +0900, Stafford Horne wrote:
-> > The generic pci.h header now only provides a definition of
-> > pci_get_legacy_ide_irq which is used by architectures that support PNP.
-> > Of the architectures that use asm-generic/pci.h this is only x86.
+> On Fri, 8 Jul 2022 14:20:52 +0800, Jason Wang <jasowang@redhat.com> wrote=
+:
+> > On Tue, Jul 5, 2022 at 10:00 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> =
+wrote:
+> > >
+> > > On Mon, 4 Jul 2022 11:44:12 +0800, Jason Wang <jasowang@redhat.com> w=
+rote:
+> > > >
+> > > > =E5=9C=A8 2022/6/29 14:56, Xuan Zhuo =E5=86=99=E9=81=93:
+> > > > > This patch implements the resize function of the rx queues.
+> > > > > Based on this function, it is possible to modify the ring num of =
+the
+> > > > > queue.
+> > > > >
+> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > ---
+> > > > >   drivers/net/virtio_net.c | 22 ++++++++++++++++++++++
+> > > > >   1 file changed, 22 insertions(+)
+> > > > >
+> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > > index 9fe222a3663a..6ab16fd193e5 100644
+> > > > > --- a/drivers/net/virtio_net.c
+> > > > > +++ b/drivers/net/virtio_net.c
+> > > > > @@ -278,6 +278,8 @@ struct padded_vnet_hdr {
+> > > > >     char padding[12];
+> > > > >   };
+> > > > >
+> > > > > +static void virtnet_rq_free_unused_buf(struct virtqueue *vq, voi=
+d *buf);
+> > > > > +
+> > > > >   static bool is_xdp_frame(void *ptr)
+> > > > >   {
+> > > > >     return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> > > > > @@ -1846,6 +1848,26 @@ static netdev_tx_t start_xmit(struct sk_bu=
+ff *skb, struct net_device *dev)
+> > > > >     return NETDEV_TX_OK;
+> > > > >   }
+> > > > >
+> > > > > +static int virtnet_rx_resize(struct virtnet_info *vi,
+> > > > > +                        struct receive_queue *rq, u32 ring_num)
+> > > > > +{
+> > > > > +   int err, qindex;
+> > > > > +
+> > > > > +   qindex =3D rq - vi->rq;
+> > > > > +
+> > > > > +   napi_disable(&rq->napi);
+> > > >
+> > > >
+> > > > Do we need to cancel the refill work here?
+> > >
+> > >
+> > > I think no, napi_disable is mutually exclusive, which ensures that th=
+ere will be
+> > > no conflicts between them.
+> >
+> > So this sounds similar to what I've fixed recently.
+> >
+> > 1) NAPI schedule delayed work.
+> > 2) we disable NAPI here
+> > 3) delayed work get schedule and call NAPI again
+> >
+> > ?
 >
-> Please move this into a separate header, ike legacy-ide.h.  It doens't
-> have anyting to do with actual PCI support.
+> Yes, but I don't think there are any negative effects.
 
-It looks like asm/libata-portmap.h is meant to have this information already,
-and this is what libata uses, while drivers/ide used the
-pci_get_legacy_ide_irq()
-function for the same purpose.
+An infinite wait on the napi_disable()?
 
-Only ia64 and powerpc have interesting definitions of both, and they
-return the same thing, so I think this is sufficient to remove the last caller:
+Thanks
 
-diff --git a/drivers/pnp/resource.c b/drivers/pnp/resource.c
-index 2fa0f7d55259..d7a6250589d6 100644
---- a/drivers/pnp/resource.c
-+++ b/drivers/pnp/resource.c
-@@ -16,7 +16,7 @@
- #include <asm/io.h>
- #include <asm/dma.h>
- #include <asm/irq.h>
--#include <linux/pci.h>
-+#include <linux/libata.h>
- #include <linux/ioport.h>
- #include <linux/init.h>
+>
+> Thanks.
+>
+> >
+> > Thanks
+> >
+> > >
+> > > Thanks.
+> > >
+> > > >
+> > > > Thanks
+> > > >
+> > > >
+> > > > > +
+> > > > > +   err =3D virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_un=
+used_buf);
+> > > > > +   if (err)
+> > > > > +           netdev_err(vi->dev, "resize rx fail: rx queue index: =
+%d err: %d\n", qindex, err);
+> > > > > +
+> > > > > +   if (!try_fill_recv(vi, rq, GFP_KERNEL))
+> > > > > +           schedule_delayed_work(&vi->refill, 0);
+> > > > > +
+> > > > > +   virtnet_napi_enable(rq->vq, &rq->napi);
+> > > > > +   return err;
+> > > > > +}
+> > > > > +
+> > > > >   /*
+> > > > >    * Send command via the control virtqueue and check status.  Co=
+mmands
+> > > > >    * supported by the hypervisor, as indicated by feature bits, s=
+hould
+> > > >
+> > >
+> >
+>
 
-@@ -322,8 +322,8 @@ static int pci_dev_uses_irq(struct pnp_dev *pnp,
-struct pci_dev *pci,
-                 * treat the compatibility IRQs as busy.
-                 */
-                if ((progif & 0x5) != 0x5)
--                       if (pci_get_legacy_ide_irq(pci, 0) == irq ||
--                           pci_get_legacy_ide_irq(pci, 1) == irq) {
-+                       if (ATA_PRIMARY_IRQ(pci) == irq ||
-+                           ATA_SECONDARY_IRQ(pci) == irq) {
-                                pnp_dbg(&pnp->dev, "  legacy IDE device %s "
-                                        "using irq %d\n", pci_name(pci), irq);
-                                return 1;
-
-This is fine on the architectures that currently return an error from
-pci_get_legacy_ide_irq() but will change to returning 15/14 instead,
-because they do not support ISA devices, so pci_dev_uses_irq()
-will never be called either.
-
-        Arnd
