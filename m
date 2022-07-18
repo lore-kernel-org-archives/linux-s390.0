@@ -2,106 +2,88 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45C01C43334
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 05:43:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6550FC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 06:31:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233086AbiGRFnz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Jul 2022 01:43:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51424 "EHLO
+        id S233406AbiGRGbV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Jul 2022 02:31:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229585AbiGRFnx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 01:43:53 -0400
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775301A9;
-        Sun, 17 Jul 2022 22:43:52 -0700 (PDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id A752B68AFE; Mon, 18 Jul 2022 07:43:48 +0200 (CEST)
-Date:   Mon, 18 Jul 2022 07:43:48 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org
-Subject: Re: simplify the mdev interface v6
-Message-ID: <20220718054348.GA22345@lst.de>
-References: <20220709045450.609884-1-hch@lst.de>
+        with ESMTP id S232841AbiGRGbV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 02:31:21 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 874CD2DCF;
+        Sun, 17 Jul 2022 23:31:19 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4LmXD32nd5z4xXF;
+        Mon, 18 Jul 2022 16:31:15 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1658125878;
+        bh=k/N2K3A9Z5dV/oTr9hSFt64T6vlj0t235fSbwzPjkEA=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=rhhdlO5yl1t520u8BwcWmo9I5ryGffVzXJ8RE1EukbGFkVthHUiVLAjQDW9mzbv/g
+         OWnQlMsP8NiwLcTMDx/u2JG1Y845X4k4XCnsJBoiWa8UdmP575Nw0RWGtzsUbxe3Jo
+         bjBoqD+2lq0gKxXSMd0ODRCH8GSL8M6V7sL4NgfhjmUAkga44TSCl7UfnulRjDEHIo
+         FCaFHm+TySK1rfoT4o+dES2ZEbTrcYCPeHtbeg4lIr9pHGtIWMcl595MciqG3LLg/f
+         VdNtecuoOERxk91eMns13YSoniRlSGOaiEJZ8DZNFdGSbyIrboLkLaefUXVezPcmCK
+         4YiA9QdovohVg==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Will Deacon <will@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Borislav Petkov <bp@suse.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Harald Freudenberger <freude@linux.ibm.com>
+Subject: Re: [PATCH v2] random: handle archrandom in plural words
+In-Reply-To: <20220717200356.75060-1-Jason@zx2c4.com>
+References: <YtP1+MJ1tNdJA60l@zx2c4.com>
+ <20220717200356.75060-1-Jason@zx2c4.com>
+Date:   Mon, 18 Jul 2022 16:31:11 +1000
+Message-ID: <87a697dj9s.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220709045450.609884-1-hch@lst.de>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Alex, does this series look good to you now?
+"Jason A. Donenfeld" <Jason@zx2c4.com> writes:
+> The archrandom interface was originally designed for x86, which supplies
+> RDRAND/RDSEED for receiving random words into registers, resulting in
+> one function to generate an int and another to generate a long. However,
+> other architectures don't follow this.
+>
+> On arm64, the SMCCC TRNG interface can return between 1 and 3 words. On
+> s390, the CPACF TRNG interface can return between 1 and 32 words for the
+> same cost as for one word. On UML, the os_getrandom() interface can return
+> arbitrary amounts.
+>
+> So change the api signature to take a "words" parameter designating the
+> maximum number of words requested, and then return the number of words
+> generated.
 
-On Sat, Jul 09, 2022 at 06:54:36AM +0200, Christoph Hellwig wrote:
-> Hi all,
-> 
-> this series signigicantly simplies the mdev driver interface by following
-> the patterns for device model interaction used elsewhere in the kernel.
-> 
-> Changes since v5:
->  - rebased to the latest vfio/next branch
->  - drop the last patch again
->  - make sure show_available_instances works properly for the internallly
->    tracked case
-> 
-> Changes since v4:
->  - move the kobject_put later in mdev_device_release 
->  - add a Fixes tag for the first patch
->  - add another patch to remove an extra kobject_get/put
-> 
-> Changes since v3:
->  - make the sysfs_name and pretty_name fields pointers instead of arrays
->  - add an i915 cleanup to prepare for the above
-> 
-> Changes since v2:
->  - rebased to vfio/next
->  - fix a pre-existing memory leak in i915 instead of making it worse
->  - never manipulate if ->available_instances if drv->get_available is
->    provided
->  - keep a parent reference for the mdev_type
->  - keep a few of the sysfs.c helper function around
->  - improve the documentation for the parent device lifetime
->  - minor spellig / formatting fixes
-> 
-> Changes since v1:
->  - embedd the mdev_parent into a different sub-structure in i916
->  - remove headers now inclued by mdev.h from individual source files
->  - pass an array of mdev_types to mdev_register_parent
->  - add additional patches to implement all attributes on the
->    mdev_type in the core code
-> 
-> Diffstat:
->  Documentation/driver-api/vfio-mediated-device.rst |   26 +-
->  Documentation/s390/vfio-ap.rst                    |    2 
->  Documentation/s390/vfio-ccw.rst                   |    2 
->  drivers/gpu/drm/i915/gvt/aperture_gm.c            |   20 +-
->  drivers/gpu/drm/i915/gvt/gvt.h                    |   42 ++--
->  drivers/gpu/drm/i915/gvt/kvmgt.c                  |  168 ++++-------------
->  drivers/gpu/drm/i915/gvt/vgpu.c                   |  210 +++++++---------------
->  drivers/s390/cio/cio.h                            |    4 
->  drivers/s390/cio/vfio_ccw_drv.c                   |   12 -
->  drivers/s390/cio/vfio_ccw_ops.c                   |   51 -----
->  drivers/s390/cio/vfio_ccw_private.h               |    2 
->  drivers/s390/crypto/vfio_ap_ops.c                 |   68 +------
->  drivers/s390/crypto/vfio_ap_private.h             |    6 
->  drivers/vfio/mdev/mdev_core.c                     |  190 ++++---------------
->  drivers/vfio/mdev/mdev_driver.c                   |    7 
->  drivers/vfio/mdev/mdev_private.h                  |   32 ---
->  drivers/vfio/mdev/mdev_sysfs.c                    |  189 ++++++++++---------
->  include/linux/mdev.h                              |   77 ++++----
->  samples/vfio-mdev/mbochs.c                        |  103 +++-------
->  samples/vfio-mdev/mdpy.c                          |  115 +++---------
->  samples/vfio-mdev/mtty.c                          |   94 +++------
->  21 files changed, 463 insertions(+), 957 deletions(-)
----end quoted text---
+On powerpc a word is 32-bits and a doubleword is 64-bits (at least
+according to the ISA). I think that's also true on other 64-bit
+architectures.
+
+You could avoid any confusion by defining the API in terms of "longs"
+rather than "words".
+
+But that's just a comment, see what others think.
+
+>  arch/powerpc/include/asm/archrandom.h |  30 ++------
+>  arch/powerpc/kvm/book3s_hv.c          |   2 +-
+
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+
+cheers
