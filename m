@@ -2,91 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 808CFCCA481
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 10:40:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95255C43334
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 12:11:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234346AbiGRKkW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Jul 2022 06:40:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48442 "EHLO
+        id S234719AbiGRMLy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Jul 2022 08:11:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234213AbiGRKkU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 06:40:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909B91EC52;
-        Mon, 18 Jul 2022 03:40:19 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S234801AbiGRMLx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 08:11:53 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A15AABF6F;
+        Mon, 18 Jul 2022 05:11:52 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id D8AC71FB7D;
+        Mon, 18 Jul 2022 12:11:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1658146310; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=V6D6pW7KOU2kPWCiZd07qffFGU6SpyCb2tbQHBnWrPk=;
+        b=EXPnzUbilMMA5F7I79PNHtjTgfbMNI9Re7xNL324QWOc5NRzwccoapCXDua4tdUktLRmBD
+        bqJJ6Pj+LoonmpjEJP9fMbxhYEWaV4vgH0QQoo2JU/UFNvQwduA0OeLIzlzuT7gU37fUAA
+        HHZbVqI9QkVqm/m53IDyVIhn0W+WGW0=
+Received: from suse.cz (unknown [10.100.201.86])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1AD93B8110A;
-        Mon, 18 Jul 2022 10:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B6A3CC341CA;
-        Mon, 18 Jul 2022 10:40:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658140816;
-        bh=o/iNYuCxsqaOD6DG3Ys5y1hjwGO/7SAuL8oZv5IPMVo=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=sVW81oosS4rw6qrJ7WBs04TO7fHzIht3pHAbwtcVtV5cix0TEt6DXIL7NCZK0rCiV
-         PQsEq5ok7aTdTAEPHmXSNsInlUUOTpiijk68bet89DjNprSLoxtXK7ySuECWfK70zg
-         b8yHB7N4q/h8Yc5NCpjKHQ25NgVqnlNLS6lewyrNyw9QoJwrFa/9cqUCyqQKezw5T1
-         l3KxDeHJaSu/v7skPEIOGJ7desXCLoGGWRQRQTIt4ZK9Cp06C81Ojh1ZWXgVTrzB7f
-         hydKDOsiJ/5jkh6We5aDjZn3LQgiT7wXS/F5OsOBf3VNd5XVjn9NKUjxRr4h6BBrFE
-         4WnBuBinXjtGQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 98863E451AF;
-        Mon, 18 Jul 2022 10:40:16 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        by relay2.suse.de (Postfix) with ESMTPS id E612B2C141;
+        Mon, 18 Jul 2022 12:11:45 +0000 (UTC)
+Date:   Mon, 18 Jul 2022 14:11:44 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Abel Wu <wuyun.abel@bytedance.com>
+Cc:     Gang Li <ligang.bdlg@bytedance.com>, akpm@linux-foundation.org,
+        surenb@google.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, viro@zeniv.linux.org.uk,
+        ebiederm@xmission.com, keescook@chromium.org, rostedt@goodmis.org,
+        mingo@redhat.com, peterz@infradead.org, acme@kernel.org,
+        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
+        jolsa@kernel.org, namhyung@kernel.org, david@redhat.com,
+        imbrenda@linux.ibm.com, adobriyan@gmail.com,
+        yang.yang29@zte.com.cn, brauner@kernel.org,
+        stephen.s.brennan@oracle.com, zhengqi.arch@bytedance.com,
+        haolee.swjtu@gmail.com, xu.xin16@zte.com.cn,
+        Liam.Howlett@oracle.com, ohoono.kwon@samsung.com,
+        peterx@redhat.com, arnd@arndb.de, shy828301@gmail.com,
+        alex.sierra@amd.com, xianting.tian@linux.alibaba.com,
+        willy@infradead.org, ccross@google.com, vbabka@suse.cz,
+        sujiaxun@uniontech.com, sfr@canb.auug.org.au,
+        vasily.averin@linux.dev, mgorman@suse.de, vvghjk1234@gmail.com,
+        tglx@linutronix.de, luto@kernel.org, bigeasy@linutronix.de,
+        fenghua.yu@intel.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+        hezhongkun.hzk@bytedance.com
+Subject: Re: [PATCH v2 0/5] mm, oom: Introduce per numa node oom for
+ CONSTRAINT_{MEMORY_POLICY,CPUSET}
+Message-ID: <YtVOAGga+B3CmFKC@dhcp22.suse.cz>
+References: <20220708082129.80115-1-ligang.bdlg@bytedance.com>
+ <YsfwyTHE/5py1kHC@dhcp22.suse.cz>
+ <41ae31a7-6998-be88-858c-744e31a76b2a@bytedance.com>
+ <Ys14oIHL85d/T7s+@dhcp22.suse.cz>
+ <6f6a2257-3b60-e312-3ee3-fb08b972dbf2@bytedance.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v2 0/6] net/smc: Introduce virtually contiguous
- buffers for SMC-R
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <165814081662.19605.4498154287965722155.git-patchwork-notify@kernel.org>
-Date:   Mon, 18 Jul 2022 10:40:16 +0000
-References: <1657791845-1060-1-git-send-email-guwen@linux.alibaba.com>
-In-Reply-To: <1657791845-1060-1-git-send-email-guwen@linux.alibaba.com>
-To:     Wen Gu <guwen@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6f6a2257-3b60-e312-3ee3-fb08b972dbf2@bytedance.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
-
-This series was applied to netdev/net-next.git (master)
-by David S. Miller <davem@davemloft.net>:
-
-On Thu, 14 Jul 2022 17:43:59 +0800 you wrote:
-> On long-running enterprise production servers, high-order contiguous
-> memory pages are usually very rare and in most cases we can only get
-> fragmented pages.
+On Tue 12-07-22 23:00:55, Abel Wu wrote:
 > 
-> When replacing TCP with SMC-R in such production scenarios, attempting
-> to allocate high-order physically contiguous sndbufs and RMBs may result
-> in frequent memory compaction, which will cause unexpected hung issue
-> and further stability risks.
+> On 7/12/22 9:35 PM, Michal Hocko Wrote:
+> > On Tue 12-07-22 19:12:18, Abel Wu wrote:
+> > [...]
+> > > I was just going through the mail list and happen to see this. There
+> > > is another usecase for us about per-numa memory usage.
+> > > 
+> > > Say we have several important latency-critical services sitting inside
+> > > different NUMA nodes without intersection. The need for memory of these
+> > > LC services varies, so the free memory of each node is also different.
+> > > Then we launch several background containers without cpuset constrains
+> > > to eat the left resources. Now the problem is that there doesn't seem
+> > > like a proper memory policy available to balance the usage between the
+> > > nodes, which could lead to memory-heavy LC services suffer from high
+> > > memory pressure and fails to meet the SLOs.
+> > 
+> > I do agree that cpusets would be rather clumsy if usable at all in a
+> > scenario when you are trying to mix NUMA bound workloads with those
+> > that do not have any NUMA proferences. Could you be more specific about
+> > requirements here though?
 > 
-> [...]
+> Yes, these LC services are highly sensitive to memory access latency
+> and bandwidth, so they are provisioned by NUMA node granule to meet
+> their performance requirements. While on the other hand, they usually
+> do not make full use of cpu/mem resources which increases the TCO of
+> our IDCs, so we have to co-locate them with background tasks.
+> 
+> Some of these LC services are memory-bound but leave much of cpu's
+> capacity unused. In this case we hope the co-located background tasks
+> to consume some leftover without introducing obvious mm overhead to
+> the LC services.
 
-Here is the summary with links:
-  - [net-next,v2,1/6] net/smc: remove redundant dma sync ops
-    https://git.kernel.org/netdev/net-next/c/6d52e2de6415
-  - [net-next,v2,2/6] net/smc: optimize for smc_sndbuf_sync_sg_for_device and smc_rmb_sync_sg_for_cpu
-    https://git.kernel.org/netdev/net-next/c/0ef69e788411
-  - [net-next,v2,3/6] net/smc: Introduce a sysctl for setting SMC-R buffer type
-    https://git.kernel.org/netdev/net-next/c/4bc5008e4387
-  - [net-next,v2,4/6] net/smc: Use sysctl-specified types of buffers in new link group
-    https://git.kernel.org/netdev/net-next/c/b984f370ed51
-  - [net-next,v2,5/6] net/smc: Allow virtually contiguous sndbufs or RMBs for SMC-R
-    https://git.kernel.org/netdev/net-next/c/b8d199451c99
-  - [net-next,v2,6/6] net/smc: Extend SMC-R link group netlink attribute
-    https://git.kernel.org/netdev/net-next/c/ddefb2d20553
+This are some tough requirements and I am afraid far from any typical
+usage. So I believe that you need a careful tunning much more than a
+policy which I really have hard time to imagine wrt semantic TBH.
+ 
+> > Let's say you run those latency critical services with "simple" memory
+> > policies and mix them with the other workload without any policies in
+> > place so they compete over memory. It is not really clear to me how can
+> > you achieve any reasonable QoS in such an environment. Your latency
+> > critical servises will be more constrained than the non-critical ones
+> > yet they are more demanding AFAIU.
+> 
+> Yes, the QoS over memory is the biggest block in the way (the other
+> resources are relatively easier). For now, we hacked a new mpol to
+> achieve weighted-interleave behavior to balance the memory usage across
+> NUMA nodes, and only set memcg protections to the LC services. If the
+> memory pressure is still high, the background tasks will be killed.
+> Ideas? Thanks!
 
-You are awesome, thank you!
+It is not really clear what the new memory policy does and what is the
+semantic of it from your description. Memory protection (via memcg) of
+your sensitive workload makes sense but it would require proper setting
+of background jobs as well. As soon as you hit the global direct reclaim
+then the memory protection won't safe your sensitve workload.
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Michal Hocko
+SUSE Labs
