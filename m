@@ -2,132 +2,79 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF495C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 12:45:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1A15C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Jul 2022 12:53:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235131AbiGRMph (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Jul 2022 08:45:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37116 "EHLO
+        id S233400AbiGRMx5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Jul 2022 08:53:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235156AbiGRMpf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 08:45:35 -0400
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C45AB9C;
-        Mon, 18 Jul 2022 05:45:33 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VJlyRhm_1658148329;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VJlyRhm_1658148329)
-          by smtp.aliyun-inc.com;
-          Mon, 18 Jul 2022 20:45:30 +0800
-Date:   Mon, 18 Jul 2022 20:45:28 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v2 0/6] net/smc: Introduce virtually contiguous
- buffers for SMC-R
-Message-ID: <YtVV6IWF0cKxJaWe@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <1657791845-1060-1-git-send-email-guwen@linux.alibaba.com>
- <345053d6-5ecb-066d-8eeb-7637da1d7370@linux.ibm.com>
+        with ESMTP id S234564AbiGRMxz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 08:53:55 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD3012C2;
+        Mon, 18 Jul 2022 05:53:50 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4LmhjM6Tyvz4xL4;
+        Mon, 18 Jul 2022 22:53:43 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1658148826;
+        bh=SgPxyBJcHGr81rN/PCtKiWXwYtSKRO2w9sb5M0yS/pU=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=rYUSYTCmldp3zN6k/ysHQC4QOd4JlL88muNz4v08jJK1s2WGTd3Mzi3YvFcU0K1vn
+         W9DjCRjYAUlAqCOsgnj9C2L03vYDPzdtzucwIqSf9LlRFHwnOxDjFTzYnRJ7sF7Qh7
+         s7WWq+PLlyqwqYFgoflfRl2VvnXJyrMtwl/lsuIfyzK3l1gMB3Crb5m0jy6Mxv5+Dh
+         aGLrf18lWzXpBPZggcYl8BALR0j3fUTopMtowWx4R5DdSKPEOSU5EIjA0QWTpE5Yrx
+         TOB8RIY3sLW94KzeZkoH+eaXTCtIMN8zUbNlcSlD+ryvYxI0pWTlI+XB/pQMZmjzg0
+         n4k9AuAcZSRYQ==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@suse.de>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: Re: [PATCH v5] random: remove CONFIG_ARCH_RANDOM
+In-Reply-To: <20220708004032.733426-1-Jason@zx2c4.com>
+References: <20220706143521.459565-1-Jason@zx2c4.com>
+ <20220708004032.733426-1-Jason@zx2c4.com>
+Date:   Mon, 18 Jul 2022 22:53:38 +1000
+Message-ID: <877d4aeg4t.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <345053d6-5ecb-066d-8eeb-7637da1d7370@linux.ibm.com>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 14, 2022 at 05:16:47PM +0200, Wenjia Zhang wrote:
-> 
-> 
-> On 14.07.22 11:43, Wen Gu wrote:
-> > On long-running enterprise production servers, high-order contiguous
-> > memory pages are usually very rare and in most cases we can only get
-> > fragmented pages.
-> > 
-> > When replacing TCP with SMC-R in such production scenarios, attempting
-> > to allocate high-order physically contiguous sndbufs and RMBs may result
-> > in frequent memory compaction, which will cause unexpected hung issue
-> > and further stability risks.
-> > 
-> > So this patch set is aimed to allow SMC-R link group to use virtually
-> > contiguous sndbufs and RMBs to avoid potential issues mentioned above.
-> > Whether to use physically or virtually contiguous buffers can be set
-> > by sysctl smcr_buf_type.
-> > 
-> > Note that using virtually contiguous buffers will bring an acceptable
-> > performance regression, which can be mainly divided into two parts:
-> > 
-> > 1) regression in data path, which is brought by additional address
-> >     translation of sndbuf by RNIC in Tx. But in general, translating
-> >     address through MTT is fast. According to qperf test, this part
-> >     regression is basically less than 10% in latency and bandwidth.
-> >     (see patch 5/6 for details)
-> > 
-> > 2) regression in buffer initialization and destruction path, which is
-> >     brought by additional MR operations of sndbufs. But thanks to link
-> >     group buffer reuse mechanism, the impact of this kind of regression
-> >     decreases as times of buffer reuse increases.
-> > 
-> > Patch set overview:
-> > - Patch 1/6 and 2/6 mainly about simplifying and optimizing DMA sync
-> >    operation, which will reduce overhead on the data path, especially
-> >    when using virtually contiguous buffers;
-> > - Patch 3/6 and 4/6 introduce a sysctl smcr_buf_type to set the type
-> >    of buffers in new created link group;
-> > - Patch 5/6 allows SMC-R to use virtually contiguous sndbufs and RMBs,
-> >    including buffer creation, destruction, MR operation and access;
-> > - patch 6/6 extends netlink attribute for buffer type of SMC-R link group;
-> > 
-> > v1->v2:
-> > - Patch 5/6 fixes build issue on 32bit;
-> > - Patch 3/6 adds description of new sysctl in smc-sysctl.rst;
-> > 
-> > Guangguan Wang (2):
-> >    net/smc: remove redundant dma sync ops
-> >    net/smc: optimize for smc_sndbuf_sync_sg_for_device and
-> >      smc_rmb_sync_sg_for_cpu
-> > 
-> > Wen Gu (4):
-> >    net/smc: Introduce a sysctl for setting SMC-R buffer type
-> >    net/smc: Use sysctl-specified types of buffers in new link group
-> >    net/smc: Allow virtually contiguous sndbufs or RMBs for SMC-R
-> >    net/smc: Extend SMC-R link group netlink attribute
-> > 
-> >   Documentation/networking/smc-sysctl.rst |  13 ++
-> >   include/net/netns/smc.h                 |   1 +
-> >   include/uapi/linux/smc.h                |   1 +
-> >   net/smc/af_smc.c                        |  68 +++++++--
-> >   net/smc/smc_clc.c                       |   8 +-
-> >   net/smc/smc_clc.h                       |   2 +-
-> >   net/smc/smc_core.c                      | 246 +++++++++++++++++++++-----------
-> >   net/smc/smc_core.h                      |  20 ++-
-> >   net/smc/smc_ib.c                        |  44 +++++-
-> >   net/smc/smc_ib.h                        |   2 +
-> >   net/smc/smc_llc.c                       |  33 +++--
-> >   net/smc/smc_rx.c                        |  92 +++++++++---
-> >   net/smc/smc_sysctl.c                    |  11 ++
-> >   net/smc/smc_tx.c                        |  10 +-
-> >   14 files changed, 404 insertions(+), 147 deletions(-)
-> > 
-> This idea is very cool! Thank you for your effort! But we still need to
-> verify if this solution can run well on our system. I'll come to you soon.
+"Jason A. Donenfeld" <Jason@zx2c4.com> writes:
+> When RDRAND was introduced, there was much discussion on whether it
+> should be trusted and how the kernel should handle that. Initially, two
+> mechanisms cropped up, CONFIG_ARCH_RANDOM, a compile time switch, and
+> "nordrand", a boot-time switch.
+...
+>
+>  arch/arm/include/asm/archrandom.h             |  2 ++
+>  arch/arm64/Kconfig                            |  8 ------
+>  arch/arm64/include/asm/archrandom.h           | 10 --------
+>  arch/arm64/kernel/cpufeature.c                |  2 --
+>  arch/powerpc/Kconfig                          |  3 ---
+>  arch/powerpc/include/asm/archrandom.h         |  3 ---
+>  arch/powerpc/include/asm/machdep.h            |  2 --
+>  arch/powerpc/platforms/microwatt/Kconfig      |  1 -
+>  arch/powerpc/platforms/powernv/Kconfig        |  1 -
+>  arch/powerpc/platforms/pseries/Kconfig        |  1 -
 
-Hi Wenjia,
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-We have noticed that SMC community is becoming more active recently.
-More and more companies have shown their interests in SMC.
-Correspondingly, patches are also increasing. We (Alibaba) are trying to
-apply SMC into cloud production environment, extending its abilities and
-enhancing the performance. We also contributed some work to community in
-the past period of time. So we are more than happy to help review SMC
-patches together. If you need, we are very glad to be reviewers to share
-the review work.
-
-Hope to hear from you, thank you.
-
-Best wishes,
-Tony Lu
+cheers
