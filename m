@@ -2,203 +2,192 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8D34C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 02:01:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44A2BC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 05:26:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236649AbiGSCBz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Jul 2022 22:01:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38880 "EHLO
+        id S235667AbiGSF0l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Jul 2022 01:26:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236333AbiGSCBy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jul 2022 22:01:54 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBE533AB13;
-        Mon, 18 Jul 2022 19:01:52 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26J1ftM5020200;
-        Tue, 19 Jul 2022 02:01:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=PPw8mwGhjQL0BJg93dX6d9Kp4ZAOw9NYB4OXGXK112s=;
- b=Tl1t3eBx/+3e/gWAWKsV8k8HP1+jM8dZulxAVGRFuTtwK040kXac+5SK3T5N2iBxcZ/f
- 4jZxEJfRkH5vaAr+RcVcOjyFZy+4QR6iq9DB/tx/SYe7jUbvbgaBTPwhbH8gubQuUxL0
- 80PqIgbmh0E9Q52090aWiNihpvUC8599UR9L12r25PeHvU0FI3OultgUvv0HUHsYUExr
- BwFxJfWSK/uWrSYCfblAaxUUsNYp8OFiDGb530AdmtUoP7E64dcB6G8nlZQiT/Me8e8P
- BUSB3YCJQ5VYrNFagozZDZDCuTTT/GQPMKfFq+vL8H8KDwfMAnfo3SDcp06ayPH8MePi uQ== 
+        with ESMTP id S229916AbiGSF0k (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 01:26:40 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A66613F60;
+        Mon, 18 Jul 2022 22:26:39 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26J5CxIF013821;
+        Tue, 19 Jul 2022 05:26:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=8H7WOwXqw+3wr9CerSM2hWVM0N01TwTjsRnLxOLOLV8=;
+ b=j6ulJdd3t0qjZPqYD/Y+qmjFXKnQrbmjUouyEmFK4SzLpr64rB/6XpqroydpfvZ+jth7
+ QRKcXsQI2G3PQG8yrYhBnfn73VjRzOOFC2gziP7cyigEHeVsipC2UXlx6RU+janPkdiF
+ OPmPCTibiGZr3V492iug5vAQyPbOBkBMJqf3CBZPra5u3ahZK5tGMXqXQmEknRU5nXUv
+ sW9GDKvrHOI8R/bjyR5JahweKLhET6yY8apSvC0pXOBhyTukasQzQ8VpVW1Ur52mp+ne
+ cXzCCchbsgF2VeCou24bqcsRTNMpfk4ckuOJynczzhHoTfijZUDKYQyA8bPJn98bOo4W og== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdk640asq-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdp93886m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 02:01:46 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26J1ugPW034569;
-        Tue, 19 Jul 2022 02:01:45 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdk640as8-1
+        Tue, 19 Jul 2022 05:26:31 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26J5KpLJ004374;
+        Tue, 19 Jul 2022 05:26:31 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdp93886a-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 02:01:45 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26J1onIf004560;
-        Tue, 19 Jul 2022 02:01:44 GMT
-Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
-        by ppma05wdc.us.ibm.com with ESMTP id 3hbmy9geeg-1
+        Tue, 19 Jul 2022 05:26:31 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26J5KmiL024404;
+        Tue, 19 Jul 2022 05:26:29 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3hbmy8uh82-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 02:01:44 +0000
-Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26J21hYZ21168774
+        Tue, 19 Jul 2022 05:26:29 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26J5QQJn20906312
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 Jul 2022 02:01:43 GMT
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 34C7B136051;
-        Tue, 19 Jul 2022 02:01:43 +0000 (GMT)
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AC214136053;
-        Tue, 19 Jul 2022 02:01:41 +0000 (GMT)
-Received: from farman-thinkpad-t470p (unknown [9.211.146.30])
-        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 19 Jul 2022 02:01:41 +0000 (GMT)
-Message-ID: <1f945ef0eb6c02079700a6785ca3dd9864096b82.camel@linux.ibm.com>
-Subject: Re: simplify the mdev interface v6
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Alex Williamson <alex.williamson@redhat.com>,
-        Christoph Hellwig <hch@lst.de>
-Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        Vineeth Vijayan <vneethv@linux.ibm.com>
-Date:   Mon, 18 Jul 2022 22:01:40 -0400
-In-Reply-To: <20220718153331.18a52e31.alex.williamson@redhat.com>
-References: <20220709045450.609884-1-hch@lst.de>
-         <20220718054348.GA22345@lst.de>
-         <20220718153331.18a52e31.alex.williamson@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bPzYFyV32OrQ-bvBA1OaEfajS1Z3nqoV
-X-Proofpoint-ORIG-GUID: uE_GeuD9Iu8rY6zWRdsziIVCXWySTCOe
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 19 Jul 2022 05:26:26 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ECB02A4060;
+        Tue, 19 Jul 2022 05:26:25 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DB9B5A4054;
+        Tue, 19 Jul 2022 05:26:25 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 19 Jul 2022 05:26:25 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+        id 7F138E048E; Tue, 19 Jul 2022 07:16:36 +0200 (CEST)
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Matthew Wilcox <willy@infradead.org>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Cc:     Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v4 2/4] s390/crash: move copy_to_user_real() to crash_dump.c
+Date:   Tue, 19 Jul 2022 07:16:34 +0200
+Message-Id: <e8de968d40202d87caa09aef12e9c67ec23a1c1a.1658206891.git.agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <cover.1658206891.git.agordeev@linux.ibm.com>
+References: <cover.1658206891.git.agordeev@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: J7H0ETT66FQCGBIkZ6JRPzT_Hn2fINvZ
+X-Proofpoint-GUID: pVKI15JBF9lXc3nlMSuVkdt8heUQeE-X
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-18_22,2022-07-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 impostorscore=0 malwarescore=0 bulkscore=0
- mlxlogscore=999 spamscore=0 phishscore=0 clxscore=1015 suspectscore=0
- lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2206140000 definitions=main-2207190006
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 impostorscore=0 mlxscore=0 bulkscore=0
+ lowpriorityscore=0 adultscore=0 mlxlogscore=731 suspectscore=0
+ clxscore=1015 spamscore=0 malwarescore=0 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2206140000
+ definitions=main-2207190019
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2022-07-18 at 15:33 -0600, Alex Williamson wrote:
-> On Mon, 18 Jul 2022 07:43:48 +0200
-> Christoph Hellwig <hch@lst.de> wrote:
-> 
-> > Alex, does this series look good to you now?
-> 
-> It does.  I was hoping we'd get a more complete set acks from the
-> mdev
-> driver owners, but I'll grab this within the next day or two with
-> whatever additional reviews come in by then. 
+Function copy_to_user_real() does not really belong to maccess.c.
+It is only used for copying oldmem to user space, so let's move
+it to the friends.
 
-Apologies, I have been on vacation since this version was posted.
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+---
+ arch/s390/include/asm/uaccess.h |  1 -
+ arch/s390/kernel/crash_dump.c   | 26 ++++++++++++++++++++++++++
+ arch/s390/mm/maccess.c          | 26 --------------------------
+ 3 files changed, 26 insertions(+), 27 deletions(-)
 
-I'll get the problem with struct subchannel [1] sorted out in the next
-couple of days. This series breaks vfio-ccw in its current form (see
-reply to patch 14), but even with that addressed the placement of all
-these other mdev structs needs to be handled differently.
-
-Eric
-
-[1] https://lore.kernel.org/r/20220707134017.GB19060@lst.de/
-
->  Thanks,
-> 
-> Alex
-> 
-> > On Sat, Jul 09, 2022 at 06:54:36AM +0200, Christoph Hellwig wrote:
-> > > Hi all,
-> > > 
-> > > this series signigicantly simplies the mdev driver interface by
-> > > following
-> > > the patterns for device model interaction used elsewhere in the
-> > > kernel.
-> > > 
-> > > Changes since v5:
-> > >  - rebased to the latest vfio/next branch
-> > >  - drop the last patch again
-> > >  - make sure show_available_instances works properly for the
-> > > internallly
-> > >    tracked case
-> > > 
-> > > Changes since v4:
-> > >  - move the kobject_put later in mdev_device_release 
-> > >  - add a Fixes tag for the first patch
-> > >  - add another patch to remove an extra kobject_get/put
-> > > 
-> > > Changes since v3:
-> > >  - make the sysfs_name and pretty_name fields pointers instead of
-> > > arrays
-> > >  - add an i915 cleanup to prepare for the above
-> > > 
-> > > Changes since v2:
-> > >  - rebased to vfio/next
-> > >  - fix a pre-existing memory leak in i915 instead of making it
-> > > worse
-> > >  - never manipulate if ->available_instances if drv-
-> > > >get_available is
-> > >    provided
-> > >  - keep a parent reference for the mdev_type
-> > >  - keep a few of the sysfs.c helper function around
-> > >  - improve the documentation for the parent device lifetime
-> > >  - minor spellig / formatting fixes
-> > > 
-> > > Changes since v1:
-> > >  - embedd the mdev_parent into a different sub-structure in i916
-> > >  - remove headers now inclued by mdev.h from individual source
-> > > files
-> > >  - pass an array of mdev_types to mdev_register_parent
-> > >  - add additional patches to implement all attributes on the
-> > >    mdev_type in the core code
-> > > 
-> > > Diffstat:
-> > >  Documentation/driver-api/vfio-mediated-device.rst |   26 +-
-> > >  Documentation/s390/vfio-ap.rst                    |    2 
-> > >  Documentation/s390/vfio-ccw.rst                   |    2 
-> > >  drivers/gpu/drm/i915/gvt/aperture_gm.c            |   20 +-
-> > >  drivers/gpu/drm/i915/gvt/gvt.h                    |   42 ++--
-> > >  drivers/gpu/drm/i915/gvt/kvmgt.c                  |  168 ++++---
-> > > ----------
-> > >  drivers/gpu/drm/i915/gvt/vgpu.c                   |  210
-> > > +++++++---------------
-> > >  drivers/s390/cio/cio.h                            |    4 
-> > >  drivers/s390/cio/vfio_ccw_drv.c                   |   12 -
-> > >  drivers/s390/cio/vfio_ccw_ops.c                   |   51 -----
-> > >  drivers/s390/cio/vfio_ccw_private.h               |    2 
-> > >  drivers/s390/crypto/vfio_ap_ops.c                 |   68 +------
-> > >  drivers/s390/crypto/vfio_ap_private.h             |    6 
-> > >  drivers/vfio/mdev/mdev_core.c                     |  190 ++++---
-> > > ------------
-> > >  drivers/vfio/mdev/mdev_driver.c                   |    7 
-> > >  drivers/vfio/mdev/mdev_private.h                  |   32 ---
-> > >  drivers/vfio/mdev/mdev_sysfs.c                    |  189
-> > > ++++++++++---------
-> > >  include/linux/mdev.h                              |   77 ++++---
-> > > -
-> > >  samples/vfio-mdev/mbochs.c                        |  103 +++--
-> > > -----
-> > >  samples/vfio-mdev/mdpy.c                          |  115 +++--
-> > > -------
-> > >  samples/vfio-mdev/mtty.c                          |   94 +++--
-> > > ----
-> > >  21 files changed, 463 insertions(+), 957 deletions(-)  
-> > ---end quoted text---
-> > 
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index f4511e21d646..2a067315fe59 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -285,7 +285,6 @@ static inline unsigned long __must_check clear_user(void __user *to, unsigned lo
+ 	return __clear_user(to, n);
+ }
+ 
+-int copy_to_user_real(void __user *dest, unsigned long src, unsigned long count);
+ void *s390_kernel_write(void *dst, const void *src, size_t size);
+ 
+ int __noreturn __put_kernel_bad(void);
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index 0efee5c49b1e..8d7332d4444c 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -173,6 +173,32 @@ int copy_oldmem_kernel(void *dst, unsigned long src, size_t count)
+ 	return 0;
+ }
+ 
++/*
++ * Copy memory from kernel (real) to user (virtual)
++ */
++static int copy_to_user_real(void __user *dest, unsigned long src, unsigned long count)
++{
++	int offs = 0, size, rc;
++	char *buf;
++
++	buf = (char *)__get_free_page(GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++	rc = -EFAULT;
++	while (offs < count) {
++		size = min(PAGE_SIZE, count - offs);
++		if (memcpy_real(buf, src + offs, size))
++			goto out;
++		if (copy_to_user(dest + offs, buf, size))
++			goto out;
++		offs += size;
++	}
++	rc = 0;
++out:
++	free_page((unsigned long)buf);
++	return rc;
++}
++
+ /*
+  * Copy memory of the old, dumped system to a user space virtual address
+  */
+diff --git a/arch/s390/mm/maccess.c b/arch/s390/mm/maccess.c
+index 421efa46946b..d6d84e02f35a 100644
+--- a/arch/s390/mm/maccess.c
++++ b/arch/s390/mm/maccess.c
+@@ -171,32 +171,6 @@ void memcpy_absolute(void *dest, void *src, size_t count)
+ 	arch_local_irq_restore(flags);
+ }
+ 
+-/*
+- * Copy memory from kernel (real) to user (virtual)
+- */
+-int copy_to_user_real(void __user *dest, unsigned long src, unsigned long count)
+-{
+-	int offs = 0, size, rc;
+-	char *buf;
+-
+-	buf = (char *) __get_free_page(GFP_KERNEL);
+-	if (!buf)
+-		return -ENOMEM;
+-	rc = -EFAULT;
+-	while (offs < count) {
+-		size = min(PAGE_SIZE, count - offs);
+-		if (memcpy_real(buf, src + offs, size))
+-			goto out;
+-		if (copy_to_user(dest + offs, buf, size))
+-			goto out;
+-		offs += size;
+-	}
+-	rc = 0;
+-out:
+-	free_page((unsigned long) buf);
+-	return rc;
+-}
+-
+ /*
+  * Check if physical address is within prefix or zero page
+  */
+-- 
+2.34.1
 
