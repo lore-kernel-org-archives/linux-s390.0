@@ -2,95 +2,227 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 292D5C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 11:23:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E373ECCA482
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 12:04:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233381AbiGSLXy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Jul 2022 07:23:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59912 "EHLO
+        id S237953AbiGSME5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Jul 2022 08:04:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbiGSLXx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 07:23:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6311EC66
-        for <linux-s390@vger.kernel.org>; Tue, 19 Jul 2022 04:23:52 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 304F861592
-        for <linux-s390@vger.kernel.org>; Tue, 19 Jul 2022 11:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E0F8C341C6;
-        Tue, 19 Jul 2022 11:23:50 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="KhIGxU2h"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1658229829;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4Xltzb52NGnbPY2VCaaF/R/ZpzfmeAtXwV9zVBung+Y=;
-        b=KhIGxU2h0HKUqv/emgeI3pJlq9Pqu4JPRj7VQ0Q2YhC8lVGFx7oEkGzGTggAwKWLhK/ukf
-        get3jHK5gGGmE+YNCI46/3B3pMs1BEtUJHVuGm9+h6l6CZ3swvA3v4/Q6zv7onlrgFzfnM
-        ulBtJyCzQwEyq3lAnV4lMSbZ/oRMQhw=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id cb59bb4f (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Tue, 19 Jul 2022 11:23:48 +0000 (UTC)
-Date:   Tue, 19 Jul 2022 13:23:46 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-s390@vger.kernel.org, qemu-devel@nongnu.org,
-        Thomas Huth <thuth@redhat.com>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>
-Subject: Re: [PATCH qemu] target/s390x: support PRNO_TRNG instruction
-Message-ID: <YtaUQkVUPVHt+v0Z@zx2c4.com>
-References: <20220712164627.581570-1-Jason@zx2c4.com>
- <8326327a-e55e-3aba-049f-b925282f95a8@redhat.com>
+        with ESMTP id S238075AbiGSMED (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 08:04:03 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5CC04BD39;
+        Tue, 19 Jul 2022 04:59:48 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26JBhBZS010624;
+        Tue, 19 Jul 2022 11:58:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=1bpmIwvLzc5rcXgHQnnpEZ/Q/uGD8Ks+HgDZHU3a1oU=;
+ b=XsGGcQhgQqeaBTDby6kBDSnY3UWfeOhcYCvhv1wB6ujJcxJiGxS0MZNEpZpP82C7GxFD
+ qy0fOIgAnaZwSxQsme0oU2OpnkxYpE+uDH15E6VZ9FqoTPk7uueHM+xVjuA9H19obp0k
+ s6iB/AuopbdOfFuRs3T2itJljC8cZmRau6vqNPrTRTAxzfHZyritEJt69CrO+tr2fYk/
+ a5TusVt3iaTwjyfbAiIDSIJqvsZkWlSpdU3F1bDpC3b6TgQn/5VHYn1uIF65z9GqayDx
+ YdNoMbE1y4UxcJQu+DMYqVGDiinlaBUTWkz8lq6RHrSk8VDZR7Xjb4CnhDZwmjv11EvB 1g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdv01gdw7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Jul 2022 11:58:04 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26JBhkdX012906;
+        Tue, 19 Jul 2022 11:58:03 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdv01gduu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Jul 2022 11:58:03 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26JBoeWj007350;
+        Tue, 19 Jul 2022 11:58:00 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma01fra.de.ibm.com with ESMTP id 3hbmy8v4fv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Jul 2022 11:58:00 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26JBvvjl21299544
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 19 Jul 2022 11:57:57 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2952D4C040;
+        Tue, 19 Jul 2022 11:57:57 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3ABB34C044;
+        Tue, 19 Jul 2022 11:57:54 +0000 (GMT)
+Received: from [9.171.46.191] (unknown [9.171.46.191])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 19 Jul 2022 11:57:54 +0000 (GMT)
+Message-ID: <38027ee9-bc70-6a2c-202c-1b4d2c9bdc74@linux.ibm.com>
+Date:   Tue, 19 Jul 2022 14:02:39 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v3 1/2] asm-generic: Remove pci.h copying remaining code
+ to x86
+Content-Language: en-US
+To:     Stafford Horne <shorne@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Nick Child <nick.child@ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>, linux-alpha@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        linux-pci@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-riscv@lists.infradead.org
+References: <20220718004114.3925745-1-shorne@gmail.com>
+ <20220718004114.3925745-2-shorne@gmail.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <20220718004114.3925745-2-shorne@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: QgXJydNrlCCOif_CNKu_BbM2Q3VZjQ3W
+X-Proofpoint-GUID: cwEMgAD_v6m2Yb1ImP5KSKWCOkQJrtGO
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <8326327a-e55e-3aba-049f-b925282f95a8@redhat.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-18_22,2022-07-19_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 spamscore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 clxscore=1011 phishscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207190048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi David,
 
-Thanks for your feedback. I'll CC you on v+1. Note that I don't know
-very much about s390x, so I may require some slight hand holding, but
-let's see how far I can get...
 
-On Tue, Jul 19, 2022 at 11:54:04AM +0200, David Hildenbrand wrote:
-> How is that warning avoided now? We have to sort that out first -- either by
-> removing that dependency (easy) or implementing SHA-512 (hard).
-
-Ahhh... Well, I can do either one I guess. Implementing SHA512 isn't
-really that hard. I can cook up a short enough software implementation
-of that which we could plonk into crypto_helper.c fairly minimally. Of
-course, then those instructions would have to be wired up. So maybe I'll
-try removing the dependency for v2 instead, and we'll see what you and
-Thomas think of that.
-
-> > +static void fill_buf_random(CPUS390XState *env, uintptr_t ra,
-> > +                            uint64_t buf, uint64_t len)
-> > +{
-> > +        uint64_t addr = wrap_address(env, buf);
-> > +        uint8_t tmp[256];
-> > +
-> > +        while (len) {
-> > +                size_t block = MIN(len, sizeof(tmp));
-> > +                qemu_guest_getrandom_nofail(tmp, block);
-> > +                for (size_t i = 0; i < block; ++i)
-> > +                        cpu_stb_data_ra(env, addr++, tmp[i], ra);
+On 7/18/22 02:41, Stafford Horne wrote:
+> The generic pci.h header now only provides a definition of
+> pci_get_legacy_ide_irq which is used by architectures that support PNP.
+> Of the architectures that use asm-generic/pci.h this is only x86.
 > 
+> This patch removes the old pci.h in order to make room for a new
+> pci.h to be used by arm64, riscv, openrisc, etc.
 > 
-> There seems to be something missing regarding exception + register handling.
+> The existing code in pci.h is moved out to x86.  On other architectures
+> we clean up any outstanding references.
+> 
+> Suggested-by: Arnd Bergmann <arnd@arndb.de>
+> Link: https://lore.kernel.org/lkml/CAK8P3a0JmPeczfmMBE__vn=Jbvf=nkbpVaZCycyv40pZNCJJXQ@mail.gmail.com/
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+> Since v2:
+>   - Remove pci_get_legacy_ide_irq in m68k
+> Since v1:
+>   - Remove pci_get_legacy_ide_irq for most architectures as its not needed.
+> 
+>   arch/alpha/include/asm/pci.h   |  1 -
+>   arch/ia64/include/asm/pci.h    |  1 -
+>   arch/m68k/include/asm/pci.h    |  2 --
+>   arch/powerpc/include/asm/pci.h |  1 -
+>   arch/s390/include/asm/pci.h    |  1 -
+>   arch/sparc/include/asm/pci.h   |  9 ---------
+>   arch/x86/include/asm/pci.h     |  6 ++++--
+>   arch/xtensa/include/asm/pci.h  |  3 ---
+>   include/asm-generic/pci.h      | 17 -----------------
+>   9 files changed, 4 insertions(+), 37 deletions(-)
+>   delete mode 100644 include/asm-generic/pci.h
+> 
+> diff --git a/arch/alpha/include/asm/pci.h b/arch/alpha/include/asm/pci.h
+> index cf6bc1e64d66..8ac5af0fc4da 100644
+> --- a/arch/alpha/include/asm/pci.h
+> +++ b/arch/alpha/include/asm/pci.h
+> @@ -56,7 +56,6 @@ struct pci_controller {
+>   
+>   /* IOMMU controls.  */
+>   
+> -/* TODO: integrate with include/asm-generic/pci.h ? */
+>   static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
+>   {
+>   	return channel ? 15 : 14;
+> diff --git a/arch/ia64/include/asm/pci.h b/arch/ia64/include/asm/pci.h
+> index 8c163d1d0189..218412d963c2 100644
+> --- a/arch/ia64/include/asm/pci.h
+> +++ b/arch/ia64/include/asm/pci.h
+> @@ -63,7 +63,6 @@ static inline int pci_proc_domain(struct pci_bus *bus)
+>   	return (pci_domain_nr(bus) != 0);
+>   }
+>   
+> -#define HAVE_ARCH_PCI_GET_LEGACY_IDE_IRQ
+>   static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
+>   {
+>   	return channel ? isa_irq_to_vector(15) : isa_irq_to_vector(14);
+> diff --git a/arch/m68k/include/asm/pci.h b/arch/m68k/include/asm/pci.h
+> index 5a4bc223743b..ccdfa0dc8413 100644
+> --- a/arch/m68k/include/asm/pci.h
+> +++ b/arch/m68k/include/asm/pci.h
+> @@ -2,8 +2,6 @@
+>   #ifndef _ASM_M68K_PCI_H
+>   #define _ASM_M68K_PCI_H
+>   
+> -#include <asm-generic/pci.h>
+> -
+>   #define	pcibios_assign_all_busses()	1
+>   
+>   #define	PCIBIOS_MIN_IO		0x00000100
+> diff --git a/arch/powerpc/include/asm/pci.h b/arch/powerpc/include/asm/pci.h
+> index 915d6ee4b40a..f9da506751bb 100644
+> --- a/arch/powerpc/include/asm/pci.h
+> +++ b/arch/powerpc/include/asm/pci.h
+> @@ -39,7 +39,6 @@
+>   #define pcibios_assign_all_busses() \
+>   	(pci_has_flag(PCI_REASSIGN_ALL_BUS))
+>   
+> -#define HAVE_ARCH_PCI_GET_LEGACY_IDE_IRQ
+>   static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
+>   {
+>   	if (ppc_md.pci_get_legacy_ide_irq)
+> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> index fdb9745ee998..5889ddcbc374 100644
+> --- a/arch/s390/include/asm/pci.h
+> +++ b/arch/s390/include/asm/pci.h
+> @@ -6,7 +6,6 @@
+>   #include <linux/mutex.h>
+>   #include <linux/iommu.h>
+>   #include <linux/pci_hotplug.h>
+> -#include <asm-generic/pci.h>
+>   #include <asm/pci_clp.h>
+>   #include <asm/pci_debug.h>
+>   #include <asm/sclp.h>
 
-Thanks, missed this. I'll do that.
+Did not notice any problem for S390.
 
-> Further, to be 100% correct you might have to wrap the address whenever
-> you increment it.
+Acked-by: Pierre Morel <pmorel@linux.ibm.com>
 
-Ack.
 
-Jason
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
