@@ -2,95 +2,87 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF458C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 14:06:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1DBAC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 14:17:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237512AbiGSOG1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Jul 2022 10:06:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38272 "EHLO
+        id S238737AbiGSORb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Jul 2022 10:17:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237634AbiGSOGO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 10:06:14 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFFBA5404C;
-        Tue, 19 Jul 2022 06:20:53 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26JDCISV017833;
-        Tue, 19 Jul 2022 13:20:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- subject : to : from : message-id : date; s=pp1;
- bh=FQ0FB6ht6L08CH+OcHRoBbO7yoXPwLQdE28vOVHq/zY=;
- b=cy20ZYacdAoqe7zSQs4g9qTp/EnCRu5PP69dNqBxJHmpiJb/OGvtfxtnkSYapWPBegZL
- 9qbE1tloHYqQuyLirSvu8gC+9j7zzUzGZ3R8BNndUr9bKB8aLTWe6KDhf/Aff9ZeqFZg
- 6T8GqPZEbGUuJsfAZ8/j9v0qFvwsFvoSVNuOtLYgMYn+J6XQyxk2/w7O0tjw1ZW2JuG1
- kQB+CP4iTh5KCwTTcNCVAoucc8oMDuAV2twBGC4kvuwHhtBiYjQsD2MjbJs6HPRfVmHZ
- Bn9JD1t4B099PGbTnNKLsvSjlvheXCOQJxyE3bMrEZeyrO7mJ2yBQ2VEsylTaJKq3/5F dA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdw9p0kya-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 13:20:53 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26JDKo31022995;
-        Tue, 19 Jul 2022 13:20:50 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3hbmy8v535-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 13:20:50 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26JDKxkX30998940
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 Jul 2022 13:20:59 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A6DE742041;
-        Tue, 19 Jul 2022 13:20:47 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BA0F4203F;
-        Tue, 19 Jul 2022 13:20:47 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.10.188])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 19 Jul 2022 13:20:47 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229895AbiGSORM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 10:17:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0E0274CEC;
+        Tue, 19 Jul 2022 06:48:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 530626165E;
+        Tue, 19 Jul 2022 13:48:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 562EDC341CA;
+        Tue, 19 Jul 2022 13:48:46 +0000 (UTC)
+Date:   Tue, 19 Jul 2022 14:48:42 +0100
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        x86@kernel.org, Will Deacon <will@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "H . Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@suse.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH v3] random: handle archrandom with multiple longs
+Message-ID: <Yta2OuRXHdKhacu4@arm.com>
+References: <CAHmME9qTA90=GEr6h1GZh0CjS+6tpe5uuqkYoJVv79h0zd0w1w@mail.gmail.com>
+ <20220719130207.147536-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <16b8d198-9f5b-7124-e9bc-69209a0b49ac@linux.ibm.com>
-References: <20220718130434.73302-1-nrb@linux.ibm.com> <16b8d198-9f5b-7124-e9bc-69209a0b49ac@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v1] s390/kvm: pv: don't present the ecall interrupt twice
-To:     Janosch Frank <frankja@linux.ibm.com>, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <165823684731.15145.2382851660157537343@localhost.localdomain>
-User-Agent: alot/0.8.1
-Date:   Tue, 19 Jul 2022 15:20:47 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zXqba6OGN0c575E2WY_CHJz-ydRjttw7
-X-Proofpoint-ORIG-GUID: zXqba6OGN0c575E2WY_CHJz-ydRjttw7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-19_02,2022-07-19_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 mlxlogscore=496 phishscore=0 spamscore=0 malwarescore=0
- adultscore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0 mlxscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207190055
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220719130207.147536-1-Jason@zx2c4.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2022-07-19 15:07:43)
-> On 7/18/22 15:04, Nico Boehr wrote:
-> > When the SIGP interpretation facility is present and a VCPU sends an
-> > ecall to another VCPU in enabled wait, the sending VCPU receives a 56
-> > intercept (partial execution), so KVM can wake up the receiving CPU.
-> > Note that the SIGP interpretation facility will take care of the
-> > interrupt delivery and KVM's only job is to wake the receiving VCPU.
->=20
-> @Nico: Can we fixup the patch subject when picking?
-> The prefix normally starts with KVM: arch: Subject starts here
->=20
-> kvm: s390: pv: don't present the ecall interrupt twice
+On Tue, Jul 19, 2022 at 03:02:07PM +0200, Jason A. Donenfeld wrote:
+> The archrandom interface was originally designed for x86, which supplies
+> RDRAND/RDSEED for receiving random words into registers, resulting in
+> one function to generate an int and another to generate a long. However,
+> other architectures don't follow this.
+> 
+> On arm64, the SMCCC TRNG interface can return between 1 and 3 longs. On
+> s390, the CPACF TRNG interface can return arbitrary amounts, with 32
+> longs having the same cost as one. On UML, the os_getrandom() interface
+> can return arbitrary amounts.
+> 
+> So change the api signature to take a "max_longs" parameter designating
+> the maximum number of longs requested, and then return the number of
+> longs generated.
+> 
+> Since callers need to check this return value and loop anyway, each arch
+> implementation does not bother implementing its own loop to try again to
+> fill the maximum number of longs. Additionally, all existing callers
+> pass in a constant max_longs parameter. Taken together, these two things
+> mean that the codegen doesn't really change much for one-word-at-a-time
+> platforms, while performance is greatly improved on platforms such as
+> s390.
+> 
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: H. Peter Anvin <hpa@zytor.com>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Borislav Petkov <bp@suse.de>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Johannes Berg <johannes@sipsolutions.net>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Harald Freudenberger <freude@linux.ibm.com>
+> Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
-Oh sorry for messing that up.
+For arm64:
 
-Sure please go ahead and fixup. Thanks.
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
