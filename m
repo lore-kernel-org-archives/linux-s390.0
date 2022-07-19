@@ -2,111 +2,92 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81025C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 13:55:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F751CCA47F
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 13:58:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237646AbiGSNzz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Jul 2022 09:55:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56388 "EHLO
+        id S237779AbiGSN62 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Jul 2022 09:58:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237731AbiGSNzg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 09:55:36 -0400
+        with ESMTP id S237774AbiGSN6R (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 09:58:17 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3DC1BA267;
-        Tue, 19 Jul 2022 06:07:54 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26JD6FPO032251;
-        Tue, 19 Jul 2022 13:06:39 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E93D18813A;
+        Tue, 19 Jul 2022 06:09:32 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26JCuPLe011879;
+        Tue, 19 Jul 2022 13:09:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=1FnMB6ilUH8Q+XSiPaa6890QFe1JFfyJ6Mi4/MydGgQ=;
- b=Pg+xXRXvw7YxachkPjS7rOUIDudBevwYLBZkUZiDvKAlEPzOJiWrPk7ZU2z2k8U/V7Op
- a++n9gDy9GcO3x7q+7qdPm2T9CpoxDG17hoRe2+8nMVKd1M3lEBbS8W/tmVkgIInWCBv
- +bQeJg+T59B+dNzhBPuo0iSPdpI6P8TZ4R7Bt1uwTUgc/Hg2vG6dwuPUtblLgdrZkeXR
- 4SiFU1Q/TIwl6mzN/5HEt4RPK6zJCVb8C+5vlDRiLy5lgDFWTSj9Gk28zUUWdNheOOyN
- Z73gUg19Yv0bS9xtwfEvJek01XVuwcYKuTEI6RViJLUFh/JG/s72D77XbCti1WJV8naZ yQ== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdw6u0180-1
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=09RxaVQqlpuLyHpn1unsg0EqIWuFjxlA2BUPfHZ9yZo=;
+ b=IB3B/W24xQZ7fUCTdoA+IHP4O9myK/xKnv7vhxXR+q+1qFCXA+P03fymIjV7ADkjlKTi
+ gdITupXH1ARtdTrvHsrSnDA/Yk/CBm1xN3GP1x2FykJY8jMw+vNW47DjUT/6Sn0Nw6kY
+ RSV3KeOh1IyFJsOJJbw/ohPuwKkpZqzTN7Uder5mx9bOeHWnbq+azFMmSoh+9bBBxXCE
+ 2FB1OWJRawONxe4BoG48QI6Imd6nhn2UacK5lSzF263kf3zAT6dPKg7bQOGl6ldhasTK
+ G3v8Q2Vxvv62HZlb+CSzbuogZDiBcbvz7J3anhhMYaOMCibx1RGWVZKDYa+MviUbx1OZ lw== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdw2dghsk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 13:06:38 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26JD66Ep019218;
-        Tue, 19 Jul 2022 13:06:33 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma05fra.de.ibm.com with ESMTP id 3hbmy8u5d0-1
+        Tue, 19 Jul 2022 13:09:29 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26JD6iIp011160;
+        Tue, 19 Jul 2022 13:07:48 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3hbmy8v4g3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 13:06:33 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26JD4kMu22282534
+        Tue, 19 Jul 2022 13:07:47 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26JD7iEU22806992
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 Jul 2022 13:04:46 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 41AAD5204F;
-        Tue, 19 Jul 2022 13:06:30 +0000 (GMT)
-Received: from [9.152.224.219] (unknown [9.152.224.219])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id E0BC35204E;
-        Tue, 19 Jul 2022 13:06:29 +0000 (GMT)
-Message-ID: <3dff8443-410b-60ce-033d-0a04c4628c7b@linux.ibm.com>
-Date:   Tue, 19 Jul 2022 15:06:29 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH] s390/net: Fix comment typo
-Content-Language: en-US
-To:     Jason Wang <wangborong@cdjrlc.com>, svens@linux.ibm.com
-Cc:     wenjia@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Jiang Jian <jiangjian@cdjrlc.com>
-References: <20220716042700.39915-1-wangborong@cdjrlc.com>
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20220716042700.39915-1-wangborong@cdjrlc.com>
-Content-Type: text/plain; charset=UTF-8
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XqQ4vFzCuJUuuhxNhEjRwXaK2feckP7H
-X-Proofpoint-ORIG-GUID: XqQ4vFzCuJUuuhxNhEjRwXaK2feckP7H
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 19 Jul 2022 13:07:44 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8FA38AE04D;
+        Tue, 19 Jul 2022 13:07:44 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 513C9AE057;
+        Tue, 19 Jul 2022 13:07:44 +0000 (GMT)
+Received: from [9.145.157.161] (unknown [9.145.157.161])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 19 Jul 2022 13:07:44 +0000 (GMT)
+Message-ID: <16b8d198-9f5b-7124-e9bc-69209a0b49ac@linux.ibm.com>
+Date:   Tue, 19 Jul 2022 15:07:43 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v1] s390/kvm: pv: don't present the ecall interrupt twice
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, borntraeger@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220718130434.73302-1-nrb@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220718130434.73302-1-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6zD6nxiSE6j3HUWGtUkYpE4eXf2OX9S_
+X-Proofpoint-ORIG-GUID: 6zD6nxiSE6j3HUWGtUkYpE4eXf2OX9S_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-18_22,2022-07-19_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- priorityscore=1501 clxscore=1011 phishscore=0 adultscore=0 spamscore=0
- impostorscore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=999
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
+ spamscore=0 mlxscore=0 clxscore=1015 suspectscore=0 mlxlogscore=495
+ adultscore=0 lowpriorityscore=0 malwarescore=0 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2206140000 definitions=main-2207190055
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 7/18/22 15:04, Nico Boehr wrote:
+> When the SIGP interpretation facility is present and a VCPU sends an
+> ecall to another VCPU in enabled wait, the sending VCPU receives a 56
+> intercept (partial execution), so KVM can wake up the receiving CPU.
+> Note that the SIGP interpretation facility will take care of the
+> interrupt delivery and KVM's only job is to wake the receiving VCPU.
 
+@Nico: Can we fixup the patch subject when picking?
+The prefix normally starts with KVM: arch: Subject starts here
 
-On 16.07.22 06:27, Jason Wang wrote:
-> The double `the' is duplicated in the comment, remove one.
-> 
-> Signed-off-by: Jason Wang <wangborong@cdjrlc.com>
-> ---
->  drivers/s390/net/qeth_core_main.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-> index 9e54fe76a9b2..35d4b398c197 100644
-> --- a/drivers/s390/net/qeth_core_main.c
-> +++ b/drivers/s390/net/qeth_core_main.c
-> @@ -3565,7 +3565,7 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
->  			if (!atomic_read(&queue->set_pci_flags_count)) {
->  				/*
->  				 * there's no outstanding PCI any more, so we
-> -				 * have to request a PCI to be sure the the PCI
-> +				 * have to request a PCI to be sure the PCI
->  				 * will wake at some time in the future then we
->  				 * can flush packed buffers that might still be
->  				 * hanging around, which can happen if no
-
-Acked-by: Alexandra Winter <wintera@linux.ibm.com>
-
-The same patch was sent earlier by Jiang Jian <jiangjian@cdjrlc.com>:
-https://lore.kernel.org/netdev/7a935730-f3a5-0b1f-2bdc-a629711a3a01@linux.ibm.com/t/
-
-Same patch, but crisper description now by Jason Wang <wangborong@cdjrlc.com>
+kvm: s390: pv: don't present the ecall interrupt twice
