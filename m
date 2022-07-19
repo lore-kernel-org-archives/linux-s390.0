@@ -2,105 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68FA0C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 15:26:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF32C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 17:03:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239074AbiGSP0z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Jul 2022 11:26:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57440 "EHLO
+        id S237586AbiGSRDY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Jul 2022 13:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238232AbiGSP0w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 11:26:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DEA8E50062
-        for <linux-s390@vger.kernel.org>; Tue, 19 Jul 2022 08:26:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658244410;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=G7zzeWeOFiX/qPfQUEc/yUHAFf2sghiN9c5AjnoHblQ=;
-        b=K4dtbwbJ2wEYD1Ymh5PmsuTfu1/timPDBEy1+WxnCWiodAPY5Fkv+r9iNGS9ea8fFsr++A
-        IvijS/nJJO4aKnszUJESxigLwjUnvWAdc30uCVlgGadTvgAy0hz7eftotescY4ZqCC1o5n
-        umHKv4lCg7jtrxKPgIEoMx6Z5Ld9ttY=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-245-x_Owfo_sNze_e4kVN8Kwdw-1; Tue, 19 Jul 2022 11:26:48 -0400
-X-MC-Unique: x_Owfo_sNze_e4kVN8Kwdw-1
-Received: by mail-il1-f200.google.com with SMTP id f2-20020a056e020b4200b002dca33f6243so9633572ilu.15
-        for <linux-s390@vger.kernel.org>; Tue, 19 Jul 2022 08:26:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=G7zzeWeOFiX/qPfQUEc/yUHAFf2sghiN9c5AjnoHblQ=;
-        b=5nOGB7althqyVycahKWeJyGl5FaqQvdx8o6NvgTiBN8ZEfX9/RnwxJhdR8PBztpbhB
-         vBagdO8AjbuXVED+G6Nhgsxl84ZJN8vidNbrxaki4JJH4PB8kTc3jO0OEiiQtby4Lode
-         RXJR2oExdBEYX77y5sDQ9lKsRhvIR0hXGTCCIiKhRWbACFrEDmK+DxaDi1x3dCKMNNLH
-         YdTktbzMw85AuGvT0mVSxwWDpEPGz7T/JGYjAHEqoXUV5/9lGDEUxfyqWJtRAh3Jdtwn
-         MubN33vVgAV8lrDsbirOZd3pB5EekyQr50/czkCUzDWQpG9kEk1/3bLJULbEoL+Taf6G
-         UQFw==
-X-Gm-Message-State: AJIora/zVosuJTuDGB7zHG6UvNd1+rJlBqvO3Cn0niCfReXKAWvXfTol
-        93eibLXeTc/ag/PA1Xf0EQq4MYr4KIw+0qE589aQjWUstOyM+U/fOw1H2sdiiSevhe0QpARIEI6
-        EvoNjANjeuiRwI6nGgzddbw==
-X-Received: by 2002:a05:6638:348c:b0:33f:82b2:7441 with SMTP id t12-20020a056638348c00b0033f82b27441mr17856992jal.296.1658244406585;
-        Tue, 19 Jul 2022 08:26:46 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1sCP7legSjso0LeShf9Ua6sFhO1nc12IEp69v7ovtogZn2d+6QLUaad2RzcOZuMrXJv8UG/8A==
-X-Received: by 2002:a05:6638:348c:b0:33f:82b2:7441 with SMTP id t12-20020a056638348c00b0033f82b27441mr17856977jal.296.1658244406330;
-        Tue, 19 Jul 2022 08:26:46 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id t2-20020a92cc42000000b002dcf927087asm1345647ilq.65.2022.07.19.08.26.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jul 2022 08:26:45 -0700 (PDT)
-Date:   Tue, 19 Jul 2022 09:26:44 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Eric Farman <farman@linux.ibm.com>,
+        with ESMTP id S229531AbiGSRDX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 13:03:23 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86F0F57E1C;
+        Tue, 19 Jul 2022 10:03:22 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26JGvB00025197;
+        Tue, 19 Jul 2022 17:03:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : reply-to : subject : to : cc : references : from :
+ in-reply-to : content-type : content-transfer-encoding; s=pp1;
+ bh=YSJBoYtDEBMmGmrJBygjYcwgGLTznv+EA65ElyKxPKc=;
+ b=jDy6Q3n/Gb8B+x15Le/PZUFFF2tzxtnmf0BaQzFHIYhLhrGHtivS/aBcc6XCRsGEwv0u
+ Hhis1C3xBN0lHmGMTvPzR8Ca9m+jRSbXcwVEyCOF8v8opRELiLNQUg7ltTEzwIto8pSn
+ +i6SjqiWiBWSGLcxWGo6F6mNmyqd7aMDAjS5apYlYzbY08wzb2r94TsY3Xa2EPZwdo7f
+ SrkQGSC5ZfZJMi85eyB85XtyuC3xeJKr2iFY9L6T2x+4LW9u7LDoRvW/a45+aGoYRnmR
+ O7Me9weEg6D8IwauDSy9IbKuMaxwFjdGY/Sj9L7q5fUyMPpc3h3DMh68Nlp27NHZIDkQ uA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3he0k886rh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Jul 2022 17:03:04 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26JH0tJc020517;
+        Tue, 19 Jul 2022 17:03:03 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3he0k886r0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Jul 2022 17:03:03 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26JGokBD019670;
+        Tue, 19 Jul 2022 17:03:02 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma05wdc.us.ibm.com with ESMTP id 3hbmy9mhfe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Jul 2022 17:03:02 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26JH31gu33096158
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 19 Jul 2022 17:03:01 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A370F6A047;
+        Tue, 19 Jul 2022 17:03:01 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9612F6A051;
+        Tue, 19 Jul 2022 17:03:00 +0000 (GMT)
+Received: from [9.60.75.252] (unknown [9.60.75.252])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 19 Jul 2022 17:03:00 +0000 (GMT)
+Message-ID: <f6fe262c-ca07-97e2-ce15-ebcce5ded359@linux.ibm.com>
+Date:   Tue, 19 Jul 2022 13:03:00 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Reply-To: jjherne@linux.ibm.com
+Subject: Re: [PATCH 03/14] vfio/mdev: make mdev.h standalone includable
+Content-Language: en-US
+To:     Christoph Hellwig <hch@lst.de>,
         Kirti Wankhede <kwankhede@nvidia.com>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
         Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Zhenyu Wang <zhenyuw@linux.intel.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
+        Alex Williamson <alex.williamson@redhat.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        Vineeth Vijayan <vneethv@linux.ibm.com>
-Subject: Re: simplify the mdev interface v6
-Message-ID: <20220719092644.3db1ceee.alex.williamson@redhat.com>
-In-Reply-To: <20220719144928.GB21431@lst.de>
+        Kevin Tian <kevin.tian@intel.com>
 References: <20220709045450.609884-1-hch@lst.de>
-        <20220718054348.GA22345@lst.de>
-        <20220718153331.18a52e31.alex.williamson@redhat.com>
-        <1f945ef0eb6c02079700a6785ca3dd9864096b82.camel@linux.ibm.com>
-        <20220719144928.GB21431@lst.de>
-Organization: Red Hat
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+ <20220709045450.609884-4-hch@lst.de>
+From:   "Jason J. Herne" <jjherne@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <20220709045450.609884-4-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: VkXZEm0apAHqu2qzYQx1cpOPxW0i9zxa
+X-Proofpoint-GUID: 6T6S-zSBqaS8K2eKqOZegKWdkyfOO4y7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-19_04,2022-07-19_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 clxscore=1011 phishscore=0 mlxlogscore=913
+ priorityscore=1501 bulkscore=0 adultscore=0 lowpriorityscore=0
+ suspectscore=0 spamscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2206140000 definitions=main-2207190069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 19 Jul 2022 16:49:28 +0200
-Christoph Hellwig <hch@lst.de> wrote:
-
-> On Mon, Jul 18, 2022 at 10:01:40PM -0400, Eric Farman wrote:
-> > I'll get the problem with struct subchannel [1] sorted out in the next
-> > couple of days. This series breaks vfio-ccw in its current form (see
-> > reply to patch 14), but even with that addressed the placement of all
-> > these other mdev structs needs to be handled differently.  
+On 7/9/22 00:54, Christoph Hellwig wrote:
+> Include <linux/device.h> and <linux/uuid.h> so that users of this headers
+> don't need to do that and remove those includes that aren't needed
+> any more.
 > 
-> Alex, any preference if I should just fix the number instances checking
-> with either an incremental patch or a resend, or wait for this ccw
-> rework?
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Reviewed By: Kirti Wankhede <kwankhede@nvidia.com>
+> ---
+>   drivers/gpu/drm/i915/gvt/kvmgt.c      | 2 --
+>   drivers/s390/cio/vfio_ccw_drv.c       | 1 -
+>   drivers/s390/crypto/vfio_ap_private.h | 1 -
+>   drivers/vfio/mdev/mdev_core.c         | 2 --
+>   drivers/vfio/mdev/mdev_driver.c       | 1 -
+>   drivers/vfio/mdev/mdev_sysfs.c        | 2 --
+>   include/linux/mdev.h                  | 3 +++
+>   samples/vfio-mdev/mbochs.c            | 1 -
+>   samples/vfio-mdev/mdpy.c              | 1 -
+>   samples/vfio-mdev/mtty.c              | 2 --
+>   10 files changed, 3 insertions(+), 13 deletions(-)
+> 
+ > ...
+> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+> index a26efd804d0df..6616aa83347ad 100644
+> --- a/drivers/s390/crypto/vfio_ap_private.h
+> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> @@ -13,7 +13,6 @@
+>   #define _VFIO_AP_PRIVATE_H_
+>   
+>   #include <linux/types.h>
+> -#include <linux/device.h>
+>   #include <linux/mdev.h>
+>   #include <linux/delay.h>
+>   #include <linux/mutex.h>
 
-Since it's the last patch, let's at least just respin that patch rather
-than break and fix.  I'd like to make sure Eric is ok to shift around
-structures as a follow-up or make a proposal how this series should
-change though.  Thanks,
+Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
 
-Alex
 
+
+-- 
+-- Jason J. Herne (jjherne@linux.ibm.com)
