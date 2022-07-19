@@ -2,112 +2,182 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51D71C43334
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 06:35:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6E1AC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Jul 2022 08:42:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235532AbiGSGfi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Jul 2022 02:35:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49162 "EHLO
+        id S237062AbiGSImK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Jul 2022 04:42:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234732AbiGSGfh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 02:35:37 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8440E64E3;
-        Mon, 18 Jul 2022 23:35:36 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26J6KYjf001622;
-        Tue, 19 Jul 2022 06:35:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- subject : to : from : message-id : date; s=pp1;
- bh=6y8Zz1RWIdIfH6tVgX35u4FKFu5yOxuCBQAlC9WQuvM=;
- b=bafd8+kztTugDjVZSacoab1mPy3vgzuhjnm/fmNXlna9rwJlKFsmsqTfle9oaPx/hucx
- dDtY8qiilvDvQu3plyH3c4UgWFI0vaUMXUMNPAd52qpiauz0zXnSpGOQOUiKLu81biUT
- 1z4NJde2I0T7M/34JMwgcxjx8GePnyTgwjlC2IREPAsD7huTYt/PvLLDfT2R3AjSuFcX
- w+FBJqBcIFQnl14odD3kFs03Q0qraKDDpKK+d6Yx51kikDPKtDhnuewr0NzX/CsKUAnb
- uTEE9kXoicNX3vpXgCAa+QqqfvGyU2FYVdxtByxHzApFccqiS5Uzbk3Bwako1IXvMapo ug== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdq8ugcn0-1
+        with ESMTP id S235239AbiGSImJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 04:42:09 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695F82CCBD;
+        Tue, 19 Jul 2022 01:42:07 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26J8D8j9002425;
+        Tue, 19 Jul 2022 08:42:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=W/2CMaWkQsNoB4XXafFTcts6m1kH0IUKBb6VVyq9s4U=;
+ b=jXVH8WyD/RwkP/ONnR4BtIDfuZJ69mLLvHupSHrnj9x47HBMSSblr+R4stPes2qqoidz
+ FpPjvIzjhvBj+uWH10qb9Q7yJoYQLvP4Qy39tb9TAqZ8yh2AElmdirJklA3gIcKbKO7b
+ 4cgFoHXUHKUMSVIGnDnbcbJtfxK6/f+vZl++/bRpE5+3h6v/CsLfLhdofULVXzMAi2q1
+ 3vLxOflwQekdmq/0X4PDyPpOUGvYGcFuI/YO5IRSjE5qYtQLlYdHL17ZFtSEf7zHRXDh
+ OlRrZL7qO5QvPDrhQVo5hOmm0+fkTA2iDMWvHArGtuRWtl60QgfLaz8RkceIoeA6VF01 Ww== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdrwhh4wn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 06:35:36 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26J6LKKL004546;
-        Tue, 19 Jul 2022 06:35:35 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hdq8ugck8-1
+        Tue, 19 Jul 2022 08:42:06 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26J8KVM2010137;
+        Tue, 19 Jul 2022 08:42:04 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3hbmy8ushq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 06:35:35 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26J6KcVu029499;
-        Tue, 19 Jul 2022 06:35:33 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 3hbmy8up31-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Jul 2022 06:35:33 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26J6ZUBC20119872
+        Tue, 19 Jul 2022 08:42:04 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26J8gDLP29557030
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 Jul 2022 06:35:30 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D6967A4057;
-        Tue, 19 Jul 2022 06:35:30 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AEF7DA4051;
-        Tue, 19 Jul 2022 06:35:30 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.10.188])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 19 Jul 2022 06:35:30 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 19 Jul 2022 08:42:13 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7ABB14C050;
+        Tue, 19 Jul 2022 08:42:01 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3C6E64C044;
+        Tue, 19 Jul 2022 08:42:01 +0000 (GMT)
+Received: from [9.145.157.161] (unknown [9.145.157.161])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 19 Jul 2022 08:42:01 +0000 (GMT)
+Message-ID: <5a189be8-db6e-64b5-4acf-fd04302b37b2@linux.ibm.com>
+Date:   Tue, 19 Jul 2022 10:42:00 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20220705102011.1cf2237e@p-imbrenda>
-References: <20220704121328.721841-1-nrb@linux.ibm.com> <20220704121328.721841-3-nrb@linux.ibm.com> <20220705102011.1cf2237e@p-imbrenda>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v2 2/4] lib: s390x: add CPU timer functions to time.h
-To:     kvm@vger.kernel.org
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <165821253050.15145.12865499120775236740@localhost.localdomain>
-User-Agent: alot/0.8.1
-Date:   Tue, 19 Jul 2022 08:35:30 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v1] s390/kvm: pv: don't present the ecall interrupt twice
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, borntraeger@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220718130434.73302-1-nrb@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220718130434.73302-1-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: wWtlrosKt1ru8q5gdSHM6-Bp7D-b0ETp
-X-Proofpoint-ORIG-GUID: _8KVtseP6p1adF6yK6dGvLcTUKxeiKyO
+X-Proofpoint-GUID: KOb0xvfDlHUAbg9DFVLQ1xJUl72KOO13
+X-Proofpoint-ORIG-GUID: KOb0xvfDlHUAbg9DFVLQ1xJUl72KOO13
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-18_22,2022-07-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 bulkscore=0 lowpriorityscore=0 mlxlogscore=999 mlxscore=0
- malwarescore=0 spamscore=0 impostorscore=0 suspectscore=0 clxscore=1015
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207190027
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 clxscore=1015 spamscore=0 mlxscore=0 bulkscore=0
+ mlxlogscore=987 impostorscore=0 priorityscore=1501 suspectscore=0
+ adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207190036
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Claudio Imbrenda (2022-07-05 10:20:11)
+On 7/18/22 15:04, Nico Boehr wrote:
+> When the SIGP interpretation facility is present and a VCPU sends an
+> ecall to another VCPU in enabled wait, the sending VCPU receives a 56
+> intercept (partial execution), so KVM can wake up the receiving CPU.
+> Note that the SIGP interpretation facility will take care of the
+> interrupt delivery and KVM's only job is to wake the receiving VCPU.
+> 
+> For PV, the sending VCPU will receive a 108 intercept (pv notify) and
+> should continue like in the non-PV case, i.e. wake the receiving VCPU.
+> 
+> For PV and non-PV guests the interrupt delivery will occur through the
+> SIGP interpretation facility on SIE entry when SIE finds the X bit in
+> the status field set.
+> 
+> However, in handle_pv_notification(), there was no special handling for
+> SIGP, which leads to interrupt injection being requested by KVM for the
+> next SIE entry. This results in the interrupt being delivered twice:
+> once by the SIGP interpretation facility and once by KVM through the
+> IICTL.
+> 
+> Add the necessary special handling in handle_pv_notification(), similar
+> to handle_partial_execution(), which simply wakes the receiving VCPU and
+> leave interrupt delivery to the SIGP interpretation facility.
+> 
+> In contrast to external calls, emergency calls are not interpreted but
+> also cause a 108 intercept, which is why we still need to call
+> handle_instruction() for SIGP orders other than ecall.
+> 
+> Since kvm_s390_handle_sigp_pei() is now called for all SIGP orders which
+> cause a 108 intercept - even if they are actually handled by
+> handle_instruction() - move the tracepoint in kvm_s390_handle_sigp_pei()
+> to avoid possibly confusing trace messages.
 
-Sorry Claudio, missed your mail as well...
+Lengthy but quite informative
 
-> > diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
-> > index 7652a151e87a..9ae364afb8a3 100644
-> > --- a/lib/s390x/asm/time.h
-> > +++ b/lib/s390x/asm/time.h
-> > @@ -11,9 +11,13 @@
-[...]
-> > +#define TIMING_S390_SHIFT_US (63 - 51)
->=20
-> I would call it S390_CLOCK_SHIFT_US
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> Cc: <stable@vger.kernel.org> # 5.7
+> Fixes: da24a0cc58ed ("KVM: s390: protvirt: Instruction emulation")
 
-Will do.
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-[...]
-> > +static inline void cpu_timer_set(int64_t timeout_ms)
->=20
-> I would call the function cpu_timer_set_ms
->=20
-> so that it's clear what unit goes in, and it makes things easier if in
-> the future someone needs a _us version
+Since it already caused confusion:
+I plan on queuing this (via the s390 KVM tree) for 5.20 and not putting 
+it into rc8 since we've been running with this problem for years and 
+I've yet to see a crash because of it.
 
-Makes sense, that's also how the other functions are, so it is more consist=
-ent.
+> ---
+>   arch/s390/kvm/intercept.c | 15 +++++++++++++++
+>   arch/s390/kvm/sigp.c      |  4 ++--
+>   2 files changed, 17 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> index 8bd42a20d924..88112065d941 100644
+> --- a/arch/s390/kvm/intercept.c
+> +++ b/arch/s390/kvm/intercept.c
+> @@ -528,12 +528,27 @@ static int handle_pv_uvc(struct kvm_vcpu *vcpu)
+>   
+>   static int handle_pv_notification(struct kvm_vcpu *vcpu)
+>   {
+> +	int ret;
+> +
+>   	if (vcpu->arch.sie_block->ipa == 0xb210)
+>   		return handle_pv_spx(vcpu);
+>   	if (vcpu->arch.sie_block->ipa == 0xb220)
+>   		return handle_pv_sclp(vcpu);
+>   	if (vcpu->arch.sie_block->ipa == 0xb9a4)
+>   		return handle_pv_uvc(vcpu);
+> +	if (vcpu->arch.sie_block->ipa >> 8 == 0xae) {
+> +		/*
+> +		 * Besides external call, other SIGP orders also cause a
+> +		 * 108 (pv notify) intercept. In contrast to external call,
+> +		 * these orders need to be emulated and hence the appropriate
+> +		 * place to handle them is in handle_instruction().
+> +		 * So first try kvm_s390_handle_sigp_pei() and if that isn't
+> +		 * successful, go on with handle_instruction().
+> +		 */
+> +		ret = kvm_s390_handle_sigp_pei(vcpu);
+> +		if (!ret)
+> +			return ret;
+> +	}
+>   
+>   	return handle_instruction(vcpu);
+>   }
+> diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+> index 8aaee2892ec3..cb747bf6c798 100644
+> --- a/arch/s390/kvm/sigp.c
+> +++ b/arch/s390/kvm/sigp.c
+> @@ -480,9 +480,9 @@ int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu)
+>   	struct kvm_vcpu *dest_vcpu;
+>   	u8 order_code = kvm_s390_get_base_disp_rs(vcpu, NULL);
+>   
+> -	trace_kvm_s390_handle_sigp_pei(vcpu, order_code, cpu_addr);
+> -
+>   	if (order_code == SIGP_EXTERNAL_CALL) {
+> +		trace_kvm_s390_handle_sigp_pei(vcpu, order_code, cpu_addr);
+> +
+>   		dest_vcpu = kvm_get_vcpu_by_id(vcpu->kvm, cpu_addr);
+>   		BUG_ON(dest_vcpu == NULL);
+>   
+
