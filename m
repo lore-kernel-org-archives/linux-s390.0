@@ -2,92 +2,250 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F8B4C43334
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Jul 2022 17:43:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CB3FC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Jul 2022 19:41:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230243AbiGTRnn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Jul 2022 13:43:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40444 "EHLO
+        id S233561AbiGTTlV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Jul 2022 15:41:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbiGTRnk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Jul 2022 13:43:40 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E69B848E88;
-        Wed, 20 Jul 2022 10:43:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=M7NmYC/Iylm9myghHwqILim55SAUt9QrM+UZYk0eJlw=; b=ud/J0sBp4WvQan86X0B396DoWt
-        XvbxlyIGi6vo1wobokFAbidmtnnQXU3j4yAeDtrOCqpZDngaD3xxJne84/OLuZMOtBI0r005mQgBF
-        DdDoVC5HgChuuAAO3sHGynh14NoOKiIXm5t4DibPm3oayQgekE25NDF4xtLigZVAQ2Njmwu6gkyaD
-        ssVbjhn4nAlypq0C8lkV1MklYFoQpTLbUOn+KYhwQIXcY5hTwGw5P1T2C4zFcwIb0qYTG1Z/huXhI
-        /1f+UUyIDqcHLc6IqDrlkwhdcR12z7SKJVqNISeIURQkOu0X4aX5a2XpiIid7z7MciA801M2r2MIv
-        83a/10RA==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oEDjJ-008nHG-0T; Wed, 20 Jul 2022 17:43:25 +0000
-Date:   Wed, 20 Jul 2022 10:43:24 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Stafford Horne <shorne@gmail.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        with ESMTP id S229570AbiGTTlU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Jul 2022 15:41:20 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5E2E25143E
+        for <linux-s390@vger.kernel.org>; Wed, 20 Jul 2022 12:41:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1658346078;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ehh4V90wN0RJR9qCy+oaecsD0c4O/PC+hN+Ir98d0Ho=;
+        b=gGSIfsfn1+yyekmGIyBu7EyoTKi/3qKa5NmRRF1/6fnGn2ZVJhjlvJd1jloH6yaE1uwrKq
+        oU3grPZjpIPlKXGJ06EDFkliVNk3mF+fwIxW5eTtEZB/U2ZVNbLcQ+wU5QzVVyRbKJHy51
+        KqHqXg4tM8i5kYZ4nAhMpto5QDluiyQ=
+Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
+ [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-580-dkSppk0UPza196aCoAxGaw-1; Wed, 20 Jul 2022 15:41:17 -0400
+X-MC-Unique: dkSppk0UPza196aCoAxGaw-1
+Received: by mail-il1-f199.google.com with SMTP id f2-20020a056e020b4200b002dca33f6243so11864851ilu.15
+        for <linux-s390@vger.kernel.org>; Wed, 20 Jul 2022 12:41:17 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=ehh4V90wN0RJR9qCy+oaecsD0c4O/PC+hN+Ir98d0Ho=;
+        b=69zIS9TwYcrKvGSYWkJDo1+628kpNbKDVnIZDWB4VFChmtYicEw3O5G2WyVeJDPpKo
+         exkFGC3zoN8Y2jhEIoslfXlyZmLJZf/56vPjIaZWAqkXXlErL9zzXvw5bHA5GKYthbcV
+         rsrZDNsHBSXiohuhYeJYskfKmHWSSZaA/6um5q4KGpVwHz3nfUnu8+bKBAP6Cj/OCZEa
+         X+iKsiLzArWWGYyKe6MXhWJdpN89hR8eyzWr5vX0asnY9Aan6GHTsiisCQ/K6Jzq6uaV
+         4QH+PCp2wi7bItEkZXU091fYIV6v6fek5wmfgC036PUBqKdOxz+Yu8cg97BNkiRTCVWF
+         1SYQ==
+X-Gm-Message-State: AJIora9Q9mkVkbRrGfovwynYky46GHaQG/va5prmWyDCJSnDEiWoAPGZ
+        e0URTgg5e0b3SGPc8iAADma9LJeAZBrLhsddcghVyKCk7skOsoY6ZlI6fLpQve/tyZaU4SsxdGB
+        yMMLQ6fBUirPH9OVMRMLKug==
+X-Received: by 2002:a05:6e02:1a0c:b0:2dc:8921:a8d9 with SMTP id s12-20020a056e021a0c00b002dc8921a8d9mr20755563ild.145.1658346076499;
+        Wed, 20 Jul 2022 12:41:16 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vYxHlGrytgU3tCmIJ+Uhn7Hc+/RyJhZDLkKiiqtiSiv/P5YPbnk+rkd8QUKXd1S1jL+Xv4Pg==
+X-Received: by 2002:a05:6e02:1a0c:b0:2dc:8921:a8d9 with SMTP id s12-20020a056e021a0c00b002dc8921a8d9mr20755544ild.145.1658346076213;
+        Wed, 20 Jul 2022 12:41:16 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id g40-20020a022728000000b00339eedc7840sm8267773jaa.94.2022.07.20.12.41.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Jul 2022 12:41:15 -0700 (PDT)
+Date:   Wed, 20 Jul 2022 13:41:13 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Nick Child <nick.child@ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         Matthew Rosato <mjrosato@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH v4 1/3] PCI: Remove pci_get_legacy_ide_irq and
- asm-generic/pci.h
-Message-ID: <Ytg+vPSl+oBGtSRZ@infradead.org>
-References: <20220720131934.373932-1-shorne@gmail.com>
- <20220720131934.373932-2-shorne@gmail.com>
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>
+Subject: Re: [PATCH v4 1/2] vfio: Replace the DMA unmapping notifier with a
+ callback
+Message-ID: <20220720134113.4225f9d6.alex.williamson@redhat.com>
+In-Reply-To: <1-v4-681e038e30fd+78-vfio_unmap_notif_jgg@nvidia.com>
+References: <0-v4-681e038e30fd+78-vfio_unmap_notif_jgg@nvidia.com>
+        <1-v4-681e038e30fd+78-vfio_unmap_notif_jgg@nvidia.com>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220720131934.373932-2-shorne@gmail.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Looks good:
+On Tue, 19 Jul 2022 21:02:48 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index a7d2a95796d360..bb1a1677c5c230 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -1226,34 +1226,14 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+>  	return 0;
+>  }
+>  
+> -/**
+> - * vfio_ap_mdev_iommu_notifier - IOMMU notifier callback
+> - *
+> - * @nb: The notifier block
+> - * @action: Action to be taken
+> - * @data: data associated with the request
+> - *
+> - * For an UNMAP request, unpin the guest IOVA (the NIB guest address we
+> - * pinned before). Other requests are ignored.
+> - *
+> - * Return: for an UNMAP request, NOFITY_OK; otherwise NOTIFY_DONE.
+> - */
+> -static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+> -				       unsigned long action, void *data)
+> +static void vfio_ap_mdev_dma_unmap(struct vfio_device *vdev, u64 iova,
+> +				   u64 length)
+>  {
+> -	struct ap_matrix_mdev *matrix_mdev;
+> -
+> -	matrix_mdev = container_of(nb, struct ap_matrix_mdev, iommu_notifier);
+> -
+> -	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
+> -		struct vfio_iommu_type1_dma_unmap *unmap = data;
+> -		unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
+> -
+> -		vfio_unpin_pages(&matrix_mdev->vdev, &g_pfn, 1);
+> -		return NOTIFY_OK;
+> -	}
+> +	struct ap_matrix_mdev *matrix_mdev =
+> +		container_of(vdev, struct ap_matrix_mdev, vdev);
+> +	unsigned long g_pfn = iova >> PAGE_SHIFT;
+>  
+> -	return NOTIFY_DONE;
+> +	vfio_unpin_pages(&matrix_mdev->vdev, &g_pfn, 1);
+>  }
+>  
+>  /**
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+
+I tried to apply this on top of Nicolin's series which results in a
+conflict that can be resolved as below:
+
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index e8856a7e151c..d7c38c82f694 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1219,33 +1219,13 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+ 	return 0;
+ }
+ 
+-/**
+- * vfio_ap_mdev_iommu_notifier - IOMMU notifier callback
+- *
+- * @nb: The notifier block
+- * @action: Action to be taken
+- * @data: data associated with the request
+- *
+- * For an UNMAP request, unpin the guest IOVA (the NIB guest address we
+- * pinned before). Other requests are ignored.
+- *
+- * Return: for an UNMAP request, NOFITY_OK; otherwise NOTIFY_DONE.
+- */
+-static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+-				       unsigned long action, void *data)
++static void vfio_ap_mdev_dma_unmap(struct vfio_device *vdev, u64 iova,
++				   u64 length)
+ {
+-	struct ap_matrix_mdev *matrix_mdev;
+-
+-	matrix_mdev = container_of(nb, struct ap_matrix_mdev, iommu_notifier);
+-
+-	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
+-		struct vfio_iommu_type1_dma_unmap *unmap = data;
+-
+-		vfio_unpin_pages(&matrix_mdev->vdev, unmap->iova, 1);
+-		return NOTIFY_OK;
+-	}
++	struct ap_matrix_mdev *matrix_mdev =
++		container_of(vdev, struct ap_matrix_mdev, vdev);
+ 
+-	return NOTIFY_DONE;
++	vfio_unpin_pages(&matrix_mdev->vdev, iova, 1);
+ }
+ 
+ /**
+
+ie. we don't need the gfn, we only need the iova.
+
+However then I start to wonder why we're passing in 1 for the number of
+pages because this previously notifier, now callback is called for the
+entire vfio_dma range when we find any pinned pages.  It makes no sense for
+a driver to assume that the first iova is pinned and is the only pinned
+page.
+
+ccw has the same issue:
+
+static void vfio_ccw_dma_unmap(struct vfio_device *vdev, u64 iova, u64 length)
+{
+        struct vfio_ccw_private *private =
+                container_of(vdev, struct vfio_ccw_private, vdev);
+
+        /* Drivers MUST unpin pages in response to an invalidation. */
+        if (!cp_iova_pinned(&private->cp, iova))
+                return;
+
+        vfio_ccw_mdev_reset(private);
+}
+
+Entirely ignoring the length arg.
+
+It seems only GVT-g has this correct to actually look through the
+extent of the range being unmapped:
+
+static void intel_vgpu_dma_unmap(struct vfio_device *vfio_dev, u64 iova,
+                                 u64 length)
+{
+        struct intel_vgpu *vgpu = vfio_dev_to_vgpu(vfio_dev);
+        struct gvt_dma *entry;
+        u64 iov_pfn = iova >> PAGE_SHIFT;
+        u64 end_iov_pfn = iov_pfn + length / PAGE_SIZE;
+
+        mutex_lock(&vgpu->cache_lock);
+        for (; iov_pfn < end_iov_pfn; iov_pfn++) {
+                entry = __gvt_cache_find_gfn(vgpu, iov_pfn);
+                if (!entry)
+                        continue;
+
+                gvt_dma_unmap_page(vgpu, entry->gfn, entry->dma_addr,
+                                   entry->size);
+                __gvt_cache_remove_entry(vgpu, entry);
+        }
+        mutex_unlock(&vgpu->cache_lock);
+}
+
+Should ap and ccw implementations of .dma_unmap just be replaced with a
+BUG_ON(1)?  Thanks,
+
+Alex
+
