@@ -2,74 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B95A4C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Jul 2022 03:17:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 602DCC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Jul 2022 05:06:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239560AbiGTDR1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Jul 2022 23:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53642 "EHLO
+        id S229823AbiGTFGg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Jul 2022 01:06:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234732AbiGTDRZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 23:17:25 -0400
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06D1023BD9;
-        Tue, 19 Jul 2022 20:17:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=pPIVLIwZGOIJjDt3jJyC3v27AiTio1D7WqhVh4qBdn8=; b=OKoYzCknWtA1aSXAPwUp2xMcK/
-        BeosNKR3tov2F5zpWiYheo9s29aZ/fCG/5dYQzPpL+aIDgTXbk0BkIe/vW5oIVcFJI1zM7oYfHK6g
-        kfCHxzlVy+Q5bmixLpiJxaSzVGOA7Xd9PUq5teTZh/R/ey9o74YCSoMeOftqn/KPm8N4Ojmc2nmYv
-        a0ttCasHsepCDrb8IKxi0XoF3Rg8dFqCOocXVLV95mNAVYN6um8x0oXVu3cMF/vaEdvlNxKHI+yC/
-        mPHAV1+JDsCRedF3XcEEa3YrRYVtGB1GytAKwf6RBisrImqLEpJfBc11eF4LHiBmS+nCPcy25U+Dx
-        qQEGnXmw==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.95 #2 (Red Hat Linux))
-        id 1oE0DA-00Dy6f-AN;
-        Wed, 20 Jul 2022 03:17:20 +0000
-Date:   Wed, 20 Jul 2022 04:17:20 +0100
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4 0/4] s390/crash: support multi-segment iterators
-Message-ID: <YtdzwLXFMuv02JEA@ZenIV>
-References: <cover.1658206891.git.agordeev@linux.ibm.com>
+        with ESMTP id S229453AbiGTFGf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Jul 2022 01:06:35 -0400
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EEC550066;
+        Tue, 19 Jul 2022 22:06:34 -0700 (PDT)
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id 4294868BEB; Wed, 20 Jul 2022 07:06:30 +0200 (CEST)
+Date:   Wed, 20 Jul 2022 07:06:29 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+        Vineeth Vijayan <vneethv@linux.ibm.com>
+Subject: Re: simplify the mdev interface v6
+Message-ID: <20220720050629.GA6076@lst.de>
+References: <20220709045450.609884-1-hch@lst.de> <20220718054348.GA22345@lst.de> <20220718153331.18a52e31.alex.williamson@redhat.com> <1f945ef0eb6c02079700a6785ca3dd9864096b82.camel@linux.ibm.com> <20220719144928.GB21431@lst.de> <20220719092644.3db1ceee.alex.williamson@redhat.com> <20cba66846a011e2fe8885f15def6ec837d12d0b.camel@linux.ibm.com> <29248eb6e20ef5990d3189ba5468fe4d8bada61a.camel@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1658206891.git.agordeev@linux.ibm.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <29248eb6e20ef5990d3189ba5468fe4d8bada61a.camel@linux.ibm.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 19, 2022 at 07:16:32AM +0200, Alexander Gordeev wrote:
-> Hi Matthew et al,
+On Tue, Jul 19, 2022 at 10:41:49PM -0400, Eric Farman wrote:
+> I suspect the second item (or something similar) is needed anyway,
+> because Alex' tree + this series crashes frequently in (usually)
+> mdev_remove. I haven't found an explanation for how we get in this
+> state, but admittedly didn't spent a lot of time on them since the
+> proposed changes to struct subchannel are a non-starter. The other
+> crashes were always in something that's almost certainly a victim of
+> something else, like kmalloc-related stuff in net/skbuff.
 > 
-> This series completes 5d8de293c224 ("vmcore: convert copy_oldmem_page()
-> to take an iov_iter") for s390.
-> 
-> Changes since v3:
->   - concurrent access to HSA and oldmem swap buffers protected;
-> 
-> Changes since v2:
->   - Matthew Wilcox suggestion is adopted, with that...
->   - copy_to_iter() is used instead of custom implementation;
-> 
-> Changes since v1:
->   - number of bytes left to copy on fail fixed;
+> With the above, the crashes out of the vfio-ccw stack disappear, and
+> things work a bit better. But those random kmalloc-related crashes
+> persist. I guess I'll pick those up tomorrow.
 
-OK...  Do you prefer it to go through s390 tree?  The thing is, I've
-stuff in iov_iter tree that conflicts with it; I'll gladly drop that
-bit (vfs.git #fixes-s390) in favour of your series (and drop s390
-bits from "new iov_iter flavour - ITER_UBUF" in #work.iov_iter - they
-are not needed anymore).
-
-I can put your series into replacement of #fixes-s390, or pull it
-from whatever static branch you put it into - up to you.
-Preferences?
+Ok, I think I'll just wait for this to fan out, no need to rush in
+known broken code.
