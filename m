@@ -2,119 +2,74 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23982C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Jul 2022 03:11:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B95A4C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Jul 2022 03:17:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242051AbiGTDLN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Jul 2022 23:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37370 "EHLO
+        id S239560AbiGTDR1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Jul 2022 23:17:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241912AbiGTDIn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 23:08:43 -0400
-Received: from out30-45.freemail.mail.aliyun.com (out30-45.freemail.mail.aliyun.com [115.124.30.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2008A743F5;
-        Tue, 19 Jul 2022 20:06:13 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VJuvIvC_1658286367;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VJuvIvC_1658286367)
-          by smtp.aliyun-inc.com;
-          Wed, 20 Jul 2022 11:06:08 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     virtualization@lists.linux-foundation.org
-Cc:     Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
+        with ESMTP id S234732AbiGTDRZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Jul 2022 23:17:25 -0400
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06D1023BD9;
+        Tue, 19 Jul 2022 20:17:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=pPIVLIwZGOIJjDt3jJyC3v27AiTio1D7WqhVh4qBdn8=; b=OKoYzCknWtA1aSXAPwUp2xMcK/
+        BeosNKR3tov2F5zpWiYheo9s29aZ/fCG/5dYQzPpL+aIDgTXbk0BkIe/vW5oIVcFJI1zM7oYfHK6g
+        kfCHxzlVy+Q5bmixLpiJxaSzVGOA7Xd9PUq5teTZh/R/ey9o74YCSoMeOftqn/KPm8N4Ojmc2nmYv
+        a0ttCasHsepCDrb8IKxi0XoF3Rg8dFqCOocXVLV95mNAVYN6um8x0oXVu3cMF/vaEdvlNxKHI+yC/
+        mPHAV1+JDsCRedF3XcEEa3YrRYVtGB1GytAKwf6RBisrImqLEpJfBc11eF4LHiBmS+nCPcy25U+Dx
+        qQEGnXmw==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.95 #2 (Red Hat Linux))
+        id 1oE0DA-00Dy6f-AN;
+        Wed, 20 Jul 2022 03:17:20 +0000
+Date:   Wed, 20 Jul 2022 04:17:20 +0100
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        kangjie.xu@linux.alibaba.com
-Subject: [PATCH v12 38/40] virtio_net: support rx queue resize
-Date:   Wed, 20 Jul 2022 11:04:34 +0800
-Message-Id: <20220720030436.79520-39-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
-References: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v4 0/4] s390/crash: support multi-segment iterators
+Message-ID: <YtdzwLXFMuv02JEA@ZenIV>
+References: <cover.1658206891.git.agordeev@linux.ibm.com>
 MIME-Version: 1.0
-X-Git-Hash: 366032b2ffac
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1658206891.git.agordeev@linux.ibm.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch implements the resize function of the rx queues.
-Based on this function, it is possible to modify the ring num of the
-queue.
+On Tue, Jul 19, 2022 at 07:16:32AM +0200, Alexander Gordeev wrote:
+> Hi Matthew et al,
+> 
+> This series completes 5d8de293c224 ("vmcore: convert copy_oldmem_page()
+> to take an iov_iter") for s390.
+> 
+> Changes since v3:
+>   - concurrent access to HSA and oldmem swap buffers protected;
+> 
+> Changes since v2:
+>   - Matthew Wilcox suggestion is adopted, with that...
+>   - copy_to_iter() is used instead of custom implementation;
+> 
+> Changes since v1:
+>   - number of bytes left to copy on fail fixed;
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+OK...  Do you prefer it to go through s390 tree?  The thing is, I've
+stuff in iov_iter tree that conflicts with it; I'll gladly drop that
+bit (vfs.git #fixes-s390) in favour of your series (and drop s390
+bits from "new iov_iter flavour - ITER_UBUF" in #work.iov_iter - they
+are not needed anymore).
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index fe4dc43c05a1..1115a8b59a08 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -278,6 +278,8 @@ struct padded_vnet_hdr {
- 	char padding[12];
- };
- 
-+static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
-+
- static bool is_xdp_frame(void *ptr)
- {
- 	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-@@ -1846,6 +1848,26 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	return NETDEV_TX_OK;
- }
- 
-+static int virtnet_rx_resize(struct virtnet_info *vi,
-+			     struct receive_queue *rq, u32 ring_num)
-+{
-+	int err, qindex;
-+
-+	qindex = rq - vi->rq;
-+
-+	napi_disable(&rq->napi);
-+
-+	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
-+	if (err)
-+		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
-+
-+	if (!try_fill_recv(vi, rq, GFP_KERNEL))
-+		schedule_delayed_work(&vi->refill, 0);
-+
-+	virtnet_napi_enable(rq->vq, &rq->napi);
-+	return err;
-+}
-+
- /*
-  * Send command via the control virtqueue and check status.  Commands
-  * supported by the hypervisor, as indicated by feature bits, should
--- 
-2.31.0
-
+I can put your series into replacement of #fixes-s390, or pull it
+from whatever static branch you put it into - up to you.
+Preferences?
