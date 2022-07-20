@@ -2,164 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADC99C43334
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Jul 2022 17:38:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86848C43334
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Jul 2022 17:40:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235654AbiGTRih (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Jul 2022 13:38:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34440 "EHLO
+        id S235769AbiGTRkc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Jul 2022 13:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241396AbiGTRib (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Jul 2022 13:38:31 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FDA670E6C;
-        Wed, 20 Jul 2022 10:38:30 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26KHQu6x016806;
-        Wed, 20 Jul 2022 17:38:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=oRYSDww+xT2kBVZi4n+vXxIVbL6AE6OfPZiR44/2RWo=;
- b=QR4J3FXggDWq+Gc+6Zoe/aYKzTjkebIINEBfoBjM/DcM6DkvECM7oWfqa2ZAbo2Udvjl
- ZSQk6Bm8K0NUohAW5YyFW7NQ7JhLKRpcbX8mce8qqkXSq7pSa1m1lZxlDEFh/GbJU7WY
- LjU8X87UtELFFJOXErQYlz3h+SVbnqz215M103lSekbdYPsTTthavmLlwI5hpBaZCcri
- exzAqJ+GdaAn/5VXZ4qivDi5uq/yyrTQkZRHW6oJXUR8w6dk6RkR9GLOx6kekio4eHil
- j9fHLUxmA1ECYnPv7uN0P6AF/E1rp22nQzHC6wHXjnM4h/oalD+LGOPqZPEG0IUw/yPP 9A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hen382yx4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Jul 2022 17:38:24 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26KGnasC035260;
-        Wed, 20 Jul 2022 17:38:24 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hen382ywg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Jul 2022 17:38:24 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26KHNT6o002129;
-        Wed, 20 Jul 2022 17:38:23 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma03dal.us.ibm.com with ESMTP id 3hbmy9hp5h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Jul 2022 17:38:23 +0000
-Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26KHcMgq3080866
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 20 Jul 2022 17:38:22 GMT
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9A7FFB2067;
-        Wed, 20 Jul 2022 17:38:22 +0000 (GMT)
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C372B2064;
-        Wed, 20 Jul 2022 17:38:20 +0000 (GMT)
-Received: from [9.211.34.199] (unknown [9.211.34.199])
-        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 20 Jul 2022 17:38:20 +0000 (GMT)
-Message-ID: <016ae05e-6d8c-2c95-ffcf-239230597def@linux.ibm.com>
-Date:   Wed, 20 Jul 2022 19:38:19 +0200
+        with ESMTP id S232685AbiGTRka (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Jul 2022 13:40:30 -0400
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BF92A241;
+        Wed, 20 Jul 2022 10:40:29 -0700 (PDT)
+Received: by mail-qt1-f175.google.com with SMTP id u12so1649231qtk.0;
+        Wed, 20 Jul 2022 10:40:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PmcZJKXW5L1h76Y7jDvbkfD3n85Nfb/cTZUz3jaZfpo=;
+        b=IPjEJxNrYKP/bAlPgxKrn9FRbVKtzEunsywWgj6Ah5b2RkACwEAkC9UR3zFDDBuGCf
+         DmR2Tria1RLN9CtkfNsyxYmmIVc7LqeCC0PPw1ie4atvpQKIws0vBKhVN2NoXwCo6Iu3
+         6pi3IWLHoNY++xp3S8EJdXkRSrg6SCZne70H354F+qWvVyz12PztKFB0AJuVKzwXQC6z
+         W+9/NatlcBA6ngOBQsGZU905K0CGJEHQbKn+mm7DAuE38BJhiKHkfqulCvF7CfYYoscW
+         zDt6uR/kHv/q8ff5orI6JiHpXMzqXg6L6dPJvNNSMLU/ozAufiz2HcHBxZ3e11S4Uilw
+         xljA==
+X-Gm-Message-State: AJIora/NodvMzBgl4OHy4tqkS3vMy+2Yvabf/5xoRajZ1W9oiDUaFc08
+        ZKDwIcI85P7lvk6Xz5nMMjd4wW++ToamFa1M
+X-Google-Smtp-Source: AGRyM1s9l8OS7ZCQgfbMTab10+PGIrLc1fxawXk5LNRiK0T4+LYGriYHhmB3sDRnu/Jk9uLMG6tKGA==
+X-Received: by 2002:ac8:5a41:0:b0:31f:280:b7ca with SMTP id o1-20020ac85a41000000b0031f0280b7camr6179579qta.518.1658338828709;
+        Wed, 20 Jul 2022 10:40:28 -0700 (PDT)
+Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com. [209.85.219.181])
+        by smtp.gmail.com with ESMTPSA id bq7-20020a05620a468700b006b578ff5dfasm5045912qkb.41.2022.07.20.10.40.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 20 Jul 2022 10:40:28 -0700 (PDT)
+Received: by mail-yb1-f181.google.com with SMTP id 75so33323451ybf.4;
+        Wed, 20 Jul 2022 10:40:28 -0700 (PDT)
+X-Received: by 2002:a5b:6c1:0:b0:669:a7c3:4c33 with SMTP id
+ r1-20020a5b06c1000000b00669a7c34c33mr36151263ybq.543.1658338827759; Wed, 20
+ Jul 2022 10:40:27 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH net-next v2 0/6] net/smc: Introduce virtually contiguous
- buffers for SMC-R
-To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1657791845-1060-1-git-send-email-guwen@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1657791845-1060-1-git-send-email-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: t4wdqEfuOEECHH7y4DP_PucxfT6lBMWz
-X-Proofpoint-GUID: cUwd6s4raPyTqXGcA1qpEnLNEbltzJ5k
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-20_10,2022-07-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 clxscore=1015 mlxscore=0 mlxlogscore=999 phishscore=0
- lowpriorityscore=0 adultscore=0 bulkscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207200071
+References: <20220720131934.373932-1-shorne@gmail.com> <20220720131934.373932-3-shorne@gmail.com>
+In-Reply-To: <20220720131934.373932-3-shorne@gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 20 Jul 2022 19:40:16 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdX7_CSQd14tGPfL7R7V0h6AwNi7bVDCWhcdNoZV_md4bw@mail.gmail.com>
+Message-ID: <CAMuHMdX7_CSQd14tGPfL7R7V0h6AwNi7bVDCWhcdNoZV_md4bw@mail.gmail.com>
+Subject: Re: [PATCH v4 2/3] PCI: Move isa_dma_bridge_buggy out of dma.h
+To:     Stafford Horne <shorne@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Christoph Hellwig <hch@infradead.org>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Ian Abbott <abbotti@mev.co.uk>,
+        H Hartley Sweeten <hsweeten@visionengravers.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        arcml <linux-snps-arc@lists.infradead.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        ALSA Development Mailing List <alsa-devel@alsa-project.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Jul 20, 2022 at 3:20 PM Stafford Horne <shorne@gmail.com> wrote:
+> During recent PCI cleanups we noticed that the isa_dma_bridge_buggy
+> symbol supported by all architectures is actually only used for x86_32.
+>
+> This patch moves the symbol out of all architectures limiting usage to
+> only x86_32.  This is possible because only x86_32 platforms or quirks
+> existing in PCI devices supported on x86_32 ever set this.  A new global
+> header linux/isa-dma.h is added to provide a common place to maintain
+> the definition.
+>
+> Suggested-by: Arnd Bergmann <arnd@arndb.de>
+> Suggested-by: Christoph Hellwig <hch@infradead.org>
+> Signed-off-by: Stafford Horne <shorne@gmail.com>
+> ---
+> Since v3:
+>  - New patch.
 
+>  arch/m68k/include/asm/dma.h            |  6 ------
 
-On 14.07.22 11:43, Wen Gu wrote:
-> On long-running enterprise production servers, high-order contiguous
-> memory pages are usually very rare and in most cases we can only get
-> fragmented pages.
-> 
-> When replacing TCP with SMC-R in such production scenarios, attempting
-> to allocate high-order physically contiguous sndbufs and RMBs may result
-> in frequent memory compaction, which will cause unexpected hung issue
-> and further stability risks.
-> 
-> So this patch set is aimed to allow SMC-R link group to use virtually
-> contiguous sndbufs and RMBs to avoid potential issues mentioned above.
-> Whether to use physically or virtually contiguous buffers can be set
-> by sysctl smcr_buf_type.
-> 
-> Note that using virtually contiguous buffers will bring an acceptable
-> performance regression, which can be mainly divided into two parts:
-> 
-> 1) regression in data path, which is brought by additional address
->     translation of sndbuf by RNIC in Tx. But in general, translating
->     address through MTT is fast. According to qperf test, this part
->     regression is basically less than 10% in latency and bandwidth.
->     (see patch 5/6 for details)
-> 
-> 2) regression in buffer initialization and destruction path, which is
->     brought by additional MR operations of sndbufs. But thanks to link
->     group buffer reuse mechanism, the impact of this kind of regression
->     decreases as times of buffer reuse increases.
-> 
-> Patch set overview:
-> - Patch 1/6 and 2/6 mainly about simplifying and optimizing DMA sync
->    operation, which will reduce overhead on the data path, especially
->    when using virtually contiguous buffers;
-> - Patch 3/6 and 4/6 introduce a sysctl smcr_buf_type to set the type
->    of buffers in new created link group;
-> - Patch 5/6 allows SMC-R to use virtually contiguous sndbufs and RMBs,
->    including buffer creation, destruction, MR operation and access;
-> - patch 6/6 extends netlink attribute for buffer type of SMC-R link group;
-> 
-> v1->v2:
-> - Patch 5/6 fixes build issue on 32bit;
-> - Patch 3/6 adds description of new sysctl in smc-sysctl.rst;
-> 
-> Guangguan Wang (2):
->    net/smc: remove redundant dma sync ops
->    net/smc: optimize for smc_sndbuf_sync_sg_for_device and
->      smc_rmb_sync_sg_for_cpu
-> 
-> Wen Gu (4):
->    net/smc: Introduce a sysctl for setting SMC-R buffer type
->    net/smc: Use sysctl-specified types of buffers in new link group
->    net/smc: Allow virtually contiguous sndbufs or RMBs for SMC-R
->    net/smc: Extend SMC-R link group netlink attribute
-> 
->   Documentation/networking/smc-sysctl.rst |  13 ++
->   include/net/netns/smc.h                 |   1 +
->   include/uapi/linux/smc.h                |   1 +
->   net/smc/af_smc.c                        |  68 +++++++--
->   net/smc/smc_clc.c                       |   8 +-
->   net/smc/smc_clc.h                       |   2 +-
->   net/smc/smc_core.c                      | 246 +++++++++++++++++++++-----------
->   net/smc/smc_core.h                      |  20 ++-
->   net/smc/smc_ib.c                        |  44 +++++-
->   net/smc/smc_ib.h                        |   2 +
->   net/smc/smc_llc.c                       |  33 +++--
->   net/smc/smc_rx.c                        |  92 +++++++++---
->   net/smc/smc_sysctl.c                    |  11 ++
->   net/smc/smc_tx.c                        |  10 +-
->   14 files changed, 404 insertions(+), 147 deletions(-)
-> 
-It looks good for us. Thank you!
-Acked-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
