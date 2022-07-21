@@ -2,115 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7906CCA489
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 16:13:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F3BBC43334
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 16:13:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232142AbiGUQNg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 12:13:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42112 "EHLO
+        id S233054AbiGUQNh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 12:13:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233144AbiGUQNb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 12:13:31 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AE2688CDF;
-        Thu, 21 Jul 2022 09:13:27 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LFiEWb010765;
-        Thu, 21 Jul 2022 16:13:26 GMT
+        with ESMTP id S233204AbiGUQNe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 12:13:34 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AA2288E23;
+        Thu, 21 Jul 2022 09:13:28 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LG7DcB006473;
+        Thu, 21 Jul 2022 16:13:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=Cq07R0gePVZ03WFA40F2NnTpzups1heKA341k08XQCc=;
- b=aetJxKXXZ59CdT8WlHKoBFdctsPzN9u1pXJ2aNm11Hg6jOxPuGV39yuGT9DypH8dkPfq
- hdU9tHeXmSjHtwiSm3VIPckj8eAVeCX0qQv15kXo0pPSygz6wBMgQRjmnS1Ge4TMVBlc
- 6KCUAj+qO9+MqvlQTw/6MDIcBqICRODunad2zTS0v+i5hGdgS5MNS5MLb0RqW5655ZjW
- lZetBRyesvcZcXzeQXaChg1lSZ17GIBkffKZMQFU9dW+2FW9OfPye6U5LyydsAJPWhZv
- 7yAmOSo+9TWoik0grCFLVTD/k0ruOP3c27b77j9zJZuZUn4XBEuYhkoT+WJEm1aGfnPA PQ== 
+ : mime-version; s=pp1; bh=HQCnsIZa2v0eXuwDWJsigy2gJXRXabszV1J/pyz3mwA=;
+ b=VbIlUwLaJ1LT0/WtEMoYZCN1O56R9g8IS7dT8Ilmt8fbHITlk/rEl6u828NaUM1Lj7np
+ 7y+YgBGuzfXZzD9qMu31uqnp7TA+1cIYy2FxLTG1y0T25f5Tc4Xlpga7/rDhmvddZMd7
+ GSarPsbKDZxP42l9lCLYdQOkPzII1m5Ddn/RHHe9TkM99Ek2kx3iSURUir50c/5GfX1W
+ 23dkelk06+94h3EShnEfagqpL+ckBUBbHVkChkDGgfI8LVHMDzQeR88xKDVZxDNOjR3e
+ CiMBTXzX/g9aGBOTfbygIvLDVHsapKsIXocwTugBOZyG3r/QBGEYZPWQpUl1Hp3CU0QA SA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf9pu0v33-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf90nt1y2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:13:25 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LFipsh012939;
+        Thu, 21 Jul 2022 16:13:28 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LG7Ccg006373;
+        Thu, 21 Jul 2022 16:13:27 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf90nt1we-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 16:13:27 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LGDP39004276;
         Thu, 21 Jul 2022 16:13:25 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf9pu0v29-1
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3hbmy8y547-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 21 Jul 2022 16:13:25 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LG70ve029937;
-        Thu, 21 Jul 2022 16:13:23 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3hbmkj769j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:13:23 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LGDKB520840830
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LGDMl324183118
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 Jul 2022 16:13:20 GMT
+        Thu, 21 Jul 2022 16:13:22 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9DB14A4060;
-        Thu, 21 Jul 2022 16:13:20 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 48521A405C;
+        Thu, 21 Jul 2022 16:13:22 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 20B8BA4054;
-        Thu, 21 Jul 2022 16:13:20 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C4267A4054;
+        Thu, 21 Jul 2022 16:13:21 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.145.4.232])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 21 Jul 2022 16:13:20 +0000 (GMT)
+        Thu, 21 Jul 2022 16:13:21 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         frankja@linux.ibm.com, borntraeger@linux.ibm.com,
         hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         thuth@redhat.com, david@redhat.com
-Subject: [GIT PULL 26/42] KVM: s390: Add facility 197 to the allow list
-Date:   Thu, 21 Jul 2022 18:12:46 +0200
-Message-Id: <20220721161302.156182-27-imbrenda@linux.ibm.com>
+Subject: [GIT PULL 29/42] KVM: s390: pv: handle secure storage exceptions for normal guests
+Date:   Thu, 21 Jul 2022 18:12:49 +0200
+Message-Id: <20220721161302.156182-30-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220721161302.156182-1-imbrenda@linux.ibm.com>
 References: <20220721161302.156182-1-imbrenda@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: epviYIoQFPTdpdSDk1ljjcPAbo9LDDxr
-X-Proofpoint-GUID: YNUTxpdnW4ipMZlAUg7Z1gN3fnCEBdxl
+X-Proofpoint-ORIG-GUID: ZJTahX0-HyhWzkzk0B_Vci6U6hCruyXv
+X-Proofpoint-GUID: 0MxuMG0R71FLVqn90ag_DiqeI-a0Nvej
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-21_22,2022-07-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- adultscore=0 malwarescore=0 priorityscore=1501 suspectscore=0 phishscore=0
- mlxlogscore=979 impostorscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ lowpriorityscore=0 adultscore=0 mlxlogscore=581 spamscore=0 malwarescore=0
+ impostorscore=0 mlxscore=0 suspectscore=0 priorityscore=1501 clxscore=1015
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
  definitions=main-2207210064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
+With upcoming patches, normal guests might touch secure pages.
 
-z16 also provides facility 197 (The processor-activity-instrumentation
-extension 1). Let's add it to KVM.
+This patch extends the existing exception handler to convert the pages
+to non secure also when the exception is triggered by a normal guest.
 
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220711115108.6494-1-borntraeger@linux.ibm.com
-Acked-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+This can happen for example when a secure guest reboots; the first
+stage of a secure guest is non secure, and in general a secure guest
+can reboot into non-secure mode.
+
+If the secure memory of the previous boot has not been cleared up
+completely yet (which will be allowed to happen in an upcoming patch),
+a non-secure guest might touch secure memory, which will need to be
+handled properly.
+
+This means that gmap faults must be handled and not cause termination
+of the process. The handling is the same as userspace accesses, it's
+enough to translate the gmap address to a user address and then let the
+normal user fault code handle it.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220628135619.32410-4-imbrenda@linux.ibm.com
+Message-Id: <20220628135619.32410-4-imbrenda@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/tools/gen_facilities.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/mm/fault.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
-index 530dd941d140..cb0aff5c0187 100644
---- a/arch/s390/tools/gen_facilities.c
-+++ b/arch/s390/tools/gen_facilities.c
-@@ -111,6 +111,7 @@ static struct facility_def facility_defs[] = {
- 			193, /* bear enhancement facility */
- 			194, /* rdp enhancement facility */
- 			196, /* processor activity instrumentation facility */
-+			197, /* processor activity instrumentation extension 1 */
- 			-1  /* END */
- 		}
- 	},
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index af1ac49168fb..ee7871f770fb 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -754,6 +754,7 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 	struct vm_area_struct *vma;
+ 	struct mm_struct *mm;
+ 	struct page *page;
++	struct gmap *gmap;
+ 	int rc;
+ 
+ 	/*
+@@ -783,6 +784,17 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 	}
+ 
+ 	switch (get_fault_type(regs)) {
++	case GMAP_FAULT:
++		mm = current->mm;
++		gmap = (struct gmap *)S390_lowcore.gmap;
++		mmap_read_lock(mm);
++		addr = __gmap_translate(gmap, addr);
++		mmap_read_unlock(mm);
++		if (IS_ERR_VALUE(addr)) {
++			do_fault_error(regs, VM_ACCESS_FLAGS, VM_FAULT_BADMAP);
++			break;
++		}
++		fallthrough;
+ 	case USER_FAULT:
+ 		mm = current->mm;
+ 		mmap_read_lock(mm);
+@@ -811,7 +823,6 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 		if (rc)
+ 			BUG();
+ 		break;
+-	case GMAP_FAULT:
+ 	default:
+ 		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
+ 		WARN_ON_ONCE(1);
 -- 
 2.36.1
 
