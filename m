@@ -2,211 +2,237 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 511FFC43334
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 16:02:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC001C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 16:13:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232093AbiGUQCI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 12:02:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58108 "EHLO
+        id S229915AbiGUQNM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 12:13:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232569AbiGUQCG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 12:02:06 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45F487C25;
-        Thu, 21 Jul 2022 09:02:04 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LFhinO024568;
-        Thu, 21 Jul 2022 16:01:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=TaPE8p4zRacJwxm8CjbGhlNhxea5fkhzEN8EU5aQYyE=;
- b=cBmM9Eqp4ZQsP2j0tXMM8GUwxATdykM3MV9wR/h9f64IG0oaQrLqvK/SmrUNMRuqMh7H
- dWK0um6oD73AIPzzyFLZ3Y8OvWVl1U3IQbTxzb99SAGO8Fk1MN+hjgrraqjmeu7JKo2Q
- NBOtHVA9pRF4xIV89WDY1cIIIGurnoDBDH3Py/tI5eTB/QCcF/a+TLkbiwAYg3ZR+2AP
- E4oL+Z7WDVL0ayz0OdKz/TSqp/7hUej6Sr+vvuKX13WVJXBRPgYlmDlr7eWIquXPGi6y
- aN1TBqAh3FVx+ROukA0r2dpf6ZYvT+02Pjdbij0PQCvh0OJ0/YeQZc+QyAo/2llrR2BK GA== 
+        with ESMTP id S229481AbiGUQNL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 12:13:11 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0FF5FAFF;
+        Thu, 21 Jul 2022 09:13:10 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LFFQ2H020317;
+        Thu, 21 Jul 2022 16:13:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=ctWPDrt5szzbZCsDcOUopZiX9abksgvjHJHgd1RgdbA=;
+ b=FoV7ybQl3dWkZylUYn9YUSlWTm+DV8O0RrO76coCwgak0CSCGVdCdri6+NDez/UbZ4A/
+ ECvE47hEjVVf01u6ebK6/O4wohRZkxckQX8ruA6ApFjO2taIiGrAN9364x/V7oiy8qPs
+ aD4LImrfnovoemN5sq3YRwzRxiiIqqJJaZw7fE9bbHPJ7QZZdmNYZvrWAKh2nQmhFMJo
+ pEgcOaYUVxNnc1Kkglmparfv6unHYgDaEvwY/ITlex+X8Qx7Y0C71wSwAeCCdwmduULI
+ ksHk5H8ODXCATEN/4HMWWDw29F4b+25jF1fXDHXFdvA6QFHTSmxUdKoMWn+5KX822ihx ag== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf9pp8ghk-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m374-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:01:54 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LFj2Zh029463;
-        Thu, 21 Jul 2022 16:01:53 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf9pp8gh8-1
+        Thu, 21 Jul 2022 16:13:09 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LFmcR2017628;
+        Thu, 21 Jul 2022 16:13:09 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m35p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:01:53 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LFpggq032003;
-        Thu, 21 Jul 2022 16:01:52 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma03wdc.us.ibm.com with ESMTP id 3hbmy9gu1d-1
+        Thu, 21 Jul 2022 16:13:09 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LG6iX5029928;
+        Thu, 21 Jul 2022 16:13:07 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3hbmkj7697-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:01:52 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LG1pHj42336690
+        Thu, 21 Jul 2022 16:13:06 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LGDGdc22610398
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 Jul 2022 16:01:51 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 683B26E054;
-        Thu, 21 Jul 2022 16:01:51 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D0E3D6E04E;
-        Thu, 21 Jul 2022 16:01:48 +0000 (GMT)
-Received: from farman-thinkpad-t470p (unknown [9.211.146.30])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu, 21 Jul 2022 16:01:48 +0000 (GMT)
-Message-ID: <d4b7abce8ef8646819d32fef57ea51e38cd53f1b.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 1/2] vfio: Replace the DMA unmapping notifier with a
- callback
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Alex Williamson <alex.williamson@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>
-Date:   Thu, 21 Jul 2022 12:01:47 -0400
-In-Reply-To: <20220720170457.39cda0d0.alex.williamson@redhat.com>
-References: <0-v4-681e038e30fd+78-vfio_unmap_notif_jgg@nvidia.com>
-         <1-v4-681e038e30fd+78-vfio_unmap_notif_jgg@nvidia.com>
-         <20220720134113.4225f9d6.alex.williamson@redhat.com>
-         <20220720200829.GW4609@nvidia.com>
-         <20220720170457.39cda0d0.alex.williamson@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        Thu, 21 Jul 2022 16:13:16 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 793F4A405C;
+        Thu, 21 Jul 2022 16:13:03 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 051CDA4054;
+        Thu, 21 Jul 2022 16:13:03 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.145.4.232])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 21 Jul 2022 16:13:02 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     pbonzini@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com
+Subject: [GIT PULL 00/42] KVM: s390: PCI, CPU topology, PV features
+Date:   Thu, 21 Jul 2022 18:12:20 +0200
+Message-Id: <20220721161302.156182-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.36.1
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: j8vE10XrFQQgyuYkPEtpHYy1GdUqgbS6
-X-Proofpoint-ORIG-GUID: Vz-1MomDKDuiP-p2pkQwTSfVtBTRxQgG
+X-Proofpoint-ORIG-GUID: PPFNioCLLBZjCD39ZV7Qsk9Vy4b74sM4
+X-Proofpoint-GUID: G-JGH0e3rBf3GMJ23vEFJuFNI1cuwmDN
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-21_18,2022-07-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 spamscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0
- phishscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0 impostorscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207210061
+ definitions=2022-07-21_22,2022-07-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 clxscore=1015 suspectscore=0 adultscore=0 spamscore=0
+ mlxlogscore=999 impostorscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207210064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-07-20 at 17:04 -0600, Alex Williamson wrote:
-> On Wed, 20 Jul 2022 17:08:29 -0300
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
-> 
-> > On Wed, Jul 20, 2022 at 01:41:13PM -0600, Alex Williamson wrote:
-> >  
-> > > ie. we don't need the gfn, we only need the iova.  
-> > 
-> > Right, that makes sense
-> >  
-> > > However then I start to wonder why we're passing in 1 for the
-> > > number of
-> > > pages because this previously notifier, now callback is called
-> > > for the
-> > > entire vfio_dma range when we find any pinned pages.    
-> > 
-> > Well, it is doing this because it only ever pins one page.
-> 
-> Of course that page is not necessarily the page it unpins given the
-> contract misunderstanding below.
->  
-> > The drivers are confused about what the contract is. vfio is
-> > calling
-> > the notifier with the entire IOVA range that is being unmapped and
-> > the
-> > drivers are expecting to receive notifications only for the IOVA
-> > they
-> > have actually pinned.
-> > 
-> > > Should ap and ccw implementations of .dma_unmap just be replaced
-> > > with a
-> > > BUG_ON(1)?  
-> > 
-> > The point of these callbacks is to halt concurrent DMA, and ccw
-> > does
-> > that today.
-> 
-> ccw essentially only checks whether the starting iova of the unmap is
-> currently mapped.  If not it does nothing, if it is it tries to reset
-> the device and unpin everything.  Chances are the first iova is not
-> the
-> one pinned, so we don't end up removing the pinned page and type1
-> will
-> eventually BUG_ON after a few tries.
-> 
-> > It looks like AP is missing a call to ap_aqic(), so it is
-> > probably double wrong.
-> 
-> Thankfully the type1 unpinning path can't be tricked into unpinning
-> something that wasn't pinned, so chances are the unpin call does
-> nothing, with a small risk that it unpins another driver's pinned
-> page,
-> which might not yet have been notified and could still be using the
-> page.  In the end, if ap did have a page pinned in the range, we'll
-> hit
-> the same BUG_ON as above.
-> 
-> > What I'd suggest is adding a WARN_ON that the dma->pfn_list is not
-> > empty and leave these functions alone.
-> 
-> The BUG_ON still exists in type1.
-> 
-> Eric, Matt, Tony, Halil, JasonH, any quick fixes here?  ccw looks
-> like
-> it would be pretty straightforward to test against a range rather
-> than
-> a single iova.
+Hi Paolo,
 
-Agreed, ccw looks pretty easy. Should I send something to go before
-this series to make stable easier? (It's a trivial change in either
-direction, so either is fine to me.)
+today you are getting the pull request from me :)
 
-Eric
 
->  
-> > Most likely AP should be fixed to call vfio_ap_irq_disable() and to
-> > check the q->saved_pfn against the IOVA.
-> 
-> Right, the q->saved_iova, perhaps calling vfio_ap_irq_disable() on
-> finding a matching queue.
-> 
-> > But I'm inclined to leave this as-is for this series given we are
-> > at
-> > rc7.
-> 
-> On the grounds that it's no worse, maybe, but given the changes
-> around this code hopefully we can submit fixes patches to stable if
-> the
-> backport isn't obvious and the BUG_ON in type1 is reachable.  Thanks,
-> 
-> Alex
-> 
+this request has:
 
+* First part of deferred teardown (Claudio)
+* CPU Topology (Pierre)
+* interpretive execution for PCI instructions (Matthew)
+* PV attestation (Steffen)
+* Minor fixes 
+
+
+Please pull
+
+
+The following changes since commit 4b88b1a518b337de1252b8180519ca4c00015c9e:
+
+  KVM: selftests: Enhance handling WRMSR ICR register in x2APIC mode (2022-06-24 04:52:04 -0400)
+
+are available in the Git repository at:
+
+  ssh://git@gitolite.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-5.20-1
+
+for you to fetch changes up to f5ecfee94493475783074e86ded10a0499d779fc:
+
+  KVM: s390: resetting the Topology-Change-Report (2022-07-20 10:57:37 +0200)
+
+----------------------------------------------------------------
+KVM: s390x: Fixes and features for 5.20
+
+* First part of deferred teardown
+* CPU Topology
+* interpretive execution for PCI instructions
+* PV attestation
+* Minor fixes
+
+----------------------------------------------------------------
+Bagas Sanjaya (1):
+      Documentation: kvm: extend KVM_S390_ZPCI_OP subheading underline
+
+Christian Borntraeger (3):
+      Merge tag 'kvm-s390-pci-5.20' into kernelorgnext
+      KVM: s390/pci: fix include duplicates
+      KVM: s390: Add facility 197 to the allow list
+
+Claudio Imbrenda (12):
+      KVM: s390: pv: leak the topmost page table when destroy fails
+      KVM: s390: pv: handle secure storage violations for protected guests
+      KVM: s390: pv: handle secure storage exceptions for normal guests
+      KVM: s390: pv: refactor s390_reset_acc
+      KVM: s390: pv: usage counter instead of flag
+      KVM: s390: pv: add export before import
+      KVM: s390: pv: clear the state without memset
+      KVM: s390: pv: Add kvm_s390_cpus_from_pv to kvm-s390.h and add documentation
+      KVM: s390: pv: add mmu_notifier
+      s390/mm: KVM: pv: when tearing down, try to destroy protected pages
+      KVM: s390: pv: refactoring of kvm_s390_pv_deinit_vm
+      KVM: s390: pv: destroy the configuration before its memory
+
+Jiang Jian (1):
+      KVM: s390: drop unexpected word 'and' in the comments
+
+Matthew Rosato (21):
+      s390/sclp: detect the zPCI load/store interpretation facility
+      s390/sclp: detect the AISII facility
+      s390/sclp: detect the AENI facility
+      s390/sclp: detect the AISI facility
+      s390/airq: pass more TPI info to airq handlers
+      s390/airq: allow for airq structure that uses an input vector
+      s390/pci: externalize the SIC operation controls and routine
+      s390/pci: stash associated GISA designation
+      s390/pci: stash dtsm and maxstbl
+      vfio/pci: introduce CONFIG_VFIO_PCI_ZDEV_KVM
+      KVM: s390: pci: add basic kvm_zdev structure
+      KVM: s390: pci: do initial setup for AEN interpretation
+      KVM: s390: pci: enable host forwarding of Adapter Event Notifications
+      KVM: s390: mechanism to enable guest zPCI Interpretation
+      KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding
+      KVM: s390: pci: add routines to start/stop interpretive execution
+      vfio-pci/zdev: add open/close device hooks
+      vfio-pci/zdev: add function handle to clp base capability
+      vfio-pci/zdev: different maxstbl for interpreted devices
+      KVM: s390: add KVM_S390_ZPCI_OP to manage guest zPCI devices
+      MAINTAINERS: additional files related kvm s390 pci passthrough
+
+Nico Boehr (1):
+      KVM: s390: pv: don't present the ecall interrupt twice
+
+Pierre Morel (3):
+      KVM: s390: Cleanup ipte lock access and SIIF facility checks
+      KVM: s390: guest support for topology function
+      KVM: s390: resetting the Topology-Change-Report
+
+Steffen Eiden (1):
+      s390: Add attestation query information
+
+ Documentation/virt/kvm/api.rst      |  71 ++++
+ MAINTAINERS                         |   1 +
+ arch/s390/boot/uv.c                 |   2 +
+ arch/s390/include/asm/airq.h        |   7 +-
+ arch/s390/include/asm/gmap.h        |  39 +-
+ arch/s390/include/asm/kvm_host.h    |  43 ++-
+ arch/s390/include/asm/mmu.h         |   2 +-
+ arch/s390/include/asm/mmu_context.h |   2 +-
+ arch/s390/include/asm/pci.h         |  11 +
+ arch/s390/include/asm/pci_clp.h     |   9 +-
+ arch/s390/include/asm/pci_insn.h    |  29 +-
+ arch/s390/include/asm/pgtable.h     |  21 +-
+ arch/s390/include/asm/sclp.h        |   4 +
+ arch/s390/include/asm/tpi.h         |  13 +
+ arch/s390/include/asm/uv.h          |   8 +-
+ arch/s390/include/uapi/asm/kvm.h    |   1 +
+ arch/s390/kernel/uv.c               | 103 ++++++
+ arch/s390/kvm/Kconfig               |   1 +
+ arch/s390/kvm/Makefile              |   1 +
+ arch/s390/kvm/gaccess.c             |  96 ++---
+ arch/s390/kvm/gaccess.h             |   6 +-
+ arch/s390/kvm/intercept.c           |  15 +
+ arch/s390/kvm/interrupt.c           |  98 ++++-
+ arch/s390/kvm/kvm-s390.c            | 211 ++++++++++-
+ arch/s390/kvm/kvm-s390.h            |  11 +
+ arch/s390/kvm/pci.c                 | 690 ++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/pci.h                 |  87 +++++
+ arch/s390/kvm/priv.c                |  26 +-
+ arch/s390/kvm/pv.c                  |  71 +++-
+ arch/s390/kvm/sigp.c                |   4 +-
+ arch/s390/kvm/vsie.c                |   8 +
+ arch/s390/mm/fault.c                |  23 +-
+ arch/s390/mm/gmap.c                 | 177 +++++++--
+ arch/s390/pci/pci.c                 |  16 +
+ arch/s390/pci/pci_clp.c             |   7 +
+ arch/s390/pci/pci_insn.c            |   4 +-
+ arch/s390/pci/pci_irq.c             |  48 +--
+ arch/s390/tools/gen_facilities.c    |   1 +
+ drivers/s390/char/sclp_early.c      |   4 +
+ drivers/s390/cio/airq.c             |  12 +-
+ drivers/s390/cio/qdio_thinint.c     |   6 +-
+ drivers/s390/crypto/ap_bus.c        |   9 +-
+ drivers/s390/virtio/virtio_ccw.c    |   6 +-
+ drivers/vfio/pci/Kconfig            |  11 +
+ drivers/vfio/pci/Makefile           |   2 +-
+ drivers/vfio/pci/vfio_pci_core.c    |  10 +-
+ drivers/vfio/pci/vfio_pci_zdev.c    |  35 +-
+ include/linux/sched/user.h          |   3 +-
+ include/linux/vfio_pci_core.h       |  12 +-
+ include/uapi/linux/kvm.h            |  32 ++
+ include/uapi/linux/vfio_zdev.h      |   7 +
+ 51 files changed, 1944 insertions(+), 172 deletions(-)
+ create mode 100644 arch/s390/kvm/pci.c
+ create mode 100644 arch/s390/kvm/pci.h
