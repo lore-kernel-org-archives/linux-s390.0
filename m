@@ -2,83 +2,257 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E6B1C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 03:34:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2322AC43334
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 03:36:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231788AbiGUDeS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Jul 2022 23:34:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52942 "EHLO
+        id S230186AbiGUDgp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Jul 2022 23:36:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231891AbiGUDeO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Jul 2022 23:34:14 -0400
-Received: from mail-m973.mail.163.com (mail-m973.mail.163.com [123.126.97.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4B3FE7822A;
-        Wed, 20 Jul 2022 20:34:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=yd7Wq
-        f0OitoLLGDKE7spYAiUYX053HXKfg4Ni/Q/LSM=; b=d3AY91bAo29mAkdZN5zyM
-        dG5eXwbgZXjPIMZo14C/7fakx4UKs1lUseWevCus7OoK5UTCq9KiwSGWPSTM12n8
-        /afNR53wrP9Zkk8hvmLajexsubBC5QdNwGRPBcFqpaw/iMzgZ8Kh0cAKpFw2vm0+
-        BIDvUNztL+YNnv9W+IbmCg=
-Received: from localhost.localdomain (unknown [112.97.57.47])
-        by smtp3 (Coremail) with SMTP id G9xpCgCXNY8nydhiloKYQQ--.385S2;
-        Thu, 21 Jul 2022 11:34:02 +0800 (CST)
-From:   Slark Xiao <slark_xiao@163.com>
-To:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, borntraeger@linux.ibm.com
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Slark Xiao <slark_xiao@163.com>
-Subject: [PATCH] s390: Fix typo 'the the' in comment
-Date:   Thu, 21 Jul 2022 11:33:58 +0800
-Message-Id: <20220721033358.44838-1-slark_xiao@163.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S230152AbiGUDgn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Jul 2022 23:36:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 94D8278225
+        for <linux-s390@vger.kernel.org>; Wed, 20 Jul 2022 20:36:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1658374597;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XZs2MTtPJCgrF13MTLP6HwaK4P20s9o4BWWN0llGmLc=;
+        b=cCOXgnOO8xmvw+LZvOOhfD76/BS0ADF+QjtgZYBEk8Eyh6cDt/NnNyz2jv4kZCu3pnbKpT
+        eXKngVDK+Gj0hgYTtJiNCyFxq6oOqR7tNJFB+8FB5fAxvuvdtBwPi2q0BEhCjNZtlGNMG5
+        R+X9K2RsWhf5vPk7ynjvP82NHxs4RvY=
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
+ [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-589-BgkGoYQGNSu_ebPvxMw8DA-1; Wed, 20 Jul 2022 23:36:36 -0400
+X-MC-Unique: BgkGoYQGNSu_ebPvxMw8DA-1
+Received: by mail-pf1-f199.google.com with SMTP id j9-20020aa78009000000b0052b5ccdf6b8so267716pfi.6
+        for <linux-s390@vger.kernel.org>; Wed, 20 Jul 2022 20:36:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=XZs2MTtPJCgrF13MTLP6HwaK4P20s9o4BWWN0llGmLc=;
+        b=ILfEw9kD81OhLsnDkfx8twelKxarhiFLAPadaPB9VICugmw2hgxCUjsQ0S2OjGeGHF
+         AuLmP+F6ybNqS290+0ZM/CpbtdcMX1vBKoiyTQD33LaSEQXnWspFtWAKdZsalpxG4SDn
+         66ujTc3XzZMEnKQLZEmeD+0ikGwqLVPhF5csg2YTSilo8y7ofFOfaNMw6ds9TxgNDW/+
+         4Q3oZbhnjJgZ+7NrfL3R7T7Q73xikDozalT51TXBXWd18HVkN1pTgca1xsm/VhdOqGLA
+         6Zh7fhlDVTf6JFCat+fo/Rxxr4xFUXWxseR+bcH+HThVzjDUpUU0rMw2JUYljOXL31wC
+         Ys/A==
+X-Gm-Message-State: AJIora+fsXLw9xkl/fEWC37ov2d7DzLl+kGLgC0mfdFVuo0FLVttoZnY
+        4wmGl6WAXrNQyzYo54+V2pXGM92xNGNV4icInoQqtWkav36JrTD3fJT/doFEnaO3dswdo9HbQAI
+        h+evv5HDhXkCsE+8HkGKDuA==
+X-Received: by 2002:a17:903:230c:b0:16c:4c65:18be with SMTP id d12-20020a170903230c00b0016c4c6518bemr41221935plh.138.1658374595115;
+        Wed, 20 Jul 2022 20:36:35 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1tr2BE9d26jAFZ7UzmaXmDCEYEs27OTIGhFU26HuMl2rkNob1MeYihMEZsIvqYHGU+JOzJneA==
+X-Received: by 2002:a17:903:230c:b0:16c:4c65:18be with SMTP id d12-20020a170903230c00b0016c4c6518bemr41221903plh.138.1658374594755;
+        Wed, 20 Jul 2022 20:36:34 -0700 (PDT)
+Received: from [10.72.12.47] ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id x22-20020aa79416000000b005289fad1bbesm424278pfo.94.2022.07.20.20.36.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 20 Jul 2022 20:36:34 -0700 (PDT)
+Message-ID: <ba2ae3e4-a950-6b7f-8748-c45a685bb6b0@redhat.com>
+Date:   Thu, 21 Jul 2022 11:36:19 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.11.0
+Subject: Re: [PATCH v12 01/40] virtio: record the maximum queue num supported
+ by the device.
+Content-Language: en-US
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        virtualization@lists.linux-foundation.org
+Cc:     Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        kangjie.xu@linux.alibaba.com
+References: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
+ <20220720030436.79520-2-xuanzhuo@linux.alibaba.com>
+From:   Jason Wang <jasowang@redhat.com>
+In-Reply-To: <20220720030436.79520-2-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: G9xpCgCXNY8nydhiloKYQQ--.385S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7uF4Dtw18JFW7KF47Kr1rJFb_yoW8WFyUpr
-        1UCF1DK3ykKF1DCa45Gr48WFW8Zan7Ww4ag3Wvk3yrAFy5ZwsYvFyvq3WxJrWjgryku3W0
-        qF1j9r4qg3ZFyaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0z_F4RxUUUUU=
-X-Originating-IP: [112.97.57.47]
-X-CM-SenderInfo: xvod2y5b0lt0i6rwjhhfrp/1tbiJQtFZGAJpJa9YQAAsI
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Replace 'the the' with 'the' in the comment.
 
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
----
- arch/s390/kernel/perf_cpum_sf.c | 2 +-
- arch/s390/kernel/sthyi.c        | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+在 2022/7/20 11:03, Xuan Zhuo 写道:
+> virtio-net can display the maximum (supported by hardware) ring size in
+> ethtool -g eth0.
+>
+> When the subsequent patch implements vring reset, it can judge whether
+> the ring size passed by the driver is legal based on this.
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 332a49965130..0fda19b1e21d 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1160,7 +1160,7 @@ static void perf_event_count_update(struct perf_event *event, u64 count)
-  * combined-sampling data entry consists of a basic- and a diagnostic-sampling
-  * data entry.	The sampling function is determined by the flags in the perf
-  * event hardware structure.  The function always works with a combined-sampling
-- * data entry but ignores the the diagnostic portion if it is not available.
-+ * data entry but ignores the diagnostic portion if it is not available.
-  *
-  * Note that the implementation focuses on basic-sampling data entries and, if
-  * such an entry is not valid, the entire combined-sampling data entry is
-diff --git a/arch/s390/kernel/sthyi.c b/arch/s390/kernel/sthyi.c
-index 4d141e2c132e..dfc350fab384 100644
---- a/arch/s390/kernel/sthyi.c
-+++ b/arch/s390/kernel/sthyi.c
-@@ -250,7 +250,7 @@ static void fill_diag_mac(struct sthyi_sctns *sctns,
- 	sctns->mac.infmval1 |= MAC_CNT_VLD;
- }
- 
--/* Returns a pointer to the the next partition block. */
-+/* Returns a pointer to the next partition block. */
- static struct diag204_x_part_block *lpar_cpu_inf(struct lpar_cpu_inf *part_inf,
- 						 bool this_lpar,
- 						 void *diag224_buf,
--- 
-2.25.1
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+
+> ---
+>   arch/um/drivers/virtio_uml.c             | 1 +
+>   drivers/platform/mellanox/mlxbf-tmfifo.c | 2 ++
+>   drivers/remoteproc/remoteproc_virtio.c   | 2 ++
+>   drivers/s390/virtio/virtio_ccw.c         | 3 +++
+>   drivers/virtio/virtio_mmio.c             | 2 ++
+>   drivers/virtio/virtio_pci_legacy.c       | 2 ++
+>   drivers/virtio/virtio_pci_modern.c       | 2 ++
+>   drivers/virtio/virtio_vdpa.c             | 2 ++
+>   include/linux/virtio.h                   | 2 ++
+>   9 files changed, 18 insertions(+)
+>
+> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+> index 82ff3785bf69..e719af8bdf56 100644
+> --- a/arch/um/drivers/virtio_uml.c
+> +++ b/arch/um/drivers/virtio_uml.c
+> @@ -958,6 +958,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+>   		goto error_create;
+>   	}
+>   	vq->priv = info;
+> +	vq->num_max = num;
+>   	num = virtqueue_get_vring_size(vq);
+>   
+>   	if (vu_dev->protocol_features &
+> diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+> index 38800e86ed8a..1ae3c56b66b0 100644
+> --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
+> +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+> @@ -959,6 +959,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
+>   			goto error;
+>   		}
+>   
+> +		vq->num_max = vring->num;
+> +
+>   		vqs[i] = vq;
+>   		vring->vq = vq;
+>   		vq->priv = vring;
+> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+> index d43d74733f0a..0f7706e23eb9 100644
+> --- a/drivers/remoteproc/remoteproc_virtio.c
+> +++ b/drivers/remoteproc/remoteproc_virtio.c
+> @@ -125,6 +125,8 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
+>   		return ERR_PTR(-ENOMEM);
+>   	}
+>   
+> +	vq->num_max = num;
+> +
+>   	rvring->vq = vq;
+>   	vq->priv = rvring;
+>   
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 161d3b141f0d..6b86d0280d6b 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -530,6 +530,9 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+>   		err = -ENOMEM;
+>   		goto out_err;
+>   	}
+> +
+> +	vq->num_max = info->num;
+> +
+>   	/* it may have been reduced */
+>   	info->num = virtqueue_get_vring_size(vq);
+>   
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 083ff1eb743d..a20d5a6b5819 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -403,6 +403,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+>   		goto error_new_virtqueue;
+>   	}
+>   
+> +	vq->num_max = num;
+> +
+>   	/* Activate the queue */
+>   	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
+>   	if (vm_dev->version == 1) {
+> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+> index a5e5721145c7..2257f1b3d8ae 100644
+> --- a/drivers/virtio/virtio_pci_legacy.c
+> +++ b/drivers/virtio/virtio_pci_legacy.c
+> @@ -135,6 +135,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+>   	if (!vq)
+>   		return ERR_PTR(-ENOMEM);
+>   
+> +	vq->num_max = num;
+> +
+>   	q_pfn = virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT;
+>   	if (q_pfn >> 32) {
+>   		dev_err(&vp_dev->pci_dev->dev,
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index 623906b4996c..e7e0b8c850f6 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -218,6 +218,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+>   	if (!vq)
+>   		return ERR_PTR(-ENOMEM);
+>   
+> +	vq->num_max = num;
+> +
+>   	/* activate the queue */
+>   	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
+>   	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index c40f7deb6b5a..9670cc79371d 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -183,6 +183,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+>   		goto error_new_virtqueue;
+>   	}
+>   
+> +	vq->num_max = max_num;
+> +
+>   	/* Setup virtqueue callback */
+>   	cb.callback = callback ? virtio_vdpa_virtqueue_cb : NULL;
+>   	cb.private = info;
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index d8fdf170637c..129bde7521e3 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -19,6 +19,7 @@
+>    * @priv: a pointer for the virtqueue implementation to use.
+>    * @index: the zero-based ordinal number for this queue.
+>    * @num_free: number of elements we expect to be able to fit.
+> + * @num_max: the maximum number of elements supported by the device.
+>    *
+>    * A note on @num_free: with indirect buffers, each buffer needs one
+>    * element in the queue, otherwise a buffer will need one element per
+> @@ -31,6 +32,7 @@ struct virtqueue {
+>   	struct virtio_device *vdev;
+>   	unsigned int index;
+>   	unsigned int num_free;
+> +	unsigned int num_max;
+>   	void *priv;
+>   };
+>   
 
