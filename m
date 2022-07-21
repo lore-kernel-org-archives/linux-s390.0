@@ -2,161 +2,93 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 311E9CCA479
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 03:39:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F48DC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 06:25:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230168AbiGUDjh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Jul 2022 23:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56580 "EHLO
+        id S229643AbiGUGZy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 02:25:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiGUDjf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Jul 2022 23:39:35 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 10C9578213
-        for <linux-s390@vger.kernel.org>; Wed, 20 Jul 2022 20:39:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658374773;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/J4B4qcC/O6PCOtnZhz1fVwUIt6mfKVcFfx+S26Hn1w=;
-        b=PzjjwtQAOq2sS3wdzhV1HjWPBaASbS944qdfw8GTnGcyK1lIYmzfa9pzKF3iML09NBH7tU
-        nxY+JW+u++S1IylLlRz2TiZrDsONOsfN2JEqW7fRj8hFB1dkoaft/PqcxrlZXG8/63VDID
-        T8G6cGT+91j1gCJbopZdVO7BIIcWBh0=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-193-e_xcyUFgP1qMWYENc7c7kg-1; Wed, 20 Jul 2022 23:39:32 -0400
-X-MC-Unique: e_xcyUFgP1qMWYENc7c7kg-1
-Received: by mail-pl1-f199.google.com with SMTP id u12-20020a170902e5cc00b0016c20d40ec1so452704plf.10
-        for <linux-s390@vger.kernel.org>; Wed, 20 Jul 2022 20:39:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=/J4B4qcC/O6PCOtnZhz1fVwUIt6mfKVcFfx+S26Hn1w=;
-        b=R4H3GqClPGcoInMczgtN7QI2sYgm4qWMhLmWCeOIqpo00bZa0XsElvAw+qzbZpkwjQ
-         jCJta/P4H4ezAJpSt1+m79rrTJ1qiXA8EjAPaVjJzoCey1s6XU/w/+cItJgD7pOfk9Y6
-         aBjyIpF0vEN5DbKbyd1wkNsacvsSEUII7WKkUS0CfufKGLyVP9BV19LXt87SU68lYlFy
-         BNXKws9Z7FOEIv8dhnb96ycKHaZ3hmCiRIqx40MVm1Bq4buLBqrbKBXc03wu5f4g1K1s
-         wVTbx0Q0gpmDkfab7KwGuoeOQLApulVTUeC492qJ9OTgnMxBJaPwmWajoKZY+OkU+eCd
-         sjzA==
-X-Gm-Message-State: AJIora8PmcSEvJx72t1PvloiGc6yiMdUlUOuvA5Q9bIYIYlzO0KdJZkg
-        BV5+dMFHji96KF/F5UDlFqSg/55ji2S+u2+Dweo1ILbwd1YZ49DDq5huERHbGH51BGcOrtQolM5
-        yukxL15RmdS/bX8EviMWPDA==
-X-Received: by 2002:a17:902:6943:b0:16c:ba81:1842 with SMTP id k3-20020a170902694300b0016cba811842mr34513140plt.24.1658374770936;
-        Wed, 20 Jul 2022 20:39:30 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1u1VrQwD/Z1oboj3J8gyT4oRNKMLENwwF8aDJAS3C/huxjXfcUqUKDMCERwkdW74rqe0+fCQA==
-X-Received: by 2002:a17:902:6943:b0:16c:ba81:1842 with SMTP id k3-20020a170902694300b0016cba811842mr34513102plt.24.1658374770599;
-        Wed, 20 Jul 2022 20:39:30 -0700 (PDT)
-Received: from [10.72.12.47] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id v12-20020aa799cc000000b00528f9597fb3sm401825pfi.197.2022.07.20.20.39.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Jul 2022 20:39:30 -0700 (PDT)
-Message-ID: <226ab2d4-0b3f-3a18-bed4-be5d278d2069@redhat.com>
-Date:   Thu, 21 Jul 2022 11:39:17 +0800
+        with ESMTP id S230205AbiGUGZx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 02:25:53 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2EAEF20;
+        Wed, 20 Jul 2022 23:25:52 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26L4Kd06001025;
+        Thu, 21 Jul 2022 06:25:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=M2JiBalwW4CD0ytKTgXWsVduvHfTTbLfJmMWCa+ruTo=;
+ b=iZSo7VPT1M0gQM729fcZqTKrcghH2tz21YIEhU2TaumIbBd+AdhpEz6T3lSkJLf67Z6E
+ ECB42n88pf7PTDodk8qnfLzraYsbMW0/PrzTxlUIu4WlwkV9i9izzPLx5Lxvp1BkKsgq
+ 18skh9QpBcOmPAgWA+FTrDL/fihEcllCsH0DhAXA8onGG80X5oxaW44xAU0wGDurgEjT
+ 1HIX1DdbpTEksG4Jp63X0afwVfa9vzIEf8UOcOEdAhs27mvOGIfW/OZQ3T1P48u+ya+v
+ 5goRjGFY4WV0CGJ66GrpZQzNpNU9zkF9g5WH6mP/X7R3xEqmmthDdV485qBsYxgPpK/n zg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3heypn3epq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 06:25:52 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26L6HNXI008746;
+        Thu, 21 Jul 2022 06:25:52 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3heypn3enx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 06:25:51 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26L6MA4M030351;
+        Thu, 21 Jul 2022 06:25:49 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma05fra.de.ibm.com with ESMTP id 3hbmy8vx2j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 06:25:49 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26L6PkdN24052198
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Jul 2022 06:25:46 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EDC6D52054;
+        Thu, 21 Jul 2022 06:25:45 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.22.197])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 921BB52050;
+        Thu, 21 Jul 2022 06:25:45 +0000 (GMT)
+Date:   Thu, 21 Jul 2022 08:25:44 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Slark Xiao <slark_xiao@163.com>
+Cc:     hca@linux.ibm.com, gor@linux.ibm.com, svens@linux.ibm.com,
+        borntraeger@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: Fix typo 'the the' in comment
+Message-ID: <YtjxaKSMDvdTsyM+@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <20220721033358.44838-1-slark_xiao@163.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH v12 02/40] virtio: struct virtio_config_ops add callbacks
- for queue_reset
-Content-Language: en-US
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        virtualization@lists.linux-foundation.org
-Cc:     Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        kangjie.xu@linux.alibaba.com
-References: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
- <20220720030436.79520-3-xuanzhuo@linux.alibaba.com>
-From:   Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220720030436.79520-3-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220721033358.44838-1-slark_xiao@163.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: b75hMYjowo3flnNLqOsBze3rRdv4bfrW
+X-Proofpoint-ORIG-GUID: V349dZAfTqmJnLSDX6dDtSALmLTZZuFw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-20_12,2022-07-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 adultscore=0 mlxscore=0 mlxlogscore=738 spamscore=0
+ clxscore=1015 suspectscore=0 malwarescore=0 priorityscore=1501
+ phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2206140000 definitions=main-2207210023
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-在 2022/7/20 11:03, Xuan Zhuo 写道:
-> reset can be divided into the following four steps (example):
->   1. transport: notify the device to reset the queue
->   2. vring:     recycle the buffer submitted
->   3. vring:     reset/resize the vring (may re-alloc)
->   4. transport: mmap vring to device, and enable the queue
->
-> In order to support queue reset, add two callbacks in struct
-> virtio_config_ops to implement steps 1 and 4.
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-
+On Thu, Jul 21, 2022 at 11:33:58AM +0800, Slark Xiao wrote:
+> Replace 'the the' with 'the' in the comment.
+> 
+> Signed-off-by: Slark Xiao <slark_xiao@163.com>
 > ---
->   include/linux/virtio_config.h | 14 ++++++++++++++
->   1 file changed, 14 insertions(+)
->
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index b47c2e7ed0ee..36ec7be1f480 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -78,6 +78,18 @@ struct virtio_shm_region {
->    * @set_vq_affinity: set the affinity for a virtqueue (optional).
->    * @get_vq_affinity: get the affinity for a virtqueue (optional).
->    * @get_shm_region: get a shared memory region based on the index.
-> + * @disable_vq_and_reset: reset a queue individually (optional).
-> + *	vq: the virtqueue
-> + *	Returns 0 on success or error status
-> + *	disable_vq_and_reset will guarantee that the callbacks are disabled and
-> + *	synchronized.
-> + *	Except for the callback, the caller should guarantee that the vring is
-> + *	not accessed by any functions of virtqueue.
-> + * @enable_vq_after_reset: enable a reset queue
-> + *	vq: the virtqueue
-> + *	Returns 0 on success or error status
-> + *	If disable_vq_and_reset is set, then enable_vq_after_reset must also be
-> + *	set.
->    */
->   typedef void vq_callback_t(struct virtqueue *);
->   struct virtio_config_ops {
-> @@ -104,6 +116,8 @@ struct virtio_config_ops {
->   			int index);
->   	bool (*get_shm_region)(struct virtio_device *vdev,
->   			       struct virtio_shm_region *region, u8 id);
-> +	int (*disable_vq_and_reset)(struct virtqueue *vq);
-> +	int (*enable_vq_after_reset)(struct virtqueue *vq);
->   };
->   
->   /* If driver didn't advertise the feature, it will never appear. */
+>  arch/s390/kernel/perf_cpum_sf.c | 2 +-
+>  arch/s390/kernel/sthyi.c        | 2 +-
 
+Please, split in two patches and add subsystems to the descriptions.
+
+Thanks!
