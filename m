@@ -2,116 +2,259 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E37DC43334
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 08:46:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 986BBC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 09:14:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbiGUIqe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 04:46:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49488 "EHLO
+        id S232818AbiGUJOM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 05:14:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230458AbiGUIqd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 04:46:33 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70A98183B8;
-        Thu, 21 Jul 2022 01:46:32 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26L8FdGB027725;
-        Thu, 21 Jul 2022 08:46:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=x80jC0+vqrPicCD5sQzIJ9uqpCvdD5695j7ali2vEaw=;
- b=sZyVunw2rBZG7DHqi0blHbs8eTAtBHIxO7GaKTR0VLNhUr0OqjELSVllUr2Gkb3G+spd
- Zg2i1fNEgnbjQHkJj9l3qaAO9CHTUj74NpUEak3++fWX2N8Hd635ae0UI/tCISkKIX5R
- ZQyQwBt6KoT12m8VVi78DkQbOBH0k2mQVURr/jE96LOgUlshbNs7Y5qhTqsv0TIQOyge
- XO0EJ9fbstL8PvP8lie1YoN9UYxB6XkVWYVp4JHch+MfOhxDE+epz4Fw/hWmmr6irWzA
- dTzWmgCuBZQfLnUmI6SsXsMdbkbmW0eYu6wOz7NrAsoseb7LnbpNf4to5bLt/DZ9iUv/ UA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf34srunj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 08:46:24 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26L8ItWm009789;
-        Thu, 21 Jul 2022 08:46:24 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf34sruky-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 08:46:24 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26L8Kued012338;
-        Thu, 21 Jul 2022 08:46:22 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3hbmkj6nrd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 08:46:21 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26L8kIw516187772
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 Jul 2022 08:46:18 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B5E4C11C050;
-        Thu, 21 Jul 2022 08:46:18 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3C06A11C04C;
-        Thu, 21 Jul 2022 08:46:18 +0000 (GMT)
-Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.22.197])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 21 Jul 2022 08:46:18 +0000 (GMT)
-Date:   Thu, 21 Jul 2022 10:46:16 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4 0/4] s390/crash: support multi-segment iterators
-Message-ID: <YtkSWBPpUe8CqNxV@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-References: <cover.1658206891.git.agordeev@linux.ibm.com>
- <YtdzwLXFMuv02JEA@ZenIV>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YtdzwLXFMuv02JEA@ZenIV>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Wirt8CpA_AQCfHEZ0HCuATCAMHvigZiN
-X-Proofpoint-ORIG-GUID: tJF6N95NuLGFjDOGt52sD8BrlBw7IVwZ
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S232847AbiGUJOJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 05:14:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3BD443AE48
+        for <linux-s390@vger.kernel.org>; Thu, 21 Jul 2022 02:14:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1658394847;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=evkly4mzwl0OWnSDguyVCSXP+iuc3cHesZCTCuELO9c=;
+        b=YuY6hov1brzRJK0PFq0RvULidQ7v0N9DQqq6GR2j3jfvCETpbK5z1pLIyjRKAPtrPYbTor
+        rBw538Fa+VZFBV6S+NB7jrNj8dvwSdjagNio8BKxeWdgSQMak6f5Gok4Jgcn9G1tybtkI0
+        MlIWaofp+84W1dCl+f9p8eZQSfFLaOs=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-631-lawLrUx8NT-P2guV74z3Iw-1; Thu, 21 Jul 2022 05:14:02 -0400
+X-MC-Unique: lawLrUx8NT-P2guV74z3Iw-1
+Received: by mail-pj1-f70.google.com with SMTP id o3-20020a17090aac0300b001f210a5e47aso2546773pjq.7
+        for <linux-s390@vger.kernel.org>; Thu, 21 Jul 2022 02:14:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=evkly4mzwl0OWnSDguyVCSXP+iuc3cHesZCTCuELO9c=;
+        b=7EW1hXjdeois5jIBjsyCXbSLk9Ww46VBqpVnC7EaToOB0dm7cFEdg4FVCH1gY4KCel
+         Ue3D7zfVJbcRMpOJG93J8h8gsXqQ5Yzwx5TAt8Efsf1BYF4fA1HbhnkHh/ZwOqXxTQci
+         26HaHUgW26gfV5q9MwiS1Uu0dXTfnt6hUqhP2WKk2qbMSj9Y88YHjx3YLPmYj4VomjrR
+         Ox8vwZSWuoWwoa8wIerSy/dhE9e3Onmxm/jAMbXFJczy/giXY6oUzi3O1Idn9Ne0Mztk
+         a/wvsFO2jhHE4GBq1rLewQCUPSskLAzgI5K3bcw+Mnkx/5CszHljibkJIzGw11WGElUr
+         6L8Q==
+X-Gm-Message-State: AJIora+CeW/eCHMOio9LE3/OQRbHra1/yXX247TKkPJ4gnPasqCxNWWC
+        omkdB8as9IBo4HenRSb8r1njEhNix+Ly5Tbq2SHPhEOA6lp2O2QuAp+aOArrJd10vzk2sw+Qb2A
+        jFdrNL5q5YU0XpmJ/5ODwDA==
+X-Received: by 2002:a17:90b:681:b0:1f2:147a:5e55 with SMTP id m1-20020a17090b068100b001f2147a5e55mr10137453pjz.159.1658394841814;
+        Thu, 21 Jul 2022 02:14:01 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vZd1H6ktLLHxg0oQu5yg8T5pv3EpQ1CpRpfXswCqn2eqimIJKu3rbioASMftx5YraJgvSUnw==
+X-Received: by 2002:a17:90b:681:b0:1f2:147a:5e55 with SMTP id m1-20020a17090b068100b001f2147a5e55mr10137436pjz.159.1658394841532;
+        Thu, 21 Jul 2022 02:14:01 -0700 (PDT)
+Received: from [10.72.12.47] ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id z28-20020aa7949c000000b0052516db7123sm1181543pfk.35.2022.07.21.02.13.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 21 Jul 2022 02:14:00 -0700 (PDT)
+Message-ID: <0b3c985d-d479-a554-4fe2-bfe94fc74070@redhat.com>
+Date:   Thu, 21 Jul 2022 17:13:49 +0800
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-20_12,2022-07-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- clxscore=1015 impostorscore=0 lowpriorityscore=0 spamscore=0
- priorityscore=1501 adultscore=0 bulkscore=0 suspectscore=0 mlxlogscore=999
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207210033
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.11.0
+Subject: Re: [PATCH v12 08/40] virtio_ring: split: extract the logic of alloc
+ queue
+Content-Language: en-US
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        virtualization@lists.linux-foundation.org
+Cc:     Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        kangjie.xu@linux.alibaba.com
+References: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
+ <20220720030436.79520-9-xuanzhuo@linux.alibaba.com>
+From:   Jason Wang <jasowang@redhat.com>
+In-Reply-To: <20220720030436.79520-9-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 20, 2022 at 04:17:20AM +0100, Al Viro wrote:
-> I can put your series into replacement of #fixes-s390, or pull it
-> from whatever static branch you put it into - up to you.
-> Preferences?
 
-Hi Al,
+在 2022/7/20 11:04, Xuan Zhuo 写道:
+> Separate the logic of split to create vring queue.
+>
+> This feature is required for subsequent virtuqueue reset vring.
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>   drivers/virtio/virtio_ring.c | 68 ++++++++++++++++++++++--------------
+>   1 file changed, 42 insertions(+), 26 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index c94c5461e702..c7971438bb2c 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -950,28 +950,19 @@ static void vring_free_split(struct vring_virtqueue_split *vring_split,
+>   	kfree(vring_split->desc_extra);
+>   }
+>   
+> -static struct virtqueue *vring_create_virtqueue_split(
+> -	unsigned int index,
+> -	unsigned int num,
+> -	unsigned int vring_align,
+> -	struct virtio_device *vdev,
+> -	bool weak_barriers,
+> -	bool may_reduce_num,
+> -	bool context,
+> -	bool (*notify)(struct virtqueue *),
+> -	void (*callback)(struct virtqueue *),
+> -	const char *name)
+> +static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
+> +				   struct virtio_device *vdev,
+> +				   u32 num,
+> +				   unsigned int vring_align,
+> +				   bool may_reduce_num)
+>   {
+> -	struct virtqueue *vq;
+>   	void *queue = NULL;
+>   	dma_addr_t dma_addr;
+> -	size_t queue_size_in_bytes;
+> -	struct vring vring;
+>   
+>   	/* We assume num is a power of 2. */
+>   	if (num & (num - 1)) {
+>   		dev_warn(&vdev->dev, "Bad virtqueue length %u\n", num);
+> -		return NULL;
+> +		return -EINVAL;
+>   	}
+>   
+>   	/* TODO: allocate each queue chunk individually */
+> @@ -982,11 +973,11 @@ static struct virtqueue *vring_create_virtqueue_split(
+>   		if (queue)
+>   			break;
+>   		if (!may_reduce_num)
+> -			return NULL;
+> +			return -ENOMEM;
+>   	}
+>   
+>   	if (!num)
+> -		return NULL;
+> +		return -ENOMEM;
+>   
+>   	if (!queue) {
+>   		/* Try to get a single page. You are my only hope! */
+> @@ -994,21 +985,46 @@ static struct virtqueue *vring_create_virtqueue_split(
+>   					  &dma_addr, GFP_KERNEL|__GFP_ZERO);
+>   	}
+>   	if (!queue)
+> -		return NULL;
+> +		return -ENOMEM;
+> +
+> +	vring_init(&vring_split->vring, num, queue, vring_align);
+>   
+> -	queue_size_in_bytes = vring_size(num, vring_align);
+> -	vring_init(&vring, num, queue, vring_align);
+> +	vring_split->queue_dma_addr = dma_addr;
+> +	vring_split->queue_size_in_bytes = vring_size(num, vring_align);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct virtqueue *vring_create_virtqueue_split(
+> +	unsigned int index,
+> +	unsigned int num,
+> +	unsigned int vring_align,
+> +	struct virtio_device *vdev,
+> +	bool weak_barriers,
+> +	bool may_reduce_num,
+> +	bool context,
+> +	bool (*notify)(struct virtqueue *),
+> +	void (*callback)(struct virtqueue *),
+> +	const char *name)
+> +{
+> +	struct vring_virtqueue_split vring_split = {};
+> +	struct virtqueue *vq;
+> +	int err;
+> +
+> +	err = vring_alloc_queue_split(&vring_split, vdev, num, vring_align,
+> +				      may_reduce_num);
+> +	if (err)
+> +		return NULL;
+>   
+> -	vq = __vring_new_virtqueue(index, vring, vdev, weak_barriers, context,
+> -				   notify, callback, name);
+> +	vq = __vring_new_virtqueue(index, vring_split.vring, vdev, weak_barriers,
+> +				   context, notify, callback, name);
+>   	if (!vq) {
+> -		vring_free_queue(vdev, queue_size_in_bytes, queue,
+> -				 dma_addr);
+> +		vring_free_split(&vring_split, vdev);
+>   		return NULL;
+>   	}
+>   
+> -	to_vvq(vq)->split.queue_dma_addr = dma_addr;
+> -	to_vvq(vq)->split.queue_size_in_bytes = queue_size_in_bytes;
+> +	to_vvq(vq)->split.queue_dma_addr = vring_split.queue_dma_addr;
+> +	to_vvq(vq)->split.queue_size_in_bytes = vring_split.queue_size_in_bytes;
 
-Please find the changes since commit af2debd58bd769e38f538143f0d332e15d753396:
 
-  s390/crash: make copy_oldmem_page() return number of bytes copied
+This still seems a little bit redundant since the current logic is a 
+little bit complicated since the vq->split is not initialized in a 
+single place.
 
-up to ebbc9570169147740aa39aee1d61b4cc5a631644:
+I wonder if it's better to:
 
-  s390/crash: support multi-segment iterators
+vring_alloc_queue_split()
+vring_alloc_desc_extra() (reorder to make patch 9 come first)
 
-are available in the Git repository at:
+then we can simply assign vring_split to vq->split in 
+__vring_new_virtqueue() since it has:
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git	vmcore-iov_iter
+     vq->split.queue_dma_addr = 0;
+     vq->split.queue_size_in_bytes = 0;
 
-Please, note three (rather trivial) prereq commits to pull along:
+     vq->split.vring = vring;
+     vq->split.avail_flags_shadow = 0;
+     vq->split.avail_idx_shadow = 0;
 
-  f6749da17a34 s390/crash: fix incorrect number of bytes to copy to user space
-  86caa4b67895 s390/crash: remove redundant panic() on save area allocation failure
-  7190d84966b3 s390/mm: remove unused tprot() function
+This seems to simplify the logic and task of e.g 
+virtqueue_vring_attach_split() to a simple:
 
-Thanks!
+vq->split= vring_split;
+
+And if this makes sense, we can do something similar to packed ring.
+
+Thanks
+
+
+>   	to_vvq(vq)->we_own_ring = true;
+>   
+>   	return vq;
+
