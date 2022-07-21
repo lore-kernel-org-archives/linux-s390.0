@@ -2,90 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEC1ECCA48D
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 13:43:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7035FC43334
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 13:47:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229905AbiGUNns (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 09:43:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48758 "EHLO
+        id S229925AbiGUNr1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 09:47:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229829AbiGUNnF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 09:43:05 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5E9D88322A
-        for <linux-s390@vger.kernel.org>; Thu, 21 Jul 2022 06:42:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658410976;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=eB2t6MCwiJG1ExNDB+Ljjom6WV2GQK9LC4WD3rPXQFM=;
-        b=fXvmKeLkfzCXm3DBNYj1xxQ9hjbpKGte7IC400SdwiCML46Sm0LqFrLFkdh8e7+ctl6+1L
-        jLKDhMB+/2hJyk8MCXRgrd7Jv/DLZaCeW9RByZILKTv7s350P/XzLbtjRf9BjGzAuLe0Za
-        Yet+MQ5Yz5+hqYK9OMUVahXvDh000VY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-642-2fUMqjdgN3OXvZ_8lfEAqA-1; Thu, 21 Jul 2022 09:42:48 -0400
-X-MC-Unique: 2fUMqjdgN3OXvZ_8lfEAqA-1
-Received: by mail-wm1-f72.google.com with SMTP id i184-20020a1c3bc1000000b003a026f48333so1038034wma.4
-        for <linux-s390@vger.kernel.org>; Thu, 21 Jul 2022 06:42:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=eB2t6MCwiJG1ExNDB+Ljjom6WV2GQK9LC4WD3rPXQFM=;
-        b=bxFKY8Ded5xpq8M1MjxXVSwqA3IsHxa4IBQ2yLqM/xXHT2sL2yqcR0dVTOpZ3qFB+D
-         dM+avywaGa2A/8mxk+KIh8wGNCdRlN4Y99DxcIC5BYqAPzb46d1B447W+h89bW8yAV6I
-         dCdfq/XSd9hSyQ4O16vTrlzlPFS2wI/eJCPIrlzSqNMksyjmNXYLbaFmDGd0FAvnA7vg
-         R4jbi1Q6S/5O9QXpjVsPhpub9E/HoDg8WTOmKNikLL2HP8AKQdYtv4Hv3ky/q8sUlaS1
-         DckzzKEu5QQL3l6gzxh+1RZpUz0TjgUOCuGBDddFLGCv/TymU+ElxGonsUzYlmG5P6wN
-         jF9Q==
-X-Gm-Message-State: AJIora8TyKCmhCOZnEji1GnC5eFouL3mg8r00QsfMY2GM/fGV8KhksDn
-        mMxEeR+3ffhnCrjY3lpwGgiQuInbkAopznu47RnClv06eCLEg/cm/YHFkI+Ckx8WwfXVgEB5tVE
-        yAuaL5w+ymfGgfUB5Gzkyug==
-X-Received: by 2002:a7b:c314:0:b0:3a0:5750:1b4a with SMTP id k20-20020a7bc314000000b003a057501b4amr8321580wmj.20.1658410967532;
-        Thu, 21 Jul 2022 06:42:47 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1ug2ArlCJqt7J1dKmM5rfPnxaF/fjypmxrD5aWpELpC2SRJSk58l4vg/VOciBPY0TDmY3lVgw==
-X-Received: by 2002:a7b:c314:0:b0:3a0:5750:1b4a with SMTP id k20-20020a7bc314000000b003a057501b4amr8321560wmj.20.1658410967327;
-        Thu, 21 Jul 2022 06:42:47 -0700 (PDT)
-Received: from [192.168.0.5] (ip-109-43-179-217.web.vodafone.de. [109.43.179.217])
-        by smtp.gmail.com with ESMTPSA id o9-20020a05600c058900b0039c54bb28f2sm1893473wmd.36.2022.07.21.06.42.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Jul 2022 06:42:46 -0700 (PDT)
-Message-ID: <163212be-f3b2-ca68-d28b-df4cf4039bc3@redhat.com>
-Date:   Thu, 21 Jul 2022 15:42:46 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v2 2/2] s390x: intercept: make sure all output lines are
- unique
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, qemu-s390x@nongnu.org
-Cc:     frankja@linux.ibm.com
+        with ESMTP id S229776AbiGUNrN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 09:47:13 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22EB581B3F;
+        Thu, 21 Jul 2022 06:46:19 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LDjI8P016079;
+        Thu, 21 Jul 2022 13:46:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=o9rsZ2NZQTUCNcNVSugAR1X1hCuYKfTg1Geek3XAjw0=;
+ b=VA5g9/43U9yj1q4xV2Scpz74kJBvonw08u6p4p90cVg5UsbGQ+Ko1x+kndLjKSmtVoiy
+ c50IcrC1J30B9e6l8o1sSJ23zIFYjNrakxcAhv9ehLw+I6Wha3rOmI0jvWbfjI1oWRKP
+ tQblV8QmEgBPluZAHZxziYwj10hyqlUkjb4tAvpSpG416+VUNC/6EI0twhekDjg21Eq1
+ SNj5DJZhEle7njCTaicOrW7sgi/HiuQxG5rA+lcM1ln3eaao16dtLT0vE9asHxODs0AA
+ hytw8YW2sa/gYVvHcPIsweCX1JzHz1yQHXyNm6B1OAgtYB/u2nrBQHY0tPm4+Y36itpV Ig== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf74qa1a0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 13:46:14 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LDjXCh017780;
+        Thu, 21 Jul 2022 13:46:13 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf74qa19c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 13:46:13 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LDOxGb000807;
+        Thu, 21 Jul 2022 13:46:12 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3hbmy8y0aq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 13:46:11 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LDkMlj17695152
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Jul 2022 13:46:22 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AD32E4C040;
+        Thu, 21 Jul 2022 13:46:09 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 65DB64C046;
+        Thu, 21 Jul 2022 13:46:09 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.4.232])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 21 Jul 2022 13:46:09 +0000 (GMT)
+Date:   Thu, 21 Jul 2022 15:46:07 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        qemu-s390x@nongnu.org, frankja@linux.ibm.com
+Subject: Re: [PATCH v2 1/2] s390x: intercept: fence one test when using TCG
+Message-ID: <20220721154607.3c43fb6f@p-imbrenda>
+In-Reply-To: <b250461b-ee09-d499-e5a4-4a9a303bed66@redhat.com>
 References: <20220721133002.142897-1-imbrenda@linux.ibm.com>
- <20220721133002.142897-3-imbrenda@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20220721133002.142897-3-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        <20220721133002.142897-2-imbrenda@linux.ibm.com>
+        <b250461b-ee09-d499-e5a4-4a9a303bed66@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 7xLUfKgv2jq88RCeyAhN1LHdrMF3ylMY
+X-Proofpoint-ORIG-GUID: N7SKqUE9tvu9-5xKTvvrNdmSBrqcJnH1
 Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-21_18,2022-07-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
+ mlxlogscore=999 adultscore=0 spamscore=0 mlxscore=0 priorityscore=1501
+ bulkscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
+ definitions=main-2207210054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 21/07/2022 15.30, Claudio Imbrenda wrote:
-> The intercept test has the same output line twice for two different
-> testcases.
-> 
-> Fix this by adding report_prefix_push() as appropriate.
-> 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->   s390x/intercept.c | 6 ++++++
->   1 file changed, 6 insertions(+)
+On Thu, 21 Jul 2022 15:41:30 +0200
+Thomas Huth <thuth@redhat.com> wrote:
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+> On 21/07/2022 15.30, Claudio Imbrenda wrote:
+> > Qemu commit f8333de2793 ("target/s390x/tcg: SPX: check validity of new prefix")
+> > fixes a TCG bug discovered with a new testcase in the intercept test.
+> > 
+> > The gitlab pipeline for the KVM unit tests uses TCG and it will keep
+> > failing every time as long as the pipeline uses a version of Qemu
+> > without the aforementioned patch.
+> > 
+> > Fence the specific testcase for now. Once the pipeline is fixed, this
+> > patch can safely be reverted.
+> > 
+> > This patch is meant to go on top this already queued patch from Janis:
+> > "s390x/intercept: Test invalid prefix argument to SET PREFIX"
+> > https://lore.kernel.org/all/20220627152412.2243255-1-scgl@linux.ibm.com/  
+> 
+> If we keep this as a separate patch, that paragraph should be removed from 
+> the commit description.
 
+yeah that will be removed
+
+> 
+> Anyway:
+> 
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> 
+
+thanks!
