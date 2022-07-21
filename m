@@ -2,535 +2,211 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02B23CCA488
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 13:50:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 511FFC43334
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 16:02:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230150AbiGUNuf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 09:50:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59590 "EHLO
+        id S232093AbiGUQCI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 12:02:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230138AbiGUNu1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 09:50:27 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F19BE00;
-        Thu, 21 Jul 2022 06:50:12 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id p8so1842032plq.13;
-        Thu, 21 Jul 2022 06:50:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=uEjSfF+99/HRrfEMs0fz/oyvdJNIzMVZ2NrIMge9YDY=;
-        b=G3gdHUg+uCjmsO/Wxn3dzoE8fIx2mUG0OaV5hLlC1XLq/ZHCRqNwUm+5GuueuEsfUi
-         c2MdBDsaDXi7DZhBkpgE8lekeg+A8WMbFypcfJ8WypuyJAoyA2QGkHcY1KYQe5MJuD9A
-         INT4DUno2z8EtcksjfmJuunh3959Mk5YyDb+T6OnFfGgHvf/XI0KB+BaX8c37YuNSyq6
-         Mt+5fXZDO5jgPx3RUvxsQsECrDw6Wc27XYTCynd6+4AmgAyuaJRsu9G+EawVWHIM9AMt
-         u6nATWl/tYtZwC0/bGXtjRt1A9Q+kcVhs5B5JEL79hNU1vdKiWecly7EMcamhjAQsi/O
-         P8eg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=uEjSfF+99/HRrfEMs0fz/oyvdJNIzMVZ2NrIMge9YDY=;
-        b=iQzjO/5MB70QC0qJ6umU3RbvOAGc5jV8KKXi7L3cMY8L1M98JbfQzwDGNJugOc8VNT
-         EyIN1ZZHN6+Xb/nEnttpc1G4HaJVaVi5lN8RQXVAIyTlg7y2rrYMd5wQk6GRfhrSBrGA
-         lo4d8Tk5dlSyxRFZYu4TxhpYss+lHGAqODVmvNuQTgKTUo9Kh8lZWcxJByiKV3/lLZuA
-         TatWypLyR9KdDv1vBqYg/4gkKfqIpESlvLR/rf/eCFnmneczIaZopi7p7ZBPTa88fsuR
-         qGRUhUdqicu+9VrGYwZ3oV+AVw0UBKK5UgBpC20yMzwJaLuomZiTdu8mGFkm1whzfaxX
-         efAw==
-X-Gm-Message-State: AJIora9Ni6bS1DGFwUM9HGwJ6bZbJwkNvMCYoiWK9b5DVqHDY/C2ofz+
-        uJrKPuJ7U2r8QXeeOOkbHqHZRWj85BOalQ==
-X-Google-Smtp-Source: AGRyM1tVlFJJ8D0O7DAi0MZsfHRpXKNAT5a//2gM7rpKtWvyT9EePoTM4PI8WjL1FhByjqqlx6ehHA==
-X-Received: by 2002:a17:902:f646:b0:168:e2da:8931 with SMTP id m6-20020a170902f64600b00168e2da8931mr43850943plg.84.1658411411179;
-        Thu, 21 Jul 2022 06:50:11 -0700 (PDT)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
-        by smtp.gmail.com with ESMTPSA id x2-20020a17090a0bc200b001f239783e3dsm858074pjd.34.2022.07.21.06.50.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Jul 2022 06:50:10 -0700 (PDT)
-From:   Stafford Horne <shorne@gmail.com>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Stafford Horne <shorne@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        with ESMTP id S232569AbiGUQCG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 12:02:06 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45F487C25;
+        Thu, 21 Jul 2022 09:02:04 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LFhinO024568;
+        Thu, 21 Jul 2022 16:01:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=TaPE8p4zRacJwxm8CjbGhlNhxea5fkhzEN8EU5aQYyE=;
+ b=cBmM9Eqp4ZQsP2j0tXMM8GUwxATdykM3MV9wR/h9f64IG0oaQrLqvK/SmrUNMRuqMh7H
+ dWK0um6oD73AIPzzyFLZ3Y8OvWVl1U3IQbTxzb99SAGO8Fk1MN+hjgrraqjmeu7JKo2Q
+ NBOtHVA9pRF4xIV89WDY1cIIIGurnoDBDH3Py/tI5eTB/QCcF/a+TLkbiwAYg3ZR+2AP
+ E4oL+Z7WDVL0ayz0OdKz/TSqp/7hUej6Sr+vvuKX13WVJXBRPgYlmDlr7eWIquXPGi6y
+ aN1TBqAh3FVx+ROukA0r2dpf6ZYvT+02Pjdbij0PQCvh0OJ0/YeQZc+QyAo/2llrR2BK GA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf9pp8ghk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 16:01:54 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LFj2Zh029463;
+        Thu, 21 Jul 2022 16:01:53 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf9pp8gh8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 16:01:53 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LFpggq032003;
+        Thu, 21 Jul 2022 16:01:52 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma03wdc.us.ibm.com with ESMTP id 3hbmy9gu1d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Jul 2022 16:01:52 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LG1pHj42336690
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Jul 2022 16:01:51 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 683B26E054;
+        Thu, 21 Jul 2022 16:01:51 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D0E3D6E04E;
+        Thu, 21 Jul 2022 16:01:48 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.211.146.30])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Thu, 21 Jul 2022 16:01:48 +0000 (GMT)
+Message-ID: <d4b7abce8ef8646819d32fef57ea51e38cd53f1b.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 1/2] vfio: Replace the DMA unmapping notifier with a
+ callback
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Alex Williamson <alex.williamson@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Ian Abbott <abbotti@mev.co.uk>,
-        H Hartley Sweeten <hsweeten@visionengravers.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org, linux-pci@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH v5 2/4] PCI: Move isa_dma_bridge_buggy out of dma.h
-Date:   Thu, 21 Jul 2022 22:49:22 +0900
-Message-Id: <20220721134924.596152-3-shorne@gmail.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220721134924.596152-1-shorne@gmail.com>
-References: <20220721134924.596152-1-shorne@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>
+Date:   Thu, 21 Jul 2022 12:01:47 -0400
+In-Reply-To: <20220720170457.39cda0d0.alex.williamson@redhat.com>
+References: <0-v4-681e038e30fd+78-vfio_unmap_notif_jgg@nvidia.com>
+         <1-v4-681e038e30fd+78-vfio_unmap_notif_jgg@nvidia.com>
+         <20220720134113.4225f9d6.alex.williamson@redhat.com>
+         <20220720200829.GW4609@nvidia.com>
+         <20220720170457.39cda0d0.alex.williamson@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: j8vE10XrFQQgyuYkPEtpHYy1GdUqgbS6
+X-Proofpoint-ORIG-GUID: Vz-1MomDKDuiP-p2pkQwTSfVtBTRxQgG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-21_18,2022-07-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 spamscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0
+ phishscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0 impostorscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207210061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-During recent PCI cleanups we noticed that the isa_dma_bridge_buggy
-symbol supported by all architectures is actually only used for x86_32.
+On Wed, 2022-07-20 at 17:04 -0600, Alex Williamson wrote:
+> On Wed, 20 Jul 2022 17:08:29 -0300
+> Jason Gunthorpe <jgg@nvidia.com> wrote:
+> 
+> > On Wed, Jul 20, 2022 at 01:41:13PM -0600, Alex Williamson wrote:
+> >  
+> > > ie. we don't need the gfn, we only need the iova.  
+> > 
+> > Right, that makes sense
+> >  
+> > > However then I start to wonder why we're passing in 1 for the
+> > > number of
+> > > pages because this previously notifier, now callback is called
+> > > for the
+> > > entire vfio_dma range when we find any pinned pages.    
+> > 
+> > Well, it is doing this because it only ever pins one page.
+> 
+> Of course that page is not necessarily the page it unpins given the
+> contract misunderstanding below.
+>  
+> > The drivers are confused about what the contract is. vfio is
+> > calling
+> > the notifier with the entire IOVA range that is being unmapped and
+> > the
+> > drivers are expecting to receive notifications only for the IOVA
+> > they
+> > have actually pinned.
+> > 
+> > > Should ap and ccw implementations of .dma_unmap just be replaced
+> > > with a
+> > > BUG_ON(1)?  
+> > 
+> > The point of these callbacks is to halt concurrent DMA, and ccw
+> > does
+> > that today.
+> 
+> ccw essentially only checks whether the starting iova of the unmap is
+> currently mapped.  If not it does nothing, if it is it tries to reset
+> the device and unpin everything.  Chances are the first iova is not
+> the
+> one pinned, so we don't end up removing the pinned page and type1
+> will
+> eventually BUG_ON after a few tries.
+> 
+> > It looks like AP is missing a call to ap_aqic(), so it is
+> > probably double wrong.
+> 
+> Thankfully the type1 unpinning path can't be tricked into unpinning
+> something that wasn't pinned, so chances are the unpin call does
+> nothing, with a small risk that it unpins another driver's pinned
+> page,
+> which might not yet have been notified and could still be using the
+> page.  In the end, if ap did have a page pinned in the range, we'll
+> hit
+> the same BUG_ON as above.
+> 
+> > What I'd suggest is adding a WARN_ON that the dma->pfn_list is not
+> > empty and leave these functions alone.
+> 
+> The BUG_ON still exists in type1.
+> 
+> Eric, Matt, Tony, Halil, JasonH, any quick fixes here?  ccw looks
+> like
+> it would be pretty straightforward to test against a range rather
+> than
+> a single iova.
 
-This patch moves the symbol out of all architectures limiting usage to
-only x86_32.  This is possible because only x86_32 platforms or quirks
-existing in PCI devices supported on x86_32 ever set this.  A new global
-header linux/isa-dma.h is added to provide a common place to maintain
-the definition.
+Agreed, ccw looks pretty easy. Should I send something to go before
+this series to make stable easier? (It's a trivial change in either
+direction, so either is fine to me.)
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
----
-Since v4:
- - Also remove isa_dma_bridge_buggy from arm64, csky, riscv as this point.
+Eric
 
- arch/alpha/include/asm/dma.h           |  9 ---------
- arch/arc/include/asm/dma.h             |  5 -----
- arch/arm/include/asm/dma.h             |  6 ------
- arch/arm64/include/asm/pci.h           |  2 --
- arch/csky/include/asm/pci.h            |  2 --
- arch/ia64/include/asm/dma.h            |  2 --
- arch/m68k/include/asm/dma.h            |  6 ------
- arch/microblaze/include/asm/dma.h      |  6 ------
- arch/mips/include/asm/dma.h            |  8 --------
- arch/parisc/include/asm/dma.h          |  6 ------
- arch/powerpc/include/asm/dma.h         |  6 ------
- arch/riscv/include/asm/pci.h           |  2 --
- arch/s390/include/asm/dma.h            |  6 ------
- arch/sh/include/asm/dma.h              |  6 ------
- arch/sparc/include/asm/dma.h           |  8 --------
- arch/um/include/asm/pci.h              |  2 --
- arch/x86/include/asm/dma.h             |  8 --------
- arch/xtensa/include/asm/dma.h          |  7 -------
- drivers/comedi/drivers/comedi_isadma.c |  2 +-
- drivers/pci/pci.c                      |  2 ++
- drivers/pci/quirks.c                   |  4 +++-
- include/linux/isa-dma.h                | 14 ++++++++++++++
- sound/core/isadma.c                    |  2 +-
- 23 files changed, 21 insertions(+), 100 deletions(-)
- create mode 100644 include/linux/isa-dma.h
-
-diff --git a/arch/alpha/include/asm/dma.h b/arch/alpha/include/asm/dma.h
-index 28610ea7786d..a04d76b96089 100644
---- a/arch/alpha/include/asm/dma.h
-+++ b/arch/alpha/include/asm/dma.h
-@@ -365,13 +365,4 @@ extern void free_dma(unsigned int dmanr);	/* release it again */
- #define KERNEL_HAVE_CHECK_DMA
- extern int check_dma(unsigned int dmanr);
- 
--/* From PCI */
--
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy 	(0)
--#endif
--
--
- #endif /* _ASM_DMA_H */
-diff --git a/arch/arc/include/asm/dma.h b/arch/arc/include/asm/dma.h
-index 5b744f4b10a7..02431027ed2f 100644
---- a/arch/arc/include/asm/dma.h
-+++ b/arch/arc/include/asm/dma.h
-@@ -7,10 +7,5 @@
- #define ASM_ARC_DMA_H
- 
- #define MAX_DMA_ADDRESS 0xC0000000
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy	0
--#endif
- 
- #endif
-diff --git a/arch/arm/include/asm/dma.h b/arch/arm/include/asm/dma.h
-index a81dda65c576..907d139be431 100644
---- a/arch/arm/include/asm/dma.h
-+++ b/arch/arm/include/asm/dma.h
-@@ -143,10 +143,4 @@ extern int  get_dma_residue(unsigned int chan);
- 
- #endif /* CONFIG_ISA_DMA_API */
- 
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy    (0)
--#endif
--
- #endif /* __ASM_ARM_DMA_H */
-diff --git a/arch/arm64/include/asm/pci.h b/arch/arm64/include/asm/pci.h
-index 0aebc3488c32..682c922b5658 100644
---- a/arch/arm64/include/asm/pci.h
-+++ b/arch/arm64/include/asm/pci.h
-@@ -20,8 +20,6 @@
- #define arch_can_pci_mmap_wc() 1
- #define ARCH_GENERIC_PCI_MMAP_RESOURCE	1
- 
--extern int isa_dma_bridge_buggy;
--
- #ifdef CONFIG_PCI
- static inline int pci_proc_domain(struct pci_bus *bus)
- {
-diff --git a/arch/csky/include/asm/pci.h b/arch/csky/include/asm/pci.h
-index 0535f1aaae38..5c02454ec724 100644
---- a/arch/csky/include/asm/pci.h
-+++ b/arch/csky/include/asm/pci.h
-@@ -15,8 +15,6 @@
- /* C-SKY shim does not initialize PCI bus */
- #define pcibios_assign_all_busses() 1
- 
--extern int isa_dma_bridge_buggy;
--
- #ifdef CONFIG_PCI
- static inline int pci_proc_domain(struct pci_bus *bus)
- {
-diff --git a/arch/ia64/include/asm/dma.h b/arch/ia64/include/asm/dma.h
-index 59625e9c1f9c..eaed2626ffda 100644
---- a/arch/ia64/include/asm/dma.h
-+++ b/arch/ia64/include/asm/dma.h
-@@ -12,8 +12,6 @@
- 
- extern unsigned long MAX_DMA_ADDRESS;
- 
--extern int isa_dma_bridge_buggy;
--
- #define free_dma(x)
- 
- #endif /* _ASM_IA64_DMA_H */
-diff --git a/arch/m68k/include/asm/dma.h b/arch/m68k/include/asm/dma.h
-index f6c5e0dfb4e5..1c8d9c5bc2fa 100644
---- a/arch/m68k/include/asm/dma.h
-+++ b/arch/m68k/include/asm/dma.h
-@@ -6,10 +6,4 @@
-    bootmem allocator (but this should do it for this) */
- #define MAX_DMA_ADDRESS PAGE_OFFSET
- 
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy    (0)
--#endif
--
- #endif /* _M68K_DMA_H */
-diff --git a/arch/microblaze/include/asm/dma.h b/arch/microblaze/include/asm/dma.h
-index f801582be912..7484c9eb66c4 100644
---- a/arch/microblaze/include/asm/dma.h
-+++ b/arch/microblaze/include/asm/dma.h
-@@ -9,10 +9,4 @@
- /* Virtual address corresponding to last available physical memory address.  */
- #define MAX_DMA_ADDRESS (CONFIG_KERNEL_START + memory_size - 1)
- 
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy     (0)
--#endif
--
- #endif /* _ASM_MICROBLAZE_DMA_H */
-diff --git a/arch/mips/include/asm/dma.h b/arch/mips/include/asm/dma.h
-index be726b943530..d6186e6bea7e 100644
---- a/arch/mips/include/asm/dma.h
-+++ b/arch/mips/include/asm/dma.h
-@@ -307,12 +307,4 @@ static __inline__ int get_dma_residue(unsigned int dmanr)
- extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
- extern void free_dma(unsigned int dmanr);	/* release it again */
- 
--/* From PCI */
--
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy	(0)
--#endif
--
- #endif /* _ASM_DMA_H */
-diff --git a/arch/parisc/include/asm/dma.h b/arch/parisc/include/asm/dma.h
-index eea80ed34e6d..9e8c101de902 100644
---- a/arch/parisc/include/asm/dma.h
-+++ b/arch/parisc/include/asm/dma.h
-@@ -176,10 +176,4 @@ static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
- 
- #define free_dma(dmanr)
- 
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy 	(0)
--#endif
--
- #endif /* _ASM_DMA_H */
-diff --git a/arch/powerpc/include/asm/dma.h b/arch/powerpc/include/asm/dma.h
-index 6161a9596196..d97c66d9ae34 100644
---- a/arch/powerpc/include/asm/dma.h
-+++ b/arch/powerpc/include/asm/dma.h
-@@ -340,11 +340,5 @@ extern int request_dma(unsigned int dmanr, const char *device_id);
- /* release it again */
- extern void free_dma(unsigned int dmanr);
- 
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy	(0)
--#endif
--
- #endif /* __KERNEL__ */
- #endif	/* _ASM_POWERPC_DMA_H */
-diff --git a/arch/riscv/include/asm/pci.h b/arch/riscv/include/asm/pci.h
-index a7b8f0d0df7f..f904df586c03 100644
---- a/arch/riscv/include/asm/pci.h
-+++ b/arch/riscv/include/asm/pci.h
-@@ -20,8 +20,6 @@
- 
- #define ARCH_GENERIC_PCI_MMAP_RESOURCE 1
- 
--extern int isa_dma_bridge_buggy;
--
- #ifdef CONFIG_PCI
- static inline int pci_proc_domain(struct pci_bus *bus)
- {
-diff --git a/arch/s390/include/asm/dma.h b/arch/s390/include/asm/dma.h
-index 6f26f35d4a71..dec1c4ce628c 100644
---- a/arch/s390/include/asm/dma.h
-+++ b/arch/s390/include/asm/dma.h
-@@ -11,10 +11,4 @@
-  */
- #define MAX_DMA_ADDRESS         0x80000000
- 
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy	(0)
--#endif
--
- #endif /* _ASM_S390_DMA_H */
-diff --git a/arch/sh/include/asm/dma.h b/arch/sh/include/asm/dma.h
-index 17d23ae98c77..c8bee3f985a2 100644
---- a/arch/sh/include/asm/dma.h
-+++ b/arch/sh/include/asm/dma.h
-@@ -137,10 +137,4 @@ extern int register_chan_caps(const char *dmac, struct dma_chan_caps *capslist);
- extern int dma_create_sysfs_files(struct dma_channel *, struct dma_info *);
- extern void dma_remove_sysfs_files(struct dma_channel *, struct dma_info *);
- 
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy	(0)
--#endif
--
- #endif /* __ASM_SH_DMA_H */
-diff --git a/arch/sparc/include/asm/dma.h b/arch/sparc/include/asm/dma.h
-index 462e7c794a09..08043f35b110 100644
---- a/arch/sparc/include/asm/dma.h
-+++ b/arch/sparc/include/asm/dma.h
-@@ -82,14 +82,6 @@
- #define DMA_BURST64      0x40
- #define DMA_BURSTBITS    0x7f
- 
--/* From PCI */
--
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy 	(0)
--#endif
--
- #ifdef CONFIG_SPARC32
- struct device;
- 
-diff --git a/arch/um/include/asm/pci.h b/arch/um/include/asm/pci.h
-index 26b96c02ef61..1211855aff34 100644
---- a/arch/um/include/asm/pci.h
-+++ b/arch/um/include/asm/pci.h
-@@ -9,8 +9,6 @@
- 
- #define pcibios_assign_all_busses() 1
- 
--extern int isa_dma_bridge_buggy;
--
- #ifdef CONFIG_PCI_DOMAINS
- static inline int pci_proc_domain(struct pci_bus *bus)
- {
-diff --git a/arch/x86/include/asm/dma.h b/arch/x86/include/asm/dma.h
-index 8e95aa4b0d17..8ae6e0e11b8b 100644
---- a/arch/x86/include/asm/dma.h
-+++ b/arch/x86/include/asm/dma.h
-@@ -307,12 +307,4 @@ extern int request_dma(unsigned int dmanr, const char *device_id);
- extern void free_dma(unsigned int dmanr);
- #endif
- 
--/* From PCI */
--
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy	(0)
--#endif
--
- #endif /* _ASM_X86_DMA_H */
-diff --git a/arch/xtensa/include/asm/dma.h b/arch/xtensa/include/asm/dma.h
-index bb099a373b5a..172644539032 100644
---- a/arch/xtensa/include/asm/dma.h
-+++ b/arch/xtensa/include/asm/dma.h
-@@ -52,11 +52,4 @@
- extern int request_dma(unsigned int dmanr, const char * device_id);
- extern void free_dma(unsigned int dmanr);
- 
--#ifdef CONFIG_PCI
--extern int isa_dma_bridge_buggy;
--#else
--#define isa_dma_bridge_buggy 	(0)
--#endif
--
--
- #endif
-diff --git a/drivers/comedi/drivers/comedi_isadma.c b/drivers/comedi/drivers/comedi_isadma.c
-index 700982464c53..020b3d1e1ac0 100644
---- a/drivers/comedi/drivers/comedi_isadma.c
-+++ b/drivers/comedi/drivers/comedi_isadma.c
-@@ -8,7 +8,7 @@
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/dma-mapping.h>
--#include <asm/dma.h>
-+#include <linux/isa-dma.h>
- #include <linux/comedi/comedidev.h>
- #include <linux/comedi/comedi_isadma.h>
- 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index cfaf40a540a8..60c55d2cb2cc 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -41,8 +41,10 @@ const char *pci_power_names[] = {
- };
- EXPORT_SYMBOL_GPL(pci_power_names);
- 
-+#ifdef CONFIG_X86_32
- int isa_dma_bridge_buggy;
- EXPORT_SYMBOL(isa_dma_bridge_buggy);
-+#endif
- 
- int pci_pci_problems;
- EXPORT_SYMBOL(pci_pci_problems);
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 41aeaa235132..6fc64509eee7 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -17,6 +17,7 @@
- #include <linux/kernel.h>
- #include <linux/export.h>
- #include <linux/pci.h>
-+#include <linux/isa-dma.h> /* isa_dma_bridge_buggy */
- #include <linux/init.h>
- #include <linux/delay.h>
- #include <linux/acpi.h>
-@@ -30,7 +31,6 @@
- #include <linux/pm_runtime.h>
- #include <linux/suspend.h>
- #include <linux/switchtec.h>
--#include <asm/dma.h>	/* isa_dma_bridge_buggy */
- #include "pci.h"
- 
- static ktime_t fixup_debug_start(struct pci_dev *dev,
-@@ -239,6 +239,7 @@ static void quirk_passive_release(struct pci_dev *dev)
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82441,	quirk_passive_release);
- DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82441,	quirk_passive_release);
- 
-+#ifdef CONFIG_X86_32
- /*
-  * The VIA VP2/VP3/MVP3 seem to have some 'features'. There may be a
-  * workaround but VIA don't answer queries. If you happen to have good
-@@ -265,6 +266,7 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AL,	PCI_DEVICE_ID_AL_M1533,		quirk_isa_dma
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NEC,	PCI_DEVICE_ID_NEC_CBUS_1,	quirk_isa_dma_hangs);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NEC,	PCI_DEVICE_ID_NEC_CBUS_2,	quirk_isa_dma_hangs);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NEC,	PCI_DEVICE_ID_NEC_CBUS_3,	quirk_isa_dma_hangs);
-+#endif
- 
- /*
-  * Intel NM10 "TigerPoint" LPC PM1a_STS.BM_STS must be clear
-diff --git a/include/linux/isa-dma.h b/include/linux/isa-dma.h
-new file mode 100644
-index 000000000000..61504a8c1b9e
---- /dev/null
-+++ b/include/linux/isa-dma.h
-@@ -0,0 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#ifndef __LINUX_ISA_DMA_H
-+#define __LINUX_ISA_DMA_H
-+
-+#include <asm/dma.h>
-+
-+#if defined(CONFIG_PCI) && defined(CONFIG_X86_32)
-+extern int isa_dma_bridge_buggy;
-+#else
-+#define isa_dma_bridge_buggy	(0)
-+#endif
-+
-+#endif /* __LINUX_ISA_DMA_H */
-diff --git a/sound/core/isadma.c b/sound/core/isadma.c
-index 1f45ede023b4..18a86212e3a8 100644
---- a/sound/core/isadma.c
-+++ b/sound/core/isadma.c
-@@ -12,8 +12,8 @@
- #undef HAVE_REALLY_SLOW_DMA_CONTROLLER
- 
- #include <linux/export.h>
-+#include <linux/isa-dma.h>
- #include <sound/core.h>
--#include <asm/dma.h>
- 
- /**
-  * snd_dma_program - program an ISA DMA transfer
--- 
-2.36.1
+>  
+> > Most likely AP should be fixed to call vfio_ap_irq_disable() and to
+> > check the q->saved_pfn against the IOVA.
+> 
+> Right, the q->saved_iova, perhaps calling vfio_ap_irq_disable() on
+> finding a matching queue.
+> 
+> > But I'm inclined to leave this as-is for this series given we are
+> > at
+> > rc7.
+> 
+> On the grounds that it's no worse, maybe, but given the changes
+> around this code hopefully we can submit fixes patches to stable if
+> the
+> backport isn't obvious and the BUG_ON in type1 is reachable.  Thanks,
+> 
+> Alex
+> 
 
