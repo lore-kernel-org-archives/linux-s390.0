@@ -2,75 +2,77 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96209CCA489
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 16:14:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F157BC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 16:14:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232965AbiGUQOZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 12:14:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43312 "EHLO
+        id S233749AbiGUQO3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 12:14:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233748AbiGUQOB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 12:14:01 -0400
+        with ESMTP id S233802AbiGUQOL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 12:14:11 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F98887F62;
-        Thu, 21 Jul 2022 09:13:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E16D38876A;
+        Thu, 21 Jul 2022 09:14:02 -0700 (PDT)
 Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LFFRlR020377;
-        Thu, 21 Jul 2022 16:13:34 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LFFRPl020346;
+        Thu, 21 Jul 2022 16:13:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=pxZnktUo93ICyM0i3XmQXaEdKmO/c5s4a3zy3Da/D/I=;
- b=rS7I7XEPppmpQlQnd3SJDrkDTo3hm2ZzsFZ5qAHKfSzniS6JncdfhhsU3eHDoINcbh2V
- k+YRAKtZUIS+OGWeMEmvYjuaRSh42MmzRz8EY0khuKVPgN7HB2hTpGVWpTvzTW0pKmVF
- kL1R2PG9VfbXqdrkaak7h98Cjmjsm7ZYlYJGXNl+K9PlwWosN78KSU8SpwsxxBLofleI
- Hyj+DboRh8PUZzRLnu27e9E9KCKNRsCwLMtAGiXbZy8TQREu8gWBRtUeBgSzauPR9ouF
- F//hjpPMvCg20ii94w3qIkz0r5shXfP14o5SX9WvpeladeqwYbsNq6+CwqYIZXY8OCH3 UA== 
+ : mime-version; s=pp1; bh=oRbd7geZVmc7wA9OoWfIpq7SRgFFPcRlzOcq7VUowL8=;
+ b=XSZlvOM8GwmxCMSUrEs4JtZksJ9NXv6az9CNfjtSbu7UzSvvyAWEolrPBLDUyQxZY4Bp
+ onSqog2tcD8j6BGfdlLw2kC5BLTepnzouUN+bGQdHZmgq+E5po0EzCIElQ3CSvHjMOPw
+ slt8rgXd60L8akR4sLBLd+dcXOZTc8k/GJAL9eO+D4MGijnU558QOAyfCN4yysb16t0g
+ femjqT9u7iKyPlaVMeOMTE9SdEva0LZBMDrn0FiSDKzIcUEsQ34fdCsmYhbHHozOKYzL
+ DykDdH/hRp55WHl+IbYEXP9zqSEqo7NNso+4MleAQYCCwD21ErOUfUrZzoLgljvRAd0C SQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m3mb-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m3ps-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:13:30 +0000
+        Thu, 21 Jul 2022 16:13:34 +0000
 Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LFFesV022550;
-        Thu, 21 Jul 2022 16:13:30 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m3jn-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LFFixJ023097;
+        Thu, 21 Jul 2022 16:13:34 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m3nj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:13:30 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LG8NPw019513;
-        Thu, 21 Jul 2022 16:13:27 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3hbmy8nexy-1
+        Thu, 21 Jul 2022 16:13:34 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LG7MJ3017937;
+        Thu, 21 Jul 2022 16:13:31 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3hbmy8y570-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:13:27 +0000
+        Thu, 21 Jul 2022 16:13:31 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LGDbaT18874650
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LGDSaa23724484
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 Jul 2022 16:13:37 GMT
+        Thu, 21 Jul 2022 16:13:28 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C485A405B;
-        Thu, 21 Jul 2022 16:13:24 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CD0A4A4062;
+        Thu, 21 Jul 2022 16:13:28 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 24A24A4054;
-        Thu, 21 Jul 2022 16:13:24 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 42BD4A405B;
+        Thu, 21 Jul 2022 16:13:28 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.145.4.232])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 21 Jul 2022 16:13:24 +0000 (GMT)
+        Thu, 21 Jul 2022 16:13:28 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         frankja@linux.ibm.com, borntraeger@linux.ibm.com,
         hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        thuth@redhat.com, david@redhat.com
-Subject: [GIT PULL 33/42] KVM: s390: pv: clear the state without memset
-Date:   Thu, 21 Jul 2022 18:12:53 +0200
-Message-Id: <20220721161302.156182-34-imbrenda@linux.ibm.com>
+        thuth@redhat.com, david@redhat.com,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Subject: [GIT PULL 40/42] KVM: s390: Cleanup ipte lock access and SIIF facility checks
+Date:   Thu, 21 Jul 2022 18:13:00 +0200
+Message-Id: <20220721161302.156182-41-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220721161302.156182-1-imbrenda@linux.ibm.com>
 References: <20220721161302.156182-1-imbrenda@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NQ59bxBKD-af6sYV70YDAZF2Tli6cukJ
-X-Proofpoint-GUID: iuw7ymIOf9leZhajHJTuzr0uvnNRT3pE
+X-Proofpoint-ORIG-GUID: s6bbLOtWVTYKSpN8dEXkXNObKurMjdKw
+X-Proofpoint-GUID: 2KQuue1rBJUrtxRusf_LiEfr1_GV1bEm
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
@@ -79,56 +81,300 @@ X-Proofpoint-Virus-Version: vendor=baseguard
  definitions=2022-07-21_22,2022-07-20_01,2022-06-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
  priorityscore=1501 clxscore=1015 suspectscore=0 adultscore=0 spamscore=0
- mlxlogscore=856 impostorscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
+ mlxlogscore=909 impostorscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
  malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2206140000 definitions=main-2207210064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Do not use memset to clean the whole struct kvm_s390_pv; instead,
-explicitly clear the fields that need to be cleared.
+From: Pierre Morel <pmorel@linux.ibm.com>
 
-Upcoming patches will introduce new fields in the struct kvm_s390_pv
-that will not need to be cleared.
+We can check if SIIF is enabled by testing the sclp_info struct
+instead of testing the sie control block eca variable as that
+facility is always enabled if available.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Also let's cleanup all the ipte related struct member accesses
+which currently happen by referencing the KVM struct via the
+VCPU struct.
+Making the KVM struct the parameter to the ipte_* functions
+removes one level of indirection which makes the code more readable.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220628135619.32410-8-imbrenda@linux.ibm.com
-Message-Id: <20220628135619.32410-8-imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Link: https://lore.kernel.org/all/20220711084148.25017-2-pmorel@linux.ibm.com/
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/pv.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/s390/kvm/gaccess.c | 96 ++++++++++++++++++++---------------------
+ arch/s390/kvm/gaccess.h |  6 +--
+ arch/s390/kvm/priv.c    |  6 +--
+ 3 files changed, 54 insertions(+), 54 deletions(-)
 
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 59e0d5399113..d18c5ccfa5dc 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -17,6 +17,14 @@
- #include <linux/sched/mm.h>
- #include "kvm-s390.h"
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 227ed0009354..082ec5f2c3a5 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -262,77 +262,77 @@ struct aste {
+ 	/* .. more fields there */
+ };
  
-+static void kvm_s390_clear_pv_state(struct kvm *kvm)
-+{
-+	kvm->arch.pv.handle = 0;
-+	kvm->arch.pv.guest_len = 0;
-+	kvm->arch.pv.stor_base = 0;
-+	kvm->arch.pv.stor_var = NULL;
-+}
-+
- int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+-int ipte_lock_held(struct kvm_vcpu *vcpu)
++int ipte_lock_held(struct kvm *kvm)
  {
- 	int cc;
-@@ -111,7 +119,7 @@ static void kvm_s390_pv_dealloc_vm(struct kvm *kvm)
- 	vfree(kvm->arch.pv.stor_var);
- 	free_pages(kvm->arch.pv.stor_base,
- 		   get_order(uv_info.guest_base_stor_len));
--	memset(&kvm->arch.pv, 0, sizeof(kvm->arch.pv));
-+	kvm_s390_clear_pv_state(kvm);
+-	if (vcpu->arch.sie_block->eca & ECA_SII) {
++	if (sclp.has_siif) {
+ 		int rc;
+ 
+-		read_lock(&vcpu->kvm->arch.sca_lock);
+-		rc = kvm_s390_get_ipte_control(vcpu->kvm)->kh != 0;
+-		read_unlock(&vcpu->kvm->arch.sca_lock);
++		read_lock(&kvm->arch.sca_lock);
++		rc = kvm_s390_get_ipte_control(kvm)->kh != 0;
++		read_unlock(&kvm->arch.sca_lock);
+ 		return rc;
+ 	}
+-	return vcpu->kvm->arch.ipte_lock_count != 0;
++	return kvm->arch.ipte_lock_count != 0;
  }
  
- static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+-static void ipte_lock_simple(struct kvm_vcpu *vcpu)
++static void ipte_lock_simple(struct kvm *kvm)
+ {
+ 	union ipte_control old, new, *ic;
+ 
+-	mutex_lock(&vcpu->kvm->arch.ipte_mutex);
+-	vcpu->kvm->arch.ipte_lock_count++;
+-	if (vcpu->kvm->arch.ipte_lock_count > 1)
++	mutex_lock(&kvm->arch.ipte_mutex);
++	kvm->arch.ipte_lock_count++;
++	if (kvm->arch.ipte_lock_count > 1)
+ 		goto out;
+ retry:
+-	read_lock(&vcpu->kvm->arch.sca_lock);
+-	ic = kvm_s390_get_ipte_control(vcpu->kvm);
++	read_lock(&kvm->arch.sca_lock);
++	ic = kvm_s390_get_ipte_control(kvm);
+ 	do {
+ 		old = READ_ONCE(*ic);
+ 		if (old.k) {
+-			read_unlock(&vcpu->kvm->arch.sca_lock);
++			read_unlock(&kvm->arch.sca_lock);
+ 			cond_resched();
+ 			goto retry;
+ 		}
+ 		new = old;
+ 		new.k = 1;
+ 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
+-	read_unlock(&vcpu->kvm->arch.sca_lock);
++	read_unlock(&kvm->arch.sca_lock);
+ out:
+-	mutex_unlock(&vcpu->kvm->arch.ipte_mutex);
++	mutex_unlock(&kvm->arch.ipte_mutex);
+ }
+ 
+-static void ipte_unlock_simple(struct kvm_vcpu *vcpu)
++static void ipte_unlock_simple(struct kvm *kvm)
+ {
+ 	union ipte_control old, new, *ic;
+ 
+-	mutex_lock(&vcpu->kvm->arch.ipte_mutex);
+-	vcpu->kvm->arch.ipte_lock_count--;
+-	if (vcpu->kvm->arch.ipte_lock_count)
++	mutex_lock(&kvm->arch.ipte_mutex);
++	kvm->arch.ipte_lock_count--;
++	if (kvm->arch.ipte_lock_count)
+ 		goto out;
+-	read_lock(&vcpu->kvm->arch.sca_lock);
+-	ic = kvm_s390_get_ipte_control(vcpu->kvm);
++	read_lock(&kvm->arch.sca_lock);
++	ic = kvm_s390_get_ipte_control(kvm);
+ 	do {
+ 		old = READ_ONCE(*ic);
+ 		new = old;
+ 		new.k = 0;
+ 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
+-	read_unlock(&vcpu->kvm->arch.sca_lock);
+-	wake_up(&vcpu->kvm->arch.ipte_wq);
++	read_unlock(&kvm->arch.sca_lock);
++	wake_up(&kvm->arch.ipte_wq);
+ out:
+-	mutex_unlock(&vcpu->kvm->arch.ipte_mutex);
++	mutex_unlock(&kvm->arch.ipte_mutex);
+ }
+ 
+-static void ipte_lock_siif(struct kvm_vcpu *vcpu)
++static void ipte_lock_siif(struct kvm *kvm)
+ {
+ 	union ipte_control old, new, *ic;
+ 
+ retry:
+-	read_lock(&vcpu->kvm->arch.sca_lock);
+-	ic = kvm_s390_get_ipte_control(vcpu->kvm);
++	read_lock(&kvm->arch.sca_lock);
++	ic = kvm_s390_get_ipte_control(kvm);
+ 	do {
+ 		old = READ_ONCE(*ic);
+ 		if (old.kg) {
+-			read_unlock(&vcpu->kvm->arch.sca_lock);
++			read_unlock(&kvm->arch.sca_lock);
+ 			cond_resched();
+ 			goto retry;
+ 		}
+@@ -340,15 +340,15 @@ static void ipte_lock_siif(struct kvm_vcpu *vcpu)
+ 		new.k = 1;
+ 		new.kh++;
+ 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
+-	read_unlock(&vcpu->kvm->arch.sca_lock);
++	read_unlock(&kvm->arch.sca_lock);
+ }
+ 
+-static void ipte_unlock_siif(struct kvm_vcpu *vcpu)
++static void ipte_unlock_siif(struct kvm *kvm)
+ {
+ 	union ipte_control old, new, *ic;
+ 
+-	read_lock(&vcpu->kvm->arch.sca_lock);
+-	ic = kvm_s390_get_ipte_control(vcpu->kvm);
++	read_lock(&kvm->arch.sca_lock);
++	ic = kvm_s390_get_ipte_control(kvm);
+ 	do {
+ 		old = READ_ONCE(*ic);
+ 		new = old;
+@@ -356,25 +356,25 @@ static void ipte_unlock_siif(struct kvm_vcpu *vcpu)
+ 		if (!new.kh)
+ 			new.k = 0;
+ 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
+-	read_unlock(&vcpu->kvm->arch.sca_lock);
++	read_unlock(&kvm->arch.sca_lock);
+ 	if (!new.kh)
+-		wake_up(&vcpu->kvm->arch.ipte_wq);
++		wake_up(&kvm->arch.ipte_wq);
+ }
+ 
+-void ipte_lock(struct kvm_vcpu *vcpu)
++void ipte_lock(struct kvm *kvm)
+ {
+-	if (vcpu->arch.sie_block->eca & ECA_SII)
+-		ipte_lock_siif(vcpu);
++	if (sclp.has_siif)
++		ipte_lock_siif(kvm);
+ 	else
+-		ipte_lock_simple(vcpu);
++		ipte_lock_simple(kvm);
+ }
+ 
+-void ipte_unlock(struct kvm_vcpu *vcpu)
++void ipte_unlock(struct kvm *kvm)
+ {
+-	if (vcpu->arch.sie_block->eca & ECA_SII)
+-		ipte_unlock_siif(vcpu);
++	if (sclp.has_siif)
++		ipte_unlock_siif(kvm);
+ 	else
+-		ipte_unlock_simple(vcpu);
++		ipte_unlock_simple(kvm);
+ }
+ 
+ static int ar_translation(struct kvm_vcpu *vcpu, union asce *asce, u8 ar,
+@@ -1086,7 +1086,7 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+ 	try_storage_prot_override = storage_prot_override_applicable(vcpu);
+ 	need_ipte_lock = psw_bits(*psw).dat && !asce.r;
+ 	if (need_ipte_lock)
+-		ipte_lock(vcpu);
++		ipte_lock(vcpu->kvm);
+ 	/*
+ 	 * Since we do the access further down ultimately via a move instruction
+ 	 * that does key checking and returns an error in case of a protection
+@@ -1127,7 +1127,7 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+ 	}
+ out_unlock:
+ 	if (need_ipte_lock)
+-		ipte_unlock(vcpu);
++		ipte_unlock(vcpu->kvm);
+ 	if (nr_pages > ARRAY_SIZE(gpa_array))
+ 		vfree(gpas);
+ 	return rc;
+@@ -1199,10 +1199,10 @@ int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
+ 	rc = get_vcpu_asce(vcpu, &asce, gva, ar, mode);
+ 	if (rc)
+ 		return rc;
+-	ipte_lock(vcpu);
++	ipte_lock(vcpu->kvm);
+ 	rc = guest_range_to_gpas(vcpu, gva, ar, NULL, length, asce, mode,
+ 				 access_key);
+-	ipte_unlock(vcpu);
++	ipte_unlock(vcpu->kvm);
+ 
+ 	return rc;
+ }
+@@ -1465,7 +1465,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 	 * tables/pointers we read stay valid - unshadowing is however
+ 	 * always possible - only guest_table_lock protects us.
+ 	 */
+-	ipte_lock(vcpu);
++	ipte_lock(vcpu->kvm);
+ 
+ 	rc = gmap_shadow_pgt_lookup(sg, saddr, &pgt, &dat_protection, &fake);
+ 	if (rc)
+@@ -1499,7 +1499,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 	pte.p |= dat_protection;
+ 	if (!rc)
+ 		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
+-	ipte_unlock(vcpu);
++	ipte_unlock(vcpu->kvm);
+ 	mmap_read_unlock(sg->mm);
+ 	return rc;
+ }
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index 1124ff282012..9408d6cc8e2c 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -440,9 +440,9 @@ int read_guest_real(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
+ 	return access_guest_real(vcpu, gra, data, len, 0);
+ }
+ 
+-void ipte_lock(struct kvm_vcpu *vcpu);
+-void ipte_unlock(struct kvm_vcpu *vcpu);
+-int ipte_lock_held(struct kvm_vcpu *vcpu);
++void ipte_lock(struct kvm *kvm);
++void ipte_unlock(struct kvm *kvm);
++int ipte_lock_held(struct kvm *kvm);
+ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
+ 
+ /* MVPG PEI indication bits */
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 83bb5cf97282..12c464c7cddf 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -442,7 +442,7 @@ static int handle_ipte_interlock(struct kvm_vcpu *vcpu)
+ 	vcpu->stat.instruction_ipte_interlock++;
+ 	if (psw_bits(vcpu->arch.sie_block->gpsw).pstate)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+-	wait_event(vcpu->kvm->arch.ipte_wq, !ipte_lock_held(vcpu));
++	wait_event(vcpu->kvm->arch.ipte_wq, !ipte_lock_held(vcpu->kvm));
+ 	kvm_s390_retry_instr(vcpu);
+ 	VCPU_EVENT(vcpu, 4, "%s", "retrying ipte interlock operation");
+ 	return 0;
+@@ -1471,7 +1471,7 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
+ 	access_key = (operand2 & 0xf0) >> 4;
+ 
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
+-		ipte_lock(vcpu);
++		ipte_lock(vcpu->kvm);
+ 
+ 	ret = guest_translate_address_with_key(vcpu, address, ar, &gpa,
+ 					       GACC_STORE, access_key);
+@@ -1508,7 +1508,7 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
+ 	}
+ 
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
+-		ipte_unlock(vcpu);
++		ipte_unlock(vcpu->kvm);
+ 	return ret;
+ }
+ 
 -- 
 2.36.1
 
