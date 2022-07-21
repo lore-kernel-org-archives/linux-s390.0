@@ -2,77 +2,78 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F157BC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 16:14:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB2E9CCA487
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 16:14:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233749AbiGUQO3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 12:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43114 "EHLO
+        id S233829AbiGUQOc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 12:14:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233802AbiGUQOL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 12:14:11 -0400
+        with ESMTP id S233856AbiGUQOO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 12:14:14 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E16D38876A;
-        Thu, 21 Jul 2022 09:14:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEBC489665;
+        Thu, 21 Jul 2022 09:14:06 -0700 (PDT)
 Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LFFRPl020346;
-        Thu, 21 Jul 2022 16:13:35 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LFFRlU020377;
+        Thu, 21 Jul 2022 16:13:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=oRbd7geZVmc7wA9OoWfIpq7SRgFFPcRlzOcq7VUowL8=;
- b=XSZlvOM8GwmxCMSUrEs4JtZksJ9NXv6az9CNfjtSbu7UzSvvyAWEolrPBLDUyQxZY4Bp
- onSqog2tcD8j6BGfdlLw2kC5BLTepnzouUN+bGQdHZmgq+E5po0EzCIElQ3CSvHjMOPw
- slt8rgXd60L8akR4sLBLd+dcXOZTc8k/GJAL9eO+D4MGijnU558QOAyfCN4yysb16t0g
- femjqT9u7iKyPlaVMeOMTE9SdEva0LZBMDrn0FiSDKzIcUEsQ34fdCsmYhbHHozOKYzL
- DykDdH/hRp55WHl+IbYEXP9zqSEqo7NNso+4MleAQYCCwD21ErOUfUrZzoLgljvRAd0C SQ== 
+ : mime-version; s=pp1; bh=bqzWn/Gg+fWiZ+n3KkgqcbymlR4LIwjVz+Ummg/9o+k=;
+ b=QhJK3NTIyL5zfMegOnqtZNfA0FrLVyRFWmraWUnvsxslKNzCUyeyh5SJRaksGL8zZybe
+ m8omyiLgEwlLD8Mp4or3eN35RXjRavxMbmLbDG0uV12DZQcjy0YEeE3BTkfP5JdK7iaU
+ c1A3oHyDu36fsk90aRS5uhT6/9zT5ou40VOsbt6V7WTJ1VFSBRNjcT/knacoCggMgTNt
+ to/rLqwyVM9Z1R4sYD65o5XLl7YRTCP94AYoAQsjL9LkgqeWjwigInMJlMEldr2DdpyH
+ q7KLFvJFaswRbeHfOcSG5OdAV84sDGrsekwIeEF8UO4jEw8PYtHGnbgyYd85A4XEoT5c Tg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m3ps-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m3qm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:13:34 +0000
+        Thu, 21 Jul 2022 16:13:36 +0000
 Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LFFixJ023097;
-        Thu, 21 Jul 2022 16:13:34 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m3nj-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26LFFaoe021797;
+        Thu, 21 Jul 2022 16:13:35 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hf8f2m3p5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:13:34 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LG7MJ3017937;
-        Thu, 21 Jul 2022 16:13:31 GMT
+        Thu, 21 Jul 2022 16:13:35 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26LG8NPv019513;
+        Thu, 21 Jul 2022 16:13:18 GMT
 Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03ams.nl.ibm.com with ESMTP id 3hbmy8y570-1
+        by ppma03fra.de.ibm.com with ESMTP id 3hbmy8nexs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 16:13:31 +0000
+        Thu, 21 Jul 2022 16:13:18 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LGDSaa23724484
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26LGDEEs11665802
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 Jul 2022 16:13:28 GMT
+        Thu, 21 Jul 2022 16:13:14 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CD0A4A4062;
-        Thu, 21 Jul 2022 16:13:28 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B2B6BA405B;
+        Thu, 21 Jul 2022 16:13:14 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 42BD4A405B;
-        Thu, 21 Jul 2022 16:13:28 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 24B6FA4054;
+        Thu, 21 Jul 2022 16:13:14 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.145.4.232])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 21 Jul 2022 16:13:28 +0000 (GMT)
+        Thu, 21 Jul 2022 16:13:14 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         frankja@linux.ibm.com, borntraeger@linux.ibm.com,
         hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         thuth@redhat.com, david@redhat.com,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>
-Subject: [GIT PULL 40/42] KVM: s390: Cleanup ipte lock access and SIIF facility checks
-Date:   Thu, 21 Jul 2022 18:13:00 +0200
-Message-Id: <20220721161302.156182-41-imbrenda@linux.ibm.com>
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Subject: [GIT PULL 17/42] vfio-pci/zdev: add open/close device hooks
+Date:   Thu, 21 Jul 2022 18:12:37 +0200
+Message-Id: <20220721161302.156182-18-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220721161302.156182-1-imbrenda@linux.ibm.com>
 References: <20220721161302.156182-1-imbrenda@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: s6bbLOtWVTYKSpN8dEXkXNObKurMjdKw
-X-Proofpoint-GUID: 2KQuue1rBJUrtxRusf_LiEfr1_GV1bEm
+X-Proofpoint-ORIG-GUID: KL92h4Ux56h6AJEdTOr5DtprbgEHPW2y
+X-Proofpoint-GUID: WYGd_zxg-kGJg5sJ-bJOHb3j9xHRKma2
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
@@ -81,300 +82,136 @@ X-Proofpoint-Virus-Version: vendor=baseguard
  definitions=2022-07-21_22,2022-07-20_01,2022-06-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
  priorityscore=1501 clxscore=1015 suspectscore=0 adultscore=0 spamscore=0
- mlxlogscore=909 impostorscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
+ mlxlogscore=999 impostorscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
  malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2206140000 definitions=main-2207210064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Pierre Morel <pmorel@linux.ibm.com>
+From: Matthew Rosato <mjrosato@linux.ibm.com>
 
-We can check if SIIF is enabled by testing the sclp_info struct
-instead of testing the sie control block eca variable as that
-facility is always enabled if available.
+During vfio-pci open_device, pass the KVM associated with the vfio group
+(if one exists).  This is needed in order to pass a special indicator
+(GISA) to firmware to allow zPCI interpretation facilities to be used
+for only the specific KVM associated with the vfio-pci device.  During
+vfio-pci close_device, unregister the notifier.
 
-Also let's cleanup all the ipte related struct member accesses
-which currently happen by referencing the KVM struct via the
-VCPU struct.
-Making the KVM struct the parameter to the ipte_* functions
-removes one level of indirection which makes the code more readable.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-Link: https://lore.kernel.org/all/20220711084148.25017-2-pmorel@linux.ibm.com/
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Acked-by: Alex Williamson <alex.williamson@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220606203325.110625-18-mjrosato@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 96 ++++++++++++++++++++---------------------
- arch/s390/kvm/gaccess.h |  6 +--
- arch/s390/kvm/priv.c    |  6 +--
- 3 files changed, 54 insertions(+), 54 deletions(-)
+ drivers/vfio/pci/vfio_pci_core.c | 10 +++++++++-
+ drivers/vfio/pci/vfio_pci_zdev.c | 24 ++++++++++++++++++++++++
+ include/linux/vfio_pci_core.h    | 10 ++++++++++
+ 3 files changed, 43 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 227ed0009354..082ec5f2c3a5 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -262,77 +262,77 @@ struct aste {
- 	/* .. more fields there */
- };
- 
--int ipte_lock_held(struct kvm_vcpu *vcpu)
-+int ipte_lock_held(struct kvm *kvm)
- {
--	if (vcpu->arch.sie_block->eca & ECA_SII) {
-+	if (sclp.has_siif) {
- 		int rc;
- 
--		read_lock(&vcpu->kvm->arch.sca_lock);
--		rc = kvm_s390_get_ipte_control(vcpu->kvm)->kh != 0;
--		read_unlock(&vcpu->kvm->arch.sca_lock);
-+		read_lock(&kvm->arch.sca_lock);
-+		rc = kvm_s390_get_ipte_control(kvm)->kh != 0;
-+		read_unlock(&kvm->arch.sca_lock);
- 		return rc;
+diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+index a0d69ddaf90d..b1e5cfbadf38 100644
+--- a/drivers/vfio/pci/vfio_pci_core.c
++++ b/drivers/vfio/pci/vfio_pci_core.c
+@@ -316,10 +316,14 @@ int vfio_pci_core_enable(struct vfio_pci_core_device *vdev)
+ 		pci_write_config_word(pdev, PCI_COMMAND, cmd);
  	}
--	return vcpu->kvm->arch.ipte_lock_count != 0;
-+	return kvm->arch.ipte_lock_count != 0;
- }
  
--static void ipte_lock_simple(struct kvm_vcpu *vcpu)
-+static void ipte_lock_simple(struct kvm *kvm)
- {
- 	union ipte_control old, new, *ic;
+-	ret = vfio_config_init(vdev);
++	ret = vfio_pci_zdev_open_device(vdev);
+ 	if (ret)
+ 		goto out_free_state;
  
--	mutex_lock(&vcpu->kvm->arch.ipte_mutex);
--	vcpu->kvm->arch.ipte_lock_count++;
--	if (vcpu->kvm->arch.ipte_lock_count > 1)
-+	mutex_lock(&kvm->arch.ipte_mutex);
-+	kvm->arch.ipte_lock_count++;
-+	if (kvm->arch.ipte_lock_count > 1)
- 		goto out;
- retry:
--	read_lock(&vcpu->kvm->arch.sca_lock);
--	ic = kvm_s390_get_ipte_control(vcpu->kvm);
-+	read_lock(&kvm->arch.sca_lock);
-+	ic = kvm_s390_get_ipte_control(kvm);
- 	do {
- 		old = READ_ONCE(*ic);
- 		if (old.k) {
--			read_unlock(&vcpu->kvm->arch.sca_lock);
-+			read_unlock(&kvm->arch.sca_lock);
- 			cond_resched();
- 			goto retry;
- 		}
- 		new = old;
- 		new.k = 1;
- 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
--	read_unlock(&vcpu->kvm->arch.sca_lock);
-+	read_unlock(&kvm->arch.sca_lock);
- out:
--	mutex_unlock(&vcpu->kvm->arch.ipte_mutex);
-+	mutex_unlock(&kvm->arch.ipte_mutex);
- }
++	ret = vfio_config_init(vdev);
++	if (ret)
++		goto out_free_zdev;
++
+ 	msix_pos = pdev->msix_cap;
+ 	if (msix_pos) {
+ 		u16 flags;
+@@ -340,6 +344,8 @@ int vfio_pci_core_enable(struct vfio_pci_core_device *vdev)
  
--static void ipte_unlock_simple(struct kvm_vcpu *vcpu)
-+static void ipte_unlock_simple(struct kvm *kvm)
- {
- 	union ipte_control old, new, *ic;
- 
--	mutex_lock(&vcpu->kvm->arch.ipte_mutex);
--	vcpu->kvm->arch.ipte_lock_count--;
--	if (vcpu->kvm->arch.ipte_lock_count)
-+	mutex_lock(&kvm->arch.ipte_mutex);
-+	kvm->arch.ipte_lock_count--;
-+	if (kvm->arch.ipte_lock_count)
- 		goto out;
--	read_lock(&vcpu->kvm->arch.sca_lock);
--	ic = kvm_s390_get_ipte_control(vcpu->kvm);
-+	read_lock(&kvm->arch.sca_lock);
-+	ic = kvm_s390_get_ipte_control(kvm);
- 	do {
- 		old = READ_ONCE(*ic);
- 		new = old;
- 		new.k = 0;
- 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
--	read_unlock(&vcpu->kvm->arch.sca_lock);
--	wake_up(&vcpu->kvm->arch.ipte_wq);
-+	read_unlock(&kvm->arch.sca_lock);
-+	wake_up(&kvm->arch.ipte_wq);
- out:
--	mutex_unlock(&vcpu->kvm->arch.ipte_mutex);
-+	mutex_unlock(&kvm->arch.ipte_mutex);
- }
- 
--static void ipte_lock_siif(struct kvm_vcpu *vcpu)
-+static void ipte_lock_siif(struct kvm *kvm)
- {
- 	union ipte_control old, new, *ic;
- 
- retry:
--	read_lock(&vcpu->kvm->arch.sca_lock);
--	ic = kvm_s390_get_ipte_control(vcpu->kvm);
-+	read_lock(&kvm->arch.sca_lock);
-+	ic = kvm_s390_get_ipte_control(kvm);
- 	do {
- 		old = READ_ONCE(*ic);
- 		if (old.kg) {
--			read_unlock(&vcpu->kvm->arch.sca_lock);
-+			read_unlock(&kvm->arch.sca_lock);
- 			cond_resched();
- 			goto retry;
- 		}
-@@ -340,15 +340,15 @@ static void ipte_lock_siif(struct kvm_vcpu *vcpu)
- 		new.k = 1;
- 		new.kh++;
- 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
--	read_unlock(&vcpu->kvm->arch.sca_lock);
-+	read_unlock(&kvm->arch.sca_lock);
- }
- 
--static void ipte_unlock_siif(struct kvm_vcpu *vcpu)
-+static void ipte_unlock_siif(struct kvm *kvm)
- {
- 	union ipte_control old, new, *ic;
- 
--	read_lock(&vcpu->kvm->arch.sca_lock);
--	ic = kvm_s390_get_ipte_control(vcpu->kvm);
-+	read_lock(&kvm->arch.sca_lock);
-+	ic = kvm_s390_get_ipte_control(kvm);
- 	do {
- 		old = READ_ONCE(*ic);
- 		new = old;
-@@ -356,25 +356,25 @@ static void ipte_unlock_siif(struct kvm_vcpu *vcpu)
- 		if (!new.kh)
- 			new.k = 0;
- 	} while (cmpxchg(&ic->val, old.val, new.val) != old.val);
--	read_unlock(&vcpu->kvm->arch.sca_lock);
-+	read_unlock(&kvm->arch.sca_lock);
- 	if (!new.kh)
--		wake_up(&vcpu->kvm->arch.ipte_wq);
-+		wake_up(&kvm->arch.ipte_wq);
- }
- 
--void ipte_lock(struct kvm_vcpu *vcpu)
-+void ipte_lock(struct kvm *kvm)
- {
--	if (vcpu->arch.sie_block->eca & ECA_SII)
--		ipte_lock_siif(vcpu);
-+	if (sclp.has_siif)
-+		ipte_lock_siif(kvm);
- 	else
--		ipte_lock_simple(vcpu);
-+		ipte_lock_simple(kvm);
- }
- 
--void ipte_unlock(struct kvm_vcpu *vcpu)
-+void ipte_unlock(struct kvm *kvm)
- {
--	if (vcpu->arch.sie_block->eca & ECA_SII)
--		ipte_unlock_siif(vcpu);
-+	if (sclp.has_siif)
-+		ipte_unlock_siif(kvm);
- 	else
--		ipte_unlock_simple(vcpu);
-+		ipte_unlock_simple(kvm);
- }
- 
- static int ar_translation(struct kvm_vcpu *vcpu, union asce *asce, u8 ar,
-@@ -1086,7 +1086,7 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 	try_storage_prot_override = storage_prot_override_applicable(vcpu);
- 	need_ipte_lock = psw_bits(*psw).dat && !asce.r;
- 	if (need_ipte_lock)
--		ipte_lock(vcpu);
-+		ipte_lock(vcpu->kvm);
- 	/*
- 	 * Since we do the access further down ultimately via a move instruction
- 	 * that does key checking and returns an error in case of a protection
-@@ -1127,7 +1127,7 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 	}
- out_unlock:
- 	if (need_ipte_lock)
--		ipte_unlock(vcpu);
-+		ipte_unlock(vcpu->kvm);
- 	if (nr_pages > ARRAY_SIZE(gpa_array))
- 		vfree(gpas);
- 	return rc;
-@@ -1199,10 +1199,10 @@ int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
- 	rc = get_vcpu_asce(vcpu, &asce, gva, ar, mode);
- 	if (rc)
- 		return rc;
--	ipte_lock(vcpu);
-+	ipte_lock(vcpu->kvm);
- 	rc = guest_range_to_gpas(vcpu, gva, ar, NULL, length, asce, mode,
- 				 access_key);
--	ipte_unlock(vcpu);
-+	ipte_unlock(vcpu->kvm);
- 
- 	return rc;
- }
-@@ -1465,7 +1465,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
- 	 * tables/pointers we read stay valid - unshadowing is however
- 	 * always possible - only guest_table_lock protects us.
- 	 */
--	ipte_lock(vcpu);
-+	ipte_lock(vcpu->kvm);
- 
- 	rc = gmap_shadow_pgt_lookup(sg, saddr, &pgt, &dat_protection, &fake);
- 	if (rc)
-@@ -1499,7 +1499,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
- 	pte.p |= dat_protection;
- 	if (!rc)
- 		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
--	ipte_unlock(vcpu);
-+	ipte_unlock(vcpu->kvm);
- 	mmap_read_unlock(sg->mm);
- 	return rc;
- }
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index 1124ff282012..9408d6cc8e2c 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -440,9 +440,9 @@ int read_guest_real(struct kvm_vcpu *vcpu, unsigned long gra, void *data,
- 	return access_guest_real(vcpu, gra, data, len, 0);
- }
- 
--void ipte_lock(struct kvm_vcpu *vcpu);
--void ipte_unlock(struct kvm_vcpu *vcpu);
--int ipte_lock_held(struct kvm_vcpu *vcpu);
-+void ipte_lock(struct kvm *kvm);
-+void ipte_unlock(struct kvm *kvm);
-+int ipte_lock_held(struct kvm *kvm);
- int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
- 
- /* MVPG PEI indication bits */
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 83bb5cf97282..12c464c7cddf 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -442,7 +442,7 @@ static int handle_ipte_interlock(struct kvm_vcpu *vcpu)
- 	vcpu->stat.instruction_ipte_interlock++;
- 	if (psw_bits(vcpu->arch.sie_block->gpsw).pstate)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
--	wait_event(vcpu->kvm->arch.ipte_wq, !ipte_lock_held(vcpu));
-+	wait_event(vcpu->kvm->arch.ipte_wq, !ipte_lock_held(vcpu->kvm));
- 	kvm_s390_retry_instr(vcpu);
- 	VCPU_EVENT(vcpu, 4, "%s", "retrying ipte interlock operation");
  	return 0;
-@@ -1471,7 +1471,7 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
- 	access_key = (operand2 & 0xf0) >> 4;
  
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
--		ipte_lock(vcpu);
-+		ipte_lock(vcpu->kvm);
++out_free_zdev:
++	vfio_pci_zdev_close_device(vdev);
+ out_free_state:
+ 	kfree(vdev->pci_saved_state);
+ 	vdev->pci_saved_state = NULL;
+@@ -418,6 +424,8 @@ void vfio_pci_core_disable(struct vfio_pci_core_device *vdev)
  
- 	ret = guest_translate_address_with_key(vcpu, address, ar, &gpa,
- 					       GACC_STORE, access_key);
-@@ -1508,7 +1508,7 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
- 	}
+ 	vdev->needs_reset = true;
  
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
--		ipte_unlock(vcpu);
-+		ipte_unlock(vcpu->kvm);
++	vfio_pci_zdev_close_device(vdev);
++
+ 	/*
+ 	 * If we have saved state, restore it.  If we can reset the device,
+ 	 * even better.  Resetting with current state seems better than
+diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+index ea4c0d2b0663..686f2e75e392 100644
+--- a/drivers/vfio/pci/vfio_pci_zdev.c
++++ b/drivers/vfio/pci/vfio_pci_zdev.c
+@@ -11,6 +11,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/vfio.h>
+ #include <linux/vfio_zdev.h>
++#include <linux/kvm_host.h>
+ #include <asm/pci_clp.h>
+ #include <asm/pci_io.h>
+ 
+@@ -136,3 +137,26 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+ 
  	return ret;
  }
++
++int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
++{
++	struct zpci_dev *zdev = to_zpci(vdev->pdev);
++
++	if (!zdev)
++		return -ENODEV;
++
++	if (!vdev->vdev.kvm)
++		return 0;
++
++	return kvm_s390_pci_register_kvm(zdev, vdev->vdev.kvm);
++}
++
++void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
++{
++	struct zpci_dev *zdev = to_zpci(vdev->pdev);
++
++	if (!zdev || !vdev->vdev.kvm)
++		return;
++
++	kvm_s390_pci_unregister_kvm(zdev);
++}
+diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+index 63af2897939c..d5d9e17f0156 100644
+--- a/include/linux/vfio_pci_core.h
++++ b/include/linux/vfio_pci_core.h
+@@ -209,12 +209,22 @@ static inline int vfio_pci_igd_init(struct vfio_pci_core_device *vdev)
+ #ifdef CONFIG_VFIO_PCI_ZDEV_KVM
+ extern int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+ 				       struct vfio_info_cap *caps);
++int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev);
++void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev);
+ #else
+ static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+ 					      struct vfio_info_cap *caps)
+ {
+ 	return -ENODEV;
+ }
++
++static inline int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
++{
++	return 0;
++}
++
++static inline void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
++{}
+ #endif
  
+ /* Will be exported for vfio pci drivers usage */
 -- 
 2.36.1
 
