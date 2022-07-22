@@ -2,116 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DC56C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 11:22:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D450DC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 12:02:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233075AbiGVLWe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Jul 2022 07:22:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55050 "EHLO
+        id S233608AbiGVMCs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Jul 2022 08:02:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231807AbiGVLWd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 07:22:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7605363910;
-        Fri, 22 Jul 2022 04:22:32 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25D7AB827CE;
-        Fri, 22 Jul 2022 11:22:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DE79C341C6;
-        Fri, 22 Jul 2022 11:22:27 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="A72kHDjI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1658488946;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=tEMNMB2Z49B1S8tRR73A3k1qlwc8qZ7y2Lb47TLNcJY=;
-        b=A72kHDjIhCKy1SCFFNVSX+Vp2BEvkV7ka1UD5j32SfhxQnO0X7LJ74HcDr+imBz9vI5rhm
-        6080JFv+KzAAK4056Y1qyXv5he1wWynhSKqQTQdQz1e06bV9uLXXkXAsiCX/HmW32WQCQu
-        qilfUhpkwlG/HTO/fr6WxsF3nMcVXzM=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 18cc06f4 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Fri, 22 Jul 2022 11:22:26 +0000 (UTC)
-Date:   Fri, 22 Jul 2022 13:22:22 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Holger Dengler <dengler@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        x86@kernel.org, Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Borislav Petkov <bp@suse.de>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Harald Freudenberger <freude@linux.ibm.com>
-Subject: Re: [PATCH v2] random: handle archrandom in plural words
-Message-ID: <YtqIbrds53EuyqPE@zx2c4.com>
-References: <YtP1+MJ1tNdJA60l@zx2c4.com>
- <20220717200356.75060-1-Jason@zx2c4.com>
- <46c1a7be-080b-3315-50cc-d3c848fd99e3@linux.ibm.com>
+        with ESMTP id S230134AbiGVMCq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 08:02:46 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B7C121E3E;
+        Fri, 22 Jul 2022 05:02:46 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26MBNZ8R015014;
+        Fri, 22 Jul 2022 12:02:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=ConxAvz+wtlnAFhhOd/rHqKFx7VizaY3VTM5kHutAA0=;
+ b=jTx0Md22yUog/411ECa0vir5u/IYcgJYqk7n6jiEzqWtm1DQjH14R7fy3E7wDXZSR8ra
+ HH/mIkzd0OCjwxz/F3y6HLRoavkwi3gNjdr8qJ0/78KqZvUqIFgEEpoOeultC0gYEWt7
+ tBhGY5ciC1sH/UcYG5onwapZuGSa8D0162gEAe61A16ZkVOniEnRmVE8pC+7z4ipIlYa
+ Ng285mu45Dho7CzZex8nPUgC0FHiGOXy0CIxl8qlzZBoMzBzozg9C6b9vnUYSgY6H3k/
+ +lmJ3eK78lZ30F6Is7SlAARBw0lVyHdCKMbyNIWgiSDIwJcYzgCAhXaepx5wB9iJHSp7 6Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hftyw11kb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Jul 2022 12:02:44 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26MBQntP025941;
+        Fri, 22 Jul 2022 12:02:44 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hftyw11j2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Jul 2022 12:02:44 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26MBpvcp013190;
+        Fri, 22 Jul 2022 12:02:41 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 3hbmy8p8ba-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Jul 2022 12:02:41 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26MC2cL424838606
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 22 Jul 2022 12:02:38 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 735BAAE04D;
+        Fri, 22 Jul 2022 12:02:38 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 861F6AE051;
+        Fri, 22 Jul 2022 12:02:37 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.22.197])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 22 Jul 2022 12:02:37 +0000 (GMT)
+Date:   Fri, 22 Jul 2022 14:02:35 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Bagas Sanjaya <bagasdotme@gmail.com>
+Cc:     linux-doc@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/8] Documentation: s390: documentation fixes for vfio_ap
+ driver
+Message-ID: <YtqR22xzZJdGTpPq@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <20220722084946.22965-1-bagasdotme@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <46c1a7be-080b-3315-50cc-d3c848fd99e3@linux.ibm.com>
+In-Reply-To: <20220722084946.22965-1-bagasdotme@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: JbUPWQYxeSzk0eznlXUgXx8WgSwN5w5s
+X-Proofpoint-ORIG-GUID: wb6M0lt-idyvv69x9zvHp06-s9R1ZGHk
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-22_03,2022-07-21_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1011
+ mlxlogscore=614 adultscore=0 impostorscore=0 mlxscore=0 spamscore=0
+ priorityscore=1501 bulkscore=0 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207220048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Holger,
+On Fri, Jul 22, 2022 at 03:49:39PM +0700, Bagas Sanjaya wrote:
+> Here is documentation fixes for vfio_ap driver, as recently reported in
+> linux-next.
+> 
+> This series is based on next-20220721.
 
-On Fri, Jul 22, 2022 at 10:08:05AM +0200, Holger Dengler wrote:
-> Why not changing the API to take bytes instead of words? Sure, at the
-> moment it looks like all platforms with TRNG support are able to
-> deliver at least one word, but bytes would be more flexible. 
+Hi Bagas,
 
-The idea is to strike a sweet spot between capabilities. S390x is fine
-with byte-level granularity up to arbitrary lengths, while x86 is best
-with word-level granularity of length 1. The happy intersection between
-the two is just word-level granularity of arbitrary length. Yes we
-_could_ introduce a lot of code complexity by cascading the x86 case
-down into smaller and smaller registers, ignoring the fact that it's no
-longer efficient below 32- or 64-bit registers depending on vendor. But
-then we're relying on the inliner to remove all of that extra code,
-since all callers actually only ever want 32 or 64 bytes. Why bloat for
-nothing? The beauty of this approach is that it translates very
-naturally over all the various quirks of architectures without having to
-have a lot of coupling code.
+The warnings have already fixed.
+Please, send your style changes if you find it approprieate.
 
-The other reason is that it's simply not necessary. The primary use for
-this in random.c is to fill a 32- or 64-*byte* block with "some stuff",
-preferring RDSEED, then RDRAND, and finally falling back to RDTSC. These
-correspond with arch_get_random_seed_longs(), arch_get_random_longs(),
-and random_get_entropy() (which is usually get_cycles() underneath),
-respectively. With the cycle counter being (at least) ~word-sized on all
-platforms, keeping the granularity of the arch_get_random_*_longs()
-functions the same lets us fill these with a basic cascade that doesn't
-require a lot of code:
+FWIW, patch #1 causes a whitespace trailing error.
 
-    unsigned long array[whatever];
-    for (i = 0; i < ARRAY_SIZE(array);) {
-        longs = arch_get_random_seed_longs(&array[i], ARRAY_SIZE(array) - i);
-        if (longs) {
-            i += longs;
-            continue;
-        }
-        longs = arch_get_random_longs(&array[i], ARRAY_SIZE(array) - i);
-        if (longs) {
-            i += longs;
-            continue;
-        }
-        array[i++] = random_get_entropy();
-    }
-
-By using a word as the underlying unit, the above cascade generates
-optimal code on basically all archrandom platforms, no matter what their
-byte-vs-word or one-vs-three-vs-many semantics are.
-
-That's a bit long winded, but hopefully that gives a bit of insight on
-why going from _long -> _longs is so "lazy" looking.
-
-Jason
+Thanks!
