@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5C11C43334
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 08:50:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E467CCA47F
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 08:50:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234554AbiGVIuf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Jul 2022 04:50:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48898 "EHLO
+        id S235049AbiGVIug (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Jul 2022 04:50:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234942AbiGVIuc (ORCPT
+        with ESMTP id S234969AbiGVIuc (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 04:50:32 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F52E28E33;
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA3B27CCF;
         Fri, 22 Jul 2022 01:50:31 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id gn24so3814673pjb.3;
+Received: by mail-pj1-x102e.google.com with SMTP id gn24so3814687pjb.3;
         Fri, 22 Jul 2022 01:50:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=NHPADm0+jI7FAaPRhILrrh5k8cQJVDYd8IToScSIdm4=;
-        b=izz6djKSQTtceEafrVo7QxdMb2Wd4uy11VI+7JvM9USfvwZt+bHKyMow6PP6klgalD
-         VLAi36H+fo2EvuUB/fcIxTCcGYQwMZCZ4+YL03pDCyG+acz+/rL3OxFKL65qkWSNOYFD
-         hW0XaxvvgllBme5khczEKLkGMCrSq6imrM1TSYiq0Q2TPONLYwC2/BTzBfOVhg3gTG3Z
-         f2KjIJjEgr2owaqClB2O84adnJ4ka6uxCbUMlF+/RIy++0LR229iBGgg46rQN1rlmuDJ
-         wWNjawg7wWHUhMyFcTxo10HHqewAKB7kS9bMyhuDs5qC1UQEkytiRPBuESgUMqTc8um4
-         vL4g==
+        bh=E/k5RCOqp4l8e/X8YSW8RAC7hl6FhMb1nEHkDDI4VqI=;
+        b=NK8kP9v/27/rHyHa0CAOwc3ULlDg8vvHqkVCR6DCXkAV5cSCpvotRrSWd2P3GJSwdw
+         hmwr2fabn/yDmMeaQZIFDY0G/wOcx/6SrsYsia77wH3Tp7llbhRnYiY5C3F22e45KZdf
+         0xyXysOiuP/vI1sEbdygAb0hUM7j6rBx5r0TxyY2tFbYvuuyX59+zUalaGF47RxcIVF9
+         mnfewKYci49PQPND/M9QeLC8w02ZZsXd+dl/XUvfl3BF5itnZSH08fYdMmFxa8RSA0hp
+         sSQFTCLkpfKvW1biU461B+GAKr8B1K98BZdoPOrGYygnwqttKDk5K7pxoLvAvz7alY31
+         ygRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=NHPADm0+jI7FAaPRhILrrh5k8cQJVDYd8IToScSIdm4=;
-        b=Zm8KaEFAE75EdwqTdnCjKrh7y8ifeuuOj6tORAppI7VUJyBb5Ax7V+vbHTkUJWDcxt
-         39oSO700G06dn/A/esf3oq8yqwLxuxJvCdUQZJUfaaNhdUln6nHWqCofhlayAFzvWQxe
-         Fgp/QgInQh6WIoVWdjDBg0K6QYAfDGyaEM9Ir+ex16cA678f7jBY7H/pQE5wRlfA7CD4
-         rU+pBw6JzaLGbcT9l+xbldRCFilyDC1BSAlgq/9sx58YJEVa95PHTPHo32keBpFOHS+5
-         8CZF2Loqp4U7xUeNNaVlN3mamcyge3uoNOBe6goepKBp2SxH/AG9Pq40RZ7RC/JpaAgL
-         wA7w==
-X-Gm-Message-State: AJIora9afFjdQLxOr5DFzCKRp2QdabASAg0PzuwCJd+iWgmlq3Up+GAr
-        XW84LHpVUHb8A3DfOMitxaY=
-X-Google-Smtp-Source: AGRyM1vuI+wWNr7WhC5ccsl4JgLjSx5Fk9RToyt2DQtUj2jgzGYrI2asEV3Gfto7fiwX0ux2dwT7Lw==
-X-Received: by 2002:a17:903:1c4:b0:16c:4e45:38a3 with SMTP id e4-20020a17090301c400b0016c4e4538a3mr2340164plh.41.1658479830700;
-        Fri, 22 Jul 2022 01:50:30 -0700 (PDT)
+        bh=E/k5RCOqp4l8e/X8YSW8RAC7hl6FhMb1nEHkDDI4VqI=;
+        b=MP+VZf3Myu0A0QEiHA1ZbebwOm9ViCFIuwC084kNhnhj9shEyjnL8Ifk53lIp7CdGk
+         GbpRwPxMy7LUWN15cWHarOEa+ZogWtnn8Q1/R3AA4ux1S2pM79ocr56P8EPt9xAXWavF
+         AkGj+sqdxja2pu3Xhc/ZmCWidiGfE028j+D+2GMdLzYS/q9/wUzEce+Q+nk098K+jkbt
+         8NWn+2ghxKWtAGu36yOJmpMPevFc0dUOVolVBevPOcgdrQ4LPuRfUG6GDzOKBw/Lmdz4
+         NHM+LhJIbuRC1u+dz/5VPR7Ow/3DcaZkYDXSOgbVUXxYcoDl1sYp0W6wJLjXuGt183jA
+         oL+g==
+X-Gm-Message-State: AJIora8US209aEP8QWj+ogO/qLttXo8YUzrTqL0L8ylBwhD0qPfMdY4H
+        m2SEhG0XSSjZGOtSFzYYyNM=
+X-Google-Smtp-Source: AGRyM1vQhaO3jrrh+otrq6YcHEp2H/n0sVGK5hWk4mbXlwUC7VPwTqbEuErjW6ANBO88mC728LJMRA==
+X-Received: by 2002:a17:902:da8f:b0:16d:1c82:624b with SMTP id j15-20020a170902da8f00b0016d1c82624bmr2497497plx.163.1658479831175;
+        Fri, 22 Jul 2022 01:50:31 -0700 (PDT)
 Received: from debian.me (subs03-180-214-233-91.three.co.id. [180.214.233.91])
-        by smtp.gmail.com with ESMTPSA id k4-20020a170902ce0400b0016d42244886sm717506plg.94.2022.07.22.01.50.29
+        by smtp.gmail.com with ESMTPSA id 22-20020a631556000000b003fd9b8b865dsm2999988pgv.0.2022.07.22.01.50.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 22 Jul 2022 01:50:29 -0700 (PDT)
 Received: by debian.me (Postfix, from userid 1000)
-        id B4B291039A0; Fri, 22 Jul 2022 15:50:23 +0700 (WIB)
+        id EEA7A104987; Fri, 22 Jul 2022 15:50:23 +0700 (WIB)
 From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     linux-doc@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
@@ -63,9 +63,9 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bagas Sanjaya <bagasdotme@gmail.com>,
         Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: [PATCH 7/8] Documentation: s390: extend underline for matrix devices lock
-Date:   Fri, 22 Jul 2022 15:49:46 +0700
-Message-Id: <20220722084946.22965-8-bagasdotme@gmail.com>
+Subject: [PATCH 5/8] Documentation: s390: use code block for structs
+Date:   Fri, 22 Jul 2022 15:49:44 +0700
+Message-Id: <20220722084946.22965-6-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722084946.22965-1-bagasdotme@gmail.com>
 References: <20220722084946.22965-1-bagasdotme@gmail.com>
@@ -75,37 +75,121 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The underline heading for "The Matrix Devices Lock" section is off-short
-by a dash, hence:
+In vfio-ap-locking documentation, struct code samples aren't inside code
+blocks, hence trigger many inline emphasis and definition list warnings.
 
-Documentation/s390/vfio-ap-locking.rst:15: WARNING: Title underline too short.
+Use code blocks for them.
 
-The Matrix Devices Lock (drivers/s390/crypto/vfio_ap_private.h)
---------------------------------------------------------------
-
-Extend the underline to match heading text length.
-
-Link:https://lore.kernel.org/linux-next/20220721201058.2a276286@canb.auug.org.au/
+Link: https://lore.kernel.org/linux-next/20220721201058.2a276286@canb.auug.org.au/
 Fixes: e32d3827f3d5b2 ("s390/Docs: new doc describing lock usage by the vfio_ap device driver")
 Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- Documentation/s390/vfio-ap-locking.rst | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/s390/vfio-ap-locking.rst | 64 +++++++++++++++-----------
+ 1 file changed, 36 insertions(+), 28 deletions(-)
 
 diff --git a/Documentation/s390/vfio-ap-locking.rst b/Documentation/s390/vfio-ap-locking.rst
-index cfbb661ea72e63..ab41b0e5dca40e 100644
+index c4e1eeec79a0f5..4194b78ace0e94 100644
 --- a/Documentation/s390/vfio-ap-locking.rst
 +++ b/Documentation/s390/vfio-ap-locking.rst
-@@ -12,7 +12,7 @@ will be used to denote instances of the structures herein described::
-    struct kvm *kvm;
+@@ -5,21 +5,23 @@ VFIO AP Locks Overview
+ ======================
+ This document describes the locks that are pertinent to the secure operation
+ of the vfio_ap device driver. Throughout this document, the following variables
+-will be used to denote instances of the structures herein described:
++will be used to denote instances of the structures herein described::
+ 
+-struct ap_matrix_dev *matrix_dev;
+-struct ap_matrix_mdev *matrix_mdev;
+-struct kvm *kvm;
++   struct ap_matrix_dev *matrix_dev;
++   struct ap_matrix_mdev *matrix_mdev;
++   struct kvm *kvm;
  
  The Matrix Devices Lock (drivers/s390/crypto/vfio_ap_private.h)
----------------------------------------------------------------
-+---------------------------------------------------------------
+ --------------------------------------------------------------
  
- ::
+-struct ap_matrix_dev {
+-	...
+-	struct list_head mdev_list;
+-	struct mutex mdevs_lock;
+-	...
+-}
++::
++
++   struct ap_matrix_dev {
++	   ...
++	   struct list_head mdev_list;
++	   struct mutex mdevs_lock;
++	   ...
++   }
  
+ The Matrix Devices Lock (matrix_dev->mdevs_lock) is implemented as a global
+ mutex contained within the single object of struct ap_matrix_dev. This lock
+@@ -31,11 +33,13 @@ representing one of the vfio_ap device driver's mediated devices.
+ The KVM Lock (include/linux/kvm_host.h)
+ ---------------------------------------
+ 
+-struct kvm {
+-	...
+-	struct mutex lock;
+-	...
+-}
++::
++
++   struct kvm {
++	   ...
++	   struct mutex lock;
++	   ...
++   }
+ 
+ The KVM Lock (kvm->lock) controls access to the state data for a KVM guest. This
+ lock must be held by the vfio_ap device driver while one or more AP adapters,
+@@ -48,12 +52,14 @@ been attached to the KVM guest.
+ The Guests Lock (drivers/s390/crypto/vfio_ap_private.h)
+ -----------------------------------------------------------
+ 
+-struct ap_matrix_dev {
+-	...
+-	struct list_head mdev_list;
+-	struct mutex guests_lock;
+-	...
+-}
++::
++
++   struct ap_matrix_dev {
++	   ...
++	   struct list_head mdev_list;
++	   struct mutex guests_lock;
++	   ...
++   }
+ 
+ The Guests Lock (matrix_dev->guests_lock) controls access to the
+ matrix_mdev instances (matrix_dev->mdev_list) that represent mediated devices
+@@ -89,14 +95,16 @@ resources, so only the matrix_dev->mdevs_lock needs to be held.
+ The PQAP Hook Lock (arch/s390/include/asm/kvm_host.h)
+ -----------------------------------------------------
+ 
+-typedef int (*crypto_hook)(struct kvm_vcpu *vcpu);
++::
+ 
+-struct kvm_s390_crypto {
+-	...
+-	struct rw_semaphore pqap_hook_rwsem;
+-	crypto_hook *pqap_hook;
+-	...
+-};
++   typedef int (*crypto_hook)(struct kvm_vcpu *vcpu);
++
++   struct kvm_s390_crypto {
++	   ...
++	   struct rw_semaphore pqap_hook_rwsem;
++	   crypto_hook *pqap_hook;
++	   ...
++   };
+ 
+ The PQAP Hook Lock is a r/w semaphore that controls access to the function
+ pointer of the handler (*kvm->arch.crypto.pqap_hook) to invoke when the
 -- 
 An old man doll... just what I always wanted! - Clara
 
