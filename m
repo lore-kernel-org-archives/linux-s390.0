@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F4B8CCA47F
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 08:50:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9841DC43334
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 08:50:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235094AbiGVIun (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Jul 2022 04:50:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49112 "EHLO
+        id S235106AbiGVIup (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Jul 2022 04:50:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235055AbiGVIug (ORCPT
+        with ESMTP id S235061AbiGVIug (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 04:50:36 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB9FB3120F;
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4F931DCA;
         Fri, 22 Jul 2022 01:50:33 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id w7so4045846plp.5;
+Received: by mail-pl1-x62b.google.com with SMTP id d7so4029039plr.9;
         Fri, 22 Jul 2022 01:50:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ceEYPzRSeSpxrJgH4dqtQc5ZKG3XNVZNdz1910Rs8+E=;
-        b=HSLDQch/EhbwJQ6FNPDijFTX2F0ymRVo8ZZxJYr+dzvQb/35Mc2JgW/y/ik9o8ak3D
-         /O+C85BjaJT92jdVmz8y65nNMMSIUaYKvOckIwdoxEb5kcaD0GTBCWohNpGw9LexUlaO
-         GRUNr3h/BhzN5H4Ui1bDcBavy6lGUnBT01OhKxypZkXeQWH6lZEWjmkc6YC/ux2+QuD8
-         ud3dnLy1lWG1Gkd18/IRKEjL04ItnhUB6/2xiI53VhrB6zIc/wUP4wqoLUIBz4T5Kogc
-         RTqWh28WkNiB5xHFw33KOn9EjVHacQ+RwA7gGtrjaxwanaGDYcjXp6qcJIEZh3NeXAZ9
-         BpDw==
+        bh=WMLMbhzpQ8BYCKUc89U899ul04BiM4aI/9He03oT5uc=;
+        b=duF24r2Mh/zRTYtQOAshatj9u415FRbTrhKlEf3cjpV57Heczae2zKForLZUgVcTIj
+         ibUj2DTGe4mcVs5yOgqhngG7UJ4mKzxnEzebg6MChYG8DHwJtj2SE+pMyC9f+d2AKaxl
+         yAXXf1jgaFSXRAVzm6KnetZlKLwPn0fvUcVbYgKsalOoKvVYi2/dpaOT8GWMLBvbuoAa
+         IL7qRg7ghT5+z3OFTSXzs3i+Oq+3s8SMCR6c70kxPvNLlfC26d+jmpUuBREDvsHQMNRw
+         p/0doIb4Z2iLKRfBiWQCnfITS6Hc4/kimbOb4IaWD84fCdzFFDwV7RH9XjrpI3LD+HAp
+         1cJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ceEYPzRSeSpxrJgH4dqtQc5ZKG3XNVZNdz1910Rs8+E=;
-        b=CnyBhXjJFA6tSeABAqoOobWN9SawYhuWNqy5fLkIV+naSGuxA7bIz6KewAroRxQZR1
-         R1SABI/U+AzBc/74B32XHyH+BPcm/TqNu/DXOTMMM9OmQQg4/qXJjY5f2/WLpJE5s5oS
-         a0dTDSXwyfHYbNfQxw0rFYSoglzOW1TgqeVlDmmi1CkLTaQ7B8UyEBNPwUgZnSetc5MK
-         tgRGNrU4SjIHYQkw6IVqJL7LSnGQp3WWLmxpI6QL3eGXBi8Mh82/xver4Cwo1CS0JC8h
-         ZAx4sRShugoVuqy+ajyyh1ittVifgssqYfnJnshNPo9Lt2AGb47yOwE/ogiE4Cu9jIzV
-         DMOg==
-X-Gm-Message-State: AJIora+unEQ9Ofaio1WpgJQ2zlwzGhI/GJgBWQbFi+P9V0T/TbZ9A86x
-        P8h5BoGsPwzyDeI/Lj4nis8=
-X-Google-Smtp-Source: AGRyM1ul9sEqgoURfnWwdMVnDPgz0X76SFB0LjCpcfiAzhoTS0E3qWEj50ZWAxplHTLfuGDnazv6kQ==
-X-Received: by 2002:a17:90b:3e89:b0:1f0:4233:b20e with SMTP id rj9-20020a17090b3e8900b001f04233b20emr3062372pjb.0.1658479833053;
+        bh=WMLMbhzpQ8BYCKUc89U899ul04BiM4aI/9He03oT5uc=;
+        b=zyUslw7Lc8Hm56nJ4q5r6mvhjMXTqcQyjZUeBc/BmI+/k3mJvosqFKfl7iewifOSBG
+         eCysyUjfXhuQlHxta8bQJWWPFiHlhBmRygfn0lGZp5jBjo2TxBx/BmwnLTl/1Vl1xFxJ
+         Zju1N5MC3sa7o1GCdbIp7M2EZ7mRIouPhQvwmA+kKo9yGdkVELN4P3qdR153ZklONPYc
+         7QKkj2cnoMwvRxf5stEIosuwSQUzEBdtedUiBEN7Wo7hLponPQzugGzC9DwEWqATwZFe
+         i3CZ4mp2DyrUpTvB5BWGP2k7CKQLgWD9Jgfmxq/hhFHDHhDsPhST0gj7ztFuVW0mG80N
+         9RQA==
+X-Gm-Message-State: AJIora+sDJ+PBwQ0vgE5YoMdg+bGHEehnIdV2uqweLuRHEMqpMH59jrG
+        0oZyh0vLDR/PoWI33QIYrR8=
+X-Google-Smtp-Source: AGRyM1ulLh5mC4aId6RvlA5MUpQyoZ+n5mnzh95GyZAc0cRin4lIZGT5yP5tox1MRsNbRAOatdEjyA==
+X-Received: by 2002:a17:90a:9409:b0:1f0:e171:f2bd with SMTP id r9-20020a17090a940900b001f0e171f2bdmr2867699pjo.245.1658479833324;
         Fri, 22 Jul 2022 01:50:33 -0700 (PDT)
 Received: from debian.me (subs03-180-214-233-91.three.co.id. [180.214.233.91])
-        by smtp.gmail.com with ESMTPSA id d10-20020a170902654a00b0016d1e514ec5sm3081418pln.139.2022.07.22.01.50.32
+        by smtp.gmail.com with ESMTPSA id i7-20020a056a00224700b0051b8e7765edsm3227658pfu.67.2022.07.22.01.50.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 22 Jul 2022 01:50:32 -0700 (PDT)
 Received: by debian.me (Postfix, from userid 1000)
-        id 954F6104983; Fri, 22 Jul 2022 15:50:23 +0700 (WIB)
+        id CEAFC104986; Fri, 22 Jul 2022 15:50:23 +0700 (WIB)
 From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     linux-doc@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
@@ -61,10 +61,11 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
         Jason Herne <jjherne@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Bagas Sanjaya <bagasdotme@gmail.com>
-Subject: [PATCH 2/8] Documentation: s390: use note directive for remaining notes
-Date:   Fri, 22 Jul 2022 15:49:41 +0700
-Message-Id: <20220722084946.22965-3-bagasdotme@gmail.com>
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: [PATCH 8/8] Documentation: s390: add vfio-ap-locking documentation to table of contents index
+Date:   Fri, 22 Jul 2022 15:49:47 +0700
+Message-Id: <20220722084946.22965-9-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722084946.22965-1-bagasdotme@gmail.com>
 References: <20220722084946.22965-1-bagasdotme@gmail.com>
@@ -74,102 +75,32 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Convert remaining vfio-ap.rst notes to use note directive, while also
-fix maximum sysfs notes being rendered as definition lists instead.
+vfio-ap-locking.rst documentation is missing from s390 index, so:
 
-Fixes: cb269e0aba7c3f ("s390/vfio-ap: update docs to include dynamic config support")
+Documentation/s390/vfio-ap-locking.rst: WARNING: document isn't included in any toctree
+
+Add missing documentation to the index.
+
+Link: https://lore.kernel.org/linux-next/20220721201058.2a276286@canb.auug.org.au/
+Fixes: e32d3827f3d5b2 ("s390/Docs: new doc describing lock usage by the vfio_ap device driver")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- Documentation/s390/vfio-ap.rst | 51 +++++++++++++++++++++-------------
- 1 file changed, 31 insertions(+), 20 deletions(-)
+ Documentation/s390/index.rst | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/s390/vfio-ap.rst b/Documentation/s390/vfio-ap.rst
-index 7aea0afe2ef390..5bf15d117c4ba0 100644
---- a/Documentation/s390/vfio-ap.rst
-+++ b/Documentation/s390/vfio-ap.rst
-@@ -475,24 +475,29 @@ following CPU model features:
-    guest. This facility can be made available to the guest only if it is
-    available on the host (i.e., facility bit 65 is set).
- 
--Note: If the user chooses to specify a CPU model different than the 'host'
--model to QEMU, the CPU model features and facilities need to be turned on
--explicitly; for example::
-+   .. note::
- 
--     /usr/bin/qemu-system-s390x ... -cpu z13,ap=on,apqci=on,apft=on,apqi=on
-+      If the user chooses to specify a CPU model different than the 'host'
-+      model to QEMU, the CPU model features and facilities need to be turned
-+      on explicitly; for example::
- 
--A guest can be precluded from using AP features/facilities by turning them off
--explicitly; for example::
-+         /usr/bin/qemu-system-s390x ... -cpu z13,ap=on,apqci=on,apft=on,apqi=on
- 
--     /usr/bin/qemu-system-s390x ... -cpu host,ap=off,apqci=off,apft=off,apqi=off
-+      A guest can be precluded from using AP features/facilities by turning
-+      them off explicitly; for example::
- 
--Note: If the APFT facility is turned off (apft=off) for the guest, the guest
--will not see any AP devices. The zcrypt device drivers on the guest that
--register for type 10 and newer AP devices - i.e., the cex4card and cex4queue
--device drivers - need the APFT facility to ascertain the facilities installed on
--a given AP device. If the APFT facility is not installed on the guest, then no
--adapter or domain devices will get created by the AP bus running on the
--guest because only type 10 and newer devices can be configured for guest use.
-+         /usr/bin/qemu-system-s390x ... -cpu host,ap=off,apqci=off,apft=off,apqi=off
-+
-+   .. note::
-+
-+      If the APFT facility is turned off (apft=off) for the guest, the guest
-+      will not see any AP devices. The zcrypt device drivers on the guest that
-+      register for type 10 and newer AP devices - i.e., the cex4card and
-+      cex4queue device drivers - need the APFT facility to ascertain the
-+      facilities installed on a given AP device. If the APFT facility is not
-+      installed on the guest, then no adapter or domain devices will get
-+      created by the AP bus running on the guest because only type 10 and
-+      newer devices can be configured for guest use.
- 
- Example
- =======
-@@ -802,8 +807,10 @@ Securing the APQNs for our example
-      ----------------unassign_control_domain
-      ----------------unassign_domain
- 
--   Note *****: The vfio_ap mdevs do not persist across reboots unless the
--               mdevctl tool is used to create and persist them.
-+   .. note::
-+
-+      The vfio_ap mdevs do not persist across reboots unless the
-+      mdevctl tool is used to create and persist them.
- 
- 4. The administrator now needs to configure the matrixes for the mediated
-    devices $uuid1 (for Guest1), $uuid2 (for Guest2) and $uuid3 (for Guest3).
-@@ -849,8 +856,10 @@ Securing the APQNs for our example
-      higher than the maximum is specified, the operation will terminate with
-      an error (ENODEV).
- 
--     Note: The maximum adapter number can be obtained via the sysfs
--	   /sys/bus/ap/ap_max_adapter_id attribute file.
-+     .. note::
-+
-+        The maximum adapter number can be obtained via the sysfs
-+        /sys/bus/ap/ap_max_adapter_id
- 
-    * Each APQN derived from the Cartesian product of the APID of the adapter
-      being assigned and the APQIs of the domains previously assigned:
-@@ -875,8 +884,10 @@ Securing the APQNs for our example
-      higher than the maximum is specified, the operation will terminate with
-      an error (ENODEV).
- 
--     Note: The maximum domain number can be obtained via the sysfs
--	   /sys/bus/ap/ap_max_domain_id attribute file.
-+     .. note::
-+
-+        The maximum domain number can be obtained via the sysfs
-+	/sys/bus/ap/ap_max_domain_id
- 
-     * Each APQN derived from the Cartesian product of the APQI of the domain
-       being assigned and the APIDs of the adapters previously assigned:
+diff --git a/Documentation/s390/index.rst b/Documentation/s390/index.rst
+index b10ca919255738..73c79bf586fd60 100644
+--- a/Documentation/s390/index.rst
++++ b/Documentation/s390/index.rst
+@@ -12,6 +12,7 @@ s390 Architecture
+     qeth
+     s390dbf
+     vfio-ap
++    vfio-ap-locking
+     vfio-ccw
+     zfcpdump
+     common_io
 -- 
 An old man doll... just what I always wanted! - Clara
 
