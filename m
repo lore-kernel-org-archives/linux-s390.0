@@ -2,100 +2,276 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75F57C43334
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 01:41:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BCA3C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 03:06:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229696AbiGVBlC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 21:41:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34764 "EHLO
+        id S234110AbiGVDGK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 23:06:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiGVBk7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 21:40:59 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9918E11153;
-        Thu, 21 Jul 2022 18:40:58 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id f3-20020a17090ac28300b001f22d62bfbcso2535976pjt.0;
-        Thu, 21 Jul 2022 18:40:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=wQ4PwxJdfeRuNFlBgfKXQzk/YsoiF4IpRVdTPSkrj58=;
-        b=hq4fXVwKlhrxu5/HkzmMTJXI58duVtf5bcwzWDTb+EtRHfvCIAr1DVRQgfUnlAcV05
-         RI+gw00avBdTD5q1pS8nF1EhK8X+KWIizO5aAgKpCu0VdStgIj556c3G0cd19iCFdFeb
-         JcUd3UOQbRQeuDe+7DduZqongYVr6JmfA5oK1LKlmBweXYHGH81iOG/HzIXkMHROh4VX
-         X8RHYTZgL3ISwOpXG7C9xrHrViEL/bNuOb4dQTZLj5AccQrg9AWwDMWys1q5b8/9raS4
-         4zeiok5CSjOQug+vIsMLy7El5CoV20N2jgbvOqybBL9fQNW66gcx1wNIyqVrJ83/KpIL
-         zRUA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=wQ4PwxJdfeRuNFlBgfKXQzk/YsoiF4IpRVdTPSkrj58=;
-        b=XwEDPRCEUU8tGZLKWgIU+FmwjNveAW2LaTUGPLafaLXv12J+q7UXQ78KouRylDWiGT
-         0945s4PuNoOLNc8ZzW8nz+LZKKq5+qyeBnmqzU9KF2g3jUsJs5myUgSqrKpQbDYfQh/e
-         hRLGAsNC+MYKFxUcApJ3Y9zgbQMLoVIu6CdLsf2Qg03oVu6rYxQSR8tzmSSae6aoCflK
-         rIIvlgUUglYTPABvud8/JPNaAgac+8M+DVjq4N5papEozKbisEbxk+xiU26v/qFfpQVs
-         fENeZm/7FxN/uledd45GwbUWEJolIh/hvXdNcn+JwxFxUbHLrEfkeXatxADyL704hLOF
-         FBaA==
-X-Gm-Message-State: AJIora9z+UTSQV1Rx1vW78TdzjgUccXqQIGOU+WwyL110OjmkXBCU61n
-        lkGpSrgGyT1zZ8N85c4DvXc=
-X-Google-Smtp-Source: AGRyM1ttGkNHj4rBoCrfvrWDPH8ttiNUx2pwkiSRVGCKVMLCgCOu/R4Bw2sjCT07NlZoEM0kf3MkOw==
-X-Received: by 2002:a17:90b:3a88:b0:1f2:199d:2ceb with SMTP id om8-20020a17090b3a8800b001f2199d2cebmr1351864pjb.196.1658454057976;
-        Thu, 21 Jul 2022 18:40:57 -0700 (PDT)
-Received: from [192.168.43.80] (subs32-116-206-28-36.three.co.id. [116.206.28.36])
-        by smtp.gmail.com with ESMTPSA id x27-20020aa7941b000000b005251f4596f0sm2434829pfo.107.2022.07.21.18.40.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Jul 2022 18:40:57 -0700 (PDT)
-Message-ID: <f918aa10-2d75-815f-d75a-52ef3ffa7776@gmail.com>
-Date:   Fri, 22 Jul 2022 08:40:50 +0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [GIT PULL 25/42] Documentation: kvm: extend KVM_S390_ZPCI_OP
- subheading underline
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, pbonzini@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        thuth@redhat.com, david@redhat.com,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-kernel@vger.kernel.org
-References: <20220721161302.156182-1-imbrenda@linux.ibm.com>
- <20220721161302.156182-26-imbrenda@linux.ibm.com>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <20220721161302.156182-26-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S230153AbiGVDGJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 23:06:09 -0400
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC51823A5;
+        Thu, 21 Jul 2022 20:06:06 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0VK3N6a-_1658459160;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VK3N6a-_1658459160)
+          by smtp.aliyun-inc.com;
+          Fri, 22 Jul 2022 11:06:01 +0800
+Message-ID: <1658459137.1276448-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v12 30/40] virtio_pci: support VIRTIO_F_RING_RESET
+Date:   Fri, 22 Jul 2022 11:05:37 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        kangjie.xu@linux.alibaba.com,
+        virtualization@lists.linux-foundation.org
+References: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
+ <20220720030436.79520-31-xuanzhuo@linux.alibaba.com>
+ <efb6adca-a2a8-98d2-5604-5482d8be6ec9@redhat.com>
+In-Reply-To: <efb6adca-a2a8-98d2-5604-5482d8be6ec9@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/21/22 23:12, Claudio Imbrenda wrote:
-> From: Bagas Sanjaya <bagasdotme@gmail.com>
-> 
-> Stephen Rothwell reported the htmldocs warning:
-> 
-> Documentation/virt/kvm/api.rst:5959: WARNING: Title underline too short.
-> 
-> 4.137 KVM_S390_ZPCI_OP
-> --------------------
-> 
-> The warning is due to subheading underline on KVM_S390_ZPCI_OP section is
-> short of 2 dashes.
-> 
-> Extend the underline to fix the warning.
-> 
+On Thu, 21 Jul 2022 17:15:11 +0800, Jason Wang <jasowang@redhat.com> wrote:
+>
+> =E5=9C=A8 2022/7/20 11:04, Xuan Zhuo =E5=86=99=E9=81=93:
+> > This patch implements virtio pci support for QUEUE RESET.
+> >
+> > Performing reset on a queue is divided into these steps:
+> >
+> >   1. notify the device to reset the queue
+> >   2. recycle the buffer submitted
+> >   3. reset the vring (may re-alloc)
+> >   4. mmap vring to device, and enable the queue
+> >
+> > This patch implements virtio_reset_vq(), virtio_enable_resetq() in the
+> > pci scenario.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >   drivers/virtio/virtio_pci_common.c | 12 +++-
+> >   drivers/virtio/virtio_pci_modern.c | 96 ++++++++++++++++++++++++++++++
+> >   2 files changed, 105 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio=
+_pci_common.c
+> > index ca51fcc9daab..ad258a9d3b9f 100644
+> > --- a/drivers/virtio/virtio_pci_common.c
+> > +++ b/drivers/virtio/virtio_pci_common.c
+> > @@ -214,9 +214,15 @@ static void vp_del_vq(struct virtqueue *vq)
+> >   	struct virtio_pci_vq_info *info =3D vp_dev->vqs[vq->index];
+> >   	unsigned long flags;
+> >
+> > -	spin_lock_irqsave(&vp_dev->lock, flags);
+> > -	list_del(&info->node);
+> > -	spin_unlock_irqrestore(&vp_dev->lock, flags);
+> > +	/*
+> > +	 * If it fails during re-enable reset vq. This way we won't rejoin
+> > +	 * info->node to the queue. Prevent unexpected irqs.
+> > +	 */
+> > +	if (!vq->reset) {
+> > +		spin_lock_irqsave(&vp_dev->lock, flags);
+> > +		list_del(&info->node);
+> > +		spin_unlock_irqrestore(&vp_dev->lock, flags);
+> > +	}
+> >
+> >   	vp_dev->del_vq(info);
+> >   	kfree(info);
+> > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio=
+_pci_modern.c
+> > index 9041d9a41b7d..4d28b6918c80 100644
+> > --- a/drivers/virtio/virtio_pci_modern.c
+> > +++ b/drivers/virtio/virtio_pci_modern.c
+> > @@ -34,6 +34,9 @@ static void vp_transport_features(struct virtio_devic=
+e *vdev, u64 features)
+> >   	if ((features & BIT_ULL(VIRTIO_F_SR_IOV)) &&
+> >   			pci_find_ext_capability(pci_dev, PCI_EXT_CAP_ID_SRIOV))
+> >   		__virtio_set_bit(vdev, VIRTIO_F_SR_IOV);
+> > +
+> > +	if (features & BIT_ULL(VIRTIO_F_RING_RESET))
+> > +		__virtio_set_bit(vdev, VIRTIO_F_RING_RESET);
+> >   }
+> >
+> >   /* virtio config->finalize_features() implementation */
+> > @@ -199,6 +202,95 @@ static int vp_active_vq(struct virtqueue *vq, u16 =
+msix_vec)
+> >   	return 0;
+> >   }
+> >
+> > +static int vp_modern_reset_vq(struct virtqueue *vq)
+> > +{
+> > +	struct virtio_pci_device *vp_dev =3D to_vp_device(vq->vdev);
+> > +	struct virtio_pci_modern_device *mdev =3D &vp_dev->mdev;
+> > +	struct virtio_pci_vq_info *info;
+> > +	unsigned long flags;
+> > +
+> > +	if (!virtio_has_feature(vq->vdev, VIRTIO_F_RING_RESET))
+> > +		return -ENOENT;
+> > +
+> > +	vp_modern_set_queue_reset(mdev, vq->index);
+> > +
+> > +	info =3D vp_dev->vqs[vq->index];
+> > +
+> > +	/* delete vq from irq handler */
+> > +	spin_lock_irqsave(&vp_dev->lock, flags);
+> > +	list_del(&info->node);
+> > +	spin_unlock_irqrestore(&vp_dev->lock, flags);
+> > +
+> > +	INIT_LIST_HEAD(&info->node);
+> > +
+> > +	/* For the case where vq has an exclusive irq, to prevent the irq from
+> > +	 * being received again and the pending irq, call synchronize_irq(), =
+and
+> > +	 * break it.
+> > +	 *
+> > +	 * We can't use disable_irq() since it conflicts with the affinity
+> > +	 * managed IRQ that is used by some drivers. So this is done on top of
+> > +	 * IRQ hardening.
+> > +	 *
+> > +	 * In the scenario based on shared interrupts, vq will be searched fr=
+om
+> > +	 * the queue virtqueues. Since the previous list_del() has been delet=
+ed
+> > +	 * from the queue, it is impossible for vq to be called in this case.
+> > +	 * There is no need to close the corresponding interrupt.
+> > +	 */
+> > +	if (vp_dev->per_vq_vectors && info->msix_vector !=3D VIRTIO_MSI_NO_VE=
+CTOR) {
+> > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+> > +		__virtqueue_break(vq);
+> > +#endif
+>
+>
+> I think we should do this unconditionally since it's an independent
+> feature, though the list_del() above should be sufficient.
 
-Thanks for picking this up!
+Yes.
 
-Acked-by: Bagas Sanjaya <bagasdotme@gmail.com>
+>
+>
+> > +		synchronize_irq(pci_irq_vector(vp_dev->pci_dev, info->msix_vector));
+> > +	}
+> > +
+> > +	vq->reset =3D true;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int vp_modern_enable_reset_vq(struct virtqueue *vq)
+> > +{
+> > +	struct virtio_pci_device *vp_dev =3D to_vp_device(vq->vdev);
+> > +	struct virtio_pci_modern_device *mdev =3D &vp_dev->mdev;
+> > +	struct virtio_pci_vq_info *info;
+> > +	unsigned long flags, index;
+> > +	int err;
+> > +
+> > +	if (!vq->reset)
+> > +		return -EBUSY;
+> > +
+> > +	index =3D vq->index;
+> > +	info =3D vp_dev->vqs[index];
+> > +
+> > +	if (vp_modern_get_queue_reset(mdev, index))
+> > +		return -EBUSY;
+> > +
+> > +	if (vp_modern_get_queue_enable(mdev, index))
+> > +		return -EBUSY;
+> > +
+> > +	err =3D vp_active_vq(vq, info->msix_vector);
+> > +	if (err)
+> > +		return err;
+> > +
+> > +	if (vq->callback) {
+> > +		spin_lock_irqsave(&vp_dev->lock, flags);
+> > +		list_add(&info->node, &vp_dev->virtqueues);
+> > +		spin_unlock_irqrestore(&vp_dev->lock, flags);
+> > +	} else {
+> > +		INIT_LIST_HEAD(&info->node);
+> > +	}
+> > +
+> > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+> > +	if (vp_dev->per_vq_vectors && info->msix_vector !=3D VIRTIO_MSI_NO_VE=
+CTOR)
+> > +		__virtqueue_unbreak(vq);
+> > +#endif
+> > +
+> > +	vp_modern_set_queue_enable(&vp_dev->mdev, index, true);
+> > +	vq->reset =3D false;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> >   static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vec=
+tor)
+> >   {
+> >   	return vp_modern_config_vector(&vp_dev->mdev, vector);
+> > @@ -413,6 +505,8 @@ static const struct virtio_config_ops virtio_pci_co=
+nfig_nodev_ops =3D {
+> >   	.set_vq_affinity =3D vp_set_vq_affinity,
+> >   	.get_vq_affinity =3D vp_get_vq_affinity,
+> >   	.get_shm_region  =3D vp_get_shm_region,
+> > +	.disable_vq_and_reset =3D vp_modern_reset_vq,
+> > +	.enable_vq_after_reset =3D vp_modern_enable_reset_vq,
+>
+>
+> Nit:
+>
+> To be consistent, let's use vp_modern_disable_vq_and_reset() and
+> vp_modern_enable_vq_after_reset()
 
--- 
-An old man doll... just what I always wanted! - Clara
+Will fix.
+
+Thanks.
+
+
+>
+> Thanks
+>
+>
+> >   };
+> >
+> >   static const struct virtio_config_ops virtio_pci_config_ops =3D {
+> > @@ -431,6 +525,8 @@ static const struct virtio_config_ops virtio_pci_co=
+nfig_ops =3D {
+> >   	.set_vq_affinity =3D vp_set_vq_affinity,
+> >   	.get_vq_affinity =3D vp_get_vq_affinity,
+> >   	.get_shm_region  =3D vp_get_shm_region,
+> > +	.disable_vq_and_reset =3D vp_modern_reset_vq,
+> > +	.enable_vq_after_reset =3D vp_modern_enable_reset_vq,
+> >   };
+> >
+> >   /* the PCI probing function */
+>
