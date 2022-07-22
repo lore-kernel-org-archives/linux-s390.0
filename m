@@ -2,78 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC784C43334
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Jul 2022 20:06:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75F57C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 01:41:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233729AbiGUUG2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 16:06:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41878 "EHLO
+        id S229696AbiGVBlC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Jul 2022 21:41:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233564AbiGUUGE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 16:06:04 -0400
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A127473919;
-        Thu, 21 Jul 2022 13:05:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=n/9ErwRmiUikJNtsWaQxy5ZmJnxDCBmH6HSCcV1UBjA=; b=pfYlkewtF3Uijvi8H5wZ7tlML+
-        1130pLyHkySuRGzsbveKwtHFvvi6MQkPAGJPHjcrPO9kNS/iAq3oCJj8OjltBgrZP/5vWPRRIElsB
-        JC3Qq2NFwOyAfe6CfsfEkHSbHBMQuFNMJQqRqYvSGeRz0hdpmHL+dQUtEocOlvWZPlWxvUMmMsebT
-        mBFGC5nVcKQ+Qv8P2HuWv9xo86vyzOR3IuR24iKtPQmfbYBrL4vorgjO8bdB560Nn5nmvOnMXB62w
-        t9gf8RRxZSrTfvwoPw/FyRuPC7lurd203XJKTy8CQCgpum+24VXYIjW1iaon9zHflF/aKLVMW+VZu
-        oSys+9YQ==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.95 #2 (Red Hat Linux))
-        id 1oEcQd-00EWlt-L7;
-        Thu, 21 Jul 2022 20:05:47 +0000
-Date:   Thu, 21 Jul 2022 21:05:47 +0100
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4 0/4] s390/crash: support multi-segment iterators
-Message-ID: <Ytmxm7UhejnRPkFU@ZenIV>
-References: <cover.1658206891.git.agordeev@linux.ibm.com>
- <YtdzwLXFMuv02JEA@ZenIV>
- <YtkSWBPpUe8CqNxV@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+        with ESMTP id S229441AbiGVBk7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 21:40:59 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9918E11153;
+        Thu, 21 Jul 2022 18:40:58 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id f3-20020a17090ac28300b001f22d62bfbcso2535976pjt.0;
+        Thu, 21 Jul 2022 18:40:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=wQ4PwxJdfeRuNFlBgfKXQzk/YsoiF4IpRVdTPSkrj58=;
+        b=hq4fXVwKlhrxu5/HkzmMTJXI58duVtf5bcwzWDTb+EtRHfvCIAr1DVRQgfUnlAcV05
+         RI+gw00avBdTD5q1pS8nF1EhK8X+KWIizO5aAgKpCu0VdStgIj556c3G0cd19iCFdFeb
+         JcUd3UOQbRQeuDe+7DduZqongYVr6JmfA5oK1LKlmBweXYHGH81iOG/HzIXkMHROh4VX
+         X8RHYTZgL3ISwOpXG7C9xrHrViEL/bNuOb4dQTZLj5AccQrg9AWwDMWys1q5b8/9raS4
+         4zeiok5CSjOQug+vIsMLy7El5CoV20N2jgbvOqybBL9fQNW66gcx1wNIyqVrJ83/KpIL
+         zRUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=wQ4PwxJdfeRuNFlBgfKXQzk/YsoiF4IpRVdTPSkrj58=;
+        b=XwEDPRCEUU8tGZLKWgIU+FmwjNveAW2LaTUGPLafaLXv12J+q7UXQ78KouRylDWiGT
+         0945s4PuNoOLNc8ZzW8nz+LZKKq5+qyeBnmqzU9KF2g3jUsJs5myUgSqrKpQbDYfQh/e
+         hRLGAsNC+MYKFxUcApJ3Y9zgbQMLoVIu6CdLsf2Qg03oVu6rYxQSR8tzmSSae6aoCflK
+         rIIvlgUUglYTPABvud8/JPNaAgac+8M+DVjq4N5papEozKbisEbxk+xiU26v/qFfpQVs
+         fENeZm/7FxN/uledd45GwbUWEJolIh/hvXdNcn+JwxFxUbHLrEfkeXatxADyL704hLOF
+         FBaA==
+X-Gm-Message-State: AJIora9z+UTSQV1Rx1vW78TdzjgUccXqQIGOU+WwyL110OjmkXBCU61n
+        lkGpSrgGyT1zZ8N85c4DvXc=
+X-Google-Smtp-Source: AGRyM1ttGkNHj4rBoCrfvrWDPH8ttiNUx2pwkiSRVGCKVMLCgCOu/R4Bw2sjCT07NlZoEM0kf3MkOw==
+X-Received: by 2002:a17:90b:3a88:b0:1f2:199d:2ceb with SMTP id om8-20020a17090b3a8800b001f2199d2cebmr1351864pjb.196.1658454057976;
+        Thu, 21 Jul 2022 18:40:57 -0700 (PDT)
+Received: from [192.168.43.80] (subs32-116-206-28-36.three.co.id. [116.206.28.36])
+        by smtp.gmail.com with ESMTPSA id x27-20020aa7941b000000b005251f4596f0sm2434829pfo.107.2022.07.21.18.40.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 21 Jul 2022 18:40:57 -0700 (PDT)
+Message-ID: <f918aa10-2d75-815f-d75a-52ef3ffa7776@gmail.com>
+Date:   Fri, 22 Jul 2022 08:40:50 +0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YtkSWBPpUe8CqNxV@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [GIT PULL 25/42] Documentation: kvm: extend KVM_S390_ZPCI_OP
+ subheading underline
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, pbonzini@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-kernel@vger.kernel.org
+References: <20220721161302.156182-1-imbrenda@linux.ibm.com>
+ <20220721161302.156182-26-imbrenda@linux.ibm.com>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <20220721161302.156182-26-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 21, 2022 at 10:46:16AM +0200, Alexander Gordeev wrote:
-> On Wed, Jul 20, 2022 at 04:17:20AM +0100, Al Viro wrote:
-> > I can put your series into replacement of #fixes-s390, or pull it
-> > from whatever static branch you put it into - up to you.
-> > Preferences?
+On 7/21/22 23:12, Claudio Imbrenda wrote:
+> From: Bagas Sanjaya <bagasdotme@gmail.com>
 > 
-> Hi Al,
+> Stephen Rothwell reported the htmldocs warning:
 > 
-> Please find the changes since commit af2debd58bd769e38f538143f0d332e15d753396:
+> Documentation/virt/kvm/api.rst:5959: WARNING: Title underline too short.
 > 
->   s390/crash: make copy_oldmem_page() return number of bytes copied
+> 4.137 KVM_S390_ZPCI_OP
+> --------------------
 > 
-> up to ebbc9570169147740aa39aee1d61b4cc5a631644:
+> The warning is due to subheading underline on KVM_S390_ZPCI_OP section is
+> short of 2 dashes.
 > 
->   s390/crash: support multi-segment iterators
+> Extend the underline to fix the warning.
 > 
-> are available in the Git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git	vmcore-iov_iter
-> 
-> Please, note three (rather trivial) prereq commits to pull along:
-> 
->   f6749da17a34 s390/crash: fix incorrect number of bytes to copy to user space
->   86caa4b67895 s390/crash: remove redundant panic() on save area allocation failure
->   7190d84966b3 s390/mm: remove unused tprot() function
 
-Pulled.
+Thanks for picking this up!
+
+Acked-by: Bagas Sanjaya <bagasdotme@gmail.com>
+
+-- 
+An old man doll... just what I always wanted! - Clara
