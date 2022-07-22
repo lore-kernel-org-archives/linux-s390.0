@@ -2,85 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EA7BC43334
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 18:55:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37DF9C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 21:07:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236467AbiGVSzk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Jul 2022 14:55:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38218 "EHLO
+        id S232864AbiGVVHh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Jul 2022 17:07:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236338AbiGVSzk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 14:55:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4CB5564E1;
-        Fri, 22 Jul 2022 11:55:38 -0700 (PDT)
+        with ESMTP id S229460AbiGVVHh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 17:07:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 601B29B56C;
+        Fri, 22 Jul 2022 14:07:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7257460EF5;
-        Fri, 22 Jul 2022 18:55:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89252C341CA;
-        Fri, 22 Jul 2022 18:55:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF2C4620DD;
+        Fri, 22 Jul 2022 21:07:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ED47C341C6;
+        Fri, 22 Jul 2022 21:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1658516137;
-        bh=SHSOCNekWxCfsC+ee7AXhYazN4SoxT4p3smCSJcJZ0U=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=YjloQ4cYn9IOruMjsdUZPhW1QM2gckvXycdNIEeNEeff7/3ydwcl15tTQp6+g2MdF
-         81QzaJG9mYi4WRDzQyvdm5tcYHEVeXL5ulmXZilO3l6i0bu67A6SiQqKN96UevlfAV
-         L8Jd7jjORk1eQ0yLv5tuS/WHUjM8ULKJ4rqgpryHBZEuMSX7EDBjG9+0orpp5FxfV/
-         +3u7we0ROPP/+QSgni6kC8hw9vGhRVRiqzRnN1L0DfGESQDt8uPXAVWMjnRhWdoTOL
-         pb2JUtr0vEhFilg6BuOQDrL4o4AP7wMQflmUt9wlRh29yKPHtBoSkCHffPjzI6bsfH
-         ubYSc/MpqdnBg==
-Date:   Fri, 22 Jul 2022 11:55:36 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     Slark Xiao <slark_xiao@163.com>, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH] s390/qeth: Fix typo 'the the' in comment
-Message-ID: <20220722115536.0d450512@kernel.org>
-In-Reply-To: <434e604c-7fd3-6422-d13b-309a7c1fe0d3@linux.ibm.com>
-References: <20220722093834.77864-1-slark_xiao@163.com>
-        <434e604c-7fd3-6422-d13b-309a7c1fe0d3@linux.ibm.com>
+        s=k20201202; t=1658524055;
+        bh=BjE6WAFN8f+7PcLVzym80m/hAtGxPQSDC3WhNnOk+G0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=ruDZgOs5bS6n57s1Z4ZCM8Gaa4i+Rbknj2eIDMdbL+yQ2jG/VrQXcHUAWiTYf/x1B
+         Y2lIDYkvubc8UykDSDfJcJk84t3gBNbxr5jLuu2QxyeMf+5SFbPoX3xiR/AbqMc71v
+         akXmZrInkgokuZqMIWBW4cIM1h+FcqP0VZtW05qn319FVKPZMgbIwdKtZVn1GDGexl
+         kTyZ8uNeDJf0jRo+dqCEIYScE9l4Mzy+M0lL9Ti5IMvXV8tAfVKcMJdO/5LC7B9Dm+
+         YbBK4POBUV2yv4HnyO9xMJcNhxXEPofug4D1pZwpXWgWB9+WAo4xmYBWVfxxLuR6+d
+         uB+REBQS4dSrQ==
+Date:   Fri, 22 Jul 2022 16:07:33 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 0/5] PCI: Rework pci_scan_slot() and isolated PCI
+ functions
+Message-ID: <20220722210733.GA1935162@bhelgaas>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220628143100.3228092-1-schnelle@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 22 Jul 2022 12:23:06 +0200 Alexandra Winter wrote:
-> On 22.07.22 11:38, Slark Xiao wrote:
-> > Replace 'the the' with 'the' in the comment.
-> > 
-> > Signed-off-by: Slark Xiao <slark_xiao@163.com>
-> > ---
-> >  drivers/s390/net/qeth_core_main.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-> > index 9e54fe76a9b2..35d4b398c197 100644
-> > --- a/drivers/s390/net/qeth_core_main.c
-> > +++ b/drivers/s390/net/qeth_core_main.c
-> > @@ -3565,7 +3565,7 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
-> >  			if (!atomic_read(&queue->set_pci_flags_count)) {
-> >  				/*
-> >  				 * there's no outstanding PCI any more, so we
-> > -				 * have to request a PCI to be sure the the PCI
-> > +				 * have to request a PCI to be sure the PCI
-> >  				 * will wake at some time in the future then we
-> >  				 * can flush packed buffers that might still be
-> >  				 * hanging around, which can happen if no  
+On Tue, Jun 28, 2022 at 04:30:55PM +0200, Niklas Schnelle wrote:
+> Hi Bjorn,
 > 
-> This trivial typo has been sent twice already to this mailinglist:
-> https://lore.kernel.org/netdev/Ytb1%2FuU+jlcI4jXw@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com/T/
-> https://lore.kernel.org/netdev/7a935730-f3a5-0b1f-2bdc-a629711a3a01@linux.ibm.com/t/
+> In an earlier version[0], I sought to apply the existing jailhouse special case
+> for isolated PCI functions to s390. As Bjorn noted in[1] there appears to be
+> some potential for cleaning things up and removing duplication.
+> 
+> This series attempts to do this cleanup (Patches 1 through 3) followed by enabling
+> isolated PCI functions for s390 (Patches 4 and 5).
+> 
+> Testing:
+> - On s390 with SR-IOV and a ConnectX NIC with PF 1 but not PF 0 passed throug
+>   i.e. the isolated function case. Also of course with just VFs and an NVMe.
+> - On x86_64 on a desktop system where ARI is disabled and with an SR-IOV NIC
+>   with non-contiguous VFs as well as the usual other PCI devices.
+> 
+> Thanks,
+> Niklas
+> 
+> [0] https://lore.kernel.org/linux-pci/20220404095346.2324666-1-schnelle@linux.ibm.com/
+> [1] https://lore.kernel.org/linux-pci/20220408224514.GA353445@bhelgaas/
+> 
+> Changes v5 -> v6:
+> - Added a patch (2) which separates the ARI case into its own function
+> - Some whitespace changes to remove unnecesssary empty lines
+> Changes v4 -> v5:
+> - Remove unintended whitespace change in patch 1
+> Changes v3 -> v4:
+> - Use a do {} while loop in pci_scan_slot() as it is simpler (Bjorn)
+> - Explicitly check "fn == 0" as it is not a pointer or bool (Bjorn)
+> - Keep the "!dev" check in the ARI branch of next_fn() (Bjorn)
+> - Moved the "fn == 0 && !dev" condition out of next_fn() into pci_scan_slot().
+>   This allows us to keep the "!dev" case in the ARI branch and means there are
+>   no new conditions in next_fn() making it easier to verify that its behavior
+>   is equivalent to the existing code.
+> - Guard the assignment of dev->multifunction with "fn > 0"
+>   instead of "nr > 0". This matches the existing logic more closely and works
+>   for the jailhouse case which unconditionally sets dev->multifunction for
+>   "fn > 0". This also means fn == 0 is the single "first iteration" test.
+> - Remove some unneeded whitespace in patch 2
+> 
+> Changes v2 -> v3:
+> - Removed now unused nr_devs variable (kernel test robot)
+> 
+> Niklas Schnelle (5):
+>   PCI: Clean up pci_scan_slot()
+>   PCI: Split out next_ari_fn() from next_fn()
+>   PCI: Move jailhouse's isolated function handling to pci_scan_slot()
+>   PCI: Extend isolated function probing to s390
+>   s390/pci: allow zPCI zbus without a function zero
+> 
+>  arch/s390/pci/pci_bus.c    | 82 +++++++++---------------------------
+>  drivers/pci/probe.c        | 86 ++++++++++++++++++--------------------
+>  include/linux/hypervisor.h |  8 ++++
+>  3 files changed, 68 insertions(+), 108 deletions(-)
 
-Some of the comment spelling fixes get nacked in bulk (e.g. the
-previous one was sent with a date of three days prior to the actual
-posting). Since they are not in a thread the nacks are hard to see.
-Or maybe they got lost 'cause patchwork does not understand
-drivers/s390/net is netdev. Anyway, this one looks good, so it will
-likely go in.
+Applied to pci/enumeration for v5.20, thanks!
