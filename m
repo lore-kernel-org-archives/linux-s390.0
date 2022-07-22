@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86A6FC43334
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 08:50:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F4B8CCA47F
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 08:50:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235072AbiGVIuk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Jul 2022 04:50:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49066 "EHLO
+        id S235094AbiGVIun (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Jul 2022 04:50:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235017AbiGVIue (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 04:50:34 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB9AF30F77;
+        with ESMTP id S235055AbiGVIug (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 04:50:36 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB9FB3120F;
         Fri, 22 Jul 2022 01:50:33 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id t3-20020a17090a3b4300b001f21eb7e8b0so6994745pjf.1;
+Received: by mail-pl1-x634.google.com with SMTP id w7so4045846plp.5;
         Fri, 22 Jul 2022 01:50:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=6ZQ5kPkHtyDecpdBs3hMRWo2GqFD03eIO0NfZtVc+O4=;
-        b=DVKLZm5X2YxI/hHtBVSmt5Myni1GZ/sy0ItyEQawn8DWmwBpC/+/diVmqnaUnVF8Zn
-         Q86viinljGXvI+oe/fcBVa+5NGI3wdU8YiauOkshPf88zhnjTFpVCaLXpPaRks1W5Qx4
-         CWrZf8zEnBvNtOo58LLdphc6Hml46aZ9BppOHKfosXSc5yMwtj6zMnQwQHYkTEO8p2hg
-         4NfnZXAyg8BNln6Z5NE1RVxZ51EoIaONKwzkvwhfLksCRov3ZA2GZEIIFAlgUfIsoM78
-         9yH5u4AKP3KRMytt5bX/QwvnOhRXzC9tWapeLjyX/YnLzsZMZTwa9WoKoZ4SNlYlLYyP
-         Hdhw==
+        bh=ceEYPzRSeSpxrJgH4dqtQc5ZKG3XNVZNdz1910Rs8+E=;
+        b=HSLDQch/EhbwJQ6FNPDijFTX2F0ymRVo8ZZxJYr+dzvQb/35Mc2JgW/y/ik9o8ak3D
+         /O+C85BjaJT92jdVmz8y65nNMMSIUaYKvOckIwdoxEb5kcaD0GTBCWohNpGw9LexUlaO
+         GRUNr3h/BhzN5H4Ui1bDcBavy6lGUnBT01OhKxypZkXeQWH6lZEWjmkc6YC/ux2+QuD8
+         ud3dnLy1lWG1Gkd18/IRKEjL04ItnhUB6/2xiI53VhrB6zIc/wUP4wqoLUIBz4T5Kogc
+         RTqWh28WkNiB5xHFw33KOn9EjVHacQ+RwA7gGtrjaxwanaGDYcjXp6qcJIEZh3NeXAZ9
+         BpDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=6ZQ5kPkHtyDecpdBs3hMRWo2GqFD03eIO0NfZtVc+O4=;
-        b=xUccBKB9LinFrRyh0qmiXVy9sOfd3ViTWtvGbNu2bUyTUmC+UAngeWMJzF2IrtbUjL
-         2kQ4YFhyR0r6P21iVrEslyETTFPcd0CpHhyuUfB0/FjPaomJSuYeHz5/kMT/5AFLx+5D
-         yzGOEG/+a0XTsp2Jxwe6IoIALsWBJRP3OKWv8fEcK1xeBl5ZLOx8JYDiFVqQ9nBXSh+w
-         YqVSQE9EIEUwxI86fn/oixG5vhItqfbCzy+az+Z3JPs1tn6k8eM53RDsc9X46Q45zPN6
-         VQShs0bd+2MvoS99YE078jWLWiryFHE5987jUZp1J0htHcR5m/9gFzZek+Btnyo98OXm
-         BVbQ==
-X-Gm-Message-State: AJIora8vSHrmsqgzdrSjs0Zyg35XWdicdXGiG5Qm2pK3S5zIz8nyMqGk
-        /pQuVA3peML8vrFIhwEdYqVT6enh/mk=
-X-Google-Smtp-Source: AGRyM1v/n3N6pUtAoflXr4rbN4DXL8mbPl10cRpA9jhBTUyB0AUCiqNy6e4YumTRaBnfVvGJXmPHWQ==
-X-Received: by 2002:a17:902:6a8c:b0:16d:1f3f:e184 with SMTP id n12-20020a1709026a8c00b0016d1f3fe184mr2384380plk.73.1658479833205;
+        bh=ceEYPzRSeSpxrJgH4dqtQc5ZKG3XNVZNdz1910Rs8+E=;
+        b=CnyBhXjJFA6tSeABAqoOobWN9SawYhuWNqy5fLkIV+naSGuxA7bIz6KewAroRxQZR1
+         R1SABI/U+AzBc/74B32XHyH+BPcm/TqNu/DXOTMMM9OmQQg4/qXJjY5f2/WLpJE5s5oS
+         a0dTDSXwyfHYbNfQxw0rFYSoglzOW1TgqeVlDmmi1CkLTaQ7B8UyEBNPwUgZnSetc5MK
+         tgRGNrU4SjIHYQkw6IVqJL7LSnGQp3WWLmxpI6QL3eGXBi8Mh82/xver4Cwo1CS0JC8h
+         ZAx4sRShugoVuqy+ajyyh1ittVifgssqYfnJnshNPo9Lt2AGb47yOwE/ogiE4Cu9jIzV
+         DMOg==
+X-Gm-Message-State: AJIora+unEQ9Ofaio1WpgJQ2zlwzGhI/GJgBWQbFi+P9V0T/TbZ9A86x
+        P8h5BoGsPwzyDeI/Lj4nis8=
+X-Google-Smtp-Source: AGRyM1ul9sEqgoURfnWwdMVnDPgz0X76SFB0LjCpcfiAzhoTS0E3qWEj50ZWAxplHTLfuGDnazv6kQ==
+X-Received: by 2002:a17:90b:3e89:b0:1f0:4233:b20e with SMTP id rj9-20020a17090b3e8900b001f04233b20emr3062372pjb.0.1658479833053;
         Fri, 22 Jul 2022 01:50:33 -0700 (PDT)
 Received: from debian.me (subs03-180-214-233-91.three.co.id. [180.214.233.91])
-        by smtp.gmail.com with ESMTPSA id j7-20020a170903024700b0016c20d40ee7sm3213447plh.174.2022.07.22.01.50.32
+        by smtp.gmail.com with ESMTPSA id d10-20020a170902654a00b0016d1e514ec5sm3081418pln.139.2022.07.22.01.50.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 22 Jul 2022 01:50:32 -0700 (PDT)
 Received: by debian.me (Postfix, from userid 1000)
-        id 7A339104980; Fri, 22 Jul 2022 15:50:23 +0700 (WIB)
+        id 954F6104983; Fri, 22 Jul 2022 15:50:23 +0700 (WIB)
 From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     linux-doc@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
@@ -61,11 +61,10 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
         Jason Herne <jjherne@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Bagas Sanjaya <bagasdotme@gmail.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: [PATCH 4/8] Documentation: s390: use code blocks for virsh and qemu output
-Date:   Fri, 22 Jul 2022 15:49:43 +0700
-Message-Id: <20220722084946.22965-5-bagasdotme@gmail.com>
+        Bagas Sanjaya <bagasdotme@gmail.com>
+Subject: [PATCH 2/8] Documentation: s390: use note directive for remaining notes
+Date:   Fri, 22 Jul 2022 15:49:41 +0700
+Message-Id: <20220722084946.22965-3-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220722084946.22965-1-bagasdotme@gmail.com>
 References: <20220722084946.22965-1-bagasdotme@gmail.com>
@@ -75,163 +74,102 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-virsh and qemu output blocks are formatted with definition lists,
-however Sphinx isn't happy with the formatting:
+Convert remaining vfio-ap.rst notes to use note directive, while also
+fix maximum sysfs notes being rendered as definition lists instead.
 
-Documentation/s390/vfio-ap.rst:998: WARNING: Definition list ends without a blank line; unexpected unindent.
-Documentation/s390/vfio-ap.rst:999: WARNING: Definition list ends without a blank line; unexpected unindent.
-Documentation/s390/vfio-ap.rst:1038: WARNING: Definition list ends without a blank line; unexpected unindent.
-Documentation/s390/vfio-ap.rst:1039: WARNING: Definition list ends without a blank line; unexpected unindent.
-
-Use code blocks instead, which are more appropriate. While at it, also
-describe virsh commands where --hmp flag is given.
-
-Link:https://lore.kernel.org/linux-next/20220721205937.10043b5f@canb.auug.org.au/
 Fixes: cb269e0aba7c3f ("s390/vfio-ap: update docs to include dynamic config support")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- Documentation/s390/vfio-ap.rst | 88 ++++++++++++++++++----------------
- 1 file changed, 48 insertions(+), 40 deletions(-)
+ Documentation/s390/vfio-ap.rst | 51 +++++++++++++++++++++-------------
+ 1 file changed, 31 insertions(+), 20 deletions(-)
 
 diff --git a/Documentation/s390/vfio-ap.rst b/Documentation/s390/vfio-ap.rst
-index c0d76a959ed583..920d67ab7b06ff 100644
+index 7aea0afe2ef390..5bf15d117c4ba0 100644
 --- a/Documentation/s390/vfio-ap.rst
 +++ b/Documentation/s390/vfio-ap.rst
-@@ -995,70 +995,78 @@ the mdev is in use by a KVM guest. If the guest is being emulated by QEMU,
- its mdev can be hot unplugged from the guest in one of two ways:
+@@ -475,24 +475,29 @@ following CPU model features:
+    guest. This facility can be made available to the guest only if it is
+    available on the host (i.e., facility bit 65 is set).
  
- 1. If the KVM guest was started with libvirt, you can hot unplug the mdev via
--   the following commands:
-+   the following commands::
+-Note: If the user chooses to specify a CPU model different than the 'host'
+-model to QEMU, the CPU model features and facilities need to be turned on
+-explicitly; for example::
++   .. note::
  
-       virsh detach-device <guestname> <path-to-device-xml>
+-     /usr/bin/qemu-system-s390x ... -cpu z13,ap=on,apqci=on,apft=on,apqi=on
++      If the user chooses to specify a CPU model different than the 'host'
++      model to QEMU, the CPU model features and facilities need to be turned
++      on explicitly; for example::
  
--      For example, to hot unplug mdev 62177883-f1bb-47f0-914d-32a22e3a8804 from
--      the guest named 'my-guest':
-+   For example, to hot unplug mdev 62177883-f1bb-47f0-914d-32a22e3a8804 from
-+   the guest named 'my-guest'::
+-A guest can be precluded from using AP features/facilities by turning them off
+-explicitly; for example::
++         /usr/bin/qemu-system-s390x ... -cpu z13,ap=on,apqci=on,apft=on,apqi=on
  
--         virsh detach-device my-guest ~/config/my-guest-hostdev.xml
-+      virsh detach-device my-guest ~/config/my-guest-hostdev.xml
+-     /usr/bin/qemu-system-s390x ... -cpu host,ap=off,apqci=off,apft=off,apqi=off
++      A guest can be precluded from using AP features/facilities by turning
++      them off explicitly; for example::
  
--            The contents of my-guest-hostdev.xml:
-+   The contents of my-guest-hostdev.xml:
- 
--            <hostdev mode='subsystem' type='mdev' managed='no' model='vfio-ap'>
--              <source>
--                <address uuid='62177883-f1bb-47f0-914d-32a22e3a8804'/>
--              </source>
--            </hostdev>
-+      .. code-block:: xml
- 
-+         <hostdev mode='subsystem' type='mdev' managed='no' model='vfio-ap'>
-+           <source>
-+             <address uuid='62177883-f1bb-47f0-914d-32a22e3a8804'/>
-+           </source>
-+         </hostdev>
+-Note: If the APFT facility is turned off (apft=off) for the guest, the guest
+-will not see any AP devices. The zcrypt device drivers on the guest that
+-register for type 10 and newer AP devices - i.e., the cex4card and cex4queue
+-device drivers - need the APFT facility to ascertain the facilities installed on
+-a given AP device. If the APFT facility is not installed on the guest, then no
+-adapter or domain devices will get created by the AP bus running on the
+-guest because only type 10 and newer devices can be configured for guest use.
++         /usr/bin/qemu-system-s390x ... -cpu host,ap=off,apqci=off,apft=off,apqi=off
 +
++   .. note::
 +
-+   To hot unplug the vfio_ap mediated device identified on the qemu command
-+   line, use::
++      If the APFT facility is turned off (apft=off) for the guest, the guest
++      will not see any AP devices. The zcrypt device drivers on the guest that
++      register for type 10 and newer AP devices - i.e., the cex4card and
++      cex4queue device drivers - need the APFT facility to ascertain the
++      facilities installed on a given AP device. If the APFT facility is not
++      installed on the guest, then no adapter or domain devices will get
++      created by the AP bus running on the guest because only type 10 and
++      newer devices can be configured for guest use.
  
-       virsh qemu-monitor-command <guest-name> --hmp "device-del <device-id>"
+ Example
+ =======
+@@ -802,8 +807,10 @@ Securing the APQNs for our example
+      ----------------unassign_control_domain
+      ----------------unassign_domain
  
--      For example, to hot unplug the vfio_ap mediated device identified on the
--      qemu command line with 'id=hostdev0' from the guest named 'my-guest':
-+   For example, to hot unplug the vfio_ap mediated device identified on the
-+   qemu command line with 'id=hostdev0' from the guest named 'my-guest'::
- 
--         virsh qemu-monitor-command my-guest --hmp "device_del hostdev0"
-+      virsh qemu-monitor-command my-guest --hmp "device_del hostdev0"
- 
- 2. A vfio_ap mediated device can be hot unplugged by attaching the qemu monitor
--   to the guest and using the following qemu monitor command:
-+   to the guest and using the following qemu monitor command::
- 
-       (QEMU) device-del id=<device-id>
- 
--      For example, to hot unplug the vfio_ap mediated device that was specified
--      on the qemu command line with 'id=hostdev0' when the guest was started:
-+   For example, to hot unplug the vfio_ap mediated device that was specified
-+   on the qemu command line with 'id=hostdev0' when the guest was started::
- 
--         (QEMU) device-del id=hostdev0
-+      (QEMU) device-del id=hostdev0
- 
- After live migration of the KVM guest completes, an AP configuration can be
- restored to the KVM guest by hot plugging a vfio_ap mediated device on the target
- system into the guest in one of two ways:
- 
- 1. If the KVM guest was started with libvirt, you can hot plug a matrix mediated
--   device into the guest via the following virsh commands:
-+   device into the guest via the following virsh commands::
- 
--   virsh attach-device <guestname> <path-to-device-xml>
-+      virsh attach-device <guestname> <path-to-device-xml>
- 
--      For example, to hot plug mdev 62177883-f1bb-47f0-914d-32a22e3a8804 into
--      the guest named 'my-guest':
-+   For example, to hot plug mdev 62177883-f1bb-47f0-914d-32a22e3a8804 into
-+   the guest named 'my-guest'::
- 
--         virsh attach-device my-guest ~/config/my-guest-hostdev.xml
-+      virsh attach-device my-guest ~/config/my-guest-hostdev.xml
- 
--            The contents of my-guest-hostdev.xml:
-+   The contents of my-guest-hostdev.xml:
- 
--            <hostdev mode='subsystem' type='mdev' managed='no' model='vfio-ap'>
--              <source>
--                <address uuid='62177883-f1bb-47f0-914d-32a22e3a8804'/>
--              </source>
--            </hostdev>
-+   .. code-block:: xml
- 
-+      <hostdev mode='subsystem' type='mdev' managed='no' model='vfio-ap'>
-+           <source>
-+             <address uuid='62177883-f1bb-47f0-914d-32a22e3a8804'/>
-+           </source>
-+      </hostdev>
- 
--   virsh qemu-monitor-command <guest-name> --hmp \
--   "device_add vfio-ap,sysfsdev=<path-to-mdev>,id=<device-id>"
-+   To hot plug vfio_ap mediated device, use::
- 
--      For example, to hot plug the vfio_ap mediated device
--      62177883-f1bb-47f0-914d-32a22e3a8804 into the guest named 'my-guest' with
--      device-id hostdev0:
-+      virsh qemu-monitor-command <guest-name> --hmp \
-+      "device_add vfio-ap,sysfsdev=<path-to-mdev>,id=<device-id>"
+-   Note *****: The vfio_ap mdevs do not persist across reboots unless the
+-               mdevctl tool is used to create and persist them.
++   .. note::
 +
-+   For example, to hot plug the vfio_ap mediated device
-+   ``62177883-f1bb-47f0-914d-32a22e3a8804`` into the guest named 'my-guest'
-+   with device-id hostdev0::
++      The vfio_ap mdevs do not persist across reboots unless the
++      mdevctl tool is used to create and persist them.
  
-       virsh qemu-monitor-command my-guest --hmp \
-       "device_add vfio-ap,\
-@@ -1066,14 +1074,14 @@ system into the guest in one of two ways:
-       id=hostdev0"
+ 4. The administrator now needs to configure the matrixes for the mediated
+    devices $uuid1 (for Guest1), $uuid2 (for Guest2) and $uuid3 (for Guest3).
+@@ -849,8 +856,10 @@ Securing the APQNs for our example
+      higher than the maximum is specified, the operation will terminate with
+      an error (ENODEV).
  
- 2. A vfio_ap mediated device can be hot plugged by attaching the qemu monitor
--   to the guest and using the following qemu monitor command:
-+   to the guest and using the following qemu monitor command::
+-     Note: The maximum adapter number can be obtained via the sysfs
+-	   /sys/bus/ap/ap_max_adapter_id attribute file.
++     .. note::
++
++        The maximum adapter number can be obtained via the sysfs
++        /sys/bus/ap/ap_max_adapter_id
  
-       (qemu) device_add "vfio-ap,sysfsdev=<path-to-mdev>,id=<device-id>"
+    * Each APQN derived from the Cartesian product of the APID of the adapter
+      being assigned and the APQIs of the domains previously assigned:
+@@ -875,8 +884,10 @@ Securing the APQNs for our example
+      higher than the maximum is specified, the operation will terminate with
+      an error (ENODEV).
  
--      For example, to plug the vfio_ap mediated device
--      62177883-f1bb-47f0-914d-32a22e3a8804 into the guest with the device-id
--      hostdev0:
-+   For example, to plug the vfio_ap mediated device
-+   ``62177883-f1bb-47f0-914d-32a22e3a8804`` into the guest with the device-id
-+   hostdev0::
+-     Note: The maximum domain number can be obtained via the sysfs
+-	   /sys/bus/ap/ap_max_domain_id attribute file.
++     .. note::
++
++        The maximum domain number can be obtained via the sysfs
++	/sys/bus/ap/ap_max_domain_id
  
--         (QEMU) device-add "vfio-ap,\
--         sysfsdev=/sys/devices/vfio_ap/matrix/62177883-f1bb-47f0-914d-32a22e3a8804,\
--         id=hostdev0"
-+      (QEMU) device-add "vfio-ap,\
-+      sysfsdev=/sys/devices/vfio_ap/matrix/62177883-f1bb-47f0-914d-32a22e3a8804,\
-+      id=hostdev0"
+     * Each APQN derived from the Cartesian product of the APQI of the domain
+       being assigned and the APIDs of the adapters previously assigned:
 -- 
 An old man doll... just what I always wanted! - Clara
 
