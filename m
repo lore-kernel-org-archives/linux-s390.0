@@ -2,83 +2,93 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3758C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 22:11:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D695EC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 22:50:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236788AbiGVWLi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Jul 2022 18:11:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39310 "EHLO
+        id S230438AbiGVWud (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Jul 2022 18:50:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236623AbiGVWLh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 18:11:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C9CC7AF879
-        for <linux-s390@vger.kernel.org>; Fri, 22 Jul 2022 15:11:35 -0700 (PDT)
+        with ESMTP id S230005AbiGVWuc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 18:50:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 40E021EACD
+        for <linux-s390@vger.kernel.org>; Fri, 22 Jul 2022 15:50:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658527894;
+        s=mimecast20190719; t=1658530229;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=WTAu9Ie82eyCEnPfOUrQ1UYOeYONO590WPWh6n6IMVk=;
-        b=WDOdnPD64wypU5Jv9czfl31On5jo1g2bP//1LHUSVGQhxQx673dyv+Baooe5kyLnTqctuQ
-        olOqYQYV2pxddiJyD4OPIVYkiQUi0I2S2SmX8MtbNc6FkBQoo32Cz18w2GoV8jIVhWmEli
-        405KZov8ffh1NU9Orc5bkhcMsTytC2Y=
-Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
- [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=CK6lmXhfwHfiatVMUw8JndR4RA0GTNn0tRqyQRH49OE=;
+        b=ZHylcURL5xcRNw+TYWumTJPBJEkTIYcyzIGC53iCnIVv8ydfCMYK4tSv6IcqXyt8A4+1qR
+        Ni61608qygCmHvT9FbR6CNxKTxGVBenzERFZ796At47uNx/wm93QqFML5jQ9ZzKUSpWnPQ
+        cSOmbVgVkrVh4euwfiE72cYtEZwBJZ0=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-27-qmyMTvU8NNiTBYZyBuVjog-1; Fri, 22 Jul 2022 18:11:33 -0400
-X-MC-Unique: qmyMTvU8NNiTBYZyBuVjog-1
-Received: by mail-io1-f70.google.com with SMTP id a26-20020a6b661a000000b0067be5b57f45so2286799ioc.16
-        for <linux-s390@vger.kernel.org>; Fri, 22 Jul 2022 15:11:32 -0700 (PDT)
+ us-mta-150-einJWCU8N9mMcWietTk3xg-1; Fri, 22 Jul 2022 18:50:28 -0400
+X-MC-Unique: einJWCU8N9mMcWietTk3xg-1
+Received: by mail-il1-f200.google.com with SMTP id l14-20020a056e0212ee00b002dd15efa237so3081403iln.10
+        for <linux-s390@vger.kernel.org>; Fri, 22 Jul 2022 15:50:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
          :references:organization:mime-version:content-transfer-encoding;
-        bh=WTAu9Ie82eyCEnPfOUrQ1UYOeYONO590WPWh6n6IMVk=;
-        b=bGjuhacv++KbxIwmnniA1tW+jpJbOXhPcAcQH1qwLVL86ozpkJrUMI/YQVCptI1vWz
-         B3UnrOzrN4JQnu67lilUMOCbIYujWOzAlUej6ntRHmIttjsVEdms85v9grizA4upy6sG
-         sf1EEgin/OW96oCy62pLK3TB44lFDKiHb+F7X5XOLJCLnxcdGKfG155I6qiXpiTS1bex
-         9slCYkNirJdkKckoBEwXaxymiNKDx3v+sl5AtevO5W8KUp75WA0OY5Dc2G1HHrs4te/L
-         2tjSBx8NlD7Dw2iBZSTl1DlD72qC8DlcPKmPCO3U/KbScngiTmAMNGHXUuPBjluVsMp/
-         ukRw==
-X-Gm-Message-State: AJIora89lUOm4bW/ZxFgI/VkGgaD1bMJckzE/WikfeZVvE+tBj+pKVqV
-        duhN5zbQbh2ywPqYsryF1tl6cYWEDU5fU/b4Kw1xK/4dsmTdi/On+QG9yirP0V/7sJ4vfh2SMEv
-        QIj7KU0hhw9tCbAnbGjtnAg==
-X-Received: by 2002:a05:6e02:180d:b0:2dc:2561:4b81 with SMTP id a13-20020a056e02180d00b002dc25614b81mr808828ilv.149.1658527892255;
-        Fri, 22 Jul 2022 15:11:32 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tQfszjfffkbsvzx/Y2n9I9Nnb9tw/K3y9spbP6QR/C0TjwJrze6wv6O0NmOZWFKAIyPdjySw==
-X-Received: by 2002:a05:6e02:180d:b0:2dc:2561:4b81 with SMTP id a13-20020a056e02180d00b002dc25614b81mr808821ilv.149.1658527891986;
-        Fri, 22 Jul 2022 15:11:31 -0700 (PDT)
+        bh=CK6lmXhfwHfiatVMUw8JndR4RA0GTNn0tRqyQRH49OE=;
+        b=L9su+VHFMnx8spp5/njt4upa+0ubdPCw61pkmcitl+GbpW8BrRmaWUzf7aiaVb26Az
+         ObBjjKVijRrg27zIMhUPH38sNw5Pw0Gl+VOigelDF5NACnpgckUyHo1O0cYrxWj8lPUe
+         YsohnzpT5vkX4oK5Fk5wGDC5ncXWhUmyLX1QSzFD8dg0FI02iyN22DCYt+Usa+/bUZ2h
+         5t+w1PH2IQ7eHsiTq7qo9DSY9/yliWthIxo42kwwZCH2iXqOc73urCPX+vtzV6yzi0hm
+         CQ4CS3OvWv6jvEi1fOi35syS4z8TMGGQc5iL9AbbeeTU4o3OWVT48FLICS3Fg9CpoBJD
+         pDrg==
+X-Gm-Message-State: AJIora+ZpDOqZcjJ8Qg+ZQkgK41FpvL9hd2Tm4OKX5PtXeEyDKLDTCJZ
+        FyCNDY4rJEb7QaZ3AJxgz/TjrFveoIIGMetpX8fO3Egz3fzrWta9NsK6k9Iy34Yww6KtKp5Hw9i
+        o06XbfEf/cmxAhSeGXhwgjg==
+X-Received: by 2002:a05:6638:3181:b0:32a:eb54:1152 with SMTP id z1-20020a056638318100b0032aeb541152mr951293jak.120.1658530227581;
+        Fri, 22 Jul 2022 15:50:27 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1s5wn4lDkAQ/yj/kizLiq+//m5jdlQMu2EqfOktCU40xQgJvUisSso9AjpCLGmeYpAf31sEIQ==
+X-Received: by 2002:a05:6638:3181:b0:32a:eb54:1152 with SMTP id z1-20020a056638318100b0032aeb541152mr951286jak.120.1658530227371;
+        Fri, 22 Jul 2022 15:50:27 -0700 (PDT)
 Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id o22-20020a02c6b6000000b003415de88347sm2486092jan.123.2022.07.22.15.11.30
+        by smtp.gmail.com with ESMTPSA id f41-20020a0284ac000000b0033f3fcba96bsm2532614jai.100.2022.07.22.15.50.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Jul 2022 15:11:31 -0700 (PDT)
-Date:   Fri, 22 Jul 2022 16:11:29 -0600
+        Fri, 22 Jul 2022 15:50:26 -0700 (PDT)
+Date:   Fri, 22 Jul 2022 16:50:24 -0600
 From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Nicolin Chen <nicolinc@nvidia.com>
-Cc:     <kwankhede@nvidia.com>, <corbet@lwn.net>, <hca@linux.ibm.com>,
-        <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
-        <zhenyuw@linux.intel.com>, <zhi.a.wang@intel.com>,
-        <jani.nikula@linux.intel.com>, <joonas.lahtinen@linux.intel.com>,
-        <rodrigo.vivi@intel.com>, <tvrtko.ursulin@linux.intel.com>,
-        <airlied@linux.ie>, <daniel@ffwll.ch>, <farman@linux.ibm.com>,
-        <mjrosato@linux.ibm.com>, <pasic@linux.ibm.com>,
-        <vneethv@linux.ibm.com>, <oberpar@linux.ibm.com>,
-        <freude@linux.ibm.com>, <akrowiak@linux.ibm.com>,
-        <jjherne@linux.ibm.com>, <cohuck@redhat.com>, <jgg@nvidia.com>,
-        <kevin.tian@intel.com>, <hch@infradead.org>,
-        <jchrist@linux.ibm.com>, <kvm@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>,
-        <intel-gvt-dev@lists.freedesktop.org>,
-        <intel-gfx@lists.freedesktop.org>,
-        <dri-devel@lists.freedesktop.org>, <terrence.xu@intel.com>
-Subject: Re: [PATCH v3 00/10] Update vfio_pin/unpin_pages API
-Message-ID: <20220722161129.21059262.alex.williamson@redhat.com>
-In-Reply-To: <20220708224427.1245-1-nicolinc@nvidia.com>
-References: <20220708224427.1245-1-nicolinc@nvidia.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: Re: [PATCH v4 0/2] Remove the VFIO_IOMMU_NOTIFY_DMA_UNMAP notifier
+Message-ID: <20220722165024.7a41778f.alex.williamson@redhat.com>
+In-Reply-To: <0-v4-681e038e30fd+78-vfio_unmap_notif_jgg@nvidia.com>
+References: <0-v4-681e038e30fd+78-vfio_unmap_notif_jgg@nvidia.com>
 Organization: Red Hat
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -87,122 +97,57 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 8 Jul 2022 15:44:18 -0700
-Nicolin Chen <nicolinc@nvidia.com> wrote:
+On Tue, 19 Jul 2022 21:02:47 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> This is a preparatory series for IOMMUFD v2 patches. It prepares for
-> replacing vfio_iommu_type1 implementations of vfio_pin/unpin_pages()
-> with IOMMUFD version.
+> This is the last notifier toward the drivers, replace it with a simple op
+> callback in the vfio_device_ops.
 > 
-> There's a gap between these two versions: the vfio_iommu_type1 version
-> inputs a non-contiguous PFN list and outputs another PFN list for the
-> pinned physical page list, while the IOMMUFD version only supports a
-> contiguous address input by accepting the starting IO virtual address
-> of a set of pages to pin and by outputting to a physical page list.
+> v4:
+>  - Rebase over the CCW series
+> v3: https://lore.kernel.org/r/0-v3-7593f297c43f+56ce-vfio_unmap_notif_jgg@nvidia.com
+>  - Remove 'nb' doc string from ccw
+>  - Rebase on extern removal patch
+>  - Check that register_device/unregister_device are either both defined or
+>    not
+>  - Remove check of dma_unmap during vfio_register_iommu_driver() as it
+>    would break the drivers that don't use pin_pages
+>  - Don't change VFIO_IOMMU_NOTIFY_DMA_UNMAP to an enum since we are not
+>    keeping it anyhow
+> v2: https://lore.kernel.org/r/0-v2-80aa110d03ce+24b-vfio_unmap_notif_jgg@nvidia.com
+>  - Declare and initialize variables in intel_vgpu_dma_unmap()
+>  - Remove 'vendor' when touching comments
+>  - Remove kdoc for vfio dma_unmap notifier
+>  - Add WARN_ON to vfio_register_emulated_iommu_dev() since dma_unmap is
+>    mandatory
+>  - Move dma_unmap call loop to vfio_notify_dma_unmap()
+>  - Document why the double mutex is being used and why the mutex lock is
+>    dropped when calling dma_unmap
+> v1: https://lore.kernel.org/r/0-v1-896844109f36+a-vfio_unmap_notif_jgg@nvidia.com
 > 
-> The nature of existing callers mostly aligns with the IOMMUFD version,
-> except s390's vfio_ccw_cp code where some additional change is needed
-> along with this series. Overall, updating to "iova" and "phys_page"
-> does improve the caller side to some extent.
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > 
-> Also fix a misuse of physical address and virtual address in the s390's
-> crypto code. And update the input naming at the adjacent vfio_dma_rw().
+> Jason Gunthorpe (2):
+>   vfio: Replace the DMA unmapping notifier with a callback
+>   vfio: Replace the iommu notifier with a device list
 > 
-> This is on github:
-> https://github.com/nicolinc/iommufd/commits/vfio_pin_pages
+>  drivers/gpu/drm/i915/gvt/gvt.h        |   1 -
+>  drivers/gpu/drm/i915/gvt/kvmgt.c      |  75 +++++-------------
+>  drivers/s390/cio/vfio_ccw_ops.c       |  39 ++--------
+>  drivers/s390/cio/vfio_ccw_private.h   |   2 -
+>  drivers/s390/crypto/vfio_ap_ops.c     |  53 ++-----------
+>  drivers/s390/crypto/vfio_ap_private.h |   3 -
+>  drivers/vfio/vfio.c                   | 108 ++++++--------------------
+>  drivers/vfio/vfio.h                   |   9 +--
+>  drivers/vfio/vfio_iommu_type1.c       | 103 +++++++++++++++---------
+>  include/linux/vfio.h                  |  21 +----
+>  10 files changed, 132 insertions(+), 282 deletions(-)
 > 
-> Terrence has tested this series on i915; Eric has tested on s390.
 > 
-> Thanks!
-> 
-> Changelog
-> v3:
->  * Added a patch to replace roundup with DIV_ROUND_UP in i915 gvt
->  * Dropped the "driver->ops->unpin_pages" and NULL checks in PATCH-1
->  * Changed to use WARN_ON and separate into lines in PATCH-1
->  * Replaced "guest" words with "user" and fix typo in PATCH-5
->  * Updated commit log of PATCH-1, PATCH-6, and PATCH-10
->  * Added Reviewed/Acked-by from Christoph, Jason, Kirti, Kevin and Eric
->  * Added Tested-by from Terrence (i915) and Eric (s390)
-> v2: https://lore.kernel.org/kvm/20220706062759.24946-1-nicolinc@nvidia.com/
->  * Added a patch to make vfio_unpin_pages return void
->  * Added two patches to remove PFN list from two s390 callers
->  * Renamed "phys_page" parameter to "pages" for vfio_pin_pages
->  * Updated commit log of kmap_local_page() patch
->  * Added Harald's "Reviewed-by" to pa_ind patch
->  * Rebased on top of Alex's extern removal path
-> v1: https://lore.kernel.org/kvm/20220616235212.15185-1-nicolinc@nvidia.com/
-> 
-> Nicolin Chen (10):
->   vfio: Make vfio_unpin_pages() return void
->   drm/i915/gvt: Replace roundup with DIV_ROUND_UP
->   vfio/ap: Pass in physical address of ind to ap_aqic()
->   vfio/ccw: Only pass in contiguous pages
->   vfio: Pass in starting IOVA to vfio_pin/unpin_pages API
->   vfio/ap: Change saved_pfn to saved_iova
->   vfio/ccw: Change pa_pfn list to pa_iova list
->   vfio: Rename user_iova of vfio_dma_rw()
->   vfio/ccw: Add kmap_local_page() for memcpy
->   vfio: Replace phys_pfn with pages for vfio_pin_pages()
-> 
->  .../driver-api/vfio-mediated-device.rst       |   6 +-
->  arch/s390/include/asm/ap.h                    |   6 +-
->  drivers/gpu/drm/i915/gvt/kvmgt.c              |  49 ++---
->  drivers/s390/cio/vfio_ccw_cp.c                | 195 +++++++++++-------
->  drivers/s390/crypto/ap_queue.c                |   2 +-
->  drivers/s390/crypto/vfio_ap_ops.c             |  54 +++--
->  drivers/s390/crypto/vfio_ap_private.h         |   4 +-
->  drivers/vfio/vfio.c                           |  54 ++---
->  drivers/vfio/vfio.h                           |   8 +-
->  drivers/vfio/vfio_iommu_type1.c               |  45 ++--
->  include/linux/vfio.h                          |   9 +-
->  11 files changed, 215 insertions(+), 217 deletions(-)
-> 
+> base-commit: 2a8ed7ef00b939fbcc98b948f780bd03bafed227
 
-GVT-g explodes for me with this series on my Broadwell test system,
-continuously spewing the following:
-
-[   47.344126] ------------[ cut here ]------------
-[   47.348778] WARNING: CPU: 3 PID: 501 at drivers/vfio/vfio_iommu_type1.c:978 vfio_iommu_type1_unpin_pages+0x7b/0x100 [vfio_iommu_type1]
-[   47.360871] Modules linked in: xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4 nft_compat nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 nf_tables nfnetlink tun bridge stp llc rfkill sunrpc vfat fat intel_rapl_msr intel_rapl_common x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel iTCO_wdt at24 mei_wdt mei_hdcp intel_pmc_bxt mei_pxp rapl iTCO_vendor_support intel_cstate pcspkr e1000e mei_me intel_uncore i2c_i801 mei lpc_ich i2c_smbus acpi_pad fuse zram ip_tables kvmgt mdev vfio_iommu_type1 vfio kvm irqbypass i915 crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel pinctrl_lynxpoint i2c_algo_bit drm_buddy video drm_display_helper drm_kms_helper cec ttm drm
-[   47.423398] CPU: 3 PID: 501 Comm: gvt:rcs0 Tainted: G        W         5.19.0-rc4+ #3
-[   47.431228] Hardware name:  /NUC5i5MYBE, BIOS MYBDWi5v.86A.0054.2019.0520.1531 05/20/2019
-[   47.439408] RIP: 0010:vfio_iommu_type1_unpin_pages+0x7b/0x100 [vfio_iommu_type1]
-[   47.446818] Code: 10 00 00 45 31 ed 48 8b 7b 40 48 85 ff 74 12 48 8b 47 18 49 39 c6 77 23 48 8b 7f 10 48 85 ff 75 ee 48 8b 3c 24 e8 45 57 92 e4 <0f> 0b 48 83 c4 08 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 03 47 28 49
-[   47.465573] RSP: 0018:ffff9ac5806cfbe0 EFLAGS: 00010246
-[   47.470807] RAX: ffff8cb42f4c5180 RBX: ffff8cb4145c03c0 RCX: 0000000000000000
-[   47.477948] RDX: 0000000000000000 RSI: 0000163802000000 RDI: ffff8cb4145c03e0
-[   47.485088] RBP: 0000000000000001 R08: 0000000000000000 R09: ffff9ac581aed000
-[   47.492230] R10: ffff9ac5806cfc58 R11: 00000001b2202000 R12: 0000000000000001
-[   47.499370] R13: 0000000000000000 R14: 0000163802001000 R15: 0000163802000000
-[   47.506513] FS:  0000000000000000(0000) GS:ffff8cb776d80000(0000) knlGS:0000000000000000
-[   47.514608] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   47.520361] CR2: ffffdc0933f76192 CR3: 0000000118118003 CR4: 00000000003726e0
-[   47.527510] Call Trace:
-[   47.529976]  <TASK>
-[   47.532091]  intel_gvt_dma_unmap_guest_page+0xd5/0x110 [kvmgt]
-[   47.537948]  ppgtt_invalidate_spt+0x323/0x340 [kvmgt]
-[   47.543017]  ppgtt_invalidate_spt+0x173/0x340 [kvmgt]
-[   47.548088]  ppgtt_invalidate_spt+0x173/0x340 [kvmgt]
-[   47.553159]  ppgtt_invalidate_spt+0x173/0x340 [kvmgt]
-[   47.558228]  invalidate_ppgtt_mm+0x5f/0x110 [kvmgt]
-[   47.563124]  _intel_vgpu_mm_release+0xd6/0xe0 [kvmgt]
-[   47.568193]  intel_vgpu_destroy_workload+0x1b7/0x1e0 [kvmgt]
-[   47.573872]  workload_thread+0xa4c/0x19a0 [kvmgt]
-[   47.578613]  ? _raw_spin_rq_lock_irqsave+0x20/0x20
-[   47.583422]  ? dequeue_task_stop+0x70/0x70
-[   47.587530]  ? _raw_spin_lock_irqsave+0x24/0x50
-[   47.592072]  ? intel_vgpu_reset_submission+0x40/0x40 [kvmgt]
-[   47.597746]  kthread+0xe7/0x110
-[   47.600902]  ? kthread_complete_and_exit+0x20/0x20
-[   47.605702]  ret_from_fork+0x22/0x30
-[   47.609293]  </TASK>
-[   47.611503] ---[ end trace 0000000000000000 ]---
-
-Line 978 is the WARN_ON(i != npage) line.  For the cases where we don't
-find a matching vfio_dma, I'm seeing addresses that look maybe like
-we're shifting  a value that's already an iova by PAGE_SHIFT somewhere.
-Thanks,
+Applied to vfio next branch for v5.20.  Applied as posted since
+Nicolin's series regressed GVT-g support.  Thanks,
 
 Alex
 
