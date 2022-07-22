@@ -2,259 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADA04CCA487
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 03:58:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C072C43334
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Jul 2022 07:17:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233490AbiGVD56 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Jul 2022 23:57:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35506 "EHLO
+        id S234536AbiGVHRz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Jul 2022 03:17:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229692AbiGVD54 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jul 2022 23:57:56 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 136CD6C105;
-        Thu, 21 Jul 2022 20:57:52 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0VK3SFm4_1658462266;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VK3SFm4_1658462266)
-          by smtp.aliyun-inc.com;
-          Fri, 22 Jul 2022 11:57:47 +0800
-Message-ID: <1658461678.632858-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v12 08/40] virtio_ring: split: extract the logic of alloc queue
-Date:   Fri, 22 Jul 2022 11:47:58 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        kangjie.xu@linux.alibaba.com,
-        virtualization@lists.linux-foundation.org
-References: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
- <20220720030436.79520-9-xuanzhuo@linux.alibaba.com>
- <0b3c985d-d479-a554-4fe2-bfe94fc74070@redhat.com>
-In-Reply-To: <0b3c985d-d479-a554-4fe2-bfe94fc74070@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S234567AbiGVHRi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Jul 2022 03:17:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1CF6BE1E
+        for <linux-s390@vger.kernel.org>; Fri, 22 Jul 2022 00:17:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1658474240;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Y3mN1YY4ZaFhdmgTg9aJTQx2Ag2kI0nqfLpirIW7BV8=;
+        b=jBmZT/BwbxxMfG+QPXlwvKSaiwg0Z5e/DpMHL4Igez+rQDpjUrPF/7A2N2P0ea3UghQIuJ
+        dIr7uhl4CTEkvOJOOCCzWve29+HRU9D8QGPSZXXeYpEfIGSOGSoCNoWZtpX97u7Uweiqxd
+        ODnkztf2ykN/jn6RutUo11pdLP3QOZM=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-158-vBZixIh6OxeSQNSvJYSpkA-1; Fri, 22 Jul 2022 03:17:16 -0400
+X-MC-Unique: vBZixIh6OxeSQNSvJYSpkA-1
+Received: by mail-wr1-f71.google.com with SMTP id h6-20020adfaa86000000b0021e47bcbc6dso702116wrc.16
+        for <linux-s390@vger.kernel.org>; Fri, 22 Jul 2022 00:17:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=Y3mN1YY4ZaFhdmgTg9aJTQx2Ag2kI0nqfLpirIW7BV8=;
+        b=TBacDyUN8DF1StppvU5Peb1Iw8oWW+VDz6LI5ubEL3d2GQMVYOWhsHqFEXRiGYBp9K
+         H8GTYUgUl3MHZl4Ri3IggAqHZsS6d7Ke+uEgM4RuOv9BodUPrdEWNg0/S0M7ZbGHtLYH
+         1gUtkEpLQuDWUN0D6WIulfMzVx3v3Ci35Wy+NOH1hirrDyoetBfBbvB6PWyBU40OMmmh
+         d6LiHJ7fTFEWI0R0xx0NYEqNaggM7zTQyZj5L5JIlNjKbvrvuN6cWOrTRH5ih/l2rQ6k
+         2dimMb6t9bObP7sSrlDr3fGUUqys1jY+u8ttQaPVSeKbJeFtbXFAcY6DVQo1u5M5c4L4
+         h4PQ==
+X-Gm-Message-State: AJIora/omyDxcdqPs0YDJ/Erfh0qzQIDlkW/qihIfaSQLtGZBk5D1OeZ
+        8ndniBI+p2HbGeVgW+jCWsOCebsRRKILzAiyN9OA8lMGelZNi9Dyji4jGcCxvibdqnPvWuQi0nZ
+        tn9oFXMWTOFI9XUkcQJY+RA==
+X-Received: by 2002:a1c:4c14:0:b0:3a3:ad5:62e7 with SMTP id z20-20020a1c4c14000000b003a30ad562e7mr1448998wmf.114.1658474235033;
+        Fri, 22 Jul 2022 00:17:15 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1tPTyl/0KPtnxpM59gT1P2wf7MdYT49hZ3DI5epWHqeeMrpGzMjlP2WihM+i69WoMbaVGkyig==
+X-Received: by 2002:a1c:4c14:0:b0:3a3:ad5:62e7 with SMTP id z20-20020a1c4c14000000b003a30ad562e7mr1448946wmf.114.1658474234518;
+        Fri, 22 Jul 2022 00:17:14 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
+        by smtp.googlemail.com with ESMTPSA id o5-20020a05600c4fc500b003a03185231bsm4350514wmq.31.2022.07.22.00.17.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Jul 2022 00:17:13 -0700 (PDT)
+Message-ID: <4caa1fb2-febd-22e5-54b7-dababe63ae15@redhat.com>
+Date:   Fri, 22 Jul 2022 09:17:12 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [GIT PULL 00/42] KVM: s390: PCI, CPU topology, PV features
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com
+References: <20220721161302.156182-1-imbrenda@linux.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20220721161302.156182-1-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 21 Jul 2022 17:13:49 +0800, Jason Wang <jasowang@redhat.com> wrote:
->
-> =E5=9C=A8 2022/7/20 11:04, Xuan Zhuo =E5=86=99=E9=81=93:
-> > Separate the logic of split to create vring queue.
-> >
-> > This feature is required for subsequent virtuqueue reset vring.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >   drivers/virtio/virtio_ring.c | 68 ++++++++++++++++++++++--------------
-> >   1 file changed, 42 insertions(+), 26 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index c94c5461e702..c7971438bb2c 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -950,28 +950,19 @@ static void vring_free_split(struct vring_virtque=
-ue_split *vring_split,
-> >   	kfree(vring_split->desc_extra);
-> >   }
-> >
-> > -static struct virtqueue *vring_create_virtqueue_split(
-> > -	unsigned int index,
-> > -	unsigned int num,
-> > -	unsigned int vring_align,
-> > -	struct virtio_device *vdev,
-> > -	bool weak_barriers,
-> > -	bool may_reduce_num,
-> > -	bool context,
-> > -	bool (*notify)(struct virtqueue *),
-> > -	void (*callback)(struct virtqueue *),
-> > -	const char *name)
-> > +static int vring_alloc_queue_split(struct vring_virtqueue_split *vring=
-_split,
-> > +				   struct virtio_device *vdev,
-> > +				   u32 num,
-> > +				   unsigned int vring_align,
-> > +				   bool may_reduce_num)
-> >   {
-> > -	struct virtqueue *vq;
-> >   	void *queue =3D NULL;
-> >   	dma_addr_t dma_addr;
-> > -	size_t queue_size_in_bytes;
-> > -	struct vring vring;
-> >
-> >   	/* We assume num is a power of 2. */
-> >   	if (num & (num - 1)) {
-> >   		dev_warn(&vdev->dev, "Bad virtqueue length %u\n", num);
-> > -		return NULL;
-> > +		return -EINVAL;
-> >   	}
-> >
-> >   	/* TODO: allocate each queue chunk individually */
-> > @@ -982,11 +973,11 @@ static struct virtqueue *vring_create_virtqueue_s=
-plit(
-> >   		if (queue)
-> >   			break;
-> >   		if (!may_reduce_num)
-> > -			return NULL;
-> > +			return -ENOMEM;
-> >   	}
-> >
-> >   	if (!num)
-> > -		return NULL;
-> > +		return -ENOMEM;
-> >
-> >   	if (!queue) {
-> >   		/* Try to get a single page. You are my only hope! */
-> > @@ -994,21 +985,46 @@ static struct virtqueue *vring_create_virtqueue_s=
-plit(
-> >   					  &dma_addr, GFP_KERNEL|__GFP_ZERO);
-> >   	}
-> >   	if (!queue)
-> > -		return NULL;
-> > +		return -ENOMEM;
-> > +
-> > +	vring_init(&vring_split->vring, num, queue, vring_align);
-> >
-> > -	queue_size_in_bytes =3D vring_size(num, vring_align);
-> > -	vring_init(&vring, num, queue, vring_align);
-> > +	vring_split->queue_dma_addr =3D dma_addr;
-> > +	vring_split->queue_size_in_bytes =3D vring_size(num, vring_align);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static struct virtqueue *vring_create_virtqueue_split(
-> > +	unsigned int index,
-> > +	unsigned int num,
-> > +	unsigned int vring_align,
-> > +	struct virtio_device *vdev,
-> > +	bool weak_barriers,
-> > +	bool may_reduce_num,
-> > +	bool context,
-> > +	bool (*notify)(struct virtqueue *),
-> > +	void (*callback)(struct virtqueue *),
-> > +	const char *name)
-> > +{
-> > +	struct vring_virtqueue_split vring_split =3D {};
-> > +	struct virtqueue *vq;
-> > +	int err;
-> > +
-> > +	err =3D vring_alloc_queue_split(&vring_split, vdev, num, vring_align,
-> > +				      may_reduce_num);
-> > +	if (err)
-> > +		return NULL;
-> >
-> > -	vq =3D __vring_new_virtqueue(index, vring, vdev, weak_barriers, conte=
-xt,
-> > -				   notify, callback, name);
-> > +	vq =3D __vring_new_virtqueue(index, vring_split.vring, vdev, weak_bar=
-riers,
-> > +				   context, notify, callback, name);
-> >   	if (!vq) {
-> > -		vring_free_queue(vdev, queue_size_in_bytes, queue,
-> > -				 dma_addr);
-> > +		vring_free_split(&vring_split, vdev);
-> >   		return NULL;
-> >   	}
-> >
-> > -	to_vvq(vq)->split.queue_dma_addr =3D dma_addr;
-> > -	to_vvq(vq)->split.queue_size_in_bytes =3D queue_size_in_bytes;
-> > +	to_vvq(vq)->split.queue_dma_addr =3D vring_split.queue_dma_addr;
-> > +	to_vvq(vq)->split.queue_size_in_bytes =3D vring_split.queue_size_in_b=
-ytes;
->
->
-> This still seems a little bit redundant since the current logic is a
-> little bit complicated since the vq->split is not initialized in a
-> single place.
->
-> I wonder if it's better to:
->
-> vring_alloc_queue_split()
-> vring_alloc_desc_extra() (reorder to make patch 9 come first)
->
-> then we can simply assign vring_split to vq->split in
-> __vring_new_virtqueue() since it has:
->
->  =C2=A0=C2=A0=C2=A0 vq->split.queue_dma_addr =3D 0;
->  =C2=A0=C2=A0 =C2=A0vq->split.queue_size_in_bytes =3D 0;
->
->  =C2=A0=C2=A0=C2=A0 vq->split.vring =3D vring;
->  =C2=A0=C2=A0=C2=A0 vq->split.avail_flags_shadow =3D 0;
->  =C2=A0=C2=A0=C2=A0 vq->split.avail_idx_shadow =3D 0;
->
-> This seems to simplify the logic and task of e.g
-> virtqueue_vring_attach_split() to a simple:
->
-> vq->split=3D vring_split;
+On 7/21/22 18:12, Claudio Imbrenda wrote:
+> Hi Paolo,
+> 
+> today you are getting the pull request from me :)
 
-This does look simpler. The reason for not doing this is that the argument
-accepted by __vring_new_virtqueue() is "struct vring", and
-__vring_new_virtqueue() is an export symbol.
+I'll trust you. :)
 
-I took a look, and the only external direct call to __vring_new_virtqueue is
-here.
+> this request has:
+> 
+> * First part of deferred teardown (Claudio)
+> * CPU Topology (Pierre)
+> * interpretive execution for PCI instructions (Matthew)
+> * PV attestation (Steffen)
+> * Minor fixes
+> 
+> 
+> Please pull
+> 
+> 
+> The following changes since commit 4b88b1a518b337de1252b8180519ca4c00015c9e:
+> 
+>    KVM: selftests: Enhance handling WRMSR ICR register in x2APIC mode (2022-06-24 04:52:04 -0400)
+> 
+> are available in the Git repository at:
+> 
+>    ssh://git@gitolite.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-5.20-1
 
-	tools/virtio/virtio_test.c
-	static void vq_reset(struct vq_info *info, int num, struct virtio_device *=
-vdev)
-	{
-		if (info->vq)
-			vring_del_virtqueue(info->vq);
+Pulled, but you need to setup separate remote.*.url and remote.*.pushurl 
+configuration for git-request-pull to work.
 
-		memset(info->ring, 0, vring_size(num, 4096));
-		vring_init(&info->vring, num, info->ring, 4096);
-		info->vq =3D __vring_new_virtqueue(info->idx, info->vring, vdev, true,
-						 false, vq_notify, vq_callback, "test");
-		assert(info->vq);
-		info->vq->priv =3D info;
-	}
+Thanks,
 
-I think this could be replaced with vring_new_virtqueue() so that we don't =
-need
-to make __vring_new_virtqueue as an export function so we can make some
-modifications to it.
+Paolo
 
-nit: vring_alloc_desc_extra() should not have to be extract from
-__vring_new_virtqueue() .
-
-Thanks.
-
->
-> And if this makes sense, we can do something similar to packed ring.
->
-> Thanks
->
->
-> >   	to_vvq(vq)->we_own_ring =3D true;
-> >
-> >   	return vq;
->
