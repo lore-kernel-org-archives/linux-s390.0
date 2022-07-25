@@ -2,177 +2,87 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0079C43334
-	for <linux-s390@archiver.kernel.org>; Sat, 23 Jul 2022 09:22:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3704AC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Jul 2022 01:53:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237202AbiGWJW6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 23 Jul 2022 05:22:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52238 "EHLO
+        id S230423AbiGYBxn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 24 Jul 2022 21:53:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232785AbiGWJW5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 23 Jul 2022 05:22:57 -0400
-Received: from out30-45.freemail.mail.aliyun.com (out30-45.freemail.mail.aliyun.com [115.124.30.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74ED8101E7;
-        Sat, 23 Jul 2022 02:22:54 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xhao@linux.alibaba.com;NM=1;PH=DS;RN=25;SR=0;TI=SMTPD_---0VK94Ta0_1658568166;
-Received: from B-X3VXMD6M-2058.local(mailfrom:xhao@linux.alibaba.com fp:SMTPD_---0VK94Ta0_1658568166)
-          by smtp.aliyun-inc.com;
-          Sat, 23 Jul 2022 17:22:48 +0800
-From:   xhao@linux.alibaba.com
-Reply-To: xhao@linux.alibaba.com
-Subject: Re: [PATCH v2 0/4] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
-To:     Barry Song <21cnbao@gmail.com>, Yicong Yang <yangyicong@huawei.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        LAK <linux-arm-kernel@lists.infradead.org>, x86 <x86@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Darren Hart <darren@os.amperecomputing.com>,
-        huzhanyuan@oppo.com,
-        =?UTF-8?B?5p2O5Z+56ZSLKHdpbmsp?= <lipeifeng@oppo.com>,
-        =?UTF-8?B?5byg6K+X5piOKFNpbW9uIFpoYW5nKQ==?= 
-        <zhangshiming@oppo.com>, =?UTF-8?B?6YOt5YGl?= <guojian@oppo.com>,
-        real mz <realmz6@gmail.com>, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        Yicong Yang <yangyicong@hisilicon.com>,
-        "tiantao (H)" <tiantao6@hisilicon.com>
-References: <20220711034615.482895-1-21cnbao@gmail.com>
- <24f5e25b-3946-b92a-975b-c34688005398@linux.alibaba.com>
- <CAGsJ_4zjnmQV6LT3yo--K-qD-92=hBmgfK121=n-Y0oEFX8RnQ@mail.gmail.com>
- <8e603deb-7023-5de5-c958-8911971aec24@huawei.com>
- <CAGsJ_4x9hLbXGMU737SShZGS89_4zywyhvkcRfz3W5s_p7O1PA@mail.gmail.com>
-Message-ID: <3ac4b1a3-8067-3edb-be4f-326e2a4943ed@linux.alibaba.com>
-Date:   Sat, 23 Jul 2022 17:22:45 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.14.0
+        with ESMTP id S229760AbiGYBxk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Jul 2022 21:53:40 -0400
+Received: from m13114.mail.163.com (m13114.mail.163.com [220.181.13.114])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C4F8ADF56;
+        Sun, 24 Jul 2022 18:53:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=Date:From:Subject:MIME-Version:Message-ID; bh=dBony
+        8quVwY2JIJZz0+wYGLL1ZSTYVcvE4c5ekRQf5M=; b=d9R1L0dihKrP7K/+DDH5v
+        0YR1Dblmd6+8dilp51zM5FC+oe9xjQAP30K9rKJj30D+4eupcsf9EUp6mxgTsLtf
+        HF04ClRKxV7SNCtd/USWtXVInT5y3eYp7bJ7nlgWCnhUZ3mqXLoNT8Au2T5xaJUu
+        GhMqb/zz9pM38IUwOH9jkI=
+Received: from slark_xiao$163.com ( [112.97.48.126] ) by
+ ajax-webmail-wmsvr114 (Coremail) ; Mon, 25 Jul 2022 09:53:23 +0800 (CST)
+X-Originating-IP: [112.97.48.126]
+Date:   Mon, 25 Jul 2022 09:53:23 +0800 (CST)
+From:   "Slark Xiao" <slark_xiao@163.com>
+To:     "Jakub Kicinski" <kuba@kernel.org>
+Cc:     "Alexandra Winter" <wintera@linux.ibm.com>,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        wenjia@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re:Re: [PATCH] s390/qeth: Fix typo 'the the' in comment
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version XT5.0.13 build 20220113(9671e152)
+ Copyright (c) 2002-2022 www.mailtech.cn 163com
+In-Reply-To: <20220722115536.0d450512@kernel.org>
+References: <20220722093834.77864-1-slark_xiao@163.com>
+ <434e604c-7fd3-6422-d13b-309a7c1fe0d3@linux.ibm.com>
+ <20220722115536.0d450512@kernel.org>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=GBK
 MIME-Version: 1.0
-In-Reply-To: <CAGsJ_4x9hLbXGMU737SShZGS89_4zywyhvkcRfz3W5s_p7O1PA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <7609758.aa4.182330f18b8.Coremail.slark_xiao@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID: csGowADH_9KT991itw8lAA--.65143W
+X-CM-SenderInfo: xvod2y5b0lt0i6rwjhhfrp/xtbCdRZJZGBbEd2eHgABs4
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-On 7/20/22 7:18 PM, Barry Song wrote:
-> On Tue, Jul 19, 2022 at 1:28 AM Yicong Yang <yangyicong@huawei.com> wrote:
->> On 2022/7/14 12:51, Barry Song wrote:
->>> On Thu, Jul 14, 2022 at 3:29 PM Xin Hao <xhao@linux.alibaba.com> wrote:
->>>> Hi barry.
->>>>
->>>> I do some test on Kunpeng arm64 machine use Unixbench.
->>>>
->>>> The test  result as below.
->>>>
->>>> One core, we can see the performance improvement above +30%.
->>> I am really pleased to see the 30%+ improvement on unixbench on single core.
->>>
->>>> ./Run -c 1 -i 1 shell1
->>>> w/o
->>>> System Benchmarks Partial Index              BASELINE RESULT INDEX
->>>> Shell Scripts (1 concurrent)                     42.4 5481.0 1292.7
->>>> ========
->>>> System Benchmarks Index Score (Partial Only)                         1292.7
->>>>
->>>> w/
->>>> System Benchmarks Partial Index              BASELINE RESULT INDEX
->>>> Shell Scripts (1 concurrent)                     42.4 6974.6 1645.0
->>>> ========
->>>> System Benchmarks Index Score (Partial Only)                         1645.0
->>>>
->>>>
->>>> But with whole cores, there have little performance degradation above -5%
->>> That is sad as we might get more concurrency between mprotect(), madvise(),
->>> mremap(), zap_pte_range() and the deferred tlbi.
->>>
->>>> ./Run -c 96 -i 1 shell1
->>>> w/o
->>>> Shell Scripts (1 concurrent)                  80765.5 lpm   (60.0 s, 1
->>>> samples)
->>>> System Benchmarks Partial Index              BASELINE RESULT INDEX
->>>> Shell Scripts (1 concurrent)                     42.4 80765.5 19048.5
->>>> ========
->>>> System Benchmarks Index Score (Partial Only)                        19048.5
->>>>
->>>> w
->>>> Shell Scripts (1 concurrent)                  76333.6 lpm   (60.0 s, 1
->>>> samples)
->>>> System Benchmarks Partial Index              BASELINE RESULT INDEX
->>>> Shell Scripts (1 concurrent)                     42.4 76333.6 18003.2
->>>> ========
->>>> System Benchmarks Index Score (Partial Only)                        18003.2
->>>>
->>>> ----------------------------------------------------------------------------------------------
->>>>
->>>>
->>>> After discuss with you, and do some changes in the patch.
->>>>
->>>> ndex a52381a680db..1ecba81f1277 100644
->>>> --- a/mm/rmap.c
->>>> +++ b/mm/rmap.c
->>>> @@ -727,7 +727,11 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
->>>>           int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
->>>>
->>>>           if (pending != flushed) {
->>>> +#ifdef CONFIG_ARCH_HAS_MM_CPUMASK
->>>>                   flush_tlb_mm(mm);
->>>> +#else
->>>> +               dsb(ish);
->>>> +#endif
->>>>
->>> i was guessing the problem might be flush_tlb_batched_pending()
->>> so i asked you to change this to verify my guess.
->>>
->> flush_tlb_batched_pending() looks like the critical path for this issue then the code
->> above can mitigate this.
->>
->> I cannot reproduce this on a 2P 128C Kunpeng920 server. The kernel is based on the
->> v5.19-rc6 and unixbench of version 5.1.3. The result of `./Run -c 128 -i 1 shell1` is:
->>        iter-1      iter-2     iter-3
->> w/o  17708.1     17637.1    17630.1
->> w    17766.0     17752.3    17861.7
->>
->> And flush_tlb_batched_pending()isn't the hot spot with the patch:
->>     7.00%  sh        [kernel.kallsyms]      [k] ptep_clear_flush
->>     4.17%  sh        [kernel.kallsyms]      [k] ptep_set_access_flags
->>     2.43%  multi.sh  [kernel.kallsyms]      [k] ptep_clear_flush
->>     1.98%  sh        [kernel.kallsyms]      [k] _raw_spin_unlock_irqrestore
->>     1.69%  sh        [kernel.kallsyms]      [k] next_uptodate_page
->>     1.66%  sort      [kernel.kallsyms]      [k] ptep_clear_flush
->>     1.56%  multi.sh  [kernel.kallsyms]      [k] ptep_set_access_flags
->>     1.27%  sh        [kernel.kallsyms]      [k] page_counter_cancel
->>     1.11%  sh        [kernel.kallsyms]      [k] page_remove_rmap
->>     1.06%  sh        [kernel.kallsyms]      [k] perf_event_alloc
->>
->> Hi Xin Hao,
->>
->> I'm not sure the test setup as well as the config is same with yours. (96C vs 128C
->> should not be the reason I think). Did you check that the 5% is a fluctuation or
->> not? It'll be helpful if more information provided for reproducing this issue.
->>
->> Thanks.
-> I guess that is because  "./Run -c 1 -i 1 shell1" isn't an application
-> stressed on
-> memory. Hi Xin, in what kinds of configurations can we reproduce your test
-> result?
-
-Oh, my fault, I do the test is not based on the lastest upstream kernel, there maybe some impact here,
-i will do a new test on the lastest kernel.
-
-> As I suppose tlbbatch will mainly affect the performance of user scenarios
-> which require memory page-out/page-in like reclaiming file/anon pages.
-> "./Run -c 1 -i 1 shell1" on a system with sufficient free memory won't be
-> affected by tlbbatch at all, I believe.
->
-> Thanks
-> Barry
-
--- 
-Best Regards!
-Xin Hao
-
+CgoKCgoKCgoKCgoKCgoKCkF0IDIwMjItMDctMjMgMDI6NTU6MzYsICJKYWt1YiBLaWNpbnNraSIg
+PGt1YmFAa2VybmVsLm9yZz4gd3JvdGU6Cj5PbiBGcmksIDIyIEp1bCAyMDIyIDEyOjIzOjA2ICsw
+MjAwIEFsZXhhbmRyYSBXaW50ZXIgd3JvdGU6Cj4+IE9uIDIyLjA3LjIyIDExOjM4LCBTbGFyayBY
+aWFvIHdyb3RlOgo+PiA+IFJlcGxhY2UgJ3RoZSB0aGUnIHdpdGggJ3RoZScgaW4gdGhlIGNvbW1l
+bnQuCj4+ID4gCj4+ID4gU2lnbmVkLW9mZi1ieTogU2xhcmsgWGlhbyA8c2xhcmtfeGlhb0AxNjMu
+Y29tPgo+PiA+IC0tLQo+PiA+ICBkcml2ZXJzL3MzOTAvbmV0L3FldGhfY29yZV9tYWluLmMgfCAy
+ICstCj4+ID4gIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+
+PiA+IAo+PiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3MzOTAvbmV0L3FldGhfY29yZV9tYWluLmMg
+Yi9kcml2ZXJzL3MzOTAvbmV0L3FldGhfY29yZV9tYWluLmMKPj4gPiBpbmRleCA5ZTU0ZmU3NmE5
+YjIuLjM1ZDRiMzk4YzE5NyAxMDA2NDQKPj4gPiAtLS0gYS9kcml2ZXJzL3MzOTAvbmV0L3FldGhf
+Y29yZV9tYWluLmMKPj4gPiArKysgYi9kcml2ZXJzL3MzOTAvbmV0L3FldGhfY29yZV9tYWluLmMK
+Pj4gPiBAQCAtMzU2NSw3ICszNTY1LDcgQEAgc3RhdGljIHZvaWQgcWV0aF9mbHVzaF9idWZmZXJz
+KHN0cnVjdCBxZXRoX3FkaW9fb3V0X3EgKnF1ZXVlLCBpbnQgaW5kZXgsCj4+ID4gIAkJCWlmICgh
+YXRvbWljX3JlYWQoJnF1ZXVlLT5zZXRfcGNpX2ZsYWdzX2NvdW50KSkgewo+PiA+ICAJCQkJLyoK
+Pj4gPiAgCQkJCSAqIHRoZXJlJ3Mgbm8gb3V0c3RhbmRpbmcgUENJIGFueSBtb3JlLCBzbyB3ZQo+
+PiA+IC0JCQkJICogaGF2ZSB0byByZXF1ZXN0IGEgUENJIHRvIGJlIHN1cmUgdGhlIHRoZSBQQ0kK
+Pj4gPiArCQkJCSAqIGhhdmUgdG8gcmVxdWVzdCBhIFBDSSB0byBiZSBzdXJlIHRoZSBQQ0kKPj4g
+PiAgCQkJCSAqIHdpbGwgd2FrZSBhdCBzb21lIHRpbWUgaW4gdGhlIGZ1dHVyZSB0aGVuIHdlCj4+
+ID4gIAkJCQkgKiBjYW4gZmx1c2ggcGFja2VkIGJ1ZmZlcnMgdGhhdCBtaWdodCBzdGlsbCBiZQo+
+PiA+ICAJCQkJICogaGFuZ2luZyBhcm91bmQsIHdoaWNoIGNhbiBoYXBwZW4gaWYgbm8gIAo+PiAK
+Pj4gVGhpcyB0cml2aWFsIHR5cG8gaGFzIGJlZW4gc2VudCB0d2ljZSBhbHJlYWR5IHRvIHRoaXMg
+bWFpbGluZ2xpc3Q6Cj4+IGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL25ldGRldi9ZdGIxJTJGdVUr
+amxjSTRqWHdAbGktNGEzYTRhNGMtMjhlNS0xMWIyLWE4NWMtYThkMTkyYzZmMDg5LmlibS5jb20v
+VC8KPj4gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbmV0ZGV2LzdhOTM1NzMwLWYzYTUtMGIxZi0y
+YmRjLWE2Mjk3MTFhM2EwMUBsaW51eC5pYm0uY29tL3QvCj4KPlNvbWUgb2YgdGhlIGNvbW1lbnQg
+c3BlbGxpbmcgZml4ZXMgZ2V0IG5hY2tlZCBpbiBidWxrIChlLmcuIHRoZQo+cHJldmlvdXMgb25l
+IHdhcyBzZW50IHdpdGggYSBkYXRlIG9mIHRocmVlIGRheXMgcHJpb3IgdG8gdGhlIGFjdHVhbAo+
+cG9zdGluZykuIFNpbmNlIHRoZXkgYXJlIG5vdCBpbiBhIHRocmVhZCB0aGUgbmFja3MgYXJlIGhh
+cmQgdG8gc2VlLgo+T3IgbWF5YmUgdGhleSBnb3QgbG9zdCAnY2F1c2UgcGF0Y2h3b3JrIGRvZXMg
+bm90IHVuZGVyc3RhbmQKPmRyaXZlcnMvczM5MC9uZXQgaXMgbmV0ZGV2LiBBbnl3YXksIHRoaXMg
+b25lIGxvb2tzIGdvb2QsIHNvIGl0IHdpbGwKPmxpa2VseSBnbyBpbi4KWWVzLCBJIGp1c3QgdXBk
+YXRlZCBteSBsb2NhbCBsaW51eC1uZXh0IHRocmVhZC4gU28gaXQncyBoYXJkIHRvIGtub3cgd2hl
+dGhlciBvdGhlciB0aHJlYWQgaGFzIGFwcGxpZWQgc3VjaCBwYXRjaGVzLgpJdCBuZWVkcyB0aW1l
+IHRvIG1lcmdlIGNoYW5nZXMgYmV0d2VlbiBkaWZmZXJlbnQgdGhyZWFkcy4gRXNwZWNpYWxseSBm
+b3Igc29tZSBub24tZml4ZXMgY29tbWl0LgoKVGhhbmtzIQo=
