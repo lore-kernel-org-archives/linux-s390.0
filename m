@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67326CCA490
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Jul 2022 07:24:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8A5FCCA489
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Jul 2022 07:24:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238340AbiGZHYO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Jul 2022 03:24:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58634 "EHLO
+        id S238365AbiGZHYT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Jul 2022 03:24:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238218AbiGZHXZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Jul 2022 03:23:25 -0400
-Received: from out199-8.us.a.mail.aliyun.com (out199-8.us.a.mail.aliyun.com [47.90.199.8])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EDE02AC73;
-        Tue, 26 Jul 2022 00:23:17 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VKUN6a4_1658820190;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VKUN6a4_1658820190)
+        with ESMTP id S238235AbiGZHXb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Jul 2022 03:23:31 -0400
+Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF722B624;
+        Tue, 26 Jul 2022 00:23:21 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R681e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VKUOEy1_1658820193;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VKUOEy1_1658820193)
           by smtp.aliyun-inc.com;
-          Tue, 26 Jul 2022 15:23:11 +0800
+          Tue, 26 Jul 2022 15:23:14 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v13 23/42] virtio_ring: packed: introduce virtqueue_resize_packed()
-Date:   Tue, 26 Jul 2022 15:22:06 +0800
-Message-Id: <20220726072225.19884-24-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v13 25/42] virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
+Date:   Tue, 26 Jul 2022 15:22:08 +0800
+Message-Id: <20220726072225.19884-26-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
 References: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
@@ -66,62 +66,49 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-virtio ring packed supports resize.
+Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
+here https://github.com/oasis-tcs/virtio-spec/issues/89
 
-Only after the new vring is successfully allocated based on the new num,
-we will release the old vring. In any case, an error is returned,
-indicating that the vring still points to the old vring.
-
-In the case of an error, re-initialize(by virtqueue_reinit_packed()) the
-virtqueue to ensure that the vring can be used.
+Since I want to add queue_reset after queue_notify_data, I submitted
+this patch first.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ include/linux/virtio_pci_modern.h | 7 +++++++
+ include/uapi/linux/virtio_pci.h   | 1 +
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 7d4c444b5a9d..98bac8c389e8 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2040,6 +2040,36 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	return NULL;
- }
+diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+index eb2bd9b4077d..41f5a018bd94 100644
+--- a/include/linux/virtio_pci_modern.h
++++ b/include/linux/virtio_pci_modern.h
+@@ -5,6 +5,13 @@
+ #include <linux/pci.h>
+ #include <linux/virtio_pci.h>
  
-+static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
-+{
-+	struct vring_virtqueue_packed vring_packed = {};
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+	struct virtio_device *vdev = _vq->vdev;
-+	int err;
++struct virtio_pci_modern_common_cfg {
++	struct virtio_pci_common_cfg cfg;
 +
-+	if (vring_alloc_queue_packed(&vring_packed, vdev, num))
-+		goto err_ring;
++	__le16 queue_notify_data;	/* read-write */
++	__le16 padding;
++};
 +
-+	err = vring_alloc_state_extra_packed(&vring_packed);
-+	if (err)
-+		goto err_state_extra;
-+
-+	vring_free(&vq->vq);
-+
-+	virtqueue_vring_init_packed(&vring_packed, !!vq->vq.callback);
-+
-+	virtqueue_init(vq, vring_packed.vring.num);
-+	virtqueue_vring_attach_packed(vq, &vring_packed);
-+
-+	return 0;
-+
-+err_state_extra:
-+	vring_free_packed(&vring_packed, vdev);
-+err_ring:
-+	virtqueue_reinit_packed(vq);
-+	return -ENOMEM;
-+}
-+
+ struct virtio_pci_modern_device {
+ 	struct pci_dev *pci_dev;
  
- /*
-  * Generic functions and exported symbols.
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index 3a86f36d7e3d..f5981a874481 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -202,6 +202,7 @@ struct virtio_pci_cfg_cap {
+ #define VIRTIO_PCI_COMMON_Q_AVAILHI	44
+ #define VIRTIO_PCI_COMMON_Q_USEDLO	48
+ #define VIRTIO_PCI_COMMON_Q_USEDHI	52
++#define VIRTIO_PCI_COMMON_Q_NDATA	56
+ 
+ #endif /* VIRTIO_PCI_NO_MODERN */
+ 
 -- 
 2.31.0
 
