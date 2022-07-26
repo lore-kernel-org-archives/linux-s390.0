@@ -2,147 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B3CDC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Jul 2022 07:25:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2A62CCA489
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Jul 2022 08:02:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237783AbiGZHZx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Jul 2022 03:25:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58436 "EHLO
+        id S238136AbiGZICO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Jul 2022 04:02:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238446AbiGZHYv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Jul 2022 03:24:51 -0400
-Received: from out30-45.freemail.mail.aliyun.com (out30-45.freemail.mail.aliyun.com [115.124.30.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83872B61F;
-        Tue, 26 Jul 2022 00:23:53 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VKUIKA6_1658820225;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VKUIKA6_1658820225)
-          by smtp.aliyun-inc.com;
-          Tue, 26 Jul 2022 15:23:46 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     virtualization@lists.linux-foundation.org
-Cc:     Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        kangjie.xu@linux.alibaba.com
-Subject: [PATCH v13 42/42] virtio_net: support set_ringparam
-Date:   Tue, 26 Jul 2022 15:22:25 +0800
-Message-Id: <20220726072225.19884-43-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
-References: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
+        with ESMTP id S230377AbiGZICN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Jul 2022 04:02:13 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D892C137;
+        Tue, 26 Jul 2022 01:02:11 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26Q7M3Fo026351;
+        Tue, 26 Jul 2022 08:02:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=q1o+wp+3H+tiRXndFN/Uezrr/b1aVcwLIgpSwzhNqg8=;
+ b=jAj8nxY6/aVRS+/BOTeNg+AynWUBNsxPW3iCSIDP+IIrW8wqyRKQuxhRzDAbe3LzbWTk
+ JqWXAZHTQqrde/PjK1/i/EPrGQfEPfgTE7hcdTtC8nGoNL49He3moNtOVPPnpkhJrG58
+ nBTH3QUBWq1G5mqXZyDP3iNRNMBI+vw/8ZNYUw2VNbJpccslyHpi5z2ZfVH5//2lwugW
+ lWT71jYyQ2ZJ/xHW4IFxTWfKfVHGDuQK7Nne7j7TI2LS26bJPn5Vj71JTEYVzeNas0z4
+ ZPXI2JGYmLOVs4haw/uA+BS4rMFkthQwtC/ayV/6WBS4t8eiQ/PdnrKoUbKy24Fdu1lv Sg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hjbtns5u5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Jul 2022 08:02:07 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26Q7M7Pf026503;
+        Tue, 26 Jul 2022 08:02:06 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hjbtns5tq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Jul 2022 08:02:06 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26Q7pJJL021418;
+        Tue, 26 Jul 2022 08:02:05 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma04dal.us.ibm.com with ESMTP id 3hg989nq8c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Jul 2022 08:02:05 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26Q8246v49217948
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 26 Jul 2022 08:02:04 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AFDF0124052;
+        Tue, 26 Jul 2022 08:02:04 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B4953124055;
+        Tue, 26 Jul 2022 08:02:02 +0000 (GMT)
+Received: from [9.211.107.22] (unknown [9.211.107.22])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 26 Jul 2022 08:02:02 +0000 (GMT)
+Message-ID: <2d753a9e-a09f-d962-2eca-5bc81b34b0ec@linux.ibm.com>
+Date:   Tue, 26 Jul 2022 10:02:01 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.11.0
+Subject: Re: [PATCH net-next 0/4] net/smc: updates 2022-7-25
+To:     Tony Lu <tonylu@linux.alibaba.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>
+References: <20220725141000.70347-1-wenjia@linux.ibm.com>
+ <Yt9gDrS6Ag0Bd9id@TonyMac-Alibaba>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <Yt9gDrS6Ag0Bd9id@TonyMac-Alibaba>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: u-EzIDB5FjgErbXPF9VNPLenA8Ked4Mg
+X-Proofpoint-ORIG-GUID: d-mcD9YrWux2h8FFCB9wXwwbkGV5SLZ2
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-Git-Hash: 19d2a6aae0b1
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-26_02,2022-07-25_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 mlxscore=0 impostorscore=0 spamscore=0 malwarescore=0
+ lowpriorityscore=0 suspectscore=0 mlxlogscore=999 phishscore=0
+ adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207260028
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Support set_ringparam based on virtio queue reset.
 
-Users can use ethtool -G eth0 <ring_num> to modify the ring size of
-virtio-net.
+On 26.07.22 05:31, Tony Lu wrote:
+> On Mon, Jul 25, 2022 at 04:09:56PM +0200, Wenjia Zhang wrote:
+>> Hi Dave & Jakub,
+>>
+>> please apply the following patches to netdev's net-next tree.
+>>
+>> These patches do some preparation to make ISM available for uses beyond
+>> SMC-D, and a bunch of cleanups.
+>>
+>> Thanks,
+>> Wenjia
+> 
+> Hello Wenjia,
+> 
+> Making ISM available for others sounds great. I proposed a RFC [1] last
+> week. The RFC brings an ISM-like device to accelerate inter-VM scenario.
+> I am wondering the plan about this, which may help us. And hope to hear
+> from you about the RFC [1]. Thank you.
+> 
+> [1] https://lore.kernel.org/all/20220720170048.20806-1-tonylu@linux.alibaba.com/
+> 
+> Cheers,
+> Tony Lu
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 48 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+Hi Tony,
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d1e6940b46d8..59fc48c60403 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2329,6 +2329,53 @@ static void virtnet_get_ringparam(struct net_device *dev,
- 	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
- }
- 
-+static int virtnet_set_ringparam(struct net_device *dev,
-+				 struct ethtool_ringparam *ring,
-+				 struct kernel_ethtool_ringparam *kernel_ring,
-+				 struct netlink_ext_ack *extack)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	u32 rx_pending, tx_pending;
-+	struct receive_queue *rq;
-+	struct send_queue *sq;
-+	int i, err;
-+
-+	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
-+		return -EINVAL;
-+
-+	rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
-+	tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
-+
-+	if (ring->rx_pending == rx_pending &&
-+	    ring->tx_pending == tx_pending)
-+		return 0;
-+
-+	if (ring->rx_pending > vi->rq[0].vq->num_max)
-+		return -EINVAL;
-+
-+	if (ring->tx_pending > vi->sq[0].vq->num_max)
-+		return -EINVAL;
-+
-+	for (i = 0; i < vi->max_queue_pairs; i++) {
-+		rq = vi->rq + i;
-+		sq = vi->sq + i;
-+
-+		if (ring->tx_pending != tx_pending) {
-+			err = virtnet_tx_resize(vi, sq, ring->tx_pending);
-+			if (err)
-+				return err;
-+		}
-+
-+		if (ring->rx_pending != rx_pending) {
-+			err = virtnet_rx_resize(vi, rq, ring->rx_pending);
-+			if (err)
-+				return err;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static bool virtnet_commit_rss_command(struct virtnet_info *vi)
- {
- 	struct net_device *dev = vi->dev;
-@@ -2816,6 +2863,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
-+	.set_ringparam = virtnet_set_ringparam,
- 	.get_strings = virtnet_get_strings,
- 	.get_sset_count = virtnet_get_sset_count,
- 	.get_ethtool_stats = virtnet_get_ethtool_stats,
--- 
-2.31.0
+Thank you for the review first of all!
 
+Besides this serie of patches, we are working on some follow-on patches. 
+If you need, we can send you an RFC, so that you can adjust code 
+according to it.
+
+About the RFC you mentioned, it does look appealing even for us. But 
+still some in-house discussions are going on in order to make sure there 
+would be no risk for us. We will let you know as soon as we reach a 
+consensus.
+
+Best
+Wenjia
