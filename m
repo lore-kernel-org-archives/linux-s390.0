@@ -2,169 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C324CC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Jul 2022 21:18:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D17EC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Jul 2022 02:49:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236551AbiGYVSE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Jul 2022 17:18:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38984 "EHLO
+        id S237093AbiGZCtC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Jul 2022 22:49:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235544AbiGYVSD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Jul 2022 17:18:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 32EA0237D4
-        for <linux-s390@vger.kernel.org>; Mon, 25 Jul 2022 14:18:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658783881;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2NWyiHW5I2/geA1CEWbRzyNY6UqPET26DY1+YZLfRCI=;
-        b=TQaGcGumDzHSkPYeOe05yGCDFXAgOum0frFP2HQN4qq6UvQaydv3WdMFEhmNbu4fDPLeJD
-        2Y7u/3y8eVnn48SW+FFU0DWU/2W9T6ClBgWtq2WERdok8PI6TuorUy+98vx68QwMNqM2Hf
-        9ScvIDr/LSQKkksXv2NtD7wqaTGPYxU=
-Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
- [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-427-J3v_QzeNNlCj2mDhdM4xdg-1; Mon, 25 Jul 2022 17:17:59 -0400
-X-MC-Unique: J3v_QzeNNlCj2mDhdM4xdg-1
-Received: by mail-il1-f198.google.com with SMTP id d12-20020a056e02214c00b002dd143bee38so7971573ilv.7
-        for <linux-s390@vger.kernel.org>; Mon, 25 Jul 2022 14:17:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=2NWyiHW5I2/geA1CEWbRzyNY6UqPET26DY1+YZLfRCI=;
-        b=IMtin+rH9fsg1me/B3n60kHhPX1oGMXtP6qil2SAysyzcGAOgNS7IUf4/Fu0wQFV+U
-         EAXiI6SnfqUPXf/D2c6qCEI7LxDzLYA3ZLDJKJSCb9Z8tUoxAj7iWrGyx+JkrKvNa1GS
-         2Zzgr+a6uu8gZ/rJazIhWQvTSK+WHfqktcp2aQjh6aDfs/egPQj07zpeaQWf17aonITr
-         PHR/ZKrnCeQuUfy8BjNPxh+Hgrw2AEEIC6uCPEfHZjwirt8/Sb5VwJZTKykcoOcgYTVT
-         Cg39Pc52u1T7S3hPYeZ6+fT6U7xGEZKk2DSkDd52Oa6M9BMAIzc8XIEGgf/HrZ0xjUkU
-         5Bxg==
-X-Gm-Message-State: AJIora/Dseq3dzpvEm/RavFFZWnvlG2xtO2DuSfSQ+D1cN7VSLu1WRJf
-        FIIn9qreZIhOnNzPfxvRLigo8grc2rDs/XpHr4a95k6+hHZdhkNvFk2LVuLbZc0S4fkrVch8OhJ
-        vJKurvHDdKJNa9bK4GHtzbQ==
-X-Received: by 2002:a05:6e02:148c:b0:2dc:38ae:5c6a with SMTP id n12-20020a056e02148c00b002dc38ae5c6amr5550203ilk.115.1658783878650;
-        Mon, 25 Jul 2022 14:17:58 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uXwuWmhW15O2ymdEn2whv1cs+NjXgAHFLetXDjRt4kzq/rgyjNkTHVfDxBgkGk5gC+VO8tdQ==
-X-Received: by 2002:a05:6e02:148c:b0:2dc:38ae:5c6a with SMTP id n12-20020a056e02148c00b002dc38ae5c6amr5550196ilk.115.1658783878367;
-        Mon, 25 Jul 2022 14:17:58 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id h76-20020a6bb74f000000b0067baeb55e65sm6614546iof.38.2022.07.25.14.17.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Jul 2022 14:17:58 -0700 (PDT)
-Date:   Mon, 25 Jul 2022 15:17:55 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Nicolin Chen <nicolinc@nvidia.com>
-Cc:     <kwankhede@nvidia.com>, <corbet@lwn.net>, <hca@linux.ibm.com>,
-        <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
-        <zhenyuw@linux.intel.com>, <zhi.a.wang@intel.com>,
-        <jani.nikula@linux.intel.com>, <joonas.lahtinen@linux.intel.com>,
-        <rodrigo.vivi@intel.com>, <tvrtko.ursulin@linux.intel.com>,
-        <airlied@linux.ie>, <daniel@ffwll.ch>, <farman@linux.ibm.com>,
-        <mjrosato@linux.ibm.com>, <pasic@linux.ibm.com>,
-        <vneethv@linux.ibm.com>, <oberpar@linux.ibm.com>,
-        <freude@linux.ibm.com>, <akrowiak@linux.ibm.com>,
-        <jjherne@linux.ibm.com>, <cohuck@redhat.com>, <jgg@nvidia.com>,
-        <kevin.tian@intel.com>, <hch@infradead.org>,
-        <jchrist@linux.ibm.com>, <kvm@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>,
-        <intel-gvt-dev@lists.freedesktop.org>,
-        <intel-gfx@lists.freedesktop.org>,
-        <dri-devel@lists.freedesktop.org>, <terrence.xu@intel.com>
-Subject: Re: [PATCH v4 00/10] cover-letter: Update vfio_pin/unpin_pages API
-Message-ID: <20220725151755.12d53f2e.alex.williamson@redhat.com>
-In-Reply-To: <20220723020256.30081-1-nicolinc@nvidia.com>
-References: <20220723020256.30081-1-nicolinc@nvidia.com>
-Organization: Red Hat
+        with ESMTP id S237265AbiGZCtA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Jul 2022 22:49:00 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF29029C90;
+        Mon, 25 Jul 2022 19:48:57 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R481e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VKTDtRm_1658803734;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VKTDtRm_1658803734)
+          by smtp.aliyun-inc.com;
+          Tue, 26 Jul 2022 10:48:55 +0800
+Date:   Tue, 26 Jul 2022 10:48:54 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>
+Subject: Re: [PATCH net-next 1/4] net/smc: Eliminate struct smc_ism_position
+Message-ID: <Yt9WFkDYP+N+bS+4@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20220725141000.70347-1-wenjia@linux.ibm.com>
+ <20220725141000.70347-2-wenjia@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220725141000.70347-2-wenjia@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 22 Jul 2022 19:02:46 -0700
-Nicolin Chen <nicolinc@nvidia.com> wrote:
+On Mon, Jul 25, 2022 at 04:09:57PM +0200, Wenjia Zhang wrote:
+> From: Heiko Carstens <hca@linux.ibm.com>
+> 
+> This struct is used in a single place only, and its usage generates
+> inefficient code. Time to clean up!
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> Reviewed-and-tested-by: Stefan Raspl <raspl@linux.ibm.com>
+> Signed-off-by: Wenjia Zhang < wenjia@linux.ibm.com>
 
-> This is a preparatory series for IOMMUFD v2 patches. It prepares for
-> replacing vfio_iommu_type1 implementations of vfio_pin/unpin_pages()
-> with IOMMUFD version.
-> 
-> There's a gap between these two versions: the vfio_iommu_type1 version
-> inputs a non-contiguous PFN list and outputs another PFN list for the
-> pinned physical page list, while the IOMMUFD version only supports a
-> contiguous address input by accepting the starting IO virtual address
-> of a set of pages to pin and by outputting to a physical page list.
-> 
-> The nature of existing callers mostly aligns with the IOMMUFD version,
-> except s390's vfio_ccw_cp code where some additional change is needed
-> along with this series. Overall, updating to "iova" and "phys_page"
-> does improve the caller side to some extent.
-> 
-> Also fix a misuse of physical address and virtual address in the s390's
-> crypto code. And update the input naming at the adjacent vfio_dma_rw().
-> 
-> This is on github:
-> https://github.com/nicolinc/iommufd/commits/vfio_pin_pages-v4
-> 
-> Terrence has tested this series on i915; Eric has tested on s390.
-> 
-> Thanks!
-> 
-> Changelog
-> v4:
->  * Dropped double-shifting at two gvt_unpin_guest_page calls, fixing
->    a bug that's discovered by Alex
->  * Added Reviewed-by from Anthony Krowiak
->  * Rebased on top of linux-vfio's next
-> v3: https://lore.kernel.org/kvm/20220708224427.1245-1-nicolinc@nvidia.com/
->  * Added a patch to replace roundup with DIV_ROUND_UP in i915 gvt
->  * Dropped the "driver->ops->unpin_pages" and NULL checks in PATCH-1
->  * Changed to use WARN_ON and separate into lines in PATCH-1
->  * Replaced "guest" words with "user" and fix typo in PATCH-5
->  * Updated commit log of PATCH-1, PATCH-6, and PATCH-10
->  * Added Reviewed/Acked-by from Christoph, Jason, Kirti, Kevin and Eric
->  * Added Tested-by from Terrence (i915) and Eric (s390)
-> v2: https://lore.kernel.org/kvm/20220706062759.24946-1-nicolinc@nvidia.com/
->  * Added a patch to make vfio_unpin_pages return void
->  * Added two patches to remove PFN list from two s390 callers
->  * Renamed "phys_page" parameter to "pages" for vfio_pin_pages
->  * Updated commit log of kmap_local_page() patch
->  * Added Harald's "Reviewed-by" to pa_ind patch
->  * Rebased on top of Alex's extern removal path
-> v1: https://lore.kernel.org/kvm/20220616235212.15185-1-nicolinc@nvidia.com/
-> 
-> Nicolin Chen (10):
->   vfio: Make vfio_unpin_pages() return void
->   drm/i915/gvt: Replace roundup with DIV_ROUND_UP
->   vfio/ap: Pass in physical address of ind to ap_aqic()
->   vfio/ccw: Only pass in contiguous pages
->   vfio: Pass in starting IOVA to vfio_pin/unpin_pages API
->   vfio/ap: Change saved_pfn to saved_iova
->   vfio/ccw: Change pa_pfn list to pa_iova list
->   vfio: Rename user_iova of vfio_dma_rw()
->   vfio/ccw: Add kmap_local_page() for memcpy
->   vfio: Replace phys_pfn with pages for vfio_pin_pages()
-> 
->  .../driver-api/vfio-mediated-device.rst       |   6 +-
->  arch/s390/include/asm/ap.h                    |   6 +-
->  drivers/gpu/drm/i915/gvt/kvmgt.c              |  45 ++--
->  drivers/s390/cio/vfio_ccw_cp.c                | 195 +++++++++++-------
->  drivers/s390/crypto/ap_queue.c                |   2 +-
->  drivers/s390/crypto/vfio_ap_ops.c             |  54 +++--
->  drivers/s390/crypto/vfio_ap_private.h         |   4 +-
->  drivers/vfio/vfio.c                           |  54 ++---
->  drivers/vfio/vfio.h                           |   8 +-
->  drivers/vfio/vfio_iommu_type1.c               |  45 ++--
->  include/linux/vfio.h                          |   9 +-
->  11 files changed, 213 insertions(+), 215 deletions(-)
-> 
+This patch looks good to me.
 
-Applied to vfio next branch for v5.20.  Thanks,
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
 
-Alex
-
+> ---
+>  net/smc/smc_ism.c | 11 -----------
+>  net/smc/smc_ism.h | 20 +++++++++++---------
+>  net/smc/smc_tx.c  | 10 +++-------
+>  3 files changed, 14 insertions(+), 27 deletions(-)
+> 
+> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+> index a2084ecdb97e..c656ef25ee4b 100644
+> --- a/net/smc/smc_ism.c
+> +++ b/net/smc/smc_ism.c
+> @@ -33,17 +33,6 @@ int smc_ism_cantalk(u64 peer_gid, unsigned short vlan_id, struct smcd_dev *smcd)
+>  					   vlan_id);
+>  }
+>  
+> -int smc_ism_write(struct smcd_dev *smcd, const struct smc_ism_position *pos,
+> -		  void *data, size_t len)
+> -{
+> -	int rc;
+> -
+> -	rc = smcd->ops->move_data(smcd, pos->token, pos->index, pos->signal,
+> -				  pos->offset, data, len);
+> -
+> -	return rc < 0 ? rc : 0;
+> -}
+> -
+>  void smc_ism_get_system_eid(u8 **eid)
+>  {
+>  	if (!smc_ism_v2_capable)
+> diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+> index 004b22a13ffa..d6b2db604fe8 100644
+> --- a/net/smc/smc_ism.h
+> +++ b/net/smc/smc_ism.h
+> @@ -28,13 +28,6 @@ struct smc_ism_vlanid {			/* VLAN id set on ISM device */
+>  	refcount_t refcnt;		/* Reference count */
+>  };
+>  
+> -struct smc_ism_position {	/* ISM device position to write to */
+> -	u64 token;		/* Token of DMB */
+> -	u32 offset;		/* Offset into DMBE */
+> -	u8 index;		/* Index of DMBE */
+> -	u8 signal;		/* Generate interrupt on owner side */
+> -};
+> -
+>  struct smcd_dev;
+>  
+>  int smc_ism_cantalk(u64 peer_gid, unsigned short vlan_id, struct smcd_dev *dev);
+> @@ -45,12 +38,21 @@ int smc_ism_put_vlan(struct smcd_dev *dev, unsigned short vlan_id);
+>  int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
+>  			 struct smc_buf_desc *dmb_desc);
+>  int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
+> -int smc_ism_write(struct smcd_dev *dev, const struct smc_ism_position *pos,
+> -		  void *data, size_t len);
+>  int smc_ism_signal_shutdown(struct smc_link_group *lgr);
+>  void smc_ism_get_system_eid(u8 **eid);
+>  u16 smc_ism_get_chid(struct smcd_dev *dev);
+>  bool smc_ism_is_v2_capable(void);
+>  void smc_ism_init(void);
+>  int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+> +
+> +static inline int smc_ism_write(struct smcd_dev *smcd, u64 dmb_tok,
+> +				unsigned int idx, bool sf, unsigned int offset,
+> +				void *data, size_t len)
+> +{
+> +	int rc;
+> +
+> +	rc = smcd->ops->move_data(smcd, dmb_tok, idx, sf, offset, data, len);
+> +	return rc < 0 ? rc : 0;
+> +}
+> +
+>  #endif
+> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+> index 4e8377657a62..64dedffe9d26 100644
+> --- a/net/smc/smc_tx.c
+> +++ b/net/smc/smc_tx.c
+> @@ -320,15 +320,11 @@ int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
+>  int smcd_tx_ism_write(struct smc_connection *conn, void *data, size_t len,
+>  		      u32 offset, int signal)
+>  {
+> -	struct smc_ism_position pos;
+>  	int rc;
+>  
+> -	memset(&pos, 0, sizeof(pos));
+> -	pos.token = conn->peer_token;
+> -	pos.index = conn->peer_rmbe_idx;
+> -	pos.offset = conn->tx_off + offset;
+> -	pos.signal = signal;
+> -	rc = smc_ism_write(conn->lgr->smcd, &pos, data, len);
+> +	rc = smc_ism_write(conn->lgr->smcd, conn->peer_token,
+> +			   conn->peer_rmbe_idx, signal, conn->tx_off + offset,
+> +			   data, len);
+>  	if (rc)
+>  		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
+>  	return rc;
+> -- 
+> 2.35.2
