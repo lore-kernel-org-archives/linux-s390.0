@@ -2,23 +2,23 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77A52C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Jul 2022 02:55:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA3B6C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Jul 2022 03:12:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229853AbiGZCy7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Jul 2022 22:54:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47826 "EHLO
+        id S231795AbiGZDMK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Jul 2022 23:12:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230133AbiGZCy7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Jul 2022 22:54:59 -0400
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCE13643F;
-        Mon, 25 Jul 2022 19:54:57 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R841e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VKTDade_1658804094;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VKTDade_1658804094)
+        with ESMTP id S230433AbiGZDMJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Jul 2022 23:12:09 -0400
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50F82A25F;
+        Mon, 25 Jul 2022 20:12:03 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VKTOx0y_1658805120;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VKTOx0y_1658805120)
           by smtp.aliyun-inc.com;
-          Tue, 26 Jul 2022 10:54:55 +0800
-Date:   Tue, 26 Jul 2022 10:54:54 +0800
+          Tue, 26 Jul 2022 11:12:00 +0800
+Date:   Tue, 26 Jul 2022 11:11:59 +0800
 From:   Tony Lu <tonylu@linux.alibaba.com>
 To:     Wenjia Zhang <wenjia@linux.ibm.com>
 Cc:     David Miller <davem@davemloft.net>,
@@ -27,59 +27,94 @@ Cc:     David Miller <davem@davemloft.net>,
         Karsten Graul <kgraul@linux.ibm.com>,
         Alexandra Winter <wintera@linux.ibm.com>,
         Stefan Raspl <raspl@linux.ibm.com>
-Subject: Re: [PATCH net-next 4/4] net/smc: Enable module load on netlink usage
-Message-ID: <Yt9Xfv0bN0AGMdGP@TonyMac-Alibaba>
+Subject: Re: [PATCH net-next 3/4] net/smc: Pass on DMBE bit mask in IRQ
+ handler
+Message-ID: <Yt9bf/u0M2bjRvLI@TonyMac-Alibaba>
 Reply-To: Tony Lu <tonylu@linux.alibaba.com>
 References: <20220725141000.70347-1-wenjia@linux.ibm.com>
- <20220725141000.70347-5-wenjia@linux.ibm.com>
+ <20220725141000.70347-4-wenjia@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220725141000.70347-5-wenjia@linux.ibm.com>
+In-Reply-To: <20220725141000.70347-4-wenjia@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jul 25, 2022 at 04:10:00PM +0200, Wenjia Zhang wrote:
+On Mon, Jul 25, 2022 at 04:09:59PM +0200, Wenjia Zhang wrote:
 > From: Stefan Raspl <raspl@linux.ibm.com>
 > 
-> Previously, the smc and smc_diag modules were automatically loaded as
-> dependencies of the ism module whenever an ISM device was present.
-> With the pending rework of the ISM API, the smc module will no longer
-> automatically be loaded in presence of an ISM device. Usage of an AF_SMC
-> socket will still trigger loading of the smc modules, but usage of a
-> netlink socket will not.
-> This is addressed by setting the correct module aliases.
+> Make the DMBE bits, which are passed on individually in ism_move() as
+> parameter idx, available to the receiver.
 > 
 > Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
 > Signed-off-by: Wenjia Zhang < wenjia@linux.ibm.com>
 
-This patch looks good to me.
+LGTM.
 
 Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
 
 > ---
->  net/smc/af_smc.c   | 1 +
->  net/smc/smc_diag.c | 1 +
->  2 files changed, 2 insertions(+)
+>  drivers/s390/net/ism_drv.c | 4 +++-
+>  include/net/smc.h          | 2 +-
+>  net/smc/smc_ism.c          | 6 +++---
+>  3 files changed, 7 insertions(+), 5 deletions(-)
 > 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 6e70d9c10b78..79c1318af1fe 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -3515,3 +3515,4 @@ MODULE_DESCRIPTION("smc socket address family");
->  MODULE_LICENSE("GPL");
->  MODULE_ALIAS_NETPROTO(PF_SMC);
->  MODULE_ALIAS_TCP_ULP("smc");
-> +MODULE_ALIAS_GENL_FAMILY(SMC_GENL_FAMILY_NAME);
-> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-> index 1fca2f90a9c7..80ea7d954ece 100644
-> --- a/net/smc/smc_diag.c
-> +++ b/net/smc/smc_diag.c
-> @@ -268,3 +268,4 @@ module_init(smc_diag_init);
->  module_exit(smc_diag_exit);
->  MODULE_LICENSE("GPL");
->  MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 43 /* AF_SMC */);
-> +MODULE_ALIAS_GENL_FAMILY(SMCR_GENL_FAMILY_NAME);
+> diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+> index 4665e9a0e048..d34bb6ec1490 100644
+> --- a/drivers/s390/net/ism_drv.c
+> +++ b/drivers/s390/net/ism_drv.c
+> @@ -443,6 +443,7 @@ static irqreturn_t ism_handle_irq(int irq, void *data)
+>  	struct ism_dev *ism = data;
+>  	unsigned long bit, end;
+>  	unsigned long *bv;
+> +	u16 dmbemask;
+>  
+>  	bv = (void *) &ism->sba->dmb_bits[ISM_DMB_WORD_OFFSET];
+>  	end = sizeof(ism->sba->dmb_bits) * BITS_PER_BYTE - ISM_DMB_BIT_OFFSET;
+> @@ -456,9 +457,10 @@ static irqreturn_t ism_handle_irq(int irq, void *data)
+>  			break;
+>  
+>  		clear_bit_inv(bit, bv);
+> +		dmbemask = ism->sba->dmbe_mask[bit + ISM_DMB_BIT_OFFSET];
+>  		ism->sba->dmbe_mask[bit + ISM_DMB_BIT_OFFSET] = 0;
+>  		barrier();
+> -		smcd_handle_irq(ism->smcd, bit + ISM_DMB_BIT_OFFSET);
+> +		smcd_handle_irq(ism->smcd, bit + ISM_DMB_BIT_OFFSET, dmbemask);
+>  	}
+>  
+>  	if (ism->sba->e) {
+> diff --git a/include/net/smc.h b/include/net/smc.h
+> index 1868a5014dea..c926d3313e05 100644
+> --- a/include/net/smc.h
+> +++ b/include/net/smc.h
+> @@ -101,5 +101,5 @@ int smcd_register_dev(struct smcd_dev *smcd);
+>  void smcd_unregister_dev(struct smcd_dev *smcd);
+>  void smcd_free_dev(struct smcd_dev *smcd);
+>  void smcd_handle_event(struct smcd_dev *dev, struct smcd_event *event);
+> -void smcd_handle_irq(struct smcd_dev *dev, unsigned int bit);
+> +void smcd_handle_irq(struct smcd_dev *dev, unsigned int bit, u16 dmbemask);
+>  #endif	/* _SMC_H */
+> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+> index e51c0cdff8e0..911fe08bc54b 100644
+> --- a/net/smc/smc_ism.c
+> +++ b/net/smc/smc_ism.c
+> @@ -508,13 +508,13 @@ void smcd_handle_event(struct smcd_dev *smcd, struct smcd_event *event)
+>  EXPORT_SYMBOL_GPL(smcd_handle_event);
+>  
+>  /* SMCD Device interrupt handler. Called from ISM device interrupt handler.
+> - * Parameters are smcd device pointer and DMB number. Find the connection and
+> - * schedule the tasklet for this connection.
+> + * Parameters are smcd device pointer, DMB number, and the DMBE bitmask.
+> + * Find the connection and schedule the tasklet for this connection.
+>   *
+>   * Context:
+>   * - Function called in IRQ context from ISM device driver IRQ handler.
+>   */
+> -void smcd_handle_irq(struct smcd_dev *smcd, unsigned int dmbno)
+> +void smcd_handle_irq(struct smcd_dev *smcd, unsigned int dmbno, u16 dmbemask)
+>  {
+>  	struct smc_connection *conn = NULL;
+>  	unsigned long flags;
 > -- 
 > 2.35.2
