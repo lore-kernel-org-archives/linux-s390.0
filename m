@@ -2,66 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03610C19F21
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Jul 2022 04:29:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC746C3F6B0
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Jul 2022 04:33:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240247AbiG0E36 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Jul 2022 00:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60644 "EHLO
+        id S240339AbiG0EdZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Jul 2022 00:33:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229526AbiG0E35 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Jul 2022 00:29:57 -0400
+        with ESMTP id S240311AbiG0EdX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Jul 2022 00:33:23 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 552E63CBEA
-        for <linux-s390@vger.kernel.org>; Tue, 26 Jul 2022 21:29:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7AF6D3C169
+        for <linux-s390@vger.kernel.org>; Tue, 26 Jul 2022 21:33:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658896195;
+        s=mimecast20190719; t=1658896400;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=m3R1yCR4JjKjOL2e44LtMos911qHy0R24gXLvjAAiWw=;
-        b=huqhHaiKIe9msZ9SdjhFmrYyyy3nsnEczEYgqzsT1Fvam23o5dCG0SMeajtUNiX7p2NL0N
-        Ae6XPk0FqyEpccRPgQ+88hRpYYwtDwDgmdL5bEh4ucxeeGMVGzsCFhO0ACmc1WuwCMd42T
-        6fFJ0VucxZTU7a6n4IHBS4VtTzrSCQc=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=ODRM0zSUIZaPgOR8/bpOMiGz6jK2MmkN3FU9v6SxAsc=;
+        b=WAswvh8MzCdXViaMgSasenGiJpv2MGICPpKlxKLVAbQ2XG09weSWIPoPSxBswk2s6R09UL
+        bpGtSVzsoDa3t3KNw/rFuYF2y8K9LDQSdaoK5Jfd2UX/n3o0TXMHe0FCFkPVVdVwXptnFP
+        mLy99rODXJLjbtCHCoUADSPp2ZC71XA=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-614-XbxwR46ROZ-cnuPALh_-wQ-1; Wed, 27 Jul 2022 00:29:53 -0400
-X-MC-Unique: XbxwR46ROZ-cnuPALh_-wQ-1
-Received: by mail-pj1-f71.google.com with SMTP id i12-20020a17090a4b8c00b001f20db22239so537079pjh.3
-        for <linux-s390@vger.kernel.org>; Tue, 26 Jul 2022 21:29:53 -0700 (PDT)
+ us-mta-60-VxJgVxn9N2Ohrga8oPvGug-1; Wed, 27 Jul 2022 00:33:19 -0400
+X-MC-Unique: VxJgVxn9N2Ohrga8oPvGug-1
+Received: by mail-pj1-f72.google.com with SMTP id q12-20020a17090aa00c00b001f228eb8b84so550715pjp.3
+        for <linux-s390@vger.kernel.org>; Tue, 26 Jul 2022 21:33:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=m3R1yCR4JjKjOL2e44LtMos911qHy0R24gXLvjAAiWw=;
-        b=VWvoc10kpG00t6N0z7sYEY7F1NwUTTB7zx34afdY/zhRm7Dz+bBP4To84Kp8lzo2GS
-         2bb1qXbqSA8NiQf6cXbSP2EnBrqpCDw/FHW9duxUdyZqJbQ5w13WjssZoQUTVFbu8EmV
-         MWbOs5nybdWDJtOWAOTl5kXjJOdRuDRGCc/4MVdM6fx3J5T7/0641bzC417r5C6rwi0N
-         1NO8zR5nKUQMuor/NxmRqFMDjeBgPUjIDEataP9yXLB8uKx9Nx1qfSD1ccRafEBEGmtD
-         +HbKJKeTZcOfC8Ryo2qoy+QHWh6IdAjl3LyyiYSYoH7rTN958/xL/gd7Y3szOzK5WCC2
-         4/lA==
-X-Gm-Message-State: AJIora9FKArAHw55/Vmy1Cop/4hLSJ+PcwohSuSXHZqMJu37V7zZEImr
-        ObOneROW5hoDauyCZIXOBoS3zQyq1u0KSXWHGBqbAQjNTW5hy7LdprNqFI2uNU5+otHm5UTrMNK
-        Qr1+fXAKFIoD4tnuyVfUvWw==
-X-Received: by 2002:a62:29c3:0:b0:52b:f774:7242 with SMTP id p186-20020a6229c3000000b0052bf7747242mr12643001pfp.67.1658896192589;
-        Tue, 26 Jul 2022 21:29:52 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uJEmlIFJw4XLwcoDuJY/DA3iRQl4vi72zW5Nqvakm1GQ10IUCcyGSf9WmnEO/2tbD5Ja9IXw==
-X-Received: by 2002:a62:29c3:0:b0:52b:f774:7242 with SMTP id p186-20020a6229c3000000b0052bf7747242mr12642976pfp.67.1658896192306;
-        Tue, 26 Jul 2022 21:29:52 -0700 (PDT)
+        bh=ODRM0zSUIZaPgOR8/bpOMiGz6jK2MmkN3FU9v6SxAsc=;
+        b=mxj21lMpBM/zaSQSCMnBpmIcdwuDqzi/xOnIQazPZkkRfaTL/nS9hGDhXTJQODvlGP
+         BKqm+rIK4XPrqPtijX55BqI3iGsgFQT0jZ6yE2qCfX7yNNVDZsOhMnv8DLr3Mov1yNo/
+         FCU/KQAP/d+HQcJXIK6w84Gx7OJWE9nDNRNgliDRPTo5Ab3o89SgEDJpmfOVOBhRs+hP
+         TOOE9xzSQZv7z4xiMM02HouAQxRlNhADoRdxu8cX29o5mLn7xNynHvipTRb0otoJ37bI
+         UiGsSKHiSouE2ozvVxZNeb8V1R9LiK6UBPOmd4/4UQLjvrCVpKUxq1i+nwlN+B+liFY9
+         XpXg==
+X-Gm-Message-State: AJIora/BvckIZex7WvTRUjoIvXmeQVxtpJaSWPhKElopKbe0yTVhIwG3
+        FUtDD0JaNclOqxfxH+xUilq7dCrgquLp++ngAWqPMyhcwubCZZXvue9dn8elIdiSDBxWveIZhMc
+        B4Ws5+YakNuCrTeehBQePOA==
+X-Received: by 2002:a63:20e:0:b0:41a:f82c:daef with SMTP id 14-20020a63020e000000b0041af82cdaefmr10287826pgc.165.1658896397834;
+        Tue, 26 Jul 2022 21:33:17 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1tIGltlGmjqdvnQ8FUe2CBzMPphXcR7MEQHTWNTxKvA35C4DAmnE0tnwBMKdB4Yu1yuPE5jjw==
+X-Received: by 2002:a63:20e:0:b0:41a:f82c:daef with SMTP id 14-20020a63020e000000b0041af82cdaefmr10287789pgc.165.1658896397576;
+        Tue, 26 Jul 2022 21:33:17 -0700 (PDT)
 Received: from [10.72.12.96] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id d4-20020a17090abf8400b001f10b31e7a7sm469679pjs.32.2022.07.26.21.29.41
+        by smtp.gmail.com with ESMTPSA id w184-20020a6230c1000000b0052b84ca900csm12590905pfw.62.2022.07.26.21.33.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Jul 2022 21:29:51 -0700 (PDT)
-Message-ID: <4de63999-2c35-3208-709b-2a67d696fec6@redhat.com>
-Date:   Wed, 27 Jul 2022 12:29:37 +0800
+        Tue, 26 Jul 2022 21:33:16 -0700 (PDT)
+Message-ID: <d290e282-1a9d-b339-73e6-c66740f00b89@redhat.com>
+Date:   Wed, 27 Jul 2022 12:33:03 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH v13 18/42] virtio_ring: packed: extract the logic of alloc
- queue
+Subject: Re: [PATCH v13 19/42] virtio_ring: packed: extract the logic of alloc
+ state and extra
 Content-Language: en-US
 To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         virtualization@lists.linux-foundation.org
@@ -97,9 +97,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
 References: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
- <20220726072225.19884-19-xuanzhuo@linux.alibaba.com>
+ <20220726072225.19884-20-xuanzhuo@linux.alibaba.com>
 From:   Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220726072225.19884-19-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220726072225.19884-20-xuanzhuo@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -108,9 +108,10 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 
 在 2022/7/26 15:22, Xuan Zhuo 写道:
-> Separate the logic of packed to create vring queue.
+> Separate the logic for alloc desc_state and desc_extra, which will
+> be called separately by subsequent patches.
 >
-> This feature is required for subsequent virtuqueue reset vring.
+> Use struct vring_packed to pass desc_state, desc_extra.
 >
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
@@ -119,134 +120,88 @@ Acked-by: Jason Wang <jasowang@redhat.com>
 
 
 > ---
->   drivers/virtio/virtio_ring.c | 80 +++++++++++++++++++++++-------------
->   1 file changed, 51 insertions(+), 29 deletions(-)
+>   drivers/virtio/virtio_ring.c | 48 +++++++++++++++++++++++++-----------
+>   1 file changed, 34 insertions(+), 14 deletions(-)
 >
 > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 891900b31c3d..10cc2b7e3588 100644
+> index 10cc2b7e3588..32590d763c3b 100644
 > --- a/drivers/virtio/virtio_ring.c
 > +++ b/drivers/virtio/virtio_ring.c
-> @@ -1857,19 +1857,10 @@ static void vring_free_packed(struct vring_virtqueue_packed *vring_packed,
->   	kfree(vring_packed->desc_extra);
+> @@ -1908,6 +1908,33 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
+>   	return -ENOMEM;
 >   }
 >   
-> -static struct virtqueue *vring_create_virtqueue_packed(
-> -	unsigned int index,
-> -	unsigned int num,
-> -	unsigned int vring_align,
-> -	struct virtio_device *vdev,
-> -	bool weak_barriers,
-> -	bool may_reduce_num,
-> -	bool context,
-> -	bool (*notify)(struct virtqueue *),
-> -	void (*callback)(struct virtqueue *),
-> -	const char *name)
-> +static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
-> +				    struct virtio_device *vdev,
-> +				    u32 num)
->   {
-> -	struct vring_virtqueue *vq;
->   	struct vring_packed_desc *ring;
->   	struct vring_packed_desc_event *driver, *device;
->   	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_addr;
-> @@ -1881,7 +1872,11 @@ static struct virtqueue *vring_create_virtqueue_packed(
->   				 &ring_dma_addr,
->   				 GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
->   	if (!ring)
-> -		goto err_ring;
-> +		goto err;
+> +static int vring_alloc_state_extra_packed(struct vring_virtqueue_packed *vring_packed)
+> +{
+> +	struct vring_desc_state_packed *state;
+> +	struct vring_desc_extra *extra;
+> +	u32 num = vring_packed->vring.num;
 > +
-> +	vring_packed->vring.desc         = ring;
-> +	vring_packed->ring_dma_addr      = ring_dma_addr;
-> +	vring_packed->ring_size_in_bytes = ring_size_in_bytes;
->   
->   	event_size_in_bytes = sizeof(struct vring_packed_desc_event);
->   
-> @@ -1889,13 +1884,47 @@ static struct virtqueue *vring_create_virtqueue_packed(
->   				   &driver_event_dma_addr,
->   				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
->   	if (!driver)
-> -		goto err_driver;
-> +		goto err;
+> +	state = kmalloc_array(num, sizeof(struct vring_desc_state_packed), GFP_KERNEL);
+> +	if (!state)
+> +		goto err_desc_state;
 > +
-> +	vring_packed->vring.driver          = driver;
-> +	vring_packed->event_size_in_bytes   = event_size_in_bytes;
-> +	vring_packed->driver_event_dma_addr = driver_event_dma_addr;
->   
->   	device = vring_alloc_queue(vdev, event_size_in_bytes,
->   				   &device_event_dma_addr,
->   				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
->   	if (!device)
-> -		goto err_device;
-> +		goto err;
+> +	memset(state, 0, num * sizeof(struct vring_desc_state_packed));
 > +
-> +	vring_packed->vring.device          = device;
-> +	vring_packed->device_event_dma_addr = device_event_dma_addr;
+> +	extra = vring_alloc_desc_extra(num);
+> +	if (!extra)
+> +		goto err_desc_extra;
 > +
-> +	vring_packed->vring.num = num;
+> +	vring_packed->desc_state = state;
+> +	vring_packed->desc_extra = extra;
 > +
 > +	return 0;
 > +
-> +err:
-> +	vring_free_packed(vring_packed, vdev);
+> +err_desc_extra:
+> +	kfree(state);
+> +err_desc_state:
 > +	return -ENOMEM;
 > +}
 > +
-> +static struct virtqueue *vring_create_virtqueue_packed(
-> +	unsigned int index,
-> +	unsigned int num,
-> +	unsigned int vring_align,
-> +	struct virtio_device *vdev,
-> +	bool weak_barriers,
-> +	bool may_reduce_num,
-> +	bool context,
-> +	bool (*notify)(struct virtqueue *),
-> +	void (*callback)(struct virtqueue *),
-> +	const char *name)
-> +{
-> +	struct vring_virtqueue_packed vring_packed = {};
-> +	struct vring_virtqueue *vq;
-> +
-> +	if (vring_alloc_queue_packed(&vring_packed, vdev, num))
-> +		goto err_ring;
+>   static struct virtqueue *vring_create_virtqueue_packed(
+>   	unsigned int index,
+>   	unsigned int num,
+> @@ -1922,6 +1949,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>   {
+>   	struct vring_virtqueue_packed vring_packed = {};
+>   	struct vring_virtqueue *vq;
+> +	int err;
 >   
->   	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
->   	if (!vq)
-> @@ -1918,17 +1947,14 @@ static struct virtqueue *vring_create_virtqueue_packed(
->   	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
->   		!context;
+>   	if (vring_alloc_queue_packed(&vring_packed, vdev, num))
+>   		goto err_ring;
+> @@ -1961,18 +1989,12 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>   	vq->packed.event_flags_shadow = 0;
+>   	vq->packed.avail_used_flags = 1 << VRING_PACKED_DESC_F_AVAIL;
 >   
-> -	vq->packed.ring_dma_addr = ring_dma_addr;
-> -	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
-> -	vq->packed.device_event_dma_addr = device_event_dma_addr;
-> +	vq->packed.ring_dma_addr = vring_packed.ring_dma_addr;
-> +	vq->packed.driver_event_dma_addr = vring_packed.driver_event_dma_addr;
-> +	vq->packed.device_event_dma_addr = vring_packed.device_event_dma_addr;
+> -	vq->packed.desc_state = kmalloc_array(num,
+> -			sizeof(struct vring_desc_state_packed),
+> -			GFP_KERNEL);
+> -	if (!vq->packed.desc_state)
+> -		goto err_desc_state;
+> -
+> -	memset(vq->packed.desc_state, 0,
+> -		num * sizeof(struct vring_desc_state_packed));
+> +	err = vring_alloc_state_extra_packed(&vring_packed);
+> +	if (err)
+> +		goto err_state_extra;
 >   
-> -	vq->packed.ring_size_in_bytes = ring_size_in_bytes;
-> -	vq->packed.event_size_in_bytes = event_size_in_bytes;
-> +	vq->packed.ring_size_in_bytes = vring_packed.ring_size_in_bytes;
-> +	vq->packed.event_size_in_bytes = vring_packed.event_size_in_bytes;
+> -	vq->packed.desc_extra = vring_alloc_desc_extra(num);
+> -	if (!vq->packed.desc_extra)
+> -		goto err_desc_extra;
+> +	vq->packed.desc_state = vring_packed.desc_state;
+> +	vq->packed.desc_extra = vring_packed.desc_extra;
 >   
-> -	vq->packed.vring.num = num;
-> -	vq->packed.vring.desc = ring;
-> -	vq->packed.vring.driver = driver;
-> -	vq->packed.vring.device = device;
-> +	vq->packed.vring = vring_packed.vring;
+>   	/* No callback?  Tell other side not to bother us. */
+>   	if (!callback) {
+> @@ -1988,9 +2010,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>   	spin_unlock(&vdev->vqs_list_lock);
+>   	return &vq->vq;
 >   
->   	vq->packed.next_avail_idx = 0;
->   	vq->packed.avail_wrap_counter = 1;
-> @@ -1967,11 +1993,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
->   err_desc_state:
+> -err_desc_extra:
+> -	kfree(vq->packed.desc_state);
+> -err_desc_state:
+> +err_state_extra:
 >   	kfree(vq);
 >   err_vq:
-> -	vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
-> -err_device:
-> -	vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dma_addr);
-> -err_driver:
-> -	vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
-> +	vring_free_packed(&vring_packed, vdev);
->   err_ring:
->   	return NULL;
->   }
+>   	vring_free_packed(&vring_packed, vdev);
 
