@@ -2,141 +2,260 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FD7BC04A68
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Jul 2022 19:15:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 761EDC19F28
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Jul 2022 02:36:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231152AbiG0TPH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Jul 2022 15:15:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33436 "EHLO
+        id S237610AbiG1Cgs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Jul 2022 22:36:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236700AbiG0TNy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Jul 2022 15:13:54 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68C423B9;
-        Wed, 27 Jul 2022 12:00:08 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26RIjMD1005507;
-        Wed, 27 Jul 2022 19:00:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=haRmwXUaPjE67kxdXNo1DNxC3LBQYFRTGsi8riRPWqo=;
- b=Zfvq27Br3YiXO28eb8+BJ+dKORWKZaSvgfi+o0vH+D+2B8uKBWcKTe8uj8wUG/smVVNa
- hBHtiTO5yZbu6TXi9VdQOsbrm7SfBmt5Kw1Zot5xRYa7G6/CGprEip9WYuMtAD9UQarJ
- 78zl0yuWIHGo8U2PdNqSF12b8EhvyHBbeIHUYOgQOD0pceukRaMvEMayMasCkSqGDscg
- FEBwaHBEMYFTGDN2d0mLYXR3r+wuRVmJTsi6NbH5ZlwXJVBwHbsBqIWaclMNHL4jAYDU
- MHcHmmQDvO33IqSmLXaYkOLiOJlT330vW8t9l4K2D3+oj9xv2PGheirSMfMCH8fAtBof 4Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hkawt8e66-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Jul 2022 19:00:07 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 26RIkj3U010217;
-        Wed, 27 Jul 2022 19:00:07 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hkawt8e5k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Jul 2022 19:00:07 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26RIpnvI025893;
-        Wed, 27 Jul 2022 19:00:06 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma03dal.us.ibm.com with ESMTP id 3hg978skk3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Jul 2022 19:00:06 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26RJ04kb35783042
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 27 Jul 2022 19:00:04 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B81B26E066;
-        Wed, 27 Jul 2022 19:00:04 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BD65F6E058;
-        Wed, 27 Jul 2022 19:00:02 +0000 (GMT)
-Received: from [9.77.149.49] (unknown [9.77.149.49])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Wed, 27 Jul 2022 19:00:02 +0000 (GMT)
-Message-ID: <647bfead-5d7c-1cb1-3bf2-235ae0205310@linux.ibm.com>
-Date:   Wed, 27 Jul 2022 15:00:02 -0400
+        with ESMTP id S237524AbiG1Cgp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Jul 2022 22:36:45 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BE07B5A88A
+        for <linux-s390@vger.kernel.org>; Wed, 27 Jul 2022 19:36:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1658975802;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JKkkMBWIpIIe2oTOsj/mSHWBLF5WPUCRKemqNyKpd7k=;
+        b=Wkg6j8HuZwnu7rickQIt00fDEB72bSRSV+FXPTZe6VkFAZk7M1subYKOMXYF15vqTWdGDh
+        9DOTt/fsVZeLG1zUpZUNJi8SzuJOAES3c1agBqbaX1OgNaHolBgW3NgCnG57XpOuJKhS8Y
+        XeD0tvQF55sEwJGg3jGwjOo53yGs8eY=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-425-2HpaDQ_vPmG1il20LzxwLQ-1; Wed, 27 Jul 2022 22:36:41 -0400
+X-MC-Unique: 2HpaDQ_vPmG1il20LzxwLQ-1
+Received: by mail-ed1-f71.google.com with SMTP id b15-20020a056402278f00b0043acaf76f8dso319616ede.21
+        for <linux-s390@vger.kernel.org>; Wed, 27 Jul 2022 19:36:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=JKkkMBWIpIIe2oTOsj/mSHWBLF5WPUCRKemqNyKpd7k=;
+        b=aH9dtqmnzNeWo0y4i7B6g44wZrdH8T37QXURUhHCFUaZDHRGyVy4tH9r6jcB0NO7ux
+         EgpvzKz+1FkgH7tNcPjYvEs4wFgjXDgTjkl4CDZYOsb4mroSgM3xR0YhlIStsxGuQCq9
+         qLJ6caERQMB7BZz3o0XHrGWJpqGJwvExxW89NSMoIrs1BiC3EnVUKDbtTSlhafquFZ4O
+         fMxH9ulS//l9V+oprOrt3k2hm3bDh7pedLx2JHXqKYf3Czm9GOTyhdYIm4KQheTkXVVW
+         6mCQ22JwY874xDp3ldNunvunIpH8MP0Tnwt4zFDewd/RVSxTQitJVGMhXg4XeI8WbO6z
+         arnw==
+X-Gm-Message-State: AJIora8kdv9dyUHzjnJeBMNQ6PgfFG3YyXnZXWNizH4bfC54KI272fy9
+        rdZZ/uiq3y58Yr1e0/0Q3UJf9GpzjpUfXmTbP2lXc3w/GnAeIXmg3Hk07c4/+WQhPgwHn126/i5
+        66Be6OSMMrAXuBbDTehpKRRz48eZz7mJVaqWzFw==
+X-Received: by 2002:a17:907:a063:b0:72b:52f7:feea with SMTP id ia3-20020a170907a06300b0072b52f7feeamr20017168ejc.740.1658975799931;
+        Wed, 27 Jul 2022 19:36:39 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uGPEobsHGsN+6u62z1/vXP5Tu4y+DTY3UAmlLElWTmVhegB4KOwUXCDIsRewcmE149sdCA2s8SYedOFlVJtFU=
+X-Received: by 2002:a17:907:a063:b0:72b:52f7:feea with SMTP id
+ ia3-20020a170907a06300b0072b52f7feeamr20017130ejc.740.1658975799433; Wed, 27
+ Jul 2022 19:36:39 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [RFC] kvm: reverse call order of kvm_arch_destroy_vm() and
- kvm_destroy_devices()
-Content-Language: en-US
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com, pbonzini@redhat.com,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@redhat.com
-References: <20220705185430.499688-1-akrowiak@linux.ibm.com>
-In-Reply-To: <20220705185430.499688-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rT3txdSzXi1UFUTs5FkdB69PDVLbCV02
-X-Proofpoint-ORIG-GUID: WHidbzhMSFrAaCYswLLJYD4c-hPidy3m
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-27_07,2022-07-27_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- priorityscore=1501 mlxscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999
- clxscore=1015 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2207270079
+References: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
+ <20220726072225.19884-8-xuanzhuo@linux.alibaba.com> <a5449e49-ba38-9760-ac07-cfad048bc602@redhat.com>
+ <1658907340.34387-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1658907340.34387-1-xuanzhuo@linux.alibaba.com>
+From:   Jason Wang <jasowang@redhat.com>
+Date:   Thu, 28 Jul 2022 10:36:28 +0800
+Message-ID: <CACGkMEuP8e3znP9ZjsoHbzTFZPRt25nHVam390yrwEsLPCH+YQ@mail.gmail.com>
+Subject: Re: [PATCH v13 07/42] virtio_ring: split: stop __vring_new_virtqueue
+ as export symbol
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm <kvm@vger.kernel.org>,
+        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
+        Kangjie Xu <kangjie.xu@linux.alibaba.com>,
+        virtualization <virtualization@lists.linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Any Takers??????
+On Wed, Jul 27, 2022 at 3:36 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrot=
+e:
+>
+> On Wed, 27 Jul 2022 10:58:05 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> >
+> > =E5=9C=A8 2022/7/26 15:21, Xuan Zhuo =E5=86=99=E9=81=93:
+> > > There is currently only one place to reference __vring_new_virtqueue(=
+)
+> > > directly from the outside of virtio core. And here vring_new_virtqueu=
+e()
+> > > can be used instead.
+> > >
+> > > Subsequent patches will modify __vring_new_virtqueue, so stop it as a=
+n
+> > > export symbol for now.
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >   drivers/virtio/virtio_ring.c | 25 ++++++++++++++++---------
+> > >   include/linux/virtio_ring.h  | 10 ----------
+> > >   tools/virtio/virtio_test.c   |  4 ++--
+> > >   3 files changed, 18 insertions(+), 21 deletions(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
+g.c
+> > > index 0ad35eca0d39..4e54ed7ee7fb 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -204,6 +204,14 @@ struct vring_virtqueue {
+> > >   #endif
+> > >   };
+> > >
+> > > +static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+> > > +                                          struct vring vring,
+> > > +                                          struct virtio_device *vdev=
+,
+> > > +                                          bool weak_barriers,
+> > > +                                          bool context,
+> > > +                                          bool (*notify)(struct virt=
+queue *),
+> > > +                                          void (*callback)(struct vi=
+rtqueue *),
+> > > +                                          const char *name);
+> > >
+> > >   /*
+> > >    * Helpers.
+> > > @@ -2197,14 +2205,14 @@ irqreturn_t vring_interrupt(int irq, void *_v=
+q)
+> > >   EXPORT_SYMBOL_GPL(vring_interrupt);
+> > >
+> > >   /* Only available for split ring */
+> > > -struct virtqueue *__vring_new_virtqueue(unsigned int index,
+> > > -                                   struct vring vring,
+> > > -                                   struct virtio_device *vdev,
+> > > -                                   bool weak_barriers,
+> > > -                                   bool context,
+> > > -                                   bool (*notify)(struct virtqueue *=
+),
+> > > -                                   void (*callback)(struct virtqueue=
+ *),
+> > > -                                   const char *name)
+> > > +static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+> > > +                                          struct vring vring,
+> > > +                                          struct virtio_device *vdev=
+,
+> > > +                                          bool weak_barriers,
+> > > +                                          bool context,
+> > > +                                          bool (*notify)(struct virt=
+queue *),
+> > > +                                          void (*callback)(struct vi=
+rtqueue *),
+> > > +                                          const char *name)
+> > >   {
+> > >     struct vring_virtqueue *vq;
+> > >
+> > > @@ -2272,7 +2280,6 @@ struct virtqueue *__vring_new_virtqueue(unsigne=
+d int index,
+> > >     kfree(vq);
+> > >     return NULL;
+> > >   }
+> > > -EXPORT_SYMBOL_GPL(__vring_new_virtqueue);
+> > >
+> > >   struct virtqueue *vring_create_virtqueue(
+> > >     unsigned int index,
+> > > diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.=
+h
+> > > index b485b13fa50b..8b8af1a38991 100644
+> > > --- a/include/linux/virtio_ring.h
+> > > +++ b/include/linux/virtio_ring.h
+> > > @@ -76,16 +76,6 @@ struct virtqueue *vring_create_virtqueue(unsigned =
+int index,
+> > >                                      void (*callback)(struct virtqueu=
+e *vq),
+> > >                                      const char *name);
+> > >
+> > > -/* Creates a virtqueue with a custom layout. */
+> > > -struct virtqueue *__vring_new_virtqueue(unsigned int index,
+> > > -                                   struct vring vring,
+> > > -                                   struct virtio_device *vdev,
+> > > -                                   bool weak_barriers,
+> > > -                                   bool ctx,
+> > > -                                   bool (*notify)(struct virtqueue *=
+),
+> > > -                                   void (*callback)(struct virtqueue=
+ *),
+> > > -                                   const char *name);
+> > > -
+> > >   /*
+> > >    * Creates a virtqueue with a standard layout but a caller-allocate=
+d
+> > >    * ring.
+> > > diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+> > > index 23f142af544a..86a410ddcedd 100644
+> > > --- a/tools/virtio/virtio_test.c
+> > > +++ b/tools/virtio/virtio_test.c
+> > > @@ -102,8 +102,8 @@ static void vq_reset(struct vq_info *info, int nu=
+m, struct virtio_device *vdev)
+> > >
+> > >     memset(info->ring, 0, vring_size(num, 4096));
+> > >     vring_init(&info->vring, num, info->ring, 4096);
+> >
+> >
+> > Let's remove the duplicated vring_init() here.
+> >
+> > With this removed:
+>
+> The reason I didn't delete this vring_init() is because info->vring is us=
+ed
+> elsewhere. So it can't be deleted directly.
 
-On 7/5/22 2:54 PM, Tony Krowiak wrote:
-> There is a new requirement for s390 secure execution guests that the
-> hypervisor ensures all AP queues are reset and disassociated from the
-> KVM guest before the secure configuration is torn down. It is the
-> responsibility of the vfio_ap device driver to handle this.
+Ok, so we can leave it for future refactoring.
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+Thanks
+
 >
-> Prior to commit ("vfio: remove VFIO_GROUP_NOTIFY_SET_KVM"),
-> the driver reset all AP queues passed through to a KVM guest when notified
-> that the KVM pointer was being set to NULL. Subsequently, the AP queues
-> are only reset when the fd for the mediated device used to pass the queues
-> through to the guest is closed (the vfio_ap_mdev_close_device() callback).
-> This is not a problem when userspace is well-behaved and uses the
-> KVM_DEV_VFIO_GROUP_DEL attribute to remove the VFIO group; however, if
-> userspace for some reason does not close the mdev fd, a secure execution
-> guest will tear down its configuration before the AP queues are
-> reset because the teardown is done in the kvm_arch_destroy_vm function
-> which is invoked prior to vm_destroy_devices.
+> Thanks.
 >
-> This patch proposes a simple solution; rather than introducing a new
-> notifier into vfio or callback into KVM, what aoubt reversing the order
-> in which the kvm_arch_destroy_vm and kvm_destroy_devices are called. In
-> some very limited testing (i.e., the automated regression tests for
-> the vfio_ap device driver) this did not seem to cause any problems.
+> >
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> >
+> >
+> > > -   info->vq =3D __vring_new_virtqueue(info->idx, info->vring, vdev, =
+true,
+> > > -                                    false, vq_notify, vq_callback, "=
+test");
+> > > +   info->vq =3D vring_new_virtqueue(info->idx, num, 4096, vdev, true=
+, false,
+> > > +                                  info->ring, vq_notify, vq_callback=
+, "test");
+> > >     assert(info->vq);
+> > >     info->vq->priv =3D info;
+> > >   }
+> >
 >
-> The question remains, is there a good technical reason why the VM
-> is destroyed before the devices it is using? This is not intuitive, so
-> this is a request for comments on this proposed patch. The assumption
-> here is that the medev fd will get closed when the devices are destroyed.
->
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->   virt/kvm/kvm_main.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index a49df8988cd6..edaf2918be9b 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1248,8 +1248,8 @@ static void kvm_destroy_vm(struct kvm *kvm)
->   #else
->   	kvm_flush_shadow_all(kvm);
->   #endif
-> -	kvm_arch_destroy_vm(kvm);
->   	kvm_destroy_devices(kvm);
-> +	kvm_arch_destroy_vm(kvm);
->   	for (i = 0; i < KVM_ADDRESS_SPACE_NUM; i++) {
->   		kvm_free_memslots(kvm, &kvm->__memslots[i][0]);
->   		kvm_free_memslots(kvm, &kvm->__memslots[i][1]);
+
