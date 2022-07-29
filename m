@@ -2,310 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E726CC00144
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Jul 2022 16:25:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3E12C19F2A
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Jul 2022 17:30:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236935AbiG2QZv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Jul 2022 12:25:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47068 "EHLO
+        id S237949AbiG2Rax (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Jul 2022 13:30:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229979AbiG2QZu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Jul 2022 12:25:50 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 949AD18E3D;
-        Fri, 29 Jul 2022 09:25:49 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26TFp5MM015438;
-        Fri, 29 Jul 2022 16:25:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=RGSF0zWMIA2ncoPI8yG+vnJuEHc8ftjIFB+Fp0+vjMo=;
- b=IpNLN9ph3TE+nnTWJzS9/JDMX35FyvIYKWdgHOo5f3YTcYbrZMf++uEDxGOcZbkkGiWv
- XjmEnABC9B7HTCTp1yI7wE9eLIVVq95cooodGgDHHBJSMFfFui5SHzQWbGhbNlPtmpvK
- qcw6xdpUGsoh0NOCYNFfU9OK+RVUz01ejd1Nk4kJUcJfU83GEUUb5XY7U2aIbNuBQ/j/
- Fd7u45RW2cgXyaZ3s56Ug9SgEZY0ehP388U5gdddOqles3X8Qa1+9zJEbfP3nhwzN26+
- yJIJBZcgjhY+w8Z20Vc1f3kiFyCLaxlkFvCzJfjJeU8U8fzvQEOqm9kwF2JXi0q++4LC SA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hmjj9h11t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Jul 2022 16:25:38 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 26TG5Mi0016950;
-        Fri, 29 Jul 2022 16:25:36 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 3hh6euphmb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Jul 2022 16:25:36 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 26TGNRMh30736702
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 29 Jul 2022 16:23:27 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 127A94C046;
-        Fri, 29 Jul 2022 16:25:33 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B97CE4C040;
-        Fri, 29 Jul 2022 16:25:32 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 29 Jul 2022 16:25:32 +0000 (GMT)
-From:   Steffen Maier <maier@linux.ibm.com>
-To:     "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc:     linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH] zfcp: fix missing auto port scan and thus missing target ports
-Date:   Fri, 29 Jul 2022 18:25:29 +0200
-Message-Id: <20220729162529.1620730-1-maier@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229979AbiG2Raw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Jul 2022 13:30:52 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2087.outbound.protection.outlook.com [40.107.223.87])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C934F15702;
+        Fri, 29 Jul 2022 10:30:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ARq4JLa2TpLcf5Cv0Ua3QM2QZ08h/GgOqhaxJMSnADnKbhYES1bhH6ZGA7BN00pkh4RHlfLzX6FVSUs1ME4xW4Ou56ht1oUX6jBT3/9sIyCSP3QYkG9AKmyAhvmuFKdmsjemrsl9UsBVp8GL3KlL406DeJUYmMPzuerpn358cjeoSr4vlhP+nq9ofioUkgs+f77DcYCqATJ+kLTr+/tbn4oetCZ6oMirYTebZXScAC+peIU7Crt2QmAvz18b9yJWmQ+DOGskCRAQtjmnQMfI6z1HMuKGVROxlP5AqZsGRb/o7E3b1yqwB/xLEIMDtRIiMlvEYYr4KadSm7IKYk2A9w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=pqe+kn79OT7U5c0eVBU632BleNTIEotu1HEBxBf0+Kw=;
+ b=fsZFGm944hi/HtXmifQLTUuGwRhXl+lVnlbh2hgvXjpSDyQN7MJGjDitBXbAZE6X+5VrteDhcYqnnONCPqvIRSnCmaxdYnYINRZbza3zXoGXrznxkDdGbn051Sp3fsv8ms5JahxGYHrUeshsGYxDeUTmUhbVqeR2eMqQ8tfM8sWeuLVOeBGthFTmAlF9escq5SkB4DdobHFFS/TOEkASx2cWraQP2Qp6jQhdoXZ7MtmFUWRwsaN9qGBzzMvkmAyJWxAjQQGJvg9970MFOK6oT6uFBymzIIfDTCY9v9V35V/h0/W2XfV/T8Zk8l2m1lG776I3FBYOEwrZzA+pBA/Cyw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=pqe+kn79OT7U5c0eVBU632BleNTIEotu1HEBxBf0+Kw=;
+ b=rgyrYdgM2S8F7vPJsC7pKBskdZPXPZyTZQ5XMovrvEca4mk1qHwDttWZiQIN9EwnDt1/WJnUO9Su9kmXJGvV7QoAy+DFDIGNx5WZ+LmfgUVxGuUpy8IaE9L42kvxEOpSWGm5oZ1LmNuk5Qs0oFECcpwk4d7s8QkkKpEwYuytJlrAZGntqqjSgOh9k6wVbkApcORmO2m3/4rUAc4d54J2Og32ehLWEE6sm42oenxDAaLtbygJtUUWJgDEN+KyMZqGUPFwW4i8ENNG0/Ikvmoms5XV41XAMCxoOxEkHuU0am+7k4mGXOOSN0/eqkMIEv0fofjlL8hTWwySkrU37KsaCA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by DS7PR12MB5909.namprd12.prod.outlook.com (2603:10b6:8:7a::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5482.11; Fri, 29 Jul
+ 2022 17:30:50 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::4cce:310f:93:5d58]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::4cce:310f:93:5d58%8]) with mapi id 15.20.5482.006; Fri, 29 Jul 2022
+ 17:30:50 +0000
+Date:   Fri, 29 Jul 2022 14:30:49 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Nicolin Chen <nicolinc@nvidia.com>
+Cc:     joro@8bytes.org, will@kernel.org, marcan@marcan.st,
+        sven@svenpeter.dev, robin.murphy@arm.com, robdclark@gmail.com,
+        baolu.lu@linux.intel.com, orsonzhai@gmail.com,
+        baolin.wang7@gmail.com, zhang.lyra@gmail.com,
+        jean-philippe@linaro.org, alex.williamson@redhat.com,
+        kevin.tian@intel.com, suravee.suthikulpanit@amd.com,
+        alyssa@rosenzweig.io, dwmw2@infradead.org, mjrosato@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, thierry.reding@gmail.com,
+        vdumpa@nvidia.com, jonathanh@nvidia.com, cohuck@redhat.com,
+        thunder.leizhen@huawei.com, christophe.jaillet@wanadoo.fr,
+        chenxiang66@hisilicon.com, john.garry@huawei.com,
+        yangyingliang@huawei.com, iommu@lists.linux-foundation.org,
+        iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Subject: Re: [PATCH v5 1/5] iommu: Return -EMEDIUMTYPE for incompatible
+ domain and device/group
+Message-ID: <YuQZSfQtBTBtJOq2@nvidia.com>
+References: <20220701214455.14992-1-nicolinc@nvidia.com>
+ <20220701214455.14992-2-nicolinc@nvidia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220701214455.14992-2-nicolinc@nvidia.com>
+X-ClientProxiedBy: MN2PR15CA0031.namprd15.prod.outlook.com
+ (2603:10b6:208:1b4::44) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: PIY-AhHIB2lg6MM_0oeZ-P8KTgn6tjvh
-X-Proofpoint-GUID: PIY-AhHIB2lg6MM_0oeZ-P8KTgn6tjvh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-29_17,2022-07-28_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- phishscore=0 impostorscore=0 lowpriorityscore=0 mlxscore=0 malwarescore=0
- adultscore=0 priorityscore=1501 spamscore=0 mlxlogscore=999 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
- definitions=main-2207290072
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 87e2ff84-ba7f-4720-ee4a-08da71881479
+X-MS-TrafficTypeDiagnostic: DS7PR12MB5909:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 9n9UroDb54XvkUGt+Q7JyxKJdHq+AqLoS+Ivj1cfkgciJ+GxL/qaOce2l+Q8aaGCp9tlO8GuRqjVLb4klRd1OfsipmijqLUBsVNmXRcCDkoihR1wnpi24+vzTDXuT50/rKkhcJbU/zDYkcP92A0REfHM8H8tiZgKkoZsl7Lw/TzJjXMdRAbiTxAP9c0rmgJkiGcjD5zZ/I5+UxMdf9XB4jBaCqKzPHG1c+v9Ld/0NuRxkgqjlsXY4sVA5OWOKcp8I8nl1PBKqFJdIau6pqx6KpqjTcRtEAfGhxpaljaXRvNdC07OaZ3/f1fqvZ1hxA99341kEX5XklQbsz54VwfkTRRQ/mntg0H/MfVz88ODe+ovE4MRScSgzMy3qqILcMAUWzYU/WnRRpY8cAxInmoOAeY+daaVksAtHmQJfeYLE9vpE0KT4UZ05C0xFjYQ44dQWda+HkRCVToHu3upybFcSLCm7lwTQqFL6TewCyW9ktr8/F15J6beGUZfyhl6zrht7YnLTjY4x4VzJm2QilYPq7X7EdkhA+veUWEaCzk/ve3ZiEQc+IuQzD6eGi9oZJEq6pnz0pg22QeCCI4mNOLTGWyCbYlEwt1w/uBWwtfT+KF0WWx7uITB1qqz34hjMQdyE9jCKH2LmaepafTwkqprVWSYcyTB8uB18iw3XPyWERzcNYgXVkk3z1U0jUS4hFMBPMJuKmHHOb29rpbkO4ozGfcwtkoFlEv0AgjjJPPkenZn4VIin8gTdGcgjvh3XsIs
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(376002)(136003)(39860400002)(396003)(346002)(41300700001)(26005)(6506007)(86362001)(6512007)(6486002)(38100700002)(2616005)(83380400001)(186003)(4326008)(6862004)(5660300002)(7406005)(7416002)(8936002)(66476007)(66556008)(66946007)(36756003)(37006003)(2906002)(8676002)(478600001)(316002)(6636002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?pAf4BFuYy6/pnZBg47tXnnF7rsJt9qgpO9/+gm8EhGJDVyk3weqSpR5Z8P8J?=
+ =?us-ascii?Q?JWqOnl/2vMYrJ5fT2sWJBx0O4Fhbsmu+FGL2cs3BqFjryxYVIy2F8AfEYC/G?=
+ =?us-ascii?Q?ZZ2sDQ3/IeXT7IlODwGh+aFc1W2izwHPJMuFmzbG/pKg9Z9maZdRiDtgSHab?=
+ =?us-ascii?Q?vSo71NK6IT1sEJ2DlTITflKSyI2fI77c7nTEbNKcW5LSID8yeWp56V/0mbcT?=
+ =?us-ascii?Q?F8uXETRE42oPdOnqSb8imeHEvvHN7YnH51SHCgHhAUfQP0hCrDjatb1HOVsI?=
+ =?us-ascii?Q?4Gs0j8q5MRT/q+QM7uuOTWDC5xEtKAWuXiCw9eskIRk+wxG1A+jijt7z95W2?=
+ =?us-ascii?Q?4iPVRECK+/oHGpErVHjzannxZzt5NyQ8TYfsrmZsXnb3qD2A3ht2e7FEJR5Q?=
+ =?us-ascii?Q?PDh7mcGBo3Z03fEwjWNdLY3zeBcs0fBLv7csRSI1MaDLBHBeb3z3EAJR4LDX?=
+ =?us-ascii?Q?M/VA892y8QHaisvXDR+9altc15qI5VYK8UiYEr6uNEx11Bg9dWfq0toUbCBB?=
+ =?us-ascii?Q?MZNCbk5issm4nPtYqVMwll3ql86Z8oZoPZm5sHkCTH+D5YeZPokucTRBS2Ck?=
+ =?us-ascii?Q?Wcru1hZxlXgKFQaCQzU61ZQmwBzL1ODFxMmpUVCYKbj5jxv+O0Hc6OZgTc/h?=
+ =?us-ascii?Q?bW1jxCmWJIjTrXMnrq1spSMMcbK/FR8OjRdyhAGDTe4Iu4L+zxL9Hn7IuhL1?=
+ =?us-ascii?Q?vFTyauceDy2LODgckNBb6/bKhHF6S1DjiLDrkI0RLseYGLALDGMGUJllZD1h?=
+ =?us-ascii?Q?Od3+bqPANTjEtTK4epN5WemyobvWAy20rqUouQOutFlTRvl8D65vb32/O2P+?=
+ =?us-ascii?Q?xnDB6ZLnUk+sFSwmRJ94i7fmqwBHRnmWJcEy5AB2PGOeodBsiZdmdabvPGni?=
+ =?us-ascii?Q?wv4SBPIPOWp2enHAjbrVjDS3MF0mT5lxYXuJdLvbRMTayLsbXR5d+vnybqM+?=
+ =?us-ascii?Q?JPm/3WVwu/drkDoQY2HCwR+vaZeVToHsy4yvGazZeWLhJLGM7FYiLpC2g4b9?=
+ =?us-ascii?Q?LMuaIGG0FaH3jIteP6KyEh7dzTIPqniZlXmf7c2KT92v7QXeCcyfUOUJInok?=
+ =?us-ascii?Q?ZzhaPgt1aSRbhyopj6mxnogfHZvGAZkr5MvRxxWpL1w1MAV3CW2/Ei/h0ecY?=
+ =?us-ascii?Q?W8XZLIOu75tzyO0R//ug1waH1CNj6lyZ3tDsmLFNMBBEBlhAaJPACLx32BBH?=
+ =?us-ascii?Q?zq/phbYlnG8FFiqdLcvjVk6ewCvoz1ZQBfneJBl7cnmVPRyn0YI0K9k5QCHX?=
+ =?us-ascii?Q?L72Q0vr1R93Rx++faCbgnbRieDtPPx7mU7Qc8BzNrTCfBDjniD/SQ4eU1yRa?=
+ =?us-ascii?Q?qy74pIN6bu9/myqYoiAL/c38bPYIWfo+s/Tq8LOmaO42IOYHNWCA9VG9+paC?=
+ =?us-ascii?Q?/v4XK0iCv1rzwcOXtk1ZTm91+AvG+QfGJevog2UcorBYyPYppEbLpmkjBt+F?=
+ =?us-ascii?Q?cfApVYmh/OwUWwEsPKeAHDTMofHudD8Te555bySL9d5BFJdbkEmjs6vWgnmc?=
+ =?us-ascii?Q?DQET+jZIpOHhu9+wa4p7AAdCEYMOWs/ACeGUZ9vLbKAGxJbHjRkDHaAtz+Fc?=
+ =?us-ascii?Q?zsSUkHRWwScNUBmlAdu94zmS9Jbo6k0lAZIM4Uuu?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 87e2ff84-ba7f-4720-ee4a-08da71881479
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jul 2022 17:30:50.1247
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: SG227D2e0Gq+RHV7KxGVYZsYYZdv6z2kuP/5esO/GzUanlRwXfpzHpXlLPBFsrpb
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB5909
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Case (1):
-The only waiter on wka_port->completion_wq is zfcp_fc_wka_port_get() trying
-to open a WKA port. As such it should only be woken up by WKA port *open*
-responses, not by WKA port close responses.
+On Fri, Jul 01, 2022 at 02:44:51PM -0700, Nicolin Chen wrote:
+> Cases like VFIO wish to attach a device to an existing domain that was
+> not allocated specifically from the device. This raises a condition
+> where the IOMMU driver can fail the domain attach because the domain and
+> device are incompatible with each other.
+> 
+> This is a soft failure that can be resolved by using a different domain.
+> 
+> Provide a dedicated errno from the IOMMU driver during attach that the
+> reason attached failed is because of domain incompatability. EMEDIUMTYPE
+> is chosen because it is never used within the iommu subsystem today and
+> evokes a sense that the 'medium' aka the domain is incompatible.
+> 
+> VFIO can use this to know attach is a soft failure and it should continue
+> searching. Otherwise the attach will be a hard failure and VFIO will
+> return the code to userspace.
+> 
+> Update all drivers to return EMEDIUMTYPE in their failure paths that are
+> related to domain incompatability. Also remove adjacent error prints for
+> these soft failures, to prevent a kernel log spam, since -EMEDIUMTYPE is
+> clear enough to indicate an incompatability error.
+> 
+> Add kdocs describing this behavior.
+> 
+> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+> Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
+> ---
+>  drivers/iommu/amd/iommu.c                   |  2 +-
+>  drivers/iommu/apple-dart.c                  |  4 +--
+>  drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 15 +++--------
+>  drivers/iommu/arm/arm-smmu/arm-smmu.c       |  5 +---
+>  drivers/iommu/arm/arm-smmu/qcom_iommu.c     |  9 ++-----
+>  drivers/iommu/intel/iommu.c                 | 10 +++-----
+>  drivers/iommu/iommu.c                       | 28 +++++++++++++++++++++
+>  drivers/iommu/ipmmu-vmsa.c                  |  4 +--
+>  drivers/iommu/omap-iommu.c                  |  3 +--
+>  drivers/iommu/s390-iommu.c                  |  2 +-
+>  drivers/iommu/sprd-iommu.c                  |  6 ++---
+>  drivers/iommu/tegra-gart.c                  |  2 +-
+>  drivers/iommu/virtio-iommu.c                |  3 +--
+>  13 files changed, 47 insertions(+), 46 deletions(-)
 
-Case (2):
-A close WKA port response coming in just after having sent a new open WKA
-port request and before blocking for the open response with wait_event() in
-zfcp_fc_wka_port_get() erroneously renders the wait_event a NOP because the
-close handler overwrites wka_port->status. Hence the wait_event condition
-is erroneously true and it does not enter blocking state.
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
-With non-negligible probability, the following time space sequence happens
-depending on timing without this fix:
-
-user process        ERP thread zfcp work queue tasklet system work queue
-============        ========== =============== ======= =================
-$ echo 1 > online
-zfcp_ccw_set_online
-zfcp_ccw_activate
-zfcp_erp_adapter_reopen
-msleep scan backoff zfcp_erp_strategy
-|                   ...
-|                   zfcp_erp_action_cleanup
-|                   ...
-|                   queue delayed scan_work
-|                   queue ns_up_work
-|                              ns_up_work:
-|                              zfcp_fc_wka_port_get
-|                               open wka request
-|                                              open response
-|                              GSPN FC-GS
-|                              RSPN FC-GS [NPIV-only]
-|                              zfcp_fc_wka_port_put
-|                               (--wka->refcount==0)
-|                               sched delayed wka->work
-|
-~~~Case (1)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-zfcp_erp_wait
-flush scan_work
-|                                                      wka->work:
-|                                                      wka->status=CLOSING
-|                                                      close wka request
-|                              scan_work:
-|                              zfcp_fc_wka_port_get
-|                               (wka->status==CLOSING)
-|                               wka->status=OPENING
-|                               open wka request
-|                               wait_event
-|                               |              close response
-|                               |              wka->status=OFFLINE
-|                               |              wake_up /*WRONG*/
-~~~Case (2)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|                                                      wka->work:
-|                                                      wka->status=CLOSING
-|                                                      close wka request
-zfcp_erp_wait
-flush scan_work
-|                              scan_work:
-|                              zfcp_fc_wka_port_get
-|                               (wka->status==CLOSING)
-|                               wka->status=OPENING
-|                               open wka request
-|                                              close response
-|                                              wka->status=OFFLINE
-|                                              wake_up /*WRONG&NOP*/
-|                               wait_event /*NOP*/
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|                               (wka->status!=ONLINE)
-|                               return -EIO
-|                              return early
-                                               open response
-                                               wka->status=ONLINE
-                                               wake_up /*NOP*/
-
-So we erroneously end up with no automatic port scan. This is a big problem
-when it happens during boot. The timing is influenced by v3.19 commit
-18f87a67e6d6 ("zfcp: auto port scan resiliency").
-
-Fix it by fully mutually excluding zfcp_fc_wka_port_get() and
-zfcp_fc_wka_port_offline(). For that to work, we make the latter block
-until we got the response for a close WKA port. In order not to penalize
-the system workqueue, we move wka_port->work to our own adapter workqueue.
-Note that before v2.6.30 commit 828bc1212a68 ("[SCSI] zfcp: Set WKA-port to
-offline on adapter deactivation"), zfcp did block in
-zfcp_fc_wka_port_offline() as well, but with a different condition.
-
-While at it, make non-functional cleanups to improve code reading in
-zfcp_fc_wka_port_get(). If we cannot send the WKA port open request, don't
-rely on the subsequent wait_event condition to immediately let this case
-pass without blocking. Also don't want to rely on the additional condition
-handling the refcount to be skipped just to finally return with -EIO.
-
-Fixes: 5ab944f97e09 ("[SCSI] zfcp: attach and release SAN nameserver port on demand")
-Cc: <stable@vger.kernel.org> #v2.6.28+
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
----
- drivers/s390/scsi/zfcp_fc.c  | 29 ++++++++++++++++++++---------
- drivers/s390/scsi/zfcp_fc.h  |  6 ++++--
- drivers/s390/scsi/zfcp_fsf.c |  4 ++--
- 3 files changed, 26 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index 511bf8e0a436..b61acbb09be3 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -145,27 +145,33 @@ void zfcp_fc_enqueue_event(struct zfcp_adapter *adapter,
- 
- static int zfcp_fc_wka_port_get(struct zfcp_fc_wka_port *wka_port)
- {
-+	int ret = -EIO;
-+
- 	if (mutex_lock_interruptible(&wka_port->mutex))
- 		return -ERESTARTSYS;
- 
- 	if (wka_port->status == ZFCP_FC_WKA_PORT_OFFLINE ||
- 	    wka_port->status == ZFCP_FC_WKA_PORT_CLOSING) {
- 		wka_port->status = ZFCP_FC_WKA_PORT_OPENING;
--		if (zfcp_fsf_open_wka_port(wka_port))
-+		if (zfcp_fsf_open_wka_port(wka_port)) {
-+			/* could not even send request, nothing to wait for */
- 			wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
-+			goto out;
-+		}
- 	}
- 
--	mutex_unlock(&wka_port->mutex);
--
--	wait_event(wka_port->completion_wq,
-+	wait_event(wka_port->opened,
- 		   wka_port->status == ZFCP_FC_WKA_PORT_ONLINE ||
- 		   wka_port->status == ZFCP_FC_WKA_PORT_OFFLINE);
- 
- 	if (wka_port->status == ZFCP_FC_WKA_PORT_ONLINE) {
- 		atomic_inc(&wka_port->refcount);
--		return 0;
-+		ret = 0;
-+		goto out;
- 	}
--	return -EIO;
-+out:
-+	mutex_unlock(&wka_port->mutex);
-+	return ret;
- }
- 
- static void zfcp_fc_wka_port_offline(struct work_struct *work)
-@@ -181,9 +187,12 @@ static void zfcp_fc_wka_port_offline(struct work_struct *work)
- 
- 	wka_port->status = ZFCP_FC_WKA_PORT_CLOSING;
- 	if (zfcp_fsf_close_wka_port(wka_port)) {
-+		/* could not even send request, nothing to wait for */
- 		wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
--		wake_up(&wka_port->completion_wq);
-+		goto out;
- 	}
-+	wait_event(wka_port->closed,
-+		   wka_port->status == ZFCP_FC_WKA_PORT_OFFLINE);
- out:
- 	mutex_unlock(&wka_port->mutex);
- }
-@@ -193,13 +202,15 @@ static void zfcp_fc_wka_port_put(struct zfcp_fc_wka_port *wka_port)
- 	if (atomic_dec_return(&wka_port->refcount) != 0)
- 		return;
- 	/* wait 10 milliseconds, other reqs might pop in */
--	schedule_delayed_work(&wka_port->work, HZ / 100);
-+	queue_delayed_work(wka_port->adapter->work_queue, &wka_port->work,
-+			   msecs_to_jiffies(10));
- }
- 
- static void zfcp_fc_wka_port_init(struct zfcp_fc_wka_port *wka_port, u32 d_id,
- 				  struct zfcp_adapter *adapter)
- {
--	init_waitqueue_head(&wka_port->completion_wq);
-+	init_waitqueue_head(&wka_port->opened);
-+	init_waitqueue_head(&wka_port->closed);
- 
- 	wka_port->adapter = adapter;
- 	wka_port->d_id = d_id;
-diff --git a/drivers/s390/scsi/zfcp_fc.h b/drivers/s390/scsi/zfcp_fc.h
-index 8aaf409ce9cb..97755407ce1b 100644
---- a/drivers/s390/scsi/zfcp_fc.h
-+++ b/drivers/s390/scsi/zfcp_fc.h
-@@ -185,7 +185,8 @@ enum zfcp_fc_wka_status {
- /**
-  * struct zfcp_fc_wka_port - representation of well-known-address (WKA) FC port
-  * @adapter: Pointer to adapter structure this WKA port belongs to
-- * @completion_wq: Wait for completion of open/close command
-+ * @opened: Wait for completion of open command
-+ * @closed: Wait for completion of close command
-  * @status: Current status of WKA port
-  * @refcount: Reference count to keep port open as long as it is in use
-  * @d_id: FC destination id or well-known-address
-@@ -195,7 +196,8 @@ enum zfcp_fc_wka_status {
-  */
- struct zfcp_fc_wka_port {
- 	struct zfcp_adapter	*adapter;
--	wait_queue_head_t	completion_wq;
-+	wait_queue_head_t	opened;
-+	wait_queue_head_t	closed;
- 	enum zfcp_fc_wka_status	status;
- 	atomic_t		refcount;
- 	u32			d_id;
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 4f1e4385ce58..19223b075568 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -1907,7 +1907,7 @@ static void zfcp_fsf_open_wka_port_handler(struct zfcp_fsf_req *req)
- 		wka_port->status = ZFCP_FC_WKA_PORT_ONLINE;
- 	}
- out:
--	wake_up(&wka_port->completion_wq);
-+	wake_up(&wka_port->opened);
- }
- 
- /**
-@@ -1966,7 +1966,7 @@ static void zfcp_fsf_close_wka_port_handler(struct zfcp_fsf_req *req)
- 	}
- 
- 	wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
--	wake_up(&wka_port->completion_wq);
-+	wake_up(&wka_port->closed);
- }
- 
- /**
-
-base-commit: 71b25693b22ebb9391b27f011d3f4bf9762e24f9
--- 
-2.34.1
-
+Jason
