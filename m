@@ -2,73 +2,29 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 529E1C00144
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Aug 2022 06:28:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EF3DC00144
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Aug 2022 06:39:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232878AbiHAG20 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 1 Aug 2022 02:28:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56042 "EHLO
+        id S230375AbiHAGjO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 1 Aug 2022 02:39:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229642AbiHAG20 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Aug 2022 02:28:26 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B742C13CE5
-        for <linux-s390@vger.kernel.org>; Sun, 31 Jul 2022 23:28:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659335303;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UyyYryD7QGgOS3XQPZyq6yB64pJtotrkijoRHszU24s=;
-        b=i6QYPd7G0jsn2Ch+H+4m8Y4f78Re+wYDvzBuPtJcuY8xsqNhisz2MiGufUvnxQV6GlyYZC
-        OgOxH+g+FHbeIo7X6qhRb7TqNdBY9NgukuKkSnYU9FPjB0343pQY0Ie+AIZ9lV2dmp3cB4
-        ex20+Sn7NFkhqMvojL7ypVGFY6H9Zhw=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-28-CH2Wb-shMlO09pw11HY7Hg-1; Mon, 01 Aug 2022 02:27:42 -0400
-X-MC-Unique: CH2Wb-shMlO09pw11HY7Hg-1
-Received: by mail-lf1-f69.google.com with SMTP id w8-20020a197b08000000b00489e72a3025so3103129lfc.4
-        for <linux-s390@vger.kernel.org>; Sun, 31 Jul 2022 23:27:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=UyyYryD7QGgOS3XQPZyq6yB64pJtotrkijoRHszU24s=;
-        b=y6owghTDEgXMZr5MOtKCZ8DpJoh8+bQFOyKQCCUpf4KzVvN2KNdpCfSOX1SzQsNSak
-         kGs/svWtUPUlPfWR8E3Pnm25weRnTXWV1q2hUr5FZA3a+sG0Fkn4gRcIJ5+WX6Qz47IL
-         4rFAAQedxKYIwbzd53YUq3mxwgzAC+Oz5ZjmbiLlN97Dm9qUAWOfAxBGZjaGmN6hv4KU
-         eXnFJKwbANb4nbc0+0vLCD0ZOsdyECExqtxxbtY3i3D6lQQ6xpkC58/ShI2wZL9EAXOV
-         5LWw3gwoYM11HW3TmnHdNqnpv+hmjPBqhkqT0K8p4S04tkvuA8RgAmPskVpujAfPhCpj
-         eONg==
-X-Gm-Message-State: ACgBeo0TMZVPlylpbYWDe5QuWgbJX8iW0qt0+kgs+6gMdQHpgIBaq/V8
-        QmyK9lYaIuqAfnSpGaTNI9gr2Y6+kLrBwfKV7mNBwbv91iuIz57fPD1JJ/Lf4i5WwLxc/VnmvOc
-        PD/02FpT10tGI1v23ad3jaGzadm4/f9wnvVubGw==
-X-Received: by 2002:ac2:43b0:0:b0:48b:1eb:d1e5 with SMTP id t16-20020ac243b0000000b0048b01ebd1e5mr272798lfl.641.1659335261114;
-        Sun, 31 Jul 2022 23:27:41 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7kLCPxnca4MZdlMlO6mFwl8I9LgAWtroXVyXQq60uRjcCEDVvYfqEqtkyly+cwNyUmf+jb+aYHvUNOq8R+JIA=
-X-Received: by 2002:ac2:43b0:0:b0:48b:1eb:d1e5 with SMTP id
- t16-20020ac243b0000000b0048b01ebd1e5mr272773lfl.641.1659335260842; Sun, 31
- Jul 2022 23:27:40 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
- <20220726072225.19884-17-xuanzhuo@linux.alibaba.com> <15aa26f2-f8af-5dbd-f2b2-9270ad873412@redhat.com>
- <1658907413.1860468-2-xuanzhuo@linux.alibaba.com> <CACGkMEvxsOfiiaWWAR8P68GY1yfwgTvaAbHk1JF7pTw-o2k25w@mail.gmail.com>
- <1658992162.584327-1-xuanzhuo@linux.alibaba.com> <CACGkMEv-KYieHKXY_Qn0nfcnLMOSF=TowF5PwLKOxESL3KQ40Q@mail.gmail.com>
- <1658995783.1026692-1-xuanzhuo@linux.alibaba.com> <CACGkMEv6Ptn4zj_F-ww3Nay-VPmCNrXLaf5U98PvupAvo44FpA@mail.gmail.com>
- <1659001321.5738833-2-xuanzhuo@linux.alibaba.com> <CACGkMEvcRxbqJ01sjC50muW3cQJiJKUJW+67QrsOP662FCgi0g@mail.gmail.com>
- <1659334300.4209104-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1659334300.4209104-1-xuanzhuo@linux.alibaba.com>
-From:   Jason Wang <jasowang@redhat.com>
-Date:   Mon, 1 Aug 2022 14:27:29 +0800
-Message-ID: <CACGkMEu=PSnZWKbG8jQW2ZfoZAjOOGXkMvwrx5X+=fCFzEQqiw@mail.gmail.com>
-Subject: Re: [PATCH v13 16/42] virtio_ring: split: introduce virtqueue_resize_split()
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+        with ESMTP id S229530AbiHAGjN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Aug 2022 02:39:13 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD42E13DC0;
+        Sun, 31 Jul 2022 23:39:10 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R701e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VL1cC5H_1659335944;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VL1cC5H_1659335944)
+          by smtp.aliyun-inc.com;
+          Mon, 01 Aug 2022 14:39:05 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
         Anton Ivanov <anton.ivanov@cambridgegreys.com>,
         Johannes Berg <johannes@sipsolutions.net>,
         "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
@@ -90,332 +46,170 @@ Cc:     Richard Weinberger <richard@nod.at>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Jesper Dangaard Brouer <hawk@kernel.org>,
         John Fastabend <john.fastabend@gmail.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
         platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm <kvm@vger.kernel.org>,
-        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
-        Kangjie Xu <kangjie.xu@linux.alibaba.com>,
-        virtualization <virtualization@lists.linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        kangjie.xu@linux.alibaba.com
+Subject: [PATCH v14 01/42] virtio: record the maximum queue num supported by the device.
+Date:   Mon,  1 Aug 2022 14:38:21 +0800
+Message-Id: <20220801063902.129329-2-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
+References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
+MIME-Version: 1.0
+X-Git-Hash: 0f12e405b061
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 1, 2022 at 2:13 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote=
-:
->
-> On Mon, 1 Aug 2022 12:49:12 +0800, Jason Wang <jasowang@redhat.com> wrote=
-:
-> > On Thu, Jul 28, 2022 at 7:27 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> =
-wrote:
-> > >
-> > > On Thu, 28 Jul 2022 17:04:36 +0800, Jason Wang <jasowang@redhat.com> =
-wrote:
-> > > > On Thu, Jul 28, 2022 at 4:18 PM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
-> > > > >
-> > > > > On Thu, 28 Jul 2022 15:42:50 +0800, Jason Wang <jasowang@redhat.c=
-om> wrote:
-> > > > > > On Thu, Jul 28, 2022 at 3:24 PM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
-> > > > > > >
-> > > > > > > On Thu, 28 Jul 2022 10:38:51 +0800, Jason Wang <jasowang@redh=
-at.com> wrote:
-> > > > > > > > On Wed, Jul 27, 2022 at 3:44 PM Xuan Zhuo <xuanzhuo@linux.a=
-libaba.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Wed, 27 Jul 2022 11:12:19 +0800, Jason Wang <jasowang@=
-redhat.com> wrote:
-> > > > > > > > > >
-> > > > > > > > > > =E5=9C=A8 2022/7/26 15:21, Xuan Zhuo =E5=86=99=E9=81=93=
-:
-> > > > > > > > > > > virtio ring split supports resize.
-> > > > > > > > > > >
-> > > > > > > > > > > Only after the new vring is successfully allocated ba=
-sed on the new num,
-> > > > > > > > > > > we will release the old vring. In any case, an error =
-is returned,
-> > > > > > > > > > > indicating that the vring still points to the old vri=
-ng.
-> > > > > > > > > > >
-> > > > > > > > > > > In the case of an error, re-initialize(virtqueue_rein=
-it_split()) the
-> > > > > > > > > > > virtqueue to ensure that the vring can be used.
-> > > > > > > > > > >
-> > > > > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > > > > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > > > > > > > > > ---
-> > > > > > > > > > >   drivers/virtio/virtio_ring.c | 34 +++++++++++++++++=
-+++++++++++++++++
-> > > > > > > > > > >   1 file changed, 34 insertions(+)
-> > > > > > > > > > >
-> > > > > > > > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/v=
-irtio/virtio_ring.c
-> > > > > > > > > > > index b6fda91c8059..58355e1ac7d7 100644
-> > > > > > > > > > > --- a/drivers/virtio/virtio_ring.c
-> > > > > > > > > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > > > > > > > > @@ -220,6 +220,7 @@ static struct virtqueue *__vring_=
-new_virtqueue(unsigned int index,
-> > > > > > > > > > >                                            void (*cal=
-lback)(struct virtqueue *),
-> > > > > > > > > > >                                            const char=
- *name);
-> > > > > > > > > > >   static struct vring_desc_extra *vring_alloc_desc_ex=
-tra(unsigned int num);
-> > > > > > > > > > > +static void vring_free(struct virtqueue *_vq);
-> > > > > > > > > > >
-> > > > > > > > > > >   /*
-> > > > > > > > > > >    * Helpers.
-> > > > > > > > > > > @@ -1117,6 +1118,39 @@ static struct virtqueue *vring=
-_create_virtqueue_split(
-> > > > > > > > > > >     return vq;
-> > > > > > > > > > >   }
-> > > > > > > > > > >
-> > > > > > > > > > > +static int virtqueue_resize_split(struct virtqueue *=
-_vq, u32 num)
-> > > > > > > > > > > +{
-> > > > > > > > > > > +   struct vring_virtqueue_split vring_split =3D {};
-> > > > > > > > > > > +   struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > > > > > > > > > > +   struct virtio_device *vdev =3D _vq->vdev;
-> > > > > > > > > > > +   int err;
-> > > > > > > > > > > +
-> > > > > > > > > > > +   err =3D vring_alloc_queue_split(&vring_split, vde=
-v, num,
-> > > > > > > > > > > +                                 vq->split.vring_ali=
-gn,
-> > > > > > > > > > > +                                 vq->split.may_reduc=
-e_num);
-> > > > > > > > > > > +   if (err)
-> > > > > > > > > > > +           goto err;
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > I think we don't need to do anything here?
-> > > > > > > > >
-> > > > > > > > > Am I missing something?
-> > > > > > > >
-> > > > > > > > I meant it looks to me most of the virtqueue_reinit() is un=
-necessary.
-> > > > > > > > We probably only need to reinit avail/used idx there.
-> > > > > > >
-> > > > > > >
-> > > > > > > In this function, we can indeed remove some code.
-> > > > > > >
-> > > > > > > >       static void virtqueue_reinit_split(struct vring_virtq=
-ueue *vq)
-> > > > > > > >       {
-> > > > > > > >               int size, i;
-> > > > > > > >
-> > > > > > > >               memset(vq->split.vring.desc, 0, vq->split.que=
-ue_size_in_bytes);
-> > > > > > > >
-> > > > > > > >               size =3D sizeof(struct vring_desc_state_split=
-) * vq->split.vring.num;
-> > > > > > > >               memset(vq->split.desc_state, 0, size);
-> > > > > > > >
-> > > > > > > >               size =3D sizeof(struct vring_desc_extra) * vq=
-->split.vring.num;
-> > > > > > > >               memset(vq->split.desc_extra, 0, size);
-> > > > > > >
-> > > > > > > These memsets can be removed, and theoretically it will not c=
-ause any
-> > > > > > > exceptions.
-> > > > > >
-> > > > > > Yes, otherwise we have bugs in detach_buf().
-> > > > > >
-> > > > > > >
-> > > > > > > >
-> > > > > > > >
-> > > > > > > >
-> > > > > > > >               for (i =3D 0; i < vq->split.vring.num - 1; i+=
-+)
-> > > > > > > >                       vq->split.desc_extra[i].next =3D i + =
-1;
-> > > > > > >
-> > > > > > > This can also be removed, but we need to record free_head tha=
-t will been update
-> > > > > > > inside virtqueue_init().
-> > > > > >
-> > > > > > We can simply keep free_head unchanged? Otherwise it's a bug so=
-mewhere I guess.
-> > > > > >
-> > > > > >
-> > > > > > >
-> > > > > > > >
-> > > > > > > >               virtqueue_init(vq, vq->split.vring.num);
-> > > > > > >
-> > > > > > > There are some operations in this, which can also be skipped,=
- such as setting
-> > > > > > > use_dma_api. But I think calling this function directly will =
-be more convenient
-> > > > > > > for maintenance.
-> > > > > >
-> > > > > > I don't see anything that is necessary here.
-> > > > >
-> > > > > These three are currently inside virtqueue_init()
-> > > > >
-> > > > > vq->last_used_idx =3D 0;
-> > > > > vq->event_triggered =3D false;
-> > > > > vq->num_added =3D 0;
-> > > >
-> > > > Right. Let's keep it there.
-> > > >
-> > > > (Though it's kind of strange that the last_used_idx is not initiali=
-zed
-> > > > at the same place with avail_idx/flags_shadow, we can optimize it o=
-n
-> > > > top).
-> > >
-> > > I put free_head =3D 0 in the attach function, it is only necessary to=
- set
-> > > free_head =3D 0 when a new state/extra is attached.
-> >
-> > Ok, so I meant I tend to keep it to make this series converge soon :)
->
->
-> Ok, other than this, and what we discussed, no more fixes will be added.
->
-> Thanks.
+virtio-net can display the maximum (supported by hardware) ring size in
+ethtool -g eth0.
 
-Ack
+When the subsequent patch implements vring reset, it can judge whether
+the ring size passed by the driver is legal based on this.
 
-Thanks
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ arch/um/drivers/virtio_uml.c             | 1 +
+ drivers/platform/mellanox/mlxbf-tmfifo.c | 2 ++
+ drivers/remoteproc/remoteproc_virtio.c   | 2 ++
+ drivers/s390/virtio/virtio_ccw.c         | 3 +++
+ drivers/virtio/virtio_mmio.c             | 2 ++
+ drivers/virtio/virtio_pci_legacy.c       | 2 ++
+ drivers/virtio/virtio_pci_modern.c       | 2 ++
+ drivers/virtio/virtio_vdpa.c             | 2 ++
+ include/linux/virtio.h                   | 2 ++
+ 9 files changed, 18 insertions(+)
 
->
->
-> >
-> > We can do optimization on top anyhow.
-> >
-> > Thanks
-> >
-> > >
-> > > In this way, when we call virtqueue_init(), we don't have to worry ab=
-out
-> > > free_head being modified.
-> > >
-> > > Rethinking this problem, I think virtqueue_init() can be rewritten an=
-d some
-> > > variables that will not change are removed from it. (use_dma_api, eve=
-nt,
-> > > weak_barriers)
-> > >
-> > > +static void virtqueue_init(struct vring_virtqueue *vq, u32 num)
-> > > +{
-> > > +       vq->vq.num_free =3D num;
-> > > +
-> > > +       if (vq->packed_ring)
-> > > +               vq->last_used_idx =3D 0 | (1 << VRING_PACKED_EVENT_F_=
-WRAP_CTR);
-> > > +       else
-> > > +               vq->last_used_idx =3D 0;
-> > > +
-> > > +       vq->event_triggered =3D false;
-> > > +       vq->num_added =3D 0;
-> > > +
-> > > +#ifdef DEBUG
-> > > +       vq->in_use =3D false;
-> > > +       vq->last_add_time_valid =3D false;
-> > > +#endif
-> > > +}
-> > > +
-> > >
-> > > Thanks.
-> > >
-> > >
-> > > >
-> > > > Thanks
-> > > >
-> > > > >
-> > > > > Thanks.
-> > > > >
-> > > > >
-> > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > > >               virtqueue_vring_init_split(&vq->split, vq);
-> > > > > > >
-> > > > > > > virtqueue_vring_init_split() is necessary.
-> > > > > >
-> > > > > > Right.
-> > > > > >
-> > > > > > >
-> > > > > > > >       }
-> > > > > > >
-> > > > > > > Another method, we can take out all the variables to be reini=
-tialized
-> > > > > > > separately, and repackage them into a new function. I don=E2=
-=80=99t think it=E2=80=99s worth
-> > > > > > > it, because this path will only be reached if the memory allo=
-cation fails, which
-> > > > > > > is a rare occurrence. In this case, doing so will increase th=
-e cost of
-> > > > > > > maintenance. If you think so also, I will remove the above me=
-mset in the next
-> > > > > > > version.
-> > > > > >
-> > > > > > I agree.
-> > > > > >
-> > > > > > Thanks
-> > > > > >
-> > > > > > >
-> > > > > > > Thanks.
-> > > > > > >
-> > > > > > >
-> > > > > > > >
-> > > > > > > > Thanks
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > > +
-> > > > > > > > > > > +   err =3D vring_alloc_state_extra_split(&vring_spli=
-t);
-> > > > > > > > > > > +   if (err) {
-> > > > > > > > > > > +           vring_free_split(&vring_split, vdev);
-> > > > > > > > > > > +           goto err;
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > I suggest to move vring_free_split() into a dedicated e=
-rror label.
-> > > > > > > > >
-> > > > > > > > > Will change.
-> > > > > > > > >
-> > > > > > > > > Thanks.
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > Thanks
-> > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > > +   }
-> > > > > > > > > > > +
-> > > > > > > > > > > +   vring_free(&vq->vq);
-> > > > > > > > > > > +
-> > > > > > > > > > > +   virtqueue_vring_init_split(&vring_split, vq);
-> > > > > > > > > > > +
-> > > > > > > > > > > +   virtqueue_init(vq, vring_split.vring.num);
-> > > > > > > > > > > +   virtqueue_vring_attach_split(vq, &vring_split);
-> > > > > > > > > > > +
-> > > > > > > > > > > +   return 0;
-> > > > > > > > > > > +
-> > > > > > > > > > > +err:
-> > > > > > > > > > > +   virtqueue_reinit_split(vq);
-> > > > > > > > > > > +   return -ENOMEM;
-> > > > > > > > > > > +}
-> > > > > > > > > > > +
-> > > > > > > > > > >
-> > > > > > > > > > >   /*
-> > > > > > > > > > >    * Packed ring specific functions - *_packed().
-> > > > > > > > > >
-> > > > > > > > >
-> > > > > > > >
-> > > > > > >
-> > > > > >
-> > > > >
-> > > >
-> > >
-> >
->
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index 82ff3785bf69..e719af8bdf56 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -958,6 +958,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+ 		goto error_create;
+ 	}
+ 	vq->priv = info;
++	vq->num_max = num;
+ 	num = virtqueue_get_vring_size(vq);
+ 
+ 	if (vu_dev->protocol_features &
+diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+index 38800e86ed8a..1ae3c56b66b0 100644
+--- a/drivers/platform/mellanox/mlxbf-tmfifo.c
++++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+@@ -959,6 +959,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
+ 			goto error;
+ 		}
+ 
++		vq->num_max = vring->num;
++
+ 		vqs[i] = vq;
+ 		vring->vq = vq;
+ 		vq->priv = vring;
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index d43d74733f0a..0f7706e23eb9 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -125,6 +125,8 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
++	vq->num_max = num;
++
+ 	rvring->vq = vq;
+ 	vq->priv = rvring;
+ 
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 161d3b141f0d..6b86d0280d6b 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -530,6 +530,9 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 		err = -ENOMEM;
+ 		goto out_err;
+ 	}
++
++	vq->num_max = info->num;
++
+ 	/* it may have been reduced */
+ 	info->num = virtqueue_get_vring_size(vq);
+ 
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 083ff1eb743d..a20d5a6b5819 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -403,6 +403,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 		goto error_new_virtqueue;
+ 	}
+ 
++	vq->num_max = num;
++
+ 	/* Activate the queue */
+ 	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
+ 	if (vm_dev->version == 1) {
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index a5e5721145c7..2257f1b3d8ae 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -135,6 +135,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	vq->num_max = num;
++
+ 	q_pfn = virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT;
+ 	if (q_pfn >> 32) {
+ 		dev_err(&vp_dev->pci_dev->dev,
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 623906b4996c..e7e0b8c850f6 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -218,6 +218,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	vq->num_max = num;
++
+ 	/* activate the queue */
+ 	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
+ 	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index c40f7deb6b5a..9670cc79371d 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -183,6 +183,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 		goto error_new_virtqueue;
+ 	}
+ 
++	vq->num_max = max_num;
++
+ 	/* Setup virtqueue callback */
+ 	cb.callback = callback ? virtio_vdpa_virtqueue_cb : NULL;
+ 	cb.private = info;
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index d8fdf170637c..129bde7521e3 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -19,6 +19,7 @@
+  * @priv: a pointer for the virtqueue implementation to use.
+  * @index: the zero-based ordinal number for this queue.
+  * @num_free: number of elements we expect to be able to fit.
++ * @num_max: the maximum number of elements supported by the device.
+  *
+  * A note on @num_free: with indirect buffers, each buffer needs one
+  * element in the queue, otherwise a buffer will need one element per
+@@ -31,6 +32,7 @@ struct virtqueue {
+ 	struct virtio_device *vdev;
+ 	unsigned int index;
+ 	unsigned int num_free;
++	unsigned int num_max;
+ 	void *priv;
+ };
+ 
+-- 
+2.31.0
 
