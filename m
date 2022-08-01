@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB569C19F2D
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Aug 2022 06:41:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 858F5C25B07
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Aug 2022 06:41:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238451AbiHAGlx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 1 Aug 2022 02:41:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33988 "EHLO
+        id S232586AbiHAGlz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 1 Aug 2022 02:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238691AbiHAGkx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Aug 2022 02:40:53 -0400
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF251A8;
-        Sun, 31 Jul 2022 23:40:10 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VL1vTBf_1659336003;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VL1vTBf_1659336003)
+        with ESMTP id S236303AbiHAGky (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Aug 2022 02:40:54 -0400
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DB5610D;
+        Sun, 31 Jul 2022 23:40:09 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0VL1ssDt_1659335999;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VL1ssDt_1659335999)
           by smtp.aliyun-inc.com;
-          Mon, 01 Aug 2022 14:40:04 +0800
+          Mon, 01 Aug 2022 14:40:00 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -53,9 +53,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org,
         kangjie.xu@linux.alibaba.com
-Subject: [PATCH v14 31/42] virtio_pci: extract the logic of active vq for modern pci
-Date:   Mon,  1 Aug 2022 14:38:51 +0800
-Message-Id: <20220801063902.129329-32-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v14 29/42] virtio_pci: struct virtio_pci_common_cfg add queue_reset
+Date:   Mon,  1 Aug 2022 14:38:49 +0800
+Message-Id: <20220801063902.129329-30-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
 References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
@@ -66,87 +66,43 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduce vp_active_vq() to configure vring to backend after vq attach
-vring. And configure vq vector if necessary.
+Add queue_reset in virtio_pci_modern_common_cfg.
+
+ https://github.com/oasis-tcs/virtio-spec/issues/124
+ https://github.com/oasis-tcs/virtio-spec/issues/139
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_pci_modern.c | 46 ++++++++++++++++++------------
- 1 file changed, 28 insertions(+), 18 deletions(-)
+ include/linux/virtio_pci_modern.h | 2 +-
+ include/uapi/linux/virtio_pci.h   | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index e7e0b8c850f6..9041d9a41b7d 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -176,6 +176,29 @@ static void vp_reset(struct virtio_device *vdev)
- 	vp_synchronize_vectors(vdev);
- }
+diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+index 41f5a018bd94..05123b9a606f 100644
+--- a/include/linux/virtio_pci_modern.h
++++ b/include/linux/virtio_pci_modern.h
+@@ -9,7 +9,7 @@ struct virtio_pci_modern_common_cfg {
+ 	struct virtio_pci_common_cfg cfg;
  
-+static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
-+{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
-+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
-+	unsigned long index;
-+
-+	index = vq->index;
-+
-+	/* activate the queue */
-+	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
-+	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
-+				virtqueue_get_avail_addr(vq),
-+				virtqueue_get_used_addr(vq));
-+
-+	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
-+		msix_vec = vp_modern_queue_vector(mdev, index, msix_vec);
-+		if (msix_vec == VIRTIO_MSI_NO_VECTOR)
-+			return -EBUSY;
-+	}
-+
-+	return 0;
-+}
-+
- static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
- {
- 	return vp_modern_config_vector(&vp_dev->mdev, vector);
-@@ -220,32 +243,19 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	__le16 queue_notify_data;	/* read-write */
+-	__le16 padding;
++	__le16 queue_reset;		/* read-write */
+ };
  
- 	vq->num_max = num;
+ struct virtio_pci_modern_device {
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index f5981a874481..f703afc7ad31 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -203,6 +203,7 @@ struct virtio_pci_cfg_cap {
+ #define VIRTIO_PCI_COMMON_Q_USEDLO	48
+ #define VIRTIO_PCI_COMMON_Q_USEDHI	52
+ #define VIRTIO_PCI_COMMON_Q_NDATA	56
++#define VIRTIO_PCI_COMMON_Q_RESET	58
  
--	/* activate the queue */
--	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
--	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
--				virtqueue_get_avail_addr(vq),
--				virtqueue_get_used_addr(vq));
-+	err = vp_active_vq(vq, msix_vec);
-+	if (err)
-+		goto err;
+ #endif /* VIRTIO_PCI_NO_MODERN */
  
- 	vq->priv = (void __force *)vp_modern_map_vq_notify(mdev, index, NULL);
- 	if (!vq->priv) {
- 		err = -ENOMEM;
--		goto err_map_notify;
--	}
--
--	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
--		msix_vec = vp_modern_queue_vector(mdev, index, msix_vec);
--		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
--			err = -EBUSY;
--			goto err_assign_vector;
--		}
-+		goto err;
- 	}
- 
- 	return vq;
- 
--err_assign_vector:
--	if (!mdev->notify_base)
--		pci_iounmap(mdev->pci_dev, (void __iomem __force *)vq->priv);
--err_map_notify:
-+err:
- 	vring_del_virtqueue(vq);
- 	return ERR_PTR(err);
- }
 -- 
 2.31.0
 
