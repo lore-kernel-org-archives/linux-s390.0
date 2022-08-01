@@ -2,96 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F64FC00144
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Aug 2022 14:50:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2EF4C00144
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Aug 2022 20:55:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231352AbiHAOuW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 1 Aug 2022 10:50:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35102 "EHLO
+        id S234645AbiHAUzj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 1 Aug 2022 16:55:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233072AbiHAOuU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Aug 2022 10:50:20 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CBE1DFDE;
-        Mon,  1 Aug 2022 07:50:19 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B82AFCE16D3;
-        Mon,  1 Aug 2022 14:50:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAB3AC433D6;
-        Mon,  1 Aug 2022 14:50:15 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="Hch54xq6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1659365413;
+        with ESMTP id S234629AbiHAUzf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Aug 2022 16:55:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CE598DFE8
+        for <linux-s390@vger.kernel.org>; Mon,  1 Aug 2022 13:55:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1659387333;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=IL1fL31Kufub455HpgLgDd5H/KhEcVXE4PfEbm2p3dk=;
-        b=Hch54xq6rR0E6RYbiyyV/89OLOmKVN4Bw6ZxmnLZuw8LmSwF0XW81C3bc6mGKOEmHgU+tD
-        stVWZPQWgfvM3g0yOcNAuDhj1u0bY/6XeKY+EKy42o1zWpBpgKJDIOC4/zqbRRq9WlmAx8
-        yv7p88zrL9gNGF/nb54tGi7LQa55dqo=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 6957966a (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Mon, 1 Aug 2022 14:50:13 +0000 (UTC)
-Received: by mail-yb1-f180.google.com with SMTP id j195so19249768ybj.11;
-        Mon, 01 Aug 2022 07:50:12 -0700 (PDT)
-X-Gm-Message-State: ACgBeo3H7AFoDrboKltXaIv//KyAgqFdRk+63YFc3+ZazFoWHLMmrvLo
-        rS3Ki9echLCxMLEsQhAuRO4mkJYJUUV0hIHOBJA=
-X-Google-Smtp-Source: AA6agR6P70edYqiN+zUwKWi9WNeeDQlBEVmK8mzIeWJiBehF/9yUDRm2k8cgf/ZDiZNwZvbs/5SzSQc6w3Gplutopvw=
-X-Received: by 2002:a25:250:0:b0:673:e6c5:27bf with SMTP id
- 77-20020a250250000000b00673e6c527bfmr11691124ybc.258.1659365411128; Mon, 01
- Aug 2022 07:50:11 -0700 (PDT)
+        bh=QKq8HVGZQpe4cr2LqvofdEB83s1X3DS/h6MN4idsnvs=;
+        b=ENbdOiB4JmuOAEm7WFCOrfYzUpKsDiE6u+FUZD+DLIw6jHVnP56CU64gI1QGPgfl2R5exg
+        sMQR8F1MzC+/frVVj4mxh8lA7kGaEKd+TSJYkUnc/bPzgQ3qvJpzeTks81oV6IRUbcUShz
+        EwX7zi58LhyG6qW853UIbvnYsxkI4GE=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-647-bxnqjwRLOZChLY8zWNdQ4A-1; Mon, 01 Aug 2022 16:55:32 -0400
+X-MC-Unique: bxnqjwRLOZChLY8zWNdQ4A-1
+Received: by mail-il1-f200.google.com with SMTP id x7-20020a056e021ca700b002ded2e6331aso938247ill.20
+        for <linux-s390@vger.kernel.org>; Mon, 01 Aug 2022 13:55:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=QKq8HVGZQpe4cr2LqvofdEB83s1X3DS/h6MN4idsnvs=;
+        b=W6qJKz+yv711PVmlYN0IFWf1e1ObM0n3FCrzlystvd/C9KUSFKW0J9/U96mmojLi7V
+         5qvMyGGU9OeOOT0If+56R+9sv6cEsFylEjyLD+/QKLusFCuSSMJlNC/+HC/MJ0yzEqhO
+         WVl+rPKCKzRWSFcwO/chrh5dVoN5dUbMsnN3V7kqTH13pTOUBhN2RCNEz0/h15fJXZ74
+         fXumLEypri92HJYFTL/CLPJTDCDgWXEQuAPxRgdVqSK5duILgrTA8EH9UE23R2Xz1Y+h
+         6xJSZxh1+WbXPF0RbAg5VL8TvZjqgyP9bkbT/GY7dIV3JmK222DQlohRO53tkbMtrFKm
+         gt7Q==
+X-Gm-Message-State: ACgBeo3AIAGadXJAQ3jmDmzVFXENMsotlDWomUH8fDCmRQDOaAEsPCXE
+        vdBESPBSLxGVdiVnN2qSvaoXvMGiCfmFZP0TDH5w5lF6dq7Vt/To02RQWqR05RnRRprlns4hwiR
+        EUTeNAcFsTVxyxmNlmV1Z+w==
+X-Received: by 2002:a05:6e02:1d81:b0:2de:e4d2:787d with SMTP id h1-20020a056e021d8100b002dee4d2787dmr155046ila.126.1659387331634;
+        Mon, 01 Aug 2022 13:55:31 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4QImEUtJqO/CgVMXMKqIjE3TY0B7QN+vBWj7uS022EYUdT4narfpq+W80jOwZoLjvTO3ZYKA==
+X-Received: by 2002:a05:6e02:1d81:b0:2de:e4d2:787d with SMTP id h1-20020a056e021d8100b002dee4d2787dmr155036ila.126.1659387331455;
+        Mon, 01 Aug 2022 13:55:31 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id v7-20020a05663812c700b0032e49fcc241sm5685731jas.176.2022.08.01.13.55.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Aug 2022 13:55:31 -0700 (PDT)
+Date:   Mon, 1 Aug 2022 14:55:28 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Nicolin Chen <nicolinc@nvidia.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH v3 0/3] vfio-ccw fixes for 5.20
+Message-ID: <20220801145528.4b7ec8c7.alex.williamson@redhat.com>
+In-Reply-To: <20220728204914.2420989-1-farman@linux.ibm.com>
+References: <20220728204914.2420989-1-farman@linux.ibm.com>
+Organization: Red Hat
 MIME-Version: 1.0
-References: <CAHmME9qTA90=GEr6h1GZh0CjS+6tpe5uuqkYoJVv79h0zd0w1w@mail.gmail.com>
- <20220719130207.147536-1-Jason@zx2c4.com> <7285be49c459bdc8f4ec3abe85d9e171@linux.ibm.com>
-In-Reply-To: <7285be49c459bdc8f4ec3abe85d9e171@linux.ibm.com>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Mon, 1 Aug 2022 16:50:00 +0200
-X-Gmail-Original-Message-ID: <CAHmME9rk27DA0DmTY7hhedFT0ftkMKhZn30NCvjkkzkKD0hNfQ@mail.gmail.com>
-Message-ID: <CAHmME9rk27DA0DmTY7hhedFT0ftkMKhZn30NCvjkkzkKD0hNfQ@mail.gmail.com>
-Subject: Re: [PATCH v3] random: handle archrandom with multiple longs
-To:     freude@linux.ibm.com
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        x86@kernel.org, Will Deacon <will@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Borislav Petkov <bp@suse.de>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Stephen Rothwell <sfr@canb.auug.org.au>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Harald,
+On Thu, 28 Jul 2022 22:49:11 +0200
+Eric Farman <farman@linux.ibm.com> wrote:
 
-On Mon, Aug 1, 2022 at 4:47 PM Harald Freudenberger
-<freude@linux.ibm.com> wrote:
->
-> Nice interface :-)
-> Here is my
-> Acked-by: Harald Freudenberger <freude@linux.ibm.com>
+> Matt, Alex,
+> 
+> Here are the (hopefully last) patches for the DMA UNMAP thing.
+> 
+> Changelog:
+> v2->v3:
+>  - [MR] Add r-b to Patch 1, 3 (Thank you!)
+>  - [MR] s/unsigned long/u64/
+>  - [EF] Add brackets to for(i) loop
+> v2: https://lore.kernel.org/r/20220728160550.2119289-1-farman@linux.ibm.com/
+> v1: https://lore.kernel.org/r/20220726150123.2567761-1-farman@linux.ibm.com/
+> 
+> Eric Farman (3):
+>   vfio/ccw: Add length to DMA_UNMAP checks
+>   vfio/ccw: Remove FSM Close from remove handlers
+>   vfio/ccw: Check return code from subchannel quiesce
+> 
+>  drivers/s390/cio/vfio_ccw_cp.c  | 16 +++++++++++-----
+>  drivers/s390/cio/vfio_ccw_cp.h  |  2 +-
+>  drivers/s390/cio/vfio_ccw_drv.c |  1 -
+>  drivers/s390/cio/vfio_ccw_fsm.c |  2 +-
+>  drivers/s390/cio/vfio_ccw_ops.c |  4 +---
+>  5 files changed, 14 insertions(+), 11 deletions(-)
+> 
 
-You're too late; I already sent in my pull request. But that's okay; I
-received Heiko's ack on this for s390.
+Applied to vfio next branch for v5.20/v6.0.  Thanks,
 
-> but please keep in mind that your patch does not apply cleanly as there
-> is my other patch
-> 918e75f77af7 ("s390/archrandom: prevent CPACF trng invocations in
-> interrupt context")
-> in between.
+Alex
 
-Yea, this was a late addition to 5.19, and my random tree was based on
-an earlier rc of 5.19. That kind of thing happens and is fine; Stephen
-caught it when doing the next merge and carries the merge conflict
-resolution there. I mentioned it to Linus in my pull, so he'll be able
-to work it out.
-
-Jason
