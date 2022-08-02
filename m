@@ -2,137 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5E52C00140
-	for <linux-s390@archiver.kernel.org>; Tue,  2 Aug 2022 14:32:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7C2AC00140
+	for <linux-s390@archiver.kernel.org>; Tue,  2 Aug 2022 23:36:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237289AbiHBOcY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 2 Aug 2022 10:32:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52978 "EHLO
+        id S229614AbiHBXgQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 2 Aug 2022 19:36:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234788AbiHBOcX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Aug 2022 10:32:23 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9562A7;
-        Tue,  2 Aug 2022 07:32:22 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id o3so13619167ple.5;
-        Tue, 02 Aug 2022 07:32:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=a2I3feE0Mlfc3dQYVR+6wp2Xd8855Ae93uhZIIi/yHM=;
-        b=aesQNlVxD1yT/+g/rcziiqLmKf9Hlm4zQQ8bBvOm0oMfANjlGDpxKqZmpWKm2YnQDm
-         LFZ/MXvbb3s71YM75UkKN4Jt4s/ZWOV3PKtzYjpYxhWxYjfsefJutvUBRtmXRkDT/+fh
-         gvKoiOn1EBsouTWHyg6Ju3+b6aBVDJ1KmwG+DpepedgZHxZgRbFkbSTgUmbcGvP0mIp0
-         y/+m+2Hx6jAYOjwCJ0cO5ZlX1EwegRTdAkUDJY2269qXI/owaAW0twShGzApePCaVe7h
-         D/jqVN4qGJ8AoNxqd1bLBacScqDR+hSIys2eexLd8l1X5EptRGbTSsyq3NtxmxZmQdO6
-         O7+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=a2I3feE0Mlfc3dQYVR+6wp2Xd8855Ae93uhZIIi/yHM=;
-        b=DplfZWu2I5g6QWxGV4yrpLSf6P8/jGGrl+3HNy6wZykJluMazYLUJ3aOf9oedhiNEK
-         AGxgaLVuomVIgElgdXCYh57lXq9FT/uQ2d2I56FrylPRj254p76RVsO/OqiZzdw+ZMiA
-         Ieh0bNGVrhvNYgeKcP2vlNnVzC4R7N0ytpXRcCMyLEGvo/Y5FIXChho7lGqMVcfCzZww
-         iSXGyiowLomm1EGy8s/sFagsDJKMYOozbzzWYUEVVwOhRgmXbwg9w8otqA83Z4VpTCFR
-         DUP694AgxbUYejerBpHnbMrqqB3n5lovW15QWWqA7sCckZyXxUx9mzHb2X13C0hT7Lvn
-         ZJ7Q==
-X-Gm-Message-State: ACgBeo2zdOAEClkntUsJI45ljvZcicBNDueYSEaOIxb6SwI9iNZdaoWm
-        Gt6COsA9Ue7GlZsl+IcSvk4=
-X-Google-Smtp-Source: AA6agR5f0C9L4dHw1ZGT1V6HsSKE+oSWd0oY5hDNIEcYNyrNHoM+heSlQ+rbuArRCrxHcS4G+noBOA==
-X-Received: by 2002:a17:902:ab96:b0:16a:6db6:2715 with SMTP id f22-20020a170902ab9600b0016a6db62715mr22067267plr.141.1659450741586;
-        Tue, 02 Aug 2022 07:32:21 -0700 (PDT)
-Received: from localhost ([223.104.103.89])
-        by smtp.gmail.com with ESMTPSA id q16-20020a17090311d000b0016be6a554b5sm12172323plh.233.2022.08.02.07.32.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Aug 2022 07:32:21 -0700 (PDT)
-From:   Hawkins Jiawei <yin31149@gmail.com>
-To:     jakub@cloudflare.com
-Cc:     18801353760@163.com, andrii@kernel.org, ast@kernel.org,
-        borisp@nvidia.com, bpf@vger.kernel.org, daniel@iogearbox.net,
-        davem@davemloft.net, edumazet@google.com, guvenc@linux.ibm.com,
-        guwen@linux.alibaba.com, john.fastabend@gmail.com, kafai@fb.com,
-        kgraul@linux.ibm.com, kpsingh@kernel.org, kuba@kernel.org,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, pabeni@redhat.com, paskripkin@gmail.com,
-        skhan@linuxfoundation.org, songliubraving@fb.com,
-        syzbot+5f26f85569bd179c18ce@syzkaller.appspotmail.com,
-        syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com,
-        wenjia@linux.ibm.com, yhs@fb.com, yin31149@gmail.com
-Subject: Re: [PATCH v2] net/smc: fix refcount bug in sk_psock_get (2)
-Date:   Tue,  2 Aug 2022 22:32:14 +0800
-Message-Id: <20220802143214.5885-1-yin31149@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <87wnbsjpdb.fsf@cloudflare.com>
-References: <87wnbsjpdb.fsf@cloudflare.com>
+        with ESMTP id S230471AbiHBXgO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Aug 2022 19:36:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60F5D12085;
+        Tue,  2 Aug 2022 16:36:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E8F5B82082;
+        Tue,  2 Aug 2022 23:36:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9FDC433D6;
+        Tue,  2 Aug 2022 23:36:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1659483369;
+        bh=v5BpfTeeUnEg5aiY3JXzeQ9+oVLGf+XXAtusafcmUKA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GX4S/1RupGvypi9o/4VEONNJk88b0p04HGabcMEcfKRKtQJmeeL+ykEK5fulPVy9X
+         LbDT3ayL+TirezyrK0cMuJLOp0U9SanhjUy+9EIr4Gsm9bwZrApLl//QJzzXJejtNx
+         Mx+B3ey6NIYLzE1sl99YPrUYWB3ocg5jDZ61xLXzxQkbkHmf4zJOahSnMUsD6uE0EZ
+         ixt8GnMEqhTuJ9aEB/TIfPmqxDJUhM0h+69r1moi1xgWA/hj7iq+lFP9jHrhsgdE7i
+         mRPY0279OXn99EbYZvqk9W3DfIsezjYByT8FoaAWR+Rf5FBcvanqixiJkHCemNjluo
+         HDRSWyuLPnjHA==
+From:   broonie@kernel.org
+To:     Theodore Ts'o <tytso@mit.edu>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Next Mailing List <linux-next@vger.kernel.org>,
+        linux-s390@vger.kernel.org
+Subject: linux-next: manual merge of the random tree with the s390-fixes tree
+Date:   Wed,  3 Aug 2022 00:35:59 +0100
+Message-Id: <20220802233559.2606732-1-broonie@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thanks for your suggestion!
+Hi all,
 
-On Mon, 1 Aug 2022 at 17:16, Jakub Sitnicki <jakub@cloudflare.com> wrote:
-> This way we would also avoid some confusion. With the change below, the
-> SK_USER_DATA_NOTPSOCK is not *always* set when sk_user_data holds a
-> non-psock pointer. Only when SMC sets it.
->
-> If we go with the current approach, the rest of sites, execpt for psock,
-> that assign to sk_user_data should be updated to set
-> SK_USER_DATA_NOTPSOCK as well, IMO.
-Yes, as you point out, in this patch, this flag's name should be
-*SK_USER_DATA_NEEDCHECK_NOTPSOCK*, which is more clearly.
+Today's linux-next merge of the random tree got a conflict in:
 
-To be more specific, we don't need to set this flag for
-every sk_user_data who holds non-psock pointer. Only set the flag for
-the site that has been reported involved with the type-mismatch bug
-like this bug.
-> > During SMC fallback process in connect syscall, kernel will
-> > replaces TCP with SMC. In order to forward wakeup
-> > smc socket waitqueue after fallback, kernel will sets
-> > clcsk->sk_user_data to origin smc socket in
-> > smc_fback_replace_callbacks().
-> > 
-> > Later, in shutdown syscall, kernel will calls
-> > sk_psock_get(), which treats the clcsk->sk_user_data
-> > as sk_psock type, triggering the refcnt warning.
+  arch/s390/include/asm/archrandom.h
 
-For other sites, this patch is actually transparent to them, because
-the *SK_USER_DATA_NEEDCHECK_NOTPSOCK* flag is always unset. So this
-patch won't affect them, which won't introduce any extra
-potential bugs.
-> +/**
-> + * rcu_dereference_sk_user_data_psock - return psock if sk_user_data points
-> + * to the psock
-> + * @sk: socket
-> + */
-> +static inline
-> +struct sk_psock *rcu_dereference_sk_user_data_psock(const struct sock *sk)
-> +{
-> +	uintptr_t __tmp = (uintptr_t)rcu_dereference(__sk_user_data((sk)));
-> +
-> +	if (__tmp & SK_USER_DATA_NOTPSOCK)
-> +		return NULL;
-> +	return (struct sk_psock *)(__tmp & SK_USER_DATA_PTRMASK);
-> +}
+between commit:
 
->
-> Hi,
-> Since using psock is not the common case, I'm wondering if it makes more
-> sense to have an inverse flag - SK_USER_DATA_PSOCK. Flag would be set by
-> the psock code on assignment to sk_user_data.
-However, your suggestion seems more elegant. For my patch, as you point
-out, when anyone reports a new type-mismatch bug, the relative assign to
-sk_user_data should be updated to set *SK_USER_DATA_NEEDCHECK_NOTPSOCK*
-flag.
+  918e75f77af7d ("s390/archrandom: prevent CPACF trng invocations in interrupt context")
 
-For your suggestion, you seems avoid above situation. What's more, as I
-use git grep to search, there seems no direct access to sk_user_data,
-all via a small amount macros and wrapper functions. So we can keep
-transparent by only update those macros and wrapper functions, which
-also won't introduce any extra potential bugs.
+from the s390-fixes tree and commit:
 
-I will patch as you suggest in v3 patch.
+  d349ab99eec7a ("random: handle archrandom with multiple longs")
+
+from the random tree.
+
+I fixed it up (see below) and can carry the fix as necessary. This
+is now fixed as far as linux-next is concerned, but any non trivial
+conflicts should be mentioned to your upstream maintainer when your tree
+is submitted for merging.  You may also want to consider cooperating
+with the maintainer of the conflicting tree to minimise any particularly
+complex conflicts.
+
+diff --cc arch/s390/include/asm/archrandom.h
+index 4120c428dc378,cf5e000df0a14..0000000000000
+--- a/arch/s390/include/asm/archrandom.h
++++ b/arch/s390/include/asm/archrandom.h
+@@@ -11,47 -11,26 +11,28 @@@
+  #ifndef _ASM_S390_ARCHRANDOM_H
+  #define _ASM_S390_ARCHRANDOM_H
+  
+- #ifdef CONFIG_ARCH_RANDOM
+- 
+  #include <linux/static_key.h>
+ +#include <linux/preempt.h>
+  #include <linux/atomic.h>
+  #include <asm/cpacf.h>
+  
+  DECLARE_STATIC_KEY_FALSE(s390_arch_random_available);
+  extern atomic64_t s390_arch_random_counter;
+  
+- static inline bool __must_check arch_get_random_long(unsigned long *v)
+- {
+- 	return false;
+- }
+- 
+- static inline bool __must_check arch_get_random_int(unsigned int *v)
+- {
+- 	return false;
+- }
+- 
+- static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
++ static inline size_t __must_check arch_get_random_longs(unsigned long *v, size_t max_longs)
+  {
+- 	if (static_branch_likely(&s390_arch_random_available) &&
+- 	    in_task()) {
+- 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+- 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+- 		return true;
+- 	}
+- 	return false;
++ 	return 0;
+  }
+  
+- static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
++ static inline size_t __must_check arch_get_random_seed_longs(unsigned long *v, size_t max_longs)
+  {
+ -	if (static_branch_likely(&s390_arch_random_available)) {
+ +	if (static_branch_likely(&s390_arch_random_available) &&
+ +	    in_task()) {
+- 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+- 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+- 		return true;
++ 		cpacf_trng(NULL, 0, (u8 *)v, max_longs * sizeof(*v));
++ 		atomic64_add(max_longs * sizeof(*v), &s390_arch_random_counter);
++ 		return max_longs;
+  	}
+- 	return false;
++ 	return 0;
+  }
+  
+- #endif /* CONFIG_ARCH_RANDOM */
+  #endif /* _ASM_S390_ARCHRANDOM_H */
