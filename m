@@ -2,133 +2,92 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7C2AC00140
-	for <linux-s390@archiver.kernel.org>; Tue,  2 Aug 2022 23:36:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E562C19F28
+	for <linux-s390@archiver.kernel.org>; Wed,  3 Aug 2022 07:22:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229614AbiHBXgQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 2 Aug 2022 19:36:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40920 "EHLO
+        id S233836AbiHCHWN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 3 Aug 2022 03:22:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230471AbiHBXgO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Aug 2022 19:36:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60F5D12085;
-        Tue,  2 Aug 2022 16:36:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E8F5B82082;
-        Tue,  2 Aug 2022 23:36:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9FDC433D6;
-        Tue,  2 Aug 2022 23:36:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659483369;
-        bh=v5BpfTeeUnEg5aiY3JXzeQ9+oVLGf+XXAtusafcmUKA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=GX4S/1RupGvypi9o/4VEONNJk88b0p04HGabcMEcfKRKtQJmeeL+ykEK5fulPVy9X
-         LbDT3ayL+TirezyrK0cMuJLOp0U9SanhjUy+9EIr4Gsm9bwZrApLl//QJzzXJejtNx
-         Mx+B3ey6NIYLzE1sl99YPrUYWB3ocg5jDZ61xLXzxQkbkHmf4zJOahSnMUsD6uE0EZ
-         ixt8GnMEqhTuJ9aEB/TIfPmqxDJUhM0h+69r1moi1xgWA/hj7iq+lFP9jHrhsgdE7i
-         mRPY0279OXn99EbYZvqk9W3DfIsezjYByT8FoaAWR+Rf5FBcvanqixiJkHCemNjluo
-         HDRSWyuLPnjHA==
-From:   broonie@kernel.org
-To:     Theodore Ts'o <tytso@mit.edu>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Next Mailing List <linux-next@vger.kernel.org>,
-        linux-s390@vger.kernel.org
-Subject: linux-next: manual merge of the random tree with the s390-fixes tree
-Date:   Wed,  3 Aug 2022 00:35:59 +0100
-Message-Id: <20220802233559.2606732-1-broonie@kernel.org>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S233565AbiHCHWL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Aug 2022 03:22:11 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3711CFF8;
+        Wed,  3 Aug 2022 00:22:10 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27362OBm012206;
+        Wed, 3 Aug 2022 07:22:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ to : subject : from : message-id : date; s=pp1;
+ bh=7EHvYAmYBgXM4ChV81QhWz3DuYlCMSJBxhnz4hgFkzI=;
+ b=SuOa+66eeq9Be2EYLPBx/EalPCvhv78GmIjTc+Q5+erPawIVxIocubG1zGSNnVj1BDHs
+ cEMkO7aXZ+lYyPc9V29Zow4AxQBD6InhvDN39iI1BOoXaCMxTU7H4vN3dEgADRrNUNU9
+ bO5EM7Tk1NY5XfmnmYuy2w53pI3+CuYOa8uMBzypMbkETJBr3AISGyDZWNqD7hCAXyY4
+ IaMOYGzpfUAUs3M+Vt85ZrsuIsGxd1GdRD5jH+TxkI2/DQ60ve6IGSu6XoSKqRXlcihA
+ Zo4MCUG21lVQ6Edr5KTnnw2zzELP7KwKiHd4Fgyu+OIk641gQyUOyLKmpF1qIrUUkah9 sw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hqkdbadtv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Aug 2022 07:22:09 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 273643Q9018185;
+        Wed, 3 Aug 2022 07:22:08 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hqkdbadt8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Aug 2022 07:22:08 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2737LwTj015057;
+        Wed, 3 Aug 2022 07:22:07 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma02fra.de.ibm.com with ESMTP id 3hmv98vf30-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Aug 2022 07:22:07 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2737JmFs30540048
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 3 Aug 2022 07:19:48 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A7183AE04D;
+        Wed,  3 Aug 2022 07:22:03 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8B450AE045;
+        Wed,  3 Aug 2022 07:22:03 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.22.238])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  3 Aug 2022 07:22:03 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20220725130859.48740-1-frankja@linux.ibm.com>
+References: <20220707111912.51ecc0f2@p-imbrenda> <20220725130859.48740-1-frankja@linux.ibm.com>
+Cc:     imbrenda@linux.ibm.com, linux-s390@vger.kernel.org,
+        thuth@redhat.com, seiden@linux.ibm.com, scgl@linux.ibm.com
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v3] s390x: uv-host: Add access checks for donated memory
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <165951132332.11298.683533858623578126@localhost.localdomain>
+User-Agent: alot/0.8.1
+Date:   Wed, 03 Aug 2022 09:22:03 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: CyHXtYb1tpjNpZwHfARpAH80-yjlNelg
+X-Proofpoint-ORIG-GUID: 6Pcm3AJLku9X_bmJNZ6ypQ-JLC_2Wakh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-03_03,2022-08-02_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ priorityscore=1501 impostorscore=0 bulkscore=0 malwarescore=0 phishscore=0
+ suspectscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=948
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
+ definitions=main-2208030032
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi all,
+Quoting Janosch Frank (2022-07-25 15:08:59)
+> Let's check if the UV really protected all the memory we donated.
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-Today's linux-next merge of the random tree got a conflict in:
-
-  arch/s390/include/asm/archrandom.h
-
-between commit:
-
-  918e75f77af7d ("s390/archrandom: prevent CPACF trng invocations in interrupt context")
-
-from the s390-fixes tree and commit:
-
-  d349ab99eec7a ("random: handle archrandom with multiple longs")
-
-from the random tree.
-
-I fixed it up (see below) and can carry the fix as necessary. This
-is now fixed as far as linux-next is concerned, but any non trivial
-conflicts should be mentioned to your upstream maintainer when your tree
-is submitted for merging.  You may also want to consider cooperating
-with the maintainer of the conflicting tree to minimise any particularly
-complex conflicts.
-
-diff --cc arch/s390/include/asm/archrandom.h
-index 4120c428dc378,cf5e000df0a14..0000000000000
---- a/arch/s390/include/asm/archrandom.h
-+++ b/arch/s390/include/asm/archrandom.h
-@@@ -11,47 -11,26 +11,28 @@@
-  #ifndef _ASM_S390_ARCHRANDOM_H
-  #define _ASM_S390_ARCHRANDOM_H
-  
-- #ifdef CONFIG_ARCH_RANDOM
-- 
-  #include <linux/static_key.h>
- +#include <linux/preempt.h>
-  #include <linux/atomic.h>
-  #include <asm/cpacf.h>
-  
-  DECLARE_STATIC_KEY_FALSE(s390_arch_random_available);
-  extern atomic64_t s390_arch_random_counter;
-  
-- static inline bool __must_check arch_get_random_long(unsigned long *v)
-- {
-- 	return false;
-- }
-- 
-- static inline bool __must_check arch_get_random_int(unsigned int *v)
-- {
-- 	return false;
-- }
-- 
-- static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
-+ static inline size_t __must_check arch_get_random_longs(unsigned long *v, size_t max_longs)
-  {
-- 	if (static_branch_likely(&s390_arch_random_available) &&
-- 	    in_task()) {
-- 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
-- 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
-- 		return true;
-- 	}
-- 	return false;
-+ 	return 0;
-  }
-  
-- static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
-+ static inline size_t __must_check arch_get_random_seed_longs(unsigned long *v, size_t max_longs)
-  {
- -	if (static_branch_likely(&s390_arch_random_available)) {
- +	if (static_branch_likely(&s390_arch_random_available) &&
- +	    in_task()) {
-- 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
-- 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
-- 		return true;
-+ 		cpacf_trng(NULL, 0, (u8 *)v, max_longs * sizeof(*v));
-+ 		atomic64_add(max_longs * sizeof(*v), &s390_arch_random_counter);
-+ 		return max_longs;
-  	}
-- 	return false;
-+ 	return 0;
-  }
-  
-- #endif /* CONFIG_ARCH_RANDOM */
-  #endif /* _ASM_S390_ARCHRANDOM_H */
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
