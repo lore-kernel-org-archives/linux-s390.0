@@ -2,110 +2,81 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 989D6C19F2A
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Aug 2022 17:36:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B39D3C25B06
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Aug 2022 20:27:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239019AbiHDRgB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 4 Aug 2022 13:36:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53032 "EHLO
+        id S239778AbiHDU1y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 4 Aug 2022 16:27:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230120AbiHDRgB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Aug 2022 13:36:01 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3087AE0FC;
-        Thu,  4 Aug 2022 10:36:00 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 274HYOYE002612;
-        Thu, 4 Aug 2022 17:35:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=bHrzd4IORsCUFsxr6bF7gsPJpewPI6I31yQT1nNEqFk=;
- b=euFgz/rJ26wWYHptJglzbFqqWybh/0toyyeVwV4A3Aw/m7wlv9K8b0lIAtfvkiO0MtoZ
- L4RYxy1sofAY/j9uENB36goDsK+dgZEbiyQjASVp7b525yT8YsdhkDFHlqSskpPK2J7d
- J7yK+wPwuHRHgD7pZm6McpLrW96EpJeFvAAYsnIFxnw90GIk2fXRsjRTOuVBkWRCOLxP
- P9G+RewNvY9GgYTjoWXl5giN9XkFVd8O4ltU5W4bPLXCA5XuNymEc/N2Z70f8t9LX22e
- vGdlqH7EAgAEGe1pNbx90jAYaLyRXg4TJDoLKwplh0/vh2FcUVDw+QMXIOSXD+su8C9C /Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hrjmkg23t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Aug 2022 17:35:56 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 274HYk5Q004240;
-        Thu, 4 Aug 2022 17:35:55 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hrjmkg21w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Aug 2022 17:35:55 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 274H4rte010715;
-        Thu, 4 Aug 2022 17:35:54 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma01dal.us.ibm.com with ESMTP id 3hq6j009ed-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Aug 2022 17:35:54 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 274HZrUr51773804
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 4 Aug 2022 17:35:53 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F0C2E28058;
-        Thu,  4 Aug 2022 17:35:52 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 53EA32805A;
-        Thu,  4 Aug 2022 17:35:51 +0000 (GMT)
-Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.67.200])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Thu,  4 Aug 2022 17:35:51 +0000 (GMT)
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-To:     pbonzini@redhat.com
-Cc:     kvm@vger.kernel.org, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: [PATCH 1/1] KVM: s390: pci: fix airq_iv_create sparse warning
-Date:   Thu,  4 Aug 2022 13:35:46 -0400
-Message-Id: <20220804173546.226968-2-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220804173546.226968-1-mjrosato@linux.ibm.com>
-References: <20220804173546.226968-1-mjrosato@linux.ibm.com>
+        with ESMTP id S233368AbiHDU1w (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Aug 2022 16:27:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 844E91704C;
+        Thu,  4 Aug 2022 13:27:51 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E90AB826AF;
+        Thu,  4 Aug 2022 20:27:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85400C433D7;
+        Thu,  4 Aug 2022 20:27:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1659644868;
+        bh=WKslkgauMcgPs5p6oyeqW1V1nFFD8xH0438vzYV6Xi0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=EVeQ2Fyh8wHbWhx9Z1E2qiTK2rYovD5eREmaTpHHyEE97DO8Zf7+ySauZ8Chb2U1X
+         GItZtVVsYfQxcpTfhs5SttqRTkCq80r+DfiAmP3iXwd+R4GiPRhZdWy7vUhCfUGBXJ
+         M670l0iu9CogX45xIidKG2pOVPOVhSiXMYITCdL23CFW/4rUtnEJkjMW6cQd7MCwO7
+         XFVklC27gQGkYAJVeC/d7uYtk2xyQy9ym0bnd+DarjcUC6pGtbCOAMlFFkWQl0i5P5
+         utnnVLsRIZLnWMEeg06IbO6yfF0zmZte4OsO5Vb6JLpZZTiRTmPzcDooc8Wxka+QZL
+         cNLOyY1VX14ow==
+Date:   Thu, 4 Aug 2022 13:27:42 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Andrew Lunn <andrew@lunn.ch>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Cc:     David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>
+Subject: Re: [PATCH net 1/2] s390/qeth: update cached link_info for ethtool
+Message-ID: <20220804132742.73f8bfda@kernel.org>
+In-Reply-To: <YuvEu9/bzLGU2sTA@lunn.ch>
+References: <20220803144015.52946-1-wintera@linux.ibm.com>
+        <20220803144015.52946-2-wintera@linux.ibm.com>
+        <YuqR8HGEe2vWsxNz@lunn.ch>
+        <dae87dee-67b0-30ce-91c0-a81eae8ec66f@linux.ibm.com>
+        <YuvEu9/bzLGU2sTA@lunn.ch>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: nhnOarOiO2cGbvotrXYpaV2fUq0HRWBj
-X-Proofpoint-GUID: z88Zu_N22C6d5XIoKmIBYdfDc8lMj6Ng
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-04_03,2022-08-04_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- bulkscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0 malwarescore=0
- spamscore=0 adultscore=0 mlxlogscore=767 suspectscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
- definitions=main-2208040075
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Fix the call to airq_iv_create to pass a NULL instead of 0.
+On Thu, 4 Aug 2022 15:08:11 +0200 Andrew Lunn wrote:
+> On Thu, Aug 04, 2022 at 10:53:33AM +0200, Alexandra Winter wrote:
+> > Thank you Andrew for the review. I fully understand your point.
+> > I would like to propose that I put that on my ToDo list and fix
+> > that in a follow-on patch to net-next.
+> > 
+> > The fields in the link_info control blocks are used today to generate
+> > other values (e.g. supported speed) which will not work with *_UNKNOWN,
+> > so the follow-on patch will be more than just 2 lines.  
+> 
+> So it sounds like your code is all backwards around. If you know what
+> the hardware is, you know the supported link modes are, assuming its
+> not an SFP and the SFP module is not plugged in. Those link modes
+> should be independent of if the link is up or not. speed/duplex is
+> only valid when the link is up and negotiation has finished.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- arch/s390/kvm/pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+To make sure I understand - the code depends on the speed and duplex
+being set to something specific when the device is _down_? Can this be
+spelled out more clearly in the commit message?
 
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index 4946fb7757d6..92a6998d8904 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -58,7 +58,7 @@ static int zpci_setup_aipb(u8 nisc)
- 	if (!zpci_aipb)
- 		return -ENOMEM;
- 
--	aift->sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC, 0);
-+	aift->sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC, NULL);
- 	if (!aift->sbv) {
- 		rc = -ENOMEM;
- 		goto free_aipb;
--- 
-2.31.1
+> Since this is for net, than yes, maybe it would be best to go with a
+> minimal patch to make your backwards around code work. But for
+> net-next, you really should fix this properly. 
 
+Then again this patch doesn't look like a regression fix (and does not
+have a fixes tag). Channeling my inner Greg I'd say - fix this right and
+then worry about backports later. 
