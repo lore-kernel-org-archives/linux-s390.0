@@ -2,120 +2,89 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC89CC25B0C
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Aug 2022 21:46:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CDA0C25B08
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Aug 2022 22:22:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233569AbiHDVqU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 4 Aug 2022 17:46:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57450 "EHLO
+        id S235306AbiHDWW6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 4 Aug 2022 18:22:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234050AbiHDVqS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Aug 2022 17:46:18 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09C2815FE0;
-        Thu,  4 Aug 2022 14:46:17 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 274L7uIG028576;
-        Thu, 4 Aug 2022 21:46:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=HtJIKPnr9mkjF7TzF87BGQHENOhKMCEkTPq+6bYpYWI=;
- b=imQvAq0nBPFRflQKhggeS8H5YbBtZNnlmPQmkU6JwJYMzASkxhR+WSfuedfYCLzmLkGq
- kMgYY3evpoLX0NR0pVlv+9FyuER8LpFfmDkCGmTMjVlSzqezli08modMM052NA/bHpTv
- RRriG6br9MK7fLJKD3dhsufSf953DZO76hADs97jC1eZM6WMNdQT3Bc6VxxCvhBkP0c7
- Qdi8ChEogCrhEVWEz6Xby8cEQerDLyANDrP4KdJHUTau2VVz1XdDwZcNsFPy4uo/VUEf
- fghPFymop5F1sl7lOzHT+5csFR+6wmW/D3tWY7xqRf0gK3tsVLodirfeAAp62VF9KFDK bg== 
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hrn0qhxj5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Aug 2022 21:46:12 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 274LLvLZ032135;
-        Thu, 4 Aug 2022 21:46:09 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03fra.de.ibm.com with ESMTP id 3hmv98vx5n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Aug 2022 21:46:09 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 274Lk6Wh29229516
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 4 Aug 2022 21:46:06 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C86C4C044;
-        Thu,  4 Aug 2022 21:46:06 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 59C0B4C040;
-        Thu,  4 Aug 2022 21:46:06 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  4 Aug 2022 21:46:06 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-        id 2E5E8E022E; Thu,  4 Aug 2022 23:39:26 +0200 (CEST)
-From:   Stefan Haberland <sth@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Jiang Jian <jiangjian@cdjrlc.com>
-Subject: [PATCH 1/2] s390/dasd: drop unexpected word 'for' in comments
-Date:   Thu,  4 Aug 2022 23:39:25 +0200
-Message-Id: <20220804213926.3361574-2-sth@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S240084AbiHDWWk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Aug 2022 18:22:40 -0400
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AFA2C79
+        for <linux-s390@vger.kernel.org>; Thu,  4 Aug 2022 15:22:35 -0700 (PDT)
+Received: by mail-oi1-x230.google.com with SMTP id i4so949535oif.2
+        for <linux-s390@vger.kernel.org>; Thu, 04 Aug 2022 15:22:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc;
+        bh=GECmY1dAcGSZ5uG5VGKt6oVgDl5YDffKjX41m7A40aw=;
+        b=lHkVI2GMFDc16SH/m/COAyecN8W5D0e+ocoAFc/tAkWckDKzIw1BdLLAAMD6dd0oin
+         V+v5TcFjmzelxa+gfNhJx6QgM5IpfSVGwCH7LlUsZC2nAv4mvsqg7X4R0SbmZYXz3chn
+         66TLr1IMiqKU7wxL1jRGZA7h18JMCRkv1KL9Vo6lSwVY9ts2CagOSx9xJ3VpVBmncoh9
+         jb7w9yBDDhTHzPMtXBxLBRFxKRP6c34PFCji0H7LrzVAzBF4N/85IPq4k92aT8A9usFS
+         hx2SExmNPzP7UWINUFJpL9WSRKsBmPkg5YnsCVmwcH/hT0IeiRgSaZPmF0J6d8zupkSF
+         4ilg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc;
+        bh=GECmY1dAcGSZ5uG5VGKt6oVgDl5YDffKjX41m7A40aw=;
+        b=H8i1GuEfH5GxkCV+D8ZW1IL3k8OmKJ36ote8BpYdNCjdURrESIPAp1k0wnyyApwZyo
+         zSvnCZlsMfuKEqs5KpQSgDWz6ERAnbo/804uPyts01h/yUeL96+NFegy7CMWa2GxZpKW
+         bAfrv/b/bJ0aL7HSaqHPR5HDx1iINjOuwnC9fY1qHmrLLjDxGggp8LSNGPmv2PQYIviJ
+         /iq+m4Z6gXPq3rfWKy+Cb/IuuxZVhNxKtRpzL/4VeDbcQz3ImuM3Qi/N1JkJROJjzVML
+         tG5jxCJff2VJJ0SdfYecUYZ+rn7fzldQ+CJn6OYb3Xx5r/56giD4ZditATTGxyzoID2w
+         bIzw==
+X-Gm-Message-State: ACgBeo06hmSK5SFLEasEx8Mvnjma2EzyNbThp3iH3OH30wcNj//zFQHM
+        olRQp6kpB7cLYGQnD+SyeQIJdbM37oSFIQ==
+X-Google-Smtp-Source: AA6agR7Uj/mi+l2ypnde/ze3YpSDhKnFkuTqw4zKwll4+h6bJwJd/xkCJnIWNtcXnfao1b2enWvU8w==
+X-Received: by 2002:a17:90b:4b4d:b0:1f5:164f:f7c4 with SMTP id mi13-20020a17090b4b4d00b001f5164ff7c4mr12844803pjb.131.1659651743644;
+        Thu, 04 Aug 2022 15:22:23 -0700 (PDT)
+Received: from [127.0.1.1] ([2600:380:765b:12ab:9b40:fadd:2785:d5f6])
+        by smtp.gmail.com with ESMTPSA id y17-20020a170902cad100b0016d9d6d05f7sm1383126pld.273.2022.08.04.15.22.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Aug 2022 15:22:22 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     sth@linux.ibm.com
+Cc:     linux-block@vger.kernel.org, jiangjian@cdjrlc.com,
+        gor@linux.ibm.com,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        hca@linux.ibm.com, farman@linux.ibm.com, hoeppner@linux.ibm.com,
+        linux-s390@vger.kernel.org
 In-Reply-To: <20220804213926.3361574-1-sth@linux.ibm.com>
 References: <20220804213926.3361574-1-sth@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: q7zmxBgmG2-3aB7QA25fpjxxmFNkc45r
-X-Proofpoint-GUID: q7zmxBgmG2-3aB7QA25fpjxxmFNkc45r
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+Subject: Re: [PATCH 0/2] s390/dasd: fix DMA alignment
+Message-Id: <165965174157.108606.10811386647503961002.b4-ty@kernel.dk>
+Date:   Thu, 04 Aug 2022 16:22:21 -0600
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-04_03,2022-08-04_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 adultscore=0 mlxlogscore=999 clxscore=1015 spamscore=0
- suspectscore=0 phishscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2206140000 definitions=main-2208040090
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Jiang Jian <jiangjian@cdjrlc.com>
+On Thu, 4 Aug 2022 23:39:24 +0200, Stefan Haberland wrote:
+> please apply the following patches.
+> The first fixes a comment typo and the second fixes DMA alignment after
+> a change to the iomap code.
+> 
+> Eric Farman (1):
+>   s390/dasd: Establish DMA alignment
+> 
+> [...]
 
-there is an unexpected word 'for' in the comments that need to be dropped
+Applied, thanks!
 
-file - drivers/s390/block/dasd.c
-line - 1728
+[1/2] s390/dasd: drop unexpected word 'for' in comments
+      commit: bcee43dc6d5bd6f54e5e2a5d696bf8c8f4c141dd
+[2/2] s390/dasd: Establish DMA alignment
+      commit: bc792884b76f0da2f5c9a8d720e430e2de9756f5
 
-	/* check for for attention message */
-
-changed to:
-
-	/* check for attention message */
-
-Signed-off-by: Jiang Jian <jiangjian@cdjrlc.com>
-Link: https://lore.kernel.org/r/20220623102114.33249-1-jiangjian@cdjrlc.com
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
----
- drivers/s390/block/dasd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 4df8bf6505fc..ea82821599f6 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -1725,7 +1725,7 @@ void dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
- 		dasd_put_device(device);
- 	}
- 
--	/* check for for attention message */
-+	/* check for attention message */
- 	if (scsw_dstat(&irb->scsw) & DEV_STAT_ATTENTION) {
- 		device = dasd_device_from_cdev_locked(cdev);
- 		if (!IS_ERR(device)) {
+Best regards,
 -- 
-2.34.1
+Jens Axboe
+
 
