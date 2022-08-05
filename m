@@ -2,89 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CDA0C25B08
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Aug 2022 22:22:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D79BC00140
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Aug 2022 07:06:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235306AbiHDWW6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 4 Aug 2022 18:22:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49176 "EHLO
+        id S240169AbiHEHGf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 5 Aug 2022 03:06:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240084AbiHDWWk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Aug 2022 18:22:40 -0400
-Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AFA2C79
-        for <linux-s390@vger.kernel.org>; Thu,  4 Aug 2022 15:22:35 -0700 (PDT)
-Received: by mail-oi1-x230.google.com with SMTP id i4so949535oif.2
-        for <linux-s390@vger.kernel.org>; Thu, 04 Aug 2022 15:22:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc;
-        bh=GECmY1dAcGSZ5uG5VGKt6oVgDl5YDffKjX41m7A40aw=;
-        b=lHkVI2GMFDc16SH/m/COAyecN8W5D0e+ocoAFc/tAkWckDKzIw1BdLLAAMD6dd0oin
-         V+v5TcFjmzelxa+gfNhJx6QgM5IpfSVGwCH7LlUsZC2nAv4mvsqg7X4R0SbmZYXz3chn
-         66TLr1IMiqKU7wxL1jRGZA7h18JMCRkv1KL9Vo6lSwVY9ts2CagOSx9xJ3VpVBmncoh9
-         jb7w9yBDDhTHzPMtXBxLBRFxKRP6c34PFCji0H7LrzVAzBF4N/85IPq4k92aT8A9usFS
-         hx2SExmNPzP7UWINUFJpL9WSRKsBmPkg5YnsCVmwcH/hT0IeiRgSaZPmF0J6d8zupkSF
-         4ilg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=GECmY1dAcGSZ5uG5VGKt6oVgDl5YDffKjX41m7A40aw=;
-        b=H8i1GuEfH5GxkCV+D8ZW1IL3k8OmKJ36ote8BpYdNCjdURrESIPAp1k0wnyyApwZyo
-         zSvnCZlsMfuKEqs5KpQSgDWz6ERAnbo/804uPyts01h/yUeL96+NFegy7CMWa2GxZpKW
-         bAfrv/b/bJ0aL7HSaqHPR5HDx1iINjOuwnC9fY1qHmrLLjDxGggp8LSNGPmv2PQYIviJ
-         /iq+m4Z6gXPq3rfWKy+Cb/IuuxZVhNxKtRpzL/4VeDbcQz3ImuM3Qi/N1JkJROJjzVML
-         tG5jxCJff2VJJ0SdfYecUYZ+rn7fzldQ+CJn6OYb3Xx5r/56giD4ZditATTGxyzoID2w
-         bIzw==
-X-Gm-Message-State: ACgBeo06hmSK5SFLEasEx8Mvnjma2EzyNbThp3iH3OH30wcNj//zFQHM
-        olRQp6kpB7cLYGQnD+SyeQIJdbM37oSFIQ==
-X-Google-Smtp-Source: AA6agR7Uj/mi+l2ypnde/ze3YpSDhKnFkuTqw4zKwll4+h6bJwJd/xkCJnIWNtcXnfao1b2enWvU8w==
-X-Received: by 2002:a17:90b:4b4d:b0:1f5:164f:f7c4 with SMTP id mi13-20020a17090b4b4d00b001f5164ff7c4mr12844803pjb.131.1659651743644;
-        Thu, 04 Aug 2022 15:22:23 -0700 (PDT)
-Received: from [127.0.1.1] ([2600:380:765b:12ab:9b40:fadd:2785:d5f6])
-        by smtp.gmail.com with ESMTPSA id y17-20020a170902cad100b0016d9d6d05f7sm1383126pld.273.2022.08.04.15.22.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Aug 2022 15:22:22 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     sth@linux.ibm.com
-Cc:     linux-block@vger.kernel.org, jiangjian@cdjrlc.com,
-        gor@linux.ibm.com,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        hca@linux.ibm.com, farman@linux.ibm.com, hoeppner@linux.ibm.com,
-        linux-s390@vger.kernel.org
-In-Reply-To: <20220804213926.3361574-1-sth@linux.ibm.com>
-References: <20220804213926.3361574-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 0/2] s390/dasd: fix DMA alignment
-Message-Id: <165965174157.108606.10811386647503961002.b4-ty@kernel.dk>
-Date:   Thu, 04 Aug 2022 16:22:21 -0600
+        with ESMTP id S240258AbiHEHGI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Aug 2022 03:06:08 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC6241F605;
+        Fri,  5 Aug 2022 00:06:06 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2756hbNo024239;
+        Fri, 5 Aug 2022 07:05:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6ALatlPnA1QxQRbC705c9MjKoCFtKmnqmoMFwulymG4=;
+ b=rkC1ixulDOzOsXeQUEdZ+BMu1bej5S6ZZBc9CZhN4TQC7e3z+qyOtCAurvg8xa8sak7g
+ 0IDb2jXTzxXE75wmk07BCeZc3SWHgDLKpNljUbv8fV7PInkeVw7iTviGDYV0ctiJpLDU
+ CErCgQBEjmBvqAxnbAibo36c5aOhOFoSQlF5TCj8oQUlmR81tdNsaH0IKyudvoS2y76q
+ qGs+g2C3DsEhQ8J7+5wc+c9GBaiBEs+Gs8IKTfQcbypoSeu993Kfj7vv2EXjMYH8akb2
+ vwuU8Hn0brGlhKEuKBtsI7jPMcOxTYjNP1nzX2VNiHv7g4kMaSfZH7Tk6rXdjXEklDxw 7g== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hrx6m8n5m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Aug 2022 07:05:53 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27575pA8018275;
+        Fri, 5 Aug 2022 07:05:51 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3hrf218tfv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Aug 2022 07:05:51 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27575mNg28901722
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 5 Aug 2022 07:05:48 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6D971A4054;
+        Fri,  5 Aug 2022 07:05:48 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 233C6A405C;
+        Fri,  5 Aug 2022 07:05:48 +0000 (GMT)
+Received: from [9.145.46.72] (unknown [9.145.46.72])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  5 Aug 2022 07:05:48 +0000 (GMT)
+Message-ID: <7735d444-5041-ccde-accc-5a69af2f2731@linux.ibm.com>
+Date:   Fri, 5 Aug 2022 09:05:47 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.12.0
+Subject: Re: [PATCH net 1/2] s390/qeth: update cached link_info for ethtool
+Content-Language: en-US
+To:     Jakub Kicinski <kuba@kernel.org>, Andrew Lunn <andrew@lunn.ch>
+Cc:     David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>
+References: <20220803144015.52946-1-wintera@linux.ibm.com>
+ <20220803144015.52946-2-wintera@linux.ibm.com> <YuqR8HGEe2vWsxNz@lunn.ch>
+ <dae87dee-67b0-30ce-91c0-a81eae8ec66f@linux.ibm.com>
+ <YuvEu9/bzLGU2sTA@lunn.ch> <20220804132742.73f8bfda@kernel.org>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20220804132742.73f8bfda@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: c8YJKOvEXvk_uJ6n4CqvuGWuBKcT1ekN
+X-Proofpoint-GUID: c8YJKOvEXvk_uJ6n4CqvuGWuBKcT1ekN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-05_01,2022-08-04_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ spamscore=0 mlxscore=0 priorityscore=1501 malwarescore=0
+ lowpriorityscore=0 bulkscore=0 phishscore=0 suspectscore=0 clxscore=1015
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2208050035
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 4 Aug 2022 23:39:24 +0200, Stefan Haberland wrote:
-> please apply the following patches.
-> The first fixes a comment typo and the second fixes DMA alignment after
-> a change to the iomap code.
+
+
+On 04.08.22 22:27, Jakub Kicinski wrote:
+> On Thu, 4 Aug 2022 15:08:11 +0200 Andrew Lunn wrote:
+>> On Thu, Aug 04, 2022 at 10:53:33AM +0200, Alexandra Winter wrote:
+>>> Thank you Andrew for the review. I fully understand your point.
+>>> I would like to propose that I put that on my ToDo list and fix
+>>> that in a follow-on patch to net-next.
+>>>
+>>> The fields in the link_info control blocks are used today to generate
+>>> other values (e.g. supported speed) which will not work with *_UNKNOWN,
+>>> so the follow-on patch will be more than just 2 lines.  
+>>
+>> So it sounds like your code is all backwards around. If you know what
+>> the hardware is, you know the supported link modes are, assuming its
+>> not an SFP and the SFP module is not plugged in. Those link modes
+>> should be independent of if the link is up or not. speed/duplex is
+>> only valid when the link is up and negotiation has finished.
 > 
-> Eric Farman (1):
->   s390/dasd: Establish DMA alignment
+> To make sure I understand - the code depends on the speed and duplex
+> being set to something specific when the device is _down_? Can this be
+> spelled out more clearly in the commit message?
+This was a discussion about existing code. We display default speed and
+duplex even when the device is down. And this patch does not change that
+behaviour. Andrew rightfully pointed out that this should (eventually) be
+changed.
 > 
-> [...]
-
-Applied, thanks!
-
-[1/2] s390/dasd: drop unexpected word 'for' in comments
-      commit: bcee43dc6d5bd6f54e5e2a5d696bf8c8f4c141dd
-[2/2] s390/dasd: Establish DMA alignment
-      commit: bc792884b76f0da2f5c9a8d720e430e2de9756f5
-
-Best regards,
--- 
-Jens Axboe
-
-
+>> Since this is for net, than yes, maybe it would be best to go with a
+>> minimal patch to make your backwards around code work. But for
+>> net-next, you really should fix this properly. 
+> 
+> Then again this patch doesn't look like a regression fix (and does not
+> have a fixes tag). Channeling my inner Greg I'd say - fix this right and
+> then worry about backports later. 
+This patch is a pre-req for [PATCH net 2/2] s390/qeth: use cached link_info for ethtool
+2/2 is the regression fix.
+Guidance is welcome. Should I merge them into a single commit?
+Or clarify in the commit message of 1/1 that this is a preparation for 2/2?
