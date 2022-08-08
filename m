@@ -2,69 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F36CEC19F2D
-	for <linux-s390@archiver.kernel.org>; Sun,  7 Aug 2022 00:50:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F1DAC25B0C
+	for <linux-s390@archiver.kernel.org>; Mon,  8 Aug 2022 13:09:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234935AbiHGAuX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 6 Aug 2022 20:50:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48510 "EHLO
+        id S243206AbiHHNJv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 Aug 2022 09:09:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234658AbiHGAuM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 6 Aug 2022 20:50:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B5FA0;
-        Sat,  6 Aug 2022 17:50:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4297360CEE;
-        Sun,  7 Aug 2022 00:50:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 10598C433B5;
-        Sun,  7 Aug 2022 00:50:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659833411;
-        bh=86gdex+fUoDkvlLaQDim3x6WVXmrAW4Eob2xLKUi4ww=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=M7ovEBU11VvCyilmAwqqRDuYGTyWd7EpvXliLSK56F4jb/w2xdjGUOxyRHKdA6RnR
-         0yx884gvVmr0uHmonFnlDCQjBJcEPKh6NOMJkwQd9pRE1kh685qBkZ01A1J6481Zxz
-         dlzaeN77bwAvWU+uJ4b9AcWYGvN2q60Qkq21sJBV+fiK9pkwuqKVAR9sZUyZfKtE/k
-         o7Y6rfqcAeqAo1WhIxHC/SLDrU4RHpTvmGD+5AjoL7ycnCIPBeCeywd41Ts02YjAJP
-         xSQDYfBno3azKhVUNCLlNTZlSjDZkg5DNERy9kqyKzJLsTbixw3JA+p703e4mLLbaq
-         MVAZvWgZkXvJQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id F18F2C43140;
-        Sun,  7 Aug 2022 00:50:10 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 5.20 merge window
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <Yu4uUqpvcXGfGpy8@tuxmaker.boeblingen.de.ibm.com>
-References: <Yu4uUqpvcXGfGpy8@tuxmaker.boeblingen.de.ibm.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Yu4uUqpvcXGfGpy8@tuxmaker.boeblingen.de.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs.git work.iov_iter
-X-PR-Tracked-Commit-Id: 953503751a426413ea8aee2299ae3ee971b70d9b
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 24cb958695724ffb4488ef4f65892c0767bcd2f2
-Message-Id: <165983341098.27609.12940403492622309959.pr-tracker-bot@kernel.org>
-Date:   Sun, 07 Aug 2022 00:50:10 +0000
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+        with ESMTP id S243197AbiHHNJp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Aug 2022 09:09:45 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E09A18D;
+        Mon,  8 Aug 2022 06:09:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1659964159;
+        bh=P4saksYO9CTgO6X6/2ySNBwjHK+p2F8Ba3kmdgwmNIo=;
+        h=X-UI-Sender-Class:From:To:Subject:Date:In-Reply-To:References;
+        b=cF2sSQk2IC+/YLMkYSNiIW3FHdR6BCkRcqQvX1zhiuPVvJZQL1UrHfQmOVUTMjj6b
+         FvKwio4C8cpMCRUi04gaB1KTi2Ids9kAGjqxILLng/okGBuz5QsyMdbuxqYSgSAwQP
+         Qei1jnz9/jUKpFiS07EcRGUNeydXObY4538BoBpg=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from p100.fritz.box ([92.116.169.184]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MiaY9-1niySX3wFb-00ffdW; Mon, 08
+ Aug 2022 15:09:19 +0200
+From:   Helge Deller <deller@gmx.de>
+To:     linux-s390@vger.kernel.org, Josh Triplett <josh@joshtriplett.org>,
+        x86@kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-fsdevel@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v3 3/4] x86/fault: Dump command line of faulting process to syslog
+Date:   Mon,  8 Aug 2022 15:09:16 +0200
+Message-Id: <20220808130917.30760-4-deller@gmx.de>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <20220808130917.30760-1-deller@gmx.de>
+References: <20220808130917.30760-1-deller@gmx.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:louBvz2yR4jkTgo627u5H+l8UG9i2dYFkwpu3hE4RDyH+SAv5gu
+ 1uZi8tHKHiOS2z+aIDclKc2Gke5YpmvooMGsYPIvvTBUDLFBLu/XMyZQ51/Dtejtxc+QadJ
+ l6R1uEv1BxzjnjwzGKJ4+JSXGHaEQP2kmpKZEATjwMbEGaQNBgoF7RMSFNCH1Iuy+qHsS1Y
+ OncxQEUpqyh+9TkLLFcSQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:/dBBLCq2604=:Ce+jE4umdoxfrr2xtC6+FD
+ 9O3kqH7oa2bzIwUT1YYtDtTQEvjEhaVKo2L2/eGbT2IbjEdhpirm9T0qXwaS8uzvrD0FJRIZw
+ /EODphFxIOJGzVw0fuYQHZI0ZAcTtBvojZlM6yyfpiwjh763kbKp0Nf4Kd7uDOxmmxxMPi8z1
+ GtEVaE22A/cY3CrMzlAFTGLJNVTdithhoPSKmMH+H/dspYeXPBV2te61wq+6GMKdCeOXoHoZ6
+ X9tIc3R78hZroZXnxNxMcztgr+/i+mIq9/myRT4TyMtkMDy/CMLQggqNDipcpP7JsSI+XhHVy
+ aTXC/MVoaFadlbKPnAXgxXbmQLdaOcGu0mTD9WB5CRuEkUTEx9pbcVBnvf9nnTSo1tgcB54GQ
+ 567YrvWzPXosPGu/cayPmIwVVUSNuZ5zr1yXeDUCI5f8HQMBYBmNbUAMkikIL5kVcDbYb2YMI
+ hNSrCk47oZ4312cFwP6Ud7d6KoA+kYK21Q4bp8tIX92kpBMRW6WSdhcV268wixbT309dQWIxa
+ H96ZcddQnEkOt3jcj0aMzqLSLYQw766tL+/KjfAdR7l3jFSj3Yg2DI4yNicwrEEkw8fJWv7rl
+ wlKXHWUczVdPUWBRlSn74V0ntrGghvFD2o3+klrzp2tY/75CdWNFrNg+Cd6MNRg2CUqLr+VA4
+ 5N38FHRPGmXWuLUWZDkWdzThpuUS6illt8HujKcgyWlFXZiXcicnbYZ3OCeCdSNiGExN+nQ2U
+ lQc8It9Q3AO+9RcxASCHGZyxWdLd33hXp5SYtUiH7loorc3dPaUVSZNaGjb26ZoeXKG4PngWv
+ Qbn5/7A27Ug46B8O8gzQnTWVbneEpJQyQ4E9pt7UPQCX4aA/bNl5Rf6JtMXV3KomiAtQI8wiA
+ zKWpWLt+Bs4NHtMzYP17ep8v+W43ADKf5lXrKD/phCMrFWOU3i4o8lArtJrhlBLr9k9wqag9+
+ j3NTSY6pz1A76oLcPNwDbU8xLvf/BNEOt3eoYWmpQrcCFYHbrcdsNw1ManLkSIbzQpYAWPVL5
+ wRfSd6lP/K6CfEQwK3n2ktHHqe2GTe0zSmwdXf9KJWBXstn+yqCCXmfEcDClvc4/4VSwGiEFs
+ G6KUCv0LJ8uIV1Qq5IN99V1fkf+BU2+M+iYVSsIq7Wft3PA+QMTNnNh9Q==
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Sat, 6 Aug 2022 11:03:14 +0200:
+If a process segfaults, include the command line of the faulting process
+in the syslog.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs.git work.iov_iter
+In the example below, the "crash" program (which simply writes zero to add=
+ress 0)
+was called with the parameters "this is a test":
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/24cb958695724ffb4488ef4f65892c0767bcd2f2
+ crash[2326]: segfault at 0 ip 0000561a7969c12e sp 00007ffe97a05630 error =
+6 in crash[561a7969c000+1000]
+ crash[2326] cmdline: ./crash this is a test
+ Code: 68 ff ff ff c6 05 19 2f 00 00 01 5d c3 0f 1f 80 00 00 00 00 c3 0f 1=
+f ...
 
-Thank you!
+Signed-off-by: Helge Deller <deller@gmx.de>
+=2D--
+ arch/x86/mm/fault.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index fad8faa29d04..d4e21c402e29 100644
+=2D-- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -784,6 +784,8 @@ show_signal_msg(struct pt_regs *regs, unsigned long er=
+ror_code,
+
+ 	printk(KERN_CONT "\n");
+
++	dump_stack_print_cmdline(loglvl);
++
+ 	show_opcodes(regs, loglvl);
+ }
+
+=2D-
+2.37.1
+
