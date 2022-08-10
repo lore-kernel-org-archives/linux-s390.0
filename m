@@ -2,77 +2,147 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40AABC19F2D
-	for <linux-s390@archiver.kernel.org>; Tue,  9 Aug 2022 04:00:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE236C00140
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Aug 2022 12:56:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbiHIEAT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 9 Aug 2022 00:00:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54060 "EHLO
+        id S232283AbiHJM4p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Aug 2022 08:56:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiHIEAS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Aug 2022 00:00:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E942CDF1;
-        Mon,  8 Aug 2022 21:00:15 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C28261171;
-        Tue,  9 Aug 2022 04:00:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B6F11C43142;
-        Tue,  9 Aug 2022 04:00:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660017614;
-        bh=Ug/IAXpiHBK+sAnIMDCJGN9SvQA0ec/Ae7K3k5h6t/c=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=uIXENg0XTuCWKTdSmr0T1D5JhCcTxTPPo1khWflMU/Im230+HG4E1U/PeCESiN8i7
-         HObJVaY8jvtj4t967LekY7CesJrfRHwVe2EteWou+m6KK7MWH6Yg54RscOTLqWyqT9
-         CNbdotLVROWhI3Q7sZVWZSOBdi7x9J3QFf8u9ppddTFHEDUlBEqiSFxU6tlGzHOWAz
-         dakMncB3pxjbt5OIb33Lq/ODjYrFIVCZf43fmCQkLJPu8DflhjXC+fnUK3gh8TIhyl
-         vJd6+OnMIIDv5DjpwApUxJdT0VP93zdnfTuti4FtpOlhxkyb3XjmV8oTZSazDj9791
-         4DCAaNxptqR5g==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 8DDBFC43145;
-        Tue,  9 Aug 2022 04:00:14 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232286AbiHJM4g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 Aug 2022 08:56:36 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD435C349;
+        Wed, 10 Aug 2022 05:56:34 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27ACoQHD012665;
+        Wed, 10 Aug 2022 12:56:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=V6rtpLyoj2p21V5xVcf7iAEm2EV2Yi51fN5ZdGNfEZU=;
+ b=E8VXrJyXmIJKdbLeNbUTad2a/C0bhQMMBXf+oto55P256oxK5Xt6FzHKK+JYANuJ+yOB
+ qAQETbefoqQysT1sp4cvkC+Mq8JRKTOerHpfCtzfI48N8KthJhVFTceJrCMvOePME+6g
+ SO5dcmzQ76ZIP8ALhto0sWHQVNDr85b80FSXMbUGYoy0E59N0OqCCRN+E9H3Zp5PEJS+
+ ywCIT3gRAlUTWGUaBlmqmE9izDsJGEvkrwF0wcyMAn+4My+U2caZ9dnvu502Sj8/kMwA
+ poq+3yi56D++cIxkE1mDEVM3M1feAd1v/7zN2WvKYlNnopBPwhjPlUQCT0telkYgdyCY ZQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hv6dcw2e4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 Aug 2022 12:56:34 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27AConlt016134;
+        Wed, 10 Aug 2022 12:56:33 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hv6dcw2cv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 Aug 2022 12:56:33 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27ACuJSL012766;
+        Wed, 10 Aug 2022 12:56:31 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma02fra.de.ibm.com with ESMTP id 3huww0ru71-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 Aug 2022 12:56:31 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27ACrvai32375250
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 10 Aug 2022 12:53:57 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 210C64C046;
+        Wed, 10 Aug 2022 12:56:28 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7B8914C040;
+        Wed, 10 Aug 2022 12:56:27 +0000 (GMT)
+Received: from p-imbrenda.bredband2.com (unknown [9.145.0.105])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 10 Aug 2022 12:56:27 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        seiden@linux.ibm.com, nrb@linux.ibm.com
+Subject: [PATCH v13 2/6] KVM: s390: pv: api documentation for asynchronous destroy
+Date:   Wed, 10 Aug 2022 14:56:21 +0200
+Message-Id: <20220810125625.45295-3-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <20220810125625.45295-1-imbrenda@linux.ibm.com>
+References: <20220810125625.45295-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] s390/qeth: cache link_info for ethtool
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <166001761457.6286.2669966762642326883.git-patchwork-notify@kernel.org>
-Date:   Tue, 09 Aug 2022 04:00:14 +0000
-References: <20220805155714.59609-1-wintera@linux.ibm.com>
-In-Reply-To: <20220805155714.59609-1-wintera@linux.ibm.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, andrew@lunn.ch,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        hca@linux.ibm.com, twinkler@linux.ibm.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: OAwbhDxWgYD-uvt3LNOWZjSENNsX_Dba
+X-Proofpoint-GUID: mpdmHUIR2XFfigsR0O-Y2vHdM7WZhu5p
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-10_07,2022-08-10_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ priorityscore=1501 clxscore=1015 lowpriorityscore=0 malwarescore=0
+ adultscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208100037
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+Add documentation for the new commands added to the KVM_S390_PV_COMMAND
+ioctl.
 
-This patch was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ Documentation/virt/kvm/api.rst | 30 ++++++++++++++++++++++++++++--
+ 1 file changed, 28 insertions(+), 2 deletions(-)
 
-On Fri,  5 Aug 2022 17:57:14 +0200 you wrote:
-> Since
-> commit e6e771b3d897 ("s390/qeth: detach netdevice while card is offline")
-> there was a timing window during recovery, that qeth_query_card_info could
-> be sent to the card, even before it was ready for it, leading to a failing
-> card recovery. There is evidence that this window was hit, as not all
-> callers of get_link_ksettings() check for netif_device_present.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net,v2] s390/qeth: cache link_info for ethtool
-    https://git.kernel.org/netdev/net/c/7a07a29e4f67
-
-You are awesome, thank you!
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 9788b19f9ff7..5bd151b601b4 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -5163,8 +5163,11 @@ KVM_PV_ENABLE
+ KVM_PV_DISABLE
+   Deregister the VM from the Ultravisor and reclaim the memory that
+   had been donated to the Ultravisor, making it usable by the kernel
+-  again.  All registered VCPUs are converted back to non-protected
+-  ones.
++  again. All registered VCPUs are converted back to non-protected
++  ones. If a previous VM had been set aside for asynchonous teardown
++  with KVM_PV_ASYNC_CLEANUP_PREPARE and not actually torn down with
++  KVM_PV_ASYNC_CLEANUP_PERFORM, it will be torn down in this call
++  together with the current VM.
+ 
+ KVM_PV_VM_SET_SEC_PARMS
+   Pass the image header from VM memory to the Ultravisor in
+@@ -5287,6 +5290,29 @@ KVM_PV_DUMP
+     authentication tag all of which are needed to decrypt the dump at a
+     later time.
+ 
++KVM_PV_ASYNC_CLEANUP_PREPARE
++  Prepare the current protected VM for asynchronous teardown. Most
++  resources used by the current protected VM will be set aside for a
++  subsequent asynchronous teardown. The current protected VM will then
++  resume execution immediately as non-protected. There can be at most
++  one protected VM set aside at any time. If a protected VM had
++  already been set aside without starting the asynchronous teardown
++  process, this call will fail. In that case, the userspace process
++  should issue a normal KVM_PV_DISABLE. The resources set aside with
++  this call will need to be cleaned up with a subsequent call to
++  KVM_PV_ASYNC_CLEANUP_PERFORM or KVM_PV_DISABLE, otherwise they will
++  be cleaned up when KVM terminates.
++
++KVM_PV_ASYNC_CLEANUP_PERFORM
++  Tear down the protected VM previously set aside with
++  KVM_PV_ASYNC_CLEANUP_PREPARE. The resources that had been set aside
++  will be freed during the execution of this command. This PV command
++  should ideally be issued by userspace from a separate thread. If a
++  fatal signal is received (or the process terminates naturally), the
++  command will terminate immediately without completing, and the normal
++  KVM shutdown procedure will take care of cleaning up all remaining
++  protected VMs.
++
+ 
+ 4.126 KVM_X86_SET_MSR_FILTER
+ ----------------------------
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.37.1
 
