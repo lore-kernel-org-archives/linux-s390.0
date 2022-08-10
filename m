@@ -2,121 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EE2DC00140
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Aug 2022 12:57:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D59E3C00140
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Aug 2022 12:58:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232335AbiHJM4u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Aug 2022 08:56:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51482 "EHLO
+        id S232280AbiHJM62 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Aug 2022 08:58:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232348AbiHJM4j (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 Aug 2022 08:56:39 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DB965C349;
-        Wed, 10 Aug 2022 05:56:38 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27ACoQWp012677;
-        Wed, 10 Aug 2022 12:56:38 GMT
+        with ESMTP id S231951AbiHJM6E (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 Aug 2022 08:58:04 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E596069D;
+        Wed, 10 Aug 2022 05:57:50 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27ACpEYF004082;
+        Wed, 10 Aug 2022 12:57:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=8+oT9Nis5SKah9qTR3TP8xCyoTW/s4DlrF3m5iveus0=;
- b=aookoxmhPpcIx/2uPVoefBQqhfRaBKurFGSfLopJrnOJiIWEIoxL4S7+79PRqkURK4Nm
- QVtqdGX63UotogcdRWPPgTzKOZMUk9m48eBZKQGwFxcHkHkxaAPE0LhHq3f/511yKaIG
- oaLmaqU5ucPPKLCZreqr1Z9W2SYSY7FmSpp3XtrpiJrKUFxUvPxP9+arzgeSoyOQPJ18
- /YLX5L6ggPtdVfaHqs1YCLhUylip6G2xtTQHdPvrRcIb6kkTP3ZJVaPH8nPfG3TpKJT3
- Pb8Xr5QAvs0VhoP25v7QAu9beIDR/Y5eunDE+FzaobQ8j5rQsa0B2/4Kma//GWR01ab1 SA== 
+ bh=aHPFCuMfOvKa7ujqveKRD4hNSt25Mom63wEEA/CUQ4g=;
+ b=aVtFPzSUvURdYQE3qwVRwY+IbopJ47k6VLaK5xigswDbjGEuLg5NXKoVw2xe/jxy9a0p
+ W4sy9KJO2x9F2Rm3lg/egVY0UVY+EDXbZqzHH4nT7H3Gh8S5DM6xbG//9ntnl1LAXRiX
+ VK/GxEPxBfeH+b5HiQmaDMe6YdxMvkNd9aarDdh3U+KF0p7hhkPsos37f3BDpyu8RT+3
+ V2dU9MCPEUTIHR5YGDeyrej/w+eYriKbH4CW21qfhU3lA0GeUQ3E9sTlPl6mwxgmCKB3
+ jcwUMnPHn6DwEHGzh3YA8BG0CQ0d4CCSd52+F7Q6lRytfZjKhWLw8h5bxDWWt/YRzkVL jA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hv6dcw2g1-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hv3fg1wys-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Aug 2022 12:56:37 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27ACpaRR019554;
-        Wed, 10 Aug 2022 12:56:37 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hv6dcw2en-1
+        Wed, 10 Aug 2022 12:57:49 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27ACpuwY006109;
+        Wed, 10 Aug 2022 12:57:48 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hv3fg1wxx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Aug 2022 12:56:37 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27ACpU2k021444;
-        Wed, 10 Aug 2022 12:56:34 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3huwvjgmr9-1
+        Wed, 10 Aug 2022 12:57:48 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27ACqWR1026056;
+        Wed, 10 Aug 2022 12:57:46 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma01fra.de.ibm.com with ESMTP id 3huww0rup5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Aug 2022 12:56:34 +0000
+        Wed, 10 Aug 2022 12:57:46 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27ACuVbV18874850
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27ACrwUB32375256
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 10 Aug 2022 12:56:31 GMT
+        Wed, 10 Aug 2022 12:53:58 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2EC584C044;
-        Wed, 10 Aug 2022 12:56:31 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DEE284C044;
+        Wed, 10 Aug 2022 12:56:28 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7DFA54C040;
-        Wed, 10 Aug 2022 12:56:30 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3A03D4C040;
+        Wed, 10 Aug 2022 12:56:28 +0000 (GMT)
 Received: from p-imbrenda.bredband2.com (unknown [9.145.0.105])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 10 Aug 2022 12:56:30 +0000 (GMT)
+        Wed, 10 Aug 2022 12:56:28 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
         seiden@linux.ibm.com, nrb@linux.ibm.com
-Subject: [PATCH v13 6/6] KVM: s390: pv: module parameter to fence asynchronous destroy
-Date:   Wed, 10 Aug 2022 14:56:25 +0200
-Message-Id: <20220810125625.45295-7-imbrenda@linux.ibm.com>
+Subject: [PATCH v13 3/6] KVM: s390: pv: add KVM_CAP_S390_PROTECTED_ASYNC_DISABLE
+Date:   Wed, 10 Aug 2022 14:56:22 +0200
+Message-Id: <20220810125625.45295-4-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220810125625.45295-1-imbrenda@linux.ibm.com>
 References: <20220810125625.45295-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: eFnpAkKohgDH_k706ceUmYZbBM5b18gU
-X-Proofpoint-GUID: MOTEmYVFB1IHnFsteb1kTmxixtJp15uB
+X-Proofpoint-ORIG-GUID: jtB85gxWRuBdPzEV7PjJfYPVbCrb6qc2
+X-Proofpoint-GUID: pDOYcNVWbsdfQBBjth4wXnSjCJg-mXCJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-08-10_07,2022-08-10_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- priorityscore=1501 clxscore=1015 lowpriorityscore=0 malwarescore=0
- adultscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208100037
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ impostorscore=0 phishscore=0 mlxlogscore=705 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 suspectscore=0 spamscore=0 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208100038
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add the module parameter "async_destroy", to allow the asynchronous
-destroy mechanism to be switched off. This might be useful for
-debugging purposes.
-
-The parameter is enabled by default since the feature is opt-in anyway.
+Add KVM_CAP_S390_PROTECTED_ASYNC_DISABLE to signal that the
+KVM_PV_ASYNC_DISABLE and KVM_PV_ASYNC_DISABLE_PREPARE commands for the
+KVM_S390_PV_COMMAND ioctl are available.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/s390/kvm/kvm-s390.c | 3 +++
+ include/uapi/linux/kvm.h | 1 +
+ 2 files changed, 4 insertions(+)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 4a20a6be6601..8c7af96c4546 100644
+index 96ec6ecb6b74..4a20a6be6601 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -209,7 +209,13 @@ unsigned int diag9c_forwarding_hz;
- module_param(diag9c_forwarding_hz, uint, 0644);
- MODULE_PARM_DESC(diag9c_forwarding_hz, "Maximum diag9c forwarding per second, 0 to turn off");
+@@ -618,6 +618,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_BPB:
+ 		r = test_facility(82);
+ 		break;
++	case KVM_CAP_S390_PROTECTED_ASYNC_DISABLE:
++		r = async_destroy && is_prot_virt_host();
++		break;
+ 	case KVM_CAP_S390_PROTECTED:
+ 		r = is_prot_virt_host();
+ 		break;
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 02602c5c1975..9afe0084b2c5 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1177,6 +1177,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_VM_DISABLE_NX_HUGE_PAGES 220
+ #define KVM_CAP_S390_ZPCI_OP 221
+ #define KVM_CAP_S390_CPU_TOPOLOGY 222
++#define KVM_CAP_S390_PROTECTED_ASYNC_DISABLE 225
  
--static int async_destroy;
-+/*
-+ * allow asynchronous deinit for protected guests; enable by default since
-+ * the feature is opt-in anyway
-+ */
-+static int async_destroy = 1;
-+module_param(async_destroy, int, 0444);
-+MODULE_PARM_DESC(async_destroy, "Asynchronous destroy for protected guests");
+ #ifdef KVM_CAP_IRQ_ROUTING
  
- /*
-  * For now we handle at most 16 double words as this is what the s390 base
 -- 
 2.37.1
 
