@@ -2,314 +2,174 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 925F8C00140
-	for <linux-s390@archiver.kernel.org>; Mon, 15 Aug 2022 07:39:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A679FC00140
+	for <linux-s390@archiver.kernel.org>; Mon, 15 Aug 2022 09:38:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbiHOHjv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 Aug 2022 03:39:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40958 "EHLO
+        id S232059AbiHOJi0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 Aug 2022 05:38:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229952AbiHOHjr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Aug 2022 03:39:47 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 383E219C22
-        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 00:39:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660549184;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=OC2bkx9zJBueAPg8JEQmoRM5UxmTc8D+tbnHej4iLwk=;
-        b=ZoHglHnSBBVmnkkG0IwQIJtbOulVj/iEM7RRPgRDhTE7HjYTTRMI7jN2NiKA0XcZx5k9IN
-        XQGoIU2e9IpAY0l9ggbEYcy140rOIA4IprgXK5rRnw7wna5eo3XTMOmVviCI5lhbJiwlEy
-        r7zwZMGFZV1ZxyjJOYfcL2rysK1xjSY=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-279-WE3hv8opNteouieelhLi_A-1; Mon, 15 Aug 2022 03:39:35 -0400
-X-MC-Unique: WE3hv8opNteouieelhLi_A-1
-Received: by mail-ej1-f71.google.com with SMTP id sa33-20020a1709076d2100b0073101bdd612so921121ejc.14
-        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 00:39:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=OC2bkx9zJBueAPg8JEQmoRM5UxmTc8D+tbnHej4iLwk=;
-        b=pS2xcAJ/xrTHDXIUOXvquDmHdpdS56BZkAwODFBLQE3tWuHspz71jpPXGKHF7V3Zh3
-         XgH10p15BHmnQlvF/m6Fb5p/+hqEzRXf97qxleCMQnUhDO5YP8HU0eTidrgZTQ6CT0o4
-         Ta6nMUXKb+YmZ9z9snT6zRCdo82GsMFqIqVGKdKidb6ZyQDKXAr/F4mp1c7bWul24kd/
-         0EzCTEyiRB4pE5Z6Hf65f0nBIH8r9YfO/INArraBS1iSNVM6JKzyxZr+eMRlmBa+8gLs
-         mBbdrOqTaOT+uYhn9nHtB66EcPjy9IeprXWDDHwRNDytzlUZ60t5xh2yiAEEf+gSeJTp
-         qpNw==
-X-Gm-Message-State: ACgBeo32aC5g4XuZEnRVeaXeMBpSyfW1acolYoPTRhSJucTwktcrq6A6
-        o7VzYWkvVMXSk51hBnEgN64Rci2RCbaWZInPqI9RNf3J5Gnsar55deLAwCNOvVxYHo9E19cvpi5
-        bL+iBvgy/o25Gfuxt4JgfNQ==
-X-Received: by 2002:a17:907:1608:b0:730:5ad0:ae1a with SMTP id hb8-20020a170907160800b007305ad0ae1amr9813511ejc.222.1660549174279;
-        Mon, 15 Aug 2022 00:39:34 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR5dF4uCArlexvqL8XPZdPtg7Gr2bGirXXunwpdi3Wu1c4gmQV30+uieFh6F/qWMw4uVYBdewg==
-X-Received: by 2002:a17:907:1608:b0:730:5ad0:ae1a with SMTP id hb8-20020a170907160800b007305ad0ae1amr9813461ejc.222.1660549173946;
-        Mon, 15 Aug 2022 00:39:33 -0700 (PDT)
-Received: from redhat.com ([2.54.169.49])
-        by smtp.gmail.com with ESMTPSA id f25-20020a50fc99000000b004424429afd4sm6151850edq.16.2022.08.15.00.39.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Aug 2022 00:39:33 -0700 (PDT)
-Date:   Mon, 15 Aug 2022 03:39:25 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc:     virtualization@lists.linux-foundation.org,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        kangjie.xu@linux.alibaba.com
-Subject: Re: [PATCH v14 37/42] virtio_net: set the default max ring size by
- find_vqs()
-Message-ID: <20220815033849-mutt-send-email-mst@kernel.org>
-References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
- <20220801063902.129329-38-xuanzhuo@linux.alibaba.com>
- <20220815015405-mutt-send-email-mst@kernel.org>
- <1660545303.436073-9-xuanzhuo@linux.alibaba.com>
- <20220815031022-mutt-send-email-mst@kernel.org>
- <1660548498.412278-11-xuanzhuo@linux.alibaba.com>
+        with ESMTP id S231493AbiHOJiZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Aug 2022 05:38:25 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B3B1EC7C;
+        Mon, 15 Aug 2022 02:38:22 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27F88sgu016417;
+        Mon, 15 Aug 2022 09:38:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=IbpeGsBI/BRs+5EysySHvJxSdnMw6gNwuIS9nFUKMGg=;
+ b=Tl6kCUSCoLUk3uONjRsb8DPo1WTTL2BCskI+cE5BbgzwoMt1kZT5jDf4I/y9IXCMxfg1
+ ZESlB+fessZyv25ggqTN+P5V1hH48IthqmbnRA0tRCIbc6jGrimwEuoFD3qDOeZpvqdg
+ t7ILsuxm9YhyusBuYVD3iNCVAdX9Z7WuJX4ArMjcD/RgNbfLc/K/1RYOSR6v4cye90dS
+ ncx1eUx6cHLMcupLGlm3FHme1Ssi8twrfpvhq0TYCJtO12fRrYWuvVbAyRihuKLc4unF
+ 8zMRRJM0NxxB5nHmlIAf9kxkxzqsgeHB2HWIK+4Q7xgStob2TvPrU4Y2n4YfoyUSW5LE Tg== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hyj0gtbj4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 Aug 2022 09:38:14 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27F9aiJK008239;
+        Mon, 15 Aug 2022 09:38:13 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3hx3k91c9s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 Aug 2022 09:38:12 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27F9c9p732178532
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 15 Aug 2022 09:38:09 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CDE4CAE045;
+        Mon, 15 Aug 2022 09:38:09 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6488BAE04D;
+        Mon, 15 Aug 2022 09:38:09 +0000 (GMT)
+Received: from [9.171.34.81] (unknown [9.171.34.81])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 15 Aug 2022 09:38:09 +0000 (GMT)
+Message-ID: <663c7595-1c18-043e-5f12-b0ce880b84bf@linux.ibm.com>
+Date:   Mon, 15 Aug 2022 11:43:15 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1660548498.412278-11-xuanzhuo@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH] vfio-pci/zdev: require KVM to be built-in
+Content-Language: en-US
+To:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
+Cc:     kernel test robot <lkp@intel.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+References: <20220814215154.32112-1-rdunlap@infradead.org>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <20220814215154.32112-1-rdunlap@infradead.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: dU61yVc1_xRQs_b-j0KqvCVIZOL7u_iF
+X-Proofpoint-ORIG-GUID: dU61yVc1_xRQs_b-j0KqvCVIZOL7u_iF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-15_06,2022-08-11_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 spamscore=0 mlxscore=0 phishscore=0 adultscore=0
+ bulkscore=0 impostorscore=0 clxscore=1011 lowpriorityscore=0
+ mlxlogscore=999 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2207270000 definitions=main-2208150034
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 15, 2022 at 03:28:18PM +0800, Xuan Zhuo wrote:
-> On Mon, 15 Aug 2022 03:14:43 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Mon, Aug 15, 2022 at 02:35:03PM +0800, Xuan Zhuo wrote:
-> > > On Mon, 15 Aug 2022 02:00:16 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Mon, Aug 01, 2022 at 02:38:57PM +0800, Xuan Zhuo wrote:
-> > > > > Use virtio_find_vqs_ctx_size() to specify the maximum ring size of tx,
-> > > > > rx at the same time.
-> > > > >
-> > > > >                          | rx/tx ring size
-> > > > > -------------------------------------------
-> > > > > speed == UNKNOWN or < 10G| 1024
-> > > > > speed < 40G              | 4096
-> > > > > speed >= 40G             | 8192
-> > > > >
-> > > > > Call virtnet_update_settings() once before calling init_vqs() to update
-> > > > > speed.
-> > > > >
-> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > >
-> > > > I've been looking at this patchset because of the resent
-> > > > reported crashes, and I'm having second thoughts about this.
-> > > >
-> > > > Do we really want to second-guess the device supplied
-> > > > max ring size? If yes why?
-> > > >
-> > > > Could you please share some performance data that motivated this
-> > > > specific set of numbers?
-> > >
-> > >
-> > > The impact of this value on performance is as follows. The larger the value, the
-> > > throughput can be increased, but the delay will also increase accordingly. It is
-> > > a maximum limit for the ring size under the corresponding speed. The purpose of
-> > > this limitation is not to improve performance, but more to reduce memory usage.
-> > >
-> > > These data come from many other network cards and some network optimization
-> > > experience.
-> > >
-> > > For example, in the case of speed = 20G, the impact of ring size greater
-> > > than 4096 on performance has no meaning. At this time, if the device supports
-> > > 8192, we limit it to 4096 through this, the real meaning is to reduce the memory
-> > > usage.
-> > >
-> > >
-> > > >
-> > > > Also why do we intepret UNKNOWN as "very low"?
-> > > > I'm thinking that should definitely be "don't change anything".
-> > > >
-> > >
-> > > Generally speaking, for a network card with a high speed, it will return a
-> > > correct speed. But I think it is a good idea to do nothing.
-> >
-> >
-> >
-> >
-> >
-> > >
-> > > > Finally if all this makes sense then shouldn't we react when
-> > > > speed changes?
-> > >
-> > > This is the feedback of the network card when it is started, and theoretically
-> > > it should not change in the future.
-> >
-> > Yes it should:
-> > 	Both \field{speed} and \field{duplex} can change, thus the driver
-> > 	is expected to re-read these values after receiving a
-> > 	configuration change notification.
-> >
-> >
-> > Moreover, during probe link can quite reasonably be down.
-> > If it is, then speed and duplex might not be correct.
-> >
-> 
-> 
-> It seems that this is indeed a problem.
-> 
-> But I feel that this is not the reason for the abnormal network.
+Thank you Randy for this good catch.
+However forcing KVM to be include statically in the kernel when using 
+VFIO_PCI extensions is not a good solution for us I think.
 
-Yes, but it's a reason to revert this patch and rethink the approach.
+I suggest we better do something like:
 
-> I'm still trying google cloud vm.
-> 
-> 
-> >
-> >
-> >
-> > > >
-> > > > Could you try reverting this and showing performance results
-> > > > before and after please? Thanks!
-> > >
-> > > I hope the above reply can help you, if there is anything else you need me to
-> > > cooperate with, I am very happy.
-> > >
-> > > If you think it's ok, I can resubmit a commit with 'UNKNOW' set to unlimited. I
-> > > can submit it with the issue of #30.
-> > >
-> > > Thanks.
-> > >
-> > >
-> > > >
-> > > > > ---
-> > > > >  drivers/net/virtio_net.c | 42 ++++++++++++++++++++++++++++++++++++----
-> > > > >  1 file changed, 38 insertions(+), 4 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > > index 8a5810bcb839..40532ecbe7fc 100644
-> > > > > --- a/drivers/net/virtio_net.c
-> > > > > +++ b/drivers/net/virtio_net.c
-> > > > > @@ -3208,6 +3208,29 @@ static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqu
-> > > > >  		   (unsigned int)GOOD_PACKET_LEN);
-> > > > >  }
-> > > > >
-> > > > > +static void virtnet_config_sizes(struct virtnet_info *vi, u32 *sizes)
-> > > > > +{
-> > > > > +	u32 i, rx_size, tx_size;
-> > > > > +
-> > > > > +	if (vi->speed == SPEED_UNKNOWN || vi->speed < SPEED_10000) {
-> > > > > +		rx_size = 1024;
-> > > > > +		tx_size = 1024;
-> > > > > +
-> > > > > +	} else if (vi->speed < SPEED_40000) {
-> > > > > +		rx_size = 1024 * 4;
-> > > > > +		tx_size = 1024 * 4;
-> > > > > +
-> > > > > +	} else {
-> > > > > +		rx_size = 1024 * 8;
-> > > > > +		tx_size = 1024 * 8;
-> > > > > +	}
-> > > > > +
-> > > > > +	for (i = 0; i < vi->max_queue_pairs; i++) {
-> > > > > +		sizes[rxq2vq(i)] = rx_size;
-> > > > > +		sizes[txq2vq(i)] = tx_size;
-> > > > > +	}
-> > > > > +}
-> > > > > +
-> > > > >  static int virtnet_find_vqs(struct virtnet_info *vi)
-> > > > >  {
-> > > > >  	vq_callback_t **callbacks;
-> > > > > @@ -3215,6 +3238,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> > > > >  	int ret = -ENOMEM;
-> > > > >  	int i, total_vqs;
-> > > > >  	const char **names;
-> > > > > +	u32 *sizes;
-> > > > >  	bool *ctx;
-> > > > >
-> > > > >  	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
-> > > > > @@ -3242,10 +3266,15 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> > > > >  		ctx = NULL;
-> > > > >  	}
-> > > > >
-> > > > > +	sizes = kmalloc_array(total_vqs, sizeof(*sizes), GFP_KERNEL);
-> > > > > +	if (!sizes)
-> > > > > +		goto err_sizes;
-> > > > > +
-> > > > >  	/* Parameters for control virtqueue, if any */
-> > > > >  	if (vi->has_cvq) {
-> > > > >  		callbacks[total_vqs - 1] = NULL;
-> > > > >  		names[total_vqs - 1] = "control";
-> > > > > +		sizes[total_vqs - 1] = 64;
-> > > > >  	}
-> > > > >
-> > > > >  	/* Allocate/initialize parameters for send/receive virtqueues */
-> > > > > @@ -3260,8 +3289,10 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> > > > >  			ctx[rxq2vq(i)] = true;
-> > > > >  	}
-> > > > >
-> > > > > -	ret = virtio_find_vqs_ctx(vi->vdev, total_vqs, vqs, callbacks,
-> > > > > -				  names, ctx, NULL);
-> > > > > +	virtnet_config_sizes(vi, sizes);
-> > > > > +
-> > > > > +	ret = virtio_find_vqs_ctx_size(vi->vdev, total_vqs, vqs, callbacks,
-> > > > > +				       names, sizes, ctx, NULL);
-> > > > >  	if (ret)
-> > > > >  		goto err_find;
-> > > > >
-> > > > > @@ -3281,6 +3312,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> > > > >
-> > > > >
-> > > > >  err_find:
-> > > > > +	kfree(sizes);
-> > > > > +err_sizes:
-> > > > >  	kfree(ctx);
-> > > > >  err_ctx:
-> > > > >  	kfree(names);
-> > > > > @@ -3630,6 +3663,9 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > > > >  		vi->curr_queue_pairs = num_online_cpus();
-> > > > >  	vi->max_queue_pairs = max_queue_pairs;
-> > > > >
-> > > > > +	virtnet_init_settings(dev);
-> > > > > +	virtnet_update_settings(vi);
-> > > > > +
-> > > > >  	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
-> > > > >  	err = init_vqs(vi);
-> > > > >  	if (err)
-> > > > > @@ -3642,8 +3678,6 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > > > >  	netif_set_real_num_tx_queues(dev, vi->curr_queue_pairs);
-> > > > >  	netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
-> > > > >
-> > > > > -	virtnet_init_settings(dev);
-> > > > > -
-> > > > >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_STANDBY)) {
-> > > > >  		vi->failover = net_failover_create(vi->dev);
-> > > > >  		if (IS_ERR(vi->failover)) {
-> > > > > --
-> > > > > 2.31.0
-> > > >
-> >
+----
 
+diff --git a/arch/s390/include/asm/kvm_host.h 
+b/arch/s390/include/asm/kvm_host.h
+index 6287a843e8bc..1733339cc4eb 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -1038,7 +1038,7 @@ static inline void kvm_arch_vcpu_unblocking(struct 
+kvm_vcpu *vcpu) {}
+  #define __KVM_HAVE_ARCH_VM_FREE
+  void kvm_arch_free_vm(struct kvm *kvm);
+
+-#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
++#if defined(CONFIG_VFIO_PCI_ZDEV_KVM) || 
+defined(CONFIG_VFIO_PCI_ZDEV_KVM_MODULE)
+  int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm);
+  void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev);
+  #else
+diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+index f9d0c908e738..bbc375b028ef 100644
+--- a/drivers/vfio/pci/Kconfig
++++ b/drivers/vfio/pci/Kconfig
+@@ -45,9 +45,9 @@ config VFIO_PCI_IGD
+  endif
+
+  config VFIO_PCI_ZDEV_KVM
+-       bool "VFIO PCI extensions for s390x KVM passthrough"
++       def_tristate y
++       prompt "VFIO PCI extensions for s390x KVM passthrough"
+         depends on S390 && KVM
+-       default y
+         help
+           Support s390x-specific extensions to enable support for 
+enhancements
+           to KVM passthrough capabilities, such as interpretive 
+execution of
+
+----
+
+What do you think? It seems to me it solves the problem, what do you think?
+
+Regards,
+Pierre
+
+On 8/14/22 23:51, Randy Dunlap wrote:
+> Fix build errors when CONFIG_KVM=m:
+> 
+> s390-linux-ld: drivers/vfio/pci/vfio_pci_zdev.o: in function `vfio_pci_zdev_open_device':
+> vfio_pci_zdev.c:(.text+0x242): undefined reference to `kvm_s390_pci_register_kvm'
+> s390-linux-ld: drivers/vfio/pci/vfio_pci_zdev.o: in function `vfio_pci_zdev_close_device':
+> vfio_pci_zdev.c:(.text+0x296): undefined reference to `kvm_s390_pci_unregister_kvm'
+> 
+> Having a bool Kconfig symbol depend on a tristate symbol can often
+> lead to problems like this.
+> 
+> Fixes: 8061d1c31f1a ("vfio-pci/zdev: add open/close device hooks")
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Cc: Matthew Rosato <mjrosato@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Pierre Morel <pmorel@linux.ibm.com>
+> Cc: Eric Farman <farman@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Cc: kvm@vger.kernel.org
+> ---
+>   drivers/vfio/pci/Kconfig |    2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- a/drivers/vfio/pci/Kconfig
+> +++ b/drivers/vfio/pci/Kconfig
+> @@ -46,7 +46,7 @@ endif
+>   
+>   config VFIO_PCI_ZDEV_KVM
+>   	bool "VFIO PCI extensions for s390x KVM passthrough"
+> -	depends on S390 && KVM
+> +	depends on S390 && KVM=y
+>   	default y
+>   	help
+>   	  Support s390x-specific extensions to enable support for enhancements
+> 
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
