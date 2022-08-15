@@ -2,58 +2,58 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B829C3F6B0
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Aug 2022 02:02:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C3E5C00140
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Aug 2022 02:03:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233332AbiHPCCm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 Aug 2022 22:02:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55406 "EHLO
+        id S240052AbiHPCDB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 Aug 2022 22:03:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233441AbiHPCBc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Aug 2022 22:01:32 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AD5A0221118
-        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 14:54:19 -0700 (PDT)
+        with ESMTP id S233845AbiHPCBf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Aug 2022 22:01:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0EB41220B87
+        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 14:54:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660600443;
+        s=mimecast20190719; t=1660600420;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=fg6AseMQKhGFaW1h59Li+nNVbNoTUAPXOEzU4kFeR3k=;
-        b=DRjWJMZPUX4EcbOB+qxIrGMoNYx7TRCNTNS/bKm2srbKbQSN7FFhEBIy40mZ4VO3nl0w+L
-        onrbkSUwFcAHe1BPqj8k8RfFWwrhlZ/eKZwAyQC25Ha12EyuS2eXIie8RyOLut2njaJiP9
-        cxnjQkIKnSFCJ6hkQpzsDz27Z3PMMrY=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=bDCYLEy+BFzUXB2vyNCVod0ccaWSLx6QeKp/OdHtLfo=;
+        b=hfxdy9dqiFEV75Y3cHN417lkjVoIJnwu3YKwry4T2NVel8BSjfThWxzyWntZskkMf1l21n
+        +MF/5HoeKkRgphZpr3zm3E9cX4Iid9jwUEBOdouY6ctivWRSoxKUHkRs6HSKi48o0d7liD
+        dk+qAIHPSD9ORqUgRrS1lgYLPTIOfE4=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-92-ykUVqeUiPVauuyzWWSftLw-1; Mon, 15 Aug 2022 17:53:59 -0400
-X-MC-Unique: ykUVqeUiPVauuyzWWSftLw-1
-Received: by mail-wm1-f70.google.com with SMTP id j22-20020a05600c485600b003a5e4420552so3820962wmo.8
-        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 14:53:59 -0700 (PDT)
+ us-mta-515-sZzT2nqnO5iG9yKELtzWTQ-1; Mon, 15 Aug 2022 17:53:39 -0400
+X-MC-Unique: sZzT2nqnO5iG9yKELtzWTQ-1
+Received: by mail-wm1-f71.google.com with SMTP id a17-20020a05600c349100b003a545125f6eso9244270wmq.4
+        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 14:53:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=fg6AseMQKhGFaW1h59Li+nNVbNoTUAPXOEzU4kFeR3k=;
-        b=D8F19vjxQp/vP5YGZ0LzNT76ejMF0P/KVDOm5nMZ7ReWEtdYJ8BAgMqBIHxBNMbjKJ
-         6ZHXrpPdUL9O9Hm+nC8dhVhemwx+Zws7mEOWE94KKNt+7ULOz/QznlXJhan0blsabD9V
-         1QL++aIHN9vQlzkM1SYzllcYv7vZhKm3amtGCsHC1bvesnEAcy/XOZWeoydIDRN55Dx4
-         T2uKn/IhKz+UFtERb9wdOjhulh2MX9VZek6SLtuN7kJbDiTsd1/xz+Lk8kht9RQgMOKg
-         ulaBmTz+a1j+hMUV65webGJgOGaHNs0+jCuLMvwzxWjPYSQFouWHI2rNKj4XwYkm4xge
-         qU0A==
-X-Gm-Message-State: ACgBeo0mspRFMzu9sWZAqm1+L3De4E4k+t9QN/OAbK6RqA7Te21bCfo5
-        RRZfTya+hl4/IaQQOE8wI2gquVXAc9vbvNJhi0nETRXZR2zG5DRpFeYRnOk9JkLR0hp35uEpmuy
-        Q/QCYI+Yg56E2Fgc0X4geeg==
-X-Received: by 2002:a5d:688c:0:b0:21f:160d:8859 with SMTP id h12-20020a5d688c000000b0021f160d8859mr10167792wru.711.1660600438101;
-        Mon, 15 Aug 2022 14:53:58 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7i3yRQDphQZIsyoh1v41BSMjkMtop58XMuZPufNQqNvzCeKRCE/8qJPk0HkyEzaJW0RSPyXA==
-X-Received: by 2002:a5d:688c:0:b0:21f:160d:8859 with SMTP id h12-20020a5d688c000000b0021f160d8859mr10167756wru.711.1660600437733;
-        Mon, 15 Aug 2022 14:53:57 -0700 (PDT)
+        bh=bDCYLEy+BFzUXB2vyNCVod0ccaWSLx6QeKp/OdHtLfo=;
+        b=R6WhMf16PEO44kE2yVq/GvSATb1eHRE1y7H69ZtEhQDAEx0gx5o38Mg757a1ucoPNY
+         mFECchp/W9DkH1m8qrQf3ZuCjFhA2LxagTzIqcz38BS60Z2f2uPKrxCt4sQKstVxvLW9
+         JQwm+DLwwoJFrtKJxabBnkT2lbAWcFKM6bDx/84tHybrQrO6ZyItcW5HYuo7GhyNjvPM
+         OuwYHyYAcmkYUdCjb6N5ZRMPYM3z8EuMg40/+ws9LvA6diZiZrdpVBE3aT7xoKb1YSU5
+         yFTETEOblaFVJVmB488758ZSh1GlwR7kI0Z8zvPdDERLfmDDStUDJFc2lge2HbwwGp7C
+         kz+g==
+X-Gm-Message-State: ACgBeo3pClByaEjjnUeV2nZBHKAJBb+9BU8+x1G4oZOROTHVwldS59jm
+        Z4dkQU3qnh+HLlbE6t2iFVbaobgue5lN1taETeACB+8SLrKkJPRsl7MWam2KzPcrquOpl0KUW0S
+        cwHrGnAJUPZnZQjZY0oeDRw==
+X-Received: by 2002:a7b:ca42:0:b0:3a6:9d:a444 with SMTP id m2-20020a7bca42000000b003a6009da444mr2231536wml.51.1660600418492;
+        Mon, 15 Aug 2022 14:53:38 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4BN8C+PGA8RpmSRZwBido/QgzW+8NIJd7WJaZE3l05LkbGN7+KhxLct1xW2rLS+iQX/I9U0w==
+X-Received: by 2002:a7b:ca42:0:b0:3a6:9d:a444 with SMTP id m2-20020a7bca42000000b003a6009da444mr2231508wml.51.1660600418216;
+        Mon, 15 Aug 2022 14:53:38 -0700 (PDT)
 Received: from redhat.com ([2.55.4.37])
-        by smtp.gmail.com with ESMTPSA id q9-20020adff509000000b0021efc75914esm8326304wro.79.2022.08.15.14.53.51
+        by smtp.gmail.com with ESMTPSA id l23-20020a1c7917000000b003a541358bdbsm10115773wme.21.2022.08.15.14.53.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Aug 2022 14:53:57 -0700 (PDT)
-Date:   Mon, 15 Aug 2022 17:53:50 -0400
+        Mon, 15 Aug 2022 14:53:37 -0700 (PDT)
+Date:   Mon, 15 Aug 2022 17:53:29 -0400
 From:   "Michael S. Tsirkin" <mst@redhat.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -88,8 +88,8 @@ Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org
-Subject: [PATCH v2 5/5] virtio: Revert "virtio: find_vqs() add arg sizes"
-Message-ID: <20220815215251.154451-8-mst@redhat.com>
+Subject: [PATCH v2 1/1] virtio: Revert "virtio: find_vqs() add arg sizes"
+Message-ID: <20220815215251.154451-4-mst@redhat.com>
 References: <20220815215251.154451-1-mst@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -114,18 +114,6 @@ let's drop it.
 
 Fixes: a10fba037714 ("virtio: find_vqs() add arg sizes")
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- arch/um/drivers/virtio_uml.c             |  2 +-
- drivers/platform/mellanox/mlxbf-tmfifo.c |  1 -
- drivers/remoteproc/remoteproc_virtio.c   |  1 -
- drivers/s390/virtio/virtio_ccw.c         |  1 -
- drivers/virtio/virtio_mmio.c             |  1 -
- drivers/virtio/virtio_pci_common.c       |  2 +-
- drivers/virtio/virtio_pci_common.h       |  2 +-
- drivers/virtio/virtio_pci_modern.c       |  7 ++-----
- drivers/virtio/virtio_vdpa.c             |  1 -
- include/linux/virtio_config.h            | 14 +++++---------
- 10 files changed, 10 insertions(+), 22 deletions(-)
 
 diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
 index 79e38afd4b91..e719af8bdf56 100644
