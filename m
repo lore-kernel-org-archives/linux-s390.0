@@ -2,174 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A679FC00140
-	for <linux-s390@archiver.kernel.org>; Mon, 15 Aug 2022 09:38:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A9D0C25B0E
+	for <linux-s390@archiver.kernel.org>; Mon, 15 Aug 2022 13:36:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232059AbiHOJi0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 Aug 2022 05:38:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59208 "EHLO
+        id S242071AbiHONgD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 Aug 2022 09:36:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231493AbiHOJiZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Aug 2022 05:38:25 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B3B1EC7C;
-        Mon, 15 Aug 2022 02:38:22 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27F88sgu016417;
-        Mon, 15 Aug 2022 09:38:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+        with ESMTP id S231461AbiHONgB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Aug 2022 09:36:01 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4326013E16;
+        Mon, 15 Aug 2022 06:36:01 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27FDIcOu032536;
+        Mon, 15 Aug 2022 13:35:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=IbpeGsBI/BRs+5EysySHvJxSdnMw6gNwuIS9nFUKMGg=;
- b=Tl6kCUSCoLUk3uONjRsb8DPo1WTTL2BCskI+cE5BbgzwoMt1kZT5jDf4I/y9IXCMxfg1
- ZESlB+fessZyv25ggqTN+P5V1hH48IthqmbnRA0tRCIbc6jGrimwEuoFD3qDOeZpvqdg
- t7ILsuxm9YhyusBuYVD3iNCVAdX9Z7WuJX4ArMjcD/RgNbfLc/K/1RYOSR6v4cye90dS
- ncx1eUx6cHLMcupLGlm3FHme1Ssi8twrfpvhq0TYCJtO12fRrYWuvVbAyRihuKLc4unF
- 8zMRRJM0NxxB5nHmlIAf9kxkxzqsgeHB2HWIK+4Q7xgStob2TvPrU4Y2n4YfoyUSW5LE Tg== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3hyj0gtbj4-1
+ bh=eaRViY6pucTtow3bgZIPD2Vkh83IVZr4lnZB/1dV7zs=;
+ b=AVhYp0YlYP85MwZ2J9bSZT/ru6Q5BDOe8dLNGrNf2zMar9UMvHBPJmP0xHTKgiEa19HW
+ iAg5M3QlKG48q61FCbGo/BqfoougQYbCwLM1M0mgYI/kV9xR3L81TGdpYc427zhiMP/M
+ ZiqES4DRbxYoTxtt7LknqsoFcuuvuTay7R7LyrGLoR+sf5ZoKxxnwPSbfWCRfWEZfY61
+ 6/h85R72ka6iHpmyBIa4EUHJTnnWlFUtIj0S8sIZM8u7Gb8dGr7LtoCuEETIjW7/Gjtq
+ FWc4wZCeV1PVww/LpmUu484y9kU3m9GOBHobvfu2hy7IxuZx9Tij9UEiQfAt+J7DPJE6 7Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hypwtrbyj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 15 Aug 2022 09:38:14 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27F9aiJK008239;
-        Mon, 15 Aug 2022 09:38:13 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3hx3k91c9s-1
+        Mon, 15 Aug 2022 13:35:57 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27FDIs9s000774;
+        Mon, 15 Aug 2022 13:35:56 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3hypwtrbxx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 15 Aug 2022 09:38:12 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27F9c9p732178532
+        Mon, 15 Aug 2022 13:35:56 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27FDKxIv030037;
+        Mon, 15 Aug 2022 13:35:54 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3hx3k9a1x3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 Aug 2022 13:35:53 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27FDZpnw31588852
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 15 Aug 2022 09:38:09 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CDE4CAE045;
-        Mon, 15 Aug 2022 09:38:09 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6488BAE04D;
-        Mon, 15 Aug 2022 09:38:09 +0000 (GMT)
-Received: from [9.171.34.81] (unknown [9.171.34.81])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 15 Aug 2022 09:38:09 +0000 (GMT)
-Message-ID: <663c7595-1c18-043e-5f12-b0ce880b84bf@linux.ibm.com>
-Date:   Mon, 15 Aug 2022 11:43:15 +0200
+        Mon, 15 Aug 2022 13:35:51 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9F33811C052;
+        Mon, 15 Aug 2022 13:35:51 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 45B6511C04C;
+        Mon, 15 Aug 2022 13:35:51 +0000 (GMT)
+Received: from thinkpad (unknown [9.171.38.199])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Mon, 15 Aug 2022 13:35:51 +0000 (GMT)
+Date:   Mon, 15 Aug 2022 15:35:49 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] mm/hugetlb: support write-faults in shared
+ mappings
+Message-ID: <20220815153549.0288a9c6@thinkpad>
+In-Reply-To: <YvVRfSYsPOraTo6o@monkey>
+References: <20220811103435.188481-1-david@redhat.com>
+        <20220811103435.188481-3-david@redhat.com>
+        <YvVRfSYsPOraTo6o@monkey>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] vfio-pci/zdev: require KVM to be built-in
-Content-Language: en-US
-To:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
-Cc:     kernel test robot <lkp@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-References: <20220814215154.32112-1-rdunlap@infradead.org>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <20220814215154.32112-1-rdunlap@infradead.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dU61yVc1_xRQs_b-j0KqvCVIZOL7u_iF
-X-Proofpoint-ORIG-GUID: dU61yVc1_xRQs_b-j0KqvCVIZOL7u_iF
+X-Proofpoint-GUID: MJ3X9Xzr4PUIE9CAayI4halGlGSPtmrU
+X-Proofpoint-ORIG-GUID: 4HAYzzsF6Hbu_TodGuw7lQnxBf51R8Hp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-15_06,2022-08-11_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 spamscore=0 mlxscore=0 phishscore=0 adultscore=0
- bulkscore=0 impostorscore=0 clxscore=1011 lowpriorityscore=0
- mlxlogscore=999 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2207270000 definitions=main-2208150034
+ definitions=2022-08-15_08,2022-08-15_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 malwarescore=0 bulkscore=0 clxscore=1011
+ priorityscore=1501 spamscore=0 phishscore=0 mlxlogscore=999 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
+ definitions=main-2208150053
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thank you Randy for this good catch.
-However forcing KVM to be include statically in the kernel when using 
-VFIO_PCI extensions is not a good solution for us I think.
+On Thu, 11 Aug 2022 11:59:09 -0700
+Mike Kravetz <mike.kravetz@oracle.com> wrote:
 
-I suggest we better do something like:
-
-----
-
-diff --git a/arch/s390/include/asm/kvm_host.h 
-b/arch/s390/include/asm/kvm_host.h
-index 6287a843e8bc..1733339cc4eb 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -1038,7 +1038,7 @@ static inline void kvm_arch_vcpu_unblocking(struct 
-kvm_vcpu *vcpu) {}
-  #define __KVM_HAVE_ARCH_VM_FREE
-  void kvm_arch_free_vm(struct kvm *kvm);
-
--#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
-+#if defined(CONFIG_VFIO_PCI_ZDEV_KVM) || 
-defined(CONFIG_VFIO_PCI_ZDEV_KVM_MODULE)
-  int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm);
-  void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev);
-  #else
-diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
-index f9d0c908e738..bbc375b028ef 100644
---- a/drivers/vfio/pci/Kconfig
-+++ b/drivers/vfio/pci/Kconfig
-@@ -45,9 +45,9 @@ config VFIO_PCI_IGD
-  endif
-
-  config VFIO_PCI_ZDEV_KVM
--       bool "VFIO PCI extensions for s390x KVM passthrough"
-+       def_tristate y
-+       prompt "VFIO PCI extensions for s390x KVM passthrough"
-         depends on S390 && KVM
--       default y
-         help
-           Support s390x-specific extensions to enable support for 
-enhancements
-           to KVM passthrough capabilities, such as interpretive 
-execution of
-
-----
-
-What do you think? It seems to me it solves the problem, what do you think?
-
-Regards,
-Pierre
-
-On 8/14/22 23:51, Randy Dunlap wrote:
-> Fix build errors when CONFIG_KVM=m:
+> On 08/11/22 12:34, David Hildenbrand wrote:
+> > If we ever get a write-fault on a write-protected page in a shared mapping,
+> > we'd be in trouble (again). Instead, we can simply map the page writable.
+> > 
+> <snip>
+> > 
+> > Reason is that uffd-wp doesn't clear the uffd-wp PTE bit when
+> > unregistering and consequently keeps the PTE writeprotected. Reason for
+> > this is to avoid the additional overhead when unregistering. Note
+> > that this is the case also for !hugetlb and that we will end up with
+> > writable PTEs that still have the uffd-wp PTE bit set once we return
+> > from hugetlb_wp(). I'm not touching the uffd-wp PTE bit for now, because it
+> > seems to be a generic thing -- wp_page_reuse() also doesn't clear it.
+> > 
+> > VM_MAYSHARE handling in hugetlb_fault() for FAULT_FLAG_WRITE
+> > indicates that MAP_SHARED handling was at least envisioned, but could never
+> > have worked as expected.
+> > 
+> > While at it, make sure that we never end up in hugetlb_wp() on write
+> > faults without VM_WRITE, because we don't support maybe_mkwrite()
+> > semantics as commonly used in the !hugetlb case -- for example, in
+> > wp_page_reuse().
 > 
-> s390-linux-ld: drivers/vfio/pci/vfio_pci_zdev.o: in function `vfio_pci_zdev_open_device':
-> vfio_pci_zdev.c:(.text+0x242): undefined reference to `kvm_s390_pci_register_kvm'
-> s390-linux-ld: drivers/vfio/pci/vfio_pci_zdev.o: in function `vfio_pci_zdev_close_device':
-> vfio_pci_zdev.c:(.text+0x296): undefined reference to `kvm_s390_pci_unregister_kvm'
-> 
-> Having a bool Kconfig symbol depend on a tristate symbol can often
-> lead to problems like this.
-> 
-> Fixes: 8061d1c31f1a ("vfio-pci/zdev: add open/close device hooks")
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Reported-by: kernel test robot <lkp@intel.com>
-> Cc: Matthew Rosato <mjrosato@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Pierre Morel <pmorel@linux.ibm.com>
-> Cc: Eric Farman <farman@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Cc: kvm@vger.kernel.org
-> ---
->   drivers/vfio/pci/Kconfig |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- a/drivers/vfio/pci/Kconfig
-> +++ b/drivers/vfio/pci/Kconfig
-> @@ -46,7 +46,7 @@ endif
->   
->   config VFIO_PCI_ZDEV_KVM
->   	bool "VFIO PCI extensions for s390x KVM passthrough"
-> -	depends on S390 && KVM
-> +	depends on S390 && KVM=y
->   	default y
->   	help
->   	  Support s390x-specific extensions to enable support for enhancements
-> 
+> Nit,
+> to me 'make sure that we never end up in hugetlb_wp()' implies that
+> we would check for condition in callers as opposed to first thing in
+> hugetlb_wp().  However, I am OK with description as it.
 
--- 
-Pierre Morel
-IBM Lab Boeblingen
+Is that new WARN_ON_ONCE() in hugetlb_wp() meant to indicate a real bug?
+It is triggered by libhugetlbfs testcase "HUGETLB_ELFMAP=R linkhuge_rw"
+(at least on s390), and crashes our CI, because it runs with panic_on_warn
+enabled.
+
+Not sure if this means that we have bug elsewhere, allowing us to
+get to the WARN in hugetlb_wp().
