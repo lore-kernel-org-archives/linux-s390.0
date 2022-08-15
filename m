@@ -2,254 +2,206 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0802BC25B08
-	for <linux-s390@archiver.kernel.org>; Mon, 15 Aug 2022 18:03:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FEB9C00140
+	for <linux-s390@archiver.kernel.org>; Mon, 15 Aug 2022 18:17:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbiHOSDi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 Aug 2022 14:03:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48436 "EHLO
+        id S232442AbiHOSRF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 Aug 2022 14:17:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231140AbiHOSDh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Aug 2022 14:03:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0A44328E2C
-        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 11:03:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660586614;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wQjr+DSYGxM4TpUxnXhcHX0DX24mB5hjVi7pYJ9v++8=;
-        b=bSvX9OEdXg+ptQ9Vn42y5FdUy5IxdUvJ1tvFNVVvCRAVbOGkvGSz6Q530UK3kBmlRzvUO6
-        xn9awTUJpmNAyFDuIP+s7LL8b9eXUlgLrnS4Yk+5+ZWXgPEVdLZPGABAC1kPUHqtaXDY77
-        LgmMTBiqJZRybYYLk7cbLwIC/8H7YYQ=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-104-IncR8PNvMd-rjMWyNfcmHw-1; Mon, 15 Aug 2022 14:03:32 -0400
-X-MC-Unique: IncR8PNvMd-rjMWyNfcmHw-1
-Received: by mail-ed1-f71.google.com with SMTP id y14-20020a056402440e00b0044301c7ccd9so5122593eda.19
-        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 11:03:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
-        bh=wQjr+DSYGxM4TpUxnXhcHX0DX24mB5hjVi7pYJ9v++8=;
-        b=0bGZFiz3mCar7XQG9f2krjvmghqPKlOoQnEm5ErPVgawy1PAZOlq0Chfr9wc4RgjFa
-         19zmMDUE/NP2KsIRZ8FG0mPNzfOcMcq1rKw8PWN18Dd56cu4oA7379pTP698ficJgsbn
-         zMwQ6ZgpjAoPQ9gSS0P+ybDEtwAa0e6R2kgb96uMit5RMlocbE3pXhG+drKESKbHOxNM
-         r2t6BWH8hvu4hg7kf5oxyxoWVCYRsCWZ2uVAe2mIXv9AO5I+LCDKuhKVNwRl9Dpb6xuC
-         +GLAHNDmRNQpjPQ+TGR6Vq1cC6QAPy+CAJlBYc5Th0U09PLFXktzKLdHlLNskHHTZT2w
-         kRZg==
-X-Gm-Message-State: ACgBeo1So2EZGySSZwD7/Ao/qczaPkCZORjTOE+HlRDTlLAzZsUg0lV/
-        o2ljBTNqAt+1HDbN4Knh97EMijhedgACuQke+C+KQIQexXFLonii1O40f6PlQiVP9XzEJXtr6eb
-        1rZO8STPImkb2PbhuXYm/aR5sdR5cVVjgsmlZVg==
-X-Received: by 2002:aa7:dd50:0:b0:440:3e9d:784 with SMTP id o16-20020aa7dd50000000b004403e9d0784mr15656373edw.195.1660586611552;
-        Mon, 15 Aug 2022 11:03:31 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4ilBYpI5+hg3LT1yB5sTqM3lMYh4WgRyvUWsiZVy9Nzjcy/+DGyyGBhpo0ZF6gQUL7QOy3v+qFA8joRXmATdM=
-X-Received: by 2002:aa7:dd50:0:b0:440:3e9d:784 with SMTP id
- o16-20020aa7dd50000000b004403e9d0784mr15656358edw.195.1660586611281; Mon, 15
- Aug 2022 11:03:31 -0700 (PDT)
+        with ESMTP id S236621AbiHOSQ3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Aug 2022 14:16:29 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2054.outbound.protection.outlook.com [40.107.223.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C6742B18E;
+        Mon, 15 Aug 2022 11:14:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=mqkZgVc0iVS84iQ0wNx8VhitoWC3aVTQnzAWMcS08Iu8Ox9bc1UeQp3x4W84Lufvp+mMnKV7SyHlW+RT/iLKBoHd4OYYQztbbRD7CBD6m3EczhiNzAROawXSYaCqNU2GTGVepzzeSUgbUxBKq2NcoOlS31Q4BRo0OthMFLtpPLdMGZCPp6YB/YwFbWdnBh9ylHHZD7zi8kSZZKs5b3pvBThubKBkaidbKmWAXkpOFhB4fgzmUs7LBi84hIZ5YPqW4lD37XkYb4b0aMSVrFDoiW7f8RNlSS5fqor2hEIaNMoksdgkXfLbSbLb3tWakcuo+lRpUPlHkjQ43t74gQt51g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=DBDOHqleZHVVamzDwdTTjmN2SJGMbpiPi41DSE4yMzI=;
+ b=lj6IfPUt3+f3D9rser0zBKmZ8G1NhgxwK8sUGbJqQFHKQMNsENBRjuHaNWVMlgjHZh0OwzvV+kHe4u4VCZ7sVgAFpi+XuIFo6MFuA3gZIeecW6ldOx6C4mLA4MWLOm26/ry3hL9SA0PIH7fnHL5s+CQVqaclYyZQ3zsq+K/EqCwFIDeNDh5R9Y7EJk/OE8nSz63CejS08kJ6rKFVxaY86SH0gbhdkcS+itRtEUMkn0dHQ2YZ8CTCp888ONjq2Y229nk39nn5OC7Ai8T0pNiyPLrFVP6p411TkOiB98+F+EuIU4cRGDc10cigkT4t3zKdU9HnR9GFWb+ho0f8qRUOzg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.234) smtp.rcpttodomain=rosenzweig.io smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DBDOHqleZHVVamzDwdTTjmN2SJGMbpiPi41DSE4yMzI=;
+ b=d8+21JOl6W/w0/y0IhtkqluiCg/E22RWOjjUBdNsu1xYfLPwHzPQDbPjnaTGO9jUBx4PIEPyeiXKzKYAcJJbMnfOv0bfLEvGmLBTTH5SPPFNL8xRKNd6pS8Na5H9yZwM0HT0OwYvJpMtK+NSxtUVzLMYwkf2pufj3efrbN4pKjkp4XU4+JbIZzLTS7UTKJOkwYf5VUJSV1ulNJZaJNavSZ76ldlLW/c+n1vnu2ztCAgSuIGEJIYBRckO/IwWVp+mcbitLznukbWkZ4TTctTIy1TcRDzOfUJoEdcvvAEOGCnrhLQdqTLvzuPKuj56a8cl7/tl29RzqJoW2qkOlGdFdQ==
+Received: from BN9PR03CA0284.namprd03.prod.outlook.com (2603:10b6:408:f5::19)
+ by BYAPR12MB3175.namprd12.prod.outlook.com (2603:10b6:a03:13a::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5504.17; Mon, 15 Aug
+ 2022 18:14:48 +0000
+Received: from BN8NAM11FT087.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:f5:cafe::6f) by BN9PR03CA0284.outlook.office365.com
+ (2603:10b6:408:f5::19) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5525.18 via Frontend
+ Transport; Mon, 15 Aug 2022 18:14:48 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.234)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.234 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.234; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.234) by
+ BN8NAM11FT087.mail.protection.outlook.com (10.13.177.24) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5546.7 via Frontend Transport; Mon, 15 Aug 2022 18:14:48 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by
+ DRHQMAIL101.nvidia.com (10.27.9.10) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.38; Mon, 15 Aug 2022 18:14:46 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by
+ drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.29; Mon, 15 Aug 2022 11:14:45 -0700
+Received: from Asurada-Nvidia.nvidia.com (10.127.8.12) by mail.nvidia.com
+ (10.126.190.182) with Microsoft SMTP Server id 15.2.986.29 via Frontend
+ Transport; Mon, 15 Aug 2022 11:14:43 -0700
+From:   Nicolin Chen <nicolinc@nvidia.com>
+To:     <joro@8bytes.org>, <will@kernel.org>, <robin.murphy@arm.com>,
+        <alex.williamson@redhat.com>
+CC:     <suravee.suthikulpanit@amd.com>, <marcan@marcan.st>,
+        <sven@svenpeter.dev>, <alyssa@rosenzweig.io>,
+        <robdclark@gmail.com>, <dwmw2@infradead.org>,
+        <baolu.lu@linux.intel.com>, <mjrosato@linux.ibm.com>,
+        <gerald.schaefer@linux.ibm.com>, <orsonzhai@gmail.com>,
+        <baolin.wang@linux.alibaba.com>, <zhang.lyra@gmail.com>,
+        <thierry.reding@gmail.com>, <vdumpa@nvidia.com>,
+        <jonathanh@nvidia.com>, <jean-philippe@linaro.org>,
+        <cohuck@redhat.com>, <jgg@nvidia.com>, <tglx@linutronix.de>,
+        <shameerali.kolothum.thodi@huawei.com>,
+        <thunder.leizhen@huawei.com>, <christophe.jaillet@wanadoo.fr>,
+        <yangyingliang@huawei.com>, <jon@solid-run.com>,
+        <iommu@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+        <asahi@lists.linux.dev>, <linux-arm-kernel@lists.infradead.org>,
+        <linux-arm-msm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <linux-tegra@vger.kernel.org>,
+        <virtualization@lists.linux-foundation.org>, <kvm@vger.kernel.org>,
+        <kevin.tian@intel.com>
+Subject: [PATCH v6 0/5] Simplify vfio_iommu_type1 attach/detach routine
+Date:   Mon, 15 Aug 2022 11:14:32 -0700
+Message-ID: <20220815181437.28127-1-nicolinc@nvidia.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-References: <20220811103435.188481-1-david@redhat.com> <20220811103435.188481-3-david@redhat.com>
- <YvVRfSYsPOraTo6o@monkey> <20220815153549.0288a9c6@thinkpad>
- <CADFyXm7-0zXDG+ZHjft95aAAiSZh_RyAqgJw1nGsALwEL1XKiw@mail.gmail.com> <20220815175929.303774fd@thinkpad>
-In-Reply-To: <20220815175929.303774fd@thinkpad>
-From:   David Hildenbrand <david@redhat.com>
-Date:   Mon, 15 Aug 2022 20:03:20 +0200
-Message-ID: <CADFyXm40iiz-xFpLK4qGgHGh5Qp+98G9qxnqC20c8qtRiKt9_A@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] mm/hugetlb: support write-faults in shared mappings
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux MM <linux-mm@kvack.org>, stable <stable@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 42e74da4-a60f-4d27-abd2-08da7eea0a26
+X-MS-TrafficTypeDiagnostic: BYAPR12MB3175:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: =?us-ascii?Q?3T0znNhMYYbfBMf++6MsKiMLA6JpO8vmGgMq3oG7+hOFFSp/outHNYFKBJHo?=
+ =?us-ascii?Q?swNqE4K7RlNthKqfP4gjrEoyXvQsUzIBALIJh6q4H+4iSeX7YXBfb9RRyzhn?=
+ =?us-ascii?Q?6feLMt30VGM5Hc4w2TtzBQ19hDNxweeld3MiNwretgRNNoKmh290uZR8pm8c?=
+ =?us-ascii?Q?iuRrcD76PytfpVBQVE0OHJCStWbZmRjTXsI4G9rSEaVqYQYLIp5PCHndwNh4?=
+ =?us-ascii?Q?gUifeV5PvoASqnjKpEl/BMXPXA4Zt2tMyCVIO0rt9iLgZ3ZsNZjAsuQ+/yam?=
+ =?us-ascii?Q?njJJWNJT+tqjwF8q4tArpxeh558R5M3+cUgjxr3t+P7WbTmVL1X4+62YOQOx?=
+ =?us-ascii?Q?uRCYhn5XYa1scinSxwsB8KC2MvDGUqohKHr7Fqs7EcE25JtybKNwSMTfvm5c?=
+ =?us-ascii?Q?ngnSRUhLDOKqWAzB1BJlA+DiNqb2ZFQHdlD+M1P5OrW0orl/W4faVMNTmIXy?=
+ =?us-ascii?Q?ww3QnjI5LqtYWj0ogkA8tZoAdqq6mwfAkcnO4RllPIyWlwIXleMhfOhBd9sz?=
+ =?us-ascii?Q?0iCXNeGSuL46CAKTu44/89IE1RIEMHnAUjtdndbVN5ZHddrQZ7d1ubWxjWMV?=
+ =?us-ascii?Q?QDlTOwwVFMoEpKJh7VkwxdXmH99nhT/FCnNigHpBmyL87psDV4ukREWGxd+A?=
+ =?us-ascii?Q?Ww54aGTdF4uuNMHPxXz6UOnubI7m5nDI9mo6aeBF6vgse/pSHUCdzM6joLVX?=
+ =?us-ascii?Q?AdS7eAftaUIOCBSfDEVLRFFgW4ONnEcC5/33T7+OBEPlZGEL2zx/Ja16Cq1N?=
+ =?us-ascii?Q?e04FQanRbXmGJF4Ck42A8RDeT5N1Ao4tp0Efy9wEqWttqTcyOfag5b3xQ9Is?=
+ =?us-ascii?Q?IXe1rI7cuJO/9o/t+KRyeqxjjhVUVN8Joqz7bgodkkPMLjYVzGvhCaHKOiyT?=
+ =?us-ascii?Q?ppEXxCKuPbPOjVZBAfrr6mjHesexFE+5DZSvJPbTGtfuFV7Ph9xj9FeDT4Pe?=
+ =?us-ascii?Q?++t1FbUd/AkvBFCn7QGgQw=3D=3D?=
+X-Forefront-Antispam-Report: CIP:12.22.5.234;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(136003)(346002)(376002)(39860400002)(396003)(46966006)(40470700004)(36840700001)(36756003)(86362001)(1076003)(426003)(336012)(186003)(47076005)(82740400003)(2616005)(356005)(81166007)(83380400001)(70206006)(70586007)(5660300002)(8936002)(7416002)(7406005)(4326008)(8676002)(966005)(40480700001)(82310400005)(2906002)(478600001)(36860700001)(40460700003)(6666004)(26005)(7696005)(41300700001)(316002)(54906003)(110136005)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Aug 2022 18:14:48.2225
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 42e74da4-a60f-4d27-abd2-08da7eea0a26
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.234];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT087.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3175
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 15, 2022 at 5:59 PM Gerald Schaefer
-<gerald.schaefer@linux.ibm.com> wrote:
->
-> On Mon, 15 Aug 2022 17:07:32 +0200
-> David Hildenbrand <david@redhat.com> wrote:
->
-> > On Mon, Aug 15, 2022 at 3:36 PM Gerald Schaefer
-> > <gerald.schaefer@linux.ibm.com> wrote:
-> > >
-> > > On Thu, 11 Aug 2022 11:59:09 -0700
-> > > Mike Kravetz <mike.kravetz@oracle.com> wrote:
-> > >
-> > > > On 08/11/22 12:34, David Hildenbrand wrote:
-> > > > > If we ever get a write-fault on a write-protected page in a share=
-d mapping,
-> > > > > we'd be in trouble (again). Instead, we can simply map the page w=
-ritable.
-> > > > >
-> > > > <snip>
-> > > > >
-> > > > > Reason is that uffd-wp doesn't clear the uffd-wp PTE bit when
-> > > > > unregistering and consequently keeps the PTE writeprotected. Reas=
-on for
-> > > > > this is to avoid the additional overhead when unregistering. Note
-> > > > > that this is the case also for !hugetlb and that we will end up w=
-ith
-> > > > > writable PTEs that still have the uffd-wp PTE bit set once we ret=
-urn
-> > > > > from hugetlb_wp(). I'm not touching the uffd-wp PTE bit for now, =
-because it
-> > > > > seems to be a generic thing -- wp_page_reuse() also doesn't clear=
- it.
-> > > > >
-> > > > > VM_MAYSHARE handling in hugetlb_fault() for FAULT_FLAG_WRITE
-> > > > > indicates that MAP_SHARED handling was at least envisioned, but c=
-ould never
-> > > > > have worked as expected.
-> > > > >
-> > > > > While at it, make sure that we never end up in hugetlb_wp() on wr=
-ite
-> > > > > faults without VM_WRITE, because we don't support maybe_mkwrite()
-> > > > > semantics as commonly used in the !hugetlb case -- for example, i=
-n
-> > > > > wp_page_reuse().
-> > > >
-> > > > Nit,
-> > > > to me 'make sure that we never end up in hugetlb_wp()' implies that
-> > > > we would check for condition in callers as opposed to first thing i=
-n
-> > > > hugetlb_wp().  However, I am OK with description as it.
-> > >
-> >
-> > Hi Gerald,
-> >
-> > > Is that new WARN_ON_ONCE() in hugetlb_wp() meant to indicate a real b=
-ug?
-> >
-> > Most probably, unless I am missing something important.
-> >
-> > Something triggers FAULT_FLAG_WRITE on a VMA without VM_WRITE and
-> > hugetlb_wp() would map the pte writable.
-> > Consequently, we'd have a writable pte inside a VMA that does not have
-> > write permissions, which is dubious. My check prevents that and bails
-> > out.
-> >
-> > Ordinary (!hugetlb) faults have maybe_mkwrite() (e.g., for FOLL_FORCE
-> > or breaking COW) semantics such that we won't be mapping PTEs writable
-> > if the VMA does not have write permissions.
-> >
-> > I suspect that either
-> >
-> > a) Some write fault misses a protection check and ends up triggering a
-> > FAULT_FLAG_WRITE where we should actually fail early.
-> >
-> > b) The write fault is valid and some VMA misses proper flags (VM_WRITE)=
-.
-> >
-> > c) The write fault is valid (e.g., for breaking COW or FOLL_FORCE) and
-> > we'd actually want maybe_mkwrite semantics.
-> >
-> > > It is triggered by libhugetlbfs testcase "HUGETLB_ELFMAP=3DR linkhuge=
-_rw"
-> > > (at least on s390), and crashes our CI, because it runs with panic_on=
-_warn
-> > > enabled.
-> > >
-> > > Not sure if this means that we have bug elsewhere, allowing us to
-> > > get to the WARN in hugetlb_wp().
-> >
-> > That's what I suspect. Do you have a backtrace?
->
-> Sure, forgot to send it with initial reply...
->
-> [   82.574749] ------------[ cut here ]------------
-> [   82.574751] WARNING: CPU: 9 PID: 1674 at mm/hugetlb.c:5264 hugetlb_wp+=
-0x3be/0x818
-> [   82.574759] Modules linked in: nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 =
-nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft=
-_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tabl=
-es nfnetlink sunrpc uvdevice s390_trng vfio_ccw mdev vfio_iommu_type1 eadm_=
-sch vfio zcrypt_cex4 sch_fq_codel configfs ghash_s390 prng chacha_s390 libc=
-hacha aes_s390 des_s390 libdes sha3_512_s390 sha3_256_s390 sha512_s390 sha2=
-56_s390 sha1_s390 sha_common pkey zcrypt rng_core autofs4
-> [   82.574785] CPU: 9 PID: 1674 Comm: linkhuge_rw Kdump: loaded Not taint=
-ed 5.19.0-next-20220815 #36
-> [   82.574787] Hardware name: IBM 3931 A01 704 (LPAR)
-> [   82.574788] Krnl PSW : 0704c00180000000 00000006c9d4bc6a (hugetlb_wp+0=
-x3c2/0x818)
-> [   82.574791]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 P=
-M:0 RI:0 EA:3
-> [   82.574794] Krnl GPRS: 000000000227c000 0000000008640071 0000000000000=
-000 0000000001200000
-> [   82.574796]            0000000001200000 00000000b5a98090 0000000000000=
-255 00000000adb2c898
-> [   82.574797]            0000000000000000 00000000adb2c898 0000000001200=
-000 00000000b5a98090
-> [   82.574799]            000000008c408000 0000000092fd7300 000003800339b=
-c10 000003800339baf8
-> [   82.574803] Krnl Code: 00000006c9d4bc5c: f160000407fe        mvo     4=
-(7,%r0),2046(1,%r0)
->            00000006c9d4bc62: 47000700           bc      0,1792
->           #00000006c9d4bc66: af000000           mc      0,0
->           >00000006c9d4bc6a: a7a80040           lhi     %r10,64
->            00000006c9d4bc6e: b916002a           llgfr   %r2,%r10
->            00000006c9d4bc72: eb6ff1600004       lmg     %r6,%r15,352(%r15=
-)
->            00000006c9d4bc78: 07fe               bcr     15,%r14
->            00000006c9d4bc7a: 47000700           bc      0,1792
-> [   82.574814] Call Trace:
-> [   82.574842]  [<00000006c9d4bc6a>] hugetlb_wp+0x3c2/0x818
-> [   82.574846]  [<00000006c9d4c62e>] hugetlb_no_page+0x56e/0x5a8
-> [   82.574848]  [<00000006c9d4cac2>] hugetlb_fault+0x45a/0x590
-> [   82.574850]  [<00000006c9d06d4a>] handle_mm_fault+0x182/0x220
-> [   82.574855]  [<00000006c9a9d70e>] do_exception+0x19e/0x470
-> [   82.574858]  [<00000006c9a9dff2>] do_dat_exception+0x2a/0x50
-> [   82.574861]  [<00000006ca668a18>] __do_pgm_check+0xf0/0x1b0
-> [   82.574866]  [<00000006ca677b3c>] pgm_check_handler+0x11c/0x170
-> [   82.574870] Last Breaking-Event-Address:
-> [   82.574871]  [<00000006c9d4b926>] hugetlb_wp+0x7e/0x818
-> [   82.574873] Kernel panic - not syncing: panic_on_warn set ...
-> [   82.574875] CPU: 9 PID: 1674 Comm: linkhuge_rw Kdump: loaded Not taint=
-ed 5.19.0-next-20220815 #36
-> [   82.574877] Hardware name: IBM 3931 A01 704 (LPAR)
-> [   82.574878] Call Trace:
-> [   82.574879]  [<00000006ca664f22>] dump_stack_lvl+0x62/0x80
-> [   82.574881]  [<00000006ca657af8>] panic+0x118/0x300
-> [   82.574884]  [<00000006c9ac3da6>] __warn+0xb6/0x160
-> [   82.574887]  [<00000006ca29b1ea>] report_bug+0xba/0x140
-> [   82.574890]  [<00000006c9a75194>] monitor_event_exception+0x44/0x80
-> [   82.574892]  [<00000006ca668a18>] __do_pgm_check+0xf0/0x1b0
-> [   82.574894]  [<00000006ca677b3c>] pgm_check_handler+0x11c/0x170
-> [   82.574897]  [<00000006c9d4bc6a>] hugetlb_wp+0x3c2/0x818
-> [   82.574899]  [<00000006c9d4c62e>] hugetlb_no_page+0x56e/0x5a8
-> [   82.574901]  [<00000006c9d4cac2>] hugetlb_fault+0x45a/0x590
-> [   82.574903]  [<00000006c9d06d4a>] handle_mm_fault+0x182/0x220
-> [   82.574906]  [<00000006c9a9d70e>] do_exception+0x19e/0x470
-> [   82.574907]  [<00000006c9a9dff2>] do_dat_exception+0x2a/0x50
-> [   82.574909]  [<00000006ca668a18>] __do_pgm_check+0xf0/0x1b0
-> [   82.574912]  [<00000006ca677b3c>] pgm_check_handler+0x11c/0x170
+This is a preparatory series for IOMMUFD v2 patches. It enforces error
+code -EMEDIUMTYPE in iommu_attach_device() and iommu_attach_group() when
+an IOMMU domain and a device/group are incompatible. It also drops the
+useless domain->ops check since it won't fail in current environment.
 
+These allow VFIO iommu code to simplify its group attachment routine, by
+avoiding the extra IOMMU domain allocations and attach/detach sequences
+of the old code.
 
-do_dat_exception() sets
-  access =3D VM_ACCESS_FLAGS;
+Worths mentioning the exact match for enforce_cache_coherency is removed
+with this series, since there's very less value in doing that as KVM will
+not be able to take advantage of it -- this just wastes domain memory.
+Instead, we rely on Intel IOMMU driver taking care of that internally.
 
-do_exception() sets
-  is_write =3D (trans_exc_code & store_indication) =3D=3D 0x400;
+This is on github:
+https://github.com/nicolinc/iommufd/commits/vfio_iommu_attach-v6
 
-and FAULT_FLAG_WRITE
-   if (access =3D=3D VM_WRITE || is_write)
-          flags |=3D FAULT_FLAG_WRITE;
+Changelog
+v6:
+ * Rebased on top of v6.0-rc1
+ * Added "Reviewed-by" from Jason
+ * Added "Cc" to Joerg/Will/Robin for the IOMMU patch
+v5: https://lore.kernel.org/kvm/20220701214455.14992-1-nicolinc@nvidia.com/
+ * Rebased on top of Robin's "Simplify bus_type determination".
+ * Fixed a wrong change returning -EMEDIUMTYPE in arm-smmu driver.
+ * Added Baolu's "Reviewed-by".
+v4: https://lore.kernel.org/kvm/20220630203635.33200-1-nicolinc@nvidia.com/
+ * Dropped -EMEDIUMTYPE change in mtk_v1 driver per Robin's input
+ * Added Baolu's and Kevin's Reviewed-by lines
+v3: https://lore.kernel.org/kvm/20220623200029.26007-1-nicolinc@nvidia.com/
+ * Dropped all dev_err since -EMEDIUMTYPE clearly indicates what error.
+ * Updated commit message of enforce_cache_coherency removing patch.
+ * Updated commit message of domain->ops removing patch.
+ * Replaced "goto out_unlock" with simply mutex_unlock() and return.
+ * Added a line of comments for -EMEDIUMTYPE return check.
+ * Moved iommu_get_msi_cookie() into alloc_attach_domain() as a cookie
+   should be logically tied to the lifetime of a domain itself.
+ * Added Kevin's "Reviewed-by".
+v2: https://lore.kernel.org/kvm/20220616000304.23890-1-nicolinc@nvidia.com/
+ * Added -EMEDIUMTYPE to more IOMMU drivers that fit the category.
+ * Changed dev_err to dev_dbg for -EMEDIUMTYPE to avoid kernel log spam.
+ * Dropped iommu_ops patch, and removed domain->ops in VFIO directly,
+   since there's no mixed-driver use case that would fail the sanity.
+ * Updated commit log of the patch removing enforce_cache_coherency.
+ * Fixed a misplace of "num_non_pinned_groups--" in detach_group patch.
+ * Moved "num_non_pinned_groups++" in PATCH-5 to the common path between
+   domain-reusing and new-domain pathways, like the code previously did.
+ * Fixed a typo in EMEDIUMTYPE patch.
+v1: https://lore.kernel.org/kvm/20220606061927.26049-1-nicolinc@nvidia.com/
 
-however, for VMA permission checks it only checks
-  if (unlikely(!(vma->vm_flags & access)))
-          goto out_up;
+Jason Gunthorpe (1):
+  vfio/iommu_type1: Prefer to reuse domains vs match enforced cache
+    coherency
 
-as VM_ACCESS_FLAGS includes VM_WRITE | VM_READ ...
+Nicolin Chen (4):
+  iommu: Return -EMEDIUMTYPE for incompatible domain and device/group
+  vfio/iommu_type1: Remove the domain->ops comparison
+  vfio/iommu_type1: Clean up update_dirty_scope in detach_group()
+  vfio/iommu_type1: Simplify group attachment
 
-We end up triggering a write fault (FAULT_FLAG_WRITE), even though the
-VMA does not allow for writes.
+ drivers/iommu/amd/iommu.c                   |   2 +-
+ drivers/iommu/apple-dart.c                  |   4 +-
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c |  15 +-
+ drivers/iommu/arm/arm-smmu/arm-smmu.c       |   5 +-
+ drivers/iommu/arm/arm-smmu/qcom_iommu.c     |   9 +-
+ drivers/iommu/intel/iommu.c                 |  10 +-
+ drivers/iommu/iommu.c                       |  28 ++
+ drivers/iommu/ipmmu-vmsa.c                  |   4 +-
+ drivers/iommu/omap-iommu.c                  |   3 +-
+ drivers/iommu/s390-iommu.c                  |   2 +-
+ drivers/iommu/sprd-iommu.c                  |   6 +-
+ drivers/iommu/tegra-gart.c                  |   2 +-
+ drivers/iommu/virtio-iommu.c                |   3 +-
+ drivers/vfio/vfio_iommu_type1.c             | 353 ++++++++++----------
+ 14 files changed, 229 insertions(+), 217 deletions(-)
 
-I assume that's what happens and that it's a bug in s390x code.
+-- 
+2.17.1
 
