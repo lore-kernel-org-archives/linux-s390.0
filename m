@@ -2,131 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A194C25B0E
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Aug 2022 15:57:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91ED5C2BB41
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Aug 2022 15:59:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236344AbiHPP5B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 Aug 2022 11:57:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56218 "EHLO
+        id S232297AbiHPP7F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 Aug 2022 11:59:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235788AbiHPP4o (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Aug 2022 11:56:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39C574DF06
-        for <linux-s390@vger.kernel.org>; Tue, 16 Aug 2022 08:54:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660665249;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=wc75QDZmoqU4tngYOXTJ1UEFnoUp6ValOTF1RnYHjOw=;
-        b=bl5Qe871s2eKkQ+2fjf/7g0SIS9cANQmy7wQSivfXcHSd2g2gVNCBIV0Ws5khQt13Xn9t1
-        lc/rZ0hskfUEQYPoqF8fpKWgDtxlCSrNZdBymuL1FKzG5nl5/vTRLkIkJseocMAa/v6zr+
-        +/M+iSKMykKxR7nExfCYstx4tukLxls=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-290-sDHnsVQsN6GOLHi8VONN6A-1; Tue, 16 Aug 2022 11:54:07 -0400
-X-MC-Unique: sDHnsVQsN6GOLHi8VONN6A-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9F6643C025AF;
-        Tue, 16 Aug 2022 15:54:07 +0000 (UTC)
-Received: from bfoster.redhat.com (unknown [10.22.32.135])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 79CE32166B26;
-        Tue, 16 Aug 2022 15:54:07 +0000 (UTC)
-From:   Brian Foster <bfoster@redhat.com>
-To:     linux-s390@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, geraldsc@de.ibm.com
-Subject: [PATCH] s390: fix double free of GS and RI CBs on fork() failure
-Date:   Tue, 16 Aug 2022 11:54:07 -0400
-Message-Id: <20220816155407.537372-1-bfoster@redhat.com>
+        with ESMTP id S235974AbiHPP6h (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Aug 2022 11:58:37 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDFB7B7C6
+        for <linux-s390@vger.kernel.org>; Tue, 16 Aug 2022 08:55:54 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id ha11so10114722pjb.2
+        for <linux-s390@vger.kernel.org>; Tue, 16 Aug 2022 08:55:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=S0TjqgZ/cpwhvqIRclTaRgLLFqhzUsXjGRreU5l1Dao=;
+        b=qTx7jEv4/nwmvCExtD6R89Dm1SBJ4SkhasuOIfOrwWZ6K1t2Zr0EaCkQWcJCS/uim+
+         8X9WP8VRmTcp17JN0SF1dTFzd9Oh4JZoisOJYrLLcIy4MM3xb74oG5Mscfg6rwcrXhJI
+         hQdCdNpKMiGt/+1SGkofKjc4IhOG8u/ztqpv2yctdU8Nuk2IMbHx6qI6TzuQQ0klWjGq
+         aFceiAkHInK+h5iWx+IC90K1AiFSPR3Plz+cYfA1om82VYY1xFn9WCIj5pzWRvWr0cZB
+         /NocanLC50/KXHrrK96ND8mMKm9IrEstRN/hRIk2ALjS9Xwx1q7bVX56kmoPPF2s2jMo
+         tW3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=S0TjqgZ/cpwhvqIRclTaRgLLFqhzUsXjGRreU5l1Dao=;
+        b=PzlHoDFStokoZ2cI8KaVkKOPq2i0YkFD4Ix9nDm8HiCfGTbVXHexTMRkKt1QKDB/Wm
+         TAG+7tQhqvm+nzJAz1fyQjeBxtDPU2tAHeXrSt5/jXnIp5Hh2TWS7HdMJeYBlbQebvgI
+         7hNDRRhTieoqmSkpHJCys3oCHfOQ1M/hQ6PV7iYhjG2tdspUvUXetoCGuSl1/ml4e79m
+         6+iSGjzwWGE2almgoXbQl+V/ziuKdKBdyiVDyWE/etMH2tmdXjjwPy/FBJfBOclqnS4i
+         hfwA8WFIg+ZPib928IRUuPXXy81dTaeoa44fefEIUw8fTu5F7a4qiwINl7FoqNzQMhlw
+         5Keg==
+X-Gm-Message-State: ACgBeo0oHIgRvVDOM1maQAc3bES1ys4CXrZuyOiBZBgCuTV20XkG9jPl
+        DDJCq2FdQfRvQJ1fKYz+cLSWRJSCf2fUVh9QjnlftQ==
+X-Google-Smtp-Source: AA6agR7rNOEKD6nRN5Avv+ABuxkIhBYlnMLShbilL+t09HuhZ24Kqp5AE/3faQMwTl37shqIo4Nw0wBbJ21Udr/teco=
+X-Received: by 2002:a17:902:8683:b0:171:3114:7678 with SMTP id
+ g3-20020a170902868300b0017131147678mr22420060plo.172.1660665354218; Tue, 16
+ Aug 2022 08:55:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
+References: <CANn89i+6NPujMyiQxriZRt6vhv6hNrAntXxi1uOhJ0SSqnJ47w@mail.gmail.com>
+ <20220627123415.GA32052@shbuild999.sh.intel.com> <CANn89iJAoYCebNbXpNMXRoDUkFMhg9QagetVU9NZUq+GnLMgqQ@mail.gmail.com>
+ <20220627144822.GA20878@shbuild999.sh.intel.com> <CANn89iLSWm-c4XE79rUsxzOp3VwXVDhOEPTQnWgeQ48UwM=u7Q@mail.gmail.com>
+ <20220628034926.GA69004@shbuild999.sh.intel.com> <CALvZod71Fti8yLC08mdpDk-TLYJVyfVVauWSj1zk=BhN1-GPdA@mail.gmail.com>
+ <20220703104353.GB62281@shbuild999.sh.intel.com> <YsIeYzEuj95PWMWO@castle>
+ <20220705050326.GF62281@shbuild999.sh.intel.com> <YvswusNaC5yr+HwT@xsang-OptiPlex-9020>
+In-Reply-To: <YvswusNaC5yr+HwT@xsang-OptiPlex-9020>
+From:   Shakeel Butt <shakeelb@google.com>
+Date:   Tue, 16 Aug 2022 08:55:43 -0700
+Message-ID: <CALvZod66HFiBX2N07gmCYDk_iH0bf4U+O=0DqUDmcebpOSyvwA@mail.gmail.com>
+Subject: Re: [net] 4890b686f4: netperf.Throughput_Mbps -69.4% regression
+To:     Oliver Sang <oliver.sang@intel.com>
+Cc:     Feng Tang <feng.tang@intel.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Eric Dumazet <edumazet@google.com>,
+        Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        network dev <netdev@vger.kernel.org>,
+        linux-s390@vger.kernel.org, MPTCP Upstream <mptcp@lists.linux.dev>,
+        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
+        lkp@lists.01.org, kbuild test robot <lkp@intel.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>, Ying Xu <yinxu@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pointers for guarded storage and runtime instrumentation control
-blocks are stored in the thread_struct of the associated task. These
-pointers are initially copied on fork() via arch_dup_task_struct()
-and then cleared via copy_thread() before fork() returns. If fork()
-happens to fail after the initial task dup and before copy_thread(),
-the newly allocated task and associated thread_struct memory are
-freed via free_task() -> arch_release_task_struct(). This results in
-a double free of the guarded storage and runtime info structs
-because the fields in the failed task still refer to memory
-associated with the source task.
+On Mon, Aug 15, 2022 at 10:53 PM Oliver Sang <oliver.sang@intel.com> wrote:
+>
+> Hi all,
+>
+> now we noticed this commit has already merged into mainline, and in our tests
+> there is still similar regression. [1]
+>
+> not sure if there is a plan to merge some of the solutions that have been
+> discussed in this thread? we'll very glad to test patches if there is a request
+>
+> Thanks a lot!
 
-This problem can manifest as a BUG_ON() in set_freepointer() (with
-CONFIG_SLAB_FREELIST_HARDENED enabled) or KASAN splat (if enabled)
-when running trinity syscall fuzz tests on s390x. To avoid this
-problem, clear the associated pointer fields in
-arch_dup_task_struct() immediately after the new task is copied.
-Note that the RI flag is still cleared in copy_thread() because it
-resides in thread stack memory and that is where stack info is
-copied.
+Hi Oliver, sorry for the delay. I will send out the patches in a day or two.
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
----
-
-Hi all,
-
-Note that I'm not subscribed to the list so please CC on reply. Further,
-I'm not terribly familiar with these associated features and so have not
-run any kind of functional testing here. My testing was purely around
-producing/preventing the double free issue. Any thoughts, reviews or
-further testing is appreciated. Thanks.
-
-Brian
-
- arch/s390/kernel/process.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-index 89949b9f3cf8..d5119e039d85 100644
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -91,6 +91,18 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
- 
- 	memcpy(dst, src, arch_task_struct_size);
- 	dst->thread.fpu.regs = dst->thread.fpu.fprs;
-+
-+	/*
-+	 * Don't transfer over the runtime instrumentation or the guarded
-+	 * storage control block pointers. These fields are cleared here instead
-+	 * of in copy_thread() to avoid premature freeing of associated memory
-+	 * on fork() failure. Wait to clear the RI flag because ->stack still
-+	 * refers to the source thread.
-+	 */
-+	dst->thread.ri_cb = NULL;
-+	dst->thread.gs_cb = NULL;
-+	dst->thread.gs_bc_cb = NULL;
-+
- 	return 0;
- }
- 
-@@ -150,13 +162,11 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
- 	frame->childregs.flags = 0;
- 	if (new_stackp)
- 		frame->childregs.gprs[15] = new_stackp;
--
--	/* Don't copy runtime instrumentation info */
--	p->thread.ri_cb = NULL;
-+	/*
-+	 * Clear the runtime instrumentation flag after the above childregs
-+	 * copy. The CB pointer was already cleared in arch_dup_task_struct().
-+	 */
- 	frame->childregs.psw.mask &= ~PSW_MASK_RI;
--	/* Don't copy guarded storage control block */
--	p->thread.gs_cb = NULL;
--	p->thread.gs_bc_cb = NULL;
- 
- 	/* Set a new TLS ?  */
- 	if (clone_flags & CLONE_SETTLS) {
--- 
-2.37.1
-
+thanks,
+Shakeel
