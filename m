@@ -2,58 +2,58 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E288AC19F2C
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Aug 2022 05:28:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CA42C32772
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Aug 2022 08:12:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233376AbiHPF2J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 Aug 2022 01:28:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49450 "EHLO
+        id S232476AbiHPIMe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 Aug 2022 04:12:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233291AbiHPF1Q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Aug 2022 01:27:16 -0400
+        with ESMTP id S231493AbiHPILH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Aug 2022 04:11:07 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0C8A8DC4
-        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 15:00:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 40B676546
+        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 22:37:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660600853;
+        s=mimecast20190719; t=1660628221;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=fg6AseMQKhGFaW1h59Li+nNVbNoTUAPXOEzU4kFeR3k=;
-        b=N6unTnZZhT/l2pDsSflGRw09cjCWg4J/gvDg1pwXk9AkzmfaQ2OA0tTfP5+JkO+NVb02g4
-        cWnvT5KqCsAB0xF/S7z+3UmtWSkobj4ydQa8rRQEkCbS8b9rT0cU5/7N4y5e2SgI0bFkFb
-        LK8rSt1Di8fARqa3xTg2WvnpWhdYdt0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=Cpgv5FAeV4Xgxidc6icz1XaUm6ZCyxEOOOfQnaAl0aE=;
+        b=bN4/k5Cp0bVB5GsWteP06MZ7FUC4OytbR+bB1a0Xk+0gQoDSbk4ZlQWHx342mRyttebVTr
+        NsrHaPMzNs4um6IL/P8QxnksTpowXbPQGj9mgN2zESGk12Z2kKEGkrgB42BT/4s0+8+Tib
+        8SzN4kk6ibNd8eZmw5nAeBdAszAI530=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-157-3zxngeQWMVmZDaU9bhj05Q-1; Mon, 15 Aug 2022 18:00:52 -0400
-X-MC-Unique: 3zxngeQWMVmZDaU9bhj05Q-1
-Received: by mail-wm1-f72.google.com with SMTP id j22-20020a05600c485600b003a5e4420552so3829826wmo.8
-        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 15:00:51 -0700 (PDT)
+ us-mta-225-45NYIX38N7WkMXnf0I2d6w-1; Tue, 16 Aug 2022 01:36:59 -0400
+X-MC-Unique: 45NYIX38N7WkMXnf0I2d6w-1
+Received: by mail-wm1-f69.google.com with SMTP id c25-20020a05600c0ad900b003a5ebad295aso891003wmr.5
+        for <linux-s390@vger.kernel.org>; Mon, 15 Aug 2022 22:36:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=fg6AseMQKhGFaW1h59Li+nNVbNoTUAPXOEzU4kFeR3k=;
-        b=4jmT8wA/Cp0EX1YtGAJB0URIgaPckBHGZzepGqZi22LwyxB2Z15DmmH95gyTOo2sWZ
-         fsUW1pc8XobUONH+7cpcz5l6MDBoLZBIvbNjiMqckuNN9NQAuy0eygKjMUPI49vtt4YV
-         Ju3B0/pw2Gx4/+GbOEv32+HbJjUvnfQRdRhgHvXE52n/mAsZyOncMYCkcEnctl0LJ6xX
-         bkeFc4QnuYGwSuqT2myWqr9HKbZdgwAlP4wkoN2uvxpKiWmx0X7VyjThFjUqONMb96g4
-         tQCP2CVqy6kstXYbMO4atXBPdW72aZJfZ9aPRbW58k8AhGFataFGHITsmiKXKE8CNmLd
-         kTog==
-X-Gm-Message-State: ACgBeo2OZlgXiR4XGTcTlmeyAhXWjDdn0eERbIP3va4Kl5Vpzl3ZWK0W
-        iF0LgCmmQrbdhyKfCfciiBdlRBU2MFFXRO1AkNDkX9acWDm0YOA6xsp2thaPG0y2umh9dIV5NUg
-        w5AxtSASZnf/e3mzDsXtPjw==
-X-Received: by 2002:a05:600c:2193:b0:3a5:346f:57d0 with SMTP id e19-20020a05600c219300b003a5346f57d0mr11036836wme.124.1660600850798;
-        Mon, 15 Aug 2022 15:00:50 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4PAdLc5XsHhXjTCgudQEwXQ2nfc/9Z68NwtJ4bkLWqWAnNtHc5GzFWw2XRQWHza6NtRnMdBQ==
-X-Received: by 2002:a05:600c:2193:b0:3a5:346f:57d0 with SMTP id e19-20020a05600c219300b003a5346f57d0mr11036801wme.124.1660600850490;
-        Mon, 15 Aug 2022 15:00:50 -0700 (PDT)
-Received: from redhat.com ([2.55.43.215])
-        by smtp.gmail.com with ESMTPSA id q18-20020adff952000000b00222ed7ea203sm8156397wrr.100.2022.08.15.15.00.45
+        bh=Cpgv5FAeV4Xgxidc6icz1XaUm6ZCyxEOOOfQnaAl0aE=;
+        b=Ps4RALZepHmuMRPh/S1jwSu7g2mpnsTm9hIOgJX1sK+t55YV476IMkAU5S96NZVkEQ
+         xiAQgmvdgHEZEYrfCtGSVp6dXNIXL6zY4r0f+VKrhBcrluobjiKtO4rW+rl8TUxvazzg
+         xS9cV1E49QLTBExi5UBabDJ1QuNDlXiy20B1Ojv437MMaz0IKXnD+T7oZ1MCOshEl1wE
+         dui8g28ErmrGg86tiS/vYHtS9UMdvqpc0KhfiktAA1PRKRyPXxGXKt8/2LBTclZcPXar
+         40DnRZngKt+ryrr4ysTBH8B6reL9GBzBTTMKch7+AF5QAaZwjJFWmbsNCBFsT13Y7fKi
+         sb9A==
+X-Gm-Message-State: ACgBeo3sZeaVEiPzJPKw0PAqLNZdSy4Sv/pwMEwF39QVknYH4D0NnuYQ
+        7ADhhRAEDhn/KkhPMHOaKjOx0FxIFQrQOCNFd04x6kfH8+i2L/fmrU4682ku13cmFDqHj1OZipR
+        KcJsphDnItJlHzk3q9VMINg==
+X-Received: by 2002:adf:f5cc:0:b0:221:7e3f:41eb with SMTP id k12-20020adff5cc000000b002217e3f41ebmr10278831wrp.551.1660628218610;
+        Mon, 15 Aug 2022 22:36:58 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR5WDnzBpzupB051dVdRKYw1crDTF90RoLhqKzZL00iu8qEeaHBRmDf/lNXmgrH/YzznHXnhuA==
+X-Received: by 2002:adf:f5cc:0:b0:221:7e3f:41eb with SMTP id k12-20020adff5cc000000b002217e3f41ebmr10278814wrp.551.1660628218337;
+        Mon, 15 Aug 2022 22:36:58 -0700 (PDT)
+Received: from redhat.com ([2.55.4.37])
+        by smtp.gmail.com with ESMTPSA id f16-20020adfb610000000b002237fd66585sm8918606wre.92.2022.08.15.22.36.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Aug 2022 15:00:49 -0700 (PDT)
-Date:   Mon, 15 Aug 2022 18:00:44 -0400
+        Mon, 15 Aug 2022 22:36:57 -0700 (PDT)
+Date:   Tue, 16 Aug 2022 01:36:51 -0400
 From:   "Michael S. Tsirkin" <mst@redhat.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -88,13 +88,13 @@ Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org
-Subject: [PATCH v3 5/5] virtio: Revert "virtio: find_vqs() add arg sizes"
-Message-ID: <20220815215938.154999-6-mst@redhat.com>
-References: <20220815215938.154999-1-mst@redhat.com>
+Subject: [PATCH v4 6/6] virtio: Revert "virtio: find_vqs() add arg sizes"
+Message-ID: <20220816053602.173815-8-mst@redhat.com>
+References: <20220816053602.173815-1-mst@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220815215938.154999-1-mst@redhat.com>
+In-Reply-To: <20220816053602.173815-1-mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 Precedence: bulk
@@ -237,10 +237,10 @@ index be51ec849252..c3b9f2761849 100644
  	if (rc)
  		return rc;
 diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index 9bc4d110b800..c6b9b5062043 100644
+index 832d2c5b1b19..9670cc79371d 100644
 --- a/drivers/virtio/virtio_vdpa.c
 +++ b/drivers/virtio/virtio_vdpa.c
-@@ -272,7 +272,6 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+@@ -269,7 +269,6 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
  				struct virtqueue *vqs[],
  				vq_callback_t *callbacks[],
  				const char * const names[],
