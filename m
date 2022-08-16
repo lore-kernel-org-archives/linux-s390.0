@@ -2,41 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAE3AC25B0E
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Aug 2022 18:07:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BC06C25B0E
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Aug 2022 19:46:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236823AbiHPSHK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 Aug 2022 14:07:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37512 "EHLO
+        id S237123AbiHPTqn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 Aug 2022 15:46:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236880AbiHPSG5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Aug 2022 14:06:57 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 681DF83BF5;
-        Tue, 16 Aug 2022 11:06:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-        bh=HYrSjDexLZuaY6KZpPQGrH8t3/nuoIDhow/JmeJOWVE=; b=3Z6z5jPiwh6pSRWHVjfxlxLvrT
-        +ESrUTpoy1MDAQgtnVLzHpNuFKGfQqGC2uBuKEMmDf4yNsd/zchOqqUJaX9j8ouW/fbUKyzBU+IUe
-        v3b8dIvDgdWK3eoTERHwN+KurAgt4xOXfS57aBToScDpErZBwmM4tx4Jp+1P3KHRZ2LVlMgNxrzZD
-        4sWlLLvUHSH6/EPrBTCA1T8UdMXCS8SMgyjLchE463Lc4Sr2WKBdnnWAJYVWnjgYm/R9rSNhs4TBa
-        CaTyLuTAOY4cMhLlAKvnrWdWCJatvfwf3jVD7CZ2ibA9tC1XlDrPcBzXf+NClR9KxBrTyRWy+Mozr
-        XRBG8+uQ==;
-Received: from [2601:1c0:6280:3f0::a6b3]
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oO0xr-005fBW-Se; Tue, 16 Aug 2022 18:06:55 +0000
-Message-ID: <06f4a949-e105-519e-3dbf-7d8f3684ed1e@infradead.org>
-Date:   Tue, 16 Aug 2022 11:06:55 -0700
+        with ESMTP id S233049AbiHPTqm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Aug 2022 15:46:42 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF4C674CC3;
+        Tue, 16 Aug 2022 12:46:41 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27GIpOAo029252;
+        Tue, 16 Aug 2022 19:46:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=FA/YZEorWGopm5U5huyhgTuqb3uMb4Ubp7IzrsXxATg=;
+ b=OG9eapcr317HRe50bFJj4eSXe1E/ThbkGfb30+wl4WRxt8jJgQata5nMN5QMqH1sO4C7
+ 1JTMUUxf+oUlrtBon9v0RoKqOoDKwu2rK0VNms/nT59IjFww1UIkL7s61LSQNhtzdWBj
+ Z6xj2JK/pD7sDV6OOVQiTQIT1BwrXewFOUn8Wo9gjiX0vyfnOCbOMIrVAloo7wrktQ69
+ CBGuPriv/I9chLMiVWqkyJiTyTA0hiBssuTNP4ttaaLYZUh+HOCuoBys40tRRJj3zRLS
+ i62QK7xOvwOR0iGoO7uH9vgMo2A127BmhF+keQ3EUYHvEgpWY820p1CXaZV5Ec9rPZBC Jg== 
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j0gvtheqf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Aug 2022 19:46:28 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27GJZstr021577;
+        Tue, 16 Aug 2022 19:46:28 GMT
+Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
+        by ppma02wdc.us.ibm.com with ESMTP id 3hx3k9uy50-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Aug 2022 19:46:28 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27GJkRrM63308222
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 Aug 2022 19:46:27 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0A46E6A04D;
+        Tue, 16 Aug 2022 19:46:27 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3610A6A051;
+        Tue, 16 Aug 2022 19:46:26 +0000 (GMT)
+Received: from [9.211.113.217] (unknown [9.211.113.217])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 16 Aug 2022 19:46:25 +0000 (GMT)
+Message-ID: <8809c67b-a9f6-07a6-307c-369cd391e9b5@linux.ibm.com>
+Date:   Tue, 16 Aug 2022 15:46:25 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
+ Thunderbird/91.12.0
 Subject: Re: [PATCH] vfio-pci/zdev: require KVM to be built-in
 Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org
+To:     Pierre Morel <pmorel@linux.ibm.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        linux-kernel@vger.kernel.org
 Cc:     kernel test robot <lkp@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org
@@ -44,100 +68,115 @@ References: <20220814215154.32112-1-rdunlap@infradead.org>
  <663c7595-1c18-043e-5f12-b0ce880b84bf@linux.ibm.com>
  <5530ed1f-90ec-ce84-2348-80e484fa48cb@infradead.org>
  <47cfc72d-62f6-2bd3-db91-99f91591fc30@linux.ibm.com>
- <fa1e62d7-30c3-693e-e31a-352dde8c339f@linux.ibm.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <fa1e62d7-30c3-693e-e31a-352dde8c339f@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <47cfc72d-62f6-2bd3-db91-99f91591fc30@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: owcYnHneUBOK5UU669Xqu_RZwQwNIgOz
+X-Proofpoint-ORIG-GUID: owcYnHneUBOK5UU669Xqu_RZwQwNIgOz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-16_08,2022-08-16_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 suspectscore=0 adultscore=0 bulkscore=0 clxscore=1011
+ impostorscore=0 mlxscore=0 spamscore=0 malwarescore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208160072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 8/16/22 06:47, Pierre Morel wrote:
-> Randy,
+On 8/16/22 3:55 AM, Pierre Morel wrote:
 > 
-> I need to provide the correction patch rapidly.
-> Without answer I will propose the patch.
 > 
-> Regards,
+> On 8/16/22 08:04, Randy Dunlap wrote:
+>> Hi--
+>>
+>> On 8/15/22 02:43, Pierre Morel wrote:
+>>> Thank you Randy for this good catch.
+>>> However forcing KVM to be include statically in the kernel when using VFIO_PCI extensions is not a good solution for us I think.
+>>>
+>>> I suggest we better do something like:
+>>>
+>>> ----
+>>>
+>>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+>>> index 6287a843e8bc..1733339cc4eb 100644
+>>> --- a/arch/s390/include/asm/kvm_host.h
+>>> +++ b/arch/s390/include/asm/kvm_host.h
+>>> @@ -1038,7 +1038,7 @@ static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
+>>>   #define __KVM_HAVE_ARCH_VM_FREE
+>>>   void kvm_arch_free_vm(struct kvm *kvm);
+>>>
+>>> -#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
+>>> +#if defined(CONFIG_VFIO_PCI_ZDEV_KVM) || defined(CONFIG_VFIO_PCI_ZDEV_KVM_MODULE)
+>>
+>> This all looks good except for the line above.
+>> It should be:
+>>
+>> #if IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM)
+>>
+>> Thanks.
+> 
+> Yes, better, thanks.
+> How do we do? Should I repost it with reported-by you or do you want to post it?
+> 
 > Pierre
 
-Please go ahead with it.
-Thanks.
+Thanks for looking into this while I was away.
 
-> 
-> On 8/16/22 09:55, Pierre Morel wrote:
->>
->>
->> On 8/16/22 08:04, Randy Dunlap wrote:
->>> Hi--
->>>
->>> On 8/15/22 02:43, Pierre Morel wrote:
->>>> Thank you Randy for this good catch.
->>>> However forcing KVM to be include statically in the kernel when using VFIO_PCI extensions is not a good solution for us I think.
->>>>
->>>> I suggest we better do something like:
->>>>
->>>> ----
->>>>
->>>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->>>> index 6287a843e8bc..1733339cc4eb 100644
->>>> --- a/arch/s390/include/asm/kvm_host.h
->>>> +++ b/arch/s390/include/asm/kvm_host.h
->>>> @@ -1038,7 +1038,7 @@ static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
->>>>   #define __KVM_HAVE_ARCH_VM_FREE
->>>>   void kvm_arch_free_vm(struct kvm *kvm);
->>>>
->>>> -#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
->>>> +#if defined(CONFIG_VFIO_PCI_ZDEV_KVM) || defined(CONFIG_VFIO_PCI_ZDEV_KVM_MODULE)
->>>
->>> This all looks good except for the line above.
->>> It should be:
->>>
->>> #if IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM)
->>>
->>> Thanks.
->>
->> Yes, better, thanks.
->> How do we do? Should I repost it with reported-by you or do you want to post it?
->>
->> Pierre
->>
->>
->>>
->>>
->>>>   int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm);
->>>>   void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev);
->>>>   #else
->>>> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
->>>> index f9d0c908e738..bbc375b028ef 100644
->>>> --- a/drivers/vfio/pci/Kconfig
->>>> +++ b/drivers/vfio/pci/Kconfig
->>>> @@ -45,9 +45,9 @@ config VFIO_PCI_IGD
->>>>   endif
->>>>
->>>>   config VFIO_PCI_ZDEV_KVM
->>>> -       bool "VFIO PCI extensions for s390x KVM passthrough"
->>>> +       def_tristate y
->>>> +       prompt "VFIO PCI extensions for s390x KVM passthrough"
->>>>          depends on S390 && KVM
->>>> -       default y
->>>>          help
->>>>            Support s390x-specific extensions to enable support for enhancements
->>>>            to KVM passthrough capabilities, such as interpretive execution of
->>>>
->>>> ----
->>>>
->>>> What do you think? It seems to me it solves the problem, what do you think?
->>>>
->>>> Regards,
->>>> Pierre
->>>
->>>
->>
-> 
+I think the issue is not just CONFIG_KVM=m && CONFIG_VFIO_PCI_ZDEV_KVM=y -- it also requires CONFIG_VFIO_PCI=y && CONFIG_VFIO_PCI_CORE=y.  This combination results in building in vfio_pci (which tries to link the calls to kvm_s390_pci_register_kvm and kvm_s390_pci_unregister_kvm which is not built in).
 
--- 
-~Randy
+However... this tristate + IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM) check in kvm_host.h will not solve the issue.  Rather, due to the #ifdef CONFIG_VFIO_PCI_ZDEV_KVM in include/linux/vfio_pci_core.h, this change will just cause us to never call kvm_s390_pci_register_kvm or kvm_s390_pci_unregister_kvm when CONFIG_VFIO_PCI_ZDEV_KVM=m, effectively treating CONFIG_VFIO_PCI_ZDEV_KVM=m as a 'n' and we don't get the zdev kvm extensions, which I don't think was the intent.
+
+I'm still thinking & am open to other ideas, but one solution to avoiding building in KVM would be to go back to using symbol_get for these 2 interfaces (kvm_s390_pci_register_kvm and kvm_s390_pci_unregister_kvm) as was done in a prior version of this series like virt/kvm/vfio.c does and otherwise leave CONFIG_VFIO_PCI_ZDEV_KVM as-is. 
+
+diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+index e163aa9f6144..09c2758134c7 100644
+--- a/drivers/vfio/pci/vfio_pci_zdev.c
++++ b/drivers/vfio/pci/vfio_pci_zdev.c
+@@ -144,6 +144,8 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+ {
+        struct zpci_dev *zdev = to_zpci(vdev->pdev);
++       int (*fn)(struct zpci_dev *zdev, struct kvm *kvm);
++       int rc;
+ 
+        if (!zdev)
+                return -ENODEV;
+@@ -151,15 +153,30 @@ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+        if (!vdev->vdev.kvm)
+                return 0;
+ 
+-       return kvm_s390_pci_register_kvm(zdev, vdev->vdev.kvm);
++       fn = symbol_get(kvm_s390_pci_register_kvm);
++       if (!fn)
++               return -EPERM;
++
++       rc = fn(zdev, vdev->vdev.kvm);
++
++       symbol_put(kvm_s390_pci_register_kvm);
++
++       return rc;
+ }
+ 
+ void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
+ {
+        struct zpci_dev *zdev = to_zpci(vdev->pdev);
++       void (*fn)(struct zpci_dev *zdev);
+ 
+        if (!zdev || !vdev->vdev.kvm)
+                return;
+ 
+-       kvm_s390_pci_unregister_kvm(zdev);
++       fn = symbol_get(kvm_s390_pci_unregister_kvm);
++       if (!fn)
++               return;
++
++       fn(zdev);
++
++       symbol_put(kvm_s390_pci_unregister_kvm);
+ }
+
+
