@@ -2,174 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CB38C25B08
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Aug 2022 18:40:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F714C25B08
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Aug 2022 22:52:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240243AbiHQSkH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Aug 2022 14:40:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44116 "EHLO
+        id S238945AbiHQWwv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Aug 2022 18:52:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237745AbiHQSkG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Aug 2022 14:40:06 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 218069F1B1
-        for <linux-s390@vger.kernel.org>; Wed, 17 Aug 2022 11:40:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660761604;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=vFVqNNb0hcNnzpCN6Usam55O8PiDZUdmPvKKh6BjScw=;
-        b=GzK3d4jVswbxB9rEoLlpdZYbzmv5TIunlnFmPSWNwt+MIGjKX2FSk+mOBQAPwi05UPw4vG
-        NatA9xPUj0TaiqZl/Zfg43vAHguo29q2YlWhOWK5J3Lurfw8NCUch7td6FY61vf4KD6dGZ
-        2q3/s7nXlI9NUx4mt3u/Wr2sYDwRhgk=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-122-vjQuGo5RPuqkhG-b6MNuNg-1; Wed, 17 Aug 2022 14:40:02 -0400
-X-MC-Unique: vjQuGo5RPuqkhG-b6MNuNg-1
-Received: by mail-qv1-f70.google.com with SMTP id o6-20020ad443c6000000b00495d04028a6so2742855qvs.18
-        for <linux-s390@vger.kernel.org>; Wed, 17 Aug 2022 11:40:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=vFVqNNb0hcNnzpCN6Usam55O8PiDZUdmPvKKh6BjScw=;
-        b=hBO2h9cDRFzOyTdeZXCUiqmUBMadNuh1DHGK0fPE2R7lguA8Fnhr3TcOXfoCkR8Csk
-         UToPJ3d9gJ+pGp+PcodWzufKkL37WPRXXvewt/tWFA7i1Dw+lJ7nkdRaqQsoHBo9vaUj
-         cNSyE8EbSKi8yGyi/DqEmA49ZOymlW0/D0LwGd2zw9IdTPuPxdEVDyn6juRtGwzBF5xr
-         sg1HYbd1hRFVHn0qoQfqiHyaZxi42m3oUxvcO40ZWYrn+JrtEgUXKUJ/NUNzcRKCpXey
-         KJSEZMplb+oaEDboJuAeW6sF1E5xX3zCqHjlE4z2QbtfP69f6nZGJUxVy2q6KKBKcG/8
-         +7fg==
-X-Gm-Message-State: ACgBeo1p9E0IUhyPV8+Tr/8iQz/onb24dhlG2iuTRiKSSpi3S9xY0roi
-        /lUm/63qdGArElx2407w3vGj9tzZBIgB/NGmYxtRo4EcuTMntn+DsjRfCka4KSuoP9tWbCeGpXh
-        +1d01QMsOYmD1Q9p/lAhmUw==
-X-Received: by 2002:a05:620a:244d:b0:6b2:538f:ffda with SMTP id h13-20020a05620a244d00b006b2538fffdamr19403186qkn.218.1660761601568;
-        Wed, 17 Aug 2022 11:40:01 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7QZCIq/LkhZu/7gJ28ZdNfz4GfEx4k6PFRys0DC5W3FPAtzpSOPoW806jLp7Gro+1d2zowoA==
-X-Received: by 2002:a05:620a:244d:b0:6b2:538f:ffda with SMTP id h13-20020a05620a244d00b006b2538fffdamr19403167qkn.218.1660761601238;
-        Wed, 17 Aug 2022 11:40:01 -0700 (PDT)
-Received: from bfoster (c-24-61-119-116.hsd1.ma.comcast.net. [24.61.119.116])
-        by smtp.gmail.com with ESMTPSA id c3-20020a05620a268300b006b58d8f6181sm15028256qkp.72.2022.08.17.11.40.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Aug 2022 11:40:00 -0700 (PDT)
-Date:   Wed, 17 Aug 2022 14:39:58 -0400
-From:   Brian Foster <bfoster@redhat.com>
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: Re: [PATCH] s390: fix double free of GS and RI CBs on fork() failure
-Message-ID: <Yv01/i4KFdgmCpsD@bfoster>
-References: <20220816155407.537372-1-bfoster@redhat.com>
- <20220817130906.0ce40da1@thinkpad>
+        with ESMTP id S231496AbiHQWwv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Aug 2022 18:52:51 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E92CCA0250;
+        Wed, 17 Aug 2022 15:52:49 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27HMkSSQ014913;
+        Wed, 17 Aug 2022 22:52:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=3CkJreVjrSgeZEk74TyQB/PsrVK9ZT+3QKeZw0DEaI8=;
+ b=CXGvHrQmco/KnJmSTMO8TckNSJCM0/ytWq2gvqFE5tR3UZitYpDYLmfMFw6iUh3ze/P8
+ KbWQMBhb24qgP2S7Ai926sGSYxIM7reeIF9HqMfRBN/UC1z5wL8zIdf3LXLQizn6/SLZ
+ ZdW1Q1+iDrQpLQCLgBbqVzOd2TvbAWoAb9NgYNAn6qdCQoVkZfLBkWUmlnUm8Aj/YRIW
+ LQTnKq4DD8hHubWxyF4IACU3ieTMypXYK6JqUx+4jeUq8LZDUW6NW5+tlFhGBYixw4Op
+ K9AjZdXq6EhQONEOVUyQOnlIfSFvECGXKW8rqk5BgLCushH1O3I/mmNRbvonktYgvTAJ Hg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j19dpg3gn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Aug 2022 22:52:47 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27HMnloK026173;
+        Wed, 17 Aug 2022 22:52:47 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j19dpg3g6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Aug 2022 22:52:47 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27HMoiUt016850;
+        Wed, 17 Aug 2022 22:52:45 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma04wdc.us.ibm.com with ESMTP id 3hx3k9udac-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Aug 2022 22:52:45 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27HMqifi49742326
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 Aug 2022 22:52:45 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DDF9B6A04D;
+        Wed, 17 Aug 2022 22:52:44 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D989D6A054;
+        Wed, 17 Aug 2022 22:52:43 +0000 (GMT)
+Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.160.118.205])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Wed, 17 Aug 2022 22:52:43 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+Subject: [PATCH 0/2] s390/vfio-ap: fix two problems discovered in the vfio_ap driver
+Date:   Wed, 17 Aug 2022 18:52:40 -0400
+Message-Id: <20220817225242.188805-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220817130906.0ce40da1@thinkpad>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: QgoTigFlPqRoTzluZDWZCrW6C58VFvmG
+X-Proofpoint-ORIG-GUID: OawyeiUl_RsGTzP2pdN7E5wi07IVWXe6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-17_15,2022-08-16_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ lowpriorityscore=0 mlxlogscore=999 suspectscore=0 adultscore=0
+ impostorscore=0 bulkscore=0 spamscore=0 clxscore=1011 priorityscore=1501
+ mlxscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208170084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Aug 17, 2022 at 01:09:06PM +0200, Gerald Schaefer wrote:
-> On Tue, 16 Aug 2022 11:54:07 -0400
-> Brian Foster <bfoster@redhat.com> wrote:
-> 
-> > The pointers for guarded storage and runtime instrumentation control
-> > blocks are stored in the thread_struct of the associated task. These
-> > pointers are initially copied on fork() via arch_dup_task_struct()
-> > and then cleared via copy_thread() before fork() returns. If fork()
-> > happens to fail after the initial task dup and before copy_thread(),
-> > the newly allocated task and associated thread_struct memory are
-> > freed via free_task() -> arch_release_task_struct(). This results in
-> > a double free of the guarded storage and runtime info structs
-> > because the fields in the failed task still refer to memory
-> > associated with the source task.
-> > 
-> > This problem can manifest as a BUG_ON() in set_freepointer() (with
-> > CONFIG_SLAB_FREELIST_HARDENED enabled) or KASAN splat (if enabled)
-> > when running trinity syscall fuzz tests on s390x. To avoid this
-> > problem, clear the associated pointer fields in
-> > arch_dup_task_struct() immediately after the new task is copied.
-> > Note that the RI flag is still cleared in copy_thread() because it
-> > resides in thread stack memory and that is where stack info is
-> > copied.
-> > 
-> > Signed-off-by: Brian Foster <bfoster@redhat.com>
-> > ---
-> > 
-> > Hi all,
-> > 
-> > Note that I'm not subscribed to the list so please CC on reply. Further,
-> > I'm not terribly familiar with these associated features and so have not
-> > run any kind of functional testing here. My testing was purely around
-> > producing/preventing the double free issue. Any thoughts, reviews or
-> > further testing is appreciated. Thanks.
-> > 
-> > Brian
-> > 
-> >  arch/s390/kernel/process.c | 22 ++++++++++++++++------
-> >  1 file changed, 16 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-> > index 89949b9f3cf8..d5119e039d85 100644
-> > --- a/arch/s390/kernel/process.c
-> > +++ b/arch/s390/kernel/process.c
-> > @@ -91,6 +91,18 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
-> >  
-> >  	memcpy(dst, src, arch_task_struct_size);
-> >  	dst->thread.fpu.regs = dst->thread.fpu.fprs;
-> > +
-> > +	/*
-> > +	 * Don't transfer over the runtime instrumentation or the guarded
-> > +	 * storage control block pointers. These fields are cleared here instead
-> > +	 * of in copy_thread() to avoid premature freeing of associated memory
-> > +	 * on fork() failure. Wait to clear the RI flag because ->stack still
-> > +	 * refers to the source thread.
-> > +	 */
-> > +	dst->thread.ri_cb = NULL;
-> > +	dst->thread.gs_cb = NULL;
-> > +	dst->thread.gs_bc_cb = NULL;
-> > +
-> >  	return 0;
-> >  }
-> >  
-> > @@ -150,13 +162,11 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
-> >  	frame->childregs.flags = 0;
-> >  	if (new_stackp)
-> >  		frame->childregs.gprs[15] = new_stackp;
-> > -
-> > -	/* Don't copy runtime instrumentation info */
-> > -	p->thread.ri_cb = NULL;
-> > +	/*
-> > +	 * Clear the runtime instrumentation flag after the above childregs
-> > +	 * copy. The CB pointer was already cleared in arch_dup_task_struct().
-> > +	 */
-> >  	frame->childregs.psw.mask &= ~PSW_MASK_RI;
-> > -	/* Don't copy guarded storage control block */
-> > -	p->thread.gs_cb = NULL;
-> > -	p->thread.gs_bc_cb = NULL;
-> >  
-> >  	/* Set a new TLS ?  */
-> >  	if (clone_flags & CLONE_SETTLS) {
-> 
-> Thanks Brian, nice catch! Looks good to me. For completeness, we should
-> add stable / Fixes tags, like this:
-> 
-> Fixes: 8d9047f8b967c ("s390/runtime instrumentation: simplify task exit handling")
-> Fixes: 7b83c6297d2fc ("s390/guarded storage: simplify task exit handling")
-> Cc: <stable@vger.kernel.org> # 4.15
-> 
-> Not 100% sure about the Fixes tags, Heiko should also have a look when
-> he returns next week.
-> 
-> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> 
+Two problems have been discovered with the vfio_ap device driver since the
+hot plug support was recently introduced:
 
-Hi Gerald,
+1. Attempting to remove a matrix mdev after assigning a duplicate adapter
+   or duplicate domain results in a hang.
 
-Sounds good, thanks for the review. I'll wait a bit so Heiko has a
-chance to take a look and then follow up with the tag updates and any
-other necessary changes..
+2. The queues associated with an adapter or domain being unassigned from
+   the matrix mdev do not get unlinked from it.
 
-Brian
+Two patches are provided to resolve these problems.
+
+Tony Krowiak (2):
+  s390/vfio-ap: fix hang during removal of mdev after duplicate
+    assignment
+  s390/vfio-ap: fix unlinking of queues from the mdev
+
+ drivers/s390/crypto/vfio_ap_ops.c | 36 +++++++++++++++++++++++++++----
+ 1 file changed, 32 insertions(+), 4 deletions(-)
+
+-- 
+2.31.1
 
