@@ -2,545 +2,220 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F009CC32772
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Aug 2022 15:29:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEB8EC25B08
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Aug 2022 16:53:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235568AbiHQP37 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Aug 2022 11:29:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41446 "EHLO
+        id S240180AbiHQQxV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Aug 2022 12:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240097AbiHQP36 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Aug 2022 11:29:58 -0400
-Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2085.outbound.protection.outlook.com [40.107.102.85])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4522C22BD6;
-        Wed, 17 Aug 2022 08:29:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WpYr3FDjlZYH4f3B65ibzzf+sQhQDeuucCgpXfNcISRCl26p6w6MEbNedmddkA8GMz/7HMMHWHzQc7TPc7IdGsJ+XADpg+SDvo2MW+57bp6kYMvwe1FRrm9hYpNXDEtheMvdjZQ8U8PGC21kQKJ2C4xyjI6ljJGOeyo4qgPRH9Gs2eQT2aChtRskK8WF7TfvVggBN1gb14qHGni+Zk6gPSKP02ZKvmGaMnPVNWhb7XaUmnHvgnh5Zr/5gUe2RlqqB/JTk/DWmLcGucqsO7QAS54f96LMLJZu1W1k6x1zTyzHy4vl+vhXVz1byBT3ZPOV1KngH8N7Zy/yZM9sl8LGyg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3Ab6nMZqNK5h9F3NYRK/HcZEYPwyGJsEH7CF0v47OyE=;
- b=PkvqCGfJSA8gm/71GUwBDmPJOm+NJeKF5FJukb2VHrHikUzpFs89FpXOSKpjweNIhuIjKpTby7CXLI9ss84S4LCvjmwX62xsLupr2isfDWFylCZojZP1Qw9WoE1Rx1qGDrSryhSmR9gXbN0sRrIConVn8mdQYde8WCmRCELxjdOolS3pD/gl2rUwW/61EPVFsvXxLQqlKHKjqj4mZn86vSUeffacOxDI87zG07950sj1Ula8ExsMQD0hUnypULgdQwSYHee2UtxUWdKCH/ska5a2FRMjXtFBY/lHm83b8ys05dnIUM0FhDVV9S/K3BYjaqATF4tu8DnQsbMwGofq7A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3Ab6nMZqNK5h9F3NYRK/HcZEYPwyGJsEH7CF0v47OyE=;
- b=CU3rxxQ7jU43Y/8RaVW0/4ivjey4EC7fWz1EU55+hfwlX5DFYq3oyXU3kR1hS9ZKR6HBiw68A7LSaiB84gcrUoJeYWViH4CcJ8TjFT4QRVGI3eNNZ4zOQ6Tskasg9n1XNxisBdadjmIWjrNrrLk358BwwWSpu61BOm7a+8eEOEwdGlkr3zyrg28xn6VnRFVkkk0d8i5e/vWCDAuZ49g6z3ZINFdhPsgYe3lNY2/HfBwzR40R4NnFIWSNSsO2EnUkw+wsUIUWnuRvqMNX+zmdxUZJQWAENIms/WE6ZeGVH/jj3hlOaEZUWfPdu58qZePmlbkpLSAqETbfBJ5QuuBJNQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by DM6PR12MB3689.namprd12.prod.outlook.com (2603:10b6:5:1c7::32) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5504.14; Wed, 17 Aug
- 2022 15:29:53 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5%6]) with mapi id 15.20.5525.019; Wed, 17 Aug 2022
- 15:29:53 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH 1/2] vfio/pci: Split linux/vfio_pci_core.h
-Date:   Wed, 17 Aug 2022 12:29:50 -0300
-Message-Id: <1-v1-da6fc51ee22e+562-vfio_pci_priv_jgg@nvidia.com>
-In-Reply-To: <0-v1-da6fc51ee22e+562-vfio_pci_priv_jgg@nvidia.com>
-References: 
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BLAP220CA0009.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:208:32c::14) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S238084AbiHQQxS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Aug 2022 12:53:18 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB885F6B;
+        Wed, 17 Aug 2022 09:53:10 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27HGZsKr002728;
+        Wed, 17 Aug 2022 16:53:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=KydXxhnC8wSso8+pPTBV073JagbokXBZh0e+l64kL7M=;
+ b=KMQttZ1jDtOktJQ5T6d6Hw27e2oEWZW0syovUZX0rj59W98SX7tmKjDKv0uJuhQzmP74
+ eeKK3xbPePnSoiHkDfQJtocIAKZs0GjCj5JoBCilxmPAa35RFsS4LJlN2D3X3BAkG8g8
+ /AMUO4jZx39Ih6YO/fl/vMFkbh82gwma9JJqFHXJGWFd8nl+jMZbmKlubfFht6fmT+Ss
+ dWKSuyvW7wthzFE2ywRjL2MNOy0DKMhgQnyTVfw7QuwsTrTfWi0lMqIrkFlJ3jg48Trt
+ fhQq2djTuIuqhWdhBNTFYgAV2lXPdVilqM86JTUPDinhw7auz1Clr3wlLOi59LV/dISB xQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j1389j6y1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Aug 2022 16:53:05 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27HGgw7c020209;
+        Wed, 17 Aug 2022 16:53:04 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j1389j6wv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Aug 2022 16:53:04 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27HGpnlg009837;
+        Wed, 17 Aug 2022 16:53:03 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03fra.de.ibm.com with ESMTP id 3hx3k8ujhr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Aug 2022 16:53:03 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27HGoDtT28443010
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 Aug 2022 16:50:13 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75C8A52050;
+        Wed, 17 Aug 2022 16:52:59 +0000 (GMT)
+Received: from [9.171.63.181] (unknown [9.171.63.181])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 0479A5204F;
+        Wed, 17 Aug 2022 16:52:58 +0000 (GMT)
+Message-ID: <0f0718d1-eeb4-6440-5367-db9cc8104f43@linux.ibm.com>
+Date:   Wed, 17 Aug 2022 18:52:58 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 3c36d572-bc42-41ec-9d29-08da8065547c
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3689:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: D79S+meut1EqZkQqvWXD03IYEIYYpAtX/WPIrMUuYfjxXoDXuzXl5YSHAYJAzSr5OGIywZa9vI1naq5B7y20+G7gHQ/F7+v/xICjXI6CUtc4gFn3GJAOuzXUBkp6lnJJKU4G4jYJtJFCTxOl0H2132/eYm255y1Ro1PW8sn9ZtGHrOAxf5JOAa2IGXe5EuhcnuI0+/7X+YFd1SSbO7xqMFDQ10y7YU9pFnuM1chN7RZxHCXMUcv2H66auem2bsRD9PO60lJEMup8lL0PfPPMSp5UwTJp+wnvXwVy14cZtJXgYPT/5Qu4EmQ426u6VhEWGCldNSYZGc2ggFhIKoFiLl5JDMt7NrAbgkrMLg0aYsG8ETmIZL6HexdiN9hdvOmR5k2bG0zDmqdWFueUxiVTGD6hDwLXyNcfAGFz8l7NdR78s1ndN+pyLONzY+jsaUO9jh8rCn5mvuRbZCkm7xCS4+2hDgBll/tvjS5Ryxok48hzOZPvTiMCJfdZNwBGTnR8nO0Ov129waU4KSzvLNMWlaUXwdLzWywti+RUjzuIgEaVnHaBNwgu8W6IkBblB/D2/2WxiQ1eGyoVnqmwUSKGe8jejsZp0zaYmcHYLUSOcG6pttrBj2POgpnhVgTAWvPJYD+jk+9JV0GOnZZzxAc/CML8AbUtHQDZmthOG33aV6t3HgPdz93qL5WlMHHpa/CsHlBYK6lmTDM0Wo+iYVjxb7dE3VTyYj0+BWstM4u1PeGBUSeBrxJam3ZT9HhJNzl/xjlpNn0Mru2uuGNc4D+i9j11D3inIR0iSgCnFBzA1LU=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(39860400002)(366004)(396003)(376002)(346002)(136003)(2616005)(66556008)(26005)(8676002)(66476007)(316002)(83380400001)(36756003)(186003)(6512007)(66946007)(86362001)(5660300002)(2906002)(8936002)(478600001)(110136005)(6486002)(6506007)(41300700001)(30864003)(38100700002)(4216001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?qNEGzCh8w/xpMSJ6L3mfagqMBsdsFTigpscBQYco+asImpcCjimPj4Y6HeO5?=
- =?us-ascii?Q?EyhS5zMiP44+hrJX63HhwtgqgNyxCf0apY0nt1gSzgkPUIoF5MSVxgeVcDOY?=
- =?us-ascii?Q?gdAFQReI/qXC167isG4h2Tj5wya8GcqsYS/7yS+B0Du41pXfTwsStxr4U5E4?=
- =?us-ascii?Q?FU5HQwTCWxeLCtHMkcEMpJAuN6WmykYCUsKfpNLb5tHKyM3CXNbETeKLq9k6?=
- =?us-ascii?Q?jGg4cqH8+OOoB6I0+O/dhbn78OkhKXxesVPtoo10Z9WhJTFJsxfYHSCcs9sZ?=
- =?us-ascii?Q?wTKqX2WMCvoiT9i3pAqnZHGGZQhfJtAXSJ70jKNwXrk3oyCgPnR3Grk7OLqU?=
- =?us-ascii?Q?r7sB4KDlbhgP8QJVZLs/0TVhgX4HUyZjodqzOfAvnB6p+ILF+qAJhHNdX/P4?=
- =?us-ascii?Q?hOvJ0FQE9P2RbZhF8Niwo8QL5bDMqp+jTaU8zjEDtxdBltBClIdgSnNPAAXU?=
- =?us-ascii?Q?qxUJi6mex25m46qBQT2WOTHat4NfR2drx/rwOSEf4nnAajcdj6z/jn2Pt1P+?=
- =?us-ascii?Q?u7Hnv2TfqJ4gM+M700Qkt9+edsw65SurzzsHwJEHCU8h8iLMncpzR/Ri6Gpn?=
- =?us-ascii?Q?E4v9VpG8mBC2ow3KKf0TCvceFGXLvF6VZqSDmgXve9Oq664WtYGRmakmft+2?=
- =?us-ascii?Q?/bE3W74u10/GC8W+n6PkBKURG/buPGLLKgBsIcP930MG1l/q/y+PgbMi9QsQ?=
- =?us-ascii?Q?tV7c3Lt+WVzSSmrkg3Dap2X+bSGTs4mNcWr6lLYelyILUj0TqOGKm8c8xg3N?=
- =?us-ascii?Q?WmvAtq7qPxNUzVe2A6k8eejhFQS4vs0OxXfraZNjDDUU7J1ms8uGTCffl9RW?=
- =?us-ascii?Q?JQ+66IpGzc1tt7zBB9TDa4X20b9exYuKHbl60Int77CIg3DeNExblxtFsXiM?=
- =?us-ascii?Q?YVnGp0laTg1/7u+qX0ZtAIdvCUw+78jcr4ocPUJ5xdv43xkY/OYrcVqMj1wR?=
- =?us-ascii?Q?xHBbyrUrE/f/IoAG/B+BR5HANIPJcIIo2+WW1Cjvvcyrie1zwuEkcQ9JJ7l2?=
- =?us-ascii?Q?7h0RMi/d9dPFD11OzrfEZS8jQJSYGiX6gOMYkhyFeU1M7UWfjXpzDpqyELhn?=
- =?us-ascii?Q?hf06W2SlPNWtLLAm0F1wh5fzh2HZM9+Ki56cFAys/Mhbp4yU6ZgqC3sZGv69?=
- =?us-ascii?Q?0NHtkAvJvFzxXEgc5zA1gIPv+BEikKP7JobES7H/nqTNUt4cCJZuBSoVHs0V?=
- =?us-ascii?Q?G2moy7Ayhkcfi2UoZ3UHTOrct7/AuV8Eiff4Edl0Ks2Ta/iTjXe+qXBg+Y2y?=
- =?us-ascii?Q?AiWIzovkUUDSh6rAV00wTA4Fj4OMyLwg8mFtJjs2eI/ksaI8aslWh9wz062B?=
- =?us-ascii?Q?TE4LJcLbxVv0ivbi1Gn/PLASdw+Z73XU/WkMvyva3tePo9/8h0TWN4Yka7gR?=
- =?us-ascii?Q?BpFlm1Zh8ksL8nkZE62l59tu99KOWrMSQqU/dFu/8XqDLkn6IHwX2AGD4McY?=
- =?us-ascii?Q?QX7V/QsdTHWJhXVIjOEP65aPzR3iRaFePnZVKazLAikxScQCQxN1nA1j9uoH?=
- =?us-ascii?Q?H8Mi5uAMjLSluTF/7Gvk2vF86fWS50tRboamPjBOrtRhHT01h67JIYrs97gb?=
- =?us-ascii?Q?cZbDtoeV0V0JVZlCYTSnNRcEQUFvafv0B8uJ2+6r?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3c36d572-bc42-41ec-9d29-08da8065547c
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Aug 2022 15:29:52.8069
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: h1peLTSwgw5IcevHIkEf57/zc5+5RIfW8Zl+gL24qycgi3nq09Mr7kmRxrrKdanM
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3689
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.1.2
+Subject: Re: [PATCH net-next 00/10] net/smc: optimize the parallelism of SMC-R
+ connections
+Content-Language: en-US
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <cover.1660152975.git.alibuda@linux.alibaba.com>
+ <2182efbc-99f8-17ba-d344-95a467536b05@linux.ibm.com>
+ <9da41595-977f-5026-0ea1-f18a5fa1de4c@linux.alibaba.com>
+From:   Jan Karcher <jaka@linux.ibm.com>
+In-Reply-To: <9da41595-977f-5026-0ea1-f18a5fa1de4c@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: D2TOL5x-kNu7qxBFHI-IpOzcR7goPjUY
+X-Proofpoint-GUID: tX3Rio_6aoDOftuZyeGSsnTdyFP_BIDa
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-17_11,2022-08-16_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=999 spamscore=0 adultscore=0 phishscore=0 clxscore=1015
+ priorityscore=1501 mlxscore=0 suspectscore=0 bulkscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208170063
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The header in include/linux should have only the exported interface for
-other vfio_pci module's to use.  Internal definitions for vfio_pci.ko
-should be in a "priv" header along side the .c files.
 
-Move the internal declarations out of vfio_pci_core.h. They either move to
-vfio_pci_priv.h or to the C file that is the only user.
 
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/vfio/pci/vfio_pci.c        |   2 +-
- drivers/vfio/pci/vfio_pci_config.c |   2 +-
- drivers/vfio/pci/vfio_pci_core.c   |  19 +++-
- drivers/vfio/pci/vfio_pci_igd.c    |   2 +-
- drivers/vfio/pci/vfio_pci_intrs.c  |  16 +++-
- drivers/vfio/pci/vfio_pci_priv.h   | 106 +++++++++++++++++++++++
- drivers/vfio/pci/vfio_pci_rdwr.c   |   2 +-
- drivers/vfio/pci/vfio_pci_zdev.c   |   2 +-
- include/linux/vfio_pci_core.h      | 134 +----------------------------
- 9 files changed, 145 insertions(+), 140 deletions(-)
- create mode 100644 drivers/vfio/pci/vfio_pci_priv.h
+On 17.08.2022 06:55, D. Wythe wrote:
+> 
+> 
+> On 8/16/22 5:35 PM, Jan Karcher wrote:
+>>
+>>
+>> On 10.08.2022 19:47, D. Wythe wrote:
+>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>>
+>>> This patch set attempts to optimize the parallelism of SMC-R 
+>>> connections,
+>>> mainly to reduce unnecessary blocking on locks, and to fix exceptions 
+>>> that
+>>> occur after thoses optimization.
+>>>
+>>
+>> Thank you again for your submission!
+>> Let me give you a quick update from our side:
+>> We tested your patches on top of the net-next kernel on our s390 
+>> systems. They did crash our systems. After verifying our environment 
+>> we pulled console logs and now we can tell that there is indeed a 
+>> problem with your patches regarding SMC-D. So please do not integrate 
+>> this change as of right now. I'm going to do more in depth reviews of 
+>> your patches but i need some time for them so here is a quick a 
+>> description of the problem:
+> 
+> Sorry for the late reply, and thanks a lot for your comment.
+> 
+> I'm sorry for the low-level mistake. In the early design, I hoped that 
+> lnkc can also work on SMC-D,
+> but in later tests I found out that we don't have SMC-D environment to 
+> test, so I have to canceled this logic.
+> But dues to the rollback isn't thorough enough, leaving this issues, we 
+> are very sorry for that.
+> 
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 4d1a97415a27bf..d9b5c03f8d5b23 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -25,7 +25,7 @@
- #include <linux/types.h>
- #include <linux/uaccess.h>
- 
--#include <linux/vfio_pci_core.h>
-+#include "vfio_pci_priv.h"
- 
- #define DRIVER_AUTHOR   "Alex Williamson <alex.williamson@redhat.com>"
- #define DRIVER_DESC     "VFIO PCI - User Level meta-driver"
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index 442d3ba4122b22..5f43b28075eecd 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -26,7 +26,7 @@
- #include <linux/vfio.h>
- #include <linux/slab.h>
- 
--#include <linux/vfio_pci_core.h>
-+#include "vfio_pci_priv.h"
- 
- /* Fake capability ID for standard config space */
- #define PCI_CAP_ID_BASIC	0
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index c8d3b0450fb35b..04180a0836cc90 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -28,7 +28,7 @@
- #include <linux/nospec.h>
- #include <linux/sched/mm.h>
- 
--#include <linux/vfio_pci_core.h>
-+#include "vfio_pci_priv.h"
- 
- #define DRIVER_AUTHOR   "Alex Williamson <alex.williamson@redhat.com>"
- #define DRIVER_DESC "core driver for VFIO based PCI devices"
-@@ -41,6 +41,23 @@ static bool disable_idle_d3;
- static DEFINE_MUTEX(vfio_pci_sriov_pfs_mutex);
- static LIST_HEAD(vfio_pci_sriov_pfs);
- 
-+struct vfio_pci_dummy_resource {
-+	struct resource		resource;
-+	int			index;
-+	struct list_head	res_next;
-+};
-+
-+struct vfio_pci_vf_token {
-+	struct mutex		lock;
-+	uuid_t			uuid;
-+	int			users;
-+};
-+
-+struct vfio_pci_mmap_vma {
-+	struct vm_area_struct	*vma;
-+	struct list_head	vma_next;
-+};
-+
- static inline bool vfio_vga_disabled(void)
- {
- #ifdef CONFIG_VFIO_PCI_VGA
-diff --git a/drivers/vfio/pci/vfio_pci_igd.c b/drivers/vfio/pci/vfio_pci_igd.c
-index 352c725ccf1812..8177e9a1da3bfd 100644
---- a/drivers/vfio/pci/vfio_pci_igd.c
-+++ b/drivers/vfio/pci/vfio_pci_igd.c
-@@ -15,7 +15,7 @@
- #include <linux/uaccess.h>
- #include <linux/vfio.h>
- 
--#include <linux/vfio_pci_core.h>
-+#include "vfio_pci_priv.h"
- 
- #define OPREGION_SIGNATURE	"IntelGraphicsMem"
- #define OPREGION_SIZE		(8 * 1024)
-diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
-index 6069a11fb51acf..32d014421c1f61 100644
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -20,7 +20,21 @@
- #include <linux/wait.h>
- #include <linux/slab.h>
- 
--#include <linux/vfio_pci_core.h>
-+#include "vfio_pci_priv.h"
-+
-+#define is_intx(vdev) (vdev->irq_type == VFIO_PCI_INTX_IRQ_INDEX)
-+#define is_msix(vdev) (vdev->irq_type == VFIO_PCI_MSIX_IRQ_INDEX)
-+#define is_irq_none(vdev) (!(is_intx(vdev) || is_msi(vdev) || is_msix(vdev)))
-+#define irq_is(vdev, type) (vdev->irq_type == type)
-+
-+struct vfio_pci_irq_ctx {
-+	struct eventfd_ctx	*trigger;
-+	struct virqfd		*unmask;
-+	struct virqfd		*mask;
-+	char			*name;
-+	bool			masked;
-+	struct irq_bypass_producer	producer;
-+};
- 
- /*
-  * INTx
-diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
-new file mode 100644
-index 00000000000000..ac701f05bef022
---- /dev/null
-+++ b/drivers/vfio/pci/vfio_pci_priv.h
-@@ -0,0 +1,106 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+#ifndef VFIO_PCI_PRIV_H
-+#define VFIO_PCI_PRIV_H
-+
-+#include <linux/vfio_pci_core.h>
-+
-+/* Special capability IDs predefined access */
-+#define PCI_CAP_ID_INVALID		0xFF	/* default raw access */
-+#define PCI_CAP_ID_INVALID_VIRT		0xFE	/* default virt access */
-+
-+/* Cap maximum number of ioeventfds per device (arbitrary) */
-+#define VFIO_PCI_IOEVENTFD_MAX		1000
-+
-+struct vfio_pci_ioeventfd {
-+	struct list_head	next;
-+	struct vfio_pci_core_device	*vdev;
-+	struct virqfd		*virqfd;
-+	void __iomem		*addr;
-+	uint64_t		data;
-+	loff_t			pos;
-+	int			bar;
-+	int			count;
-+	bool			test_mem;
-+};
-+
-+#define is_msi(vdev) (vdev->irq_type == VFIO_PCI_MSI_IRQ_INDEX)
-+
-+void vfio_pci_intx_mask(struct vfio_pci_core_device *vdev);
-+void vfio_pci_intx_unmask(struct vfio_pci_core_device *vdev);
-+
-+int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev, uint32_t flags,
-+			    unsigned index, unsigned start, unsigned count,
-+			    void *data);
-+
-+ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev, char __user *buf,
-+			   size_t count, loff_t *ppos, bool iswrite);
-+
-+ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
-+			size_t count, loff_t *ppos, bool iswrite);
-+
-+#ifdef CONFIG_VFIO_PCI_VGA
-+ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
-+			size_t count, loff_t *ppos, bool iswrite);
-+#else
-+static inline ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev,
-+				      char __user *buf, size_t count,
-+				      loff_t *ppos, bool iswrite)
-+{
-+	return -EINVAL;
-+}
-+#endif
-+
-+long vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
-+			uint64_t data, int count, int fd);
-+
-+int vfio_pci_init_perm_bits(void);
-+void vfio_pci_uninit_perm_bits(void);
-+
-+int vfio_config_init(struct vfio_pci_core_device *vdev);
-+void vfio_config_free(struct vfio_pci_core_device *vdev);
-+
-+int vfio_pci_set_power_state(struct vfio_pci_core_device *vdev,
-+			     pci_power_t state);
-+
-+bool __vfio_pci_memory_enabled(struct vfio_pci_core_device *vdev);
-+void vfio_pci_zap_and_down_write_memory_lock(struct vfio_pci_core_device *vdev);
-+u16 vfio_pci_memory_lock_and_enable(struct vfio_pci_core_device *vdev);
-+void vfio_pci_memory_unlock_and_restore(struct vfio_pci_core_device *vdev,
-+					u16 cmd);
-+
-+#ifdef CONFIG_VFIO_PCI_IGD
-+int vfio_pci_igd_init(struct vfio_pci_core_device *vdev);
-+#else
-+static inline int vfio_pci_igd_init(struct vfio_pci_core_device *vdev)
-+{
-+	return -ENODEV;
-+}
-+#endif
-+
-+#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
-+int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
-+				struct vfio_info_cap *caps);
-+int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev);
-+void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev);
-+#else
-+static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
-+					      struct vfio_info_cap *caps)
-+{
-+	return -ENODEV;
-+}
-+
-+static inline int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
-+{
-+	return 0;
-+}
-+
-+static inline void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
-+{}
-+#endif
-+
-+static inline bool vfio_pci_is_vga(struct pci_dev *pdev)
-+{
-+	return (pdev->class >> 8) == PCI_CLASS_DISPLAY_VGA;
-+}
-+
-+#endif
-diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-index 82ac1569deb052..d5e9883c1eee10 100644
---- a/drivers/vfio/pci/vfio_pci_rdwr.c
-+++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-@@ -17,7 +17,7 @@
- #include <linux/vfio.h>
- #include <linux/vgaarb.h>
- 
--#include <linux/vfio_pci_core.h>
-+#include "vfio_pci_priv.h"
- 
- #ifdef __LITTLE_ENDIAN
- #define vfio_ioread64	ioread64
-diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-index e163aa9f61444f..0bff24f0d4d717 100644
---- a/drivers/vfio/pci/vfio_pci_zdev.c
-+++ b/drivers/vfio/pci/vfio_pci_zdev.c
-@@ -15,7 +15,7 @@
- #include <asm/pci_clp.h>
- #include <asm/pci_io.h>
- 
--#include <linux/vfio_pci_core.h>
-+#include "vfio_pci_priv.h"
- 
- /*
-  * Add the Base PCI Function information to the device info region.
-diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-index 5579ece4347bdc..9d18b832e61a0d 100644
---- a/include/linux/vfio_pci_core.h
-+++ b/include/linux/vfio_pci_core.h
-@@ -20,39 +20,10 @@
- #define VFIO_PCI_CORE_H
- 
- #define VFIO_PCI_OFFSET_SHIFT   40
--
- #define VFIO_PCI_OFFSET_TO_INDEX(off)	(off >> VFIO_PCI_OFFSET_SHIFT)
- #define VFIO_PCI_INDEX_TO_OFFSET(index)	((u64)(index) << VFIO_PCI_OFFSET_SHIFT)
- #define VFIO_PCI_OFFSET_MASK	(((u64)(1) << VFIO_PCI_OFFSET_SHIFT) - 1)
- 
--/* Special capability IDs predefined access */
--#define PCI_CAP_ID_INVALID		0xFF	/* default raw access */
--#define PCI_CAP_ID_INVALID_VIRT		0xFE	/* default virt access */
--
--/* Cap maximum number of ioeventfds per device (arbitrary) */
--#define VFIO_PCI_IOEVENTFD_MAX		1000
--
--struct vfio_pci_ioeventfd {
--	struct list_head	next;
--	struct vfio_pci_core_device	*vdev;
--	struct virqfd		*virqfd;
--	void __iomem		*addr;
--	uint64_t		data;
--	loff_t			pos;
--	int			bar;
--	int			count;
--	bool			test_mem;
--};
--
--struct vfio_pci_irq_ctx {
--	struct eventfd_ctx	*trigger;
--	struct virqfd		*unmask;
--	struct virqfd		*mask;
--	char			*name;
--	bool			masked;
--	struct irq_bypass_producer	producer;
--};
--
- struct vfio_pci_core_device;
- struct vfio_pci_region;
- 
-@@ -78,23 +49,6 @@ struct vfio_pci_region {
- 	u32				flags;
- };
- 
--struct vfio_pci_dummy_resource {
--	struct resource		resource;
--	int			index;
--	struct list_head	res_next;
--};
--
--struct vfio_pci_vf_token {
--	struct mutex		lock;
--	uuid_t			uuid;
--	int			users;
--};
--
--struct vfio_pci_mmap_vma {
--	struct vm_area_struct	*vma;
--	struct list_head	vma_next;
--};
--
- struct vfio_pci_core_device {
- 	struct vfio_device	vdev;
- 	struct pci_dev		*pdev;
-@@ -141,92 +95,11 @@ struct vfio_pci_core_device {
- 	struct rw_semaphore	memory_lock;
- };
- 
--#define is_intx(vdev) (vdev->irq_type == VFIO_PCI_INTX_IRQ_INDEX)
--#define is_msi(vdev) (vdev->irq_type == VFIO_PCI_MSI_IRQ_INDEX)
--#define is_msix(vdev) (vdev->irq_type == VFIO_PCI_MSIX_IRQ_INDEX)
--#define is_irq_none(vdev) (!(is_intx(vdev) || is_msi(vdev) || is_msix(vdev)))
--#define irq_is(vdev, type) (vdev->irq_type == type)
--
--void vfio_pci_intx_mask(struct vfio_pci_core_device *vdev);
--void vfio_pci_intx_unmask(struct vfio_pci_core_device *vdev);
--
--int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev,
--			    uint32_t flags, unsigned index,
--			    unsigned start, unsigned count, void *data);
--
--ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev,
--			   char __user *buf, size_t count,
--			   loff_t *ppos, bool iswrite);
--
--ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
--			size_t count, loff_t *ppos, bool iswrite);
--
--#ifdef CONFIG_VFIO_PCI_VGA
--ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
--			size_t count, loff_t *ppos, bool iswrite);
--#else
--static inline ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev,
--				      char __user *buf, size_t count,
--				      loff_t *ppos, bool iswrite)
--{
--	return -EINVAL;
--}
--#endif
--
--long vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
--			uint64_t data, int count, int fd);
--
--int vfio_pci_init_perm_bits(void);
--void vfio_pci_uninit_perm_bits(void);
--
--int vfio_config_init(struct vfio_pci_core_device *vdev);
--void vfio_config_free(struct vfio_pci_core_device *vdev);
--
-+/* Will be exported for vfio pci drivers usage */
- int vfio_pci_register_dev_region(struct vfio_pci_core_device *vdev,
- 				 unsigned int type, unsigned int subtype,
- 				 const struct vfio_pci_regops *ops,
- 				 size_t size, u32 flags, void *data);
--
--int vfio_pci_set_power_state(struct vfio_pci_core_device *vdev,
--			     pci_power_t state);
--
--bool __vfio_pci_memory_enabled(struct vfio_pci_core_device *vdev);
--void vfio_pci_zap_and_down_write_memory_lock(struct vfio_pci_core_device *vdev);
--u16 vfio_pci_memory_lock_and_enable(struct vfio_pci_core_device *vdev);
--void vfio_pci_memory_unlock_and_restore(struct vfio_pci_core_device *vdev,
--					u16 cmd);
--
--#ifdef CONFIG_VFIO_PCI_IGD
--int vfio_pci_igd_init(struct vfio_pci_core_device *vdev);
--#else
--static inline int vfio_pci_igd_init(struct vfio_pci_core_device *vdev)
--{
--	return -ENODEV;
--}
--#endif
--
--#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
--int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
--				struct vfio_info_cap *caps);
--int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev);
--void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev);
--#else
--static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
--					      struct vfio_info_cap *caps)
--{
--	return -ENODEV;
--}
--
--static inline int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
--{
--	return 0;
--}
--
--static inline void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
--{}
--#endif
--
--/* Will be exported for vfio pci drivers usage */
- void vfio_pci_core_set_params(bool nointxmask, bool is_disable_vga,
- 			      bool is_disable_idle_d3);
- void vfio_pci_core_close_device(struct vfio_device *core_vdev);
-@@ -256,9 +129,4 @@ void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev);
- pci_ers_result_t vfio_pci_core_aer_err_detected(struct pci_dev *pdev,
- 						pci_channel_state_t state);
- 
--static inline bool vfio_pci_is_vga(struct pci_dev *pdev)
--{
--	return (pdev->class >> 8) == PCI_CLASS_DISPLAY_VGA;
--}
--
- #endif /* VFIO_PCI_CORE_H */
--- 
-2.37.2
+One more comment:
+If the only reason why you do not touch SMC-D is that you do not have 
+the environment to test it we strongly encourage you to change it anyway.
 
+At some point doing kernel development, especially driver development 
+you are going to reach the point where you do not have the environment 
+to test it. It is on the maintainers to test those changes and verify 
+that nothing is broken.
+
+So please:
+If testing is the only reason change SMC-D as well and we are going to 
+test it for you verifying if it does work or not.
+
+Thank you
+Jan
+
+> 
+>> It is a SMC-D problem, that occurs while building up the connection. 
+>> In smc_conn_create you set struct smc_lnk_cluster *lnkc = NULL. For 
+>> the SMC-R path you do grab the pointer, for SMC-D that never happens. 
+>> Still you are using this refernce for SMC-D => Crash. This problem can 
+>> be reproduced using the SMC-D path. Here is an example console output:
+>>
+>> [  779.516382] Unable to handle kernel pointer dereference in virtual 
+>> kernel address space
+>> [  779.516389] Failing address: 0000000000000000 TEID: 0000000000000483
+>> [  779.516391] Fault in home space mode while using kernel ASCE.
+>> [  779.516395] AS:0000000069628007 R3:00000000ffbf0007 
+>> S:00000000ffbef800 P:000000000000003d
+>> [  779.516431] Oops: 0004 ilc:2 [#1] SMP
+>> [  779.516436] Modules linked in: tcp_diag inet_diag ism mlx5_ib 
+>> ib_uverbs mlx5_core smc_diag smc ib_core nft_fib_inet nft_fib_ipv4
+>> nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 
+>> nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv
+>> 6 nf_defrag_ipv4 ip_set nf_tables n
+>> [  779.516470] CPU: 0 PID: 24 Comm: kworker/0:1 Not tainted 
+>> 5.19.0-13940-g22a46254655a #3
+>> [  779.516476] Hardware name: IBM 8561 T01 701 (z/VM 7.2.0)
+>>
+>> [  779.522738] Workqueue: smc_hs_wq smc_listen_work [smc]
+>> [  779.522755] Krnl PSW : 0704c00180000000 000003ff803da89c 
+>> (smc_conn_create+0x174/0x968 [smc])
+>> [  779.522766]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 
+>> CC:0 PM:0 RI:0 EA:3
+>> [  779.522770] Krnl GPRS: 0000000000000002 0000000000000000 
+>> 0000000000000001 0000000000000000
+>> [  779.522773]            000000008a4128a0 000003ff803f21aa 
+>> 000000008e30d640 0000000086d72000
+>> [  779.522776]            0000000086d72000 000000008a412803 
+>> 000000008a412800 000000008e30d650
+>> [  779.522779]            0000000080934200 0000000000000000 
+>> 000003ff803cb954 00000380002dfa88
+>> [  779.522789] Krnl Code: 000003ff803da88e: e310f0e80024        stg 
+>> %r1,232(%r15)
+>> [  779.522789]            000003ff803da894: a7180000            lhi %r1,0
+>> [  779.522789]           #000003ff803da898: 582003ac            l %r2,940
+>> [  779.522789]           >000003ff803da89c: ba123020            cs 
+>> %r1,%r2,32(%r3)
+>> [  779.522789]            000003ff803da8a0: ec1603be007e        cij 
+>> %r1,0,6,000003ff803db01c
+>>
+>> [  779.522789]            000003ff803da8a6: 4110b002            la 
+>> %r1,2(%r11)
+>> [  779.522789]            000003ff803da8aa: e310f0f00024        stg 
+>> %r1,240(%r15)
+>> [  779.522789]            000003ff803da8b0: e310f0c00004        lg 
+>> %r1,192(%r15)
+>> [  779.522870] Call Trace:
+>> [  779.522873]  [<000003ff803da89c>] smc_conn_create+0x174/0x968 [smc]
+>> [  779.522884]  [<000003ff803cb954>] 
+>> smc_find_ism_v2_device_serv+0x1b4/0x300 [smc]
+>> 01: HCPGSP2629I The virtual machine is placed in CP mode due to a SIGP 
+>> stop from CPU 01.
+>> 01: HCPGSP2629I The virtual machine is placed in CP mode due to a SIGP 
+>> stop from CPU 00.
+>> [  779.522894]  [<000003ff803cbace>] smc_listen_find_device+0x2e/0x370 
+>> [smc]
+>>
+>>
+>> I'm going to send the review for the first patch right away (which is 
+>> the one causing the crash), so far I'm done with it. The others are 
+>> going to follow. Maybe you can look over the problem and come up with 
+>> a solution, otherwise we are going to decide if we want to look into 
+>> it as soon as I'm done with the reviews. Thank you for your patience.
+> 
+> In the next revision, I will add additional judgment to protect the 
+> SMC-D environment,
+> thanks for your comments.
+> 
+> And Looking forward to your other comments, thanks again.
+> 
+> D. Wythe
+> 
