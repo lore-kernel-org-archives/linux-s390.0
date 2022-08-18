@@ -2,293 +2,212 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04591C00140
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Aug 2022 14:06:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1F22C00140
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Aug 2022 14:13:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245708AbiHROGz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 18 Aug 2022 10:06:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51200 "EHLO
+        id S245684AbiHRONH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 Aug 2022 10:13:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245661AbiHROGh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Aug 2022 10:06:37 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11F8075CFE;
-        Thu, 18 Aug 2022 07:06:14 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27IE0gkG016987;
-        Thu, 18 Aug 2022 14:06:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+        with ESMTP id S245133AbiHRONG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Aug 2022 10:13:06 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EC219F0D4;
+        Thu, 18 Aug 2022 07:13:05 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27ID14CC016237;
+        Thu, 18 Aug 2022 14:13:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=gR1gaCzyh6v5gEqbl50ozpVo3lmNtojm4C+1Oao88Vo=;
- b=tq5f/rkqaIM1RSf3YUAplqtJqzjZ8zxuj0HFMuI5db2ZYrDUDclx+J5A4f98kz975v5/
- MEU6TmNrsr2CNc1RaRbuKC8aJnN9vgYhaYyB72OP2GbHCq6HYUPcmS2TsZGWtrz/NbrB
- 7mkrp//pWKDDujsM7ZMBp+1mT5jfnd/QyXgybQ4i8DAGKsQyS4bppYkPbMMSumETGGXQ
- t4ZvKI5QBaFIORD5X4Pq9eB7Fprbyg2ak6TUXuXlcIDI4zbCHggSXLeU1M6r6CYECNyE
- xdxYxqE3s4AB1cj7P8yWlDPwcu7sQcxcjw+bFl+CzmdOYtf9KG1TR2guIbhwpcQrn94Q Bw== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j1pthr57d-1
+ bh=ocFXUaee3DFtT/I/MOOiB+O6mmtuhQXu7Wa1ZFJfjb4=;
+ b=i/RSsSWj7Nrl/X+cZUafu55WsWEUCooWKDji3mXKrhXAHSRaSR/vsU0zU5gMBGQVnrHg
+ x5K6oAoFR58SjUVP/HL3HlYmTMzQxrKR2jKVqyh7knW0K/StdKeU48y8nWxkTyeJ9nyy
+ eL5fmOTQo7K8Iy0yaX8TpyGUG6lTnd23DtK2dXdgmnFzsYjhi+aH9rJ0m5sDgHvSRuq4
+ zAMfJrV9LHQn7gjo6cuKyQSDx2ba+5ptIW+t7M+v3ZWyuXE45Lzm3miGtTjiukfJJA5f
+ sEszsPE7Mo7otWh/dv+6HlCkSMJiTR6wKaDu80uJAif0NFP3mt+SW8fQAIsOoVYETdtC wA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j1nxkjkcu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Aug 2022 14:06:11 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27IE5CEG008471;
-        Thu, 18 Aug 2022 14:06:09 GMT
+        Thu, 18 Aug 2022 14:13:03 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27ID1MlT018212;
+        Thu, 18 Aug 2022 14:13:02 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j1nxkjkbj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Aug 2022 14:13:02 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27IE5HVt019754;
+        Thu, 18 Aug 2022 14:13:00 GMT
 Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06fra.de.ibm.com with ESMTP id 3hx37j4hcb-1
+        by ppma05fra.de.ibm.com with ESMTP id 3hyp8sjywx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Aug 2022 14:06:08 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27IE65Vk30540214
+        Thu, 18 Aug 2022 14:13:00 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27IECv3K36045140
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 18 Aug 2022 14:06:05 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AAE844203F;
-        Thu, 18 Aug 2022 14:06:05 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9BB6F42042;
-        Thu, 18 Aug 2022 14:06:04 +0000 (GMT)
-Received: from [9.171.73.125] (unknown [9.171.73.125])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 18 Aug 2022 14:06:04 +0000 (GMT)
-Message-ID: <955ef95a-df7c-9e66-43ec-4495a79f51d3@linux.ibm.com>
-Date:   Thu, 18 Aug 2022 16:06:04 +0200
+        Thu, 18 Aug 2022 14:12:57 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8787452059;
+        Thu, 18 Aug 2022 14:12:57 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.152.224.212])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 25A3352052;
+        Thu, 18 Aug 2022 14:12:57 +0000 (GMT)
+Date:   Thu, 18 Aug 2022 16:12:55 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
+        cohuck@redhat.com, mjrosato@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, stable@vger.kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v2 1/2] s390/vfio-ap: fix hang during removal of mdev
+ after duplicate assignment
+Message-ID: <20220818161255.2fe5a542.pasic@linux.ibm.com>
+In-Reply-To: <20220818132606.13321-2-akrowiak@linux.ibm.com>
+References: <20220818132606.13321-1-akrowiak@linux.ibm.com>
+        <20220818132606.13321-2-akrowiak@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] KVM: s390: pci: Hook to access KVM lowlevel from VFIO
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     rdunlap@infradead.org, linux-kernel@vger.kernel.org, lkp@intel.com,
-        borntraeger@linux.ibm.com, farman@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org, gor@linux.ibm.com,
-        hca@linux.ibm.com, schnelle@linux.ibm.com
-References: <1f2dd65e-b79b-44df-cc6a-8b3aa8fd61af@linux.ibm.com>
- <20220818102305.250702-1-pmorel@linux.ibm.com>
- <f797373e-c420-718a-443d-ae98ea0368c7@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <f797373e-c420-718a-443d-ae98ea0368c7@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: M747w6OvZAK9jK8uOMuW11tNYc0Fq5au
-X-Proofpoint-GUID: M747w6OvZAK9jK8uOMuW11tNYc0Fq5au
+X-Proofpoint-GUID: yQGkJllg8VbH4YSAFG7H5vIqdf6p324-
+X-Proofpoint-ORIG-GUID: AIaqSj65wGiNtqt3GIDHwqrWcuFSbVwd
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-08-18_12,2022-08-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 mlxscore=0 malwarescore=0 suspectscore=0 spamscore=0
- phishscore=0 bulkscore=0 mlxlogscore=999 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 impostorscore=0 bulkscore=0 suspectscore=0 adultscore=0
+ phishscore=0 priorityscore=1501 clxscore=1011 malwarescore=0 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2207270000 definitions=main-2208180050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, 18 Aug 2022 09:26:05 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
+Subject: s390/vfio-ap: fix hang during removal of mdev after duplicate
+assignment
 
-On 8/18/22 15:33, Matthew Rosato wrote:
-> On 8/18/22 6:23 AM, Pierre Morel wrote:
->> We have a cross dependency between KVM and VFIO.
+It would have made sense to do it this way in the first place, even
+if the link code were to take care of the duplicates. It did not really
+make sense to do the whole filtering biz and everything else. Maybe we
+should spin the short description and the rest of the commit message so
+it reflects the code more. 
+
+> When the same adapter or domain is assigned more than one time prior to
+> removing the matrix mdev to which it is assigned, the remove operation
+> will hang. The reason is because the same vfio_ap_queue objects with an
+> APQN containing the APID of the adapter or APQI of the domain being
+> assigned will get added to the hashtable that holds them multiple times.
+> This results in the pprev and next pointers of the hlist_node (mdev_qnode
+> field in the vfio_ap_queue object) pointing to the queue object itself.
+> This causes an interminable loop when the mdev is removed and the queue
+> table is iterated to reset the queues.
 > 
-> maybe add something like 'when using s390 vfio_pci_zdev extensions for PCI passthrough'
+> To fix this problem, the assignment operation is bypassed when assigning
+> an adapter or domain if it is already assigned to the matrix mdev.
 > 
->> To be able to keep both subsystem modular we add a registering
->> hook inside the S390 core code.
->>
->> This fixes a build problem when VFIO is built-in and KVM is built
->> as a module or excluded.
+> Since it is not necessary to assign a resource already assigned or to
+> unassign a resource that has not been assigned, this patch will bypass
+> all assignment/unassignment operations for an adapter, domain or
+> control domain under these circumstances.
 > 
-> s/or excluded//
+> Cc: stable@vger.kernel.org
+> Fixes: 771e387d5e79 ("s390/vfio-ap: manage link between queue struct and matrix mdev")
+
+Not 11cb2419fafe ("s390/vfio-ap: manage link between queue struct and
+matrix mdev")
+
+Is my repo borked?
+
+
+> Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 30 ++++++++++++++++++++++++++++++
+>  1 file changed, 30 insertions(+)
 > 
-> There's no problem when KVM is excluded, that forces CONFIG_VFIO_PCI_ZDEV_KVM=n because of the 'depends on S390 && KVM'.
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index 6c8c41fac4e1..ee82207b4e60 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -984,6 +984,11 @@ static ssize_t assign_adapter_store(struct device *dev,
+>  		goto done;
+>  	}
+>  
+> +	if (test_bit_inv(apid, matrix_mdev->matrix.apm)) {
+> +		ret = count;
+> +		goto done;
+> +	}
+> +
+>  	set_bit_inv(apid, matrix_mdev->matrix.apm);
+>  
+>  	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+> @@ -1109,6 +1114,11 @@ static ssize_t unassign_adapter_store(struct device *dev,
+>  		goto done;
+>  	}
+>  
+> +	if (!test_bit_inv(apid, matrix_mdev->matrix.apm)) {
+> +		ret = count;
+> +		goto done;
+> +	}
+> +
+>  	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
+>  	vfio_ap_mdev_hot_unplug_adapter(matrix_mdev, apid);
+>  	ret = count;
+> @@ -1183,6 +1193,11 @@ static ssize_t assign_domain_store(struct device *dev,
+>  		goto done;
+>  	}
+>  
+> +	if (test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+> +		ret = count;
+> +		goto done;
+> +	}
+> +
+>  	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+>  
+>  	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+> @@ -1286,6 +1301,11 @@ static ssize_t unassign_domain_store(struct device *dev,
+>  		goto done;
+>  	}
+>  
+> +	if (!test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+> +		ret = count;
+> +		goto done;
+> +	}
+> +
+>  	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
+>  	vfio_ap_mdev_hot_unplug_domain(matrix_mdev, apqi);
+>  	ret = count;
+> @@ -1329,6 +1349,11 @@ static ssize_t assign_control_domain_store(struct device *dev,
+>  		goto done;
+>  	}
+>  
+> +	if (test_bit_inv(id, matrix_mdev->matrix.adm)) {
+> +		ret = count;
+> +		goto done;
+> +	}
+> +
+>  	/* Set the bit in the ADM (bitmask) corresponding to the AP control
+>  	 * domain number (id). The bits in the mask, from most significant to
+>  	 * least significant, correspond to IDs 0 up to the one less than the
+> @@ -1378,6 +1403,11 @@ static ssize_t unassign_control_domain_store(struct device *dev,
+>  		goto done;
+>  	}
+>  
+> +	if (!test_bit_inv(domid, matrix_mdev->matrix.adm)) {
+> +		ret = count;
+> +		goto done;
+> +	}
+> +
+>  	clear_bit_inv(domid, matrix_mdev->matrix.adm);
+>  
+>  	if (test_bit_inv(domid, matrix_mdev->shadow_apcb.adm)) {
 
-OK
-
-> 
->>
->> Reported-by: Randy Dunlap <rdunlap@infradead.org>
->> Reported-by: kernel test robot <lkp@intel.com>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> Fixes: 09340b2fca007 ("KVM: s390: pci: add routines to start/stop inter..")
->> Cc: <stable@vger.kernel.org>
->> ---
->>   arch/s390/include/asm/kvm_host.h | 17 ++++++-----------
->>   arch/s390/kvm/pci.c              | 10 ++++++----
->>   arch/s390/pci/Makefile           |  2 ++
->>   arch/s390/pci/pci_kvm_hook.c     | 11 +++++++++++
->>   drivers/vfio/pci/vfio_pci_zdev.c |  8 ++++++--
->>   5 files changed, 31 insertions(+), 17 deletions(-)
->>   create mode 100644 arch/s390/pci/pci_kvm_hook.c
->>
->> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->> index f39092e0ceaa..8312ed9d1937 100644
->> --- a/arch/s390/include/asm/kvm_host.h
->> +++ b/arch/s390/include/asm/kvm_host.h
->> @@ -1038,16 +1038,11 @@ static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
->>   #define __KVM_HAVE_ARCH_VM_FREE
->>   void kvm_arch_free_vm(struct kvm *kvm);
->>   
->> -#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
->> -int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm);
->> -void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev);
->> -#else
->> -static inline int kvm_s390_pci_register_kvm(struct zpci_dev *dev,
->> -					    struct kvm *kvm)
->> -{
->> -	return -EPERM;
->> -}
->> -static inline void kvm_s390_pci_unregister_kvm(struct zpci_dev *dev) {}
->> -#endif
->> +struct kvm_register_hook {
-> 
-> Nit: zpci_kvm_register_hook ?  Just to make it clear it's for zpci.
-
-OK
-
-
-> 
->> +	int (*kvm_register)(void *opaque, struct kvm *kvm);
->> +	void (*kvm_unregister)(void *opaque);
->> +};
->> +
->> +extern struct kvm_register_hook kvm_pci_hook;
-> 
-> Nit: kvm_zpci_hook ?
-
-OK too,
-
-> 
->>   
->>   #endif
->> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
->> index 4946fb7757d6..e173fce64c4f 100644
->> --- a/arch/s390/kvm/pci.c
->> +++ b/arch/s390/kvm/pci.c
->> @@ -431,8 +431,9 @@ static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
->>    * available, enable them and let userspace indicate whether or not they will
->>    * be used (specify SHM bit to disable).
->>    */
->> -int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
->> +static int kvm_s390_pci_register_kvm(void *opaque, struct kvm *kvm)
->>   {
->> +	struct zpci_dev *zdev = opaque;
->>   	int rc;
->>   
->>   	if (!zdev)
->> @@ -510,10 +511,10 @@ int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
->>   	kvm_put_kvm(kvm);
->>   	return rc;
->>   }
->> -EXPORT_SYMBOL_GPL(kvm_s390_pci_register_kvm);
->>   
->> -void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev)
->> +static void kvm_s390_pci_unregister_kvm(void *opaque)
->>   {
->> +	struct zpci_dev *zdev = opaque;
->>   	struct kvm *kvm;
->>   
->>   	if (!zdev)
->> @@ -566,7 +567,6 @@ void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev)
->>   
->>   	kvm_put_kvm(kvm);
->>   }
->> -EXPORT_SYMBOL_GPL(kvm_s390_pci_unregister_kvm);
->>   
->>   void kvm_s390_pci_init_list(struct kvm *kvm)
->>   {
->> @@ -678,6 +678,8 @@ int kvm_s390_pci_init(void)
->>   
->>   	spin_lock_init(&aift->gait_lock);
->>   	mutex_init(&aift->aift_lock);
->> +	kvm_pci_hook.kvm_register = kvm_s390_pci_register_kvm;
->> +	kvm_pci_hook.kvm_unregister = kvm_s390_pci_unregister_kvm;
->>   
->>   	return 0;
->>   }
->> diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
->> index bf557a1b789c..c02dbfb415d9 100644
->> --- a/arch/s390/pci/Makefile
->> +++ b/arch/s390/pci/Makefile
->> @@ -7,3 +7,5 @@ obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_dma.o pci_clp.o pci_sysfs.o \
->>   			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
->>   			   pci_bus.o
->>   obj-$(CONFIG_PCI_IOV)	+= pci_iov.o
->> +
->> +obj-y += pci_kvm_hook.o
-> 
-> I guess it doesn't harm anything to add this unconditionally, but I think it would also be OK to just include this in the CONFIG_PCI list - vfio_pci_zdev and arch/s390/kvm/pci all rely on CONFIG_PCI via CONFIG_VFIO_PCI_ZDEV_KVM which implies PCI via VFIO_PCI.
-
-Right,CONFIG_PCI is a bool so we can put the hook in arch/s390/pci/pci.c 
-and use a defined(CONFIG_PCI) to protect the initialization inside KVM.
-
-
-
-> 
->> diff --git a/arch/s390/pci/pci_kvm_hook.c b/arch/s390/pci/pci_kvm_hook.c
->> new file mode 100644
->> index 000000000000..9d8799b72dbf
->> --- /dev/null
->> +++ b/arch/s390/pci/pci_kvm_hook.c
->> @@ -0,0 +1,11 @@
->> +// SPDX-License-Identifier: GPL-2.0-only
->> +/*
->> + * VFIO ZPCI devices support
->> + *
->> + * Copyright (C) IBM Corp. 2022.  All rights reserved.
->> + *	Author(s): Pierre Morel <pmorel@linux.ibm.com>
->> + */
->> +#include <linux/kvm_host.h>
->> +
->> +struct kvm_register_hook kvm_pci_hook;
->> +EXPORT_SYMBOL_GPL(kvm_pci_hook);
-> 
-> Following the comments above, zpci_kvm_register_hook, kvm_zpci_hook ?
-
-OK
-
-> 
-> I'm not sure if this really needs to be in a separate file or if it could just go into arch/s390/pci.c with the zpci_aipb -- If going the route of a separate file, up to Niklas whether he wants this under the S390 PCI maintainership or added to the list for s390 vfio-pci like arch/kvm/pci* and vfio_pci_zdev.
-
-agreed no need for a separate file, it is much better.
-
-> 
->> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
->> index e163aa9f6144..3b7a707e2fe5 100644
->> --- a/drivers/vfio/pci/vfio_pci_zdev.c
->> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
->> @@ -151,7 +151,10 @@ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
->>   	if (!vdev->vdev.kvm)
->>   		return 0;
->>   
->> -	return kvm_s390_pci_register_kvm(zdev, vdev->vdev.kvm);
->> +	if (kvm_pci_hook.kvm_register)
->> +		return kvm_pci_hook.kvm_register(zdev, vdev->vdev.kvm);
->> +
->> +	return -ENOENT;
->>   }
->>   
->>   void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
->> @@ -161,5 +164,6 @@ void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
->>   	if (!zdev || !vdev->vdev.kvm)
->>   		return;
->>   
->> -	kvm_s390_pci_unregister_kvm(zdev);
->> +	if (kvm_pci_hook.kvm_unregister)
->> +		return kvm_pci_hook.kvm_unregister(zdev);
-> 
-> No need for the return here, this is a void function calling a void function.
-
-right.
-
-> 
-> 
-> Overall, this looks good to me and survives a series of compile and device passthrough tests on my end, just a matter of a few of these minor comments above.  Thanks for tackling this Pierre!
-> 
-
-Thanks,
-Pierre
-
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
