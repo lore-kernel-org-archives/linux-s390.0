@@ -2,206 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F0D7C00140
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Aug 2022 11:59:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 514BAC00140
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Aug 2022 13:06:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240176AbiHRL7T (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 18 Aug 2022 07:59:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46168 "EHLO
+        id S244911AbiHRNGn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 Aug 2022 09:06:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244373AbiHRL7F (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Aug 2022 07:59:05 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5990277;
-        Thu, 18 Aug 2022 04:59:04 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27IBEQUK002921;
-        Thu, 18 Aug 2022 11:57:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=zWlUY0cqc/MiRs61kbnEwuk9d4/ovNX7x4XCsFp8yX0=;
- b=TJxdkZAiAlYoWFq9b8Tca/ObtDe+Y0kV0xQwv58mk0iy+GbSerbaOYo7f28LSh4YPIwN
- hKQbqBxoohroz8L8KjdAAyHAjZmURrTOPlt2DQeoi/HmwnDKfx598FQImGfldo7/q89g
- +qX+FjMlowpOLayGWYw2Ta3rlgXy9ujPo0YmNF0uPo5o9sDPa49uIKVflENzG2tA8PJ2
- dMpUDgVM57cHLmODCw1QRE68jwM9xxcXNadDQZTG2sgBs41M9SYAclEvDlguRiNGfVfG
- s9WcuOpctmF+2YI1vuZryYARFd1WqjOaMZY9AKV0hC34pslSJmias77e+Yg0Uqly4mY1 2w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j1mcb153k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Aug 2022 11:57:26 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27IBEvbF004375;
-        Thu, 18 Aug 2022 11:57:26 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j1mcb151u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Aug 2022 11:57:26 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27IBoJ7A020132;
-        Thu, 18 Aug 2022 11:57:22 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3hx3k8wuv1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Aug 2022 11:57:22 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27IBvJIO17367486
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 18 Aug 2022 11:57:19 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7C9434C04E;
-        Thu, 18 Aug 2022 11:57:19 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A81D04C044;
-        Thu, 18 Aug 2022 11:57:18 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.7.173])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Thu, 18 Aug 2022 11:57:18 +0000 (GMT)
-Date:   Thu, 18 Aug 2022 13:57:17 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     "Wang, Haiyue" <haiyue.wang@intel.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "david@redhat.com" <david@redhat.com>,
-        "apopple@nvidia.com" <apopple@nvidia.com>,
-        "linmiaohe@huawei.com" <linmiaohe@huawei.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        "songmuchun@bytedance.com" <songmuchun@bytedance.com>,
-        "naoya.horiguchi@linux.dev" <naoya.horiguchi@linux.dev>,
-        "alex.sierra@amd.com" <alex.sierra@amd.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v6 1/2] mm: migration: fix the FOLL_GET failure on
- following huge page
-Message-ID: <20220818135717.609eef8a@thinkpad>
-In-Reply-To: <20220818135149.7b043a58@thinkpad>
-References: <20220812084921.409142-1-haiyue.wang@intel.com>
-        <20220816022102.582865-1-haiyue.wang@intel.com>
-        <20220816022102.582865-2-haiyue.wang@intel.com>
-        <20220816175838.211a1b1e85bc68c439101995@linux-foundation.org>
-        <BYAPR11MB3495F747CBF95E079E8FC8A5F76A9@BYAPR11MB3495.namprd11.prod.outlook.com>
-        <20220816224322.33e0dfbcbf522fcdc2026f0e@linux-foundation.org>
-        <20220818135149.7b043a58@thinkpad>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        with ESMTP id S244382AbiHRNGn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Aug 2022 09:06:43 -0400
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3EF21A3A0;
+        Thu, 18 Aug 2022 06:06:40 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VMauZyi_1660827996;
+Received: from 30.227.95.9(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VMauZyi_1660827996)
+          by smtp.aliyun-inc.com;
+          Thu, 18 Aug 2022 21:06:36 +0800
+Message-ID: <4a79203b-a8a9-3f16-3b8d-5240f535ae10@linux.alibaba.com>
+Date:   Thu, 18 Aug 2022 21:06:35 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: IrWdAm3J8STXD2ZTF86xFz_iipRbdSFL
-X-Proofpoint-ORIG-GUID: BdjrIjC4UsanmmCUSsai6LvhFxyWDSb9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-18_12,2022-08-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- impostorscore=0 mlxscore=0 phishscore=0 mlxlogscore=999 lowpriorityscore=0
- clxscore=1015 bulkscore=0 suspectscore=0 priorityscore=1501 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2208180040
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.11.0
+Subject: Re: [PATCH net-next 00/10] net/smc: optimize the parallelism of SMC-R
+ connections
+Content-Language: en-US
+To:     Jan Karcher <jaka@linux.ibm.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <cover.1660152975.git.alibuda@linux.alibaba.com>
+ <2182efbc-99f8-17ba-d344-95a467536b05@linux.ibm.com>
+ <9da41595-977f-5026-0ea1-f18a5fa1de4c@linux.alibaba.com>
+ <0f0718d1-eeb4-6440-5367-db9cc8104f43@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <0f0718d1-eeb4-6440-5367-db9cc8104f43@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 18 Aug 2022 13:51:49 +0200
-Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
 
-> On Tue, 16 Aug 2022 22:43:22 -0700
-> Andrew Morton <akpm@linux-foundation.org> wrote:
->=20
-> > On Wed, 17 Aug 2022 03:31:37 +0000 "Wang, Haiyue" <haiyue.wang@intel.co=
-m> wrote:
-> >=20
-> > > > >  		}
-> > > >=20
-> > > > I would be better to fix this for real at those three client code s=
-ites?
-> > >=20
-> > > Then 5.19 will break for a while to wait for the final BIG patch ?
-> >=20
-> > If that's the proposal then your [1/2] should have had a cc:stable and
-> > changelog words describing the plan for 6.0.
-> >=20
-> > But before we do that I'd like to see at least a prototype of the final
-> > fixes to s390 and hugetlb, so we can assess those as preferable for
-> > backporting.  I don't think they'll be terribly intrusive or risky?
-> >=20
->=20
-> The private follow_huge_pud() for s390 is just some leftover, and the
-> only reason is / was that the generic version was using pte_page()
-> instead of pud_page(), which would not work for s390. See also commit
-> 97534127012f ("mm/hugetlb: use pmd_page() in follow_huge_pmd()").
->=20
-> Since commit 3a194f3f8ad01 ("mm/hugetlb: make pud_huge() and
-> follow_huge_pud() aware of non-present pud entry") made
-> follow_huge_pud() behave similar to follow_huge_pmd(), in particular
-> also adding pud_page(), we can now switch to the generic version.
->=20
-> Note that we cannot support migration / hwpoison for hugetlb or THP,
-> because of different layout for PTE and PMD/PUD on s390. The generic
-> swp_entry functions all require proper PTEs, which wouldn't work on
-> PMD/PUD entries. In theory, at least for hugetlb, due to the "fake
-> PTE" conversion logic in huge_ptep_get(), we might be able to also
-> fake swp_entries, but the other problem is that we do not have enough
-> free bits in the PMD/PUD, so there probably will never be migration
-> support for huge pages on s390.
->=20
-> Anyway, that should not matter wrt to switching to the generic
-> follow_huge_pud(), because is_hugetlb_entry_migration() should always
-> return false, and no special change to pud_huge() check should be
-> needed like on x86.
 
-=46rom ce0150cd6f80425c702ccdc4cd8a511c47e99b67 Mon Sep 17 00:00:00 2001
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Date: Thu, 18 Aug 2022 13:19:23 +0200
-Subject: [PATCH] s390/hugetlb: switch to generic version of follow_huge_pud=
-()
+On 8/18/22 12:52 AM, Jan Karcher wrote:
+> 
+> 
+> On 17.08.2022 06:55, D. Wythe wrote:
+>>
+>>
+>> On 8/16/22 5:35 PM, Jan Karcher wrote:
+>>>
+>>>
+>>> On 10.08.2022 19:47, D. Wythe wrote:
+>>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>>>
+>>>> This patch set attempts to optimize the parallelism of SMC-R connections,
+>>>> mainly to reduce unnecessary blocking on locks, and to fix exceptions that
+>>>> occur after thoses optimization.
+>>>>
+>>>
+>>> Thank you again for your submission!
+>>> Let me give you a quick update from our side:
+>>> We tested your patches on top of the net-next kernel on our s390 systems. They did crash our systems. After verifying our environment we pulled console logs and now we can tell that there is indeed a problem with your patches regarding SMC-D. So please do not integrate this change as of right now. I'm going to do more in depth reviews of your patches but i need some time for them so here is a quick a description of the problem:
+>>
+>> Sorry for the late reply, and thanks a lot for your comment.
+>>
+>> I'm sorry for the low-level mistake. In the early design, I hoped that lnkc can also work on SMC-D,
+>> but in later tests I found out that we don't have SMC-D environment to test, so I have to canceled this logic.
+>> But dues to the rollback isn't thorough enough, leaving this issues, we are very sorry for that.
+>>
+> 
+> One more comment:
+> If the only reason why you do not touch SMC-D is that you do not have the environment to test it we strongly encourage you to change it anyway.
+> 
+> At some point doing kernel development, especially driver development you are going to reach the point where you do not have the environment to test it. It is on the maintainers to test those changes and verify that nothing is broken.
+> 
+> So please:
+> If testing is the only reason change SMC-D as well and we are going to test it for you verifying if it does work or not.
+> 
+> Thank you
+> Jan
 
-When pud-sized hugepages were introduced for s390, the generic version
-of follow_huge_pud() was using pte_page() instead of pud_page(). This
-would be wrong for s390, see also commit 97534127012f ("mm/hugetlb: use
-pmd_page() in follow_huge_pmd()"). Therefore, and probably because not
-all archs were supporting pud_page() at that time, a private version of
-follow_huge_pud() was added for s390, correctly using pud_page().
+Actually, this is not the only reason. The purpose of remove smc_server_lgr_pending & smc_client_lgr_pending
+is mainly to solve the problem of excessive lock granularity in SMC-R. In SMC-R those locks protect
+a complete CLC message exchange process, including sending and receiving. This results in a large number of
+connections having to be queued. But this is not the case with SMC-D. SMC-D releases the lock in advance
+before receiving the CLC message, which makes the problem less severe in SMC-D than in SMC-R.
 
-Since commit 3a194f3f8ad01 ("mm/hugetlb: make pud_huge() and
-follow_huge_pud() aware of non-present pud entry"), the generic version
-of follow_huge_pud() is now also using pud_page(), and in general
-behaves similar to follow_huge_pmd().
+Of course, lnkc can be used for SMC-D, but considering that we have no way to test it,
+and it is not the core bottleneck of SMC-D, so we gave up it.
 
-Therefore we can now switch to the generic version and get rid of the
-s390-specific follow_huge_pud().
+I will fix the panic problem first in the next revison. If you have a strong demand for this feature,
+I may commit a separate PATCH to support it, dues to current patch is quite complicated, adding SMC-D support
+will exacerbate its complexity, which may affect the other reviewer progress.
 
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
----
- arch/s390/mm/hugetlbpage.c | 10 ----------
- 1 file changed, 10 deletions(-)
 
-diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-index 10e51ef9c79a..c299a18273ff 100644
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -237,16 +237,6 @@ int pud_huge(pud_t pud)
- 	return pud_large(pud);
- }
-=20
--struct page *
--follow_huge_pud(struct mm_struct *mm, unsigned long address,
--		pud_t *pud, int flags)
--{
--	if (flags & FOLL_GET)
--		return NULL;
--
--	return pud_page(*pud) + ((address & ~PUD_MASK) >> PAGE_SHIFT);
--}
--
- bool __init arch_hugetlb_valid_size(unsigned long size)
- {
- 	if (MACHINE_HAS_EDAT1 && size =3D=3D PMD_SIZE)
---=20
-2.34.1
+Thanks
+D. Wythe
 
+>>
+>>> It is a SMC-D problem, that occurs while building up the connection. In smc_conn_create you set struct smc_lnk_cluster *lnkc = NULL. For the SMC-R path you do grab the pointer, for SMC-D that never happens. Still you are using this refernce for SMC-D => Crash. This problem can be reproduced using the SMC-D path. Here is an example console output:
+>>>
+>>> [  779.516382] Unable to handle kernel pointer dereference in virtual kernel address space
+>>> [  779.516389] Failing address: 0000000000000000 TEID: 0000000000000483
+>>> [  779.516391] Fault in home space mode while using kernel ASCE.
+>>> [  779.516395] AS:0000000069628007 R3:00000000ffbf0007 S:00000000ffbef800 P:000000000000003d
+>>> [  779.516431] Oops: 0004 ilc:2 [#1] SMP
+>>> [  779.516436] Modules linked in: tcp_diag inet_diag ism mlx5_ib ib_uverbs mlx5_core smc_diag smc ib_core nft_fib_inet nft_fib_ipv4
+>>> nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv
+>>> 6 nf_defrag_ipv4 ip_set nf_tables n
+>>> [  779.516470] CPU: 0 PID: 24 Comm: kworker/0:1 Not tainted 5.19.0-13940-g22a46254655a #3
+>>> [  779.516476] Hardware name: IBM 8561 T01 701 (z/VM 7.2.0)
+>>>
+>>> [  779.522738] Workqueue: smc_hs_wq smc_listen_work [smc]
+>>> [  779.522755] Krnl PSW : 0704c00180000000 000003ff803da89c (smc_conn_create+0x174/0x968 [smc])
+>>> [  779.522766]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+>>> [  779.522770] Krnl GPRS: 0000000000000002 0000000000000000 0000000000000001 0000000000000000
+>>> [  779.522773]            000000008a4128a0 000003ff803f21aa 000000008e30d640 0000000086d72000
+>>> [  779.522776]            0000000086d72000 000000008a412803 000000008a412800 000000008e30d650
+>>> [  779.522779]            0000000080934200 0000000000000000 000003ff803cb954 00000380002dfa88
+>>> [  779.522789] Krnl Code: 000003ff803da88e: e310f0e80024        stg %r1,232(%r15)
+>>> [  779.522789]            000003ff803da894: a7180000            lhi %r1,0
+>>> [  779.522789]           #000003ff803da898: 582003ac            l %r2,940
+>>> [  779.522789]           >000003ff803da89c: ba123020            cs %r1,%r2,32(%r3)
+>>> [  779.522789]            000003ff803da8a0: ec1603be007e        cij %r1,0,6,000003ff803db01c
+>>>
+>>> [  779.522789]            000003ff803da8a6: 4110b002            la %r1,2(%r11)
+>>> [  779.522789]            000003ff803da8aa: e310f0f00024        stg %r1,240(%r15)
+>>> [  779.522789]            000003ff803da8b0: e310f0c00004        lg %r1,192(%r15)
+>>> [  779.522870] Call Trace:
+>>> [  779.522873]  [<000003ff803da89c>] smc_conn_create+0x174/0x968 [smc]
+>>> [  779.522884]  [<000003ff803cb954>] smc_find_ism_v2_device_serv+0x1b4/0x300 [smc]
+>>> 01: HCPGSP2629I The virtual machine is placed in CP mode due to a SIGP stop from CPU 01.
+>>> 01: HCPGSP2629I The virtual machine is placed in CP mode due to a SIGP stop from CPU 00.
+>>> [  779.522894]  [<000003ff803cbace>] smc_listen_find_device+0x2e/0x370 [smc]
+>>>
+>>>
+>>> I'm going to send the review for the first patch right away (which is the one causing the crash), so far I'm done with it. The others are going to follow. Maybe you can look over the problem and come up with a solution, otherwise we are going to decide if we want to look into it as soon as I'm done with the reviews. Thank you for your patience.
+>>
+>> In the next revision, I will add additional judgment to protect the SMC-D environment,
+>> thanks for your comments.
+>>
+>> And Looking forward to your other comments, thanks again.
+>>
+>> D. Wythe
+>>
