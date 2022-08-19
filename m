@@ -2,159 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 437FCC3F6B0
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Aug 2022 09:40:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CE30C32771
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Aug 2022 09:51:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348153AbiHSJkp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Aug 2022 05:40:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60688 "EHLO
+        id S1347359AbiHSJvE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 Aug 2022 05:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348182AbiHSJkj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Aug 2022 05:40:39 -0400
-Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4626DE3437;
-        Fri, 19 Aug 2022 02:40:38 -0700 (PDT)
-Received: by mail-qt1-f182.google.com with SMTP id c20so2922846qtw.8;
-        Fri, 19 Aug 2022 02:40:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=bRymBzdXlfqAZ/An0FhEAiaTJ5r51uvoXyU3bQ2b9Zs=;
-        b=ySmYlGfelih9ma1VmAxcSdV2j3otz/FeGG5EeWXdVElvpGUr9Hr42NdeIGCM5Tcd7L
-         Nsnxq8GX+VFhHvDcTeHdJIsOVBnt2SR1MrllbK8wk/qnYx+jAbIl/QnnzwjTaTnfbLVO
-         ZRCPnQm9QBXWNUruQZJS+Nh5LBzxJAhmYnpV9bFbMcKUfVgQNKWKuwyeSPfzlaxIDdtC
-         hQ0XQej6BoMUbWBJI03EciGnYb5Wp7+ewnTFbvh1lG1QJAUor7CKlSgkHP0MujDGryO1
-         +YnnIwzBq9TLR2OUXBIKQghV7sNoluUZxJyAyGnD0IQ5HqW8FnIMh7L+o0jSCyUq4+JP
-         LX+A==
-X-Gm-Message-State: ACgBeo1zpDHwPqi9BX+g5xSFYB0FGFC9QKzQVQ231LnVqforRD0RJB3k
-        c/qTv1P2kUgyN48XeJqeu1kRtX7EsbKpJDYA
-X-Google-Smtp-Source: AA6agR44Yq7CZ3A8CnKudOZR8WT3gwoEj9NlldcSXCTtHZrfcBV5KAE6N5v6b4h6GzecCIApIf8eFQ==
-X-Received: by 2002:a05:622a:1343:b0:343:5b7:ffb with SMTP id w3-20020a05622a134300b0034305b70ffbmr5857432qtk.91.1660902037252;
-        Fri, 19 Aug 2022 02:40:37 -0700 (PDT)
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com. [209.85.128.169])
-        by smtp.gmail.com with ESMTPSA id x26-20020a05620a0b5a00b006b5e1aeb777sm3284531qkg.43.2022.08.19.02.40.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 19 Aug 2022 02:40:36 -0700 (PDT)
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-32a09b909f6so108103527b3.0;
-        Fri, 19 Aug 2022 02:40:36 -0700 (PDT)
-X-Received: by 2002:a25:250b:0:b0:68f:425b:3ee0 with SMTP id
- l11-20020a25250b000000b0068f425b3ee0mr6898469ybl.89.1660902025045; Fri, 19
- Aug 2022 02:40:25 -0700 (PDT)
+        with ESMTP id S1346395AbiHSJvD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Aug 2022 05:51:03 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16352EF001;
+        Fri, 19 Aug 2022 02:51:02 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27J9RhCK005956;
+        Fri, 19 Aug 2022 09:51:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=/n+0HvGmT1pfTamPIFhgrgyDHjxBz4Xfo3FQmH1h9H8=;
+ b=eN0zHAAQ99HxCC1A+SJ3wtp/Do91HjNWhFYkjabqlvvg/BVgk/2Tr/3N51Xt/Zgbtddm
+ 7o+wjObv5HZ/5uPk1W8GqVGjMRW2k0saGD7lDn0KatZJRQJ5/0d/t1XYgIeAjjvYVTDY
+ gga0tTeOt//8Zr/IdujSNhVUek54lSTXRgPJcSHhyh3pH+CerzNCaCHdLKfiaVKAVL6g
+ JtwN/rNM1IVG632TLGWUVxFHp/Dt5hV/+eNnhuTsIEo/mqJ3oRV22pzgtz2GkO43fevA
+ 8WtVOrAkGoIUz6vu2WCREc6uU3bIp5DtAL+tPDUlZWTcRqLK/vXdpyKK/JWqGFxVcgYC Fg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j27whrk26-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Aug 2022 09:51:01 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27J9jC6g014549;
+        Fri, 19 Aug 2022 09:51:01 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j27whrk1e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Aug 2022 09:51:01 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27J9Kpnb011979;
+        Fri, 19 Aug 2022 09:50:58 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3hx3k8y288-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Aug 2022 09:50:58 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27J9pE0036635114
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 19 Aug 2022 09:51:14 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6D35CAE051;
+        Fri, 19 Aug 2022 09:50:55 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D93D7AE045;
+        Fri, 19 Aug 2022 09:50:54 +0000 (GMT)
+Received: from [9.145.49.220] (unknown [9.145.49.220])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 19 Aug 2022 09:50:54 +0000 (GMT)
+Message-ID: <99a49638-1604-962e-9010-1b57111d3132@linux.ibm.com>
+Date:   Fri, 19 Aug 2022 11:50:54 +0200
 MIME-Version: 1.0
-References: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
-In-Reply-To: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Fri, 19 Aug 2022 11:40:14 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUd5Ww-mtpymykuahHWD+S62Z8qiBMVx8y4okouuzTCAg@mail.gmail.com>
-Message-ID: <CAMuHMdUd5Ww-mtpymykuahHWD+S62Z8qiBMVx8y4okouuzTCAg@mail.gmail.com>
-Subject: Re: [PATCH] kernel: exit: cleanup release_thread()
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@quicinc.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        alpha <linux-alpha@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        arcml <linux-snps-arc@lists.infradead.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        loongarch@lists.linux.dev,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Openrisc <openrisc@lists.librecores.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
+        david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        seiden@linux.ibm.com, nrb@linux.ibm.com
+References: <20220810125625.45295-1-imbrenda@linux.ibm.com>
+ <20220810125625.45295-5-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v13 4/6] KVM: s390: pv: avoid export before import if
+ possible
+In-Reply-To: <20220810125625.45295-5-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: NNgj39bwebWjNUdU7YYEarOHQPvFevST
+X-Proofpoint-ORIG-GUID: qPlsnErocGN7hRNExndp0u-nGtAuWj4g
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-19_04,2022-08-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ adultscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501 spamscore=0
+ lowpriorityscore=0 impostorscore=0 mlxscore=0 clxscore=1015 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
+ definitions=main-2208190037
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Kefeng,
+On 8/10/22 14:56, Claudio Imbrenda wrote:
+> If the appropriate UV feature bit is set, there is no need to perform
+> an export before import.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+>   arch/s390/kernel/uv.c | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index f9810d2a267c..b455646c8d74 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -255,6 +255,8 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
+>    */
+>   static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_struct *mm)
+>   {
+The misc feature indicates that the UV will automatically transfer 
+ownership from one protected VM to another when importing a shared page.
 
-On Fri, Aug 19, 2022 at 3:39 AM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
-> Only x86 has own release_thread(), introduce a new weak
-> release_thread() function to clean empty definitions in
-> other ARCHs.
->
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 
->  arch/m68k/include/asm/processor.h       | 5 -----
+Other than that:
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-> --- a/kernel/exit.c
-> +++ b/kernel/exit.c
-> @@ -183,6 +183,10 @@ void put_task_struct_rcu_user(struct task_struct *task)
->                 call_rcu(&task->rcu, delayed_put_task_struct);
->  }
->
-> +void __weak release_thread(struct task_struct *dead_task)
-> +{
-> +}
+> +	if (test_bit_inv(BIT_UV_FEAT_MISC, &uv_info.uv_feature_indications))
+> +		return false;
+>   	if (uvcb->cmd == UVC_CMD_UNPIN_PAGE_SHARED)
+>   		return false;
+>   	return atomic_read(&mm->context.protected_count) > 1;
 
-As the default implementation is empty, it might be better to keep
-this as a static inline function, protected by #ifndef release_thread,
-and let x86 #define release_thread.
-
-> +
->  void release_task(struct task_struct *p)
->  {
->         struct task_struct *leader;
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
