@@ -2,116 +2,218 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46667C32772
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Aug 2022 14:57:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22915C32771
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Aug 2022 21:10:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349563AbiHSO5P (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Aug 2022 10:57:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39458 "EHLO
+        id S1350061AbiHSVKy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 Aug 2022 17:10:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349172AbiHSO5O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Aug 2022 10:57:14 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F342C64C4;
-        Fri, 19 Aug 2022 07:57:09 -0700 (PDT)
+        with ESMTP id S1352232AbiHSVKp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Aug 2022 17:10:45 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17671E0952;
+        Fri, 19 Aug 2022 14:10:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=SYqd0jVvSqn0LYdbb0mNobM+NLD0i8990uNItjrpJW0=; b=p8X1gMssAFqz7Cj5E1IU3EN3xz
-        t/snbLEyJv1XAdu4J+MpAgDpW86NPkUeqqsmS64YxuYIDoz1/0nSwGnJ4A7MRHs6v4/DfY13yylRH
-        yTpJ3gDO1i4G6ew5SrDgljBdNE61ShqeAK0joibG/N9CQrD4C5DO+D+oHobsM0kWRo/T88yRl68DM
-        ivZpQK7KoicNncKbbL3cMwzclIbdo4NBfFt8WVkYbV7Yt9Ti+iBnKi0iAa3qakANtULKlnjVs0VPW
-        qMm4R7XYp2iFBesGctz7KWjgzPu53WYvs3CSQtaYwSCE20OErGTcffzJDbyUtNOmEl2QCsbCVzRVd
-        fg0lrl+g==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:33852)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1oP3PW-0007vG-Sl; Fri, 19 Aug 2022 15:55:47 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1oP3PE-0007s8-Jr; Fri, 19 Aug 2022 15:55:28 +0100
-Date:   Fri, 19 Aug 2022 15:55:28 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@quicinc.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, linux-alpha@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        akpm@linux-foundation.org
-Subject: Re: [PATCH] kernel: exit: cleanup release_thread()
-Message-ID: <Yv+kYPnf8c6rLXgN@shell.armlinux.org.uk>
-References: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+        bh=ellEIQ/+GNYDRYLpWlIUIo1Eul6LQaRbVXjP6iRTirs=; b=XQwEujfqC0AcayKnvv7DpGt04l
+        9S7EkC0IAKEM3GOleiakbuaa7XSseNVr7EWtF9QsJWioT0ocvzeVF5SGh7cZg06LXQiBfAVB6D0Mb
+        8LFX8U4AYFH9EIkpAsvpxFRORrw0mAn2gW6tTTZNsZgDS33LZyIGUAh/utDBYBYJRWERrgJhUsW5w
+        P7KD+yivkqKgYyRAsHb89HpsDqeIbCTVnngN/T/mLUjMyhfK9PYKENqWvrOD9qZHk/W8gx0sehWqE
+        0MLgrlVq1JSEsRUlXLGoRYbZnMKXKvxWO0BFGBQkcQklQMmCve8PEf/djbNKodc5XGNR+S1UcQf3Z
+        E8xnC49w==;
+Received: from [2601:1c0:6280:3f0::a6b3]
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1oP9GM-00CHUE-8S; Fri, 19 Aug 2022 21:10:42 +0000
+Message-ID: <0bea8b2c-3345-e475-01f7-fd9c44096244@infradead.org>
+Date:   Fri, 19 Aug 2022 14:10:38 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v2] KVM: s390: pci: Hook to access KVM lowlevel from VFIO
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>, mjrosato@linux.ibm.com
+Cc:     linux-kernel@vger.kernel.org, lkp@intel.com,
+        borntraeger@linux.ibm.com, farman@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org, gor@linux.ibm.com,
+        hca@linux.ibm.com, schnelle@linux.ibm.com, frankja@linux.ibm.com,
+        alex.williamson@redhat.com, cohuck@redhat.com
+References: <20220819122945.9309-1-pmorel@linux.ibm.com>
+From:   Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20220819122945.9309-1-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 19, 2022 at 09:44:06AM +0800, Kefeng Wang wrote:
-> Only x86 has own release_thread(), introduce a new weak
-> release_thread() function to clean empty definitions in
-> other ARCHs.
+
+
+On 8/19/22 05:29, Pierre Morel wrote:
+> We have a cross dependency between KVM and VFIO when using
+> s390 vfio_pci_zdev extensions for PCI passthrough
+> To be able to keep both subsystem modular we add a registering
+> hook inside the S390 core code.
 > 
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-...
->  arch/arm/include/asm/processor.h        | 3 ---
->  arch/arm/kernel/process.c               | 4 ----
+> This fixes a build problem when VFIO is built-in and KVM is built
+> as a module.
+> 
+> Reported-by: Randy Dunlap <rdunlap@infradead.org>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Fixes: 09340b2fca007 ("KVM: s390: pci: add routines to start/stop interpretive execution")
+> Cc: <stable@vger.kernel.org>
 
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
 
-Thanks!
+Thanks.
+
+> ---
+>  arch/s390/include/asm/kvm_host.h | 17 ++++++-----------
+>  arch/s390/kvm/pci.c              | 12 ++++++++----
+>  arch/s390/pci/Makefile           |  2 +-
+>  arch/s390/pci/pci_kvm_hook.c     | 11 +++++++++++
+>  drivers/vfio/pci/vfio_pci_zdev.c |  8 ++++++--
+>  5 files changed, 32 insertions(+), 18 deletions(-)
+>  create mode 100644 arch/s390/pci/pci_kvm_hook.c
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index f39092e0ceaa..b1e98a9ed152 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -1038,16 +1038,11 @@ static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
+>  #define __KVM_HAVE_ARCH_VM_FREE
+>  void kvm_arch_free_vm(struct kvm *kvm);
+>  
+> -#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
+> -int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm);
+> -void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev);
+> -#else
+> -static inline int kvm_s390_pci_register_kvm(struct zpci_dev *dev,
+> -					    struct kvm *kvm)
+> -{
+> -	return -EPERM;
+> -}
+> -static inline void kvm_s390_pci_unregister_kvm(struct zpci_dev *dev) {}
+> -#endif
+> +struct zpci_kvm_hook {
+> +	int (*kvm_register)(void *opaque, struct kvm *kvm);
+> +	void (*kvm_unregister)(void *opaque);
+> +};
+> +
+> +extern struct zpci_kvm_hook zpci_kvm_hook;
+>  
+>  #endif
+> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+> index 4946fb7757d6..bb8c335d17b9 100644
+> --- a/arch/s390/kvm/pci.c
+> +++ b/arch/s390/kvm/pci.c
+> @@ -431,8 +431,9 @@ static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
+>   * available, enable them and let userspace indicate whether or not they will
+>   * be used (specify SHM bit to disable).
+>   */
+> -int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
+> +static int kvm_s390_pci_register_kvm(void *opaque, struct kvm *kvm)
+>  {
+> +	struct zpci_dev *zdev = opaque;
+>  	int rc;
+>  
+>  	if (!zdev)
+> @@ -510,10 +511,10 @@ int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
+>  	kvm_put_kvm(kvm);
+>  	return rc;
+>  }
+> -EXPORT_SYMBOL_GPL(kvm_s390_pci_register_kvm);
+>  
+> -void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev)
+> +static void kvm_s390_pci_unregister_kvm(void *opaque)
+>  {
+> +	struct zpci_dev *zdev = opaque;
+>  	struct kvm *kvm;
+>  
+>  	if (!zdev)
+> @@ -566,7 +567,6 @@ void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev)
+>  
+>  	kvm_put_kvm(kvm);
+>  }
+> -EXPORT_SYMBOL_GPL(kvm_s390_pci_unregister_kvm);
+>  
+>  void kvm_s390_pci_init_list(struct kvm *kvm)
+>  {
+> @@ -678,6 +678,8 @@ int kvm_s390_pci_init(void)
+>  
+>  	spin_lock_init(&aift->gait_lock);
+>  	mutex_init(&aift->aift_lock);
+> +	zpci_kvm_hook.kvm_register = kvm_s390_pci_register_kvm;
+> +	zpci_kvm_hook.kvm_unregister = kvm_s390_pci_unregister_kvm;
+>  
+>  	return 0;
+>  }
+> @@ -685,6 +687,8 @@ int kvm_s390_pci_init(void)
+>  void kvm_s390_pci_exit(void)
+>  {
+>  	mutex_destroy(&aift->aift_lock);
+> +	zpci_kvm_hook.kvm_register = NULL;
+> +	zpci_kvm_hook.kvm_unregister = NULL;
+>  
+>  	kfree(aift);
+>  }
+> diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
+> index bf557a1b789c..5ae31ca9dd44 100644
+> --- a/arch/s390/pci/Makefile
+> +++ b/arch/s390/pci/Makefile
+> @@ -5,5 +5,5 @@
+>  
+>  obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_dma.o pci_clp.o pci_sysfs.o \
+>  			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
+> -			   pci_bus.o
+> +			   pci_bus.o pci_kvm_hook.o
+>  obj-$(CONFIG_PCI_IOV)	+= pci_iov.o
+> diff --git a/arch/s390/pci/pci_kvm_hook.c b/arch/s390/pci/pci_kvm_hook.c
+> new file mode 100644
+> index 000000000000..ff34baf50a3e
+> --- /dev/null
+> +++ b/arch/s390/pci/pci_kvm_hook.c
+> @@ -0,0 +1,11 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * VFIO ZPCI devices support
+> + *
+> + * Copyright (C) IBM Corp. 2022.  All rights reserved.
+> + *	Author(s): Pierre Morel <pmorel@linux.ibm.com>
+> + */
+> +#include <linux/kvm_host.h>
+> +
+> +struct zpci_kvm_hook zpci_kvm_hook;
+> +EXPORT_SYMBOL_GPL(zpci_kvm_hook);
+> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+> index e163aa9f6144..0cbdcd14f1c8 100644
+> --- a/drivers/vfio/pci/vfio_pci_zdev.c
+> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
+> @@ -151,7 +151,10 @@ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+>  	if (!vdev->vdev.kvm)
+>  		return 0;
+>  
+> -	return kvm_s390_pci_register_kvm(zdev, vdev->vdev.kvm);
+> +	if (zpci_kvm_hook.kvm_register)
+> +		return zpci_kvm_hook.kvm_register(zdev, vdev->vdev.kvm);
+> +
+> +	return -ENOENT;
+>  }
+>  
+>  void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
+> @@ -161,5 +164,6 @@ void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
+>  	if (!zdev || !vdev->vdev.kvm)
+>  		return;
+>  
+> -	kvm_s390_pci_unregister_kvm(zdev);
+> +	if (zpci_kvm_hook.kvm_unregister)
+> +		zpci_kvm_hook.kvm_unregister(zdev);
+>  }
 
 -- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+~Randy
