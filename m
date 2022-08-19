@@ -2,164 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97EC5C25B0E
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Aug 2022 08:44:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 849BEC32771
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Aug 2022 09:39:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347668AbiHSIoa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Aug 2022 04:44:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
+        id S1348139AbiHSJjE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 Aug 2022 05:39:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347626AbiHSIo1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Aug 2022 04:44:27 -0400
+        with ESMTP id S1348169AbiHSJi7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Aug 2022 05:38:59 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21007B7EEC;
-        Fri, 19 Aug 2022 01:44:25 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27J8Gu3L022264;
-        Fri, 19 Aug 2022 08:44:17 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C26765072F;
+        Fri, 19 Aug 2022 02:38:49 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27J9VXAf018880;
+        Fri, 19 Aug 2022 09:38:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+ mime-version : to : cc : references : from : subject : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=+v9nT8ZKH5nQZXkGNwDvqukouuQUqGry8Hdy6T8DPAY=;
- b=kB/tv/IzObAQjKJ5pJkzJHnejJaIoaO9+UqvSRi1IDf/wQ/9k2ye6IjbDqFPTbYvwEh2
- N4HgycFDsUSWUT1eMrMi/8YIly4nO87AYmSEX5/h5eIitLo5s70RuprbvumxKzcoGVdK
- KCNkIrgRYZevIBSD/QLzGZoUHDmmpUZovLT04kY6EIoe/G5uLv9VZcES4NJnADVCI+js
- +C4sWTLIs+CNY1l/HmPtwfqB64n9laRDA7tKT3Wux0vLUtchsiRl22oiJvcL2hv90dDF
- tTJKvIDifu3u1pYZVuDfkaR3ykLX6PfZUU/QMtkxpqV99FKBAY2eKfhUpvnKwxxVyg5Z Gg== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j26vd8m93-1
+ bh=k0s98wbwykj1h/+dscgayMBTy/dgtVTdsqH1ZecErf4=;
+ b=PD2WQD4HGKMjkndoiaPMdkkkwu61TgmMuMftS1rZCTqZIOybi9v1IGNKJq+uSOw9Ow9F
+ nWJ9bPerhqkVc6iT4YCOg3IwU7lBnFquNiFSeEoKjNrgLiwajmY9SWPaXYAjgkqhU7vW
+ 41lqRGi4/ORclKnREg3eTdNz+NVOpsCk8WG62gUtoJWY8aK0GwoCflW+Jf+l6gIBDDfD
+ 4KvIzfblAWmqpRDh8sZPRPv08YiM/Kg7qPYJ3cOEeruIKYph5Is29DNevDrqNQqtgN/s
+ xmvAYasOi6Cl9/PWqfhklmSWH9KDS3tGCqi1NKFEPby60uPsXlVNlqbKaLyyP5XswDKF ew== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j27ycg55y-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 19 Aug 2022 08:44:17 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27J8KwLh024220;
-        Fri, 19 Aug 2022 08:44:15 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3hx3k957kt-1
+        Fri, 19 Aug 2022 09:38:49 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27J9VYOf018941;
+        Fri, 19 Aug 2022 09:38:48 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j27ycg54h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 19 Aug 2022 08:44:15 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27J8iVWo25297284
+        Fri, 19 Aug 2022 09:38:48 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27J9LD5F013229;
+        Fri, 19 Aug 2022 09:33:46 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3hx37jf2ku-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Aug 2022 09:33:46 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27J9XhZQ31654398
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 19 Aug 2022 08:44:31 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D68B7AE045;
-        Fri, 19 Aug 2022 08:44:11 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B7073AE053;
-        Fri, 19 Aug 2022 08:44:10 +0000 (GMT)
-Received: from [9.171.49.238] (unknown [9.171.49.238])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 19 Aug 2022 08:44:10 +0000 (GMT)
-Message-ID: <0d7d055d-f323-acba-cb79-f859b5e182b4@linux.ibm.com>
-Date:   Fri, 19 Aug 2022 10:44:10 +0200
+        Fri, 19 Aug 2022 09:33:43 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DF2FF52052;
+        Fri, 19 Aug 2022 09:33:42 +0000 (GMT)
+Received: from [9.145.49.220] (unknown [9.145.49.220])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 74BA95204F;
+        Fri, 19 Aug 2022 09:33:42 +0000 (GMT)
+Message-ID: <721557f7-93eb-a26b-76a6-f207d05a5d0d@linux.ibm.com>
+Date:   Fri, 19 Aug 2022 11:33:42 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] KVM: s390: pci: Hook to access KVM lowlevel from VFIO
+ Thunderbird/91.9.0
 Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>, mjrosato@linux.ibm.com
-Cc:     rdunlap@infradead.org, linux-kernel@vger.kernel.org, lkp@intel.com,
-        borntraeger@linux.ibm.com, farman@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org, gor@linux.ibm.com,
-        hca@linux.ibm.com, frankja@linux.ibm.com
-References: <20220818164652.269336-1-pmorel@linux.ibm.com>
- <2ae0bf9abffe2eb3eb2fb3f84873720d39f73d4d.camel@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <2ae0bf9abffe2eb3eb2fb3f84873720d39f73d4d.camel@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
+        david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        seiden@linux.ibm.com, nrb@linux.ibm.com
+References: <20220810125625.45295-1-imbrenda@linux.ibm.com>
+ <20220810125625.45295-3-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v13 2/6] KVM: s390: pv: api documentation for asynchronous
+ destroy
+In-Reply-To: <20220810125625.45295-3-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: aPDdiq_Kpt3i5btmzuGdKT24gvc8NZin
-X-Proofpoint-GUID: aPDdiq_Kpt3i5btmzuGdKT24gvc8NZin
+X-Proofpoint-GUID: RuVUvDs38Fq8BFcgQ-JqIRUjwzI73qQf
+X-Proofpoint-ORIG-GUID: 81wAyy220UPC_7vbqRFC6ffzl5-0VOMk
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-08-19_04,2022-08-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 phishscore=0
- suspectscore=0 impostorscore=0 malwarescore=0 adultscore=0 spamscore=0
- lowpriorityscore=0 mlxscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2208190033
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ phishscore=0 impostorscore=0 adultscore=0 lowpriorityscore=0
+ suspectscore=0 mlxscore=0 malwarescore=0 priorityscore=1501
+ mlxlogscore=999 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2207270000 definitions=main-2208190037
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 8/19/22 09:14, Niklas Schnelle wrote:
-> On Thu, 2022-08-18 at 18:46 +0200, Pierre Morel wrote:
->> We have a cross dependency between KVM and VFIO when using
->> s390 vfio_pci_zdev extensions for PCI passthrough
->> To be able to keep both subsystem modular we add a registering
->> hook inside the S390 core code.
->>
->> This fixes a build problem when VFIO is built-in and KVM is built
->> as a module.
->>
->> Reported-by: Randy Dunlap <rdunlap@infradead.org>
->> Reported-by: kernel test robot <lkp@intel.com>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> Fixes: 09340b2fca007 ("KVM: s390: pci: add routines to start/stop inter..")
+On 8/10/22 14:56, Claudio Imbrenda wrote:
+> Add documentation for the new commands added to the KVM_S390_PV_COMMAND
+> ioctl.
 > 
-> Please don't shorten the Fixes tag, the subject line is likely also
-> checked by some automated tools. It's okay for this line to be over the
-> column limit and checkpatch.pl --strict also accepts it.
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+>   Documentation/virt/kvm/api.rst | 30 ++++++++++++++++++++++++++++--
+>   1 file changed, 28 insertions(+), 2 deletions(-)
 > 
+> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+> index 9788b19f9ff7..5bd151b601b4 100644
+> --- a/Documentation/virt/kvm/api.rst
+> +++ b/Documentation/virt/kvm/api.rst
+> @@ -5163,8 +5163,11 @@ KVM_PV_ENABLE
+>   KVM_PV_DISABLE
+>     Deregister the VM from the Ultravisor and reclaim the memory that
+>     had been donated to the Ultravisor, making it usable by the kernel
+> -  again.  All registered VCPUs are converted back to non-protected
+> -  ones.
+> +  again. All registered VCPUs are converted back to non-protected
+> +  ones. If a previous VM had been set aside for asynchonous teardown
+> +  with KVM_PV_ASYNC_CLEANUP_PREPARE and not actually torn down with
 
-OK
+...and hasn't yet been torn down with...
 
->> Cc: <stable@vger.kernel.org>
->> ---
->>   arch/s390/include/asm/kvm_host.h | 17 ++++++-----------
->>   arch/s390/kvm/pci.c              | 10 ++++++----
->>   arch/s390/pci/Makefile           |  2 ++
->>   arch/s390/pci/pci_kvm_hook.c     | 11 +++++++++++
->>   drivers/vfio/pci/vfio_pci_zdev.c |  8 ++++++--
->>   5 files changed, 31 insertions(+), 17 deletions(-)
->>   create mode 100644 arch/s390/pci/pci_kvm_hook.c
->>
->>
-> ---8<---
->>   
->>   	kvm_put_kvm(kvm);
->>   }
->> -EXPORT_SYMBOL_GPL(kvm_s390_pci_unregister_kvm);
->>   
->>   void kvm_s390_pci_init_list(struct kvm *kvm)
->>   {
->> @@ -678,6 +678,8 @@ int kvm_s390_pci_init(void)
->>   
->>   	spin_lock_init(&aift->gait_lock);
->>   	mutex_init(&aift->aift_lock);
->> +	zpci_kvm_hook.kvm_register = kvm_s390_pci_register_kvm;
->> +	zpci_kvm_hook.kvm_unregister = kvm_s390_pci_unregister_kvm;
->>   
->>   	return 0;
->>   }
->> diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
->> index bf557a1b789c..c02dbfb415d9 100644
->> --- a/arch/s390/pci/Makefile
->> +++ b/arch/s390/pci/Makefile
->> @@ -7,3 +7,5 @@ obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_dma.o pci_clp.o pci_sysfs.o \
->>   			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
->>   			   pci_bus.o
->>   obj-$(CONFIG_PCI_IOV)	+= pci_iov.o
->> +
->> +obj-y += pci_kvm_hook.o
-> 
-> I thought we wanted to compile this only for CONFIG_PCI?
+> +  KVM_PV_ASYNC_CLEANUP_PERFORM, it will be torn down in this call
+> +  together with the current VM.
 
-Ah sorry, that is indeed what I understood with Matt but then I 
-misunderstood your own answer from yesterday.
-I change to
-obj-$(CONFIG_PCI) += pci_kvm_hook.o
+current PV VM? or protected VM
+I know it's missing in the unchanged paragraph above too but such is life.
 
-> 
->> diff --git a/arch/s390/pci/pci_kvm_hook.c b/arch/s390/pci/pci_kvm_hook.c
->> new file mode 100644
->> index 000000000000..ff34baf50a3e
-> ---8<---
-> 
+>   
+>   KVM_PV_VM_SET_SEC_PARMS
+>     Pass the image header from VM memory to the Ultravisor in
+> @@ -5287,6 +5290,29 @@ KVM_PV_DUMP
+>       authentication tag all of which are needed to decrypt the dump at a
+>       later time.
+>   
+> +KVM_PV_ASYNC_CLEANUP_PREPARE
+> +  Prepare the current protected VM for asynchronous teardown. Most
+> +  resources used by the current protected VM will be set aside for a
+> +  subsequent asynchronous teardown. The current protected VM will then
+> +  resume execution immediately as non-protected. There can be at most
+> +  one protected VM set aside at any time. If a protected VM had
+> +  already been set aside without starting the asynchronous teardown
+> +  process, this call will fail. In that case, the userspace process
 
--- 
-Pierre Morel
-IBM Lab Boeblingen
+If KVM_PV_ASYNC_CLEANUP_PREPARE has already been called without a 
+successful KVM_PV_ASYNC_CLEANUP_PERFORM this call will fail. I.e. only 
+be one PV VM can be set aside.
+
+Do we need to finish the cleanup or is it enough to start the cleanup 
+like you describe here?
+
+> +  should issue a normal KVM_PV_DISABLE. The resources set aside with
+> +  this call will need to be cleaned up with a subsequent call to
+> +  KVM_PV_ASYNC_CLEANUP_PERFORM or KVM_PV_DISABLE, otherwise they will
+> +  be cleaned up when KVM terminates.
+> +
+> +KVM_PV_ASYNC_CLEANUP_PERFORM
+> +  Tear down the protected VM previously set aside with
+> +  KVM_PV_ASYNC_CLEANUP_PREPARE. The resources that had been set aside
+> +  will be freed during the execution of this command. This PV command
+> +  should ideally be issued by userspace from a separate thread. If a
+> +  fatal signal is received (or the process terminates naturally), the
+> +  command will terminate immediately without completing, and the normal
+> +  KVM shutdown procedure will take care of cleaning up all remaining
+> +  protected VMs.
+> +
+>   
+>   4.126 KVM_X86_SET_MSR_FILTER
+>   ----------------------------
+
