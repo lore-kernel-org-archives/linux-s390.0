@@ -2,218 +2,213 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22915C32771
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Aug 2022 21:10:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21E4EC28D13
+	for <linux-s390@archiver.kernel.org>; Sat, 20 Aug 2022 00:32:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350061AbiHSVKy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Aug 2022 17:10:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51580 "EHLO
+        id S245225AbiHTAce (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 Aug 2022 20:32:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352232AbiHSVKp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Aug 2022 17:10:45 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17671E0952;
-        Fri, 19 Aug 2022 14:10:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-        bh=ellEIQ/+GNYDRYLpWlIUIo1Eul6LQaRbVXjP6iRTirs=; b=XQwEujfqC0AcayKnvv7DpGt04l
-        9S7EkC0IAKEM3GOleiakbuaa7XSseNVr7EWtF9QsJWioT0ocvzeVF5SGh7cZg06LXQiBfAVB6D0Mb
-        8LFX8U4AYFH9EIkpAsvpxFRORrw0mAn2gW6tTTZNsZgDS33LZyIGUAh/utDBYBYJRWERrgJhUsW5w
-        P7KD+yivkqKgYyRAsHb89HpsDqeIbCTVnngN/T/mLUjMyhfK9PYKENqWvrOD9qZHk/W8gx0sehWqE
-        0MLgrlVq1JSEsRUlXLGoRYbZnMKXKvxWO0BFGBQkcQklQMmCve8PEf/djbNKodc5XGNR+S1UcQf3Z
-        E8xnC49w==;
-Received: from [2601:1c0:6280:3f0::a6b3]
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oP9GM-00CHUE-8S; Fri, 19 Aug 2022 21:10:42 +0000
-Message-ID: <0bea8b2c-3345-e475-01f7-fd9c44096244@infradead.org>
-Date:   Fri, 19 Aug 2022 14:10:38 -0700
+        with ESMTP id S245196AbiHTAca (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Aug 2022 20:32:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8FA2E2C43
+        for <linux-s390@vger.kernel.org>; Fri, 19 Aug 2022 17:32:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1660955548;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5SHN8uljMwgOES67u9nTa1xL6WhEjv8MuhsMkmhS9fE=;
+        b=fP+t1olrIT5rFhdrcr3MvW2BSZGNFDwzr1fkG1gmRMox5rYbws+1bvNPtrd4n7ehLL7fn/
+        N/g831jQgleb2YQIp29T1vPxSDqgGG+JKKx89AS5w/pZ/Welkty2P5RerJW+9YU3qTmU3J
+        ASdt2AAYL3T+R1vfUvK+nTrqMNxjpUQ=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-608-hpYxoUSSMG6Qw-fSYp5coA-1; Fri, 19 Aug 2022 20:32:22 -0400
+X-MC-Unique: hpYxoUSSMG6Qw-fSYp5coA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 37F51185A79C;
+        Sat, 20 Aug 2022 00:32:22 +0000 (UTC)
+Received: from MiWiFi-R3L-srv.redhat.com (ovpn-12-17.pek2.redhat.com [10.72.12.17])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 14E644010E3C;
+        Sat, 20 Aug 2022 00:32:15 +0000 (UTC)
+From:   Baoquan He <bhe@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, akpm@linux-foundation.org, hch@infradead.org,
+        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
+        linux-arm-kernel@lists.infradead.org, Baoquan He <bhe@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [PATCH v2 09/11] s390: mm: Convert to GENERIC_IOREMAP
+Date:   Sat, 20 Aug 2022 08:31:23 +0800
+Message-Id: <20220820003125.353570-10-bhe@redhat.com>
+In-Reply-To: <20220820003125.353570-1-bhe@redhat.com>
+References: <20220820003125.353570-1-bhe@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v2] KVM: s390: pci: Hook to access KVM lowlevel from VFIO
-Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>, mjrosato@linux.ibm.com
-Cc:     linux-kernel@vger.kernel.org, lkp@intel.com,
-        borntraeger@linux.ibm.com, farman@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org, gor@linux.ibm.com,
-        hca@linux.ibm.com, schnelle@linux.ibm.com, frankja@linux.ibm.com,
-        alex.williamson@redhat.com, cohuck@redhat.com
-References: <20220819122945.9309-1-pmorel@linux.ibm.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <20220819122945.9309-1-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Add hooks arch_ioremap() and arch_iounmap() for s390's special
+operation when ioremap() and iounmap(), then ioremap_[wc|wt]() are
+converted to use ioremap_prot() from GENERIC_IOREMAP.
 
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/Kconfig          |  1 +
+ arch/s390/include/asm/io.h | 26 +++++++++++------
+ arch/s390/pci/pci.c        | 60 +++++---------------------------------
+ 3 files changed, 26 insertions(+), 61 deletions(-)
 
-On 8/19/22 05:29, Pierre Morel wrote:
-> We have a cross dependency between KVM and VFIO when using
-> s390 vfio_pci_zdev extensions for PCI passthrough
-> To be able to keep both subsystem modular we add a registering
-> hook inside the S390 core code.
-> 
-> This fixes a build problem when VFIO is built-in and KVM is built
-> as a module.
-> 
-> Reported-by: Randy Dunlap <rdunlap@infradead.org>
-> Reported-by: kernel test robot <lkp@intel.com>
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Fixes: 09340b2fca007 ("KVM: s390: pci: add routines to start/stop interpretive execution")
-> Cc: <stable@vger.kernel.org>
-
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-
-Thanks.
-
-> ---
->  arch/s390/include/asm/kvm_host.h | 17 ++++++-----------
->  arch/s390/kvm/pci.c              | 12 ++++++++----
->  arch/s390/pci/Makefile           |  2 +-
->  arch/s390/pci/pci_kvm_hook.c     | 11 +++++++++++
->  drivers/vfio/pci/vfio_pci_zdev.c |  8 ++++++--
->  5 files changed, 32 insertions(+), 18 deletions(-)
->  create mode 100644 arch/s390/pci/pci_kvm_hook.c
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index f39092e0ceaa..b1e98a9ed152 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -1038,16 +1038,11 @@ static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
->  #define __KVM_HAVE_ARCH_VM_FREE
->  void kvm_arch_free_vm(struct kvm *kvm);
->  
-> -#ifdef CONFIG_VFIO_PCI_ZDEV_KVM
-> -int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm);
-> -void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev);
-> -#else
-> -static inline int kvm_s390_pci_register_kvm(struct zpci_dev *dev,
-> -					    struct kvm *kvm)
-> -{
-> -	return -EPERM;
-> -}
-> -static inline void kvm_s390_pci_unregister_kvm(struct zpci_dev *dev) {}
-> -#endif
-> +struct zpci_kvm_hook {
-> +	int (*kvm_register)(void *opaque, struct kvm *kvm);
-> +	void (*kvm_unregister)(void *opaque);
-> +};
-> +
-> +extern struct zpci_kvm_hook zpci_kvm_hook;
->  
->  #endif
-> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 4946fb7757d6..bb8c335d17b9 100644
-> --- a/arch/s390/kvm/pci.c
-> +++ b/arch/s390/kvm/pci.c
-> @@ -431,8 +431,9 @@ static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
->   * available, enable them and let userspace indicate whether or not they will
->   * be used (specify SHM bit to disable).
->   */
-> -int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
-> +static int kvm_s390_pci_register_kvm(void *opaque, struct kvm *kvm)
->  {
-> +	struct zpci_dev *zdev = opaque;
->  	int rc;
->  
->  	if (!zdev)
-> @@ -510,10 +511,10 @@ int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
->  	kvm_put_kvm(kvm);
->  	return rc;
->  }
-> -EXPORT_SYMBOL_GPL(kvm_s390_pci_register_kvm);
->  
-> -void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev)
-> +static void kvm_s390_pci_unregister_kvm(void *opaque)
->  {
-> +	struct zpci_dev *zdev = opaque;
->  	struct kvm *kvm;
->  
->  	if (!zdev)
-> @@ -566,7 +567,6 @@ void kvm_s390_pci_unregister_kvm(struct zpci_dev *zdev)
->  
->  	kvm_put_kvm(kvm);
->  }
-> -EXPORT_SYMBOL_GPL(kvm_s390_pci_unregister_kvm);
->  
->  void kvm_s390_pci_init_list(struct kvm *kvm)
->  {
-> @@ -678,6 +678,8 @@ int kvm_s390_pci_init(void)
->  
->  	spin_lock_init(&aift->gait_lock);
->  	mutex_init(&aift->aift_lock);
-> +	zpci_kvm_hook.kvm_register = kvm_s390_pci_register_kvm;
-> +	zpci_kvm_hook.kvm_unregister = kvm_s390_pci_unregister_kvm;
->  
->  	return 0;
->  }
-> @@ -685,6 +687,8 @@ int kvm_s390_pci_init(void)
->  void kvm_s390_pci_exit(void)
->  {
->  	mutex_destroy(&aift->aift_lock);
-> +	zpci_kvm_hook.kvm_register = NULL;
-> +	zpci_kvm_hook.kvm_unregister = NULL;
->  
->  	kfree(aift);
->  }
-> diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
-> index bf557a1b789c..5ae31ca9dd44 100644
-> --- a/arch/s390/pci/Makefile
-> +++ b/arch/s390/pci/Makefile
-> @@ -5,5 +5,5 @@
->  
->  obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_dma.o pci_clp.o pci_sysfs.o \
->  			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
-> -			   pci_bus.o
-> +			   pci_bus.o pci_kvm_hook.o
->  obj-$(CONFIG_PCI_IOV)	+= pci_iov.o
-> diff --git a/arch/s390/pci/pci_kvm_hook.c b/arch/s390/pci/pci_kvm_hook.c
-> new file mode 100644
-> index 000000000000..ff34baf50a3e
-> --- /dev/null
-> +++ b/arch/s390/pci/pci_kvm_hook.c
-> @@ -0,0 +1,11 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * VFIO ZPCI devices support
-> + *
-> + * Copyright (C) IBM Corp. 2022.  All rights reserved.
-> + *	Author(s): Pierre Morel <pmorel@linux.ibm.com>
-> + */
-> +#include <linux/kvm_host.h>
-> +
-> +struct zpci_kvm_hook zpci_kvm_hook;
-> +EXPORT_SYMBOL_GPL(zpci_kvm_hook);
-> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-> index e163aa9f6144..0cbdcd14f1c8 100644
-> --- a/drivers/vfio/pci/vfio_pci_zdev.c
-> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
-> @@ -151,7 +151,10 @@ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
->  	if (!vdev->vdev.kvm)
->  		return 0;
->  
-> -	return kvm_s390_pci_register_kvm(zdev, vdev->vdev.kvm);
-> +	if (zpci_kvm_hook.kvm_register)
-> +		return zpci_kvm_hook.kvm_register(zdev, vdev->vdev.kvm);
-> +
-> +	return -ENOENT;
->  }
->  
->  void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
-> @@ -161,5 +164,6 @@ void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
->  	if (!zdev || !vdev->vdev.kvm)
->  		return;
->  
-> -	kvm_s390_pci_unregister_kvm(zdev);
-> +	if (zpci_kvm_hook.kvm_unregister)
-> +		zpci_kvm_hook.kvm_unregister(zdev);
->  }
-
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 318fce77601d..c59e1b25f59d 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -135,6 +135,7 @@ config S390
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_TIME_VSYSCALL
+ 	select GENERIC_VDSO_TIME_NS
++	select GENERIC_IOREMAP
+ 	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select HAVE_ARCH_JUMP_LABEL
+diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
+index e3882b012bfa..f837e20b7bbd 100644
+--- a/arch/s390/include/asm/io.h
++++ b/arch/s390/include/asm/io.h
+@@ -22,11 +22,23 @@ void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
+ 
+ #define IO_SPACE_LIMIT 0
+ 
+-void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
+-void __iomem *ioremap(phys_addr_t addr, size_t size);
+-void __iomem *ioremap_wc(phys_addr_t addr, size_t size);
+-void __iomem *ioremap_wt(phys_addr_t addr, size_t size);
+-void iounmap(volatile void __iomem *addr);
++
++/*
++ * I/O memory mapping functions.
++ */
++void __iomem *
++arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val);
++#define arch_ioremap arch_ioremap
++
++int arch_iounmap(void __iomem *addr);
++#define arch_iounmap arch_iounmap
++
++#define _PAGE_IOREMAP pgprot_val(PAGE_KERNEL)
++
++#define ioremap_wc(addr, size)  \
++	ioremap_prot((addr), (size), pgprot_val(pgprot_writecombine(PAGE_KERNEL)))
++#define ioremap_wt(addr, size)  \
++	ioremap_prot((addr), (size), pgprot_val(pgprot_writethrough(PAGE_KERNEL)))
+ 
+ static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
+ {
+@@ -51,10 +63,6 @@ static inline void ioport_unmap(void __iomem *p)
+ #define pci_iomap_wc pci_iomap_wc
+ #define pci_iomap_wc_range pci_iomap_wc_range
+ 
+-#define ioremap ioremap
+-#define ioremap_wt ioremap_wt
+-#define ioremap_wc ioremap_wc
+-
+ #define memcpy_fromio(dst, src, count)	zpci_memcpy_fromio(dst, src, count)
+ #define memcpy_toio(dst, src, count)	zpci_memcpy_toio(dst, src, count)
+ #define memset_io(dst, val, count)	zpci_memset_io(dst, val, count)
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 73cdc5539384..984cad9cd5a1 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -244,64 +244,20 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+        zpci_memcpy_toio(to, from, count);
+ }
+ 
+-static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
++void __iomem *
++arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val)
+ {
+-	unsigned long offset, vaddr;
+-	struct vm_struct *area;
+-	phys_addr_t last_addr;
+-
+-	last_addr = addr + size - 1;
+-	if (!size || last_addr < addr)
+-		return NULL;
+-
+ 	if (!static_branch_unlikely(&have_mio))
+-		return (void __iomem *) addr;
+-
+-	offset = addr & ~PAGE_MASK;
+-	addr &= PAGE_MASK;
+-	size = PAGE_ALIGN(size + offset);
+-	area = get_vm_area(size, VM_IOREMAP);
+-	if (!area)
+-		return NULL;
+-
+-	vaddr = (unsigned long) area->addr;
+-	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
+-		free_vm_area(area);
+-		return NULL;
+-	}
+-	return (void __iomem *) ((unsigned long) area->addr + offset);
+-}
+-
+-void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
+-{
+-	return __ioremap(addr, size, __pgprot(prot));
++		return (void __iomem *) *paddr;
++	return NULL;
+ }
+-EXPORT_SYMBOL(ioremap_prot);
+ 
+-void __iomem *ioremap(phys_addr_t addr, size_t size)
++int arch_iounmap(void __iomem *addr)
+ {
+-	return __ioremap(addr, size, PAGE_KERNEL);
+-}
+-EXPORT_SYMBOL(ioremap);
+-
+-void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
+-{
+-	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
+-}
+-EXPORT_SYMBOL(ioremap_wc);
+-
+-void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
+-{
+-	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
+-}
+-EXPORT_SYMBOL(ioremap_wt);
+-
+-void iounmap(volatile void __iomem *addr)
+-{
+-	if (static_branch_likely(&have_mio))
+-		vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
++	if (!static_branch_likely(&have_mio))
++		return -EINVAL;
++	return 0;
+ }
+-EXPORT_SYMBOL(iounmap);
+ 
+ /* Create a virtual mapping cookie for a PCI BAR */
+ static void __iomem *pci_iomap_range_fh(struct pci_dev *pdev, int bar,
 -- 
-~Randy
+2.34.1
+
