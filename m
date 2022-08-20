@@ -2,213 +2,182 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21E4EC28D13
-	for <linux-s390@archiver.kernel.org>; Sat, 20 Aug 2022 00:32:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D78BC25B08
+	for <linux-s390@archiver.kernel.org>; Sat, 20 Aug 2022 06:15:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245225AbiHTAce (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Aug 2022 20:32:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37358 "EHLO
+        id S244902AbiHTGPa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 20 Aug 2022 02:15:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245196AbiHTAca (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Aug 2022 20:32:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8FA2E2C43
-        for <linux-s390@vger.kernel.org>; Fri, 19 Aug 2022 17:32:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660955548;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=5SHN8uljMwgOES67u9nTa1xL6WhEjv8MuhsMkmhS9fE=;
-        b=fP+t1olrIT5rFhdrcr3MvW2BSZGNFDwzr1fkG1gmRMox5rYbws+1bvNPtrd4n7ehLL7fn/
-        N/g831jQgleb2YQIp29T1vPxSDqgGG+JKKx89AS5w/pZ/Welkty2P5RerJW+9YU3qTmU3J
-        ASdt2AAYL3T+R1vfUvK+nTrqMNxjpUQ=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-608-hpYxoUSSMG6Qw-fSYp5coA-1; Fri, 19 Aug 2022 20:32:22 -0400
-X-MC-Unique: hpYxoUSSMG6Qw-fSYp5coA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 37F51185A79C;
-        Sat, 20 Aug 2022 00:32:22 +0000 (UTC)
-Received: from MiWiFi-R3L-srv.redhat.com (ovpn-12-17.pek2.redhat.com [10.72.12.17])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 14E644010E3C;
-        Sat, 20 Aug 2022 00:32:15 +0000 (UTC)
-From:   Baoquan He <bhe@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, akpm@linux-foundation.org, hch@infradead.org,
-        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
-        linux-arm-kernel@lists.infradead.org, Baoquan He <bhe@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: [PATCH v2 09/11] s390: mm: Convert to GENERIC_IOREMAP
-Date:   Sat, 20 Aug 2022 08:31:23 +0800
-Message-Id: <20220820003125.353570-10-bhe@redhat.com>
-In-Reply-To: <20220820003125.353570-1-bhe@redhat.com>
-References: <20220820003125.353570-1-bhe@redhat.com>
+        with ESMTP id S229458AbiHTGP3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 20 Aug 2022 02:15:29 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6744AA4D5;
+        Fri, 19 Aug 2022 23:15:28 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27K5xfQT004628;
+        Sat, 20 Aug 2022 06:15:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=zPAf3Y8+ic/bcR2GCV4JDBK3HcwH7lLdPNCVXZ+f3Ng=;
+ b=mP9kRRmPeuQkYOQLS0C9l2vJkIMhZoxQIiXOabTo4eNIqBZ1/fEbkKyMt4BIfT+NeaQ7
+ GbPgyCsRC1mHU1PvkjHmZ4ismEpbnS+HdolaMT625RauOTpyYsyo4RFK5Q/ap9iPX/lM
+ bPpmng3zH5b1Jiq8glE3l5xUHZVYGoyAL0ZVUI3u285PMaND+2kWAegz0nqyTIwVSGrQ
+ yo3Zw19WJShzQKruxjPBisMVxk9lGbntYLREt/XmXVOblX7Cov6d6jJJDvMmDNx/Ll+3
+ 48b7uUbJbswwLozAFoK9lSIldbtTeJkVnIHBmabaBBKD6Lh8HAnYLabX7Yr9852JtoHD PQ== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j2sy109jn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 20 Aug 2022 06:15:27 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27K65EkJ031370;
+        Sat, 20 Aug 2022 06:15:24 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3j2q8983sk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 20 Aug 2022 06:15:24 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27K6FLZc31850960
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 20 Aug 2022 06:15:21 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 21740A405B;
+        Sat, 20 Aug 2022 06:15:21 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E153AA405F;
+        Sat, 20 Aug 2022 06:15:20 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sat, 20 Aug 2022 06:15:20 +0000 (GMT)
+Date:   Sat, 20 Aug 2022 08:15:19 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 6.0-rc2
+Message-ID: <YwB792JxY0ZO7NBC@tuxmaker.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: eLu5EHfp_uGsdstFQAVz2BWAuWA_ZWqi
+X-Proofpoint-ORIG-GUID: eLu5EHfp_uGsdstFQAVz2BWAuWA_ZWqi
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-20_03,2022-08-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 malwarescore=0 phishscore=0 spamscore=0
+ lowpriorityscore=0 bulkscore=0 mlxlogscore=999 impostorscore=0 mlxscore=0
+ suspectscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2207270000 definitions=main-2208200023
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add hooks arch_ioremap() and arch_iounmap() for s390's special
-operation when ioremap() and iounmap(), then ioremap_[wc|wt]() are
-converted to use ioremap_prot() from GENERIC_IOREMAP.
+Hello Linus,
 
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/Kconfig          |  1 +
- arch/s390/include/asm/io.h | 26 +++++++++++------
- arch/s390/pci/pci.c        | 60 +++++---------------------------------
- 3 files changed, 26 insertions(+), 61 deletions(-)
+please pull s390 changes for 6.0-rc2.
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 318fce77601d..c59e1b25f59d 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -135,6 +135,7 @@ config S390
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_TIME_VSYSCALL
- 	select GENERIC_VDSO_TIME_NS
-+	select GENERIC_IOREMAP
- 	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
- 	select HAVE_ARCH_AUDITSYSCALL
- 	select HAVE_ARCH_JUMP_LABEL
-diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
-index e3882b012bfa..f837e20b7bbd 100644
---- a/arch/s390/include/asm/io.h
-+++ b/arch/s390/include/asm/io.h
-@@ -22,11 +22,23 @@ void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
- 
- #define IO_SPACE_LIMIT 0
- 
--void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
--void __iomem *ioremap(phys_addr_t addr, size_t size);
--void __iomem *ioremap_wc(phys_addr_t addr, size_t size);
--void __iomem *ioremap_wt(phys_addr_t addr, size_t size);
--void iounmap(volatile void __iomem *addr);
-+
-+/*
-+ * I/O memory mapping functions.
-+ */
-+void __iomem *
-+arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val);
-+#define arch_ioremap arch_ioremap
-+
-+int arch_iounmap(void __iomem *addr);
-+#define arch_iounmap arch_iounmap
-+
-+#define _PAGE_IOREMAP pgprot_val(PAGE_KERNEL)
-+
-+#define ioremap_wc(addr, size)  \
-+	ioremap_prot((addr), (size), pgprot_val(pgprot_writecombine(PAGE_KERNEL)))
-+#define ioremap_wt(addr, size)  \
-+	ioremap_prot((addr), (size), pgprot_val(pgprot_writethrough(PAGE_KERNEL)))
- 
- static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
- {
-@@ -51,10 +63,6 @@ static inline void ioport_unmap(void __iomem *p)
- #define pci_iomap_wc pci_iomap_wc
- #define pci_iomap_wc_range pci_iomap_wc_range
- 
--#define ioremap ioremap
--#define ioremap_wt ioremap_wt
--#define ioremap_wc ioremap_wc
--
- #define memcpy_fromio(dst, src, count)	zpci_memcpy_fromio(dst, src, count)
- #define memcpy_toio(dst, src, count)	zpci_memcpy_toio(dst, src, count)
- #define memset_io(dst, val, count)	zpci_memset_io(dst, val, count)
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 73cdc5539384..984cad9cd5a1 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -244,64 +244,20 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
-        zpci_memcpy_toio(to, from, count);
- }
- 
--static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
-+void __iomem *
-+arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val)
- {
--	unsigned long offset, vaddr;
--	struct vm_struct *area;
--	phys_addr_t last_addr;
--
--	last_addr = addr + size - 1;
--	if (!size || last_addr < addr)
--		return NULL;
--
- 	if (!static_branch_unlikely(&have_mio))
--		return (void __iomem *) addr;
--
--	offset = addr & ~PAGE_MASK;
--	addr &= PAGE_MASK;
--	size = PAGE_ALIGN(size + offset);
--	area = get_vm_area(size, VM_IOREMAP);
--	if (!area)
--		return NULL;
--
--	vaddr = (unsigned long) area->addr;
--	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
--		free_vm_area(area);
--		return NULL;
--	}
--	return (void __iomem *) ((unsigned long) area->addr + offset);
--}
--
--void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
--{
--	return __ioremap(addr, size, __pgprot(prot));
-+		return (void __iomem *) *paddr;
-+	return NULL;
- }
--EXPORT_SYMBOL(ioremap_prot);
- 
--void __iomem *ioremap(phys_addr_t addr, size_t size)
-+int arch_iounmap(void __iomem *addr)
- {
--	return __ioremap(addr, size, PAGE_KERNEL);
--}
--EXPORT_SYMBOL(ioremap);
--
--void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
--{
--	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
--}
--EXPORT_SYMBOL(ioremap_wc);
--
--void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
--{
--	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
--}
--EXPORT_SYMBOL(ioremap_wt);
--
--void iounmap(volatile void __iomem *addr)
--{
--	if (static_branch_likely(&have_mio))
--		vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
-+	if (!static_branch_likely(&have_mio))
-+		return -EINVAL;
-+	return 0;
- }
--EXPORT_SYMBOL(iounmap);
- 
- /* Create a virtual mapping cookie for a PCI BAR */
- static void __iomem *pci_iomap_range_fh(struct pci_dev *pdev, int bar,
--- 
-2.34.1
+Thank you,
+Alexander
 
+The following changes since commit 568035b01cfb107af8d2e4bd2fb9aea22cf5b868:
+
+  Linux 6.0-rc1 (2022-08-14 15:50:18 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-1
+
+for you to fetch changes up to 0fef40be5d1f8e7af3d61e8827a63c5862cd99f7:
+
+  s390/ap: fix crash on older machines based on QCI info missing (2022-07-15 12:23:48 +0200)
+
+----------------------------------------------------------------
+s390 updates for 6.0-rc2
+
+- Fix a KVM crash on z12 and older machines caused by a wrong
+  assumption that Query AP Configuration Information is always
+  available.
+
+- Lower severity of excessive Hypervisor filesystem error messages
+  when booting under KVM.
+----------------------------------------------------------------
+
+Harald Freudenberger (1):
+  s390/ap: fix crash on older machines based on QCI info missing
+
+Juergen Gross (1):
+  s390/hypfs: avoid error message under KVM
+
+ arch/s390/hypfs/hypfs_diag.c | 2 +-
+ arch/s390/hypfs/inode.c      | 2 +-
+ drivers/s390/crypto/ap_bus.c | 3 +++
+ drivers/s390/crypto/ap_bus.h | 4 ++++
+ 4 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
+index f0bc4dc3e9bf..6511d15ace45 100644
+--- a/arch/s390/hypfs/hypfs_diag.c
++++ b/arch/s390/hypfs/hypfs_diag.c
+@@ -437,7 +437,7 @@ __init int hypfs_diag_init(void)
+ 	int rc;
+ 
+ 	if (diag204_probe()) {
+-		pr_err("The hardware system does not support hypfs\n");
++		pr_info("The hardware system does not support hypfs\n");
+ 		return -ENODATA;
+ 	}
+ 
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index 5c97f48cea91..ee919bfc8186 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -496,9 +496,9 @@ static int __init hypfs_init(void)
+ 	hypfs_vm_exit();
+ fail_hypfs_diag_exit:
+ 	hypfs_diag_exit();
++	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ fail_dbfs_exit:
+ 	hypfs_dbfs_exit();
+-	pr_err("Initialization of hypfs failed with rc=%i\n", rc);
+ 	return rc;
+ }
+ device_initcall(hypfs_init)
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 8f1d1cf23d44..59ac98f2bd27 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -2086,6 +2086,9 @@ static inline void ap_scan_adapter(int ap)
+  */
+ static bool ap_get_configuration(void)
+ {
++	if (!ap_qci_info)	/* QCI not supported */
++		return false;
++
+ 	memcpy(ap_qci_info_old, ap_qci_info, sizeof(*ap_qci_info));
+ 	ap_fetch_qci_info(ap_qci_info);
+ 
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 0c40af157df2..0f17933954fb 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -148,12 +148,16 @@ struct ap_driver {
+ 	/*
+ 	 * Called at the start of the ap bus scan function when
+ 	 * the crypto config information (qci) has changed.
++	 * This callback is not invoked if there is no AP
++	 * QCI support available.
+ 	 */
+ 	void (*on_config_changed)(struct ap_config_info *new_config_info,
+ 				  struct ap_config_info *old_config_info);
+ 	/*
+ 	 * Called at the end of the ap bus scan function when
+ 	 * the crypto config information (qci) has changed.
++	 * This callback is not invoked if there is no AP
++	 * QCI support available.
+ 	 */
+ 	void (*on_scan_complete)(struct ap_config_info *new_config_info,
+ 				 struct ap_config_info *old_config_info);
