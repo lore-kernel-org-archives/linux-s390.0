@@ -2,113 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01A4FC32789
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Aug 2022 08:37:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C858AC32789
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Aug 2022 09:37:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232555AbiHVIh5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Aug 2022 04:37:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46386 "EHLO
+        id S230370AbiHVJhI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Aug 2022 05:37:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231876AbiHVIh4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Aug 2022 04:37:56 -0400
-Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E5082CDE2
-        for <linux-s390@vger.kernel.org>; Mon, 22 Aug 2022 01:37:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=hsUU+M8inv09Ir/zuanJetA2licV
-        zhMzd31+/Qc062w=; b=NVkwDgOPZ1Hr4Lbbc5MAOnCaS0237NRp8x6WfbIHtqB6
-        tl44Pm5GFRZr3iwYxwD6MBg46TVQZADvJvH9nadaBmGhcAbsZbvFABrrQApeM7q9
-        Ilo+UPZEiN0fsmswdxOcBBzTYUz3EXlL03V1LD1WWsL5CdmMChnOQUgfdWbFTUw=
-Received: (qmail 1214028 invoked from network); 22 Aug 2022 10:37:47 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Aug 2022 10:37:47 +0200
-X-UD-Smtp-Session: l3s3148p1@MiDDXNDmnOkgAwDPXxw3AFlguiwjsjwa
-Date:   Mon, 22 Aug 2022 10:37:47 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] s390: move from strlcpy with unused retval to strscpy
-Message-ID: <YwNAW2Zp6o7Z//Y2@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-References: <20220818210102.7301-1-wsa+renesas@sang-engineering.com>
- <YwM4y78boN4s1VNo@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+        with ESMTP id S231577AbiHVJhG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Aug 2022 05:37:06 -0400
+Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AFB631222;
+        Mon, 22 Aug 2022 02:37:05 -0700 (PDT)
+Received: by mail-qv1-f54.google.com with SMTP id e4so7691203qvr.2;
+        Mon, 22 Aug 2022 02:37:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=4HGc3LZLIVD8kqIdt1raEGvcbUqauzF4BNbgPe7E/m4=;
+        b=C7ccB4CycVRJv72vSwLjvRDuXYNwbRaO9VvHK4Xdaerjtsy4KeGOjp0aFh770m4nu1
+         HALlZR9QvNJfiOsRO3ho0/XJxdEYmEuFUShdODqhABDdZcxYk/KvOKnZlG6CJ1GmMTp3
+         oM4oX2n3BcKGRICoPwzO9nGDIilquNXt6+p1eTgIRmWsjeYDOqOH2VVEkherztqYVDhD
+         +kw9r0HAnQPafSAjUZ057D5EgDkGASae9QaIvs4La9CVKl3RNZapt493DCSm0VdhUHNE
+         bxXF+YybYaLtcqp5vDLOlI6jVBm+FpsvLDMvoUOgp0JGht+638XGGiP7+UdEzlpkUWpI
+         tEig==
+X-Gm-Message-State: ACgBeo389od51o0C2+KWag4vY2tB6lEGtxdqr7uVjEHBp6Y5HJrbpI7v
+        bnrj1hY1sZKZAQ/mfGrdst/oH2HEXhaEgA==
+X-Google-Smtp-Source: AA6agR6GmlbC2f4z7hgwx5WbGHXNk19XFqFpchxiFKoaQl4FdGMGTS/MiKuCJrTmNkl/Lg7uhP4Jig==
+X-Received: by 2002:a0c:b31a:0:b0:473:8062:b1b4 with SMTP id s26-20020a0cb31a000000b004738062b1b4mr14902520qve.85.1661161024315;
+        Mon, 22 Aug 2022 02:37:04 -0700 (PDT)
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com. [209.85.128.169])
+        by smtp.gmail.com with ESMTPSA id x2-20020ae9e642000000b006b5e50057basm10169314qkl.95.2022.08.22.02.37.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Aug 2022 02:37:03 -0700 (PDT)
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-3376851fe13so243520667b3.6;
+        Mon, 22 Aug 2022 02:37:03 -0700 (PDT)
+X-Received: by 2002:a25:cbcf:0:b0:695:2d3b:366 with SMTP id
+ b198-20020a25cbcf000000b006952d3b0366mr12458894ybg.365.1661161022925; Mon, 22
+ Aug 2022 02:37:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ABC3aCasbFWYlJHr"
-Content-Disposition: inline
-In-Reply-To: <YwM4y78boN4s1VNo@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <20220821113512.2056409-1-mail@conchuod.ie>
+In-Reply-To: <20220821113512.2056409-1-mail@conchuod.ie>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 22 Aug 2022 11:36:51 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdV_dpijX7YqSR+24wWDQr4roi7EBm1nbhJuWkoidAcCng@mail.gmail.com>
+Message-ID: <CAMuHMdV_dpijX7YqSR+24wWDQr4roi7EBm1nbhJuWkoidAcCng@mail.gmail.com>
+Subject: Re: [PATCH 0/6] Add an asm-generic cpuinfo_op declaration
+To:     Conor Dooley <mail@conchuod.ie>
+Cc:     Michal Simek <monstr@monstr.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "H . Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Kees Cook <keescook@chromium.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        Linux-Arch <linux-arch@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi Conor,
 
---ABC3aCasbFWYlJHr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Sun, Aug 21, 2022 at 1:36 PM Conor Dooley <mail@conchuod.ie> wrote:
+> From: Conor Dooley <conor.dooley@microchip.com>
+>
+> RISC-V is missing a prototype for cpuinfo_op. Rather than adding yet
+> another `extern const struct seq_operations cpuinfo_op;` to an arch
+> specific header file, create an asm-generic variant and migrate the
+> existing arch variants there too. Obv. there are other archs that use
+> cpuinfo_op but don't declare it and surely also have the same warning?
+> I went for the minimum change here, but would be perfectly happy to
+> extend the change to all archs if this change is worthwhile. Or just
+> make a header in arch/riscv, any of the three work for me!
+>
+> If this isn't the approach I should've gone for, any direction would
+> be great :) I tried pushing this last weekend to get LKP to test it but
+> I got neither a build success nor a build failure email from it, so
+> I figured I may as well just send the patches..
+>
+> I wasn't too sure if this could be a single patch, so I split it out
+> into a patch fixing the issue on RISC-V & copy-paste patches for each
+> arch that I moved.
 
-Hi Alexander,
+Thanks for your series!
 
-> Could you please explain why you skipped strlcpy() usage in
-> drivers/s390/char/diag_ftp.c and drivers/s390/char/sclp_ftp.c?
+> Conor Dooley (6):
+>   asm-generic: add a cpuinfo_ops definition in shared code
+>   microblaze: use the asm-generic version of cpuinfo_op
+>   s390: use the asm-generic version of cpuinfo_op
+>   sh: use the asm-generic version of cpuinfo_op
+>   sparc: use the asm-generic version of cpuinfo_op
+>   x86: use the asm-generic version of cpuinfo_op
+>
+>  arch/microblaze/include/asm/processor.h | 2 +-
+>  arch/riscv/include/asm/processor.h      | 1 +
+>  arch/s390/include/asm/processor.h       | 2 +-
+>  arch/sh/include/asm/processor.h         | 2 +-
+>  arch/sparc/include/asm/cpudata.h        | 3 +--
+>  arch/x86/include/asm/processor.h        | 2 +-
+>  include/asm-generic/processor.h         | 7 +++++++
+>  7 files changed, 13 insertions(+), 6 deletions(-)
+>  create mode 100644 include/asm-generic/processor.h
 
-Sure. It is a bit hidden in $subject, but the key is to convert strlcpy
-instances for now which do not check the return value. This is the
-low-hanging fruit.
+I was a bit surprised not to find fs/proc/cpuinfo.c in the diffstat
+above. That file already has an external declaration for cpuinfo_op,
+and uses it rather unconditionally (that is, if CONFIG_PROC_FS=y)
+on all architectures.
 
-Converting the other uses checking the return value needs to be done
-manually and much more carfully. I wanted to this as a second step, but
-if you prefer to have everything converted in one go, I can give your
-subsystem a priority boost. Would you prefer that?
+So I think you can just move that to include/linux/processor.h, include
+the latter everywhere, and drop all architecture-specific copies.
 
-Thanks and happy hacking,
+Gr{oetje,eeting}s,
 
-   Wolfram
+                        Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---ABC3aCasbFWYlJHr
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmMDQFsACgkQFA3kzBSg
-Kbbcew/9EjjU46h1Hw7hn47Z8s7LOJ86qovV0HqE8I6JiZmPknoKxmBppnvrlG/5
-sGdJVtiWUpHmedA5M+DQYLFO2ZxeGeluaQOg22nsMbGmb7V7W0LosiZUm/Er7pOd
-qbXdLrgVnDzWIRfDVEh0HvJT3RNrc8WhmrW5MeBW4Dnhvwccn6kxCnVVAb66lnQ5
-m5qwdFjHgrCsf4QhNCZ1o8g/dwGjirIJjT7svqFirSMB81q3tNA/yNr2XLarOuDb
-kCtKyKHOHr4Vzy4uxi6HnpvYz8nYE+tF04rB+nqNYLeCoEM8R42zz3kuaA95vQYg
-3mcCYr3tZIGDZV6kdCYrFq2e9iQf2w3XmdrlSe31CBUGugL/jx89DOfNaOCUba1k
-lWNdmUJDUmicmcBeR6Yv/arWqMnkmBLABURl9WmXmrbl6ya9Dh/bM3vjSV+WoJVv
-GhiUgQKgEdi3pWhrRBYoRk//OtgEu5fxFIGs90DYlrXGLdsCQk3L0Ng/IR/MZ/jG
-jZjkD/4arMVqz+EPOI9nhxflWh70q/oKgdvejgmsGIEz8EIxEyukvi61Ea/VDuJf
-C96kGPeR6A0F2RiG0wtesUZM9PAE3TKr3LNDM4UNZ5/BgBVzD4XFCq3BKYHsHv/0
-SMHb42lEJze4FeBTAJ+R+AjL1Ckgz4MzNG816dblvKDHfU5B24E=
-=183G
------END PGP SIGNATURE-----
-
---ABC3aCasbFWYlJHr--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
