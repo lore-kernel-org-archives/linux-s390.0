@@ -2,120 +2,221 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3812EC28D13
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Aug 2022 11:51:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E676C28D13
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Aug 2022 13:09:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234271AbiHVLvX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Aug 2022 07:51:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49468 "EHLO
+        id S233655AbiHVNJ4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Aug 2022 09:09:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234824AbiHVLuH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Aug 2022 07:50:07 -0400
+        with ESMTP id S231960AbiHVNJz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Aug 2022 09:09:55 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5556AC37;
-        Mon, 22 Aug 2022 04:50:06 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27MBgJrd025518;
-        Mon, 22 Aug 2022 11:50:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=EJtCA0irv05cuYA2BS3dRUiVscSRxR9tDrHKcT5vAHc=;
- b=jKpepvc/2u/8wwwhO8TUOj4e3V5VkmMo00LPKz5g5zYc3zp4ycUjCmBjQcxWRurotVzn
- YdJCUaU9V/OcflBQ2jpjD5QCwZayOGbaFtlsxndG4mf/dc6Tbckimfu9O7NCCNhQAtxz
- UeU5OmaRbUyImHmFPNlv2XlmrqnTFOZqIs/wWiNI4eW5H5NOh+jnVjuUCqXPnypNZLID
- a6Mfw8ZDibQVb915MLcbjvQKy6OdsaGKQ38CeaDjNp3eq3pc9hijdgSlU6DSx4t/8kMX
- RzxIQNoPGv9TqoGK1XaeC66eI3zC7mlZWeq6ztLr2bv8kJqrOJlfipn/ZgFjRvTjgv0q wA== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j495eg5s9-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 919D522BEB;
+        Mon, 22 Aug 2022 06:09:54 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27MCgLC7012584;
+        Mon, 22 Aug 2022 13:09:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=uShwbj8z0B9jc8QUjlmHqLKeAQLeesHn9hFZgQfVthY=;
+ b=Dyn+uxB+Kc4A2oxZEuTfucnSos77o6BtRSFGU7mE5BhvBQMfSOUFRnirfvcAOZnCXA7O
+ TTDOyYALyV1B03artaJOjFWK1i9U1sh6vId6KD1rPPflyNjgrCKwst6tSuGyKCB6Uf1b
+ Nwngte+8/nOxLl4gCXATeIztMl2JDq2OMjYcRjlxAMVAcKlIMYtEvVMwBnRLUue64Ix+
+ jTt8FovXWw1/gUml0+jHFHSZjJ6l79PUpeG5cQA1hE3+EpQC+4RGBkD8hm/B5POQP2Jd
+ 2wke9DeSNw/SbtZ4Khp2F605cmj2HlvvmkvGlBleMjgwEVHlCdGeMB+CCtVzeqiRFKkw Dg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j4a1h0xj4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Aug 2022 11:50:03 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27MBR6JJ032246;
-        Mon, 22 Aug 2022 11:50:00 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3j2pvj2csd-1
+        Mon, 22 Aug 2022 13:09:52 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27MChU91016344;
+        Mon, 22 Aug 2022 13:09:52 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j4a1h0xhq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Aug 2022 11:50:00 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27MBnv3K31195550
+        Mon, 22 Aug 2022 13:09:52 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27MD4rem009602;
+        Mon, 22 Aug 2022 13:09:51 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma04dal.us.ibm.com with ESMTP id 3j2q89qyf3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Aug 2022 13:09:51 +0000
+Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27MD9o3H11469410
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 22 Aug 2022 11:49:57 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 689B14C04E;
-        Mon, 22 Aug 2022 11:49:57 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7AF84C040;
-        Mon, 22 Aug 2022 11:49:56 +0000 (GMT)
-Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.17.18])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 22 Aug 2022 11:49:56 +0000 (GMT)
-Date:   Mon, 22 Aug 2022 13:49:55 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390: move from strlcpy with unused retval to strscpy
-Message-ID: <YwNtYw3zwGTGvMlO@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-References: <20220818205948.6360-1-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220818205948.6360-1-wsa+renesas@sang-engineering.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vAnC3OTU5hHN-HF0xfwHZa59Tug0Kc7t
-X-Proofpoint-ORIG-GUID: vAnC3OTU5hHN-HF0xfwHZa59Tug0Kc7t
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Mon, 22 Aug 2022 13:09:50 GMT
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D6D0BBE04F;
+        Mon, 22 Aug 2022 13:09:49 +0000 (GMT)
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C3EFBBE051;
+        Mon, 22 Aug 2022 13:09:48 +0000 (GMT)
+Received: from [9.160.64.167] (unknown [9.160.64.167])
+        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Mon, 22 Aug 2022 13:09:48 +0000 (GMT)
+Message-ID: <9f1ff085-5dba-3509-ba5f-28c8adb0856b@linux.ibm.com>
+Date:   Mon, 22 Aug 2022 09:09:48 -0400
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v2 1/2] s390/vfio-ap: fix hang during removal of mdev
+ after duplicate assignment
+Content-Language: en-US
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
+        cohuck@redhat.com, mjrosato@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, stable@vger.kernel.org
+References: <20220818132606.13321-1-akrowiak@linux.ibm.com>
+ <20220818132606.13321-2-akrowiak@linux.ibm.com>
+ <20220818161255.2fe5a542.pasic@linux.ibm.com>
+From:   Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20220818161255.2fe5a542.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: o7WNd85i0YXCzMET-KwrkdsS67ALENDO
+X-Proofpoint-ORIG-GUID: FR1LUKFkZrg3V3LZ3guEsllqBaT0bptm
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-22_06,2022-08-22_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
- priorityscore=1501 impostorscore=0 mlxscore=0 spamscore=0
- lowpriorityscore=0 suspectscore=0 phishscore=0 malwarescore=0
- clxscore=1015 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208220046
+ definitions=2022-08-22_08,2022-08-22_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ lowpriorityscore=0 malwarescore=0 adultscore=0 bulkscore=0 mlxscore=0
+ impostorscore=0 phishscore=0 clxscore=1015 suspectscore=0
+ priorityscore=1501 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2207270000 definitions=main-2208220055
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 18, 2022 at 10:59:47PM +0200, Wolfram Sang wrote:
-> Follow the advice of the below link and prefer 'strscpy' in this
-> subsystem. Conversion is 1:1 because the return value is not used.
-> Generated by a coccinelle script.
-> 
-> Link: https://lore.kernel.org/r/CAHk-=wgfRnXz0W3D37d01q3JFkr_i_uTL=V6A6G1oUZcprmknw@mail.gmail.com/
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  arch/s390/kernel/debug.c | 2 +-
->  arch/s390/kernel/early.c | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-> index 4331c7e6e1c0..d7a82066a638 100644
-> --- a/arch/s390/kernel/debug.c
-> +++ b/arch/s390/kernel/debug.c
-> @@ -250,7 +250,7 @@ static debug_info_t *debug_info_alloc(const char *name, int pages_per_area,
->  	rc->level	   = level;
->  	rc->buf_size	   = buf_size;
->  	rc->entry_size	   = sizeof(debug_entry_t) + buf_size;
-> -	strlcpy(rc->name, name, sizeof(rc->name));
-> +	strscpy(rc->name, name, sizeof(rc->name));
->  	memset(rc->views, 0, DEBUG_MAX_VIEWS * sizeof(struct debug_view *));
->  	memset(rc->debugfs_entries, 0, DEBUG_MAX_VIEWS * sizeof(struct dentry *));
->  	refcount_set(&(rc->ref_count), 0);
-> diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-> index 432c8c987256..6030fdd6997b 100644
-> --- a/arch/s390/kernel/early.c
-> +++ b/arch/s390/kernel/early.c
-> @@ -267,7 +267,7 @@ char __bootdata(early_command_line)[COMMAND_LINE_SIZE];
->  static void __init setup_boot_command_line(void)
->  {
->  	/* copy arch command line */
-> -	strlcpy(boot_command_line, early_command_line, COMMAND_LINE_SIZE);
-> +	strscpy(boot_command_line, early_command_line, COMMAND_LINE_SIZE);
->  }
->  
->  static void __init check_image_bootable(void)
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+On 8/18/22 10:12 AM, Halil Pasic wrote:
+> On Thu, 18 Aug 2022 09:26:05 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+> Subject: s390/vfio-ap: fix hang during removal of mdev after duplicate
+> assignment
+>
+> It would have made sense to do it this way in the first place, even
+> if the link code were to take care of the duplicates. It did not really
+> make sense to do the whole filtering biz and everything else. Maybe we
+> should spin the short description and the rest of the commit message so
+> it reflects the code more.
+>
+>> When the same adapter or domain is assigned more than one time prior to
+>> removing the matrix mdev to which it is assigned, the remove operation
+>> will hang. The reason is because the same vfio_ap_queue objects with an
+>> APQN containing the APID of the adapter or APQI of the domain being
+>> assigned will get added to the hashtable that holds them multiple times.
+>> This results in the pprev and next pointers of the hlist_node (mdev_qnode
+>> field in the vfio_ap_queue object) pointing to the queue object itself.
+>> This causes an interminable loop when the mdev is removed and the queue
+>> table is iterated to reset the queues.
+>>
+>> To fix this problem, the assignment operation is bypassed when assigning
+>> an adapter or domain if it is already assigned to the matrix mdev.
+>>
+>> Since it is not necessary to assign a resource already assigned or to
+>> unassign a resource that has not been assigned, this patch will bypass
+>> all assignment/unassignment operations for an adapter, domain or
+>> control domain under these circumstances.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 771e387d5e79 ("s390/vfio-ap: manage link between queue struct and matrix mdev")
+> Not 11cb2419fafe ("s390/vfio-ap: manage link between queue struct and
+> matrix mdev")
+>
+> Is my repo borked?
+
+
+Alexander pointed out my mistake, your repo is not borked.
+
+
+>
+>
+>> Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 30 ++++++++++++++++++++++++++++++
+>>   1 file changed, 30 insertions(+)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 6c8c41fac4e1..ee82207b4e60 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -984,6 +984,11 @@ static ssize_t assign_adapter_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (test_bit_inv(apid, matrix_mdev->matrix.apm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	set_bit_inv(apid, matrix_mdev->matrix.apm);
+>>   
+>>   	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+>> @@ -1109,6 +1114,11 @@ static ssize_t unassign_adapter_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (!test_bit_inv(apid, matrix_mdev->matrix.apm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
+>>   	vfio_ap_mdev_hot_unplug_adapter(matrix_mdev, apid);
+>>   	ret = count;
+>> @@ -1183,6 +1193,11 @@ static ssize_t assign_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+>>   
+>>   	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+>> @@ -1286,6 +1301,11 @@ static ssize_t unassign_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (!test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
+>>   	vfio_ap_mdev_hot_unplug_domain(matrix_mdev, apqi);
+>>   	ret = count;
+>> @@ -1329,6 +1349,11 @@ static ssize_t assign_control_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (test_bit_inv(id, matrix_mdev->matrix.adm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	/* Set the bit in the ADM (bitmask) corresponding to the AP control
+>>   	 * domain number (id). The bits in the mask, from most significant to
+>>   	 * least significant, correspond to IDs 0 up to the one less than the
+>> @@ -1378,6 +1403,11 @@ static ssize_t unassign_control_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (!test_bit_inv(domid, matrix_mdev->matrix.adm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	clear_bit_inv(domid, matrix_mdev->matrix.adm);
+>>   
+>>   	if (test_bit_inv(domid, matrix_mdev->shadow_apcb.adm)) {
