@@ -2,122 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F529C28D13
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Aug 2022 15:24:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F786C28D13
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Aug 2022 15:51:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236475AbiHVPYa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Aug 2022 11:24:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55618 "EHLO
+        id S236597AbiHVPvE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Aug 2022 11:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236527AbiHVPYI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Aug 2022 11:24:08 -0400
+        with ESMTP id S236871AbiHVPut (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Aug 2022 11:50:49 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20D9643E72;
-        Mon, 22 Aug 2022 08:19:38 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27MEsfWD028291;
-        Mon, 22 Aug 2022 15:19:26 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0377140ED;
+        Mon, 22 Aug 2022 08:50:48 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27MDfqsC018658;
+        Mon, 22 Aug 2022 15:08:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  mime-version : content-transfer-encoding; s=pp1;
- bh=gjSjjeb6HXbZ4PJz0ru3MMltTzVwA8is9o8omZ87Do8=;
- b=cgfz4FB207JoQHHpCvK5c567vezCAu86av/Q4Yt/U8AICT30C9WGWBf82djntsUMvNnp
- fFhH8//fDK2GII6h1A0THt6XUSgbk7XHhBSMX4VbveeHC/r4hwsFEm1TTRBtTjsVUEdt
- HxchM8rhtithz/HtXwIk477lU2wVURmKCRrbU/FaJ4w8OdcyRXkrXYQJI4We53nbV+Rh
- FvATiZJ5mqWtZ8eWcrjM5n3marNF0BgEb2G/yvW4+7dOtJt0RJuBYGmWi7X5NYjkYOSG
- +xJreneM+Y8AhuphaUCrQaDCrxwhhXVn3qv/KlEvrXIr0CyK5O22oZDwReLsLPsXaZru sA== 
+ bh=/kFdotxqYljhODEbmfcrjJRxem7m3XLEa6JfkgUOlME=;
+ b=e7Sv3iVEHhM1QezCNWYR6rqei1mNP3oeyqeHxZCcPs2yjmXwU1vPYG2JF6NhsM2tsIil
+ Q3BNp/e+d5bCs1j1+GLyeWeSo27AoWABPGw30tBPwbUISoMPIpgKSunYhnOLyDA7iYXJ
+ xLZHAHPW5Jy5mnOniMKN7tYfjAVF6LwEc0IVbcQo31xuq2cfmSWaZI5swPlGQYfMEIr0
+ h3Y08Nug4PRHyP3RNH3zbbtuQ3VhLJ7mwpWDyejasxKu2xE87gqoIq3UBp6Q3MtX/hlw
+ E9fX0E0R04NDhDwQBHZB5oVeR0r418ML+B/Tcwwil9lCw5n36uvKRwSVB32WlHtMX0ap 7A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j4byugsph-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j4awkasuv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Aug 2022 15:19:26 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27MEuQDS001764;
-        Mon, 22 Aug 2022 15:19:26 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j4byugsng-1
+        Mon, 22 Aug 2022 15:08:18 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27MElKn0012965;
+        Mon, 22 Aug 2022 15:08:17 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j4awkastk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Aug 2022 15:19:26 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27MF7Bh8014877;
-        Mon, 22 Aug 2022 15:19:23 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3j2pvj2m78-1
+        Mon, 22 Aug 2022 15:08:17 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27MF5AAr022369;
+        Mon, 22 Aug 2022 15:08:14 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04fra.de.ibm.com with ESMTP id 3j2q88svrg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Aug 2022 15:19:23 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27MFJKIo33882554
+        Mon, 22 Aug 2022 15:08:14 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27MF8Bw325559456
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 22 Aug 2022 15:19:20 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1F2364203F;
-        Mon, 22 Aug 2022 15:19:20 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B231842041;
-        Mon, 22 Aug 2022 15:19:19 +0000 (GMT)
+        Mon, 22 Aug 2022 15:08:11 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3A44B4C04A;
+        Mon, 22 Aug 2022 15:08:11 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D089C4C046;
+        Mon, 22 Aug 2022 15:08:10 +0000 (GMT)
 Received: from oc-nschnelle.boeblingen.de.ibm.com (unknown [9.155.199.46])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 22 Aug 2022 15:19:19 +0000 (GMT)
-Message-ID: <3a797c5ccde91c7791b3bdd3d81391a8fb38f2c5.camel@linux.ibm.com>
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 22 Aug 2022 15:08:10 +0000 (GMT)
+Message-ID: <a381b32861b106afb209628e094260caf5fe9f7b.camel@linux.ibm.com>
 Subject: Re: [PATCH v2 09/11] s390: mm: Convert to GENERIC_IOREMAP
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Baoquan He <bhe@redhat.com>, linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, akpm@linux-foundation.org, hch@infradead.org,
-        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
-        linux-arm-kernel@lists.infradead.org,
+To:     Christoph Hellwig <hch@infradead.org>, Baoquan He <bhe@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        akpm@linux-foundation.org, agordeev@linux.ibm.com,
+        wangkefeng.wang@huawei.com, linux-arm-kernel@lists.infradead.org,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Date:   Mon, 22 Aug 2022 17:19:19 +0200
-In-Reply-To: <20220820003125.353570-10-bhe@redhat.com>
+Date:   Mon, 22 Aug 2022 17:08:10 +0200
+In-Reply-To: <YwHZRhpwL37yLb/o@infradead.org>
 References: <20220820003125.353570-1-bhe@redhat.com>
-         <20220820003125.353570-10-bhe@redhat.com>
+         <20220820003125.353570-10-bhe@redhat.com> <YwHZRhpwL37yLb/o@infradead.org>
 Content-Type: text/plain; charset="UTF-8"
 X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GQkeq9zSrtetDjoo_C8iinzSj8IKTQy4
-X-Proofpoint-GUID: kOW_YKOLgXVunL8dNIQoxyXwzpBumFlg
+X-Proofpoint-GUID: 9TrsJ1zE2LTP3LvI4TlHsl8k9DtHeji8
+X-Proofpoint-ORIG-GUID: kUOOtbbtGXvg16G1-b06F3wGukiJtZiM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-08-22_09,2022-08-22_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- bulkscore=0 suspectscore=0 malwarescore=0 priorityscore=1501 mlxscore=0
- mlxlogscore=870 lowpriorityscore=0 adultscore=0 clxscore=1015 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2208220064
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 mlxscore=0 clxscore=1011 priorityscore=1501 mlxlogscore=927
+ malwarescore=0 spamscore=0 impostorscore=0 phishscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208220064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, 2022-08-20 at 08:31 +0800, Baoquan He wrote:
-> Add hooks arch_ioremap() and arch_iounmap() for s390's special
-> operation when ioremap() and iounmap(), then ioremap_[wc|wt]() are
-> converted to use ioremap_prot() from GENERIC_IOREMAP.
+On Sun, 2022-08-21 at 00:05 -0700, Christoph Hellwig wrote:
+> > +void __iomem *
+> > +arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val)
+> >  {
+> >  	if (!static_branch_unlikely(&have_mio))
+> > +		return (void __iomem *) *paddr;
+> > +	return NULL;
 > 
-> Signed-off-by: Baoquan He <bhe@redhat.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> ---
->  arch/s390/Kconfig          |  1 +
->  arch/s390/include/asm/io.h | 26 +++++++++++------
->  arch/s390/pci/pci.c        | 60 +++++---------------------------------
->  3 files changed, 26 insertions(+), 61 deletions(-)
+> This logic isn't new in the patch, but it could really use a comment
+> as it is rather non-obvious.
 
-Sorry I missed this mail until now and will still need a bit of time to
-review and test the code as this is indeed pretty special on s390. From
-a first glance this does look like a nice simplification.
+Yes, makes sense. Basically we fake MMIO addresses because the s390
+architecture doesn't have MMIO as a concept. That is until the PCI MIO
+instructions introduced pseudo-MMIO though only for specific PCI
+load/store instructions. Without those PCI BAR spaces as well as config
+space is accessed with so called function handles. As these are a bad
+fit for Linux' MMIO based APIs we create fake MMIO addresses (called
+address cookies) that encode an index into the zpci_iomap_start[] which
+can be decoded by our implementation of ioread*/iowrite*().
 
-Just out of curiosity, I wonder why get_maintainers.pl didn't add me
-nor Gerald for direct CC despite the bulk of the changes affecting
-arch/s390/pci/*.
+I don't think this is the right place to describe this overall scheme
+in detail but maybe we can leave a a good bread crumb. Maybe something
+like below?
 
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
----8<---
+/* 
+ * When PCI MIO instructions are unavailable the "physical" address encodes
+ * a hint for accessing the PCI memory space it represents. Just pass it 
+ * unchanged such that ioread/iowrite can decode it.
+ */
 
