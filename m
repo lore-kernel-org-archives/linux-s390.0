@@ -2,244 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 491F1C28D13
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Aug 2022 14:22:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEDADECAA24
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Aug 2022 19:22:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233743AbiHYOWi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Aug 2022 10:22:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37582 "EHLO
+        id S243638AbiHYTWJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Aug 2022 15:22:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233165AbiHYOWh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Aug 2022 10:22:37 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71919ADCF9;
-        Thu, 25 Aug 2022 07:22:36 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27PE69rC010819;
-        Thu, 25 Aug 2022 14:22:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=qWJPfKXf4ME1eqZxch0TD1ItaXw5xpQVwjcPKbSQhiI=;
- b=sgVaPY6xL2j+pu/SphiS82eRSkDQpJC4KXCNhNvaxsokUIDbJ47Uh1a7bisJn+n7ttgv
- 0GUPsWpKEsGNFWKh3ZV4GxV3M5bsTLCZwuFyOLb8s/u4fXdPZwm1pQgR01VbjZHoaw4W
- ba5cO4kMjkUScvVdXNk8KmuuZs7lBWHTY5DBWtd0PQ02TCkxyNYz/cYpXTGjsqkajp+U
- 0WvGzdy+OeqEFYDFy7txq4v1XTH8yL+TmXE/Lk59BFgjZwWY3wbFpRjcqQVcR07x6rKu
- wSElBULNj2gjBfOewqH5EIevkT1CZwR1y5gNBwRU/kzIbSpjBOtRepA6M/aKFytS46bs wQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j6ahvgmcf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Aug 2022 14:22:35 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27PE6apf012799;
-        Thu, 25 Aug 2022 14:22:34 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j6ahvgmbt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Aug 2022 14:22:34 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27PELkgJ000435;
-        Thu, 25 Aug 2022 14:22:32 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3j2q89csrd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Aug 2022 14:22:32 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27PEMTrX39125320
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 25 Aug 2022 14:22:29 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3B74B5204F;
-        Thu, 25 Aug 2022 14:22:29 +0000 (GMT)
-Received: from [9.145.149.19] (unknown [9.145.149.19])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id E47A35204E;
-        Thu, 25 Aug 2022 14:22:28 +0000 (GMT)
-Message-ID: <aeea0f64-2140-c060-1858-bca9b0350ad4@linux.ibm.com>
-Date:   Thu, 25 Aug 2022 16:22:28 +0200
+        with ESMTP id S243404AbiHYTWG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Aug 2022 15:22:06 -0400
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72BE5BD111
+        for <linux-s390@vger.kernel.org>; Thu, 25 Aug 2022 12:22:03 -0700 (PDT)
+Received: by mail-oi1-x235.google.com with SMTP id r10so18640418oie.1
+        for <linux-s390@vger.kernel.org>; Thu, 25 Aug 2022 12:22:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=j11I9jJbBdP2EsV8zm8vGrZ8to2ALD+DZiEMfyWlhf4=;
+        b=KjzVxnhpw6QKMn5c7oLhZ2YXfy0o0q7ppQDDA/IUG9Tba1CyII5IegLq2jiOsTx6sf
+         9PktWYsvLhv6OduPZa78FKjas33U49IxO+UttcDOMAdp3MTlGJvDXLmU3ofAZEoFFqZT
+         pafvPKdLl3l0hKSE9VWBcm6msZs1UGsFX0W0WhRtsci35MLKycrvSxbg6GiEiXprLSDz
+         35gtzDXDspqbKE6U1rd+mL/P+1w92XWlGqtbdRRUw9gw3+q3FfhdBiDfZom+YIwlZBrE
+         iSIuTPlKIwHdWrtxWrdA/Tch392Qi6e4omMMHzm85TUdvnZFdOZSQACivsWz9KW0c6uk
+         JDjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=j11I9jJbBdP2EsV8zm8vGrZ8to2ALD+DZiEMfyWlhf4=;
+        b=V3/7XT5MKZ1bEZnLIS9YGFuRym/XSFAvOiVyxOAkEWptgN75GAI0t6N1PmpCj36Kfo
+         ds8CpoPzL+l9buvgIIuRWfUrgzv/OhvlRy81s8IjWBP1FJ3vVAlw80MFgbkYm3QY2FBK
+         s8kT1K+JcyKXkAt9dyzj3mJL2CZT35FtQsyaKVaVkuTz1rfPNnQ+rHuXliK1XYfDG8Qz
+         swQoumf+/3pcloayhuwCp3NPDQWbZuQpMY/GoRuGx9RtgCFEetMC+JELqCy9eyyH1ZIW
+         +jVy6S9uurXgRnu+nfmvOeYds8NS6m83xA005Sm2n82FH6qSBw3hpUEK/BQjHVhij/Tj
+         Mndw==
+X-Gm-Message-State: ACgBeo3M5ocGMam4B0mS6H4ua4Ebw0f2RCwUKjKOjzRE44Qspe5SSolD
+        OSn4LKJOzcUy+0xz/nseVO0RMlVXdjMBFsChYZIq
+X-Google-Smtp-Source: AA6agR5+NrNDgFeVEqQOH6xO8KzleveZvD24+0ma4hp6CR5I88pcrQbnickGgaR7sl54W0OczwK1VkCsRh+9Rsqv/HQ=
+X-Received: by 2002:a05:6808:3a9:b0:343:4b14:ccce with SMTP id
+ n9-20020a05680803a900b003434b14cccemr243316oie.41.1661455322788; Thu, 25 Aug
+ 2022 12:22:02 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [kvm-unit-tests PATCH v4] s390x: Add strict mode to specification
- exception interpretation test
-Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20220825112047.2206929-1-scgl@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220825112047.2206929-1-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jQatkDx2moL6UFkanphZ5slYOiGST5Yd
-X-Proofpoint-GUID: bKituHFUzRM0KdYTH1Tyufzc_T2Lit78
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-25_05,2022-08-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
- priorityscore=1501 malwarescore=0 suspectscore=0 mlxscore=0 adultscore=0
- lowpriorityscore=0 spamscore=0 phishscore=0 impostorscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2208250053
+References: <20220825001830.1911524-1-kuba@kernel.org>
+In-Reply-To: <20220825001830.1911524-1-kuba@kernel.org>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 25 Aug 2022 15:21:52 -0400
+Message-ID: <CAHC9VhSxesi0TSSvcQSr1kDhP3Vce4+O3w2diEExGEGnjGpmiw@mail.gmail.com>
+Subject: Re: [PATCH net-next] genetlink: start to validate reserved header bytes
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
+        pabeni@redhat.com, jiri@resnulli.us, johannes@sipsolutions.net,
+        linux-block@vger.kernel.org, osmocom-net-gprs@lists.osmocom.org,
+        linux-wpan@vger.kernel.org, wireguard@lists.zx2c4.com,
+        linux-wireless@vger.kernel.org, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org, linux-pm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-cifs@vger.kernel.org, cluster-devel@redhat.com,
+        mptcp@lists.linux.dev, lvs-devel@vger.kernel.org,
+        netfilter-devel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, dev@openvswitch.org,
+        linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 8/25/22 13:20, Janis Schoetterl-Glausch wrote:
-> While specification exception interpretation is not required to occur,
-> it can be useful for automatic regression testing to fail the test if it
-> does not occur.
-> Add a `--strict` argument to enable this.
-> `--strict` takes a list of machine types (as reported by STIDP)
-> for which to enable strict mode, for example
-> `--strict 3931,8562,8561,3907,3906,2965,2964`
-> will enable it for models z16 - z13.
-> Alternatively, strict mode can be enabled for all but the listed machine
-> types by prefixing the list with a `!`, for example
-> `--strict !1090,1091,2064,2066,2084,2086,2094,2096,2097,2098,2817,2818,2827,2828`
-> will enable it for z/Architecture models except those older than z13.
-> `--strict !` will enable it always.
-> 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-
-Thanks, picked
-
+On Wed, Aug 24, 2022 at 8:18 PM Jakub Kicinski <kuba@kernel.org> wrote:
+>
+> We had historically not checked that genlmsghdr.reserved
+> is 0 on input which prevents us from using those precious
+> bytes in the future.
+>
+> One use case would be to extend the cmd field, which is
+> currently just 8 bits wide and 256 is not a lot of commands
+> for some core families.
+>
+> To make sure that new families do the right thing by default
+> put the onus of opting out of validation on existing families.
+>
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 > ---
-> v3 -> v4
->   * fix compiler warning due to format string (thanks Janosch)
->       see range diff below
->   * add R-b (thanks Thomas)
-> 
-> v2 -> v3
->   * rebase on master
->   * global strict bool
->   * fix style issue
-> 
-> Range-diff against v3:
-> 1:  76199f42 ! 1:  ef697f15 s390x: Add strict mode to specification exception interpretation test
->      @@ Commit message
->           `--strict !` will enable it always.
->       
->           Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->      +    Reviewed-by: Thomas Huth <thuth@redhat.com>
->       
->        ## s390x/spec_ex-sie.c ##
->       @@
->      @@ s390x/spec_ex-sie.c: static void test_spec_ex_sie(void)
->       -		report_info("Interpreted initial exception, intercepted invalid program new PSW exception");
->       +	msg = "Interpreted initial exception, intercepted invalid program new PSW exception";
->       +	if (strict)
->      -+		report(vm.sblk->gpsw.addr == 0xdeadbeee, msg);
->      ++		report(vm.sblk->gpsw.addr == 0xdeadbeee, "%s", msg);
->       +	else if (vm.sblk->gpsw.addr == 0xdeadbeee)
->      -+		report_info(msg);
->      ++		report_info("%s", msg);
->        	else
->        		report_info("Did not interpret initial exception");
->        	report_prefix_pop();
-> 
->   s390x/spec_ex-sie.c | 53 +++++++++++++++++++++++++++++++++++++++++++--
->   1 file changed, 51 insertions(+), 2 deletions(-)
-> 
-> diff --git a/s390x/spec_ex-sie.c b/s390x/spec_ex-sie.c
-> index d8e25e75..5fa135b8 100644
-> --- a/s390x/spec_ex-sie.c
-> +++ b/s390x/spec_ex-sie.c
-> @@ -7,16 +7,19 @@
->    * specification exception interpretation is off/on.
->    */
->   #include <libcflat.h>
-> +#include <stdlib.h>
->   #include <sclp.h>
->   #include <asm/page.h>
->   #include <asm/arch_def.h>
->   #include <alloc_page.h>
->   #include <sie.h>
->   #include <snippet.h>
-> +#include <hardware.h>
->   
->   static struct vm vm;
->   extern const char SNIPPET_NAME_START(c, spec_ex)[];
->   extern const char SNIPPET_NAME_END(c, spec_ex)[];
-> +static bool strict;
->   
->   static void setup_guest(void)
->   {
-> @@ -37,6 +40,8 @@ static void reset_guest(void)
->   
->   static void test_spec_ex_sie(void)
->   {
-> +	const char *msg;
-> +
->   	setup_guest();
->   
->   	report_prefix_push("SIE spec ex interpretation");
-> @@ -60,16 +65,60 @@ static void test_spec_ex_sie(void)
->   	report(vm.sblk->icptcode == ICPT_PROGI
->   	       && vm.sblk->iprcc == PGM_INT_CODE_SPECIFICATION,
->   	       "Received specification exception intercept");
-> -	if (vm.sblk->gpsw.addr == 0xdeadbeee)
-> -		report_info("Interpreted initial exception, intercepted invalid program new PSW exception");
-> +	msg = "Interpreted initial exception, intercepted invalid program new PSW exception";
-> +	if (strict)
-> +		report(vm.sblk->gpsw.addr == 0xdeadbeee, "%s", msg);
-> +	else if (vm.sblk->gpsw.addr == 0xdeadbeee)
-> +		report_info("%s", msg);
->   	else
->   		report_info("Did not interpret initial exception");
->   	report_prefix_pop();
->   	report_prefix_pop();
->   }
->   
-> +static bool parse_strict(int argc, char **argv)
-> +{
-> +	uint16_t machine_id;
-> +	char *list;
-> +	bool ret;
-> +
-> +	if (argc < 1)
-> +		return false;
-> +	if (strcmp("--strict", argv[0]))
-> +		return false;
-> +
-> +	machine_id = get_machine_id();
-> +	if (argc < 2) {
-> +		printf("No argument to --strict, ignoring\n");
-> +		return false;
-> +	}
-> +	list = argv[1];
-> +	if (list[0] == '!') {
-> +		ret = true;
-> +		list++;
-> +	} else {
-> +		ret = false;
-> +	}
-> +	while (true) {
-> +		long input = 0;
-> +
-> +		if (strlen(list) == 0)
-> +			return ret;
-> +		input = strtol(list, &list, 16);
-> +		if (*list == ',')
-> +			list++;
-> +		else if (*list != '\0')
-> +			break;
-> +		if (input == machine_id)
-> +			return !ret;
-> +	}
-> +	printf("Invalid --strict argument \"%s\", ignoring\n", list);
-> +	return ret;
-> +}
-> +
->   int main(int argc, char **argv)
->   {
-> +	strict = parse_strict(argc - 1, argv + 1);
->   	if (!sclp_facilities.has_sief2) {
->   		report_skip("SIEF2 facility unavailable");
->   		goto out;
-> 
-> base-commit: ca85dda2671e88d34acfbca6de48a9ab32b1810d
+> CC: jiri@resnulli.us
+> CC: johannes@sipsolutions.net
+> CC: linux-block@vger.kernel.org
+> CC: osmocom-net-gprs@lists.osmocom.org
+> CC: linux-wpan@vger.kernel.org
+> CC: wireguard@lists.zx2c4.com
+> CC: linux-wireless@vger.kernel.org
+> CC: linux-scsi@vger.kernel.org
+> CC: target-devel@vger.kernel.org
+> CC: linux-pm@vger.kernel.org
+> CC: virtualization@lists.linux-foundation.org
+> CC: linux-cifs@vger.kernel.org
+> CC: cluster-devel@redhat.com
+> CC: mptcp@lists.linux.dev
+> CC: lvs-devel@vger.kernel.org
+> CC: netfilter-devel@vger.kernel.org
+> CC: linux-security-module@vger.kernel.org
+> CC: dev@openvswitch.org
+> CC: linux-s390@vger.kernel.org
+> CC: tipc-discussion@lists.sourceforge.net
+> ---
+>  drivers/block/nbd.c                      | 1 +
+>  drivers/net/gtp.c                        | 1 +
+>  drivers/net/ieee802154/mac802154_hwsim.c | 1 +
+>  drivers/net/macsec.c                     | 1 +
+>  drivers/net/team/team.c                  | 1 +
+>  drivers/net/wireguard/netlink.c          | 1 +
+>  drivers/net/wireless/mac80211_hwsim.c    | 1 +
+>  drivers/target/target_core_user.c        | 1 +
+>  drivers/thermal/thermal_netlink.c        | 1 +
+>  drivers/vdpa/vdpa.c                      | 1 +
+>  fs/cifs/netlink.c                        | 1 +
+>  fs/dlm/netlink.c                         | 1 +
+>  fs/ksmbd/transport_ipc.c                 | 1 +
+>  include/linux/genl_magic_func.h          | 1 +
+>  include/net/genetlink.h                  | 3 +++
+>  kernel/taskstats.c                       | 1 +
+>  net/batman-adv/netlink.c                 | 1 +
+>  net/core/devlink.c                       | 1 +
+>  net/core/drop_monitor.c                  | 1 +
+>  net/ethtool/netlink.c                    | 1 +
+>  net/hsr/hsr_netlink.c                    | 1 +
+>  net/ieee802154/netlink.c                 | 1 +
+>  net/ieee802154/nl802154.c                | 1 +
+>  net/ipv4/fou.c                           | 1 +
+>  net/ipv4/tcp_metrics.c                   | 1 +
+>  net/ipv6/ila/ila_main.c                  | 1 +
+>  net/ipv6/ioam6.c                         | 1 +
+>  net/ipv6/seg6.c                          | 1 +
+>  net/l2tp/l2tp_netlink.c                  | 1 +
+>  net/mptcp/pm_netlink.c                   | 1 +
+>  net/ncsi/ncsi-netlink.c                  | 1 +
+>  net/netfilter/ipvs/ip_vs_ctl.c           | 1 +
+>  net/netlabel/netlabel_calipso.c          | 1 +
+>  net/netlabel/netlabel_cipso_v4.c         | 1 +
+>  net/netlabel/netlabel_mgmt.c             | 1 +
+>  net/netlabel/netlabel_unlabeled.c        | 1 +
+>  net/netlink/genetlink.c                  | 4 ++++
+>  net/nfc/netlink.c                        | 1 +
+>  net/openvswitch/conntrack.c              | 1 +
+>  net/openvswitch/datapath.c               | 3 +++
+>  net/openvswitch/meter.c                  | 1 +
+>  net/psample/psample.c                    | 1 +
+>  net/smc/smc_netlink.c                    | 3 ++-
+>  net/smc/smc_pnet.c                       | 3 ++-
+>  net/tipc/netlink.c                       | 1 +
+>  net/tipc/netlink_compat.c                | 1 +
+>  net/wireless/nl80211.c                   | 1 +
+>  47 files changed, 56 insertions(+), 2 deletions(-)
 
+Acked-by: Paul Moore <paul@paul-moore.com> (NetLabel)
+
+-- 
+paul-moore.com
