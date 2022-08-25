@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8BEDC04AA5
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Aug 2022 01:43:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54288C04AA5
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Aug 2022 01:44:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235045AbiHYBnW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 Aug 2022 21:43:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
+        id S235601AbiHYBog (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 Aug 2022 21:44:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234046AbiHYBmQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 Aug 2022 21:42:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A120898D24;
-        Wed, 24 Aug 2022 18:39:02 -0700 (PDT)
+        with ESMTP id S235714AbiHYBoC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 Aug 2022 21:44:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E738B12AB6;
+        Wed, 24 Aug 2022 18:39:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26DAC61ACA;
-        Thu, 25 Aug 2022 01:39:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74D1DC433D7;
-        Thu, 25 Aug 2022 01:38:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5422861B19;
+        Thu, 25 Aug 2022 01:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0AFBC433D6;
+        Thu, 25 Aug 2022 01:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661391540;
-        bh=+mnEnYPLgKN9UzGQW5SC5TIUgnU5oWTAhZSDgxHEcSc=;
+        s=k20201202; t=1661391589;
+        bh=ZYBgH2FIuzIL5lnTg9JpERmr3mQXVkh5N9FCybZmjAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXefokv5mRaa2pN21MlCLu6MzIj91QIXluC4zMx9qzcSKApZUY2HpAVbcGr+0S3+G
-         tp4eqLwU1UYkxMeAKddkVQbHW5BUuKW4TMc0NUH1HlqoZTXYzl5y4yvLMMEmCBiRvn
-         WV816GnsXqnacTPbE8bm/g1XNDmPHYMtABidFZ4A5EkjLrEJoTnGmrkOfDhjJqV5Yp
-         DN3sVT5NXsjevxvmH8LYZGfHeghpRDnxw+gPX2B0qFaTfQ/YLQBTFMSzI9w8FCari7
-         fRM9s0hcfMnTvbVGbUHM2xTvO19H7szNf1N7FdOWJ4suC1gYIPt4oepU0AZcbHrywm
-         9wAkX3fwCHfjg==
+        b=dhT1Xe8n8aHcRKJ9T/o3q8k5HZ6MrtIizQ6vbJ9Uzdq54zuVSucSSz8nzmS4Wvmwq
+         YtByeuyE3OgKgIhL/IZ2DDj5YIczSVHXW7ZJuvCbli3EkW2OwMVNi3quUcf+i2p4+J
+         JWaTXsz32ypmOGsuZtgkR/VxCbt7UlRJ3O/6f9Y32Sc95OXq/juVe+oszxjbAYR9ps
+         lMg2Gd6uEhFV+26MU7iJNlofgoH1ApqIrPZlQ8TozjiOFbdayRyKV7vsWYwox8av5+
+         RyqeFv6iUCbdhX16chYwa+e+G6OjcjygfTKzup1LHlIfJOMTZ07SBKgu+X6EC4m7n9
+         Jkgpm71YScbMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Juergen Gross <jgross@suse.com>,
@@ -39,12 +39,12 @@ Cc:     Juergen Gross <jgross@suse.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 05/11] s390/hypfs: avoid error message under KVM
-Date:   Wed, 24 Aug 2022 21:38:26 -0400
-Message-Id: <20220825013836.23205-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 4/8] s390/hypfs: avoid error message under KVM
+Date:   Wed, 24 Aug 2022 21:39:23 -0400
+Message-Id: <20220825013932.23467-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220825013836.23205-1-sashal@kernel.org>
-References: <20220825013836.23205-1-sashal@kernel.org>
+In-Reply-To: <20220825013932.23467-1-sashal@kernel.org>
+References: <20220825013932.23467-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -91,10 +91,10 @@ index f0bc4dc3e9bf..6511d15ace45 100644
  	}
  
 diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index 5c97f48cea91..ee919bfc8186 100644
+index 70139d0791b6..ca4fc66a361f 100644
 --- a/arch/s390/hypfs/inode.c
 +++ b/arch/s390/hypfs/inode.c
-@@ -496,9 +496,9 @@ static int __init hypfs_init(void)
+@@ -501,9 +501,9 @@ static int __init hypfs_init(void)
  	hypfs_vm_exit();
  fail_hypfs_diag_exit:
  	hypfs_diag_exit();
