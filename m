@@ -2,128 +2,145 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAA94C04AA5
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Aug 2022 10:57:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0646C28D13
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Aug 2022 11:12:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238574AbiHYK5n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Aug 2022 06:57:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60806 "EHLO
+        id S240285AbiHYLMP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Aug 2022 07:12:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240128AbiHYK5m (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Aug 2022 06:57:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46BCAAB05B
-        for <linux-s390@vger.kernel.org>; Thu, 25 Aug 2022 03:57:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661425060;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=FgkUPi66b10fN5eQZBnFXaFmcWUym3wJVA23CZaFxu4=;
-        b=cqyCu5O4X3ijb7c01ZM0M0RpDpbkHPAcdnGPjPz0MruE5oN1ODt8wdgyoK6tHWkaOc/GdB
-        0S+SYGkqUtHUCvb6c44XyhL9tirycoon3Zyd6mStwo3EE/9cC0kLw27s/IUmFmhN+m3fy5
-        1SQFvmUmNy/Dn4cAxJfBJ4kn4FM/L44=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-338-2m-e4uAjMuykP0cOEa8jTw-1; Thu, 25 Aug 2022 06:57:39 -0400
-X-MC-Unique: 2m-e4uAjMuykP0cOEa8jTw-1
-Received: by mail-wm1-f69.google.com with SMTP id n7-20020a1c2707000000b003a638356355so8586093wmn.2
-        for <linux-s390@vger.kernel.org>; Thu, 25 Aug 2022 03:57:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=FgkUPi66b10fN5eQZBnFXaFmcWUym3wJVA23CZaFxu4=;
-        b=ShL13zWUesdPvFbs18x+t+ga5BXxzdugcQcQhOKW1IAlGowXxQmpiIK3LuS/JUJlwu
-         5YTCeYuZ5zQDqfr+dAx2I6cX0vrSAjRv6GZaw0bS1Ur7w0wbtOOzNMm8aAd80lp7NuO4
-         Ltv6qwcyMekMvpRf5g8gK5awXPE+HnjwYdPeBAiftUC6qseSuQfAWE2wWiCiXA4mm/mp
-         QFCNxhOoYSEUeyP/VcPUctF7xIQjyJh7eGoyOmIx0mMrZHjcIrKFGaBW3+NGROu6dPk1
-         haJ8vWmDwVc+XMLlJUVAZWDBMeU08xciPKFyByeFbbpK66ep0rRlPQtysNz32fEy3a5r
-         2ggg==
-X-Gm-Message-State: ACgBeo2UmUXVXZc74DtQOzVQ63xeuyMd/hQhI4LczcObeyw1cDWJqsbr
-        mDWoY33+Lr6GbvcTqwfuQ6PEBIGUFFLeX1aygI30WfUwtHPuASIMrI93Um+IzB/SmIlncc4S+Ie
-        3WqLan7Sp7jXmTbTnOjXO/A==
-X-Received: by 2002:a05:6000:2ce:b0:225:2c5f:3ba8 with SMTP id o14-20020a05600002ce00b002252c5f3ba8mr1973299wry.138.1661425058020;
-        Thu, 25 Aug 2022 03:57:38 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4MPhxbX3iYKcYN/4G9jyTlonkLAJjSJnnY4kJ7uM8Qb+IgchW5/oA+oejFBrsj734XrIpU0A==
-X-Received: by 2002:a05:6000:2ce:b0:225:2c5f:3ba8 with SMTP id o14-20020a05600002ce00b002252c5f3ba8mr1973288wry.138.1661425057757;
-        Thu, 25 Aug 2022 03:57:37 -0700 (PDT)
-Received: from [192.168.0.5] (ip-109-43-177-177.web.vodafone.de. [109.43.177.177])
-        by smtp.gmail.com with ESMTPSA id j18-20020a05600c191200b003a5c2abc412sm5691360wmq.44.2022.08.25.03.57.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Aug 2022 03:57:37 -0700 (PDT)
-Message-ID: <f7d86779-f67e-19eb-5ba1-da586ab6c6ef@redhat.com>
-Date:   Thu, 25 Aug 2022 12:57:35 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20220705111707.3772070-1-scgl@linux.ibm.com>
- <d5b7dea2-3a43-a018-1474-1bb47ca9a6ff@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH v3] s390x: Add strict mode to specification
- exception interpretation test
-In-Reply-To: <d5b7dea2-3a43-a018-1474-1bb47ca9a6ff@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S236708AbiHYLMO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Aug 2022 07:12:14 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC25DAE857;
+        Thu, 25 Aug 2022 04:12:13 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27PAlhbb016632;
+        Thu, 25 Aug 2022 11:11:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=n538U2wM0cJf+DwolmG0+fphd+7c2U2jME2cTAmu5mU=;
+ b=A2z/eBTsTaFYeq0OO9inHGzYVkCA+/Qw+2xAjXfmB3UvRGivBFDTp2MwtUdFhomd2vW3
+ UD5zxO0/7/5MM3l4TFOLqqvaRaurPBxF3F7MiHOMvJSWHq8KLd3ylFfTp2IwfKRyWtJE
+ pCaJaor4ErJDxDmzgwz1S1mYbj5TGH8lgq5XlMro5hJkEBFqMUKDcZciMtfQq6dvtt1j
+ f+2gNq7eD+QaHgd7ViWvNaoUplaon+yt+cw3vS/mx2KmLfXzzActgrOpyUI/47REPlKD
+ 8Ft6kV+ZOsG4RXY+URTpteWcDXxWgI1EyRMQ1ihYg6taUQR8matJvSppQnseTQE/aZZi vw== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j67mt0pp4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Aug 2022 11:11:54 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27PB50Aq007361;
+        Thu, 25 Aug 2022 11:11:52 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma02fra.de.ibm.com with ESMTP id 3j2q88vmr1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Aug 2022 11:11:52 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27PBBnEc42271030
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 25 Aug 2022 11:11:49 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 06B00A404D;
+        Thu, 25 Aug 2022 11:11:49 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 35351A4040;
+        Thu, 25 Aug 2022 11:11:48 +0000 (GMT)
+Received: from sig-9-145-54-205.uk.ibm.com (unknown [9.145.54.205])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 25 Aug 2022 11:11:48 +0000 (GMT)
+Message-ID: <69b7b496c3658b385f2404d6e3209970b3677c08.camel@linux.ibm.com>
+Subject: Re: [PATCH] iommu/s390: Fix race with release_device ops
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, svens@linux.ibm.com,
+        joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
+        jgg@nvidia.com, linux-kernel@vger.kernel.org
+Date:   Thu, 25 Aug 2022 13:11:47 +0200
+In-Reply-To: <YwcjIPcT1b0uyyFn@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <20220823203059.81919-1-mjrosato@linux.ibm.com>
+         <a6e42442-d9cb-0d63-bb71-da78a5669a51@linux.ibm.com>
+         <04644ee5-2386-1f3d-c1a3-fc4227570cf7@linux.ibm.com>
+         <YwcjIPcT1b0uyyFn@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: cac7hgFlkSPbnmZdVKuRu-7ODdEIF00-
+X-Proofpoint-GUID: cac7hgFlkSPbnmZdVKuRu-7ODdEIF00-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-25_05,2022-08-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 clxscore=1011 mlxlogscore=672 lowpriorityscore=0
+ suspectscore=0 adultscore=0 malwarescore=0 mlxscore=0 phishscore=0
+ impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2207270000 definitions=main-2208250043
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 25/08/2022 09.37, Janosch Frank wrote:
-> On 7/5/22 13:17, Janis Schoetterl-Glausch wrote:
->> While specification exception interpretation is not required to occur,
->> it can be useful for automatic regression testing to fail the test if it
->> does not occur.
->> Add a `--strict` argument to enable this.
->> `--strict` takes a list of machine types (as reported by STIDP)
->> for which to enable strict mode, for example
->> `--strict 3931,8562,8561,3907,3906,2965,2964`
->> will enable it for models z16 - z13.
->> Alternatively, strict mode can be enabled for all but the listed machine
->> types by prefixing the list with a `!`, for example
->> `--strict 
->> !1090,1091,2064,2066,2084,2086,2094,2096,2097,2098,2817,2818,2827,2828`
->> will enable it for z/Architecture models except those older than z13.
->> `--strict !` will enable it always.
->>
->> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+On Thu, 2022-08-25 at 09:22 +0200, Alexander Gordeev wrote:
+> On Wed, Aug 24, 2022 at 04:25:19PM -0400, Matthew Rosato wrote:
+> > > > @@ -90,15 +90,39 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+> > > >       struct zpci_dev *zdev = to_zpci_dev(dev);
+> > > >       struct s390_domain_device *domain_device;
+> > > >       unsigned long flags;
+> > > > -    int cc, rc;
+> > > > +    int cc, rc = 0;
+> > > >         if (!zdev)
+> > > >           return -ENODEV;
+> > > >   +    /* First check compatibility */
+> > > > +    spin_lock_irqsave(&s390_domain->list_lock, flags);
+> > > > +    /* First device defines the DMA range limits */
+> > > > +    if (list_empty(&s390_domain->devices)) {
+> > > > +        domain->geometry.aperture_start = zdev->start_dma;
+> > > > +        domain->geometry.aperture_end = zdev->end_dma;
+> > > > +        domain->geometry.force_aperture = true;
+> > > > +    /* Allow only devices with identical DMA range limits */
+> > > > +    } else if (domain->geometry.aperture_start != zdev->start_dma ||
+> > > > +           domain->geometry.aperture_end != zdev->end_dma) {
+> > > > +        rc = -EINVAL;
+> > > > +    }
+> > > > +    spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> > > > +    if (rc)
+> > > > +        return rc;
+> > > > +
+> > > >       domain_device = kzalloc(sizeof(*domain_device), GFP_KERNEL);
+> > > >       if (!domain_device)
+> > > >           return -ENOMEM;
+> > > >   +    /* Leave now if the device has already been released */
+> > > > +    spin_lock_irqsave(&zdev->dma_domain_lock, flags);
+> > > > +    if (!dev_iommu_priv_get(dev)) {
+> > > > +        spin_unlock_irqrestore(&zdev->dma_domain_lock, flags);
+> > > > +        kfree(domain_device);
+> > > > +        return 0;
+> > > > +    }
+> > > > +
+> > > >       if (zdev->dma_table && !zdev->s390_domain) {
+> > > >           cc = zpci_dma_exit_device(zdev);
+> > > >           if (cc) {
+> > > 
+> > > Am I wrong? It seems to me that zpci_dma_exit_device here is called with the spin_lock locked but this function zpci_dma_exit_device calls vfree which may sleep.
+> > > 
+> > 
+> > Oh, good point, I just enabled lockdep to verify that.
+> > 
+> > I think we could just replace this with a mutex instead, it's not a performance path.  I've been running tests successfully today with this patch modified to instead use a mutex for dma_domain_lock.
 > 
-> GCC 11.2.0 isn't happy
+> But your original version uses irq-savvy spinlocks.
+> Are there data that need to be protected against interrupts?
 > 
-> s390x/spec_ex-sie.c: In function ‘test_spec_ex_sie’:
-> s390x/spec_ex-sie.c:70:17: error: format not a string literal and no format 
-> arguments [-Werror=format-security]
->     70 |                 report(vm.sblk->gpsw.addr == 0xdeadbeee, msg);
->        |                 ^~~~~~
-> s390x/spec_ex-sie.c:72:17: error: format not a string literal and no format 
-> arguments [-Werror=format-security]
->     72 |                 report_info(msg);
->        |                 ^~~~~~~~~~~
-> cc1: all warnings being treated as errors
-> make: *** [<builtin>: s390x/spec_ex-sie.o] Error 1
+> Thanks!
 
-Too bad that GCC isn't smart enough to see that it is a constant string... I 
-guess we have to add an artifical "%s" format string here now?
-
-> I have to page in the discussion again to know how this fits into the 
-> picture. Either that or Thomas tells me it's exactly what he wants and I'll 
-> add it to my queue once the compile problem has been fixed one way or another.
-
-The point was that we wanted to use this k-u-t to automatically test a 
-backport of the related kernel commit. Without the strict mode that is not 
-possible since the test does not fail if the kernel backport is missing.
-
-I just also noticed that I never replied to this v3 ... so FWIW, code looks 
-fine to me (with the "%s" fixup on top of it), thus:
-
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+I think that was a carry over from my original attempt that used the
+zdev->dma_domain_lock in some more places including in interrupt
+context. I think these are gone now so I think Matt is right in his
+version this can be a mutex.
 
