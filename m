@@ -2,130 +2,189 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EE48ECAAD6
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Aug 2022 18:32:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBF98ECAAA3
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Aug 2022 19:34:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245014AbiHZScb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Aug 2022 14:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52708 "EHLO
+        id S237259AbiHZTeM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Aug 2022 15:34:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231703AbiHZSca (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Aug 2022 14:32:30 -0400
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2066.outbound.protection.outlook.com [40.107.220.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B628CE2C57;
-        Fri, 26 Aug 2022 11:32:28 -0700 (PDT)
+        with ESMTP id S229704AbiHZTeL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Aug 2022 15:34:11 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2085.outbound.protection.outlook.com [40.107.92.85])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777E6E0FCC;
+        Fri, 26 Aug 2022 12:34:06 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FpEtCk2pQ3BK5LyN/xAEAfV1JhapsvNLN3lHityIWSf0mCk6hoYVYpFrh+fbasLAWxMQlo12h35Elauk7cqV/hPB8+s7nbRy0FsPPfuvpPgnZmxqFcOy6zDJkMJft0AWG/lTMdpiRvk+Jxwt0hjODEmOQhA7rz0WcoUecwnEOgqHMha22u1DWhubYiOuRZHueLj7ff3FmRAEwDKNcTp6xkAqlX16OzD4hZ15Cp/Y9Qt471IhwNCYMfyI6edn57hhA29Gp7K87R7XNnJ1D9MJPDmjmHf1/ipjt7JLX7caJA0B/Td+FqZprelwmB7fUcyntIw2u+R8egKv9G1XtSXP3g==
+ b=bzjDI7GWdAAuDdQWCvKVLYOLGVqdYl1L0YzUgPN79txC0c65Q7SaHGX5lcKKjtf8NGQB1x2/qh17FpCrrtcHP5QhDOU92hX9t9dY9E6sk9euF5AXS+M3iC/xIXHsjP2TCZ9nxCDdsU17YzR6hDpzTx0xDV9o1vhjDBJ46AWKMDbrtnVmh/QpQO/yxaWB+TjDho4gbncqbRGovaqp0aNr/cfZHQ2PC12pGkCC/teyo7OgybLZroCMWhXvx1mDhwqrwt/CM1BzK+TNQONaunUAtrxHyWoB+iTXyuALo19HBVSZBi8nt235aPpWSOvtiHGPzihwzJb3XYXIyoroNsw21w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=TD4hx2G/rHcB24m61NRHW6I09EUo2ObQt8P9fMrhLsU=;
- b=dD0GTMcR3oLw0Oo9VuCMeB9uKUXC02e58iYI+iZD0CWTPS2nsmbOnrwdgHw1MGtmUOZcKxhEibqlx/3LoUoOgOc7ie4OLmUkwLBhjz3z7UfRuw/8qhdvCa85R/eePSa+ljH9pgZWIxW/4vQiJuIrta0Czfm+G9vX9N+VbLiq6M5pzVt6WxW6HbVhnl2GkJ/rSpIGseZPUSDf3n/RPqr9ConuDtN/h+WDNVFXJvDG3wXoGrVLLFO3JgAsCgtu9r2ZD+rT0qDfNWL7CvT1Pn8GR2HEcX7DKtybbtWIdGZ7OC49UGqvlwmnEKecHqMCZjzvJdBC5GXKThVim6JY1qoo9A==
+ bh=IU8HuPyqfzgR7AoVDXAl4Gb7oZdqhbQX6tOkCRoUKao=;
+ b=fmYEhz0Xu4HBhZOxc3rqtIhE0zSJvMgZNON4DNjcgR+1sZ79LlT59cc5l3TEYkasYh4DNdwOSS65QI+/LxKfrzIEHnAOC0AfXe5WfQ+dvLsn6aGOATISNWI397s1coHFTJ2cUqqmbXOPCz8ym0gw18tcqgoTNQQzUbRiOy7yrckRXO+OUtKte4ghFRlcPkSbS2yt2mUv9VS/CSetBloPocWwR1Ra55KsNLkpfseQLRGeZAFOcshc/jzhcNo96Ri+66jODXhBCTZRcNpaJr5PXsjrWkmSzBDWFMho+TAV1s9x4C+ndoJW2ptuzT19NXx2qPUUwXt63sCxF9Ho7P/yIA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TD4hx2G/rHcB24m61NRHW6I09EUo2ObQt8P9fMrhLsU=;
- b=OpuQnq+a1R4GAsyZfJlvVM3qFPo93avyGmOI7Y1NSxCZ6i4ObcyGJVIP6iGnrg4wJS7jGgKyhWM+lgqpPNpKs0KRrEKOqlLzxzjMC/2qXw/g5onQmY2BKU9xWuih0EOgKlXliCW3EEiqUBh0D3+g7SjckZhXOyg0VFW8G0hKpECCQTbJgwfeSLibuG9xSUKFtERaLQIIP5soK2VnIbC57FRiNE80vjpbuSG091D5XxWNIjxPFx/GuSLmZsv6EQHDOrBM4cYjuxEvOV84l7Y8PUYfkHDA78gDm5C1tQY+oWME7NFMezLB8309gedrbI+SqA9GHnG7i6x6GLdQ48898w==
+ bh=IU8HuPyqfzgR7AoVDXAl4Gb7oZdqhbQX6tOkCRoUKao=;
+ b=F3XF9YUjV32OdbwZge460zBw7L8wL71PTbKvGIgM/KX5eehncZUEZ5t3pJeTsjJRuNNvgvuJY6aaPklv9W5BgUS2TROLnv20gyD8uPvmrrR0W1AJKcb35paxRgwBogtWojtoYWWf7q6VPQwDOdDTyJeU3462UflADMNSqklYln5OXgUIBo6dxDe9jaA2fxj1n5qLD9SlNn4hQCjtfdBgUcBgSOlFy5lNN7sXCZgYL3QNaqUOYuxNVAt7HDTv5zFUELfdOGmKX0dkALiOV077vkmLvht20u0QFvqw2TQLtAlfUjBH8ao3ZvS58hVO6PvcnexaFqbNh+YKv0AHCi4kvQ==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by MN0PR12MB6128.namprd12.prod.outlook.com (2603:10b6:208:3c4::6) with
+ by DM5PR12MB1803.namprd12.prod.outlook.com (2603:10b6:3:10d::11) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.15; Fri, 26 Aug
- 2022 18:32:27 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.14; Fri, 26 Aug
+ 2022 19:34:04 +0000
 Received: from MN2PR12MB4192.namprd12.prod.outlook.com
  ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
  ([fe80::462:7fe:f04f:d0d5%8]) with mapi id 15.20.5566.016; Fri, 26 Aug 2022
- 18:32:27 +0000
-Date:   Fri, 26 Aug 2022 15:32:26 -0300
+ 19:34:04 +0000
 From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
+To:     Alex Williamson <alex.williamson@redhat.com>,
         Cornelia Huck <cohuck@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: Re: [PATCH 1/2] vfio/pci: Split linux/vfio_pci_core.h
-Message-ID: <YwkRurCNZDlNvSyS@nvidia.com>
-References: <0-v1-da6fc51ee22e+562-vfio_pci_priv_jgg@nvidia.com>
- <1-v1-da6fc51ee22e+562-vfio_pci_priv_jgg@nvidia.com>
- <BN9PR11MB527610FD13AEB17B5C98DB7E8C719@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB527610FD13AEB17B5C98DB7E8C719@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-ClientProxiedBy: BL0PR0102CA0034.prod.exchangelabs.com
- (2603:10b6:207:18::47) To MN2PR12MB4192.namprd12.prod.outlook.com
+        Eric Farman <farman@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     Kevin Tian <kevin.tian@intel.com>
+Subject: [PATCH v2 3/3] vfio/pci: Simplify the is_intx/msi/msix/etc defines
+Date:   Fri, 26 Aug 2022 16:34:03 -0300
+Message-Id: <3-v2-1bd95d72f298+e0e-vfio_pci_priv_jgg@nvidia.com>
+In-Reply-To: <0-v2-1bd95d72f298+e0e-vfio_pci_priv_jgg@nvidia.com>
+References: 
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: MN2PR16CA0060.namprd16.prod.outlook.com
+ (2603:10b6:208:234::29) To MN2PR12MB4192.namprd12.prod.outlook.com
  (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 37e25a7d-c5f3-4265-0417-08da879153bc
-X-MS-TrafficTypeDiagnostic: MN0PR12MB6128:EE_
+X-MS-Office365-Filtering-Correlation-Id: d4870a5e-e7a1-4528-1d7c-08da8799ef3d
+X-MS-TrafficTypeDiagnostic: DM5PR12MB1803:EE_
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: QPv6k9A6QE2NR+b7oAryPzvzu/e6ITk1KOHzYmptaFExgrTY25adXZ5+MPLkWcAFnnG3n0xfOx3AUxrT4/WDnTcYAfBq2Sw/42JvsLlWhaqcV63pdmGtBfwm+7PCQFiyTcnUkLGF75g57R5bTZxVe+ZRkVQz6zAtjGnzjQjqPsXbwHRU6EWIzxr6cbZGt92xzXEi+emjcxFaFn+p4Ynlsokbr+PIgzVcryHy9iqNRrLENLA+PrkDA30NDGPz4kmorrdpb/L/tA2EfbAOpmjpo4PpJoAMQyGeifhfnLR1wuq6/2/ELJirSUeTVLXeZ7Bq9vpqjSogiUZKsl0ER+dnXPL5VLTtjnJQca61nXk7DjF6q2yM8GdPbZ1ydhWoYdOGErvdR6juyeHSmFRI9Cb6fRTHYECVyM0gIdcaN7gNzIe9/QTT8ncxpyAB61Tpx9oeECTNNy5zWkaJUh0YC6WYtucJuWwxlVZhaTWpX4kXienvOdfmHGnDqSbSjtxSqm1Li+hl9MGePPRH4nLevdAGT2uo/HH8vXE243SrCl7u3B/EuXslzirLD71+qOZAK4uoe6+k5JtqtmTFUfQhe8gOnCDxsG49EE/cAKGz/tS7kplaI1Y9DPxOBPC9wlnHnSd1xquKLQe6vBTSdVbVLp31JD/tTZZkYDS53FaIbkU2+dW2sx8hejJEwuYK9Icw/8EVXifj+hgbVDmlYQMeOR0F+g==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(136003)(396003)(346002)(39860400002)(376002)(366004)(41300700001)(8936002)(66946007)(36756003)(66476007)(66556008)(186003)(4744005)(6916009)(6506007)(86362001)(54906003)(2906002)(2616005)(5660300002)(316002)(26005)(6512007)(8676002)(4326008)(38100700002)(6486002)(478600001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: JVddwLyqytG3oESlP6dN/hOcWoTTTw1SzTMTQD/COTxB6kAX7GvGneu7iUCKOImLmrNVHPN4AFcrayPm1hCBJ9i2SIWCm0BXsxmUZM1dpTusKPaXql8K3TvedpRyKIcbEsQS4YyRwiFo/IXWjEYl0F6theirSwKiquHVVpUHzX66kDeZjqbS48cU1hB9OSRCRnUui35zCtgVIZGkw6KKStWi9ozEK0XquIoPgYHud9qhMkzuvoo1Hq2PsdDeQWSujbdstFRsoXj/YeRmlywXALSKmOlSy5UwR2IqYYiXSUD11xU2qTCPPjldHmsNGfxiAaYFn/Tp8HMHt33dLlV1z6usgpO8YbV7VPmKA2cQkdmj1J+WPodw9I0E1h7lUmE1q9OWEDcXnrlch3OkJ2Rahg/dno/juexfujJ7FmxUf/PhEmNDZPu90WtpzrG3ZfL8OjcM6QGrLwch0A5P4tur7xD0qcgtzyMd7rG6zmO4bgZ1job5cJztiBCW7Asm2oa3r3vAQakjbLmkpiTalv9l7RzMwYA3lfB5ep1oDIHp+30+bzGbUn96zT7EqDRUshnS8WIRqlDXxUOLTokVnYWSHqBgAEKiY95N3pc8xVRTVS4jfpakQdyP3vsrp5pnsjV7VqZNI5ly6l4GEEEWTdSsjjM6+J0qNZa5N2OnbiasqU5CXyCoiqabQZoQYwTZttOeV8AO0qhQEtWO4PPMX18+/ycML5GGHZPYa2e/mAKTghKJ5AUC3d3U5MBWzcjyAlYj
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(346002)(136003)(376002)(366004)(396003)(39860400002)(8936002)(83380400001)(2906002)(478600001)(2616005)(6486002)(5660300002)(36756003)(66476007)(316002)(38100700002)(8676002)(66556008)(86362001)(110136005)(6512007)(186003)(41300700001)(26005)(66946007)(6506007)(4326008)(4216001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?LfT1q71zsx2CKZ+iS144w/fL9/yEOvJutJuSE7Ny5lFUjvhk5ku/zQVzJm5b?=
- =?us-ascii?Q?FYqInExMCf7Lu/jnFYfrxh/V/bqTO/opXkS06U7byk3AX6yjhGoaOnmEPiH/?=
- =?us-ascii?Q?i30v2Zti/YhL4AQxdnpNMhS5kFr5NkANSeyNFf4jVgUQyOxUX4D7PS4lIZsz?=
- =?us-ascii?Q?MsizlIOYZN10Us2Znp3fpu1VaohQ9hITUFYPDpUi8RshdWW1moifvjnn/uD7?=
- =?us-ascii?Q?9bPhAB06zeGELvrGGOhNffJ/D0HSVjjmfoQ+jrnC2nokajFFe4pCU/SIWMj4?=
- =?us-ascii?Q?aBINwOCN6SIlZ87+WcLBsRGKr8oYhlz3iXNz8shniCSHrXzEcw/0yzTPw4zk?=
- =?us-ascii?Q?Z9uKFjC3DPUoP+7Y+VDIzZuXxfc95OhG5OwqA5294WNBRipeT2jubhptt0Qb?=
- =?us-ascii?Q?ayhz/iVxeKes+NfLeiG3EuatC3Pes43ZrkCJXEvVo6Zuc9C2QBSBKy4/fg8n?=
- =?us-ascii?Q?KjEZbUp+fgC8fq1E/2xKuj6lprFFO7oEETVcsefzvYwDjWWiJQNeVFPLa+ra?=
- =?us-ascii?Q?yBYNGEKrRLfedXRgT23YTrTvENgKN4AsNZ/Kmkk+Bz2OR8Huycryh1ar9NRa?=
- =?us-ascii?Q?8pHE9TqlrnqmWmBYMxIzzoCdOqxxxpRXPHvomiEVUyOSr+3cev+6rvOEEFFA?=
- =?us-ascii?Q?jREV4BNOX3auIMjmzRAKiEqZZ9tvHpGkp8EszKVfIhBEOL6/9tIUJTgLfx39?=
- =?us-ascii?Q?GUzixWyK/XG4CnFKg3ZMM/tkFyffNDHlOvQFMsFC8NxbtQ1Oq55SMrZ5ghkY?=
- =?us-ascii?Q?ad130aoC0SdACpVJIOdi8eUxlPOL9ixzrP9utNQSj1WwE4jXXk5wHF+mali/?=
- =?us-ascii?Q?lN2O5qALppnKSLLdBRqqFS2i1pO7ujan6DYEjYd0+EFA86Bd0b9pMKCQfVwW?=
- =?us-ascii?Q?zbfUUfkc9/yDtsMhpvndnD6ANbd6PaM6gCnfnkrs6HABd8/aTFrB/dR3v8U/?=
- =?us-ascii?Q?mnkvQkWs7GOCn4JpgqfulV/TzYfbomDoUYhkNRQBTdWvXiFLiJtvzkhzdrpt?=
- =?us-ascii?Q?jPQ6pTCcoxmKpWRsaIrp1xC5RSi3lcZfN51QpsTuAuM/Tgxv9k9OsSWMfovf?=
- =?us-ascii?Q?ZfD3BGvQxtvNyO/IeuWSwzCHolqxVwNy8+4S+V1lZi1l0DRcRZttS/9cWFuK?=
- =?us-ascii?Q?On6VJvioLdt0MMxAIxsdioCMFKicTbygwSGQ5R01M07lkNYGzMX/mIlWc+G7?=
- =?us-ascii?Q?cgAErClcAaBOhUHo73WFe/z46l9DNH61ZMjX0C2xfo5eYek6nrbuXw7NeTA8?=
- =?us-ascii?Q?pzY1jN+x9ioPaDHEo+1dH/4R/9uwmB+Fw7yV1EiB1zodB0hWoB+D0kA8Kr5W?=
- =?us-ascii?Q?mmp/rNe26HbvgmqgJyvdo4vwqGUcZm5lj+SBBlikuuiRJM3n6WcM3zpCYyBu?=
- =?us-ascii?Q?SnsF4NpF1hTe5oFpXlPohmvdyD8H7403ixE7xa0+GrTII7/0BqOxUOkd5i5W?=
- =?us-ascii?Q?ZEYpwKIGek45qPATecHlRiOjgArq5p7be9ZGesQb4+xHRyxt6cmhiuf9aBoy?=
- =?us-ascii?Q?VAQyX1JIfcjQ0BZdfgKNmeIlGnS3soGNVIhagWGwCqZPDvPiaXw7WzLLMuss?=
- =?us-ascii?Q?U00ogtIdxmC7rVDRoqfMRalf5lyY9DfN6LY5Tq/1?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?C/QjM0u0PzO3wDz11U5MfCoFfonV1IQh2IRcWaqAo/qABRIV1nfkpNJWkSsq?=
+ =?us-ascii?Q?i47L6jkhiQDvfJ+34FgVLF2Ej+wWEaY8bh2ja/hmpfBn8c66UA9KMl2U/VSy?=
+ =?us-ascii?Q?t2H2Sh2jXwyS27PuBivdgR0iU9eZfWhELUoWGkAiyNw492kA3oMHo86v6pga?=
+ =?us-ascii?Q?N3uW3kQC9oKaxjAqqs1RUVmWE/kvoycnejJYoyi1IAXJlPAIH6tehztDEsSU?=
+ =?us-ascii?Q?nn3RxQcD/i2HEk735rayt96vzRar+klbFQ9SIp/ztlLFynG77r2pUpVuLP34?=
+ =?us-ascii?Q?anbjCQQJn4UUtQtkldrtit/jEEb+sfUPsxQuNi7DAdbrvdNXWQXZ0sO6F83i?=
+ =?us-ascii?Q?8VkpgfZcoy0NaCw8RiF0eTZhp0XKrHTBIRlhXh1CZ8JUhljRxF0SBdJ0tHd8?=
+ =?us-ascii?Q?CnuoLqtPvsz7T4ZbBYxiIFOrDJ2g/dltBNNxjxsYFEd6lMwiTXmM5+s4Xwx8?=
+ =?us-ascii?Q?aNLL+lO2tNzje/swQHbPZZYipN71biei+L/LKR1uoKDvxozDxBINNEal95Pd?=
+ =?us-ascii?Q?QXsbitJrFETeZfQtkW1PClgBABvJKVYvaCFQ3BKaSK1Xzr/sUDPE+Ebfzxyz?=
+ =?us-ascii?Q?Om8AjvxB20cF6v2BVj2Uh0AAO8To+XJVB++LqL5Q3nHPEzb7Edz8okpWfpqT?=
+ =?us-ascii?Q?qS0m8yUvIWK3KZrLa2vESHvtTAahhPh8F+ywM74vfOLMyMwDCVmMl9DGDF9I?=
+ =?us-ascii?Q?6+8MRpcW9mfwTbPaLFiOYpVPePtPe7nYUlP3UvWCu08bNO+PcqmK4EIP9BC7?=
+ =?us-ascii?Q?ynm/EVEwQ8XcsCi0r+dJa0zzRWQ0dgKq6X6CCnxg7tCcMDFjcnbZvlASVL4Z?=
+ =?us-ascii?Q?a7q8UXgNh17FO0SiwgN1SraZN5wjBkNIx/fObT+bw5m88Arb3YXlvP2l5WKs?=
+ =?us-ascii?Q?mWZ5Y23jkZfVnq/ahaTe4gBX/xyJtq95VeSVfJJoA5Y73xg7HoP63H85KRxJ?=
+ =?us-ascii?Q?FT38NlL+KmVlcn4q5CzXTnFsfE1AFTBB4fzKu2DWCrCo7KCWarESVgNGqyay?=
+ =?us-ascii?Q?ccRcCLlBpg/8iiVyQk/TeUDatsXWc9g9DLqg/RJDi7gfblaRSSBZwgKVdLet?=
+ =?us-ascii?Q?uv4oZrFtLZ1MRip7VHWCnXz4w5ysuQgl7Yt8PQRAfe+/tVz1mhji78fF6rOO?=
+ =?us-ascii?Q?R3VNg18pJVbkdxZlnfbOSL5OOeDSU1aWnk/FByD5MMwSNFn95c5KN+UlxYfI?=
+ =?us-ascii?Q?K88/BwxeiaXwWNGb6oJpwodVFNcXqgyDTTqv3KoR5sNTswgyxUb5rLTOfN7G?=
+ =?us-ascii?Q?NIL5CyhehOeuNUjizAs0yP6crxvJmg5aj/TkrYXN3nZ6uaAfkY9oRGwm01y3?=
+ =?us-ascii?Q?kEIwL8jYmFXhz8maMY5GC+P12tgfykLWvT01T4T8qU3w3MFaAYFldbqdilLy?=
+ =?us-ascii?Q?xNa5k7g2uuQQtnUicY3vFrs4PyMoIzLZaAy9IgAeur0xJlOflGmH+u+iukpM?=
+ =?us-ascii?Q?VhQIc4j9BTZx/v3zPiPzP/MR3BhBaFD+33DsbXT13toMgvPmr5yLNog9ZJNd?=
+ =?us-ascii?Q?85C+bNh6YGDR9PHu329i5mkA7Wla7jQLuv86vvNduTFtM8SeK2b96ZO75P09?=
+ =?us-ascii?Q?t302SfpRBrFcZqHSAy9HKmCNeCVf1oUUh8mucInU?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 37e25a7d-c5f3-4265-0417-08da879153bc
+X-MS-Exchange-CrossTenant-Network-Message-Id: d4870a5e-e7a1-4528-1d7c-08da8799ef3d
 X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2022 18:32:27.3683
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2022 19:34:04.1739
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: SXAqkQ13l2WPMkpz7KbJ/nqvoNh0FEr5YyYp3LwD1+m5vgkiEfQH81ovaFEANnPq
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB6128
+X-MS-Exchange-CrossTenant-UserPrincipalName: t+tBDBYP1Iunb73sYXD8maCmUDc1DScm+4QbuctQ22mgsEoVSfxF5IedbbXd9oHY
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1803
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 22, 2022 at 04:22:17AM +0000, Tian, Kevin wrote:
-> > From: Jason Gunthorpe <jgg@nvidia.com>
-> > Sent: Wednesday, August 17, 2022 11:30 PM
-> > 
-> > +/* Will be exported for vfio pci drivers usage */
-> >  int vfio_pci_register_dev_region(struct vfio_pci_core_device *vdev,
-> >  				 unsigned int type, unsigned int subtype,
-> >  				 const struct vfio_pci_regops *ops,
-> >  				 size_t size, u32 flags, void *data);
-> 
-> NIT. This wants to follow the convention of other exported symbols
-> in following line i.e. having 'vfio_pci_core_' as the prefix.
+Only three of these are actually used, simplify to three inline functions,
+and open code the if statement in vfio_pci_config.c.
 
-I added a patch for this
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ drivers/vfio/pci/vfio_pci_config.c |  2 +-
+ drivers/vfio/pci/vfio_pci_intrs.c  | 22 +++++++++++++++++-----
+ drivers/vfio/pci/vfio_pci_priv.h   |  2 --
+ 3 files changed, 18 insertions(+), 8 deletions(-)
 
-Thanks,
-Jason
+diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
+index 5f43b28075eecd..4a350421c5f62a 100644
+--- a/drivers/vfio/pci/vfio_pci_config.c
++++ b/drivers/vfio/pci/vfio_pci_config.c
+@@ -1166,7 +1166,7 @@ static int vfio_msi_config_write(struct vfio_pci_core_device *vdev, int pos,
+ 		flags = le16_to_cpu(*pflags);
+ 
+ 		/* MSI is enabled via ioctl */
+-		if  (!is_msi(vdev))
++		if  (vdev->irq_type != VFIO_PCI_MSI_IRQ_INDEX)
+ 			flags &= ~PCI_MSI_FLAGS_ENABLE;
+ 
+ 		/* Check queue size */
+diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
+index 32d014421c1f61..8cb987ef3c4763 100644
+--- a/drivers/vfio/pci/vfio_pci_intrs.c
++++ b/drivers/vfio/pci/vfio_pci_intrs.c
+@@ -22,11 +22,6 @@
+ 
+ #include "vfio_pci_priv.h"
+ 
+-#define is_intx(vdev) (vdev->irq_type == VFIO_PCI_INTX_IRQ_INDEX)
+-#define is_msix(vdev) (vdev->irq_type == VFIO_PCI_MSIX_IRQ_INDEX)
+-#define is_irq_none(vdev) (!(is_intx(vdev) || is_msi(vdev) || is_msix(vdev)))
+-#define irq_is(vdev, type) (vdev->irq_type == type)
+-
+ struct vfio_pci_irq_ctx {
+ 	struct eventfd_ctx	*trigger;
+ 	struct virqfd		*unmask;
+@@ -36,6 +31,23 @@ struct vfio_pci_irq_ctx {
+ 	struct irq_bypass_producer	producer;
+ };
+ 
++static bool irq_is(struct vfio_pci_core_device *vdev, int type)
++{
++	return vdev->irq_type == type;
++}
++
++static bool is_intx(struct vfio_pci_core_device *vdev)
++{
++	return vdev->irq_type == VFIO_PCI_INTX_IRQ_INDEX;
++}
++
++static bool is_irq_none(struct vfio_pci_core_device *vdev)
++{
++	return !(vdev->irq_type == VFIO_PCI_INTX_IRQ_INDEX ||
++		 vdev->irq_type == VFIO_PCI_MSI_IRQ_INDEX ||
++		 vdev->irq_type == VFIO_PCI_MSIX_IRQ_INDEX);
++}
++
+ /*
+  * INTx
+  */
+diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
+index ac701f05bef022..4830fb01a1caa2 100644
+--- a/drivers/vfio/pci/vfio_pci_priv.h
++++ b/drivers/vfio/pci/vfio_pci_priv.h
+@@ -23,8 +23,6 @@ struct vfio_pci_ioeventfd {
+ 	bool			test_mem;
+ };
+ 
+-#define is_msi(vdev) (vdev->irq_type == VFIO_PCI_MSI_IRQ_INDEX)
+-
+ void vfio_pci_intx_mask(struct vfio_pci_core_device *vdev);
+ void vfio_pci_intx_unmask(struct vfio_pci_core_device *vdev);
+ 
+-- 
+2.37.2
+
