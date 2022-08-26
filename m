@@ -2,93 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0B87ECAAD2
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Aug 2022 09:52:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA02EECAAD2
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Aug 2022 10:07:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344157AbiHZJwh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Aug 2022 05:52:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57164 "EHLO
+        id S245758AbiHZKHD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Aug 2022 06:07:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343698AbiHZJwG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Aug 2022 05:52:06 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBBCD86E6;
-        Fri, 26 Aug 2022 02:52:04 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R901e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VNIZJ2f_1661507520;
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VNIZJ2f_1661507520)
-          by smtp.aliyun-inc.com;
-          Fri, 26 Aug 2022 17:52:01 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        "D. Wythe" <alibuda@linux.alibaba.com>
-Subject: [PATCH net-next v2 10/10] net/smc: fix application data exception
-Date:   Fri, 26 Aug 2022 17:51:37 +0800
-Message-Id: <e590ca91e24d002608df29d100d4139977d0bcb6.1661407821.git.alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <cover.1661407821.git.alibuda@linux.alibaba.com>
-References: <cover.1661407821.git.alibuda@linux.alibaba.com>
+        with ESMTP id S245208AbiHZKGh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Aug 2022 06:06:37 -0400
+X-Greylist: delayed 246 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 26 Aug 2022 03:05:23 PDT
+Received: from smtpout140.security-mail.net (smtpout140.security-mail.net [85.31.212.146])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9C3ED9E8A
+        for <linux-s390@vger.kernel.org>; Fri, 26 Aug 2022 03:05:21 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by fx601.security-mail.net (Postfix) with ESMTP id 40E0A3ACEC1
+        for <linux-s390@vger.kernel.org>; Fri, 26 Aug 2022 12:01:15 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kalray.eu;
+        s=sec-sig-email; t=1661508075;
+        bh=AHZn9X4lEZeD4sEl/aav+f8s4shU6qaXDqSZTpV22Hk=;
+        h=From:To:Cc:Subject:Date;
+        b=eO7Z/2/u4g73UlUBWWy9ly/XOcQZhBuBN6LNYjgFXL8hwcgkMH/SxfFSdEJWZAjXu
+         m7q17n3PTVaIRxSLae2kzYSEOxwyC8N9ngCKOStBvGLzQkVX+6hcCYEvAyD6msL27z
+         lRMalv+CTQ0HCJLCOX2RV3snRznhORzHCg0NXjDo=
+Received: from fx601 (localhost [127.0.0.1])
+        by fx601.security-mail.net (Postfix) with ESMTP id CC8943ACC57;
+        Fri, 26 Aug 2022 12:01:14 +0200 (CEST)
+X-Virus-Scanned: E-securemail
+Secumail-id: <61e0.630899e9.d31de.0>
+Received: from zimbra2.kalray.eu (unknown [217.181.231.53])
+        by fx601.security-mail.net (Postfix) with ESMTPS id D73913ACE19;
+        Fri, 26 Aug 2022 12:01:13 +0200 (CEST)
+Received: from zimbra2.kalray.eu (localhost [127.0.0.1])
+        by zimbra2.kalray.eu (Postfix) with ESMTPS id B544427E02FA;
+        Fri, 26 Aug 2022 12:01:13 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by zimbra2.kalray.eu (Postfix) with ESMTP id 9DB4927E0392;
+        Fri, 26 Aug 2022 12:01:13 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.10.3 zimbra2.kalray.eu 9DB4927E0392
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kalray.eu;
+        s=32AE1B44-9502-11E5-BA35-3734643DEF29; t=1661508073;
+        bh=YXD6MxjcXIsKPE6/xq6L97v82v78azRYLfFeM8nubaQ=;
+        h=From:To:Date:Message-Id;
+        b=QGGol3GvpjpinSaxyUcEiPmia+1kfMXyxIfns3BXB3k/cIPdP3iV5NmxNrg6Qb2l2
+         niN4o7CbweXnbRB3u6gVuoJ5AANr1IcW0Czsq9pk3HjoWwWEFtlNOEcsjJpe3kRaJF
+         /vDgg7q4ggCbxGHKtCGzbAnFqK5X4Zh4S6WdwOCM=
+Received: from zimbra2.kalray.eu ([127.0.0.1])
+        by localhost (zimbra2.kalray.eu [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id q7nyrsxYmrQJ; Fri, 26 Aug 2022 12:01:13 +0200 (CEST)
+Received: from tellis.lin.mbt.kalray.eu (unknown [192.168.36.206])
+        by zimbra2.kalray.eu (Postfix) with ESMTPSA id 8CF7527E02FA;
+        Fri, 26 Aug 2022 12:01:13 +0200 (CEST)
+From:   Jules Maselbas <jmaselbas@kalray.eu>
+To:     linux-kernel@vger.kernel.org
+Cc:     Jules Maselbas <jmaselbas@kalray.eu>, linux-s390@vger.kernel.org
+Subject: [PATCH] s390: Fix repeated word in comments
+Date:   Fri, 26 Aug 2022 12:00:40 +0200
+Message-Id: <20220826100052.22945-12-jmaselbas@kalray.eu>
+X-Mailer: git-send-email 2.17.1
+X-Virus-Scanned: by Secumail
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+Remove redundant word `the`.
 
-After we optimize the parallel capability of SMC-R connection
-establishment, There is a certain probability that following
-exceptions will occur in the wrk benchmark test:
-
-Running 10s test @ http://11.213.45.6:80
-  8 threads and 64 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     3.72ms   13.94ms 245.33ms   94.17%
-    Req/Sec     1.96k   713.67     5.41k    75.16%
-  155262 requests in 10.10s, 23.10MB read
-Non-2xx or 3xx responses: 3
-
-We will find that the error is HTTP 400 error, which is a serious
-exception in our test, which means the application data was
-corrupted.
-
-Consider the following scenarios:
-
-CPU0                            CPU1
-
-buf_desc->used = 0;
-                                cmpxchg(buf_desc->used, 0, 1)
-                                deal_with(buf_desc)
-
-memset(buf_desc->cpu_addr,0);
-
-This will cause the data received by a victim connection to be cleared,
-thus triggering an HTTP 400 error in the server.
-
-This patch exchange the order between clear used and memset, add
-barrier to ensure memory consistency.
-
-Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Jules Maselbas <jmaselbas@kalray.eu>
 ---
- net/smc/smc_core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 2 +-
+ arch/s390/kernel/sthyi.c        | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 84bf84c..fdad953 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1380,8 +1380,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
- 
- 		smc_buf_free(lgr, is_rmb, buf_desc);
- 	} else {
--		buf_desc->used = 0;
--		memset(buf_desc->cpu_addr, 0, buf_desc->len);
-+		/* memzero_explicit provides potential memory barrier semantics */
-+		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
-+		WRITE_ONCE(buf_desc->used, 0);
- 	}
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 332a49965130..0fda19b1e21d 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1160,7 +1160,7 @@ static void perf_event_count_update(struct perf_event *event, u64 count)
+  * combined-sampling data entry consists of a basic- and a diagnostic-sampling
+  * data entry.	The sampling function is determined by the flags in the perf
+  * event hardware structure.  The function always works with a combined-sampling
+- * data entry but ignores the the diagnostic portion if it is not available.
++ * data entry but ignores the diagnostic portion if it is not available.
+  *
+  * Note that the implementation focuses on basic-sampling data entries and, if
+  * such an entry is not valid, the entire combined-sampling data entry is
+diff --git a/arch/s390/kernel/sthyi.c b/arch/s390/kernel/sthyi.c
+index 4d141e2c132e..dfc350fab384 100644
+--- a/arch/s390/kernel/sthyi.c
++++ b/arch/s390/kernel/sthyi.c
+@@ -250,7 +250,7 @@ static void fill_diag_mac(struct sthyi_sctns *sctns,
+ 	sctns->mac.infmval1 |= MAC_CNT_VLD;
  }
  
+-/* Returns a pointer to the the next partition block. */
++/* Returns a pointer to the next partition block. */
+ static struct diag204_x_part_block *lpar_cpu_inf(struct lpar_cpu_inf *part_inf,
+ 						 bool this_lpar,
+ 						 void *diag224_buf,
 -- 
-1.8.3.1
+2.17.1
 
