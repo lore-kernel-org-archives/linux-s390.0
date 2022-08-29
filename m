@@ -2,65 +2,82 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28322ECAAD2
-	for <linux-s390@archiver.kernel.org>; Mon, 29 Aug 2022 16:00:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9431C0502C
+	for <linux-s390@archiver.kernel.org>; Mon, 29 Aug 2022 16:33:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbiH2QA4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 Aug 2022 12:00:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43248 "EHLO
+        id S229579AbiH2QdI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 Aug 2022 12:33:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbiH2QAz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Aug 2022 12:00:55 -0400
-Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7692165554;
-        Mon, 29 Aug 2022 09:00:51 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VNg0tWl_1661788845;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VNg0tWl_1661788845)
-          by smtp.aliyun-inc.com;
-          Tue, 30 Aug 2022 00:00:46 +0800
-Date:   Tue, 30 Aug 2022 00:00:45 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     liuyacan@corp.netease.com
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, wenjia@linux.ibm.com,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: Remove redundant refcount increase
-Message-ID: <YwzirUcxlQW3ydT7@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20220829145329.2751578-1-liuyacan@corp.netease.com>
+        with ESMTP id S229488AbiH2QdH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Aug 2022 12:33:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F7E2252B6;
+        Mon, 29 Aug 2022 09:33:06 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1EE6FCE130F;
+        Mon, 29 Aug 2022 16:33:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EF56C433D6;
+        Mon, 29 Aug 2022 16:32:59 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="kNQTi4K8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1661790778;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3F5bs6wEmRDmdIQe96V5iwCeWjK5YoVTeKEuPdxSfN4=;
+        b=kNQTi4K8egLdu1zNarBL47SQOYWe4WMkhvHrAwskcAG/1adfCVQBMB0gvduSpWFDbav2Tj
+        2LIfVOx4v++zHCwTjVPKSR+kizVUx5w5Af4coUKZm2ZWFtmVrqoa79XBz+/8OYj2RpZKfG
+        GTXOi7IPk9NkM/oVEZTI4HyRLLvuSmE=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 1de32b3b (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Mon, 29 Aug 2022 16:32:58 +0000 (UTC)
+Date:   Mon, 29 Aug 2022 12:32:54 -0400
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
+        pabeni@redhat.com, jiri@resnulli.us, johannes@sipsolutions.net,
+        linux-block@vger.kernel.org, osmocom-net-gprs@lists.osmocom.org,
+        linux-wpan@vger.kernel.org, wireguard@lists.zx2c4.com,
+        linux-wireless@vger.kernel.org, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org, linux-pm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-cifs@vger.kernel.org, cluster-devel@redhat.com,
+        mptcp@lists.linux.dev, lvs-devel@vger.kernel.org,
+        netfilter-devel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, dev@openvswitch.org,
+        linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net
+Subject: Re: [PATCH net-next] genetlink: start to validate reserved header
+ bytes
+Message-ID: <YwzqNgj/bJoawrwh@zx2c4.com>
+References: <20220825001830.1911524-1-kuba@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20220829145329.2751578-1-liuyacan@corp.netease.com>
+In-Reply-To: <20220825001830.1911524-1-kuba@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 29, 2022 at 10:53:29PM +0800, liuyacan@corp.netease.com wrote:
-> From: liuyacan <liuyacan@corp.netease.com>
-> 
-> For passive connections, the refcount increment has been done in
-> smc_clcsock_accept()-->smc_sock_alloc().
-> 
-> Fixes: 3b2dec2603d5("net/smc: restructure client and server code in af_smc")
-> Signed-off-by: liuyacan <liuyacan@corp.netease.com>
-> ---
->  net/smc/af_smc.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 79c1318af..0939cc3b9 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -1855,7 +1855,6 @@ static void smc_listen_out_connected(struct smc_sock *new_smc)
->  {
->  	struct sock *newsmcsk = &new_smc->sk;
->  
-> -	sk_refcnt_debug_inc(newsmcsk);
->  	if (newsmcsk->sk_state == SMC_INIT)
+Hi Jakub,
 
-Thank you for the fixes, I will test it in the CI.
+On Wed, Aug 24, 2022 at 05:18:30PM -0700, Jakub Kicinski wrote:
+> diff --git a/drivers/net/wireguard/netlink.c b/drivers/net/wireguard/netlink.c
+> index d0f3b6d7f408..0c0644e762e5 100644
+> --- a/drivers/net/wireguard/netlink.c
+> +++ b/drivers/net/wireguard/netlink.c
+> @@ -621,6 +621,7 @@ static const struct genl_ops genl_ops[] = {
+>  static struct genl_family genl_family __ro_after_init = {
+>  	.ops = genl_ops,
+>  	.n_ops = ARRAY_SIZE(genl_ops),
+> +	.resv_start_op = WG_CMD_SET_DEVICE + 1,
+>  	.name = WG_GENL_NAME,
+>  	.version = WG_GENL_VERSION,
+>  	.maxattr = WGDEVICE_A_MAX,
 
-Thanks.
-Tony Lu
+FWIW, I wouldn't object to just leaving this at zero. I don't know of
+any wireguard userspaces doing anything with the reserved header field.
+
+Jason
