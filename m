@@ -2,133 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF81ECAAD5
-	for <linux-s390@archiver.kernel.org>; Sun, 28 Aug 2022 16:51:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73814ECAAA2
+	for <linux-s390@archiver.kernel.org>; Mon, 29 Aug 2022 00:45:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229853AbiH1QvR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 28 Aug 2022 12:51:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45196 "EHLO
+        id S229525AbiH2Apy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 28 Aug 2022 20:45:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229747AbiH1QvQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 28 Aug 2022 12:51:16 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FEA01FCCF;
-        Sun, 28 Aug 2022 09:51:15 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27SGPoRh011915;
-        Sun, 28 Aug 2022 16:51:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=fPCECHnv11C4AjdzWYsnj3/8k5rXSCOxtstSvkag/Mw=;
- b=mWJ6AujvTMpo6NNDay69YrY14RZMNBnDPDMNjwLMBhBYAAmQByTisYUjj9AbX5W46Ycx
- Ho3ucEXwPJ0uDiUL11C4d8fTK4cocPYDMcLpYd9DTW4Vkt3cmgIID1JRwkOu+tvDCGY5
- y+FJfqoDGPMO93C9ecLTuaUSu4m+dPN507BJ+l/dU1N/wlUl3J2/OSWEfSeolADLOiHU
- DbBZK5mganpDY4BjcG4034VtMWnLD2sNP5TKquVZL8XN3DzwNe+gpVG8mzvMVziBMJR/
- JiwfFOqlWe/59HCB/obJiq4SnnL0j0SxzUjxy8PBmIe0BJVrh3fM9OyyBzhRsyX4Udbe DQ== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j7w9sgbwd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 28 Aug 2022 16:51:09 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27SGaSbU014322;
-        Sun, 28 Aug 2022 16:51:07 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3j7aw91cav-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 28 Aug 2022 16:51:07 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27SGp4bl41878004
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 28 Aug 2022 16:51:04 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 74333AE04D;
-        Sun, 28 Aug 2022 16:51:04 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 18DFAAE045;
-        Sun, 28 Aug 2022 16:51:04 +0000 (GMT)
-Received: from osiris (unknown [9.145.51.21])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Sun, 28 Aug 2022 16:51:04 +0000 (GMT)
-Date:   Sun, 28 Aug 2022 18:51:02 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Josh Poimboeuf <jpoimboe@kernel.org>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-kernel@vger.kernel.org,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: Re: [PATCH RFC] s390: Fix nospec table alignments
-Message-ID: <Ywuc9hxvLIlY516G@osiris>
-References: <8719bf1ce4a72ebdeb575200290094e9ce047bcc.1661557333.git.jpoimboe@kernel.org>
- <YwphFXr+pHxf4PGT@osiris>
- <20220827225937.b2mcmvxs7kbrtjda@treble>
+        with ESMTP id S229446AbiH2Apx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 28 Aug 2022 20:45:53 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F176E11A2D;
+        Sun, 28 Aug 2022 17:45:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1661733953; x=1693269953;
+  h=from:to:subject:date:message-id:references:in-reply-to:
+   content-transfer-encoding:mime-version;
+  bh=cS0Bih/LnP+jmOda1iElJ9kqC8dKNf8zFzRHkfIj8bQ=;
+  b=VhIVmnmx+g21hS6nW56joFxOvfcrWuJ0mCzybYenEENRW04UF1gednh7
+   0lGsot/pMFaDv0COnuQsOMzrQm0ga/bdQsfj+YaY7bWGTlpCioreRwuGl
+   IG+W0cd2NrS+dP3e75fVQTvtYxJY368gtIiGHkpvNBVjoCxTGjHoevhsL
+   PJ0qk9xJa1PMVqXQ/uHnKmSft8uhn6JvZ3lbikVNTuh6rVnqmZV1NVE/e
+   MSZm4RHGOXeQqDbwtZBji+IzJvNB6FRTaolyaoSNaBcy7yEbw8wlnvb9A
+   ByOsHgJT7VYtrm/VGNEBF1tfUxDjG1cYjIl1psJHN9Cm4II6rnKGKPuhi
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10453"; a="296055816"
+X-IronPort-AV: E=Sophos;i="5.93,271,1654585200"; 
+   d="scan'208";a="296055816"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Aug 2022 17:45:52 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,271,1654585200"; 
+   d="scan'208";a="644244336"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+  by orsmga001.jf.intel.com with ESMTP; 28 Aug 2022 17:45:52 -0700
+Received: from orsmsx607.amr.corp.intel.com (10.22.229.20) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Sun, 28 Aug 2022 17:45:52 -0700
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx607.amr.corp.intel.com (10.22.229.20) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31 via Frontend Transport; Sun, 28 Aug 2022 17:45:52 -0700
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (104.47.58.169)
+ by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2375.31; Sun, 28 Aug 2022 17:45:51 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hI/BrEX0B+PCj75TVfssipzy+c9Nx/luE6UGL8OlhDEi4m71O1aVDXJlY5FB/GgiyAYkiM4YFR+b2f0u6HQNjEcj8XeDQXgEuAhmreb3MVW78dpKiwu8dndq5z6DOntsYf7wSEImx4nQBbDjfyXhZn85MrrIF1aK4/PCiOeHNuNh9ycl6ieCIPCX4OFAZ1cMKC//Hor9i2y+7p24DU1ZlSkb/cUDCkohoeGzQGEMtdcpGwXf3LhZNfxKFMkxz8RxQGG0h928V8oXXpQAdbskW085Oc7eR+k5P4Sape8rjnELgkwUpgD6uUCueGZc7VZmkO+1kpZETz1lMHwMFelg2g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=cS0Bih/LnP+jmOda1iElJ9kqC8dKNf8zFzRHkfIj8bQ=;
+ b=BeFGnFgW11VoniIdA/c/GJ7Dgt+5JPQY8LRnbnihfULSGUbspTjNpAEhZJaishqlCJDrl1vNOIBv40qnuzl9r1FyCNAPzd91nNwSkBFZ9aKxve0x9Y7B1mCeELXhLexFgk3yGV7St6S5vl8UIioeFdYHNIe++T5QUDYYNTfbSHs2mGC0i6UaykhuXtSyweqsXi/14erDTBN+zh0kR2A5d2you0R3oczQCLJc2EU0qDLbioOC+PduDOzjHIeaydQvhIshV+zoHLkLAiifs1RpAZAfjQmawqgGMLX139oGYHRkkdP2DqiK0P8dGiteJhy7BoW9hZt7QfL2i8mFqvvSVw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by SA2PR11MB4875.namprd11.prod.outlook.com (2603:10b6:806:11a::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.15; Mon, 29 Aug
+ 2022 00:45:44 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::3432:5d61:f039:aae6]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::3432:5d61:f039:aae6%4]) with mapi id 15.20.5566.021; Mon, 29 Aug 2022
+ 00:45:44 +0000
+From:   "Tian, Kevin" <kevin.tian@intel.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Subject: RE: [PATCH v2 2/3] vfio/pci: Rename vfio_pci_register_dev_region()
+Thread-Topic: [PATCH v2 2/3] vfio/pci: Rename vfio_pci_register_dev_region()
+Thread-Index: AQHYuYLaGp98sAyi5kiw/fyt46IJXK3FDkMQ
+Date:   Mon, 29 Aug 2022 00:45:43 +0000
+Message-ID: <BN9PR11MB52766E47567B02FFE98F72388C769@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <0-v2-1bd95d72f298+e0e-vfio_pci_priv_jgg@nvidia.com>
+ <2-v2-1bd95d72f298+e0e-vfio_pci_priv_jgg@nvidia.com>
+In-Reply-To: <2-v2-1bd95d72f298+e0e-vfio_pci_priv_jgg@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: db45b416-6afb-45fd-874a-08da8957ce23
+x-ms-traffictypediagnostic: SA2PR11MB4875:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: FmPcTDYjCDwtSpU4gtFjVdW4pTkLuV1ehwjRV3aunLo2blKtcwuRx0RmnyfqNdkIIkIO0FYrtt92gnBPwU2y1elWO2t4ibHsxQLkT5dgpGjl1hHeu6n2vGxKOjGtrkrVgZwHjsr096raGh1f4gPCnvXwiNWYN9Jj47M7v7Iqp0XAtKndueXmuhx1KzX2VUT8kWCMYAH48cK4qo9ZVuMj4ZZ/ZzvIZ7zdvmIBfBFGkHsEq9hCtkAuu/hAXuMt0KvlC6icM2VB4J2jIk+RL9VNad/TLX+kHWkTKRNO2RSa22kpj8JOSssoQxhQSqmihMmYQF0jdPV9hs9JmxNgo/EMhSAa1S9NLLEaiSHQf3ovLG3V2b9pGGpoz7Gus6jtiZIQlJ+rfyRNAfVyOiQDgNSkSHpl0cmpiPrPc/02dJkUk9aKH6qbu/i1gGvJzbNxADDTl9u1UqCSJDLa9FeFb6ame6dusHUO0OszsRkmfFl+3RWemMVNNnBqiG+/RTlb/s3GIU5JntrQpWZcMerpN++33BG4oVdhAoqdf9P61GAzVhV55T1Y8fI0v61jUj+9BNfdfAU9dajd7sCRnW8ukP0/9ue9ktuYQgqphjdbMqLANPOz/nJd724YWdNyb1mKhmY7atC9n4Gbk4VsiE7k0AcRSqk2QHmzcRby/IJKiWnLdlxZtEWhJ6MQy1WisdNadc204mwoc6xLUKulOm8C4SjsFBsfDORLGBWjlXqR9Q03oWv4LZLFX4UmyLzwGrfCte+u
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(366004)(136003)(346002)(39860400002)(376002)(396003)(64756008)(66476007)(110136005)(66446008)(52536014)(66556008)(5660300002)(66946007)(8676002)(8936002)(4744005)(33656002)(76116006)(316002)(2906002)(478600001)(41300700001)(6506007)(7696005)(26005)(9686003)(86362001)(71200400001)(38070700005)(82960400001)(55016003)(186003)(122000001)(38100700002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?F9kLmzlGwrCMNfzxj6OXSwZyYFP9whDr4vmyqUWX1FMR7YFTi2WtMEhnhqXK?=
+ =?us-ascii?Q?w+OJpNzpZVuLj+sQ5YUL9pbFyGCdfGaJqcfzDD8iOegBhY6h+QbK1SL7yiwb?=
+ =?us-ascii?Q?UJ1qzq0FwNu/9mCIyT+XvMwmAWbPrhTIvoQmVCYBqOZGTt/6tIyOVQLyRAzA?=
+ =?us-ascii?Q?1dLuBevHYDieoBJMlqmQb+tnFq3EIJkYkQ9bAzWvl95N0MJ5DAA2Pd274/Kx?=
+ =?us-ascii?Q?DtDrNALxudDKsVsQgxJupWiQOOzPDyX/ne4a5+r+OnXNP4gBglO8a6rvyX5h?=
+ =?us-ascii?Q?epdtv/7zRMYRXJmwIGJ4LgtHhNXMHf//76bhbWKX0KUG0gee+yBYFkOt2KAg?=
+ =?us-ascii?Q?5BNCIhQdgqX44v0Z+pRNmCOf2B5WO6fe4WpS6s5t1RZUMWuBysTTZzOvu5md?=
+ =?us-ascii?Q?4tIV8xXc56EXVNkz9rJQF1RvQy/mphXPsS9lihYWjKtTvOC9HVS5XnZvjwbD?=
+ =?us-ascii?Q?j8UF4mR1Scw5FfnofBS69fTHRBgLuXgMk6lG2h3xi5piUB3xOONLvtdUbD0i?=
+ =?us-ascii?Q?H6D3bbECYiK33R/LGC0qcc2SJbcIktYyx8PtrghsuphTfVRqIQmSYaPoxle0?=
+ =?us-ascii?Q?QOjoZo/DQg5PAevR5vet2aqT4BSf/nM0Ycoq8FhSmdDj1qBbSkIeWYQObkAB?=
+ =?us-ascii?Q?gEth6n0m5kymYebS09Lvz46zVDR8mlpS6p50tbYXeEhTc8ger7oymHmEIqbO?=
+ =?us-ascii?Q?bgjXZD5NXF30Dgtr8pVVH0DAMuTlq1M8juh7JnZIvPxPxv3kyLoZpZ2OqqO3?=
+ =?us-ascii?Q?RkkWjAhSBYTnZKepsAEiEzHHBJdr8iCLa8T2JfDocV3i89XrPPQmX9Tfb/Ug?=
+ =?us-ascii?Q?Z4lFqqd+UQASyhJV14ZrIrviQeXyTAd4epqS+xak6EoMzUL/I9aouef7Zzke?=
+ =?us-ascii?Q?ILHqBFlMmk2l/5ayHTfD3JxgwsuUNa9BsD00Mj1BRhLYdUXhB0lJf/vO9nK4?=
+ =?us-ascii?Q?9mo1/GN+8hr59eebbj/0HDLnf8xjjNNLNJDe7Vuq6TSvoTjpGnwqXAoEnbr6?=
+ =?us-ascii?Q?ByhKOMaYm5FsDo+oK8UgXgPch6IdV9waVjkU+TDum/EOSCSYx1UWS4O0tPYE?=
+ =?us-ascii?Q?+VMt9QbvRpi3FXgplJ6tSzsHbNvSFmTO5UftEw36w6z3zG/UZfRuwScMldUm?=
+ =?us-ascii?Q?yumynCHlu88YGjqLyIMcQbu/NP3R18JavIagWoTsRVcZUj2OIDXNpew9+klX?=
+ =?us-ascii?Q?ZH/BE6gZhC9ugaRMhhAyKwdhuzkUMOcPRIHWw8MXTyo2MvqvpJ7PEp7DAmjj?=
+ =?us-ascii?Q?EpMZshBcfxXuMAtbg1Kidu0hPGS75ZWqBSEOiQV0w+E1hO6Lqws54vcZQw8m?=
+ =?us-ascii?Q?oBZZ/noNFFPy9A0/BuTyWD7ZPnPFgS0s/RQCmQQ1FrCfBSqxun2GC04XFv98?=
+ =?us-ascii?Q?FEH44PbpFypv35J8oCSKpbjhueu505lmMJmEbUQ4cH/gvODQfGfva4yt7ISG?=
+ =?us-ascii?Q?Fb6b2W1SkAKedq+GE1oO1ka69rHh0xpbQvnQRpJJl+GFElQ7NwYLjKnsoJjb?=
+ =?us-ascii?Q?VmQtPRBl4RU2TJz2IrIk76WglihRD7LcG2emaUvfRv+di8axUjAWQD5SMwmn?=
+ =?us-ascii?Q?aZC1bDvLjply5SdsgRoujJnYitjsm/O46E2KlPLu?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220827225937.b2mcmvxs7kbrtjda@treble>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bn_EnE8hIij8m8ZylPGSxGpdjcvZ0nFX
-X-Proofpoint-ORIG-GUID: bn_EnE8hIij8m8ZylPGSxGpdjcvZ0nFX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-28_10,2022-08-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- suspectscore=0 mlxlogscore=798 clxscore=1015 bulkscore=0
- lowpriorityscore=0 spamscore=0 phishscore=0 priorityscore=1501
- adultscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2207270000 definitions=main-2208280070
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: db45b416-6afb-45fd-874a-08da8957ce23
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Aug 2022 00:45:43.9316
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: kdvs0SfTTzPCzNchl0UAk0NEkOF6CQeHZwfsuGRp+OjyoiqnP8feZKXdO5nHVwSDCPX4DfLxRWy7utH+4R0+lg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA2PR11MB4875
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Aug 27, 2022 at 03:59:37PM -0700, Josh Poimboeuf wrote:
-> > > While working on another s390 issue, I was getting intermittent boot
-> > > failures in __nospec_revert() when it tried to access 'instr[0]'.  I
-> > > noticed the __nospec_call_start address ended in 'ff'.  This patch
-> > > seemed to fix it.  I have no idea why it was (only sometimes) failing in
-> > > the first place.
-...
-> > > +	. = ALIGN(4);
-> > >  	.nospec_call_table : {
-> > >  		__nospec_call_start = . ;
-> > >  		*(.s390_indirect*)
-> > 
-...
-> > Unfortunately I was unable to let any compiler generate code, that
-> > would use the larl instruction. Instead the address of
-> > nospec_call_table was loaded indirectly via the GOT, which again works
-> > always, regardless if the table starts at an even or uneven address.
-> > 
-> > This needs to be fixed anyway, and your patch certainly is correct.
-> > 
-> > Could you maybe share your kernel config + compiler version, if you
-> > are still able to reproduce this?
-> 
-> I think the trick is to disable CONFIG_RELOCATABLE.  When I compile with
-> CONFIG_RELOCATABLE=n and "gcc version 11.3.1 20220421 (Red Hat 11.3.1-2)
-> (GCC)", I get the following in nospec_init_branches():
-> 
->  2a8:   c0 20 00 00 00 00       larl    %r2,2a8 <nospec_init_branches+0x30>     2aa: R_390_PC32DBL      __nospec_call_start+0x2
-> 
-> That said, I still haven't been able to figure out how to recreate the
-> program check in __nospec_revert(), even when the nospec_call_table
-> starts at an odd offset.
+> From: Jason Gunthorpe <jgg@nvidia.com>
+> Sent: Saturday, August 27, 2022 3:34 AM
+>=20
+> As this is part of the vfio_pci_core component it should be called
+> vfio_pci_core_register_dev_region() like everything else exported from
+> this module.
+>=20
+> Suggested-by: Kevin Tian <kevin.tian@intel.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Right, CONFIG_RELOCATABLE=n will do the trick.
-
-I don't know why you cannot recreate it, however on my system it
-crashes instantly when I make sure that __nospec_call_start starts at
-an odd address.
-
-Apparently 'instr = (u8 *) epo + *epo;' in __nospec_revert() may
-result in a very large address, since without KASLR the kernel is
-located at a low address, and it only takes one entry within the
-incorrectly accessed nospec_call_table which results in a large
-negative value for '*epo' and we end up with an overflow and a very
-large address for 'instr'.
-This will then result in the program check / addressing exception
-you've seen when the kernel tried to access 'instr[0]'.
-
-I'll apply your patch. Thanks a lot for debugging and reporting!
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
