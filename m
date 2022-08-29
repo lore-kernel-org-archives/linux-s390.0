@@ -2,122 +2,167 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49FB2ECAAD5
-	for <linux-s390@archiver.kernel.org>; Mon, 29 Aug 2022 13:29:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C9E0ECAAD2
+	for <linux-s390@archiver.kernel.org>; Mon, 29 Aug 2022 13:39:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229889AbiH2N3i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 Aug 2022 09:29:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35376 "EHLO
+        id S229695AbiH2NjS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 Aug 2022 09:39:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230215AbiH2N3S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Aug 2022 09:29:18 -0400
+        with ESMTP id S229453AbiH2NjQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Aug 2022 09:39:16 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2302E79A74;
-        Mon, 29 Aug 2022 06:28:55 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27TDE5I4010778;
-        Mon, 29 Aug 2022 13:28:54 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E49119109B;
+        Mon, 29 Aug 2022 06:39:14 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27TDWgq4025417;
+        Mon, 29 Aug 2022 13:38:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=dXD9swvkZ5AaQz5vGXwU9H/FB+K5Bq2dj89N70m7cBI=;
- b=i7FMxb3rwOYlbiC4VTqqBnaLcoU0UZ+LXsLUyTtwKrEQXLewKARiEZa9rMWypmMGyi+R
- Rz/piiiOtuPbUwlIoGSERpvxTv9eXzckDazbZcKRnH6rv0DDlPe1wQBTZuSmWFMmw1IF
- Ouxo5xR+8mf4j3dLbCB/UUQ6omUfDg3FMzK4GWtjZfJbnvhFCfjsfx8dqdxLB7lsW1Ct
- bWXOPo/Mm204TSSM663QBZIU3Erbak6ydDxNrch3Yuvqi04PkzB1U1ibnNbFGEKy1eql
- 8ig7v8UOoXZb6ncPPyLewnfmcs3a3U8BLFChWJLOdv3eTkezEapKV37yqEPO4wUSik5x 5g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j8x5d8djk-1
+ bh=XuvId1UDU+8g7JvPfJTa+H726uIokQD9Vp40e81EFwA=;
+ b=snnboG1yEIcnmMuJk7BsNaMkpo4c/eW5m8olslegB1hiMCmjTMaVNcavyj4vhhzD5CAI
+ uXcoy1T2uKh+bgeBfPyjwbPjHpXM+jaaTEX2Q7Rd/SNTlaGuJXDbpZS6wM2BTAl+xZHS
+ fEPS51ygJwPJNHHfkBoBmxP669O1akPx8vodDnJb5bIwQO1G2C1D6bG841/bkcIcjvPq
+ 8grZoQbpPCXqTxhsl2h5lCHrNTknI5FF/7XFtQ7s655IKxvU6zpzfxei7QVmdLtRS7bf
+ BhiHgNe+o7TYDOyFGhANm2znahvTF6zc/z1ednMRkt6BaaccPuXa2u8TrjxNPxBXVBov ew== 
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j8xe38fcg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Aug 2022 13:28:54 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27TDEBxq011393;
-        Mon, 29 Aug 2022 13:28:54 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j8x5d8dj9-1
+        Mon, 29 Aug 2022 13:38:54 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27TDZCDm019079;
+        Mon, 29 Aug 2022 13:38:16 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma04dal.us.ibm.com with ESMTP id 3j7aw9gq8u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Aug 2022 13:28:53 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27TDK9xI030512;
-        Mon, 29 Aug 2022 13:28:53 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma03dal.us.ibm.com with ESMTP id 3j7awagnqt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Aug 2022 13:28:53 +0000
+        Mon, 29 Aug 2022 13:38:16 +0000
 Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27TDSqA842598728
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27TDcF4B31326660
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 29 Aug 2022 13:28:52 GMT
+        Mon, 29 Aug 2022 13:38:15 GMT
 Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 125A32805A;
-        Mon, 29 Aug 2022 13:28:52 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 675802805A;
+        Mon, 29 Aug 2022 13:38:15 +0000 (GMT)
 Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 943E828059;
-        Mon, 29 Aug 2022 13:28:51 +0000 (GMT)
-Received: from [9.160.64.167] (unknown [9.160.64.167])
+        by IMSVA (Postfix) with ESMTP id 317B928059;
+        Mon, 29 Aug 2022 13:38:12 +0000 (GMT)
+Received: from [9.211.43.66] (unknown [9.211.43.66])
         by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon, 29 Aug 2022 13:28:51 +0000 (GMT)
-Message-ID: <1e3a21be-c103-3478-ae91-2f5a721c465d@linux.ibm.com>
-Date:   Mon, 29 Aug 2022 09:28:51 -0400
+        Mon, 29 Aug 2022 13:38:12 +0000 (GMT)
+Message-ID: <e64025a7-c066-8b6e-34aa-d0cf204aca89@linux.ibm.com>
+Date:   Mon, 29 Aug 2022 09:38:11 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v3 0/2] s390/vfio-ap: fix two problems discovered in the
- vfio_ap driver
+ Thunderbird/91.12.0
+Subject: Re: [PATCH v2] iommu/s390: Fix race with release_device ops
 Content-Language: en-US
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com
-References: <20220823150643.427737-1-akrowiak@linux.ibm.com>
-In-Reply-To: <20220823150643.427737-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     iommu@lists.linux.dev, linux-s390@vger.kernel.org,
+        schnelle@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
+        robin.murphy@arm.com, jgg@nvidia.com, linux-kernel@vger.kernel.org
+References: <20220826194721.250123-1-mjrosato@linux.ibm.com>
+ <Ywyc/WxFg3zawXL5@osiris>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <Ywyc/WxFg3zawXL5@osiris>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: P-ahZGfK52ObdocQsludQcSGk1o9yIKX
-X-Proofpoint-GUID: 5cWLmAV-JK548-Bp0Lf1dOQe1g3zJ1d9
+X-Proofpoint-ORIG-GUID: 0XoP2BntefoejZitlG_4L79zZcJRxiIv
+X-Proofpoint-GUID: 0XoP2BntefoejZitlG_4L79zZcJRxiIv
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-08-29_07,2022-08-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 mlxscore=0 bulkscore=0 spamscore=0 phishscore=0
- impostorscore=0 mlxlogscore=999 adultscore=0 malwarescore=0 clxscore=1015
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208290060
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ lowpriorityscore=0 malwarescore=0 priorityscore=1501 phishscore=0
+ spamscore=0 mlxlogscore=999 mlxscore=0 bulkscore=0 suspectscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208290062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These two patches fix a couple of bugs in the vfio_ap driver code, it 
-would be nice to get some r-b action so we can merge these fixes ASAP. 
-Thanks.
+On 8/29/22 7:03 AM, Heiko Carstens wrote:
+> On Fri, Aug 26, 2022 at 03:47:21PM -0400, Matthew Rosato wrote:
+>> With commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
+>> calls") s390-iommu is supposed to handle dynamic switching between IOMMU
+>> domains and the DMA API handling.  However, this commit does not
+>> sufficiently handle the case where the device is released via a call
+>> to the release_device op as it may occur at the same time as an opposing
+>> attach_dev or detach_dev since the group mutex is not held over
+>> release_device.  This was observed if the device is deconfigured during a
+>> small window during vfio-pci initialization and can result in WARNs and
+>> potential kernel panics.
+>>
+>> Handle this by tracking when the device is probed/released via
+>> dev_iommu_priv_set/get().  Ensure that once the device is released only
+>> release_device handles the re-init of the device DMA.
+>>
+>> Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ...
+>> +	/* First check compatibility */
+>> +	spin_lock_irqsave(&s390_domain->list_lock, flags);
+>> +	/* First device defines the DMA range limits */
+>> +	if (list_empty(&s390_domain->devices)) {
+>> +		domain->geometry.aperture_start = zdev->start_dma;
+>> +		domain->geometry.aperture_end = zdev->end_dma;
+>> +		domain->geometry.force_aperture = true;
+>> +	/* Allow only devices with identical DMA range limits */
+>> +	} else if (domain->geometry.aperture_start != zdev->start_dma ||
+>> +		   domain->geometry.aperture_end != zdev->end_dma) {
+>> +		rc = -EINVAL;
+>> +	}
+>> +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> ...
+>>  	spin_lock_irqsave(&s390_domain->list_lock, flags);
+>> -	/* First device defines the DMA range limits */
+>> -	if (list_empty(&s390_domain->devices)) {
+>> -		domain->geometry.aperture_start = zdev->start_dma;
+>> -		domain->geometry.aperture_end = zdev->end_dma;
+>> -		domain->geometry.force_aperture = true;
+>> -	/* Allow only devices with identical DMA range limits */
+>> -	} else if (domain->geometry.aperture_start != zdev->start_dma ||
+>> -		   domain->geometry.aperture_end != zdev->end_dma) {
+>> -		rc = -EINVAL;
+>> -		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+>> -		goto out_restore;
+>> -	}
+>>  	domain_device->zdev = zdev;
+>> -	zdev->s390_domain = s390_domain;
+>>  	list_add(&domain_device->list, &s390_domain->devices);
+>>  	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> 
+> Stupid question: but how is this not racy when the spinlock is
+> released between doing something that depends on an empty list and
+> actually adding to the list later, after the lock had been released?
+> 
 
-On 8/23/22 11:06 AM, Tony Krowiak wrote:
-> Two problems have been discovered with the vfio_ap device driver since the
-> hot plug support was recently introduced:
->
-> 1. Attempting to remove a matrix mdev after assigning a duplicate adapter
->     or duplicate domain results in a hang.
->
-> 2. The queues associated with an adapter or domain being unassigned from
->     the matrix mdev do not get unlinked from it.
->
-> Two patches are provided to resolve these problems.
->
-> Change log v2 => v3:
-> --------------------
-> * Replaced the wrong commit IDs in the 'Fixes' tags in both patches.
->    (Halil and Alexander)
->
-> * Changed the subject line and description of patch 01/02 to better reflect the
->    code changes in the patch. (Halil)
->
-> Tony Krowiak (2):
->    s390/vfio-ap: bypass unnecessary processing of AP resources
->    s390/vfio-ap: fix unlinking of queues from the mdev
->
->   drivers/s390/crypto/vfio_ap_ops.c | 36 +++++++++++++++++++++++++++----
->   1 file changed, 32 insertions(+), 4 deletions(-)
->
+Oh, that's a good point...  This was re-arranged to simplify error backout cases, but theoretically yeah there could be 2 competing threads with different apertures that would both list_add here when really first-in should win and the 2nd should be rejected.  That's no good.  In practice this wouldn't happen today because of the device<->domain relationship we have in s390, but we still need to avoid introducing such an issue.
+
+We should probably just go back to doing the aperture check at the later point at the same time we list_add and live with the more complicated backout path -- I'll have a closer look but either way there will be a v3 that changes this, thanks.
+
+>> +		mutex_lock(&zdev->dma_domain_lock);
+>> +		dev_iommu_priv_set(dev, NULL);
+>> +		mutex_unlock(&zdev->dma_domain_lock);
+>> +		/* Make sure this device is removed from the domain list */
+>>  		domain = iommu_get_domain_for_dev(dev);
+>>  		if (domain)
+>>  			s390_iommu_detach_device(domain, dev);
+>> +		/* Now ensure DMA is initialized from here */
+>> +		mutex_lock(&zdev->dma_domain_lock);
+>> +		if (zdev->s390_domain) {
+>> +			zdev->s390_domain = NULL;
+>> +			zpci_unregister_ioat(zdev, 0);
+>> +			zpci_dma_init_device(zdev);
+>> +		}
+>> +		mutex_unlock(&zdev->dma_domain_lock);
+> 
+> Looking at the patch and this code it is also anything but obvious
+> which _data_ is actually protected by the mutex. Anyway.. just some
+> stupid comments while briefly looking at the patch :)
+
+Fair; largely, it's purpose is to protect the setting of zdev->s390_domain (which indicates e.g. whether s390-iommu or s390 pci-dma is being used to access the device).  However we also use it to protect the updating/checking of the priv value (e.g. probe state of the device) as this is relevant to what change we make to s390_domain during an attach/detach and we want to make that decision based on a consistent 'probed' state.  Since there will already be a v3 I will try to add a comment to its definition in pci.h and/or maybe here in release_device.
