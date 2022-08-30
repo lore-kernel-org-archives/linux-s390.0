@@ -2,117 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E2DAECAAA1
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 14:35:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E1B1ECAAD1
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 15:10:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229508AbiH3OfK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Aug 2022 10:35:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59614 "EHLO
+        id S230242AbiH3PKR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Aug 2022 11:10:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229716AbiH3OfI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 10:35:08 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CAB22A40F;
-        Tue, 30 Aug 2022 07:35:03 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27UEO2kf021078;
-        Tue, 30 Aug 2022 14:35:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- to : subject : from : message-id : date; s=pp1;
- bh=IxnAgDcalSTnCkZrv2Ik/WyALlvnHZVHoC6v1OGF8zg=;
- b=SDV18ZLF+z+RizNKpsP+4AVZ8UjEAgzI/NtvdN8VL3UtKRNeZH73U8nnSge06w9C1PMt
- CjDtymg3uGLCDmHOYZn2LWkq9sunnjK+FjUms7PHY2dbnnCKPc+OKw1PbPbMhFIucTU3
- XrgsCPYe2NgGwz4p5uO+jRUUULd/mywyhnu8IXvJ9+Y/0pewlXARZToMAQrXIQzaE4uO
- rqoPDRoOdnqaliXkJZ5lsKtJIzjveZ880WY7puF7Oqfs4rjG/6b0rW/4NeFdSRWkgxOx
- Vkkfwk9mUrRAcYpS7gB0xwTLD/mb51XgXP7W73ujPHwjrk/TYUuDW59zDPL88u1IkNZh Pw== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j9m9dgd24-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 14:35:02 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27UELifc008119;
-        Tue, 30 Aug 2022 14:34:53 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3j7aw93uqg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 14:34:53 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27UEYoOs37421494
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Aug 2022 14:34:50 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9E79CA405B;
-        Tue, 30 Aug 2022 14:34:50 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 83E62A4054;
-        Tue, 30 Aug 2022 14:34:50 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.66.184])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 30 Aug 2022 14:34:50 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230274AbiH3PKQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 11:10:16 -0400
+Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com [IPv6:2607:f8b0:4864:20::f2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 976DB3D581
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 08:10:11 -0700 (PDT)
+Received: by mail-qv1-xf2f.google.com with SMTP id n4so6320810qvt.7
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 08:10:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc;
+        bh=CBamQzSNNxE6SjxTKzzEO+qM/bRDvj9E4TwCaLJXBMk=;
+        b=fXNdwdpK40/W9ZV/jtDtFanBo50pdD9Zqq2j76SqDodQNMcH/S/9ZORqwpujvM/1o7
+         Y6ijjlraOllJTnfE8hkllQZkWTkVYG+l9AgDUUsf4ThP+1u3Lezl0Ah/HcTMhGdPhepr
+         6oaOHPhbuuQXVL7zA8adj2Q6F6wDptOrEHfHvWpbBkt1JOkwh5bMK0Ps71apRT8m0wKL
+         AOMSw1qxFu5ZtF1ie2DWVMI+XNlOgLhGsqhKFseVmGJOBV0nuysZvPAUoIJ8ecRUEdf7
+         8NQ34drZxPG72BJMShFI1bT2VX5a+waMVxy4LYhuSx5L0ejfGHWsTQ/GqJcHZt7AT8AA
+         7NCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+        bh=CBamQzSNNxE6SjxTKzzEO+qM/bRDvj9E4TwCaLJXBMk=;
+        b=0oWb6zocUN2OdH+oGVY4BFalIHlUUrfuPengXPk0fLCi5tA28CMmfH9VUyjX9YCG/l
+         0heRWqTcJDHZRVMWi9okIgvG9tgbF6FTD3yPnNd+yAOzqiTFFY1XCYGnal7UE+dil4Xx
+         dGRQ8Ur1ji9qgl6C05uMiXDPrzQhiFYarP7aidAdfzK+dET0J6nlLop/sz5T6ydXD8sk
+         Bsl2COWln/myQN3/sIwb8mHXhqcPWkIpt772Mh3GbB+25c2IcBK3Bb31IlKRiA0ig+w6
+         BTSPPGI674X5fFLquP1mYjUGBw7tGCiIfkUwxiIsOlca9+IzGhakqSvXSyRZMeyAiIPR
+         gzOQ==
+X-Gm-Message-State: ACgBeo26HYNiNeF9/i1IoAOKKy0JFFURx12zPCRC9niZebWusdgx9og5
+        lIXRInxZP6GVW3fnnXY/8nDtWQ==
+X-Google-Smtp-Source: AA6agR6UUGFhrYHDf4KVE6IxiHBU+9Pg/pWLmRZ4Y2KqjrWUkINgLEKIUkRA9mAuIBzucBWjgrkfbQ==
+X-Received: by 2002:a0c:f1c7:0:b0:474:725e:753e with SMTP id u7-20020a0cf1c7000000b00474725e753emr15301629qvl.49.1661872210775;
+        Tue, 30 Aug 2022 08:10:10 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
+        by smtp.gmail.com with ESMTPSA id bl8-20020a05620a1a8800b006bbdcb3fff7sm7634727qkb.69.2022.08.30.08.10.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Aug 2022 08:10:09 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1oT2sS-003kUN-QX;
+        Tue, 30 Aug 2022 12:10:08 -0300
+Date:   Tue, 30 Aug 2022 12:10:08 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Anthony Krowiak <akrowiak@linux.ibm.com>
+Cc:     Kevin Tian <kevin.tian@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Longfang Liu <liulongfang@huawei.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>
+Subject: Re: [PATCH 01/15] vfio: Add helpers for unifying vfio_device life
+ cycle
+Message-ID: <Yw4oUL33TbJK6inc@ziepe.ca>
+References: <20220827171037.30297-1-kevin.tian@intel.com>
+ <20220827171037.30297-2-kevin.tian@intel.com>
+ <907c54c6-7f5b-77f3-c284-45604c60c12e@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20220826161112.3786131-2-scgl@linux.ibm.com>
-References: <20220826161112.3786131-1-scgl@linux.ibm.com> <20220826161112.3786131-2-scgl@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-To:     kvm@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v6 1/2] s390x: Add specification exception test
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <166187009028.75997.13672950150134705250@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Tue, 30 Aug 2022 16:34:50 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fd2KSIG3zamYN5DqmLyRP3BMBAeV_9Q4
-X-Proofpoint-ORIG-GUID: fd2KSIG3zamYN5DqmLyRP3BMBAeV_9Q4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-30_08,2022-08-30_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
- malwarescore=0 priorityscore=1501 mlxlogscore=999 mlxscore=0
- suspectscore=0 spamscore=0 impostorscore=0 adultscore=0 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208300073
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <907c54c6-7f5b-77f3-c284-45604c60c12e@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janis Schoetterl-Glausch (2022-08-26 18:11:11)
-> Generate specification exceptions and check that they occur.
->=20
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+On Tue, Aug 30, 2022 at 09:42:42AM -0400, Anthony Krowiak wrote:
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> > +/*
+> > + * Alloc and initialize vfio_device so it can be registered to vfio
+> > + * core.
+> > + *
+> > + * Drivers should use the wrapper vfio_alloc_device() for allocation.
+> > + * @size is the size of the structure to be allocated, including any
+> > + * private data used by the driver.
+> 
+> 
+> It seems the purpose of the wrapper is to ensure that the object being
+> allocated has as its first field a struct vfio_device object and to return
+> its container. Why not just make that a requirement for this function -
+> which I would rename vfio_alloc_device - and document it in the prologue?
+> The caller can then cast the return pointer or use container_of.
 
-with minor nits below you may want to consider
+There are three fairly common patterns for this kind of thing
 
-> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
-> new file mode 100644
-[...]
-> +static int bad_alignment(void)
-> +{
-> +       uint32_t words[5] __attribute__((aligned(16)));
-> +       uint32_t (*bad_aligned)[4] =3D (uint32_t (*)[4])&words[1];
+1) The caller open codes everything:
 
-Why not simply:
+   driver_struct = kzalloc()
+   core_init(&driver_struct->core)
 
-uint32_t *bad_aligned =3D &words[1];
+2) Some 'get priv' / 'get data' is used instead of container_of():
 
-> +
-> +       /* LOAD PAIR FROM QUADWORD (LPQ) requires quadword alignment */
-> +       asm volatile ("lpq %%r6,%[bad]"
-> +                     : : [bad] "T" (*bad_aligned)
-> +                     : "%r6", "%r7"
-> +       );
-> +       return 0;
-> +}
-> +
-> +static int not_even(void)
-> +{
-> +       uint64_t quad[2] __attribute__((aligned(16))) =3D {0};
-> +
-> +       asm volatile (".insn    rxy,0xe3000000008f,%%r7,%[quad]" /* lpq %=
-%r7,%[quad] */
+   core_struct = core_alloc(sizeof(*driver_struct))
+   driver_struct = core_get_priv(core_struct)
 
-Here you use .insn above you use lpq - why?
+3) The allocations and initialization are consolidated in the core,
+   but we continue to use container_of()
+
+   driver_struct = core_alloc(typeof(*driver_struct))
+
+#1 has a general drawback that people routinely mess up the lifecycle
+model and get really confused about when to do kfree() vs put(),
+creating bugs.
+
+#2 has a general drawback of not using container_of() at all, and being
+a bit confusing in some cases
+
+#3 has the general drawback of being a bit magical, but solves 1 and
+2's problems.
+
+I would not fix the struct layout without the BUILD_BUG_ON because
+someone will accidently change the order and that becomes a subtle
+runtime error - so at a minimum the wrapper macro has to exist to
+check that.
+
+If you want to allow a dynamic struct layout and avoid the pitfall of
+exposing the user to kalloc/kfree, then you still need the macro, and
+it does some more complicated offset stuff.
+
+Having the wrapper macro be entirely type safe is appealing and
+reduces code in the drivers, IMHO. Tell it what type you are initing
+and get back init'd memory for that type that you always, always free
+with a put operation.
+
+Jason
