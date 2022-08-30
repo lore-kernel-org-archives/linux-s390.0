@@ -2,128 +2,94 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15A2FECAAA1
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 15:16:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3A1CECAAA1
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 15:23:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229802AbiH3PQS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Aug 2022 11:16:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36530 "EHLO
+        id S229616AbiH3PX6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Aug 2022 11:23:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229731AbiH3PQR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 11:16:17 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 392BAB5E6B;
-        Tue, 30 Aug 2022 08:16:17 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27UE87lF028188;
-        Tue, 30 Aug 2022 15:16:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=iHmHsycLOcDAHTv54jjfifJPr1DnD+ODozT0m3LRGrU=;
- b=ifUgiuFOT4E9iNGkTjUfRy5eqIkN/yGR08H2JVd0LZb/FwHYMVbYJpynaZ0/hkqZQhKr
- ZI2bfyWHWeYKLIF5e9P0weZ4046tiC5ASmbJlPz0q7P522+XCLKwZYyyg/p/QDDILweb
- tjH7KHFJmBu5pHUKbFPpgrrKuH4DZrHxAO7QWdz/9Vz1hPbvTUao7Az0ho3my0XA/u00
- dU6viwiEeuRvwnxO2vsBGO6rRSjY8POMSRb6mUrfbhSojy7nXHZoMoLvEpd99aHlkKv+
- cuRLWTisha4946D1fb4SBN9PnbkfIYMCTjt1W5ozE+sX+L29BW/nhLrvvudccOrHjPbR 8w== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j9knj2y17-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 15:16:16 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27UEpnmN002703;
-        Tue, 30 Aug 2022 15:16:14 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3j7ahj3wya-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 15:16:14 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27UFGBET30802296
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Aug 2022 15:16:11 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2DED2A405B;
-        Tue, 30 Aug 2022 15:16:11 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EFD80A405F;
-        Tue, 30 Aug 2022 15:16:10 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.3.250])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 30 Aug 2022 15:16:10 +0000 (GMT)
-Message-ID: <4bb9026dee15e94f4643a36c7171fa1c8714bad2.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v6 1/2] s390x: Add specification
- exception test
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org
-Date:   Tue, 30 Aug 2022 17:16:10 +0200
-In-Reply-To: <166187009028.75997.13672950150134705250@t14-nrb>
-References: <20220826161112.3786131-1-scgl@linux.ibm.com>
-         <20220826161112.3786131-2-scgl@linux.ibm.com>
-         <166187009028.75997.13672950150134705250@t14-nrb>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        with ESMTP id S229923AbiH3PXy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 11:23:54 -0400
+Received: from corp-front07-corp.i.nease.net (corp-front07-corp.i.nease.net [59.111.134.157])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3760512F55C;
+        Tue, 30 Aug 2022 08:23:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
+        Date:Message-Id:In-Reply-To:References:MIME-Version:
+        Content-Transfer-Encoding; bh=czJTLBpE0tloFZmYSS2AFw3bPxWy7e6kJq
+        YwgdeEzv4=; b=eyAKvZ7bP5lCinzXZ3TLZqvvDVy+ixk6mX2QqAUeFAD5UBb5MC
+        DKNEwwscxIjvV268duvoKI7H//Eu7w8cuux3YOXktATf6pBxE33OEzx6hveFV5Tm
+        CCP3+hWs4I8IyVDvfGW7Oy5pAnU5g8Mqzj4wOc8/sUbPMe2gRysk/YeDA=
+Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
+        by corp-front07-corp.i.nease.net (Coremail) with SMTP id nRDICgA3jOhoKw5j3AUVAA--.38750S2;
+        Tue, 30 Aug 2022 23:23:20 +0800 (HKT)
+From:   liuyacan@corp.netease.com
+To:     tonylu@linux.alibaba.com
+Cc:     davem@davemloft.net, edumazet@google.com, kgraul@linux.ibm.com,
+        kuba@kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, liuyacan@corp.netease.com,
+        netdev@vger.kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com,
+        hwippel@linux.ibm.com, ubraun@linux.ibm.com
+Subject: [PATCH net v2] net/smc: Remove redundant refcount increase
+Date:   Tue, 30 Aug 2022 23:23:14 +0800
+Message-Id: <20220830152314.838736-1-liuyacan@corp.netease.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <YwzirUcxlQW3ydT7@TonyMac-Alibaba>
+References: <YwzirUcxlQW3ydT7@TonyMac-Alibaba>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: TBsGjyu8l9ONP0E63p1Yx3ox6uf0pXha
-X-Proofpoint-GUID: TBsGjyu8l9ONP0E63p1Yx3ox6uf0pXha
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-30_08,2022-08-30_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- lowpriorityscore=0 suspectscore=0 bulkscore=0 malwarescore=0
- impostorscore=0 phishscore=0 spamscore=0 adultscore=0 clxscore=1015
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208300074
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: nRDICgA3jOhoKw5j3AUVAA--.38750S2
+X-Coremail-Antispam: 1UD129KBjvdXoW7Jr1xuF1kAFWxWr4kXw4Utwb_yoW3Zrc_K3
+        47GFnrWa1jyFZayw4fG393uwsaqw1kJr48Xrn5ArZ0y3Wjvr48Can8Crn8uw15u3yYyF13
+        Jr45tFZYgw12yjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUbtAYjxAI6xCIbckI1I0E57IF64kEYxAxM7AC8VAFwI0_Gr0_Xr1l
+        1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0I
+        I2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0
+        Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84
+        ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2kK67ZEXf0FJ3sC6x9vy-n0Xa0_Xr1Utr1k
+        JwI_Jr4ln4vE4IxY62xKV4CY8xCE548m6r4UJryUGwAS0I0E0xvYzxvE52x082IY62kv04
+        87Mc804VCqF7xvr2I5Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+        JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+        AKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2xKxwAKzVCY
+        07xG64k0F24l7I0Y64k_MxkI7II2jI8vz4vEwIxGrwCF04k20xvY0x0EwIxGrwCF72vEw2
+        IIxxk0rwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7vE0wC20s026c02F40E14v26r1j6r18
+        MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr4
+        1lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l
+        IxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4
+        A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0pRp6wAUUUUU=
+X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQAOCVt77xO05QAVsa
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-08-30 at 16:34 +0200, Nico Boehr wrote:
-> Quoting Janis Schoetterl-Glausch (2022-08-26 18:11:11)
-> > Generate specification exceptions and check that they occur.
-> > 
-> > Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> 
-> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+From: Yacan Liu <liuyacan@corp.netease.com>
 
-Thanks
-> 
-> with minor nits below you may want to consider
-> 
-> > diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
-> > new file mode 100644
-> [...]
-> > +static int bad_alignment(void)
-> > +{
-> > +       uint32_t words[5] __attribute__((aligned(16)));
-> > +       uint32_t (*bad_aligned)[4] = (uint32_t (*)[4])&words[1];
-> 
-> Why not simply:
-> 
-> uint32_t *bad_aligned = &words[1];
+For passive connections, the refcount increment has been done in
+smc_clcsock_accept()-->smc_sock_alloc().
 
-This is a pointer to a word, the argument to lpq is a quadword.
-Your way would probably work, especially since we don't actually want
-the asm to do anything, but no harm in doing it the correct way.
-> 
-> > +
-> > +       /* LOAD PAIR FROM QUADWORD (LPQ) requires quadword alignment */
-> > +       asm volatile ("lpq %%r6,%[bad]"
-> > +                     : : [bad] "T" (*bad_aligned)
-> > +                     : "%r6", "%r7"
-> > +       );
-> > +       return 0;
-> > +}
-> > +
-> > +static int not_even(void)
-> > +{
-> > +       uint64_t quad[2] __attribute__((aligned(16))) = {0};
-> > +
-> > +       asm volatile (".insn    rxy,0xe3000000008f,%%r7,%[quad]" /* lpq %%r7,%[quad] */
-> 
-> Here you use .insn above you use lpq - why?
+Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in af_smc")
+Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
 
-The assembler will complain about the odd register number, but that is
-intentional.
+---
+Change in v2:
+  -- Tune commit message
+---
+ net/smc/af_smc.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 79c1318af..0939cc3b9 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1855,7 +1855,6 @@ static void smc_listen_out_connected(struct smc_sock *new_smc)
+ {
+ 	struct sock *newsmcsk = &new_smc->sk;
+ 
+-	sk_refcnt_debug_inc(newsmcsk);
+ 	if (newsmcsk->sk_state == SMC_INIT)
+ 		newsmcsk->sk_state = SMC_ACTIVE;
+ 
+-- 
+2.20.1
+
