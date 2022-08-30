@@ -2,226 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56261ECAAD5
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 20:17:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B864ECAAA1
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 22:18:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229583AbiH3URV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Aug 2022 16:17:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42600 "EHLO
+        id S231404AbiH3WSq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Aug 2022 18:18:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231841AbiH3UQl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 16:16:41 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8FC080EAC;
-        Tue, 30 Aug 2022 13:16:17 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27UJRRgh030586;
-        Tue, 30 Aug 2022 20:15:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=hWncNBBXEg57C/dgyYJZl0wv0Sf+9IyEHPf5gDc/olc=;
- b=ej3UGaBdZ4RwDL+HeSgwefkU2XmbSRaF0ubh2XzCxxBkwhFczs76324VUEn8RAxbQkd8
- APQHecs6sMdK1t2yUHNZxxRcOjESnRMYgO9/pbCzjbVddK5CF6ASxAlpVfDxHUMDZ1hP
- h60q/R4U4CwrC/2VCxSfi7oRQxFd5ONcoinZMDfWUqGWVbrYacFju/5GjfaVtQvHT9MA
- fq9ZR44+gy/WWIlKqD/5bgvE6pa4KzGqRTfrMirGiJfaPvaui0FCDYt9D0E4zNh3LwYO
- ybRjFJD4Ogboov62RyVn8rgLTcg84T6w7QkDHt9qutZ4EwTLjIdO4dh3BmW8Nxh2FhzT UA== 
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j9rqdhcy4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 20:15:51 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27UK65tf000322;
-        Tue, 30 Aug 2022 20:15:50 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma02dal.us.ibm.com with ESMTP id 3j7aw9kfjd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 20:15:50 +0000
-Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27UKFnlL12583582
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Aug 2022 20:15:49 GMT
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7118B136051;
-        Tue, 30 Aug 2022 20:15:48 +0000 (GMT)
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 22EE513604F;
-        Tue, 30 Aug 2022 20:15:46 +0000 (GMT)
-Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.65.252.121])
-        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 30 Aug 2022 20:15:46 +0000 (GMT)
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-To:     iommu@lists.linux.dev
-Cc:     linux-s390@vger.kernel.org, schnelle@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, joro@8bytes.org,
-        will@kernel.org, robin.murphy@arm.com, jgg@nvidia.com,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v3] iommu/s390: Fix race with release_device ops
-Date:   Tue, 30 Aug 2022 16:15:46 -0400
-Message-Id: <20220830201546.18871-1-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S231224AbiH3WSp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 18:18:45 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB536D9F0
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 15:18:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1661897923;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TSSAWMfY5IhOGMsl4sCR/Sqq+wVCREXXNdNLZqAgz7E=;
+        b=SlbKa74lYPJssd8c/BRasmJh/BCMoFRnl+LKFu990Im56H2r9rlfnBx/pOVX2WeyD+cO3o
+        FYv9Aq3OVjO0cCeb16LKkwvyDQSzcG9QtFHmy/Qqt2/f0jWBkgt7YcdOlSmwj0HlMHgXb+
+        EhLsUhL3sgVDc+T6UkwIx9stxfQlMAg=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-111-dZ7JZ9raNbu1prE51uk8gA-1; Tue, 30 Aug 2022 18:18:41 -0400
+X-MC-Unique: dZ7JZ9raNbu1prE51uk8gA-1
+Received: by mail-io1-f71.google.com with SMTP id g13-20020a056602072d00b0068825561753so7452728iox.7
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 15:18:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc;
+        bh=TSSAWMfY5IhOGMsl4sCR/Sqq+wVCREXXNdNLZqAgz7E=;
+        b=swAKa2doPmIXPToWLlQo4YoFuSbU513yANImXggYBwcbyJWJ52y7HsyPpr302YGjB/
+         uVjHMLxg2/nKptIMfKrUyrQ+JwJsUfr9AxUSYLFzraSnNeKlHBQc6nECBqFBKQHJGPbR
+         Beabv515zOCHlEPs6g5PkfzoVYhxC/3a9Ss73P6S6f4pNwF3p83dNltyfi45YeUgqG7K
+         oIupjBOiX84KNN9zdXPvVGMrFUh6s82nHKKtMAOfonIUzqtyU2g3Zlvq7pU5XlMsW8RB
+         EPqbrHE8FUjM/BZzT7tpc3xr9pC5ZGvKPd/flKYkHKdDIs/7nSS7qf8W8WtEihjx8iMj
+         L+yw==
+X-Gm-Message-State: ACgBeo26eLglVE3LfvnCR22WgB5AUPsKkyHlXZju+jUM+1kSoMYlJ9ep
+        4yF7PWnrF9jzITz3uYIToIdWc/iu/dbmgTqWWgkwM2ceUemU0Qy0xgr0AHJ1lyV+Ze4rZHcrudu
+        deE96JNrd+Al1HnOMXlOkjw==
+X-Received: by 2002:a05:6602:1c4:b0:689:2db5:ea0f with SMTP id w4-20020a05660201c400b006892db5ea0fmr11509858iot.197.1661897921391;
+        Tue, 30 Aug 2022 15:18:41 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR73OWrrAXNYUM7X5f/RFjdmLhOTn+HRSKcgl5cCW81jvTLPZGl1q1ozpKM9lFAFywZRpg27UQ==
+X-Received: by 2002:a05:6602:1c4:b0:689:2db5:ea0f with SMTP id w4-20020a05660201c400b006892db5ea0fmr11509822iot.197.1661897921151;
+        Tue, 30 Aug 2022 15:18:41 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id z30-20020a056602081e00b0068b1858c81asm6110858iow.13.2022.08.30.15.18.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Aug 2022 15:18:40 -0700 (PDT)
+Date:   Tue, 30 Aug 2022 16:18:38 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Kevin Tian <kevin.tian@intel.com>
+Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Longfang Liu <liulongfang@huawei.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>
+Subject: Re: [PATCH 15/15] vfio: Add struct device to vfio_device
+Message-ID: <20220830161838.4aa47045.alex.williamson@redhat.com>
+In-Reply-To: <20220827171037.30297-16-kevin.tian@intel.com>
+References: <20220827171037.30297-1-kevin.tian@intel.com>
+        <20220827171037.30297-16-kevin.tian@intel.com>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: K4heIS3r9LviJa3oN6_m1dKbopwgrCiy
-X-Proofpoint-ORIG-GUID: K4heIS3r9LviJa3oN6_m1dKbopwgrCiy
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-30_10,2022-08-30_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- impostorscore=0 mlxscore=0 phishscore=0 bulkscore=0 suspectscore=0
- spamscore=0 priorityscore=1501 clxscore=1015 adultscore=0 malwarescore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208300090
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-With commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
-calls") s390-iommu is supposed to handle dynamic switching between IOMMU
-domains and the DMA API handling.  However, this commit does not
-sufficiently handle the case where the device is released via a call
-to the release_device op as it may occur at the same time as an opposing
-attach_dev or detach_dev since the group mutex is not held over
-release_device.  This was observed if the device is deconfigured during a
-small window during vfio-pci initialization and can result in WARNs and
-potential kernel panics.
+On Sun, 28 Aug 2022 01:10:37 +0800
+Kevin Tian <kevin.tian@intel.com> wrote:
 
-Handle this by tracking when the device is probed/released via
-dev_iommu_priv_set/get().  Ensure that once the device is released only
-release_device handles the re-init of the device DMA.
+> From: Yi Liu <yi.l.liu@intel.com>
+> 
+> and replace kref. With it a 'vfio-dev/vfioX' node is created under the
+> sysfs path of the parent, indicating the device is bound to a vfio
+> driver, e.g.:
+> 
+> /sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
+> 
+> It is also a preparatory step toward adding cdev for supporting future
+> device-oriented uAPI.
 
-Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
-Changes since v2:
-- Relocate the list_empty and aperture chekcs in attach_dev to the
-  their original locations so they are all done under a single
-  acquisition of the spinlock (Heiko)
----
- arch/s390/include/asm/pci.h |  1 +
- arch/s390/pci/pci.c         |  1 +
- drivers/iommu/s390-iommu.c  | 39 ++++++++++++++++++++++++++++++++++---
- 3 files changed, 38 insertions(+), 3 deletions(-)
+Shall we start Documentation/ABI/testing/vfio-dev now?  Thanks.
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 7b4cdadbc023..080251e7b275 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -157,6 +157,7 @@ struct zpci_dev {
- 	/* DMA stuff */
- 	unsigned long	*dma_table;
- 	spinlock_t	dma_table_lock;
-+	struct mutex	dma_domain_lock; /* protects s390_domain value */
- 	int		tlb_refresh;
- 
- 	spinlock_t	iommu_bitmap_lock;
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 73cdc5539384..973edd32ecc9 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -832,6 +832,7 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
- 	kref_init(&zdev->kref);
- 	mutex_init(&zdev->lock);
- 	mutex_init(&zdev->kzdev_lock);
-+	mutex_init(&zdev->dma_domain_lock);
- 
- 	rc = zpci_init_iommu(zdev);
- 	if (rc)
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index c898bcbbce11..1137d669e849 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -99,6 +99,14 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
- 	if (!domain_device)
- 		return -ENOMEM;
- 
-+	/* Leave now if the device has already been released */
-+	mutex_lock(&zdev->dma_domain_lock);
-+	if (!dev_iommu_priv_get(dev)) {
-+		mutex_unlock(&zdev->dma_domain_lock);
-+		kfree(domain_device);
-+		return 0;
-+	}
-+
- 	if (zdev->dma_table && !zdev->s390_domain) {
- 		cc = zpci_dma_exit_device(zdev);
- 		if (cc) {
-@@ -132,9 +140,10 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
- 		goto out_restore;
- 	}
- 	domain_device->zdev = zdev;
--	zdev->s390_domain = s390_domain;
- 	list_add(&domain_device->list, &s390_domain->devices);
- 	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-+	zdev->s390_domain = s390_domain;
-+	mutex_unlock(&zdev->dma_domain_lock);
- 
- 	return 0;
- 
-@@ -147,6 +156,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
- 				   virt_to_phys(zdev->dma_table));
- 	}
- out_free:
-+	mutex_unlock(&zdev->dma_domain_lock);
- 	kfree(domain_device);
- 
- 	return rc;
-@@ -176,17 +186,22 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
- 	}
- 	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
- 
--	if (found && (zdev->s390_domain == s390_domain)) {
-+	mutex_lock(&zdev->dma_domain_lock);
-+	if (found && (zdev->s390_domain == s390_domain) &&
-+	    dev_iommu_priv_get(dev)) {
- 		zdev->s390_domain = NULL;
- 		zpci_unregister_ioat(zdev, 0);
- 		zpci_dma_init_device(zdev);
- 	}
-+	mutex_unlock(&zdev->dma_domain_lock);
- }
- 
- static struct iommu_device *s390_iommu_probe_device(struct device *dev)
- {
- 	struct zpci_dev *zdev = to_zpci_dev(dev);
- 
-+	dev_iommu_priv_set(dev, zdev);
-+
- 	return &zdev->iommu_dev;
- }
- 
-@@ -206,10 +221,28 @@ static void s390_iommu_release_device(struct device *dev)
- 	 *
- 	 * So let's call detach_dev from here if it hasn't been called before.
- 	 */
--	if (zdev && zdev->s390_domain) {
-+	if (zdev) {
-+		/*
-+		 * Clear priv to block further attaches for this device,
-+		 * ensure detaches don't init DMA.  Hold the domain lock
-+		 * to ensure that attach/detach get a consistent view of
-+		 * whether or not the device is released.
-+		 */
-+		mutex_lock(&zdev->dma_domain_lock);
-+		dev_iommu_priv_set(dev, NULL);
-+		mutex_unlock(&zdev->dma_domain_lock);
-+		/* Make sure this device is removed from the domain list */
- 		domain = iommu_get_domain_for_dev(dev);
- 		if (domain)
- 			s390_iommu_detach_device(domain, dev);
-+		/* Now ensure DMA is initialized from here */
-+		mutex_lock(&zdev->dma_domain_lock);
-+		if (zdev->s390_domain) {
-+			zdev->s390_domain = NULL;
-+			zpci_unregister_ioat(zdev, 0);
-+			zpci_dma_init_device(zdev);
-+		}
-+		mutex_unlock(&zdev->dma_domain_lock);
- 	}
- }
- 
--- 
-2.37.2
+Alex
 
