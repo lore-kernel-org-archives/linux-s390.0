@@ -2,158 +2,272 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2477FECAAA1
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 19:13:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 956B1C0502C
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 19:37:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230191AbiH3TNR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Aug 2022 15:13:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43552 "EHLO
+        id S230250AbiH3ThJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Aug 2022 15:37:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230020AbiH3TNP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 15:13:15 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AEE075FDC
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 12:13:15 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27UIh3NX026119
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 19:13:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=NtoOe6WKbHprDcsAef3iBLjVmo+OPCdWbZTTIhV+VEA=;
- b=N9L1F5wuvuI21ifIDaLlla0e6SbNUsrvnjuN8xQLv7kr89muhKA0WQX82IzrvdQjI2UL
- k2IuNF4w4KFUywLvASxcbR835H7VvJJgm1U0pj5p/Yu7ZeTPPdV34qC8sBtXyVRPnrkt
- qJeErqbsrdHIXbjoJhGSBnybIS4+Dm3F1skg+9Ow773fxd3e09VZwJJVF73gtPMjdkGm
- H3lATAdSgCXH14yxo4XAQmsLL6T9bOy2u9bXLurzeiClklNlEdUluJ/dYYZ0x7VMKVsa
- X4CGrENu6LnQJOOGgC3tZmud+tp3K0V4AlqCVxHv0PFxDrBNT/u94m8jrS7fXbSRS92u 1Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j9r2urs3f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 19:13:14 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27UIhUZ6028769
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 19:13:14 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j9r2urs34-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 19:13:14 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27UIo7kK026760;
-        Tue, 30 Aug 2022 19:13:13 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma02dal.us.ibm.com with ESMTP id 3j7aw9k353-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 19:13:13 +0000
-Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27UJDCSC63242586
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Aug 2022 19:13:12 GMT
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6796DC6057;
-        Tue, 30 Aug 2022 19:13:11 +0000 (GMT)
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C2E4CC6055;
-        Tue, 30 Aug 2022 19:13:10 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.160.166.125])
-        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 30 Aug 2022 19:13:10 +0000 (GMT)
-Message-ID: <9fe918c32c769e47dd38e1b48f5eb35f1bd31976.camel@linux.ibm.com>
-Subject: Re: buffer overflow in
- vfio_ccw_async_region_write/vfio_ccw_async_region_read
-From:   Eric Farman <farman@linux.ibm.com>
-To:     sohu0106 <sohu0106@126.com>, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com
-Cc:     linux-s390@vger.kernel.org
-Date:   Tue, 30 Aug 2022 15:13:10 -0400
-In-Reply-To: <255c7ef5.6bf9.181f1d3637e.Coremail.sohu0106@126.com>
-References: <255c7ef5.6bf9.181f1d3637e.Coremail.sohu0106@126.com>
+        with ESMTP id S230093AbiH3ThI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 15:37:08 -0400
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A2261D89
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 12:37:06 -0700 (PDT)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-3363b1dffa0so187479617b3.23
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 12:37:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc;
+        bh=HzbcF/PG+Qawg6hoRF5n8gXT8jVmH+0bSMmdlpBSH5Q=;
+        b=WpitjJHu8yxIzlhTDzfzTCcSOyFFbGrF9N7RrYOmSR07TVUgSws08DXXqfslj/EH5j
+         IsYZqhJ5K8tAhqVApAq2q/WIC/++F5MDzikJlI38OBsGNSnjrVnezaJyqELJ24AWj9oY
+         +7zvlA29KkLUGk9Uj43LWRMl4eQscf8yt8u3sVQKPxrcuFB3XdTu33eTM9AW7mrkzjHJ
+         MWB68cpxlcvUtd5L6VGzqO0qLNv4Hgt9Va3PWgaVR9ZPp1c62DtJKo0xM30WTUSA53v6
+         pG4vF6AJRUnrXSYmplq5oKz4I9od/3GkzCLSCofbWUy+mWFkhhKIj3T9xk09kAq1idXu
+         8d5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc;
+        bh=HzbcF/PG+Qawg6hoRF5n8gXT8jVmH+0bSMmdlpBSH5Q=;
+        b=BzDMSiJDcFOKC68fzgtVTLNHmvcEQucWEJr530K8Is3RVGSPA8cuWw8b7PjjlOx+uf
+         RYALa6OZa1gBuzk9RCC9vdbAB7jffabCsKsWtRVNVNjp71sJ7u8eiqv2Lq3SRI75W96z
+         AtnRlBNeBoM5sGgjsoO4qDmGTjY+I3Mc97FMEJeU55PUZJj6stMH3yyBzlf3pVolGvaS
+         IExFs1nZ+llkWLYZRPsPdMAuh0imBMn8KPjAUs6HAS7jQkiY2TZ1+JuhAUTWmyYfXQOc
+         WeoCDaWjShEzDVH3ynsnU2ibufA5UlsK6ytntNQt8SjwTAUsxZSgIUDcNTcw/1wGrZah
+         oGew==
+X-Gm-Message-State: ACgBeo1iggn9ZuknLPbr3LaCWEnnkn2+um5OuRDqe69GQcX/9rtkZDBO
+        6gz9vBaE0SxuJjcN7ARBgjynbisrlL6K
+X-Google-Smtp-Source: AA6agR7bVRyO8OFgpLGeXzgagUQGCk3zR5h8YG1Nini2V46NdLsYk5dAFhH/q7QqcX6WfjSFE1K09uH566NU
+X-Received: from maskray1.svl.corp.google.com ([2620:15c:2ce:200:2c5:644c:c610:2bb9])
+ (user=maskray job=sendgmr) by 2002:a0d:eb4f:0:b0:341:8004:8ebd with SMTP id
+ u76-20020a0deb4f000000b0034180048ebdmr3573747ywe.396.1661888225675; Tue, 30
+ Aug 2022 12:37:05 -0700 (PDT)
+Date:   Tue, 30 Aug 2022 12:37:01 -0700
+Mime-Version: 1.0
+Message-ID: <20220830193701.1702962-1-maskray@google.com>
+Subject: [PATCH] vdso: Improve cmd_vdso_check to check all dynamic relocations
+From:   Fangrui Song <maskray@google.com>
+To:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Cc:     Fangrui Song <maskray@google.com>
 Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.44.4 (3.44.4-1.fc36) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: lZv3h3tY4rIZBhVnEatElWZcpQeEv6VH
-X-Proofpoint-ORIG-GUID: Y6OroSOvQGDBrSSz0OaFR2Hyv-NmI23M
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-30_10,2022-08-30_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
- suspectscore=0 spamscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015
- priorityscore=1501 mlxscore=0 phishscore=0 bulkscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2208300085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-(Apologies for the delay; I was on holiday when this came in and it was
-lost in the noise.)
+The actual intention is that no dynamic relocation exists. However, some
+GNU ld ports produce unneeded R_*_NONE. (If a port is not care enough to
+determine the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
+relocations. E.g. powerpc64le ld as of 2.38 has the issue with
+defconfig.) R_*_NONE are generally no-op in the dynamic loaders. So just
+ignore them.
 
-On Tue, 2022-07-12 at 17:52 +0800, sohu0106 wrote:
-> >=20
-> > In the vfio_ccw_async_region_write/vfio_ccw_async_region_read >
-> > function of drivers/s390/cio/vfio_ccw_async.c, parameter "size_t >
-> > count" is pass by userland, if "count" is very large, it will
-> > bypass > "if (pos + count > sizeof(*region))".(such as
-> > count=3D0xffffffff). Then > it will lead to buffer overflow in
-> > "copy_from_user((void *)region + > pos, buf, count)".=C2=A0
+With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
+bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
+not called "absolute relocations". (The patch is motivated by the arm64
+port missing R_AARCH64_RELATIVE.)
 
-There are some mechanical problems with this patch. It needs a Signed-
-off-by tag, and is not applicable in its current form. All easy to
-resolve, and documented in:=C2=A0
+While here, replace "egrep" with "grep" as "egrep" is deprecated in GNU
+grep 3.7.
 
-Documentation/process/submitting-patches.rst
+Signed-off-by: Fangrui Song <maskray@google.com>
+---
+ arch/arm/vdso/Makefile            |  3 ---
+ arch/arm64/kernel/vdso/Makefile   |  3 ---
+ arch/arm64/kernel/vdso32/Makefile |  3 ---
+ arch/csky/kernel/vdso/Makefile    |  3 ---
+ arch/loongarch/vdso/Makefile      |  3 ---
+ arch/mips/vdso/Makefile           |  3 ---
+ arch/powerpc/kernel/vdso/Makefile |  1 -
+ arch/riscv/kernel/vdso/Makefile   |  3 ---
+ arch/s390/kernel/vdso32/Makefile  |  2 --
+ arch/s390/kernel/vdso64/Makefile  |  2 --
+ arch/x86/entry/vdso/Makefile      |  4 ----
+ lib/vdso/Makefile                 | 13 ++++---------
+ 12 files changed, 4 insertions(+), 39 deletions(-)
 
-Having said that, I'm not sure that the problem exists as you describe.
-In my tests, submitting a very large count (0xffffffff, per your
-example) gets capped to MAX_RW_COUNT [1] before it gets here. If you
-have a mechanism that shows otherwise, I'd like to see it so that I can
-revisit my own test scenarios. Seeing it fail would imply that the
-async region is not the only one affected, and a new version of this
-patch would need to also address the io and schib regions in vfio-ccw.
-
-Thanks,
-Eric
-
-[1]
-https://lore.kernel.org/all/CAADWXX9rrESSEGmA4C9F85E9jo7H-pv+CUtyAU_kyB=3DD=
-fcHRpA@mail.gmail.com/
-
-
-> >=20
-> >=20
-> >=20
-> >=20
-> > diff --git a/vfio_ccw_async.c_org b/vfio_ccw_async.c
-> > index 7a838e3..33339ad 100644
-> > --- a/vfio_ccw_async.c_org
-> > +++ b/vfio_ccw_async.c
-> > @@ -21,7 +21,7 @@ static ssize_t vfio_ccw_async_region_read(struct
-> > > vfio_ccw_private *private,
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 struct ccw_cmd_region *region;
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 int ret;
-> >=20
-> >=20
-> > -=C2=A0 =C2=A0 =C2=A0 =C2=A0if (pos + count > sizeof(*region))
-> > +=C2=A0 =C2=A0 =C2=A0 =C2=A0if (pos + count > sizeof(*region) && pos + =
-count > pos)
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -EINVAL;
-> >=20
-> >=20
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 mutex_lock(&private->io_mutex);
-> > @@ -43,7 +43,7 @@ static ssize_t vfio_ccw_async_region_write(struct
-> > > vfio_ccw_private *private,
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 struct ccw_cmd_region *region;
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 int ret;
-> >=20
-> >=20
-> > -=C2=A0 =C2=A0 =C2=A0 =C2=A0if (pos + count > sizeof(*region))
-> > +=C2=A0 =C2=A0 =C2=A0 =C2=A0if (pos + count > sizeof(*region) && pos + =
-count > pos)
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -EINVAL;
-> >=20
-> >=20
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!mutex_trylock(&private->io_mutex))
-> >=20
+diff --git a/arch/arm/vdso/Makefile b/arch/arm/vdso/Makefile
+index 8ca1c9f262a2..5ebd2e6f7d46 100644
+--- a/arch/arm/vdso/Makefile
++++ b/arch/arm/vdso/Makefile
+@@ -1,8 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
+ include $(srctree)/lib/vdso/Makefile
+ 
+ hostprogs := vdsomunge
+diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
+index bafbf78fab77..66dc4f338a86 100644
+--- a/arch/arm64/kernel/vdso/Makefile
++++ b/arch/arm64/kernel/vdso/Makefile
+@@ -6,9 +6,6 @@
+ # Heavily based on the vDSO Makefiles for other archs.
+ #
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_AARCH64_JUMP_SLOT|R_AARCH64_GLOB_DAT|R_AARCH64_ABS64
+ include $(srctree)/lib/vdso/Makefile
+ 
+ obj-vdso := vgettimeofday.o note.o sigreturn.o
+diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
+index 36c8f66cad25..48d713d59ef2 100644
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -3,9 +3,6 @@
+ # Makefile for vdso32
+ #
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
+ include $(srctree)/lib/vdso/Makefile
+ 
+ # Same as cc-*option, but using CC_COMPAT instead of CC
+diff --git a/arch/csky/kernel/vdso/Makefile b/arch/csky/kernel/vdso/Makefile
+index 0b6909f10667..86c8c4de1b0f 100644
+--- a/arch/csky/kernel/vdso/Makefile
++++ b/arch/csky/kernel/vdso/Makefile
+@@ -1,8 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_CKCORE_ADDR32|R_CKCORE_JUMP_SLOT
+ include $(srctree)/lib/vdso/Makefile
+ 
+ # Symbols present in the vdso
+diff --git a/arch/loongarch/vdso/Makefile b/arch/loongarch/vdso/Makefile
+index d89e2ac75f7b..1b2e0f149f55 100644
+--- a/arch/loongarch/vdso/Makefile
++++ b/arch/loongarch/vdso/Makefile
+@@ -1,9 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Objects to go into the VDSO.
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_LARCH_32|R_LARCH_64|R_LARCH_MARK_LA|R_LARCH_JUMP_SLOT
+ include $(srctree)/lib/vdso/Makefile
+ 
+ obj-vdso-y := elf.o vgetcpu.o vgettimeofday.o sigreturn.o
+diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+index f72658b3a53f..cea97abffc03 100644
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -4,9 +4,6 @@
+ # Sanitizer runtimes are unavailable and cannot be linked here.
+  KCSAN_SANITIZE			:= n
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_MIPS_JUMP_SLOT|R_MIPS_GLOB_DAT
+ include $(srctree)/lib/vdso/Makefile
+ 
+ obj-vdso-y := elf.o vgettimeofday.o sigreturn.o
+diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
+index 096b0bf1335f..d3c5be32034d 100644
+--- a/arch/powerpc/kernel/vdso/Makefile
++++ b/arch/powerpc/kernel/vdso/Makefile
+@@ -2,7 +2,6 @@
+ 
+ # List of files in the vdso, has to be asm only for now
+ 
+-ARCH_REL_TYPE_ABS := R_PPC_JUMP_SLOT|R_PPC_GLOB_DAT|R_PPC_ADDR32|R_PPC_ADDR24|R_PPC_ADDR16|R_PPC_ADDR16_LO|R_PPC_ADDR16_HI|R_PPC_ADDR16_HA|R_PPC_ADDR14|R_PPC_ADDR14_BRTAKEN|R_PPC_ADDR14_BRNTAKEN|R_PPC_REL24
+ include $(srctree)/lib/vdso/Makefile
+ 
+ obj-vdso32 = sigtramp32-32.o gettimeofday-32.o datapage-32.o cacheflush-32.o note-32.o getcpu-32.o
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index f2e065671e4d..77d6bed3a700 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -1,9 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ # Copied from arch/tile/kernel/vdso/Makefile
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_RISCV_32|R_RISCV_64|R_RISCV_JUMP_SLOT
+ include $(srctree)/lib/vdso/Makefile
+ # Symbols present in the vdso
+ vdso-syms  = rt_sigreturn
+diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
+index 245bddfe9bc0..e795fdbbf484 100644
+--- a/arch/s390/kernel/vdso32/Makefile
++++ b/arch/s390/kernel/vdso32/Makefile
+@@ -2,8 +2,6 @@
+ # List of files in the vdso
+ 
+ KCOV_INSTRUMENT := n
+-ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
+-ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
+ 
+ include $(srctree)/lib/vdso/Makefile
+ obj-vdso32 = vdso_user_wrapper-32.o note-32.o
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 9e2b95a222a9..47dbbfdfad68 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -2,8 +2,6 @@
+ # List of files in the vdso
+ 
+ KCOV_INSTRUMENT := n
+-ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
+-ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
+ 
+ include $(srctree)/lib/vdso/Makefile
+ obj-vdso64 = vdso_user_wrapper.o note.o
+diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
+index 12f6c4d714cd..a97f3630ca20 100644
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -3,10 +3,6 @@
+ # Building vDSO images for x86.
+ #
+ 
+-# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+-# the inclusion of generic Makefile.
+-ARCH_REL_TYPE_ABS := R_X86_64_JUMP_SLOT|R_X86_64_GLOB_DAT|R_X86_64_RELATIVE|
+-ARCH_REL_TYPE_ABS += R_386_GLOB_DAT|R_386_JMP_SLOT|R_386_RELATIVE
+ include $(srctree)/lib/vdso/Makefile
+ 
+ # Sanitizer runtimes are unavailable and cannot be linked here.
+diff --git a/lib/vdso/Makefile b/lib/vdso/Makefile
+index c415a685d61b..9f031eafc465 100644
+--- a/lib/vdso/Makefile
++++ b/lib/vdso/Makefile
+@@ -5,18 +5,13 @@ GENERIC_VDSO_DIR := $(dir $(GENERIC_VDSO_MK_PATH))
+ 
+ c-gettimeofday-$(CONFIG_GENERIC_GETTIMEOFDAY) := $(addprefix $(GENERIC_VDSO_DIR), gettimeofday.c)
+ 
+-# This cmd checks that the vdso library does not contain absolute relocation
++# This cmd checks that the vdso library does not contain dynamic relocations.
+ # It has to be called after the linking of the vdso library and requires it
+ # as a parameter.
+ #
+-# $(ARCH_REL_TYPE_ABS) is defined in the arch specific makefile and corresponds
+-# to the absolute relocation types printed by "objdump -R" and accepted by the
+-# dynamic linker.
+-ifndef ARCH_REL_TYPE_ABS
+-$(error ARCH_REL_TYPE_ABS is not set)
+-endif
+-
++# As a workaround for some GNU ld ports which produce unneeded R_*_NONE
++# dynamic relocations, ignore R_*_NONE.
+ quiet_cmd_vdso_check = VDSOCHK $@
+-      cmd_vdso_check = if $(OBJDUMP) -R $@ | egrep -h "$(ARCH_REL_TYPE_ABS)"; \
++      cmd_vdso_check = if $(READELF) -rW $@ | grep -v _NONE | grep -q " R_\w*_"; \
+ 		       then (echo >&2 "$@: dynamic relocations are not supported"; \
+ 			     rm -f $@; /bin/false); fi
+-- 
+2.37.2.672.g94769d06f0-goog
 
