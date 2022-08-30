@@ -2,236 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FF42ECAAD1
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 14:13:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D18CECAAA1
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 14:15:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229999AbiH3ONp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Aug 2022 10:13:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52234 "EHLO
+        id S230113AbiH3OPj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Aug 2022 10:15:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbiH3ONn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 10:13:43 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA1A2E01EF;
-        Tue, 30 Aug 2022 07:13:42 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27UDRwnW023927;
-        Tue, 30 Aug 2022 13:43:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=YFAKHxu5wcKQ3UK0MPzzxJnNMBONFL5WOcAvofUE3bw=;
- b=n6TYPcc2EEb678JhhWrpENhKY5a0ZXNQzGelXBS+3+lCPr6s82vmVAGoVmPROY9DPi4l
- DpcmzJAoBJhHFKuWICXIo9zWlU3MC6AX4hY+dbOPzbkKzrOxqLakgTYWHn+o4QaMyx5e
- FK1y098IJYEdFQQyoxp+2gha+P5MBYxRltL2UUwVeJv1Jduz6rkz7jt4ph4T9hW2KrFM
- n1m+w65c70EdD06MRVgNz3GLhSSpQKf8yEtj29UIHN43WMl3OdHGhros9gfhp2LGpuIQ
- unNhz9NT3XzwovWR6Iv9oG2WSL4WdfBcZSJMUXOhoqA/gM1qKJfY6xqzbOXgl5BGMblE Nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j9kf68qdb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 13:43:30 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27UDSdlX026996;
-        Tue, 30 Aug 2022 13:43:29 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j9kf68qce-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 13:43:29 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27UDaBTF031062;
-        Tue, 30 Aug 2022 13:43:27 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma03dal.us.ibm.com with ESMTP id 3j7awas13e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Aug 2022 13:43:27 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27UDhQia5178046
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Aug 2022 13:43:26 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9321F28059;
-        Tue, 30 Aug 2022 13:43:26 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B326028058;
-        Tue, 30 Aug 2022 13:43:24 +0000 (GMT)
-Received: from [9.160.64.167] (unknown [9.160.64.167])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 30 Aug 2022 13:43:24 +0000 (GMT)
-Message-ID: <e81f5b86-f5ce-2a2b-bc05-5ef73fc318b5@linux.ibm.com>
-Date:   Tue, 30 Aug 2022 09:43:24 -0400
+        with ESMTP id S229800AbiH3OPj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 10:15:39 -0400
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D50B5A89D;
+        Tue, 30 Aug 2022 07:15:34 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R481e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VNlVrHu_1661868930;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VNlVrHu_1661868930)
+          by smtp.aliyun-inc.com;
+          Tue, 30 Aug 2022 22:15:30 +0800
+Date:   Tue, 30 Aug 2022 22:15:29 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     liuyacan@corp.netease.com
+Cc:     davem@davemloft.net, edumazet@google.com, kgraul@linux.ibm.com,
+        kuba@kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        pabeni@redhat.com, wenjia@linux.ibm.com
+Subject: Re: [PATCH net v2] net/smc: fix listen processing for SMC-Rv2
+Message-ID: <Yw4bgV6c0LQ6reMc@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20220830030555.373860-1-liuyacan@corp.netease.com>
+ <20220830055806.1142343-1-liuyacan@corp.netease.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 09/15] vfio/ap: Use the new device life cycle helpers
-Content-Language: en-US
-To:     Kevin Tian <kevin.tian@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Longfang Liu <liulongfang@huawei.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     Yi Liu <yi.l.liu@intel.com>
-References: <20220827171037.30297-1-kevin.tian@intel.com>
- <20220827171037.30297-10-kevin.tian@intel.com>
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20220827171037.30297-10-kevin.tian@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: IdluEtB4hu3CV0euTFXaRaPw-5HY7ylp
-X-Proofpoint-GUID: eVg-uI5lnP3oaIxLLf2Oml3yenLlz5VK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-30_08,2022-08-30_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- mlxlogscore=999 spamscore=0 phishscore=0 suspectscore=0 adultscore=0
- priorityscore=1501 lowpriorityscore=0 clxscore=1015 malwarescore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208300067
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220830055806.1142343-1-liuyacan@corp.netease.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+On Tue, Aug 30, 2022 at 01:58:06PM +0800, liuyacan@corp.netease.com wrote:
+> > > From: liuyacan <liuyacan@corp.netease.com>
+> > > 
+> > > After modifying the QP to the Error state, all RX WR would be
+> > > completed with WC in IB_WC_WR_FLUSH_ERR status. Current
+> > > implementation does not wait for it is done, but free the link
+> > > directly. So there is a risk that accessing the freed link in
+> > > tasklet context.
+> > > 
+> > > Here is a crash example:
+> > > 
+> > >  BUG: unable to handle page fault for address: ffffffff8f220860
+> > >  #PF: supervisor write access in kernel mode
+> > >  #PF: error_code(0x0002) - not-present page
+> > >  PGD f7300e067 P4D f7300e067 PUD f7300f063 PMD 8c4e45063 PTE 800ffff08c9df060
+> > >  Oops: 0002 [#1] SMP PTI
+> > >  CPU: 1 PID: 0 Comm: swapper/1 Kdump: loaded Tainted: G S         OE     5.10.0-0607+ #23
+> > >  Hardware name: Inspur NF5280M4/YZMB-00689-101, BIOS 4.1.20 07/09/2018
+> > >  RIP: 0010:native_queued_spin_lock_slowpath+0x176/0x1b0
+> > >  Code: f3 90 48 8b 32 48 85 f6 74 f6 eb d5 c1 ee 12 83 e0 03 83 ee 01 48 c1 e0 05 48 63 f6 48 05 00 c8 02 00 48 03 04 f5 00 09 98 8e <48> 89 10 8b 42 08 85 c0 75 09 f3 90 8b 42 08 85 c0 74 f7 48 8b 32
+> > >  RSP: 0018:ffffb3b6c001ebd8 EFLAGS: 00010086
+> > >  RAX: ffffffff8f220860 RBX: 0000000000000246 RCX: 0000000000080000
+> > >  RDX: ffff91db1f86c800 RSI: 000000000000173c RDI: ffff91db62bace00
+> > >  RBP: ffff91db62bacc00 R08: 0000000000000000 R09: c00000010000028b
+> > >  R10: 0000000000055198 R11: ffffb3b6c001ea58 R12: ffff91db80e05010
+> > >  R13: 000000000000000a R14: 0000000000000006 R15: 0000000000000040
+> > >  FS:  0000000000000000(0000) GS:ffff91db1f840000(0000) knlGS:0000000000000000
+> > >  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > >  CR2: ffffffff8f220860 CR3: 00000001f9580004 CR4: 00000000003706e0
+> > >  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > >  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > >  Call Trace:
+> > >   <IRQ>
+> > >   _raw_spin_lock_irqsave+0x30/0x40
+> > >   mlx5_ib_poll_cq+0x4c/0xc50 [mlx5_ib]
+> > >   smc_wr_rx_tasklet_fn+0x56/0xa0 [smc]
+> > >   tasklet_action_common.isra.21+0x66/0x100
+> > >   __do_softirq+0xd5/0x29c
+> > >   asm_call_irq_on_stack+0x12/0x20
+> > >   </IRQ>
+> > >   do_softirq_own_stack+0x37/0x40
+> > >   irq_exit_rcu+0x9d/0xa0
+> > >   sysvec_call_function_single+0x34/0x80
+> > >   asm_sysvec_call_function_single+0x12/0x20
+> > > 
+> > > Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+> > > ---
+> > >  net/smc/smc_core.c |  2 ++
+> > >  net/smc/smc_core.h |  2 ++
+> > >  net/smc/smc_wr.c   | 12 ++++++++++++
+> > >  net/smc/smc_wr.h   |  3 +++
+> > >  4 files changed, 19 insertions(+)
+> > > 
+> > > diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> > > index ff49a11f5..b632a33f1 100644
+> > > --- a/net/smc/smc_core.c
+> > > +++ b/net/smc/smc_core.c
+> > > @@ -752,6 +752,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+> > >  	atomic_inc(&lnk->smcibdev->lnk_cnt);
+> > >  	refcount_set(&lnk->refcnt, 1); /* link refcnt is set to 1 */
+> > >  	lnk->clearing = 0;
+> > > +	lnk->rx_drained = 0;
+> > >  	lnk->path_mtu = lnk->smcibdev->pattr[lnk->ibport - 1].active_mtu;
+> > >  	lnk->link_id = smcr_next_link_id(lgr);
+> > >  	lnk->lgr = lgr;
+> > > @@ -1269,6 +1270,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
+> > >  	smcr_buf_unmap_lgr(lnk);
+> > >  	smcr_rtoken_clear_link(lnk);
+> > >  	smc_ib_modify_qp_error(lnk);
+> > > +	smc_wr_drain_cq(lnk);
+> > >  	smc_wr_free_link(lnk);
+> > >  	smc_ib_destroy_queue_pair(lnk);
+> > >  	smc_ib_dealloc_protection_domain(lnk);
+> > > diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+> > > index fe8b524ad..0a469a3e7 100644
+> > > --- a/net/smc/smc_core.h
+> > > +++ b/net/smc/smc_core.h
+> > > @@ -117,6 +117,7 @@ struct smc_link {
+> > >  	u64			wr_rx_id;	/* seq # of last recv WR */
+> > >  	u32			wr_rx_cnt;	/* number of WR recv buffers */
+> > >  	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
+> > > +	wait_queue_head_t       wr_rx_drain_wait; /* wait for WR drain */
+> > >  
+> > >  	struct ib_reg_wr	wr_reg;		/* WR register memory region */
+> > >  	wait_queue_head_t	wr_reg_wait;	/* wait for wr_reg result */
+> > > @@ -138,6 +139,7 @@ struct smc_link {
+> > >  	u8			link_idx;	/* index in lgr link array */
+> > >  	u8			link_is_asym;	/* is link asymmetric? */
+> > >  	u8			clearing : 1;	/* link is being cleared */
+> > > +	u8                      rx_drained : 1; /* link is drained */
+> > >  	refcount_t		refcnt;		/* link reference count */
+> > >  	struct smc_link_group	*lgr;		/* parent link group */
+> > >  	struct work_struct	link_down_wrk;	/* wrk to bring link down */
+> > > diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+> > > index 26f8f240d..f9992896a 100644
+> > > --- a/net/smc/smc_wr.c
+> > > +++ b/net/smc/smc_wr.c
+> > > @@ -465,6 +465,10 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+> > >  			case IB_WC_RNR_RETRY_EXC_ERR:
+> > >  			case IB_WC_WR_FLUSH_ERR:
+> > >  				smcr_link_down_cond_sched(link);
+> > > +				if (link->clearing && wc[i]->wr_id == link->wr_rx_id) {
+> > > +					link->rx_drained = 1;
+> > > +					wake_up(&link->wr_rx_drain_wait);
+> > > +				}
+> > 
+> > I am wondering if we should wait for all the wc comes back?
+> 
+> I think yes, so other processes can safely destroy qp.
+> 
+> > 
+> > >  				break;
+> > >  			default:
+> > >  				smc_wr_rx_post(link); /* refill WR RX */
+> > > @@ -631,6 +635,13 @@ static void smc_wr_init_sge(struct smc_link *lnk)
+> > >  	lnk->wr_reg.access = IB_ACCESS_LOCAL_WRITE | IB_ACCESS_REMOTE_WRITE;
+> > >  }
+> > >  
+> > > +void smc_wr_drain_cq(struct smc_link *lnk)
+> > > +{
+> > > +	wait_event_interruptible_timeout(lnk->wr_rx_drain_wait,
+> > > +					 (lnk->drained == 1),
+> > > +					 SMC_WR_RX_WAIT_DRAIN_TIME);
+> > > +}
+> > 
+> > Should we wait for it with timeout? It should eventually be wake up
+> > normally before freeing link. Waiting for SMC_WR_RX_WAIT_DRAIN_TIME (2s)
+> > may also have this issue, although the probability of occurrence is
+> > greatly reduced.
+> 
+> Indeed, there should logically probably be a perpetual wait here. I'm just worried if it 
+> will get stuck for some unknown reason.
 
-On 8/27/22 1:10 PM, Kevin Tian wrote:
-> From: Yi Liu <yi.l.liu@intel.com>
->
-> and manage available_instances inside @init/@release.
->
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> Signed-off-by: Kevin Tian <kevin.tian@intel.com>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c | 50 ++++++++++++++++++-------------
->   1 file changed, 29 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 6c8c41fac4e1..803aadfd0876 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -684,42 +684,44 @@ static bool vfio_ap_mdev_filter_matrix(unsigned long *apm, unsigned long *aqm,
->   			     AP_DOMAINS);
->   }
->   
-> -static int vfio_ap_mdev_probe(struct mdev_device *mdev)
-> +static int vfio_ap_mdev_init_dev(struct vfio_device *vdev)
->   {
-> -	struct ap_matrix_mdev *matrix_mdev;
-> -	int ret;
-> +	struct ap_matrix_mdev *matrix_mdev =
-> +		container_of(vdev, struct ap_matrix_mdev, vdev);
->   
->   	if ((atomic_dec_if_positive(&matrix_dev->available_instances) < 0))
->   		return -EPERM;
->   
-> -	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
-> -	if (!matrix_mdev) {
-> -		ret = -ENOMEM;
-> -		goto err_dec_available;
-> -	}
-> -	vfio_init_group_dev(&matrix_mdev->vdev, &mdev->dev,
-> -			    &vfio_ap_matrix_dev_ops);
-> -
-> -	matrix_mdev->mdev = mdev;
-> +	matrix_mdev->mdev = to_mdev_device(vdev->dev);
->   	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
->   	matrix_mdev->pqap_hook = handle_pqap;
->   	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
->   	hash_init(matrix_mdev->qtable.queues);
->   
-> +	return 0;
-> +}
-> +
-> +static int vfio_ap_mdev_probe(struct mdev_device *mdev)
-> +{
-> +	struct ap_matrix_mdev *matrix_mdev;
-> +	int ret;
-> +
-> +	matrix_mdev = vfio_alloc_device(ap_matrix_mdev, vdev, &mdev->dev,
-> +					&vfio_ap_matrix_dev_ops);
-> +	if (IS_ERR(matrix_mdev))
-> +		return PTR_ERR(matrix_mdev);
-> +
->   	ret = vfio_register_emulated_iommu_dev(&matrix_mdev->vdev);
->   	if (ret)
-> -		goto err_list;
-> +		goto err_put_vdev;
->   	dev_set_drvdata(&mdev->dev, matrix_mdev);
->   	mutex_lock(&matrix_dev->mdevs_lock);
->   	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
->   	mutex_unlock(&matrix_dev->mdevs_lock);
->   	return 0;
->   
-> -err_list:
-> -	vfio_uninit_group_dev(&matrix_mdev->vdev);
-> -	kfree(matrix_mdev);
-> -err_dec_available:
-> -	atomic_inc(&matrix_dev->available_instances);
-> +err_put_vdev:
-> +	vfio_put_device(&matrix_mdev->vdev);
->   	return ret;
->   }
->   
-> @@ -766,6 +768,12 @@ static void vfio_ap_mdev_unlink_fr_queues(struct ap_matrix_mdev *matrix_mdev)
->   	}
->   }
->   
-> +static void vfio_ap_mdev_release_dev(struct vfio_device *vdev)
-> +{
-> +	vfio_free_device(vdev);
-> +	atomic_inc(&matrix_dev->available_instances);
-> +}
-> +
->   static void vfio_ap_mdev_remove(struct mdev_device *mdev)
->   {
->   	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(&mdev->dev);
-> @@ -779,9 +787,7 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
->   	list_del(&matrix_mdev->node);
->   	mutex_unlock(&matrix_dev->mdevs_lock);
->   	mutex_unlock(&matrix_dev->guests_lock);
-> -	vfio_uninit_group_dev(&matrix_mdev->vdev);
-> -	kfree(matrix_mdev);
-> -	atomic_inc(&matrix_dev->available_instances);
-> +	vfio_put_device(&matrix_mdev->vdev);
->   }
->   
->   static ssize_t name_show(struct mdev_type *mtype,
-> @@ -1794,6 +1800,8 @@ static const struct attribute_group vfio_queue_attr_group = {
->   };
->   
->   static const struct vfio_device_ops vfio_ap_matrix_dev_ops = {
-> +	.init = vfio_ap_mdev_init_dev,
-> +	.release = vfio_ap_mdev_release_dev,
->   	.open_device = vfio_ap_mdev_open_device,
->   	.close_device = vfio_ap_mdev_close_device,
->   	.ioctl = vfio_ap_mdev_ioctl,
+IMHO, it's better to get stuck rather than to hide unknown issues. So I
+think timeout is unnecessary. 
+
+Cheers,
+Tony Lu
