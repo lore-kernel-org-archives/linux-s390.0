@@ -2,272 +2,189 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 956B1C0502C
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 19:37:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 905ECECAAD5
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 19:44:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230250AbiH3ThJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Aug 2022 15:37:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57318 "EHLO
+        id S231364AbiH3Tov (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Aug 2022 15:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbiH3ThI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 15:37:08 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A2261D89
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 12:37:06 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-3363b1dffa0so187479617b3.23
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 12:37:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc;
-        bh=HzbcF/PG+Qawg6hoRF5n8gXT8jVmH+0bSMmdlpBSH5Q=;
-        b=WpitjJHu8yxIzlhTDzfzTCcSOyFFbGrF9N7RrYOmSR07TVUgSws08DXXqfslj/EH5j
-         IsYZqhJ5K8tAhqVApAq2q/WIC/++F5MDzikJlI38OBsGNSnjrVnezaJyqELJ24AWj9oY
-         +7zvlA29KkLUGk9Uj43LWRMl4eQscf8yt8u3sVQKPxrcuFB3XdTu33eTM9AW7mrkzjHJ
-         MWB68cpxlcvUtd5L6VGzqO0qLNv4Hgt9Va3PWgaVR9ZPp1c62DtJKo0xM30WTUSA53v6
-         pG4vF6AJRUnrXSYmplq5oKz4I9od/3GkzCLSCofbWUy+mWFkhhKIj3T9xk09kAq1idXu
-         8d5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc;
-        bh=HzbcF/PG+Qawg6hoRF5n8gXT8jVmH+0bSMmdlpBSH5Q=;
-        b=BzDMSiJDcFOKC68fzgtVTLNHmvcEQucWEJr530K8Is3RVGSPA8cuWw8b7PjjlOx+uf
-         RYALa6OZa1gBuzk9RCC9vdbAB7jffabCsKsWtRVNVNjp71sJ7u8eiqv2Lq3SRI75W96z
-         AtnRlBNeBoM5sGgjsoO4qDmGTjY+I3Mc97FMEJeU55PUZJj6stMH3yyBzlf3pVolGvaS
-         IExFs1nZ+llkWLYZRPsPdMAuh0imBMn8KPjAUs6HAS7jQkiY2TZ1+JuhAUTWmyYfXQOc
-         WeoCDaWjShEzDVH3ynsnU2ibufA5UlsK6ytntNQt8SjwTAUsxZSgIUDcNTcw/1wGrZah
-         oGew==
-X-Gm-Message-State: ACgBeo1iggn9ZuknLPbr3LaCWEnnkn2+um5OuRDqe69GQcX/9rtkZDBO
-        6gz9vBaE0SxuJjcN7ARBgjynbisrlL6K
-X-Google-Smtp-Source: AA6agR7bVRyO8OFgpLGeXzgagUQGCk3zR5h8YG1Nini2V46NdLsYk5dAFhH/q7QqcX6WfjSFE1K09uH566NU
-X-Received: from maskray1.svl.corp.google.com ([2620:15c:2ce:200:2c5:644c:c610:2bb9])
- (user=maskray job=sendgmr) by 2002:a0d:eb4f:0:b0:341:8004:8ebd with SMTP id
- u76-20020a0deb4f000000b0034180048ebdmr3573747ywe.396.1661888225675; Tue, 30
- Aug 2022 12:37:05 -0700 (PDT)
-Date:   Tue, 30 Aug 2022 12:37:01 -0700
-Mime-Version: 1.0
-Message-ID: <20220830193701.1702962-1-maskray@google.com>
-Subject: [PATCH] vdso: Improve cmd_vdso_check to check all dynamic relocations
-From:   Fangrui Song <maskray@google.com>
-To:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Cc:     Fangrui Song <maskray@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S230350AbiH3Toa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 15:44:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD637E311;
+        Tue, 30 Aug 2022 12:43:45 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27UIVl7k008865;
+        Tue, 30 Aug 2022 19:43:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=nvlS2VMNsmy2wY435KnShBDYElsWCPC73ASoLmOHEMg=;
+ b=Nb8L8Cp4KAHCTal/vuwjPpH9Ubi0o+qLKIMBmWwNidpI7ZC2Ka3AgfZoBy4lmulwYp9K
+ oFRNocY7nDDce38NUGbXmBWMV3N9tLgP0mEbIISvvzThhyO9ZOdq7kjYU5FdKGMqEAxL
+ mlgPC/Fsr22Tfd9HnByFtLaJaPTgMne/vOcoXeDF6JcFFKSNf33Sj9hMw8/f9ZuXKrl8
+ bFtgoxTYAhZAV5/ndXul0sxNfzwZiH+TKzREQDV0yK32mKjhXI9yxGPkJ+tlKWS1kCdU
+ i2K+w/qwpWOY1t6P445W/uD/nNyjxmCLjDmeAa3EccPDUbUyQizN5DMeANlV1Cu3HTj0 ug== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j9qwm1s4d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 30 Aug 2022 19:43:25 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27UJQeVB002546;
+        Tue, 30 Aug 2022 19:43:24 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j9qwm1s3t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 30 Aug 2022 19:43:24 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27UJZwRa028948;
+        Tue, 30 Aug 2022 19:43:23 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma05wdc.us.ibm.com with ESMTP id 3j7aw9nv30-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 30 Aug 2022 19:43:23 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27UJhMf638732266
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 30 Aug 2022 19:43:22 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 82ED72805A;
+        Tue, 30 Aug 2022 19:43:22 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 69F6E28058;
+        Tue, 30 Aug 2022 19:43:20 +0000 (GMT)
+Received: from [9.160.64.167] (unknown [9.160.64.167])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 30 Aug 2022 19:43:20 +0000 (GMT)
+Message-ID: <857ca47a-e37a-450d-385f-8bdd3fbd2ed9@linux.ibm.com>
+Date:   Tue, 30 Aug 2022 15:43:20 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 01/15] vfio: Add helpers for unifying vfio_device life
+ cycle
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Kevin Tian <kevin.tian@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Longfang Liu <liulongfang@huawei.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>
+References: <20220827171037.30297-1-kevin.tian@intel.com>
+ <20220827171037.30297-2-kevin.tian@intel.com>
+ <907c54c6-7f5b-77f3-c284-45604c60c12e@linux.ibm.com>
+ <Yw4oUL33TbJK6inc@ziepe.ca>
+From:   Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <Yw4oUL33TbJK6inc@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: aRCafsSVB4WDgZKQoAh5T0ZD6U8Lpe4c
+X-Proofpoint-GUID: iUNzE8Y1B8EAR70qXetOvkvDM2I5g5Bu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-30_10,2022-08-30_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ lowpriorityscore=0 bulkscore=0 mlxscore=0 clxscore=1015 adultscore=0
+ phishscore=0 spamscore=0 mlxlogscore=999 impostorscore=0
+ priorityscore=1501 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2207270000 definitions=main-2208300088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The actual intention is that no dynamic relocation exists. However, some
-GNU ld ports produce unneeded R_*_NONE. (If a port is not care enough to
-determine the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
-relocations. E.g. powerpc64le ld as of 2.38 has the issue with
-defconfig.) R_*_NONE are generally no-op in the dynamic loaders. So just
-ignore them.
 
-With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
-bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
-not called "absolute relocations". (The patch is motivated by the arm64
-port missing R_AARCH64_RELATIVE.)
+On 8/30/22 11:10 AM, Jason Gunthorpe wrote:
+> On Tue, Aug 30, 2022 at 09:42:42AM -0400, Anthony Krowiak wrote:
+>
+>>> +/*
+>>> + * Alloc and initialize vfio_device so it can be registered to vfio
+>>> + * core.
+>>> + *
+>>> + * Drivers should use the wrapper vfio_alloc_device() for allocation.
+>>> + * @size is the size of the structure to be allocated, including any
+>>> + * private data used by the driver.
+>>
+>> It seems the purpose of the wrapper is to ensure that the object being
+>> allocated has as its first field a struct vfio_device object and to return
+>> its container. Why not just make that a requirement for this function -
+>> which I would rename vfio_alloc_device - and document it in the prologue?
+>> The caller can then cast the return pointer or use container_of.
+> There are three fairly common patterns for this kind of thing
+>
+> 1) The caller open codes everything:
+>
+>     driver_struct = kzalloc()
+>     core_init(&driver_struct->core)
+>
+> 2) Some 'get priv' / 'get data' is used instead of container_of():
+>
+>     core_struct = core_alloc(sizeof(*driver_struct))
+>     driver_struct = core_get_priv(core_struct)
+>
+> 3) The allocations and initialization are consolidated in the core,
+>     but we continue to use container_of()
+>
+>     driver_struct = core_alloc(typeof(*driver_struct))
+>
+> #1 has a general drawback that people routinely mess up the lifecycle
+> model and get really confused about when to do kfree() vs put(),
+> creating bugs.
+>
+> #2 has a general drawback of not using container_of() at all, and being
+> a bit confusing in some cases
+>
+> #3 has the general drawback of being a bit magical, but solves 1 and
+> 2's problems.
+>
+> I would not fix the struct layout without the BUILD_BUG_ON because
+> someone will accidently change the order and that becomes a subtle
+> runtime error - so at a minimum the wrapper macro has to exist to
+> check that.
+>
+> If you want to allow a dynamic struct layout and avoid the pitfall of
+> exposing the user to kalloc/kfree, then you still need the macro, and
+> it does some more complicated offset stuff.
+>
+> Having the wrapper macro be entirely type safe is appealing and
+> reduces code in the drivers, IMHO. Tell it what type you are initing
+> and get back init'd memory for that type that you always, always free
+> with a put operation.
 
-While here, replace "egrep" with "grep" as "egrep" is deprecated in GNU
-grep 3.7.
 
-Signed-off-by: Fangrui Song <maskray@google.com>
----
- arch/arm/vdso/Makefile            |  3 ---
- arch/arm64/kernel/vdso/Makefile   |  3 ---
- arch/arm64/kernel/vdso32/Makefile |  3 ---
- arch/csky/kernel/vdso/Makefile    |  3 ---
- arch/loongarch/vdso/Makefile      |  3 ---
- arch/mips/vdso/Makefile           |  3 ---
- arch/powerpc/kernel/vdso/Makefile |  1 -
- arch/riscv/kernel/vdso/Makefile   |  3 ---
- arch/s390/kernel/vdso32/Makefile  |  2 --
- arch/s390/kernel/vdso64/Makefile  |  2 --
- arch/x86/entry/vdso/Makefile      |  4 ----
- lib/vdso/Makefile                 | 13 ++++---------
- 12 files changed, 4 insertions(+), 39 deletions(-)
+Sounds reasonable, okay I'm buying.
 
-diff --git a/arch/arm/vdso/Makefile b/arch/arm/vdso/Makefile
-index 8ca1c9f262a2..5ebd2e6f7d46 100644
---- a/arch/arm/vdso/Makefile
-+++ b/arch/arm/vdso/Makefile
-@@ -1,8 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
- 
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
- include $(srctree)/lib/vdso/Makefile
- 
- hostprogs := vdsomunge
-diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
-index bafbf78fab77..66dc4f338a86 100644
---- a/arch/arm64/kernel/vdso/Makefile
-+++ b/arch/arm64/kernel/vdso/Makefile
-@@ -6,9 +6,6 @@
- # Heavily based on the vDSO Makefiles for other archs.
- #
- 
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_AARCH64_JUMP_SLOT|R_AARCH64_GLOB_DAT|R_AARCH64_ABS64
- include $(srctree)/lib/vdso/Makefile
- 
- obj-vdso := vgettimeofday.o note.o sigreturn.o
-diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
-index 36c8f66cad25..48d713d59ef2 100644
---- a/arch/arm64/kernel/vdso32/Makefile
-+++ b/arch/arm64/kernel/vdso32/Makefile
-@@ -3,9 +3,6 @@
- # Makefile for vdso32
- #
- 
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_ARM_JUMP_SLOT|R_ARM_GLOB_DAT|R_ARM_ABS32
- include $(srctree)/lib/vdso/Makefile
- 
- # Same as cc-*option, but using CC_COMPAT instead of CC
-diff --git a/arch/csky/kernel/vdso/Makefile b/arch/csky/kernel/vdso/Makefile
-index 0b6909f10667..86c8c4de1b0f 100644
---- a/arch/csky/kernel/vdso/Makefile
-+++ b/arch/csky/kernel/vdso/Makefile
-@@ -1,8 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0-only
- 
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_CKCORE_ADDR32|R_CKCORE_JUMP_SLOT
- include $(srctree)/lib/vdso/Makefile
- 
- # Symbols present in the vdso
-diff --git a/arch/loongarch/vdso/Makefile b/arch/loongarch/vdso/Makefile
-index d89e2ac75f7b..1b2e0f149f55 100644
---- a/arch/loongarch/vdso/Makefile
-+++ b/arch/loongarch/vdso/Makefile
-@@ -1,9 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- # Objects to go into the VDSO.
- 
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_LARCH_32|R_LARCH_64|R_LARCH_MARK_LA|R_LARCH_JUMP_SLOT
- include $(srctree)/lib/vdso/Makefile
- 
- obj-vdso-y := elf.o vgetcpu.o vgettimeofday.o sigreturn.o
-diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
-index f72658b3a53f..cea97abffc03 100644
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -4,9 +4,6 @@
- # Sanitizer runtimes are unavailable and cannot be linked here.
-  KCSAN_SANITIZE			:= n
- 
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_MIPS_JUMP_SLOT|R_MIPS_GLOB_DAT
- include $(srctree)/lib/vdso/Makefile
- 
- obj-vdso-y := elf.o vgettimeofday.o sigreturn.o
-diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
-index 096b0bf1335f..d3c5be32034d 100644
---- a/arch/powerpc/kernel/vdso/Makefile
-+++ b/arch/powerpc/kernel/vdso/Makefile
-@@ -2,7 +2,6 @@
- 
- # List of files in the vdso, has to be asm only for now
- 
--ARCH_REL_TYPE_ABS := R_PPC_JUMP_SLOT|R_PPC_GLOB_DAT|R_PPC_ADDR32|R_PPC_ADDR24|R_PPC_ADDR16|R_PPC_ADDR16_LO|R_PPC_ADDR16_HI|R_PPC_ADDR16_HA|R_PPC_ADDR14|R_PPC_ADDR14_BRTAKEN|R_PPC_ADDR14_BRNTAKEN|R_PPC_REL24
- include $(srctree)/lib/vdso/Makefile
- 
- obj-vdso32 = sigtramp32-32.o gettimeofday-32.o datapage-32.o cacheflush-32.o note-32.o getcpu-32.o
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index f2e065671e4d..77d6bed3a700 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -1,9 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0-only
- # Copied from arch/tile/kernel/vdso/Makefile
- 
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_RISCV_32|R_RISCV_64|R_RISCV_JUMP_SLOT
- include $(srctree)/lib/vdso/Makefile
- # Symbols present in the vdso
- vdso-syms  = rt_sigreturn
-diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
-index 245bddfe9bc0..e795fdbbf484 100644
---- a/arch/s390/kernel/vdso32/Makefile
-+++ b/arch/s390/kernel/vdso32/Makefile
-@@ -2,8 +2,6 @@
- # List of files in the vdso
- 
- KCOV_INSTRUMENT := n
--ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
--ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
- 
- include $(srctree)/lib/vdso/Makefile
- obj-vdso32 = vdso_user_wrapper-32.o note-32.o
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index 9e2b95a222a9..47dbbfdfad68 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -2,8 +2,6 @@
- # List of files in the vdso
- 
- KCOV_INSTRUMENT := n
--ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
--ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
- 
- include $(srctree)/lib/vdso/Makefile
- obj-vdso64 = vdso_user_wrapper.o note.o
-diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
-index 12f6c4d714cd..a97f3630ca20 100644
---- a/arch/x86/entry/vdso/Makefile
-+++ b/arch/x86/entry/vdso/Makefile
-@@ -3,10 +3,6 @@
- # Building vDSO images for x86.
- #
- 
--# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
--# the inclusion of generic Makefile.
--ARCH_REL_TYPE_ABS := R_X86_64_JUMP_SLOT|R_X86_64_GLOB_DAT|R_X86_64_RELATIVE|
--ARCH_REL_TYPE_ABS += R_386_GLOB_DAT|R_386_JMP_SLOT|R_386_RELATIVE
- include $(srctree)/lib/vdso/Makefile
- 
- # Sanitizer runtimes are unavailable and cannot be linked here.
-diff --git a/lib/vdso/Makefile b/lib/vdso/Makefile
-index c415a685d61b..9f031eafc465 100644
---- a/lib/vdso/Makefile
-+++ b/lib/vdso/Makefile
-@@ -5,18 +5,13 @@ GENERIC_VDSO_DIR := $(dir $(GENERIC_VDSO_MK_PATH))
- 
- c-gettimeofday-$(CONFIG_GENERIC_GETTIMEOFDAY) := $(addprefix $(GENERIC_VDSO_DIR), gettimeofday.c)
- 
--# This cmd checks that the vdso library does not contain absolute relocation
-+# This cmd checks that the vdso library does not contain dynamic relocations.
- # It has to be called after the linking of the vdso library and requires it
- # as a parameter.
- #
--# $(ARCH_REL_TYPE_ABS) is defined in the arch specific makefile and corresponds
--# to the absolute relocation types printed by "objdump -R" and accepted by the
--# dynamic linker.
--ifndef ARCH_REL_TYPE_ABS
--$(error ARCH_REL_TYPE_ABS is not set)
--endif
--
-+# As a workaround for some GNU ld ports which produce unneeded R_*_NONE
-+# dynamic relocations, ignore R_*_NONE.
- quiet_cmd_vdso_check = VDSOCHK $@
--      cmd_vdso_check = if $(OBJDUMP) -R $@ | egrep -h "$(ARCH_REL_TYPE_ABS)"; \
-+      cmd_vdso_check = if $(READELF) -rW $@ | grep -v _NONE | grep -q " R_\w*_"; \
- 		       then (echo >&2 "$@: dynamic relocations are not supported"; \
- 			     rm -f $@; /bin/false); fi
--- 
-2.37.2.672.g94769d06f0-goog
 
+>
+> Jason
