@@ -2,63 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B864ECAAA1
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 22:18:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87012ECAAD5
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 23:53:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231404AbiH3WSq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Aug 2022 18:18:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49592 "EHLO
+        id S229549AbiH3XxX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Aug 2022 19:53:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231224AbiH3WSp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 18:18:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB536D9F0
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 15:18:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661897923;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TSSAWMfY5IhOGMsl4sCR/Sqq+wVCREXXNdNLZqAgz7E=;
-        b=SlbKa74lYPJssd8c/BRasmJh/BCMoFRnl+LKFu990Im56H2r9rlfnBx/pOVX2WeyD+cO3o
-        FYv9Aq3OVjO0cCeb16LKkwvyDQSzcG9QtFHmy/Qqt2/f0jWBkgt7YcdOlSmwj0HlMHgXb+
-        EhLsUhL3sgVDc+T6UkwIx9stxfQlMAg=
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
- [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-111-dZ7JZ9raNbu1prE51uk8gA-1; Tue, 30 Aug 2022 18:18:41 -0400
-X-MC-Unique: dZ7JZ9raNbu1prE51uk8gA-1
-Received: by mail-io1-f71.google.com with SMTP id g13-20020a056602072d00b0068825561753so7452728iox.7
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 15:18:41 -0700 (PDT)
+        with ESMTP id S229645AbiH3XxW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 19:53:22 -0400
+Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7E36F573
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 16:53:20 -0700 (PDT)
+Received: by mail-qt1-x82b.google.com with SMTP id y18so9845890qtv.5
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 16:53:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc;
+        bh=0L9lzbhkZzftrSeDaWijQDCQO9j3SGBYGuP12lwKrD4=;
+        b=abU+GXUqXS02jbKnf2PRzA2SplEPWEhWBJXpAj1du50snC84YOMDGmANpop4r2D5RI
+         A4U3zwrxmKzP85VmYMfLmMr9d8tg6zzPw06qrOb8xn1+gH+99+F/OqVnG6/Lre9KSBn4
+         zo1W9hlGuorJ3UbplvrCJJ7kZsv0daqDi0GQGmd0ruLNnRpZj56ErHB8VXLg1xOm3LHq
+         maRIgx82QxWYjhHSesGndBYpHaVl6id5aHSVMfdeECEz4kib+EUHa1ZBuE/1RPBUFsgE
+         JcJxShe4TJ5UBGVmwQuxC4y1kwMf2mv/hIY9Ot37rDwVObnAzUnFQD20KAt94BvvUosg
+         gM4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:organization:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
-         :from:to:cc;
-        bh=TSSAWMfY5IhOGMsl4sCR/Sqq+wVCREXXNdNLZqAgz7E=;
-        b=swAKa2doPmIXPToWLlQo4YoFuSbU513yANImXggYBwcbyJWJ52y7HsyPpr302YGjB/
-         uVjHMLxg2/nKptIMfKrUyrQ+JwJsUfr9AxUSYLFzraSnNeKlHBQc6nECBqFBKQHJGPbR
-         Beabv515zOCHlEPs6g5PkfzoVYhxC/3a9Ss73P6S6f4pNwF3p83dNltyfi45YeUgqG7K
-         oIupjBOiX84KNN9zdXPvVGMrFUh6s82nHKKtMAOfonIUzqtyU2g3Zlvq7pU5XlMsW8RB
-         EPqbrHE8FUjM/BZzT7tpc3xr9pC5ZGvKPd/flKYkHKdDIs/7nSS7qf8W8WtEihjx8iMj
-         L+yw==
-X-Gm-Message-State: ACgBeo26eLglVE3LfvnCR22WgB5AUPsKkyHlXZju+jUM+1kSoMYlJ9ep
-        4yF7PWnrF9jzITz3uYIToIdWc/iu/dbmgTqWWgkwM2ceUemU0Qy0xgr0AHJ1lyV+Ze4rZHcrudu
-        deE96JNrd+Al1HnOMXlOkjw==
-X-Received: by 2002:a05:6602:1c4:b0:689:2db5:ea0f with SMTP id w4-20020a05660201c400b006892db5ea0fmr11509858iot.197.1661897921391;
-        Tue, 30 Aug 2022 15:18:41 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR73OWrrAXNYUM7X5f/RFjdmLhOTn+HRSKcgl5cCW81jvTLPZGl1q1ozpKM9lFAFywZRpg27UQ==
-X-Received: by 2002:a05:6602:1c4:b0:689:2db5:ea0f with SMTP id w4-20020a05660201c400b006892db5ea0fmr11509822iot.197.1661897921151;
-        Tue, 30 Aug 2022 15:18:41 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id z30-20020a056602081e00b0068b1858c81asm6110858iow.13.2022.08.30.15.18.39
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+        bh=0L9lzbhkZzftrSeDaWijQDCQO9j3SGBYGuP12lwKrD4=;
+        b=y/RxqpZChODcVlfZhECKsinQ9db+jjX3NZpORLDlgHRUCJFrCGewIzXFAxKGmdjq7Y
+         tqjruwg1n7wO0/Nqzu13KOHaaiVcKILmsabN6/PnqDDepVmy0TKk+eqK8n8cpw6uDC4s
+         2R2QniASD9UIaIobyAv0BaMlohVPfrZWQHjZ4wRhTWZWpc0xRyFFn11FL83XUfgHg5vO
+         7oHCd/sIyA3PKMMnRrAEWRoIwq2XFf2dPOMN7NE9+e4RhhZZ/3IpCH4z+oNMgr3hYB2e
+         vhKjeyW7HeZnwXy4whh8ZmJ/4nyiaDzSgw99G3jMFwaR51AuPUpERsIAbIYZsrxsPstX
+         2YZg==
+X-Gm-Message-State: ACgBeo2xUMjXfjshbzbKpnlfmgKbj6StCzOz/rTK5Pb9rla5mzs/dquD
+        RwL0+4cVsB/QEywIDDjGWHEcwQ==
+X-Google-Smtp-Source: AA6agR6SnhQJ6ZIIgoEC6fgDH1kdHhhz4b0pJAYeL3h92b1z66EiWbI66KVBnDlLAl7TgsI8hPuL0g==
+X-Received: by 2002:a05:622a:195:b0:344:5630:dcc with SMTP id s21-20020a05622a019500b0034456300dccmr17037439qtw.598.1661903599526;
+        Tue, 30 Aug 2022 16:53:19 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
+        by smtp.gmail.com with ESMTPSA id q13-20020a05620a0d8d00b006b942f4ffe3sm1800753qkl.18.2022.08.30.16.53.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Aug 2022 15:18:40 -0700 (PDT)
-Date:   Tue, 30 Aug 2022 16:18:38 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Kevin Tian <kevin.tian@intel.com>
-Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Tue, 30 Aug 2022 16:53:18 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1oTB2j-0040T4-8t;
+        Tue, 30 Aug 2022 20:53:17 -0300
+Date:   Tue, 30 Aug 2022 20:53:17 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Kevin Tian <kevin.tian@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
         Jani Nikula <jani.nikula@linux.intel.com>,
         Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
@@ -83,7 +80,6 @@ Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         Cornelia Huck <cohuck@redhat.com>,
         Longfang Liu <liulongfang@huawei.com>,
         Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
         Yishai Hadas <yishaih@nvidia.com>,
         Eric Auger <eric.auger@redhat.com>,
         Kirti Wankhede <kwankhede@nvidia.com>,
@@ -94,33 +90,39 @@ Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>
 Subject: Re: [PATCH 15/15] vfio: Add struct device to vfio_device
-Message-ID: <20220830161838.4aa47045.alex.williamson@redhat.com>
-In-Reply-To: <20220827171037.30297-16-kevin.tian@intel.com>
+Message-ID: <Yw6i7btDKcUDPADP@ziepe.ca>
 References: <20220827171037.30297-1-kevin.tian@intel.com>
-        <20220827171037.30297-16-kevin.tian@intel.com>
-Organization: Red Hat
+ <20220827171037.30297-16-kevin.tian@intel.com>
+ <20220830161838.4aa47045.alex.williamson@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220830161838.4aa47045.alex.williamson@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, 28 Aug 2022 01:10:37 +0800
-Kevin Tian <kevin.tian@intel.com> wrote:
-
-> From: Yi Liu <yi.l.liu@intel.com>
+On Tue, Aug 30, 2022 at 04:18:38PM -0600, Alex Williamson wrote:
+> On Sun, 28 Aug 2022 01:10:37 +0800
+> Kevin Tian <kevin.tian@intel.com> wrote:
 > 
-> and replace kref. With it a 'vfio-dev/vfioX' node is created under the
-> sysfs path of the parent, indicating the device is bound to a vfio
-> driver, e.g.:
+> > From: Yi Liu <yi.l.liu@intel.com>
+> > 
+> > and replace kref. With it a 'vfio-dev/vfioX' node is created under the
+> > sysfs path of the parent, indicating the device is bound to a vfio
+> > driver, e.g.:
+> > 
+> > /sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
+> > 
+> > It is also a preparatory step toward adding cdev for supporting future
+> > device-oriented uAPI.
 > 
-> /sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
-> 
-> It is also a preparatory step toward adding cdev for supporting future
-> device-oriented uAPI.
+> Shall we start Documentation/ABI/testing/vfio-dev now?  Thanks.
 
-Shall we start Documentation/ABI/testing/vfio-dev now?  Thanks.
+I always thought that was something to use when adding new custom
+sysfs attributes?
 
-Alex
+Here we are just creating a standard struct device with its standard
+sysfs?
 
+Jason
