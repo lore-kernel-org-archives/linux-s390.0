@@ -2,94 +2,448 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3A1CECAAA1
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 15:23:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 496C3C65C0D
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Aug 2022 15:29:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229616AbiH3PX6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Aug 2022 11:23:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47242 "EHLO
+        id S230432AbiH3P3O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Aug 2022 11:29:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229923AbiH3PXy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 11:23:54 -0400
-Received: from corp-front07-corp.i.nease.net (corp-front07-corp.i.nease.net [59.111.134.157])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3760512F55C;
-        Tue, 30 Aug 2022 08:23:48 -0700 (PDT)
+        with ESMTP id S229923AbiH3P3N (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 11:29:13 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0E598D39;
+        Tue, 30 Aug 2022 08:29:10 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id gb36so2054043ejc.10;
+        Tue, 30 Aug 2022 08:29:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
-        Date:Message-Id:In-Reply-To:References:MIME-Version:
-        Content-Transfer-Encoding; bh=czJTLBpE0tloFZmYSS2AFw3bPxWy7e6kJq
-        YwgdeEzv4=; b=eyAKvZ7bP5lCinzXZ3TLZqvvDVy+ixk6mX2QqAUeFAD5UBb5MC
-        DKNEwwscxIjvV268duvoKI7H//Eu7w8cuux3YOXktATf6pBxE33OEzx6hveFV5Tm
-        CCP3+hWs4I8IyVDvfGW7Oy5pAnU5g8Mqzj4wOc8/sUbPMe2gRysk/YeDA=
-Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
-        by corp-front07-corp.i.nease.net (Coremail) with SMTP id nRDICgA3jOhoKw5j3AUVAA--.38750S2;
-        Tue, 30 Aug 2022 23:23:20 +0800 (HKT)
-From:   liuyacan@corp.netease.com
-To:     tonylu@linux.alibaba.com
-Cc:     davem@davemloft.net, edumazet@google.com, kgraul@linux.ibm.com,
-        kuba@kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, liuyacan@corp.netease.com,
-        netdev@vger.kernel.org, pabeni@redhat.com, wenjia@linux.ibm.com,
-        hwippel@linux.ibm.com, ubraun@linux.ibm.com
-Subject: [PATCH net v2] net/smc: Remove redundant refcount increase
-Date:   Tue, 30 Aug 2022 23:23:14 +0800
-Message-Id: <20220830152314.838736-1-liuyacan@corp.netease.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <YwzirUcxlQW3ydT7@TonyMac-Alibaba>
-References: <YwzirUcxlQW3ydT7@TonyMac-Alibaba>
+        d=googlemail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=/KQ/vUyiG4uvx6QG1V/DvG1u3VsN0RU6NmbgpiZoIwo=;
+        b=Jbe444uvwS5KTtBsCVBQjowFQX49PHwxyphvrog6nzitvtmHBHJMnk/ZXbtFjf4ivK
+         05Qx4aMUE04ULC1C5awae7j4X5P9v22dPa9y9903IO/MYxipD+HrcvQQ15y+/rG3bhKL
+         4gl4/UESbeSMeDSj0WoBLZdVsTJtzG0xipCPmcnRa8zxUsUaapTfn57JwaCoZBc3TH1d
+         l6y3eQc3QWr/aFnH4qMBWANzKiSmGU2WnZGxLGbvrFQQ8U8EGaCrVYoWlbtqLk+koQDw
+         gnw0y0HmKYojMLO+m4tqL6r7fUOmxHIS3+r5H8g+GVc6QppaQoeQ5HaMO2dCWJKkqEzA
+         2nzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=/KQ/vUyiG4uvx6QG1V/DvG1u3VsN0RU6NmbgpiZoIwo=;
+        b=L55BFU06aQUk7CHscvywG9Ulk0Fp025P6fsuqTN2TnG6U5o7eouGcLcprVQJZeb+LW
+         DWB2kgc5IzkS3eBlRKdrWClh+pbvDQNVieX97l1cLsgZAlnKBJcYXuksNgjGr4SGZvsl
+         u2K8cCKmOH6zbQgO901aeEMvTXi9JZXrTlZaWCJS5IWMwcfOZhxYKB+j3Ee7WSEsiqzt
+         qCZ4yt5ed+JvGk3ax1nage/Q9FksdkfIvDEWXoYLK/xTRJmqK184DCf06ckibO+AdQzE
+         JxamnKD3TF1wFbj+Bpw0lnvA3s176C3/+HttfmrzX6bhF+AjEzt+A2DCXQPiyv2fEi5o
+         hXeQ==
+X-Gm-Message-State: ACgBeo2v0jZVcEG4bC/7y9pG/Q3Q9VZR/gDLLMgft/PnxPoopAPNSk9b
+        jSYXcZUan8q85gUDkZFGHwi+ryMBKXDGsQ==
+X-Google-Smtp-Source: AA6agR6mh+hG5Ub9n0mP0M72q8basJqWrEfuKrZt7HLzsynsaPcpmVK6SV7y8Jwa2Sli8dDEw14qDA==
+X-Received: by 2002:a17:906:cc13:b0:73d:d22d:63cd with SMTP id ml19-20020a170906cc1300b0073dd22d63cdmr17202596ejb.741.1661873348951;
+        Tue, 30 Aug 2022 08:29:08 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-095-116-163-172.95.116.pool.telefonica.de. [95.116.163.172])
+        by smtp.gmail.com with ESMTPSA id t19-20020a056402525300b00445bda73fbesm5473947edd.33.2022.08.30.08.29.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Aug 2022 08:29:08 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Henderson <richard.henderson@linaro.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Guo Ren <guoren@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Wang Haojun <jiangliuer01@gmail.com>,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        linux-fsdevel@vger.kernel.org, linux-audit@redhat.com,
+        linux-arch@vger.kernel.org, linux-api@vger.kernel.org
+Subject: [RFC PATCH 2/2] fs/xattr: wire up syscalls
+Date:   Tue, 30 Aug 2022 17:28:38 +0200
+Message-Id: <20220830152858.14866-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: nRDICgA3jOhoKw5j3AUVAA--.38750S2
-X-Coremail-Antispam: 1UD129KBjvdXoW7Jr1xuF1kAFWxWr4kXw4Utwb_yoW3Zrc_K3
-        47GFnrWa1jyFZayw4fG393uwsaqw1kJr48Xrn5ArZ0y3Wjvr48Can8Crn8uw15u3yYyF13
-        Jr45tFZYgw12yjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUIcSsGvfJTRUUUbtAYjxAI6xCIbckI1I0E57IF64kEYxAxM7AC8VAFwI0_Gr0_Xr1l
-        1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0I
-        I2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0
-        Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84
-        ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2kK67ZEXf0FJ3sC6x9vy-n0Xa0_Xr1Utr1k
-        JwI_Jr4ln4vE4IxY62xKV4CY8xCE548m6r4UJryUGwAS0I0E0xvYzxvE52x082IY62kv04
-        87Mc804VCqF7xvr2I5Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
-        JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
-        AKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2xKxwAKzVCY
-        07xG64k0F24l7I0Y64k_MxkI7II2jI8vz4vEwIxGrwCF04k20xvY0x0EwIxGrwCF72vEw2
-        IIxxk0rwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7vE0wC20s026c02F40E14v26r1j6r18
-        MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr4
-        1lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l
-        IxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4
-        A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0pRp6wAUUUUU=
-X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQAOCVt77xO05QAVsa
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Yacan Liu <liuyacan@corp.netease.com>
+Enable the new added extended attribute related syscalls.
 
-For passive connections, the refcount increment has been done in
-smc_clcsock_accept()-->smc_sock_alloc().
-
-Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in af_smc")
-Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
-
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-Change in v2:
-  -- Tune commit message
+TODO:
+  - deprecate traditional syscalls (setxattr, ...)?
+  - resolve possible conflicts with proposed readfile syscall
 ---
- net/smc/af_smc.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/alpha/kernel/syscalls/syscall.tbl      |  4 ++++
+ arch/arm/tools/syscall.tbl                  |  4 ++++
+ arch/arm64/include/asm/unistd.h             |  2 +-
+ arch/arm64/include/asm/unistd32.h           |  8 ++++++++
+ arch/ia64/kernel/syscalls/syscall.tbl       |  4 ++++
+ arch/m68k/kernel/syscalls/syscall.tbl       |  4 ++++
+ arch/microblaze/kernel/syscalls/syscall.tbl |  4 ++++
+ arch/mips/kernel/syscalls/syscall_n32.tbl   |  4 ++++
+ arch/mips/kernel/syscalls/syscall_n64.tbl   |  4 ++++
+ arch/mips/kernel/syscalls/syscall_o32.tbl   |  4 ++++
+ arch/parisc/kernel/syscalls/syscall.tbl     |  4 ++++
+ arch/powerpc/kernel/syscalls/syscall.tbl    |  4 ++++
+ arch/s390/kernel/syscalls/syscall.tbl       |  4 ++++
+ arch/sh/kernel/syscalls/syscall.tbl         |  4 ++++
+ arch/sparc/kernel/syscalls/syscall.tbl      |  4 ++++
+ arch/x86/entry/syscalls/syscall_32.tbl      |  4 ++++
+ arch/x86/entry/syscalls/syscall_64.tbl      |  4 ++++
+ arch/xtensa/kernel/syscalls/syscall.tbl     |  4 ++++
+ include/asm-generic/audit_change_attr.h     |  6 ++++++
+ include/linux/syscalls.h                    |  8 ++++++++
+ include/uapi/asm-generic/unistd.h           | 12 +++++++++++-
+ 21 files changed, 98 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 79c1318af..0939cc3b9 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1855,7 +1855,6 @@ static void smc_listen_out_connected(struct smc_sock *new_smc)
- {
- 	struct sock *newsmcsk = &new_smc->sk;
+diff --git a/arch/alpha/kernel/syscalls/syscall.tbl b/arch/alpha/kernel/syscalls/syscall.tbl
+index 3515bc4f16a4..826a8a36da81 100644
+--- a/arch/alpha/kernel/syscalls/syscall.tbl
++++ b/arch/alpha/kernel/syscalls/syscall.tbl
+@@ -490,3 +490,7 @@
+ 558	common	process_mrelease		sys_process_mrelease
+ 559	common  futex_waitv                     sys_futex_waitv
+ 560	common	set_mempolicy_home_node		sys_ni_syscall
++561	common	setxattrat			sys_setxattrat
++562	common	getxattrat			sys_getxattrat
++563	common	listxattrat			sys_listxattrat
++564	common	removexattrat			sys_removexattrat
+diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+index ac964612d8b0..f0e9d9d487f0 100644
+--- a/arch/arm/tools/syscall.tbl
++++ b/arch/arm/tools/syscall.tbl
+@@ -464,3 +464,7 @@
+ 448	common	process_mrelease		sys_process_mrelease
+ 449	common	futex_waitv			sys_futex_waitv
+ 450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	common	setxattrat			sys_setxattrat
++452	common	getxattrat			sys_getxattrat
++453	common	listxattrat			sys_listxattrat
++454	common	removexattrat			sys_removexattrat
+diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
+index 037feba03a51..63a8a9c4abc1 100644
+--- a/arch/arm64/include/asm/unistd.h
++++ b/arch/arm64/include/asm/unistd.h
+@@ -39,7 +39,7 @@
+ #define __ARM_NR_compat_set_tls		(__ARM_NR_COMPAT_BASE + 5)
+ #define __ARM_NR_COMPAT_END		(__ARM_NR_COMPAT_BASE + 0x800)
  
--	sk_refcnt_debug_inc(newsmcsk);
- 	if (newsmcsk->sk_state == SMC_INIT)
- 		newsmcsk->sk_state = SMC_ACTIVE;
+-#define __NR_compat_syscalls		451
++#define __NR_compat_syscalls		455
+ #endif
  
+ #define __ARCH_WANT_SYS_CLONE
+diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
+index 604a2053d006..cd6ac63376d1 100644
+--- a/arch/arm64/include/asm/unistd32.h
++++ b/arch/arm64/include/asm/unistd32.h
+@@ -907,6 +907,14 @@ __SYSCALL(__NR_process_mrelease, sys_process_mrelease)
+ __SYSCALL(__NR_futex_waitv, sys_futex_waitv)
+ #define __NR_set_mempolicy_home_node 450
+ __SYSCALL(__NR_set_mempolicy_home_node, sys_set_mempolicy_home_node)
++#define __NR_setxattrat 451
++__SYSCALL(__NR_setxattrat, sys_setxattrat)
++#define __NR_getxattrat 452
++__SYSCALL(__NR_getxattrat, sys_getxattrat)
++#define __NR_listxattrat 453
++__SYSCALL(__NR_listxattrat, sys_listxattrat)
++#define __NR_removexattrat 454
++__SYSCALL(__NR_removexattrat, sys_removexattrat)
+ 
+ /*
+  * Please add new compat syscalls above this comment and update
+diff --git a/arch/ia64/kernel/syscalls/syscall.tbl b/arch/ia64/kernel/syscalls/syscall.tbl
+index 78b1d03e86e1..6e942a935a27 100644
+--- a/arch/ia64/kernel/syscalls/syscall.tbl
++++ b/arch/ia64/kernel/syscalls/syscall.tbl
+@@ -371,3 +371,7 @@
+ 448	common	process_mrelease		sys_process_mrelease
+ 449	common  futex_waitv                     sys_futex_waitv
+ 450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	common	setxattrat			sys_setxattrat
++452	common	getxattrat			sys_getxattrat
++453	common	listxattrat			sys_listxattrat
++454	common	removexattrat			sys_removexattrat
+diff --git a/arch/m68k/kernel/syscalls/syscall.tbl b/arch/m68k/kernel/syscalls/syscall.tbl
+index b1f3940bc298..0847efdee734 100644
+--- a/arch/m68k/kernel/syscalls/syscall.tbl
++++ b/arch/m68k/kernel/syscalls/syscall.tbl
+@@ -450,3 +450,7 @@
+ 448	common	process_mrelease		sys_process_mrelease
+ 449	common  futex_waitv                     sys_futex_waitv
+ 450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	common	setxattrat			sys_setxattrat
++452	common	getxattrat			sys_getxattrat
++453	common	listxattrat			sys_listxattrat
++454	common	removexattrat			sys_removexattrat
+diff --git a/arch/microblaze/kernel/syscalls/syscall.tbl b/arch/microblaze/kernel/syscalls/syscall.tbl
+index 820145e47350..7f619bbc718d 100644
+--- a/arch/microblaze/kernel/syscalls/syscall.tbl
++++ b/arch/microblaze/kernel/syscalls/syscall.tbl
+@@ -456,3 +456,7 @@
+ 448	common	process_mrelease		sys_process_mrelease
+ 449	common  futex_waitv                     sys_futex_waitv
+ 450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	common	setxattrat			sys_setxattrat
++452	common	getxattrat			sys_getxattrat
++453	common	listxattrat			sys_listxattrat
++454	common	removexattrat			sys_removexattrat
+diff --git a/arch/mips/kernel/syscalls/syscall_n32.tbl b/arch/mips/kernel/syscalls/syscall_n32.tbl
+index 253ff994ed2e..5e4206c0aede 100644
+--- a/arch/mips/kernel/syscalls/syscall_n32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_n32.tbl
+@@ -389,3 +389,7 @@
+ 448	n32	process_mrelease		sys_process_mrelease
+ 449	n32	futex_waitv			sys_futex_waitv
+ 450	n32	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	n32	setxattrat			sys_setxattrat
++452	n32	getxattrat			sys_getxattrat
++453	n32	listxattrat			sys_listxattrat
++454	n32	removexattrat			sys_removexattrat
+diff --git a/arch/mips/kernel/syscalls/syscall_n64.tbl b/arch/mips/kernel/syscalls/syscall_n64.tbl
+index 3f1886ad9d80..df0f053e76cd 100644
+--- a/arch/mips/kernel/syscalls/syscall_n64.tbl
++++ b/arch/mips/kernel/syscalls/syscall_n64.tbl
+@@ -365,3 +365,7 @@
+ 448	n64	process_mrelease		sys_process_mrelease
+ 449	n64	futex_waitv			sys_futex_waitv
+ 450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	n64	setxattrat			sys_setxattrat
++452	n64	getxattrat			sys_getxattrat
++453	n64	listxattrat			sys_listxattrat
++454	n64	removexattrat			sys_removexattrat
+diff --git a/arch/mips/kernel/syscalls/syscall_o32.tbl b/arch/mips/kernel/syscalls/syscall_o32.tbl
+index 8f243e35a7b2..09ec31ad475f 100644
+--- a/arch/mips/kernel/syscalls/syscall_o32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_o32.tbl
+@@ -438,3 +438,7 @@
+ 448	o32	process_mrelease		sys_process_mrelease
+ 449	o32	futex_waitv			sys_futex_waitv
+ 450	o32	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	o32	setxattrat			sys_setxattrat
++452	o32	getxattrat			sys_getxattrat
++453	o32	listxattrat			sys_listxattrat
++454	o32	removexattrat			sys_removexattrat
+diff --git a/arch/parisc/kernel/syscalls/syscall.tbl b/arch/parisc/kernel/syscalls/syscall.tbl
+index 8a99c998da9b..fe3f4f41aee6 100644
+--- a/arch/parisc/kernel/syscalls/syscall.tbl
++++ b/arch/parisc/kernel/syscalls/syscall.tbl
+@@ -448,3 +448,7 @@
+ 448	common	process_mrelease		sys_process_mrelease
+ 449	common	futex_waitv			sys_futex_waitv
+ 450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	common	setxattrat			sys_setxattrat
++452	common	getxattrat			sys_getxattrat
++453	common	listxattrat			sys_listxattrat
++454	common	removexattrat			sys_removexattrat
+diff --git a/arch/powerpc/kernel/syscalls/syscall.tbl b/arch/powerpc/kernel/syscalls/syscall.tbl
+index 2600b4237292..bee27f650397 100644
+--- a/arch/powerpc/kernel/syscalls/syscall.tbl
++++ b/arch/powerpc/kernel/syscalls/syscall.tbl
+@@ -530,3 +530,7 @@
+ 448	common	process_mrelease		sys_process_mrelease
+ 449	common  futex_waitv                     sys_futex_waitv
+ 450 	nospu	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	common	setxattrat			sys_setxattrat
++452	common	getxattrat			sys_getxattrat
++453	common	listxattrat			sys_listxattrat
++454	common	removexattrat			sys_removexattrat
+diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
+index 799147658dee..d1fbad4b7864 100644
+--- a/arch/s390/kernel/syscalls/syscall.tbl
++++ b/arch/s390/kernel/syscalls/syscall.tbl
+@@ -453,3 +453,7 @@
+ 448  common	process_mrelease	sys_process_mrelease		sys_process_mrelease
+ 449  common	futex_waitv		sys_futex_waitv			sys_futex_waitv
+ 450  common	set_mempolicy_home_node	sys_set_mempolicy_home_node	sys_set_mempolicy_home_node
++451  common	setxattrat		sys_setxattrat			sys_setxattrat
++452  common	getxattrat		sys_getxattrat			sys_getxattrat
++453  common	listxattrat		sys_listxattrat			sys_listxattrat
++454  common	removexattrat		sys_removexattrat		sys_removexattrat
+diff --git a/arch/sh/kernel/syscalls/syscall.tbl b/arch/sh/kernel/syscalls/syscall.tbl
+index 2de85c977f54..d4daa8afe45c 100644
+--- a/arch/sh/kernel/syscalls/syscall.tbl
++++ b/arch/sh/kernel/syscalls/syscall.tbl
+@@ -453,3 +453,7 @@
+ 448	common	process_mrelease		sys_process_mrelease
+ 449	common  futex_waitv                     sys_futex_waitv
+ 450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	common	setxattrat			sys_setxattrat
++452	common	getxattrat			sys_getxattrat
++453	common	listxattrat			sys_listxattrat
++454	common	removexattrat			sys_removexattrat
+diff --git a/arch/sparc/kernel/syscalls/syscall.tbl b/arch/sparc/kernel/syscalls/syscall.tbl
+index 4398cc6fb68d..510d5175f80a 100644
+--- a/arch/sparc/kernel/syscalls/syscall.tbl
++++ b/arch/sparc/kernel/syscalls/syscall.tbl
+@@ -496,3 +496,7 @@
+ 448	common	process_mrelease		sys_process_mrelease
+ 449	common  futex_waitv                     sys_futex_waitv
+ 450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	common	setxattrat			sys_setxattrat
++452	common	getxattrat			sys_getxattrat
++453	common	listxattrat			sys_listxattrat
++454	common	removexattrat			sys_removexattrat
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index 320480a8db4f..8488cc157fe0 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -455,3 +455,7 @@
+ 448	i386	process_mrelease	sys_process_mrelease
+ 449	i386	futex_waitv		sys_futex_waitv
+ 450	i386	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	i386	setxattrat		sys_setxattrat
++452	i386	getxattrat		sys_getxattrat
++453	i386	listxattrat		sys_listxattrat
++454	i386	removexattrat		sys_removexattrat
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index c84d12608cd2..f45d723d5a30 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -372,6 +372,10 @@
+ 448	common	process_mrelease	sys_process_mrelease
+ 449	common	futex_waitv		sys_futex_waitv
+ 450	common	set_mempolicy_home_node	sys_set_mempolicy_home_node
++451	common	setxattrat		sys_setxattrat
++452	common	getxattrat		sys_getxattrat
++453	common	listxattrat		sys_listxattrat
++454	common	removexattrat		sys_removexattrat
+ 
+ #
+ # Due to a historical design error, certain syscalls are numbered differently
+diff --git a/arch/xtensa/kernel/syscalls/syscall.tbl b/arch/xtensa/kernel/syscalls/syscall.tbl
+index 52c94ab5c205..dbafe441a83f 100644
+--- a/arch/xtensa/kernel/syscalls/syscall.tbl
++++ b/arch/xtensa/kernel/syscalls/syscall.tbl
+@@ -421,3 +421,7 @@
+ 448	common	process_mrelease		sys_process_mrelease
+ 449	common  futex_waitv                     sys_futex_waitv
+ 450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
++451	common	setxattrat			sys_setxattrat
++452	common	getxattrat			sys_getxattrat
++453	common	listxattrat			sys_listxattrat
++454	common	removexattrat			sys_removexattrat
+diff --git a/include/asm-generic/audit_change_attr.h b/include/asm-generic/audit_change_attr.h
+index 331670807cf0..cc840537885f 100644
+--- a/include/asm-generic/audit_change_attr.h
++++ b/include/asm-generic/audit_change_attr.h
+@@ -11,9 +11,15 @@ __NR_lchown,
+ __NR_fchown,
+ #endif
+ __NR_setxattr,
++#ifdef __NR_setxattrat
++__NR_setxattrat,
++#endif
+ __NR_lsetxattr,
+ __NR_fsetxattr,
+ __NR_removexattr,
++#ifdef __NR_removexattrat
++__NR_removexattrat,
++#endif
+ __NR_lremovexattr,
+ __NR_fremovexattr,
+ #ifdef __NR_fchownat
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index a34b0f9a9972..090b9b5229a0 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -348,23 +348,31 @@ asmlinkage long sys_io_uring_register(unsigned int fd, unsigned int op,
+ /* fs/xattr.c */
+ asmlinkage long sys_setxattr(const char __user *path, const char __user *name,
+ 			     const void __user *value, size_t size, int flags);
++asmlinkage long sys_setxattrat(int dfd, const char __user *path, const char __user *name,
++			     const void __user *value, size_t size, int flags);
+ asmlinkage long sys_lsetxattr(const char __user *path, const char __user *name,
+ 			      const void __user *value, size_t size, int flags);
+ asmlinkage long sys_fsetxattr(int fd, const char __user *name,
+ 			      const void __user *value, size_t size, int flags);
+ asmlinkage long sys_getxattr(const char __user *path, const char __user *name,
+ 			     void __user *value, size_t size);
++asmlinkage long sys_getxattrat(int dfd, const char __user *path, const char __user *name,
++			     void __user *value, size_t size, int flags);
+ asmlinkage long sys_lgetxattr(const char __user *path, const char __user *name,
+ 			      void __user *value, size_t size);
+ asmlinkage long sys_fgetxattr(int fd, const char __user *name,
+ 			      void __user *value, size_t size);
+ asmlinkage long sys_listxattr(const char __user *path, char __user *list,
+ 			      size_t size);
++asmlinkage long sys_listxattrat(int dfd, const char __user *path, char __user *list,
++			      size_t size, int flags);
+ asmlinkage long sys_llistxattr(const char __user *path, char __user *list,
+ 			       size_t size);
+ asmlinkage long sys_flistxattr(int fd, char __user *list, size_t size);
+ asmlinkage long sys_removexattr(const char __user *path,
+ 				const char __user *name);
++asmlinkage long sys_removexattrat(int dfd, const char __user *path,
++				const char __user *name, int flags);
+ asmlinkage long sys_lremovexattr(const char __user *path,
+ 				 const char __user *name);
+ asmlinkage long sys_fremovexattr(int fd, const char __user *name);
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 45fa180cc56a..4fcc71612b7a 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -886,8 +886,18 @@ __SYSCALL(__NR_futex_waitv, sys_futex_waitv)
+ #define __NR_set_mempolicy_home_node 450
+ __SYSCALL(__NR_set_mempolicy_home_node, sys_set_mempolicy_home_node)
+ 
++/* fs/xattr.c */
++#define __NR_setxattrat 451
++__SYSCALL(__NR_setxattrat, sys_setxattrat)
++#define __NR_getxattrat 452
++__SYSCALL(__NR_getxattrat, sys_getxattrat)
++#define __NR_listxattrat 453
++__SYSCALL(__NR_listxattrat, sys_listxattrat)
++#define __NR_removexattrat 454
++__SYSCALL(__NR_removexattrat, sys_removexattrat)
++
+ #undef __NR_syscalls
+-#define __NR_syscalls 451
++#define __NR_syscalls 455
+ 
+ /*
+  * 32 bit systems traditionally used different
 -- 
-2.20.1
+2.37.2
 
