@@ -2,56 +2,56 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BACD2ECAAA1
-	for <linux-s390@archiver.kernel.org>; Wed, 31 Aug 2022 00:22:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32E29ECAAD4
+	for <linux-s390@archiver.kernel.org>; Wed, 31 Aug 2022 00:32:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229979AbiHaAWh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Aug 2022 20:22:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32914 "EHLO
+        id S230082AbiHaAcX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Aug 2022 20:32:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229776AbiHaAWg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 20:22:36 -0400
-Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12BB9D8F6
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 17:22:34 -0700 (PDT)
-Received: by mail-qt1-x829.google.com with SMTP id h21so9892008qta.3
-        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 17:22:34 -0700 (PDT)
+        with ESMTP id S229449AbiHaAcW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Aug 2022 20:32:22 -0400
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60E96A4065
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 17:32:20 -0700 (PDT)
+Received: by mail-qk1-x734.google.com with SMTP id f14so9779874qkm.0
+        for <linux-s390@vger.kernel.org>; Tue, 30 Aug 2022 17:32:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=ziepe.ca; s=google;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc;
-        bh=Lh16XHf3++MO2LHtmJix5HtkGiD8BuHOsdyLRFTSe/A=;
-        b=XOSFBC16BR5ImEycq6Wxwt1WfjQIyjlHjo1i7V7SOlXSW7tiL+kBgt85+T6v4LbJL0
-         qpcT3EFRoQSSF59qi4Crv72crwblNLEVb88+boK4Qw0Gs/leowXS/n7K6EjwDf7a/HER
-         q2sBk9M9X08hJphAz+SsXYOzkqISAcKFgWTVN449dwieuLckpF7BA14iO5l3RzFjXP4o
-         gyl6FF0GxEX+/UPEyTric08qzhnPSPhsonOcIUIG7An6PY2X/GggY3Irn3C+2HX48htF
-         JrguD1dDyhidTXj/hx3ft/CekMn3SB332Z09qXmb7OuMbunnSgJPt4pmcsFpQLNd4Qko
-         FcRg==
+        bh=m6BZChVtTK+UGAguzCWejrDqoYzu+Sz7AkPqPhtFZKg=;
+        b=iRMue+inDDgzPoZBlSffki7JldZ/QlafC20b2i0ZBxo0i3xmlsOecDLDz13B79wjHh
+         YEqSPlUr39wUHw15ThhAyQe0of7R+dKWzTdu1xNlS3TiVFOn+NfLXbx8Wkfh29W6llrh
+         GUKFoVha4k8UolCu0Qb7L1iRcHJhU1OO6LNaNHXYWUSzPLrozA8qos7jYpevZTik4ec6
+         a4iRBoVvaxIubgBwOPBYQwxPA/E38lv8ZMq0sRPiL9s/AadEYdv6JBPMYeTQ3INnnskK
+         o6KK5+uE2BWdRtlw9EQ7pSU5E+DgjqdH4Kvm+Ney032znbwhndoDhNQjxequU4tQ4Voh
+         OP6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=Lh16XHf3++MO2LHtmJix5HtkGiD8BuHOsdyLRFTSe/A=;
-        b=0r6jSZL4FhrMZwUifzd+SJjw0P3pEDdMjz0v5EaWO+pgiqqImMCbQRKNl9JeuBDbkc
-         Gi+N6XW0byMhQBFVn+GJry56RkiP7eIifXSwFfC56mFom0cZt339j83TxfWk8Yi3zxQ8
-         zYeXS8ypJ/Tu+BohhuY5o723PI8nCY/DLWI7klJ7mR2xDNIaGzJORzacsIwR36ZjHpLh
-         F5QN+cmuiGwHEDb0OaBYl42D2n+jQrgoZ+jMFNkimllK99bIcRgVjZlZm2oNF8bwyHCu
-         oD8U3jIWXwmjs+RSDj0FCSqBXmjJuMq2yz0S01VpZwXzunEUkI0d8Ls1FYEVPY9XEzph
-         F2qQ==
-X-Gm-Message-State: ACgBeo38jZQsc7Pt8WDSQR3GPUDasIc3XiNnAoWdyApzcMxz/+dnT/PW
-        3usnDC/ifUTfxlJEjgbhA/XSnA==
-X-Google-Smtp-Source: AA6agR7GGtySRj3a31twDnb1mH9EFCJRgojy3h78HnLRKB2gSIxypXh8P0l2OQoGAZF+RRxoexfLDw==
-X-Received: by 2002:a05:622a:5c8a:b0:344:ba8f:8892 with SMTP id ge10-20020a05622a5c8a00b00344ba8f8892mr16671557qtb.297.1661905353877;
-        Tue, 30 Aug 2022 17:22:33 -0700 (PDT)
+        bh=m6BZChVtTK+UGAguzCWejrDqoYzu+Sz7AkPqPhtFZKg=;
+        b=cPD5tC41tB61QrThRBCY8rbhuuD2N99JtM1F9JYK4nVid98lUtXhMjdULD5pO8dsEh
+         4OA6XNu8g8XQF1IhOt/siTUnizNz+egaoFM+CfyUKV/81Dnywiu+EhuGLYe0tj2Ri2nq
+         dV8q5Jd4F3YU8XvTlZ98xGCdih87B5vLjyC4bWOyvyDSNpalMutaA2jwC8LJY13p35dJ
+         c5xuciyg3+hJHrCdwu04P3k17eek9V+nNxcjd54HVrCDVmBXlczndiR12vLoNiYosJVc
+         CMJkZfb1LCLMR3JXpDdNrk3/82s51V15zcgBXEDFrrlXfHj3diyZ19gXlGdScEe8+WFx
+         KtmA==
+X-Gm-Message-State: ACgBeo1hiCyXYTBa9aqxHQGOG/ebV9Df1mwGtgkNXwHWLfCn/WXQq63E
+        ocOU+4wBS7GvSywNkku9NhNdeQ==
+X-Google-Smtp-Source: AA6agR7vPL2Z8ouhUC6TUJw5X2BMyKkEw7SV4WNLjx6dmi1X+sQu+SSVO1IcqNlbchQb5t1I458yLA==
+X-Received: by 2002:a05:620a:24d4:b0:6bb:760:4b8f with SMTP id m20-20020a05620a24d400b006bb07604b8fmr13906896qkn.83.1661905939523;
+        Tue, 30 Aug 2022 17:32:19 -0700 (PDT)
 Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
-        by smtp.gmail.com with ESMTPSA id bk42-20020a05620a1a2a00b006aedb35d8a1sm9280435qkb.74.2022.08.30.17.22.31
+        by smtp.gmail.com with ESMTPSA id i1-20020a05620a248100b006b5e296452csm9508750qkn.54.2022.08.30.17.32.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Aug 2022 17:22:32 -0700 (PDT)
+        Tue, 30 Aug 2022 17:32:18 -0700 (PDT)
 Received: from jgg by wakko with local (Exim 4.95)
         (envelope-from <jgg@ziepe.ca>)
-        id 1oTBV0-0040ym-RW;
-        Tue, 30 Aug 2022 21:22:30 -0300
-Date:   Tue, 30 Aug 2022 21:22:30 -0300
+        id 1oTBeU-00417Z-2C;
+        Tue, 30 Aug 2022 21:32:18 -0300
+Date:   Tue, 30 Aug 2022 21:32:18 -0300
 From:   Jason Gunthorpe <jgg@ziepe.ca>
 To:     Kevin Tian <kevin.tian@intel.com>
 Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
@@ -89,32 +89,65 @@ Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>
-Subject: Re: [PATCH 10/15] vfio/fsl-mc: Use the new device life cycle helpers
-Message-ID: <Yw6pxrS1zb5JKt8q@ziepe.ca>
+Subject: Re: [PATCH 15/15] vfio: Add struct device to vfio_device
+Message-ID: <Yw6sEghuAm6OAXWE@ziepe.ca>
 References: <20220827171037.30297-1-kevin.tian@intel.com>
- <20220827171037.30297-11-kevin.tian@intel.com>
+ <20220827171037.30297-16-kevin.tian@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220827171037.30297-11-kevin.tian@intel.com>
+In-Reply-To: <20220827171037.30297-16-kevin.tian@intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Aug 28, 2022 at 01:10:32AM +0800, Kevin Tian wrote:
+On Sun, Aug 28, 2022 at 01:10:37AM +0800, Kevin Tian wrote:
 > From: Yi Liu <yi.l.liu@intel.com>
 > 
-> Export symbol of vfio_release_device_set() so fsl-mc @init can handle
-> the error path cleanly instead of assuming certain vfio core API can
-> help release device_set afterwards.
+> and replace kref. With it a 'vfio-dev/vfioX' node is created under the
+> sysfs path of the parent, indicating the device is bound to a vfio
+> driver, e.g.:
+> 
+> /sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
+> 
+> It is also a preparatory step toward adding cdev for supporting future
+> device-oriented uAPI.
+> 
+> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> Signed-off-by: Kevin Tian <kevin.tian@intel.com>
+> ---
+>  drivers/vfio/vfio_main.c | 70 +++++++++++++++++++++++++++++++++-------
+>  include/linux/vfio.h     |  6 ++--
+>  2 files changed, 61 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index 0c5d120aeced..9ad0cbb83f1c 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -46,6 +46,8 @@ static struct vfio {
+>  	struct mutex			group_lock; /* locks group_list */
+>  	struct ida			group_ida;
+>  	dev_t				group_devt;
+> +	struct class			*device_class;
+> +	struct ida			device_ida;
+>  } vfio;
+>  
+>  struct vfio_iommu_driver {
+> @@ -524,11 +526,19 @@ EXPORT_SYMBOL_GPL(_vfio_alloc_device);
+>   *
+>   * Only vfio-ccw driver should call this interface.
+>   */
+> +static void vfio_device_release(struct device *dev);
 
-I think you should leave it as is, the "device_set" cleanup is just
-something handled completely internally to vfio
+Since you added this new function in patch 1, it would be nice to
+place it in a way that avoids this forward reference in this patch
 
-If ops->init fails then we expect the core code to clean the
-device_set, and it does because it calls vfio_init_device() already.
+>  	ret = alloc_chrdev_region(&vfio.group_devt, 0, MINORMASK + 1, "vfio");
 
-Having a single weirdly placed release in the driver is pretty
-confusing, IMHO.
+I think we should change this "vfio" string at this point, it is
+really the group fd, so "vfio_group" ?
+
+It only shows in procfs.
 
 Jason
