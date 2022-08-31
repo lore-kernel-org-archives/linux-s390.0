@@ -2,351 +2,284 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D0EBECAAD1
-	for <linux-s390@archiver.kernel.org>; Wed, 31 Aug 2022 07:36:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B59FECAAD1
+	for <linux-s390@archiver.kernel.org>; Wed, 31 Aug 2022 08:51:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229529AbiHaHgI convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 Aug 2022 03:36:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36880 "EHLO
+        id S231546AbiHaIvh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 Aug 2022 04:51:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbiHaHgH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 Aug 2022 03:36:07 -0400
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFFC5A98C8;
-        Wed, 31 Aug 2022 00:36:05 -0700 (PDT)
-Received: from fraeml707-chm.china.huawei.com (unknown [172.18.147.200])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4MHbYs4Xj8z688fw;
-        Wed, 31 Aug 2022 15:35:29 +0800 (CST)
-Received: from lhrpeml500002.china.huawei.com (7.191.160.78) by
- fraeml707-chm.china.huawei.com (10.206.15.35) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Wed, 31 Aug 2022 09:36:03 +0200
-Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
- lhrpeml500002.china.huawei.com (7.191.160.78) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 31 Aug 2022 08:36:02 +0100
-Received: from lhrpeml500005.china.huawei.com ([7.191.163.240]) by
- lhrpeml500005.china.huawei.com ([7.191.163.240]) with mapi id 15.01.2375.024;
- Wed, 31 Aug 2022 08:36:02 +0100
-From:   Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
-To:     Kevin Tian <kevin.tian@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        "Peter Oberparleiter" <oberpar@linux.ibm.com>,
+        with ESMTP id S231486AbiHaIvV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 Aug 2022 04:51:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7273EC9244
+        for <linux-s390@vger.kernel.org>; Wed, 31 Aug 2022 01:51:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1661935850;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=BcuExXOje6YQsvLQPHuRRDjqA+jrbJ+6wXiicLOONYo=;
+        b=AsNmF3AZYv3v6mejHXPPq5TW7TbiT5hrUtdPdYtbrZ4d5gzA6ykv980iKdkksJ0Qhstr6j
+        5uLDH90bLi5BiGfAgj2RdR3oU27sK5oZa6lQlHGfz5nT2n3a/f/+ofFc/K9vLhGZHonW7P
+        SF6TjcUc8IcigAyXaYtrBkEq4cL0ZWs=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-508-MWdj9omAOaSzhl6Kj6s-nw-1; Wed, 31 Aug 2022 04:50:46 -0400
+X-MC-Unique: MWdj9omAOaSzhl6Kj6s-nw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4B9AE800124;
+        Wed, 31 Aug 2022 08:50:45 +0000 (UTC)
+Received: from localhost (ovpn-13-50.pek2.redhat.com [10.72.13.50])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 991F51415133;
+        Wed, 31 Aug 2022 08:50:42 +0000 (UTC)
+Date:   Wed, 31 Aug 2022 16:50:38 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        akpm@linux-foundation.org, hch@infradead.org,
+        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
+        linux-arm-kernel@lists.infradead.org,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        "Alex Williamson" <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        liulongfang <liulongfang@huawei.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        "Yishai Hadas" <yishaih@nvidia.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        "Kirti Wankhede" <kwankhede@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-CC:     Yi Liu <yi.l.liu@intel.com>
-Subject: RE: [PATCH 04/15] vfio/hisi_acc: Use the new device life cycle
- helpers
-Thread-Topic: [PATCH 04/15] vfio/hisi_acc: Use the new device life cycle
- helpers
-Thread-Index: AQHYufp2da3qAvP1z0GEpuKhp3q5ba3Io6tw
-Date:   Wed, 31 Aug 2022 07:36:02 +0000
-Message-ID: <fcbcc84a6c1148fa943576522cb906ce@huawei.com>
-References: <20220827171037.30297-1-kevin.tian@intel.com>
- <20220827171037.30297-5-kevin.tian@intel.com>
-In-Reply-To: <20220827171037.30297-5-kevin.tian@intel.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.195.245.177]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 09/11] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <Yw8g3igVMrlde0QA@MiWiFi-R3L-srv>
+References: <20220820003125.353570-1-bhe@redhat.com>
+ <20220820003125.353570-10-bhe@redhat.com>
+ <376889563c9da4d6f97ea8a412697e0867a0d4bd.camel@linux.ibm.com>
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <376889563c9da4d6f97ea8a412697e0867a0d4bd.camel@linux.ibm.com>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi Niklas,
+
+On 08/23/22 at 02:30pm, Niklas Schnelle wrote:
+> On Sat, 2022-08-20 at 08:31 +0800, Baoquan He wrote:
+> > Add hooks arch_ioremap() and arch_iounmap() for s390's special
+> > operation when ioremap() and iounmap(), then ioremap_[wc|wt]() are
+> > converted to use ioremap_prot() from GENERIC_IOREMAP.
+> > 
+> > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > Cc: Heiko Carstens <hca@linux.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > Cc: Sven Schnelle <svens@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
+> > ---
+> >  arch/s390/Kconfig          |  1 +
+> >  arch/s390/include/asm/io.h | 26 +++++++++++------
+> >  arch/s390/pci/pci.c        | 60 +++++---------------------------------
+> >  3 files changed, 26 insertions(+), 61 deletions(-)
+> > 
+> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> > index 318fce77601d..c59e1b25f59d 100644
+> > --- a/arch/s390/Kconfig
+> > +++ b/arch/s390/Kconfig
+> > @@ -135,6 +135,7 @@ config S390
+> >  	select GENERIC_SMP_IDLE_THREAD
+> >  	select GENERIC_TIME_VSYSCALL
+> >  	select GENERIC_VDSO_TIME_NS
+> > +	select GENERIC_IOREMAP
+> >  	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
+> >  	select HAVE_ARCH_AUDITSYSCALL
+> >  	select HAVE_ARCH_JUMP_LABEL
+> > diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
+> > index e3882b012bfa..f837e20b7bbd 100644
+> > --- a/arch/s390/include/asm/io.h
+> > +++ b/arch/s390/include/asm/io.h
+> > @@ -22,11 +22,23 @@ void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
+> >  
+> >  #define IO_SPACE_LIMIT 0
+> >  
+> > -void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
+> > -void __iomem *ioremap(phys_addr_t addr, size_t size);
+> > -void __iomem *ioremap_wc(phys_addr_t addr, size_t size);
+> > -void __iomem *ioremap_wt(phys_addr_t addr, size_t size);
+> > -void iounmap(volatile void __iomem *addr);
+> > +
+> 
+
+Thanks a lot for reviewing, and sorry for late response.
+
+> Checkpatch nitpick, remove the empty line addition above so as not to
+> create two consecutive empty lines.
+
+Will do, thanks.
+
+> 
+> > +/*
+> > + * I/O memory mapping functions.
+> > + */
+> > +void __iomem *
+> > +arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val);
+> > +#define arch_ioremap arch_ioremap
+> > +
+> > +int arch_iounmap(void __iomem *addr);
+> > +#define arch_iounmap arch_iounmap
+> > +
+> > +#define _PAGE_IOREMAP pgprot_val(PAGE_KERNEL)
+> > +
+> > +#define ioremap_wc(addr, size)  \
+> > +	ioremap_prot((addr), (size), pgprot_val(pgprot_writecombine(PAGE_KERNEL)))
+> > +#define ioremap_wt(addr, size)  \
+> > +	ioremap_prot((addr), (size), pgprot_val(pgprot_writethrough(PAGE_KERNEL)))
+> >  
+> >  static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
+> >  {
+> > @@ -51,10 +63,6 @@ static inline void ioport_unmap(void __iomem *p)
+> >  #define pci_iomap_wc pci_iomap_wc
+> >  #define pci_iomap_wc_range pci_iomap_wc_range
+> >  
+> > -#define ioremap ioremap
+> > -#define ioremap_wt ioremap_wt
+> > -#define ioremap_wc ioremap_wc
+> > -
+> >  #define memcpy_fromio(dst, src, count)	zpci_memcpy_fromio(dst, src, count)
+> >  #define memcpy_toio(dst, src, count)	zpci_memcpy_toio(dst, src, count)
+> >  #define memset_io(dst, val, count)	zpci_memset_io(dst, val, count)
+> > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> > index 73cdc5539384..984cad9cd5a1 100644
+> > --- a/arch/s390/pci/pci.c
+> > +++ b/arch/s390/pci/pci.c
+> > @@ -244,64 +244,20 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+> >         zpci_memcpy_toio(to, from, count);
+> >  }
+> >  
+> > -static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
+> > +void __iomem *
+> > +arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val)
+> >  {
+> > -	unsigned long offset, vaddr;
+> > -	struct vm_struct *area;
+> > -	phys_addr_t last_addr;
+> > -
+> > -	last_addr = addr + size - 1;
+> > -	if (!size || last_addr < addr)
+> > -		return NULL;
+> > -
+> >  	if (!static_branch_unlikely(&have_mio))
+> > -		return (void __iomem *) addr;
+> > -
+> > -	offset = addr & ~PAGE_MASK;
+> > -	addr &= PAGE_MASK;
+> > -	size = PAGE_ALIGN(size + offset);
+> > -	area = get_vm_area(size, VM_IOREMAP);
+> > -	if (!area)
+> > -		return NULL;
+> > -
+> > -	vaddr = (unsigned long) area->addr;
+> > -	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
+> > -		free_vm_area(area);
+> > -		return NULL;
+> > -	}
+> > -	return (void __iomem *) ((unsigned long) area->addr + offset);
+> > -}
+> > -
+> > -void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
+> > -{
+> > -	return __ioremap(addr, size, __pgprot(prot));
+> > +		return (void __iomem *) *paddr;
+> 
+> Another checkpatch nitpick no space after the cast.
+
+Will fix.
+
+> 
+> > +	return NULL;
+> >  }
+> > -EXPORT_SYMBOL(ioremap_prot);
+> >  
+> > -void __iomem *ioremap(phys_addr_t addr, size_t size)
+> > +int arch_iounmap(void __iomem *addr)
+> >  {
+> > -	return __ioremap(addr, size, PAGE_KERNEL);
+> > -}
+> > -EXPORT_SYMBOL(ioremap);
+> > -
+> > -void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
+> > -{
+> > -	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
+> > -}
+> > -EXPORT_SYMBOL(ioremap_wc);
+> > -
+> > -void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
+> > -{
+> > -	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
+> > -}
+> > -EXPORT_SYMBOL(ioremap_wt);
+> > -
+> > -void iounmap(volatile void __iomem *addr)
+> > -{
+> > -	if (static_branch_likely(&have_mio))
+> > -		vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
+> > +	if (!static_branch_likely(&have_mio))
+> > +		return -EINVAL;
+> 
+> As Christoph suggested this might be a good opportunity to add a
+> comment for this branch.
+> 
+> One other nitpick. The return value doesn't really matter here since
+> anything != NULL turns iounmap() into a no-op so this looks correct but
+> semantically I think returning -EINVAL wrongly suggests that addr was
+> invalid. Maybe -ENXIO would be better at conveying that there is
+> nothing to unmap.
+> 
+> Looking at your patch 1 another idea would be to have 3 kinds of return
+> values for arch_iounmap() too e.g.:
+> 
+>  arch_iounmap() return an __iomem pointer
+>    - IS_ERR means skip vunmap and return directly
+>    - NULL means continue to vunmap
+>    - a non-NULL, non-IS_ERR pointer has been unmapped successfully
+
+I agree with you, The returned -EINVAL does cause confusion.
+
+I checked all ARCHes related in this patchset, we only do the arch
+specific address filtering (or address checking), then call vunmap().
+Seems no error case or error handling in iounmap(). I'm thinking if
+we should make the return value as boolean value. Ture indicates
+address checking passed, false indicates not passed.
 
 
-> -----Original Message-----
-> From: Kevin Tian [mailto:kevin.tian@intel.com]
-> Sent: 27 August 2022 18:10
-> To: Zhenyu Wang <zhenyuw@linux.intel.com>; Zhi Wang
-> <zhi.a.wang@intel.com>; Jani Nikula <jani.nikula@linux.intel.com>; Joonas
-> Lahtinen <joonas.lahtinen@linux.intel.com>; Rodrigo Vivi
-> <rodrigo.vivi@intel.com>; Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>;
-> David Airlie <airlied@linux.ie>; Daniel Vetter <daniel@ffwll.ch>; Eric Farman
-> <farman@linux.ibm.com>; Matthew Rosato <mjrosato@linux.ibm.com>;
-> Halil Pasic <pasic@linux.ibm.com>; Vineeth Vijayan
-> <vneethv@linux.ibm.com>; Peter Oberparleiter <oberpar@linux.ibm.com>;
-> Heiko Carstens <hca@linux.ibm.com>; Vasily Gorbik <gor@linux.ibm.com>;
-> Alexander Gordeev <agordeev@linux.ibm.com>; Christian Borntraeger
-> <borntraeger@linux.ibm.com>; Sven Schnelle <svens@linux.ibm.com>; Tony
-> Krowiak <akrowiak@linux.ibm.com>; Jason Herne <jjherne@linux.ibm.com>;
-> Harald Freudenberger <freude@linux.ibm.com>; Diana Craciun
-> <diana.craciun@oss.nxp.com>; Alex Williamson
-> <alex.williamson@redhat.com>; Cornelia Huck <cohuck@redhat.com>;
-> liulongfang <liulongfang@huawei.com>; Shameerali Kolothum Thodi
-> <shameerali.kolothum.thodi@huawei.com>; Jason Gunthorpe
-> <jgg@ziepe.ca>; Yishai Hadas <yishaih@nvidia.com>; Kevin Tian
-> <kevin.tian@intel.com>; Eric Auger <eric.auger@redhat.com>; Kirti
-> Wankhede <kwankhede@nvidia.com>; Leon Romanovsky <leon@kernel.org>;
-> Abhishek Sahu <abhsahu@nvidia.com>; intel-gvt-dev@lists.freedesktop.org;
-> intel-gfx@lists.freedesktop.org; dri-devel@lists.freedesktop.org;
-> linux-kernel@vger.kernel.org; linux-s390@vger.kernel.org;
-> kvm@vger.kernel.org
-> Cc: Yi Liu <yi.l.liu@intel.com>
-> Subject: [PATCH 04/15] vfio/hisi_acc: Use the new device life cycle helpers
 > 
-> From: Yi Liu <yi.l.liu@intel.com>
+> Then we would simply return addr in case of
+> !static_branch_likely(&have_mio) and NULL otherwise.
 > 
-> Tidy up @probe so all migration specific initialization logic is moved
-> to migration specific @init callback.
+> What do you think? Either way no strong opinion on my side,
+> functionally it makes no difference.
 > 
-> Remove vfio_pci_core_{un}init_device() given no user now.
+> > +	return 0;
+> >  }
+> > -EXPORT_SYMBOL(iounmap);
+> >  
+> >  /* Create a virtual mapping cookie for a PCI BAR */
+> >  static void __iomem *pci_iomap_range_fh(struct pci_dev *pdev, int bar,
+> 
+> Apart from the above nitpicks and suggestion this looks good to me.
+> I did also test this with and without PCI MIO support including use of
+> PCI MIO instructions in user-space (added in rdma-core v40).
+> 
+> So feel free to add:
+> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> 
+> Since it looks like there will be a v3 due to other comments anyway
+> please Cc me on that directly and I'm sure I can upgrade the Acked-by
+> to Reviewed-by when we're closer to the final code.
 
-This looks fine to me and the probe() is indeed much cleaner now.
+Sure, I will add you in Cc when repost. Thank again for these details.
 
-Reviewed-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
 
-Thanks,
-Shameer
- 
-> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-> Signed-off-by: Kevin Tian <kevin.tian@intel.com>
-> ---
->  .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    | 80 +++++++++----------
->  drivers/vfio/pci/vfio_pci_core.c              | 30 -------
->  include/linux/vfio_pci_core.h                 |  4 -
->  3 files changed, 37 insertions(+), 77 deletions(-)
 > 
-> diff --git a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-> b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-> index ea762e28c1cc..f06f9a799128 100644
-> --- a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-> +++ b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
-> @@ -1213,8 +1213,28 @@ static const struct vfio_migration_ops
-> hisi_acc_vfio_pci_migrn_state_ops = {
->  	.migration_get_state = hisi_acc_vfio_pci_get_device_state,
->  };
-> 
-> +int hisi_acc_vfio_pci_migrn_init_dev(struct vfio_device *core_vdev)
-> +{
-> +	struct hisi_acc_vf_core_device *hisi_acc_vdev =
-> container_of(core_vdev,
-> +			struct hisi_acc_vf_core_device, core_device.vdev);
-> +	struct pci_dev *pdev = to_pci_dev(core_vdev->dev);
-> +	struct hisi_qm *pf_qm = hisi_acc_get_pf_qm(pdev);
-> +
-> +	hisi_acc_vdev->vf_id = pci_iov_vf_id(pdev) + 1;
-> +	hisi_acc_vdev->pf_qm = pf_qm;
-> +	hisi_acc_vdev->vf_dev = pdev;
-> +	mutex_init(&hisi_acc_vdev->state_mutex);
-> +
-> +	core_vdev->migration_flags = VFIO_MIGRATION_STOP_COPY;
-> +	core_vdev->mig_ops = &hisi_acc_vfio_pci_migrn_state_ops;
-> +
-> +	return vfio_pci_core_init_dev(core_vdev);
-> +}
-> +
->  static const struct vfio_device_ops hisi_acc_vfio_pci_migrn_ops = {
->  	.name = "hisi-acc-vfio-pci-migration",
-> +	.init = hisi_acc_vfio_pci_migrn_init_dev,
-> +	.release = vfio_pci_core_release_dev,
->  	.open_device = hisi_acc_vfio_pci_open_device,
->  	.close_device = hisi_acc_vfio_pci_close_device,
->  	.ioctl = hisi_acc_vfio_pci_ioctl,
-> @@ -1228,6 +1248,8 @@ static const struct vfio_device_ops
-> hisi_acc_vfio_pci_migrn_ops = {
-> 
->  static const struct vfio_device_ops hisi_acc_vfio_pci_ops = {
->  	.name = "hisi-acc-vfio-pci",
-> +	.init = vfio_pci_core_init_dev,
-> +	.release = vfio_pci_core_release_dev,
->  	.open_device = hisi_acc_vfio_pci_open_device,
->  	.close_device = vfio_pci_core_close_device,
->  	.ioctl = vfio_pci_core_ioctl,
-> @@ -1239,63 +1261,36 @@ static const struct vfio_device_ops
-> hisi_acc_vfio_pci_ops = {
->  	.match = vfio_pci_core_match,
->  };
-> 
-> -static int
-> -hisi_acc_vfio_pci_migrn_init(struct hisi_acc_vf_core_device *hisi_acc_vdev,
-> -			     struct pci_dev *pdev, struct hisi_qm *pf_qm)
-> -{
-> -	int vf_id;
-> -
-> -	vf_id = pci_iov_vf_id(pdev);
-> -	if (vf_id < 0)
-> -		return vf_id;
-> -
-> -	hisi_acc_vdev->vf_id = vf_id + 1;
-> -	hisi_acc_vdev->core_device.vdev.migration_flags =
-> -					VFIO_MIGRATION_STOP_COPY;
-> -	hisi_acc_vdev->pf_qm = pf_qm;
-> -	hisi_acc_vdev->vf_dev = pdev;
-> -	mutex_init(&hisi_acc_vdev->state_mutex);
-> -
-> -	return 0;
-> -}
-> -
->  static int hisi_acc_vfio_pci_probe(struct pci_dev *pdev, const struct
-> pci_device_id *id)
->  {
->  	struct hisi_acc_vf_core_device *hisi_acc_vdev;
-> +	const struct vfio_device_ops *ops = &hisi_acc_vfio_pci_ops;
->  	struct hisi_qm *pf_qm;
-> +	int vf_id;
->  	int ret;
-> 
-> -	hisi_acc_vdev = kzalloc(sizeof(*hisi_acc_vdev), GFP_KERNEL);
-> -	if (!hisi_acc_vdev)
-> -		return -ENOMEM;
-> -
->  	pf_qm = hisi_acc_get_pf_qm(pdev);
->  	if (pf_qm && pf_qm->ver >= QM_HW_V3) {
-> -		ret = hisi_acc_vfio_pci_migrn_init(hisi_acc_vdev, pdev, pf_qm);
-> -		if (!ret) {
-> -			vfio_pci_core_init_device(&hisi_acc_vdev->core_device, pdev,
-> -						  &hisi_acc_vfio_pci_migrn_ops);
-> -			hisi_acc_vdev->core_device.vdev.mig_ops =
-> -					&hisi_acc_vfio_pci_migrn_state_ops;
-> -		} else {
-> +		vf_id = pci_iov_vf_id(pdev);
-> +		if (vf_id >= 0)
-> +			ops = &hisi_acc_vfio_pci_migrn_ops;
-> +		else
->  			pci_warn(pdev, "migration support failed, continue with
-> generic interface\n");
-> -			vfio_pci_core_init_device(&hisi_acc_vdev->core_device, pdev,
-> -						  &hisi_acc_vfio_pci_ops);
-> -		}
-> -	} else {
-> -		vfio_pci_core_init_device(&hisi_acc_vdev->core_device, pdev,
-> -					  &hisi_acc_vfio_pci_ops);
->  	}
-> 
-> +	hisi_acc_vdev = vfio_alloc_device(hisi_acc_vf_core_device,
-> +					  core_device.vdev, &pdev->dev, ops);
-> +	if (IS_ERR(hisi_acc_vdev))
-> +		return PTR_ERR(hisi_acc_vdev);
-> +
->  	dev_set_drvdata(&pdev->dev, &hisi_acc_vdev->core_device);
->  	ret = vfio_pci_core_register_device(&hisi_acc_vdev->core_device);
->  	if (ret)
-> -		goto out_free;
-> +		goto out_put_vdev;
->  	return 0;
-> 
-> -out_free:
-> -	vfio_pci_core_uninit_device(&hisi_acc_vdev->core_device);
-> -	kfree(hisi_acc_vdev);
-> +out_put_vdev:
-> +	vfio_put_device(&hisi_acc_vdev->core_device.vdev);
->  	return ret;
->  }
-> 
-> @@ -1304,8 +1299,7 @@ static void hisi_acc_vfio_pci_remove(struct
-> pci_dev *pdev)
->  	struct hisi_acc_vf_core_device *hisi_acc_vdev =
-> hssi_acc_drvdata(pdev);
-> 
->  	vfio_pci_core_unregister_device(&hisi_acc_vdev->core_device);
-> -	vfio_pci_core_uninit_device(&hisi_acc_vdev->core_device);
-> -	kfree(hisi_acc_vdev);
-> +	vfio_put_device(&hisi_acc_vdev->core_device.vdev);
->  }
-> 
->  static const struct pci_device_id hisi_acc_vfio_pci_table[] = {
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index 708b61d1b364..f29d780e327e 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -1860,36 +1860,6 @@ void vfio_pci_core_release_dev(struct
-> vfio_device *core_vdev)
->  }
->  EXPORT_SYMBOL_GPL(vfio_pci_core_release_dev);
-> 
-> -void vfio_pci_core_init_device(struct vfio_pci_core_device *vdev,
-> -			       struct pci_dev *pdev,
-> -			       const struct vfio_device_ops *vfio_pci_ops)
-> -{
-> -	vfio_init_group_dev(&vdev->vdev, &pdev->dev, vfio_pci_ops);
-> -	vdev->pdev = pdev;
-> -	vdev->irq_type = VFIO_PCI_NUM_IRQS;
-> -	mutex_init(&vdev->igate);
-> -	spin_lock_init(&vdev->irqlock);
-> -	mutex_init(&vdev->ioeventfds_lock);
-> -	INIT_LIST_HEAD(&vdev->dummy_resources_list);
-> -	INIT_LIST_HEAD(&vdev->ioeventfds_list);
-> -	mutex_init(&vdev->vma_lock);
-> -	INIT_LIST_HEAD(&vdev->vma_list);
-> -	INIT_LIST_HEAD(&vdev->sriov_pfs_item);
-> -	init_rwsem(&vdev->memory_lock);
-> -}
-> -EXPORT_SYMBOL_GPL(vfio_pci_core_init_device);
-> -
-> -void vfio_pci_core_uninit_device(struct vfio_pci_core_device *vdev)
-> -{
-> -	mutex_destroy(&vdev->igate);
-> -	mutex_destroy(&vdev->ioeventfds_lock);
-> -	mutex_destroy(&vdev->vma_lock);
-> -	vfio_uninit_group_dev(&vdev->vdev);
-> -	kfree(vdev->region);
-> -	kfree(vdev->pm_save);
-> -}
-> -EXPORT_SYMBOL_GPL(vfio_pci_core_uninit_device);
-> -
->  int vfio_pci_core_register_device(struct vfio_pci_core_device *vdev)
->  {
->  	struct pci_dev *pdev = vdev->pdev;
-> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-> index 98c8c66e2400..9f10ff34b2ba 100644
-> --- a/include/linux/vfio_pci_core.h
-> +++ b/include/linux/vfio_pci_core.h
-> @@ -230,13 +230,9 @@ static inline void vfio_pci_zdev_close_device(struct
-> vfio_pci_core_device *vdev)
->  void vfio_pci_core_set_params(bool nointxmask, bool is_disable_vga,
->  			      bool is_disable_idle_d3);
->  void vfio_pci_core_close_device(struct vfio_device *core_vdev);
-> -void vfio_pci_core_init_device(struct vfio_pci_core_device *vdev,
-> -			       struct pci_dev *pdev,
-> -			       const struct vfio_device_ops *vfio_pci_ops);
->  int vfio_pci_core_init_dev(struct vfio_device *core_vdev);
->  void vfio_pci_core_release_dev(struct vfio_device *core_vdev);
->  int vfio_pci_core_register_device(struct vfio_pci_core_device *vdev);
-> -void vfio_pci_core_uninit_device(struct vfio_pci_core_device *vdev);
->  void vfio_pci_core_unregister_device(struct vfio_pci_core_device *vdev);
->  extern const struct pci_error_handlers vfio_pci_core_err_handlers;
->  int vfio_pci_core_sriov_configure(struct vfio_pci_core_device *vdev,
-> --
-> 2.21.3
 
