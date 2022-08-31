@@ -2,176 +2,217 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90D7FECAAD4
-	for <linux-s390@archiver.kernel.org>; Wed, 31 Aug 2022 15:22:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6919ECAAD1
+	for <linux-s390@archiver.kernel.org>; Wed, 31 Aug 2022 15:53:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231764AbiHaPWW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 Aug 2022 11:22:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37860 "EHLO
+        id S231959AbiHaPxw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 Aug 2022 11:53:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231731AbiHaPWN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 Aug 2022 11:22:13 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5455DD8B3C;
-        Wed, 31 Aug 2022 08:22:11 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27VFG4kL029622;
-        Wed, 31 Aug 2022 15:21:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=8lifCs+Vpucok23R/oaopnqzvPUcXxy686872IvWQRg=;
- b=Hsvxt+Y8oHC1HP0GTafFfOpH23ifsV61oFm1bptOaHxSIp9Tkyj0Wa/Vx8YXYt3NFMcn
- rK4+YVBNHQDnXtRGSjdpHOPhe/CmcHVj+XAIy29nkMpbUr2oONx2LAxhC+877oCUUQX9
- pMoydvOW8R/0meWT8YabpJ/uVzilQ1I20i0QK2U3jd2oYfbKTtaOSkFi2FpoPHBpguvT
- ZYjJ8tjyyUkQ562D57RG8MGyz5bImCOFIen9PqKJ/vlwR5bZiQ5BPdQyCnLpjNEEg2Xj
- SlpXZxD0ZGf//gfVNF+ENq9/KDhq0azhXoORB3MPIQICyH0PnyfPXjFvVKptZe57nlY6 Kw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jaa4jg5uw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 Aug 2022 15:21:59 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27VFGpbx031663;
-        Wed, 31 Aug 2022 15:21:58 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jaa4jg5ud-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 Aug 2022 15:21:58 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27VFK67d018086;
-        Wed, 31 Aug 2022 15:21:56 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3j7ahhuy84-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 Aug 2022 15:21:56 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27VFLrLS39846274
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 31 Aug 2022 15:21:53 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 458E74C04A;
-        Wed, 31 Aug 2022 15:21:53 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C2AE4C040;
-        Wed, 31 Aug 2022 15:21:52 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.11.79])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 31 Aug 2022 15:21:52 +0000 (GMT)
-Date:   Wed, 31 Aug 2022 17:21:51 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] KVM: s390: Pass initialized arg even if unused
-Message-ID: <20220831172151.3e04c64c@p-imbrenda>
-In-Reply-To: <20220825192540.1560559-1-scgl@linux.ibm.com>
-References: <20220825192540.1560559-1-scgl@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        with ESMTP id S232242AbiHaPxh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 Aug 2022 11:53:37 -0400
+Received: from corp-front10-corp.i.nease.net (corp-front10-corp.i.nease.net [42.186.62.104])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E88B1AA4D6;
+        Wed, 31 Aug 2022 08:53:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
+        Date:Message-Id:In-Reply-To:References:MIME-Version:
+        Content-Transfer-Encoding; bh=XM4UH1mSYasx7UhkavWBXkmzSfflPJwm5I
+        Uz2zhZJb0=; b=qmAhY8VbWubdGN2NlcUBlS3oa5NWjZNseIsx4DlIwoVb/+japx
+        Mke+Qa4bsG+qbqNahkhI4EYHDktYXl430i09fziPQloLZxRE2EDEQdtRJni88NrX
+        4el39mukwZ4AQ4D3a3JyBlqXyeiQvvs+JsBP1Ua69+JSXoTJ40LLVFfNg=
+Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
+        by corp-front10-corp.i.nease.net (Coremail) with SMTP id aIG_CgBXROfhgw9jRqMhAA--.39232S2;
+        Wed, 31 Aug 2022 23:53:05 +0800 (HKT)
+From:   liuyacan@corp.netease.com
+To:     tonylu@linux.alibaba.com
+Cc:     davem@davemloft.net, edumazet@google.com, kgraul@linux.ibm.com,
+        kuba@kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, liuyacan@corp.netease.com,
+        netdev@vger.kernel.org, ubraun@linux.vnet.ibm.com,
+        pabeni@redhat.com, wenjia@linux.ibm.com, wintera@linux.ibm.com
+Subject: [PATCH net v4] net/smc: Fix possible access to freed memory in link clear
+Date:   Wed, 31 Aug 2022 23:53:03 +0800
+Message-Id: <20220831155303.1758868-1-liuyacan@corp.netease.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <Yw4bgV6c0LQ6reMc@TonyMac-Alibaba>
+References: <Yw4bgV6c0LQ6reMc@TonyMac-Alibaba>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LWcHmtMXlv8RqadyvTO4zIR9mrj7I-te
-X-Proofpoint-GUID: lXWEMvgH9t1hMSF6tmvW_9iJy-22h1GI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-31_09,2022-08-31_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- impostorscore=0 clxscore=1011 adultscore=0 bulkscore=0 malwarescore=0
- suspectscore=0 mlxlogscore=999 spamscore=0 phishscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2208310075
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: aIG_CgBXROfhgw9jRqMhAA--.39232S2
+X-Coremail-Antispam: 1UD129KBjvJXoW3ArWUKF15AF18XFy8Gw1kGrg_yoWxGw4DpF
+        47Wr17Cr48Xr1DWF1kCFyxZw15t3W2kFyrGr9a9rn3ZFn8Jw18tF1Sgr12vFZ8JF4qga4I
+        v3y8Jw1xKrs8Xw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUULFb7IF0VCFI7km07C26c804VAKzcIF0wAFF20E14v26r4j6ryU
+        M7CY07I20VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2
+        IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84AC
+        jcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM2
+        8EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAawVAFpfBj4fn0lVCYm3Zqqf926ryUJw1U
+        Kr1v6r18M2kK6xCIbVAIwIAEc20F6c8GOVW8Jr15Jr4le2I262IYc4CY6c8Ij28IcVAaY2
+        xG8wAqjxCE34x0Y48IcwAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+        Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+        0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lw4CE
+        c2x0rVAKj4xxMx02cVAKzwCY0x0Ix7I2Y4AK64vIr41l42xK82IYc2Ij64vIr41l4x8a64
+        kIII0Yj41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxY624lx2IqxVAqx4xG67AKxVWUJVWU
+        GwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI4
+        8JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4U
+        MIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I
+        8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjTRMuWlUUUUU
+X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQAPCVt77yRp4gACsh
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 25 Aug 2022 21:25:40 +0200
-Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
+From: Yacan Liu <liuyacan@corp.netease.com>
 
-> This silences smatch warnings reported by kbuild bot:
-> arch/s390/kvm/gaccess.c:859 guest_range_to_gpas() error: uninitialized symbol 'prot'.
-> arch/s390/kvm/gaccess.c:1064 access_guest_with_key() error: uninitialized symbol 'prot'.
-> 
-> This is because it cannot tell that the value is not used in this case.
-> The trans_exc* only examine prot if code is PGM_PROTECTION.
-> Pass a dummy value for other codes.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+After modifying the QP to the Error state, all RX WR would be completed
+with WC in IB_WC_WR_FLUSH_ERR status. Current implementation does not
+wait for it is done, but destroy the QP and free the link group directly.
+So there is a risk that accessing the freed memory in tasklet context.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Here is a crash example:
 
-> ---
-> v1 -> v2
->  * drop unlikely, WARN_ON_ONCE instead of WARN (thanks Heiko)
-> 
->  arch/s390/kvm/gaccess.c | 16 +++++++++++++---
->  1 file changed, 13 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> index 082ec5f2c3a5..0243b6e38d36 100644
-> --- a/arch/s390/kvm/gaccess.c
-> +++ b/arch/s390/kvm/gaccess.c
-> @@ -489,6 +489,8 @@ enum prot_type {
->  	PROT_TYPE_ALC  = 2,
->  	PROT_TYPE_DAT  = 3,
->  	PROT_TYPE_IEP  = 4,
-> +	/* Dummy value for passing an initialized value when code != PGM_PROTECTION */
-> +	PROT_NONE,
->  };
->  
->  static int trans_exc_ending(struct kvm_vcpu *vcpu, int code, unsigned long gva, u8 ar,
-> @@ -504,6 +506,10 @@ static int trans_exc_ending(struct kvm_vcpu *vcpu, int code, unsigned long gva,
->  	switch (code) {
->  	case PGM_PROTECTION:
->  		switch (prot) {
-> +		case PROT_NONE:
-> +			/* We should never get here, acts like termination */
-> +			WARN_ON_ONCE(1);
-> +			break;
->  		case PROT_TYPE_IEP:
->  			tec->b61 = 1;
->  			fallthrough;
-> @@ -968,8 +974,10 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
->  				return rc;
->  		} else {
->  			gpa = kvm_s390_real_to_abs(vcpu, ga);
-> -			if (kvm_is_error_gpa(vcpu->kvm, gpa))
-> +			if (kvm_is_error_gpa(vcpu->kvm, gpa)) {
->  				rc = PGM_ADDRESSING;
-> +				prot = PROT_NONE;
-> +			}
->  		}
->  		if (rc)
->  			return trans_exc(vcpu, rc, ga, ar, mode, prot);
-> @@ -1112,8 +1120,6 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
->  		if (rc == PGM_PROTECTION && try_storage_prot_override)
->  			rc = access_guest_page_with_key(vcpu->kvm, mode, gpas[idx],
->  							data, fragment_len, PAGE_SPO_ACC);
-> -		if (rc == PGM_PROTECTION)
-> -			prot = PROT_TYPE_KEYC;
->  		if (rc)
->  			break;
->  		len -= fragment_len;
-> @@ -1123,6 +1129,10 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
->  	if (rc > 0) {
->  		bool terminate = (mode == GACC_STORE) && (idx > 0);
->  
-> +		if (rc == PGM_PROTECTION)
-> +			prot = PROT_TYPE_KEYC;
-> +		else
-> +			prot = PROT_NONE;
->  		rc = trans_exc_ending(vcpu, rc, ga, ar, mode, prot, terminate);
->  	}
->  out_unlock:
+ BUG: unable to handle page fault for address: ffffffff8f220860
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD f7300e067 P4D f7300e067 PUD f7300f063 PMD 8c4e45063 PTE 800ffff08c9df060
+ Oops: 0002 [#1] SMP PTI
+ CPU: 1 PID: 0 Comm: swapper/1 Kdump: loaded Tainted: G S         OE     5.10.0-0607+ #23
+ Hardware name: Inspur NF5280M4/YZMB-00689-101, BIOS 4.1.20 07/09/2018
+ RIP: 0010:native_queued_spin_lock_slowpath+0x176/0x1b0
+ Code: f3 90 48 8b 32 48 85 f6 74 f6 eb d5 c1 ee 12 83 e0 03 83 ee 01 48 c1 e0 05 48 63 f6 48 05 00 c8 02 00 48 03 04 f5 00 09 98 8e <48> 89 10 8b 42 08 85 c0 75 09 f3 90 8b 42 08 85 c0 74 f7 48 8b 32
+ RSP: 0018:ffffb3b6c001ebd8 EFLAGS: 00010086
+ RAX: ffffffff8f220860 RBX: 0000000000000246 RCX: 0000000000080000
+ RDX: ffff91db1f86c800 RSI: 000000000000173c RDI: ffff91db62bace00
+ RBP: ffff91db62bacc00 R08: 0000000000000000 R09: c00000010000028b
+ R10: 0000000000055198 R11: ffffb3b6c001ea58 R12: ffff91db80e05010
+ R13: 000000000000000a R14: 0000000000000006 R15: 0000000000000040
+ FS:  0000000000000000(0000) GS:ffff91db1f840000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: ffffffff8f220860 CR3: 00000001f9580004 CR4: 00000000003706e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  <IRQ>
+  _raw_spin_lock_irqsave+0x30/0x40
+  mlx5_ib_poll_cq+0x4c/0xc50 [mlx5_ib]
+  smc_wr_rx_tasklet_fn+0x56/0xa0 [smc]
+  tasklet_action_common.isra.21+0x66/0x100
+  __do_softirq+0xd5/0x29c
+  asm_call_irq_on_stack+0x12/0x20
+  </IRQ>
+  do_softirq_own_stack+0x37/0x40
+  irq_exit_rcu+0x9d/0xa0
+  sysvec_call_function_single+0x34/0x80
+  asm_sysvec_call_function_single+0x12/0x20
+
+Fixes: bd4ad57718cc ("smc: initialize IB transport incl. PD, MR, QP, CQ, event, WR")
+Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
+
+---
+Chagen in v4:
+  -- Remove the rx_drain flag because smc_wr_rx_post() may not have been called.
+  -- Remove timeout.
+Change in v3:
+  -- Tune commit message (Signed-Off tag, Fixes tag).
+     Tune code to avoid column length exceeding.
+Change in v2:
+  -- Fix some compile warnings and errors.
+---
+ net/smc/smc_core.c | 2 ++
+ net/smc/smc_core.h | 2 ++
+ net/smc/smc_wr.c   | 9 +++++++++
+ net/smc/smc_wr.h   | 1 +
+ 4 files changed, 14 insertions(+)
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index ff49a11f5..f92a916e9 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -757,6 +757,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	lnk->lgr = lgr;
+ 	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
+ 	lnk->link_idx = link_idx;
++	lnk->wr_rx_id_compl = 0;
+ 	smc_ibdev_cnt_inc(lnk);
+ 	smcr_copy_dev_info_to_link(lnk);
+ 	atomic_set(&lnk->conn_cnt, 0);
+@@ -1269,6 +1270,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
+ 	smcr_buf_unmap_lgr(lnk);
+ 	smcr_rtoken_clear_link(lnk);
+ 	smc_ib_modify_qp_error(lnk);
++	smc_wr_drain_cq(lnk);
+ 	smc_wr_free_link(lnk);
+ 	smc_ib_destroy_queue_pair(lnk);
+ 	smc_ib_dealloc_protection_domain(lnk);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index fe8b524ad..285f9bd8e 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -115,8 +115,10 @@ struct smc_link {
+ 	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
+ 	dma_addr_t		wr_rx_v2_dma_addr; /* DMA address of v2 rx buf*/
+ 	u64			wr_rx_id;	/* seq # of last recv WR */
++	u64			wr_rx_id_compl; /* seq # of last completed WR */
+ 	u32			wr_rx_cnt;	/* number of WR recv buffers */
+ 	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
++	wait_queue_head_t       wr_rx_empty_wait; /* wait for RQ empty */
+ 
+ 	struct ib_reg_wr	wr_reg;		/* WR register memory region */
+ 	wait_queue_head_t	wr_reg_wait;	/* wait for wr_reg result */
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 26f8f240d..bc8793803 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -454,6 +454,7 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+ 
+ 	for (i = 0; i < num; i++) {
+ 		link = wc[i].qp->qp_context;
++		link->wr_rx_id_compl = wc[i].wr_id;
+ 		if (wc[i].status == IB_WC_SUCCESS) {
+ 			link->wr_rx_tstamp = jiffies;
+ 			smc_wr_rx_demultiplex(&wc[i]);
+@@ -465,6 +466,8 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+ 			case IB_WC_RNR_RETRY_EXC_ERR:
+ 			case IB_WC_WR_FLUSH_ERR:
+ 				smcr_link_down_cond_sched(link);
++				if (link->wr_rx_id_compl == link->wr_rx_id)
++					wake_up(&link->wr_rx_empty_wait);
+ 				break;
+ 			default:
+ 				smc_wr_rx_post(link); /* refill WR RX */
+@@ -631,6 +634,11 @@ static void smc_wr_init_sge(struct smc_link *lnk)
+ 	lnk->wr_reg.access = IB_ACCESS_LOCAL_WRITE | IB_ACCESS_REMOTE_WRITE;
+ }
+ 
++void smc_wr_drain_cq(struct smc_link *lnk)
++{
++	wait_event(lnk->wr_rx_empty_wait, lnk->wr_rx_id_compl == lnk->wr_rx_id);
++}
++
+ void smc_wr_free_link(struct smc_link *lnk)
+ {
+ 	struct ib_device *ibdev;
+@@ -889,6 +897,7 @@ int smc_wr_create_link(struct smc_link *lnk)
+ 	atomic_set(&lnk->wr_tx_refcnt, 0);
+ 	init_waitqueue_head(&lnk->wr_reg_wait);
+ 	atomic_set(&lnk->wr_reg_refcnt, 0);
++	init_waitqueue_head(&lnk->wr_rx_empty_wait);
+ 	return rc;
+ 
+ dma_unmap:
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index a54e90a11..5ca5086ae 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -101,6 +101,7 @@ static inline int smc_wr_rx_post(struct smc_link *link)
+ int smc_wr_create_link(struct smc_link *lnk);
+ int smc_wr_alloc_link_mem(struct smc_link *lnk);
+ int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr);
++void smc_wr_drain_cq(struct smc_link *lnk);
+ void smc_wr_free_link(struct smc_link *lnk);
+ void smc_wr_free_link_mem(struct smc_link *lnk);
+ void smc_wr_free_lgr_mem(struct smc_link_group *lgr);
+-- 
+2.20.1
 
