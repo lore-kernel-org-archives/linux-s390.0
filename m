@@ -2,195 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73854ECAAD3
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 14:30:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 256AAECAAD3
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 14:35:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234729AbiIAOad (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Sep 2022 10:30:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
+        id S234719AbiIAOfA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Sep 2022 10:35:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234451AbiIAOac (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 10:30:32 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 74CF427DDA;
-        Thu,  1 Sep 2022 07:30:29 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D47DBD6E;
-        Thu,  1 Sep 2022 07:30:35 -0700 (PDT)
-Received: from [10.57.18.92] (unknown [10.57.18.92])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D2C763F7B4;
-        Thu,  1 Sep 2022 07:29:51 -0700 (PDT)
-Message-ID: <3e402947-61f9-b7e8-1414-fde006257b6f@arm.com>
-Date:   Thu, 1 Sep 2022 15:29:16 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
-Content-Language: en-GB
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        with ESMTP id S234582AbiIAOe7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 10:34:59 -0400
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2064.outbound.protection.outlook.com [40.107.237.64])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D5C11A14;
+        Thu,  1 Sep 2022 07:34:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=T+WPS5u5aI06/Mvq46AlvcF6A0rD+QOOAFGbkFVxwc3MKsgExaTERKfFZNxonml3LtW74m5gwPnxVXN4jU/+hkFAoS70JQHgrlyBYwRwtMIx7BcVJ7uKDOVF6Np77UGhevqt4PUeXcQa2u8DBEP2XCcIyBNwqDAvllXpeVx/1nWjlBZGRxzzVd6qsU9D0CFFYWUdUB8Zx3U2ZL3WAMCyY84yOcy6tQtwLGsgOnujx2VGW+Emq5XDAJUDk3Ma4LSAjvyvX1UxWdxdQb0y2ku3aLld52Mf2Bwq/Dm0jO6e5McrfHAjg/Ee80Fu+eXOKq5xc4sq7J02mKl7rnNUSJJu2w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5ECNy1jbrk1WJs/JepucBIDx4S83zjefsvWJvW5pbgo=;
+ b=eLPOvIERf1EbZUxTfX7o50WIkSzJSmD/NIc//KYayW2r4VnYWkG/KiLbqA0qkj4njCSeHRB+n+w19TvbvFIa8JN7wof9DqVNGDLtP3ojGQCdXXjUpLqhqz8S79MWIH9JwqAT+dFv66j8hNGEvhacfAZ2B8b1r729/26v3kZo8MpjXdmOcDNG+SRUFfQF0E6xzKxtV1Hw5F5EAsOf3L66xLFq/NFL8BMntKatdi6tqOlNHrfKJ4gdgIAfWzmWg/Ldk+8WkxED3KDnHKqll+5hhUiYtRp+l1HSgkIiLUzffqiai1uNlyirkcZSA5ZedrtfVvs5P25oiV3a44VxGSDffA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5ECNy1jbrk1WJs/JepucBIDx4S83zjefsvWJvW5pbgo=;
+ b=M0YisIFYJfKX3EOkJRVwhNEy0eroKJa/6FvudhPwfPyahgXYs3/5Ap5GQvSh/KIunGSgoxLTQbXWKWvSiALmsvYol0IIkk2SDy8HK06PWL41BWYFqikBGISEw5nAxa4nuoTomlC+NdMWoWTh+dEcZQoxm9Ad63+1XCrqh0bjMvjeWQT0wtnRyWazvid6YbP7FcJEspzhQODxG3pXPldvxwkcS/jris/KSoS1wFTFj+5LrkSRN6Uj6Dz3BCIyo03IL3UO0MWv+bWRnqOHMLtPDO0PfQs8pEf9CI3OUhimcVAC/lh9gMPM2hawchz+sZFCAen0dU71X6UISQw2FiROGg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by SA1PR12MB7126.namprd12.prod.outlook.com (2603:10b6:806:2b0::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.15; Thu, 1 Sep
+ 2022 14:34:56 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::462:7fe:f04f:d0d5%7]) with mapi id 15.20.5588.012; Thu, 1 Sep 2022
+ 14:34:56 +0000
+Date:   Thu, 1 Sep 2022 11:34:55 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
         Pierre Morel <pmorel@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev
-Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
         hca@linux.ibm.com, gor@linux.ibm.com,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        jgg@nvidia.com, linux-kernel@vger.kernel.org
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
+Message-ID: <YxDDD2DF9KFDQ+Yk@nvidia.com>
 References: <20220831201236.77595-1-mjrosato@linux.ibm.com>
  <20220831201236.77595-2-mjrosato@linux.ibm.com>
  <9887e2f4-3f3d-137d-dad7-59dab5f98aab@linux.ibm.com>
  <52d3fe0b86bdc04fdbf3aae095b2f71f4ea12d44.camel@linux.ibm.com>
  <e01e6ef2-ba45-7433-5fe4-a6806dac3af9@arm.com>
  <8b561ad3023fc146ba0779cbd8fff14d6409c6aa.camel@linux.ibm.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <8b561ad3023fc146ba0779cbd8fff14d6409c6aa.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ <3e402947-61f9-b7e8-1414-fde006257b6f@arm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3e402947-61f9-b7e8-1414-fde006257b6f@arm.com>
+X-ClientProxiedBy: BL1PR13CA0308.namprd13.prod.outlook.com
+ (2603:10b6:208:2c1::13) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 7557f5ec-28f9-441d-ff58-08da8c2723b8
+X-MS-TrafficTypeDiagnostic: SA1PR12MB7126:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 3YQWxhKg7oSFUrk7Jzg3zlY11daqV7CT1c6GDHDdh/KTZzrAuwBlHUXiPxfiHxhnqL+y6Yd5SJrU+e1f4pZt8Yc/D08MU+RTswGDiJGNrADWTvBRIJYxYeZCtRC/2NYYegmyR02/QIXBIyWGmgX/5eGWEckLH6U4E3CNo8iyk0E5UmmSCuUlK3wMrrSndqnSDrej/BgqPWw7AUPXbdyV7AUNH/Eb3eEiqTNTtlOMlktzEP7Uv1eysf1riU7Gt6PHAyI1ynGlHrMOQSClICoS5HpXvOX22CK70NuNybRHH13v/kIWH2zkeuKa2lac0WHU+PCpyARtl46qQakZdMEw54tJCLUOwJRJSAl7AwBBFA+Ueann9+2xF7EjSd0SQo0UFp30mitcsIRFlIeV24iJqC0XeO8bCWa37E1C4QbyB41I+hwpwRqt9IZm3EOJmUY3oorFyRkb6YKQ/bwZ5HDLnka4iBlJtITU/pT12HC6q3HWUZW2oB9rcImglaSo3FuYo6i9/cAqlQSgi9I1LVwhjEdczzxUyATl4cYVJT+m8mfQil8tJ+7gHNkNKqn62R2UiCdcFmZeR6Rkwl7/REXFGiMYxjYTc1OtmroolrqbSzTwvnX1GT3arhPAG+OLDKxyQBZUDxtUfXtCGdwx0C1lpq+cDiqExzGKAXLMvYtDJPzG2lF6tpzH8DnAlDVJIYpLQWNJ3A+yompYw6EAwYXnZ4MlZ5tKWJzDFVL8YDodnIRLddnnZGDyyunYO5dZeDpr
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(39860400002)(346002)(396003)(366004)(376002)(136003)(6512007)(83380400001)(186003)(6506007)(26005)(7416002)(2616005)(38100700002)(2906002)(316002)(8936002)(36756003)(4744005)(54906003)(86362001)(4326008)(41300700001)(478600001)(66556008)(6916009)(8676002)(6486002)(66476007)(5660300002)(66946007)(67856001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?dDZlEvXRDsKCXFP6ftkEMdAEK+kxfnDJbNIoja/hsDWxe++HomRyXLZDGynQ?=
+ =?us-ascii?Q?90F4DZsuVeAjEd30F0G2hfdwX5MzDTdjG2wu6ToJBKoobDYrOHXLGYeqayBz?=
+ =?us-ascii?Q?naGX9K0Mw4V2aK9iBrhXvwLxl7AZRce+kPBqc6+ILa2W5zqRpElu37p8/rmI?=
+ =?us-ascii?Q?cUWTgfZvaxTH8/IYmQeTqb0KK6ZfSgbWTnwNSppsyKlkfr3KFc+DzbmKwAzL?=
+ =?us-ascii?Q?VlRu8Kfp7ynUg2zYP77MIjfm0/QWOAzEJrWfB+Z90tasUH8Qv4jwfVNnufh8?=
+ =?us-ascii?Q?vai7UP6CE2SiwsvRW/l65iemVvl8GLc/oMLLTsN0xfACiwe+/wYHxBJps1Fh?=
+ =?us-ascii?Q?SvNK6/Fy7+E6hBC00kA46Abav9HgNUX+fbPWJgfUpwqNUM/eKqC4L6PDRoFD?=
+ =?us-ascii?Q?XqsbxCjK50udnR+qHI65oM6/mNrJptLfH1r9hf+m9YPJWeB/TAZpd1Ak9RzS?=
+ =?us-ascii?Q?3Ou/R6Gpwgphkn9/CZuGKrQ+yvckFy/MQe0b0M5cwFlXly/6JV0Xj3pw4Xw7?=
+ =?us-ascii?Q?rmoG0LERLwF2x2KHcZpnl2YpKQB3IwPGcXl0hh0mHXfPypkQtQ6aOZdFzWAt?=
+ =?us-ascii?Q?K+678ORiUT/dNx8QyeFk693U8QMBUYSo3rXVt0LT2kyXhtB4xqoSxEQKLg+j?=
+ =?us-ascii?Q?3NEA4+4Bapk0OA0V6w5OMLh4LDTkDCVjddCl0IvmKMmBmAkkkNj6mhldwU/8?=
+ =?us-ascii?Q?2KnPfHktxF6yWZXYcQ18u3Wsc3WLHWlXcaGButB5AsrWc3gvEgNccZpiAsZe?=
+ =?us-ascii?Q?FdQQZ2IwhgK0D1dAYOiHa+cUSKsBhG+Wj4zuf755LT/QcW2RRjL6wTX3Q91p?=
+ =?us-ascii?Q?T3ALC1jYxHeIZLn5JRyMlNcZS7B6Qk+Jl6eqjgEASyYvKB7uqK1+uSgmAKYI?=
+ =?us-ascii?Q?kVfZjiOOlC48AcsLDMciKSpasvtvmFf1623ndtYNzmFcJgE6nQ4IsGh+sPrN?=
+ =?us-ascii?Q?dJyUNne2dDa2UCNTs7LOu8L12fh+mf0GeHt1iTXx/ikaACvtSg4ZqqMxHvn4?=
+ =?us-ascii?Q?U9J1p296rr+k0Ootvv7M3HcI5TvkUAcLJAvRoC4rk4EygYf3C6bghVYVmmMT?=
+ =?us-ascii?Q?eRZSznfSq0ZSB/UZhb9WiORZSC2u4cuWVzoccKk6zqhvyU0pmDerdNCv2O57?=
+ =?us-ascii?Q?ntGjKzXpDHhhf9eRihsqcd9R+f8XhAOSQNsxeOo+EPe6TFq1M+nvPnl5C1li?=
+ =?us-ascii?Q?jcDJFNtgd4kksBc/GViKnJRHfBffnxVcY87LyYCGzwqMCop34XIWt0IjRTHf?=
+ =?us-ascii?Q?TZSohcaSW6zW+zh9PypJD1IrKCcEbVx7wTi3CIjJha03Bnp1cOAb3Q/Hp/Da?=
+ =?us-ascii?Q?dEjitB1LKiWpqQhd6B9WUrdaE1QDSlr7kTFUynexhFkqS0qGV/Z5fyrIaR69?=
+ =?us-ascii?Q?Or1i4OK38kADauNthPLB95Y0Z/G270h4hm4Co1AiuH6ASVSMUHpxnW0rkQgO?=
+ =?us-ascii?Q?WCfYt8uXXgXwefORzt6e6KGKNEKczvT2crvSnR2rM37J0t++pRF9NKjsdsGp?=
+ =?us-ascii?Q?dkuoWeYyJThuxvAzbNo8z3i7PRHoXkGGwI0TDrlS8N6S/SiREl4YaWceD/VE?=
+ =?us-ascii?Q?XSLVcKxTSVAuNntZl4JSFDJyV0qKq7KUU43xQeKO?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7557f5ec-28f9-441d-ff58-08da8c2723b8
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2022 14:34:55.9941
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: +lZ7Xn0Cz6+CcOxMO36wpDVtxlhWg0btKw0jeDHOB0N5AIQPGyUIkoz1XrKk+KFN
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB7126
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-09-01 14:42, Niklas Schnelle wrote:
-> On Thu, 2022-09-01 at 12:01 +0100, Robin Murphy wrote:
->> On 2022-09-01 10:37, Niklas Schnelle wrote:
->>> On Thu, 2022-09-01 at 09:56 +0200, Pierre Morel wrote:
->>>> On 8/31/22 22:12, Matthew Rosato wrote:
->>>>> With commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
->>>>> calls") s390-iommu is supposed to handle dynamic switching between IOMMU
->>>>> domains and the DMA API handling.  However, this commit does not
->>>>> sufficiently handle the case where the device is released via a call
->>>>> to the release_device op as it may occur at the same time as an opposing
->>>>> attach_dev or detach_dev since the group mutex is not held over
->>>>> release_device.  This was observed if the device is deconfigured during a
->>>>> small window during vfio-pci initialization and can result in WARNs and
->>>>> potential kernel panics.
->>>>>
->>>>> Handle this by tracking when the device is probed/released via
->>>>> dev_iommu_priv_set/get().  Ensure that once the device is released only
->>>>> release_device handles the re-init of the device DMA.
->>>>>
->>>>> Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
->>>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->>>>> ---
->>>>>     arch/s390/include/asm/pci.h |  1 +
->>>>>     arch/s390/pci/pci.c         |  1 +
->>>>>     drivers/iommu/s390-iommu.c  | 39 ++++++++++++++++++++++++++++++++++---
->>>>>     3 files changed, 38 insertions(+), 3 deletions(-)
->>>>>
->>>>>
->>> ---8<---
->>>>>     
->>>>> @@ -206,10 +221,28 @@ static void s390_iommu_release_device(struct device *dev)
->>>>>
->>> ---8<---
->>>>> +		/* Make sure this device is removed from the domain list */
->>>>>     		domain = iommu_get_domain_for_dev(dev);
->>>>>     		if (domain)
->>>>>     			s390_iommu_detach_device(domain, dev);
->>>>> +		/* Now ensure DMA is initialized from here */
->>>>> +		mutex_lock(&zdev->dma_domain_lock);
->>>>> +		if (zdev->s390_domain) {
->>>>> +			zdev->s390_domain = NULL;
->>>>> +			zpci_unregister_ioat(zdev, 0);
->>>>> +			zpci_dma_init_device(zdev);
->>>>
->>>> Sorry if it is a stupid question, but two things looks strange to me:
->>>>
->>>> - having DMA initialized just after having unregistered the IOAT
->>>> Is that really all we need to unregister before calling dma_init_device?
->>>>
->>>> - having DMA initialized inside the release_device callback:
->>>> Why isn't it done in the device_probe ?
->>>
->>> As I understand it iommu_release_device() which calls this code is only
->>> used when a device goes away. So, I think you're right in that it makes
->>> little sense to re-initialize DMA at this point, it's going to be torn
->>> down immediately after anyway. I do wonder if it would be an acceptably
->>> small change to just set zdev->s390_domain = NULL here and leave DMA
->>> uninitialized while making zpci_dma_exit_device() deal with that e.g.
->>> by doing nothing if zdev->dma_table is NULL but I'm not sure.
->>>
->>> Either way I fear this mess really is just a symptom of our current
->>> design oddity of driving the same IOMMU hardware through both our DMA
->>> API implementation (arch/s390/pci_dma.c) and the IOMMU driver
->>> (driver/iommu/s390-iommu.c) and trying to hand off between them
->>> smoothly where common code instead just layers one atop the other when
->>> using an IOMMU at all.
->>>
->>> I think the correct medium term solution is to use the common DMA API
->>> implementation (drivers/iommu/dma-iommu.c) like everyone else. But that
->>> isn't the minimal fix we need now.
->>>
->>> I do have a working prototype of using the common implementation but
->>> the big problem that I'm still searching a solution for is its
->>> performance with a virtualized IOMMU where IOTLB flushes (RPCIT on
->>> s390) are used for shadowing and are expensive and serialized. The
->>> optimization we used so far for unmap, only doing one global IOTLB
->>> flush once we run out of IOVA space, is just too much better in that
->>> scenario to just ignore. As one data point, on an NVMe I get about
->>> _twice_ the IOPS when using our existing scheme compared to strict
->>> mode. Which makes sense as IOTLB flushes are known as the bottleneck
->>> and optimizing unmap like that reduces them by almost half. Queued
->>> flushing is still much worse likely due to serialization of the
->>> shadowing, though again it works great on LPAR. To make sure it's not
->>> due to some bug in the IOMMU driver I even tried converting our
->>> existing DMA driver to layer on top of the IOMMU driver with the same
->>> result.
->>
->> FWIW, can you approximate the same behaviour by just making IOVA_FQ_SIZE
->> and IOVA_FQ_TIMEOUT really big, and deferring your zpci_refresh_trans()
->> hook from .unmap to .flush_iotlb_all when in non-strict mode?
->>
->> I'm not against the idea of trying to support this mode of operation
->> better in the common code, since it seems like it could potentially be
->> useful for *any* virtualised scenario where trapping to invalidate is
->> expensive and the user is happy to trade off the additional address
->> space/memory overhead (and even greater loss of memory protection)
->> against that.
->>
->> Robin.
-> 
-> 
-> Ah thanks for reminding me. I had tried that earlier but quickly ran
-> into the size limit of per-CPU allocations. This time I turned the
-> "struct iova_fq_entry entries" member into a pointer and allocted that
-> with vmalloc(). Also thankfully the ops->flush_iotlb_all(), iommu_iotlb_sync(), and iommu_iotlb_sync_map() already perfectly match
-> our needs.
-> 
-> Okay, this is _very_ interesting. With the above cranking IOVA_FQ_SIZE
-> all the way to 32768 and IOVA_FQ_TIMEOUT to 4000 ms, I can get to about
-> 91% of the performance of our scheme (layered on the IOMMU API). That
-> also seems to be the limit. I guess there is also more overhead than
-> with our bitset IOVA allocation that doesn't need any bookkeeping
-> besides a "lazily unmapped" bit per page. With a more sane IOVA_FQ_SIZE
-> of 8192 and 100 ms timeout I still get about 76% of the performance.
+On Thu, Sep 01, 2022 at 03:29:16PM +0100, Robin Murphy wrote:
 
-Promising indeed... come to think of it, if you weren't already using it 
-then "iommu.forcedac=1" should save a bit more time in the IOVA 
-allocator especially if we're deliberately letting the address space 
-fill up. Clearly your current allocator doesn't have to work around 
-broken x86 PCs, so you're at liberty to convince the common one not to 
-either.
+> Right, the next step would be to bridge that gap to iommu-dma to dump the
+> flush queue when IOVA allocation failure implies we've reached the
+> "rollover" point, and perhaps not use the timer at all. By that point a
+> dedicated domain type, or at least some definite internal flag, for this
+> alternate behaviour seems like the logical way to go.
 
-> Interestingly with the above changes but default values for
-> IOVA_FQ_SIZE/IOVA_FQ_TIMEOUT things are much worse than even strict
-> mode (~50%) and I get less than 8% the IOPS with this NVMe.
-> 
-> So yeah it seems you're right and one can largely emulate our scheme
-> with this. I do wonder if we could go further and do a "flush on
-> running out of IOVAs" domain type with acceptable changes. My rough
-> idea would be to collect lazily freed IOVAs in the same data structure
-> as the free IOVAs, then on running out of those one can simply do a
-> global IOTLB flush and the lazily freed IOVAs become the new free
-> IOVAs. With that the global reset would be even cheaper than with our
-> bitmaps. For a generic case one would of course also need to track the
-> gather->freelist that we don't use in s390 but e.g. virtio-iommu
-> doesn't seem to use that either. What do you think?
+At least on this direction, I've been thinking it would be nice to
+replace the domain type _FQ with a flag inside the domain, maybe the
+ops, saying how the domain wants the common DMA API to operate. If it
+wants FQ mode or other tuning parameters
 
-Right, the next step would be to bridge that gap to iommu-dma to dump 
-the flush queue when IOVA allocation failure implies we've reached the 
-"rollover" point, and perhaps not use the timer at all. By that point a 
-dedicated domain type, or at least some definite internal flag, for this 
-alternate behaviour seems like the logical way to go.
-
-Cheers,
-Robin.
+Jason
