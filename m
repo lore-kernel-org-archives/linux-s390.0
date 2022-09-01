@@ -2,166 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E381ECAAD1
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 15:49:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44911C64991
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 16:08:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233272AbiIAPt5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Sep 2022 11:49:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52270 "EHLO
+        id S234865AbiIAQId (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Sep 2022 12:08:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233787AbiIAPtt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 11:49:49 -0400
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2073.outbound.protection.outlook.com [40.107.94.73])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA0B3AE;
-        Thu,  1 Sep 2022 08:49:44 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JRbfD081w9tpgxBc7dZf4Z0pGS5BiBJ9b8XVVxvaEQZDHP0gNl1CvYRg9qeYWKn95/0XRL3ls4/fLze3EX6iaWF7pMuvPtbrJ516XZox2o1dxMiBqXOMHx7vjI0t9Kbn1J+LhZxSTkD0Igw6BPWSvsQyAJyF0e0xARMapxpuSBlI++T0R8CJ7Yad3u3mExAb7h1ShpxT5+rlrNpfOTmSEdwUqCX9zWGce6SQBQudD2d0O1VdYOpEc3MhOq4RGSkr0wht8K3TRvG9nK61G+OEQ5kMf+RWtHsP1rT1LeYBeQHNbkZ+CO0PA1WSaLsSwlUvsLcveuS0qmQMYo9CX/oLAw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qVckLzpuxTLqox170T455GnnAogN/IixmtzKsdrHGqU=;
- b=ibVDrJlknNL6/PehHHZwTo+UTlX1baAOc9OW7VqxUaR3LwGSN30Jia7a1wpOcJEnZmUAr95q2hxHKV6zIoTTZSfRl/5Vtv6Fu6Bjoj3eWeLhMma1EUOaPvZOgf8WENw+zkJn9lP2fuUwLkIG8cTdZ5WPUxXsLvQm2iJzToS1HuQTQwiQAd675+s56Tvz64/nk7RlBFGdBG6ogSZVDaBmFuj9aaxIa4O5xAhAcGwdpK56H9ohCLXusV5YLGcOhVO77exhNq2gke1qAYgkJ9fllTBDq7u2tBnp5FLBnB5KC4HqOh8xmInP5TQpVu/IWiH3RDfemkKet4+/wXrgifSkAQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qVckLzpuxTLqox170T455GnnAogN/IixmtzKsdrHGqU=;
- b=GVHP0ELwdKSQjQKG8Mt1vFSqY/R7j7SKay46dUHfZ/rnTTTewjn9G+riJFX3YV9gwX3uAUZnglNuPzCTH45P02kL/EKcWkJsEbeamW6JJoDmZhn4sMRnYbybYypo3Q5MX2DIInl2AuyvIGfA8L/d5qnRByz1TxbOx7QwvmlhKe31w9FxJv2/B2Lb2jd/1roYyb/TuT9FeH8p6PvIRKxgCRbwMw6D7SSUNtjiMpjg3c16OyaCsJCiJGQpgFlCo6XTE7Of0EuoXdh4oiERypl4dIi0IP9388cJIzFIdU/9ys9eP4LSnLIEqIp7dSmNDb1W/z9YXkwmBQ+KS0k+F2gQ6A==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by DS7PR12MB6192.namprd12.prod.outlook.com (2603:10b6:8:97::6) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5588.10; Thu, 1 Sep 2022 15:49:43 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5%7]) with mapi id 15.20.5588.012; Thu, 1 Sep 2022
- 15:49:42 +0000
-Date:   Thu, 1 Sep 2022 12:49:41 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
-Message-ID: <YxDUlQprVaZp1RF1@nvidia.com>
-References: <20220831201236.77595-1-mjrosato@linux.ibm.com>
- <20220831201236.77595-2-mjrosato@linux.ibm.com>
- <9887e2f4-3f3d-137d-dad7-59dab5f98aab@linux.ibm.com>
- <52d3fe0b86bdc04fdbf3aae095b2f71f4ea12d44.camel@linux.ibm.com>
- <e01e6ef2-ba45-7433-5fe4-a6806dac3af9@arm.com>
- <8b561ad3023fc146ba0779cbd8fff14d6409c6aa.camel@linux.ibm.com>
- <3e402947-61f9-b7e8-1414-fde006257b6f@arm.com>
- <YxDDD2DF9KFDQ+Yk@nvidia.com>
- <58d14cfc-f8ba-777b-a975-371ff2b29e5a@arm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58d14cfc-f8ba-777b-a975-371ff2b29e5a@arm.com>
-X-ClientProxiedBy: BL0PR03CA0005.namprd03.prod.outlook.com
- (2603:10b6:208:2d::18) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S234873AbiIAQI1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 12:08:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3737390C61;
+        Thu,  1 Sep 2022 09:08:26 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 281FQRHG027904;
+        Thu, 1 Sep 2022 16:08:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Dils1zlfD+18lr9a0ceKjhxPZS6LnPxli3egH1u8tC8=;
+ b=NxuPGOzytuh/a2WjV6Z2eliW5DxwzqgLRvw6iNdfVUazysV/2IVfZjnpRhXLqfRVPx++
+ R2b+XpTJdTwyq5ZYHQpdvNtqoOvMJcFwJsXYwiQatcqF9Sv95AvmVabxEr5xcBnPCIEz
+ xPdzn+M84Q3G7DD7uQbnte2TtDDivCnEXAsEbEehNURISD1wKZbNHT/uw9wy16QkBxTg
+ aEeb/Ec3ROtul0MAaYjK8HfZ6qTAP0LO1NdE5CYZt4i7MScHjGMrFhd7RSFiEJoxnjp2
+ sSVBiyfJ0VUsymnyFqRgxCqDeEz64Qb0KhWZUXuu69LSG46gUpXq12gxRoZR8JQ5PPw1 rQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jax0meurq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Sep 2022 16:08:25 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 281FwOMj002484;
+        Thu, 1 Sep 2022 16:08:24 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jax0meupw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Sep 2022 16:08:24 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 281Fp7o0026195;
+        Thu, 1 Sep 2022 16:08:21 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03fra.de.ibm.com with ESMTP id 3j7aw8w46t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Sep 2022 16:08:21 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 281G50Uf38732110
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Sep 2022 16:05:00 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE4D54203F;
+        Thu,  1 Sep 2022 16:08:17 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8D3D442041;
+        Thu,  1 Sep 2022 16:08:17 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.52.204])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Sep 2022 16:08:17 +0000 (GMT)
+Message-ID: <03cdbf24b5c5d7024b1108d65c2c478073dab515.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v6 2/2] s390x: Test specification
+ exceptions during transaction
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Date:   Thu, 01 Sep 2022 18:08:17 +0200
+In-Reply-To: <166204436392.25136.10832970166586747913@t14-nrb>
+References: <20220826161112.3786131-1-scgl@linux.ibm.com>
+         <20220826161112.3786131-3-scgl@linux.ibm.com>
+         <166204436392.25136.10832970166586747913@t14-nrb>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: c5b8db55-9710-42c1-c6b0-08da8c31960a
-X-MS-TrafficTypeDiagnostic: DS7PR12MB6192:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: tLDuKcZGgCKaWb5kmEoxpJk/HrZBkdOvAW2mkKyuxVD6kg7OKvO4VOL8SHeWBa0vBt3w2R1ovEgvmlmTT6ssX55AOdosXk6B4U3zHa16Eanhr+T3+9b6AUzW2DR4NhlgVDZqkhdBadkRMob5QQ7Ny9hgUPXPjW4s1ebQl9E61CUN+tBaG2LrQ1Xb4xZ8YkmMYF2+aXaoreRGTUF47XlMvDEWBMnOC8vkx8KjqkKrzuHH93uQMQGlzaqxrQUpqub6+lsUyPjV1WsSN55+UvC3RARBO//OL73AxFgiwNF5AvHHzS07JnqeePmHCp+ALdAEOdy8hN+RLIs58VEAfJouiWm23VM39ly4BCdrzZSSgx2FE34E9ZYEW3Ozjv26EDqcz0jtB24UyqcJtr2YE4/m9KSSAjQEZ09hMlu836y0NaSOfRTnTivthzrnEGlW8BOaMth0oIalrpR/EwPiTDQjffZoqKldUuc9B9L71iKgjrnsfEE7kwNvJDYYFPPwTtPTPNzweB8owX+OwnKYbZfoRGUbaCLhA6zMxn0ad66lMtB6nL+iBkYGzrShTeXpOdlzYYLX/n+4e2HknKB7SSuda5jhk3i4DlsELtDJpP2Jzv23HFTZqKaLYTvnUsdt3v+t1rpKNy1BTro2dLlEpLfg9bQod1ZsLZcKbymnwGBoqpBQRtqGASO/qZ3S5dlm4Wnf2EF9ypfOZF1WwyY+3w2AqQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(39860400002)(396003)(346002)(376002)(136003)(366004)(83380400001)(186003)(54906003)(6916009)(5660300002)(316002)(6486002)(6506007)(8936002)(53546011)(2616005)(36756003)(41300700001)(6512007)(2906002)(26005)(86362001)(38100700002)(66556008)(66476007)(478600001)(4326008)(66946007)(7416002)(8676002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?YbOt0NAZkUBB/TMJuOu4rvoHr4E+TGJrbwQhi7GSk8RbdH5q0jb/8X8EIKKc?=
- =?us-ascii?Q?xZDm6fM4azNbn6P6Ri+y0IlIpzJGLlVG9NPpsGPgwEc2BVG3TTA+QKRCzTnt?=
- =?us-ascii?Q?M8lefdMIXksJLhJtbEjdjvlcf7TRgFTBCfYnztJySf1wWLzDCs2AN9JiLlqx?=
- =?us-ascii?Q?VXz0UuCxRQ+CfK7RVAZv94kfx/59c0ju9Ij31KgF5tdRhd03DKJN5PBSf/L+?=
- =?us-ascii?Q?8fNDjUzVObhfFdOvB5Yh3CT2iY9uhUngKFWr92jZuXdQjtaD5Tw4KRlQ2fP5?=
- =?us-ascii?Q?OZdeoxMwnESvgd01N0oldPVW5VBYgAna0rvH7+aadZ4ZyVX4AnT8bGt2Ae0R?=
- =?us-ascii?Q?VczjlFUPFOeG9GDbgD72KMihtjZj4JJo/udnaKfuwkrofqCewwbIBL36tLN0?=
- =?us-ascii?Q?BJZ8jPHo45t3oz5I6OfP/gN5jX/wGac/s5YYJwGpf3SL0scgo4mBL+L/gTVk?=
- =?us-ascii?Q?Rc9FmGJUbCVY9f6OUXlDEqqxQZdQzf6l5zbL+7UYtIFugPlX88ElDhthpSQF?=
- =?us-ascii?Q?00OCcBCHZ5Ve+DgUA/29ffCN/cG9pa/9DynuMSEXsCcOKW1Wt3R+S5RWJb01?=
- =?us-ascii?Q?p9jNNQHOWvvf0GJne+Ke2CQFbZe5F+FmNgVtfXsj4//3d2qVdoRnUptQu0kA?=
- =?us-ascii?Q?5z9vCu9ccGfm+v1+M85cQIrdEDDvXeQ8OpCoHwXsnlI2cwWfz2jRqR23Ll+N?=
- =?us-ascii?Q?KlOLXHZsftwmbS+V21wiXpd5LqvRsByDoTadNTy7jbQ2Re7B8X18RLvUHQrs?=
- =?us-ascii?Q?JG/bPs24M4TZdmJPrG4jJ8N6W1u5L2NhAfDBNwFImDwrZt5sMYYg/xGU5PSK?=
- =?us-ascii?Q?pADrRiigFmD71ninzBEx6YvIFyLZW1KFrJu3zKtmTKOdD8Md5/MD4PTngVSI?=
- =?us-ascii?Q?PS/NkC8KqVAHs/lpP6ehH7B/zAxvdEYHIYKtihrAwIPGRlZ8ZzQ7hn+JoHa5?=
- =?us-ascii?Q?tSVBs7p+SZVJkueijR/Lqdw7mNPXe/HKnPtjP5UBs96cmoqZgisA02Qoxkhc?=
- =?us-ascii?Q?Qera6elZfK4eU4ckft/2QJp5zpbsyeSa65ewE4F5SecEda+6MOOFrGzFmdcv?=
- =?us-ascii?Q?tia7NAZU8cDcvEENyAHMy5iuYkLQYtjkO/aU2CihRe8zlCa7YMg5wRUBCqjC?=
- =?us-ascii?Q?s8jKDpvfnzRi8gD86N0q1iQfpsb1xktsilNJ7J3kFt9KdmZwUN1JmNX6qSzr?=
- =?us-ascii?Q?pD6RZv1XWEn6YUECd60gsORYa1GdGj47I/Q0cRMcb2pGMug1rK8bFbxqlZ5E?=
- =?us-ascii?Q?z0fJlPqqgdcRcd6eIuJ1CVqCOibU2bjqFgOVvQfs+wuNeWIr0Wmiy8C3Ll47?=
- =?us-ascii?Q?m76/eRv5ZNb/vc6gM5MA4CKJtrAvzKeasmHAldCXvFC4NcJdIQCeG6bCwR5g?=
- =?us-ascii?Q?cQaI+ini+LIqsNge0n7nwV0WGKE/KjvC44QBIjyAwJcoD3nBM7DduCCxJu5i?=
- =?us-ascii?Q?QPg6ZjkINUF+kQPyBfuPUmiaxT9tD5HihGFP05AZIps8ZNIJA1N/A0KYDQ1t?=
- =?us-ascii?Q?+zxUfjQ2eJ1PIK5hvlUw/LDO1Ur/+k5ItQEuIb1pi1ZvLC43Ugi1YAB04HXJ?=
- =?us-ascii?Q?a1nbWPeBwdQaEh2MrOhEa9ZKmZU3oQn8/qWqhUKx?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c5b8db55-9710-42c1-c6b0-08da8c31960a
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2022 15:49:42.6952
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: svOyKjTKnIeEChbrmQAjstmKJH05RQzL0eQ6OEYkHbREK3fCgpy4YMv3ba1Uk2jy
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6192
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6RsK7vaNDnRLhDhyPv5cAPdePiVUqFvC
+X-Proofpoint-ORIG-GUID: futAFD7VXT72iFjEfSQnozRRg_K1pebi
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-09-01_10,2022-08-31_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ bulkscore=0 clxscore=1015 adultscore=0 spamscore=0 mlxlogscore=999
+ phishscore=0 malwarescore=0 priorityscore=1501 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209010071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 01, 2022 at 04:03:36PM +0100, Robin Murphy wrote:
-> On 2022-09-01 15:34, Jason Gunthorpe wrote:
-> > On Thu, Sep 01, 2022 at 03:29:16PM +0100, Robin Murphy wrote:
-> > 
-> > > Right, the next step would be to bridge that gap to iommu-dma to dump the
-> > > flush queue when IOVA allocation failure implies we've reached the
-> > > "rollover" point, and perhaps not use the timer at all. By that point a
-> > > dedicated domain type, or at least some definite internal flag, for this
-> > > alternate behaviour seems like the logical way to go.
-> > 
-> > At least on this direction, I've been thinking it would be nice to
-> > replace the domain type _FQ with a flag inside the domain, maybe the
-> > ops, saying how the domain wants the common DMA API to operate. If it
-> > wants FQ mode or other tuning parameters
+On Thu, 2022-09-01 at 16:59 +0200, Nico Boehr wrote:
+> Quoting Janis Schoetterl-Glausch (2022-08-26 18:11:12)
+> > diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+> > index 68469e4b..56f26564 100644
+> [...]
+> > +#define TRANSACTION_COMPLETED 4
+> > +#define TRANSACTION_MAX_RETRIES 5
+> > +
+> > +/*
+> > + * NULL must be passed to __builtin_tbegin via constant, forbid diagnose from
+> > + * being NULL to keep things simple
+> > + */
 > 
-> Compare the not-necessarily-obvious matrix of "strict" and "passthrough"
-> command-line parameters with the nice understandable kconfig and sysfs
-> controls for a reminder of why I moved things *from* that paradigm in the
-> first place ;)
+> For some reason, it took me a while to get this, because the context was not clear to me. Maybe rephrase it a tiny bit:
+> 
+> If diagnose should be NULL, it must be passed to __builtin_tbegin via constant, so forbid NULL to keep things simple
+> 
+> [...]
+> > +static void test_spec_ex_trans(struct args *args, const struct spec_ex_trigger *trigger)
+> > +{
+> [...]
+> > +       case TRANSACTION_MAX_RETRIES:
+> > +               report_skip("Transaction retried %lu times with transient failures, giving up",
+> > +                           args->max_retries);
+> 
+> Hmhm, I am unsure whether a skip is the right thing here. On one hand, it might hide bugs, on the other hand, it might cause spurious failures. Why did you decide for the skip?
 
-I'm looking at it from a code perspective, where the drivers don't
-seem to actually care about DMA_FQ. eg search for it in the drivers
-and you mostly see:
-
-	    (type != IOMMU_DOMAIN_DMA && type != IOMMU_DOMAIN_DMA_FQ))
-
-The exception is domain_alloc which fails in cases where the domain
-doesn't 'support' FQ.
-
-But support FQ or not can be cast as a simple capability flag in the
-domain. We don't need a whole type for the driver to communicate it.
-
-The strictness level belongs completely in the core code, it shouldn't
-leak into the driver.
-
-The same general comment seems to be true of IOMMU_DOMAIN_DMA. All the
-drivers implement this as an UNMANAGED domain. There are only two
-places in the Intel driver that do anything special with DOMAIN_DMA vs
-DOMAIN_UNMANAGED (and possibly that is just cruft). So the "does this
-support DMA API" is also just a capability flag, and doesn't really
-need a whole type.
-
-This is what I mean, not going backwards to the driver specifying
-strictness policy.
-
-Jason
+Yeah, it's a toss-up. Claudio asked me to change it in v4.
