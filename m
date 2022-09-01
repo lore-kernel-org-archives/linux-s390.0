@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EA0EECAAD1
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 07:22:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E8C5ECAAD1
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 07:22:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233887AbiIAHWI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Sep 2022 03:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34036 "EHLO
+        id S233891AbiIAHWm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Sep 2022 03:22:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233820AbiIAHVj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 03:21:39 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93FC3E3C03;
-        Thu,  1 Sep 2022 00:20:31 -0700 (PDT)
+        with ESMTP id S233355AbiIAHWL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 03:22:11 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83AA8126925;
+        Thu,  1 Sep 2022 00:20:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662016831; x=1693552831;
+  t=1662016848; x=1693552848;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=QqWka4HaQibf5c1Z2BcUu7NHrunHaX6aNNmX/Lahlgs=;
-  b=BfZG3jWp5+T+dYwkmR9Yr8dj6tu/qZxNaTRgcbYveftu5mOs1Jeo6hqM
-   Z6qGke/fyf8qCdNxKQKcg91QzdzTfADjmZyc9M3M0/PWia579cRCp8c/v
-   hUKsZS9HuXrD/Ry7IGrkg29QeQu9y5FrmNFamu4rjCplMJ25mJRZZVM+6
-   ELDuZ6fz0kok1Ln7FrUrR5VwQH8LmunQnQh9Zh7Bu2J1p1Uz6NMXEk1yr
-   RBijocDZRAqtwENw9+dET21RXbgC0MC4U9PftvWzxEt3qHlvJqGt1anfO
-   mpcz+O6S6gH0HOrMjdv6VXGRyUS7hfygSdOXmX8Wc7cbcogZogos/K9mn
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10456"; a="321783512"
+  bh=TXG/j07OriuoJ6RyVCBIyUhcBlilAokPO0tPCFm5g0M=;
+  b=F78VLYXDpWhZ8XR1NDmkdEL0/mk6ikr4EmlWQUHjpYRx5kFJ++K2YrXv
+   3Z+lA/k41/+u1PPcX1tLlxa1JSQxzqKlHH1qJ3yuURp2wmD4OxxMXrlIz
+   hlV+LeKChRJivaXVWKwWV8gjXhHy4awPE5Y8mMNdlLQSnqYbuyd/s2IwI
+   efk+ioJOQhZF5SDkLetL5Q1aEbyqbKztfbN/X1CyORzG707dLL1iEvSTy
+   ytWpIL09moFmbBHnXrsTBok9e5+g0MrR3HZlgQ7fOvdoV2CZNcS84X9ub
+   5RKOACJNLih5gE07egpSOysJ5kI9qAr9d3SZttH6BLLDKI/UEN0QZZSrq
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10456"; a="357356048"
 X-IronPort-AV: E=Sophos;i="5.93,280,1654585200"; 
-   d="scan'208";a="321783512"
+   d="scan'208";a="357356048"
 Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2022 00:19:24 -0700
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2022 00:19:42 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.93,280,1654585200"; 
-   d="scan'208";a="673720695"
+   d="scan'208";a="673720786"
 Received: from sqa-gate.sh.intel.com (HELO michael.clx.dev.tsp.org) ([10.239.48.212])
-  by fmsmga008.fm.intel.com with ESMTP; 01 Sep 2022 00:19:16 -0700
+  by fmsmga008.fm.intel.com with ESMTP; 01 Sep 2022 00:19:33 -0700
 From:   Kevin Tian <kevin.tian@intel.com>
 To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
@@ -76,9 +76,9 @@ To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org
 Cc:     Yi Liu <yi.l.liu@intel.com>
-Subject: [PATCH v2 12/15] vfio/amba: Use the new device life cycle helpers
-Date:   Thu,  1 Sep 2022 22:37:44 +0800
-Message-Id: <20220901143747.32858-13-kevin.tian@intel.com>
+Subject: [PATCH v2 14/15] vfio: Rename vfio_device_put() and vfio_device_try_get()
+Date:   Thu,  1 Sep 2022 22:37:46 +0800
+Message-Id: <20220901143747.32858-15-kevin.tian@intel.com>
 X-Mailer: git-send-email 2.21.3
 In-Reply-To: <20220901143747.32858-1-kevin.tian@intel.com>
 References: <20220901143747.32858-1-kevin.tian@intel.com>
@@ -88,224 +88,99 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Implement amba's own vfio_device_ops.
+With the addition of vfio_put_device() now the names become confusing.
 
-Remove vfio_platform_probe/remove_common() given no user now.
+vfio_put_device() is clear from object life cycle p.o.v given kref.
+
+vfio_device_put()/vfio_device_try_get() are helpers for tracking
+users on a registered device.
+
+Now rename them:
+
+ - vfio_device_put() -> vfio_device_put_registration()
+ - vfio_device_try_get() -> vfio_device_try_get_registration()
 
 Signed-off-by: Kevin Tian <kevin.tian@intel.com>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- drivers/vfio/platform/vfio_amba.c             | 72 ++++++++++++++-----
- drivers/vfio/platform/vfio_platform_common.c  | 60 ----------------
- drivers/vfio/platform/vfio_platform_private.h |  3 -
- 3 files changed, 55 insertions(+), 80 deletions(-)
+ drivers/vfio/vfio_main.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
-index 1aaa4f721bd2..6cdcc8905198 100644
---- a/drivers/vfio/platform/vfio_amba.c
-+++ b/drivers/vfio/platform/vfio_amba.c
-@@ -7,6 +7,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/vfio.h>
-+#include <linux/pm_runtime.h>
- #include <linux/amba/bus.h>
- 
- #include "vfio_platform_private.h"
-@@ -40,20 +41,16 @@ static int get_amba_irq(struct vfio_platform_device *vdev, int i)
- 	return ret ? ret : -ENXIO;
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index 957d9f286550..bfa675d314ab 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -451,13 +451,13 @@ static void vfio_group_get(struct vfio_group *group)
+  * Device objects - create, release, get, put, search
+  */
+ /* Device reference always implies a group reference */
+-static void vfio_device_put(struct vfio_device *device)
++static void vfio_device_put_registration(struct vfio_device *device)
+ {
+ 	if (refcount_dec_and_test(&device->refcount))
+ 		complete(&device->comp);
  }
  
--static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
-+static int vfio_amba_init_dev(struct vfio_device *core_vdev)
+-static bool vfio_device_try_get(struct vfio_device *device)
++static bool vfio_device_try_get_registration(struct vfio_device *device)
  {
--	struct vfio_platform_device *vdev;
-+	struct vfio_platform_device *vdev =
-+		container_of(core_vdev, struct vfio_platform_device, vdev);
-+	struct amba_device *adev = to_amba_device(core_vdev->dev);
- 	int ret;
+ 	return refcount_inc_not_zero(&device->refcount);
+ }
+@@ -469,7 +469,8 @@ static struct vfio_device *vfio_group_get_device(struct vfio_group *group,
  
--	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
--	if (!vdev)
--		return -ENOMEM;
--
- 	vdev->name = kasprintf(GFP_KERNEL, "vfio-amba-%08x", adev->periphid);
--	if (!vdev->name) {
--		kfree(vdev);
-+	if (!vdev->name)
- 		return -ENOMEM;
--	}
+ 	mutex_lock(&group->device_lock);
+ 	list_for_each_entry(device, &group->device_list, group_next) {
+-		if (device->dev == dev && vfio_device_try_get(device)) {
++		if (device->dev == dev &&
++		    vfio_device_try_get_registration(device)) {
+ 			mutex_unlock(&group->device_lock);
+ 			return device;
+ 		}
+@@ -671,7 +672,7 @@ static int __vfio_register_dev(struct vfio_device *device,
+ 	if (existing_device) {
+ 		dev_WARN(device->dev, "Device already exists on group %d\n",
+ 			 iommu_group_id(group->iommu_group));
+-		vfio_device_put(existing_device);
++		vfio_device_put_registration(existing_device);
+ 		if (group->type == VFIO_NO_IOMMU ||
+ 		    group->type == VFIO_EMULATED_IOMMU)
+ 			iommu_group_remove_device(device->dev);
+@@ -730,7 +731,7 @@ static struct vfio_device *vfio_device_get_from_name(struct vfio_group *group,
+ 			ret = !strcmp(dev_name(it->dev), buf);
+ 		}
  
- 	vdev->opaque = (void *) adev;
- 	vdev->flags = VFIO_DEVICE_FLAGS_AMBA;
-@@ -61,26 +58,67 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
- 	vdev->get_irq = get_amba_irq;
- 	vdev->reset_required = false;
+-		if (ret && vfio_device_try_get(it)) {
++		if (ret && vfio_device_try_get_registration(it)) {
+ 			device = it;
+ 			break;
+ 		}
+@@ -750,7 +751,7 @@ void vfio_unregister_group_dev(struct vfio_device *device)
+ 	bool interrupted = false;
+ 	long rc;
  
--	ret = vfio_platform_probe_common(vdev, &adev->dev);
--	if (ret) {
-+	ret = vfio_platform_init_common(vdev);
-+	if (ret)
- 		kfree(vdev->name);
--		kfree(vdev);
--		return ret;
--	}
-+	return ret;
-+}
-+
-+static const struct vfio_device_ops vfio_amba_ops;
-+static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
-+{
-+	struct vfio_platform_device *vdev;
-+	int ret;
-+
-+	vdev = vfio_alloc_device(vfio_platform_device, vdev, &adev->dev,
-+				 &vfio_amba_ops);
-+	if (IS_ERR(vdev))
-+		return PTR_ERR(vdev);
+-	vfio_device_put(device);
++	vfio_device_put_registration(device);
+ 	rc = try_wait_for_completion(&device->comp);
+ 	while (rc <= 0) {
+ 		if (device->ops->request)
+@@ -1286,7 +1287,7 @@ static int vfio_group_get_device_fd(struct vfio_group *group, char *buf)
+ err_put_fdno:
+ 	put_unused_fd(fdno);
+ err_put_device:
+-	vfio_device_put(device);
++	vfio_device_put_registration(device);
+ 	return ret;
+ }
  
-+	ret = vfio_register_group_dev(&vdev->vdev);
-+	if (ret)
-+		goto out_put_vdev;
-+
-+	pm_runtime_enable(&adev->dev);
- 	dev_set_drvdata(&adev->dev, vdev);
+@@ -1461,7 +1462,7 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
+ 
+ 	vfio_device_unassign_container(device);
+ 
+-	vfio_device_put(device);
++	vfio_device_put_registration(device);
+ 
  	return 0;
-+
-+out_put_vdev:
-+	vfio_put_device(&vdev->vdev);
-+	return ret;
-+}
-+
-+static void vfio_amba_release_dev(struct vfio_device *core_vdev)
-+{
-+	struct vfio_platform_device *vdev =
-+		container_of(core_vdev, struct vfio_platform_device, vdev);
-+
-+	vfio_platform_release_common(vdev);
-+	kfree(vdev->name);
-+	vfio_free_device(core_vdev);
  }
- 
- static void vfio_amba_remove(struct amba_device *adev)
- {
- 	struct vfio_platform_device *vdev = dev_get_drvdata(&adev->dev);
- 
--	vfio_platform_remove_common(vdev);
--	kfree(vdev->name);
--	kfree(vdev);
-+	vfio_unregister_group_dev(&vdev->vdev);
-+	pm_runtime_disable(vdev->device);
-+	vfio_put_device(&vdev->vdev);
- }
- 
-+static const struct vfio_device_ops vfio_amba_ops= {
-+	.name		= "vfio-amba",
-+	.init		= vfio_amba_init_dev,
-+	.release	= vfio_amba_release_dev,
-+	.open_device	= vfio_platform_open_device,
-+	.close_device	= vfio_platform_close_device,
-+	.ioctl		= vfio_platform_ioctl,
-+	.read		= vfio_platform_read,
-+	.write		= vfio_platform_write,
-+	.mmap		= vfio_platform_mmap,
-+};
-+
- static const struct amba_id pl330_ids[] = {
- 	{ 0, 0 },
- };
-diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
-index 4c01bf0adebb..55dc4f43c31e 100644
---- a/drivers/vfio/platform/vfio_platform_common.c
-+++ b/drivers/vfio/platform/vfio_platform_common.c
-@@ -605,16 +605,6 @@ int vfio_platform_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma
- }
- EXPORT_SYMBOL_GPL(vfio_platform_mmap);
- 
--static const struct vfio_device_ops vfio_platform_ops = {
--	.name		= "vfio-platform",
--	.open_device	= vfio_platform_open_device,
--	.close_device	= vfio_platform_close_device,
--	.ioctl		= vfio_platform_ioctl,
--	.read		= vfio_platform_read,
--	.write		= vfio_platform_write,
--	.mmap		= vfio_platform_mmap,
--};
--
- static int vfio_platform_of_probe(struct vfio_platform_device *vdev,
- 			   struct device *dev)
- {
-@@ -674,56 +664,6 @@ void vfio_platform_release_common(struct vfio_platform_device *vdev)
- }
- EXPORT_SYMBOL_GPL(vfio_platform_release_common);
- 
--int vfio_platform_probe_common(struct vfio_platform_device *vdev,
--			       struct device *dev)
--{
--	int ret;
--
--	vfio_init_group_dev(&vdev->vdev, dev, &vfio_platform_ops);
--
--	ret = vfio_platform_acpi_probe(vdev, dev);
--	if (ret)
--		ret = vfio_platform_of_probe(vdev, dev);
--
--	if (ret)
--		goto out_uninit;
--
--	vdev->device = dev;
--
--	ret = vfio_platform_get_reset(vdev);
--	if (ret && vdev->reset_required) {
--		dev_err(dev, "No reset function found for device %s\n",
--			vdev->name);
--		goto out_uninit;
--	}
--
--	ret = vfio_register_group_dev(&vdev->vdev);
--	if (ret)
--		goto put_reset;
--
--	mutex_init(&vdev->igate);
--
--	pm_runtime_enable(dev);
--	return 0;
--
--put_reset:
--	vfio_platform_put_reset(vdev);
--out_uninit:
--	vfio_uninit_group_dev(&vdev->vdev);
--	return ret;
--}
--EXPORT_SYMBOL_GPL(vfio_platform_probe_common);
--
--void vfio_platform_remove_common(struct vfio_platform_device *vdev)
--{
--	vfio_unregister_group_dev(&vdev->vdev);
--
--	pm_runtime_disable(vdev->device);
--	vfio_platform_put_reset(vdev);
--	vfio_uninit_group_dev(&vdev->vdev);
--}
--EXPORT_SYMBOL_GPL(vfio_platform_remove_common);
--
- void __vfio_platform_register_reset(struct vfio_platform_reset_node *node)
- {
- 	mutex_lock(&driver_lock);
-diff --git a/drivers/vfio/platform/vfio_platform_private.h b/drivers/vfio/platform/vfio_platform_private.h
-index a769d649fb97..8d8fab516849 100644
---- a/drivers/vfio/platform/vfio_platform_private.h
-+++ b/drivers/vfio/platform/vfio_platform_private.h
-@@ -78,9 +78,6 @@ struct vfio_platform_reset_node {
- 	vfio_platform_reset_fn_t of_reset;
- };
- 
--int vfio_platform_probe_common(struct vfio_platform_device *vdev,
--			       struct device *dev);
--void vfio_platform_remove_common(struct vfio_platform_device *vdev);
- int vfio_platform_init_common(struct vfio_platform_device *vdev);
- void vfio_platform_release_common(struct vfio_platform_device *vdev);
- 
 -- 
 2.21.3
 
