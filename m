@@ -2,234 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 485D0ECAAD1
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 16:14:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA8F3ECAAD1
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 17:01:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234994AbiIAQOt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Sep 2022 12:14:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49932 "EHLO
+        id S235035AbiIARBC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Sep 2022 13:01:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234995AbiIAQOp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 12:14:45 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0152E9350E;
-        Thu,  1 Sep 2022 09:14:40 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 281FMhNg010252;
-        Thu, 1 Sep 2022 16:14:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=FxSD4RizfGmzEnvre6Dp8PWywNJnxm7IbTH2/I5183Q=;
- b=hJFF1/s+9d3rRXkuzlccwXxxSWN/my5TTc6fI/vygatl6wW5wF2dYCe20LOaFABUIvN/
- T9fkzetHqSOjHn3bsLqLBeer9VWy9NVHYHnmr3aAuft78mJyFQBFmqo2HKdfxC7AvXCY
- WhOjiF0C5XSqBFHv5zvkkTs/MUeGOPC2Z6NBi3PKjeVPVFGyXzOvykabIFbXQ1uwrk3X
- sXJLkk6wwHatiu/QWo8khBfpoSzPaxPyi+AvPQ2sG/0t0U0tCbm7PFOb6jPriy3xXU4y
- KrEQ34j1ER56A/K733gUtorX09+qrLMQSrdR3zdemx8iyEZCaE4Sxsde1nXZRDT45i7W eg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jaxaana7g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Sep 2022 16:14:28 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 281FNYXF014346;
-        Thu, 1 Sep 2022 16:14:28 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jaxaana78-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Sep 2022 16:14:28 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 281Fo3rw007503;
-        Thu, 1 Sep 2022 16:14:27 GMT
-Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
-        by ppma05wdc.us.ibm.com with ESMTP id 3j7awa2c0c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Sep 2022 16:14:27 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 281GEQLf5308952
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Sep 2022 16:14:26 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7CDC36E050;
-        Thu,  1 Sep 2022 16:14:26 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9DFE16E04E;
-        Thu,  1 Sep 2022 16:14:24 +0000 (GMT)
-Received: from [9.160.86.252] (unknown [9.160.86.252])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Sep 2022 16:14:24 +0000 (GMT)
-Message-ID: <369ad331-8bdc-d385-a227-f674bd410599@linux.ibm.com>
-Date:   Thu, 1 Sep 2022 12:14:24 -0400
+        with ESMTP id S235082AbiIARBA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 13:01:00 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9E3726B647;
+        Thu,  1 Sep 2022 10:00:58 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6BC00D6E;
+        Thu,  1 Sep 2022 10:01:04 -0700 (PDT)
+Received: from [10.57.15.167] (unknown [10.57.15.167])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1A9DC3F7B4;
+        Thu,  1 Sep 2022 10:00:54 -0700 (PDT)
+Message-ID: <31269d99-5ffc-7060-2af2-ce1f5bc33de2@arm.com>
+Date:   Thu, 1 Sep 2022 18:00:51 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
  Thunderbird/102.2.0
 Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
-Content-Language: en-US
-To:     Robin Murphy <robin.murphy@arm.com>, iommu@lists.linux.dev,
-        jgg@nvidia.com, Alex Williamson <alex.williamson@redhat.com>
-Cc:     linux-s390@vger.kernel.org, schnelle@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, joro@8bytes.org,
-        will@kernel.org, linux-kernel@vger.kernel.org
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
+        linux-kernel@vger.kernel.org
 References: <20220831201236.77595-1-mjrosato@linux.ibm.com>
  <20220831201236.77595-2-mjrosato@linux.ibm.com>
- <3b065fb5-3ca7-8f48-bdf7-daf7604312df@arm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <3b065fb5-3ca7-8f48-bdf7-daf7604312df@arm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: CKjMEFZWF1Ls_nsT4-BatYt49fWHTG52
-X-Proofpoint-GUID: Pb7i3VhrrS3SVOTguPEzPligCUqsWdMY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-09-01_10,2022-08-31_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 mlxscore=0 clxscore=1015 mlxlogscore=999 adultscore=0
- spamscore=0 bulkscore=0 malwarescore=0 phishscore=0 suspectscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2209010071
+ <9887e2f4-3f3d-137d-dad7-59dab5f98aab@linux.ibm.com>
+ <52d3fe0b86bdc04fdbf3aae095b2f71f4ea12d44.camel@linux.ibm.com>
+ <e01e6ef2-ba45-7433-5fe4-a6806dac3af9@arm.com>
+ <8b561ad3023fc146ba0779cbd8fff14d6409c6aa.camel@linux.ibm.com>
+ <3e402947-61f9-b7e8-1414-fde006257b6f@arm.com> <YxDDD2DF9KFDQ+Yk@nvidia.com>
+ <58d14cfc-f8ba-777b-a975-371ff2b29e5a@arm.com> <YxDUlQprVaZp1RF1@nvidia.com>
+Content-Language: en-GB
+From:   Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <YxDUlQprVaZp1RF1@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/1/22 6:25 AM, Robin Murphy wrote:
-> On 2022-08-31 21:12, Matthew Rosato wrote:
->> With commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
->> calls") s390-iommu is supposed to handle dynamic switching between IOMMU
->> domains and the DMA API handling.  However, this commit does not
->> sufficiently handle the case where the device is released via a call
->> to the release_device op as it may occur at the same time as an opposing
->> attach_dev or detach_dev since the group mutex is not held over
->> release_device.  This was observed if the device is deconfigured during a
->> small window during vfio-pci initialization and can result in WARNs and
->> potential kernel panics.
-> 
-> Hmm, the more I think about it, something doesn't sit right about this whole situation... release_device is called via the notifier from device_del() after the device has been removed from its parent bus and largely dismantled; it should definitely not still have a driver bound by that point, so how is VFIO doing things that manage to race at all?
-> 
-> Robin.
-
-So, I generally have seen the issue manifest as one of the calls into the iommu core from __vfio_group_unset_container (e.g. iommu_deatch_group via vfio_type1_iommu) failing with a WARN.  This happens when the vfio group fd is released, which could be coming e.g. from a userspace ioctl VFIO_GROUP_UNSET_CONTAINER.  AFAICT there's nothing serializing the notion of calling into the iommu core here against a device that is simultaneously going through release_device (because we don't enter release_device with the group mutex held), resulting in unpredictable behavior between the dueling attach_dev/detach_dev and the release_device for s390-iommu at least.  
-
-
-> 
->> Handle this by tracking when the device is probed/released via
->> dev_iommu_priv_set/get().  Ensure that once the device is released only
->> release_device handles the re-init of the device DMA.
+On 2022-09-01 16:49, Jason Gunthorpe wrote:
+> On Thu, Sep 01, 2022 at 04:03:36PM +0100, Robin Murphy wrote:
+>> On 2022-09-01 15:34, Jason Gunthorpe wrote:
+>>> On Thu, Sep 01, 2022 at 03:29:16PM +0100, Robin Murphy wrote:
+>>>
+>>>> Right, the next step would be to bridge that gap to iommu-dma to dump the
+>>>> flush queue when IOVA allocation failure implies we've reached the
+>>>> "rollover" point, and perhaps not use the timer at all. By that point a
+>>>> dedicated domain type, or at least some definite internal flag, for this
+>>>> alternate behaviour seems like the logical way to go.
+>>>
+>>> At least on this direction, I've been thinking it would be nice to
+>>> replace the domain type _FQ with a flag inside the domain, maybe the
+>>> ops, saying how the domain wants the common DMA API to operate. If it
+>>> wants FQ mode or other tuning parameters
 >>
->> Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
->> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> ---
->>   arch/s390/include/asm/pci.h |  1 +
->>   arch/s390/pci/pci.c         |  1 +
->>   drivers/iommu/s390-iommu.c  | 39 ++++++++++++++++++++++++++++++++++---
->>   3 files changed, 38 insertions(+), 3 deletions(-)
->>
->> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
->> index 7b4cdadbc023..080251e7b275 100644
->> --- a/arch/s390/include/asm/pci.h
->> +++ b/arch/s390/include/asm/pci.h
->> @@ -157,6 +157,7 @@ struct zpci_dev {
->>       /* DMA stuff */
->>       unsigned long    *dma_table;
->>       spinlock_t    dma_table_lock;
->> +    struct mutex    dma_domain_lock; /* protects s390_domain value */
->>       int        tlb_refresh;
->>         spinlock_t    iommu_bitmap_lock;
->> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
->> index 73cdc5539384..973edd32ecc9 100644
->> --- a/arch/s390/pci/pci.c
->> +++ b/arch/s390/pci/pci.c
->> @@ -832,6 +832,7 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
->>       kref_init(&zdev->kref);
->>       mutex_init(&zdev->lock);
->>       mutex_init(&zdev->kzdev_lock);
->> +    mutex_init(&zdev->dma_domain_lock);
->>         rc = zpci_init_iommu(zdev);
->>       if (rc)
->> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
->> index c898bcbbce11..1137d669e849 100644
->> --- a/drivers/iommu/s390-iommu.c
->> +++ b/drivers/iommu/s390-iommu.c
->> @@ -99,6 +99,14 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->>       if (!domain_device)
->>           return -ENOMEM;
->>   +    /* Leave now if the device has already been released */
->> +    mutex_lock(&zdev->dma_domain_lock);
->> +    if (!dev_iommu_priv_get(dev)) {
->> +        mutex_unlock(&zdev->dma_domain_lock);
->> +        kfree(domain_device);
->> +        return 0;
->> +    }
->> +
->>       if (zdev->dma_table && !zdev->s390_domain) {
->>           cc = zpci_dma_exit_device(zdev);
->>           if (cc) {
->> @@ -132,9 +140,10 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->>           goto out_restore;
->>       }
->>       domain_device->zdev = zdev;
->> -    zdev->s390_domain = s390_domain;
->>       list_add(&domain_device->list, &s390_domain->devices);
->>       spin_unlock_irqrestore(&s390_domain->list_lock, flags);
->> +    zdev->s390_domain = s390_domain;
->> +    mutex_unlock(&zdev->dma_domain_lock);
->>         return 0;
->>   @@ -147,6 +156,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->>                      virt_to_phys(zdev->dma_table));
->>       }
->>   out_free:
->> +    mutex_unlock(&zdev->dma_domain_lock);
->>       kfree(domain_device);
->>         return rc;
->> @@ -176,17 +186,22 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
->>       }
->>       spin_unlock_irqrestore(&s390_domain->list_lock, flags);
->>   -    if (found && (zdev->s390_domain == s390_domain)) {
->> +    mutex_lock(&zdev->dma_domain_lock);
->> +    if (found && (zdev->s390_domain == s390_domain) &&
->> +        dev_iommu_priv_get(dev)) {
->>           zdev->s390_domain = NULL;
->>           zpci_unregister_ioat(zdev, 0);
->>           zpci_dma_init_device(zdev);
->>       }
->> +    mutex_unlock(&zdev->dma_domain_lock);
->>   }
->>     static struct iommu_device *s390_iommu_probe_device(struct device *dev)
->>   {
->>       struct zpci_dev *zdev = to_zpci_dev(dev);
->>   +    dev_iommu_priv_set(dev, zdev);
->> +
->>       return &zdev->iommu_dev;
->>   }
->>   @@ -206,10 +221,28 @@ static void s390_iommu_release_device(struct device *dev)
->>        *
->>        * So let's call detach_dev from here if it hasn't been called before.
->>        */
->> -    if (zdev && zdev->s390_domain) {
->> +    if (zdev) {
->> +        /*
->> +         * Clear priv to block further attaches for this device,
->> +         * ensure detaches don't init DMA.  Hold the domain lock
->> +         * to ensure that attach/detach get a consistent view of
->> +         * whether or not the device is released.
->> +         */
->> +        mutex_lock(&zdev->dma_domain_lock);
->> +        dev_iommu_priv_set(dev, NULL);
->> +        mutex_unlock(&zdev->dma_domain_lock);
->> +        /* Make sure this device is removed from the domain list */
->>           domain = iommu_get_domain_for_dev(dev);
->>           if (domain)
->>               s390_iommu_detach_device(domain, dev);
->> +        /* Now ensure DMA is initialized from here */
->> +        mutex_lock(&zdev->dma_domain_lock);
->> +        if (zdev->s390_domain) {
->> +            zdev->s390_domain = NULL;
->> +            zpci_unregister_ioat(zdev, 0);
->> +            zpci_dma_init_device(zdev);
->> +        }
->> +        mutex_unlock(&zdev->dma_domain_lock);
->>       }
->>   }
->>   
+>> Compare the not-necessarily-obvious matrix of "strict" and "passthrough"
+>> command-line parameters with the nice understandable kconfig and sysfs
+>> controls for a reminder of why I moved things *from* that paradigm in the
+>> first place ;)
+> 
+> I'm looking at it from a code perspective, where the drivers don't
+> seem to actually care about DMA_FQ. eg search for it in the drivers
+> and you mostly see:
+> 
+> 	    (type != IOMMU_DOMAIN_DMA && type != IOMMU_DOMAIN_DMA_FQ))
+> 
+> The exception is domain_alloc which fails in cases where the domain
+> doesn't 'support' FQ.
+> 
+> But support FQ or not can be cast as a simple capability flag in the
+> domain. We don't need a whole type for the driver to communicate it.
 
+Right, since the rest of DMA domain setup got streamlined into the core 
+code this one remaining vestige of the old world order is ripe for 
+cleanup, I've just had bigger fish to fry. Or as the case may be, bigger 
+chunks of repetitive boilerplate to remove from elsewhere in the drivers :)
+
+> The strictness level belongs completely in the core code, it shouldn't
+> leak into the driver.
+
+It's already not about drivers having any influence on strictness, it's 
+about there being good reason to treat these as distinct domain types 
+through the core code, and as things stand those domain types are 
+exposed to drivers, so drivers need to not freak out at seeing them. 
+Indeed Any driver can "support" IOMMU_DOMAIN_DMA now, so if you've got 
+time to come up with a way of making that completely transparent to 
+drivers then please go ahead, though IIRC there were one or two cases 
+where folks explicitly *didn't* want it being used, so those might need 
+proper IOMMU_DOMAIN_IDENTITY support and a def_domain_type override adding.
+
+The thing with IOMMU_DOMAIN_DMA_FQ is that drivers *do* need to somehow 
+indicate that they implement the relevant optimisations in their unmap 
+path, otherwise using a flush queue is objectively worse in every 
+respect than not using a flush queue. Given the status quo, rejecting 
+the domain type at allocation was by far the simplest and most obvious 
+way to achieve that. Once again, please do propose moving it to a more 
+explicit "I can support deferred unmap" driver capability if you'd like, 
+otherwise I'll get there eventually.
+
+Thanks,
+Robin.
