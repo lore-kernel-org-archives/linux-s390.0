@@ -2,330 +2,239 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E6AFECAAD3
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 11:30:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C674ECAAD3
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 12:27:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232552AbiIALaZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Sep 2022 07:30:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59256 "EHLO
+        id S233247AbiIAM1i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Sep 2022 08:27:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229706AbiIALaX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 07:30:23 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784DD2A403;
-        Thu,  1 Sep 2022 04:30:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=7ABU14MNOZEUh1mSDrdSB+ug3ovCSl4qqs3yLXXVi68=; b=bi2BPVk9FnZ6w+M+6dwV/WS0kP
-        o87SjSiZzhYoe0uTZYIVL2ANWgkVKPO05VvmfFgiU9gxOBuYFpipmJgrR0+CpsOyKO2RGHRQiwulN
-        Ni/e9XPkk/hD3HTPqIiiOSd6iTAGayXoDcDZj4HiG1AevNA37safV/rL+WGT0z2WHq+YFuxTlE6nq
-        jfftY6CPYtYaefYfoXyt1vRDvAI54RrOA2heLdTK0k0UBtg/L5ZXDhR5WIbsSbMWGLVU+WNi29eWk
-        XFgAeghthl8gNDNi0Mz8F1k6hd2DmNtqd+k4OpT+mK5+wNqHZxuWS6CrY1krApr5hLrxnxLxP96uP
-        eD1xaxwA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oTiOJ-008ODY-Vf; Thu, 01 Sep 2022 11:29:48 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D0B4530010B;
-        Thu,  1 Sep 2022 13:29:46 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id B97BF2B8BBAF9; Thu,  1 Sep 2022 13:29:46 +0200 (CEST)
-Date:   Thu, 1 Sep 2022 13:29:46 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Ravi Bangoria <ravi.bangoria@amd.com>
-Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
-        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
-        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
-        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
-        will@kernel.org, robh@kernel.org, mingo@redhat.com,
-        catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org,
-        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
-        santosh.shukla@amd.com
-Subject: Re: [PATCH] perf: Rewrite core context handling
-Message-ID: <YxCXqjfiJca3izQd@hirez.programming.kicks-ass.net>
-References: <20220829113347.295-1-ravi.bangoria@amd.com>
- <YwyrUYS30gVbxc2D@hirez.programming.kicks-ass.net>
- <YwzP+AFWCx4Ni/kx@hirez.programming.kicks-ass.net>
- <c5a6aea9-4f3a-495e-78fa-e426de9b0496@amd.com>
+        with ESMTP id S233542AbiIAM1L (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 08:27:11 -0400
+Received: from corp-front10-corp.i.nease.net (corp-front10-corp.i.nease.net [42.186.62.104])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE361299E6;
+        Thu,  1 Sep 2022 05:26:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
+        Date:Message-Id:In-Reply-To:References:MIME-Version:
+        Content-Transfer-Encoding; bh=dsgO1pTu9V7tw3lv2GpNyG8eLdMIvx7w+4
+        467mn+OLA=; b=Yg8vihwjRltNbFq4Jf+1fU/nf2ydsOzZhBEeXfnqzBWvszmrT7
+        2smHvwnjcId61VSlflRmGAbjM9q+ZNuYhQXo+d1tLkaI6qtqJ1RhHC3FugQHSGIK
+        iiiFm7diRA/fcH0YbOw5Y0N8mHmOQ7u/sQ9MW5U+rGvHJcRMSqh9dqghw=
+Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
+        by corp-front10-corp.i.nease.net (Coremail) with SMTP id aIG_CgCn9ef5pBBjilwiAA--.40527S2;
+        Thu, 01 Sep 2022 20:26:33 +0800 (HKT)
+From:   liuyacan@corp.netease.com
+To:     wenjia@linux.ibm.com, alibuda@linux.alibaba.com
+Cc:     davem@davemloft.net, edumazet@google.com, kgraul@linux.ibm.com,
+        kuba@kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, liuyacan@corp.netease.com,
+        netdev@vger.kernel.org, pabeni@redhat.com,
+        tonylu@linux.alibaba.com, ubraun@linux.vnet.ibm.com,
+        wintera@linux.ibm.com
+Subject: Re: [PATCH net v4] net/smc: Fix possible access to freed memory in link clear
+Date:   Thu,  1 Sep 2022 20:26:33 +0800
+Message-Id: <20220901122633.1657859-1-liuyacan@corp.netease.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <04dbfe8a-a023-c6cf-8d20-965859c1d33a@linux.ibm.com>
+References: <04dbfe8a-a023-c6cf-8d20-965859c1d33a@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c5a6aea9-4f3a-495e-78fa-e426de9b0496@amd.com>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: aIG_CgCn9ef5pBBjilwiAA--.40527S2
+X-Coremail-Antispam: 1UD129KBjvJXoW3ArW8Ww18WFW7uFy7Kw4kZwb_yoW3Gw1fpF
+        s7WF47CF48Xr1UXFn5AF1xZF1Yq3W2yFy8Gr929F9YyFnxJw18JF1Sgry2vFyDAr4qg3WI
+        v348Xw1Ikrs8XaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUXab7IF0VCFI7km07C26c804VAKzcIF0wAFF20E14v26r4j6ryU
+        M7CY07I20VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2
+        IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84AC
+        jcxK6xIIjxv20xvEc7CjxVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84
+        ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2kK67ZEXf0FJ3sC6x9vy-n0Xa0_Xr1Utr1k
+        JwI_Jr4ln4vEF7Iv6F18KVAqrcv_GVWUtr1rJF1ln4vEF7Iv6F18KVAqrcv_XVWUtr1rJF
+        1ln4vE4IxY62xKV4CY8xCE548m6r4UJryUGwAa7VCY0VAaVVAqrcv_Jw1UWr13M2AIxVAI
+        cxkEcVAq07x20xvEncxIr21l57IF6s8CjcxG0xyl5I8CrVACY4xI64kE6c02F40Ex7xfMc
+        Ij6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
+        Jr0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I
+        0E8cxan2IY04v7M4kE6xkIj40Ew7xC0wCjxxvEw4Wlc2IjII80xcxEwVAKI48JMxAIw28I
+        cxkI7VAKI48JMxCjnVAK0II2c7xJMxC20s026xCaFVCjc4AY6r1j6r4UMxCIbVAxMI8I3I
+        0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWU
+        tVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcV
+        CY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAF
+        wI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa
+        7sRiE_M7UUUUU==
+X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQAQCVt77zCWdAATsS
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 01, 2022 at 04:05:53PM +0530, Ravi Bangoria wrote:
-> On 29-Aug-22 8:10 PM, Peter Zijlstra wrote:
-> > On Mon, Aug 29, 2022 at 02:04:33PM +0200, Peter Zijlstra wrote:
-> >> On Mon, Aug 29, 2022 at 05:03:47PM +0530, Ravi Bangoria wrote:
-> >>> @@ -12598,6 +12590,7 @@ EXPORT_SYMBOL_GPL(perf_event_create_kernel_counter);
-> >>>  
-> >>>  void perf_pmu_migrate_context(struct pmu *pmu, int src_cpu, int dst_cpu)
-> >>>  {
-> >>> +#if 0 // XXX buggered - cpu hotplug, who cares
-> >>>  	struct perf_event_context *src_ctx;
-> >>>  	struct perf_event_context *dst_ctx;
-> >>>  	struct perf_event *event, *tmp;
-> >>> @@ -12658,6 +12651,7 @@ void perf_pmu_migrate_context(struct pmu *pmu, int src_cpu, int dst_cpu)
-> >>>  	}
-> >>>  	mutex_unlock(&dst_ctx->mutex);
-> >>>  	mutex_unlock(&src_ctx->mutex);
-> >>> +#endif
-> >>>  }
-> >>>  EXPORT_SYMBOL_GPL(perf_pmu_migrate_context);
-> >>>  
-> >>
-> >> Note to self; fix this :-) I'll see if I have time for that later today.
+> > From: Yacan Liu <liuyacan@corp.netease.com>
 > > 
-> > Urgh, while going through that it appears the whole refcounting thing
-> > isn't fully done either.
+> > After modifying the QP to the Error state, all RX WR would be completed
+> > with WC in IB_WC_WR_FLUSH_ERR status. Current implementation does not
+> > wait for it is done, but destroy the QP and free the link group directly.
+> > So there is a risk that accessing the freed memory in tasklet context.
+> > 
+> > Here is a crash example:
+> > 
+> >   BUG: unable to handle page fault for address: ffffffff8f220860
+> >   #PF: supervisor write access in kernel mode
+> >   #PF: error_code(0x0002) - not-present page
+> >   PGD f7300e067 P4D f7300e067 PUD f7300f063 PMD 8c4e45063 PTE 800ffff08c9df060
+> >   Oops: 0002 [#1] SMP PTI
+> >   CPU: 1 PID: 0 Comm: swapper/1 Kdump: loaded Tainted: G S         OE     5.10.0-0607+ #23
+> >   Hardware name: Inspur NF5280M4/YZMB-00689-101, BIOS 4.1.20 07/09/2018
+> >   RIP: 0010:native_queued_spin_lock_slowpath+0x176/0x1b0
+> >   Code: f3 90 48 8b 32 48 85 f6 74 f6 eb d5 c1 ee 12 83 e0 03 83 ee 01 48 c1 e0 05 48 63 f6 48 05 00 c8 02 00 48 03 04 f5 00 09 98 8e <48> 89 10 8b 42 08 85 c0 75 09 f3 90 8b 42 08 85 c0 74 f7 48 8b 32
+> >   RSP: 0018:ffffb3b6c001ebd8 EFLAGS: 00010086
+> >   RAX: ffffffff8f220860 RBX: 0000000000000246 RCX: 0000000000080000
+> >   RDX: ffff91db1f86c800 RSI: 000000000000173c RDI: ffff91db62bace00
+> >   RBP: ffff91db62bacc00 R08: 0000000000000000 R09: c00000010000028b
+> >   R10: 0000000000055198 R11: ffffb3b6c001ea58 R12: ffff91db80e05010
+> >   R13: 000000000000000a R14: 0000000000000006 R15: 0000000000000040
+> >   FS:  0000000000000000(0000) GS:ffff91db1f840000(0000) knlGS:0000000000000000
+> >   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> >   CR2: ffffffff8f220860 CR3: 00000001f9580004 CR4: 00000000003706e0
+> >   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> >   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> >   Call Trace:
+> >    <IRQ>
+> >    _raw_spin_lock_irqsave+0x30/0x40
+> >    mlx5_ib_poll_cq+0x4c/0xc50 [mlx5_ib]
+> >    smc_wr_rx_tasklet_fn+0x56/0xa0 [smc]
+> >    tasklet_action_common.isra.21+0x66/0x100
+> >    __do_softirq+0xd5/0x29c
+> >    asm_call_irq_on_stack+0x12/0x20
+> >    </IRQ>
+> >    do_softirq_own_stack+0x37/0x40
+> >    irq_exit_rcu+0x9d/0xa0
+> >    sysvec_call_function_single+0x34/0x80
+> >    asm_sysvec_call_function_single+0x12/0x20
+> > 
+> > Fixes: bd4ad57718cc ("smc: initialize IB transport incl. PD, MR, QP, CQ, event, WR")
+> > Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
+> > 
+> > ---
+> > Chagen in v4:
+> >    -- Remove the rx_drain flag because smc_wr_rx_post() may not have been called.
+> >    -- Remove timeout.
+> > Change in v3:
+> >    -- Tune commit message (Signed-Off tag, Fixes tag).
+> >       Tune code to avoid column length exceeding.
+> > Change in v2:
+> >    -- Fix some compile warnings and errors.
+> > ---
+> >   net/smc/smc_core.c | 2 ++
+> >   net/smc/smc_core.h | 2 ++
+> >   net/smc/smc_wr.c   | 9 +++++++++
+> >   net/smc/smc_wr.h   | 1 +
+> >   4 files changed, 14 insertions(+)
+> > 
+> > diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> > index ff49a11f5..f92a916e9 100644
+> > --- a/net/smc/smc_core.c
+> > +++ b/net/smc/smc_core.c
+> > @@ -757,6 +757,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+> >   	lnk->lgr = lgr;
+> >   	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
+> >   	lnk->link_idx = link_idx;
+> > +	lnk->wr_rx_id_compl = 0;
+> >   	smc_ibdev_cnt_inc(lnk);
+> >   	smcr_copy_dev_info_to_link(lnk);
+> >   	atomic_set(&lnk->conn_cnt, 0);
+> > @@ -1269,6 +1270,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
+> >   	smcr_buf_unmap_lgr(lnk);
+> >   	smcr_rtoken_clear_link(lnk);
+> >   	smc_ib_modify_qp_error(lnk);
+> > +	smc_wr_drain_cq(lnk);
+> >   	smc_wr_free_link(lnk);
+> >   	smc_ib_destroy_queue_pair(lnk);
+> >   	smc_ib_dealloc_protection_domain(lnk);
+> > diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+> > index fe8b524ad..285f9bd8e 100644
+> > --- a/net/smc/smc_core.h
+> > +++ b/net/smc/smc_core.h
+> > @@ -115,8 +115,10 @@ struct smc_link {
+> >   	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
+> >   	dma_addr_t		wr_rx_v2_dma_addr; /* DMA address of v2 rx buf*/
+> >   	u64			wr_rx_id;	/* seq # of last recv WR */
+> > +	u64			wr_rx_id_compl; /* seq # of last completed WR */
+> >   	u32			wr_rx_cnt;	/* number of WR recv buffers */
+> >   	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
+> > +	wait_queue_head_t       wr_rx_empty_wait; /* wait for RQ empty */
+> >   
+> >   	struct ib_reg_wr	wr_reg;		/* WR register memory region */
+> >   	wait_queue_head_t	wr_reg_wait;	/* wait for wr_reg result */
+> > diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+> > index 26f8f240d..bc8793803 100644
+> > --- a/net/smc/smc_wr.c
+> > +++ b/net/smc/smc_wr.c
+> > @@ -454,6 +454,7 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+> >   
+> >   	for (i = 0; i < num; i++) {
+> >   		link = wc[i].qp->qp_context;
+> > +		link->wr_rx_id_compl = wc[i].wr_id;
+> >   		if (wc[i].status == IB_WC_SUCCESS) {
+> >   			link->wr_rx_tstamp = jiffies;
+> >   			smc_wr_rx_demultiplex(&wc[i]);
+> > @@ -465,6 +466,8 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+> >   			case IB_WC_RNR_RETRY_EXC_ERR:
+> >   			case IB_WC_WR_FLUSH_ERR:
+> >   				smcr_link_down_cond_sched(link);
+> > +				if (link->wr_rx_id_compl == link->wr_rx_id)
+> > +					wake_up(&link->wr_rx_empty_wait);
+> >   				break;
+> >   			default:
+> >   				smc_wr_rx_post(link); /* refill WR RX */
+> > @@ -631,6 +634,11 @@ static void smc_wr_init_sge(struct smc_link *lnk)
+> >   	lnk->wr_reg.access = IB_ACCESS_LOCAL_WRITE | IB_ACCESS_REMOTE_WRITE;
+> >   }
+> >   
+> > +void smc_wr_drain_cq(struct smc_link *lnk)
+> > +{
+> > +	wait_event(lnk->wr_rx_empty_wait, lnk->wr_rx_id_compl == lnk->wr_rx_id);
+> > +}
+> > +
+> >   void smc_wr_free_link(struct smc_link *lnk)
+> >   {
+> >   	struct ib_device *ibdev;
+> > @@ -889,6 +897,7 @@ int smc_wr_create_link(struct smc_link *lnk)
+> >   	atomic_set(&lnk->wr_tx_refcnt, 0);
+> >   	init_waitqueue_head(&lnk->wr_reg_wait);
+> >   	atomic_set(&lnk->wr_reg_refcnt, 0);
+> > +	init_waitqueue_head(&lnk->wr_rx_empty_wait);
+> >   	return rc;
+> >   
+> >   dma_unmap:
+> > diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+> > index a54e90a11..5ca5086ae 100644
+> > --- a/net/smc/smc_wr.h
+> > +++ b/net/smc/smc_wr.h
+> > @@ -101,6 +101,7 @@ static inline int smc_wr_rx_post(struct smc_link *link)
+> >   int smc_wr_create_link(struct smc_link *lnk);
+> >   int smc_wr_alloc_link_mem(struct smc_link *lnk);
+> >   int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr);
+> > +void smc_wr_drain_cq(struct smc_link *lnk);
+> >   void smc_wr_free_link(struct smc_link *lnk);
+> >   void smc_wr_free_link_mem(struct smc_link *lnk);
+> >   void smc_wr_free_lgr_mem(struct smc_link_group *lgr);
 > 
-> Not sure I follow. Can you please elaborate.
+> Thank you @Yacan for the effort to improve our code! And Thank you @Tony 
+> for such valuable suggestions and testing!
+> I like the modification of this version. However, this is not a fix 
+> patch to upstream, since the patches "[PATCH net-next v2 00/10] optimize 
+> the parallelism of SMC-R connections" are still not applied. My 
+> sugguestions:
+> - Please talk to the author (D. Wythe <alibuda@linux.alibaba.com>) of 
+> those patches I mentioned above, and ask if he can take your patch as a 
+> part of the patch serie
+> - Fix patches should go to net-next
+> - Please send always send your new version separately, rather than as 
+> reply to your previous version. That makes people confused.
 
-Sure, and sorry, I've not been feeling too well the past few days; I
-meant to post something, but I just couldn't find it in me to finish it
-let alone make it work.
+@Wenjia, Thanks a lot for your suggestions and guidance ! 
 
-So the basic issue I mentioned is that:
+@D. Wythe, Can you include this patch in your series of patches if it is 
+convenient?
 
+Regards,
+Yacan
 
-/*
- *           ,------------------------[1:n]---------------------.
- *           V                                                  V
- * perf_event_context <-[1:n]-> perf_event_pmu_context <--- perf_event
- *           ^                      ^     |                     |
- *           `--------[1:n]---------'     `-[n:1]-> pmu <-[1:n]-'
- *
- *
- * XXX destroy epc when empty
- *   refcount, !rcu
- *
- * XXX epc locking
- *
- *   event->pmu_ctx            ctx->mutex && inactive
- *   ctx->pmu_ctx_list         ctx->mutex && ctx->lock
- *
- */
-struct perf_event_pmu_context {
-	...
-        atomic_t                        refcount; /* event <-> epc */
-	...
-}
-
-But that then also suggests that:
-
-struct perf_event_context {
-	...
-        refcount_t                      refcount;
-	...
-}
-
-should be: ctx <-> epc, and that is not so, the ctx::refcount still
-counts the number of events.
-
-Now this might not be bad, but it is confusing.
-
-Anywya; below is what I have, but it is entirely unfinished untested
-might eat your ganny etc..
-
-
----
-Index: linux-2.6/include/linux/perf_event.h
-===================================================================
---- linux-2.6.orig/include/linux/perf_event.h
-+++ linux-2.6/include/linux/perf_event.h
-@@ -883,7 +883,7 @@ struct perf_event_context {
- 	int				nr_freq;
- 	int				rotate_disable;
- 
--	refcount_t			refcount;
-+	refcount_t			refcount; /* ctx <-> epc */
- 	struct task_struct		*task;
- 
- 	/*
-Index: linux-2.6/kernel/events/core.c
-===================================================================
---- linux-2.6.orig/kernel/events/core.c
-+++ linux-2.6/kernel/events/core.c
-@@ -2750,7 +2750,7 @@ perf_install_in_context(struct perf_even
- 	WARN_ON_ONCE(!exclusive_event_installable(event, ctx));
- 
- 	if (event->cpu != -1)
--		event->cpu = cpu;
-+		WARN_ON_ONCE(event->cpu != cpu);
- 
- 	/*
- 	 * Ensures that if we can observe event->ctx, both the event and ctx
-@@ -4764,6 +4764,7 @@ find_get_pmu_context(struct pmu *pmu, st
- 			list_add(&epc->pmu_ctx_entry, &ctx->pmu_ctx_list);
- 			epc->ctx = ctx;
- 			raw_spin_unlock_irq(&ctx->lock);
-+			// XXX get_ctx(ctx);
- 		} else {
- 			WARN_ON_ONCE(epc->ctx != ctx);
- 			atomic_inc(&epc->refcount);
-@@ -4800,6 +4801,7 @@ find_get_pmu_context(struct pmu *pmu, st
- 
- 	list_add(&epc->pmu_ctx_entry, &ctx->pmu_ctx_list);
- 	epc->ctx = ctx;
-+	// XXX get_ctx(ctx)
- 
- found_epc:
- 	if (task_ctx_data && !epc->task_ctx_data) {
-@@ -4837,6 +4839,8 @@ static void put_pmu_ctx(struct perf_even
- 		list_del_init(&epc->pmu_ctx_entry);
- 		epc->ctx = NULL;
- 		raw_spin_unlock_irqrestore(&ctx->lock, flags);
-+		
-+		// XXX put_ctx(ctx)
- 	}
- 
- 	WARN_ON_ONCE(!list_empty(&epc->pinned_active));
-@@ -12444,6 +12448,8 @@ SYSCALL_DEFINE5(perf_event_open,
- 	perf_unpin_context(ctx);
- 
- 	mutex_unlock(&ctx->mutex);
-+	
-+	// XXX put_ctx(ctx);
- 
- 	if (task) {
- 		up_read(&task->signal->exec_update_lock);
-@@ -12588,34 +12594,44 @@ err:
- }
- EXPORT_SYMBOL_GPL(perf_event_create_kernel_counter);
- 
--void perf_pmu_migrate_context(struct pmu *pmu, int src_cpu, int dst_cpu)
-+static void __perf_pmu_remove(struct perf_event_context *ctx,
-+			      int cpu, struct pmu *pmu,
-+			      struct perf_event_groups *groups,
-+			      struct list_head *events)
- {
--#if 0 // XXX buggered - cpu hotplug, who cares
--	struct perf_event_context *src_ctx;
--	struct perf_event_context *dst_ctx;
--	struct perf_event *event, *tmp;
--	LIST_HEAD(events);
-+	struct perf_event *event;
- 
--	src_ctx = &per_cpu_ptr(pmu->pmu_cpu_context, src_cpu)->ctx;
--	dst_ctx = &per_cpu_ptr(pmu->pmu_cpu_context, dst_cpu)->ctx;
-+	for (event = perf_event_groups_first(groups, cpu, pmu, NULL);
-+	     event;
-+	     event = perf_event_groups_next(event, pmu)) {
- 
--	/*
--	 * See perf_event_ctx_lock() for comments on the details
--	 * of swizzling perf_event::ctx.
--	 */
--	mutex_lock_double(&src_ctx->mutex, &dst_ctx->mutex);
--	list_for_each_entry_safe(event, tmp, &src_ctx->event_list,
--				 event_entry) {
- 		perf_remove_from_context(event, 0);
--		unaccount_event_cpu(event, src_cpu);
--		put_ctx(src_ctx);
--		list_add(&event->migrate_entry, &events);
-+		unaccount_event_cpu(event, cpu);
-+		put_pmu_ctx(event->pmu_ctx);
-+		list_add(&event->migrate_event, events);
- 	}
-+}
- 
--	/*
--	 * Wait for the events to quiesce before re-instating them.
--	 */
--	synchronize_rcu();
-+static void __perf_pmu_install_event(struct pmu *pmu,
-+				     struct perf_event_context *ctx,
-+				     int cpu, struct perf_event *event)
-+{
-+	struct perf_event_pmu_context *epc;
-+
-+	event->cpu = cpu;
-+	epc = find_get_pmu_context(pmu, ctx, event);
-+	event->pmu_ctx = epc;
-+
-+	if (event->state >= PERF_EVENT_STATE_OFF)
-+		event->state = PERF_EVENT_STATE_INACTIVE;
-+	account_event_cpu(event, cpu);
-+	perf_install_in_context(ctx, event, cpu);
-+}
-+
-+static void __perf_pmu_install(struct perf_event_context *ctx,
-+			       int cpu, struct pmu *pmu, struct list_head *events)
-+{
-+	struct perf_event *event, *tmp;
- 
- 	/*
- 	 * Re-instate events in 2 passes.
-@@ -12625,33 +12641,50 @@ void perf_pmu_migrate_context(struct pmu
- 	 * leader will enable its siblings, even if those are still on the old
- 	 * context.
- 	 */
--	list_for_each_entry_safe(event, tmp, &events, migrate_entry) {
-+	list_for_each_entry_safe(event, tmp, events, migrate_entry) {
- 		if (event->group_leader == event)
- 			continue;
- 
- 		list_del(&event->migrate_entry);
--		if (event->state >= PERF_EVENT_STATE_OFF)
--			event->state = PERF_EVENT_STATE_INACTIVE;
--		account_event_cpu(event, dst_cpu);
--		perf_install_in_context(dst_ctx, event, dst_cpu);
--		get_ctx(dst_ctx);
-+		__perf_pmu_install_event(pmu, ctx, cpu, event);
- 	}
- 
- 	/*
- 	 * Once all the siblings are setup properly, install the group leaders
- 	 * to make it go.
- 	 */
--	list_for_each_entry_safe(event, tmp, &events, migrate_entry) {
-+	list_for_each_entry_safe(event, tmp, events, migrate_entry) {
- 		list_del(&event->migrate_entry);
--		if (event->state >= PERF_EVENT_STATE_OFF)
--			event->state = PERF_EVENT_STATE_INACTIVE;
--		account_event_cpu(event, dst_cpu);
--		perf_install_in_context(dst_ctx, event, dst_cpu);
--		get_ctx(dst_ctx);
-+		__perf_pmu_install_event(pmu, ctx, cpu, event);
- 	}
-+}
-+
-+void perf_pmu_migrate_context(struct pmu *pmu, int src_cpu, int dst_cpu)
-+{
-+	struct perf_event_context *src_ctx, *dst_ctx;
-+	LIST_HEAD(events);
-+
-+	src_ctx = &per_cpu_ptr(&cpu_context, src_cpu)->ctx;
-+	dst_ctx = &per_cpu_ptr(&cpu_context, dst_cpu)->ctx;
-+
-+	/*
-+	 * See perf_event_ctx_lock() for comments on the details
-+	 * of swizzling perf_event::ctx.
-+	 */
-+	mutex_lock_double(&src_ctx->mutex, &dst_ctx->mutex);
-+
-+	__perf_pmu_remove(src_ctx, src_cpu, pmu, &src_src->pinned_groups, &events);
-+	__perf_pmu_remove(src_ctx, src_cpu, pmu, &src_src->flexible_groups, &events);
-+
-+	/*
-+	 * Wait for the events to quiesce before re-instating them.
-+	 */
-+	synchronize_rcu();
-+
-+	__perf_pmu_install(dst_ctx, dst_cpu, pmu, &events);
-+
- 	mutex_unlock(&dst_ctx->mutex);
- 	mutex_unlock(&src_ctx->mutex);
--#endif
- }
- EXPORT_SYMBOL_GPL(perf_pmu_migrate_context);
- 
