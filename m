@@ -2,93 +2,200 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D24EECAAD1
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 06:52:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEAA3ECAAD2
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 07:17:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232891AbiIAGwH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Sep 2022 02:52:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36148 "EHLO
+        id S232950AbiIAHRg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Sep 2022 03:17:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232685AbiIAGwH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 02:52:07 -0400
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902A71157C0;
-        Wed, 31 Aug 2022 23:52:05 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0VNxiw1q_1662015119;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VNxiw1q_1662015119)
-          by smtp.aliyun-inc.com;
-          Thu, 01 Sep 2022 14:52:00 +0800
-Date:   Thu, 1 Sep 2022 14:51:59 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     liuyacan@corp.netease.com
-Cc:     davem@davemloft.net, edumazet@google.com, kgraul@linux.ibm.com,
-        kuba@kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        ubraun@linux.vnet.ibm.com, pabeni@redhat.com, wenjia@linux.ibm.com,
-        wintera@linux.ibm.com
-Subject: Re: [PATCH net v4] net/smc: Fix possible access to freed memory in
- link clear
-Message-ID: <YxBWj9HdG7SIStjW@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <Yw4bgV6c0LQ6reMc@TonyMac-Alibaba>
- <20220831155303.1758868-1-liuyacan@corp.netease.com>
+        with ESMTP id S232562AbiIAHRf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 03:17:35 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63A65124847;
+        Thu,  1 Sep 2022 00:17:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1662016654; x=1693552654;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=/oWozjlSYSNeOLAebOKD/bZQo3WvQOnbYJ2YF9ryPU4=;
+  b=BDtUxsYB3+SUBZFugfUuAzh1tm4VThi66OehwHL/D7EyxOYUgVi/n68N
+   4vyrQGNoKCAYhYV6mX8TngeMyyN/blfHVtRS9P7B5xMGtrut9s5XV82Y3
+   t8F1IaxXxcDP4VyJbrYTUNXahzJ+EB1M1xWUAbb0hkw6xok6/rm481T+c
+   xHAltlJhdVpOjUjtnqZfRSc9XjZxC8ND/FPWYqvKQKItgyfBHNwWj1W1i
+   Am/9+Fo8Nc7BgN+49qrV1GKYjayvSX9MQ4FcL3lRqqf3kBCqM6/CYuG0O
+   kgDn2gDDInxaA9p1SXcje3Z2z8lA+4FObXvuvm22C+RIP9SfmH5Lt1zKc
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10456"; a="294378000"
+X-IronPort-AV: E=Sophos;i="5.93,280,1654585200"; 
+   d="scan'208";a="294378000"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2022 00:17:34 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,280,1654585200"; 
+   d="scan'208";a="673719782"
+Received: from sqa-gate.sh.intel.com (HELO michael.clx.dev.tsp.org) ([10.239.48.212])
+  by fmsmga008.fm.intel.com with ESMTP; 01 Sep 2022 00:17:25 -0700
+From:   Kevin Tian <kevin.tian@intel.com>
+To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Longfang Liu <liulongfang@huawei.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     Yi Liu <yi.l.liu@intel.com>
+Subject: [PATCH v2 00/15] Tidy up vfio_device life cycle
+Date:   Thu,  1 Sep 2022 22:37:32 +0800
+Message-Id: <20220901143747.32858-1-kevin.tian@intel.com>
+X-Mailer: git-send-email 2.21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220831155303.1758868-1-liuyacan@corp.netease.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Aug 31, 2022 at 11:53:03PM +0800, liuyacan@corp.netease.com wrote:
-> From: Yacan Liu <liuyacan@corp.netease.com>
-> 
-> After modifying the QP to the Error state, all RX WR would be completed
-> with WC in IB_WC_WR_FLUSH_ERR status. Current implementation does not
-> wait for it is done, but destroy the QP and free the link group directly.
-> So there is a risk that accessing the freed memory in tasklet context.
-> 
-> Here is a crash example:
-> 
->  BUG: unable to handle page fault for address: ffffffff8f220860
->  #PF: supervisor write access in kernel mode
->  #PF: error_code(0x0002) - not-present page
->  PGD f7300e067 P4D f7300e067 PUD f7300f063 PMD 8c4e45063 PTE 800ffff08c9df060
->  Oops: 0002 [#1] SMP PTI
->  CPU: 1 PID: 0 Comm: swapper/1 Kdump: loaded Tainted: G S         OE     5.10.0-0607+ #23
->  Hardware name: Inspur NF5280M4/YZMB-00689-101, BIOS 4.1.20 07/09/2018
->  RIP: 0010:native_queued_spin_lock_slowpath+0x176/0x1b0
->  Code: f3 90 48 8b 32 48 85 f6 74 f6 eb d5 c1 ee 12 83 e0 03 83 ee 01 48 c1 e0 05 48 63 f6 48 05 00 c8 02 00 48 03 04 f5 00 09 98 8e <48> 89 10 8b 42 08 85 c0 75 09 f3 90 8b 42 08 85 c0 74 f7 48 8b 32
->  RSP: 0018:ffffb3b6c001ebd8 EFLAGS: 00010086
->  RAX: ffffffff8f220860 RBX: 0000000000000246 RCX: 0000000000080000
->  RDX: ffff91db1f86c800 RSI: 000000000000173c RDI: ffff91db62bace00
->  RBP: ffff91db62bacc00 R08: 0000000000000000 R09: c00000010000028b
->  R10: 0000000000055198 R11: ffffb3b6c001ea58 R12: ffff91db80e05010
->  R13: 000000000000000a R14: 0000000000000006 R15: 0000000000000040
->  FS:  0000000000000000(0000) GS:ffff91db1f840000(0000) knlGS:0000000000000000
->  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->  CR2: ffffffff8f220860 CR3: 00000001f9580004 CR4: 00000000003706e0
->  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->  Call Trace:
->   <IRQ>
->   _raw_spin_lock_irqsave+0x30/0x40
->   mlx5_ib_poll_cq+0x4c/0xc50 [mlx5_ib]
->   smc_wr_rx_tasklet_fn+0x56/0xa0 [smc]
->   tasklet_action_common.isra.21+0x66/0x100
->   __do_softirq+0xd5/0x29c
->   asm_call_irq_on_stack+0x12/0x20
->   </IRQ>
->   do_softirq_own_stack+0x37/0x40
->   irq_exit_rcu+0x9d/0xa0
->   sysvec_call_function_single+0x34/0x80
->   asm_sysvec_call_function_single+0x12/0x20
-> 
-> Fixes: bd4ad57718cc ("smc: initialize IB transport incl. PD, MR, QP, CQ, event, WR")
-> Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
-> 
+The idea is to let vfio core manage the vfio_device life cycle instead
+of duplicating the logic cross drivers. Besides cleaner code in driver
+side this also allows adding struct device to vfio_device as the first
+step toward adding cdev uAPI in the future. Another benefit is that
+user can now look at sysfs to decide whether a device is bound to
+vfio [1], e.g.:
 
-Thanks for this fixes. I will test it in our environment.
+	/sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
 
-Cheers,
-Tony Lu
+Though most drivers can fit the new model naturally:
+
+ - vfio_alloc_device() to allocate and initialize vfio_device
+ - vfio_put_device() to release vfio_device
+ - dev_ops->init() for driver private initialization
+ - dev_ops->release() for driver private cleanup
+
+vfio-ccw is the only exception due to a life cycle mess that its private
+structure mixes both parent and mdev info hence must be alloc/freed
+outside of the life cycle of vfio device.
+
+Per prior discussions this won't be fixed in short term by IBM folks [2].
+
+Instead of waiting this series introduces a few tricks to move forward:
+
+ - vfio_init_device() to initialize a pre-allocated device structure;
+
+ - require *EVERY* driver to implement @release and free vfio_device
+   inside. Then vfio-ccw can use a completion mechanism to delay the
+   free to css driver;
+
+The second trick is not a real burden to other drivers because they
+all require a @release for private cleanup anyay. Later once the ccw
+mess is fixed a simple cleanup can be done by moving free from @release
+to vfio core.
+
+v2:
+ - rebase to 6.0-rc3
+ - fix build warnings (lkp)
+ - patch1: remove unnecessary forward reference (Jason)
+ - patch10: leave device_set released by vfio core (Jason)
+ - patch13: add Suggested-by
+ - patch15: add ABI file sysfs-devices-vfio-dev (Alex)
+ - patch15: rename 'vfio' to 'vfio_group' in procfs (Jason)
+v1: https://lore.kernel.org/lkml/20220827171037.30297-1-kevin.tian@intel.com/
+
+--
+@Alex, before knowing your merging preference this is only rebased to
+6.0-rc3.
+
+There is no conflict with:
+
+ - Remove private items from linux/vfio_pci_core.h
+ - Break up ioctl dispatch functions to one function per ioctl
+
+But conflict exists with Jason's two series:
+
+ - Allow MMIO regions to be exported through dma-buf
+ - vfio: Split the container code into a clean layer and dedicated file
+
+Thanks
+Kevin
+
+[1] https://listman.redhat.com/archives/libvir-list/2022-August/233482.html
+[2] https://lore.kernel.org/all/0ee29bd6583f17f0ee4ec0769fa50e8ea6703623.camel@linux.ibm.com/
+
+Kevin Tian (6):
+  vfio: Add helpers for unifying vfio_device life cycle
+  drm/i915/gvt: Use the new device life cycle helpers
+  vfio/platform: Use the new device life cycle helpers
+  vfio/amba: Use the new device life cycle helpers
+  vfio/ccw: Use the new device life cycle helpers
+  vfio: Rename vfio_device_put() and vfio_device_try_get()
+
+Yi Liu (9):
+  vfio/pci: Use the new device life cycle helpers
+  vfio/mlx5: Use the new device life cycle helpers
+  vfio/hisi_acc: Use the new device life cycle helpers
+  vfio/mdpy: Use the new device life cycle helpers
+  vfio/mtty: Use the new device life cycle helpers
+  vfio/mbochs: Use the new device life cycle helpers
+  vfio/ap: Use the new device life cycle helpers
+  vfio/fsl-mc: Use the new device life cycle helpers
+  vfio: Add struct device to vfio_device
+
+ .../ABI/testing/sysfs-devices-vfio-dev        |   8 +
+ drivers/gpu/drm/i915/gvt/gvt.h                |   5 +-
+ drivers/gpu/drm/i915/gvt/kvmgt.c              |  52 ++++--
+ drivers/gpu/drm/i915/gvt/vgpu.c               |  33 ++--
+ drivers/s390/cio/vfio_ccw_ops.c               |  52 +++++-
+ drivers/s390/cio/vfio_ccw_private.h           |   3 +
+ drivers/s390/crypto/vfio_ap_ops.c             |  50 +++---
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c             |  85 +++++----
+ .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  80 ++++-----
+ drivers/vfio/pci/mlx5/main.c                  |  49 +++--
+ drivers/vfio/pci/vfio_pci.c                   |  20 +--
+ drivers/vfio/pci/vfio_pci_core.c              |  23 ++-
+ drivers/vfio/platform/vfio_amba.c             |  72 ++++++--
+ drivers/vfio/platform/vfio_platform.c         |  66 +++++--
+ drivers/vfio/platform/vfio_platform_common.c  |  71 +++-----
+ drivers/vfio/platform/vfio_platform_private.h |  18 +-
+ drivers/vfio/vfio_main.c                      | 167 +++++++++++++++---
+ include/linux/vfio.h                          |  28 ++-
+ include/linux/vfio_pci_core.h                 |   6 +-
+ samples/vfio-mdev/mbochs.c                    |  73 +++++---
+ samples/vfio-mdev/mdpy.c                      |  81 +++++----
+ samples/vfio-mdev/mtty.c                      |  67 ++++---
+ 22 files changed, 729 insertions(+), 380 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-devices-vfio-dev
+
+
+base-commit: b90cb1053190353cc30f0fef0ef1f378ccc063c5
+-- 
+2.21.3
