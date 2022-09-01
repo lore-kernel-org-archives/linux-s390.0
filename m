@@ -2,215 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07987ECAAD1
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 02:06:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DA28ECAAD2
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 05:42:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231743AbiIACGA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 Aug 2022 22:06:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51524 "EHLO
+        id S231290AbiIAFm2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Sep 2022 01:42:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbiIACF7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 Aug 2022 22:05:59 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9493879A5E
-        for <linux-s390@vger.kernel.org>; Wed, 31 Aug 2022 19:05:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661997957;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/Uc9eSniapYBlyChWU+AZI0xqtO1iDX5hC1kW3YMyLk=;
-        b=hIsGtrnsSUPnPskoXOk+xXH12hhdTVUEWcM09lotc8eVqGCjHCmIjal937YbdiPXn3FQ/b
-        GXFk41btq54jFxCidyNq3Zcd3Ic/7+FJ1LlXswwDB4HlxuM0ue60+ddMUDOWv+uD0oLjI/
-        xuXsn3OxVrjkjMIFORpis9QKjdELRac=
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
- [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-496-x4NzCSrgMLe_axY0PhuORw-1; Wed, 31 Aug 2022 22:05:56 -0400
-X-MC-Unique: x4NzCSrgMLe_axY0PhuORw-1
-Received: by mail-io1-f69.google.com with SMTP id a21-20020a5d9815000000b006882e9be20aso9774525iol.17
-        for <linux-s390@vger.kernel.org>; Wed, 31 Aug 2022 19:05:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:organization:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
-         :from:to:cc;
-        bh=/Uc9eSniapYBlyChWU+AZI0xqtO1iDX5hC1kW3YMyLk=;
-        b=m3RInqdn+j29qRtzk/iyAfEK6fJP0UOfuYRV2gBm+g7ndmz0K1MOVA0e/TJCdk1Bqf
-         98n2L6lGasPtH50221C9Ozd8KvARTjwoDo4hErzMWdG0QtX/QkCUg86OCGc6mLG2gL16
-         GLieXhmTSAOSPgk9tSkm/d6hhBeBPhKkL7gtfbGj/zHRET8DT90mectjvgXNck59F7Oj
-         Eg+q5CpWP9Ohv+bfc4dhPgnneGWGqNw31TWaQ8gI9vDFOswBhMlhzgKvsdfpVd3S509T
-         lt4eadaSkDqj92MYKrG7LuZI7RVyK/Qc1kJfSVA9OCcDuIXhJa/lQMzDICFd4Um0pg0A
-         vbGw==
-X-Gm-Message-State: ACgBeo3KfnFEvBTyLCtAOhADBA/TUzXa1VQHxefmqhY46wgIYix4Jli/
-        Ykc8fbTJyyrbOD+UsyaxpjgRz2QE+3htb3w+pqUffabdIZXbJjYOkIAAaFi6MpTH5BFLtPOviWs
-        FK1YoIdiQMG9CRZdLhaukFw==
-X-Received: by 2002:a02:caa6:0:b0:349:bbca:9a90 with SMTP id e6-20020a02caa6000000b00349bbca9a90mr16413106jap.203.1661997955678;
-        Wed, 31 Aug 2022 19:05:55 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR69HUeX58FMkYxODUyoKw5kYP6agdJ53j1pRzyBTmGQRYpiiEtOoSguPX68IkBTLGR0Abgyow==
-X-Received: by 2002:a02:caa6:0:b0:349:bbca:9a90 with SMTP id e6-20020a02caa6000000b00349bbca9a90mr16413094jap.203.1661997955449;
-        Wed, 31 Aug 2022 19:05:55 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id u7-20020a02b1c7000000b0034293459b44sm7434106jah.142.2022.08.31.19.05.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Aug 2022 19:05:55 -0700 (PDT)
-Date:   Wed, 31 Aug 2022 20:05:52 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        "Peter Oberparleiter" <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        "Cornelia Huck" <cohuck@redhat.com>,
-        Longfang Liu <liulongfang@huawei.com>,
-        "Shameer Kolothum" <shameerali.kolothum.thodi@huawei.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: Re: [PATCH 15/15] vfio: Add struct device to vfio_device
-Message-ID: <20220831200552.12169ae3.alex.williamson@redhat.com>
-In-Reply-To: <BN9PR11MB527652B0557897BDA08B5FE38C7B9@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20220827171037.30297-1-kevin.tian@intel.com>
-        <20220827171037.30297-16-kevin.tian@intel.com>
-        <20220830161838.4aa47045.alex.williamson@redhat.com>
-        <Yw6i7btDKcUDPADP@ziepe.ca>
-        <BN9PR11MB5276BF3B8D65B66DB292CAE58C789@BN9PR11MB5276.namprd11.prod.outlook.com>
-        <20220831111512.4924e152.alex.williamson@redhat.com>
-        <BN9PR11MB527652B0557897BDA08B5FE38C7B9@BN9PR11MB5276.namprd11.prod.outlook.com>
-Organization: Red Hat
+        with ESMTP id S229571AbiIAFm1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 01:42:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E27701636D8;
+        Wed, 31 Aug 2022 22:42:26 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2815Knm5013463;
+        Thu, 1 Sep 2022 05:42:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=VxX9Oo6hHzQu2ryj0KSNit0M7AodEHha8xtZmNiTRkw=;
+ b=E3Vgj5GwSnQ0iUCA4aNe7HHx54/dk5cS9s2jw5Nx80owo0T5zlM5zF7gt9TgOiFFcDy2
+ sZZKDvr0KyYJgLxzaSoY7CXO5JRhgmoWZlYka/8q0huWrlsgY0kfhkY5QJo853r7OUYz
+ JinXzUHou2esBS7i5cv8/luCYiGdxgdmdvOVOrZgIvtN5eEGbiJxYE9tkQykd3YWOZXJ
+ aZqVEXlxY8TXX4jnvhOM7B98V/ugIEGkexjMOKOui+nQz25aATKbO2RFFL/GUjMytORO
+ ZN2D7YBJt8xwiS5sAf8nprema4U+T5pk3NnSZ3fV57QTPLXAqVRVdT1Zy23B3QgXZH6C 6A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3japgu0qba-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Sep 2022 05:42:19 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2815OfuJ026507;
+        Thu, 1 Sep 2022 05:42:18 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3japgu0qag-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Sep 2022 05:42:18 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2815bLIF006456;
+        Thu, 1 Sep 2022 05:42:17 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma04dal.us.ibm.com with ESMTP id 3j7awa71cb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Sep 2022 05:42:17 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2815gGsc53281264
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Sep 2022 05:42:16 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DDCA36E050;
+        Thu,  1 Sep 2022 05:42:15 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 34F636E04E;
+        Thu,  1 Sep 2022 05:42:14 +0000 (GMT)
+Received: from [9.211.148.222] (unknown [9.211.148.222])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Sep 2022 05:42:13 +0000 (GMT)
+Message-ID: <a4c368d3-d293-10e8-1089-5a2654735e15@linux.ibm.com>
+Date:   Thu, 1 Sep 2022 07:42:13 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.13.0
+Subject: Re: [PATCH net] net/smc: Remove redundant refcount increase
+To:     liuyacan@corp.netease.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        kgraul@linux.ibm.com, Jan Karcher <jaka@linux.ibm.com>
+References: <20220829145329.2751578-1-liuyacan@corp.netease.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <20220829145329.2751578-1-liuyacan@corp.netease.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Y8lXAgL7LQRhyTSTLhdvj4uLloS8B8lC
+X-Proofpoint-ORIG-GUID: 71GJMytkUj13sDviVduYsBG_y6u5Thhx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-09-01_03,2022-08-31_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ adultscore=0 clxscore=1011 impostorscore=0 mlxlogscore=999 mlxscore=0
+ malwarescore=0 lowpriorityscore=0 suspectscore=0 priorityscore=1501
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209010022
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 1 Sep 2022 00:46:51 +0000
-"Tian, Kevin" <kevin.tian@intel.com> wrote:
 
-> > From: Alex Williamson <alex.williamson@redhat.com>
-> > Sent: Thursday, September 1, 2022 1:15 AM
-> > 
-> > On Wed, 31 Aug 2022 06:10:51 +0000
-> > "Tian, Kevin" <kevin.tian@intel.com> wrote:
-> >   
-> > > > From: Jason Gunthorpe <jgg@ziepe.ca>
-> > > > Sent: Wednesday, August 31, 2022 7:53 AM
-> > > >
-> > > > On Tue, Aug 30, 2022 at 04:18:38PM -0600, Alex Williamson wrote:  
-> > > > > On Sun, 28 Aug 2022 01:10:37 +0800
-> > > > > Kevin Tian <kevin.tian@intel.com> wrote:
-> > > > >  
-> > > > > > From: Yi Liu <yi.l.liu@intel.com>
-> > > > > >
-> > > > > > and replace kref. With it a 'vfio-dev/vfioX' node is created under the
-> > > > > > sysfs path of the parent, indicating the device is bound to a vfio
-> > > > > > driver, e.g.:
-> > > > > >
-> > > > > > /sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
-> > > > > >
-> > > > > > It is also a preparatory step toward adding cdev for supporting future
-> > > > > > device-oriented uAPI.  
-> > > > >
-> > > > > Shall we start Documentation/ABI/testing/vfio-dev now?  Thanks.  
-> > > >
-> > > > I always thought that was something to use when adding new custom
-> > > > sysfs attributes?
-> > > >
-> > > > Here we are just creating a standard struct device with its standard
-> > > > sysfs?
-> > > >  
-> > >
-> > > There is nothing special for vfio-dev/vfioX. But from pci device p.o.v
-> > > this does introduce a custom node in the directory, which is probably
-> > > what Alex referred to?  
-> > 
-> > Yup, but not just for pci, we're adding a node into the device
-> > directory for any device bound to vfio.
-> >   
-> > > Anyway if required following can be introduced:
-> > >
-> > > diff --git a/Documentation/ABI/testing/sysfs-devices-vfio-dev  
-> > b/Documentation/ABI/testing/sysfs-devices-vfio-dev  
-> > > new file mode 100644
-> > > index 000000000000..dfe8baaf1ccb
-> > > --- /dev/null
-> > > +++ b/Documentation/ABI/testing/sysfs-devices-vfio-dev
-> > > @@ -0,0 +1,8 @@
-> > > +What:		 /sys/.../<device>/vfio-dev/vfioX/
-> > > +Date:		 September 2022
-> > > +Contact:	 Yi Liu <yi.l.liu@intel.com>
-> > > +Description:
-> > > +		 This directory is created when the device is bound to a
-> > > +		 vfio driver. The layout under this directory matches what
-> > > +		 exists for a standard 'struct device'. 'X' is a random
-> > > +		 number marking this device in vfio.  
-> > 
-> > It's not really random, it's a unique index.  Seems like a good
-> > starting point.
-> >   
-> > >
-> > > At the start I thought it might make more sense to add it into an
-> > > existing vfio ABI file. But looks it doesn't exist.
-> > >
-> > > Curious why nobody asked for ABI doc for /dev/vfio/vfio, /sys/class/vfio,  
-> > etc...
-> > 
-> > Oversight, there should probably be a sysfs-class-vfio file.  Thanks,
-> >   
-> 
-> I can help add one.
-> 
-> btw I plan to respin v2 tomorrow. Regarding to this ABI thing there are
-> three options:
-> 
-> 1) Just add sysfs-devices-vfio-dev in this series. Later merge to
->    sysfs-class-vfio once the latter is introduced in a separate patch.
 
-This.  Thanks,
-
-Alex
-
+On 29.08.22 16:53, liuyacan@corp.netease.com wrote:
+> From: liuyacan <liuyacan@corp.netease.com>
 > 
-> 2) Do sysfs-class-vfio in this series, including both existing vfio ABIs and
->    the new vfio-dev.
+> For passive connections, the refcount increment has been done in
+> smc_clcsock_accept()-->smc_sock_alloc().
 > 
-> 3) No ABI file in this series. Handle it in a separate patch with
->    sysfs-class-vfio.
+> Fixes: 3b2dec2603d5("net/smc: restructure client and server code in af_smc")
+> Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+> ---
+>   net/smc/af_smc.c | 1 -
+>   1 file changed, 1 deletion(-)
 > 
-> Which one do  you prefer to?
-> 
-> Thanks
-> Kevin
-> 
-
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 79c1318af..0939cc3b9 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -1855,7 +1855,6 @@ static void smc_listen_out_connected(struct smc_sock *new_smc)
+>   {
+>   	struct sock *newsmcsk = &new_smc->sk;
+>   
+> -	sk_refcnt_debug_inc(newsmcsk);
+>   	if (newsmcsk->sk_state == SMC_INIT)
+>   		newsmcsk->sk_state = SMC_ACTIVE;
+>   
+Good catch! Thank you for the patch! But fixes should go to the net-next 
+tree.
