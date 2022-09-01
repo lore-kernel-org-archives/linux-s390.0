@@ -2,117 +2,80 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DA28ECAAD2
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 05:42:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC323ECAAD1
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 06:50:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231290AbiIAFm2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Sep 2022 01:42:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59404 "EHLO
+        id S232840AbiIAGuN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Sep 2022 02:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229571AbiIAFm1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 01:42:27 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E27701636D8;
-        Wed, 31 Aug 2022 22:42:26 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2815Knm5013463;
-        Thu, 1 Sep 2022 05:42:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=VxX9Oo6hHzQu2ryj0KSNit0M7AodEHha8xtZmNiTRkw=;
- b=E3Vgj5GwSnQ0iUCA4aNe7HHx54/dk5cS9s2jw5Nx80owo0T5zlM5zF7gt9TgOiFFcDy2
- sZZKDvr0KyYJgLxzaSoY7CXO5JRhgmoWZlYka/8q0huWrlsgY0kfhkY5QJo853r7OUYz
- JinXzUHou2esBS7i5cv8/luCYiGdxgdmdvOVOrZgIvtN5eEGbiJxYE9tkQykd3YWOZXJ
- aZqVEXlxY8TXX4jnvhOM7B98V/ugIEGkexjMOKOui+nQz25aATKbO2RFFL/GUjMytORO
- ZN2D7YBJt8xwiS5sAf8nprema4U+T5pk3NnSZ3fV57QTPLXAqVRVdT1Zy23B3QgXZH6C 6A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3japgu0qba-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Sep 2022 05:42:19 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2815OfuJ026507;
-        Thu, 1 Sep 2022 05:42:18 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3japgu0qag-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Sep 2022 05:42:18 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2815bLIF006456;
-        Thu, 1 Sep 2022 05:42:17 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma04dal.us.ibm.com with ESMTP id 3j7awa71cb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Sep 2022 05:42:17 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2815gGsc53281264
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Sep 2022 05:42:16 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DDCA36E050;
-        Thu,  1 Sep 2022 05:42:15 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 34F636E04E;
-        Thu,  1 Sep 2022 05:42:14 +0000 (GMT)
-Received: from [9.211.148.222] (unknown [9.211.148.222])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Sep 2022 05:42:13 +0000 (GMT)
-Message-ID: <a4c368d3-d293-10e8-1089-5a2654735e15@linux.ibm.com>
-Date:   Thu, 1 Sep 2022 07:42:13 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.0
-Subject: Re: [PATCH net] net/smc: Remove redundant refcount increase
+        with ESMTP id S233376AbiIAGuM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 02:50:12 -0400
+Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E5672E9D2;
+        Wed, 31 Aug 2022 23:50:04 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0VNxyTX7_1662014999;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VNxyTX7_1662014999)
+          by smtp.aliyun-inc.com;
+          Thu, 01 Sep 2022 14:50:00 +0800
+Date:   Thu, 1 Sep 2022 14:49:59 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
 To:     liuyacan@corp.netease.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        kgraul@linux.ibm.com, Jan Karcher <jaka@linux.ibm.com>
-References: <20220829145329.2751578-1-liuyacan@corp.netease.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <20220829145329.2751578-1-liuyacan@corp.netease.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Y8lXAgL7LQRhyTSTLhdvj4uLloS8B8lC
-X-Proofpoint-ORIG-GUID: 71GJMytkUj13sDviVduYsBG_y6u5Thhx
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-09-01_03,2022-08-31_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- adultscore=0 clxscore=1011 impostorscore=0 mlxlogscore=999 mlxscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 priorityscore=1501
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2209010022
+Cc:     davem@davemloft.net, edumazet@google.com, kgraul@linux.ibm.com,
+        kuba@kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        pabeni@redhat.com, wenjia@linux.ibm.com, hwippel@linux.ibm.com,
+        ubraun@linux.ibm.com
+Subject: Re: [PATCH net v2] net/smc: Remove redundant refcount increase
+Message-ID: <YxBWF7QCN+TnLk+4@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <YwzirUcxlQW3ydT7@TonyMac-Alibaba>
+ <20220830152314.838736-1-liuyacan@corp.netease.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220830152314.838736-1-liuyacan@corp.netease.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 29.08.22 16:53, liuyacan@corp.netease.com wrote:
-> From: liuyacan <liuyacan@corp.netease.com>
+On Tue, Aug 30, 2022 at 11:23:14PM +0800, liuyacan@corp.netease.com wrote:
+> From: Yacan Liu <liuyacan@corp.netease.com>
 > 
 > For passive connections, the refcount increment has been done in
 > smc_clcsock_accept()-->smc_sock_alloc().
 > 
-> Fixes: 3b2dec2603d5("net/smc: restructure client and server code in af_smc")
-> Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+> Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in af_smc")
+> Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
+> 
 > ---
->   net/smc/af_smc.c | 1 -
->   1 file changed, 1 deletion(-)
+> Change in v2:
+>   -- Tune commit message
+> ---
+>  net/smc/af_smc.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
 > diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
 > index 79c1318af..0939cc3b9 100644
 > --- a/net/smc/af_smc.c
 > +++ b/net/smc/af_smc.c
 > @@ -1855,7 +1855,6 @@ static void smc_listen_out_connected(struct smc_sock *new_smc)
->   {
->   	struct sock *newsmcsk = &new_smc->sk;
->   
+>  {
+>  	struct sock *newsmcsk = &new_smc->sk;
+>  
 > -	sk_refcnt_debug_inc(newsmcsk);
->   	if (newsmcsk->sk_state == SMC_INIT)
->   		newsmcsk->sk_state = SMC_ACTIVE;
->   
-Good catch! Thank you for the patch! But fixes should go to the net-next 
-tree.
+>  	if (newsmcsk->sk_state == SMC_INIT)
+>  		newsmcsk->sk_state = SMC_ACTIVE;
+>  
+
+Thanks for this fixes. I dig into this sk_refcnt_debug_* facility. It
+seems this is a very old debug methods and doesn't help a lot for sock
+leak issue. Maybe there is another method to help track this issue?
+
+For this patch, It looks good for me and tested in our environment.
+
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+
+Cheers,
+Tony Lu
+
