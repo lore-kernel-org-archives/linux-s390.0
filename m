@@ -2,133 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 256AAECAAD3
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 14:35:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C04ABECAAD3
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Sep 2022 14:59:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234719AbiIAOfA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Sep 2022 10:35:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50534 "EHLO
+        id S232723AbiIAO7c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Sep 2022 10:59:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234582AbiIAOe7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 10:34:59 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2064.outbound.protection.outlook.com [40.107.237.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D5C11A14;
-        Thu,  1 Sep 2022 07:34:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=T+WPS5u5aI06/Mvq46AlvcF6A0rD+QOOAFGbkFVxwc3MKsgExaTERKfFZNxonml3LtW74m5gwPnxVXN4jU/+hkFAoS70JQHgrlyBYwRwtMIx7BcVJ7uKDOVF6Np77UGhevqt4PUeXcQa2u8DBEP2XCcIyBNwqDAvllXpeVx/1nWjlBZGRxzzVd6qsU9D0CFFYWUdUB8Zx3U2ZL3WAMCyY84yOcy6tQtwLGsgOnujx2VGW+Emq5XDAJUDk3Ma4LSAjvyvX1UxWdxdQb0y2ku3aLld52Mf2Bwq/Dm0jO6e5McrfHAjg/Ee80Fu+eXOKq5xc4sq7J02mKl7rnNUSJJu2w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5ECNy1jbrk1WJs/JepucBIDx4S83zjefsvWJvW5pbgo=;
- b=eLPOvIERf1EbZUxTfX7o50WIkSzJSmD/NIc//KYayW2r4VnYWkG/KiLbqA0qkj4njCSeHRB+n+w19TvbvFIa8JN7wof9DqVNGDLtP3ojGQCdXXjUpLqhqz8S79MWIH9JwqAT+dFv66j8hNGEvhacfAZ2B8b1r729/26v3kZo8MpjXdmOcDNG+SRUFfQF0E6xzKxtV1Hw5F5EAsOf3L66xLFq/NFL8BMntKatdi6tqOlNHrfKJ4gdgIAfWzmWg/Ldk+8WkxED3KDnHKqll+5hhUiYtRp+l1HSgkIiLUzffqiai1uNlyirkcZSA5ZedrtfVvs5P25oiV3a44VxGSDffA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5ECNy1jbrk1WJs/JepucBIDx4S83zjefsvWJvW5pbgo=;
- b=M0YisIFYJfKX3EOkJRVwhNEy0eroKJa/6FvudhPwfPyahgXYs3/5Ap5GQvSh/KIunGSgoxLTQbXWKWvSiALmsvYol0IIkk2SDy8HK06PWL41BWYFqikBGISEw5nAxa4nuoTomlC+NdMWoWTh+dEcZQoxm9Ad63+1XCrqh0bjMvjeWQT0wtnRyWazvid6YbP7FcJEspzhQODxG3pXPldvxwkcS/jris/KSoS1wFTFj+5LrkSRN6Uj6Dz3BCIyo03IL3UO0MWv+bWRnqOHMLtPDO0PfQs8pEf9CI3OUhimcVAC/lh9gMPM2hawchz+sZFCAen0dU71X6UISQw2FiROGg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by SA1PR12MB7126.namprd12.prod.outlook.com (2603:10b6:806:2b0::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.15; Thu, 1 Sep
- 2022 14:34:56 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5%7]) with mapi id 15.20.5588.012; Thu, 1 Sep 2022
- 14:34:56 +0000
-Date:   Thu, 1 Sep 2022 11:34:55 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
-Message-ID: <YxDDD2DF9KFDQ+Yk@nvidia.com>
-References: <20220831201236.77595-1-mjrosato@linux.ibm.com>
- <20220831201236.77595-2-mjrosato@linux.ibm.com>
- <9887e2f4-3f3d-137d-dad7-59dab5f98aab@linux.ibm.com>
- <52d3fe0b86bdc04fdbf3aae095b2f71f4ea12d44.camel@linux.ibm.com>
- <e01e6ef2-ba45-7433-5fe4-a6806dac3af9@arm.com>
- <8b561ad3023fc146ba0779cbd8fff14d6409c6aa.camel@linux.ibm.com>
- <3e402947-61f9-b7e8-1414-fde006257b6f@arm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3e402947-61f9-b7e8-1414-fde006257b6f@arm.com>
-X-ClientProxiedBy: BL1PR13CA0308.namprd13.prod.outlook.com
- (2603:10b6:208:2c1::13) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S232776AbiIAO7b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 10:59:31 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 388DC8305B;
+        Thu,  1 Sep 2022 07:59:31 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 281EZ1VM018136;
+        Thu, 1 Sep 2022 14:59:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : to :
+ subject : from : cc : message-id : date; s=pp1;
+ bh=iJvuO64PnMjL0wxS7f7jBo3qFQJ02f+9N+ab5vVFITU=;
+ b=EM7juAjKaMXhb/jGuCdMEsqEAKeYAX7+/gaonpy11It/dRVitTjBEn6KaFbox4Wd0Otx
+ vohqo7rR5rEDrMPHYR+BgwPf4lGRXpWyiNM3n6N2mKwedn7yTSCCsLGwsRxjc7rNYLRA
+ fGNIwqqHb3Let+ZGe7+4nYLnqff8YSHp7rewxhCIEfazpr9z28yN5Ahzt4t6vzPpt7ZT
+ otj31tMerRRR0LP6+EySDFGUIJWfKvsBCGDwM+BYUKmPxoLb+KBSdNKz2VKego3EuStp
+ v3JAaLlJLDnsWQvpHM1cvU1B5itWUwTlotLMSv1Wp+eSYWkPhAffm98NXHYV05bm72SL 0g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jax0mccph-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Sep 2022 14:59:30 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 281EZOww021778;
+        Thu, 1 Sep 2022 14:59:30 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jax0mccn9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Sep 2022 14:59:29 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 281Eq6re009027;
+        Thu, 1 Sep 2022 14:59:27 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 3j7aw9d3q8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Sep 2022 14:59:27 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 281ExOlQ37552608
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 1 Sep 2022 14:59:24 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 77FC211C052;
+        Thu,  1 Sep 2022 14:59:24 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5A6CA11C04C;
+        Thu,  1 Sep 2022 14:59:24 +0000 (GMT)
+Received: from t14-nrb (unknown [9.155.203.253])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  1 Sep 2022 14:59:24 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 7557f5ec-28f9-441d-ff58-08da8c2723b8
-X-MS-TrafficTypeDiagnostic: SA1PR12MB7126:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 3YQWxhKg7oSFUrk7Jzg3zlY11daqV7CT1c6GDHDdh/KTZzrAuwBlHUXiPxfiHxhnqL+y6Yd5SJrU+e1f4pZt8Yc/D08MU+RTswGDiJGNrADWTvBRIJYxYeZCtRC/2NYYegmyR02/QIXBIyWGmgX/5eGWEckLH6U4E3CNo8iyk0E5UmmSCuUlK3wMrrSndqnSDrej/BgqPWw7AUPXbdyV7AUNH/Eb3eEiqTNTtlOMlktzEP7Uv1eysf1riU7Gt6PHAyI1ynGlHrMOQSClICoS5HpXvOX22CK70NuNybRHH13v/kIWH2zkeuKa2lac0WHU+PCpyARtl46qQakZdMEw54tJCLUOwJRJSAl7AwBBFA+Ueann9+2xF7EjSd0SQo0UFp30mitcsIRFlIeV24iJqC0XeO8bCWa37E1C4QbyB41I+hwpwRqt9IZm3EOJmUY3oorFyRkb6YKQ/bwZ5HDLnka4iBlJtITU/pT12HC6q3HWUZW2oB9rcImglaSo3FuYo6i9/cAqlQSgi9I1LVwhjEdczzxUyATl4cYVJT+m8mfQil8tJ+7gHNkNKqn62R2UiCdcFmZeR6Rkwl7/REXFGiMYxjYTc1OtmroolrqbSzTwvnX1GT3arhPAG+OLDKxyQBZUDxtUfXtCGdwx0C1lpq+cDiqExzGKAXLMvYtDJPzG2lF6tpzH8DnAlDVJIYpLQWNJ3A+yompYw6EAwYXnZ4MlZ5tKWJzDFVL8YDodnIRLddnnZGDyyunYO5dZeDpr
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(39860400002)(346002)(396003)(366004)(376002)(136003)(6512007)(83380400001)(186003)(6506007)(26005)(7416002)(2616005)(38100700002)(2906002)(316002)(8936002)(36756003)(4744005)(54906003)(86362001)(4326008)(41300700001)(478600001)(66556008)(6916009)(8676002)(6486002)(66476007)(5660300002)(66946007)(67856001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?dDZlEvXRDsKCXFP6ftkEMdAEK+kxfnDJbNIoja/hsDWxe++HomRyXLZDGynQ?=
- =?us-ascii?Q?90F4DZsuVeAjEd30F0G2hfdwX5MzDTdjG2wu6ToJBKoobDYrOHXLGYeqayBz?=
- =?us-ascii?Q?naGX9K0Mw4V2aK9iBrhXvwLxl7AZRce+kPBqc6+ILa2W5zqRpElu37p8/rmI?=
- =?us-ascii?Q?cUWTgfZvaxTH8/IYmQeTqb0KK6ZfSgbWTnwNSppsyKlkfr3KFc+DzbmKwAzL?=
- =?us-ascii?Q?VlRu8Kfp7ynUg2zYP77MIjfm0/QWOAzEJrWfB+Z90tasUH8Qv4jwfVNnufh8?=
- =?us-ascii?Q?vai7UP6CE2SiwsvRW/l65iemVvl8GLc/oMLLTsN0xfACiwe+/wYHxBJps1Fh?=
- =?us-ascii?Q?SvNK6/Fy7+E6hBC00kA46Abav9HgNUX+fbPWJgfUpwqNUM/eKqC4L6PDRoFD?=
- =?us-ascii?Q?XqsbxCjK50udnR+qHI65oM6/mNrJptLfH1r9hf+m9YPJWeB/TAZpd1Ak9RzS?=
- =?us-ascii?Q?3Ou/R6Gpwgphkn9/CZuGKrQ+yvckFy/MQe0b0M5cwFlXly/6JV0Xj3pw4Xw7?=
- =?us-ascii?Q?rmoG0LERLwF2x2KHcZpnl2YpKQB3IwPGcXl0hh0mHXfPypkQtQ6aOZdFzWAt?=
- =?us-ascii?Q?K+678ORiUT/dNx8QyeFk693U8QMBUYSo3rXVt0LT2kyXhtB4xqoSxEQKLg+j?=
- =?us-ascii?Q?3NEA4+4Bapk0OA0V6w5OMLh4LDTkDCVjddCl0IvmKMmBmAkkkNj6mhldwU/8?=
- =?us-ascii?Q?2KnPfHktxF6yWZXYcQ18u3Wsc3WLHWlXcaGButB5AsrWc3gvEgNccZpiAsZe?=
- =?us-ascii?Q?FdQQZ2IwhgK0D1dAYOiHa+cUSKsBhG+Wj4zuf755LT/QcW2RRjL6wTX3Q91p?=
- =?us-ascii?Q?T3ALC1jYxHeIZLn5JRyMlNcZS7B6Qk+Jl6eqjgEASyYvKB7uqK1+uSgmAKYI?=
- =?us-ascii?Q?kVfZjiOOlC48AcsLDMciKSpasvtvmFf1623ndtYNzmFcJgE6nQ4IsGh+sPrN?=
- =?us-ascii?Q?dJyUNne2dDa2UCNTs7LOu8L12fh+mf0GeHt1iTXx/ikaACvtSg4ZqqMxHvn4?=
- =?us-ascii?Q?U9J1p296rr+k0Ootvv7M3HcI5TvkUAcLJAvRoC4rk4EygYf3C6bghVYVmmMT?=
- =?us-ascii?Q?eRZSznfSq0ZSB/UZhb9WiORZSC2u4cuWVzoccKk6zqhvyU0pmDerdNCv2O57?=
- =?us-ascii?Q?ntGjKzXpDHhhf9eRihsqcd9R+f8XhAOSQNsxeOo+EPe6TFq1M+nvPnl5C1li?=
- =?us-ascii?Q?jcDJFNtgd4kksBc/GViKnJRHfBffnxVcY87LyYCGzwqMCop34XIWt0IjRTHf?=
- =?us-ascii?Q?TZSohcaSW6zW+zh9PypJD1IrKCcEbVx7wTi3CIjJha03Bnp1cOAb3Q/Hp/Da?=
- =?us-ascii?Q?dEjitB1LKiWpqQhd6B9WUrdaE1QDSlr7kTFUynexhFkqS0qGV/Z5fyrIaR69?=
- =?us-ascii?Q?Or1i4OK38kADauNthPLB95Y0Z/G270h4hm4Co1AiuH6ASVSMUHpxnW0rkQgO?=
- =?us-ascii?Q?WCfYt8uXXgXwefORzt6e6KGKNEKczvT2crvSnR2rM37J0t++pRF9NKjsdsGp?=
- =?us-ascii?Q?dkuoWeYyJThuxvAzbNo8z3i7PRHoXkGGwI0TDrlS8N6S/SiREl4YaWceD/VE?=
- =?us-ascii?Q?XSLVcKxTSVAuNntZl4JSFDJyV0qKq7KUU43xQeKO?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7557f5ec-28f9-441d-ff58-08da8c2723b8
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2022 14:34:55.9941
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +lZ7Xn0Cz6+CcOxMO36wpDVtxlhWg0btKw0jeDHOB0N5AIQPGyUIkoz1XrKk+KFN
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB7126
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20220826161112.3786131-3-scgl@linux.ibm.com>
+References: <20220826161112.3786131-1-scgl@linux.ibm.com> <20220826161112.3786131-3-scgl@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v6 2/2] s390x: Test specification exceptions during transaction
+From:   Nico Boehr <nrb@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Message-ID: <166204436392.25136.10832970166586747913@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Thu, 01 Sep 2022 16:59:23 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: LZINprhJQkMTCYPOMTXmQj9P4RrDX_RU
+X-Proofpoint-ORIG-GUID: R-Ps10IIUOYaNlb41krSQ7_KSxJz4lNF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-09-01_10,2022-08-31_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ bulkscore=0 clxscore=1015 adultscore=0 spamscore=0 mlxlogscore=999
+ phishscore=0 malwarescore=0 priorityscore=1501 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209010066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 01, 2022 at 03:29:16PM +0100, Robin Murphy wrote:
+Quoting Janis Schoetterl-Glausch (2022-08-26 18:11:12)
+> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+> index 68469e4b..56f26564 100644
+[...]
+> +#define TRANSACTION_COMPLETED 4
+> +#define TRANSACTION_MAX_RETRIES 5
+> +
+> +/*
+> + * NULL must be passed to __builtin_tbegin via constant, forbid diagnose=
+ from
+> + * being NULL to keep things simple
+> + */
 
-> Right, the next step would be to bridge that gap to iommu-dma to dump the
-> flush queue when IOVA allocation failure implies we've reached the
-> "rollover" point, and perhaps not use the timer at all. By that point a
-> dedicated domain type, or at least some definite internal flag, for this
-> alternate behaviour seems like the logical way to go.
+For some reason, it took me a while to get this, because the context was no=
+t clear to me. Maybe rephrase it a tiny bit:
 
-At least on this direction, I've been thinking it would be nice to
-replace the domain type _FQ with a flag inside the domain, maybe the
-ops, saying how the domain wants the common DMA API to operate. If it
-wants FQ mode or other tuning parameters
+If diagnose should be NULL, it must be passed to __builtin_tbegin via const=
+ant, so forbid NULL to keep things simple
 
-Jason
+[...]
+> +static void test_spec_ex_trans(struct args *args, const struct spec_ex_t=
+rigger *trigger)
+> +{
+[...]
+> +       case TRANSACTION_MAX_RETRIES:
+> +               report_skip("Transaction retried %lu times with transient=
+ failures, giving up",
+> +                           args->max_retries);
+
+Hmhm, I am unsure whether a skip is the right thing here. On one hand, it m=
+ight hide bugs, on the other hand, it might cause spurious failures. Why di=
+d you decide for the skip?
