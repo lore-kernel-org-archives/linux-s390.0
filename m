@@ -2,262 +2,333 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AA8CC38145
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Sep 2022 11:30:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D448FC001B5
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Sep 2022 17:11:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236119AbiIBLaI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Sep 2022 07:30:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44084 "EHLO
+        id S235432AbiIBRLi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Sep 2022 13:11:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236446AbiIBL3d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Sep 2022 07:29:33 -0400
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36794DB061;
-        Fri,  2 Sep 2022 04:26:22 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R401e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VO7FZkC_1662117950;
-Received: from 30.227.95.27(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VO7FZkC_1662117950)
-          by smtp.aliyun-inc.com;
-          Fri, 02 Sep 2022 19:25:51 +0800
-Message-ID: <377011d2-7f9d-bf7f-8366-c579bf42c396@linux.alibaba.com>
-Date:   Fri, 2 Sep 2022 19:25:50 +0800
+        with ESMTP id S237008AbiIBRLf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Sep 2022 13:11:35 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D428AEC4E5;
+        Fri,  2 Sep 2022 10:11:32 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 282GeC1V025030;
+        Fri, 2 Sep 2022 17:11:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=DCRQm9f6UeM81ddw5LTtHNHLfhyrv8aniXGaw6FyzEk=;
+ b=ICQ7Sk9Bk/06RmnX5eBDUyGgy8zeA8SpFv+nyBMAWtAT68u3TVV/0MdSzh1TQi8gpyxD
+ 469kVeNralKRasqmU5abr4ArIEli64IddG4EwzUGDZIaayT4ko2FFqTHrSM1K29MniVy
+ bU8mo9/SmAQ8bmqzwfZyaLdDbyyHtT7MPevXe5XgxWbVhsakT6wjuOlPqeB4uCJ/hDV3
+ K5mS8Nks1f1HRGQzsqf+sHUbBNwCxmcIRkrSZTWV+jrLYIaD25OZe1KIcDtcMfg9eeZ6
+ rWiWdy3CdP/qC29Gd6V2pM6iXEzLt1QguDEpeYgBOMyqASSqvY2bPVqdfPjayM5QvCD1 ZQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jbn9xh3kn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 02 Sep 2022 17:11:13 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 282Gkk4g022023;
+        Fri, 2 Sep 2022 17:11:12 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jbn9xh3k7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 02 Sep 2022 17:11:12 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 282H6PcZ017296;
+        Fri, 2 Sep 2022 17:11:11 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma03dal.us.ibm.com with ESMTP id 3j7awbkh7d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 02 Sep 2022 17:11:11 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 282HBAj520185430
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 2 Sep 2022 17:11:10 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6518528058;
+        Fri,  2 Sep 2022 17:11:10 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 87E7F2805A;
+        Fri,  2 Sep 2022 17:11:09 +0000 (GMT)
+Received: from [9.160.86.252] (unknown [9.160.86.252])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri,  2 Sep 2022 17:11:09 +0000 (GMT)
+Message-ID: <273fdd58-549c-30d4-39a9-85fe631162ba@linux.ibm.com>
+Date:   Fri, 2 Sep 2022 13:11:09 -0400
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH net-next v2 01/10] net/smc: remove locks
- smc_client_lgr_pending and smc_server_lgr_pending
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
+Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Robin Murphy <robin.murphy@arm.com>, iommu@lists.linux.dev,
+        Alex Williamson <alex.williamson@redhat.com>,
+        linux-s390@vger.kernel.org, schnelle@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, joro@8bytes.org,
+        will@kernel.org, linux-kernel@vger.kernel.org
+References: <20220831201236.77595-1-mjrosato@linux.ibm.com>
+ <20220831201236.77595-2-mjrosato@linux.ibm.com>
+ <3b065fb5-3ca7-8f48-bdf7-daf7604312df@arm.com>
+ <369ad331-8bdc-d385-a227-f674bd410599@linux.ibm.com>
+ <YxEYAcFK0EdahXzJ@nvidia.com>
 Content-Language: en-US
-To:     Jan Karcher <jaka@linux.ibm.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <cover.1661407821.git.alibuda@linux.alibaba.com>
- <688d165fe630989665e5091a28a5b1238123fbdc.1661407821.git.alibuda@linux.alibaba.com>
- <f8ac755b-242b-acbb-a50c-7c6fcd3be736@linux.ibm.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <f8ac755b-242b-acbb-a50c-7c6fcd3be736@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <YxEYAcFK0EdahXzJ@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ZtXKxpkCZEhW1SZFMGuriq_IwEvNqk7T
+X-Proofpoint-GUID: 1DEEad5wBl2iz8sSy0O_BCG6-Jq6uEkR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-09-02_04,2022-08-31_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 lowpriorityscore=0 suspectscore=0 mlxlogscore=999
+ phishscore=0 spamscore=0 clxscore=1015 mlxscore=0 bulkscore=0
+ impostorscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2207270000 definitions=main-2209020080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 8/31/22 11:04 PM, Jan Karcher wrote:
-> 
-> 
-> On 26.08.2022 11:51, D. Wythe wrote:
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
+On 9/1/22 4:37 PM, Jason Gunthorpe wrote:
+> On Thu, Sep 01, 2022 at 12:14:24PM -0400, Matthew Rosato wrote:
+>> On 9/1/22 6:25 AM, Robin Murphy wrote:
+>>> On 2022-08-31 21:12, Matthew Rosato wrote:
+>>>> With commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
+>>>> calls") s390-iommu is supposed to handle dynamic switching between IOMMU
+>>>> domains and the DMA API handling.  However, this commit does not
+>>>> sufficiently handle the case where the device is released via a call
+>>>> to the release_device op as it may occur at the same time as an opposing
+>>>> attach_dev or detach_dev since the group mutex is not held over
+>>>> release_device.  This was observed if the device is deconfigured during a
+>>>> small window during vfio-pci initialization and can result in WARNs and
+>>>> potential kernel panics.
+>>>
+>>> Hmm, the more I think about it, something doesn't sit right about this whole situation... release_device is called via the notifier from device_del() after the device has been removed from its parent bus and largely dismantled; it should definitely not still have a driver bound by that point, so how is VFIO doing things that manage to race at all?
+>>>
+>>> Robin.
 >>
->> This patch attempts to remove locks named smc_client_lgr_pending and
->> smc_server_lgr_pending, which aim to serialize the creation of link
->> group. However, once link group existed already, those locks are
->> meaningless, worse still, they make incoming connections have to be
->> queued one after the other.
->>
->> Now, the creation of link group is no longer generated by competition,
->> but allocated through following strategy.
->>
->> 1. Try to find a suitable link group, if successd, current connection
->> is considered as NON first contact connection. ends.
->>
->> 2. Check the number of connections currently waiting for a suitable
->> link group to be created, if it is not less that the number of link
->> groups to be created multiplied by (SMC_RMBS_PER_LGR_MAX - 1), then
->> increase the number of link groups to be created, current connection
->> is considered as the first contact connection. ends.
->>
->> 3. Increase the number of connections currently waiting, and wait
->> for woken up.
->>
->> 4. Decrease the number of connections currently waiting, goto 1.
->>
->> We wake up the connection that was put to sleep in stage 3 through
->> the SMC link state change event. Once the link moves out of the
->> SMC_LNK_ACTIVATING state, decrease the number of link groups to
->> be created, and then wake up at most (SMC_RMBS_PER_LGR_MAX - 1)
->> connections.
->>
->> In the iplementation, we introduce the concept of lnk cluster, which is
->> a collection of links with the same characteristics (see
->> smcr_lnk_cluster_cmpfn() with more details), which makes it possible to
->> wake up efficiently in the scenario of N v.s 1.
->>
->> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> So, I generally have seen the issue manifest as one of the calls
+>> into the iommu core from __vfio_group_unset_container
+>> (e.g. iommu_deatch_group via vfio_type1_iommu) failing with a WARN.
+>> This happens when the vfio group fd is released, which could be
+>> coming e.g. from a userspace ioctl VFIO_GROUP_UNSET_CONTAINER.
+>> AFAICT there's nothing serializing the notion of calling into the
+>> iommu core here against a device that is simultaneously going
+>> through release_device (because we don't enter release_device with
+>> the group mutex held), resulting in unpredictable behavior between
+>> the dueling attach_dev/detach_dev and the release_device for
+>> s390-iommu at least.
 > 
-> Hello D.,
-> 
-> thanks for the v2 and the patience.
-> I got to testing and as with v1 I want to share our findings with you. If you need more information or want us to look deeper into the findings please let us know.
-> 
-> Regarding SMC-R test-suite:
-> We see a refcount error during one of our stress tests. This lets us believe that the smc_link_cluster_put() to smc_link_cluster_hold() ratio is not right anymore.
-> The patch provided by yacan does fix this issue but we did not verify if it is the right way to balance the hold and put calls.
-> 
-> [root@t8345011 ~]# journalctl --dmesg | tail -100
-> Aug 31 16:17:36 t8345011.lnxne.boe smc-tests: test_smcapp_50x_ifdown started
-> Aug 31 16:17:46 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000100 net 1 link removed: id 00000101, peerid 00000101, ibdev mlx5_0, ibport 1
-> Aug 31 16:17:46 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000100 net 1 state changed: SINGLE, pnetid NET25
-> Aug 31 16:17:46 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000100 net 1 link added: id 00000103, peerid 00000103, ibdev mlx5_0, ibport 1
-> Aug 31 16:17:46 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000100 net 1 state changed: ASYMMETRIC_PEER, pnetid NET25
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000100 net 1 link added: id 00000104, peerid 00000104, ibdev mlx5_0, ibport 1
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000100 net 1 state changed: SYMMETRIC, pnetid NET25
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: ------------[ cut here ]------------
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: refcount_t: underflow; use-after-free.
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: WARNING: CPU: 1 PID: 150 at lib/refcount.c:87 refcount_dec_not_one+0x88/0xa8
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: Modules linked in: smc_diag tcp_diag inet_diag nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables nfnetlink mlx5_ib ism smc ib_uverbs ib_core vfio_ccw mdev s390_trng vfio_iommu_type1 vfio sch_fq_codel configfs ip_tables x_tables ghash_s390 prng chacha_s390 libchacha aes_s390 mlx5_core des_s390 libdes sha3_512_s390 sha3_256_s390 sha512_s390 sha256_s390 sha1_s390 sha_common pkey zcrypt rng_core autofs4
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: CPU: 1 PID: 150 Comm: kworker/1:2 Not tainted 6.0.0-rc2-00493-g91ecd751199f #8
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: Hardware name: IBM 8561 T01 701 (z/VM 7.2.0)
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: Workqueue: events smc_llc_add_link_work [smc]
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: Krnl PSW : 0704c00180000000 000000005b31f32c (refcount_dec_not_one+0x8c/0xa8)
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: Krnl GPRS: 00000000ffffffea 0000000000000027 0000000000000026 000000005c3151e0
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:            00000000fee80000 0000038000000001 000000008e0e9a00 000000008de79c24
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:            0000038000000000 000003ff803f05ac 0000000095038360 000000008de79c00
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:            00000000828ca100 0000000095038360 000000005b31f328 0000038000943b50
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: Krnl Code: 000000005b31f31c: c02000466122        larl        %r2,000000005bbeb560
->                                                        000000005b31f322: c0e500232e53        brasl        %r14,000000005b784fc8
->                                                       #000000005b31f328: af000000                mc        0,0
->                                                       >000000005b31f32c: a7280001                lhi        %r2,1
->                                                        000000005b31f330: ebeff0a00004        lmg        %r14,%r15,160(%r15)
->                                                        000000005b31f336: ec223fbf0055        risbg        %r2,%r2,63,191,0
->                                                        000000005b31f33c: 07fe                bcr        15,%r14
->                                                        000000005b31f33e: 47000700                bc        0,1792
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: Call Trace:
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000000005b31f32c>] refcount_dec_not_one+0x8c/0xa8
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: ([<000000005b31f328>] refcount_dec_not_one+0x88/0xa8)
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000003ff803ef16a>] smcr_link_cluster_on_link_state.part.0+0x1ba/0x440 [smc]
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000003ff803f05ac>] smcr_link_clear+0x5c/0x1b0 [smc]
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000003ff803fadf4>] smc_llc_add_link_work+0x43c/0x470 [smc]
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000000005ac1f0e2>] process_one_work+0x1fa/0x478
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000000005ac1f88c>] worker_thread+0x64/0x468
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000000005ac28580>] kthread+0x108/0x110
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000000005abaf2dc>] __ret_from_fork+0x3c/0x58
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000000005b7a4d6a>] ret_from_fork+0xa/0x40
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: Last Breaking-Event-Address:
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel:  [<000000005b785028>] __warn_printk+0x60/0x68
+> Oh, this is a vfio bug.
 
-Thank you for your test, I need to think about it, please give me some time.
+I've been running with your diff applied today on s390 and this indeed fixes the issue by preventing the detach-after-release coming out of vfio.
 
-
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: ---[ end trace 0000000000000000 ]---
-> Aug 31 16:17:55 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000100 net 1 link removed: id 00000103, peerid 00000103, ibdev mlx5_0, ibport 1
-> [root@t8345011 ~]#
-> 
-> 
-> 
-> Regarding SMC-D test-suite:
-> For SMC-D we also see errors during another stress test. While we expect connections to fall back to TCP due to the limit of parallel connections your patch introduces TCP fallbacks with a new reason.
-> 
-> [root@t8345011 ~]# journalctl --dmesg | tail -10
-> Aug 31 16:30:07 t8345011.lnxne.boe smc-tests: test_oob7_send_multi_urg_at_start started
-> Aug 31 16:30:16 t8345011.lnxne.boe smc-tests: test_oob8_ignore_some_urg_data started
-> Aug 31 16:30:30 t8345011.lnxne.boe smc-tests: test_smc_tool_second started
-> Aug 31 16:30:34 t8345011.lnxne.boe smc-tests: test_tshark started
-> Aug 31 16:30:34 t8345011.lnxne.boe smc-tests: test_smcapp_torture_test started
-> Aug 31 16:30:49 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000401, peerid 00000401, ibdev mlx5_0, ibport 1
-> Aug 31 16:30:49 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000400 net 1 state changed: SINGLE, pnetid NET25
-> Aug 31 16:30:49 t8345011.lnxne.boe kernel: TCP: request_sock_TCP: Possible SYN flooding on port 51897. Sending cookies.  Check SNMP counters.
-> Aug 31 16:30:49 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000402, peerid 00000402, ibdev mlx5_1, ibport 1
-> Aug 31 16:30:49 t8345011.lnxne.boe kernel: smc: SMC-R lg 00000400 net 1 state changed: SYMMETRIC, pnetid NET25
-> 
-> ^
-> I am wondering why we see SMC-R dmesgs even if we communicate with SMC-D. Gotta verify that. Can be an error on our side.
-
-This is very weird, is there no such SMC-R dmesgs before apply my PATCH?
-
-I am not sure if there is logic to downgrade SMC-D to SMC-R, maybe it's has related to 0x03010000.
-I need to check the code, the reason will be sent out as soon as possible
-
-
-> [root@t8345011 ~]#
-> [root@t8345011 ~]# smcss
-> ACTIVE         00000 0067005 10.25.45.10:48096       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0067001 10.25.45.10:48060       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0066999 10.25.45.10:48054       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0068762 10.25.45.10:48046       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0066997 10.25.45.10:48044       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0068760 10.25.45.10:48036       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0066995 10.25.45.10:48026       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0068758 10.25.45.10:48024       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0066993 10.25.45.10:48022       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0068756 10.25.45.10:48006       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0066991 10.25.45.10:47998       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0068754 10.25.45.10:47984       10.25.45.11:51897     0000 SMCD
-> ACTIVE         00000 0067124 10.25.45.11:51897       10.25.45.10:48314     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0067121 10.25.45.11:51897       10.25.45.10:48302     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0067120 10.25.45.11:51897       10.25.45.10:48284     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0067114 10.25.45.11:51897       10.25.45.10:48282     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0067115 10.25.45.11:51897       10.25.45.10:48254     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0067111 10.25.45.11:51897       10.25.45.10:48250     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0066415 10.25.45.11:51897       10.25.45.10:48242     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0067113 10.25.45.11:51897       10.25.45.10:48230     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0066409 10.25.45.11:51897       10.25.45.10:48202     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0066413 10.25.45.11:51897       10.25.45.10:48214     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0066414 10.25.45.11:51897       10.25.45.10:48204     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0066397 10.25.45.11:51897       10.25.45.10:48120     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0066399 10.25.45.11:51897       10.25.45.10:48084     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0066396 10.25.45.11:51897       10.25.45.10:48078     0000 TCP 0x05000000/0x030d0000
-> ACTIVE         00000 0062632 10.25.45.11:51897       10.25.45.10:43120     0000 TCP 0x03010000
-> ACTIVE         00000 0062631 10.25.45.11:51897       10.25.45.10:43134     0000 TCP 0x03010000
-> ACTIVE         00000 0062626 10.25.45.11:51897       10.25.45.10:43106     0000 TCP 0x03010000
-> ACTIVE         00000 0062625 10.25.45.11:51897       10.25.45.10:43138     0000 TCP 0x03010000
-> ACTIVE         00000 0062621 10.25.45.11:51897       10.25.45.10:43160     0000 TCP 0x03010000
-> ACTIVE         00000 0061580 10.25.45.11:51897       10.25.45.10:42820     0000 TCP 0x03010000
-> ACTIVE         00000 0061558 10.25.45.11:51897       10.25.45.10:42792     0000 TCP 0x03010000
-> ACTIVE         00000 0061549 10.25.45.11:51897       10.25.45.10:42816     0000 TCP 0x03010000
-> ACTIVE         00000 0061548 10.25.45.11:51897       10.25.45.10:42764     0000 TCP 0x03010000
-> ACTIVE         00000 0061544 10.25.45.11:51897       10.25.45.10:42804     0000 TCP 0x03010000
-> ACTIVE         00000 0061543 10.25.45.11:51897       10.25.45.10:42856     0000 TCP 0x03010000
-> ACTIVE         00000 0061542 10.25.45.11:51897       10.25.45.10:42756     0000 TCP 0x03010000
-> ACTIVE         00000 0062554 10.25.45.11:51897       10.25.45.10:42852     0000 TCP 0x03010000
-> ACTIVE         00000 0062553 10.25.45.11:51897       10.25.45.10:42844     0000 TCP 0x03010000
-> ACTIVE         00000 0062549 10.25.45.11:51897       10.25.45.10:42836     0000 TCP 0x03010000
-> 
-> ^
-> Here SMCD and 0x05000000/0x030d0000 are expected. But:
->    [353] smcss confirmed connection of type SMCD
->    [353] Error: Found TCP fallback due to unexpected reasons: 0x03010000
-sysctl -w net.ipv4.tcp_syncookies=0
-
-Can you retry your test after set above configure? When TCP detects a potential flooding attack,
-it will starts syn-cookies to verify traffic. In this case, SMC can't work, and then triggering a fallback with
-error code 0x03010000.
-
-This doesn't seem to be the problem that my PATCH can cause, but my PATCH removes the lock in
-the handshake phase, which may speed up the frequency of your test initiating connections,
-But I can't be sure ...
-
-
-> We also exeperience that the lsmod count stays above 2 even after the testcase finished and takes quite a while before it goes down again (we send a kill signal at the end of our testcase).
+Can you send as a patch for review?
 
 > 
-> During test (which is fine)
+> dev->iommu_group is only a valid pointer as long as a driver is attach
+> to the device.
 > 
-> [root@t8345011 ~]# lsmod | grep smc
-> smc_diag               16384  0
-> smc                   225280  2981 ism,smc_diag
-> ib_core               413696  3 smc,ib_uverbs,mlx5_ib
+> vfio copies the dev->iommu_group into struct vfio_group during probe()
+> but then lets vfio_group live independently. Particularly the driver
+> can be removed()'d and the vfio_group keeps on going.
 > 
-> Count > 2 even after tests finish!
+> Thus it is possible to UAF the iommu_group by referencing it through
+> the vfio_group.
 > 
-> [root@t8345011 ~]# lsmod | grep smc
-> smc_diag               16384  0
-> smc                   225280  40 ism,smc_diag
-> ib_core               413696  3 smc,ib_uverbs,mlx5_ib
-
-> Let us know if you need any more information.
-> Thanks, Jan
-
-
-This usually means that there are still connections that are not really destroyed,
-can you try this and to see if there are any remaining connections?
-
-smcd linkgroup; #or smcr, it depends, if any, can you show us the connection state (smcss -r or -d)
-
-ps aux | grep D; # check if there is work thread hungs, if any, please show us the /proc/$PID/stack.
-
-
-D. Wythe
-Thanks.
+> We must wait during remove for all the vfio_groups to stop
+> referencing iommu_group.
+> 
+> Something like this or so:
+> 
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index eb714a484662fc..d8f40b22c98ddb 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -65,7 +65,15 @@ struct vfio_container {
+>  struct vfio_group {
+>  	struct device 			dev;
+>  	struct cdev			cdev;
+> +	/*
+> +	 * When drivers is non-zero a driver is attached to the struct device
+> +	 * that provided the iommu_group and thus the iommu_group is a valid
+> +	 * pointer. When drivers is 0 the driver is being detached. Once users
+> +	 * reaches 0 then the iommu_group is invalid.
+> +	 */
+> +	refcount_t			drivers;
+>  	refcount_t			users;
+> +	struct completion		comp;
+>  	unsigned int			container_users;
+>  	struct iommu_group		*iommu_group;
+>  	struct vfio_container		*container;
+> @@ -276,8 +284,6 @@ void vfio_unregister_iommu_driver(const struct vfio_iommu_driver_ops *ops)
+>  }
+>  EXPORT_SYMBOL_GPL(vfio_unregister_iommu_driver);
+>  
+> -static void vfio_group_get(struct vfio_group *group);
+> -
+>  /*
+>   * Container objects - containers are created when /dev/vfio/vfio is
+>   * opened, but their lifecycle extends until the last user is done, so
+> @@ -305,16 +311,21 @@ static void vfio_container_put(struct vfio_container *container)
+>  /*
+>   * Group objects - create, release, get, put, search
+>   */
+> +
+> + /*
+> +  * This returns a driver reference. It can only be used in the probe function
+> +  * of a device_driver, eg as part of the internal implementation of
+> +  * __vfio_register_dev().
+> +  */
+>  static struct vfio_group *
+>  __vfio_group_get_from_iommu(struct iommu_group *iommu_group)
+>  {
+>  	struct vfio_group *group;
+>  
+>  	list_for_each_entry(group, &vfio.group_list, vfio_next) {
+> -		if (group->iommu_group == iommu_group) {
+> -			vfio_group_get(group);
+> +		if (group->iommu_group == iommu_group &&
+> +		    refcount_inc_not_zero(&group->drivers))
+>  			return group;
+> -		}
+>  	}
+>  	return NULL;
+>  }
+> @@ -364,6 +375,8 @@ static struct vfio_group *vfio_group_alloc(struct iommu_group *iommu_group,
+>  	group->cdev.owner = THIS_MODULE;
+>  
+>  	refcount_set(&group->users, 1);
+> +	refcount_set(&group->drivers, 1);
+> +	init_completion(&group->comp);
+>  	init_rwsem(&group->group_rwsem);
+>  	INIT_LIST_HEAD(&group->device_list);
+>  	mutex_init(&group->device_lock);
+> @@ -422,8 +435,28 @@ static struct vfio_group *vfio_create_group(struct iommu_group *iommu_group,
+>  
+>  static void vfio_group_put(struct vfio_group *group)
+>  {
+> -	if (!refcount_dec_and_mutex_lock(&group->users, &vfio.group_lock))
+> -		return;
+> +	if (refcount_dec_and_test(&group->users))
+> +		complete(&group->comp);
+> +}
+> +
+> +/*
+> + * When the drivers count reaches 0 then the group must be destroyed
+> + * immediately. A zero driver group is a zombie awaiting destruction.
+> + */
+> +static void vfio_group_remove(struct vfio_group *group)
+> +{
+> +	/* Matches the get from vfio_group_alloc() */
+> +	vfio_group_put(group);
+> +
+> +	cdev_device_del(&group->cdev, &group->dev);
+> +
+> +	/*
+> +	 * Before we allow the last driver in the group to be unplugged the
+> +	 * group must be sanitized so nothing else is or can reference it. This
+> +	 * is because the group->iommu_group pointer is only valid so long as a
+> +	 * VFIO device driver is attached to a device belonging to the group.
+> +	 */
+> +	wait_for_completion(&group->comp);
+>  
+>  	/*
+>  	 * These data structures all have paired operations that can only be
+> @@ -434,19 +467,15 @@ static void vfio_group_put(struct vfio_group *group)
+>  	WARN_ON(!list_empty(&group->device_list));
+>  	WARN_ON(group->container || group->container_users);
+>  	WARN_ON(group->notifier.head);
+> +	group->iommu_group = NULL;
+>  
+> +	mutex_lock(&vfio.group_lock);
+>  	list_del(&group->vfio_next);
+> -	cdev_device_del(&group->cdev, &group->dev);
+>  	mutex_unlock(&vfio.group_lock);
+>  
+>  	put_device(&group->dev);
+>  }
+>  
+> -static void vfio_group_get(struct vfio_group *group)
+> -{
+> -	refcount_inc(&group->users);
+> -}
+> -
+>  /*
+>   * Device objects - create, release, get, put, search
+>   */
+> @@ -462,22 +491,6 @@ static bool vfio_device_try_get(struct vfio_device *device)
+>  	return refcount_inc_not_zero(&device->refcount);
+>  }
+>  
+> -static struct vfio_device *vfio_group_get_device(struct vfio_group *group,
+> -						 struct device *dev)
+> -{
+> -	struct vfio_device *device;
+> -
+> -	mutex_lock(&group->device_lock);
+> -	list_for_each_entry(device, &group->device_list, group_next) {
+> -		if (device->dev == dev && vfio_device_try_get(device)) {
+> -			mutex_unlock(&group->device_lock);
+> -			return device;
+> -		}
+> -	}
+> -	mutex_unlock(&group->device_lock);
+> -	return NULL;
+> -}
+> -
+>  /*
+>   * VFIO driver API
+>   */
+> @@ -576,8 +589,10 @@ static struct vfio_group *vfio_group_find_or_alloc(struct device *dev)
+>  static int __vfio_register_dev(struct vfio_device *device,
+>  		struct vfio_group *group)
+>  {
+> -	struct vfio_device *existing_device;
+> -
+> +	/*
+> +	 * In all cases group is the output of one of the group allocation functions
+> +	 * and we have group->drivers incremetned for us
+> +	 */
+>  	if (IS_ERR(group))
+>  		return PTR_ERR(group);
+>  
+> @@ -588,18 +603,6 @@ static int __vfio_register_dev(struct vfio_device *device,
+>  	if (!device->dev_set)
+>  		vfio_assign_device_set(device, device);
+>  
+> -	existing_device = vfio_group_get_device(group, device->dev);
+> -	if (existing_device) {
+> -		dev_WARN(device->dev, "Device already exists on group %d\n",
+> -			 iommu_group_id(group->iommu_group));
+> -		vfio_device_put(existing_device);
+> -		if (group->type == VFIO_NO_IOMMU ||
+> -		    group->type == VFIO_EMULATED_IOMMU)
+> -			iommu_group_remove_device(device->dev);
+> -		vfio_group_put(group);
+> -		return -EBUSY;
+> -	}
+> -
+>  	/* Our reference on group is moved to the device */
+>  	device->group = group;
+>  
+> @@ -702,8 +705,9 @@ void vfio_unregister_group_dev(struct vfio_device *device)
+>  	if (group->type == VFIO_NO_IOMMU || group->type == VFIO_EMULATED_IOMMU)
+>  		iommu_group_remove_device(device->dev);
+>  
+> -	/* Matches the get in vfio_register_group_dev() */
+> -	vfio_group_put(group);
+> +	/* Matches the alloc get in vfio_register_group_dev() */
+> +	if (refcount_dec_and_test(&group->drivers))
+> +		vfio_group_remove(group);
+>  }
+>  EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
+>  
 
