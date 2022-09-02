@@ -2,160 +2,218 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08D21ECAAA1
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Sep 2022 07:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1914CECAAD5
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Sep 2022 10:49:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233577AbiIBHuJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Sep 2022 03:50:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35592 "EHLO
+        id S235765AbiIBKtl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Sep 2022 06:49:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232221AbiIBHuI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Sep 2022 03:50:08 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABA219C13;
-        Fri,  2 Sep 2022 00:50:06 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2827NTNa011108;
-        Fri, 2 Sep 2022 07:49:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=SqqHuYXP03vxJlXwvq1vxFZfU0Izyq/Wz+bacwTS40Q=;
- b=qeN5Jqg18jGfa2z0uF/+zNQLAQMlTN0QbAEluod4HiocBX4dy+/A57jdy1WSER2l3S4J
- 2gtkEav95IPczrlfpe/JZ5iOPaYv0nGeLo2ZjlilvF3lI4Wt0WUQjXEjswldx58o9QEw
- J8NX5r03hPW5QuaDAJT6JLAIOq8ZZcgrmriE5GW3AhmpNULF+jIvBx4PR81L4Kc4jf/9
- El4kEc4eO6pvM9EzgEFdAsCx3bpT4rrAQedQy1p/KwaNTkp52TDnm4Je/cj3jSdb2afh
- eUZd0za3OmwtQFYaaa1UCaHgP1/sfZi/HMFsfGfsBPDNlkCR9O69XuChWjClS+Ufx+/g bg== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jbddbgrs1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Sep 2022 07:49:53 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2827ZpIM031914;
-        Fri, 2 Sep 2022 07:49:51 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3j7ahj7v7e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Sep 2022 07:49:51 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2827nmCo37224800
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 2 Sep 2022 07:49:48 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 33CA942041;
-        Fri,  2 Sep 2022 07:49:48 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7E1724203F;
-        Fri,  2 Sep 2022 07:49:47 +0000 (GMT)
-Received: from sig-9-145-10-94.uk.ibm.com (unknown [9.145.10.94])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  2 Sep 2022 07:49:47 +0000 (GMT)
-Message-ID: <aa4ce332b6e280ec741064935fdd3e6fbabd8dbe.camel@linux.ibm.com>
+        with ESMTP id S229506AbiIBKtk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Sep 2022 06:49:40 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4235EBC11D;
+        Fri,  2 Sep 2022 03:49:39 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F296FD6E;
+        Fri,  2 Sep 2022 03:49:44 -0700 (PDT)
+Received: from [10.57.15.167] (unknown [10.57.15.167])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 632923F71A;
+        Fri,  2 Sep 2022 03:48:49 -0700 (PDT)
+Message-ID: <bdd11045-87a9-e926-35a7-d002cb752a06@arm.com>
+Date:   Fri, 2 Sep 2022 11:48:15 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
 Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev
-Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, jgg@nvidia.com, linux-kernel@vger.kernel.org
-Date:   Fri, 02 Sep 2022 09:49:45 +0200
-In-Reply-To: <6be7b0ff-63d4-0352-a7de-e66a93411c2b@linux.ibm.com>
+Content-Language: en-GB
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        jgg@nvidia.com, Alex Williamson <alex.williamson@redhat.com>
+Cc:     linux-s390@vger.kernel.org, schnelle@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, joro@8bytes.org,
+        will@kernel.org, linux-kernel@vger.kernel.org
 References: <20220831201236.77595-1-mjrosato@linux.ibm.com>
-         <20220831201236.77595-2-mjrosato@linux.ibm.com>
-         <9887e2f4-3f3d-137d-dad7-59dab5f98aab@linux.ibm.com>
-         <52d3fe0b86bdc04fdbf3aae095b2f71f4ea12d44.camel@linux.ibm.com>
-         <6be7b0ff-63d4-0352-a7de-e66a93411c2b@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: UxnGRVFgp2eSAYyhQf-gbdjf2QB7Kb79
-X-Proofpoint-ORIG-GUID: UxnGRVFgp2eSAYyhQf-gbdjf2QB7Kb79
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-09-01_12,2022-08-31_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=999
- mlxscore=0 priorityscore=1501 bulkscore=0 suspectscore=0 impostorscore=0
- adultscore=0 lowpriorityscore=0 clxscore=1015 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2209020034
+ <20220831201236.77595-2-mjrosato@linux.ibm.com>
+ <3b065fb5-3ca7-8f48-bdf7-daf7604312df@arm.com>
+ <369ad331-8bdc-d385-a227-f674bd410599@linux.ibm.com>
+From:   Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <369ad331-8bdc-d385-a227-f674bd410599@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2022-09-01 at 16:28 -0400, Matthew Rosato wrote:
-> > 
-
-
-> On 9/1/22 5:37 AM, Niklas Schnelle wrote:
-> > On Thu, 2022-09-01 at 09:56 +0200, Pierre Morel wrote:
-> > > On 8/31/22 22:12, Matthew Rosato wrote:
-> > > > With commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
-> > > > calls") s390-iommu is supposed to handle dynamic switching between IOMMU
-> > > > domains and the DMA API handling.  However, this commit does not
-> > > > sufficiently handle the case where the device is released via a call
-> > > > to the release_device op as it may occur at the same time as an opposing
-> > > > attach_dev or detach_dev since the group mutex is not held over
-> > > > release_device.  This was observed if the device is deconfigured during a
-> > > > small window during vfio-pci initialization and can result in WARNs and
-> > > > potential kernel panics.
-> > > > 
-> > > > Handle this by tracking when the device is probed/released via
-> > > > dev_iommu_priv_set/get().  Ensure that once the device is released only
-> > > > release_device handles the re-init of the device DMA.
-> > > > 
-> > > > Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
-> > > > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> > > > ---
-> > > >   arch/s390/include/asm/pci.h |  1 +
-> > > >   arch/s390/pci/pci.c         |  1 +
-> > > >   drivers/iommu/s390-iommu.c  | 39 ++++++++++++++++++++++++++++++++++---
-> > > >   3 files changed, 38 insertions(+), 3 deletions(-)
-> > > > 
-> > > > 
-> > ---8<---
-> > > >   
-> > > > @@ -206,10 +221,28 @@ static void s390_iommu_release_device(struct device *dev)
-> > > > 
-> > ---8<---
-> > > > +		/* Make sure this device is removed from the domain list */
-> > > >   		domain = iommu_get_domain_for_dev(dev);
-> > > >   		if (domain)
-> > > >   			s390_iommu_detach_device(domain, dev);
-> > > > +		/* Now ensure DMA is initialized from here */
-> > > > +		mutex_lock(&zdev->dma_domain_lock);
-> > > > +		if (zdev->s390_domain) {
-> > > > +			zdev->s390_domain = NULL;
-> > > > +			zpci_unregister_ioat(zdev, 0);
-> > > > +			zpci_dma_init_device(zdev);
-> > > 
-> > > Sorry if it is a stupid question, but two things looks strange to me:
-> > > 
-> > > - having DMA initialized just after having unregistered the IOAT
-> > > Is that really all we need to unregister before calling dma_init_device?
+On 2022-09-01 17:14, Matthew Rosato wrote:
+> On 9/1/22 6:25 AM, Robin Murphy wrote:
+>> On 2022-08-31 21:12, Matthew Rosato wrote:
+>>> With commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
+>>> calls") s390-iommu is supposed to handle dynamic switching between IOMMU
+>>> domains and the DMA API handling.  However, this commit does not
+>>> sufficiently handle the case where the device is released via a call
+>>> to the release_device op as it may occur at the same time as an opposing
+>>> attach_dev or detach_dev since the group mutex is not held over
+>>> release_device.  This was observed if the device is deconfigured during a
+>>> small window during vfio-pci initialization and can result in WARNs and
+>>> potential kernel panics.
+>>
+>> Hmm, the more I think about it, something doesn't sit right about this whole situation... release_device is called via the notifier from device_del() after the device has been removed from its parent bus and largely dismantled; it should definitely not still have a driver bound by that point, so how is VFIO doing things that manage to race at all?
+>>
+>> Robin.
 > 
-> This is also how s390-iommu has been handling detach_dev (and still does)
-> 
-> > > - having DMA initialized inside the release_device callback:
-> > > Why isn't it done in the device_probe ?
-> > 
-> > As I understand it iommu_release_device() which calls this code is only
-> > used when a device goes away. So, I think you're right in that it makes
-> > little sense to re-initialize DMA at this point, it's going to be torn
-> > down immediately after anyway. I do wonder if it would be an acceptably
-> > small change to just set zdev->s390_domain = NULL here and leave DMA
-> > uninitialized while making zpci_dma_exit_device() deal with that e.g.
-> > by doing nothing if zdev->dma_table is NULL but I'm not sure.
-> 
-> Right -- since it's a fix, I was trying to keep the changes minimal and this behavior (re-init DMA even on release_device) was existing, it was just always done within s390_iommu_detach_device before.
-> 
-> If you want, I could experiment with setting zdev->dma_table = NULL on the release path only (and checking it in zpci_dma_exit_device())
-> 
+> So, I generally have seen the issue manifest as one of the calls into the iommu core from __vfio_group_unset_container (e.g. iommu_deatch_group via vfio_type1_iommu) failing with a WARN.  This happens when the vfio group fd is released, which could be coming e.g. from a userspace ioctl VFIO_GROUP_UNSET_CONTAINER.  AFAICT there's nothing serializing the notion of calling into the iommu core here against a device that is simultaneously going through release_device (because we don't enter release_device with the group mutex held), resulting in unpredictable behavior between the dueling attach_dev/detach_dev and the release_device for s390-iommu at least.
 
-Your current approach is fine with me. After all this oddity of
-detaching on release and initializing DMA is existing behavior.
+Oh, of course, I keep forgetting the way VFIO works with groups, so I 
+guess as long as the group contained a VFIO device and passed the 
+viability check at some point in the past, the VFIO user can then hold 
+the fd open and continue to monkey about with it even after the device 
+itself has unbound from vfio-pci. Plus there's also the obvious case of 
+a device being hotplugged out of a group that still contains other live 
+devices, so yes, this seems entirely normal and expected, derp.
 
+ From a quick skim through the current mess, I think that 9ac8545199a1 
+is the culprit here, and has probably broken at least as much as it 
+fixed - AFAICS it's still possible for release_device to race with a 
+detach/domain_free and potentially lead to another use-after-free (or 
+double-detach), it's just less likely than the previous case.
 
+Removing the device from the group *before* calling release_device is 
+certainly more consistent with the other paths where release_device can 
+be called with the device group-less, and is also symmetrical with 
+probe_device being called before the device is first added... It would 
+almost work if iommu_group_remove_device() captured the current domain 
+at the point the device is removed from the group list, then passed that 
+to the release_device callback directly. Except we still can't guarantee 
+that that domain won't suddenly disappear, so those drivers would need 
+to synchronise between their domain_free and release_device in some 
+form, ho hum...
+
+Alternatively, a really sly way around the whole thing would be to find 
+some pretence for doing an iommu_group_for_each_dev() in your 
+release_device, but people will probably throw things at me for 
+suggesting that :)
+
+Robin.
+
+>>> Handle this by tracking when the device is probed/released via
+>>> dev_iommu_priv_set/get().  Ensure that once the device is released only
+>>> release_device handles the re-init of the device DMA.
+>>>
+>>> Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
+>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>>> ---
+>>>    arch/s390/include/asm/pci.h |  1 +
+>>>    arch/s390/pci/pci.c         |  1 +
+>>>    drivers/iommu/s390-iommu.c  | 39 ++++++++++++++++++++++++++++++++++---
+>>>    3 files changed, 38 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+>>> index 7b4cdadbc023..080251e7b275 100644
+>>> --- a/arch/s390/include/asm/pci.h
+>>> +++ b/arch/s390/include/asm/pci.h
+>>> @@ -157,6 +157,7 @@ struct zpci_dev {
+>>>        /* DMA stuff */
+>>>        unsigned long    *dma_table;
+>>>        spinlock_t    dma_table_lock;
+>>> +    struct mutex    dma_domain_lock; /* protects s390_domain value */
+>>>        int        tlb_refresh;
+>>>          spinlock_t    iommu_bitmap_lock;
+>>> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+>>> index 73cdc5539384..973edd32ecc9 100644
+>>> --- a/arch/s390/pci/pci.c
+>>> +++ b/arch/s390/pci/pci.c
+>>> @@ -832,6 +832,7 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
+>>>        kref_init(&zdev->kref);
+>>>        mutex_init(&zdev->lock);
+>>>        mutex_init(&zdev->kzdev_lock);
+>>> +    mutex_init(&zdev->dma_domain_lock);
+>>>          rc = zpci_init_iommu(zdev);
+>>>        if (rc)
+>>> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+>>> index c898bcbbce11..1137d669e849 100644
+>>> --- a/drivers/iommu/s390-iommu.c
+>>> +++ b/drivers/iommu/s390-iommu.c
+>>> @@ -99,6 +99,14 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+>>>        if (!domain_device)
+>>>            return -ENOMEM;
+>>>    +    /* Leave now if the device has already been released */
+>>> +    mutex_lock(&zdev->dma_domain_lock);
+>>> +    if (!dev_iommu_priv_get(dev)) {
+>>> +        mutex_unlock(&zdev->dma_domain_lock);
+>>> +        kfree(domain_device);
+>>> +        return 0;
+>>> +    }
+>>> +
+>>>        if (zdev->dma_table && !zdev->s390_domain) {
+>>>            cc = zpci_dma_exit_device(zdev);
+>>>            if (cc) {
+>>> @@ -132,9 +140,10 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+>>>            goto out_restore;
+>>>        }
+>>>        domain_device->zdev = zdev;
+>>> -    zdev->s390_domain = s390_domain;
+>>>        list_add(&domain_device->list, &s390_domain->devices);
+>>>        spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+>>> +    zdev->s390_domain = s390_domain;
+>>> +    mutex_unlock(&zdev->dma_domain_lock);
+>>>          return 0;
+>>>    @@ -147,6 +156,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+>>>                       virt_to_phys(zdev->dma_table));
+>>>        }
+>>>    out_free:
+>>> +    mutex_unlock(&zdev->dma_domain_lock);
+>>>        kfree(domain_device);
+>>>          return rc;
+>>> @@ -176,17 +186,22 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
+>>>        }
+>>>        spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+>>>    -    if (found && (zdev->s390_domain == s390_domain)) {
+>>> +    mutex_lock(&zdev->dma_domain_lock);
+>>> +    if (found && (zdev->s390_domain == s390_domain) &&
+>>> +        dev_iommu_priv_get(dev)) {
+>>>            zdev->s390_domain = NULL;
+>>>            zpci_unregister_ioat(zdev, 0);
+>>>            zpci_dma_init_device(zdev);
+>>>        }
+>>> +    mutex_unlock(&zdev->dma_domain_lock);
+>>>    }
+>>>      static struct iommu_device *s390_iommu_probe_device(struct device *dev)
+>>>    {
+>>>        struct zpci_dev *zdev = to_zpci_dev(dev);
+>>>    +    dev_iommu_priv_set(dev, zdev);
+>>> +
+>>>        return &zdev->iommu_dev;
+>>>    }
+>>>    @@ -206,10 +221,28 @@ static void s390_iommu_release_device(struct device *dev)
+>>>         *
+>>>         * So let's call detach_dev from here if it hasn't been called before.
+>>>         */
+>>> -    if (zdev && zdev->s390_domain) {
+>>> +    if (zdev) {
+>>> +        /*
+>>> +         * Clear priv to block further attaches for this device,
+>>> +         * ensure detaches don't init DMA.  Hold the domain lock
+>>> +         * to ensure that attach/detach get a consistent view of
+>>> +         * whether or not the device is released.
+>>> +         */
+>>> +        mutex_lock(&zdev->dma_domain_lock);
+>>> +        dev_iommu_priv_set(dev, NULL);
+>>> +        mutex_unlock(&zdev->dma_domain_lock);
+>>> +        /* Make sure this device is removed from the domain list */
+>>>            domain = iommu_get_domain_for_dev(dev);
+>>>            if (domain)
+>>>                s390_iommu_detach_device(domain, dev);
+>>> +        /* Now ensure DMA is initialized from here */
+>>> +        mutex_lock(&zdev->dma_domain_lock);
+>>> +        if (zdev->s390_domain) {
+>>> +            zdev->s390_domain = NULL;
+>>> +            zpci_unregister_ioat(zdev, 0);
+>>> +            zpci_dma_init_device(zdev);
+>>> +        }
+>>> +        mutex_unlock(&zdev->dma_domain_lock);
+>>>        }
+>>>    }
+>>>    
+> 
