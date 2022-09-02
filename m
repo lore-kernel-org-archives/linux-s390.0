@@ -2,259 +2,288 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6686ECAAD2
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Sep 2022 02:17:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42452C6FA81
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Sep 2022 05:56:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231315AbiIBCRS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Sep 2022 22:17:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58728 "EHLO
+        id S234101AbiIBF4Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Sep 2022 01:56:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229804AbiIBCRR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Sep 2022 22:17:17 -0400
-Received: from corp-front10-corp.i.nease.net (corp-front11-corp.i.nease.net [42.186.62.105])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7C66B147;
-        Thu,  1 Sep 2022 19:17:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
-        Date:Message-Id:In-Reply-To:References:MIME-Version:
-        Content-Transfer-Encoding; bh=Xv0tpbjR+TGeMaQAbbbttwx5JVaK+IeIer
-        tlgfgd9eA=; b=AtPsxkfjjceA6pEx0gR5dGc072fi21RYg+g6M6If0cnL7Oeu4V
-        E3XJYgnShZkvw9pgOGRz7F9JnShqGkMCpWsQrp4XmS+dxBZEMA/ynwo4STuGDp1b
-        b4zqW6TMwXKSZaRxPG8bfvEn1wnjAyRq6lR7vUYguD7bY6z/m2S/2fYAI=
-Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
-        by corp-front11-corp.i.nease.net (Coremail) with SMTP id aYG_CgCnvDWTZxFj+L0iAA--.52995S2;
-        Fri, 02 Sep 2022 10:16:51 +0800 (HKT)
-From:   liuyacan@corp.netease.com
-To:     wenjia@linux.ibm.com
+        with ESMTP id S233706AbiIBF4O (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Sep 2022 01:56:14 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B527975387;
+        Thu,  1 Sep 2022 22:56:10 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2825g18I031415;
+        Fri, 2 Sep 2022 05:56:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=PcBB0gDifIZ5JB6RnnJdLQW8pNSpu3ffhFzPoE65GVk=;
+ b=ZB+c7IwRuNRZK5c1jPmBLlfOPmDtqFcPbYs9IR21pcZNM59QzE6h+9RhuriWyxHwFDij
+ Z6Pnimksudl5Htr28dV4VI+nDgOXJnfgVUL/+suL0ravh4OZ6efXfZk0e1GNz5GLIA7D
+ 9EKY0ZPG++QBwT2MRe2Nv1H8FFxQb0mnZ3J0FdVhzTElSc3zQelRS5nMODHzwj2sE88j
+ YWF2eLYfdP51EUF9qxUXpHpO1BeczFpdFAgVyf3kw/uwj6kkjeUFIcqPZFgM9lSIHwm2
+ 5Q1kEWj1oI+V/LMQq52EA2/zHtEbcXDeUoq7guituj+oJJPpYF7EhE5IHHMH3BrVttqu 2g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jbbwjrfcd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 02 Sep 2022 05:56:03 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2825nsEA002370;
+        Fri, 2 Sep 2022 05:56:02 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jbbwjrfb3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 02 Sep 2022 05:56:02 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2825ojEl015816;
+        Fri, 2 Sep 2022 05:56:01 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma02wdc.us.ibm.com with ESMTP id 3j7aw9x2ga-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 02 Sep 2022 05:56:01 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2825u00T11141836
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 2 Sep 2022 05:56:00 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 672D8124053;
+        Fri,  2 Sep 2022 05:56:00 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9B64E124052;
+        Fri,  2 Sep 2022 05:55:57 +0000 (GMT)
+Received: from [9.211.72.167] (unknown [9.211.72.167])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri,  2 Sep 2022 05:55:57 +0000 (GMT)
+Message-ID: <203fa08f-c523-76d7-c9fb-ca6f3a10bd1a@linux.ibm.com>
+Date:   Fri, 2 Sep 2022 07:55:56 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.13.0
+Subject: Re: [PATCH net v4] net/smc: Fix possible access to freed memory in
+ link clear
+To:     liuyacan@corp.netease.com
 Cc:     alibuda@linux.alibaba.com, davem@davemloft.net,
         edumazet@google.com, kgraul@linux.ibm.com, kuba@kernel.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        liuyacan@corp.netease.com, netdev@vger.kernel.org,
-        pabeni@redhat.com, tonylu@linux.alibaba.com,
-        ubraun@linux.vnet.ibm.com, wintera@linux.ibm.com
-Subject: Re: [PATCH net v4] net/smc: Fix possible access to freed memory in link clear
-Date:   Fri,  2 Sep 2022 10:16:51 +0800
-Message-Id: <20220902021651.2552128-1-liuyacan@corp.netease.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <5b65eb6b-5ab2-1e6c-10d6-c25e66fa82f4@linux.ibm.com>
+        netdev@vger.kernel.org, pabeni@redhat.com,
+        tonylu@linux.alibaba.com, ubraun@linux.vnet.ibm.com,
+        wintera@linux.ibm.com
 References: <5b65eb6b-5ab2-1e6c-10d6-c25e66fa82f4@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: aYG_CgCnvDWTZxFj+L0iAA--.52995S2
-X-Coremail-Antispam: 1UD129KBjvJXoW3ArWUKrWkGr1kuryxury3urg_yoWfAr18pF
-        WUJF42kr48Xr1UXF1jvF10vFn8tw12yF1kWr97KF1rAFn8t3WUJF1Sqr1j9FyDJr4qg3WI
-        vry8Jw1Skrn8J3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUXIb7IF0VCFI7km07C26c804VAKzcIF0wAFF20E14v26r4j6ryU
-        M7CY07I20VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2
-        IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84AC
-        jcxK6xIIjxv20xvEc7CjxVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4
-        x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1ln4vE1TuYJxujqTIEc-sFP3VYkVW5Jr1DJw4U
-        KVWUGwAawVACjsI_Ar4v6c8GOVW06r1DJrWUAwAawVACjsI_Ar4v6c8GOVWY6r1DJrWUAw
-        AawVCFI7vE04vSzxk24VAqrcv_Gr1UXr18M2vj6xkI62vS6c8GOVWUtr1rJFyle2I262IY
-        c4CY6c8Ij28IcVAaY2xG8wAqjxCE34x0Y48IcwAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx
-        0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWU
-        JVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxV
-        A2Y2ka0xkIwI1lw4CEc2x0rVAKj4xxMx02cVAKzwCY0x0Ix7I2Y4AK64vIr41l42xK82IY
-        c2Ij64vIr41l4x8a64kIII0Yj41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxY624lx2IqxV
-        Aqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q
-        6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6x
-        kF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AK
-        xVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvj
-        TRMuWlUUUUU
-X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQARCVt77zbapwADsa
+ <20220902021651.2552128-1-liuyacan@corp.netease.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <20220902021651.2552128-1-liuyacan@corp.netease.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RF5nU3-lWqS5l1ln4G4dZ7XeLrHlIBmP
+X-Proofpoint-ORIG-GUID: 0okdEcDleZJnlrghTH93_EMoyB2sLB57
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-09-01_12,2022-08-31_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 clxscore=1015 impostorscore=0 adultscore=0 lowpriorityscore=0
+ mlxlogscore=999 bulkscore=0 spamscore=0 malwarescore=0 suspectscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209020024
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> >>>>> From: Yacan Liu <liuyacan@corp.netease.com>
-> >>>>>
-> >>>>> After modifying the QP to the Error state, all RX WR would be completed
-> >>>>> with WC in IB_WC_WR_FLUSH_ERR status. Current implementation does not
-> >>>>> wait for it is done, but destroy the QP and free the link group directly.
-> >>>>> So there is a risk that accessing the freed memory in tasklet context.
-> >>>>>
-> >>>>> Here is a crash example:
-> >>>>>
-> >>>>>     BUG: unable to handle page fault for address: ffffffff8f220860
-> >>>>>     #PF: supervisor write access in kernel mode
-> >>>>>     #PF: error_code(0x0002) - not-present page
-> >>>>>     PGD f7300e067 P4D f7300e067 PUD f7300f063 PMD 8c4e45063 PTE 800ffff08c9df060
-> >>>>>     Oops: 0002 [#1] SMP PTI
-> >>>>>     CPU: 1 PID: 0 Comm: swapper/1 Kdump: loaded Tainted: G S         OE     5.10.0-0607+ #23
-> >>>>>     Hardware name: Inspur NF5280M4/YZMB-00689-101, BIOS 4.1.20 07/09/2018
-> >>>>>     RIP: 0010:native_queued_spin_lock_slowpath+0x176/0x1b0
-> >>>>>     Code: f3 90 48 8b 32 48 85 f6 74 f6 eb d5 c1 ee 12 83 e0 03 83 ee 01 48 c1 e0 05 48 63 f6 48 05 00 c8 02 00 48 03 04 f5 00 09 98 8e <48> 89 10 8b 42 08 85 c0 75 09 f3 90 8b 42 08 85 c0 74 f7 48 8b 32
-> >>>>>     RSP: 0018:ffffb3b6c001ebd8 EFLAGS: 00010086
-> >>>>>     RAX: ffffffff8f220860 RBX: 0000000000000246 RCX: 0000000000080000
-> >>>>>     RDX: ffff91db1f86c800 RSI: 000000000000173c RDI: ffff91db62bace00
-> >>>>>     RBP: ffff91db62bacc00 R08: 0000000000000000 R09: c00000010000028b
-> >>>>>     R10: 0000000000055198 R11: ffffb3b6c001ea58 R12: ffff91db80e05010
-> >>>>>     R13: 000000000000000a R14: 0000000000000006 R15: 0000000000000040
-> >>>>>     FS:  0000000000000000(0000) GS:ffff91db1f840000(0000) knlGS:0000000000000000
-> >>>>>     CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> >>>>>     CR2: ffffffff8f220860 CR3: 00000001f9580004 CR4: 00000000003706e0
-> >>>>>     DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> >>>>>     DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> >>>>>     Call Trace:
-> >>>>>      <IRQ>
-> >>>>>      _raw_spin_lock_irqsave+0x30/0x40
-> >>>>>      mlx5_ib_poll_cq+0x4c/0xc50 [mlx5_ib]
-> >>>>>      smc_wr_rx_tasklet_fn+0x56/0xa0 [smc]
-> >>>>>      tasklet_action_common.isra.21+0x66/0x100
-> >>>>>      __do_softirq+0xd5/0x29c
-> >>>>>      asm_call_irq_on_stack+0x12/0x20
-> >>>>>      </IRQ>
-> >>>>>      do_softirq_own_stack+0x37/0x40
-> >>>>>      irq_exit_rcu+0x9d/0xa0
-> >>>>>      sysvec_call_function_single+0x34/0x80
-> >>>>>      asm_sysvec_call_function_single+0x12/0x20
-> >>>>>
-> >>>>> Fixes: bd4ad57718cc ("smc: initialize IB transport incl. PD, MR, QP, CQ, event, WR")
-> >>>>> Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
-> >>>>>
-> >>>>> ---
-> >>>>> Chagen in v4:
-> >>>>>      -- Remove the rx_drain flag because smc_wr_rx_post() may not have been called.
-> >>>>>      -- Remove timeout.
-> >>>>> Change in v3:
-> >>>>>      -- Tune commit message (Signed-Off tag, Fixes tag).
-> >>>>>         Tune code to avoid column length exceeding.
-> >>>>> Change in v2:
-> >>>>>      -- Fix some compile warnings and errors.
-> >>>>> ---
-> >>>>>     net/smc/smc_core.c | 2 ++
-> >>>>>     net/smc/smc_core.h | 2 ++
-> >>>>>     net/smc/smc_wr.c   | 9 +++++++++
-> >>>>>     net/smc/smc_wr.h   | 1 +
-> >>>>>     4 files changed, 14 insertions(+)
-> >>>>>
-> >>>>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> >>>>> index ff49a11f5..f92a916e9 100644
-> >>>>> --- a/net/smc/smc_core.c
-> >>>>> +++ b/net/smc/smc_core.c
-> >>>>> @@ -757,6 +757,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
-> >>>>>     	lnk->lgr = lgr;
-> >>>>>     	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
-> >>>>>     	lnk->link_idx = link_idx;
-> >>>>> +	lnk->wr_rx_id_compl = 0;
-> >>>>>     	smc_ibdev_cnt_inc(lnk);
-> >>>>>     	smcr_copy_dev_info_to_link(lnk);
-> >>>>>     	atomic_set(&lnk->conn_cnt, 0);
-> >>>>> @@ -1269,6 +1270,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
-> >>>>>     	smcr_buf_unmap_lgr(lnk);
-> >>>>>     	smcr_rtoken_clear_link(lnk);
-> >>>>>     	smc_ib_modify_qp_error(lnk);
-> >>>>> +	smc_wr_drain_cq(lnk);
-> >>>>>     	smc_wr_free_link(lnk);
-> >>>>>     	smc_ib_destroy_queue_pair(lnk);
-> >>>>>     	smc_ib_dealloc_protection_domain(lnk);
-> >>>>> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-> >>>>> index fe8b524ad..285f9bd8e 100644
-> >>>>> --- a/net/smc/smc_core.h
-> >>>>> +++ b/net/smc/smc_core.h
-> >>>>> @@ -115,8 +115,10 @@ struct smc_link {
-> >>>>>     	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
-> >>>>>     	dma_addr_t		wr_rx_v2_dma_addr; /* DMA address of v2 rx buf*/
-> >>>>>     	u64			wr_rx_id;	/* seq # of last recv WR */
-> >>>>> +	u64			wr_rx_id_compl; /* seq # of last completed WR */
-> >>>>>     	u32			wr_rx_cnt;	/* number of WR recv buffers */
-> >>>>>     	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
-> >>>>> +	wait_queue_head_t       wr_rx_empty_wait; /* wait for RQ empty */
-> >>>>>     
-> >>>>>     	struct ib_reg_wr	wr_reg;		/* WR register memory region */
-> >>>>>     	wait_queue_head_t	wr_reg_wait;	/* wait for wr_reg result */
-> >>>>> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-> >>>>> index 26f8f240d..bc8793803 100644
-> >>>>> --- a/net/smc/smc_wr.c
-> >>>>> +++ b/net/smc/smc_wr.c
-> >>>>> @@ -454,6 +454,7 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
-> >>>>>     
-> >>>>>     	for (i = 0; i < num; i++) {
-> >>>>>     		link = wc[i].qp->qp_context;
-> >>>>> +		link->wr_rx_id_compl = wc[i].wr_id;
-> >>>>>     		if (wc[i].status == IB_WC_SUCCESS) {
-> >>>>>     			link->wr_rx_tstamp = jiffies;
-> >>>>>     			smc_wr_rx_demultiplex(&wc[i]);
-> >>>>> @@ -465,6 +466,8 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
-> >>>>>     			case IB_WC_RNR_RETRY_EXC_ERR:
-> >>>>>     			case IB_WC_WR_FLUSH_ERR:
-> >>>>>     				smcr_link_down_cond_sched(link);
-> >>>>> +				if (link->wr_rx_id_compl == link->wr_rx_id)
-> >>>>> +					wake_up(&link->wr_rx_empty_wait);
-> >>>>>     				break;
-> >>>>>     			default:
-> >>>>>     				smc_wr_rx_post(link); /* refill WR RX */
-> >>>>> @@ -631,6 +634,11 @@ static void smc_wr_init_sge(struct smc_link *lnk)
-> >>>>>     	lnk->wr_reg.access = IB_ACCESS_LOCAL_WRITE | IB_ACCESS_REMOTE_WRITE;
-> >>>>>     }
-> >>>>>     
-> >>>>> +void smc_wr_drain_cq(struct smc_link *lnk)
-> >>>>> +{
-> >>>>> +	wait_event(lnk->wr_rx_empty_wait, lnk->wr_rx_id_compl == lnk->wr_rx_id);
-> >>>>> +}
-> >>>>> +
-> >>>>>     void smc_wr_free_link(struct smc_link *lnk)
-> >>>>>     {
-> >>>>>     	struct ib_device *ibdev;
-> >>>>> @@ -889,6 +897,7 @@ int smc_wr_create_link(struct smc_link *lnk)
-> >>>>>     	atomic_set(&lnk->wr_tx_refcnt, 0);
-> >>>>>     	init_waitqueue_head(&lnk->wr_reg_wait);
-> >>>>>     	atomic_set(&lnk->wr_reg_refcnt, 0);
-> >>>>> +	init_waitqueue_head(&lnk->wr_rx_empty_wait);
-> >>>>>     	return rc;
-> >>>>>     
-> >>>>>     dma_unmap:
-> >>>>> diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
-> >>>>> index a54e90a11..5ca5086ae 100644
-> >>>>> --- a/net/smc/smc_wr.h
-> >>>>> +++ b/net/smc/smc_wr.h
-> >>>>> @@ -101,6 +101,7 @@ static inline int smc_wr_rx_post(struct smc_link *link)
-> >>>>>     int smc_wr_create_link(struct smc_link *lnk);
-> >>>>>     int smc_wr_alloc_link_mem(struct smc_link *lnk);
-> >>>>>     int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr);
-> >>>>> +void smc_wr_drain_cq(struct smc_link *lnk);
-> >>>>>     void smc_wr_free_link(struct smc_link *lnk);
-> >>>>>     void smc_wr_free_link_mem(struct smc_link *lnk);
-> >>>>>     void smc_wr_free_lgr_mem(struct smc_link_group *lgr);
-> >>>>
-> >>>> Thank you @Yacan for the effort to improve our code! And Thank you @Tony
-> >>>> for such valuable suggestions and testing!
-> >>>> I like the modification of this version. However, this is not a fix
-> >>>> patch to upstream, since the patches "[PATCH net-next v2 00/10] optimize
-> >>>> the parallelism of SMC-R connections" are still not applied. My
-> >>>> sugguestions:
-> >>>> - Please talk to the author (D. Wythe <alibuda@linux.alibaba.com>) of
-> >>>> those patches I mentioned above, and ask if he can take your patch as a
-> >>>> part of the patch serie
-> >>>> - Fix patches should go to net-next
-> >>>> - Please send always send your new version separately, rather than as
-> >>>> reply to your previous version. That makes people confused.
-> >>>
-> >>> @Wenjia, Thanks a lot for your suggestions and guidance !
-> >>>
-> >>> @D. Wythe, Can you include this patch in your series of patches if it is
-> >>> convenient?
-> >>>
-> >>> Regards,
-> >>> Yacan
-> >>>
-> >> One point I was confused, fixes should goto net, sorry!
-> > 
-> > Well, @D. Wythe, please ignore the above emails, sorry!
-> > 
-> > Regards,
-> > Yacan
-> > 
-> oh no, I didn't mean that. I think I didn't say clearly. What I mean is 
-> that the patch should go to net as a seperate patch if the patch serie 
-> from D. Wythe is already applied. But now the patch serie is still not 
-> applied, so you can still ask D. Wythe to take your patch as a part of 
-> this serie. (Just a suggestion)
 
-Well, I misunderstood. What I'm not sure about is that the patch serie 
-from D. Wythe is going to the net-next tree, but mine is going to the net. 
-Will this be a problem ?
 
-Regards,
-Yacan
-
+On 02.09.22 04:16, liuyacan@corp.netease.com wrote:
+>>>>>>> From: Yacan Liu <liuyacan@corp.netease.com>
+>>>>>>>
+>>>>>>> After modifying the QP to the Error state, all RX WR would be completed
+>>>>>>> with WC in IB_WC_WR_FLUSH_ERR status. Current implementation does not
+>>>>>>> wait for it is done, but destroy the QP and free the link group directly.
+>>>>>>> So there is a risk that accessing the freed memory in tasklet context.
+>>>>>>>
+>>>>>>> Here is a crash example:
+>>>>>>>
+>>>>>>>      BUG: unable to handle page fault for address: ffffffff8f220860
+>>>>>>>      #PF: supervisor write access in kernel mode
+>>>>>>>      #PF: error_code(0x0002) - not-present page
+>>>>>>>      PGD f7300e067 P4D f7300e067 PUD f7300f063 PMD 8c4e45063 PTE 800ffff08c9df060
+>>>>>>>      Oops: 0002 [#1] SMP PTI
+>>>>>>>      CPU: 1 PID: 0 Comm: swapper/1 Kdump: loaded Tainted: G S         OE     5.10.0-0607+ #23
+>>>>>>>      Hardware name: Inspur NF5280M4/YZMB-00689-101, BIOS 4.1.20 07/09/2018
+>>>>>>>      RIP: 0010:native_queued_spin_lock_slowpath+0x176/0x1b0
+>>>>>>>      Code: f3 90 48 8b 32 48 85 f6 74 f6 eb d5 c1 ee 12 83 e0 03 83 ee 01 48 c1 e0 05 48 63 f6 48 05 00 c8 02 00 48 03 04 f5 00 09 98 8e <48> 89 10 8b 42 08 85 c0 75 09 f3 90 8b 42 08 85 c0 74 f7 48 8b 32
+>>>>>>>      RSP: 0018:ffffb3b6c001ebd8 EFLAGS: 00010086
+>>>>>>>      RAX: ffffffff8f220860 RBX: 0000000000000246 RCX: 0000000000080000
+>>>>>>>      RDX: ffff91db1f86c800 RSI: 000000000000173c RDI: ffff91db62bace00
+>>>>>>>      RBP: ffff91db62bacc00 R08: 0000000000000000 R09: c00000010000028b
+>>>>>>>      R10: 0000000000055198 R11: ffffb3b6c001ea58 R12: ffff91db80e05010
+>>>>>>>      R13: 000000000000000a R14: 0000000000000006 R15: 0000000000000040
+>>>>>>>      FS:  0000000000000000(0000) GS:ffff91db1f840000(0000) knlGS:0000000000000000
+>>>>>>>      CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>>>>>>      CR2: ffffffff8f220860 CR3: 00000001f9580004 CR4: 00000000003706e0
+>>>>>>>      DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>>>>>>>      DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>>>>>>>      Call Trace:
+>>>>>>>       <IRQ>
+>>>>>>>       _raw_spin_lock_irqsave+0x30/0x40
+>>>>>>>       mlx5_ib_poll_cq+0x4c/0xc50 [mlx5_ib]
+>>>>>>>       smc_wr_rx_tasklet_fn+0x56/0xa0 [smc]
+>>>>>>>       tasklet_action_common.isra.21+0x66/0x100
+>>>>>>>       __do_softirq+0xd5/0x29c
+>>>>>>>       asm_call_irq_on_stack+0x12/0x20
+>>>>>>>       </IRQ>
+>>>>>>>       do_softirq_own_stack+0x37/0x40
+>>>>>>>       irq_exit_rcu+0x9d/0xa0
+>>>>>>>       sysvec_call_function_single+0x34/0x80
+>>>>>>>       asm_sysvec_call_function_single+0x12/0x20
+>>>>>>>
+>>>>>>> Fixes: bd4ad57718cc ("smc: initialize IB transport incl. PD, MR, QP, CQ, event, WR")
+>>>>>>> Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
+>>>>>>>
+>>>>>>> ---
+>>>>>>> Chagen in v4:
+>>>>>>>       -- Remove the rx_drain flag because smc_wr_rx_post() may not have been called.
+>>>>>>>       -- Remove timeout.
+>>>>>>> Change in v3:
+>>>>>>>       -- Tune commit message (Signed-Off tag, Fixes tag).
+>>>>>>>          Tune code to avoid column length exceeding.
+>>>>>>> Change in v2:
+>>>>>>>       -- Fix some compile warnings and errors.
+>>>>>>> ---
+>>>>>>>      net/smc/smc_core.c | 2 ++
+>>>>>>>      net/smc/smc_core.h | 2 ++
+>>>>>>>      net/smc/smc_wr.c   | 9 +++++++++
+>>>>>>>      net/smc/smc_wr.h   | 1 +
+>>>>>>>      4 files changed, 14 insertions(+)
+>>>>>>>
+>>>>>>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+>>>>>>> index ff49a11f5..f92a916e9 100644
+>>>>>>> --- a/net/smc/smc_core.c
+>>>>>>> +++ b/net/smc/smc_core.c
+>>>>>>> @@ -757,6 +757,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+>>>>>>>      	lnk->lgr = lgr;
+>>>>>>>      	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
+>>>>>>>      	lnk->link_idx = link_idx;
+>>>>>>> +	lnk->wr_rx_id_compl = 0;
+>>>>>>>      	smc_ibdev_cnt_inc(lnk);
+>>>>>>>      	smcr_copy_dev_info_to_link(lnk);
+>>>>>>>      	atomic_set(&lnk->conn_cnt, 0);
+>>>>>>> @@ -1269,6 +1270,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
+>>>>>>>      	smcr_buf_unmap_lgr(lnk);
+>>>>>>>      	smcr_rtoken_clear_link(lnk);
+>>>>>>>      	smc_ib_modify_qp_error(lnk);
+>>>>>>> +	smc_wr_drain_cq(lnk);
+>>>>>>>      	smc_wr_free_link(lnk);
+>>>>>>>      	smc_ib_destroy_queue_pair(lnk);
+>>>>>>>      	smc_ib_dealloc_protection_domain(lnk);
+>>>>>>> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+>>>>>>> index fe8b524ad..285f9bd8e 100644
+>>>>>>> --- a/net/smc/smc_core.h
+>>>>>>> +++ b/net/smc/smc_core.h
+>>>>>>> @@ -115,8 +115,10 @@ struct smc_link {
+>>>>>>>      	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
+>>>>>>>      	dma_addr_t		wr_rx_v2_dma_addr; /* DMA address of v2 rx buf*/
+>>>>>>>      	u64			wr_rx_id;	/* seq # of last recv WR */
+>>>>>>> +	u64			wr_rx_id_compl; /* seq # of last completed WR */
+>>>>>>>      	u32			wr_rx_cnt;	/* number of WR recv buffers */
+>>>>>>>      	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
+>>>>>>> +	wait_queue_head_t       wr_rx_empty_wait; /* wait for RQ empty */
+>>>>>>>      
+>>>>>>>      	struct ib_reg_wr	wr_reg;		/* WR register memory region */
+>>>>>>>      	wait_queue_head_t	wr_reg_wait;	/* wait for wr_reg result */
+>>>>>>> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+>>>>>>> index 26f8f240d..bc8793803 100644
+>>>>>>> --- a/net/smc/smc_wr.c
+>>>>>>> +++ b/net/smc/smc_wr.c
+>>>>>>> @@ -454,6 +454,7 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+>>>>>>>      
+>>>>>>>      	for (i = 0; i < num; i++) {
+>>>>>>>      		link = wc[i].qp->qp_context;
+>>>>>>> +		link->wr_rx_id_compl = wc[i].wr_id;
+>>>>>>>      		if (wc[i].status == IB_WC_SUCCESS) {
+>>>>>>>      			link->wr_rx_tstamp = jiffies;
+>>>>>>>      			smc_wr_rx_demultiplex(&wc[i]);
+>>>>>>> @@ -465,6 +466,8 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+>>>>>>>      			case IB_WC_RNR_RETRY_EXC_ERR:
+>>>>>>>      			case IB_WC_WR_FLUSH_ERR:
+>>>>>>>      				smcr_link_down_cond_sched(link);
+>>>>>>> +				if (link->wr_rx_id_compl == link->wr_rx_id)
+>>>>>>> +					wake_up(&link->wr_rx_empty_wait);
+>>>>>>>      				break;
+>>>>>>>      			default:
+>>>>>>>      				smc_wr_rx_post(link); /* refill WR RX */
+>>>>>>> @@ -631,6 +634,11 @@ static void smc_wr_init_sge(struct smc_link *lnk)
+>>>>>>>      	lnk->wr_reg.access = IB_ACCESS_LOCAL_WRITE | IB_ACCESS_REMOTE_WRITE;
+>>>>>>>      }
+>>>>>>>      
+>>>>>>> +void smc_wr_drain_cq(struct smc_link *lnk)
+>>>>>>> +{
+>>>>>>> +	wait_event(lnk->wr_rx_empty_wait, lnk->wr_rx_id_compl == lnk->wr_rx_id);
+>>>>>>> +}
+>>>>>>> +
+>>>>>>>      void smc_wr_free_link(struct smc_link *lnk)
+>>>>>>>      {
+>>>>>>>      	struct ib_device *ibdev;
+>>>>>>> @@ -889,6 +897,7 @@ int smc_wr_create_link(struct smc_link *lnk)
+>>>>>>>      	atomic_set(&lnk->wr_tx_refcnt, 0);
+>>>>>>>      	init_waitqueue_head(&lnk->wr_reg_wait);
+>>>>>>>      	atomic_set(&lnk->wr_reg_refcnt, 0);
+>>>>>>> +	init_waitqueue_head(&lnk->wr_rx_empty_wait);
+>>>>>>>      	return rc;
+>>>>>>>      
+>>>>>>>      dma_unmap:
+>>>>>>> diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+>>>>>>> index a54e90a11..5ca5086ae 100644
+>>>>>>> --- a/net/smc/smc_wr.h
+>>>>>>> +++ b/net/smc/smc_wr.h
+>>>>>>> @@ -101,6 +101,7 @@ static inline int smc_wr_rx_post(struct smc_link *link)
+>>>>>>>      int smc_wr_create_link(struct smc_link *lnk);
+>>>>>>>      int smc_wr_alloc_link_mem(struct smc_link *lnk);
+>>>>>>>      int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr);
+>>>>>>> +void smc_wr_drain_cq(struct smc_link *lnk);
+>>>>>>>      void smc_wr_free_link(struct smc_link *lnk);
+>>>>>>>      void smc_wr_free_link_mem(struct smc_link *lnk);
+>>>>>>>      void smc_wr_free_lgr_mem(struct smc_link_group *lgr);
+>>>>>>
+>>>>>> Thank you @Yacan for the effort to improve our code! And Thank you @Tony
+>>>>>> for such valuable suggestions and testing!
+>>>>>> I like the modification of this version. However, this is not a fix
+>>>>>> patch to upstream, since the patches "[PATCH net-next v2 00/10] optimize
+>>>>>> the parallelism of SMC-R connections" are still not applied. My
+>>>>>> sugguestions:
+>>>>>> - Please talk to the author (D. Wythe <alibuda@linux.alibaba.com>) of
+>>>>>> those patches I mentioned above, and ask if he can take your patch as a
+>>>>>> part of the patch serie
+>>>>>> - Fix patches should go to net-next
+>>>>>> - Please send always send your new version separately, rather than as
+>>>>>> reply to your previous version. That makes people confused.
+>>>>>
+>>>>> @Wenjia, Thanks a lot for your suggestions and guidance !
+>>>>>
+>>>>> @D. Wythe, Can you include this patch in your series of patches if it is
+>>>>> convenient?
+>>>>>
+>>>>> Regards,
+>>>>> Yacan
+>>>>>
+>>>> One point I was confused, fixes should goto net, sorry!
+>>>
+>>> Well, @D. Wythe, please ignore the above emails, sorry!
+>>>
+>>> Regards,
+>>> Yacan
+>>>
+>> oh no, I didn't mean that. I think I didn't say clearly. What I mean is
+>> that the patch should go to net as a seperate patch if the patch serie
+>> from D. Wythe is already applied. But now the patch serie is still not
+>> applied, so you can still ask D. Wythe to take your patch as a part of
+>> this serie. (Just a suggestion)
+> 
+> Well, I misunderstood. What I'm not sure about is that the patch serie
+> from D. Wythe is going to the net-next tree, but mine is going to the net.
+> Will this be a problem ?
+> 
+> Regards,
+> Yacan
+> I don't think that would be a problem in this situation.
