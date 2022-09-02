@@ -2,288 +2,160 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42452C6FA81
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Sep 2022 05:56:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08D21ECAAA1
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Sep 2022 07:50:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234101AbiIBF4Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Sep 2022 01:56:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52866 "EHLO
+        id S233577AbiIBHuJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Sep 2022 03:50:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233706AbiIBF4O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Sep 2022 01:56:14 -0400
+        with ESMTP id S232221AbiIBHuI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Sep 2022 03:50:08 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B527975387;
-        Thu,  1 Sep 2022 22:56:10 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2825g18I031415;
-        Fri, 2 Sep 2022 05:56:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=PcBB0gDifIZ5JB6RnnJdLQW8pNSpu3ffhFzPoE65GVk=;
- b=ZB+c7IwRuNRZK5c1jPmBLlfOPmDtqFcPbYs9IR21pcZNM59QzE6h+9RhuriWyxHwFDij
- Z6Pnimksudl5Htr28dV4VI+nDgOXJnfgVUL/+suL0ravh4OZ6efXfZk0e1GNz5GLIA7D
- 9EKY0ZPG++QBwT2MRe2Nv1H8FFxQb0mnZ3J0FdVhzTElSc3zQelRS5nMODHzwj2sE88j
- YWF2eLYfdP51EUF9qxUXpHpO1BeczFpdFAgVyf3kw/uwj6kkjeUFIcqPZFgM9lSIHwm2
- 5Q1kEWj1oI+V/LMQq52EA2/zHtEbcXDeUoq7guituj+oJJPpYF7EhE5IHHMH3BrVttqu 2g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jbbwjrfcd-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABA219C13;
+        Fri,  2 Sep 2022 00:50:06 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2827NTNa011108;
+        Fri, 2 Sep 2022 07:49:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=SqqHuYXP03vxJlXwvq1vxFZfU0Izyq/Wz+bacwTS40Q=;
+ b=qeN5Jqg18jGfa2z0uF/+zNQLAQMlTN0QbAEluod4HiocBX4dy+/A57jdy1WSER2l3S4J
+ 2gtkEav95IPczrlfpe/JZ5iOPaYv0nGeLo2ZjlilvF3lI4Wt0WUQjXEjswldx58o9QEw
+ J8NX5r03hPW5QuaDAJT6JLAIOq8ZZcgrmriE5GW3AhmpNULF+jIvBx4PR81L4Kc4jf/9
+ El4kEc4eO6pvM9EzgEFdAsCx3bpT4rrAQedQy1p/KwaNTkp52TDnm4Je/cj3jSdb2afh
+ eUZd0za3OmwtQFYaaa1UCaHgP1/sfZi/HMFsfGfsBPDNlkCR9O69XuChWjClS+Ufx+/g bg== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jbddbgrs1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Sep 2022 05:56:03 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2825nsEA002370;
-        Fri, 2 Sep 2022 05:56:02 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jbbwjrfb3-1
+        Fri, 02 Sep 2022 07:49:53 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2827ZpIM031914;
+        Fri, 2 Sep 2022 07:49:51 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3j7ahj7v7e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Sep 2022 05:56:02 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2825ojEl015816;
-        Fri, 2 Sep 2022 05:56:01 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma02wdc.us.ibm.com with ESMTP id 3j7aw9x2ga-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Sep 2022 05:56:01 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2825u00T11141836
+        Fri, 02 Sep 2022 07:49:51 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2827nmCo37224800
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 2 Sep 2022 05:56:00 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 672D8124053;
-        Fri,  2 Sep 2022 05:56:00 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9B64E124052;
-        Fri,  2 Sep 2022 05:55:57 +0000 (GMT)
-Received: from [9.211.72.167] (unknown [9.211.72.167])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri,  2 Sep 2022 05:55:57 +0000 (GMT)
-Message-ID: <203fa08f-c523-76d7-c9fb-ca6f3a10bd1a@linux.ibm.com>
-Date:   Fri, 2 Sep 2022 07:55:56 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.0
-Subject: Re: [PATCH net v4] net/smc: Fix possible access to freed memory in
- link clear
-To:     liuyacan@corp.netease.com
-Cc:     alibuda@linux.alibaba.com, davem@davemloft.net,
-        edumazet@google.com, kgraul@linux.ibm.com, kuba@kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, pabeni@redhat.com,
-        tonylu@linux.alibaba.com, ubraun@linux.vnet.ibm.com,
-        wintera@linux.ibm.com
-References: <5b65eb6b-5ab2-1e6c-10d6-c25e66fa82f4@linux.ibm.com>
- <20220902021651.2552128-1-liuyacan@corp.netease.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <20220902021651.2552128-1-liuyacan@corp.netease.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Fri, 2 Sep 2022 07:49:48 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 33CA942041;
+        Fri,  2 Sep 2022 07:49:48 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7E1724203F;
+        Fri,  2 Sep 2022 07:49:47 +0000 (GMT)
+Received: from sig-9-145-10-94.uk.ibm.com (unknown [9.145.10.94])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  2 Sep 2022 07:49:47 +0000 (GMT)
+Message-ID: <aa4ce332b6e280ec741064935fdd3e6fbabd8dbe.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev
+Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
+        robin.murphy@arm.com, jgg@nvidia.com, linux-kernel@vger.kernel.org
+Date:   Fri, 02 Sep 2022 09:49:45 +0200
+In-Reply-To: <6be7b0ff-63d4-0352-a7de-e66a93411c2b@linux.ibm.com>
+References: <20220831201236.77595-1-mjrosato@linux.ibm.com>
+         <20220831201236.77595-2-mjrosato@linux.ibm.com>
+         <9887e2f4-3f3d-137d-dad7-59dab5f98aab@linux.ibm.com>
+         <52d3fe0b86bdc04fdbf3aae095b2f71f4ea12d44.camel@linux.ibm.com>
+         <6be7b0ff-63d4-0352-a7de-e66a93411c2b@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: RF5nU3-lWqS5l1ln4G4dZ7XeLrHlIBmP
-X-Proofpoint-ORIG-GUID: 0okdEcDleZJnlrghTH93_EMoyB2sLB57
+X-Proofpoint-GUID: UxnGRVFgp2eSAYyhQf-gbdjf2QB7Kb79
+X-Proofpoint-ORIG-GUID: UxnGRVFgp2eSAYyhQf-gbdjf2QB7Kb79
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-09-01_12,2022-08-31_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 clxscore=1015 impostorscore=0 adultscore=0 lowpriorityscore=0
- mlxlogscore=999 bulkscore=0 spamscore=0 malwarescore=0 suspectscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2209020024
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=999
+ mlxscore=0 priorityscore=1501 bulkscore=0 suspectscore=0 impostorscore=0
+ adultscore=0 lowpriorityscore=0 clxscore=1015 phishscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
+ definitions=main-2209020034
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, 2022-09-01 at 16:28 -0400, Matthew Rosato wrote:
+> > 
 
 
-On 02.09.22 04:16, liuyacan@corp.netease.com wrote:
->>>>>>> From: Yacan Liu <liuyacan@corp.netease.com>
->>>>>>>
->>>>>>> After modifying the QP to the Error state, all RX WR would be completed
->>>>>>> with WC in IB_WC_WR_FLUSH_ERR status. Current implementation does not
->>>>>>> wait for it is done, but destroy the QP and free the link group directly.
->>>>>>> So there is a risk that accessing the freed memory in tasklet context.
->>>>>>>
->>>>>>> Here is a crash example:
->>>>>>>
->>>>>>>      BUG: unable to handle page fault for address: ffffffff8f220860
->>>>>>>      #PF: supervisor write access in kernel mode
->>>>>>>      #PF: error_code(0x0002) - not-present page
->>>>>>>      PGD f7300e067 P4D f7300e067 PUD f7300f063 PMD 8c4e45063 PTE 800ffff08c9df060
->>>>>>>      Oops: 0002 [#1] SMP PTI
->>>>>>>      CPU: 1 PID: 0 Comm: swapper/1 Kdump: loaded Tainted: G S         OE     5.10.0-0607+ #23
->>>>>>>      Hardware name: Inspur NF5280M4/YZMB-00689-101, BIOS 4.1.20 07/09/2018
->>>>>>>      RIP: 0010:native_queued_spin_lock_slowpath+0x176/0x1b0
->>>>>>>      Code: f3 90 48 8b 32 48 85 f6 74 f6 eb d5 c1 ee 12 83 e0 03 83 ee 01 48 c1 e0 05 48 63 f6 48 05 00 c8 02 00 48 03 04 f5 00 09 98 8e <48> 89 10 8b 42 08 85 c0 75 09 f3 90 8b 42 08 85 c0 74 f7 48 8b 32
->>>>>>>      RSP: 0018:ffffb3b6c001ebd8 EFLAGS: 00010086
->>>>>>>      RAX: ffffffff8f220860 RBX: 0000000000000246 RCX: 0000000000080000
->>>>>>>      RDX: ffff91db1f86c800 RSI: 000000000000173c RDI: ffff91db62bace00
->>>>>>>      RBP: ffff91db62bacc00 R08: 0000000000000000 R09: c00000010000028b
->>>>>>>      R10: 0000000000055198 R11: ffffb3b6c001ea58 R12: ffff91db80e05010
->>>>>>>      R13: 000000000000000a R14: 0000000000000006 R15: 0000000000000040
->>>>>>>      FS:  0000000000000000(0000) GS:ffff91db1f840000(0000) knlGS:0000000000000000
->>>>>>>      CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>>>>>>      CR2: ffffffff8f220860 CR3: 00000001f9580004 CR4: 00000000003706e0
->>>>>>>      DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->>>>>>>      DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->>>>>>>      Call Trace:
->>>>>>>       <IRQ>
->>>>>>>       _raw_spin_lock_irqsave+0x30/0x40
->>>>>>>       mlx5_ib_poll_cq+0x4c/0xc50 [mlx5_ib]
->>>>>>>       smc_wr_rx_tasklet_fn+0x56/0xa0 [smc]
->>>>>>>       tasklet_action_common.isra.21+0x66/0x100
->>>>>>>       __do_softirq+0xd5/0x29c
->>>>>>>       asm_call_irq_on_stack+0x12/0x20
->>>>>>>       </IRQ>
->>>>>>>       do_softirq_own_stack+0x37/0x40
->>>>>>>       irq_exit_rcu+0x9d/0xa0
->>>>>>>       sysvec_call_function_single+0x34/0x80
->>>>>>>       asm_sysvec_call_function_single+0x12/0x20
->>>>>>>
->>>>>>> Fixes: bd4ad57718cc ("smc: initialize IB transport incl. PD, MR, QP, CQ, event, WR")
->>>>>>> Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
->>>>>>>
->>>>>>> ---
->>>>>>> Chagen in v4:
->>>>>>>       -- Remove the rx_drain flag because smc_wr_rx_post() may not have been called.
->>>>>>>       -- Remove timeout.
->>>>>>> Change in v3:
->>>>>>>       -- Tune commit message (Signed-Off tag, Fixes tag).
->>>>>>>          Tune code to avoid column length exceeding.
->>>>>>> Change in v2:
->>>>>>>       -- Fix some compile warnings and errors.
->>>>>>> ---
->>>>>>>      net/smc/smc_core.c | 2 ++
->>>>>>>      net/smc/smc_core.h | 2 ++
->>>>>>>      net/smc/smc_wr.c   | 9 +++++++++
->>>>>>>      net/smc/smc_wr.h   | 1 +
->>>>>>>      4 files changed, 14 insertions(+)
->>>>>>>
->>>>>>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->>>>>>> index ff49a11f5..f92a916e9 100644
->>>>>>> --- a/net/smc/smc_core.c
->>>>>>> +++ b/net/smc/smc_core.c
->>>>>>> @@ -757,6 +757,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
->>>>>>>      	lnk->lgr = lgr;
->>>>>>>      	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
->>>>>>>      	lnk->link_idx = link_idx;
->>>>>>> +	lnk->wr_rx_id_compl = 0;
->>>>>>>      	smc_ibdev_cnt_inc(lnk);
->>>>>>>      	smcr_copy_dev_info_to_link(lnk);
->>>>>>>      	atomic_set(&lnk->conn_cnt, 0);
->>>>>>> @@ -1269,6 +1270,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
->>>>>>>      	smcr_buf_unmap_lgr(lnk);
->>>>>>>      	smcr_rtoken_clear_link(lnk);
->>>>>>>      	smc_ib_modify_qp_error(lnk);
->>>>>>> +	smc_wr_drain_cq(lnk);
->>>>>>>      	smc_wr_free_link(lnk);
->>>>>>>      	smc_ib_destroy_queue_pair(lnk);
->>>>>>>      	smc_ib_dealloc_protection_domain(lnk);
->>>>>>> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
->>>>>>> index fe8b524ad..285f9bd8e 100644
->>>>>>> --- a/net/smc/smc_core.h
->>>>>>> +++ b/net/smc/smc_core.h
->>>>>>> @@ -115,8 +115,10 @@ struct smc_link {
->>>>>>>      	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
->>>>>>>      	dma_addr_t		wr_rx_v2_dma_addr; /* DMA address of v2 rx buf*/
->>>>>>>      	u64			wr_rx_id;	/* seq # of last recv WR */
->>>>>>> +	u64			wr_rx_id_compl; /* seq # of last completed WR */
->>>>>>>      	u32			wr_rx_cnt;	/* number of WR recv buffers */
->>>>>>>      	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
->>>>>>> +	wait_queue_head_t       wr_rx_empty_wait; /* wait for RQ empty */
->>>>>>>      
->>>>>>>      	struct ib_reg_wr	wr_reg;		/* WR register memory region */
->>>>>>>      	wait_queue_head_t	wr_reg_wait;	/* wait for wr_reg result */
->>>>>>> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
->>>>>>> index 26f8f240d..bc8793803 100644
->>>>>>> --- a/net/smc/smc_wr.c
->>>>>>> +++ b/net/smc/smc_wr.c
->>>>>>> @@ -454,6 +454,7 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
->>>>>>>      
->>>>>>>      	for (i = 0; i < num; i++) {
->>>>>>>      		link = wc[i].qp->qp_context;
->>>>>>> +		link->wr_rx_id_compl = wc[i].wr_id;
->>>>>>>      		if (wc[i].status == IB_WC_SUCCESS) {
->>>>>>>      			link->wr_rx_tstamp = jiffies;
->>>>>>>      			smc_wr_rx_demultiplex(&wc[i]);
->>>>>>> @@ -465,6 +466,8 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
->>>>>>>      			case IB_WC_RNR_RETRY_EXC_ERR:
->>>>>>>      			case IB_WC_WR_FLUSH_ERR:
->>>>>>>      				smcr_link_down_cond_sched(link);
->>>>>>> +				if (link->wr_rx_id_compl == link->wr_rx_id)
->>>>>>> +					wake_up(&link->wr_rx_empty_wait);
->>>>>>>      				break;
->>>>>>>      			default:
->>>>>>>      				smc_wr_rx_post(link); /* refill WR RX */
->>>>>>> @@ -631,6 +634,11 @@ static void smc_wr_init_sge(struct smc_link *lnk)
->>>>>>>      	lnk->wr_reg.access = IB_ACCESS_LOCAL_WRITE | IB_ACCESS_REMOTE_WRITE;
->>>>>>>      }
->>>>>>>      
->>>>>>> +void smc_wr_drain_cq(struct smc_link *lnk)
->>>>>>> +{
->>>>>>> +	wait_event(lnk->wr_rx_empty_wait, lnk->wr_rx_id_compl == lnk->wr_rx_id);
->>>>>>> +}
->>>>>>> +
->>>>>>>      void smc_wr_free_link(struct smc_link *lnk)
->>>>>>>      {
->>>>>>>      	struct ib_device *ibdev;
->>>>>>> @@ -889,6 +897,7 @@ int smc_wr_create_link(struct smc_link *lnk)
->>>>>>>      	atomic_set(&lnk->wr_tx_refcnt, 0);
->>>>>>>      	init_waitqueue_head(&lnk->wr_reg_wait);
->>>>>>>      	atomic_set(&lnk->wr_reg_refcnt, 0);
->>>>>>> +	init_waitqueue_head(&lnk->wr_rx_empty_wait);
->>>>>>>      	return rc;
->>>>>>>      
->>>>>>>      dma_unmap:
->>>>>>> diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
->>>>>>> index a54e90a11..5ca5086ae 100644
->>>>>>> --- a/net/smc/smc_wr.h
->>>>>>> +++ b/net/smc/smc_wr.h
->>>>>>> @@ -101,6 +101,7 @@ static inline int smc_wr_rx_post(struct smc_link *link)
->>>>>>>      int smc_wr_create_link(struct smc_link *lnk);
->>>>>>>      int smc_wr_alloc_link_mem(struct smc_link *lnk);
->>>>>>>      int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr);
->>>>>>> +void smc_wr_drain_cq(struct smc_link *lnk);
->>>>>>>      void smc_wr_free_link(struct smc_link *lnk);
->>>>>>>      void smc_wr_free_link_mem(struct smc_link *lnk);
->>>>>>>      void smc_wr_free_lgr_mem(struct smc_link_group *lgr);
->>>>>>
->>>>>> Thank you @Yacan for the effort to improve our code! And Thank you @Tony
->>>>>> for such valuable suggestions and testing!
->>>>>> I like the modification of this version. However, this is not a fix
->>>>>> patch to upstream, since the patches "[PATCH net-next v2 00/10] optimize
->>>>>> the parallelism of SMC-R connections" are still not applied. My
->>>>>> sugguestions:
->>>>>> - Please talk to the author (D. Wythe <alibuda@linux.alibaba.com>) of
->>>>>> those patches I mentioned above, and ask if he can take your patch as a
->>>>>> part of the patch serie
->>>>>> - Fix patches should go to net-next
->>>>>> - Please send always send your new version separately, rather than as
->>>>>> reply to your previous version. That makes people confused.
->>>>>
->>>>> @Wenjia, Thanks a lot for your suggestions and guidance !
->>>>>
->>>>> @D. Wythe, Can you include this patch in your series of patches if it is
->>>>> convenient?
->>>>>
->>>>> Regards,
->>>>> Yacan
->>>>>
->>>> One point I was confused, fixes should goto net, sorry!
->>>
->>> Well, @D. Wythe, please ignore the above emails, sorry!
->>>
->>> Regards,
->>> Yacan
->>>
->> oh no, I didn't mean that. I think I didn't say clearly. What I mean is
->> that the patch should go to net as a seperate patch if the patch serie
->> from D. Wythe is already applied. But now the patch serie is still not
->> applied, so you can still ask D. Wythe to take your patch as a part of
->> this serie. (Just a suggestion)
+> On 9/1/22 5:37 AM, Niklas Schnelle wrote:
+> > On Thu, 2022-09-01 at 09:56 +0200, Pierre Morel wrote:
+> > > On 8/31/22 22:12, Matthew Rosato wrote:
+> > > > With commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
+> > > > calls") s390-iommu is supposed to handle dynamic switching between IOMMU
+> > > > domains and the DMA API handling.  However, this commit does not
+> > > > sufficiently handle the case where the device is released via a call
+> > > > to the release_device op as it may occur at the same time as an opposing
+> > > > attach_dev or detach_dev since the group mutex is not held over
+> > > > release_device.  This was observed if the device is deconfigured during a
+> > > > small window during vfio-pci initialization and can result in WARNs and
+> > > > potential kernel panics.
+> > > > 
+> > > > Handle this by tracking when the device is probed/released via
+> > > > dev_iommu_priv_set/get().  Ensure that once the device is released only
+> > > > release_device handles the re-init of the device DMA.
+> > > > 
+> > > > Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
+> > > > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> > > > ---
+> > > >   arch/s390/include/asm/pci.h |  1 +
+> > > >   arch/s390/pci/pci.c         |  1 +
+> > > >   drivers/iommu/s390-iommu.c  | 39 ++++++++++++++++++++++++++++++++++---
+> > > >   3 files changed, 38 insertions(+), 3 deletions(-)
+> > > > 
+> > > > 
+> > ---8<---
+> > > >   
+> > > > @@ -206,10 +221,28 @@ static void s390_iommu_release_device(struct device *dev)
+> > > > 
+> > ---8<---
+> > > > +		/* Make sure this device is removed from the domain list */
+> > > >   		domain = iommu_get_domain_for_dev(dev);
+> > > >   		if (domain)
+> > > >   			s390_iommu_detach_device(domain, dev);
+> > > > +		/* Now ensure DMA is initialized from here */
+> > > > +		mutex_lock(&zdev->dma_domain_lock);
+> > > > +		if (zdev->s390_domain) {
+> > > > +			zdev->s390_domain = NULL;
+> > > > +			zpci_unregister_ioat(zdev, 0);
+> > > > +			zpci_dma_init_device(zdev);
+> > > 
+> > > Sorry if it is a stupid question, but two things looks strange to me:
+> > > 
+> > > - having DMA initialized just after having unregistered the IOAT
+> > > Is that really all we need to unregister before calling dma_init_device?
 > 
-> Well, I misunderstood. What I'm not sure about is that the patch serie
-> from D. Wythe is going to the net-next tree, but mine is going to the net.
-> Will this be a problem ?
+> This is also how s390-iommu has been handling detach_dev (and still does)
 > 
-> Regards,
-> Yacan
-> I don't think that would be a problem in this situation.
+> > > - having DMA initialized inside the release_device callback:
+> > > Why isn't it done in the device_probe ?
+> > 
+> > As I understand it iommu_release_device() which calls this code is only
+> > used when a device goes away. So, I think you're right in that it makes
+> > little sense to re-initialize DMA at this point, it's going to be torn
+> > down immediately after anyway. I do wonder if it would be an acceptably
+> > small change to just set zdev->s390_domain = NULL here and leave DMA
+> > uninitialized while making zpci_dma_exit_device() deal with that e.g.
+> > by doing nothing if zdev->dma_table is NULL but I'm not sure.
+> 
+> Right -- since it's a fix, I was trying to keep the changes minimal and this behavior (re-init DMA even on release_device) was existing, it was just always done within s390_iommu_detach_device before.
+> 
+> If you want, I could experiment with setting zdev->dma_table = NULL on the release path only (and checking it in zpci_dma_exit_device())
+> 
+
+Your current approach is fine with me. After all this oddity of
+detaching on release and initializing DMA is existing behavior.
+
+
