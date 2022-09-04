@@ -2,70 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B453AECAAD4
-	for <linux-s390@archiver.kernel.org>; Sat,  3 Sep 2022 20:29:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CD50C6FA82
+	for <linux-s390@archiver.kernel.org>; Sun,  4 Sep 2022 15:58:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232988AbiICU3M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 3 Sep 2022 16:29:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55142 "EHLO
+        id S230286AbiIDP6Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 4 Sep 2022 11:58:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232793AbiICU3L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 3 Sep 2022 16:29:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C413F5245A;
-        Sat,  3 Sep 2022 13:29:10 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F04960DE7;
-        Sat,  3 Sep 2022 20:29:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id BB62CC433C1;
-        Sat,  3 Sep 2022 20:29:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662236949;
-        bh=5565w3/bwkb3qWieTCNNWPDqPqESCuufpbO7asrfnMg=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=Sp+edGZ6ZtUpv2HyQInbQPXbpQvPzEawP2/INlpDnifZLv770+O5dtQklruGSfGrf
-         JEDfBphGWyqtaocrtdbuLBz5W94Jf3QBdVX+uuzF+w63jPWrPu4mdAWxAh0OJW0321
-         wlE2WCIgdjPo3QpROzGH5KotuSOH2PfdoKhJfbvaRyrvAwhLSgre14LeTuGDn/4rOJ
-         tsVy183S+cEr0YgeuGG7UsSfaeMhLgzi6FIQQUmSip4BK3X3Q+bEDWq6RGiNuE/oqm
-         ekZoufjVzKOipazOSX2ias0UQw/hn8Efl07wHs5KSUU//w+2/efhk3jufg1k0vhsk5
-         gnkDNuIwTXIsw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A94E0E924D9;
-        Sat,  3 Sep 2022 20:29:09 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 6.0-rc4
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01662197774-ext-9772@work.hours>
-References: <your-ad-here.call-01662197774-ext-9772@work.hours>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <your-ad-here.call-01662197774-ext-9772@work.hours>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-3
-X-PR-Tracked-Commit-Id: 7c8d42fdf1a84b1a0dd60d6528309c8ec127e87c
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: cda9a8486c48f09dabfec0c17ab109e352fe368e
-Message-Id: <166223694968.8828.4720583457733412215.pr-tracker-bot@kernel.org>
-Date:   Sat, 03 Sep 2022 20:29:09 +0000
-To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+        with ESMTP id S234631AbiIDP6X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 4 Sep 2022 11:58:23 -0400
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB1642F38E;
+        Sun,  4 Sep 2022 08:58:15 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0VOGfxpk_1662307089;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VOGfxpk_1662307089)
+          by smtp.aliyun-inc.com;
+          Sun, 04 Sep 2022 23:58:10 +0800
+Date:   Sun, 4 Sep 2022 23:58:09 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     liuyacan@corp.netease.com
+Cc:     davem@davemloft.net, edumazet@google.com, kgraul@linux.ibm.com,
+        kuba@kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        ubraun@linux.vnet.ibm.com, pabeni@redhat.com, wenjia@linux.ibm.com,
+        wintera@linux.ibm.com
+Subject: Re: [PATCH net v4] net/smc: Fix possible access to freed memory in
+ link clear
+Message-ID: <YxTLEakKhpge8T/3@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <Yw4bgV6c0LQ6reMc@TonyMac-Alibaba>
+ <20220831155303.1758868-1-liuyacan@corp.netease.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220831155303.1758868-1-liuyacan@corp.netease.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Sat, 3 Sep 2022 11:36:14 +0200:
+On Wed, Aug 31, 2022 at 11:53:03PM +0800, liuyacan@corp.netease.com wrote:
+> From: Yacan Liu <liuyacan@corp.netease.com>
+> 
+> After modifying the QP to the Error state, all RX WR would be completed
+> with WC in IB_WC_WR_FLUSH_ERR status. Current implementation does not
+> wait for it is done, but destroy the QP and free the link group directly.
+> So there is a risk that accessing the freed memory in tasklet context.
+> 
+> Here is a crash example:
+> 
+>  BUG: unable to handle page fault for address: ffffffff8f220860
+>  #PF: supervisor write access in kernel mode
+>  #PF: error_code(0x0002) - not-present page
+>  PGD f7300e067 P4D f7300e067 PUD f7300f063 PMD 8c4e45063 PTE 800ffff08c9df060
+>  Oops: 0002 [#1] SMP PTI
+>  CPU: 1 PID: 0 Comm: swapper/1 Kdump: loaded Tainted: G S         OE     5.10.0-0607+ #23
+>  Hardware name: Inspur NF5280M4/YZMB-00689-101, BIOS 4.1.20 07/09/2018
+>  RIP: 0010:native_queued_spin_lock_slowpath+0x176/0x1b0
+>  Code: f3 90 48 8b 32 48 85 f6 74 f6 eb d5 c1 ee 12 83 e0 03 83 ee 01 48 c1 e0 05 48 63 f6 48 05 00 c8 02 00 48 03 04 f5 00 09 98 8e <48> 89 10 8b 42 08 85 c0 75 09 f3 90 8b 42 08 85 c0 74 f7 48 8b 32
+>  RSP: 0018:ffffb3b6c001ebd8 EFLAGS: 00010086
+>  RAX: ffffffff8f220860 RBX: 0000000000000246 RCX: 0000000000080000
+>  RDX: ffff91db1f86c800 RSI: 000000000000173c RDI: ffff91db62bace00
+>  RBP: ffff91db62bacc00 R08: 0000000000000000 R09: c00000010000028b
+>  R10: 0000000000055198 R11: ffffb3b6c001ea58 R12: ffff91db80e05010
+>  R13: 000000000000000a R14: 0000000000000006 R15: 0000000000000040
+>  FS:  0000000000000000(0000) GS:ffff91db1f840000(0000) knlGS:0000000000000000
+>  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>  CR2: ffffffff8f220860 CR3: 00000001f9580004 CR4: 00000000003706e0
+>  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>  Call Trace:
+>   <IRQ>
+>   _raw_spin_lock_irqsave+0x30/0x40
+>   mlx5_ib_poll_cq+0x4c/0xc50 [mlx5_ib]
+>   smc_wr_rx_tasklet_fn+0x56/0xa0 [smc]
+>   tasklet_action_common.isra.21+0x66/0x100
+>   __do_softirq+0xd5/0x29c
+>   asm_call_irq_on_stack+0x12/0x20
+>   </IRQ>
+>   do_softirq_own_stack+0x37/0x40
+>   irq_exit_rcu+0x9d/0xa0
+>   sysvec_call_function_single+0x34/0x80
+>   asm_sysvec_call_function_single+0x12/0x20
+> 
+> Fixes: bd4ad57718cc ("smc: initialize IB transport incl. PD, MR, QP, CQ, event, WR")
+> Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
+> 
+> ---
+> Chagen in v4:
+>   -- Remove the rx_drain flag because smc_wr_rx_post() may not have been called.
+>   -- Remove timeout.
+> Change in v3:
+>   -- Tune commit message (Signed-Off tag, Fixes tag).
+>      Tune code to avoid column length exceeding.
+> Change in v2:
+>   -- Fix some compile warnings and errors.
+> ---
+>  net/smc/smc_core.c | 2 ++
+>  net/smc/smc_core.h | 2 ++
+>  net/smc/smc_wr.c   | 9 +++++++++
+>  net/smc/smc_wr.h   | 1 +
+>  4 files changed, 14 insertions(+)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index ff49a11f5..f92a916e9 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -757,6 +757,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+>  	lnk->lgr = lgr;
+>  	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
+>  	lnk->link_idx = link_idx;
+> +	lnk->wr_rx_id_compl = 0;
+>  	smc_ibdev_cnt_inc(lnk);
+>  	smcr_copy_dev_info_to_link(lnk);
+>  	atomic_set(&lnk->conn_cnt, 0);
+> @@ -1269,6 +1270,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
+>  	smcr_buf_unmap_lgr(lnk);
+>  	smcr_rtoken_clear_link(lnk);
+>  	smc_ib_modify_qp_error(lnk);
+> +	smc_wr_drain_cq(lnk);
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-3
+smc_wr_drain_cq() can put into smc_wr_free_link(). Since
+smc_wr_free_link() do the same things together, such as waiting for
+resources cleaning up about wr.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/cda9a8486c48f09dabfec0c17ab109e352fe368e
+>  	smc_wr_free_link(lnk);
+>  	smc_ib_destroy_queue_pair(lnk);
+>  	smc_ib_dealloc_protection_domain(lnk);
 
-Thank you!
+<snip>
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+The patch tested good in our environment. If you are going to send the
+v5 patch, you can go with my review.
+
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+
+Cheers,
+Tony Lu
