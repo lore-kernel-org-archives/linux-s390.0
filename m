@@ -2,159 +2,187 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C043C6FA86
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Sep 2022 13:43:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09381ECAAA1
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Sep 2022 15:24:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233540AbiIFNnb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Sep 2022 09:43:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39082 "EHLO
+        id S239835AbiIFPYA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Sep 2022 11:24:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233467AbiIFNmK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Sep 2022 09:42:10 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2062b.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe5b::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBCCE7E817;
-        Tue,  6 Sep 2022 06:37:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=n/+vl6EOAYN4zOEo5ho1Jid3O1jfBmKfJt8/r2rBfBni0rF5dhu1GLAxGi3tt0YKi3s7tofmjo//REAXm5s39BQn7NKQuKIvM9gNF7ZVt+3mvXwO7JUBZKgJ1OTpxgYsA/BZOqVBBVeaRxZH20nxgT74SADB6MavRoyGIOxLH/IdGgJOhsxqwcqPBF1+TJ7w6YgnfWxUUcdim6Us0j5c7Rx3QUwuoHW+BAF6ASP520GifhVKFgUBb+47r1Y45ek0qnzDC1zZpR8yzkaEB3R0GJsW0FOnMcntPcq52sD/vsk9cIdC+TEI4Ui+UvOipRYwDlW+LWglUU7i1vX/NiTQHQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=WCzWVssRSULZoWfektUvK9x7zXbZ13or+Q/SsoUxBBg=;
- b=oYKFJBF9q9vd7qP4tOScGmIqv+kBzBx4oZyw9yWgcrHVAMNslGyoiMvSxcUWheEkTCGaRIfQGuDJqTpl++QcrOZ/qjx4Gg7WIBQC8Mv9KaMXG/7/jiViAsAm/Omq/31hb7zghl2XJ6cDrZ11yzeObOS3wqrq1gX2hczuObTwbC3iCpbQN93R9hXBlsL94gf2h6sURR5dOgUSSg0KzYXo8B5vX5sqAvarpM1XdgqaypAs1mrllvzADVani3j7jDC5tjjiKLQInjLGpQA2cpRbU1w38vHxz4NdP5fLqCz0kumDVT1+dRguc5klbl5ZzyM1kk3/Xmv0GCSYU4El59HK7g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WCzWVssRSULZoWfektUvK9x7zXbZ13or+Q/SsoUxBBg=;
- b=CuLMycfwp3mCEwDqIo0Xjcg6xjVm/waDMYVqiBQ6q6BjXVDQryzMBAC3Lw3QgGiMcDNDE5YG+7LD97BXsKYdXeCBYvJKSVxogGnotWv67QIbSpixpjTdI9R+VNgXnVtdtTvQm9at3E7JYjAnhobIIqsuc79thnKEfzlCxFzx8+SpIi3itdtE60GnpDY05aUJ2/61azphuPV9Ks0Rjp05XeinMFafK1qEQ0KOq1eL54dxiRx0fU0XBMwhl4NIBFT8RJ+f77pBb4yF/yuiPmlz0/T9+UZmPjHwe99JDarv1cwy7J4bQWXzNOzZA9XgQGn/6l5odQ3FwDJi8aFFbfSTOQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by BL1PR12MB5361.namprd12.prod.outlook.com (2603:10b6:208:31f::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.10; Tue, 6 Sep
- 2022 13:36:03 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5%7]) with mapi id 15.20.5588.018; Tue, 6 Sep 2022
- 13:36:03 +0000
-Date:   Tue, 6 Sep 2022 10:36:02 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Alex Williamson <alex.williamson@redhat.com>,
-        linux-s390@vger.kernel.org, schnelle@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, joro@8bytes.org,
-        will@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
-Message-ID: <YxdMwoC+58NvydY3@nvidia.com>
-References: <20220831201236.77595-1-mjrosato@linux.ibm.com>
- <20220831201236.77595-2-mjrosato@linux.ibm.com>
- <3b065fb5-3ca7-8f48-bdf7-daf7604312df@arm.com>
- <369ad331-8bdc-d385-a227-f674bd410599@linux.ibm.com>
- <YxEYAcFK0EdahXzJ@nvidia.com>
- <273fdd58-549c-30d4-39a9-85fe631162ba@linux.ibm.com>
- <YxI7kzuchcJz8sRX@nvidia.com>
- <ca1ba9d8-8d68-5869-9905-fce431ca14f8@arm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ca1ba9d8-8d68-5869-9905-fce431ca14f8@arm.com>
-X-ClientProxiedBy: BL0PR03CA0015.namprd03.prod.outlook.com
- (2603:10b6:208:2d::28) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S233525AbiIFPXP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Sep 2022 11:23:15 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B773A72EDC;
+        Tue,  6 Sep 2022 07:34:53 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 286Dj5Gb027112;
+        Tue, 6 Sep 2022 13:57:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=EjSUCynkpK2rj1hPgs3oxee0iwh/SYPXYSJGwalBnUI=;
+ b=WXZcSz68eQGC7+3FqImksK34L4mv1xfj41sUXmVR/eRX6BOA4U1L5FaehevCJQ2SciRg
+ 9qcLcUK/c5EW7S2fjF8Hu7BSSYBk3uorF/NEob/dWycwhX7CLADjlDIB+O/kJ9cGapYW
+ fWoz9jUpk1O+TlDTsWM+Knu+cO4vW3+vTjR4+jrozyOzCqEtYUt74XHdH9jyei+kcS48
+ T/Ew+d8UpfV5MOU++DDL+eH6rGAKFoO+7BRJ59bt0Nzg8PYR2usUAUI0RWoGNibzOWDs
+ PqIWCChloHWbAVuGBCzRPEitZ5vc1zvyCActJNPlC1tm+b8Ro3BOf9nx7yHsBFwCw0hB nA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3je7c70dm6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Sep 2022 13:57:34 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 286DlAnQ013470;
+        Tue, 6 Sep 2022 13:57:33 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3je7c70djr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Sep 2022 13:57:33 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 286DogJb025031;
+        Tue, 6 Sep 2022 13:57:30 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma05fra.de.ibm.com with ESMTP id 3jbxj8tu7s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Sep 2022 13:57:30 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 286DvQa628049898
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 6 Sep 2022 13:57:26 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D2478A4051;
+        Tue,  6 Sep 2022 13:57:26 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 20EB0A4040;
+        Tue,  6 Sep 2022 13:57:26 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue,  6 Sep 2022 13:57:26 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Muchun Song <songmuchun@bytedance.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>, Peter Xu <peterx@redhat.com>,
+        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Prakash Sangappa <prakash.sangappa@oracle.com>,
+        James Houghton <jthoughton@google.com>,
+        Mina Almasry <almasrymina@google.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Ray Fucillo <Ray.Fucillo@intersystems.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH 4/8] hugetlb: handle truncate racing with page faults
+References: <20220824175757.20590-1-mike.kravetz@oracle.com>
+        <20220824175757.20590-5-mike.kravetz@oracle.com>
+Date:   Tue, 06 Sep 2022 15:57:25 +0200
+In-Reply-To: <20220824175757.20590-5-mike.kravetz@oracle.com> (Mike Kravetz's
+        message of "Wed, 24 Aug 2022 10:57:53 -0700")
+Message-ID: <yt9dr10ok3lm.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 3e82b734-2236-4ce4-f63a-08da900cbe1f
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5361:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: o0t5V1fSrMjNK7PrvqgBe/W6N3IAN1hRZ/7r6PCQd+C4FgUUXALL5irTjPj5LdKOrXGB6EJi6J3x+voptsf7SM1hhYkdM60hNFbHdBEe1Zfeh1oHDYOgilhgyOcqXltf9hlZS6fyYay5vRtJljUEZiOsteLRvQFmFynqETxIGh8mfyfsA/pzdvzc3CIDy7oVZgPajwN0+PGryIYkIwVOasJDYf3Qn7iemtzQq/LxVCzEqC48ReHqZblXBl2z3fmXPm9z/cmoJMbwLBprexmqph0C2h9uASOKwj+VqdKkmZjPAjioZFp0iQ+zFjPHZPH7szowyCvkXvfwuOzI+e030PQjmjwv0TeEIxdjXlmvyTwOUVgTDxWFe/J4FsL7+myNdtjF4lg9drafJmQRsJgBp1kZpKwVy1hcPE+/cIgxMVXIg32YSHFg/X7pjndKvIqY+PpjEi0GPOpDv7KeftRMcQFgkcfKFsMT7pzGbvPppezmsc6ToJDa/hlGNWGyrozfAwipF2PgpsjQR9C5E2KGw9gPameZLA6j/oB9l7i/+etJFNUorIrb9u0XmGBB0Hij6Y5TbNjuypUVAH+u0nmHdN8mXnag2UWRLjJ9NwHqrpJMrOU415hN0HJK/AInRzSg9jtdJRrgtQ2SsSnRmPfIJu9lmsVWROWU9/a5gT9SoNMXbS4Sx6w4JXtQ3uGIQ0/n7kTwwF7EvZ33RreV/wSKeOd20fV54WIMeiDWq+nKsXjF7aZbTF6pZGo/ovLarKkV
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(376002)(136003)(346002)(396003)(39860400002)(8676002)(54906003)(83380400001)(66476007)(478600001)(66946007)(6916009)(36756003)(4326008)(316002)(66556008)(6486002)(41300700001)(2906002)(2616005)(6512007)(86362001)(6506007)(26005)(5660300002)(7416002)(186003)(8936002)(38100700002)(67856001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?uSupAg83MF7ITAdU2v3+nebn+/IMlB27jUKd2Lsi38kPw0mL1Iv4C28KDeu9?=
- =?us-ascii?Q?T6NRr8VoTQxWi0xCyPY8r+ABmwGo5Ld6ox4dA4rB3KV8cmOU2d97Dq01J/7B?=
- =?us-ascii?Q?sDaxbvydt16NQh9LYAjOaNPUNB151DMKgda531U98H+oyxItvr80sGJD/kci?=
- =?us-ascii?Q?ddRynxxCJqdFrY4SSJ5ms0SMS/Sf6iHS/+VU9ZI/5a8TCeSIj77cq0jFJsGO?=
- =?us-ascii?Q?eySKgIBDdKksuXVWAJ+QeR3BWwALFR6fp9pwosg36fTS/tPwW7pzajVxnXWa?=
- =?us-ascii?Q?VMedgAeO80o4CnipFwDikp1lL58GANK5tt3EhXKcIsoHtRIqonuiQSlI3awT?=
- =?us-ascii?Q?erIc+2onw0GGsZOPH+tNZC706i74g+7WKl31LmFClz9XjLaYUidi0wYEFs9g?=
- =?us-ascii?Q?47IKjze7lNO8ecfbwsEuu33nZ34FtCWkGIhn4rAKiGv8qYfApENaFUYr3B1J?=
- =?us-ascii?Q?epWTOlE51E1p1NohNc9zZL+m6UinrJTJgYfkw8P/6Vaudm1C7qht9QfOSdhU?=
- =?us-ascii?Q?ZVuscQn50NugOjSdsrrJaJUCC6HTNmPPWJBhY1XkU2xqSZYvL5KizBLylqS3?=
- =?us-ascii?Q?RmS51yDiXFlUhhBq212gdT8670cdNlSDDYY0TJZQrRlcMFxhT2H9FYscbSuZ?=
- =?us-ascii?Q?4rHf13obDQuDx+UJwtSvxgAGkr8VNST+XPUKAcA7P3WQjOu/iCq1DM8F1zuO?=
- =?us-ascii?Q?rE1DfuZPnsd1ErGzDcjiX6/byQANrYcp+XlXfGFjlQkY+bYERyQt+pr+rTMT?=
- =?us-ascii?Q?wdscS/fCUnPhYBLJHSwuXoqMNexHtxig/T1c9Pyb5f++csYYCezkfX2wIJf9?=
- =?us-ascii?Q?k0emKnCRCLEAYKfdlKEb5AqoHYw10IAV+feJPgeFNfPGukZGWicniAOgq//3?=
- =?us-ascii?Q?88gFGHGROUx3nW2o3fXYXyJrdEAJO8Gu4Dzk5ckg0Ef0svzcmMeI9l55Buje?=
- =?us-ascii?Q?lEIIWgIpEj8f82gTK9SKdcUnhkUWQCNZVAgmzdL808BCfbl3E0Co2A69kPAW?=
- =?us-ascii?Q?7O49gEIH77TGAcDlYxY/DL55f/m12twEry1EDOjnicwhtxNcrz/8d/OkhH87?=
- =?us-ascii?Q?/lK8asgMgGnqBBI+tT4iWhuHLN9Sd+HsiqfndKv4hGIgkRYF8tLDNGU1v1yG?=
- =?us-ascii?Q?3+CAgpHqmM2sNQyaeXabPmtQ1sT2bsrmQzlpWswSeU4k06fwtc7EtBp17jjw?=
- =?us-ascii?Q?1pn29FsjptQqf4WnhggYhjCLYfBMv75H0yZ7FQrRJdwBtMRiwa0bYKTF26C5?=
- =?us-ascii?Q?Pnon28KOzxnO+7KQSetpS9uSv8dr1r9cGmdYhSs4JrX7NR+W5msGhVaPwq/k?=
- =?us-ascii?Q?P/wEQJLLVTxp357J+ecuXZdATeDjkYEkqqM6I29HwXozqnJTrTpH4Hl5Ueqs?=
- =?us-ascii?Q?xR0VlU3RksD/oAPXF14HzY/uGa6Cy+YlqEIe5H0At/3tbGgTnRpM6tIY7Nqs?=
- =?us-ascii?Q?SJyMrLbvxLuyxJldiMZ4VBTjW4yQF9P4YKHz6bOTILpwFM/YwH4zuLlqLfJ/?=
- =?us-ascii?Q?TiOZ7diGSdeKUuwSekdE4HGizAFiI2OqmIMF935PSCwXTVFnHLZyDOjalrRB?=
- =?us-ascii?Q?QuPOVaxsUF3Ea0/tnfGmYzPdg4qZDcfGN1jhEjhS?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3e82b734-2236-4ce4-f63a-08da900cbe1f
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Sep 2022 13:36:03.3100
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: yQpuLiSBs3RdGjzguhSfxkfpfn5k9LSoQ6zfYtQevla/5yDNWbA3zzxc/ifOGJxj
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5361
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: drlOMToPnC3xAFT10lh6bW5aSlDSx33j
+X-Proofpoint-GUID: rPaqgr_t1NJYXw1Y3rS-QPHhwMbOHSqG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-06_07,2022-09-06_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 mlxlogscore=999 clxscore=1011 mlxscore=0 phishscore=0
+ spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209060065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 05, 2022 at 10:46:44AM +0100, Robin Murphy wrote:
+Hi Mike,
 
-> > I've been trying to understand Robin's latest remarks because maybe I
-> > don't really understand your situation right.
-> 
-> That was really just me thinking out loud to guess at how it must be
-> happening - I wasn't sure whether VFIO is actually intended to allow that or
-> not, so if not then by all means let's look at fixing that, but as I say I
-> think we're only seeing it provoke a problem at the driver level because of
-> 9ac8545199a1, and fixing VFIO doesn't fix that in general. And conversely if
-> we *can* fix that properly at the IOMMU API level then the current VFIO
-> behaviour should become benign again anyway.
+Mike Kravetz <mike.kravetz@oracle.com> writes:
 
-Okay, so there are probably other problems here that highlighted
-this..
- 
-> > IMHO this is definately a VFIO bug, because in a single-device group
-> > we must not allow the domain to remain attached past remove(). Or more
-> > broadly we shouldn't be holding ownership of a group without also
-> > having a driver attached.
-> 
-> FWIW I was assuming it might be fine for a VFIO user to hold the group open
-> if they expect the device to come back again and re-bind (for example,
-> perhaps over some reconfiguration that requires turning SR-IOV off and on
-> again?)
+> When page fault code needs to allocate and instantiate a new hugetlb
+> page (huegtlb_no_page), it checks early to determine if the fault is
+> beyond i_size.  When discovered early, it is easy to abort the fault and
+> return an error.  However, it becomes much more difficult to handle when
+> discovered later after allocating the page and consuming reservations
+> and adding to the page cache.  Backing out changes in such instances
+> becomes difficult and error prone.
+>
+> Instead of trying to catch and backout all such races, use the hugetlb
+> fault mutex to handle truncate racing with page faults.  The most
+> significant change is modification of the routine remove_inode_hugepages
+> such that it will take the fault mutex for EVERY index in the truncated
+> range (or hole in the case of hole punch).  Since remove_inode_hugepages
+> is called in the truncate path after updating i_size, we can experience
+> races as follows.
+> - truncate code updates i_size and takes fault mutex before a racing
+>   fault.  After fault code takes mutex, it will notice fault beyond
+>   i_size and abort early.
+> - fault code obtains mutex, and truncate updates i_size after early
+>   checks in fault code.  fault code will add page beyond i_size.
+>   When truncate code takes mutex for page/index, it will remove the
+>   page.
+> - truncate updates i_size, but fault code obtains mutex first.  If
+>   fault code sees updated i_size it will abort early.  If fault code
+>   does not see updated i_size, it will add page beyond i_size and
+>   truncate code will remove page when it obtains fault mutex.
+>
+> Note, for performance reasons remove_inode_hugepages will still use
+> filemap_get_folios for bulk folio lookups.  For indicies not returned in
+> the bulk lookup, it will need to lookup individual folios to check for
+> races with page fault.
+>
+> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+> ---
+>  fs/hugetlbfs/inode.c | 184 +++++++++++++++++++++++++++++++------------
+>  mm/hugetlb.c         |  41 +++++-----
+>  2 files changed, 152 insertions(+), 73 deletions(-)
 
-Once all the devices in the group are removed then something like
-pci_device_group() will have no way to discover the group again. eg
-in the SRIOV case it will just fall right down to iommu_group_alloc(),
-and that gives a new struct iommu_group and new IDR allocation.
+With linux next starting from next-20220831 i see hangs with this
+patch applied while running the glibc test suite. The patch doesn't
+revert cleanly on top, so i checked out one commit before that one and
+with that revision everything works.
 
-So in the general case this doesn't happen, I don't think any VFIO
-userspace should attempt to rely on it.
+It looks like the malloc test suite in glibc triggers this. I cannot
+identify a single test causing it, but instead the combination of
+multiple tests. Running the test suite on a single CPU works. Given the
+subject of the patch that's likely not a surprise.
 
-From an API perspective is a much saner API toward iommu using drivers
-like VFIO if those drivers only use the iommu api while they have a
-device driver attached.
+This is on s390, and the warning i get from RCU is:
 
-Regards,
-Jason
+[ 1951.906997] rcu: INFO: rcu_sched self-detected stall on CPU
+[ 1951.907009] rcu:     60-....: (6000 ticks this GP) idle=968c/1/0x4000000000000000 softirq=43971/43972 fqs=2765
+[ 1951.907018]  (t=6000 jiffies g=116125 q=1008072 ncpus=64)
+[ 1951.907024] CPU: 60 PID: 1236661 Comm: ld64.so.1 Not tainted 6.0.0-rc3-next-20220901 #340
+[ 1951.907027] Hardware name: IBM 3906 M04 704 (z/VM 7.1.0)
+[ 1951.907029] Krnl PSW : 0704e00180000000 00000000003d9042 (hugetlb_fault_mutex_hash+0x2a/0xd8)
+[ 1951.907044]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+[ 1951.907095] Call Trace:
+[ 1951.907098]  [<00000000003d9042>] hugetlb_fault_mutex_hash+0x2a/0xd8
+[ 1951.907101] ([<00000000005845a6>] fault_lock_inode_indicies+0x8e/0x128)
+[ 1951.907107]  [<0000000000584876>] remove_inode_hugepages+0x236/0x280
+[ 1951.907109]  [<0000000000584a7c>] hugetlbfs_evict_inode+0x3c/0x60
+[ 1951.907111]  [<000000000044fe96>] evict+0xe6/0x1c0
+[ 1951.907116]  [<000000000044a608>] __dentry_kill+0x108/0x1e0
+[ 1951.907119]  [<000000000044ac64>] dentry_kill+0x6c/0x290
+[ 1951.907121]  [<000000000044afec>] dput+0x164/0x1c0
+[ 1951.907123]  [<000000000042a4d6>] __fput+0xee/0x290
+[ 1951.907127]  [<00000000001794a8>] task_work_run+0x88/0xe0
+[ 1951.907133]  [<00000000001f77a0>] exit_to_user_mode_prepare+0x1a0/0x1a8
+[ 1951.907137]  [<0000000000d0e42e>] __do_syscall+0x11e/0x200
+[ 1951.907142]  [<0000000000d1d392>] system_call+0x82/0xb0
+[ 1951.907145] Last Breaking-Event-Address:
+[ 1951.907146]  [<0000038001d839c0>] 0x38001d839c0
+
+One of the hanging test cases is usually malloc/tst-malloc-too-large-malloc-hugetlb2.
+
+Any thoughts?
+
+Thanks,
+Sven
