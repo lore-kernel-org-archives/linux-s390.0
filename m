@@ -2,126 +2,325 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91AB3ECAAD5
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Sep 2022 16:32:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A00BC6FA83
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Sep 2022 05:52:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231990AbiIEQci (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Sep 2022 12:32:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39270 "EHLO
+        id S238365AbiIFFw3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Sep 2022 01:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231822AbiIEQcg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Sep 2022 12:32:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93DE42F654
-        for <linux-s390@vger.kernel.org>; Mon,  5 Sep 2022 09:32:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1662395553;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Nq/yrAoY/S8Xm7ZtUA1bcp3k0IAyIFeAXHDNpfXqDek=;
-        b=Sm1D0a8PSx8ruAgskFJVdUJ+0ForWRvQJdco56AslwhPO+jrc7YtBn1D9a3ACzHjJ5cycU
-        p0NDObCuNeAmpN7nngcztt/OqU8Hq43Dt0f+W597Z5x2RWCwsNFE+T1v93KUZDRQzt/6X7
-        dA0DDk5SULh0o50S5MFSsvcu817A4lk=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-621-EGBQk28rNmSg5eg3qsXWhA-1; Mon, 05 Sep 2022 12:32:32 -0400
-X-MC-Unique: EGBQk28rNmSg5eg3qsXWhA-1
-Received: by mail-wm1-f72.google.com with SMTP id c66-20020a1c3545000000b003a5f6dd6a25so7646883wma.1
-        for <linux-s390@vger.kernel.org>; Mon, 05 Sep 2022 09:32:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:organization:from
-         :references:cc:to:content-language:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=Nq/yrAoY/S8Xm7ZtUA1bcp3k0IAyIFeAXHDNpfXqDek=;
-        b=TSpG34ktOSVp/60k59lTd6Ia6kpwFo84/x2ukrW3j188yMpOs/t+/1b6/zSmbRKXwI
-         LLX/LWYPLim/jLnH+M1GCkcprGMkT5bdPxR6jiR3tZlUrg9g8IA1Pemfd37A/u1O2nnU
-         rR/p3KuUxAf+y+rxPdjs4PL4v9cHcYKpYVDZh9aM0hUJfJfPVjoMv7Y50Pz9py/Jb6SR
-         NN4twH4/TvVI+PN+QGHimS74PwWy/Rg/giOVo5Ir2f8MJOWS51YahGlK4lNus8GN9WAH
-         sJtSsV4jtsMojxpOP0pnWqyuinnWBxNbzThJ8cSPTZDN8GAVKBDQFmVdCZhn2ZDtYeG5
-         K0yQ==
-X-Gm-Message-State: ACgBeo2y8byHC3dW/+uiXjCb+WaKkeVGdD4nKef6I7vyhoefOIQJ0k4a
-        cTOFDrgACHeDKNCSYg53C7j7zFIAhGbrDq+giacG/UNN2drjDdDc/3S9LZOMIx9MoEZxkHmRt7V
-        TPXDDeilGjDCKgjFO/wTT2Q==
-X-Received: by 2002:a05:600c:410c:b0:3ab:ac5:c126 with SMTP id j12-20020a05600c410c00b003ab0ac5c126mr10014965wmi.158.1662395551505;
-        Mon, 05 Sep 2022 09:32:31 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7UaTlgCWrird/WwC6iciEBOOSvADvM81ZF6WYU89A5DSeixda30BJUGqKXUQGmLy6BKMHOWQ==
-X-Received: by 2002:a05:600c:410c:b0:3ab:ac5:c126 with SMTP id j12-20020a05600c410c00b003ab0ac5c126mr10014954wmi.158.1662395551253;
-        Mon, 05 Sep 2022 09:32:31 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f0d:ba00:c951:31d7:b2b0:8ba0? (p200300d82f0dba00c95131d7b2b08ba0.dip0.t-ipconnect.de. [2003:d8:2f0d:ba00:c951:31d7:b2b0:8ba0])
-        by smtp.gmail.com with ESMTPSA id bd7-20020a05600c1f0700b003a331c6bffdsm11341158wmb.47.2022.09.05.09.32.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 05 Sep 2022 09:32:30 -0700 (PDT)
-Message-ID: <08c54ddd-b74e-9f6c-f5eb-13e994530ad6@redhat.com>
-Date:   Mon, 5 Sep 2022 18:32:29 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
+        with ESMTP id S238370AbiIFFvq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Sep 2022 01:51:46 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2085.outbound.protection.outlook.com [40.107.220.85])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAADD5B063;
+        Mon,  5 Sep 2022 22:51:19 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=GOrna5usLkH24rKinWMeFkkBx7NbMAgG51EADVJDZDm8qdAquXu8mgY7LOmQ3n1GBwnRX3KDEXBgJg/9EMuUUSs8SJjL771IgH1spPekSUNbtJ1cj4BS9GYeCSUT8Pv+eYkeEqcA7Zefrry8BpfuTpQ88HCLh2pXlpZpId78Q6r86kR5F+LwCbkVepDmBPTh5sMtcMRN+YXMWoEYqRF6ZWLqFITiVuzA7RBS2eZLIoz1cPVM33evMBmJYZnDbHZqpZ4UIFQMy35Y5iychbysjX+xdhKXUSP6Tmi0mf9B42ttQvt7nkw7VfEy/TVssxQtJBWuDOtO72BYHAm/O0eoVA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=MvmWjItMQDGmiM1RgZNL8NOYWfLoHxKHWu7BDH/h0i4=;
+ b=NM5NVYB/BMz52/AxLq54S2Eib3mEn1D2rZFQkEd12TkkhWfVqWkUzHHseO1zuBBZlQfc6tjSMTHvM+dyaAJQ+o3Z0CXFXys2cO7poIPmbcFSHQXs60o1b0++uFXJgiqDh0t6AXOxzVUvTkhz1D2Z+Ys4ygJzDaO0p0+Je9OP45uT8VQYWV2LVxzZybGtfh9Cyw6ypII4iFh1diz8bnqdhXYhMy1UJzP+gz2g8x67KiUOJsBy5QCTNGEYIb7IF+pFcDkr16hptOxA9ZuVz802dVHnm8t2vQfRc2r96DKbDmoWmCqXP5Q9qR0MiCDbaHgYyEvLIqCxvZhbGvXbD8joew==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MvmWjItMQDGmiM1RgZNL8NOYWfLoHxKHWu7BDH/h0i4=;
+ b=SLM63BCA+/4a8sA5jKjyE2AVFl9wmXzEx8QDM6L1QcTmKm+687UNMggMixbpsCTYP9Hl+HWxP9vOKStm2YMwXrKXtABwa+BTA9tSCatkd/D+arxt5Yl9QLudAB2xMrJb8uWjRm0WcOmXp9hMOTHT/2GlaXr++3BsO5SLFLRqA44=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from PH7PR12MB6588.namprd12.prod.outlook.com (2603:10b6:510:210::10)
+ by DS0PR12MB7511.namprd12.prod.outlook.com (2603:10b6:8:139::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.12; Tue, 6 Sep
+ 2022 05:51:14 +0000
+Received: from PH7PR12MB6588.namprd12.prod.outlook.com
+ ([fe80::d058:d925:c09b:de2]) by PH7PR12MB6588.namprd12.prod.outlook.com
+ ([fe80::d058:d925:c09b:de2%5]) with mapi id 15.20.5588.010; Tue, 6 Sep 2022
+ 05:51:14 +0000
+Message-ID: <9d7a9f37-f037-00b8-afd3-72bb840a90df@amd.com>
+Date:   Tue, 6 Sep 2022 11:20:53 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH] perf: Rewrite core context handling
 Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, svens@linux.ibm.com
-References: <20220905084148.234821-1-pmorel@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH] KVM: s390: vsie: fix crycb virtual vs physical usage
-In-Reply-To: <20220905084148.234821-1-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     peterz@infradead.org
+Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
+        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
+        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
+        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
+        will@kernel.org, robh@kernel.org, mingo@redhat.com,
+        catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org,
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
+        santosh.shukla@amd.com, ravi.bangoria@amd.com
+References: <20220829113347.295-1-ravi.bangoria@amd.com>
+From:   Ravi Bangoria <ravi.bangoria@amd.com>
+In-Reply-To: <20220829113347.295-1-ravi.bangoria@amd.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: PN2PR01CA0098.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:c01:27::13) To PH7PR12MB6588.namprd12.prod.outlook.com
+ (2603:10b6:510:210::10)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 383abcd3-000c-4e8d-20ac-08da8fcbcf2f
+X-MS-TrafficTypeDiagnostic: DS0PR12MB7511:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: SSVKaITMMriznskGIX64kkA0n/pIcXVGFQ535RgTG4WEBk0vuLRYlbHUlfjwZRhyF6vEli5mS/mdN0V5Y6Xy8WTznM0nzZhOYGcAePqtiBNtgs/7XX2u9KGQDPeRE4oZbJJbL+OPrEwfkmz4FQ0BHgKf6I+YCSkRvWdUZuw673+CPNfMIjSvbozkfy/RF6acaoXg70LYgpcL1UqF3420JE+8VlHUc6aXUk0F3e0nCP3Ppujn1Kg/GEp3YrTz+4ajpmAaPARkBPtu7NLUstlz5D7vi5K6Qz3bzDC8JKIoUNmcOtAohgpTaKk8qVziX9IGfOM02V4q5IoMsryB2gY9oqTEFYUoNTvmqcJwM0hiHnNghI+NaUaTRmHcb3ZqhW6kFCfVTjdtWbS1q3+KlASHd+GGPfD/3QDJLNr3gkb95JROpwJKgOIffN6vPiMitsv771/kFLEhXcVKIKSRv2r1+TLQBhi6ulHGBAPjfpfwm+IXSazCJEY98rTzKlvUOWkyBmSQOqBVgdrtKlu6pcrfqUwB/tJ4M4GJbNQ2Sm9rqi48pGSLpGfPTe2tmAU9FqaApSbJmLCCKvXkqQTg//jw62Z+QeeRIK00aJILgzF6c5yBjvilRkJxBUhbsXgKP6Pysf/Z1SJ6dqbIGQEMpvZYiF72PSkC/ObEJOw1yarwmShR0699tEptwZN1t+OGRqitlDuUZq7aPFl/Ju6WxHyL/xbimuZiDgXsHPHjuvyglClVop5ynAqNRhfjAH35wjrKcGZAKBFWPKH8+eGaXSBahAO1YZT9gAu9sBf/vlRQnRlYXz37tklJQ4HGkYXEhP58
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB6588.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(346002)(39860400002)(136003)(396003)(366004)(376002)(66556008)(478600001)(66946007)(6486002)(83380400001)(186003)(41300700001)(5660300002)(6666004)(2616005)(8936002)(66476007)(4326008)(8676002)(44832011)(7416002)(38100700002)(6512007)(31696002)(31686004)(2906002)(26005)(6916009)(6506007)(316002)(36756003)(86362001)(21314003)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?OVloV0poTkRjK0dQZEJzTU9wU1NtdlJvVWkvekZOTnJhZk1nWUZYQkNnZ1Zm?=
+ =?utf-8?B?MHpsQlR4ZkxnVTZGM29YdlpaVjAxek5zdzg1dWUvaHRxMHhTSElPaGQvdW5r?=
+ =?utf-8?B?MlpkdUpzMmdkY2NDdDIxOGZhb2F5YW4xNTVxSE1xUXN2OXFHTS9KNjJwUHlw?=
+ =?utf-8?B?TFF6dG53bzRkV3ZpT0tIbTJFTEQ4V0pXcXZFcTFnU3NhR0wxVWEzS2swbzZn?=
+ =?utf-8?B?VmdwUW5mdVdVU0dNYitKZEY3aVNDZWt6diszc2dwS3FIWFB0ejZCaWFhV1hC?=
+ =?utf-8?B?eWVRaGNGUTBNM2pDNUdEbDlCeHViL3FWcFFqTjlLejF1VFNIN2dla1ZRbUJx?=
+ =?utf-8?B?VXRYWmg2aSs0aUFWZ2xuTkVteUdkcExzSk5jVE9EQkFjUEo4ZE1EZEljUUJJ?=
+ =?utf-8?B?bzZaRjZOa1RBK3k4bGdiT2FNVmFaNXgzSzRiclpJNG4rTTMvNFlCSjQ3ZlRS?=
+ =?utf-8?B?Um9MVitVNjlXSFRQWFdQRXJsVy95MmRHbUJFZWRkTHdZT2lZWW0xRmFMZnlO?=
+ =?utf-8?B?Z1U3dXJPclJmQzZyU1ZZdG9aazVTSGlFbWFuYUJjRkt3OWtRYXIxQ0Zpeldo?=
+ =?utf-8?B?NVRhUjZJWjQwYlFEVjA5czlJQWhyZGRRYWIyQ0pneFVESzdobndISEJNS3d2?=
+ =?utf-8?B?aG1iWnpTOW9tSnVRVEJUYWtVU3Q5bURjd2JHOWhWbVdxQStGeDNZV1VzT0Iz?=
+ =?utf-8?B?azhXYmdqTG1lZmJnOUdoYkx0UEZwcXZLSCtnM3RudmlVdEtrRGFmakg2TC9x?=
+ =?utf-8?B?RHpubTFCREhyUjFFRjZBblFXYmppS2RCdElZNGdnOHU5aTVVeS9kR1MvYWI1?=
+ =?utf-8?B?Z25rd2x6aWtzN3JlbWRPNnF5NWxhT1pnNHpHNmpEZ3QybXF1U3FzbUVGdG1u?=
+ =?utf-8?B?R2M0VGVVY1hmbzZEajQzVEF6ckRUeXV6VDN3TVdldzRtWUpUZDJZMG42eXIx?=
+ =?utf-8?B?bnhhRTViT3c0Qk1LM3I3LzhnTzJrZjVVWEJQbi9XN3FoMlNZOWRkMUhNYUNU?=
+ =?utf-8?B?YXltMi92WEdNeUdseVBjcm5UemlmM2Mwd21vUmFwbkx4VEN6UEk5TWJJQWJo?=
+ =?utf-8?B?L0hFOWFTeUxZN0toaEVrbDJFQzE3NTUveVVZdlFUZi9GZGE5Skt5OFJmek5R?=
+ =?utf-8?B?Y0VhM1c4a3hVYWJISVRWazZXNE1UV21yWGY5TTdUcWw4cUIzajdDY2JJcGtz?=
+ =?utf-8?B?WlJ2NFNHcGt3RHUrZThOd3UxdDVwc0J2UlM4UVduV3hHa3RObkRlaTJBUUhK?=
+ =?utf-8?B?YkRiRTIzTFllV2tTaW1JUUk3VjhEUmJGeCtudVl5K0FJWHhFYWI5cG4wdXFp?=
+ =?utf-8?B?RmtkOUpSL1NTMDYvSXVRZ1VQQmh4SnF2MytieFIwN3Y3TWZkUGhkSXB5Wmt2?=
+ =?utf-8?B?WnRaOTN0RXJyNXhFOXpEZVZacDk2QnBlRHB3L1BtejNqL001OW1XTGNsS2hV?=
+ =?utf-8?B?dTQvMHV3c1FXQS9mUVBxSmZtUWJZNmpSTUZHWEtGbVAydEw4YVJvbno4eTk4?=
+ =?utf-8?B?dkZUU1lweUp0dDdSeVRmeGdvZ1pqMXZiQVEwYjhpU1orcThucC96UDVma2tl?=
+ =?utf-8?B?K1pzNlI5aktOUUZaa3BXYzE5NmdjTWVkYktNbFBXUXp1aWlaRURFTXRlcEtm?=
+ =?utf-8?B?RTRRREZMcC9jQmp0WDhHbzloTUNJaGZCS29RbWFUMWlVNmpvQXFnOGpIMFVT?=
+ =?utf-8?B?NjF3U0RyV0pJSXBVdVlpcmxnRDl5UG1xWkVpdCtFb2xMOVc1VDBKWTNTU3A5?=
+ =?utf-8?B?SGdadUJUUTczc1ZwRmI4VFVkR0VuZ3VXNTBqQW8xTUdmYXRuUE1qZEp5M05q?=
+ =?utf-8?B?V0pLZ2h1R0pjL0NMYzBPdG93VzJxOE9lTHhaMHlzL3BobzB3NXlnQU05bDZE?=
+ =?utf-8?B?ZlBqNXVIL3V4dDN3MnhsaW5lMytnRWNIZlFJV0c0VE4zOG1pZ0xZR2lPNmNi?=
+ =?utf-8?B?RmRXZEFZeGhnMklzRm44RW5HR2JBM2VsWC9WV1JSK1FmOU9KcFBkTVNLYVk1?=
+ =?utf-8?B?NWxjRWtWU3RpRVRZZVRENmZRSWI4VFN0SFQ1Y3N4RmxmZkp5TUlDOXRRZFg5?=
+ =?utf-8?B?TUxUU25FUTlpM3Z1cUl0Yk44aGl6Q24yOGJuL25XRzIzUDFmU3dRMTdadU5t?=
+ =?utf-8?Q?HQZMrSNBD+N2ec3co+MMTQdYZ?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 383abcd3-000c-4e8d-20ac-08da8fcbcf2f
+X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB6588.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Sep 2022 05:51:14.7357
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: um6o2dqpFfNi60Fk4NSiASHGF5yjdbviRyFulZZAJQ0ovQ+l2l+qiavW9QTycN7QgQ+6e7PXBVSatdqL7N+eDw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7511
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 05.09.22 10:41, Pierre Morel wrote:
-> Prepare VSIE for architectural changes where lowmem kernel real and
-> kernel virtual address are different.
+> @@ -9752,10 +9889,13 @@ void perf_tp_event(u16 event_type, u64 count, void *record, int entry_size,
+>  		struct trace_entry *entry = record;
+>  
+>  		rcu_read_lock();
+> -		ctx = rcu_dereference(task->perf_event_ctxp[perf_sw_context]);
+> +		ctx = rcu_dereference(task->perf_event_ctxp);
+>  		if (!ctx)
+>  			goto unlock;
+>  
+> +		// XXX iterate groups instead, we should be able to
+> +		// find the subtree for the perf_tracepoint pmu and CPU.
+> +
+>  		list_for_each_entry_rcu(event, &ctx->event_list, event_entry) {
+>  			if (event->cpu != smp_processor_id())
+>  				continue;
 
-Bear with me, it used to be
+This one was simple enough so I prepared a patch for this. Let
+me know if you see any issues with below diff.
 
-	crycb = (struct kvm_s390_crypto_cb *) (unsigned long)crycb_o;
-	apcb_o = (unsigned long) &crycb->apcb0;
+---
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 820c56c66b26..e0232e0bb74e 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -9807,6 +9807,44 @@ static struct pmu perf_swevent = {
+ 
+ #ifdef CONFIG_EVENT_TRACING
+ 
++static void tp_perf_event_destroy(struct perf_event *event)
++{
++	perf_trace_destroy(event);
++}
++
++static int perf_tp_event_init(struct perf_event *event)
++{
++	int err;
++
++	if (event->attr.type != PERF_TYPE_TRACEPOINT)
++		return -ENOENT;
++
++	/*
++	 * no branch sampling for tracepoint events
++	 */
++	if (has_branch_stack(event))
++		return -EOPNOTSUPP;
++
++	err = perf_trace_init(event);
++	if (err)
++		return err;
++
++	event->destroy = tp_perf_event_destroy;
++
++	return 0;
++}
++
++static struct pmu perf_tracepoint = {
++	.task_ctx_nr	= perf_sw_context,
++
++	.event_init	= perf_tp_event_init,
++	.add		= perf_trace_add,
++	.del		= perf_trace_del,
++	.start		= perf_swevent_start,
++	.stop		= perf_swevent_stop,
++	.read		= perf_swevent_read,
++};
++
+ static int perf_tp_filter_match(struct perf_event *event,
+ 				struct perf_sample_data *data)
+ {
+@@ -9856,6 +9894,49 @@ void perf_trace_run_bpf_submit(void *raw_data, int size, int rctx,
+ }
+ EXPORT_SYMBOL_GPL(perf_trace_run_bpf_submit);
+ 
++
++static void __perf_tp_event_target_task(u64 count, void *record,
++					struct pt_regs *regs,
++					struct perf_sample_data *data,
++					struct perf_event *event)
++{
++	struct trace_entry *entry = record;
++
++	if (event->attr.config != entry->type)
++		return;
++	/* Cannot deliver synchronous signal to other task. */
++	if (event->attr.sigtrap)
++		return;
++	if (perf_tp_event_match(event, data, regs))
++		perf_swevent_event(event, count, data, regs);
++}
++
++static void perf_tp_event_target_task(u64 count, void *record,
++				      struct pt_regs *regs,
++				      struct perf_sample_data *data,
++				      struct perf_event_context *ctx)
++{
++	struct perf_event *event, *sibling;
++
++	event = perf_event_groups_first(&ctx->pinned_groups, smp_processor_id(),
++					&perf_tracepoint, NULL);
++	for (; event; event = perf_event_groups_next(event, &perf_tracepoint)) {
++		__perf_tp_event_target_task(count, record, regs, data, event);
++		for_each_sibling_event(sibling, event) {
++			__perf_tp_event_target_task(count, record, regs, data, sibling);
++		}
++	}
++
++	event = perf_event_groups_first(&ctx->flexible_groups, smp_processor_id(),
++					&perf_tracepoint, NULL);
++	for (; event; event = perf_event_groups_next(event, &perf_tracepoint)) {
++		__perf_tp_event_target_task(count, record, regs, data, event);
++		for_each_sibling_event(sibling, event) {
++			__perf_tp_event_target_task(count, record, regs, data, sibling);
++		}
++	}
++}
++
+ void perf_tp_event(u16 event_type, u64 count, void *record, int entry_size,
+ 		   struct pt_regs *regs, struct hlist_head *head, int rctx,
+ 		   struct task_struct *task)
+@@ -9886,29 +9967,15 @@ void perf_tp_event(u16 event_type, u64 count, void *record, int entry_size,
+ 	 */
+ 	if (task && task != current) {
+ 		struct perf_event_context *ctx;
+-		struct trace_entry *entry = record;
+ 
+ 		rcu_read_lock();
+ 		ctx = rcu_dereference(task->perf_event_ctxp);
+ 		if (!ctx)
+ 			goto unlock;
+ 
+-		// XXX iterate groups instead, we should be able to
+-		// find the subtree for the perf_tracepoint pmu and CPU.
+-
+-		list_for_each_entry_rcu(event, &ctx->event_list, event_entry) {
+-			if (event->cpu != smp_processor_id())
+-				continue;
+-			if (event->attr.type != PERF_TYPE_TRACEPOINT)
+-				continue;
+-			if (event->attr.config != entry->type)
+-				continue;
+-			/* Cannot deliver synchronous signal to other task. */
+-			if (event->attr.sigtrap)
+-				continue;
+-			if (perf_tp_event_match(event, &data, regs))
+-				perf_swevent_event(event, count, &data, regs);
+-		}
++		raw_spin_lock(&ctx->lock);
++		perf_tp_event_target_task(count, record, regs, &data, ctx);
++		raw_spin_unlock(&ctx->lock);
+ unlock:
+ 		rcu_read_unlock();
+ 	}
+@@ -9917,44 +9984,6 @@ void perf_tp_event(u16 event_type, u64 count, void *record, int entry_size,
+ }
+ EXPORT_SYMBOL_GPL(perf_tp_event);
+ 
+-static void tp_perf_event_destroy(struct perf_event *event)
+-{
+-	perf_trace_destroy(event);
+-}
+-
+-static int perf_tp_event_init(struct perf_event *event)
+-{
+-	int err;
+-
+-	if (event->attr.type != PERF_TYPE_TRACEPOINT)
+-		return -ENOENT;
+-
+-	/*
+-	 * no branch sampling for tracepoint events
+-	 */
+-	if (has_branch_stack(event))
+-		return -EOPNOTSUPP;
+-
+-	err = perf_trace_init(event);
+-	if (err)
+-		return err;
+-
+-	event->destroy = tp_perf_event_destroy;
+-
+-	return 0;
+-}
+-
+-static struct pmu perf_tracepoint = {
+-	.task_ctx_nr	= perf_sw_context,
+-
+-	.event_init	= perf_tp_event_init,
+-	.add		= perf_trace_add,
+-	.del		= perf_trace_del,
+-	.start		= perf_swevent_start,
+-	.stop		= perf_swevent_stop,
+-	.read		= perf_swevent_read,
+-};
+-
+ #if defined(CONFIG_KPROBE_EVENTS) || defined(CONFIG_UPROBE_EVENTS)
+ /*
+  * Flags in config, used by dynamic PMU kprobe and uprobe
 
-and now it's
-
-	apcb_o = crycb_o + offsetof(struct kvm_s390_crypto_cb, apcb0);
-
-
-So the real issue seems to be
-
-	crycb = (struct kvm_s390_crypto_cb *) (unsigned long)crycb_o;
-
-because crycb_o actually is a guest address and not a host address.
-
-
-But now I'm confused, because I would have thought that the result 
-produced by both code would be identical (I completely agree that the 
-new variant is better).
-
-How does this interact with "lowmem kernel real and kernel virtual 
-address are different." -- I would have thought that &crycb->apcb0 
-doesn't actually access any memory and only performs arithmetical 
-operations?
-
-> 
-> When we get the original crycb from the guest crycb we can use the
-> phys_to_virt transformation, which will use the host transformations,
-> but we must use an offset to calculate the guest real address apcb
-> and give it to read_guest_real().
-
-Can you elaborate where phys_to_virt() comes into play?
-
-If this is an actual fix (as indicated in the patch subject), should 
-this carry a
-
-	Fixes: 56019f9aca22 ("KVM: s390: vsie: Allow CRYCB FORMAT-2")
-
--- 
-Thanks,
-
-David / dhildenb
-
+---
