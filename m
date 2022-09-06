@@ -2,210 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26B8AECAAA1
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Sep 2022 13:02:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C043C6FA86
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Sep 2022 13:43:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240091AbiIFNCI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Sep 2022 09:02:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60112 "EHLO
+        id S233540AbiIFNnb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Sep 2022 09:43:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239912AbiIFNCF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Sep 2022 09:02:05 -0400
-Received: from corp-front07-corp.i.nease.net (corp-front07-corp.i.nease.net [59.111.134.157])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151713E762;
-        Tue,  6 Sep 2022 06:02:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=corp.netease.com; s=s210401; h=Received:From:To:Cc:Subject:
-        Date:Message-Id:MIME-Version:Content-Transfer-Encoding; bh=HN2Mc
-        O4xu5s1yDc9quFJmm947U7zeu6eeNVixn18oFU=; b=fgWu9iEHOPYQpSW0lemeU
-        s2jQpFHrwCbs3gR6OCm+K/BoMLFI6ZnqQBlqCKio0Bzsumn81b6fh7kB/NXtSOCu
-        FKh5hUI423jn46YE3xRXeep50a/LE5hnJhmyssGqlV85BUSy7UIqdsGSUKGNs43A
-        IREOIwGspe60vWIMMICAcQ=
-Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
-        by corp-front07-corp.i.nease.net (Coremail) with SMTP id nRDICgCX6+e1RBdj_dYXAA--.49705S2;
-        Tue, 06 Sep 2022 21:01:41 +0800 (HKT)
-From:   liuyacan@corp.netease.com
-To:     wenjia@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kgraul@linux.ibm.com, kuba@kernel.org
-Cc:     tonylu@linux.alibaba.com, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, liuyacan@corp.netease.com,
-        netdev@vger.kernel.org, pabeni@redhat.com,
-        ubraun@linux.vnet.ibm.com, wintera@linux.ibm.com
-Subject: [PATCH net v5] net/smc: Fix possible access to freed memory in link clear
-Date:   Tue,  6 Sep 2022 21:01:39 +0800
-Message-Id: <20220906130139.830513-1-liuyacan@corp.netease.com>
-X-Mailer: git-send-email 2.20.1
+        with ESMTP id S233467AbiIFNmK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Sep 2022 09:42:10 -0400
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2062b.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe5b::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBCCE7E817;
+        Tue,  6 Sep 2022 06:37:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=n/+vl6EOAYN4zOEo5ho1Jid3O1jfBmKfJt8/r2rBfBni0rF5dhu1GLAxGi3tt0YKi3s7tofmjo//REAXm5s39BQn7NKQuKIvM9gNF7ZVt+3mvXwO7JUBZKgJ1OTpxgYsA/BZOqVBBVeaRxZH20nxgT74SADB6MavRoyGIOxLH/IdGgJOhsxqwcqPBF1+TJ7w6YgnfWxUUcdim6Us0j5c7Rx3QUwuoHW+BAF6ASP520GifhVKFgUBb+47r1Y45ek0qnzDC1zZpR8yzkaEB3R0GJsW0FOnMcntPcq52sD/vsk9cIdC+TEI4Ui+UvOipRYwDlW+LWglUU7i1vX/NiTQHQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=WCzWVssRSULZoWfektUvK9x7zXbZ13or+Q/SsoUxBBg=;
+ b=oYKFJBF9q9vd7qP4tOScGmIqv+kBzBx4oZyw9yWgcrHVAMNslGyoiMvSxcUWheEkTCGaRIfQGuDJqTpl++QcrOZ/qjx4Gg7WIBQC8Mv9KaMXG/7/jiViAsAm/Omq/31hb7zghl2XJ6cDrZ11yzeObOS3wqrq1gX2hczuObTwbC3iCpbQN93R9hXBlsL94gf2h6sURR5dOgUSSg0KzYXo8B5vX5sqAvarpM1XdgqaypAs1mrllvzADVani3j7jDC5tjjiKLQInjLGpQA2cpRbU1w38vHxz4NdP5fLqCz0kumDVT1+dRguc5klbl5ZzyM1kk3/Xmv0GCSYU4El59HK7g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=WCzWVssRSULZoWfektUvK9x7zXbZ13or+Q/SsoUxBBg=;
+ b=CuLMycfwp3mCEwDqIo0Xjcg6xjVm/waDMYVqiBQ6q6BjXVDQryzMBAC3Lw3QgGiMcDNDE5YG+7LD97BXsKYdXeCBYvJKSVxogGnotWv67QIbSpixpjTdI9R+VNgXnVtdtTvQm9at3E7JYjAnhobIIqsuc79thnKEfzlCxFzx8+SpIi3itdtE60GnpDY05aUJ2/61azphuPV9Ks0Rjp05XeinMFafK1qEQ0KOq1eL54dxiRx0fU0XBMwhl4NIBFT8RJ+f77pBb4yF/yuiPmlz0/T9+UZmPjHwe99JDarv1cwy7J4bQWXzNOzZA9XgQGn/6l5odQ3FwDJi8aFFbfSTOQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by BL1PR12MB5361.namprd12.prod.outlook.com (2603:10b6:208:31f::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.10; Tue, 6 Sep
+ 2022 13:36:03 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::462:7fe:f04f:d0d5%7]) with mapi id 15.20.5588.018; Tue, 6 Sep 2022
+ 13:36:03 +0000
+Date:   Tue, 6 Sep 2022 10:36:02 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        Alex Williamson <alex.williamson@redhat.com>,
+        linux-s390@vger.kernel.org, schnelle@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, joro@8bytes.org,
+        will@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] iommu/s390: Fix race with release_device ops
+Message-ID: <YxdMwoC+58NvydY3@nvidia.com>
+References: <20220831201236.77595-1-mjrosato@linux.ibm.com>
+ <20220831201236.77595-2-mjrosato@linux.ibm.com>
+ <3b065fb5-3ca7-8f48-bdf7-daf7604312df@arm.com>
+ <369ad331-8bdc-d385-a227-f674bd410599@linux.ibm.com>
+ <YxEYAcFK0EdahXzJ@nvidia.com>
+ <273fdd58-549c-30d4-39a9-85fe631162ba@linux.ibm.com>
+ <YxI7kzuchcJz8sRX@nvidia.com>
+ <ca1ba9d8-8d68-5869-9905-fce431ca14f8@arm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ca1ba9d8-8d68-5869-9905-fce431ca14f8@arm.com>
+X-ClientProxiedBy: BL0PR03CA0015.namprd03.prod.outlook.com
+ (2603:10b6:208:2d::28) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: nRDICgCX6+e1RBdj_dYXAA--.49705S2
-X-Coremail-Antispam: 1UD129KBjvJXoW3ArWUKF15AF18XFy8Gw1kGrg_yoW7trWDpF
-        47Jr17Cr48Xr1DXF1kCr18Zwn8t3ZFkF1rGrnF9r1rAFn8Gw18tr1Sqry2vFWDJF4qqa4I
-        vw48Jw1xKrs8XaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUULYb7IF0VCFI7km07C26c804VAKzcIF0wAFF20E14v26r4j6ryU
-        M7CY07I20VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2
-        IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84AC
-        jcxK6xIIjxv20xvEc7CjxVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84
-        ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2kK67ZEXf0FJ3sC6x9vy-n0Xa0_Xr1Utr1k
-        JwI_Jr4ln4vE4IxY62xKV4CY8xCE548m6r4UJryUGwAS0I0E0xvYzxvE52x082IY62kv04
-        87Mc804VCqF7xvr2I5Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
-        JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
-        AKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2xKxwAKzVCY
-        07xG64k0F24l7I0Y64k_MxkI7II2jI8vz4vEwIxGrwCF04k20xvY0x0EwIxGrwCF72vEw2
-        IIxxk0rwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7vE0wC20s026c02F40E14v26r1j6r18
-        MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr4
-        1lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l
-        IxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4
-        A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0pRp6wAUUUUU=
-X-CM-SenderInfo: 5olx5txfdqquhrush05hwht23hof0z/1tbiBQABCVt7717U9AAJs1
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 3e82b734-2236-4ce4-f63a-08da900cbe1f
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5361:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: o0t5V1fSrMjNK7PrvqgBe/W6N3IAN1hRZ/7r6PCQd+C4FgUUXALL5irTjPj5LdKOrXGB6EJi6J3x+voptsf7SM1hhYkdM60hNFbHdBEe1Zfeh1oHDYOgilhgyOcqXltf9hlZS6fyYay5vRtJljUEZiOsteLRvQFmFynqETxIGh8mfyfsA/pzdvzc3CIDy7oVZgPajwN0+PGryIYkIwVOasJDYf3Qn7iemtzQq/LxVCzEqC48ReHqZblXBl2z3fmXPm9z/cmoJMbwLBprexmqph0C2h9uASOKwj+VqdKkmZjPAjioZFp0iQ+zFjPHZPH7szowyCvkXvfwuOzI+e030PQjmjwv0TeEIxdjXlmvyTwOUVgTDxWFe/J4FsL7+myNdtjF4lg9drafJmQRsJgBp1kZpKwVy1hcPE+/cIgxMVXIg32YSHFg/X7pjndKvIqY+PpjEi0GPOpDv7KeftRMcQFgkcfKFsMT7pzGbvPppezmsc6ToJDa/hlGNWGyrozfAwipF2PgpsjQR9C5E2KGw9gPameZLA6j/oB9l7i/+etJFNUorIrb9u0XmGBB0Hij6Y5TbNjuypUVAH+u0nmHdN8mXnag2UWRLjJ9NwHqrpJMrOU415hN0HJK/AInRzSg9jtdJRrgtQ2SsSnRmPfIJu9lmsVWROWU9/a5gT9SoNMXbS4Sx6w4JXtQ3uGIQ0/n7kTwwF7EvZ33RreV/wSKeOd20fV54WIMeiDWq+nKsXjF7aZbTF6pZGo/ovLarKkV
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(376002)(136003)(346002)(396003)(39860400002)(8676002)(54906003)(83380400001)(66476007)(478600001)(66946007)(6916009)(36756003)(4326008)(316002)(66556008)(6486002)(41300700001)(2906002)(2616005)(6512007)(86362001)(6506007)(26005)(5660300002)(7416002)(186003)(8936002)(38100700002)(67856001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?uSupAg83MF7ITAdU2v3+nebn+/IMlB27jUKd2Lsi38kPw0mL1Iv4C28KDeu9?=
+ =?us-ascii?Q?T6NRr8VoTQxWi0xCyPY8r+ABmwGo5Ld6ox4dA4rB3KV8cmOU2d97Dq01J/7B?=
+ =?us-ascii?Q?sDaxbvydt16NQh9LYAjOaNPUNB151DMKgda531U98H+oyxItvr80sGJD/kci?=
+ =?us-ascii?Q?ddRynxxCJqdFrY4SSJ5ms0SMS/Sf6iHS/+VU9ZI/5a8TCeSIj77cq0jFJsGO?=
+ =?us-ascii?Q?eySKgIBDdKksuXVWAJ+QeR3BWwALFR6fp9pwosg36fTS/tPwW7pzajVxnXWa?=
+ =?us-ascii?Q?VMedgAeO80o4CnipFwDikp1lL58GANK5tt3EhXKcIsoHtRIqonuiQSlI3awT?=
+ =?us-ascii?Q?erIc+2onw0GGsZOPH+tNZC706i74g+7WKl31LmFClz9XjLaYUidi0wYEFs9g?=
+ =?us-ascii?Q?47IKjze7lNO8ecfbwsEuu33nZ34FtCWkGIhn4rAKiGv8qYfApENaFUYr3B1J?=
+ =?us-ascii?Q?epWTOlE51E1p1NohNc9zZL+m6UinrJTJgYfkw8P/6Vaudm1C7qht9QfOSdhU?=
+ =?us-ascii?Q?ZVuscQn50NugOjSdsrrJaJUCC6HTNmPPWJBhY1XkU2xqSZYvL5KizBLylqS3?=
+ =?us-ascii?Q?RmS51yDiXFlUhhBq212gdT8670cdNlSDDYY0TJZQrRlcMFxhT2H9FYscbSuZ?=
+ =?us-ascii?Q?4rHf13obDQuDx+UJwtSvxgAGkr8VNST+XPUKAcA7P3WQjOu/iCq1DM8F1zuO?=
+ =?us-ascii?Q?rE1DfuZPnsd1ErGzDcjiX6/byQANrYcp+XlXfGFjlQkY+bYERyQt+pr+rTMT?=
+ =?us-ascii?Q?wdscS/fCUnPhYBLJHSwuXoqMNexHtxig/T1c9Pyb5f++csYYCezkfX2wIJf9?=
+ =?us-ascii?Q?k0emKnCRCLEAYKfdlKEb5AqoHYw10IAV+feJPgeFNfPGukZGWicniAOgq//3?=
+ =?us-ascii?Q?88gFGHGROUx3nW2o3fXYXyJrdEAJO8Gu4Dzk5ckg0Ef0svzcmMeI9l55Buje?=
+ =?us-ascii?Q?lEIIWgIpEj8f82gTK9SKdcUnhkUWQCNZVAgmzdL808BCfbl3E0Co2A69kPAW?=
+ =?us-ascii?Q?7O49gEIH77TGAcDlYxY/DL55f/m12twEry1EDOjnicwhtxNcrz/8d/OkhH87?=
+ =?us-ascii?Q?/lK8asgMgGnqBBI+tT4iWhuHLN9Sd+HsiqfndKv4hGIgkRYF8tLDNGU1v1yG?=
+ =?us-ascii?Q?3+CAgpHqmM2sNQyaeXabPmtQ1sT2bsrmQzlpWswSeU4k06fwtc7EtBp17jjw?=
+ =?us-ascii?Q?1pn29FsjptQqf4WnhggYhjCLYfBMv75H0yZ7FQrRJdwBtMRiwa0bYKTF26C5?=
+ =?us-ascii?Q?Pnon28KOzxnO+7KQSetpS9uSv8dr1r9cGmdYhSs4JrX7NR+W5msGhVaPwq/k?=
+ =?us-ascii?Q?P/wEQJLLVTxp357J+ecuXZdATeDjkYEkqqM6I29HwXozqnJTrTpH4Hl5Ueqs?=
+ =?us-ascii?Q?xR0VlU3RksD/oAPXF14HzY/uGa6Cy+YlqEIe5H0At/3tbGgTnRpM6tIY7Nqs?=
+ =?us-ascii?Q?SJyMrLbvxLuyxJldiMZ4VBTjW4yQF9P4YKHz6bOTILpwFM/YwH4zuLlqLfJ/?=
+ =?us-ascii?Q?TiOZ7diGSdeKUuwSekdE4HGizAFiI2OqmIMF935PSCwXTVFnHLZyDOjalrRB?=
+ =?us-ascii?Q?QuPOVaxsUF3Ea0/tnfGmYzPdg4qZDcfGN1jhEjhS?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3e82b734-2236-4ce4-f63a-08da900cbe1f
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Sep 2022 13:36:03.3100
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: yQpuLiSBs3RdGjzguhSfxkfpfn5k9LSoQ6zfYtQevla/5yDNWbA3zzxc/ifOGJxj
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5361
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Yacan Liu <liuyacan@corp.netease.com>
+On Mon, Sep 05, 2022 at 10:46:44AM +0100, Robin Murphy wrote:
 
-After modifying the QP to the Error state, all RX WR would be completed
-with WC in IB_WC_WR_FLUSH_ERR status. Current implementation does not
-wait for it is done, but destroy the QP and free the link group directly.
-So there is a risk that accessing the freed memory in tasklet context.
+> > I've been trying to understand Robin's latest remarks because maybe I
+> > don't really understand your situation right.
+> 
+> That was really just me thinking out loud to guess at how it must be
+> happening - I wasn't sure whether VFIO is actually intended to allow that or
+> not, so if not then by all means let's look at fixing that, but as I say I
+> think we're only seeing it provoke a problem at the driver level because of
+> 9ac8545199a1, and fixing VFIO doesn't fix that in general. And conversely if
+> we *can* fix that properly at the IOMMU API level then the current VFIO
+> behaviour should become benign again anyway.
 
-Here is a crash example:
-
- BUG: unable to handle page fault for address: ffffffff8f220860
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD f7300e067 P4D f7300e067 PUD f7300f063 PMD 8c4e45063 PTE 800ffff08c9df060
- Oops: 0002 [#1] SMP PTI
- CPU: 1 PID: 0 Comm: swapper/1 Kdump: loaded Tainted: G S         OE     5.10.0-0607+ #23
- Hardware name: Inspur NF5280M4/YZMB-00689-101, BIOS 4.1.20 07/09/2018
- RIP: 0010:native_queued_spin_lock_slowpath+0x176/0x1b0
- Code: f3 90 48 8b 32 48 85 f6 74 f6 eb d5 c1 ee 12 83 e0 03 83 ee 01 48 c1 e0 05 48 63 f6 48 05 00 c8 02 00 48 03 04 f5 00 09 98 8e <48> 89 10 8b 42 08 85 c0 75 09 f3 90 8b 42 08 85 c0 74 f7 48 8b 32
- RSP: 0018:ffffb3b6c001ebd8 EFLAGS: 00010086
- RAX: ffffffff8f220860 RBX: 0000000000000246 RCX: 0000000000080000
- RDX: ffff91db1f86c800 RSI: 000000000000173c RDI: ffff91db62bace00
- RBP: ffff91db62bacc00 R08: 0000000000000000 R09: c00000010000028b
- R10: 0000000000055198 R11: ffffb3b6c001ea58 R12: ffff91db80e05010
- R13: 000000000000000a R14: 0000000000000006 R15: 0000000000000040
- FS:  0000000000000000(0000) GS:ffff91db1f840000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: ffffffff8f220860 CR3: 00000001f9580004 CR4: 00000000003706e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  <IRQ>
-  _raw_spin_lock_irqsave+0x30/0x40
-  mlx5_ib_poll_cq+0x4c/0xc50 [mlx5_ib]
-  smc_wr_rx_tasklet_fn+0x56/0xa0 [smc]
-  tasklet_action_common.isra.21+0x66/0x100
-  __do_softirq+0xd5/0x29c
-  asm_call_irq_on_stack+0x12/0x20
-  </IRQ>
-  do_softirq_own_stack+0x37/0x40
-  irq_exit_rcu+0x9d/0xa0
-  sysvec_call_function_single+0x34/0x80
-  asm_sysvec_call_function_single+0x12/0x20
-
-Fixes: bd4ad57718cc ("smc: initialize IB transport incl. PD, MR, QP, CQ, event, WR")
-Signed-off-by: Yacan Liu <liuyacan@corp.netease.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-
----
-Change in v5:
-  -- Move smc_wr_drain_cq() into smc_wr_free_link()
-Chagen in v4:
-  -- Remove the rx_drain flag because smc_wr_rx_post() may not have been called.
-  -- Remove timeout.
-Change in v3:
-  -- Tune commit message (Signed-Off tag, Fixes tag).
-     Tune code to avoid column length exceeding.
-Change in v2:
-  -- Fix some compile warnings and errors.
----
- net/smc/smc_core.c | 1 +
- net/smc/smc_core.h | 2 ++
- net/smc/smc_wr.c   | 5 +++++
- net/smc/smc_wr.h   | 5 +++++
- 4 files changed, 13 insertions(+)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index ff49a11f5..ebf56cdf1 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -757,6 +757,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	lnk->lgr = lgr;
- 	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
- 	lnk->link_idx = link_idx;
-+	lnk->wr_rx_id_compl = 0;
- 	smc_ibdev_cnt_inc(lnk);
- 	smcr_copy_dev_info_to_link(lnk);
- 	atomic_set(&lnk->conn_cnt, 0);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index fe8b524ad..285f9bd8e 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -115,8 +115,10 @@ struct smc_link {
- 	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
- 	dma_addr_t		wr_rx_v2_dma_addr; /* DMA address of v2 rx buf*/
- 	u64			wr_rx_id;	/* seq # of last recv WR */
-+	u64			wr_rx_id_compl; /* seq # of last completed WR */
- 	u32			wr_rx_cnt;	/* number of WR recv buffers */
- 	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
-+	wait_queue_head_t       wr_rx_empty_wait; /* wait for RQ empty */
+Okay, so there are probably other problems here that highlighted
+this..
  
- 	struct ib_reg_wr	wr_reg;		/* WR register memory region */
- 	wait_queue_head_t	wr_reg_wait;	/* wait for wr_reg result */
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 26f8f240d..b0678a417 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -454,6 +454,7 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
- 
- 	for (i = 0; i < num; i++) {
- 		link = wc[i].qp->qp_context;
-+		link->wr_rx_id_compl = wc[i].wr_id;
- 		if (wc[i].status == IB_WC_SUCCESS) {
- 			link->wr_rx_tstamp = jiffies;
- 			smc_wr_rx_demultiplex(&wc[i]);
-@@ -465,6 +466,8 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
- 			case IB_WC_RNR_RETRY_EXC_ERR:
- 			case IB_WC_WR_FLUSH_ERR:
- 				smcr_link_down_cond_sched(link);
-+				if (link->wr_rx_id_compl == link->wr_rx_id)
-+					wake_up(&link->wr_rx_empty_wait);
- 				break;
- 			default:
- 				smc_wr_rx_post(link); /* refill WR RX */
-@@ -639,6 +642,7 @@ void smc_wr_free_link(struct smc_link *lnk)
- 		return;
- 	ibdev = lnk->smcibdev->ibdev;
- 
-+	smc_wr_drain_cq(lnk);
- 	smc_wr_wakeup_reg_wait(lnk);
- 	smc_wr_wakeup_tx_wait(lnk);
- 
-@@ -889,6 +893,7 @@ int smc_wr_create_link(struct smc_link *lnk)
- 	atomic_set(&lnk->wr_tx_refcnt, 0);
- 	init_waitqueue_head(&lnk->wr_reg_wait);
- 	atomic_set(&lnk->wr_reg_refcnt, 0);
-+	init_waitqueue_head(&lnk->wr_rx_empty_wait);
- 	return rc;
- 
- dma_unmap:
-diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
-index a54e90a11..45e9b894d 100644
---- a/net/smc/smc_wr.h
-+++ b/net/smc/smc_wr.h
-@@ -73,6 +73,11 @@ static inline void smc_wr_tx_link_put(struct smc_link *link)
- 		wake_up_all(&link->wr_tx_wait);
- }
- 
-+static inline void smc_wr_drain_cq(struct smc_link *lnk)
-+{
-+	wait_event(lnk->wr_rx_empty_wait, lnk->wr_rx_id_compl == lnk->wr_rx_id);
-+}
-+
- static inline void smc_wr_wakeup_tx_wait(struct smc_link *lnk)
- {
- 	wake_up_all(&lnk->wr_tx_wait);
--- 
-2.20.1
+> > IMHO this is definately a VFIO bug, because in a single-device group
+> > we must not allow the domain to remain attached past remove(). Or more
+> > broadly we shouldn't be holding ownership of a group without also
+> > having a driver attached.
+> 
+> FWIW I was assuming it might be fine for a VFIO user to hold the group open
+> if they expect the device to come back again and re-bind (for example,
+> perhaps over some reconfiguration that requires turning SR-IOV off and on
+> again?)
 
+Once all the devices in the group are removed then something like
+pci_device_group() will have no way to discover the group again. eg
+in the SRIOV case it will just fall right down to iommu_group_alloc(),
+and that gives a new struct iommu_group and new IDR allocation.
+
+So in the general case this doesn't happen, I don't think any VFIO
+userspace should attempt to rely on it.
+
+From an API perspective is a much saner API toward iommu using drivers
+like VFIO if those drivers only use the iommu api while they have a
+device driver attached.
+
+Regards,
+Jason
