@@ -2,210 +2,208 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B49CC38145
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 00:43:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FDBBECAAD5
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 02:11:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbiIGAnu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Sep 2022 20:43:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41510 "EHLO
+        id S229561AbiIGCLW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Sep 2022 22:11:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229500AbiIGAnt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Sep 2022 20:43:49 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3574587680;
-        Tue,  6 Sep 2022 17:43:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662511428; x=1694047428;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=u04aqMdnOB94il4dLinvsH8yANhdwgUr0G6Yi4qKvwQ=;
-  b=OBBGkluRefDG0a6vseIu+X9LhgnqdzYqtcZ0KZZA7FH5PXM60ustLKRQ
-   bzFZOk8pyyZaFMZFfu+F7F68AZwtq8T/gQ1Og1ByklAHO94QUsCn1irig
-   HntKEoitOL7pMRZzBZGhGDIkaOjA1LnDnYAVnOnsEUDeJFa2vnVGl5ZSa
-   rbTutskH9kHci4lNRrUMhbxIGD+Ssgth503WkPEHGCfUhNJg9t0YrC8jm
-   grBAMgeqFLLcHMmho6JzY4kZqmOL0dVwUmXy8FUglr0UrKd9yqNp+ETaw
-   uLIqnVChV51rhAfs/3QX5t4J+CjvDpGIAhwtWValwv9XCZw/Rb341mTQO
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10462"; a="358462105"
-X-IronPort-AV: E=Sophos;i="5.93,295,1654585200"; 
-   d="scan'208";a="358462105"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2022 17:43:47 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,295,1654585200"; 
-   d="scan'208";a="717922857"
-Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
-  by fmsmga002.fm.intel.com with ESMTP; 06 Sep 2022 17:43:46 -0700
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+        with ESMTP id S229549AbiIGCLW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Sep 2022 22:11:22 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC23895F6;
+        Tue,  6 Sep 2022 19:11:19 -0700 (PDT)
+Received: from canpemm500002.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MMly91PlgzkX15;
+        Wed,  7 Sep 2022 10:07:29 +0800 (CST)
+Received: from [10.174.177.76] (10.174.177.76) by
+ canpemm500002.china.huawei.com (7.192.104.244) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 6 Sep 2022 17:43:46 -0700
-Received: from orsmsx607.amr.corp.intel.com (10.22.229.20) by
- ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 6 Sep 2022 17:43:45 -0700
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- orsmsx607.amr.corp.intel.com (10.22.229.20) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31 via Frontend Transport; Tue, 6 Sep 2022 17:43:45 -0700
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (104.47.59.171)
- by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2375.31; Tue, 6 Sep 2022 17:43:45 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=A1sXhWmvgUiP2Mmn60X87ojTzkrX/aq0DFV3oiSGVpO36NLhaxaTpVdD9k3nXFY2xEVa9opN+oJnp4Mw7x4V6641S2rEt3KuGSuBG8SGmBeFz/y+o4fBzyKC5LdOZydd8iJRXIQH6rKi9EPjMnBPWlsn9cUdcR9Xbtz5hKnNfH3Didin+BylkyrT3Rf4EfQaKTEF5/FW2rPRgfquMXMwUEm+tr4nFMq0Bgjtlqgn8CZd1dKTAFY0LH9e4AoNvJ/Cc3+FhftdeGfk+U2rJ+veAwZh/Caz/5h3vXaNAOZB+MOnpoGu/U+eJ9xT/s3fT9/mX2dpJ+DSwxeg6g/fz8mrvA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=M0YjOaPJoJbEx/hzu/ioO/3e5KVgLK6XcPsMTO1Fi+w=;
- b=To7wBMSV3Bt+xneEW/xFZsERuQvO0NXx8Yjwno2jUyOXPVPaCi83A/PJif6XmgOq1c+16kQfb6SoXcQotWQ51CDn2vmFOq3sp+V04H6aws7YiXcwLrzjaptvE7tDt8BuT0aLafVO0r+SjcyGmCwj6B6LDIFPL3v841La4z5hD0byQZUFfQKaLGPuwMYjfkBf4jVl1s6vKNET2730D/a1LASMx4TogLRG5LDrAFONbrXSqXquwZl8egpQ5hPRe8JE7Rij8Cdnivm4MYLhYkCrQ/ulTuHK1NP/HZpsSLkL3sycuzujfrPhqZYJnHCKlKRGm2xTppMprYLTC9OZ9uAF1Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by BN7PR11MB2674.namprd11.prod.outlook.com (2603:10b6:406:b2::29) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.18; Wed, 7 Sep
- 2022 00:43:30 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::a435:3eff:aa83:73d7]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::a435:3eff:aa83:73d7%5]) with mapi id 15.20.5588.018; Wed, 7 Sep 2022
- 00:43:30 +0000
-From:   "Tian, Kevin" <kevin.tian@intel.com>
-To:     Christoph Hellwig <hch@infradead.org>
-CC:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        "Diana Craciun" <diana.craciun@oss.nxp.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Longfang Liu <liulongfang@huawei.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "Leon Romanovsky" <leon@kernel.org>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "Jason Gunthorpe" <jgg@ziepe.ca>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        "Eric Farman" <farman@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        "Peter Oberparleiter" <oberpar@linux.ibm.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+ 15.1.2375.24; Wed, 7 Sep 2022 10:11:16 +0800
+Subject: Re: [PATCH 4/8] hugetlb: handle truncate racing with page faults
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+CC:     <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>, Peter Xu <peterx@redhat.com>,
+        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Prakash Sangappa <prakash.sangappa@oracle.com>,
+        James Houghton <jthoughton@google.com>,
+        Mina Almasry <almasrymina@google.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Ray Fucillo <Ray.Fucillo@intersystems.com>,
+        <linux-s390@vger.kernel.org>, <hca@linux.ibm.com>,
+        <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Abhishek Sahu <abhsahu@nvidia.com>
-Subject: RE: [PATCH v2 01/15] vfio: Add helpers for unifying vfio_device life
- cycle
-Thread-Topic: [PATCH v2 01/15] vfio: Add helpers for unifying vfio_device life
- cycle
-Thread-Index: AQHYvdLyg4z9as64RUeGfBAXbmJkJK3SLhOAgAD5fBA=
-Date:   Wed, 7 Sep 2022 00:43:30 +0000
-Message-ID: <BN9PR11MB5276EE6209C1E3D4662368DC8C419@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20220901143747.32858-1-kevin.tian@intel.com>
- <20220901143747.32858-2-kevin.tian@intel.com>
- <YxcV05AVN4kqdPX6@infradead.org>
-In-Reply-To: <YxcV05AVN4kqdPX6@infradead.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: cbf490c5-876c-4079-c770-08da9069fc1f
-x-ms-traffictypediagnostic: BN7PR11MB2674:EE_
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 2ElGJf81cUtu+lOPMCOYEnzfh71krAvwAjX+twh93HMHq4Q7XHcUjDV1EqeAt/n4h0Ln4OYnlV0wN/0R0qMC2ks2YystrO7PPANABle2eAd8BzMNn8Nxg1z4a0BxJkqKNuOmO1Gvc7so2zB5fvGZ5hPMoZopQVij471wN4cS7S+i494FntbF7ESR8Pbsc6JZ2C91n+e1sIhK566SewVEiPLJZ0TxYK9dE/eb6K02wBRgbgao8j3ueLCMgr8gijzJLxEdsbevhuQBplDH8G9es8o+lfUS58Y4G7DKWD+MgU9lM1KIYUoaMid8xpmNDxeSBMKdNgYtaLdXoSbbROgTFBQCr21s7/JZNq8xD3jY9kWncqfoyuClsSYtBGymFtn/IVCNs76oBnC1oaUcichbdqiErY2O8RJnsGwTTR1ZYQ0h70dKUKaAlBCY33hGTXjlUXZoPaqtqx88DkEPFb65mttXgQUffmOUZ/OA+2+kAtGo76Qhu0303qS4LmSQ3k3fMiNisVZjAWVucN2yR59CipgPWf5aarLC0RCgLwCGpVLu8ewi8yJaVPDQ4T9r0GwpOmVcJ+u2jpymqn2hdNQTeE9T5TVGd0x8lasiXn8VtyLY7hPW07vLwABQQ1g1uLhmfWg9EXYawx93utqJHi/Z2RgPxpr4AyMUsEI6IfvptYMKX0rhKYwYhp57PUHso73+vYeSHQsxsv3soBnkmFCV5j6UNQcpHTcxxcx5CVdHanTrort/zsi5CkK+FDOx3gfodqMAFTasihLpNFztkLSSNQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(366004)(346002)(376002)(396003)(136003)(39860400002)(122000001)(76116006)(8676002)(66556008)(82960400001)(64756008)(66476007)(4326008)(66946007)(38100700002)(186003)(66446008)(71200400001)(41300700001)(316002)(6506007)(54906003)(7696005)(9686003)(6916009)(26005)(8936002)(33656002)(86362001)(478600001)(5660300002)(2906002)(7406005)(7416002)(52536014)(4744005)(55016003)(38070700005);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?GTtuYcC0DGbWzmDsHx90EAwc0EuPh13aM9ZW6JY2QlSBauOac0FpGjuCGlc1?=
- =?us-ascii?Q?Ly0YkXE8RhZJmFzk8X0SnqIa3EnGIcQQsrC0M5TFX8fW6T9pldyzMYip6cMt?=
- =?us-ascii?Q?4RI+6G+QYR6WUr/5K8ha5DpT/GCWq5j9B68zTyAJpu0eQv0wno21zCjP7M9i?=
- =?us-ascii?Q?++n6Pk16OiGca4cTtLdsTQcmIKq7w0ioxBiXNzthpefACiqOlNmsUIEzimzS?=
- =?us-ascii?Q?4x+ZPVnCYxTcNRKuDsmsL743CJHtJu3oiTBmYj6jtXRNsG2n1Cs3rqTiuP7V?=
- =?us-ascii?Q?3Qs6g66xcR1gdcPhbtJ05DV8nIUP2V/MrkeKgUmRI+OHEsEIx7OnOP+DJQU0?=
- =?us-ascii?Q?wOvk1L2ox9fRbNWQSVs5TMFAlw6qCxzDxbIZx0TH4lBaWnzYrxLORCLAkDi8?=
- =?us-ascii?Q?Esr9M0wBLwFH4oATQZ2kx0SGFRpza+DfoQCj7xjaqYS9nv4MFPOlKZeIY6Zr?=
- =?us-ascii?Q?5QkFRk5cZnKDjsBjhvDfrLnl/41J6B1wBL6Wz4yIK4MrHdlD6jRtmmNobwUu?=
- =?us-ascii?Q?hQxlnpTkNkzs7MqW3dgnoOOUP85qWU/aH/eD4FHB0zFpDr3Yu06n/HhQGxw3?=
- =?us-ascii?Q?ssHzdt05Y5pXfzDmdu4yUiDpzTM+w2b+/FaXjzoKXX/LvZHILOs0L6Kdjssn?=
- =?us-ascii?Q?Cz/Z2a000WYA3d6v/DCDECGr2rE1i2XODyK78ENiTInAWx0796oNsf8Tdomr?=
- =?us-ascii?Q?X5oMCygw2JfLOGd0lNoTGq0Mo5gZ15jCOUaKY/qz4llTNBdRZ52Q3d5K2Avx?=
- =?us-ascii?Q?tD19pKxxZTCUSJ7BFqMj12ZtkMRIOH3f+vHlk+GmrLRCyIXO2sgFlKp5uHnR?=
- =?us-ascii?Q?SBbMoRlVTyDAGXjj9t8i4ONRGQi1MgaH00hTEW033yh7g3t2E6yhiesk0lXG?=
- =?us-ascii?Q?d4uQmJxJiWIQRtvVQ9fzka+BxF47QsREn4Xqn3A3BF/NVsg0f6mlpMOS05JR?=
- =?us-ascii?Q?2nVxsGx4nfHqrU8yCmlbCNbBwiLWaxqQaiygr4mgvFWYtlwwX2EJRsGrLuQG?=
- =?us-ascii?Q?IggzNAxBG0gfW7fw/klaOKCzJKpuOmTR/Gl3xk8SISG0aWjSZxBba6bra+9S?=
- =?us-ascii?Q?FlmlBB8llI9lwkrlZRtgsd0IR8ybZIN92TMUlAKE2EtdAqVYExj4MVjqCV6D?=
- =?us-ascii?Q?m66QLheNnUGG4DgT7mA+sMPblfwAQ5xx+1IS5rzM8cLB7+fcsrgTzN/8RAiP?=
- =?us-ascii?Q?m9net5dILAbViu6m2DcWaLcrCbHEc5TydASrjT46fR4vtQvCuhLq2cxFbZPZ?=
- =?us-ascii?Q?e/Pet51Q5WOKRfc6AC2NevEHzJFjbMiugLIhC7hsYTQ4chuXfqFk6tDO88MK?=
- =?us-ascii?Q?sWqEIpE027vwcPH68Y0Y5X9R+BijX0wWXgtNl/OKKQkvz+fgkJxKLB+IpP1I?=
- =?us-ascii?Q?PScvvSBK/Q0hBF+xONGp4N8WcKj4X6hGcXzeKtUNU7/4X35+VQmTSQdqRgzS?=
- =?us-ascii?Q?94PGOFc7cQByNMxRwhNQpflZrrCb6F7IQF8zIaETVlrR6i/tudZE/nLTh/MO?=
- =?us-ascii?Q?uXwUUZlpd0X+8G8el71sgmNHpYmun6J4DA/Wfl7ygDEpN2Xz2GsTQGWQ5p6a?=
- =?us-ascii?Q?VaSEdK0+EM6SBk4WeccyJXlUtV3VbWkAYm3fGT8r?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        Andrew Morton <akpm@linux-foundation.org>
+References: <20220824175757.20590-1-mike.kravetz@oracle.com>
+ <20220824175757.20590-5-mike.kravetz@oracle.com>
+ <yt9dr10ok3lm.fsf@linux.ibm.com> <Yxd5z0c8NlKVlVqk@monkey>
+ <YxeL7ZMoyNmPAvY0@monkey> <YxfTA53/5pkpC7xZ@monkey>
+From:   Miaohe Lin <linmiaohe@huawei.com>
+Message-ID: <367db2b5-5242-9be6-1d5f-d13e35f84167@huawei.com>
+Date:   Wed, 7 Sep 2022 10:11:16 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cbf490c5-876c-4079-c770-08da9069fc1f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Sep 2022 00:43:30.2097
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: O8iSCugMjw6X4cze8kIKrHk7hUSSKW/+Wy1T8Yc5UlgBmLYdgT1hoeZ4xEGXFwjqs8QLIMrVIqHCQQRFNbwOlw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PR11MB2674
-X-OriginatorOrg: intel.com
+In-Reply-To: <YxfTA53/5pkpC7xZ@monkey>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.177.76]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ canpemm500002.china.huawei.com (7.192.104.244)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Christoph Hellwig
-> Sent: Tuesday, September 6, 2022 5:42 PM
->=20
-> What is the point?  This adds indirect calls, and actually creates
-> more boilerplate code in the drivers.  i.g. when using this code there
-> is more, and harder to read code.
+On 2022/9/7 7:08, Mike Kravetz wrote:
+> On 09/06/22 11:05, Mike Kravetz wrote:
+>> On 09/06/22 09:48, Mike Kravetz wrote:
+>>> On 09/06/22 15:57, Sven Schnelle wrote:
+>>>> Hi Mike,
+>>>>
+>>>> Mike Kravetz <mike.kravetz@oracle.com> writes:
+>>>>
+>>>>> When page fault code needs to allocate and instantiate a new hugetlb
+>>>>> page (huegtlb_no_page), it checks early to determine if the fault is
+>>>>> beyond i_size.  When discovered early, it is easy to abort the fault and
+>>>>> return an error.  However, it becomes much more difficult to handle when
+>>>>> discovered later after allocating the page and consuming reservations
+>>>>> and adding to the page cache.  Backing out changes in such instances
+>>>>> becomes difficult and error prone.
+>>>>>
+>>>>> Instead of trying to catch and backout all such races, use the hugetlb
+>>>>> fault mutex to handle truncate racing with page faults.  The most
+>>>>> significant change is modification of the routine remove_inode_hugepages
+>>>>> such that it will take the fault mutex for EVERY index in the truncated
+>>>>> range (or hole in the case of hole punch).  Since remove_inode_hugepages
+>>>>> is called in the truncate path after updating i_size, we can experience
+>>>>> races as follows.
+>>>>> - truncate code updates i_size and takes fault mutex before a racing
+>>>>>   fault.  After fault code takes mutex, it will notice fault beyond
+>>>>>   i_size and abort early.
+>>>>> - fault code obtains mutex, and truncate updates i_size after early
+>>>>>   checks in fault code.  fault code will add page beyond i_size.
+>>>>>   When truncate code takes mutex for page/index, it will remove the
+>>>>>   page.
+>>>>> - truncate updates i_size, but fault code obtains mutex first.  If
+>>>>>   fault code sees updated i_size it will abort early.  If fault code
+>>>>>   does not see updated i_size, it will add page beyond i_size and
+>>>>>   truncate code will remove page when it obtains fault mutex.
+>>>>>
+>>>>> Note, for performance reasons remove_inode_hugepages will still use
+>>>>> filemap_get_folios for bulk folio lookups.  For indicies not returned in
+>>>>> the bulk lookup, it will need to lookup individual folios to check for
+>>>>> races with page fault.
+>>>>>
+>>>>> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+>>>>> ---
+>>>>>  fs/hugetlbfs/inode.c | 184 +++++++++++++++++++++++++++++++------------
+>>>>>  mm/hugetlb.c         |  41 +++++-----
+>>>>>  2 files changed, 152 insertions(+), 73 deletions(-)
+>>>>
+>>>> With linux next starting from next-20220831 i see hangs with this
+>>>> patch applied while running the glibc test suite. The patch doesn't
+>>>> revert cleanly on top, so i checked out one commit before that one and
+>>>> with that revision everything works.
+>>>>
+>>>> It looks like the malloc test suite in glibc triggers this. I cannot
+>>>> identify a single test causing it, but instead the combination of
+>>>> multiple tests. Running the test suite on a single CPU works. Given the
+>>>> subject of the patch that's likely not a surprise.
+>>>>
+>>>> This is on s390, and the warning i get from RCU is:
+>>>>
+>>>> [ 1951.906997] rcu: INFO: rcu_sched self-detected stall on CPU
+>>>> [ 1951.907009] rcu:     60-....: (6000 ticks this GP) idle=968c/1/0x4000000000000000 softirq=43971/43972 fqs=2765
+>>>> [ 1951.907018]  (t=6000 jiffies g=116125 q=1008072 ncpus=64)
+>>>> [ 1951.907024] CPU: 60 PID: 1236661 Comm: ld64.so.1 Not tainted 6.0.0-rc3-next-20220901 #340
+>>>> [ 1951.907027] Hardware name: IBM 3906 M04 704 (z/VM 7.1.0)
+>>>> [ 1951.907029] Krnl PSW : 0704e00180000000 00000000003d9042 (hugetlb_fault_mutex_hash+0x2a/0xd8)
+>>>> [ 1951.907044]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+>>>> [ 1951.907095] Call Trace:
+>>>> [ 1951.907098]  [<00000000003d9042>] hugetlb_fault_mutex_hash+0x2a/0xd8
+>>>> [ 1951.907101] ([<00000000005845a6>] fault_lock_inode_indicies+0x8e/0x128)
+>>>> [ 1951.907107]  [<0000000000584876>] remove_inode_hugepages+0x236/0x280
+>>>> [ 1951.907109]  [<0000000000584a7c>] hugetlbfs_evict_inode+0x3c/0x60
+>>>> [ 1951.907111]  [<000000000044fe96>] evict+0xe6/0x1c0
+>>>> [ 1951.907116]  [<000000000044a608>] __dentry_kill+0x108/0x1e0
+>>>> [ 1951.907119]  [<000000000044ac64>] dentry_kill+0x6c/0x290
+>>>> [ 1951.907121]  [<000000000044afec>] dput+0x164/0x1c0
+>>>> [ 1951.907123]  [<000000000042a4d6>] __fput+0xee/0x290
+>>>> [ 1951.907127]  [<00000000001794a8>] task_work_run+0x88/0xe0
+>>>> [ 1951.907133]  [<00000000001f77a0>] exit_to_user_mode_prepare+0x1a0/0x1a8
+>>>> [ 1951.907137]  [<0000000000d0e42e>] __do_syscall+0x11e/0x200
+>>>> [ 1951.907142]  [<0000000000d1d392>] system_call+0x82/0xb0
+>>>> [ 1951.907145] Last Breaking-Event-Address:
+>>>> [ 1951.907146]  [<0000038001d839c0>] 0x38001d839c0
+>>>>
+>>>> One of the hanging test cases is usually malloc/tst-malloc-too-large-malloc-hugetlb2.
+>>>>
+>>>> Any thoughts?
+>>>
+>>> Thanks for the report, I will take a look.
+>>>
+>>> My first thought is that this fix may not be applied,
+>>> https://lore.kernel.org/linux-mm/Ywepr7C2X20ZvLdn@monkey/
+>>> However, I see that that is in next-20220831.
+>>>
+>>> Hopefully, this will recreate on x86.
+>>
+>> One additional thought ...
+>>
+>> With this patch, we will take the hugetlb fault mutex for EVERY index in the
+>> range being truncated or hole punched.  In the case of a very large file, that
+>> is no different than code today where we take the mutex when removing pages
+>> from the file.  What is different is taking the mutex for indices that are
+>> part of holes in the file.  Consider a very large file with only one page at
+>> the very large offset.  We would then take the mutex for each index in that
+>> very large hole.  Depending on the size of the hole, this could appear as a
+>> hang.
+>>
+>> For the above locking scheme to work, we need to take the mutex for indices
+>> in holes in case there would happen to be a racing page fault.  However, there
+>> are only a limited number of fault mutexes (it is a table).  So, we only really
+>> need to take at a maximum num_fault_mutexes mutexes.  We could keep track of
+>> these with a bitmap.
+>>
+>> I am not sure this is the issue you are seeing, but a test named
+>> tst-malloc-too-large-malloc-hugetlb2 may be doing this.
+>>
+>> In any case, I think this issue needs to be addressed before this series can
+>> move forward.
+> 
+> Well, even if we address the issue of taking the same mutex multiple times,
 
-The point is to align with struct device life cycle when it's introduced
-to vfio_device. The object is released via put_device() then what would
-be the alternative if the driver doesn't provide a @release callback?
+Can we change to take all the hugetlb fault mutex at the same time to ensure every possible
+future hugetlb page fault will see a truncated i_size? Then we could just drop all the hugetlb
+fault mutex before doing any heavy stuff? It seems hugetlb fault mutex could be dropped when
+new i_size is guaranteed to be visible for any future hugetlb page fault users?
+But I might miss something...
 
-and with @release then naturally @init is also expected.
+> this new synchronization scheme requires a folio lookup for EVERY index in
+> the truncated or hole punched range.  This can easily 'stall' a CPU if there
 
-Most added code is in patch1 for implementing new helpers and
-patch15 for introducing struct device.
+If above thought holds, we could do batch folio lookup instead. Hopes my thought will help. ;)
 
-Remaining addition is relatively small when scattered in each driver
-and most is due to creating new functions hence new local variables.
+Thanks,
+Miaohe Lin
 
-and IMHO the readability is improved as it clearly contains the
-init/release logic around the device object.
 
-Thanks
-Kevin
+> is a really big hole in a file.  One can recreate this easily with fallocate
+> to add a single page to a file at a really big offset, and then remove the file.
+> 
+> I am trying to come up with another algorithm to make this work.
+> 
+> Andrew, I wanted to give you a heads up that this series may need to be
+> pulled if I can not come up with something quickly.
+> 
+
