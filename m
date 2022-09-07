@@ -2,49 +2,49 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12067C38145
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 17:00:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF7B5C38145
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 17:11:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbiIGRAv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 7 Sep 2022 13:00:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57156 "EHLO
+        id S230207AbiIGRLf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Sep 2022 13:11:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbiIGRAu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Sep 2022 13:00:50 -0400
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2080.outbound.protection.outlook.com [40.107.220.80])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280AF6DF94;
-        Wed,  7 Sep 2022 10:00:49 -0700 (PDT)
+        with ESMTP id S230245AbiIGRLI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Sep 2022 13:11:08 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2063.outbound.protection.outlook.com [40.107.244.63])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20952BD295;
+        Wed,  7 Sep 2022 10:10:37 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=D89rM5rWpE4zhHmgEVTtELZIpAvMqQITX2RWKjK7CyCNpil112x5/lT+yVyktg39yoXLOsgN9lFJbulghLoPT1fGrl9vyURZTjDC2eA7621wggN+FXgwHHRzXZoOMG3jPpHYctJVmxrkjaUaUwh2sga3kkylvRo737mw1056C+sT4QN3Y1dFs2cMIBcUjBQEpKqdNYuixQF3KLAtbAkFaGCOUmn1NEnA9+g3WevtDXkoQxTa5qLcLFQcNB2VqyZm2C4cfJm8LZdXHPLcuT7HXJfuHUbZKFA92YjQD/PG7ZOnTZ4zyssHCGa24X8JN1fjDWtOjv5qWDsB+HGDfIOB1w==
+ b=cF4+k6T7lpApf/P8e7zRfUCogRWZtH0Xzx+JtdXF75a8gn3GiVqxjVUzLrY0CbzsHzVhlNJN4Ug1dNrKy9vVk9H2R4+JCOv3AxLBf5YNTTHnrXg3gkbodewhvC2b1+O3jl0kyOFu+Lg3R7hQLn1KEWvNfaPMt6r55E9diq4knyQ6J/KinnOIlOL9/10Ns4T+Pl4MboZj39i7ueIU/eGkFJdSDjcagc5O7xLjmkcfE1VnMCAvOpeP6g4gzwkUiFpWCP+GhXmOTN95Ql+9qYFF3p4v3PGW2tOJSBPA7Q0m/Erw3wNFyRnI7w9nQZNKX73kE+vg4fjDNYMfhmP2FFYstQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=67mePsprQvQ5+lKyoGBOCwAN7WVSaRKEs+i5P5X54Us=;
- b=h26ZpZM0QJqDyrzcbROHKz9fyPQ7yKR1GXoXMiiIHY5bjLlfxGjKmgsT3zjJNn6SZioq0M72sE4DQUzAfzFj8cPn5c6Ovf6+AhzKdH99KS8nveJKHQSiRne9PXJC9UDnNqKVtKtHciOQV8/FLGNskf+P6HZKhZsDkN5g2QXxsTE8dfTMRFb6hcXQcojfY3gR9UID3NHbDFCL/Ed7plpv96NWNPpv/r1020Jjid8cg6TA3BgZrQq4VdzeFXrIQkUWmM4fULKQfIrh2CXp9Wp7PngadAgUsXOAPZ+KtqaYdd/YNactlnY6/SmcYG2ASLbf2w6AtH5dB1ftHmDX8myyXw==
+ bh=s1SYnrrJbkzDkuhn8nt5eiUOc/1JRhHQ03IUxnAF/xQ=;
+ b=WY7AujCWdiyhpSjg6Iwi3kzbKTCCOLAcdu0LgFV247VvnvjLLuIDVu1uyUUIndts1qTxHclWB7RBkT+3jHvZ5zNKH3dW9oO7H3sYGHB341ljXw2c6xMgnFY9OzgRkP8wT/7XuO2JlrAtFFUXIbBF/DAlkX4uxCQG2BxbIO64zU+dHMyn0V3ZR0zY+nZMDKXLHsaPMJypFD3LuO+RyeOtsRTyewLK8aNhBwnD/t9jc+AgThp54X4YEXlMEYJr3lra06Qd5bzVCzTpaJwwc6Va+d4r7z0cTH3r1IxcKjPlXBczuUD8Ul6xeJngKRsUF/Rj2hRMB3ukeh9qs31exRUgBg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=67mePsprQvQ5+lKyoGBOCwAN7WVSaRKEs+i5P5X54Us=;
- b=oalH/y67bvj7FpagBgaItjghHWFE/IOjwf1FyUBL3YCJr41HfgCH/I/Gxy1E4Mt7Co/zLRiSTTTSUpSG+ezWuReMwAbsC0sLR8AaIcv+bDR2UvbB2oSXr/DzW6A+73kkEi0fBI4umhkxEcdSyb/SW9yXS1r6nJf/O6wUs3TmeWjEpAAW2/uulhM2glq2Pelu+2j2ZSrl3UoNgEMghPxX4CvTEfRs8xxnDxS1BO5NCN7KrpEh0L6oCfI/4WQKuSPzk+cWDj06C14dbbFwn2KTsNKvtYoWbZU2nCTTcx7j0+Pe0sJFpb1FJ6A3CfWHeV61QgkIsoNxJfNyG5y7bpRZZQ==
+ bh=s1SYnrrJbkzDkuhn8nt5eiUOc/1JRhHQ03IUxnAF/xQ=;
+ b=SK5jLzXUg3r3BSred0N36jFSP5hcdH7bg4uh12GGOQ10D3VjcQcF+0XGus7+003o/Mw60iXbXVcbTqChe20kh/fXG01rh6lfKWoQKAMbpLp0HzN1df0qvrn4f01Pz9b0URIMhX/X5xEM2HlxmgEFsAp9xAdZRgd241d8ei5x20zzj1t2AqgIwlPlS8K4+H0fGnwrBXKY3LKA5IA/Ubw0Xl2lDMGwUNyyK6pGNgd2Hw/3bBxkc9SukS4MTTQ84LQu6zcMsW66z2QXNfcaGpdTZozIevPMunjg8/N2xuHPIRC2gBIS3REO+pUVX73v9O0+8tzA4oc71NgVUx+hvy/32Q==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by DM6PR12MB4340.namprd12.prod.outlook.com (2603:10b6:5:2a8::7) with
+ by BL3PR12MB6570.namprd12.prod.outlook.com (2603:10b6:208:38d::15) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.14; Wed, 7 Sep
- 2022 17:00:47 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.15; Wed, 7 Sep
+ 2022 17:10:34 +0000
 Received: from MN2PR12MB4192.namprd12.prod.outlook.com
  ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
  ([fe80::462:7fe:f04f:d0d5%7]) with mapi id 15.20.5588.018; Wed, 7 Sep 2022
- 17:00:47 +0000
-Date:   Wed, 7 Sep 2022 14:00:46 -0300
+ 17:10:34 +0000
+Date:   Wed, 7 Sep 2022 14:10:33 -0300
 From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Joerg Roedel <joro@8bytes.org>, Nicolin Chen <nicolinc@nvidia.com>,
-        will@kernel.org, alex.williamson@redhat.com,
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     Nicolin Chen <nicolinc@nvidia.com>, will@kernel.org,
+        robin.murphy@arm.com, alex.williamson@redhat.com,
         suravee.suthikulpanit@amd.com, marcan@marcan.st,
         sven@svenpeter.dev, alyssa@rosenzweig.io, robdclark@gmail.com,
         dwmw2@infradead.org, baolu.lu@linux.intel.com,
@@ -63,128 +63,114 @@ Cc:     Joerg Roedel <joro@8bytes.org>, Nicolin Chen <nicolinc@nvidia.com>,
         kevin.tian@intel.com
 Subject: Re: [PATCH v6 1/5] iommu: Return -EMEDIUMTYPE for incompatible
  domain and device/group
-Message-ID: <YxjOPo5FFqu2vE/g@nvidia.com>
+Message-ID: <YxjQiVnpU0dr7SHC@nvidia.com>
 References: <20220815181437.28127-1-nicolinc@nvidia.com>
  <20220815181437.28127-2-nicolinc@nvidia.com>
  <YxiRkm7qgQ4k+PIG@8bytes.org>
  <Yxig+zfA2Pr4vk6K@nvidia.com>
- <9f91f187-2767-13f9-68a2-a5458b888f00@arm.com>
+ <YxilZbRL0WBR97oi@8bytes.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9f91f187-2767-13f9-68a2-a5458b888f00@arm.com>
-X-ClientProxiedBy: BL1PR13CA0357.namprd13.prod.outlook.com
- (2603:10b6:208:2c6::32) To MN2PR12MB4192.namprd12.prod.outlook.com
+In-Reply-To: <YxilZbRL0WBR97oi@8bytes.org>
+X-ClientProxiedBy: MN2PR17CA0024.namprd17.prod.outlook.com
+ (2603:10b6:208:15e::37) To MN2PR12MB4192.namprd12.prod.outlook.com
  (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 168e2feb-1700-4911-17bf-08da90f28280
-X-MS-TrafficTypeDiagnostic: DM6PR12MB4340:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6b563c3d-5c00-4930-5db8-08da90f3e08a
+X-MS-TrafficTypeDiagnostic: BL3PR12MB6570:EE_
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: CUlGrHzTEOVUjuZDV8dSn3PtHeEPWvp6Hf9DqaOIxtAWp63RrejBWDGoBdEtXHjAEMb0A9l5KggZUzhRS+QOR4DmUz/SQC4aIiFgOz8WKYtG9lga1kC1LGs02a3GN+4ceYOOn0WPqrKC5heAIVmUzjmefLHzRT0Bdr+QBhyabBhn4oKPTUblmnjcMEgqWpPJfFGSFCQId0IDxCb/ltYzEitNQDfSPw/U5gN5BiPFQChw9QHbPql1PghATqFnG3A9nkLQVyBOAivInSynQmFWwNJm19NdaRqUF0rqq0GeMq4uSTwtgkJgtyy7ggARRotpgLlwLg4HbIiUk39/VjrCrmmrKPRIcy+VkgIpq87Ee1IVhuzxxS5+pR3Qx0nd7TYSZKSPK6AfxwL/5qOeI00k1WZuuFzFGZhIEEaJZM8iwTZqcz0BVbz3j5J3UPA/EsmcezNMnS1Dg3ok0+6PgEU0YKtuVDI0jJXvryGlRX/3NLxjAtY79bWDvSmQYUtYGVjeaS6sz7s3l8bazXjKUr7hh1D/+UROeg2dgkytP7li6RowyDNQCc/gRzI/Jp/pX9iy+qklkth1FVXSZBW1DrjAqkzi+DR1KLWIehDVRmtZ0quDtw/5r1E6Ad1+/4ZMpP2XNOuBq8Et+2JBHMzaXoVZtoELK0ZzKyZmed3vzsAmm5quclTJUMfJg8kAhpUl5efD8eNZM4iyn3f3YwBxbWppGg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(346002)(396003)(376002)(366004)(136003)(39860400002)(36756003)(316002)(83380400001)(5660300002)(8936002)(6916009)(54906003)(2906002)(4326008)(8676002)(7416002)(7406005)(66476007)(66556008)(66946007)(478600001)(41300700001)(26005)(6486002)(53546011)(2616005)(186003)(38100700002)(6506007)(86362001)(6512007);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: +SoC2RNech7I4eFFPSN0aqBGTHpgf7qy/8X3zKVQSw28zTuAdg4Opqp6Ms/tJnLJP2AUpIzRzHvxdpSY6lTpxLIWpvzxU+L2QqghRsm1zb7nG5A7ui59sPxNrXT60//vSWB30XfZGaDziNMCEsicqAFjrYyQisO8ArRVoSdxen+hgHH6wjVBouWgpBhILkA2tcZkedUOu8eySYvS65pqLJISSh2uuXYbIaG4bvFUzo8cMOjUw3EmD1mxUT/74b8BzLrVr8r6eWjyKp6GfcsTI0FT8Mi9nKcUZqIVM/7XWXX3h3WClFg2lLEvXv7Zr26mMv3AIP4SDjNkmbA00s5dl74Cp0RJTbgTCRhMkRqt7RlxHQ5WuIEx1LzxQmCujktHhfX0IRUtBoiDCUk/tXThaF0mYvKNrgrF/qNtGFYCBpp8EVRA5+BtIP3QCK+8XMDxD/UzaA4psQJVuoCdVERHxuUyCPYDL8e8LURw8imizPGVdvJQqVduJAji5RgirfgfOjIsgIr49oNQZq5FMiMTun7tDASwNvsgP41V/t8UdZC4KPLY8/biZsWsiw47Yv2M0N+mLEYMUHAb/MiprYivJcKLDneBKp66O7BgLAEqgyInz03MsYaTDWj9/tAxFQnL43RnGgcFluKisiSR7YN07SKVfTXTHQn4gQws+x2T+Mtt3Cn96U37vrKlMQmHLumvWGwldWku9ZYAhDjZ01iVRA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(376002)(366004)(396003)(39860400002)(136003)(346002)(38100700002)(316002)(8676002)(66946007)(4326008)(66556008)(66476007)(2906002)(6916009)(8936002)(5660300002)(7416002)(6512007)(26005)(2616005)(7406005)(186003)(478600001)(86362001)(41300700001)(6486002)(36756003)(6506007);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?9172dxcnzHGphmgoDTd4I40KFJfYUdupgzQHsKn7UqMLYZLH9DWXJW1RQMT7?=
- =?us-ascii?Q?0v2LBOnjyFIQJ3LadL+pUUdUBPU47iY2Va7sFu55CluA/npkcImsyiqG/Fiu?=
- =?us-ascii?Q?zdUuksewZKd7EHDxfzFsHyzw02AmlmhM7sUaWl3DdFEdhpenUl6rid8wD4+v?=
- =?us-ascii?Q?2dzaxwNmfjKuqCCL/8h4k43wuYalNLOs7hYqlB/cPAmGtHN3yUDO3N1TAhMM?=
- =?us-ascii?Q?zyYYs0dKwMAVirj8Z2BzLahFjWZvrJD7J8QbEIVf8PbUdPUXIRJd/i9Gupjy?=
- =?us-ascii?Q?c3hw6Ax/SgvEg8PSDWfNb8xsU5Ou8FWsmymno8c8gSypGTVPvONFSeaofwMx?=
- =?us-ascii?Q?QcExbtiLjKcZLeORI9korMHLCY70AEiMfE422Z5zJ4d7ZUVMAXbapNUhHZJG?=
- =?us-ascii?Q?EIA0Gu34BDxHLoY4puZzO56tQHckGmPOUQd9G7kHze+cAaCHMRniOLpes53h?=
- =?us-ascii?Q?D2Tdx3b1k783LLZ6nQdRWm32q5V2SSuC6ol89BAF7iFABYYKO7cfoHKAvQH5?=
- =?us-ascii?Q?sN9ZSSb14MwTksL44vhMG+O+bBIZ7eZlpKpdeESd+WBPo/c4eFoQLA3yGGp0?=
- =?us-ascii?Q?ZI3FBkgCMFnCGjhnsMevNXZC945FENOF0Wr9h85UFPNMiNBe2Oww/0b1ReFt?=
- =?us-ascii?Q?wVykEbKwdGrEaowFgIrAXh8TwPPgS+d5ErzW17Gsa+39mtiNxvHeSORETlIc?=
- =?us-ascii?Q?+osJMeXJxf7EoCkpcBC8nob7t7l8ZZSVNR1hvVG+grzqkvZb3AS2hL5tk+Uo?=
- =?us-ascii?Q?hvQYmZwf+UnQ6w8ogoylTsl6CvkJi/IiyAAbNH4txZNbCCm7NkbRjGyGgfru?=
- =?us-ascii?Q?P6z67/LE8Js/V5qRhc2ba25SHW38ghl5EfB+1K71LY5Waqwh520dRFOMdMlE?=
- =?us-ascii?Q?j1cEUuhNBpT9YcbKUSr33FlH1Pb8uWfkg3NAzLGzsGyJwtNXZBqh1o47s3lC?=
- =?us-ascii?Q?fQm4AqAUSE2kKHqehZ1CSQGqeuQSbImoXW/jWRtel1bhbz2NHmkuiJmG62lo?=
- =?us-ascii?Q?FDCYQyV4mUeVtBYLeY4qdqXJUN71T2172+ZTBNNRnUQPNt0vjrH4+fKr/STr?=
- =?us-ascii?Q?QSWjQznebPSPkhfwGtoZ2WfkgwT063UZ32qilJA5w3icEJO2d/IIwfz/nyt5?=
- =?us-ascii?Q?Mx+IqoghMD6FA7Ojgy5/iW+hicyocF/ZQESGDkJPz+ddM1w/C76/CuOf+j9X?=
- =?us-ascii?Q?c8ilO83CRJRkp/AbQVjtas/UfzvNPyx//A2Fo7xQlmjLI7rePenm9otFrXlg?=
- =?us-ascii?Q?213yrvxXr/PwNledRL/ehIfFYYqaE2Tyyix8TQMVM4KMtiuIBZ2ZqyYkg/gp?=
- =?us-ascii?Q?XZbEmdk36sx00ki1uxb5+AdpUl9UC9PpSbPcD/YU8qY0GxN/y1FOqiywJCkb?=
- =?us-ascii?Q?Tjt1OeJi9PQPsBWpMk+bX2Z82zTAv/NWbLmmsStFNOY5nSInFTyoXy+akH85?=
- =?us-ascii?Q?bjrqRAlyqVk47Jq65h8RnRHOuM46TI/F22dqqvipClpSr6dOXS9o+bBsfjPf?=
- =?us-ascii?Q?1pEpLeio6wLImLs8E3dATYVYSQhRfxZ68chMoITQkfXxRaCPwZxdhSzL3+Ir?=
- =?us-ascii?Q?Q/u8E3M0a3lYIol+oQt8s1V+x9OPDb0DBnP91FLk?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?GISa8QQVLcnFvSXsC6xJCxGNdzNMO6tNaFJFx9jVziOFp4WXZxJD7dy20nkD?=
+ =?us-ascii?Q?Ide33D9rsnTcOX8B+bLe2Rua1Fl0y574UYL0TK2GJKChRS+grwDBHgBVPw4g?=
+ =?us-ascii?Q?nFPtejZk4bsP7iwoWh2/kzlg8tUBcaSBeu6ygEunT9OUwtELHodyuuGebL3Z?=
+ =?us-ascii?Q?BB0kkNjQBFI5hWHqELdL9wV70IiO+N1ee1B0lEEs6/G63qiytD7CKoewdGsO?=
+ =?us-ascii?Q?kh7vCDiyayJ/svb87lr53Hko9COdAGePMDT64RoEHZgwMt5oznUeibtN3UvS?=
+ =?us-ascii?Q?wdmmGR/m069RtbjeD2P9UpQTFMZ0wI1ERRwEWHXcU63dhlpVgX1jKklRAQ68?=
+ =?us-ascii?Q?LYWGSpAch3ZhYE/a46c530NBTGqtrj/kJXejwUIp4K6llhOvcolCgznyN8sK?=
+ =?us-ascii?Q?cdlOkxHT90KXhtUYIHRH27BwxJdUCRT9xEztNi8rXUgefJ3eiW+uBrdcBfOW?=
+ =?us-ascii?Q?w1E/YOK8OxoIMW+kE8t8ogbBBgNggkPWA4tU6XDtSgvmQ3WFCbWAZEE07CML?=
+ =?us-ascii?Q?8gCHf1g6gQH9jr5xLdub89zNIjhOCRRs2RMNiye8lcCN17Az+HlXtjKRaR5X?=
+ =?us-ascii?Q?SzRJW8dfrPaA865SSktg16RIMgtihNIZOfMDc5rKBS+vUa5oyDqIfbTWFP69?=
+ =?us-ascii?Q?siMc81VTjRiPLdZI6eFdTecvMimY1V4DFkUrezr6qukp/3p4EIaZOL2uVQKn?=
+ =?us-ascii?Q?+ZiQMMwmARX2wpUPRQeH0xknPOi2ZSFjtrnGR5EqQ9elFrUYxBzOIpH/HT8V?=
+ =?us-ascii?Q?dSD24fChSYMJpACONuCDdnGhakDPIU3h1xNjsgpPCHSY9wvY2w3zEqs+SDQ7?=
+ =?us-ascii?Q?rTcuQw0abP7ybBmcgQUPFp1rzH5QmZeq7y04SzRMu32kvILir2lgMhS4bhlT?=
+ =?us-ascii?Q?0f9l6kjY+ZnFgJphkp+1BBtitHNXmajNfI8XLDArBuRAVZT9LgwSGGi8+vIE?=
+ =?us-ascii?Q?tgJKeH1J4BuwBu2EJ+5Z9ek8f6nkKgyRSMx0XPssYqdca6+HLYTPC+KNWo4x?=
+ =?us-ascii?Q?w7n/iMX22s7gD/Pj/uWao7Ucjhi52yiMju7EH66uW5f/5LaWgDxQQDzQLkYo?=
+ =?us-ascii?Q?upR3ePo0aJs/XBJ9un8k+3qONtGoqeoAoiuC0XVyIFpBtpO9P2UWVwyUJjni?=
+ =?us-ascii?Q?jsjNyjAbYONES4n62RYAomtJz6tpkOkOeSssT3R1bbjKElHvoaicl3YDLLTU?=
+ =?us-ascii?Q?hzi/GV+DccRpkQVaFh1Ad5Qkl4i1aKrztd7zkf9HwOrtO+U0gW80x6RoGePY?=
+ =?us-ascii?Q?oQz2kHQA4r40U4hby8yAfkEHpHUXHjAGZ97hf6gpu9p5CyO2izY94KXOHAXV?=
+ =?us-ascii?Q?XhCtmg9kxU8krsiMycowBhNSEzmuuK96svANtSMwD96TAZcN13qe01MBVXFM?=
+ =?us-ascii?Q?mErU6tG/prVFi8y81byaHiauoJ52l9Cxzk8mS+H8K2n+7aEABLZZJRh6ssOi?=
+ =?us-ascii?Q?nu7gjM7GVBk4VcTgb5hbHR+XbypVZeXLaUv3VHIT0hOBNaIX7Kt5ZAJWVT3i?=
+ =?us-ascii?Q?3+oMGSQ72WapG/uFmNNh7o1qQ+cPHdiizJNfe1Abnw+BhPlx+GSr9YkOrD9s?=
+ =?us-ascii?Q?VdxlPS9ERenOoilOV8DRyMNxqE4Hq3UBzKSh2nUN?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 168e2feb-1700-4911-17bf-08da90f28280
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6b563c3d-5c00-4930-5db8-08da90f3e08a
 X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Sep 2022 17:00:47.3983
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Sep 2022 17:10:34.6838
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: vQllXeBf3ThOaaWLFKJxHIArr2easmy8oJrdfYycivvtwNjA5ZimnyJ24etTzP7H
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4340
+X-MS-Exchange-CrossTenant-UserPrincipalName: uJKV1jDxlRDHZ5Z/Yc37+izWK97nNcxnPLc2DIUylaDisbQzVR0u62DIlQTZnGOj
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6570
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 07, 2022 at 03:23:09PM +0100, Robin Murphy wrote:
-> On 2022-09-07 14:47, Jason Gunthorpe wrote:
-> > On Wed, Sep 07, 2022 at 02:41:54PM +0200, Joerg Roedel wrote:
-> > > On Mon, Aug 15, 2022 at 11:14:33AM -0700, Nicolin Chen wrote:
-> > > > Provide a dedicated errno from the IOMMU driver during attach that the
-> > > > reason attached failed is because of domain incompatability. EMEDIUMTYPE
-> > > > is chosen because it is never used within the iommu subsystem today and
-> > > > evokes a sense that the 'medium' aka the domain is incompatible.
-> > > 
-> > > I am not a fan of re-using EMEDIUMTYPE or any other special value. What
-> > > is needed here in EINVAL, but with a way to tell the caller which of the
-> > > function parameters is actually invalid.
-> > 
-> > Using errnos to indicate the nature of failure is a well established
-> > unix practice, it is why we have hundreds of error codes and don't
-> > just return -EINVAL for everything.
-> > 
-> > What don't you like about it?
-> > 
+On Wed, Sep 07, 2022 at 04:06:29PM +0200, Joerg Roedel wrote:
+> On Wed, Sep 07, 2022 at 10:47:39AM -0300, Jason Gunthorpe wrote:
 > > Would you be happier if we wrote it like
 > > 
-> >   #define IOMMU_EINCOMPATIBLE_DEVICE xx
+> >  #define IOMMU_EINCOMPATIBLE_DEVICE xx
 > > 
 > > Which tells "which of the function parameters is actually invalid" ?
 > 
-> FWIW, we're now very close to being able to validate dev->iommu against
-> where the domain came from in core code, and so short-circuit ->attach_dev
-> entirely if they don't match. 
+> Having done some Rust hacking in the last months, I have to say I like
+> to concept of error handling with Result<> there. Ideally we have a way
+> to emulate that in our C code without having to change all callers.
 
-I don't think this is a long term direction. We have systems now with
-a number of SMMU blocks and we really are going to see a need that
-they share the iommu_domains so we don't have unncessary overheads
-from duplicated io page table memory.
+Sure, rust has all sorts of nice things. But the kernel doesn't follow
+rust idioms, and I don't think this is a great place to start
+experimenting with them.
 
-So ultimately I'd expect to pass the iommu_domain to the driver and
-the driver will decide if the page table memory it represents is
-compatible or not. Restricting to only the same iommu instance isn't
-good..
+The unix/linux idiom is return an errno, and define what the errnos
+mean for your function. We have a long history of creatively applying
+the existing errnos, and sometimes we create new ones.
 
-> At that point -EINVAL at the driver callback level could be assumed
-> to refer to the domain argument, while anything else could be taken
-> as something going unexpectedly wrong when the attach may otherwise
-> have worked. I've forgotten if we actually had a valid case anywhere
-> for "this is my device but even if you retry with a different domain
-> it's still never going to work", but I think we wouldn't actually
-> need that anyway - it should be clear enough to a caller that if
-> attaching to an existing domain fails, then allocating a fresh
-> domain and attaching also fails, that's the point to give up.
+We rarely return an errno and an additional error code because it
+doesn't fit the overall model, I can't return something like that
+through a system call, for instance.
 
-The point was to have clear error handling, we either have permenent
-errors or 'this domain will never work with this device error'.
+> What I am proposing is a way this could be emulated here, but I am open
+> to other suggestions. Still better than re-using random error codes for
+> special purposes.
 
-If we treat all error as temporary and just retry randomly it can
-create a mess. For instance we might fail to attach to a perfectly
-compatible domain due to ENOMEM or something and then go on to
-successfully a create a new 2nd domain, just due to races.
+I think, in context of Linux as a project, it very much is worse to
+make up some rust-inspired error handing and discard the typical
+design patterns.
 
-We can certainly code the try everything then allocate scheme, it is
-just much more fragile than having definitive error codes.
+Linux works because, for the most part, people follow similar design
+sensibilities throughout the tree.
 
+It has been 3 months since EMEDIUMTYPE was first proposed and 6
+iterations of the series, don't you think it is a bit late in the game
+to try to experiment with rust error handling idioms?
+
+So, again, would you be happy with a simple 
+
+ #define IOMMU_EINCOMPATIBLE_DEVICE xx
+
+to make it less "re-using random error codes"?
+
+Thanks,
 Jason
