@@ -2,132 +2,197 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 773CAC38145
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 16:01:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1ECE6C54EE9
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 16:08:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230229AbiIGQBI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 7 Sep 2022 12:01:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51760 "EHLO
+        id S230025AbiIGQH7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Sep 2022 12:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229864AbiIGQAf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Sep 2022 12:00:35 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE02101D5;
-        Wed,  7 Sep 2022 09:00:03 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 287EsBCv004572;
-        Wed, 7 Sep 2022 15:59:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=5X3aRCOkL9BSkw+8LikzyOEbYt4MrZ08eGFD34yvfyc=;
- b=my1D00BhYjpsx1Lb4CpWQ3hty7mGOFTp/TyixBj/Jl4lA+TTsH5yuiTANa1/kqnJjrQe
- bKTjDy79Ppu5nIQ58SwTylZ4tRzR+bG5lZ5f+11M8wvDRKbRbcoaMEnABlnvNtU0to4j
- yGKDC0rSr5gMfVGDtphFLU3lR3IWwpDwjxmhnu/OLAzPkaGXzNdCqVtL4T9rqWq+DXkV
- jrWFAdch+hjQV/Rk9NEzDFohtfe69p0poXT8lIelQZjFWwNqGMBoxoQyV32JpMBkmBCZ
- lLkKAbXbK/pn6haMyy+547agLDuZngb+qh/7jOJ97i065VnE6WSQ55+PtdcGBAr+huIM Uw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jewfmj96n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Sep 2022 15:59:56 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 287FtYm6031318;
-        Wed, 7 Sep 2022 15:59:55 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jewfmj966-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Sep 2022 15:59:55 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 287FpZd6012879;
-        Wed, 7 Sep 2022 15:59:55 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma04dal.us.ibm.com with ESMTP id 3jbxja1cqw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Sep 2022 15:59:55 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 287FxsRn57868562
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 7 Sep 2022 15:59:54 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E9847124058;
-        Wed,  7 Sep 2022 15:59:53 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 35CF7124055;
-        Wed,  7 Sep 2022 15:59:53 +0000 (GMT)
-Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.160.65.175])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed,  7 Sep 2022 15:59:53 +0000 (GMT)
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-To:     linux-s390@vger.kernel.org
-Cc:     nrb@linux.ibm.com, pmorel@linux.ibm.com, schnelle@linux.ibm.com,
-        farman@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] KVM: s390: pci: fix GAIT physical vs virtual pointers usage
-Date:   Wed,  7 Sep 2022 11:59:52 -0400
-Message-Id: <20220907155952.87356-1-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.37.3
+        with ESMTP id S230249AbiIGQHo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Sep 2022 12:07:44 -0400
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51097BD102
+        for <linux-s390@vger.kernel.org>; Wed,  7 Sep 2022 09:06:49 -0700 (PDT)
+Received: by mail-yb1-xb31.google.com with SMTP id g5so22256126ybg.11
+        for <linux-s390@vger.kernel.org>; Wed, 07 Sep 2022 09:06:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=tegUFAqu4QFEqO2BPLPOS9gG1ztOXWQfjWyZiwj/6Xo=;
+        b=hT0u+Z7VNWCdhYiFMzz00mZkOYax9N58iVk5xflRw+JIX1gQJGcuV9udxdJyGJAi0V
+         Ly+/IlvnfSxnCZRz0rkpZMeAGOMQIvuQl1RBo9uFYopzS9PWaopITD60NNCReDRH4/NR
+         RB3bqU+nNwMyuOxUY573Ia7VdToN1PCW2vT0Ki5lKunQOPzpOs8QzO2OXZTKoL1zpj4k
+         3tZ9PwHvoP1R3GlPGCY+y8ULGNxPFJbBCHupost6yIGSXniulGTV9+w2p+v/PtrN4mxx
+         FXFGcrW8efxLA4q/Oi2L0gUfrbeb9GO1piBahfwFP0Mts4818SMchVc9mJA0lkbYo7Bv
+         DmVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=tegUFAqu4QFEqO2BPLPOS9gG1ztOXWQfjWyZiwj/6Xo=;
+        b=ehR/QUXwKXli32BNVbcWV5wUy7swyowlNvJiv9LZezmTJzXBlRx3shqV3856k/QgE7
+         YCPdViY7+X+FVxjg8x1UKgMVdNPrKfYS9FxyXJPPG8ootYgrXXjtQ27+yH6EevcgLBRK
+         Dr8Zi4Nlpg/K+huTIRVt0UXDTDJ6gNAXESzVfwM6gDX8LgzmXguBbicAzFvvZqoNLdTI
+         bdrfWWKlrUPDUo0e/BlGdYzywKa8Ls9gJ90DjUoCH53CpI0JYUhy6cJ5Si3fbEdQ1/wS
+         OHSg3mqMpjmZ4+NvkKxrxrB+OxZ5btWGN8vDI8UfKDxPKRGpl9xkXWpBGOinkWAawriK
+         P6QA==
+X-Gm-Message-State: ACgBeo1UD/s9mVgfFvutdocQSgV6v+WnH7bOMrWUGMtIjO0QyEvRb0ck
+        n/uo+EQRCEuKrMAPJAMbeEyNARQgapvjpgbbdP8Zrw==
+X-Google-Smtp-Source: AA6agR7gs5N52PxWGz4u15ojhg7ySQ24I2ZON2mJh5yiNvivxhg5GewGJ5vnuVXUi66xOlGsl9jv3fOesbtTSlQpJk0=
+X-Received: by 2002:a5b:888:0:b0:6ad:480c:9b66 with SMTP id
+ e8-20020a5b0888000000b006ad480c9b66mr2163379ybq.231.1662566807984; Wed, 07
+ Sep 2022 09:06:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: j2ySYFaNaB5Leo0cwvcFOsx0Ni99hsvk
-X-Proofpoint-ORIG-GUID: Va6FO4WzJjbfXVymrPaL6HVYSB6C8po1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-07_08,2022-09-07_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- mlxlogscore=999 phishscore=0 priorityscore=1501 impostorscore=0
- malwarescore=0 bulkscore=0 lowpriorityscore=0 adultscore=0 mlxscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2209070060
+References: <20220907122505.26953-1-wintera@linux.ibm.com>
+In-Reply-To: <20220907122505.26953-1-wintera@linux.ibm.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Wed, 7 Sep 2022 09:06:36 -0700
+Message-ID: <CANn89iLP15xQjmPHxvQBQ=bWbbVk4_41yLC8o5E97TQWFmRioQ@mail.gmail.com>
+Subject: Re: [RFC net] tcp: Fix performance regression for request-response workloads
+To:     Alexandra Winter <wintera@linux.ibm.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Yuchung Cheng <ycheng@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        netdev <netdev@vger.kernel.org>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The GAIT and all of its entries must be represented by physical
-addresses as this structure is shared with underlying firmware.
-We can keep a virtual address of the GAIT origin in order to
-handle processing in the kernel, but when traversing the entries
-we must again convert the physical AISB stored in that GAIT entry
-into a virtual address in order to process it.
+On Wed, Sep 7, 2022 at 5:26 AM Alexandra Winter <wintera@linux.ibm.com> wrote:
+>
+> Since linear payload was removed even for single small messages,
+> an additional page is required and we are measuring performance impact.
+>
+> 3613b3dbd1ad ("tcp: prepare skbs for better sack shifting")
+> explicitely allowed "payload in skb->head for first skb put in the queue,
+> to not impact RPC workloads."
+> 472c2e07eef0 ("tcp: add one skb cache for tx")
+> made that obsolete and removed it.
+> When
+> d8b81175e412 ("tcp: remove sk_{tr}x_skb_cache")
+> reverted it, this piece was not reverted and not added back in.
+>
+> When running uperf with a request-response pattern with 1k payload
+> and 250 connections parallel, we measure 13% difference in throughput
+> for our PCI based network interfaces since 472c2e07eef0.
+> (our IO MMU is sensitive to the number of mapped pages)
 
-Note: this currently doesn't fix a real bug, since virtual addresses
-are indentical to physical ones.
 
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Nico Boehr <nrb@linux.ibm.com>
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- arch/s390/kvm/interrupt.c | 2 +-
- arch/s390/kvm/pci.c       | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index b9c944b262c7..ab569faf0df2 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -3324,7 +3324,7 @@ static void aen_host_forward(unsigned long si)
- 	if (gaite->count == 0)
- 		return;
- 	if (gaite->aisb != 0)
--		set_bit_inv(gaite->aisbo, (unsigned long *)gaite->aisb);
-+		set_bit_inv(gaite->aisbo, phys_to_virt(gaite->aisb));
- 
- 	kvm = kvm_s390_pci_si_to_kvm(aift, si);
- 	if (!kvm)
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index bb8c335d17b9..8cfa0b03ebbb 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -71,7 +71,7 @@ static int zpci_setup_aipb(u8 nisc)
- 		rc = -ENOMEM;
- 		goto free_sbv;
- 	}
--	aift->gait = (struct zpci_gaite *)page_to_phys(page);
-+	aift->gait = (struct zpci_gaite *)page_to_virt(page);
- 
- 	zpci_aipb->aipb.faisb = virt_to_phys(aift->sbv->vector);
- 	zpci_aipb->aipb.gait = virt_to_phys(aift->gait);
--- 
-2.37.3
+>
+> Could you please consider allowing linear payload for the first
+> skb in queue again? A patch proposal is appended below.
 
+No.
+
+Please add a work around in your driver.
+
+You can increase throughput by 20% by premapping a coherent piece of
+memory in which
+you can copy small skbs (skb->head included)
+
+Something like 256 bytes per slot in the TX ring.
+
+
+>
+> Kind regards
+> Alexandra
+>
+> ---------------------------------------------------------------
+>
+> tcp: allow linear skb payload for first in queue
+>
+> Allow payload in skb->head for first skb in the queue,
+> RPC workloads will benefit.
+>
+> Fixes: 472c2e07eef0 ("tcp: add one skb cache for tx")
+> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+> ---
+>  net/ipv4/tcp.c | 39 +++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 37 insertions(+), 2 deletions(-)
+>
+> diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+> index e5011c136fdb..f7cbccd41d85 100644
+> --- a/net/ipv4/tcp.c
+> +++ b/net/ipv4/tcp.c
+> @@ -1154,6 +1154,30 @@ int tcp_sendpage(struct sock *sk, struct page *page, int offset,
+>  }
+>  EXPORT_SYMBOL(tcp_sendpage);
+>
+> +/* Do not bother using a page frag for very small frames.
+> + * But use this heuristic only for the first skb in write queue.
+> + *
+> + * Having no payload in skb->head allows better SACK shifting
+> + * in tcp_shift_skb_data(), reducing sack/rack overhead, because
+> + * write queue has less skbs.
+> + * Each skb can hold up to MAX_SKB_FRAGS * 32Kbytes, or ~0.5 MB.
+> + * This also speeds up tso_fragment(), since it won't fallback
+> + * to tcp_fragment().
+> + */
+> +static int linear_payload_sz(bool first_skb)
+> +{
+> +               if (first_skb)
+> +                       return SKB_WITH_OVERHEAD(2048 - MAX_TCP_HEADER);
+> +               return 0;
+> +}
+> +
+> +static int select_size(bool first_skb, bool zc)
+> +{
+> +               if (zc)
+> +                       return 0;
+> +               return linear_payload_sz(first_skb);
+> +}
+> +
+>  void tcp_free_fastopen_req(struct tcp_sock *tp)
+>  {
+>         if (tp->fastopen_req) {
+> @@ -1311,6 +1335,7 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+>
+>                 if (copy <= 0 || !tcp_skb_can_collapse_to(skb)) {
+>                         bool first_skb;
+> +                       int linear;
+>
+>  new_segment:
+>                         if (!sk_stream_memory_free(sk))
+> @@ -1322,7 +1347,9 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+>                                         goto restart;
+>                         }
+>                         first_skb = tcp_rtx_and_write_queues_empty(sk);
+> -                       skb = tcp_stream_alloc_skb(sk, 0, sk->sk_allocation,
+> +                       linear = select_size(first_skb, zc);
+> +                       skb = tcp_stream_alloc_skb(sk, linear,
+> +                                                  sk->sk_allocation,
+>                                                    first_skb);
+>                         if (!skb)
+>                                 goto wait_for_space;
+> @@ -1344,7 +1371,15 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+>                 if (copy > msg_data_left(msg))
+>                         copy = msg_data_left(msg);
+>
+> -               if (!zc) {
+> +               /* Where to copy to? */
+> +               if (skb_availroom(skb) > 0 && !zc) {
+> +                       /* We have some space in skb head. Superb! */
+> +                       copy = min_t(int, copy, skb_availroom(skb));
+> +                       err = skb_add_data_nocache(sk, skb, &msg->msg_iter,
+> +                                                  copy);
+> +                       if (err)
+> +                               goto do_error;
+> +               } else if (!zc) {
+>                         bool merge = true;
+>                         int i = skb_shinfo(skb)->nr_frags;
+>                         struct page_frag *pfrag = sk_page_frag(sk);
+> --
+> 2.24.3 (Apple Git-128)
+>
