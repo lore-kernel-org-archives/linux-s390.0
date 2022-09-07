@@ -2,161 +2,203 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38829C54EE9
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 12:11:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEFCFC54EE9
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 12:26:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229883AbiIGMLj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 7 Sep 2022 08:11:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43858 "EHLO
+        id S229493AbiIGM0u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Sep 2022 08:26:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229865AbiIGMLi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Sep 2022 08:11:38 -0400
-Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F1AB89CEE
-        for <linux-s390@vger.kernel.org>; Wed,  7 Sep 2022 05:11:36 -0700 (PDT)
-Received: by mail-qk1-x72e.google.com with SMTP id w18so10246256qki.8
-        for <linux-s390@vger.kernel.org>; Wed, 07 Sep 2022 05:11:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=WIB8a4RMKIbsQgzbAFRigZUlzKpMzaK/mPjLu18jivg=;
-        b=HP3rDaJjD8dZmYIHrjdNkoDnmUw7g9uCc4vHBTmXsOrDzTaDzvVkGROQU4JiMIG6SF
-         qudhCqJZhmdnGxt9Qchu2u/Kb1AzirulrNQKlif2VVN775xzycYMvQlIejXeuRl9FUCV
-         B3sY2DzX6HPglZ4Tt6xcS2UP6H2y+QTtsv8hPxcu7qACinqcAbBEosQlGwToao3GbIXm
-         9n3zqjh8c5lL3+Pt3dwF6hwztXdonsbyY8QaXeKX/rwCr1nuqyp6n1gg8cgYPm+00Q2X
-         HA4OSsdsbupGMsvkpLpJhuXakDbiiPMBOk6rzxqSUV5A1n0+hK7OQ2N2NVdOzCqW+cgi
-         GP2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=WIB8a4RMKIbsQgzbAFRigZUlzKpMzaK/mPjLu18jivg=;
-        b=rpaJNrMk3Ucf+AmseB4uOG8hBTZWpMDJEs9rKw4WrTHclw786VSxr0lsaBZTUggEGc
-         zwPHD0d5+nIlQZWL7O0l5wNxkHA2Wvx7xxLeMp03hfc16xG2uS5lLzhiuWpgYrF85n80
-         WINq99F5rQjy4FNCbmGkER48/JXbA4uNUsZQMnGIHVWpnaTKnlH9ribT4tR3/IxD6KpZ
-         ZbqGHmytBuK+REM8dSLxJ3bheA8+dXRLDzZYwhSXRCIEVQtJqjt8JLUa2NdIKEruwSWO
-         GCrggyuFOfc67pLEmEJ67YJ2LzmzBgfLPqY2bbjWWk2KkxJhrTAcr8cS5BHHpI5GFJoR
-         mOEw==
-X-Gm-Message-State: ACgBeo0+2Q2meMbDmpPHvJLLn/41sOUerbDn19ttSvLbJwnJSxEkeyFd
-        5nB9A/14Cr13Jm6NQFc9WBkUKg==
-X-Google-Smtp-Source: AA6agR6Aqb9OjhZTxuJwTHCrpwMtc8lM+if3ZhE4tHVst9Nj0UDP4AirE5WpW+co8I96BvAuRRT3Qw==
-X-Received: by 2002:a05:620a:1402:b0:6bc:2055:6da0 with SMTP id d2-20020a05620a140200b006bc20556da0mr2302837qkj.534.1662552695680;
-        Wed, 07 Sep 2022 05:11:35 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
-        by smtp.gmail.com with ESMTPSA id n3-20020a05620a294300b006b953a7929csm14765165qkp.73.2022.09.07.05.11.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Sep 2022 05:11:34 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1oVtu2-008YHj-0u;
-        Wed, 07 Sep 2022 09:11:34 -0300
-Date:   Wed, 7 Sep 2022 09:11:34 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Longfang Liu <liulongfang@huawei.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Halil Pasic <pasic@linux.ibm.com>,
+        with ESMTP id S229476AbiIGM0t (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Sep 2022 08:26:49 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B7EA7AA2;
+        Wed,  7 Sep 2022 05:26:48 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 287CCkGC032327;
+        Wed, 7 Sep 2022 12:26:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=k2B2oN3072AB2Rz6ArgU/pPbCW/fz3Toyh8pu5ZbGMo=;
+ b=gkgGwzP+wB76xsXa42n71HtWA50v68O99Q/LhFQGBxupe6DHX3GV5QfMl0jcwolCQXCu
+ G96Rc8r9Q1W1KrdxzWVt7ReiZEuJv4D290+kzuUx6+VtvHv/IgGb3FtGsJc+seF2avA1
+ N6VVdWAqfXWZZQUCMK1lxXEDWtPSUWGtXTGvXh3Gw7nXMysN/WV3IkmqeWsNZ9R6kAFJ
+ 9wvBp5jjrLS15mpIyT0Y4m42MLrfooP+y4Gn61IBSzC2Opjcy8zR/bDHL+2tr7OMFrwF
+ wOVLrd3bsy8sacCOXKRxket4SWgKuUyTF432Ux6k4GDSqi3oXZ9uxcJtUetX12BFbJCQ XQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jeu3urdhw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 07 Sep 2022 12:26:40 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 287CD6pO001690;
+        Wed, 7 Sep 2022 12:26:40 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jeu3urdgy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 07 Sep 2022 12:26:40 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 287CKKOY007821;
+        Wed, 7 Sep 2022 12:26:38 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3jbxj8w59h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 07 Sep 2022 12:26:38 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 287CQYoj33358192
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 7 Sep 2022 12:26:35 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DC04A4C04E;
+        Wed,  7 Sep 2022 12:26:34 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 470264C044;
+        Wed,  7 Sep 2022 12:26:34 +0000 (GMT)
+Received: from Alexandras-MBP.fritz.box.com (unknown [9.145.95.28])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  7 Sep 2022 12:26:34 +0000 (GMT)
+From:   Alexandra Winter <wintera@linux.ibm.com>
+To:     Eric Dumazet <edumazet@google.com>,
+        David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     Yuchung Cheng <ycheng@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Abhishek Sahu <abhsahu@nvidia.com>
-Subject: Re: [PATCH v2 01/15] vfio: Add helpers for unifying vfio_device life
- cycle
-Message-ID: <YxiKdh6EDBZnTAGH@ziepe.ca>
-References: <20220901143747.32858-1-kevin.tian@intel.com>
- <20220901143747.32858-2-kevin.tian@intel.com>
- <YxcV05AVN4kqdPX6@infradead.org>
- <BN9PR11MB5276EE6209C1E3D4662368DC8C419@BN9PR11MB5276.namprd11.prod.outlook.com>
- <YxiGpryRNrxvEoiY@infradead.org>
+        Alexandra Winter <wintera@linux.ibm.com>
+Subject: [RFC net] tcp: Fix performance regression for request-response workloads
+Date:   Wed,  7 Sep 2022 14:25:06 +0200
+Message-Id: <20220907122505.26953-1-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YxiGpryRNrxvEoiY@infradead.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lOSIx08iXjPCtsoCO8dLpaklPROtkUAw
+X-Proofpoint-GUID: YdK8nzAPWPEFyCPILRPAxC_dU-3M1B6d
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-07_06,2022-09-07_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1011
+ spamscore=0 mlxlogscore=999 suspectscore=0 priorityscore=1501 bulkscore=0
+ mlxscore=0 lowpriorityscore=0 impostorscore=0 adultscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
+ definitions=main-2209070046
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 07, 2022 at 04:55:18AM -0700, Christoph Hellwig wrote:
-> On Wed, Sep 07, 2022 at 12:43:30AM +0000, Tian, Kevin wrote:
-> > > From: Christoph Hellwig
-> > > Sent: Tuesday, September 6, 2022 5:42 PM
-> > > 
-> > > What is the point?  This adds indirect calls, and actually creates
-> > > more boilerplate code in the drivers.  i.g. when using this code there
-> > > is more, and harder to read code.
-> > 
-> > The point is to align with struct device life cycle when it's introduced
-> > to vfio_device. The object is released via put_device() then what would
-> > be the alternative if the driver doesn't provide a @release callback?
-> > 
-> > and with @release then naturally @init is also expected.
-> 
-> No, with a release no @init is expected.  The init method is one
-> of the major obsfucations here, only topped by the weird
-> vfio_alloc_device macro.  Yes, that saves about 4 lines of code
-> in every driver, but places a burden on the struct layout and
-> very much obsfucated things.  Without vfio_alloc_device and
-> the init method I think much of this would make a lot more sense.
-> 
-> See the patch below that goes on top of this series to show how
-> undoing these two would look on mbochs.  It it a slight reduction
-> lines of code, but more readable and much less churn compared
-> to the status before this series.
+Since linear payload was removed even for single small messages,
+an additional page is required and we are measuring performance impact.
 
-I've seen alot of error handling bugs caused by open-coding patterns
-like this. People get confused about what the lifecycle is and botch
-the error unwinds, almost 100% of the time :\ They call kfree when
-they should call put_device, they call put_device before initing
-enough stuff that the release callback doesn't crash, double free
-stuff by calling put_device at the wrong point, and so on.
+3613b3dbd1ad ("tcp: prepare skbs for better sack shifting")
+explicitely allowed "payload in skb->head for first skb put in the queue,
+to not impact RPC workloads."
+472c2e07eef0 ("tcp: add one skb cache for tx")
+made that obsolete and removed it.
+When 
+d8b81175e412 ("tcp: remove sk_{tr}x_skb_cache")
+reverted it, this piece was not reverted and not added back in.
 
-The advantage of init/release is the strict pairing and the core code
-helping get the error unwind right, by not calling release until init
-succeeds.
+When running uperf with a request-response pattern with 1k payload
+and 250 connections parallel, we measure 13% difference in throughput
+for our PCI based network interfaces since 472c2e07eef0.
+(our IO MMU is sensitive to the number of mapped pages)
 
-The advantage of the vfio_alloc_device() is not saving 4 lines, it is
-giving the drivers a simple/sane error handling strategy. Goto unwind
-inside init, release undoes everything init does and the probe path
-only calls put_device(). It is simple and logical to implement and
-hard to make subtle bugs.
+Could you please consider allowing linear payload for the first
+skb in queue again? A patch proposal is appended below.
 
-Specifically it eliminates the open coded transition of kfree to
-put_device that seems so difficult for people to get right.
+Kind regards
+Alexandra
 
-netdev has done a version of this, so has rdma, and it works well.
+---------------------------------------------------------------
 
-Jason
+tcp: allow linear skb payload for first in queue
+
+Allow payload in skb->head for first skb in the queue,
+RPC workloads will benefit.
+
+Fixes: 472c2e07eef0 ("tcp: add one skb cache for tx")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+---
+ net/ipv4/tcp.c | 39 +++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 37 insertions(+), 2 deletions(-)
+
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index e5011c136fdb..f7cbccd41d85 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1154,6 +1154,30 @@ int tcp_sendpage(struct sock *sk, struct page *page, int offset,
+ }
+ EXPORT_SYMBOL(tcp_sendpage);
+ 
++/* Do not bother using a page frag for very small frames.
++ * But use this heuristic only for the first skb in write queue.
++ *
++ * Having no payload in skb->head allows better SACK shifting
++ * in tcp_shift_skb_data(), reducing sack/rack overhead, because
++ * write queue has less skbs.
++ * Each skb can hold up to MAX_SKB_FRAGS * 32Kbytes, or ~0.5 MB.
++ * This also speeds up tso_fragment(), since it won't fallback
++ * to tcp_fragment().
++ */
++static int linear_payload_sz(bool first_skb)
++{
++		if (first_skb)
++			return SKB_WITH_OVERHEAD(2048 - MAX_TCP_HEADER);
++		return 0;
++}
++
++static int select_size(bool first_skb, bool zc)
++{
++		if (zc)
++			return 0;
++		return linear_payload_sz(first_skb);
++}
++
+ void tcp_free_fastopen_req(struct tcp_sock *tp)
+ {
+ 	if (tp->fastopen_req) {
+@@ -1311,6 +1335,7 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+ 
+ 		if (copy <= 0 || !tcp_skb_can_collapse_to(skb)) {
+ 			bool first_skb;
++			int linear;
+ 
+ new_segment:
+ 			if (!sk_stream_memory_free(sk))
+@@ -1322,7 +1347,9 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+ 					goto restart;
+ 			}
+ 			first_skb = tcp_rtx_and_write_queues_empty(sk);
+-			skb = tcp_stream_alloc_skb(sk, 0, sk->sk_allocation,
++			linear = select_size(first_skb, zc);
++			skb = tcp_stream_alloc_skb(sk, linear,
++						   sk->sk_allocation,
+ 						   first_skb);
+ 			if (!skb)
+ 				goto wait_for_space;
+@@ -1344,7 +1371,15 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+ 		if (copy > msg_data_left(msg))
+ 			copy = msg_data_left(msg);
+ 
+-		if (!zc) {
++		/* Where to copy to? */
++		if (skb_availroom(skb) > 0 && !zc) {
++			/* We have some space in skb head. Superb! */
++			copy = min_t(int, copy, skb_availroom(skb));
++			err = skb_add_data_nocache(sk, skb, &msg->msg_iter,
++						   copy);
++			if (err)
++				goto do_error;
++		} else if (!zc) {
+ 			bool merge = true;
+ 			int i = skb_shinfo(skb)->nr_frags;
+ 			struct page_frag *pfrag = sk_page_frag(sk);
+-- 
+2.24.3 (Apple Git-128)
+
