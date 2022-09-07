@@ -2,34 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC709C38145
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 11:55:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38829C54EE9
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Sep 2022 12:11:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229969AbiIGLzg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 7 Sep 2022 07:55:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49786 "EHLO
+        id S229883AbiIGMLj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Sep 2022 08:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229785AbiIGLz2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Sep 2022 07:55:28 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B28466AA1A;
-        Wed,  7 Sep 2022 04:55:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=BM2xHrfmxe+STDKKXSowY9hGQLIOtaAF8m9cL5/wDWk=; b=h/UQBtGd2bbjkcASv3lH0arQWz
-        thvfSm6sN9MwBmusPTiYDemn1x33oURDjpuH0ws/E3qX991rVKb/fSZ0S3xgvv6AfeccKlZhSkohy
-        sU8eMVJzi86CP1ZxSnQR6y44HjkvYXg53BVbW7b6E0TO5KzwFS9WkRg1d8F7hs9m6UTWf8YOttaRQ
-        9u3bwIfEwALBVaKutcRK5+OM37JbbVXD/yScf1SxlJMwaz7adoPlUIziChtiYWq2v7MQCGS1e8/xs
-        iPFO8ZuHB0w20MuW3hCwKJ/CEPXibmys5p+gFYGxPK1TK1F6EqsOzSuIGA9Fk83XXmpv6sPUSx0MA
-        CUOG073Q==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oVteI-005sv8-Au; Wed, 07 Sep 2022 11:55:18 +0000
-Date:   Wed, 7 Sep 2022 04:55:18 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Christoph Hellwig <hch@infradead.org>,
+        with ESMTP id S229865AbiIGMLi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Sep 2022 08:11:38 -0400
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F1AB89CEE
+        for <linux-s390@vger.kernel.org>; Wed,  7 Sep 2022 05:11:36 -0700 (PDT)
+Received: by mail-qk1-x72e.google.com with SMTP id w18so10246256qki.8
+        for <linux-s390@vger.kernel.org>; Wed, 07 Sep 2022 05:11:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date;
+        bh=WIB8a4RMKIbsQgzbAFRigZUlzKpMzaK/mPjLu18jivg=;
+        b=HP3rDaJjD8dZmYIHrjdNkoDnmUw7g9uCc4vHBTmXsOrDzTaDzvVkGROQU4JiMIG6SF
+         qudhCqJZhmdnGxt9Qchu2u/Kb1AzirulrNQKlif2VVN775xzycYMvQlIejXeuRl9FUCV
+         B3sY2DzX6HPglZ4Tt6xcS2UP6H2y+QTtsv8hPxcu7qACinqcAbBEosQlGwToao3GbIXm
+         9n3zqjh8c5lL3+Pt3dwF6hwztXdonsbyY8QaXeKX/rwCr1nuqyp6n1gg8cgYPm+00Q2X
+         HA4OSsdsbupGMsvkpLpJhuXakDbiiPMBOk6rzxqSUV5A1n0+hK7OQ2N2NVdOzCqW+cgi
+         GP2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+        bh=WIB8a4RMKIbsQgzbAFRigZUlzKpMzaK/mPjLu18jivg=;
+        b=rpaJNrMk3Ucf+AmseB4uOG8hBTZWpMDJEs9rKw4WrTHclw786VSxr0lsaBZTUggEGc
+         zwPHD0d5+nIlQZWL7O0l5wNxkHA2Wvx7xxLeMp03hfc16xG2uS5lLzhiuWpgYrF85n80
+         WINq99F5rQjy4FNCbmGkER48/JXbA4uNUsZQMnGIHVWpnaTKnlH9ribT4tR3/IxD6KpZ
+         ZbqGHmytBuK+REM8dSLxJ3bheA8+dXRLDzZYwhSXRCIEVQtJqjt8JLUa2NdIKEruwSWO
+         GCrggyuFOfc67pLEmEJ67YJ2LzmzBgfLPqY2bbjWWk2KkxJhrTAcr8cS5BHHpI5GFJoR
+         mOEw==
+X-Gm-Message-State: ACgBeo0+2Q2meMbDmpPHvJLLn/41sOUerbDn19ttSvLbJwnJSxEkeyFd
+        5nB9A/14Cr13Jm6NQFc9WBkUKg==
+X-Google-Smtp-Source: AA6agR6Aqb9OjhZTxuJwTHCrpwMtc8lM+if3ZhE4tHVst9Nj0UDP4AirE5WpW+co8I96BvAuRRT3Qw==
+X-Received: by 2002:a05:620a:1402:b0:6bc:2055:6da0 with SMTP id d2-20020a05620a140200b006bc20556da0mr2302837qkj.534.1662552695680;
+        Wed, 07 Sep 2022 05:11:35 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
+        by smtp.gmail.com with ESMTPSA id n3-20020a05620a294300b006b953a7929csm14765165qkp.73.2022.09.07.05.11.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Sep 2022 05:11:34 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1oVtu2-008YHj-0u;
+        Wed, 07 Sep 2022 09:11:34 -0300
+Date:   Wed, 7 Sep 2022 09:11:34 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         David Airlie <airlied@linux.ie>,
         Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
@@ -45,7 +70,6 @@ Cc:     Christoph Hellwig <hch@infradead.org>,
         "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
         Leon Romanovsky <leon@kernel.org>,
         Halil Pasic <pasic@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
         "Wang, Zhi A" <zhi.a.wang@intel.com>,
@@ -72,154 +96,67 @@ Cc:     Christoph Hellwig <hch@infradead.org>,
         Abhishek Sahu <abhsahu@nvidia.com>
 Subject: Re: [PATCH v2 01/15] vfio: Add helpers for unifying vfio_device life
  cycle
-Message-ID: <YxiGpryRNrxvEoiY@infradead.org>
+Message-ID: <YxiKdh6EDBZnTAGH@ziepe.ca>
 References: <20220901143747.32858-1-kevin.tian@intel.com>
  <20220901143747.32858-2-kevin.tian@intel.com>
  <YxcV05AVN4kqdPX6@infradead.org>
  <BN9PR11MB5276EE6209C1E3D4662368DC8C419@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <YxiGpryRNrxvEoiY@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <BN9PR11MB5276EE6209C1E3D4662368DC8C419@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <YxiGpryRNrxvEoiY@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 07, 2022 at 12:43:30AM +0000, Tian, Kevin wrote:
-> > From: Christoph Hellwig
-> > Sent: Tuesday, September 6, 2022 5:42 PM
+On Wed, Sep 07, 2022 at 04:55:18AM -0700, Christoph Hellwig wrote:
+> On Wed, Sep 07, 2022 at 12:43:30AM +0000, Tian, Kevin wrote:
+> > > From: Christoph Hellwig
+> > > Sent: Tuesday, September 6, 2022 5:42 PM
+> > > 
+> > > What is the point?  This adds indirect calls, and actually creates
+> > > more boilerplate code in the drivers.  i.g. when using this code there
+> > > is more, and harder to read code.
 > > 
-> > What is the point?  This adds indirect calls, and actually creates
-> > more boilerplate code in the drivers.  i.g. when using this code there
-> > is more, and harder to read code.
+> > The point is to align with struct device life cycle when it's introduced
+> > to vfio_device. The object is released via put_device() then what would
+> > be the alternative if the driver doesn't provide a @release callback?
+> > 
+> > and with @release then naturally @init is also expected.
 > 
-> The point is to align with struct device life cycle when it's introduced
-> to vfio_device. The object is released via put_device() then what would
-> be the alternative if the driver doesn't provide a @release callback?
+> No, with a release no @init is expected.  The init method is one
+> of the major obsfucations here, only topped by the weird
+> vfio_alloc_device macro.  Yes, that saves about 4 lines of code
+> in every driver, but places a burden on the struct layout and
+> very much obsfucated things.  Without vfio_alloc_device and
+> the init method I think much of this would make a lot more sense.
 > 
-> and with @release then naturally @init is also expected.
+> See the patch below that goes on top of this series to show how
+> undoing these two would look on mbochs.  It it a slight reduction
+> lines of code, but more readable and much less churn compared
+> to the status before this series.
 
-No, with a release no @init is expected.  The init method is one
-of the major obsfucations here, only topped by the weird
-vfio_alloc_device macro.  Yes, that saves about 4 lines of code
-in every driver, but places a burden on the struct layout and
-very much obsfucated things.  Without vfio_alloc_device and
-the init method I think much of this would make a lot more sense.
+I've seen alot of error handling bugs caused by open-coding patterns
+like this. People get confused about what the lifecycle is and botch
+the error unwinds, almost 100% of the time :\ They call kfree when
+they should call put_device, they call put_device before initing
+enough stuff that the release callback doesn't crash, double free
+stuff by calling put_device at the wrong point, and so on.
 
-See the patch below that goes on top of this series to show how
-undoing these two would look on mbochs.  It it a slight reduction
-lines of code, but more readable and much less churn compared
-to the status before this series.
+The advantage of init/release is the strict pairing and the core code
+helping get the error unwind right, by not calling release until init
+succeeds.
 
-diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-index df95f25fbc0ede..7f01b335fd4dbd 100644
---- a/samples/vfio-mdev/mbochs.c
-+++ b/samples/vfio-mdev/mbochs.c
-@@ -505,14 +505,12 @@ static int mbochs_reset(struct mdev_state *mdev_state)
- 	return 0;
- }
- 
--static int mbochs_init_dev(struct vfio_device *vdev)
-+static int mbochs_probe(struct mdev_device *mdev)
- {
--	struct mdev_state *mdev_state =
--		container_of(vdev, struct mdev_state, vdev);
--	struct mdev_device *mdev = to_mdev_device(vdev->dev);
-+	int avail_mbytes = atomic_read(&mbochs_avail_mbytes);
- 	const struct mbochs_type *type =
- 		&mbochs_types[mdev_get_type_group_id(mdev)];
--	int avail_mbytes = atomic_read(&mbochs_avail_mbytes);
-+	struct mdev_state *mdev_state;
- 	int ret = -ENOMEM;
- 
- 	do {
-@@ -521,10 +519,14 @@ static int mbochs_init_dev(struct vfio_device *vdev)
- 	} while (!atomic_try_cmpxchg(&mbochs_avail_mbytes, &avail_mbytes,
- 				     avail_mbytes - type->mbytes));
- 
--	mdev_state->vconfig = kzalloc(MBOCHS_CONFIG_SPACE_SIZE, GFP_KERNEL);
--	if (!mdev_state->vconfig)
-+	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
-+	if (mdev_state == NULL)
- 		goto err_avail;
- 
-+	mdev_state->vconfig = kzalloc(MBOCHS_CONFIG_SPACE_SIZE, GFP_KERNEL);
-+	if (mdev_state->vconfig == NULL)
-+		goto err_state;
-+
- 	mdev_state->memsize = type->mbytes * 1024 * 1024;
- 	mdev_state->pagecount = mdev_state->memsize >> PAGE_SHIFT;
- 	mdev_state->pages = kcalloc(mdev_state->pagecount,
-@@ -546,38 +548,33 @@ static int mbochs_init_dev(struct vfio_device *vdev)
- 	mbochs_create_config_space(mdev_state);
- 	mbochs_reset(mdev_state);
- 
-+	ret = vfio_init_device(&mdev_state->vdev, &mdev->dev, &mbochs_dev_ops);
-+	if (ret)
-+		goto err_mem;
-+
-+	ret = vfio_register_emulated_iommu_dev(&mdev_state->vdev);
-+	if (ret) {
-+		vfio_put_device(&mdev_state->vdev);
-+		return ret;
-+	}
-+
- 	dev_info(vdev->dev, "%s: %s, %d MB, %ld pages\n", __func__,
- 		 type->name, type->mbytes, mdev_state->pagecount);
-+
-+	dev_set_drvdata(&mdev->dev, mdev_state);
- 	return 0;
- 
-+err_mem:
-+	kfree(mdev_state->pages);
- err_vconfig:
- 	kfree(mdev_state->vconfig);
-+err_state:
-+	kfree(mdev_state);
- err_avail:
- 	atomic_add(type->mbytes, &mbochs_avail_mbytes);
- 	return ret;
- }
- 
--static int mbochs_probe(struct mdev_device *mdev)
--{
--	struct mdev_state *mdev_state;
--	int ret = -ENOMEM;
--
--	mdev_state = vfio_alloc_device(mdev_state, vdev, &mdev->dev,
--				       &mbochs_dev_ops);
--	if (IS_ERR(mdev_state))
--		return PTR_ERR(mdev_state);
--
--	ret = vfio_register_emulated_iommu_dev(&mdev_state->vdev);
--	if (ret)
--		goto err_put_vdev;
--	dev_set_drvdata(&mdev->dev, mdev_state);
--	return 0;
--
--err_put_vdev:
--	vfio_put_device(&mdev_state->vdev);
--	return ret;
--}
--
- static void mbochs_release_dev(struct vfio_device *vdev)
- {
- 	struct mdev_state *mdev_state =
-@@ -585,7 +582,7 @@ static void mbochs_release_dev(struct vfio_device *vdev)
- 
- 	kfree(mdev_state->pages);
- 	kfree(mdev_state->vconfig);
--	vfio_free_device(vdev);
-+	kfree(vdev);
- 	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
- }
- 
-@@ -1414,7 +1411,6 @@ static struct attribute_group *mdev_type_groups[] = {
- 
- static const struct vfio_device_ops mbochs_dev_ops = {
- 	.close_device = mbochs_close_device,
--	.init = mbochs_init_dev,
- 	.release = mbochs_release_dev,
- 	.read = mbochs_read,
- 	.write = mbochs_write,
+The advantage of the vfio_alloc_device() is not saving 4 lines, it is
+giving the drivers a simple/sane error handling strategy. Goto unwind
+inside init, release undoes everything init does and the probe path
+only calls put_device(). It is simple and logical to implement and
+hard to make subtle bugs.
+
+Specifically it eliminates the open coded transition of kfree to
+put_device that seems so difficult for people to get right.
+
+netdev has done a version of this, so has rdma, and it works well.
+
+Jason
