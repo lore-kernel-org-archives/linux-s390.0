@@ -2,177 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB1A2C6FA82
-	for <linux-s390@archiver.kernel.org>; Thu,  8 Sep 2022 12:41:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEC2DC6FA82
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Sep 2022 13:29:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231938AbiIHMlg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Sep 2022 08:41:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60516 "EHLO
+        id S232506AbiIHN27 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Sep 2022 09:28:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231910AbiIHMle (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 08:41:34 -0400
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E200DE22A4
-        for <linux-s390@vger.kernel.org>; Thu,  8 Sep 2022 05:41:24 -0700 (PDT)
-Received: by mail-yb1-xb30.google.com with SMTP id f131so10622245ybf.7
-        for <linux-s390@vger.kernel.org>; Thu, 08 Sep 2022 05:41:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=bPN+x0uxb4RSLvHLOBiYMUwqbNvQelYuhia5mFDYPZI=;
-        b=VB93Noe8Rl+dAVe1vfjhQznF5UuUdwf92pGlb7OLXfh9Idi4piFlEfttHLe0VYM1nb
-         2dMK9x7uicmhaVndyZSARDyS6qvZSxAgwrDAMJ/0NRTJEwuR9rHbLBWFgDbk2W2vT2m0
-         OqYdmqmYrVkIJPzmLtu2gsDjWWBkxPiPz4uBTab4aSPF7HEm+8YCr6briEugCdWgc3nA
-         m++MlHhULQB8GA0CotnOUbc1m8yjLrg1m4E3XryP6kCBjmZObn0N5SUesH6XRECPgMdK
-         Ku7nfoAr/nnFAIibp4QFdj+PBXRO69KLW/kgzZ/5euskSYpiuvSRtIaY0C7NmTCTkpWA
-         kp5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=bPN+x0uxb4RSLvHLOBiYMUwqbNvQelYuhia5mFDYPZI=;
-        b=QoTipyRWfIO4G2jEgSB8qjFn4hgk24kxG0PMBcjxFs9pHAv7J6Ro71nAmzQVmNiNSo
-         GFu+qhtFV8ch+IXBr+H36W+4xbTWKkeJiGl3+4T4qfwKBN17RSlW8W7aKvEX7v9fegHm
-         zYfi1gHg/a2EWBsPRcHLXspNlPtn06YRRNRGLzHm1XIrCFfutsB4FuYV5vhfax2Odxu7
-         2NY5uwt8aRMKgUYqEtVMCHwh/gfHBkbJ32kvUWsyRij4LDkTGan+SVL3TMNrKlGwqAGp
-         8KLF8xd050Bq3EcvROzYK96ML2byaK+mdcDt7BFmQneeHGIE61QikSHAfeCHaFxpb9pt
-         5zNA==
-X-Gm-Message-State: ACgBeo0btM97NpYIdisVJaVV61Bcrkh51mcHJtPSBmBC1YntwgSmrLo9
-        cYvFXmtVod8g+LjnWLlB/Iu9lStSZ5Swy/0rCVx1Ew==
-X-Google-Smtp-Source: AA6agR4a7rI+WDE3hKacWnXaq7Y45tItZy0joZxRK6Fm52RPV8eQvhQQUviSvrewr6/DtXuEljeIeYmBhefYZ79gQF0=
-X-Received: by 2002:a5b:888:0:b0:6ad:480c:9b66 with SMTP id
- e8-20020a5b0888000000b006ad480c9b66mr5652141ybq.231.1662640883561; Thu, 08
- Sep 2022 05:41:23 -0700 (PDT)
+        with ESMTP id S232629AbiIHN2g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 09:28:36 -0400
+Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0FFD512754D;
+        Thu,  8 Sep 2022 06:28:25 -0700 (PDT)
+Received: from 8bytes.org (p4ff2bb62.dip0.t-ipconnect.de [79.242.187.98])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.8bytes.org (Postfix) with ESMTPSA id 6ACB624069C;
+        Thu,  8 Sep 2022 15:28:23 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
+        s=default; t=1662643704;
+        bh=tDuhKm9wQfdx7sUd4hZrnBHJRGruWciJVuKdXgXOhg8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Nbzo8AaKCmLcJF6ywBTO/rjFGCww8jqPWoQ6WcBpBVILlVrrzm/ywTVSN6gtAJpvI
+         A4WA5AxpHDg5Sd62NU3n5V/Vi1+huBSshzEAQAZS7xn++DhH0oznzPGAGwNcfBbTfq
+         Twt1k1zJR6eHTY8BdmbO1Ww2bxQuZSP3YVyPip5R53rnIHglAbsB0bCYX0JzWlq5Om
+         M3nAYqpIKCggsduzZcJAnKN/jYWRx4aw2vg7FWSxO/QqqKt7N7pAfFXxtOG8goJGLV
+         xuiUyCTz0ghn5xX8vuVnC49wxhLLFEBrREVNPwdgKbdzr/ZwBoayTRYmgPniXvM4Pl
+         wZdcX65MXNFqw==
+Date:   Thu, 8 Sep 2022 15:28:22 +0200
+From:   Joerg Roedel <joro@8bytes.org>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Nicolin Chen <nicolinc@nvidia.com>, will@kernel.org,
+        robin.murphy@arm.com, alex.williamson@redhat.com,
+        suravee.suthikulpanit@amd.com, marcan@marcan.st,
+        sven@svenpeter.dev, alyssa@rosenzweig.io, robdclark@gmail.com,
+        dwmw2@infradead.org, baolu.lu@linux.intel.com,
+        mjrosato@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        orsonzhai@gmail.com, baolin.wang@linux.alibaba.com,
+        zhang.lyra@gmail.com, thierry.reding@gmail.com, vdumpa@nvidia.com,
+        jonathanh@nvidia.com, jean-philippe@linaro.org, cohuck@redhat.com,
+        tglx@linutronix.de, shameerali.kolothum.thodi@huawei.com,
+        thunder.leizhen@huawei.com, christophe.jaillet@wanadoo.fr,
+        yangyingliang@huawei.com, jon@solid-run.com, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        kevin.tian@intel.com
+Subject: Re: [PATCH v6 1/5] iommu: Return -EMEDIUMTYPE for incompatible
+ domain and device/group
+Message-ID: <Yxnt9uQTmbqul5lf@8bytes.org>
+References: <20220815181437.28127-1-nicolinc@nvidia.com>
+ <20220815181437.28127-2-nicolinc@nvidia.com>
+ <YxiRkm7qgQ4k+PIG@8bytes.org>
+ <Yxig+zfA2Pr4vk6K@nvidia.com>
+ <YxilZbRL0WBR97oi@8bytes.org>
+ <YxjQiVnpU0dr7SHC@nvidia.com>
 MIME-Version: 1.0
-References: <20220907122505.26953-1-wintera@linux.ibm.com> <CANn89iLP15xQjmPHxvQBQ=bWbbVk4_41yLC8o5E97TQWFmRioQ@mail.gmail.com>
- <375efe42-910d-69ae-e48d-cff0298dd104@linux.ibm.com>
-In-Reply-To: <375efe42-910d-69ae-e48d-cff0298dd104@linux.ibm.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Thu, 8 Sep 2022 05:41:12 -0700
-Message-ID: <CANn89iKjxMMDEcOCKiqWiMybiYVd7ZqspnEkT0-puqxrknLtRA@mail.gmail.com>
-Subject: Re: [RFC net] tcp: Fix performance regression for request-response workloads
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     Alexandra Winter <wintera@linux.ibm.com>,
-        David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Yuchung Cheng <ycheng@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        netdev <netdev@vger.kernel.org>, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YxjQiVnpU0dr7SHC@nvidia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 8, 2022 at 2:40 AM Christian Borntraeger
-<borntraeger@linux.ibm.com> wrote:
->
-> Am 07.09.22 um 18:06 schrieb Eric Dumazet:
-> > On Wed, Sep 7, 2022 at 5:26 AM Alexandra Winter <wintera@linux.ibm.com> wrote:
-> >>
-> >> Since linear payload was removed even for single small messages,
-> >> an additional page is required and we are measuring performance impact.
-> >>
-> >> 3613b3dbd1ad ("tcp: prepare skbs for better sack shifting")
-> >> explicitely allowed "payload in skb->head for first skb put in the queue,
-> >> to not impact RPC workloads."
-> >> 472c2e07eef0 ("tcp: add one skb cache for tx")
-> >> made that obsolete and removed it.
-> >> When
-> >> d8b81175e412 ("tcp: remove sk_{tr}x_skb_cache")
-> >> reverted it, this piece was not reverted and not added back in.
-> >>
-> >> When running uperf with a request-response pattern with 1k payload
-> >> and 250 connections parallel, we measure 13% difference in throughput
-> >> for our PCI based network interfaces since 472c2e07eef0.
-> >> (our IO MMU is sensitive to the number of mapped pages)
-> >
-> >
-> >
-> >>
-> >> Could you please consider allowing linear payload for the first
-> >> skb in queue again? A patch proposal is appended below.
-> >
-> > No.
-> >
-> > Please add a work around in your driver.
-> >
-> > You can increase throughput by 20% by premapping a coherent piece of
-> > memory in which
-> > you can copy small skbs (skb->head included)
-> >
-> > Something like 256 bytes per slot in the TX ring.
-> >
->
-> FWIW this regression was withthe standard mellanox driver (nothing s390 specific).
+On Wed, Sep 07, 2022 at 02:10:33PM -0300, Jason Gunthorpe wrote:
+> Sure, rust has all sorts of nice things. But the kernel doesn't follow
+> rust idioms, and I don't think this is a great place to start
+> experimenting with them.
 
-I did not claim this was s390 specific.
+It is actually a great place to start experimenting. The IOMMU
+interfaces are rather domain specific and if we get something wrong the
+damage is limited to a few callers. There are APIs much more exposed in
+the kernel which would be worse for that.
 
-Only IOMMU mode.
+But anyway, I am not insisting on it.
 
-I would rather not add back something which makes TCP stack slower
-(more tests in fast path)
-for the majority of us _not_ using IOMMU.
+> It has been 3 months since EMEDIUMTYPE was first proposed and 6
+> iterations of the series, don't you think it is a bit late in the game
+> to try to experiment with rust error handling idioms?
 
-In our own tests, this trick of using linear skbs was only helping
-benchmarks, not real workloads.
+If I am not mistaken, I am the person who gets blamed when crappy IOMMU
+code is sent upstream. So it is also up to me to decide in which state
+and how close to merging a given patch series is an whether it is
+already 'late in the game'.
 
-Many drivers have to map skb->head a second time if they contain TCP payload,
-thus adding yet another corner case in their fast path.
+> So, again, would you be happy with a simple 
+> 
+>  #define IOMMU_EINCOMPATIBLE_DEVICE xx
+> 
+> to make it less "re-using random error codes"?
 
-- Typical RPC workloads are playing with TCP_NODELAY
-- Typical bulk flows never have empty write queues...
+I am wondering if this can be solved by better defining what the return
+codes mean and adjust the call-back functions to match the definition.
+Something like:
 
-Really, I do not want this optimization back, this is not worth it.
+	-ENODEV : Device not mapped my an IOMMU
+	-EBUSY  : Device attached and domain can not be changed
+	-EINVAL : Device and domain are incompatible
+	...
 
-Again, a driver knows better if it is using IOMMU and if pathological
-layouts can be optimized
-to non SG ones, and using a pre-dma-map zone will also benefit pure
-TCP ACK packets (which do not have any payload)
+That would be much more intuitive than using something obscure like
+EMEDIUMTYPE.
 
-Here is the changelog of a patch I did for our GQ NIC (not yet
-upstreamed, but will be soon)
+Regards,
 
-...
-   The problem is coming from gq_tx_clean() calling
-    dma_unmap_single(q->dev, p->addr, -p->len, DMA_TO_DEVICE);
-
-    This seems silly to perform possibly expensive IOMMU operations to
-send small packets.
-    (TCP pure acks are 86 bytes long in total for 99% of the cases)
-
-    Idea of this patch is to pre-dma-map a memory zone to hold the
-headers of the
-    packet (if less than 128/256 bytes long)
-
-    Then if the whole packet can be copied into this 128/256 bytes
-zone, just copy it
-    entirely.
-
-    This permits to consume the small packets right away in ndo_start_xmit()
-    while the skb (and associated socket sk_wmem_alloc) is hot, instead of later
-    at TX completion time.
-    This makes ACK packets cost much smaller, but also tiny TCP
-packets (say, synthetic benchmarks)
-
-    We enable this behavior only if IOMMU is used/forced on GQ,
-    although we might use it regardless of IOMMU being used or not.
-...
-    To recap, there is a huge difference if we cross the 42 byte limit
-: (for a 128 bytes zone per TX ring slot)
-
-    iroa21:/home/edumazet# ./super_netperf 200 -H iroa23 -t TCP_RR -l
-20 -- -r40,40
-    2648141
-    iroa21:/home/edumazet# ./super_netperf 200 -H iroa23 -t TCP_RR -l
-20 -- -r44,44
-     970691
-
-    We might experiment with bigger GQ_TX_INLINE_HEADER_SIZE in the future ?
-   ...
+	Joerg
