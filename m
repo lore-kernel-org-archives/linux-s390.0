@@ -2,164 +2,477 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 969EAC6FA89
-	for <linux-s390@archiver.kernel.org>; Thu,  8 Sep 2022 16:15:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E254C54EE9
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Sep 2022 20:51:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231924AbiIHQPE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Sep 2022 12:15:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36946 "EHLO
+        id S229817AbiIHUvH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Sep 2022 16:51:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231963AbiIHQOw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 12:14:52 -0400
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7974D249;
-        Thu,  8 Sep 2022 09:14:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iRFufvCZUeUDOQJRnxng9G3ynBf9d5LmYDnyRj+4X3sbvRGlmFEA/WVx/vOEtUabvovxNpZooT57GrKK/yfD1oGI6Uhh2gSp3fvCMD+vriCHmHAPvre22nmfmFfCgH73sDw5W5ZkFgApnLFMTUgupwLbkzeinleOWsB+LBSjy1fnTNnk6p6nH7sP2XS6tWy8+8aVbPBcFU5LuMWJ54/vBx4W5lBBE/tAx0y3UURhZe08kVWrZy0aE0kaFUxNkq+64m/mBtcF9qwru7K/NtE/EYusxHzHLSRW9wiFmF7kucXrh7YTRpCRT8DKIlxiCcnS50ah1RMUyvgKHOAQLaXo3Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yJF2EmhiFTi6X5MwBd2ldmxkE6wrBxgYe+fji5XwIS0=;
- b=FCgjNrN/jdCB6mexx2ALaQzVfwZoFxw0YQjIBc8fzAv0s+rRE7YvszcyQ10EfuUecMr86CWNid3v9zu9blDe8svRZoCVCF6Xy0KnD8LC69inrH7yHgV5+cY7mjPSg/mnLvaramLtTjz78nmQR5K7WWGIElmBe28KoVxB+tsG6nB0/gNu55h+KguY9gU82nx6Ji0SEZfICzifH+g+AJxRkx5jmw5D6s6V4SeF585V536uWESrmkDGGEKFA+pPDcYj9r9VmF+1YsUiZcU5oMevvbar9JT+KS5dD7/MHl+AqNQYefbVhEgmcd1FMAiufFLzBfrIwdTKhemGhtAeGiznKg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yJF2EmhiFTi6X5MwBd2ldmxkE6wrBxgYe+fji5XwIS0=;
- b=Ssp9+comEwxraWD6+6lCCAOeHQ/xCw+7ezoEkPVzzAEVEHeWLnv/udJ7ebeUpeAmuNeTX3LizuGXnFT8DwR700vWRfB9gxfVmTEk/dUE9ZrIMsJd9LxnD0Lfatntz4Nh8GIP95rghxw+3HRTlnUK112RQWlwXtwZqdIDUZdVz4lL1N5MH45PkrPe4J6ZqTPqY37I5M7ScdqlFl9LthVb1npZQAAUlsL0VjYJZ+cpoodoi+jywsKv8Bk+Dvwpz4vkaMqHmXC4xuoqDxtEXnKUGxd6iYgebS2nn/tBFwWhR3/wXj0W8COYFYjr3W9wVlC+sWQPf9uNhf7m5FurmyP8Nw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by LV2PR12MB5943.namprd12.prod.outlook.com (2603:10b6:408:170::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.16; Thu, 8 Sep
- 2022 16:14:43 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5%7]) with mapi id 15.20.5612.019; Thu, 8 Sep 2022
- 16:14:43 +0000
-Date:   Thu, 8 Sep 2022 13:14:42 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     Nicolin Chen <nicolinc@nvidia.com>, will@kernel.org,
-        robin.murphy@arm.com, alex.williamson@redhat.com,
-        suravee.suthikulpanit@amd.com, marcan@marcan.st,
-        sven@svenpeter.dev, alyssa@rosenzweig.io, robdclark@gmail.com,
-        dwmw2@infradead.org, baolu.lu@linux.intel.com,
-        mjrosato@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        orsonzhai@gmail.com, baolin.wang@linux.alibaba.com,
-        zhang.lyra@gmail.com, thierry.reding@gmail.com, vdumpa@nvidia.com,
-        jonathanh@nvidia.com, jean-philippe@linaro.org, cohuck@redhat.com,
-        tglx@linutronix.de, shameerali.kolothum.thodi@huawei.com,
-        thunder.leizhen@huawei.com, christophe.jaillet@wanadoo.fr,
-        yangyingliang@huawei.com, jon@solid-run.com, iommu@lists.linux.dev,
-        linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-tegra@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        kevin.tian@intel.com
-Subject: Re: [PATCH v6 1/5] iommu: Return -EMEDIUMTYPE for incompatible
- domain and device/group
-Message-ID: <YxoU8lw+qIw9woRL@nvidia.com>
-References: <20220815181437.28127-1-nicolinc@nvidia.com>
- <20220815181437.28127-2-nicolinc@nvidia.com>
- <YxiRkm7qgQ4k+PIG@8bytes.org>
- <Yxig+zfA2Pr4vk6K@nvidia.com>
- <YxilZbRL0WBR97oi@8bytes.org>
- <YxjQiVnpU0dr7SHC@nvidia.com>
- <Yxnt9uQTmbqul5lf@8bytes.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yxnt9uQTmbqul5lf@8bytes.org>
-X-ClientProxiedBy: MN2PR04CA0014.namprd04.prod.outlook.com
- (2603:10b6:208:d4::27) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S229601AbiIHUvF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 16:51:05 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5639A8A7C7;
+        Thu,  8 Sep 2022 13:51:04 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 288KKs9I027114;
+        Thu, 8 Sep 2022 20:50:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=+XL0OsCTyPo3KtrxghYjtT5oebYnjdUPYrKYApBZAio=;
+ b=ZjGO66/T7Fli1IL8VImBRhMoCJWDO9sBOtjfQPloD+gNF6B2et/nuFABLsGIGX95a5h2
+ 0D0eb3iUc1Jael4KytOcjgbNzj4Yf0Mr1AhxNaQJvoHsQ6DcqEKYYEoRwiyxK9wthW+w
+ vt8XIfKw7SArfaS27k2jnJXlsU9F9t9hfrbhGwEubScrWDSWKHG8cBXLRZmPjF29D+Vy
+ 1U1iIfrcKhTKWN+n/rCGvNuhXo6NriYe1PI6rhxK/MH9LlxYpHE6tpIXG2onbuS+Go14
+ fQ81eEFcVzRCHTVVdfImNf2cowRH2sQ4XPLdFAClfRH4urlOG6TAiFAu2QvBO1S5/YAR Bw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jfqbq0u1p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Sep 2022 20:50:48 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 288KoleE027242;
+        Thu, 8 Sep 2022 20:50:47 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jfqbq0u0x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Sep 2022 20:50:47 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 288KLT9B004719;
+        Thu, 8 Sep 2022 20:50:45 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma01wdc.us.ibm.com with ESMTP id 3jbxj9tmxb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Sep 2022 20:50:45 +0000
+Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 288KoiLm11141672
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 8 Sep 2022 20:50:44 GMT
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DB4BC112062;
+        Thu,  8 Sep 2022 20:50:44 +0000 (GMT)
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0164B112061;
+        Thu,  8 Sep 2022 20:50:42 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.160.58.117])
+        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu,  8 Sep 2022 20:50:42 +0000 (GMT)
+Message-ID: <847e98a82d8027ea9c6060467157fc697e1df7ce.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 13/15] vfio/ccw: Use the new device life cycle helpers
+From:   Eric Farman <farman@linux.ibm.com>
+To:     "Tian, Kevin" <kevin.tian@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        "Wang, Zhi A" <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Longfang Liu <liulongfang@huawei.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        "intel-gvt-dev@lists.freedesktop.org" 
+        <intel-gvt-dev@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+Cc:     "Liu, Yi L" <yi.l.liu@intel.com>
+Date:   Thu, 08 Sep 2022 16:50:42 -0400
+In-Reply-To: <BN9PR11MB527631B53DF92D47B18F42448C409@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20220901143747.32858-1-kevin.tian@intel.com>
+         <20220901143747.32858-14-kevin.tian@intel.com>
+         <BN9PR11MB527631B53DF92D47B18F42448C409@BN9PR11MB5276.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4 (3.44.4-1.fc36) 
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4192:EE_|LV2PR12MB5943:EE_
-X-MS-Office365-Filtering-Correlation-Id: f4d7caab-751a-4bb2-77c3-08da91b53d6f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: /zD05OSIEdRUR4IkCWRwkgl8BMPaJIl9ErhfUPpSjqBDvEwzhxCgdSj6f2lOwdusVXu+zoF3GjjpcqVte5jsblUzqNk0ifCKFZUdniPgbYBD2pmAn8oniGMUXdCa+cwXdzilCT9ucfBS+AZctw2Pe/cb2E1uuUuFY0ZOMY/yg9Oe/RhoTsXa1s775ha0FIW9qWAi9Cd5Vic7TENvAdCXNI6VY9NgalCDXXvAzQ2aFw7PXGAcuXqDWHPk3iRDY1W5ecfYhVtfysT5g2NbxN8QZliV/5LG9LTFqoLrydrPA2izokmM7BrrEViGK2qosQc0js47O67HDwibk6Cin2T11HmWOoj07EB6Hmj/MraDzeZeMN9bPgFfK+XsvO8rqLtDGCBs2fkKE2GcnAQyNfp5T1aGeWVUd+3gNlFjhxu1H1ivokNJLU2ekj3ZEnkvgzlfRMfhPRyiWN7SRYHFgCHB+XoKmHSOT46JWrP/oOTEGUMQCHoIfVwlmS+fOaMSE+n5TPTItqXpRgGTD6qDKQ8q3PoOXuc7Kv2x8uO2fXrfUr/A7L158cPB8yFluK2qxv5QcMB+Iwbt8W2Vq2WcTdQLs+Qkd3A6sSZuCudbwuhPO35Ti2miXMoGim/dgLgY1/TwDlexmYHMoMfu/DcQKeajQcrR/5F8T67flC8dCB03p212flUQBFM526CcmVr6QECZQipZ/RjdjjoI1Uws+Q4VZVfccD/uK18R85xoRHCLqf3OTaIlObbK4TfawWsorZDt
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(376002)(136003)(39860400002)(346002)(366004)(396003)(86362001)(83380400001)(6506007)(6916009)(8676002)(316002)(478600001)(41300700001)(6486002)(186003)(2616005)(6512007)(26005)(7406005)(4326008)(7416002)(36756003)(5660300002)(2906002)(38100700002)(66476007)(66556008)(66946007)(8936002)(67856001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?rgHdQNvKytT8KAjagVLrkQzSXmc557KiaR+7oeg/yK6pqghbhQxw2c2txssU?=
- =?us-ascii?Q?3+VLiAnjLtudsMQGahypFfA2gzFqNL5wvfknWF7g+oNS5SSgOQ+oGC2b0IFp?=
- =?us-ascii?Q?JtKFhJVkDdNnlMG9ECrO036HYhtakKrHDx2Z/L86Doc8imhGv4ZXUFCZF1hd?=
- =?us-ascii?Q?oZwmuLmivheuSjx1QFW3wb03Ns0KLUmLcpAHj/UXMyGON4ZwDarBdCBQjrB4?=
- =?us-ascii?Q?OXHjbfub6x+KvTyaNymyVSU2HZF/Vw5tGV1s8s8CktIhDaufzCUl13aR9xnh?=
- =?us-ascii?Q?1rFxO8zHaPlhKf6ZslxoVUoapVV8EGJAolCTTrVL+f0xzhAzXGgloiaFLz7U?=
- =?us-ascii?Q?V+CbTfdEk3XIWecvhALALdA707ptW2aXgnJVvJZPU1dZ/JGA/QU67FhTgpY4?=
- =?us-ascii?Q?Uy35aSaCbDDhLNaVASGPWdjV1dRCEiRSkHKcpievWmisHzF05mIbrAwZ9sGm?=
- =?us-ascii?Q?bu30UTsMwdvMqFGUYO35hwPcpPRGqPRP6HUJqe6aE6gw7HQ2HhreroU49tjL?=
- =?us-ascii?Q?HEssdJzeunJXRDRkOvM7UJ86WUELcu53T6XlCKyvj3ihNpD4lhFwzVktakSv?=
- =?us-ascii?Q?i0uxjrw8nj0OAxe0bFiNDEMLEApw60FwWnXIa2of5t1gMHt1ik3uN4gJBIKj?=
- =?us-ascii?Q?4mEaQa79VTlNqtapv3zM6374VdkvwDSptlai3txGLZB17DSBOoeYMT21zHr/?=
- =?us-ascii?Q?fU/tAOLunEOzcV9crso6vbiVz/HVy5bnA7lnos15xRTqEaaXe6cMPK34vqrs?=
- =?us-ascii?Q?tqPBBrQNwhwlMcA6LrRzIL1Tzgyg5mg8FbTU7uxCi1Xsi2/QwEz8ciVln3CK?=
- =?us-ascii?Q?xwX4E1HpkovP73Wb7QqKBSC+ZVx0igzK9gkvIYI5CNy3ikt/DP5p5NTefwz9?=
- =?us-ascii?Q?LmEy7MouknWYjkZ+jJCwxvzfUxpfTmr7zZNwXoydWwiGFOtqKJVHGX88I5Az?=
- =?us-ascii?Q?VJX2Mlstn4GMALkVU7wpMwIG9CQTUc3iU0/IqN8ZCn+//Wn+OkTxgcwAzIen?=
- =?us-ascii?Q?bQ6kk7L7CG815H80d0lz3yRn124PxVaVTGF22dM1qzIikO/IqlR7amJ6tWTf?=
- =?us-ascii?Q?jahu7FKa2mJ1sULvdZHESpEvQQQcLjVwN/lI0ILfWdsagv7p79j+fzt+l6EF?=
- =?us-ascii?Q?KkjjHffys/FGPjj3VY6/ypEpKh2HyHjVKbqnXW4CIuuZIuAeLnRP4sLOHlDr?=
- =?us-ascii?Q?hUpIy/8LcFmaA4IC0kcRCu6IYBDJ0IDidtlyJMDu35dXUSdbCwdYyPbkdJ14?=
- =?us-ascii?Q?bdFkXiYIm3/AMrzkHFOLrojoPkoSa4zOKdT7qPzKmtD+QHJk5XOTHpB0XPML?=
- =?us-ascii?Q?+UHzUKhXS9bJjdusSti1GlY1JmF+S9Rg5MCDTowo6+TzQarcSmZO/+RCBadh?=
- =?us-ascii?Q?EJuMQ11InmWSvEB2QyXbee4kgKeY/PbBrIVmKNMvj4stC3eSL7RozelVJoVo?=
- =?us-ascii?Q?44XFIjdeEZnzdb09qPNGi/njjKZMs5NwMWb7/P9cYCbh5HE/YdByp81sZO4R?=
- =?us-ascii?Q?XGP/SPYdsYe0NC1ckgCqwSjODinCei388QaHjjfPvUUuCCL1mti4yw3Oyxit?=
- =?us-ascii?Q?05ioUHbQNV0+Gdtj0X7l0FouBL3t1B27UkTjPN6q?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f4d7caab-751a-4bb2-77c3-08da91b53d6f
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Sep 2022 16:14:43.4200
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: hov2lXuRoI9HiQ5O5iBgBzBu+ifG5c+sRk5XINO5fJejfnzolvke5urr8RtE47as
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5943
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Aa0l0ppb7D2ChJgFMCnegFvsjWTbRnjb
+X-Proofpoint-GUID: rxXxdbWcCOPYp5gt9d9pD0KpfD9TDu2-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-08_12,2022-09-08_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 malwarescore=0 priorityscore=1501 mlxscore=0 spamscore=0
+ clxscore=1011 bulkscore=0 adultscore=0 mlxlogscore=999 phishscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209080073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 08, 2022 at 03:28:22PM +0200, Joerg Roedel wrote:
-> > It has been 3 months since EMEDIUMTYPE was first proposed and 6
-> > iterations of the series, don't you think it is a bit late in the game
-> > to try to experiment with rust error handling idioms?
-> 
-> If I am not mistaken, I am the person who gets blamed when crappy IOMMU
-> code is sent upstream. So it is also up to me to decide in which state
-> and how close to merging a given patch series is an whether it is
-> already 'late in the game'.
+On Thu, 2022-09-08 at 07:19 +0000, Tian, Kevin wrote:
+> ping @Eric Farman.
+>=20
+> ccw is the only tricky player in this series. Please help take a look
+> in case of
+> any oversight here.
 
-I don't think the maintainer is the one who gets blamed. The community
-is responsible as a collective group for it's decisions. The
-maintainer is the leader of the community, responsible to foster it,
-and contributes their guidance, but doesn't bare an unlimited
-responsibility for what is merged.
+Apologies, I had started looking at v1 before I left on holiday, and
+only returned today.
 
-In a case like this I am the advocate, Nicolin wrote the patches,
-Kevin reviewed, Alex ack'd them - we as a group are ultimately
-responsible to repair, defend, or whatever is needed.
+>=20
+> > From: Tian, Kevin <kevin.tian@intel.com>
+> > Sent: Thursday, September 1, 2022 10:38 PM
+> >=20
+> > ccw is the only exception which cannot use vfio_alloc_device()
+> > because
+> > its private device structure is designed to serve both mdev and
+> > parent.
+> > Life cycle of the parent is managed by css_driver so
+> > vfio_ccw_private
+> > must be allocated/freed in css_driver probe/remove path instead of
+> > conforming to vfio core life cycle for mdev.
+> >=20
+> > Given that use a wait/completion scheme so the mdev remove path
+> > waits
+> > after vfio_put_device() until receiving a completion notification
+> > from
+> > @release. The completion indicates that all active references on
+> > vfio_device have been released.
+> >=20
+> > After that point although free of vfio_ccw_private is delayed to
+> > css_driver it's at least guaranteed to have no parallel reference
+> > on
+> > released vfio device part from other code paths.
+> >=20
+> > memset() in @probe is removed. vfio_device is either already
+> > cleared
+> > when probed for the first time or cleared in @release from last
+> > probe.
+> >=20
+> > The right fix is to introduce separate structures for mdev and
+> > parent,
+> > but this won't happen in short term per prior discussions.
 
-> I am wondering if this can be solved by better defining what the return
-> codes mean and adjust the call-back functions to match the definition.
-> Something like:
-> 
-> 	-ENODEV : Device not mapped my an IOMMU
-> 	-EBUSY  : Device attached and domain can not be changed
-> 	-EINVAL : Device and domain are incompatible
-> 	...
+I did start looking at the above, while the mdev series is outstanding.
+Will try to get back to that sooner rather than later, but for the
+purposes of this series this patch looks/works fine to me.
 
-Yes, this was gone over in a side thread the pros/cons, so lets do
-it. Nicolin will come with something along these lines.
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
 
-Thanks,
-Jason
+> >=20
+> > Remove vfio_init/uninit_group_dev() as no user now.
+> >=20
+> > Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+> > Signed-off-by: Kevin Tian <kevin.tian@intel.com>
+> > Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> > ---
+> > =C2=A0drivers/s390/cio/vfio_ccw_ops.c=C2=A0=C2=A0=C2=A0=C2=A0 | 52
+> > +++++++++++++++++++++++++----
+> > =C2=A0drivers/s390/cio/vfio_ccw_private.h |=C2=A0 3 ++
+> > =C2=A0drivers/vfio/vfio_main.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 23 +++----------
+> > =C2=A0include/linux/vfio.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 3 --
+> > =C2=A04 files changed, 53 insertions(+), 28 deletions(-)
+> >=20
+> > diff --git a/drivers/s390/cio/vfio_ccw_ops.c
+> > b/drivers/s390/cio/vfio_ccw_ops.c
+> > index 4a806a2273b5..9f8486c0d3d3 100644
+> > --- a/drivers/s390/cio/vfio_ccw_ops.c
+> > +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> > @@ -87,6 +87,15 @@ static struct attribute_group
+> > *mdev_type_groups[] =3D {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0NULL,
+> > =C2=A0};
+> >=20
+> > +static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
+> > +{
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct vfio_ccw_private *pri=
+vate =3D
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0container_of(vdev, struct vfio_ccw_private, vdev);
+> > +
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0init_completion(&private->re=
+lease_comp);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return 0;
+> > +}
+> > +
+> > =C2=A0static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+> > =C2=A0{
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct vfio_ccw_private=
+ *private =3D dev_get_drvdata(mdev-
+> > > dev.parent);
+> > @@ -98,9 +107,9 @@ static int vfio_ccw_mdev_probe(struct
+> > mdev_device
+> > *mdev)
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (atomic_dec_if_posit=
+ive(&private->avail) < 0)
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0return -EPERM;
+> >=20
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0memset(&private->vdev, 0, si=
+zeof(private->vdev));
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_init_group_dev(&private=
+->vdev, &mdev->dev,
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0 &vfio_ccw_dev_ops);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D vfio_init_device(&pr=
+ivate->vdev, &mdev->dev,
+> > &vfio_ccw_dev_ops);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ret)
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0return ret;
+> >=20
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0VFIO_CCW_MSG_EVENT(2, "=
+sch %x.%x.%04x: create\n",
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0 private->sch->schid.cssid,
+> > @@ -109,16 +118,33 @@ static int vfio_ccw_mdev_probe(struct
+> > mdev_device *mdev)
+> >=20
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D vfio_register_e=
+mulated_iommu_dev(&private->vdev);
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ret)
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0goto err_atomic;
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0goto err_put_vdev;
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0dev_set_drvdata(&mdev->=
+dev, private);
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return 0;
+> >=20
+> > -err_atomic:
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_uninit_group_dev(&priva=
+te->vdev);
+> > +err_put_vdev:
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_put_device(&private->vd=
+ev);
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0atomic_inc(&private->av=
+ail);
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return ret;
+> > =C2=A0}
+> >=20
+> > +static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
+> > +{
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct vfio_ccw_private *pri=
+vate =3D
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0container_of(vdev, struct vfio_ccw_private, vdev);
+> > +
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/*
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * We cannot free vfio_ccw_p=
+rivate here because it includes
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * parent info which must be=
+ free'ed by css driver.
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 *
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * Use a workaround by memse=
+t'ing the core device part and
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * then notifying the remove=
+ path that all active
+> > references
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * to this device have been =
+released.
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0memset(vdev, 0, sizeof(*vdev=
+));
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0complete(&private->release_c=
+omp);
+> > +}
+> > +
+> > =C2=A0static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
+> > =C2=A0{
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct vfio_ccw_private=
+ *private =3D dev_get_drvdata(mdev-
+> > > dev.parent);
+> > @@ -130,7 +156,17 @@ static void vfio_ccw_mdev_remove(struct
+> > mdev_device *mdev)
+> >=20
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_unregister_group_d=
+ev(&private->vdev);
+> >=20
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_uninit_group_dev(&priva=
+te->vdev);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_put_device(&private->vd=
+ev);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/*
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * Wait for all active refer=
+ences on mdev are released so
+> > it
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * is safe to defer kfree() =
+to a later point.
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 *
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * TODO: the clean fix is to=
+ split parent/mdev info from
+> > ccw
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * private structure so each=
+ can be managed in its own life
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * cycle.
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0wait_for_completion(&private=
+->release_comp);
+> > +
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0atomic_inc(&private->av=
+ail);
+> > =C2=A0}
+> >=20
+> > @@ -592,6 +628,8 @@ static void vfio_ccw_mdev_request(struct
+> > vfio_device
+> > *vdev, unsigned int count)
+> > =C2=A0}
+> >=20
+> > =C2=A0static const struct vfio_device_ops vfio_ccw_dev_ops =3D {
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.init =3D vfio_ccw_mdev_init=
+_dev,
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.release =3D vfio_ccw_mdev_r=
+elease_dev,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.open_device =3D vfio_c=
+cw_mdev_open_device,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.close_device =3D vfio_=
+ccw_mdev_close_device,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.read =3D vfio_ccw_mdev=
+_read,
+> > diff --git a/drivers/s390/cio/vfio_ccw_private.h
+> > b/drivers/s390/cio/vfio_ccw_private.h
+> > index cd24b7fada91..63d9202b29c7 100644
+> > --- a/drivers/s390/cio/vfio_ccw_private.h
+> > +++ b/drivers/s390/cio/vfio_ccw_private.h
+> > @@ -88,6 +88,7 @@ struct vfio_ccw_crw {
+> > =C2=A0 * @req_trigger: eventfd ctx for signaling userspace to return
+> > device
+> > =C2=A0 * @io_work: work for deferral process of I/O handling
+> > =C2=A0 * @crw_work: work for deferral process of CRW handling
+> > + * @release_comp: synchronization helper for vfio device release
+> > =C2=A0 */
+> > =C2=A0struct vfio_ccw_private {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct vfio_device vdev=
+;
+> > @@ -113,6 +114,8 @@ struct vfio_ccw_private {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct eventfd_ctx=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0*req_trigger;
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct work_struct=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0io_work;
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct work_struct=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0crw_work;
+> > +
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct completion=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0release_comp;
+> > =C2=A0} __aligned(8);
+> >=20
+> > =C2=A0int vfio_ccw_sch_quiesce(struct subchannel *sch);
+> > diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> > index c9d982131265..957d9f286550 100644
+> > --- a/drivers/vfio/vfio_main.c
+> > +++ b/drivers/vfio/vfio_main.c
+> > @@ -481,28 +481,13 @@ static struct vfio_device
+> > *vfio_group_get_device(struct vfio_group *group,
+> > =C2=A0/*
+> > =C2=A0 * VFIO driver API
+> > =C2=A0 */
+> > -void vfio_init_group_dev(struct vfio_device *device, struct device
+> > *dev,
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 const=
+ struct vfio_device_ops *ops)
+> > -{
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0init_completion(&device->com=
+p);
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0device->dev =3D dev;
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0device->ops =3D ops;
+> > -}
+> > -EXPORT_SYMBOL_GPL(vfio_init_group_dev);
+> > -
+> > -void vfio_uninit_group_dev(struct vfio_device *device)
+> > -{
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_release_device_set(devi=
+ce);
+> > -}
+> > -EXPORT_SYMBOL_GPL(vfio_uninit_group_dev);
+> > -
+> > =C2=A0/* Release helper called by vfio_put_device() */
+> > =C2=A0void vfio_device_release(struct kref *kref)
+> > =C2=A0{
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct vfio_device *dev=
+ice =3D
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+container_of(kref, struct vfio_device,
+> > kref);
+> >=20
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_uninit_group_dev(device=
+);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_release_device_set(devi=
+ce);
+> >=20
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/*
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * kvfree() cannot be d=
+one here due to a life cycle mess in
+> > @@ -560,7 +545,9 @@ int vfio_init_device(struct vfio_device
+> > *device, struct
+> > device *dev,
+> > =C2=A0{
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int ret;
+> >=20
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_init_group_dev(device, =
+dev, ops);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0init_completion(&device->com=
+p);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0device->dev =3D dev;
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0device->ops =3D ops;
+> >=20
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ops->init) {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D ops->init(device);
+> > @@ -572,7 +559,7 @@ int vfio_init_device(struct vfio_device
+> > *device, struct
+> > device *dev,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return 0;
+> >=20
+> > =C2=A0out_uninit:
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_uninit_group_dev(device=
+);
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0vfio_release_device_set(devi=
+ce);
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return ret;
+> > =C2=A0}
+> > =C2=A0EXPORT_SYMBOL_GPL(vfio_init_device);
+> > diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+> > index e1e9e8352903..f03447c8774d 100644
+> > --- a/include/linux/vfio.h
+> > +++ b/include/linux/vfio.h
+> > @@ -160,9 +160,6 @@ static inline void vfio_put_device(struct
+> > vfio_device
+> > *device)
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0kref_put(&device->kref,=
+ vfio_device_release);
+> > =C2=A0}
+> >=20
+> > -void vfio_init_group_dev(struct vfio_device *device, struct device
+> > *dev,
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 const=
+ struct vfio_device_ops *ops);
+> > -void vfio_uninit_group_dev(struct vfio_device *device);
+> > =C2=A0int vfio_register_group_dev(struct vfio_device *device);
+> > =C2=A0int vfio_register_emulated_iommu_dev(struct vfio_device *device);
+> > =C2=A0void vfio_unregister_group_dev(struct vfio_device *device);
+> > --
+> > 2.21.3
+>=20
+
