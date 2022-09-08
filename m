@@ -2,380 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39D02C54EE9
-	for <linux-s390@archiver.kernel.org>; Thu,  8 Sep 2022 09:39:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41AD8ECAAD5
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Sep 2022 09:41:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230091AbiIHJjQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Sep 2022 05:39:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48664 "EHLO
+        id S230320AbiIHJlO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Sep 2022 05:41:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbiIHJjQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 05:39:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A860A113C5F
-        for <linux-s390@vger.kernel.org>; Thu,  8 Sep 2022 02:39:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1662629953;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=juN60mjz881n6CsiBEcgXlSOSOlvhxsLXH5xY7MSR4s=;
-        b=SSDJCgxA9cCsHpJeX0WAuKwxvErWzqFUMFZeAQ6MeRdhSOStJLZhkLk/46h+q1MaW/HP5S
-        Mg4AfPb8FjOxfd7R063tTs5uD+ZPin41XMmMRA+6EDjMfsiBrjVeR2/vHNnZqb2hjH+4oP
-        brEuxhgZv1Ys+UYNRMI1CT0VyqzrBUw=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-573-CneplXoyObSeV6MCGKd6Hg-1; Thu, 08 Sep 2022 05:39:12 -0400
-X-MC-Unique: CneplXoyObSeV6MCGKd6Hg-1
-Received: by mail-wr1-f70.google.com with SMTP id m2-20020adfc582000000b0021e28acded7so4432841wrg.13
-        for <linux-s390@vger.kernel.org>; Thu, 08 Sep 2022 02:39:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:reply-to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date;
-        bh=juN60mjz881n6CsiBEcgXlSOSOlvhxsLXH5xY7MSR4s=;
-        b=Vfbp9z6bxmaiNtZuxBzBb34r5VOcwm8fVVWb3ZCV8qVrIn7KdvtiP40N8UbPSSlJD3
-         4sU2OPZHrkJh6UVt+WPKYNdCQ3NpSx95lN9TXvo/UQZ3M76C0ltioIQZyR9g0H00wK02
-         fUU0nCl3L+DlgHBXYbsqUt8anwohNYcGyNkNF05gr3EzPaE7YZ+n0bKUE2yYdT/64JnO
-         5xoN4JzFrnYSfx1EXfGK9C8XYV6iTK8YKCUHvsVKdcsnaCvVF5zo1/s3euzhXLW6T1rb
-         3m8+onkB8+7BzzQ6JaVtnDPW8WvLZ0wnAFqpc/QHxPRxiYEqUOKcH/unZcFp5lajyJkG
-         qbVg==
-X-Gm-Message-State: ACgBeo0HF+wcznMex4f7EAXH7UOrZ1wwFjdXOGykOVEwscImosqdcXUa
-        Mkl+1L8og7hdc29uwYzDPH/UvNrHXtfd/uKf79AQidyjUpLc6r6HJ7LCLEfHujtU2/cZCzld9xX
-        EiPc2xvWP4V8dxZCMDchqpA==
-X-Received: by 2002:a05:6000:178e:b0:220:635f:eb13 with SMTP id e14-20020a056000178e00b00220635feb13mr4489786wrg.634.1662629951467;
-        Thu, 08 Sep 2022 02:39:11 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4dRBeXGabpPhvYNKiyVK4XYbixC3F8OmZF+hKUI2fO7IUkTj9BIwBvc/2UBWnZVrvaMpyPhg==
-X-Received: by 2002:a05:6000:178e:b0:220:635f:eb13 with SMTP id e14-20020a056000178e00b00220635feb13mr4489754wrg.634.1662629951128;
-        Thu, 08 Sep 2022 02:39:11 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874? ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
-        by smtp.gmail.com with ESMTPSA id p14-20020a1c544e000000b003a502c23f2asm2231024wmi.16.2022.09.08.02.39.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 Sep 2022 02:39:09 -0700 (PDT)
-Message-ID: <4c9350cd-c2ce-dc84-9a29-210907d2a2a2@redhat.com>
-Date:   Thu, 8 Sep 2022 11:39:07 +0200
+        with ESMTP id S230109AbiIHJlM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 05:41:12 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00792DABA2;
+        Thu,  8 Sep 2022 02:41:10 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2889DPwm018157;
+        Thu, 8 Sep 2022 09:40:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=vFrn8IEYcuoemmb+U8aUPvmcXQTyk/sjWExgr/AGv80=;
+ b=MeMti80IqEjxrCmYrt+fSsZEdbKgeqnyjLcPWTnZvc8S9kVCUBJM0gYMiW93KAexx2NN
+ Ey/izat2nb+0m1/u4Ut6eBJ397GNPOotuO/BpE6pNB1XsJfdMNdF4q2MAiHsB+qkKwYi
+ FbPiBbsndSiuYpeV65B7jVEIfQYJaNM5clgEL5Pbl2oJkRntrW4w6ztUVjbr6kgml44k
+ kFB5Ti/Dq1Z2TvIQ6rx+9SJ3ICV1j7uC4wl/bp/fyxBrwXFLmPPl8EdCW6wDvcjCsVzm
+ YBDiM1CB14BltbnAxur2pKZZiz5OeLo77Uzr8IYGVrByUw1h3maWxUfF5bd3vfBWgfgn 5w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jfdjkgtec-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Sep 2022 09:40:34 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2889dwA3016973;
+        Thu, 8 Sep 2022 09:40:34 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jfdjkgtcc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Sep 2022 09:40:33 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2889aM7h022888;
+        Thu, 8 Sep 2022 09:40:31 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04fra.de.ibm.com with ESMTP id 3jbxj8mqeu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Sep 2022 09:40:31 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2889eSlo24838422
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 8 Sep 2022 09:40:28 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1310C11C050;
+        Thu,  8 Sep 2022 09:40:28 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75B3811C04C;
+        Thu,  8 Sep 2022 09:40:27 +0000 (GMT)
+Received: from [9.171.66.190] (unknown [9.171.66.190])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  8 Sep 2022 09:40:27 +0000 (GMT)
+Message-ID: <375efe42-910d-69ae-e48d-cff0298dd104@linux.ibm.com>
+Date:   Thu, 8 Sep 2022 11:40:27 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH v2 15/15] vfio: Add struct device to vfio_device
+ Thunderbird/91.12.0
+Subject: Re: [RFC net] tcp: Fix performance regression for request-response
+ workloads
 Content-Language: en-US
-To:     Yi Liu <yi.l.liu@intel.com>, Kevin Tian <kevin.tian@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Longfang Liu <liulongfang@huawei.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-References: <20220901143747.32858-1-kevin.tian@intel.com>
- <20220901143747.32858-16-kevin.tian@intel.com>
- <50d82b01-86a3-e6a3-06f7-7f98e60131eb@redhat.com>
- <546463b8-54fa-2071-6a9a-e4087eb8bb2c@intel.com>
-From:   Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <546463b8-54fa-2071-6a9a-e4087eb8bb2c@intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To:     Eric Dumazet <edumazet@google.com>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Yuchung Cheng <ycheng@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        netdev <netdev@vger.kernel.org>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>
+References: <20220907122505.26953-1-wintera@linux.ibm.com>
+ <CANn89iLP15xQjmPHxvQBQ=bWbbVk4_41yLC8o5E97TQWFmRioQ@mail.gmail.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <CANn89iLP15xQjmPHxvQBQ=bWbbVk4_41yLC8o5E97TQWFmRioQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Mv-lsnKL3B6wBeXAACNoMkZhXubUdscA
+X-Proofpoint-GUID: GvcktbD9KF6_2vifa7qy07mGqh8-_705
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-08_06,2022-09-07_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ priorityscore=1501 clxscore=1011 bulkscore=0 mlxlogscore=971
+ malwarescore=0 adultscore=0 suspectscore=0 spamscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209080034
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 9/8/22 11:17, Yi Liu wrote:
-> On 2022/9/8 17:06, Eric Auger wrote:
->> Hi Kevin,
+Am 07.09.22 um 18:06 schrieb Eric Dumazet:
+> On Wed, Sep 7, 2022 at 5:26 AM Alexandra Winter <wintera@linux.ibm.com> wrote:
 >>
->> On 9/1/22 16:37, Kevin Tian wrote:
->>> From: Yi Liu <yi.l.liu@intel.com>
->>>
->>> and replace kref. With it a 'vfio-dev/vfioX' node is created under the
->>> sysfs path of the parent, indicating the device is bound to a vfio
->>> driver, e.g.:
->>>
->>> /sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
->>>
->>> It is also a preparatory step toward adding cdev for supporting future
->>> device-oriented uAPI.
->>>
->>> Add Documentation/ABI/testing/sysfs-devices-vfio-dev.
->>>
->>> Also take this chance to rename chardev 'vfio' to 'vfio-group' in
->>> /proc/devices.
->>>
->>> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
->>> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
->>> Signed-off-by: Kevin Tian <kevin.tian@intel.com>
->>> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
->>> ---
->>>   .../ABI/testing/sysfs-devices-vfio-dev        |  8 +++
->>>   drivers/vfio/vfio_main.c                      | 67
->>> +++++++++++++++----
->>>   include/linux/vfio.h                          |  6 +-
->>>   3 files changed, 66 insertions(+), 15 deletions(-)
->>>   create mode 100644 Documentation/ABI/testing/sysfs-devices-vfio-dev
->>>
->>> diff --git a/Documentation/ABI/testing/sysfs-devices-vfio-dev
->>> b/Documentation/ABI/testing/sysfs-devices-vfio-dev
->>> new file mode 100644
->>> index 000000000000..e21424fd9666
->>> --- /dev/null
->>> +++ b/Documentation/ABI/testing/sysfs-devices-vfio-dev
->>> @@ -0,0 +1,8 @@
->>> +What:         /sys/.../<device>/vfio-dev/vfioX/
->>> +Date:         September 2022
->>> +Contact:     Yi Liu <yi.l.liu@intel.com>
->>> +Description:
->>> +         This directory is created when the device is bound to a
->>> +         vfio driver. The layout under this directory matches what
->>> +         exists for a standard 'struct device'. 'X' is a unique
->>> +         index marking this device in vfio.
->>> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
->>> index bfa675d314ab..141f55c3faf5 100644
->>> --- a/drivers/vfio/vfio_main.c
->>> +++ b/drivers/vfio/vfio_main.c
->>> @@ -46,6 +46,8 @@ static struct vfio {
->>>       struct mutex            group_lock; /* locks group_list */
->>>       struct ida            group_ida;
->>>       dev_t                group_devt;
->>> +    struct class            *device_class;
->>> +    struct ida            device_ida;
->>>   } vfio;
->>>     struct vfio_iommu_driver {
->>> @@ -483,12 +485,13 @@ static struct vfio_device
->>> *vfio_group_get_device(struct vfio_group *group,
->>>    * VFIO driver API
->>>    */
->>>   /* Release helper called by vfio_put_device() */
->>> -void vfio_device_release(struct kref *kref)
->>> +static void vfio_device_release(struct device *dev)
->>>   {
->>>       struct vfio_device *device =
->>> -            container_of(kref, struct vfio_device, kref);
->>> +            container_of(dev, struct vfio_device, device);
->>>         vfio_release_device_set(device);
->>> +    ida_free(&vfio.device_ida, device->index);
->>>         /*
->>>        * kvfree() cannot be done here due to a life cycle mess in
->>> @@ -498,7 +501,6 @@ void vfio_device_release(struct kref *kref)
->>>        */
->>>       device->ops->release(device);
->>>   }
->>> -EXPORT_SYMBOL_GPL(vfio_device_release);
->>>     /*
->>>    * Alloc and initialize vfio_device so it can be registered to vfio
->>> @@ -546,6 +548,13 @@ int vfio_init_device(struct vfio_device
->>> *device, struct device *dev,
->>>   {
->>>       int ret;
->>>   +    ret = ida_alloc_max(&vfio.device_ida, MINORMASK, GFP_KERNEL);
->>> +    if (ret < 0) {
->>> +        dev_dbg(dev, "Error to alloc index\n");
->>> +        return ret;
->>> +    }
->>> +
->>> +    device->index = ret;
->>>       init_completion(&device->comp);
->>>       device->dev = dev;
->>>       device->ops = ops;
->>> @@ -556,11 +565,15 @@ int vfio_init_device(struct vfio_device
->>> *device, struct device *dev,
->>>               goto out_uninit;
->>>       }
->>>   -    kref_init(&device->kref);
->>> +    device_initialize(&device->device);
->>> +    device->device.release = vfio_device_release;
->>> +    device->device.class = vfio.device_class;
->>> +    device->device.parent = device->dev;
->>>       return 0;
->>>     out_uninit:
->>>       vfio_release_device_set(device);
->>> +    ida_free(&vfio.device_ida, device->index);
->>>       return ret;
->>>   }
->>>   EXPORT_SYMBOL_GPL(vfio_init_device);
->>> @@ -657,6 +670,7 @@ static int __vfio_register_dev(struct
->>> vfio_device *device,
->>>           struct vfio_group *group)
->>>   {
->>>       struct vfio_device *existing_device;
->>> +    int ret;
->>>         if (IS_ERR(group))
->>>           return PTR_ERR(group);
->>> @@ -673,16 +687,21 @@ static int __vfio_register_dev(struct
->>> vfio_device *device,
->>>           dev_WARN(device->dev, "Device already exists on group %d\n",
->>>                iommu_group_id(group->iommu_group));
->>>           vfio_device_put_registration(existing_device);
->>> -        if (group->type == VFIO_NO_IOMMU ||
->>> -            group->type == VFIO_EMULATED_IOMMU)
->>> -            iommu_group_remove_device(device->dev);
->>> -        vfio_group_put(group);
->>> -        return -EBUSY;
->>> +        ret = -EBUSY;
->>> +        goto err_out;
->>>       }
->>>         /* Our reference on group is moved to the device */
->>>       device->group = group;
->>>   +    ret = dev_set_name(&device->device, "vfio%d", device->index);
->>> +    if (ret)
->>> +        goto err_out;
->>> +
->>> +    ret = device_add(&device->device);
->>> +    if (ret)
->>> +        goto err_out;
->>> +
->>>       /* Refcounting can't start until the driver calls register */
->>>       refcount_set(&device->refcount, 1);
->>>   @@ -692,6 +711,12 @@ static int __vfio_register_dev(struct
->>> vfio_device *device,
->>>       mutex_unlock(&group->device_lock);
->>>         return 0;
->>> +err_out:
->>> +    if (group->type == VFIO_NO_IOMMU ||
->>> +        group->type == VFIO_EMULATED_IOMMU)
->>> +        iommu_group_remove_device(device->dev);
->>> +    vfio_group_put(group);
->>> +    return ret;
->>>   }
->>>     int vfio_register_group_dev(struct vfio_device *device)
->>> @@ -779,6 +804,9 @@ void vfio_unregister_group_dev(struct
->>> vfio_device *device)
->>>       group->dev_counter--;
->>>       mutex_unlock(&group->device_lock);
->>>   +    /* Balances device_add in register path */
->>> +    device_del(&device->device);
->>> +
->>>       if (group->type == VFIO_NO_IOMMU || group->type ==
->>> VFIO_EMULATED_IOMMU)
->>>           iommu_group_remove_device(device->dev);
->>>   @@ -2145,6 +2173,7 @@ static int __init vfio_init(void)
->>>       int ret;
->>>         ida_init(&vfio.group_ida);
->>> +    ida_init(&vfio.device_ida);
->>>       mutex_init(&vfio.group_lock);
->>>       mutex_init(&vfio.iommu_drivers_lock);
->>>       INIT_LIST_HEAD(&vfio.group_list);
->>> @@ -2160,12 +2189,20 @@ static int __init vfio_init(void)
->>>       vfio.class = class_create(THIS_MODULE, "vfio");
->>>       if (IS_ERR(vfio.class)) {
->>>           ret = PTR_ERR(vfio.class);
->>> -        goto err_class;
->>> +        goto err_group_class;
->>>       }
->>>         vfio.class->devnode = vfio_devnode;
->>>   -    ret = alloc_chrdev_region(&vfio.group_devt, 0, MINORMASK + 1,
->>> "vfio");
->>> +    /* /sys/class/vfio-dev/vfioX */
->>> +    vfio.device_class = class_create(THIS_MODULE, "vfio-dev");
->>> +    if (IS_ERR(vfio.device_class)) {
->>> +        ret = PTR_ERR(vfio.device_class);
->>> +        goto err_dev_class;
->>> +    }
->>> +
->>> +    ret = alloc_chrdev_region(&vfio.group_devt, 0, MINORMASK + 1,
->>> +                  "vfio-group");
->>>       if (ret)
->>>           goto err_alloc_chrdev;
->>>   @@ -2181,9 +2218,12 @@ static int __init vfio_init(void)
->>>   err_driver_register:
->>>       unregister_chrdev_region(vfio.group_devt, MINORMASK + 1);
->>>   err_alloc_chrdev:
->>> +    class_destroy(vfio.device_class);
->>> +    vfio.device_class = NULL;
->>> +err_dev_class:
->>>       class_destroy(vfio.class);
->>>       vfio.class = NULL;
->>> -err_class:
->>> +err_group_class:
->>>       misc_deregister(&vfio_dev);
->>>       return ret;
->>>   }
->>> @@ -2195,8 +2235,11 @@ static void __exit vfio_cleanup(void)
->>>   #ifdef CONFIG_VFIO_NOIOMMU
->>>       vfio_unregister_iommu_driver(&vfio_noiommu_ops);
->>>   #endif
->>> +    ida_destroy(&vfio.device_ida);
->>>       ida_destroy(&vfio.group_ida);
->>>       unregister_chrdev_region(vfio.group_devt, MINORMASK + 1);
->>> +    class_destroy(vfio.device_class);
->>> +    vfio.device_class = NULL;
->>>       class_destroy(vfio.class);
->>>       vfio.class = NULL;
->>>       misc_deregister(&vfio_dev);
->>> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
->>> index f03447c8774d..5c13f74da1bb 100644
->>> --- a/include/linux/vfio.h
->>> +++ b/include/linux/vfio.h
->>> @@ -45,7 +45,8 @@ struct vfio_device {
->>>       struct kvm *kvm;
->>>         /* Members below here are private, not for driver use */
->>> -    struct kref kref;    /* object life cycle */
->>> +    unsigned int index;
->>> +    struct device device;    /* device.kref covers object life
->>> circle */
->>>       refcount_t refcount;    /* user count on registered device*/
->>>       unsigned int open_count;
->>>       struct completion comp;
->> I am not totally clear about remaining 'struct device *dev;' in
->> vfio_device struct. I see it used in some places. Is it supposed to
->> disappear at some point?
->
-> no, Eric. *dev will not disappear, it stores the dev pointet passed in by
-> caller of vfio_init_device().
-
-yeah I see but you have device->device.parent = device->dev;
-
-Eric
->
->>> @@ -154,10 +155,9 @@ struct vfio_device *_vfio_alloc_device(size_t
->>> size, struct device *dev,
->>>   int vfio_init_device(struct vfio_device *device, struct device *dev,
->>>                const struct vfio_device_ops *ops);
->>>   void vfio_free_device(struct vfio_device *device);
->>> -void vfio_device_release(struct kref *kref);
->>>   static inline void vfio_put_device(struct vfio_device *device)
->>>   {
->>> -    kref_put(&device->kref, vfio_device_release);
->>> +    put_device(&device->device);
->>>   }
->>>     int vfio_register_group_dev(struct vfio_device *device);
+>> Since linear payload was removed even for single small messages,
+>> an additional page is required and we are measuring performance impact.
 >>
->> Thanks
+>> 3613b3dbd1ad ("tcp: prepare skbs for better sack shifting")
+>> explicitely allowed "payload in skb->head for first skb put in the queue,
+>> to not impact RPC workloads."
+>> 472c2e07eef0 ("tcp: add one skb cache for tx")
+>> made that obsolete and removed it.
+>> When
+>> d8b81175e412 ("tcp: remove sk_{tr}x_skb_cache")
+>> reverted it, this piece was not reverted and not added back in.
 >>
->> Eric
+>> When running uperf with a request-response pattern with 1k payload
+>> and 250 connections parallel, we measure 13% difference in throughput
+>> for our PCI based network interfaces since 472c2e07eef0.
+>> (our IO MMU is sensitive to the number of mapped pages)
+> 
+> 
+> 
 >>
->
+>> Could you please consider allowing linear payload for the first
+>> skb in queue again? A patch proposal is appended below.
+> 
+> No.
+> 
+> Please add a work around in your driver.
+> 
+> You can increase throughput by 20% by premapping a coherent piece of
+> memory in which
+> you can copy small skbs (skb->head included)
+> 
+> Something like 256 bytes per slot in the TX ring.
+> 
 
+FWIW this regression was withthe standard mellanox driver (nothing s390 specific).
