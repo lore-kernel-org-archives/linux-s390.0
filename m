@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97F0FECAAD5
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Sep 2022 03:05:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 630C8C6FA83
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Sep 2022 03:05:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230237AbiIIDFF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Sep 2022 23:05:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40684 "EHLO
+        id S230247AbiIIDFT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Sep 2022 23:05:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230154AbiIIDE6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 23:04:58 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0CA21EC52;
-        Thu,  8 Sep 2022 20:04:46 -0700 (PDT)
+        with ESMTP id S230118AbiIIDE7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 23:04:59 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D94205FB;
+        Thu,  8 Sep 2022 20:04:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1662692693; x=1694228693;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=soBnAVMV7/b3RWmlqT7Qm3YU2ApJN5udh0rQdoHKIKg=;
-  b=J+D7VD6cWyvaVkPIbeMyyoRVY1TKj9WvtWUKJhFhOBkhpaFCvPzjzGZM
-   +SxDq86d247a8Jbx4HsIrY3VyR1KZz2uCKdxLq1BH7WVMPqwLJQpiZwKP
-   9KZeqbYXHoH9psoROVqDa7MftTBYLWEwH42BU9Vbip8eN0y+n3+3mojjx
-   Bn7KZgheiauPq8XsQSyCvJytTiFbl3dq427HjjUgtGPU/tMwagNvSqXQx
-   N3/UQXi+Ch+/5ZmgFPX1tBRQ9fO+Z8RJtPeZs0BGlJ2JV30HY1WDZhC9x
-   Dmqx/dHaDuer0H3ZcffcG4T0W2Ez/LQYYGQTfzyWaPfZangs6J8R0EG1T
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10464"; a="361340791"
+  bh=QCqnH5yyFKRSM/tDdALx86Zz7Ypn4WP/5pwxdmZHGPQ=;
+  b=hwttjCOzPWHTN+1VGeszGt7od8xl6SL9h7vJsSGPmqLbyJdyg4EALewT
+   5amCcEftaK9WNF9TIxMdkxEeERJk+aKjLhRr9O/PWWTS7HewgsTqHfFfP
+   nJ+CVGFXndkRvV1rlvHgAijLbIkNrcG3O3BJNIznmfEnCD//cHkU7mB0q
+   2NHTJsA9hHVsmL8NHn165gBAutDTIJRGOHecpbZ9I0x7d5UyMA4+TQI2L
+   KVA3rM1IlAGFaXt+sPYDv+wh1L8G7WGy04GVeub3EL00aEq7fy4g6Qb6f
+   OGcqqei/Hl/DkIaRH3MS2ayO6+ibXQ4Essq5Y3VaQI4Ml6ZSUGqY2Um86
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10464"; a="383677408"
 X-IronPort-AV: E=Sophos;i="5.93,300,1654585200"; 
-   d="scan'208";a="361340791"
+   d="scan'208";a="383677408"
 Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2022 20:03:45 -0700
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2022 20:04:22 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.93,300,1654585200"; 
-   d="scan'208";a="740908510"
+   d="scan'208";a="740908783"
 Received: from sqa-gate.sh.intel.com (HELO michael.clx.dev.tsp.org) ([10.239.48.212])
-  by orsmga004.jf.intel.com with ESMTP; 08 Sep 2022 20:03:36 -0700
+  by orsmga004.jf.intel.com with ESMTP; 08 Sep 2022 20:04:13 -0700
 From:   Kevin Tian <kevin.tian@intel.com>
 To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
@@ -77,9 +77,9 @@ To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org
 Cc:     Yi Liu <yi.l.liu@intel.com>
-Subject: [PATCH v3 01/15] vfio: Add helpers for unifying vfio_device life cycle
-Date:   Fri,  9 Sep 2022 18:22:33 +0800
-Message-Id: <20220909102247.67324-2-kevin.tian@intel.com>
+Subject: [PATCH v3 05/15] vfio/mdpy: Use the new device life cycle helpers
+Date:   Fri,  9 Sep 2022 18:22:37 +0800
+Message-Id: <20220909102247.67324-6-kevin.tian@intel.com>
 X-Mailer: git-send-email 2.21.3
 In-Reply-To: <20220909102247.67324-1-kevin.tian@intel.com>
 References: <20220909102247.67324-1-kevin.tian@intel.com>
@@ -89,216 +89,150 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The idea is to let vfio core manage the vfio_device life cycle instead
-of duplicating the logic cross drivers. This is also a preparatory
-step for adding struct device into vfio_device.
+From: Yi Liu <yi.l.liu@intel.com>
 
-New pair of helpers together with a kref in vfio_device:
+and manage mdpy_count inside @init/@release.
 
- - vfio_alloc_device()
- - vfio_put_device()
-
-Drivers can register @init/@release callbacks to manage any private
-state wrapping the vfio_device.
-
-However vfio-ccw doesn't fit this model due to a life cycle mess
-that its private structure mixes both parent and mdev info hence must
-be allocated/freed outside of the life cycle of vfio device.
-
-Per prior discussions this won't be fixed in short term by IBM folks.
-
-Instead of waiting for those modifications introduce another helper
-vfio_init_device() so ccw can call it to initialize a pre-allocated
-vfio_device.
-
-Further implication of the ccw trick is that vfio_device cannot be
-freed uniformly in vfio core. Instead, require *EVERY* driver to
-implement @release and free vfio_device inside. Then ccw can choose
-to delay the free at its own discretion.
-
-Another trick down the road is that kvzalloc() is used to accommodate
-the need of gvt which uses vzalloc() while all others use kzalloc().
-So drivers should call a helper vfio_free_device() to free the
-vfio_device instead of assuming that kfree() or vfree() is appliable.
-
-Later once the ccw mess is fixed we can remove those tricks and
-fully handle structure alloc/free in vfio core.
-
-Existing vfio_{un}init_group_dev() will be deprecated after all
-existing usages are converted to the new model.
-
-Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-Co-developed-by: Yi Liu <yi.l.liu@intel.com>
 Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 Signed-off-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
 ---
- drivers/vfio/vfio_main.c | 92 ++++++++++++++++++++++++++++++++++++++++
- include/linux/vfio.h     | 25 ++++++++++-
- 2 files changed, 116 insertions(+), 1 deletion(-)
+ samples/vfio-mdev/mdpy.c | 81 +++++++++++++++++++++++-----------------
+ 1 file changed, 47 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index 27d9186f35d5..adc1b697bb78 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -498,6 +498,98 @@ void vfio_uninit_group_dev(struct vfio_device *device)
+diff --git a/samples/vfio-mdev/mdpy.c b/samples/vfio-mdev/mdpy.c
+index e8c46eb2e246..a07dac16d873 100644
+--- a/samples/vfio-mdev/mdpy.c
++++ b/samples/vfio-mdev/mdpy.c
+@@ -216,61 +216,77 @@ static int mdpy_reset(struct mdev_state *mdev_state)
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(vfio_uninit_group_dev);
  
-+/* Release helper called by vfio_put_device() */
-+void vfio_device_release(struct kref *kref)
-+{
-+	struct vfio_device *device =
-+			container_of(kref, struct vfio_device, kref);
+-static int mdpy_probe(struct mdev_device *mdev)
++static int mdpy_init_dev(struct vfio_device *vdev)
+ {
++	struct mdev_state *mdev_state =
++		container_of(vdev, struct mdev_state, vdev);
++	struct mdev_device *mdev = to_mdev_device(vdev->dev);
+ 	const struct mdpy_type *type =
+ 		&mdpy_types[mdev_get_type_group_id(mdev)];
+-	struct device *dev = mdev_dev(mdev);
+-	struct mdev_state *mdev_state;
+ 	u32 fbsize;
+-	int ret;
++	int ret = -ENOMEM;
+ 
+ 	if (mdpy_count >= max_devices)
+-		return -ENOMEM;
+-
+-	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
+-	if (mdev_state == NULL)
+-		return -ENOMEM;
+-	vfio_init_group_dev(&mdev_state->vdev, &mdev->dev, &mdpy_dev_ops);
++		return ret;
+ 
+ 	mdev_state->vconfig = kzalloc(MDPY_CONFIG_SPACE_SIZE, GFP_KERNEL);
+-	if (mdev_state->vconfig == NULL) {
+-		ret = -ENOMEM;
+-		goto err_state;
+-	}
++	if (!mdev_state->vconfig)
++		return ret;
+ 
+ 	fbsize = roundup_pow_of_two(type->width * type->height * type->bytepp);
+ 
+ 	mdev_state->memblk = vmalloc_user(fbsize);
+-	if (!mdev_state->memblk) {
+-		ret = -ENOMEM;
+-		goto err_vconfig;
+-	}
+-	dev_info(dev, "%s: %s (%dx%d)\n", __func__, type->name, type->width,
+-		 type->height);
++	if (!mdev_state->memblk)
++		goto out_vconfig;
+ 
+ 	mutex_init(&mdev_state->ops_lock);
+ 	mdev_state->mdev = mdev;
+-	mdev_state->type    = type;
++	mdev_state->type = type;
+ 	mdev_state->memsize = fbsize;
+ 	mdpy_create_config_space(mdev_state);
+ 	mdpy_reset(mdev_state);
+ 
++	dev_info(vdev->dev, "%s: %s (%dx%d)\n", __func__, type->name, type->width,
++		 type->height);
 +
-+	vfio_uninit_group_dev(device);
-+
-+	/*
-+	 * kvfree() cannot be done here due to a life cycle mess in
-+	 * vfio-ccw. Before the ccw part is fixed all drivers are
-+	 * required to support @release and call vfio_free_device()
-+	 * from there.
-+	 */
-+	device->ops->release(device);
-+}
-+EXPORT_SYMBOL_GPL(vfio_device_release);
-+
-+/*
-+ * Alloc and initialize vfio_device so it can be registered to vfio
-+ * core.
-+ *
-+ * Drivers should use the wrapper vfio_alloc_device() for allocation.
-+ * @size is the size of the structure to be allocated, including any
-+ * private data used by the driver.
-+ *
-+ * Driver may provide an @init callback to cover device private data.
-+ *
-+ * Use vfio_put_device() to release the structure after success return.
-+ */
-+struct vfio_device *_vfio_alloc_device(size_t size, struct device *dev,
-+				       const struct vfio_device_ops *ops)
-+{
-+	struct vfio_device *device;
-+	int ret;
-+
-+	if (WARN_ON(size < sizeof(struct vfio_device)))
-+		return ERR_PTR(-EINVAL);
-+
-+	device = kvzalloc(size, GFP_KERNEL);
-+	if (!device)
-+		return ERR_PTR(-ENOMEM);
-+
-+	ret = vfio_init_device(device, dev, ops);
-+	if (ret)
-+		goto out_free;
-+	return device;
-+
-+out_free:
-+	kvfree(device);
-+	return ERR_PTR(ret);
-+}
-+EXPORT_SYMBOL_GPL(_vfio_alloc_device);
-+
-+/*
-+ * Initialize a vfio_device so it can be registered to vfio core.
-+ *
-+ * Only vfio-ccw driver should call this interface.
-+ */
-+int vfio_init_device(struct vfio_device *device, struct device *dev,
-+		     const struct vfio_device_ops *ops)
-+{
-+	int ret;
-+
-+	vfio_init_group_dev(device, dev, ops);
-+
-+	if (ops->init) {
-+		ret = ops->init(device);
-+		if (ret)
-+			goto out_uninit;
-+	}
-+
-+	kref_init(&device->kref);
+ 	mdpy_count++;
 +	return 0;
 +
-+out_uninit:
-+	vfio_uninit_group_dev(device);
++out_vconfig:
++	kfree(mdev_state->vconfig);
 +	return ret;
 +}
-+EXPORT_SYMBOL_GPL(vfio_init_device);
 +
-+/*
-+ * The helper called by driver @release callback to free the device
-+ * structure. Drivers which don't have private data to clean can
-+ * simply use this helper as its @release.
-+ */
-+void vfio_free_device(struct vfio_device *device)
++static int mdpy_probe(struct mdev_device *mdev)
 +{
-+	kvfree(device);
-+}
-+EXPORT_SYMBOL_GPL(vfio_free_device);
++	struct mdev_state *mdev_state;
++	int ret;
 +
- static struct vfio_group *vfio_noiommu_group_alloc(struct device *dev,
- 		enum vfio_group_type type)
- {
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 0e2826559091..f67cac700e6f 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -47,7 +47,8 @@ struct vfio_device {
- 	struct kvm *kvm;
++	mdev_state = vfio_alloc_device(mdev_state, vdev, &mdev->dev,
++				       &mdpy_dev_ops);
++	if (IS_ERR(mdev_state))
++		return PTR_ERR(mdev_state);
  
- 	/* Members below here are private, not for driver use */
--	refcount_t refcount;
-+	struct kref kref;	/* object life cycle */
-+	refcount_t refcount;	/* user count on registered device*/
- 	unsigned int open_count;
- 	struct completion comp;
- 	struct list_head group_next;
-@@ -57,6 +58,8 @@ struct vfio_device {
- /**
-  * struct vfio_device_ops - VFIO bus driver device callbacks
-  *
-+ * @init: initialize private fields in device structure
-+ * @release: Reclaim private fields in device structure
-  * @open_device: Called when the first file descriptor is opened for this device
-  * @close_device: Opposite of open_device
-  * @read: Perform read(2) on device file descriptor
-@@ -74,6 +77,8 @@ struct vfio_device {
-  */
- struct vfio_device_ops {
- 	char	*name;
-+	int	(*init)(struct vfio_device *vdev);
-+	void	(*release)(struct vfio_device *vdev);
- 	int	(*open_device)(struct vfio_device *vdev);
- 	void	(*close_device)(struct vfio_device *vdev);
- 	ssize_t	(*read)(struct vfio_device *vdev, char __user *buf,
-@@ -161,6 +166,24 @@ static inline int vfio_check_feature(u32 flags, size_t argsz, u32 supported_ops,
- 	return 1;
+ 	ret = vfio_register_emulated_iommu_dev(&mdev_state->vdev);
+ 	if (ret)
+-		goto err_mem;
++		goto err_put_vdev;
+ 	dev_set_drvdata(&mdev->dev, mdev_state);
+ 	return 0;
+-err_mem:
++
++err_put_vdev:
++	vfio_put_device(&mdev_state->vdev);
++	return ret;
++}
++
++static void mdpy_release_dev(struct vfio_device *vdev)
++{
++	struct mdev_state *mdev_state =
++		container_of(vdev, struct mdev_state, vdev);
++
+ 	vfree(mdev_state->memblk);
+-err_vconfig:
+ 	kfree(mdev_state->vconfig);
+-err_state:
+-	vfio_uninit_group_dev(&mdev_state->vdev);
+-	kfree(mdev_state);
+-	return ret;
++	vfio_free_device(vdev);
++	mdpy_count--;
  }
  
-+struct vfio_device *_vfio_alloc_device(size_t size, struct device *dev,
-+				       const struct vfio_device_ops *ops);
-+#define vfio_alloc_device(dev_struct, member, dev, ops)				\
-+	container_of(_vfio_alloc_device(sizeof(struct dev_struct) +		\
-+					BUILD_BUG_ON_ZERO(offsetof(		\
-+						struct dev_struct, member)),	\
-+					dev, ops),				\
-+		     struct dev_struct, member)
-+
-+int vfio_init_device(struct vfio_device *device, struct device *dev,
-+		     const struct vfio_device_ops *ops);
-+void vfio_free_device(struct vfio_device *device);
-+void vfio_device_release(struct kref *kref);
-+static inline void vfio_put_device(struct vfio_device *device)
-+{
-+	kref_put(&device->kref, vfio_device_release);
-+}
-+
- void vfio_init_group_dev(struct vfio_device *device, struct device *dev,
- 			 const struct vfio_device_ops *ops);
- void vfio_uninit_group_dev(struct vfio_device *device);
+ static void mdpy_remove(struct mdev_device *mdev)
+@@ -280,12 +296,7 @@ static void mdpy_remove(struct mdev_device *mdev)
+ 	dev_info(&mdev->dev, "%s\n", __func__);
+ 
+ 	vfio_unregister_group_dev(&mdev_state->vdev);
+-	vfree(mdev_state->memblk);
+-	kfree(mdev_state->vconfig);
+-	vfio_uninit_group_dev(&mdev_state->vdev);
+-	kfree(mdev_state);
+-
+-	mdpy_count--;
++	vfio_put_device(&mdev_state->vdev);
+ }
+ 
+ static ssize_t mdpy_read(struct vfio_device *vdev, char __user *buf,
+@@ -708,6 +719,8 @@ static struct attribute_group *mdev_type_groups[] = {
+ };
+ 
+ static const struct vfio_device_ops mdpy_dev_ops = {
++	.init = mdpy_init_dev,
++	.release = mdpy_release_dev,
+ 	.read = mdpy_read,
+ 	.write = mdpy_write,
+ 	.ioctl = mdpy_ioctl,
 -- 
 2.21.3
 
