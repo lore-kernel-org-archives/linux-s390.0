@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BF8AECAAD5
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Sep 2022 03:04:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD971C54EE9
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Sep 2022 03:04:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229616AbiIIDEV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Sep 2022 23:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38542 "EHLO
+        id S230063AbiIIDEh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Sep 2022 23:04:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229908AbiIIDEU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 23:04:20 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7781011EA45;
-        Thu,  8 Sep 2022 20:04:19 -0700 (PDT)
+        with ESMTP id S229529AbiIIDEe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Sep 2022 23:04:34 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74625C08;
+        Thu,  8 Sep 2022 20:04:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662692659; x=1694228659;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=+yssjGnk2Zp3MQF/9zrQ2m7m/7YA8Wye4MlvVDEJ0Mk=;
-  b=Y53TV8YHV/0BH9NDcxLQKO3GsDcj9JzTRPfm+QFYmWfBSqUaUs+a7dlq
-   FMJEQakljcXOfdHV4DTvsQmWTOxphMyW1MjlDLo0PVrtHAUCkzBLKSljL
-   ybvTW26UG/r8/4PO454Uk3AcjRq7T5AVXlnwnJXTRx70H8cR8iIeZPXy7
-   h9Bh7Hb+qpg/rZcjDCHtu/wkAzi9edxpkO/xXPhhLitK/K0MXsv9yvC1U
-   87TerDDOsoEPF1dpXzsAb0sagsLsWRTcPWgHNeTGZEDsrwIaJVgQAUKs2
-   HI3swNhiTdyxH4GXC2ymGUuekjRfd+Ag1NhhqkiA9IzD88EnpQSFuRBjn
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10464"; a="296118436"
+  t=1662692663; x=1694228663;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=P+CRhjjxG8elyohg8uAXljHfLC1jEqw8D5rpZVMXHkg=;
+  b=hkedW7eADiTwcBB2yUQS3YK/USPc+nVVSnHNn8uUNbpb3YpHcRdv4NT0
+   tqP5QNJsLQHVAC1deLo1CI49JLTZfJmfQTpAOGIHp4JHXo25H2IAwtBCf
+   zrWeIjaOd7QTFORTcA0qXagojV0bOSp99/QR8JG1niS0N5sI9QMuIv9aE
+   aHNy2Ah5KSYVIXaX71Zvxz395CNlHqxvvGmNG/Xn+Jm9Ncf0U1h0gophD
+   HlZVFO0vIeKnk0/wsKeCvxCFXsTe08b+qPyItBZg5C/ZifF+/nHw+Vyev
+   lKr44f/cK4Pf4TE+0QaqZ9o44e+G2Cq2hBXTILK35QKE+8LUZcEadE7hP
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10464"; a="277771734"
 X-IronPort-AV: E=Sophos;i="5.93,300,1654585200"; 
-   d="scan'208";a="296118436"
+   d="scan'208";a="277771734"
 Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2022 20:04:04 -0700
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2022 20:03:36 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.93,300,1654585200"; 
-   d="scan'208";a="740908636"
+   d="scan'208";a="740908460"
 Received: from sqa-gate.sh.intel.com (HELO michael.clx.dev.tsp.org) ([10.239.48.212])
-  by orsmga004.jf.intel.com with ESMTP; 08 Sep 2022 20:03:54 -0700
+  by orsmga004.jf.intel.com with ESMTP; 08 Sep 2022 20:03:27 -0700
 From:   Kevin Tian <kevin.tian@intel.com>
 To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
@@ -77,111 +77,122 @@ To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org
 Cc:     Yi Liu <yi.l.liu@intel.com>
-Subject: [PATCH v3 03/15] vfio/mlx5: Use the new device life cycle helpers
-Date:   Fri,  9 Sep 2022 18:22:35 +0800
-Message-Id: <20220909102247.67324-4-kevin.tian@intel.com>
+Subject: [PATCH v3 00/15] Tidy up vfio_device life cycle
+Date:   Fri,  9 Sep 2022 18:22:32 +0800
+Message-Id: <20220909102247.67324-1-kevin.tian@intel.com>
 X-Mailer: git-send-email 2.21.3
-In-Reply-To: <20220909102247.67324-1-kevin.tian@intel.com>
-References: <20220909102247.67324-1-kevin.tian@intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Yi Liu <yi.l.liu@intel.com>
+The idea is to let vfio core manage the vfio_device life cycle instead
+of duplicating the logic cross drivers. Besides cleaner code in driver
+side this also allows adding struct device to vfio_device as the first
+step toward adding cdev uAPI in the future. Another benefit is that
+user can now look at sysfs to decide whether a device is bound to
+vfio [1], e.g.:
 
-mlx5 has its own @init/@release for handling migration cap.
+	/sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
 
-Signed-off-by: Yi Liu <yi.l.liu@intel.com>
-Signed-off-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/vfio/pci/mlx5/main.c | 50 ++++++++++++++++++++++++++----------
- 1 file changed, 36 insertions(+), 14 deletions(-)
+Though most drivers can fit the new model naturally:
 
-diff --git a/drivers/vfio/pci/mlx5/main.c b/drivers/vfio/pci/mlx5/main.c
-index 759a5f5f7b3f..fd6ccb8454a2 100644
---- a/drivers/vfio/pci/mlx5/main.c
-+++ b/drivers/vfio/pci/mlx5/main.c
-@@ -585,8 +585,35 @@ static const struct vfio_log_ops mlx5vf_pci_log_ops = {
- 	.log_read_and_clear = mlx5vf_tracker_read_and_clear,
- };
- 
-+static int mlx5vf_pci_init_dev(struct vfio_device *core_vdev)
-+{
-+	struct mlx5vf_pci_core_device *mvdev = container_of(core_vdev,
-+			struct mlx5vf_pci_core_device, core_device.vdev);
-+	int ret;
-+
-+	ret = vfio_pci_core_init_dev(core_vdev);
-+	if (ret)
-+		return ret;
-+
-+	mlx5vf_cmd_set_migratable(mvdev, &mlx5vf_pci_mig_ops,
-+				  &mlx5vf_pci_log_ops);
-+
-+	return 0;
-+}
-+
-+static void mlx5vf_pci_release_dev(struct vfio_device *core_vdev)
-+{
-+	struct mlx5vf_pci_core_device *mvdev = container_of(core_vdev,
-+			struct mlx5vf_pci_core_device, core_device.vdev);
-+
-+	mlx5vf_cmd_remove_migratable(mvdev);
-+	vfio_pci_core_release_dev(core_vdev);
-+}
-+
- static const struct vfio_device_ops mlx5vf_pci_ops = {
- 	.name = "mlx5-vfio-pci",
-+	.init = mlx5vf_pci_init_dev,
-+	.release = mlx5vf_pci_release_dev,
- 	.open_device = mlx5vf_pci_open_device,
- 	.close_device = mlx5vf_pci_close_device,
- 	.ioctl = vfio_pci_core_ioctl,
-@@ -604,22 +631,19 @@ static int mlx5vf_pci_probe(struct pci_dev *pdev,
- 	struct mlx5vf_pci_core_device *mvdev;
- 	int ret;
- 
--	mvdev = kzalloc(sizeof(*mvdev), GFP_KERNEL);
--	if (!mvdev)
--		return -ENOMEM;
--	vfio_pci_core_init_device(&mvdev->core_device, pdev, &mlx5vf_pci_ops);
--	mlx5vf_cmd_set_migratable(mvdev, &mlx5vf_pci_mig_ops,
--				  &mlx5vf_pci_log_ops);
-+	mvdev = vfio_alloc_device(mlx5vf_pci_core_device, core_device.vdev,
-+				  &pdev->dev, &mlx5vf_pci_ops);
-+	if (IS_ERR(mvdev))
-+		return PTR_ERR(mvdev);
-+
- 	dev_set_drvdata(&pdev->dev, &mvdev->core_device);
- 	ret = vfio_pci_core_register_device(&mvdev->core_device);
- 	if (ret)
--		goto out_free;
-+		goto out_put_vdev;
- 	return 0;
- 
--out_free:
--	mlx5vf_cmd_remove_migratable(mvdev);
--	vfio_pci_core_uninit_device(&mvdev->core_device);
--	kfree(mvdev);
-+out_put_vdev:
-+	vfio_put_device(&mvdev->core_device.vdev);
- 	return ret;
- }
- 
-@@ -628,9 +652,7 @@ static void mlx5vf_pci_remove(struct pci_dev *pdev)
- 	struct mlx5vf_pci_core_device *mvdev = mlx5vf_drvdata(pdev);
- 
- 	vfio_pci_core_unregister_device(&mvdev->core_device);
--	mlx5vf_cmd_remove_migratable(mvdev);
--	vfio_pci_core_uninit_device(&mvdev->core_device);
--	kfree(mvdev);
-+	vfio_put_device(&mvdev->core_device.vdev);
- }
- 
- static const struct pci_device_id mlx5vf_pci_table[] = {
+ - vfio_alloc_device() to allocate and initialize vfio_device
+ - vfio_put_device() to release vfio_device
+ - dev_ops->init() for driver private initialization
+ - dev_ops->release() for driver private cleanup
+
+vfio-ccw is the only exception due to a life cycle mess that its private
+structure mixes both parent and mdev info hence must be alloc/freed
+outside of the life cycle of vfio device.
+
+Per prior discussions this won't be fixed in short term by IBM folks [2].
+
+Instead of waiting this series introduces a few tricks to move forward:
+
+ - vfio_init_device() to initialize a pre-allocated device structure;
+
+ - require *EVERY* driver to implement @release and free vfio_device
+   inside. Then vfio-ccw can use a completion mechanism to delay the
+   free to css driver;
+
+The second trick is not a real burden to other drivers because they
+all require a @release for private cleanup anyay. Later once the ccw
+mess is fixed a simple cleanup can be done by moving free from @release
+to vfio core.
+
+Thanks
+Kevin
+
+[1] https://listman.redhat.com/archives/libvir-list/2022-August/233482.html
+[2] https://lore.kernel.org/all/0ee29bd6583f17f0ee4ec0769fa50e8ea6703623.camel@linux.ibm.com/
+
+v3:
+ - rebase to vfio-next after resolving conflicts with Yishai's series
+ - add missing fixes for two checkpatch errors
+ - fix grammar issues (Eric Auger)
+ - add more r-b's
+
+v2:
+ - https://lore.kernel.org/lkml/20220901143747.32858-1-kevin.tian@intel.com/
+ - rebase to 6.0-rc3
+ - fix build warnings (lkp)
+ - patch1: remove unnecessary forward reference (Jason)
+ - patch10: leave device_set released by vfio core (Jason)
+ - patch13: add Suggested-by
+ - patch15: add ABI file sysfs-devices-vfio-dev (Alex)
+ - patch15: rename 'vfio' to 'vfio_group' in procfs (Jason)
+
+v1: https://lore.kernel.org/lkml/20220827171037.30297-1-kevin.tian@intel.com/
+
+Kevin Tian (6):
+  vfio: Add helpers for unifying vfio_device life cycle
+  drm/i915/gvt: Use the new device life cycle helpers
+  vfio/platform: Use the new device life cycle helpers
+  vfio/amba: Use the new device life cycle helpers
+  vfio/ccw: Use the new device life cycle helpers
+  vfio: Rename vfio_device_put() and vfio_device_try_get()
+
+Yi Liu (9):
+  vfio/pci: Use the new device life cycle helpers
+  vfio/mlx5: Use the new device life cycle helpers
+  vfio/hisi_acc: Use the new device life cycle helpers
+  vfio/mdpy: Use the new device life cycle helpers
+  vfio/mtty: Use the new device life cycle helpers
+  vfio/mbochs: Use the new device life cycle helpers
+  vfio/ap: Use the new device life cycle helpers
+  vfio/fsl-mc: Use the new device life cycle helpers
+  vfio: Add struct device to vfio_device
+
+ .../ABI/testing/sysfs-devices-vfio-dev        |   8 +
+ MAINTAINERS                                   |   1 +
+ drivers/gpu/drm/i915/gvt/gvt.h                |   5 +-
+ drivers/gpu/drm/i915/gvt/kvmgt.c              |  52 ++++--
+ drivers/gpu/drm/i915/gvt/vgpu.c               |  33 ++--
+ drivers/s390/cio/vfio_ccw_ops.c               |  52 +++++-
+ drivers/s390/cio/vfio_ccw_private.h           |   3 +
+ drivers/s390/crypto/vfio_ap_ops.c             |  50 +++---
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c             |  85 +++++----
+ .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  80 ++++-----
+ drivers/vfio/pci/mlx5/main.c                  |  50 ++++--
+ drivers/vfio/pci/vfio_pci.c                   |  20 +--
+ drivers/vfio/pci/vfio_pci_core.c              |  23 ++-
+ drivers/vfio/platform/vfio_amba.c             |  72 ++++++--
+ drivers/vfio/platform/vfio_platform.c         |  66 +++++--
+ drivers/vfio/platform/vfio_platform_common.c  |  71 +++-----
+ drivers/vfio/platform/vfio_platform_private.h |  18 +-
+ drivers/vfio/vfio_main.c                      | 167 +++++++++++++++---
+ include/linux/vfio.h                          |  28 ++-
+ include/linux/vfio_pci_core.h                 |   6 +-
+ samples/vfio-mdev/mbochs.c                    |  73 +++++---
+ samples/vfio-mdev/mdpy.c                      |  81 +++++----
+ samples/vfio-mdev/mtty.c                      |  67 ++++---
+ 23 files changed, 730 insertions(+), 381 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-devices-vfio-dev
+
+
+base-commit: f39856aacb078c1c93acef011a37121b17d54fe0
 -- 
 2.21.3
 
