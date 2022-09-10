@@ -2,124 +2,90 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38D11C6FA82
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Sep 2022 23:53:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 022E3C6FA89
+	for <linux-s390@archiver.kernel.org>; Sat, 10 Sep 2022 07:53:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229690AbiIIXxQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Sep 2022 19:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52760 "EHLO
+        id S229549AbiIJHx1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 10 Sep 2022 03:53:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbiIIXxP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Sep 2022 19:53:15 -0400
-Received: from mail-qv1-xf32.google.com (mail-qv1-xf32.google.com [IPv6:2607:f8b0:4864:20::f32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31CFC11B001
-        for <linux-s390@vger.kernel.org>; Fri,  9 Sep 2022 16:53:14 -0700 (PDT)
-Received: by mail-qv1-xf32.google.com with SMTP id d1so2479140qvs.0
-        for <linux-s390@vger.kernel.org>; Fri, 09 Sep 2022 16:53:14 -0700 (PDT)
+        with ESMTP id S229522AbiIJHxZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 10 Sep 2022 03:53:25 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 580FA5F9AC
+        for <linux-s390@vger.kernel.org>; Sat, 10 Sep 2022 00:53:23 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id x1so3824460plv.5
+        for <linux-s390@vger.kernel.org>; Sat, 10 Sep 2022 00:53:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
+        d=google.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=I7AGr5kxvD7L8BGImkaiYYIcWYTyuHALX3Uwn5SFGes=;
-        b=dABIJEmzczJA9TeUEwB/vqlw1on+BNexewwg9hQHdtE1Pf+5Eir7ZuRo5Ra74CBI2Y
-         mcA+UH3eeO9aAd0QqE0L7SFCTjpphtpc0ELtMYBKyyRw1a/HWDzHyUcOactrzkgR2sl3
-         L0nOmencTRW6FHXiEoY9iZZ+c/WYo/U0AzzN4UAFPlTI1iRVRUWqtRTHaf8sCXXZzJnf
-         NJL3l99mu6NE5Asx87J+/QD6IeeyB3qXivdFsvkAKE6TbTRWix12Dqc9T+JmjOGbnts9
-         4TFjGIVIDOrRXIamT7vOV1TzgaehJPaax4ZVZ8nlHpjlkRagg2W3Kahrivj4XNmSdY7D
-         YIBQ==
+         :subject:to:from:date:from:to:cc:subject:date;
+        bh=JE+O0JjBaUaKaVbXBPjztEKOPO7pJKl9qx1EvIyCmeg=;
+        b=cvZJIBqGw+0ibOxmX+2fb/j2Y70TPEysHn1ZyDWt4NtukFlD84lWxjHmLm+5vXJ+VJ
+         KXVReY8lhuzBkeoQdI7cqq4CEGfH6ZTdjzNeF13E1LDMcxz87nP6HidR7yqXFQU1vbnh
+         AFBCIQriexf4bFS7x6XlHr4yXe5h214hVucA3T2xooH1iY/urtq9/xFfF+fNYNhSazGp
+         s44Y7FJm+0cx4aAai0rYk6VbcIjmSTh5h7jqgPsI7/RNW8pRFTd8/HnYFNpqYW6qV08Q
+         u4byXDmpYkU4fdgZVV/tCI7UrKUMeRH8yPvPvt+aTkXy8pnKHYljhWXg0m7Nm+SlAE88
+         zgbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=I7AGr5kxvD7L8BGImkaiYYIcWYTyuHALX3Uwn5SFGes=;
-        b=GeaOOijaYrVxRsG/WrgVsxoXfby4B8nEGhB/ew6Yc0zFwdNuIbKuNo/oXBPcoPUx98
-         gvUZ0gH6CjYO1ffzC4Y2+qKbiFcb4BzyUR9xSnnDpRBOm8I90nXgUNNMroyV12Ib77A1
-         lWFVQM2wU4/A+1kvYBzkhMhcQfFILBSOUAXrId53rMtS8raRQb+6LKAnwib2B071pgrG
-         z5rgjJ/t7oI5xDOK0b51E9SBkbIGq5XyBXr3cfY3DX8JSiT5Z3ILYVOOpXkEZf7PHXAe
-         MZh5vy+3ir8XXdru/9w0nO9dx999ZpZbsOfxaMxcW14rK/ZkXMycneyUnhhGQPAJ0HCM
-         UNlg==
-X-Gm-Message-State: ACgBeo1PvUJFxILonwDgTgrk3EAB6ybm8OshGCbpBomJCr/0T/lQ2Isx
-        /VjTJMwst3qG1YPcOMyU4B2awA==
-X-Google-Smtp-Source: AA6agR5hWM2GJ5zXaAdZz8/5jyfYnTB6f4lRkH4YbMaWcByENpIrNcfVlyo+HaeUh7LK3d+xbRkfaQ==
-X-Received: by 2002:a0c:f445:0:b0:4a6:9f4a:9a66 with SMTP id h5-20020a0cf445000000b004a69f4a9a66mr14581963qvm.65.1662767593396;
-        Fri, 09 Sep 2022 16:53:13 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
-        by smtp.gmail.com with ESMTPSA id fz16-20020a05622a5a9000b00342fc6a8e25sm1348798qtb.50.2022.09.09.16.53.12
+         :subject:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+        bh=JE+O0JjBaUaKaVbXBPjztEKOPO7pJKl9qx1EvIyCmeg=;
+        b=1nI9L5/+gCy80IQ2iVzPKh8XVSQYk+ErZ/6AEGjHbQOgNwKK2wpF2UiZEO8P7NgY9l
+         SRGrslfajU2bgMkzFMruJNfnHim2PxA5fN2PWapc3gLvHHqrhWB4mJcVYoRCKDsX+MIL
+         /Xh2bcb1TS/H6X4cq8vqu49U62U1dfqS71VKPOSxIeaA7+MxCezb5GHA1nOyYtakMnr6
+         +38fcHN7Z7YXV1raW1OMedbcHOaKpK4CtNF6tbvgfiUjWK8nSBMy/EejvXum33/1LLIt
+         8YksF2ABlq7ukExoszRAF13ts/YoRSkhp+NbkT7MtS8ZCL/JufNbb8GnrZOvP1EnimCP
+         A5UQ==
+X-Gm-Message-State: ACgBeo0eGpsbfVjDAAJ4kkl3N+9WKwKcZQrXViZCGUTU5ylK0M679oMj
+        Bkz/aP/5xU8qoKAYBxc3pEwYJg==
+X-Google-Smtp-Source: AA6agR5WNWyuopz0i+tWtj4d6z/9P1Jiwgf7f0mslhclROc9ftNMoa4vQmNLf5f/958mh31IrCT/nw==
+X-Received: by 2002:a17:90b:1d02:b0:1fe:36a:6e01 with SMTP id on2-20020a17090b1d0200b001fe036a6e01mr13521195pjb.102.1662796402707;
+        Sat, 10 Sep 2022 00:53:22 -0700 (PDT)
+Received: from google.com ([2620:15c:2ce:200:3bf1:3d60:1b12:a903])
+        by smtp.gmail.com with ESMTPSA id z12-20020a170903018c00b00176d4b093e1sm1717555plg.16.2022.09.10.00.53.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Sep 2022 16:53:12 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1oWno8-00A0GS-4S;
-        Fri, 09 Sep 2022 20:53:12 -0300
-Date:   Fri, 9 Sep 2022 20:53:12 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Ethan Zhao <haifeng.zhao@linux.intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Longfang Liu <liulongfang@huawei.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: Re: [PATCH v3 01/15] vfio: Add helpers for unifying vfio_device life
- cycle
-Message-ID: <YxvR6PHywJCTgp3z@ziepe.ca>
-References: <20220909102247.67324-1-kevin.tian@intel.com>
- <20220909102247.67324-2-kevin.tian@intel.com>
- <acbaf0f2-91d4-3eae-5716-244893ca34c7@linux.intel.com>
- <BN9PR11MB5276E41114EEE687975C698F8C439@BN9PR11MB5276.namprd11.prod.outlook.com>
+        Sat, 10 Sep 2022 00:53:21 -0700 (PDT)
+Date:   Sat, 10 Sep 2022 00:53:16 -0700
+From:   Fangrui Song <maskray@google.com>
+To:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] vdso: Improve cmd_vdso_check to check all dynamic
+ relocations
+Message-ID: <20220910075316.no72fdyqjvunomwm@google.com>
+References: <20220830193701.1702962-1-maskray@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <BN9PR11MB5276E41114EEE687975C698F8C439@BN9PR11MB5276.namprd11.prod.outlook.com>
+In-Reply-To: <20220830193701.1702962-1-maskray@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Sep 09, 2022 at 08:42:25AM +0000, Tian, Kevin wrote:
+On 2022-08-30, Fangrui Song wrote:
+>The actual intention is that no dynamic relocation exists. However, some
+>GNU ld ports produce unneeded R_*_NONE. (If a port is not care enough to
+>determine the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
+>relocations. E.g. powerpc64le ld as of 2.38 has the issue with
+>defconfig.) R_*_NONE are generally no-op in the dynamic loaders. So just
+>ignore them.
+>
+>With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
+>bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
+>not called "absolute relocations". (The patch is motivated by the arm64
+>port missing R_AARCH64_RELATIVE.)
+>
+>While here, replace "egrep" with "grep" as "egrep" is deprecated in GNU
+>grep 3.7.
+>
+>Signed-off-by: Fangrui Song <maskray@google.com>
+>---
+>[...]
+>
 
-> I think it's quite common to have an alloc() helper initialize refcount, e.g.
-> vfio_group_alloc() both initialize its user refcount and also call
-> device_initialize()  to gets kref initialized. Similar example in
-> ib_alloc_device(), etc.
-
-Right, it is quite a good/common pattern to have an allocation function
-return a refcount to the caller.
-
-I don't know of any naming standard for this however.
-
-Jason
+Ping.
