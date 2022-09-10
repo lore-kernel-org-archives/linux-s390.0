@@ -2,112 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED814ECAAD5
-	for <linux-s390@archiver.kernel.org>; Sat, 10 Sep 2022 11:00:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCAF8ECAAD3
+	for <linux-s390@archiver.kernel.org>; Sat, 10 Sep 2022 17:38:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229534AbiIJLAR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 10 Sep 2022 07:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33410 "EHLO
+        id S229622AbiIJRi4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 10 Sep 2022 13:38:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229522AbiIJLAP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 10 Sep 2022 07:00:15 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D53A9303C1;
-        Sat, 10 Sep 2022 04:00:13 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28AAVUmI029080;
-        Sat, 10 Sep 2022 11:00:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=BYq2Yzlbmcp890FD5E8AWx2DvgLgZmzL7hQQrObUyDc=;
- b=NqR0WkwzlvjdwyF2cOIJaLgqzT58XRYkrW8o9ugHXj2Xu1o9JczysM9uNJdkfPYGOmR1
- SC8fvuEpBG66MJtAPhfWRV1yBbWeKeouv9nSkAF/K3D88V+jm7IbIlzOIiaRjiER+uZ2
- JseRc2obofwWTps9in5aScBtOBgyRIlkMsYgBpclR+iVKPZGNf2WMlOOGIywesUTcO86
- L9VZqkdgdjfweL/0DB9o64kseTSqvgKxmrl6OOz/dFMR9em6ntib9SUCAXAeW+66WcWe
- R3NoVcPt+f1ykgjoERzl1AxgZIlF0yjTnHEwbzuUb2iTuYe9cvlGfe1ZL4nigpwkvVDC sw== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jgrwf8d95-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 10 Sep 2022 11:00:12 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28AApo2P021978;
-        Sat, 10 Sep 2022 11:00:10 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma02fra.de.ibm.com with ESMTP id 3jgj7907yv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 10 Sep 2022 11:00:09 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28AB06P836176304
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 10 Sep 2022 11:00:06 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9CE53AE04D;
-        Sat, 10 Sep 2022 11:00:06 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 41FC3AE051;
-        Sat, 10 Sep 2022 11:00:06 +0000 (GMT)
-Received: from localhost (unknown [9.171.12.48])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Sat, 10 Sep 2022 11:00:06 +0000 (GMT)
-Date:   Sat, 10 Sep 2022 13:00:04 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S229614AbiIJRiy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 10 Sep 2022 13:38:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AA73491D9;
+        Sat, 10 Sep 2022 10:38:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDF31B80860;
+        Sat, 10 Sep 2022 17:38:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B1E7AC433D6;
+        Sat, 10 Sep 2022 17:38:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662831531;
+        bh=EdW9C2ou4aTu9YYcfJvxHpJ4eUfqhRiiZEzDRgh9NX4=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=SGh7AbP+nugz9XL6ilMk4uBEl2tlVS808R/R/XlK2Cggv+kflwrTRk6vrh21+35xw
+         AM38vxQFYnb8ITwORjjism4qSpRz/BzhDshShe61nlS1hWOvsoH/T/tgwFZxvtDRpP
+         bngd0nLi1ea2chN+J5bdBVSIB50X2OK/MJH8YTuIDq7qzJHPvHHBZo5BDB+T9iBCZo
+         T1fPXSDNjwQ3tu5c4/yqvI9f+peDDK9hEly3HAKxtS0jFX+Cl2PuMYC2/vpemSHUcw
+         7j95km1D4Uejihw5juqmPS8o5kbf/9MTlAkn47h8LDY1vEhoTpDCOKK8upQg47HQmE
+         LbUY6IOPMcypQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 9BE66E1CABE;
+        Sat, 10 Sep 2022 17:38:51 +0000 (UTC)
+Subject: Re: [GIT PULL] s390 updates for 6.0-rc5
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01662807604-ext-8310@work.hours>
+References: <your-ad-here.call-01662807604-ext-8310@work.hours>
+X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
+X-PR-Tracked-Message-Id: <your-ad-here.call-01662807604-ext-8310@work.hours>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-4
+X-PR-Tracked-Commit-Id: 8d96bba75a43ba564bf8732e955d9f519d2bbaec
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: b96fbd602d35739b5cdb49baa02048f2c41fdab1
+Message-Id: <166283153163.31692.16378904348411411745.pr-tracker-bot@kernel.org>
+Date:   Sat, 10 Sep 2022 17:38:51 +0000
+To:     Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 updates for 6.0-rc5
-Message-ID: <your-ad-here.call-01662807604-ext-8310@work.hours>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: PwcoFUXw82O5XkcsDqdHgZokFlbBX7cZ
-X-Proofpoint-ORIG-GUID: PwcoFUXw82O5XkcsDqdHgZokFlbBX7cZ
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-10_04,2022-09-09_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- adultscore=0 bulkscore=0 mlxlogscore=802 suspectscore=0 priorityscore=1501
- malwarescore=0 mlxscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2209100038
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+The pull request you sent on Sat, 10 Sep 2022 13:00:04 +0200:
 
-please pull s390 changes for 6.0-rc5.
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-4
 
-Thank you,
-Vasily
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/b96fbd602d35739b5cdb49baa02048f2c41fdab1
 
-The following changes since commit 7c8d42fdf1a84b1a0dd60d6528309c8ec127e87c:
+Thank you!
 
-  s390/hugetlb: fix prepare_hugepage_range() check for 2 GB hugepages (2022-08-30 21:57:07 +0200)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-4
-
-for you to fetch changes up to 8d96bba75a43ba564bf8732e955d9f519d2bbaec:
-
-  s390/smp: enforce lowcore protection on CPU restart (2022-09-07 14:04:01 +0200)
-
-----------------------------------------------------------------
-s390 updates for 6.0-rc5
-
-- Fix absolute zero lowcore corruption on kdump when CPU0 is offline.
-
-- Fix lowcore protection setup for offline CPU restart.
-
-----------------------------------------------------------------
-Alexander Gordeev (2):
-      s390/boot: fix absolute zero lowcore corruption on boot
-      s390/smp: enforce lowcore protection on CPU restart
-
- arch/s390/kernel/nmi.c   | 2 +-
- arch/s390/kernel/setup.c | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
