@@ -2,167 +2,165 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A407FC6FA89
-	for <linux-s390@archiver.kernel.org>; Sat, 10 Sep 2022 23:35:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B689ECAAD5
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Sep 2022 08:03:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229801AbiIJXf6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 10 Sep 2022 19:35:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60828 "EHLO
+        id S229681AbiILIDU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 12 Sep 2022 04:03:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229622AbiIJXf4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 10 Sep 2022 19:35:56 -0400
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam07on2080.outbound.protection.outlook.com [40.107.212.80])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7903837FBB;
-        Sat, 10 Sep 2022 16:35:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dDa4rYgLtST0kgXd+0vR3h6n7voYpGSzhfOo7G0xUsiBqRSIOhk2wO6nuBRCZSg0rL/gbaSVwrPF82z4ibI0pw0Koal4r7s708yr9ZY/Oh4i7HU9zYscPtZZSIUxsidWe8igxKLmlNJP43OuivY9HPwd+3m8P+M5doocOGWm7E7YUj3YBVricb+WrHENXoiBgidRrJWDAxyjhYMHxxWNp3ZT14FEGzIrOjH77YYkEBfoJrCXzLHAf1ss/XiN3sSE/WhJ861oreNG51ChUnM4S2Ow7dCfqpDaQFJN2b2yCtPYh4vv4NNMc7Nj90RwZGqnaxzT78ZCzN1RhV+peKnpRQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IiiQ2fVCwucQ86iut+uJPfw8wrP+r+5D4oGRyrQQYdg=;
- b=D4oTpsruGKjz8AMsv75jebtmOvu/3mVSDWWt31tm1Q1/DqqRvwLXbdHBDAO2cwbybDzEtnwuS6C/I6zkaT4FTq+csVIUdUJoWvJMsfOQwcIBtNPEgL7TrqwPaQ7cuUW5UtoGw8/v/NE2Dxj9F97knGUZXfAkFoFq6G+qfrHuxbuAv1qwFAv9td2Ep8Im8NulGTSU1qV5NUzmHhkVLgYoeYonPpPdY/TorN2uWQSgOrDxI0A2xI6FLC5C/bkdQubf3fUPSRkyyKqSpaeGAEFgwnU+3u5NPPKvIc5UKjxhzRg5iT2Iui/lp9I5etkxkd0tESRnBLtyTVLJevpkTMwiqQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.238) smtp.rcpttodomain=marcan.st smtp.mailfrom=nvidia.com; dmarc=pass
- (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
- (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IiiQ2fVCwucQ86iut+uJPfw8wrP+r+5D4oGRyrQQYdg=;
- b=ZNcuzyU0ABh6ylZfCjzUHuaYbfVjqC1lk1x4lTSBkfqm9+Yx8va8/HKkCNxaTL3x7HAxE1U+Evk26PRrGimYf85ddxzW/HvKz0Qv3uLOkrvkSNMB/owp+Vrtv/p9dkQk3lMVsKDXyUsjOz7g1VMVdJcV8yiHQysSTCuoUBVhvP9kC8AnoAWATa/Or3NBiwigwMll3MIqFUBymhk0DV+4NphdL4t/zH+9desET29/5al9ASeC4LBsVXmOGBzg4BklYfJ3syJh3aHOicm6ayENGJyfPLt13rO4kuYgb+ahQwts68wsdzpJViNOpKITcLj48PEUqlIMvBXgeEqlwc57dA==
-Received: from DS7PR05CA0069.namprd05.prod.outlook.com (2603:10b6:8:57::21) by
- DM4PR12MB5987.namprd12.prod.outlook.com (2603:10b6:8:6a::21) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5588.18; Sat, 10 Sep 2022 23:35:53 +0000
-Received: from DM6NAM11FT061.eop-nam11.prod.protection.outlook.com
- (2603:10b6:8:57:cafe::84) by DS7PR05CA0069.outlook.office365.com
- (2603:10b6:8:57::21) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5632.6 via Frontend
- Transport; Sat, 10 Sep 2022 23:35:53 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.238; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (12.22.5.238) by
- DM6NAM11FT061.mail.protection.outlook.com (10.13.173.138) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5612.13 via Frontend Transport; Sat, 10 Sep 2022 23:35:52 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by
- DRHQMAIL105.nvidia.com (10.27.9.14) with Microsoft SMTP Server (TLS) id
- 15.0.1497.38; Sat, 10 Sep 2022 23:35:51 +0000
-Received: from drhqmail203.nvidia.com (10.126.190.182) by
- drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.29; Sat, 10 Sep 2022 16:35:51 -0700
-Received: from Asurada-Nvidia (10.127.8.10) by mail.nvidia.com
- (10.126.190.182) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29 via Frontend
- Transport; Sat, 10 Sep 2022 16:35:49 -0700
-Date:   Sat, 10 Sep 2022 16:35:48 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     Robin Murphy <robin.murphy@arm.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-CC:     "will@kernel.org" <will@kernel.org>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "marcan@marcan.st" <marcan@marcan.st>,
-        "sven@svenpeter.dev" <sven@svenpeter.dev>,
-        "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
-        "robdclark@gmail.com" <robdclark@gmail.com>,
-        "dwmw2@infradead.org" <dwmw2@infradead.org>,
-        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
-        "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
-        "baolin.wang@linux.alibaba.com" <baolin.wang@linux.alibaba.com>,
-        "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        "vdumpa@nvidia.com" <vdumpa@nvidia.com>,
-        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
-        "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "thunder.leizhen@huawei.com" <thunder.leizhen@huawei.com>,
-        "christophe.jaillet@wanadoo.fr" <christophe.jaillet@wanadoo.fr>,
-        "yangyingliang@huawei.com" <yangyingliang@huawei.com>,
-        "jon@solid-run.com" <jon@solid-run.com>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "asahi@lists.linux.dev" <asahi@lists.linux.dev>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Subject: Re: [PATCH v6 1/5] iommu: Return -EMEDIUMTYPE for incompatible
- domain and device/group
-Message-ID: <Yx0fVJpaojM5RNR4@Asurada-Nvidia>
-References: <20220815181437.28127-1-nicolinc@nvidia.com>
- <20220815181437.28127-2-nicolinc@nvidia.com>
- <YxiRkm7qgQ4k+PIG@8bytes.org>
- <Yxig+zfA2Pr4vk6K@nvidia.com>
- <9f91f187-2767-13f9-68a2-a5458b888f00@arm.com>
- <YxjOPo5FFqu2vE/g@nvidia.com>
- <0b466705-3a17-1bbc-7ef2-5adadc22d1ae@arm.com>
- <Yxk6sR4JiAAn3Jf5@nvidia.com>
- <BN9PR11MB52763FAD3E7545CC26C0DE908C409@BN9PR11MB5276.namprd11.prod.outlook.com>
- <YxnbRq5vaP/OL0ra@nvidia.com>
+        with ESMTP id S229447AbiILIDT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 12 Sep 2022 04:03:19 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF5181F601;
+        Mon, 12 Sep 2022 01:03:18 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28C7g1pX030101;
+        Mon, 12 Sep 2022 08:03:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=cogpfbnj15ADP59OSMPVgLh4mCeiMTcqFNIAp5CsxfU=;
+ b=kNKY+8H6VfFIOmstN572JZ7d++Al24EW1SJGN/Ze/ojkSTxUE17JQILZ1UHzAeqfLj12
+ flZt2X1vH1PadkVMxn+Use3iK4E/q5aE20QcqEWyXskmG5ui5FulVHH8OqWzHtLj4iQc
+ 4y9S7x8DqTS5hwfQn6tfPslbweFKerj+qt04PSpr99fLHPAq1YbSA6fsJbr8fT37Bh63
+ 5u/zg52/0xQgPPmR7KOjxgP27h2pb6iYBv2iZbwcwHuGj2TNMdNkEjOagbz2UtcdLVmz
+ tOXejs1kqxc/ABpw0n2C191iz4yP7iiI0nYg9ngdWbFnIOMjUsGomvxPw3C7UXtK0DdU eA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jj0kv8hw3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 12 Sep 2022 08:03:18 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28C7goS9032045;
+        Mon, 12 Sep 2022 08:03:17 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jj0kv8huk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 12 Sep 2022 08:03:17 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28C7ojDT018285;
+        Mon, 12 Sep 2022 08:03:15 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04fra.de.ibm.com with ESMTP id 3jgj78sh63-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 12 Sep 2022 08:03:15 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28C83Co340501686
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 12 Sep 2022 08:03:12 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 053C142049;
+        Mon, 12 Sep 2022 08:03:12 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DC51F42045;
+        Mon, 12 Sep 2022 08:03:08 +0000 (GMT)
+Received: from [9.171.83.92] (unknown [9.171.83.92])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 12 Sep 2022 08:03:08 +0000 (GMT)
+Message-ID: <6daf3aa9-5b91-1948-0c43-b8407fe3bea2@linux.ibm.com>
+Date:   Mon, 12 Sep 2022 10:03:07 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <YxnbRq5vaP/OL0ra@nvidia.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT061:EE_|DM4PR12MB5987:EE_
-X-MS-Office365-Filtering-Correlation-Id: 553cbae4-07a3-4aa0-d405-08da93853357
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 6/WahweSY5sdyGQRdT9z37i2UuQadHcBJxLw2LBACoyPIaatKXq8lF4zy2edv5MRddN1NB2n3vrGLLApxsZJMsBmy3kR+H3NSbaxwYB74s+VGDIJ+PD1VJ343we1IaZszEo+NHhefzprIM7w4ZUsx194GALzsmrx7vL2WXN8LKziML6ElIYxRTwsf515Z+QhgJxTKzEENflUz4XJehczg42d0/yzRbWUPXuja83xwVLZit+Iowa8CQA7j3PJWsigUxygQILuZq4emv0BOmef3GsVrETDXxR+ko5FTib4OryY0UJ/TB4bRkyHWSK+xcpXBYphIw56CObbDq9ZnKd8uVrmlVD6C5x82rdvofGKM+I5gz3FAzBUKFWzDflzFiqQKtqu4rOaccQ4JvKwMtLzAZdgKHLW8zuctDbsi3nB2Xphoe/fhGxzT5tMzsABTQid4zH3mlketz6XwgHFmi2WfB5/50XeW4XjR4/kFt9/n6Q8VFjIffDvO/wpnCxH1hzlPCJ7rhMjwOAFEVcpFCBQ6DcEszqgsiwysg54hgsvMUh0tx00DE3XTOJvnOxjBeg2VvXYNTxYPVLMMJdnmu/WoU2MZ4/FNCP4vWkP/aknwdGCOlAqS6+e85snE6PNV63BKG+sSIIZhH2G3nS78tYvIzbhPBn4VdFo1Tz9cUqgTEv8+gCAeVnKwIuB52Roxf7qim4D6ZCCWpxcHbf/DigPgB6aHNw6JuVBEXEWcdNwTm8qQQ9bzBZUMqnZhG/xOL3lS10sU7S2v7uIhzuyEb89BmuOn1/uTFuemLv2QO3Sn0eL/gmW4FP8kYz61EUDPkE/
-X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230016)(4636009)(39860400002)(396003)(346002)(376002)(136003)(36840700001)(46966006)(40470700004)(26005)(54906003)(478600001)(33716001)(6636002)(316002)(110136005)(40460700003)(9686003)(55016003)(40480700001)(8936002)(5660300002)(86362001)(7406005)(2906002)(82310400005)(7416002)(4744005)(70586007)(82740400003)(356005)(36860700001)(70206006)(4326008)(8676002)(83380400001)(426003)(81166007)(186003)(41300700001)(336012)(47076005)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2022 23:35:52.6423
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 553cbae4-07a3-4aa0-d405-08da93853357
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT061.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5987
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH] KVM: s390: vsie: fix crycb virtual vs physical usage
+Content-Language: en-US
+To:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, svens@linux.ibm.com
+References: <20220905084148.234821-1-pmorel@linux.ibm.com>
+ <08c54ddd-b74e-9f6c-f5eb-13e994530ad6@redhat.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <08c54ddd-b74e-9f6c-f5eb-13e994530ad6@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 5NAw5mHnshwRO9qS7uVaAY2aKd9j0Fpn
+X-Proofpoint-ORIG-GUID: EQiTKXhFLZNzWf5DnUPiY-F1xjFHvjEh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-12_04,2022-09-09_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ spamscore=0 mlxlogscore=999 mlxscore=0 phishscore=0 impostorscore=0
+ clxscore=1015 suspectscore=0 lowpriorityscore=0 priorityscore=1501
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209120027
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 08, 2022 at 09:08:38AM -0300, Jason Gunthorpe wrote:
-> On Thu, Sep 08, 2022 at 09:30:57AM +0000, Tian, Kevin wrote:
 
-> > There are also cases where common kAPIs are called in the attach
-> > path which may return -EINVAL and random errno, e.g.:
-> > 
-> > omap_iommu_attach_dev()
-> >   omap_iommu_attach()
-> >     iommu_enable()
-> >       pm_runtime_get_sync()
-> >         __pm_runtime_resume()
-> >           rpm_resume()
-> > 	if (dev->power.runtime_error) {
-> > 		retval = -EINVAL;
- 
-> Yes, this is was also on my mind with choosing an unpopular return
-> code, it has a higher chance of not coming out of some other kernel
-> API
+Hi David,
 
-I wonder if it would be safe to just treat a pm_runtime_get_sync()
-failure as -ENODEV, since a PM resume() mostly occurs to the IOMMU
-that an IOMMU client/master device is behind, while an iommu_domain
-rarely intervenes.
+sorry for the delay, just came back from vacation.
+
+On 9/5/22 18:32, David Hildenbrand wrote:
+> On 05.09.22 10:41, Pierre Morel wrote:
+>> Prepare VSIE for architectural changes where lowmem kernel real and
+>> kernel virtual address are different.
+> 
+> Bear with me, it used to be
+> 
+>      crycb = (struct kvm_s390_crypto_cb *) (unsigned long)crycb_o;
+>      apcb_o = (unsigned long) &crycb->apcb0;
+> 
+> and now it's
+> 
+>      apcb_o = crycb_o + offsetof(struct kvm_s390_crypto_cb, apcb0);
+> 
+> 
+> So the real issue seems to be
+> 
+>      crycb = (struct kvm_s390_crypto_cb *) (unsigned long)crycb_o;
+> 
+> because crycb_o actually is a guest address and not a host address.
+
+Yes, right this is the real issue, however...
+
+> 
+> 
+> But now I'm confused, because I would have thought that the result 
+> produced by both code would be identical (I completely agree that the 
+> new variant is better).
+> 
+> How does this interact with "lowmem kernel real and kernel virtual 
+> address are different." -- I would have thought that &crycb->apcb0 
+> doesn't actually access any memory and only performs arithmetical 
+> operations?
+
+...you are right and the result is identical.
+
+
+> 
+>>
+>> When we get the original crycb from the guest crycb we can use the
+>> phys_to_virt transformation, which will use the host transformations,
+>> but we must use an offset to calculate the guest real address apcb
+>> and give it to read_guest_real().
+> 
+> Can you elaborate where phys_to_virt() comes into play?
+
+No, it does not have to do with phys_to_virt(), I first started to work 
+on the line:
+- crycb = (struct kvm_s390_crypto_cb *) (unsigned long)crycb_o;
+
+and did not notice that after the simplifications the result was identical.
+So The comment is wrong and this patch is only making the code clearer.
+
+Thanks for your clarifications,
+
+Regards,
+Pierre
+
+
+> 
+> If this is an actual fix (as indicated in the patch subject), should 
+> this carry a
+> 
+>      Fixes: 56019f9aca22 ("KVM: s390: vsie: Allow CRYCB FORMAT-2")
+> 
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
