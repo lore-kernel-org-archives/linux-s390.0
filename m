@@ -2,63 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2747FC54EE9
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Sep 2022 16:44:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79E7BC6FA82
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Sep 2022 16:50:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbiIMQoq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Sep 2022 12:44:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55924 "EHLO
+        id S230488AbiIMQt7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Sep 2022 12:49:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230470AbiIMQoY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Sep 2022 12:44:24 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4593BC2B;
-        Tue, 13 Sep 2022 08:39:00 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28DEBKHs007317;
-        Tue, 13 Sep 2022 14:53:53 GMT
+        with ESMTP id S231160AbiIMQtg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Sep 2022 12:49:36 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E663085FC1;
+        Tue, 13 Sep 2022 08:43:40 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28DDpo16002415;
+        Tue, 13 Sep 2022 14:40:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=Q97aEngNRdvGPLm2q/BFnsSsYf87cDWPq/dqfDKCPCg=;
- b=mT4I68SmOLgwI8qFT5NONdAOSb6ZJllMuv/LwsWtF4agEWC5NWkieD1HRdODy8i/YK8S
- EyuHh+ptravL1D27ZdlQg/MHZQF3JKzugnAY06BAWHH2ZQ6EnogNbSVFBfiavoUM2xTA
- 82/9FiQvH3z29qxWqaJCMSPDsN+hJn6a7jkMPywmTgUGsYa/NeasKP6gMn6rArk0tkue
- nxhNAU/ikMFkInEHniPmXAWMi6hbhG9MWUPXTLiRS/b6GwPbXeHp28B2UDjgHsAAyLt5
- l9uF4b1NDEPPmotfLP6svfnFwNSakFzkevNdUZAkh8xQIvux2gM4l3Y+BrJrHPbhSE7q Ag== 
+ bh=mOQfydIfIBRUSkowojBEIyOucduH00gAwF3HuF2UOr0=;
+ b=AnPLBzc0xuO6Nzk0QR9BB3XQsN9K6+xUvKmj6g2Aooqz34dfck7h1ZZXZfEwZiywYWRd
+ MxKdxPj67gukc/1kXUFkvNAzJThMbZEJ8RZWM+AsUSl98b3kcs6olI3btnczLr1bMUfk
+ /fTfTJNZTt05IKQxofZW7lk09+xrcN/+LGKvGnMsRpYTQK98EddXjqZdDuloR7wEpQjm
+ oNd1Vb0OvY4MyHO+351fDhqPXUR283GegRMMah2/Ey4PHv8idDF24o5TLo81eShrC0a2
+ OiXTzHnWJkOGMZveT/Tm9o+lyPZ0BkFzJVo+Ftqao3fWsNHWljgHSNwdW+OutP6aUH3S xA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jjtfjv8ac-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jju4c9v6t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 14:53:53 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28DDAXXG016041;
-        Tue, 13 Sep 2022 14:53:52 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jjtfjv89x-1
+        Tue, 13 Sep 2022 14:40:17 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28DDqqsK006432;
+        Tue, 13 Sep 2022 14:40:17 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jju4c9v64-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 14:53:52 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28DEpsbA025296;
-        Tue, 13 Sep 2022 14:53:52 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma01dal.us.ibm.com with ESMTP id 3jgj7a1tj7-1
+        Tue, 13 Sep 2022 14:40:17 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28DEb4Ox007773;
+        Tue, 13 Sep 2022 14:40:16 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma03dal.us.ibm.com with ESMTP id 3jgj7a9q1t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 14:53:52 +0000
+        Tue, 13 Sep 2022 14:40:16 +0000
 Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28DErosY9896500
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28DEeExM13304404
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Sep 2022 14:53:50 GMT
+        Tue, 13 Sep 2022 14:40:14 GMT
 Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ADF70124052;
-        Tue, 13 Sep 2022 14:53:50 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 14D6D124053;
+        Tue, 13 Sep 2022 14:40:14 +0000 (GMT)
 Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 247DB124053;
-        Tue, 13 Sep 2022 14:53:50 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6E8C9124054;
+        Tue, 13 Sep 2022 14:40:13 +0000 (GMT)
 Received: from [9.160.74.225] (unknown [9.160.74.225])
         by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 13 Sep 2022 14:53:50 +0000 (GMT)
-Message-ID: <7c222f64-3f06-5184-31c3-be557051c6fa@linux.ibm.com>
-Date:   Tue, 13 Sep 2022 10:53:49 -0400
+        Tue, 13 Sep 2022 14:40:13 +0000 (GMT)
+Message-ID: <6fb60f2c-b194-a890-bfde-a93885a672a5@linux.ibm.com>
+Date:   Tue, 13 Sep 2022 10:40:13 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.11.0
@@ -78,15 +78,15 @@ In-Reply-To: <20220913160708.50466335.pasic@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3TVdiP9lvKgp6_vFTTZrHYdcdqxd8fvD
-X-Proofpoint-ORIG-GUID: BELhWXQtiocM6owscKt1yentPVpm78O7
+X-Proofpoint-ORIG-GUID: C8N0a9Tjp6xkd2etaTCzpt3a7uNbHyNK
+X-Proofpoint-GUID: V22E1l3NK3bVOMPlLkTxgpYIduJ3A4JC
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-13_06,2022-09-13_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 mlxscore=0 bulkscore=0 phishscore=0 mlxlogscore=999
- malwarescore=0 adultscore=0 spamscore=0 impostorscore=0 suspectscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2022-09-13_07,2022-09-13_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 mlxscore=0 adultscore=0 mlxlogscore=999 impostorscore=0
+ suspectscore=0 phishscore=0 clxscore=1015 bulkscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2207270000 definitions=main-2209130066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -127,11 +127,6 @@ On 9/13/22 10:07 AM, Halil Pasic wrote:
 > matrix_mdev->qtable.queues it is rather a function local
 > qtable that you use to know which queues were unlinked and
 > need resetting.
-
-
-You are correct. This patch is unnecessary.
-
-
 >
 > Have a look at vfio_ap_mdev_hot_unplug_adapter()
 >
@@ -141,7 +136,11 @@ You are correct. This patch is unnecessary.
 > (not seen in diff context) calls vfio_ap_unlink_queue_fr_mdev().
 
 
-After further review, this patch is not only bogus, it is not necessary.
+Wow! After looking at this in context I agree, it is bogus. I've got to 
+figure out what happened to this function between commit f8de623330c6 
+("s390/vfio-ap: manage link between queue struct and matrix mdev") and 
+this patch. Somewhere along the line it got changed. I'll get to the 
+bottom of it and fix this issue then resubmit this patch.
 
 
 >
