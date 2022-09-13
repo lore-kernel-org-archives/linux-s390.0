@@ -2,197 +2,203 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB745C54EE9
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Sep 2022 05:07:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27DC8C6FA8A
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Sep 2022 08:21:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229977AbiIMFHr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Sep 2022 01:07:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43616 "EHLO
+        id S231473AbiIMIVy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Sep 2022 04:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229876AbiIMFHq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Sep 2022 01:07:46 -0400
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2060.outbound.protection.outlook.com [40.107.223.60])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60B3F1181F;
-        Mon, 12 Sep 2022 22:07:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lJ6rk1wDg7GFggyVeAthKsN2CS2TsrNgcqZ0EvaNBink4ZS/kR1GMirFMo/GwVm5+d/5HTkE0jMkm0xHwueHOkNV1FigUfpG1Ejma8ChYzNOEoUSZOgN80oiBkXUuiUfVZA3HIqidq9GajV9RyHtT9HTi8rR8/Opw7bTdj1vIQNI+xnyu+J/pUvUpHcOn8YL+JPJP4I85dtss8FBK9/6NHooydttO1XtwnmQqQ2NdOyuWtA0m+4bDpdPWQ3WqMXJ2yd0gqS1amCruBWLZS69X+xo54gOkqoJjty43QeiTLtfVQRH76TP8klzHOkGCQGaRIWK4y44toMEgA9dW/Ir2Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=LPncQRs+oqUMdvv8X1zP5Q8/+6v6+f5DRQF4Da73tCs=;
- b=C/OYGbQwleB+xkDcKSAEPT2+wNhdE5nM+yBkrU1ZMnQbd6vr2EGIjWLp1IQSPYJUBmDu+0gbGXiZHxroUWrha+PtaZvpxMlAd+fiUt+mm/zoYBQRT+vA9BBwvid+OqaMCu4/QnY44bD3ZiqxoQ3uzCxPrwf8WIBit36KkOeZ2j/jXwUjJbIAqMoTQK9PzZOYbZCJIW14dhgVk8fAUyYeHA9dww8F6OCdd0Xk32V1KGWAU33PrqnBodExWGQEMZsEc4sv3a35LLWEmIR8jh4a96lg572ENtgEhlmtkKx4NoWOh7F7+JnEgGnYYImMZldSqzl6F4p7XGvoYAXDgkSkLA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.238) smtp.rcpttodomain=marcan.st smtp.mailfrom=nvidia.com; dmarc=pass
- (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
- (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LPncQRs+oqUMdvv8X1zP5Q8/+6v6+f5DRQF4Da73tCs=;
- b=gshcVknPWJ9gmAK3s7QFYOizsJvh25BPo7esEADtT5ZYxJ86bS1AVsOAXnlPcFneq7N/xUTGStfyhIhk2do7RumSaYLkkVlUKBrB65013TUrfjgyVyV9Xr1mLn+jMPcMhW7AoOzu4pDjkiG7jkqKOzoeUCb6Quwy7WsZiNthc9MIy9gXUQhjxt2R/VdzJC+U3k7JIoHjZ7JgPC3vZIGhuKScXaLCNqCUfgTEMLCU3QlaDRuYqhu1j67K2kZK8SoTVERbxcZZSkSh02Y8PCfLrp68eMrn/ROU9eoijEQV3PqlR0bIfKWBy+09asUeaFaWdYiAl4Y9mGuCz6b0+RdRfA==
-Received: from DM6PR17CA0002.namprd17.prod.outlook.com (2603:10b6:5:1b3::15)
- by SA1PR12MB6726.namprd12.prod.outlook.com (2603:10b6:806:255::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.20; Tue, 13 Sep
- 2022 05:07:43 +0000
-Received: from DS1PEPF0000B073.namprd05.prod.outlook.com
- (2603:10b6:5:1b3:cafe::14) by DM6PR17CA0002.outlook.office365.com
- (2603:10b6:5:1b3::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.22 via Frontend
- Transport; Tue, 13 Sep 2022 05:07:43 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.238; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (12.22.5.238) by
- DS1PEPF0000B073.mail.protection.outlook.com (10.167.17.4) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.5612.12 via Frontend Transport; Tue, 13 Sep 2022 05:07:42 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by DRHQMAIL105.nvidia.com
- (10.27.9.14) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Tue, 13 Sep
- 2022 05:07:42 +0000
-Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29; Mon, 12 Sep
- 2022 22:07:41 -0700
-Received: from Asurada-Nvidia (10.127.8.10) by mail.nvidia.com (10.129.68.7)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29 via Frontend
- Transport; Mon, 12 Sep 2022 22:07:38 -0700
-Date:   Mon, 12 Sep 2022 22:07:37 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-CC:     Jason Gunthorpe <jgg@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
-        "will@kernel.org" <will@kernel.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "marcan@marcan.st" <marcan@marcan.st>,
-        "sven@svenpeter.dev" <sven@svenpeter.dev>,
-        "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
-        "robdclark@gmail.com" <robdclark@gmail.com>,
-        "dwmw2@infradead.org" <dwmw2@infradead.org>,
-        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
-        "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
-        "baolin.wang@linux.alibaba.com" <baolin.wang@linux.alibaba.com>,
-        "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        "vdumpa@nvidia.com" <vdumpa@nvidia.com>,
-        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
-        "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "shameerali.kolothum.thodi@huawei.com" 
-        <shameerali.kolothum.thodi@huawei.com>,
-        "thunder.leizhen@huawei.com" <thunder.leizhen@huawei.com>,
-        "christophe.jaillet@wanadoo.fr" <christophe.jaillet@wanadoo.fr>,
-        "yangyingliang@huawei.com" <yangyingliang@huawei.com>,
-        "jon@solid-run.com" <jon@solid-run.com>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "asahi@lists.linux.dev" <asahi@lists.linux.dev>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Subject: Re: [PATCH v6 1/5] iommu: Return -EMEDIUMTYPE for incompatible
- domain and device/group
-Message-ID: <YyAQGbG1NUEMN3jn@Asurada-Nvidia>
-References: <YxiRkm7qgQ4k+PIG@8bytes.org>
- <Yxig+zfA2Pr4vk6K@nvidia.com>
- <YxilZbRL0WBR97oi@8bytes.org>
- <YxjQiVnpU0dr7SHC@nvidia.com>
- <Yxnt9uQTmbqul5lf@8bytes.org>
- <YxoU8lw+qIw9woRL@nvidia.com>
- <YxqwQ+3OICPdEtk0@Asurada-Nvidia>
- <BN9PR11MB5276D4CDC551DEA5962F9A178C439@BN9PR11MB5276.namprd11.prod.outlook.com>
- <YxsshXKlidq8WgT+@nvidia.com>
- <BN9PR11MB527670BB3EEB81064DC811828C479@BN9PR11MB5276.namprd11.prod.outlook.com>
+        with ESMTP id S231424AbiIMIVX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Sep 2022 04:21:23 -0400
+X-Greylist: delayed 452 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 13 Sep 2022 01:21:21 PDT
+Received: from condef-05.nifty.com (condef-05.nifty.com [202.248.20.70])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C109513DF4
+        for <linux-s390@vger.kernel.org>; Tue, 13 Sep 2022 01:21:21 -0700 (PDT)
+Received: from conuserg-10.nifty.com ([10.126.8.73])by condef-05.nifty.com with ESMTP id 28D8AWoq009223;
+        Tue, 13 Sep 2022 17:10:33 +0900
+Received: from zoe.. (133-32-182-133.west.xps.vectant.ne.jp [133.32.182.133]) (authenticated)
+        by conuserg-10.nifty.com with ESMTP id 28D87jCf012679;
+        Tue, 13 Sep 2022 17:07:46 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-10.nifty.com 28D87jCf012679
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1663056466;
+        bh=hRKy+xo91mWnaRkbQI9H0BNDjBw4xFC3PaudVH84uKI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=yNo192wRuaSEhwqz7Jo8da84KuMEajeifSpBAT169iQ62zrvK+SonqP89FxangvIr
+         wbPKULN2CWPJMgvuSjz+t25TRjr9rUdf+govCwoYsVXB/SORJ6os0IGJV9L5xEH+/y
+         wC/cJQQlhLwBCtYuxhsLfzVzx2f27W+JyMYw8jj5DgvlZLQItTvrqpLtnazYJ480Bq
+         W/1gted+z6CmebVkUdaVNWYRgdG7e7L6P1fenC4I7RShjZSd3nViUnfX/VvmrjYuEu
+         ZOEW1EyIsCbjHZlkcmg0D3pAkHDbnk7GmtcqOF4gtvbVeJ9T2AgVaEfUAmdIudHFu+
+         ms6D1GOMMWHmw==
+X-Nifty-SrcIP: [133.32.182.133]
+From:   Masahiro Yamada <masahiroy@kernel.org>
+To:     linux-kbuild@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: [PATCH v2] kbuild: move -Wundef from KBUILD_CFLAGS to KBUILD_CPPFLAGS
+Date:   Tue, 13 Sep 2022 17:07:27 +0900
+Message-Id: <20220913080727.608495-1-masahiroy@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB527670BB3EEB81064DC811828C479@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS1PEPF0000B073:EE_|SA1PR12MB6726:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6e76b3ff-0212-4044-392f-08da9545e380
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: ZqizB5ozo/odjB1NH7/0SLN3JH2vKgZL8CKGrtbJLwwkiMgZ5Igs1mFl54bcm7syCm5qn3ZJsbH0uwiy2utN68bCp9UtMBM8gTWp2WjrnsWecFdy8tRfkhz6qkzwWL68kVL9F6KKDtNWoxP8gG/Ai8IsOK4sb6GJuHO39VOUEw8+11C3y/ESjrBH3PaEb/RvTXk/BC41NJkSuEckfr/6E8NlydoV74Nfz9FUDo72QBUoHdNISfV7rG48mBarowj9TRxWZtspEoexCmTcPwDKBJfHcOMop5OhqdKY4NLT6aYci+H3gOK7pkXBANJsb1w0rI/TjvxcCycY5OuLMhDsxUwXUsejUUMwP9crK71Z+lYKUlREw8FAqvDOew90KZpKLSTXHGtT5opguv4/77GzqV/iyVIwNYGYP3L81PM6C6r9irX9cU9ZVz7VUo0DDJ8wj31nY0UnoJPv5LIZxepikUIc53DLu/MiWi29oeKIyDgD18ThLcIch4SZNVpzgtNM4RYDufpF0ovM4o/+s7XV5I+JSkIT6f5MGLcJ7gprD+cT6Hsx4H83Kc/DGwgLt6JuaHKxvKIUSao7mf4eUmjDKtXMCiMEP5Z+0kNBqJwm/3ICWoJBcoDFQUn5lTA3mtPBpohRLZfxMKvN/n90dA3h11FugQrYiq27Pk5VHEqmPuSi1BROqFEDo4l9V7YrqpxPB1Y1smvdnZdkFU75eUTEm5Z/dhjZt05iQjfBJtBfNkSBNn8Y6OQ5tPH4TdMuMRfzdIIoXDw49vcHKyrwcxMmFqojBJnzKjDjCTS/GISXniZM2BoIv8qzpt873wd6t3Kz
-X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230022)(4636009)(376002)(346002)(39860400002)(396003)(136003)(451199015)(46966006)(40470700004)(36840700001)(86362001)(336012)(82740400003)(478600001)(8676002)(33716001)(316002)(40460700003)(55016003)(356005)(54906003)(81166007)(70586007)(7406005)(8936002)(70206006)(4326008)(36860700001)(5660300002)(7416002)(82310400005)(26005)(47076005)(426003)(9686003)(41300700001)(40480700001)(6916009)(2906002)(186003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Sep 2022 05:07:42.5021
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6e76b3ff-0212-4044-392f-08da9545e380
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DS1PEPF0000B073.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB6726
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 13, 2022 at 02:22:17AM +0000, Tian, Kevin wrote:
-> External email: Use caution opening links or attachments
-> 
-> 
-> > From: Jason Gunthorpe <jgg@nvidia.com>
-> > Sent: Friday, September 9, 2022 8:08 PM
-> >
-> >
-> > > As discussed in a side thread a note might be added to exempt calling
-> > > kAPI outside of the iommu driver.
-> >
-> > Sadly, not really.. The driver is responsible to santize this if it is
-> > relevant. It is the main downside of this approach.
-> >
-> 
-> Better provide a clarification on what sanitization means.
-> 
-> e.g. I don't think we should change errno in those kAPIs to match the
-> definition in iommu subsystem since e.g. -EINVAL really means different
-> things in different context.
-> 
-> So the sanitization in iommu driver is probably that:
-> 
->   - If an external kAPI returns -EINVAL, convert it to -ENODEV given iommu
->     domain is iommu internal object hence unlikely for external kAPIs to
->     capture incompatibility issue between domain/device;
->   - Otherwise just pass whatever returned to the caller, following the definition
->     of "Same behavior as -ENODEV" above
+The use of an undefined macro in an #if directive is warned, but only
+in *.c files. No warning from other files such as *.S, *.lds.S.
 
-I added something similar. Thanks!
+Since -Wundef is a preprocessor-related warning, it should be added to
+KBUILD_CPPFLAGS instead of KBUILD_CFLAGS.
 
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index ea30f00dc145..190647d018f9 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -266,6 +266,17 @@ struct iommu_ops {
- /**
-  * struct iommu_domain_ops - domain specific operations
-  * @attach_dev: attach an iommu domain to a device
-+ *              Rules of its return errno:
-+ *               EINVAL  - Exclusively, device and domain are incompatible. Must
-+ *                         avoid kernel prints along with this errno. An EINVAL
-+ *                         returned from a kAPI must be coverted to ENODEV if it
-+ *                         is device specific, or to some other reasonable errno
-+ *                         being listed below
-+ *               ENOMEM  - Out of memory
-+ *               ENOSPC  - No space left on device
-+ *               EBUSY   - Device is attached to a domain and cannot be changed
-+ *               ENODEV  - Device specific errors, not able to be attached
-+ *              <others> - Treated as ENODEV by the caller. Use is discouraged
-  * @detach_dev: detach an iommu domain from a device
-  * @map: map a physically contiguous memory region to an iommu domain
-  * @map_pages: map a physically contiguous set of pages of the same size to
+Fix some uncovered issues.
+
+[1] Add -D__LINUX_ARM_ARCH__=* to KBUILD_CPPFLAGS
+
+In file included from arch/arm/kernel/vmlinux.lds.S:13:
+./arch/arm/include/asm/cache.h:23:31: warning: "__LINUX_ARM_ARCH__" is not defined, evaluates to 0 [-Wundef]
+   23 | #if defined(CONFIG_AEABI) && (__LINUX_ARM_ARCH__ >= 5)
+      |                               ^~~~~~~~~~~~~~~~~~
+
+[2] Add missing #include <asm/pgtable.h>
+
+In file included from arch/arm/mm/cache-v7.S:17:
+arch/arm/mm/proc-macros.S:109:5: warning: "L_PTE_SHARED" is not defined, evaluates to 0 [-Wundef]
+  109 | #if L_PTE_SHARED != PTE_EXT_SHARED
+      |     ^~~~~~~~~~~~
+arch/arm/mm/proc-macros.S:109:21: warning: "PTE_EXT_SHARED" is not defined, evaluates to 0 [-Wundef]
+  109 | #if L_PTE_SHARED != PTE_EXT_SHARED
+      |                     ^~~~~~~~~~~~~~
+arch/arm/mm/proc-macros.S:113:10: warning: "L_PTE_XN" is not defined, evaluates to 0 [-Wundef]
+  113 |         (L_PTE_XN+L_PTE_USER+L_PTE_RDONLY+L_PTE_DIRTY+L_PTE_YOUNG+\
+      |          ^~~~~~~~
+arch/arm/mm/proc-macros.S:113:19: warning: "L_PTE_USER" is not defined, evaluates to 0 [-Wundef]
+  113 |         (L_PTE_XN+L_PTE_USER+L_PTE_RDONLY+L_PTE_DIRTY+L_PTE_YOUNG+\
+      |                   ^~~~~~~~~~
+arch/arm/mm/proc-macros.S:113:30: warning: "L_PTE_RDONLY" is not defined, evaluates to 0 [-Wundef]
+  113 |         (L_PTE_XN+L_PTE_USER+L_PTE_RDONLY+L_PTE_DIRTY+L_PTE_YOUNG+\
+      |                              ^~~~~~~~~~~~
+arch/arm/mm/proc-macros.S:113:43: warning: "L_PTE_DIRTY" is not defined, evaluates to 0 [-Wundef]
+  113 |         (L_PTE_XN+L_PTE_USER+L_PTE_RDONLY+L_PTE_DIRTY+L_PTE_YOUNG+\
+      |                                           ^~~~~~~~~~~
+arch/arm/mm/proc-macros.S:113:55: warning: "L_PTE_YOUNG" is not defined, evaluates to 0 [-Wundef]
+  113 |         (L_PTE_XN+L_PTE_USER+L_PTE_RDONLY+L_PTE_DIRTY+L_PTE_YOUNG+\
+      |                                                       ^~~~~~~~~~~
+arch/arm/mm/proc-macros.S:114:10: warning: "L_PTE_PRESENT" is not defined, evaluates to 0 [-Wundef]
+  114 |          L_PTE_PRESENT) > L_PTE_SHARED
+      |          ^~~~~~~~~~~~~
+arch/arm/mm/proc-macros.S:114:27: warning: "L_PTE_SHARED" is not defined, evaluates to 0 [-Wundef]
+  114 |          L_PTE_PRESENT) > L_PTE_SHARED
+      |                           ^~~~~~~~~~~~
+
+[3] #if -> #ifdef
+
+arch/riscv/kernel/head.S:329:5: warning: "CONFIG_RISCV_BOOT_SPINWAIT" is not defined, evaluates to 0 [-Wundef]
+  329 | #if CONFIG_RISCV_BOOT_SPINWAIT
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[4] #elif -> #elif defined()
+
+arch/s390/boot/decompressor.c:28:7: warning: "CONFIG_KERNEL_ZSTD" is not defined, evaluates to 0 [-Wundef]
+   28 | #elif CONFIG_KERNEL_ZSTD
+      |       ^~~~~~~~~~~~~~~~~~
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+---
+
+Changes in v2:
+  - Fix warnings
+
+ Makefile                      | 4 ++--
+ arch/arm/Makefile             | 1 +
+ arch/arm/mm/proc-macros.S     | 1 +
+ arch/riscv/kernel/head.S      | 2 +-
+ arch/s390/boot/decompressor.c | 2 +-
+ 5 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 4beeb96f9d81..bf4328535cf9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -523,12 +523,12 @@ LINUXINCLUDE    := \
+ 		$(USERINCLUDE)
+ 
+ KBUILD_AFLAGS   := -D__ASSEMBLY__ -fno-PIE
+-KBUILD_CFLAGS   := -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs \
++KBUILD_CFLAGS   := -Wall -Werror=strict-prototypes -Wno-trigraphs \
+ 		   -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE \
+ 		   -Werror=implicit-function-declaration -Werror=implicit-int \
+ 		   -Werror=return-type -Wno-format-security \
+ 		   -std=gnu11
+-KBUILD_CPPFLAGS := -D__KERNEL__
++KBUILD_CPPFLAGS := -D__KERNEL__ -Wundef
+ KBUILD_AFLAGS_KERNEL :=
+ KBUILD_CFLAGS_KERNEL :=
+ KBUILD_AFLAGS_MODULE  := -DMODULE
+diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+index 29d15c9a433e..4bb5743fe3a4 100644
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -129,6 +129,7 @@ AFLAGS_ISA	:=$(CFLAGS_ISA)
+ endif
+ 
+ # Need -Uarm for gcc < 3.x
++KBUILD_CPPFLAGS	+= $(filter -D%, $(arch-y))
+ KBUILD_CFLAGS	+=$(CFLAGS_ABI) $(CFLAGS_ISA) $(arch-y) $(tune-y) $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,)) -msoft-float -Uarm
+ KBUILD_AFLAGS	+=$(CFLAGS_ABI) $(AFLAGS_ISA) $(arch-y) $(tune-y) -include asm/unified.h -msoft-float
+ 
+diff --git a/arch/arm/mm/proc-macros.S b/arch/arm/mm/proc-macros.S
+index fa6999e24b07..e43f6d716b4b 100644
+--- a/arch/arm/mm/proc-macros.S
++++ b/arch/arm/mm/proc-macros.S
+@@ -6,6 +6,7 @@
+  *  VM_EXEC
+  */
+ #include <asm/asm-offsets.h>
++#include <asm/pgtable.h>
+ #include <asm/thread_info.h>
+ 
+ #ifdef CONFIG_CPU_V7M
+diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
+index b865046e4dbb..4bf6c449d78b 100644
+--- a/arch/riscv/kernel/head.S
++++ b/arch/riscv/kernel/head.S
+@@ -326,7 +326,7 @@ clear_bss_done:
+ 	call soc_early_init
+ 	tail start_kernel
+ 
+-#if CONFIG_RISCV_BOOT_SPINWAIT
++#ifdef CONFIG_RISCV_BOOT_SPINWAIT
+ .Lsecondary_start:
+ 	/* Set trap vector to spin forever to help debug */
+ 	la a3, .Lsecondary_park
+diff --git a/arch/s390/boot/decompressor.c b/arch/s390/boot/decompressor.c
+index e27c2140d620..f96657faffdc 100644
+--- a/arch/s390/boot/decompressor.c
++++ b/arch/s390/boot/decompressor.c
+@@ -25,7 +25,7 @@
+ 
+ #ifdef CONFIG_KERNEL_BZIP2
+ #define BOOT_HEAP_SIZE	0x400000
+-#elif CONFIG_KERNEL_ZSTD
++#elif defined(CONFIG_KERNEL_ZSTD)
+ #define BOOT_HEAP_SIZE	0x30000
+ #else
+ #define BOOT_HEAP_SIZE	0x10000
+-- 
+2.34.1
+
