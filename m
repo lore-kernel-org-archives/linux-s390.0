@@ -2,163 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79E7BC6FA82
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Sep 2022 16:50:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 254E6C54EE9
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Sep 2022 18:21:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230488AbiIMQt7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Sep 2022 12:49:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37044 "EHLO
+        id S231573AbiIMSVb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Sep 2022 14:21:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231160AbiIMQtg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Sep 2022 12:49:36 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E663085FC1;
-        Tue, 13 Sep 2022 08:43:40 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28DDpo16002415;
-        Tue, 13 Sep 2022 14:40:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=mOQfydIfIBRUSkowojBEIyOucduH00gAwF3HuF2UOr0=;
- b=AnPLBzc0xuO6Nzk0QR9BB3XQsN9K6+xUvKmj6g2Aooqz34dfck7h1ZZXZfEwZiywYWRd
- MxKdxPj67gukc/1kXUFkvNAzJThMbZEJ8RZWM+AsUSl98b3kcs6olI3btnczLr1bMUfk
- /fTfTJNZTt05IKQxofZW7lk09+xrcN/+LGKvGnMsRpYTQK98EddXjqZdDuloR7wEpQjm
- oNd1Vb0OvY4MyHO+351fDhqPXUR283GegRMMah2/Ey4PHv8idDF24o5TLo81eShrC0a2
- OiXTzHnWJkOGMZveT/Tm9o+lyPZ0BkFzJVo+Ftqao3fWsNHWljgHSNwdW+OutP6aUH3S xA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jju4c9v6t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 14:40:17 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28DDqqsK006432;
-        Tue, 13 Sep 2022 14:40:17 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jju4c9v64-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 14:40:17 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28DEb4Ox007773;
-        Tue, 13 Sep 2022 14:40:16 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma03dal.us.ibm.com with ESMTP id 3jgj7a9q1t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 14:40:16 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28DEeExM13304404
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Sep 2022 14:40:14 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 14D6D124053;
-        Tue, 13 Sep 2022 14:40:14 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E8C9124054;
-        Tue, 13 Sep 2022 14:40:13 +0000 (GMT)
-Received: from [9.160.74.225] (unknown [9.160.74.225])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 13 Sep 2022 14:40:13 +0000 (GMT)
-Message-ID: <6fb60f2c-b194-a890-bfde-a93885a672a5@linux.ibm.com>
-Date:   Tue, 13 Sep 2022 10:40:13 -0400
+        with ESMTP id S231656AbiIMSVE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Sep 2022 14:21:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B218FAE4F
+        for <linux-s390@vger.kernel.org>; Tue, 13 Sep 2022 10:34:35 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC523B81042
+        for <linux-s390@vger.kernel.org>; Tue, 13 Sep 2022 17:34:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30B9BC433C1;
+        Tue, 13 Sep 2022 17:34:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663090472;
+        bh=NgW75Je3eAFxBXAoGEXo47QChQx1xH8bMMXlRF0nXks=;
+        h=Date:From:To:Cc:Subject:From;
+        b=KLFzTxtco31HfvOytoXg106t5O+XRWI2DUsR0ZpqVllpnLWqm3V6ueboJ4ZYXDYjG
+         f9ns095HVwhgluJETpsQHQwfLpqPQa6DGBspwdiqxSLnIy0UsCy/awbcH4u19fqoVE
+         2HtQReslZW0rZBiLGQwPGt4+RRGPmV90SkdN8Oe5me1zzXhnoCebWPZfmVOJ0UZuNa
+         /Tkfic+uBnujAU0qqnhBnr+zOiQ/Z5SLXa3yaI8dRx1EYYi5Sdf6q/Eae3zPhrmgkF
+         H+x0S097BGIL8XmeKpQe+f3WRY5jqOkk7h9VTMo0mIRj5LUEabq65Jam7i/+G+au7P
+         dr8Sprp4DQyjw==
+Date:   Tue, 13 Sep 2022 10:34:30 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, llvm@lists.linux.dev
+Subject: Illegal operation with clang + CONFIG_MARCH_Z13
+Message-ID: <YyC/JvFONhtTYjM/@dev-arch.thelio-3990X>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v3 2/2] s390/vfio-ap: fix unlinking of queues from the
- mdev
-Content-Language: en-US
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
-        cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, stable@vger.kernel.org
-References: <20220823150643.427737-1-akrowiak@linux.ibm.com>
- <20220823150643.427737-3-akrowiak@linux.ibm.com>
- <20220913160708.50466335.pasic@linux.ibm.com>
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20220913160708.50466335.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: C8N0a9Tjp6xkd2etaTCzpt3a7uNbHyNK
-X-Proofpoint-GUID: V22E1l3NK3bVOMPlLkTxgpYIduJ3A4JC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-13_07,2022-09-13_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 mlxscore=0 adultscore=0 mlxlogscore=999 impostorscore=0
- suspectscore=0 phishscore=0 clxscore=1015 bulkscore=0 malwarescore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2209130066
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi all,
 
-On 9/13/22 10:07 AM, Halil Pasic wrote:
-> On Tue, 23 Aug 2022 11:06:43 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> The vfio_ap_mdev_unlink_adapter and vfio_ap_mdev_unlink_domain functions
->> add the associated vfio_ap_queue objects to the hashtable that links them
->> to the matrix mdev to which their APQN is assigned. In order to unlink
->> them, they must be deleted from the hashtable; if not, they will continue
->> to be reset whenever userspace closes the mdev fd or removes the mdev.
->> This patch fixes that issue.
-> I'm not so sure about that!
->
->> Cc: stable@vger.kernel.org
->> Fixes: 70aeefe574cb ("s390/vfio-ap: reset queues after adapter/domain unassignment")
->> Reported-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 6 ++----
->>   1 file changed, 2 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index ee82207b4e60..2493926b5dfb 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -1049,8 +1049,7 @@ static void vfio_ap_mdev_unlink_adapter(struct ap_matrix_mdev *matrix_mdev,
->>   		if (q && qtable) {
->>   			if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
->>   			    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
->> -				hash_add(qtable->queues, &q->mdev_qnode,
->> -					 q->apqn);
-> Careful qtable->queues is not supposed to be the same as
-> matrix_mdev->qtable.queues it is rather a function local
-> qtable that you use to know which queues were unlinked and
-> need resetting.
->
-> Have a look at vfio_ap_mdev_hot_unplug_adapter()
->
->> +				vfio_ap_unlink_queue_fr_mdev(q);
-> IMHO this change is completely bogous. BTW
-> vfio_ap_unlink_apqn_fr_mdev() a couple of lines above in the source
-> (not seen in diff context) calls vfio_ap_unlink_queue_fr_mdev().
+Recently, Fedora moved their baseline from CONFIG_MARCH_ZEC12 to
+CONFIG_MARCH_Z13:
 
+https://src.fedoraproject.org/rpms/kernel/c/aff6e8acdaa437e9f06ef4166ca2209071223f8d
 
-Wow! After looking at this in context I agree, it is bogus. I've got to 
-figure out what happened to this function between commit f8de623330c6 
-("s390/vfio-ap: manage link between queue struct and matrix mdev") and 
-this patch. Somewhere along the line it got changed. I'll get to the 
-bottom of it and fix this issue then resubmit this patch.
+Unfortunately, this causes clang built kernels to have an "illegal
+operation" panic when booting in QEMU. This is trivially reproducible on
+mainline with the versions of clang that s390 supports.
 
+# Switch from CONFIG_MARCH_ZEC12 to CONFIG_MARCH_Z13
+$ make -skj"$(nproc)" ARCH=s390 CC=clang CROSS_COMPILE=s390x-linux-gnu- defconfig menuconfig bzImage
 
->
->>   		}
->>   	}
->>   }
->> @@ -1236,8 +1235,7 @@ static void vfio_ap_mdev_unlink_domain(struct ap_matrix_mdev *matrix_mdev,
->>   		if (q && qtable) {
->>   			if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
->>   			    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
->> -				hash_add(qtable->queues, &q->mdev_qnode,
->> -					 q->apqn);
->> +				vfio_ap_unlink_queue_fr_mdev(q);
-> Same as above...
->
-> Regards,
-> Halil
->
->>   		}
->>   	}
->>   }
+$ qemu-system-s390x \
+-M s390-ccw-virtio \
+-kernel arch/s390/boot/bzImage \
+-display none \
+-initrd .../boot-utils/images/s390/rootfs.cpio \
+-m 512m \
+-nodefaults \
+-no-reboot \
+-serial mon:stdio
+...
+[    0.558817] Linux version 6.0.0-rc5-00017-gd1221cea11fc (nathan@distrobox-oTN5YGrt3J.thelio-3990X) (clang version 14.0.5 (Fedora 14.0.5-7.fc38), GNU ld version 2.38-4.fc37) #1 SMP Tue Sep 13 08:35:38 MST 2022
+...
+[    1.675787] illegal operation: 0001 ilc:3 [#1] SMP
+[    1.675888] Modules linked in:
+[    1.676044] CPU: 0 PID: 59 Comm: modprobe Not tainted 6.0.0-rc5-00017-gd1221cea11fc #1
+[    1.676134] Hardware name: QEMU 8561 QEMU (KVM/Linux)
+[    1.676202] Krnl PSW : 0704d00180000000 0000000000579fbc (load_elf_binary+0x31c/0x11c0)
+[    1.676459]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+[    1.676489] Krnl GPRS: 0000000000000001 00000000044f0000 0000000000000000 0000000000000000
+[    1.676506]            8000000000000080 0000000000000000 0000000000000000 00000000035fa900
+[    1.676522]            0000000000000001 000000000353ce00 0000000000000001 00000000044693c0
+[    1.676538]            000000000276fa00 000000000446a000 0000000000579f9e 00000380002ebc78
+[    1.677128] Krnl Code: 0000000000579fac: a7f405b8            brc     15,000000000057ab1c
+[    1.677128]            0000000000579fb0: e31003400004        lg      %r1,832
+[    1.677128]           #0000000000579fb6: e3001780003b        lzrf    %r0,1920(%r1)
+[    1.677128]           >0000000000579fbc: 50001780            st      %r0,1920(%r1)
+[    1.677128]            0000000000579fc0: e31003400004        lg      %r1,832
+[    1.677128]            0000000000579fc6: c40800aa99a9        lgrl    %r0,0000000001acd318
+[    1.677128]            0000000000579fcc: e3001d400124        stg     %r0,7488(%r1)
+[    1.677128]            0000000000579fd2: e31003400004        lg      %r1,832
+[    1.677343] Call Trace:
+[    1.677564]  [<0000000000579fbc>] load_elf_binary+0x31c/0x11c0
+[    1.677635] ([<0000000000579f9e>] load_elf_binary+0x2fe/0x11c0)
+[    1.677652]  [<00000000004e1ae6>] bprm_execve+0x4f6/0x7b0
+[    1.677671]  [<00000000004e1256>] kernel_execve+0x3b6/0x3d0
+[    1.677687]  [<000000000017e1c8>] call_usermodehelper_exec_async+0x158/0x1d0
+[    1.677706]  [<0000000000103a9a>] __ret_from_fork+0x3a/0x60
+[    1.677719]  [<0000000000f8562a>] ret_from_fork+0xa/0x40
+[    1.677748] Last Breaking-Event-Address:
+[    1.677757]  [<0000000000579fa2>] load_elf_binary+0x302/0x11c0
+[    1.678012] Kernel panic - not syncing: Fatal exception: panic_on_oops
+
+The rootfs image is available in our boot-utils repo [1], should it be
+necessary for reproducing this issue. I do not see any problems with
+booting a CONFIG_MARCH_Z13 kernel compiled with GCC 12.2.1 from Fedora
+but it is possible that clang and GCC generate different code. I am not
+sure if this is a compiler problem or an emulation one, which is where I
+was looking for some input from you all.
+
+[1]: https://github.com/ClangBuiltLinux/boot-utils
+
+Cheers,
+Nathan
