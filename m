@@ -2,123 +2,157 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D8F6C6FA82
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Sep 2022 13:22:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BA57C6FA82
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Sep 2022 14:07:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231781AbiIMNW2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Sep 2022 09:22:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54852 "EHLO
+        id S232546AbiIMOHz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Sep 2022 10:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231443AbiIMNW0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Sep 2022 09:22:26 -0400
+        with ESMTP id S232463AbiIMOHd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Sep 2022 10:07:33 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B7BF44552;
-        Tue, 13 Sep 2022 06:22:25 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28DDIJaZ030461;
-        Tue, 13 Sep 2022 13:22:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8F65246C;
+        Tue, 13 Sep 2022 07:07:18 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28DDplcK002230;
+        Tue, 13 Sep 2022 14:07:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=2/A0NS3W9xVoZHj6mPomZBrOMRNq6H+Nz72F40i5agw=;
- b=miawhnoyxZewUQsHY4ae5Q3eBEHonr8VTzta8gDsGC+zYDucZLq1TUJTpUWRB1rkYr5w
- RApEeDmcXQ1Vg0q1+by0XH2CZHfQbM6Mk+AVCRpVYXexafBqyvwNEwJgsCVm3cBlJzw8
- pGFamHdrEnOzJ5dO1tcA7GqUK7+ub1GKIojKhjfA+EvxkoTtPmi/o6lEQNKhPQvfZjya
- HOzl6YnAW5QCOnwmHfgEijDHp4tRpNd25qU9UTxcy61hzXlgG4H04ERvkTtkGwccZ9ll
- FUgLEonLI0TqhOWtYTLSqUNwoNUSaAB+rHh+pUUsoR3Zh86184cu6b5oRf3vniwpm1GS WA== 
+ bh=0y2Y0czkO0bjZjwSM1IpUT8rB+wyqI9stwPJyVRF1zo=;
+ b=LrMRDLeVv2u0uy5RxYCi1mmzDERYqKMH25lAKJs6tA3EjVXpnETuDHjXfk2+UGOPOFxO
+ VHThKJQTcdPWysUgQkJQH5jxdg6eqzgkFD3FFtr6Q5unVjkibJEzFrq/+BuS+7Sh+f5R
+ xdRPCALldlllbY/0N4dDE3NaGCF7Qj+HioXppumcQ2mNlxZLYoe3EBvt9BzTKQVuyV4g
+ AO1SdziEne5V72ol8kjeGV7UdS/ez0aOsAIkeQuW1NIRXn7c6deVPiO1nrSxeAouSrcu
+ fuOBcV9XhGe5cUZ+235z+yKTMSMdbgiuHbS8oGZBpkOZC1ull2jXIvSa/zdUEveBgQ74 +w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jjtmnr5y6-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jju4c8mt8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 13:22:24 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28DDK8KL008509;
-        Tue, 13 Sep 2022 13:22:24 GMT
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jjtmnr5x4-1
+        Tue, 13 Sep 2022 14:07:18 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28DDqYp0005114;
+        Tue, 13 Sep 2022 14:07:17 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jju4c8mr1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 13:22:24 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28DDLqIe010027;
-        Tue, 13 Sep 2022 13:22:22 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma04wdc.us.ibm.com with ESMTP id 3jgj79c69c-1
+        Tue, 13 Sep 2022 14:07:16 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28DE6I2D020729;
+        Tue, 13 Sep 2022 14:07:14 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma02fra.de.ibm.com with ESMTP id 3jgj792v8h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Sep 2022 13:22:22 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28DDMMaX9503238
+        Tue, 13 Sep 2022 14:07:14 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28DE7A2730998794
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Sep 2022 13:22:22 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EB410124054;
-        Tue, 13 Sep 2022 13:22:21 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5B273124052;
-        Tue, 13 Sep 2022 13:22:21 +0000 (GMT)
-Received: from [9.160.74.225] (unknown [9.160.74.225])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 13 Sep 2022 13:22:21 +0000 (GMT)
-Message-ID: <c2f4e68f-28cb-39c0-ce17-65ab55c55784@linux.ibm.com>
-Date:   Tue, 13 Sep 2022 09:22:21 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v3 0/2] s390/vfio-ap: fix two problems discovered in the
- vfio_ap driver
-Content-Language: en-US
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com
+        Tue, 13 Sep 2022 14:07:10 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BC0614C044;
+        Tue, 13 Sep 2022 14:07:10 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 54D894C040;
+        Tue, 13 Sep 2022 14:07:10 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.152.224.212])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 13 Sep 2022 14:07:10 +0000 (GMT)
+Date:   Tue, 13 Sep 2022 16:07:08 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
+        cohuck@redhat.com, mjrosato@linux.ibm.com,
+        alex.williamson@redhat.com, stable@vger.kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v3 2/2] s390/vfio-ap: fix unlinking of queues from the
+ mdev
+Message-ID: <20220913160708.50466335.pasic@linux.ibm.com>
+In-Reply-To: <20220823150643.427737-3-akrowiak@linux.ibm.com>
 References: <20220823150643.427737-1-akrowiak@linux.ibm.com>
-In-Reply-To: <20220823150643.427737-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        <20220823150643.427737-3-akrowiak@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: P8-pYIhjr8cCmz92gCg2U5fU_Fok0XQo
-X-Proofpoint-ORIG-GUID: oPfSeu-G7846YaCCFWK-D-_CsXJamU-4
+X-Proofpoint-ORIG-GUID: su6iy7UpQX6SfCWV74kA_zNrbHSpwIcB
+X-Proofpoint-GUID: sBLCl6E-IGtYbNT9Q4c9Oh-Zq2Cau9nG
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-13_06,2022-09-13_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 phishscore=0 lowpriorityscore=0 mlxlogscore=999
- clxscore=1015 bulkscore=0 spamscore=0 priorityscore=1501 mlxscore=0
- adultscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2207270000 definitions=main-2209130059
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 mlxscore=0 adultscore=0 mlxlogscore=999 impostorscore=0
+ suspectscore=0 phishscore=0 clxscore=1011 bulkscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2209130064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These are pretty simple, straight forward patches that fix a couple of 
-issues recently introduced in the vfio_ap device driver. I would greatly 
-appreciate it if someone could review these so we can get the fixes into 
-the kernel. Thank you in advance for your attention to this.
+On Tue, 23 Aug 2022 11:06:43 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-On 8/23/22 11:06 AM, Tony Krowiak wrote:
-> Two problems have been discovered with the vfio_ap device driver since the
-> hot plug support was recently introduced:
->
-> 1. Attempting to remove a matrix mdev after assigning a duplicate adapter
->     or duplicate domain results in a hang.
->
-> 2. The queues associated with an adapter or domain being unassigned from
->     the matrix mdev do not get unlinked from it.
->
-> Two patches are provided to resolve these problems.
->
-> Change log v2 => v3:
-> --------------------
-> * Replaced the wrong commit IDs in the 'Fixes' tags in both patches.
->    (Halil and Alexander)
->
-> * Changed the subject line and description of patch 01/02 to better reflect the
->    code changes in the patch. (Halil)
->
-> Tony Krowiak (2):
->    s390/vfio-ap: bypass unnecessary processing of AP resources
->    s390/vfio-ap: fix unlinking of queues from the mdev
->
->   drivers/s390/crypto/vfio_ap_ops.c | 36 +++++++++++++++++++++++++++----
->   1 file changed, 32 insertions(+), 4 deletions(-)
->
+> The vfio_ap_mdev_unlink_adapter and vfio_ap_mdev_unlink_domain functions
+> add the associated vfio_ap_queue objects to the hashtable that links them
+> to the matrix mdev to which their APQN is assigned. In order to unlink
+> them, they must be deleted from the hashtable; if not, they will continue
+> to be reset whenever userspace closes the mdev fd or removes the mdev.
+> This patch fixes that issue.
+
+I'm not so sure about that!
+
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 70aeefe574cb ("s390/vfio-ap: reset queues after adapter/domain unassignment")
+> Reported-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index ee82207b4e60..2493926b5dfb 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -1049,8 +1049,7 @@ static void vfio_ap_mdev_unlink_adapter(struct ap_matrix_mdev *matrix_mdev,
+>  		if (q && qtable) {
+>  			if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
+>  			    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+> -				hash_add(qtable->queues, &q->mdev_qnode,
+> -					 q->apqn);
+
+Careful qtable->queues is not supposed to be the same as
+matrix_mdev->qtable.queues it is rather a function local
+qtable that you use to know which queues were unlinked and
+need resetting.
+
+Have a look at vfio_ap_mdev_hot_unplug_adapter()
+
+> +				vfio_ap_unlink_queue_fr_mdev(q);
+
+IMHO this change is completely bogous. BTW
+vfio_ap_unlink_apqn_fr_mdev() a couple of lines above in the source
+(not seen in diff context) calls vfio_ap_unlink_queue_fr_mdev().
+
+>  		}
+>  	}
+>  }
+> @@ -1236,8 +1235,7 @@ static void vfio_ap_mdev_unlink_domain(struct ap_matrix_mdev *matrix_mdev,
+>  		if (q && qtable) {
+>  			if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
+>  			    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+> -				hash_add(qtable->queues, &q->mdev_qnode,
+> -					 q->apqn);
+> +				vfio_ap_unlink_queue_fr_mdev(q);
+
+Same as above...
+
+Regards,
+Halil
+
+>  		}
+>  	}
+>  }
+
