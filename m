@@ -2,205 +2,147 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCCEDECAAD8
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Sep 2022 03:00:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70C1FECAAD3
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Sep 2022 03:44:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229931AbiIODAc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Sep 2022 23:00:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36442 "EHLO
+        id S229837AbiIODoT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Sep 2022 23:44:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229608AbiIODAa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Sep 2022 23:00:30 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6E887E006;
-        Wed, 14 Sep 2022 20:00:27 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28F2UAaA031229;
-        Thu, 15 Sep 2022 03:00:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=8FxWTYvr9dyzYd240WhgjgTB7nYf9NQFy9fUf5lu17Y=;
- b=WKnFXzCfpMI0yg0rLpz69kw2byi+vTLNqK8vCo7DRiJjFuR8fblpjrflrImdjnmzDb5x
- s/GHPuo81qLreS3xtmukj5P6fOm4861C7D8xO0PXLznnXkEG5fVTQ5fVYVUa/w/6qbRq
- wvYThwHdy5wQ4gpmvFzBXFYTgK7oPkgWU7jMPZWaf+88Y0YCbAn/d7b1eCOw2KN0YD8f
- a3cnNTdapu6pUA02wTZSurO6GQIh4FUUEodXPkTfsBvt+skmrz1RDtowCp/EZ3vCsJY3
- z4HwmG4oYqGpuXAGY1wy1YgiUQQ6h98cUJ7jGzgd5dEOPY9ES1znIBX9wpfEEudWLFJz Pw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jkuakgkt3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Sep 2022 03:00:27 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28F2lnkr032462;
-        Thu, 15 Sep 2022 03:00:26 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jkuakgks2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Sep 2022 03:00:26 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28F2pB0p029995;
-        Thu, 15 Sep 2022 03:00:24 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3jjy95srec-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Sep 2022 03:00:24 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28F30LjU27984342
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 15 Sep 2022 03:00:21 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 27733AE04D;
-        Thu, 15 Sep 2022 03:00:21 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 96266AE05A;
-        Thu, 15 Sep 2022 03:00:20 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.145.64.223])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 15 Sep 2022 03:00:20 +0000 (GMT)
-Date:   Thu, 15 Sep 2022 05:00:18 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
-        cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, stable@vger.kernel.org,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v3 1/2] s390/vfio-ap: bypass unnecessary processing of
- AP resources
-Message-ID: <20220915050018.37d21083.pasic@linux.ibm.com>
-In-Reply-To: <20220823150643.427737-2-akrowiak@linux.ibm.com>
-References: <20220823150643.427737-1-akrowiak@linux.ibm.com>
-        <20220823150643.427737-2-akrowiak@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        with ESMTP id S229784AbiIODoR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Sep 2022 23:44:17 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D3F4633E;
+        Wed, 14 Sep 2022 20:44:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1663213456; x=1694749456;
+  h=date:from:to:cc:subject:message-id:mime-version;
+  bh=td82Oi7e6RaQUxvklJ/6txDHDjNMgCxLv4QVzl1DZjo=;
+  b=jKCO067tsW5G//aJ28TEpJzhRfrq5iAU6VhDNsakR2SKAFwkdgU+Z5cw
+   Fts+hWo1aLhH95Z8tEx82SSf6A0kg9rQrBQ2Lzmr3ujFLvdSUnvJ6FTxm
+   afZqKQjx0B9zhsARNqU/jyV6STIqpqGN/xQM7P/6ouxsnMMYmm08seDDh
+   1YANP8wgHqnWATntf6xKgEqf0Tu6Qk1cPb0hCie54dLNKST9/CH4h9/Gv
+   a9rAOKSGjV3nIOo9b4iypQ4FHu1Iqhusq8VTEFd1MKJccIuOCf5Jqur3E
+   FFDIC5umjL96zbih0ZcWl+v8108M22ptukJhROkSqq87MU/XxGzDgLzce
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10470"; a="360342401"
+X-IronPort-AV: E=Sophos;i="5.93,316,1654585200"; 
+   d="scan'208";a="360342401"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Sep 2022 20:44:14 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,316,1654585200"; 
+   d="scan'208";a="650316127"
+Received: from lkp-server01.sh.intel.com (HELO d6e6b7c4e5a2) ([10.239.97.150])
+  by orsmga001.jf.intel.com with ESMTP; 14 Sep 2022 20:44:12 -0700
+Received: from kbuild by d6e6b7c4e5a2 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1oYfnP-0000q2-2Z;
+        Thu, 15 Sep 2022 03:44:11 +0000
+Date:   Thu, 15 Sep 2022 11:43:48 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     kbuild-all@lists.01.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [s390:features 12/14] arch/s390/mm/maccess.c:85:13: warning: no
+ previous prototype for 'memcpy_real_init'
+Message-ID: <202209151106.vetUM3Xc-lkp@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: s22ckWZDcNMmMJgBhKcfY7XFzDJzkSXQ
-X-Proofpoint-GUID: 5gq95nZ4QaBYc3_mmCBpqDKZltwu4BnK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-14_11,2022-09-14_04,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- bulkscore=0 adultscore=0 mlxlogscore=999 impostorscore=0 suspectscore=0
- priorityscore=1501 phishscore=0 malwarescore=0 clxscore=1015
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2208220000 definitions=main-2209150011
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 23 Aug 2022 11:06:42 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+head:   fba07cd4dd8fb4833015801a83f945b2d65a5c4b
+commit: 2f0e8aae26a27fe73d033788f8e92188e7584f41 [12/14] s390/mm: rework memcpy_real() to avoid DAT-off mode
+config: s390-allmodconfig (https://download.01.org/0day-ci/archive/20220915/202209151106.vetUM3Xc-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?id=2f0e8aae26a27fe73d033788f8e92188e7584f41
+        git remote add s390 https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git
+        git fetch --no-tags s390 features
+        git checkout 2f0e8aae26a27fe73d033788f8e92188e7584f41
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash
 
-> It is not necessary to go through the process of validation, linking of
-> queues to mdev and vice versa and filtering the APQNs assigned to the
-> matrix mdev to build an AP configuration for a guest if an adapter or
-> domain being assigned is already assigned to the matrix mdev. Likewise, it
-> is not necessary to proceed through the process the unassignment of an
-> adapter, domain or control domain if it is not assigned to the matrix mdev.
-> 
-> Since it is not necessary to process assignment of a resource resource
-> already assigned or process unassignment of a resource that is been assigned,
-> this patch will bypass all assignment/unassignment operations for an adapter,
-> domain or control domain under these circumstances.
-> 
-> Not only is assignment of a duplicate adapter or domain unnecessary, it
-> will also cause a hang situation when removing the matrix mdev to which it is
-> assigned. The reason is because the same vfio_ap_queue objects with an
-> APQN containing the APID of the adapter or APQI of the domain being
-> assigned will get added multiple times to the hashtable that holds them.
-> This results in the pprev and next pointers of the hlist_node (mdev_qnode
-> field in the vfio_ap_queue object) pointing to the queue object itself
-> resulting in an interminable loop when the mdev is removed and the queue
-> table is iterated to reset the queues.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 11cb2419fafe ("s390/vfio-ap: manage link between queue struct and matrix mdev")
-> Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
 
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+All warnings (new ones prefixed by >>):
 
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c | 30 ++++++++++++++++++++++++++++++
->  1 file changed, 30 insertions(+)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 6c8c41fac4e1..ee82207b4e60 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -984,6 +984,11 @@ static ssize_t assign_adapter_store(struct device *dev,
->  		goto done;
->  	}
->  
-> +	if (test_bit_inv(apid, matrix_mdev->matrix.apm)) {
-> +		ret = count;
-> +		goto done;
-> +	}
-> +
->  	set_bit_inv(apid, matrix_mdev->matrix.apm);
->  
->  	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
-> @@ -1109,6 +1114,11 @@ static ssize_t unassign_adapter_store(struct device *dev,
->  		goto done;
->  	}
->  
-> +	if (!test_bit_inv(apid, matrix_mdev->matrix.apm)) {
-> +		ret = count;
-> +		goto done;
-> +	}
-> +
->  	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
->  	vfio_ap_mdev_hot_unplug_adapter(matrix_mdev, apid);
->  	ret = count;
-> @@ -1183,6 +1193,11 @@ static ssize_t assign_domain_store(struct device *dev,
->  		goto done;
->  	}
->  
-> +	if (test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
-> +		ret = count;
-> +		goto done;
-> +	}
-> +
->  	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
->  
->  	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
-> @@ -1286,6 +1301,11 @@ static ssize_t unassign_domain_store(struct device *dev,
->  		goto done;
->  	}
->  
-> +	if (!test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
-> +		ret = count;
-> +		goto done;
-> +	}
-> +
->  	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
->  	vfio_ap_mdev_hot_unplug_domain(matrix_mdev, apqi);
->  	ret = count;
-> @@ -1329,6 +1349,11 @@ static ssize_t assign_control_domain_store(struct device *dev,
->  		goto done;
->  	}
->  
-> +	if (test_bit_inv(id, matrix_mdev->matrix.adm)) {
-> +		ret = count;
-> +		goto done;
-> +	}
-> +
->  	/* Set the bit in the ADM (bitmask) corresponding to the AP control
->  	 * domain number (id). The bits in the mask, from most significant to
->  	 * least significant, correspond to IDs 0 up to the one less than the
-> @@ -1378,6 +1403,11 @@ static ssize_t unassign_control_domain_store(struct device *dev,
->  		goto done;
->  	}
->  
-> +	if (!test_bit_inv(domid, matrix_mdev->matrix.adm)) {
-> +		ret = count;
-> +		goto done;
-> +	}
-> +
->  	clear_bit_inv(domid, matrix_mdev->matrix.adm);
->  
->  	if (test_bit_inv(domid, matrix_mdev->shadow_apcb.adm)) {
+>> arch/s390/mm/maccess.c:85:13: warning: no previous prototype for 'memcpy_real_init' [-Wmissing-prototypes]
+      85 | void __init memcpy_real_init(void)
+         |             ^~~~~~~~~~~~~~~~
+>> arch/s390/mm/maccess.c:92:8: warning: no previous prototype for 'memcpy_real_iter' [-Wmissing-prototypes]
+      92 | size_t memcpy_real_iter(struct iov_iter *iter, unsigned long src, size_t count)
+         |        ^~~~~~~~~~~~~~~~
+>> arch/s390/mm/maccess.c:123:5: warning: no previous prototype for 'memcpy_real' [-Wmissing-prototypes]
+     123 | int memcpy_real(void *dest, unsigned long src, size_t count)
+         |     ^~~~~~~~~~~
 
+
+vim +/memcpy_real_init +85 arch/s390/mm/maccess.c
+
+    84	
+  > 85	void __init memcpy_real_init(void)
+    86	{
+    87		memcpy_real_ptep = vmem_get_alloc_pte(__memcpy_real_area, true);
+    88		if (!memcpy_real_ptep)
+    89			panic("Couldn't setup memcpy real area");
+    90	}
+    91	
+  > 92	size_t memcpy_real_iter(struct iov_iter *iter, unsigned long src, size_t count)
+    93	{
+    94		size_t len, copied, res = 0;
+    95		unsigned long phys, offset;
+    96		void *chunk;
+    97		pte_t pte;
+    98	
+    99		while (count) {
+   100			phys = src & PAGE_MASK;
+   101			offset = src & ~PAGE_MASK;
+   102			chunk = (void *)(__memcpy_real_area + offset);
+   103			len = min(count, PAGE_SIZE - offset);
+   104			pte = mk_pte_phys(phys, PAGE_KERNEL_RO);
+   105	
+   106			mutex_lock(&memcpy_real_mutex);
+   107			if (pte_val(pte) != pte_val(*memcpy_real_ptep)) {
+   108				__ptep_ipte(__memcpy_real_area, memcpy_real_ptep, 0, 0, IPTE_GLOBAL);
+   109				set_pte(memcpy_real_ptep, pte);
+   110			}
+   111			copied = copy_to_iter(chunk, len, iter);
+   112			mutex_unlock(&memcpy_real_mutex);
+   113	
+   114			count -= copied;
+   115			src += copied;
+   116			res += copied;
+   117			if (copied < len)
+   118				break;
+   119		}
+   120		return res;
+   121	}
+   122	
+ > 123	int memcpy_real(void *dest, unsigned long src, size_t count)
+   124	{
+   125		struct iov_iter iter;
+   126		struct kvec kvec;
+   127	
+   128		kvec.iov_base = dest;
+   129		kvec.iov_len = count;
+   130		iov_iter_kvec(&iter, WRITE, &kvec, 1, count);
+   131		if (memcpy_real_iter(&iter, src, count) < count)
+   132			return -EFAULT;
+   133		return 0;
+   134	}
+   135	
+
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
