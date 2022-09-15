@@ -2,328 +2,253 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 074B9C6FA86
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Sep 2022 06:42:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58861ECAAD3
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Sep 2022 09:24:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229497AbiIOGm0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Sep 2022 02:42:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45560 "EHLO
+        id S229528AbiIOJYP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Sep 2022 05:24:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbiIOGmZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Sep 2022 02:42:25 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29DB9DFDF;
-        Wed, 14 Sep 2022 23:42:24 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id z21so25501929edi.1;
-        Wed, 14 Sep 2022 23:42:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=MkcJu/Np8QuY/ucOxBZPuFE0LnT6gseutxCz5TndTPg=;
-        b=j3eTBGf11Nt5+jlK0GEsZ2oZLsD9oA8jFoxO/kjHYBeK/HQGxlXX4qcF/+4p9oBCUf
-         T1AP3Y6UCoGVMYKSuFMllXKzY7BeIexsgm3ewn1j1N2011ArAfLCCzNtl+dK2fINPhIh
-         TDKNMkVNKlvWCA/LpcKTziiYSSkzLyIyrrCgFjLDbV0Gk3JEQLhdPXDZJ6+ziQGFIyEK
-         c2UQi2duVSIj9iRAhH/AJQ29zyuzofbUwi81QwaZkNXFmuS0Fvyh7LDURHvJWxN6M+Z2
-         kMIWlQVJq/Qe7sHPCAzQI0sz6rmLsSTBFPQXM6e7V8VLWYEDAOcV2CKIhTfy7KdQ9cN5
-         zvJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=MkcJu/Np8QuY/ucOxBZPuFE0LnT6gseutxCz5TndTPg=;
-        b=72NDNtEj2LUpZNYqZ3KRN7XPkHciir2P6McGvOPbTe4F93FjQcY2XCTVGrRs9BG2rD
-         AdN7hC161XDa7zHTwZTwhslaPfgPSWZkHSZHZKcD9U67RRfPNh5i2xKKXFFNwocJ+bhy
-         agfMg81vMrbjr4Rvn6VDBaGEK/RiDH1EiTFbQ5PJGVHA8vcKJtjioQZudGw3gBg8KmlK
-         ZDUgBhTmIHipxpPY3ggmlDyB89PDi6z4BJfKRnRYsH60vkGNvcLs9W/CxQpEf8NOB3tZ
-         54QolfPnrO5nsAmmGnbwmE4lMX6QagsT0t1VsDIMCKc+KhJwLn85hgMX0yLfPA1ftO6e
-         d+oA==
-X-Gm-Message-State: ACgBeo0OpJ6nYJZz/Yf3+n96Jv876a/IrOiVPk9KRPbvyZf2AdOQSDNu
-        XlWCc7sba09hi7EGrtAyEmJCpZoAc2dBGtTm57g=
-X-Google-Smtp-Source: AA6agR6wPP3msraWOxsivyd5ENGviV/IVE9dV3jxTgCEx3eOfvGhuGKM0U4MD3Qme1H9p+QOQwm2LQK9Q3eEVT2wk2A=
-X-Received: by 2002:aa7:dcd2:0:b0:44e:69f3:edd1 with SMTP id
- w18-20020aa7dcd2000000b0044e69f3edd1mr33523512edu.244.1663224142586; Wed, 14
- Sep 2022 23:42:22 -0700 (PDT)
+        with ESMTP id S229458AbiIOJYO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Sep 2022 05:24:14 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C9089CD3;
+        Thu, 15 Sep 2022 02:24:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1663233853; x=1694769853;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=zMmwDWYm5ZxZ0fAWwrGQgbhWc+Yp5yuhMNCpO8+bP+c=;
+  b=SYQqI2kDKRYYSBhsHWEbPNLzC6xr9i24ZMVfZzrdWXCCW7kotKrg9HPK
+   3Dl4qdtTI2PePxjLMi+9CxgAy1lJThLI8VlUVTrRGzOyGdFS5/AfqvFCq
+   0Y0O2IpeqKVmdvoC34XAPD5HrsTQlokrmKSdvWZzZ2IvcVMEOHHDdRSRZ
+   hKNlLBM6nHZJuFrV3dx++BhmUDQt1PWa8TVp/iyArHUYlBCRM7GPvJV0Q
+   3USsRsePoiu+DRllQN7ABhg92OTN2evBzibtbZYixKWJs6fjjepHiiUOS
+   b3PFv4LTZGv3dkoSZi/OjtjKHfv5pSXjXTmBPDYEv2QyojkfVnws59Sy2
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10470"; a="362623946"
+X-IronPort-AV: E=Sophos;i="5.93,317,1654585200"; 
+   d="scan'208";a="362623946"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Sep 2022 02:24:12 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,317,1654585200"; 
+   d="scan'208";a="945877933"
+Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
+  by fmsmga005.fm.intel.com with ESMTP; 15 Sep 2022 02:24:12 -0700
+Received: from fmsmsx609.amr.corp.intel.com (10.18.126.89) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Thu, 15 Sep 2022 02:24:11 -0700
+Received: from fmsmsx608.amr.corp.intel.com (10.18.126.88) by
+ fmsmsx609.amr.corp.intel.com (10.18.126.89) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Thu, 15 Sep 2022 02:24:11 -0700
+Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
+ fmsmsx608.amr.corp.intel.com (10.18.126.88) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31 via Frontend Transport; Thu, 15 Sep 2022 02:24:11 -0700
+Received: from NAM04-MW2-obe.outbound.protection.outlook.com (104.47.73.177)
+ by edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2375.31; Thu, 15 Sep 2022 02:24:11 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=bxhgt0FpxLza7gnO1EDn6JXfLQj6ahiN0V4/PEBq39cukiG/5T1CRlX25ddf7H2HNunXs0TbrPZRRjvLE9VeQKqMh3Yfw5qY7oMpcEKsgBWUc0w8hLI/KpHruFJXGSD190Ry/6qJv51Bcy8KTy0FnR5wSXMqdoWUlbl0GwUWf5WfUAi4rKHQbtaTbE/fWmBokCpGH6qdkgw42uxi1cNR7eLQ0RomaoxgFB2GqbfjZIhxyFBNquuyaBrjTapWQy43JOS6oVEAWta0G87vXwQ0e+XCTSdbm/RzMGUdIp7NSJRWCzDoGzEAmQAVdD5yo658Uo2dIcY4e1QngF3MoyWhWQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=UWstX29tZM07GBdaU4h4jPl4WjPvkI+M8odYjT8T9zo=;
+ b=jfawxkSu0lg29IiCLyA+cZlCqfq80UfkSYGjRvbXJZ+6f2vPj+qJYEWqbkUEk9TPvKo+cLUIlA6HAi53R7+a/kzdbfmqlqRL/Z61axNLXe4pw/19z17DtfP0drgB2L7GbhfXNNsMH8Yjr2suso02EuIHxj6TlgMvQgDEqY9Kct8Qk7Hg5mEv3i08p12VePCoXKZx41IszsroXUc1kBxksJ4WFiern9GfhMCiJfNSIpB4E61q/HBij0/d++ud/47+RndRhx63SA7sHEgBrXZxLbpD3x51sNiQa/Tc3dP+XtjGypti2Odd1ALrhiVh1u+6AMEnk4KWPnIRqgVb5g023Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by IA1PR11MB6291.namprd11.prod.outlook.com (2603:10b6:208:3e5::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.22; Thu, 15 Sep
+ 2022 09:24:07 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::a435:3eff:aa83:73d7]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::a435:3eff:aa83:73d7%6]) with mapi id 15.20.5632.015; Thu, 15 Sep 2022
+ 09:24:07 +0000
+From:   "Tian, Kevin" <kevin.tian@intel.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        "Chatre, Reinette" <reinette.chatre@intel.com>
+CC:     "Jiang, Dave" <dave.jiang@intel.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        "Dey, Megha" <megha.dey@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
+        "linux-ntb@googlegroups.com" <linux-ntb@googlegroups.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "x86@kernel.org" <x86@kernel.org>, "Rodel, Jorg" <jroedel@suse.de>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
+Subject: RE: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+Thread-Topic: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+Thread-Index: AQHX4y1VNaiO68omHEet2J9DWrVARKwa1YEAgAAp0QCAABreAIAAIi2AgAE8MoCAAAd1gIAACyoAgAAPcQCAADDDAIAAp1uAgABn9QCAACTxgIAAAdGAgAAbd4CAAA94gIAABpSAgAt9SoCAADlJAIAAgb+AgABGMACAAAc8gIAAE+oAgAAmHACAAFJ4oIAAem8AgABqWwCAANPscIAAWxoAgADV7aCAAT/pAIGycJsw
+Date:   Thu, 15 Sep 2022 09:24:07 +0000
+Message-ID: <BN9PR11MB5276961D838169BF237928E18C499@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <f4cc305b-a329-6d27-9fca-b74ebc9fa0c1@intel.com>
+ <878rx480fk.ffs@tglx>
+ <BN9PR11MB52765F2EF8420C60FD5945D18C709@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <87sfv2yy19.ffs@tglx> <20211209162129.GS6385@nvidia.com>
+ <878rwtzfh1.ffs@tglx> <20211209205835.GZ6385@nvidia.com>
+ <8735n1zaz3.ffs@tglx> <87sfv1xq3b.ffs@tglx>
+ <BN9PR11MB527619B099061B3814EB40408C719@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <20211210123938.GF6385@nvidia.com> <87fsr0xp31.ffs@tglx>
+ <BN9PR11MB527625E8A9BB854F3C0D19AE8C729@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <875yrvwavf.ffs@tglx>
+ <BL1PR11MB5271326D39DAB692F07587768C739@BL1PR11MB5271.namprd11.prod.outlook.com>
+ <87fsqxv8zf.ffs@tglx>
+In-Reply-To: <87fsqxv8zf.ffs@tglx>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-version: 11.6.500.17
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|IA1PR11MB6291:EE_
+x-ms-office365-filtering-correlation-id: 3e616ee9-92a5-4e2d-8361-08da96fc0a28
+x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: SkO2fqIwPvhdwKOuRRM+9uU9CicKIQZ8V/zsjy3YBXEnCmWn5Tyq+89AXWA/wt7+4/M0VOCT4IDmrwBr7CnQAd2r4wO1eV90PDBYElwbEZeVM93BtpYujiB1+XgcnkbDCldqo8VJkxGGpBZw38ukUSuRExogJ8xqKEiRMUUsawhxuR24BxgQMgvAcG5OGAxGQ+E6cnVMrFrpLPF3yXgrY9LkXcNAxWCsnoEir7pm7Er8PAtbx9e0HD9qDxNvlnnZU5+3rroZQsudv/wIkI5/zP9Hknl9NoTdixfvPuQVV2Zi2MlV5scKx+SZRgobqNE5v1u8Rq3FYsoULm8To0ckfOT36HIrCtmRaMF7bqFFLYiintr0bG3fruEC0iPWg51fPJ3yjNqg0C8l1K11Py3WgQZt5CTmPkeNOwdyKkLuExCxhQQ2kERUT4Vhp9NwKtTcWCy4tBLc6quV5CSMixXy2BWNd33vYaC0QBI7Wwc0eGQxr6ejNCkE/AR/pAr8xOiHmpHQcZCAkqbzF8T2JxKCDgFFX6WR6UB5FoGtjpYboyLtK8G7jE3RzmHwBy2W/Aaj8NG5u4J2AAShT0dyltVj4HoebqLRm8TQ9uTXGUbdbKZJdKbZHAQLPnLoGZBxIFa+CvPAukVPwmlkE2gfuWkuq10Vg5Zx9EKU17+Czja++nQRZgfFpb3F1PQwCBnObKCyX6Ch/+8rHHAxgPyNVaFzUqlL1HVYr9GZa/BAu1nMpC/l3bocsmkEl830XApB+eIzh9+V0HtYNBdomFvNsWU/MQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(376002)(396003)(346002)(136003)(39860400002)(366004)(451199015)(82960400001)(26005)(52536014)(9686003)(86362001)(2906002)(5660300002)(54906003)(316002)(110136005)(33656002)(6636002)(478600001)(38100700002)(7416002)(122000001)(71200400001)(38070700005)(66556008)(66446008)(64756008)(66946007)(66476007)(4326008)(7696005)(186003)(6506007)(76116006)(83380400001)(41300700001)(8936002)(8676002)(55016003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?3etnuFfyokouhsDVbsAOTIvihoxnZMAheDyfGhkuZEASX8hgeHP50a4qJ8RY?=
+ =?us-ascii?Q?7ECN9A5Zowr9EuyGrmq9KJWNGqpXa+910hl7DWIcq0/kKkKA96yqUR8rDiaU?=
+ =?us-ascii?Q?EppPgftPazbxbnq9JhWbwJV/zPUY+oV4TSFfz020y6w587KKimH6sZLV5hty?=
+ =?us-ascii?Q?bB2WxT3dGXbfgXnF+eyIz00fWMsADcLGt+RKEF5bk5DI/skmTiMDtWdZ5LvX?=
+ =?us-ascii?Q?QVCOzZ3dEwlcKqZqYEXtsYusdKx7u/Qf59+jPEjnWyrgDm0Y/X/P8B5pBnW5?=
+ =?us-ascii?Q?DEuoQguJpR70hLyplr+drlp4RIOzc648cFUmXDajMFLDjcATQfv8CQ6jHItV?=
+ =?us-ascii?Q?5tETXkUCihCjvvc6xf8i+e8EhdPvOOQOHKFKqlK7BG3TjIi3rA4+6s9uQDFX?=
+ =?us-ascii?Q?YtbNY5wAwiQE3RLrGJMJJYPmVzV5saIVdjuIxBznyBZnkz3oU9GA9lWnC7cx?=
+ =?us-ascii?Q?QU/giQigDK0L3QGlO28Q9MmDogdsj2NZ4O9isTsLU4Oa8MzLJb37b7UADw7h?=
+ =?us-ascii?Q?NKA/eGSaH0Qi3iaTD5pwe1mkyWE0bZp+mxqveaWXZP7K2cu3bNO2fT9nJM8w?=
+ =?us-ascii?Q?HXw+dvxy/1w5Vh8fVrXL+dEJc/FDMej1VVxQH3CzezvRh3kcl/vwCRS/BfcH?=
+ =?us-ascii?Q?co+D7vUDRAHB15fM+oClUZ5NiclRAgXUz+wRkYuP/HXWBZ08Hfi7oVboDP5d?=
+ =?us-ascii?Q?MjCDLw+wG98efploLdN42Dgo+1Wn68wonbw5tfu6LxTQHoL+hLeJk6wYSiPI?=
+ =?us-ascii?Q?fNY04J0C4eZqm2rjuBCTFUAwMKoMqLgOjj9OSISVmO8uaYAzy4cjvg7i18lZ?=
+ =?us-ascii?Q?DwfuOoEv4+p5dagpYKMRijaV+POCIAfM7/11mdqzn2SMCQyGhLvRaCPgWs/3?=
+ =?us-ascii?Q?n6i/dB2Y9XmhmqJqQaQmnUW3XhMAxmNyurreM/a8HsWmycRIBuSEPN4gnJ7h?=
+ =?us-ascii?Q?qf7rArp2iruVcHGNgDtihy2e+n4XvNBREb5qNF/VETVFb5Caj77XV/wcISt/?=
+ =?us-ascii?Q?QB+VPOcaEq4k8VzSniovTeKEoEK4o36F7SBvjHjkoukCdk+aIZdNXR41/T6b?=
+ =?us-ascii?Q?M1DYp2Ow8nqlfiMwWhx+uTUx1uuwjWhGVU4KsED23rkC987uxZx+4TktBTDI?=
+ =?us-ascii?Q?6SrqNuEhurn5Kx6NGXGlLL5wlAzmEyi/XR1uW6auBTebGJl2pAlCaGf9zFcI?=
+ =?us-ascii?Q?I+wJGQ8KqaNM4tid2QKvC+74l8PucDA5B3QlzqfwpjZc+rC1JqG9AokhJWkl?=
+ =?us-ascii?Q?Oz11vC9/gH96RU6MpMa8403MwQb/1ST2Iv27Z64TwkEA8Y0r+yJ8/T/rMUhL?=
+ =?us-ascii?Q?qdZ+9g2ZAYXt9iBVqk7kzTaTSfjJYPYF7OHRnW4dxTx1q81e9EJT9emz9Ecg?=
+ =?us-ascii?Q?AMkggCj/qaLNIkMBKSXZjNP0mCQobNUzasqS40p9ur83i/QVsgnD1TgqAKo4?=
+ =?us-ascii?Q?g/wEZJqvPvO4IXGJrru+OQzQ/Z8a2r5Kis1hToU6G5BsYZyr8uAq3xKALTeX?=
+ =?us-ascii?Q?6ZpSC9KEqXaBVsu6L6AC0psHzKFZ01aNw85ey71HdIqeNzwFUNUvUnIKS1uu?=
+ =?us-ascii?Q?wPoDbk3KIM77ixyl21pX++WZiABvF4RSQkimDKrd?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20220822082120.8347-1-yangyicong@huawei.com> <20220822082120.8347-5-yangyicong@huawei.com>
- <1e8642d5-0e2d-5747-d0d2-5aa0817ea4af@arm.com> <CAGsJ_4xD4m-szM1Cm4N5ZRCODGC0fbW+BLBhy8g6+eK=aHPQNw@mail.gmail.com>
- <1125554b-c183-23c4-5516-95b918a761cc@arm.com>
-In-Reply-To: <1125554b-c183-23c4-5516-95b918a761cc@arm.com>
-From:   Barry Song <21cnbao@gmail.com>
-Date:   Thu, 15 Sep 2022 18:42:11 +1200
-Message-ID: <CAGsJ_4zkRv7RYCB2SC0uydMSQWfwXs3-nkjxMoR7wgn2nt43gA@mail.gmail.com>
-Subject: Re: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, catalin.marinas@arm.com, will@kernel.org,
-        linux-doc@vger.kernel.org, corbet@lwn.net, peterz@infradead.org,
-        arnd@arndb.de, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
-        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3e616ee9-92a5-4e2d-8361-08da96fc0a28
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Sep 2022 09:24:07.2230
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 7xLu0oXSF14IOf7eZ+BeddbRpBD1NzRgpKly+qRlgNtSz8RrE9nFPnIqJJunTW58OZoJzJCsjiCJUv+A08tNyQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR11MB6291
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 15, 2022 at 6:07 PM Anshuman Khandual
-<anshuman.khandual@arm.com> wrote:
->
->
->
-> On 9/9/22 11:05, Barry Song wrote:
-> > On Fri, Sep 9, 2022 at 5:24 PM Anshuman Khandual
-> > <anshuman.khandual@arm.com> wrote:
-> >>
-> >>
-> >>
-> >> On 8/22/22 13:51, Yicong Yang wrote:
-> >>> From: Barry Song <v-songbaohua@oppo.com>
-> >>>
-> >>> on x86, batched and deferred tlb shootdown has lead to 90%
-> >>> performance increase on tlb shootdown. on arm64, HW can do
-> >>> tlb shootdown without software IPI. But sync tlbi is still
-> >>> quite expensive.
-> >>>
-> >>> Even running a simplest program which requires swapout can
-> >>> prove this is true,
-> >>>  #include <sys/types.h>
-> >>>  #include <unistd.h>
-> >>>  #include <sys/mman.h>
-> >>>  #include <string.h>
-> >>>
-> >>>  int main()
-> >>>  {
-> >>>  #define SIZE (1 * 1024 * 1024)
-> >>>          volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
-> >>>                                           MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-> >>>
-> >>>          memset(p, 0x88, SIZE);
-> >>>
-> >>>          for (int k = 0; k < 10000; k++) {
-> >>>                  /* swap in */
-> >>>                  for (int i = 0; i < SIZE; i += 4096) {
-> >>>                          (void)p[i];
-> >>>                  }
-> >>>
-> >>>                  /* swap out */
-> >>>                  madvise(p, SIZE, MADV_PAGEOUT);
-> >>>          }
-> >>>  }
-> >>>
-> >>> Perf result on snapdragon 888 with 8 cores by using zRAM
-> >>> as the swap block device.
-> >>>
-> >>>  ~ # perf record taskset -c 4 ./a.out
-> >>>  [ perf record: Woken up 10 times to write data ]
-> >>>  [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
-> >>>  ~ # perf report
-> >>>  # To display the perf.data header info, please use --header/--header-only options.
-> >>>  # To display the perf.data header info, please use --header/--header-only options.
-> >>>  #
-> >>>  #
-> >>>  # Total Lost Samples: 0
-> >>>  #
-> >>>  # Samples: 60K of event 'cycles'
-> >>>  # Event count (approx.): 35706225414
-> >>>  #
-> >>>  # Overhead  Command  Shared Object      Symbol
-> >>>  # ........  .......  .................  .............................................................................
-> >>>  #
-> >>>     21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
-> >>>      8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
-> >>>      6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
-> >>>      6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
-> >>>      5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
-> >>>      3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
-> >>>      3.49%  a.out    [kernel.kallsyms]  [k] memset64
-> >>>      1.63%  a.out    [kernel.kallsyms]  [k] clear_page
-> >>>      1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
-> >>>      1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
-> >>>      1.23%  a.out    [kernel.kallsyms]  [k] xas_load
-> >>>      1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
-> >>>
-> >>> ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
-> >>> swapping in/out a page mapped by only one process. If the
-> >>> page is mapped by multiple processes, typically, like more
-> >>> than 100 on a phone, the overhead would be much higher as
-> >>> we have to run tlb flush 100 times for one single page.
-> >>> Plus, tlb flush overhead will increase with the number
-> >>> of CPU cores due to the bad scalability of tlb shootdown
-> >>> in HW, so those ARM64 servers should expect much higher
-> >>> overhead.
-> >>>
-> >>> Further perf annonate shows 95% cpu time of ptep_clear_flush
-> >>> is actually used by the final dsb() to wait for the completion
-> >>> of tlb flush. This provides us a very good chance to leverage
-> >>> the existing batched tlb in kernel. The minimum modification
-> >>> is that we only send async tlbi in the first stage and we send
-> >>> dsb while we have to sync in the second stage.
-> >>>
-> >>> With the above simplest micro benchmark, collapsed time to
-> >>> finish the program decreases around 5%.
-> >>>
-> >>> Typical collapsed time w/o patch:
-> >>>  ~ # time taskset -c 4 ./a.out
-> >>>  0.21user 14.34system 0:14.69elapsed
-> >>> w/ patch:
-> >>>  ~ # time taskset -c 4 ./a.out
-> >>>  0.22user 13.45system 0:13.80elapsed
-> >>>
-> >>> Also, Yicong Yang added the following observation.
-> >>>       Tested with benchmark in the commit on Kunpeng920 arm64 server,
-> >>>       observed an improvement around 12.5% with command
-> >>>       `time ./swap_bench`.
-> >>>               w/o             w/
-> >>>       real    0m13.460s       0m11.771s
-> >>>       user    0m0.248s        0m0.279s
-> >>>       sys     0m12.039s       0m11.458s
-> >>>
-> >>>       Originally it's noticed a 16.99% overhead of ptep_clear_flush()
-> >>>       which has been eliminated by this patch:
-> >>>
-> >>>       [root@localhost yang]# perf record -- ./swap_bench && perf report
-> >>>       [...]
-> >>>       16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
-> >>>
-> >>> Cc: Jonathan Corbet <corbet@lwn.net>
-> >>> Cc: Nadav Amit <namit@vmware.com>
-> >>> Cc: Mel Gorman <mgorman@suse.de>
-> >>> Tested-by: Yicong Yang <yangyicong@hisilicon.com>
-> >>> Tested-by: Xin Hao <xhao@linux.alibaba.com>
-> >>> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> >>> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-> >>> ---
-> >>>  .../features/vm/TLB/arch-support.txt          |  2 +-
-> >>>  arch/arm64/Kconfig                            |  1 +
-> >>>  arch/arm64/include/asm/tlbbatch.h             | 12 ++++++++
-> >>>  arch/arm64/include/asm/tlbflush.h             | 28 +++++++++++++++++--
-> >>>  4 files changed, 40 insertions(+), 3 deletions(-)
-> >>>  create mode 100644 arch/arm64/include/asm/tlbbatch.h
-> >>>
-> >>> diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
-> >>> index 1c009312b9c1..2caf815d7c6c 100644
-> >>> --- a/Documentation/features/vm/TLB/arch-support.txt
-> >>> +++ b/Documentation/features/vm/TLB/arch-support.txt
-> >>> @@ -9,7 +9,7 @@
-> >>>      |       alpha: | TODO |
-> >>>      |         arc: | TODO |
-> >>>      |         arm: | TODO |
-> >>> -    |       arm64: | TODO |
-> >>> +    |       arm64: |  ok  |
-> >>>      |        csky: | TODO |
-> >>>      |     hexagon: | TODO |
-> >>>      |        ia64: | TODO |
-> >>> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> >>> index 571cc234d0b3..09d45cd6d665 100644
-> >>> --- a/arch/arm64/Kconfig
-> >>> +++ b/arch/arm64/Kconfig
-> >>> @@ -93,6 +93,7 @@ config ARM64
-> >>>       select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
-> >>>       select ARCH_SUPPORTS_NUMA_BALANCING
-> >>>       select ARCH_SUPPORTS_PAGE_TABLE_CHECK
-> >>> +     select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-> >>>       select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
-> >>>       select ARCH_WANT_DEFAULT_BPF_JIT
-> >>>       select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
-> >>> diff --git a/arch/arm64/include/asm/tlbbatch.h b/arch/arm64/include/asm/tlbbatch.h
-> >>> new file mode 100644
-> >>> index 000000000000..fedb0b87b8db
-> >>> --- /dev/null
-> >>> +++ b/arch/arm64/include/asm/tlbbatch.h
-> >>> @@ -0,0 +1,12 @@
-> >>> +/* SPDX-License-Identifier: GPL-2.0 */
-> >>> +#ifndef _ARCH_ARM64_TLBBATCH_H
-> >>> +#define _ARCH_ARM64_TLBBATCH_H
-> >>> +
-> >>> +struct arch_tlbflush_unmap_batch {
-> >>> +     /*
-> >>> +      * For arm64, HW can do tlb shootdown, so we don't
-> >>> +      * need to record cpumask for sending IPI
-> >>> +      */
-> >>> +};
-> >>> +
-> >>> +#endif /* _ARCH_ARM64_TLBBATCH_H */
-> >>> diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
-> >>> index 412a3b9a3c25..23cbc987321a 100644
-> >>> --- a/arch/arm64/include/asm/tlbflush.h
-> >>> +++ b/arch/arm64/include/asm/tlbflush.h
-> >>> @@ -254,17 +254,24 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
-> >>>       dsb(ish);
-> >>>  }
-> >>>
-> >>> -static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-> >>> +
-> >>> +static inline void __flush_tlb_page_nosync(struct mm_struct *mm,
-> >>>                                        unsigned long uaddr)
-> >>>  {
-> >>>       unsigned long addr;
-> >>>
-> >>>       dsb(ishst);
-> >>> -     addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-> >>> +     addr = __TLBI_VADDR(uaddr, ASID(mm));
-> >>>       __tlbi(vale1is, addr);
-> >>>       __tlbi_user(vale1is, addr);
-> >>>  }
-> >>>
-> >>> +static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-> >>> +                                      unsigned long uaddr)
-> >>> +{
-> >>> +     return __flush_tlb_page_nosync(vma->vm_mm, uaddr);
-> >>> +}
-> >>> +
-> >>>  static inline void flush_tlb_page(struct vm_area_struct *vma,
-> >>>                                 unsigned long uaddr)
-> >>>  {
-> >>> @@ -272,6 +279,23 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
-> >>>       dsb(ish);
-> >>>  }
-> >>>
-> >>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> >>> +{
-> >>> +     return true;
-> >>> +}
-> >>
-> >> Always defer and batch up TLB flush, unconditionally ?
+Hi, Thomas,
+
+> From: Thomas Gleixner <tglx@linutronix.de>
+> Sent: Monday, December 13, 2021 4:56 AM
+>=20
+> Kevin,
+>=20
+> On Sun, Dec 12 2021 at 01:56, Kevin Tian wrote:
+> >> From: Thomas Gleixner <tglx@linutronix.de>
+> >> All I can find is drivers/iommu/virtio-iommu.c but I can't find anythi=
+ng
+> >> vIR related there.
 > >
-> > My understanding is we actually don't need tlbbatch for a machine with one
-> > or two cores as the tlb flush is not expensive. even for a system with four
-> > cortex-a55 cores, i didn't see obvious cost. it was less than 1%.
-> > when we have 8 cores, we see the obvious cost of tlb flush. for a server with
-> > 100 crores, the cost is incredibly huge.
->
-> Although dsb(ish) is deferred via arch_tlbbatch_flush(), there is still
-> one dsb(isht) instruction left in __flush_tlb_page_nosync(). Is not that
-> expensive as well, while queuing up individual TLB flushes ?
+> > Well, virtio-iommu is a para-virtualized vIOMMU implementations.
+> >
+> > In reality there are also fully emulated vIOMMU implementations (e.g.
+> > Qemu fully emulates Intel/AMD/ARM IOMMUs). In those configurations
+> > the IR logic in existing iommu drivers just apply:
+> >
+> > 	drivers/iommu/intel/irq_remapping.c
+> > 	drivers/iommu/amd/iommu.c
+>=20
+> thanks for the explanation. So that's a full IOMMU emulation. I was more
+> expecting a paravirtualized lightweight one.
+>=20
 
-This one is much much cheaper as it is not waiting for the
-completion of tlbi. waiting for the completion of tlbi is a big
-deal in arm64, thus, similar optimization can be seen here
+Resume this old thread as I realized this open was not closed after discuss=
+ing
+with Reinette who will pick up this work.
 
-3403e56b41c1("arm64: mm: Don't wait for completion of TLB invalidation
-when page aging").
+In practice emulated IOMMUs are still widely used and many new features
+(pasid, sva, etc.) will come to them first instead of on virtio-iommu. So i=
+t'd
+be good to make the new scheme working on emulated IOMMUs too.
 
+Following this direction probably one feasible option is to introduce certa=
+in
+PV facility in the spec of emulated IOMMUs as a contract to differentiate
+from their existing vIR logic, if we don't want to go back to do heuristics=
+.
 
->
-> The very idea behind TLB deferral is the opportunity it (might) provide
-> to accumulate address ranges and cpu masks so that individual TLB flush
-> can be replaced with a more cost effective range based TLB flush. Hence
-> I guess unless address range or cpumask based cost effective TLB flush
-> is available, deferral does not improve the unmap performance as much.
+Intel-IOMMU already defines a VCMD interface in the spec, in particular for
+exchanging information between host/guest. It can be easily extended to
+indicate and allow exchanging interrupt addr/data pair between host/guest.
 
+Does it sound a right direction for other IOMMU vendors to follow if they
+want to benefit from the new scheme instead of using virtio-iommu?=20
 
-After sending tlbi, if we wait for the completion of tlbi, we have to get Ack
-from all cpus in the system, tlbi is not scalable. The point here is that we
-avoid waiting for each individual TLBi. Alternatively, they are batched. If
-you read the benchmark in the commit log, you can find the great decline
-in the cost to swap out a page.
+And with that we don't need define CPU/VMM specific hypercalls. Just
+rely on vIOMMUs to claim the capability and enable the new vIR scheme.
+
+--
+
+btw another open is about VM live migration.
+
+After migration the IRTE index could change hence the addr/data pair
+acquired before migration becomes stale and must be fixed.
+
+and stale content is both programmed to the interrupt storage and cached
+in msi_desc.
+
+The host migration driver may be able to help fix the addr/data in MMIO-bas=
+ed
+IMS when restoring the device state, but not memory-based IMS and guest
+cached content.
+
+This kindly requires guest cooperation to get it right then, e.g. notify th=
+e guest
+mark previously acquired addr/data as stale before stopping the VM on src
+and then notify it to reacquire add/data after resuming the VM on dest.
+
+But I'm not sure how to handle interrupt lost in the window between resumin=
+g
+the VM and notifying it to reacquire...
 
 Thanks
-Barry
+Kevin
