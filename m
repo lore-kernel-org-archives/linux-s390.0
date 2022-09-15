@@ -2,163 +2,215 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E3B4C6FA8B
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Sep 2022 14:31:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8095C6FA89
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Sep 2022 14:54:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229750AbiIOObv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Sep 2022 10:31:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46898 "EHLO
+        id S229863AbiIOOyB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Sep 2022 10:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbiIOObu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Sep 2022 10:31:50 -0400
-Received: from na01-obe.outbound.protection.outlook.com (mail-centralusazon11013011.outbound.protection.outlook.com [52.101.64.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306E88E4DD;
-        Thu, 15 Sep 2022 07:31:48 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OHeyFDBD+AItx7PhTsSNX0O9s8yFr5IWkj28k8PjvC/Kt/FYIXqh5vctYF/ak0wHljtoZEII2RLXHcPHHRWRak/EWjN9f12Sru/qkFYCczF+A8xDJO6EaaVf6ChEDl/9Ll4rXxK0OhTSQtqAklDRYSsi/X2WlNboO29H8gGxs6eEYKKcwO1SE254v3JcJGvUpGyxrHmdt8tEncZopa1hzAqKEQFsxVCuwKFOEPJyIN4DEyHs4Xok3CgkUvfP8vDBq5BktZ6D/p0TalxLfeGLOxeMFqCNg8hRkCyW7YvQvOz3vANY9CL3ZFKaWs4JIld6Rg04AOI7nCHHD3tMpgfYZw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PU9/jwik2S/Ca1+WTB2qizOF8aMDF1VlWAbarjk4we0=;
- b=JC+pr+Uzy7/ELQbWpY99or9qfnCPUTRQh7XwpR5tqLhqqcbLwuLAaSKIszzF56K/ONoaF3+t8I6fmzsa9NACt3gWRWDAtMr5rvFvctF+b1Xs6VgKSXzc2/0sNbezN8Edwrlhaq0zDFmAvyDwhjtCbE+O1EfWbKevaQU7nDjksMJCdm8jtijaYxbFttRmIq0xtq4ePo52VQnbJHCwVoesmaFY6swTuWG85tzFYKvvfB5eEPjBuvfBhcoRbFQlE06AHOf12/macKsRe3x5W/zPw3E/fVDwGbDPT+87hWFy3MNSNgT5U3C5GkfevmIzX8Pd8psg4eHfXt0Ksy16EbcPvQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PU9/jwik2S/Ca1+WTB2qizOF8aMDF1VlWAbarjk4we0=;
- b=2GCtkOnCc7AytbbpZx53V0W+EN0rP6m/PTG5eO0d18eNU0lR7S681UUQRNqiH9cIOyTLprtmvfoJ6nH0PfhAbLEY9RpWNZyWL+MgAmPj3fsFvB2YQK0LGD/goefq4/YHe+4Q/LDavlmRNfa7G+18HpRJb6LfqZMujRcWBXrm4qI=
-Received: from BY3PR05MB8531.namprd05.prod.outlook.com (2603:10b6:a03:3ce::6)
- by BY5PR05MB6931.namprd05.prod.outlook.com (2603:10b6:a03:1c3::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5632.4; Thu, 15 Sep
- 2022 14:31:45 +0000
-Received: from BY3PR05MB8531.namprd05.prod.outlook.com
- ([fe80::e46:a7cf:acd:c835]) by BY3PR05MB8531.namprd05.prod.outlook.com
- ([fe80::e46:a7cf:acd:c835%2]) with mapi id 15.20.5632.012; Thu, 15 Sep 2022
- 14:31:45 +0000
-From:   Nadav Amit <namit@vmware.com>
-To:     Barry Song <21cnbao@gmail.com>
-CC:     Anshuman Khandual <anshuman.khandual@arm.com>,
-        Yicong Yang <yangyicong@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux MM <linux-mm@kvack.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "darren@os.amperecomputing.com" <darren@os.amperecomputing.com>,
-        "yangyicong@hisilicon.com" <yangyicong@hisilicon.com>,
-        "huzhanyuan@oppo.com" <huzhanyuan@oppo.com>,
-        "lipeifeng@oppo.com" <lipeifeng@oppo.com>,
-        "zhangshiming@oppo.com" <zhangshiming@oppo.com>,
-        "guojian@oppo.com" <guojian@oppo.com>,
-        "realmz6@gmail.com" <realmz6@gmail.com>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>,
-        "xhao@linux.alibaba.com" <xhao@linux.alibaba.com>,
-        "prime.zeng@hisilicon.com" <prime.zeng@hisilicon.com>,
-        Barry Song <v-songbaohua@oppo.com>,
-        Mel Gorman <mgorman@suse.de>
-Subject: Re: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Thread-Topic: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Thread-Index: AQHYtgB7WHPVSXtcQ0CQkErpE23BFq3WrNAAgAADEgCACXcNAIAACaCAgACDMQA=
-Date:   Thu, 15 Sep 2022 14:31:45 +0000
-Message-ID: <2AB9EC05-16B4-46F8-B716-53941C1C9A50@vmware.com>
-References: <20220822082120.8347-1-yangyicong@huawei.com>
- <20220822082120.8347-5-yangyicong@huawei.com>
- <1e8642d5-0e2d-5747-d0d2-5aa0817ea4af@arm.com>
- <CAGsJ_4xD4m-szM1Cm4N5ZRCODGC0fbW+BLBhy8g6+eK=aHPQNw@mail.gmail.com>
- <1125554b-c183-23c4-5516-95b918a761cc@arm.com>
- <CAGsJ_4zkRv7RYCB2SC0uydMSQWfwXs3-nkjxMoR7wgn2nt43gA@mail.gmail.com>
-In-Reply-To: <CAGsJ_4zkRv7RYCB2SC0uydMSQWfwXs3-nkjxMoR7wgn2nt43gA@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: Apple Mail (2.3696.120.41.1.1)
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vmware.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BY3PR05MB8531:EE_|BY5PR05MB6931:EE_
-x-ms-office365-filtering-correlation-id: 2fd87c49-7d2f-4c91-f73c-08da97270419
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: p/l/a3ULHbnWmI8p16l5x7McwxcbPykOMk7prk6v6JcpaK6U6zTgijBlq6f0oHQlN7mdizkKVDaZvPHry/xJwCmp5CkwMKbB6ius44BxgXY45+MG9mhMcnWhRKcFT6adS7tUshiwvR2KPHur6mkZFP0n72ribLma8c6qF4s4dX4mSlkVG+Fe4Ado/AqPiViCiRWRxjtTag2pkqPOZQUj0i3eqncbyB0wTucXwtDqava6oUuuQL4YxI16Pzz1OBABPK6ViF7An5HRFM4Xgn/g65AvGd3G6lXf1aOPQKLc7B0F+wP6X1mJNZX26mkllo+Qa2ogM9UScGvERBrc4JiWNgq3+UFcQZdFiKra9FXsH6EVDS12Rcr1QANGpRmHoqAFWp/WPuHFMKMqJx1+qbqSaAVTp+adwiiHfwvmCYLliQDOhqcof8fuyOedUqxn/ruytw/syPL7OmdTwdo5Un99EcaKKB6zLPoi9rmjZzC50lN+sG/Tzcuo9qT0iXg/f1P9/6AYDPMpCMvp3OKfbm9GKTFvElOYSaM9FO0EA8Z4W89IRANO48u/Uw0nqOUjTdlTEx+EggVCQjEhyg6OQpqlJJatWBvLO5dLN75KknRoGUP9XPKr6VHPPj5WWks1ABYl3g9qza10OS8bLoKFbFcm2slYZU34q/dKEQzpIDgXlJtG/o2yUARD6121/o0m0s16281UlOf+k+5mdVFGzHsSksEqtmqb8ynmcvwiWbIXZmOBDTL4e4Y0QD4SCiMPe/J7z3o4b0Vcqwr6OHAogRHebVFIVGRs/37PRjLJGSGUzCiYEG0QU9NVIqD14MPwlRZjjQhYJqDBA5Vu2ooBjoad8VIpPwyF7j5J+hHTn4JX33U=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY3PR05MB8531.namprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(136003)(376002)(39860400002)(396003)(346002)(451199015)(38100700002)(66446008)(53546011)(26005)(66556008)(41300700001)(2616005)(7416002)(186003)(8676002)(122000001)(54906003)(6916009)(316002)(6506007)(4744005)(6486002)(64756008)(2906002)(66476007)(76116006)(4326008)(8936002)(478600001)(5660300002)(66946007)(7406005)(86362001)(6512007)(33656002)(71200400001)(38070700005)(36756003)(45980500001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?d8Pv7Cy3K+TOApWdCapKdbFvTEWoMZymv8TKkx7s5RofwTab/ZyPN+qsPvbW?=
- =?us-ascii?Q?mifE0bd5OiG7/Bk3aMOasgq2djUQmFMQejZLguAQVk2o4pRTPFAz2sEH/0cB?=
- =?us-ascii?Q?1vl7BgiQDSOgCgzCh2eFj5uiJhdWU2i4IVYJWE7zY6EqO3kh5xu2cZdSFukD?=
- =?us-ascii?Q?UUhPtMBP5CDoNVJgOrhKkGUOCl5QU/OLvXfHJAQaeJ58DVHN79fCpqZVlw9z?=
- =?us-ascii?Q?qS46Col+GUCPFfCMJm+bJKqmGYXq1l4xvUOm711jHMcTs49DMk8/hJgXfLXm?=
- =?us-ascii?Q?5Xwod9AsI47BZhaXtwZcsQHBiE6rLJfSqGufKD9boWiGtJJOAdiFmSbJBHyR?=
- =?us-ascii?Q?VVMVvH1eQg9RQiIjQTSj8Jqc5DdQ2FF3iNo+V9TOBZY6YzRcBTdhKxVAFU0k?=
- =?us-ascii?Q?yT0BWO4wmJTPCWxkalDkJFE6TNj87iqRRNFDxCQ+7K9cleZusu4IPRt/UGI8?=
- =?us-ascii?Q?VGejVAHg4GvrqV3R+y7CQS4+IADCMT4iVENz/rHG1CEBZp2FLxFZt8+LlsCt?=
- =?us-ascii?Q?4wZyW03ioYjzQ7q+OSMxROrBcAQRylljUEvD+p8X5XOiusyeiRuykOn7Ho1y?=
- =?us-ascii?Q?Xh3UfGbhQMTzSIbRImpnFTGV2YIkyJPWuAZzCGtyy932Mj6vnc3530sAZa1J?=
- =?us-ascii?Q?X7zdqsH/qbMXz6GLcE/FDMLEPWqnfkbHo6e6Oqk2f7LhjK10Y5U+WS8im+PK?=
- =?us-ascii?Q?qceBFhEnnuyCuIX74uivOn//RZ+PNooCJknceL0kzXOJy8u4Yq5ZPXhxjJtb?=
- =?us-ascii?Q?ryjaLO4sPnyzMwg9jxVvcyrkGdf7KJxbeqEdze1koupIOfp0s+KZV6NBaTmK?=
- =?us-ascii?Q?EcxO9CijBzpI59ymKQIwGO7KWUZ+EExYkQZOLWOHI9N9q7s49MTt2pKQ2BKA?=
- =?us-ascii?Q?o5F11pmnpFQskPGSJH0eT5Nmk0grwC+WeR4da28JyyUjzo8su2IkS73tUpBu?=
- =?us-ascii?Q?2cE3bArUC4lLs005xDd0yLsTaNeMQ3m6CXP4I4dA2fRBoWxAyGk4kQITmNE7?=
- =?us-ascii?Q?MtZIUR8IKQJt2oFFjplg1dV9K0my+sAosB851BcGtOLO2AQZwzTGpUISaN2O?=
- =?us-ascii?Q?WdlrJaZolHZxFbzGUyZuDQRWuIzkLR05WoFHmfW/DwoosVrbIjzWLrHWZvrb?=
- =?us-ascii?Q?rlKbPSy5tNTb6supuoGLED6eWWVox8Jc86qVqpyEZyGqK5QbxgOxI41BPgCA?=
- =?us-ascii?Q?dPsf6F28gumgJaqWn5+Bc/rRvrRc0KMhAuO8UBocKPp+UfrHcoJUpnEZO0im?=
- =?us-ascii?Q?av4a6Qw8caN+SHtJPc0yqzCbrkD9jlxQDrR75Qp77N6N/poL6sQtnyem58l1?=
- =?us-ascii?Q?s3pxGtlvzAaajxxA8PmPmKoSopf+yDjNIL6dB+jGvdq3gCGQk3U/HfHZeHVh?=
- =?us-ascii?Q?0dihMDbRqHZoGdOZmlc6A4266tTiJQRPBQ/Eda9m1p+ICVfrETipkBhg9dON?=
- =?us-ascii?Q?Uay+go5mAl8aQW9nmxo6ahbraHZ6t+8AyCEupOPqB7pKuZFxZ1CnckKAUAeu?=
- =?us-ascii?Q?bmX+m8YkjZvqeP4R0/Vc+grXrzs6gKwrWTYD+j1u1SLu32pZfyOiRE+pX6cY?=
- =?us-ascii?Q?07ZXzBjydMmplwjTgUcYcvvg4IzYMy4ZE2grc2lP?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <011A480CEE0FA44B9996ADE03C86ECEA@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229996AbiIOOyA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Sep 2022 10:54:00 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17A8773904;
+        Thu, 15 Sep 2022 07:53:58 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28FDhtpO017030;
+        Thu, 15 Sep 2022 14:53:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NQb4TxGnuZvveErzd7UCvTG1rRRd+QPk4e9P65fAVH8=;
+ b=OzKuOWO9bbRjYRZ5fdWS0jdoRbNabjWt2U57qfuFLKYj9I6nryotkQE9vEh+lCsWRtTQ
+ bzEEWvGjMqzmXk2TxgBp5XQm1OMeMZCtlaVwICYe8Dv+2M/LHABxmZF4Z6lbUU+kKH/D
+ bSzOi5ZIRubMZum+C3V3zxh7QbizVb+s/hM1385NRBic0I/1ue5YYZK94eEH2oMQC427
+ AbpRhAZWSMkRiyxPn2UaXs8ntkPflTNlbgZU5XcvlP0Se2jMnY8acupp3yHGeyXHR859
+ 8dOcrAKs+FI2NFkj6T6WjFRQfWJ+SngCY1TGmB3ct/N0P45qL7cBzV5jIM/eV4SINwYT uA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jm56d2gdc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Sep 2022 14:53:57 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28FDiWwX019282;
+        Thu, 15 Sep 2022 14:53:57 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jm56d2gcn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Sep 2022 14:53:57 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28FEpOIc020267;
+        Thu, 15 Sep 2022 14:53:55 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 3jjy2n1x8h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Sep 2022 14:53:55 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28FErqv338535482
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 15 Sep 2022 14:53:52 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 55CBAA4040;
+        Thu, 15 Sep 2022 14:53:52 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C0596A4051;
+        Thu, 15 Sep 2022 14:53:51 +0000 (GMT)
+Received: from [9.171.87.36] (unknown [9.171.87.36])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 15 Sep 2022 14:53:51 +0000 (GMT)
+Message-ID: <4e89ff00-aac2-7c8e-14cf-add426853e9d@de.ibm.com>
+Date:   Thu, 15 Sep 2022 16:53:51 +0200
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR05MB6931
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.0
+Subject: Re: [PATCH v3 1/2] s390/vfio-ap: bypass unnecessary processing of AP
+ resources
+Content-Language: en-US
+To:     Halil Pasic <pasic@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, alex.williamson@redhat.com,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20220823150643.427737-1-akrowiak@linux.ibm.com>
+ <20220823150643.427737-2-akrowiak@linux.ibm.com>
+ <20220915050018.37d21083.pasic@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <20220915050018.37d21083.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XIS-DtLMUyRIA_r36Zt6XofzVQHUVXTU
+X-Proofpoint-GUID: ny8pIXFL1w_-ZtfSC5yS2z3c-hpDJBrC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-15_08,2022-09-14_04,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ lowpriorityscore=0 suspectscore=0 spamscore=0 mlxlogscore=999
+ impostorscore=0 mlxscore=0 adultscore=0 priorityscore=1501 phishscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2208220000 definitions=main-2209150085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-> On Sep 14, 2022, at 11:42 PM, Barry Song <21cnbao@gmail.com> wrote:
->=20
->>=20
->> The very idea behind TLB deferral is the opportunity it (might) provide
->> to accumulate address ranges and cpu masks so that individual TLB flush
->> can be replaced with a more cost effective range based TLB flush. Hence
->> I guess unless address range or cpumask based cost effective TLB flush
->> is available, deferral does not improve the unmap performance as much.
->=20
->=20
-> After sending tlbi, if we wait for the completion of tlbi, we have to get=
- Ack
-> from all cpus in the system, tlbi is not scalable. The point here is that=
- we
-> avoid waiting for each individual TLBi. Alternatively, they are batched. =
-If
-> you read the benchmark in the commit log, you can find the great decline
-> in the cost to swap out a page.
+Am 15.09.22 um 05:00 schrieb Halil Pasic:
+> On Tue, 23 Aug 2022 11:06:42 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> 
+>> It is not necessary to go through the process of validation, linking of
+>> queues to mdev and vice versa and filtering the APQNs assigned to the
+>> matrix mdev to build an AP configuration for a guest if an adapter or
+>> domain being assigned is already assigned to the matrix mdev. Likewise, it
+>> is not necessary to proceed through the process the unassignment of an
+>> adapter, domain or control domain if it is not assigned to the matrix mdev.
+>>
+>> Since it is not necessary to process assignment of a resource resource
+>> already assigned or process unassignment of a resource that is been assigned,
+>> this patch will bypass all assignment/unassignment operations for an adapter,
+>> domain or control domain under these circumstances.
+>>
+>> Not only is assignment of a duplicate adapter or domain unnecessary, it
+>> will also cause a hang situation when removing the matrix mdev to which it is
+>> assigned. The reason is because the same vfio_ap_queue objects with an
+>> APQN containing the APID of the adapter or APQI of the domain being
+>> assigned will get added multiple times to the hashtable that holds them.
+>> This results in the pprev and next pointers of the hlist_node (mdev_qnode
+>> field in the vfio_ap_queue object) pointing to the queue object itself
+>> resulting in an interminable loop when the mdev is removed and the queue
+>> table is iterated to reset the queues.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 11cb2419fafe ("s390/vfio-ap: manage link between queue struct and matrix mdev")
+>> Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> 
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 
-Just a minor correction: arch_tlbbatch_flush() does not collect ranges.
-On x86 it only accumulate CPU mask.
+Shall the patch go via the s390 tree (still into 6.0 I guess)?
 
+> 
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 30 ++++++++++++++++++++++++++++++
+>>   1 file changed, 30 insertions(+)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 6c8c41fac4e1..ee82207b4e60 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -984,6 +984,11 @@ static ssize_t assign_adapter_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (test_bit_inv(apid, matrix_mdev->matrix.apm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	set_bit_inv(apid, matrix_mdev->matrix.apm);
+>>   
+>>   	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+>> @@ -1109,6 +1114,11 @@ static ssize_t unassign_adapter_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (!test_bit_inv(apid, matrix_mdev->matrix.apm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
+>>   	vfio_ap_mdev_hot_unplug_adapter(matrix_mdev, apid);
+>>   	ret = count;
+>> @@ -1183,6 +1193,11 @@ static ssize_t assign_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+>>   
+>>   	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+>> @@ -1286,6 +1301,11 @@ static ssize_t unassign_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (!test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
+>>   	vfio_ap_mdev_hot_unplug_domain(matrix_mdev, apqi);
+>>   	ret = count;
+>> @@ -1329,6 +1349,11 @@ static ssize_t assign_control_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (test_bit_inv(id, matrix_mdev->matrix.adm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	/* Set the bit in the ADM (bitmask) corresponding to the AP control
+>>   	 * domain number (id). The bits in the mask, from most significant to
+>>   	 * least significant, correspond to IDs 0 up to the one less than the
+>> @@ -1378,6 +1403,11 @@ static ssize_t unassign_control_domain_store(struct device *dev,
+>>   		goto done;
+>>   	}
+>>   
+>> +	if (!test_bit_inv(domid, matrix_mdev->matrix.adm)) {
+>> +		ret = count;
+>> +		goto done;
+>> +	}
+>> +
+>>   	clear_bit_inv(domid, matrix_mdev->matrix.adm);
+>>   
+>>   	if (test_bit_inv(domid, matrix_mdev->shadow_apcb.adm)) {
+> 
