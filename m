@@ -2,141 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 960E0ECAAD8
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Sep 2022 05:24:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91A9FECAAD8
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Sep 2022 07:18:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229744AbiIPFYY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Sep 2022 01:24:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59220 "EHLO
+        id S229436AbiIPHSP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Sep 2022 03:18:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229935AbiIPFYY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Sep 2022 01:24:24 -0400
-Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B01941D0A;
-        Thu, 15 Sep 2022 22:24:21 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VPvei5g_1663305858;
-Received: from 30.221.149.4(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VPvei5g_1663305858)
-          by smtp.aliyun-inc.com;
-          Fri, 16 Sep 2022 13:24:19 +0800
-Message-ID: <93eddaa5-082c-c3d2-8bc0-f6aa912c9398@linux.alibaba.com>
-Date:   Fri, 16 Sep 2022 13:24:17 +0800
+        with ESMTP id S229628AbiIPHSP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Sep 2022 03:18:15 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3973B98586;
+        Fri, 16 Sep 2022 00:18:14 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28G6XKn6025906;
+        Fri, 16 Sep 2022 07:18:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=SHBUOa70oMvvGpW1BYealjIEIY2eeRNxpO4BE1zm22M=;
+ b=fmPnqqdtIIE1Di6/WUpix4JWgx5700Sa3PQ47McYDPAN2QDyBCIhHWOKYkYzGaUyymDg
+ Pb4zpcei6uyXw+p7i9owxOnOhHGMFhcYPhdk7qczXUYP1q0sWSGkRl2vg7aWkJsXvhGl
+ 1TapRLmiMLwjw/B2tAMsbh2H0avTvmZIT7ZxQD8zrq5+SEu9eSQN/Uq+gC+yp8kGFDSo
+ wOvBO/rMqmMIj/wHFMC0xD65SV39x7viTlLjSCU6PtA0iJ9x8yHu9bsjW3nD4pYtFEWw
+ o8Fc+MkJEyNe6LwwUk4AGPdjcrRdaqZ4ST+S2VaAH1IuPDfVxKm2stakvfEoTbNs/5+9 wA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jmkyu18d2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 16 Sep 2022 07:18:07 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28G6Z4dQ001373;
+        Fri, 16 Sep 2022 07:18:07 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jmkyu18cc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 16 Sep 2022 07:18:07 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28G76g9P007429;
+        Fri, 16 Sep 2022 07:18:05 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3jm9218mf8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 16 Sep 2022 07:18:05 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28G7I2rs36569500
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 16 Sep 2022 07:18:02 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 38C1C5204E;
+        Fri, 16 Sep 2022 07:18:02 +0000 (GMT)
+Received: from [9.171.38.23] (unknown [9.171.38.23])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 9509F52050;
+        Fri, 16 Sep 2022 07:18:01 +0000 (GMT)
+Message-ID: <7a469c6e-2a90-e351-702d-b7c9552de515@linux.ibm.com>
+Date:   Fri, 16 Sep 2022 09:18:01 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH net-next v2 10/10] net/smc: fix application data exception
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.0
+Subject: Re: [PATCH v2] KVM: s390: pci: fix plain integer as NULL pointer
+ warnings
 Content-Language: en-US
-To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <cover.1661407821.git.alibuda@linux.alibaba.com>
- <e590ca91e24d002608df29d100d4139977d0bcb6.1661407821.git.alibuda@linux.alibaba.com>
- <9f67d8b3-e813-6bc6-ca1f-e387288e9df4@linux.alibaba.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <9f67d8b3-e813-6bc6-ca1f-e387288e9df4@linux.alibaba.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     farman@linux.ibm.com, schnelle@linux.ibm.com, pmorel@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@redhat.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, lkp@intel.com
+References: <20220915175514.167899-1-mjrosato@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20220915175514.167899-1-mjrosato@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: m9MOq3LipSH_Jup1wO2LN06WY92VK7Nk
+X-Proofpoint-ORIG-GUID: iS7dka_7-D_-Jc-uge95jmFx6LZBbX02
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-16_02,2022-09-14_04,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 spamscore=0 clxscore=1015 impostorscore=0 phishscore=0
+ mlxscore=0 mlxlogscore=975 bulkscore=0 adultscore=0 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209160051
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
-Hi, Wen Gu
 
-This is indeed same issues, I will fix it in the next version.
+Am 15.09.22 um 19:55 schrieb Matthew Rosato:
+> Fix some sparse warnings that a plain integer 0 is being used instead of
+> NULL.
+> 
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 
-Thanks
-D. Wythe
-
-
-On 9/8/22 5:37 PM, Wen Gu wrote:
-> 
-> 
-> On 2022/8/26 17:51, D. Wythe wrote:
-> 
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>
->> After we optimize the parallel capability of SMC-R connection
->> establishment, There is a certain probability that following
->> exceptions will occur in the wrk benchmark test:
->>
->> Running 10s test @ http://11.213.45.6:80
->>    8 threads and 64 connections
->>    Thread Stats   Avg      Stdev     Max   +/- Stdev
->>      Latency     3.72ms   13.94ms 245.33ms   94.17%
->>      Req/Sec     1.96k   713.67     5.41k    75.16%
->>    155262 requests in 10.10s, 23.10MB read
->> Non-2xx or 3xx responses: 3
->>
->> We will find that the error is HTTP 400 error, which is a serious
->> exception in our test, which means the application data was
->> corrupted.
->>
->> Consider the following scenarios:
->>
->> CPU0                            CPU1
->>
->> buf_desc->used = 0;
->>                                  cmpxchg(buf_desc->used, 0, 1)
->>                                  deal_with(buf_desc)
->>
->> memset(buf_desc->cpu_addr,0);
->>
->> This will cause the data received by a victim connection to be cleared,
->> thus triggering an HTTP 400 error in the server.
->>
->> This patch exchange the order between clear used and memset, add
->> barrier to ensure memory consistency.
->>
->> Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
->> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->> ---
->>   net/smc/smc_core.c | 5 +++--
->>   1 file changed, 3 insertions(+), 2 deletions(-)
->>
->> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->> index 84bf84c..fdad953 100644
->> --- a/net/smc/smc_core.c
->> +++ b/net/smc/smc_core.c
->> @@ -1380,8 +1380,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
->>           smc_buf_free(lgr, is_rmb, buf_desc);
->>       } else {
->> -        buf_desc->used = 0;
->> -        memset(buf_desc->cpu_addr, 0, buf_desc->len);
->> +        /* memzero_explicit provides potential memory barrier semantics */
->> +        memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
->> +        WRITE_ONCE(buf_desc->used, 0);
->>       }
->>   }
-> 
-> It seems that the same issue exists in smc_buf_unuse(), Maybe it also needs to be fixed?
-> 
-> 
-> static void smc_buf_unuse(struct smc_connection *conn,
->                struct smc_link_group *lgr)
-> {
->      if (conn->sndbuf_desc) {
->          if (!lgr->is_smcd && conn->sndbuf_desc->is_vm) {
->              smcr_buf_unuse(conn->sndbuf_desc, false, lgr);
->          } else {
->              conn->sndbuf_desc->used = 0;
->              memset(conn->sndbuf_desc->cpu_addr, 0,
->                     conn->sndbuf_desc->len);
->                          ^...................
->          }
->      }
->      if (conn->rmb_desc) {
->          if (!lgr->is_smcd) {
->              smcr_buf_unuse(conn->rmb_desc, true, lgr);
->          } else {
->              conn->rmb_desc->used = 0;
->              memset(conn->rmb_desc->cpu_addr, 0,
->                     conn->rmb_desc->len +
->                     sizeof(struct smcd_cdc_msg));
->                          ^...................
->          }
->      }
-> }
-> 
-> Thanks,
-> Wen Gu
+Thanks  applied and queued.
