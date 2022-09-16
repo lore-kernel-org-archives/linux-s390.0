@@ -2,99 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91A9FECAAD8
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Sep 2022 07:18:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E8FCC54EE9
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Sep 2022 09:17:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229436AbiIPHSP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Sep 2022 03:18:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41854 "EHLO
+        id S230373AbiIPJRg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Sep 2022 05:17:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229628AbiIPHSP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Sep 2022 03:18:15 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3973B98586;
-        Fri, 16 Sep 2022 00:18:14 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28G6XKn6025906;
-        Fri, 16 Sep 2022 07:18:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=SHBUOa70oMvvGpW1BYealjIEIY2eeRNxpO4BE1zm22M=;
- b=fmPnqqdtIIE1Di6/WUpix4JWgx5700Sa3PQ47McYDPAN2QDyBCIhHWOKYkYzGaUyymDg
- Pb4zpcei6uyXw+p7i9owxOnOhHGMFhcYPhdk7qczXUYP1q0sWSGkRl2vg7aWkJsXvhGl
- 1TapRLmiMLwjw/B2tAMsbh2H0avTvmZIT7ZxQD8zrq5+SEu9eSQN/Uq+gC+yp8kGFDSo
- wOvBO/rMqmMIj/wHFMC0xD65SV39x7viTlLjSCU6PtA0iJ9x8yHu9bsjW3nD4pYtFEWw
- o8Fc+MkJEyNe6LwwUk4AGPdjcrRdaqZ4ST+S2VaAH1IuPDfVxKm2stakvfEoTbNs/5+9 wA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jmkyu18d2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 16 Sep 2022 07:18:07 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28G6Z4dQ001373;
-        Fri, 16 Sep 2022 07:18:07 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jmkyu18cc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 16 Sep 2022 07:18:07 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28G76g9P007429;
-        Fri, 16 Sep 2022 07:18:05 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3jm9218mf8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 16 Sep 2022 07:18:05 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28G7I2rs36569500
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 16 Sep 2022 07:18:02 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 38C1C5204E;
-        Fri, 16 Sep 2022 07:18:02 +0000 (GMT)
-Received: from [9.171.38.23] (unknown [9.171.38.23])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 9509F52050;
-        Fri, 16 Sep 2022 07:18:01 +0000 (GMT)
-Message-ID: <7a469c6e-2a90-e351-702d-b7c9552de515@linux.ibm.com>
-Date:   Fri, 16 Sep 2022 09:18:01 +0200
+        with ESMTP id S231312AbiIPJRM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Sep 2022 05:17:12 -0400
+X-Greylist: delayed 927 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 16 Sep 2022 02:16:28 PDT
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C5CA59A9;
+        Fri, 16 Sep 2022 02:16:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=misterjones.org; s=dkim20211231; h=Content-Transfer-Encoding:Content-Type:
+        Message-ID:References:In-Reply-To:Subject:Cc:To:From:Date:MIME-Version:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=WpOIYPFmZvX+Hf2mD/HENyssqGqbLDXFAm0gYQobp9o=; b=vw30vGqbyjYmaM3nKnskMxB/y+
+        lw/jA0e/qsYeOLKWeB+M9pBy79w1bxVNFdGPnj1q7bDvJSGbFGE9g/6/s3WogeA7TOX1YXUyGg1x0
+        pTlP11nDz1yB2tnWgOoUfZONTyL1unFVmhgDysLveBpkJ7DtJcohL8NqRL+bFBB7z/KUIt+Jg8S7L
+        /g0VlHBwX0VvkVE6n9reRzOGt0hMoehxgxc6H3FCI/q3fovs9/b6nZbmWJpwad6zQ2KeRKuGadLzE
+        9DCBQxYnOHWwYY4Gvcv0wEak1BiL7zsNN0+ZPOQ2niZSKo3HdGerEmF7aAZ8QPwNPdyuKP+AkoKqD
+        y63NDfkw==;
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@misterjones.org>)
+        id 1oZ7DJ-00AZwo-Lg;
+        Fri, 16 Sep 2022 10:00:45 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [PATCH v2] KVM: s390: pci: fix plain integer as NULL pointer
- warnings
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     farman@linux.ibm.com, schnelle@linux.ibm.com, pmorel@linux.ibm.com,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@redhat.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, lkp@intel.com
-References: <20220915175514.167899-1-mjrosato@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20220915175514.167899-1-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: m9MOq3LipSH_Jup1wO2LN06WY92VK7Nk
-X-Proofpoint-ORIG-GUID: iS7dka_7-D_-Jc-uge95jmFx6LZBbX02
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-16_02,2022-09-14_04,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 spamscore=0 clxscore=1015 impostorscore=0 phishscore=0
- mlxscore=0 mlxlogscore=975 bulkscore=0 adultscore=0 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209160051
+Date:   Fri, 16 Sep 2022 10:00:45 +0100
+From:   Marc Zyngier <maz@misterjones.org>
+To:     Alexey Kardashevskiy <aik@ozlabs.ru>
+Cc:     kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Fabiano Rosas <farosas@linux.ibm.com>,
+        x86@kernel.org, linux-mips@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Alex Williamson <alex.williamson@redhat.com>,
+        kvm-riscv@lists.infradead.org, Paolo Bonzini <pbonzini@redhat.com>,
+        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH kernel] KVM: PPC: Make KVM_CAP_IRQFD_RESAMPLE platform
+ dependent
+In-Reply-To: <59dfb450-5a91-f27b-6edf-0adfa89729b7@ozlabs.ru>
+References: <20220504074807.3616813-1-aik@ozlabs.ru>
+ <0d4bb0fa-10c6-3f5a-34c8-293144b3fdbb@ozlabs.ru>
+ <59dfb450-5a91-f27b-6edf-0adfa89729b7@ozlabs.ru>
+User-Agent: Roundcube Webmail/1.4.13
+Message-ID: <4884805567a0288ab1dbefb8aec819a2@misterjones.org>
+X-Sender: maz@misterjones.org
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: aik@ozlabs.ru, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, farosas@linux.ibm.com, x86@kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm-riscv@lists.infradead.org, pbonzini@redhat.com, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
+X-SA-Exim-Mail-From: maz@misterjones.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-Am 15.09.22 um 19:55 schrieb Matthew Rosato:
-> Fix some sparse warnings that a plain integer 0 is being used instead of
-> NULL.
+On 2022-09-13 13:50, Alexey Kardashevskiy wrote:
+> Ping? It's been a while and probably got lost :-/
 > 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> On 18/05/2022 16:27, Alexey Kardashevskiy wrote:
+>> 
+>> 
+>> On 5/4/22 17:48, Alexey Kardashevskiy wrote:
+>>> When introduced, IRQFD resampling worked on POWER8 with XICS. However
+>>> KVM on POWER9 has never implemented it - the compatibility mode code
+>>> ("XICS-on-XIVE") misses the kvm_notify_acked_irq() call and the 
+>>> native
+>>> XIVE mode does not handle INTx in KVM at all.
+>>> 
+>>> This moved the capability support advertising to platforms and stops
+>>> advertising it on XIVE, i.e. POWER9 and later.
+>>> 
+>>> Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+>>> ---
+>>> 
+>>> 
+>>> Or I could move this one together with KVM_CAP_IRQFD. Thoughts?
+>> 
+>> 
+>> Ping?
+>> 
+>>> 
+>>> ---
+>>>   arch/arm64/kvm/arm.c       | 3 +++
+>>>   arch/mips/kvm/mips.c       | 3 +++
+>>>   arch/powerpc/kvm/powerpc.c | 6 ++++++
+>>>   arch/riscv/kvm/vm.c        | 3 +++
+>>>   arch/s390/kvm/kvm-s390.c   | 3 +++
+>>>   arch/x86/kvm/x86.c         | 3 +++
+>>>   virt/kvm/kvm_main.c        | 1 -
+>>>   7 files changed, 21 insertions(+), 1 deletion(-)
+>>> 
+>>> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+>>> index 523bc934fe2f..092f0614bae3 100644
+>>> --- a/arch/arm64/kvm/arm.c
+>>> +++ b/arch/arm64/kvm/arm.c
+>>> @@ -210,6 +210,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, 
+>>> long ext)
+>>>       case KVM_CAP_SET_GUEST_DEBUG:
+>>>       case KVM_CAP_VCPU_ATTRIBUTES:
+>>>       case KVM_CAP_PTP_KVM:
+>>> +#ifdef CONFIG_HAVE_KVM_IRQFD
+>>> +    case KVM_CAP_IRQFD_RESAMPLE:
+>>> +#endif
 
-Thanks  applied and queued.
+I don't mind moving this around, but I object to the #ifdefery.
+
+This option is always selected on arm64, so it can safely be added
+to the list without any condition.
+
+Thanks,
+
+         M.
+-- 
+Who you jivin' with that Cosmik Debris?
