@@ -2,99 +2,95 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66ED0C6FA8B
-	for <linux-s390@archiver.kernel.org>; Sat, 17 Sep 2022 10:59:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 739E8C32771
+	for <linux-s390@archiver.kernel.org>; Sun, 18 Sep 2022 14:36:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229533AbiIQK7P (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 17 Sep 2022 06:59:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56160 "EHLO
+        id S229581AbiIROg2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 18 Sep 2022 10:36:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229454AbiIQK7O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Sep 2022 06:59:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22740419B2;
-        Sat, 17 Sep 2022 03:59:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACD86B80D31;
-        Sat, 17 Sep 2022 10:59:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BA25C433D7;
-        Sat, 17 Sep 2022 10:59:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663412350;
-        bh=4YhfXXVITaxyZ7ickgJk1+TK+jaPswSVW817YmzQetg=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=mlHCnKP0WB2uWbChrk4q6RL0Qx2r/gHQDC9oSJpxW2EbflDButPVeikbnLPDqRuAa
-         uMBNIAxUK9YP6cJ8t088PZToAtuG+fNjSjR1cCN+UFjy1NSR4Fe+vii3eIQ++5/J2t
-         G32gzhZbqibD7HIndba0d3nwaO6DhkgEj8JWwI484H7lSPNjcKiuf+lKgZzp145UKc
-         /rWyFp393Jz382lw1mp0vKr2MFARtOSXzRJp2N2/VdtnThMFXTJB+055ZPSba5Qla3
-         eNal325u2+WTwCZYezJX9gJTu2HlqZJ1v6xPyr5h7svm/gR+KopGdwkenk6Ht9hg4Y
-         p3TMKbSRfTsXg==
-Received: by mail-oa1-f49.google.com with SMTP id 586e51a60fabf-12b542cb1d3so45846254fac.13;
-        Sat, 17 Sep 2022 03:59:10 -0700 (PDT)
-X-Gm-Message-State: ACgBeo2gA5hQW41IZNTfbbaN6JnxCrOOkENcL2knzPs4YVmtEyH5J3oA
-        Rvq06M1fkvQLw/lMZCbMDXKHTE9ypd6TaVGgyck=
-X-Google-Smtp-Source: AA6agR4sClFlGuDsJqtKaYj0hkDas61Hr4pLmOYJ+LWicDByGyz5Jc5/SoMTyBglnH1gA6Au8ZBBCEB98KwdYTTgtGU=
-X-Received: by 2002:a05:6870:a78e:b0:12b:542b:e5b2 with SMTP id
- x14-20020a056870a78e00b0012b542be5b2mr10590424oao.112.1663412349408; Sat, 17
- Sep 2022 03:59:09 -0700 (PDT)
+        with ESMTP id S229675AbiIROg1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 18 Sep 2022 10:36:27 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E912220ED;
+        Sun, 18 Sep 2022 07:36:27 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id t65so24622841pgt.2;
+        Sun, 18 Sep 2022 07:36:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=XMOsXthWhrmjLtejUJ/4n1w+SFC2fUyvrhVzdIwCMn4=;
+        b=P96W9eY9xHRrhDWOkhcV5ZyhlFagu7vWgx1mVAuu1WXvSoaNv9S+uC0Y9Ri3gau7j9
+         CTbbhHcB4ih9tEMc8X/RUsZLCRx7Cy3IZ/CoiuDNCToJHgPqtNXG/p+ol+U+WIPaIo+f
+         M7NiyPUbPBi4ZZszvV2uAWbhMk9O8d8J4T52rqzkQ+tSjwHJgbNJXPVZiILFWuKj0qx3
+         +C3t8E/yFQF+ZsYRjGP5+GfWe5I2IQ/O2Wsh6a0KCZWyMVoDJ6RncbVi8rVuTTuRflXP
+         wt8aDv3jmczjdpDvDETGpSPce2h1GxY6F63/FinzIKBKy65Ii0vaeoNsT5QkBh7LGLyj
+         MCsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=XMOsXthWhrmjLtejUJ/4n1w+SFC2fUyvrhVzdIwCMn4=;
+        b=oB9ux5zh9VHL7mmDIiXtO2huwfdNHKpQn4QwHdX/ietPnliOkK8MJQavvHePgABdQi
+         QtGMeRWO/0EncSj4pY7IjYDcMo/dAZwq5lSXdVpUHZ4DltZpgK0f9GGFdp/r39SipElS
+         7FrCapUoAfDUxAqVg8ntcVVg9GaW2Q8TOeytkQqI7JoN6npd05xeGqOQ0eaYJOosGXrN
+         OVEIi0Bvq+07deMcEfgfe4mNYS9ebrg2JVl0ZPKcAqyt9p/iiEP1HT5Uu2ck/75tW5U+
+         oqjymFN7jfba81Jur/H7CcuwCFzdmM/bjcr305fbaunBoLcppuwsobhRg5YgQoX6Ulbf
+         MV9A==
+X-Gm-Message-State: ACrzQf1rVVJpQcRvo/cCrMKn6+pJAgRsQ4GkV75H1wn++bd59mYyD/ZV
+        rfWPwVTDwaTj6LROZYc6g315SbIX1dQ=
+X-Google-Smtp-Source: AMsMyM51IzYJWpLhR8hIiPoEHk2FErqom4TQnm8VzJ/+KxHioh5NTs8x4jcgjo0SBPbRnIcbon9drA==
+X-Received: by 2002:a05:6a00:1f13:b0:546:7b39:83da with SMTP id be19-20020a056a001f1300b005467b3983damr14907333pfb.0.1663511786874;
+        Sun, 18 Sep 2022 07:36:26 -0700 (PDT)
+Received: from localhost.localdomain ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id i128-20020a626d86000000b0054a15345162sm6512820pfc.207.2022.09.18.07.36.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 18 Sep 2022 07:36:26 -0700 (PDT)
+From:   cgel.zte@gmail.com
+X-Google-Original-From: xu.panda@zte.com.cn
+To:     mjrosato@linux.ibm.com
+Cc:     farman@linux.ibm.com, borntraeger@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@redhat.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Xu Panda <xu.panda@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>
+Subject: [PATCH linux-next] KVM: s390: pci: fix comparing pointer to 0
+Date:   Sun, 18 Sep 2022 14:36:04 +0000
+Message-Id: <20220918143603.209974-1-xu.panda@zte.com.cn>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20220917015522.44583-1-zouyipeng@huawei.com>
-In-Reply-To: <20220917015522.44583-1-zouyipeng@huawei.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Sat, 17 Sep 2022 18:58:56 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTRDspQZUZk=KAC_P+YCr=86o4EgOGAVGcB1kdgsymhyVQ@mail.gmail.com>
-Message-ID: <CAJF2gTRDspQZUZk=KAC_P+YCr=86o4EgOGAVGcB1kdgsymhyVQ@mail.gmail.com>
-Subject: Re: [PATCH 0/2] make weak attributes in {k,u}probes
-To:     Yipeng Zou <zouyipeng@huawei.com>
-Cc:     x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-perf-users@vger.kernel.org,
-        linux-s390@vger.kernel.org, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        borntraeger@linux.ibm.com, dave.hansen@linux.intel.com,
-        hpa@zytor.com, naveen.n.rao@linux.ibm.com,
-        anil.s.keshavamurthy@intel.com, mhiramat@kernel.org,
-        namit@vmware.com, catalin.marinas@arm.com, peterz@infradead.org,
-        mark.rutland@arm.com, liaochang1@huawei.com, chris.zjh@huawei.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-It's a riskless cleanup.
+From: Xu Panda <xu.panda@zte.com.cn>
 
-Acked-by: Guo Ren <guoren@kernel.org>
+Comparing pointer whith NULL instead of comparing pointer to 0.
 
-On Sat, Sep 17, 2022 at 9:59 AM Yipeng Zou <zouyipeng@huawei.com> wrote:
->
-> We have some function implementation under some arch does nothing.
-> We can mark it with weak attributes to improve.
-> 1. arch_init_kprobes in kprobes
-> 2. arch_uprobe_exception_notify in uprobes
->
-> Yipeng Zou (2):
->   kprobes: make arch_init_kprobes as weak
->   uprobes: make arch_uprobe_exception_notify as weak
->
->  arch/arm/probes/uprobes/core.c     | 6 ------
->  arch/arm64/kernel/probes/uprobes.c | 6 ------
->  arch/csky/kernel/probes/kprobes.c  | 5 -----
->  arch/csky/kernel/probes/uprobes.c  | 6 ------
->  arch/riscv/kernel/probes/kprobes.c | 5 -----
->  arch/riscv/kernel/probes/uprobes.c | 6 ------
->  arch/s390/kernel/kprobes.c         | 5 -----
->  arch/x86/kernel/kprobes/core.c     | 5 -----
->  kernel/events/uprobes.c            | 6 ++++++
->  kernel/kprobes.c                   | 5 +++++
->  10 files changed, 11 insertions(+), 44 deletions(-)
->
-> --
-> 2.17.1
->
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Xu Panda <xu.panda@zte.com.cn>
+---
+ arch/s390/kvm/pci.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
+diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
+index 3a3606c3a0fe..aadafa2e03d1 100644
+--- a/arch/s390/kvm/pci.h
++++ b/arch/s390/kvm/pci.h
+@@ -46,8 +46,8 @@ extern struct zpci_aift *aift;
+ static inline struct kvm *kvm_s390_pci_si_to_kvm(struct zpci_aift *aift,
+                                                 unsigned long si)
+ {
+-       if (!IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM) || aift->kzdev == 0 ||
+-           aift->kzdev[si] == 0)
++       if (!IS_ENABLED(CONFIG_VFIO_PCI_ZDEV_KVM) || aift->kzdev == NULL ||
++           aift->kzdev[si] == NULL)
+                return 0;
+        return aift->kzdev[si]->kvm;
+ };
 -- 
-Best Regards
- Guo Ren
+2.15.2
+
