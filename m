@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B17DC6FD32
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA943C6FD38
 	for <linux-s390@archiver.kernel.org>; Mon, 19 Sep 2022 10:18:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230086AbiISKRu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Sep 2022 06:17:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49628 "EHLO
+        id S230246AbiISKRv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Sep 2022 06:17:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229984AbiISKRk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 06:17:40 -0400
+        with ESMTP id S230387AbiISKRh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 06:17:37 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF95BEE17;
-        Mon, 19 Sep 2022 03:17:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25716F594;
+        Mon, 19 Sep 2022 03:17:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=Vr6T2clVTCKzoOuqPun2LzaBPyz9xLY6Bd2T3LwNb5Y=; b=l6JY0yWli0iEZp32b7Bby14YD2
-        39493K1NJwG1SAUm/vCDnDKz4SLvbKnyOjPlUTGB4naV3RyAE0714sa9gSs3tdL+FC1ToX1uTACXc
-        Ewpt1OpyvnzzGvA3zzGqdvaSQ/yio6jDOot75ThUnZjNdLwnDn0/IZ+lZYn691hsTAHsQFOXvV/r9
-        9/DjyEmGT0x/AXRbm9f287QwOjNi6XX75sjBEn2gepQshrAgXueUWFkoaZTytsBgMPC/PvIzgaXMF
-        9qP38XhX8galq11nQytQnaDfnKD7LOIvfp19c22HE/GrpeMVZE+FZzkERfBMpihVLG9fwvb0QlNKg
-        s8ffbpdQ==;
+        bh=jlMVapcDkKa+q5r/dVIZrQzWqwQOPh4aNsx9pv05CFo=; b=jHf+8rqw7cFXFUWHIXtbMaElWb
+        vVH4S14eMPKnlMBaBhOM0LoVVUzPqNkYx0CNul5BaPC0IswjxL0pyoIMwAcieH2EvCf7xiJgh6NdS
+        9Q1pjUON0/V6McP+0H542FoPSepclDKckAvnrUGs9pJC7SFOPsYzEBgxJZr6kyPR5ys4R7wbLSGgL
+        Fjo0ltuofer+BplJcFvZfUaUSNRAmpjq5o3nfSiM1TFfUCT3ph0nEVLPKtR9tOlIaSMtWnjahm3Ab
+        A2ZwcDCIR8O+Fjzc7Sd6J/IUM+RnZZB2cYt2t29Dr8IMdrqvDp4NLVMRcPn/bdTEE/lJL1GARUCCE
+        tVbDTJiw==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oaDq6-004b8G-7d; Mon, 19 Sep 2022 10:17:22 +0000
+        id 1oaDq5-004b7s-Pt; Mon, 19 Sep 2022 10:17:21 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 28F6A302F1F;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 17233302EFB;
         Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 4AD7D2BA9210F; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
-Message-ID: <20220919101521.953707131@infradead.org>
+        id 29E9C2BA7B0FB; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101521.609602902@infradead.org>
 User-Agent: quilt/0.66
-Date:   Mon, 19 Sep 2022 12:00:03 +0200
+Date:   Mon, 19 Sep 2022 11:59:58 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     peterz@infradead.org
 Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
@@ -98,9 +98,8 @@ Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
         linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-arch@vger.kernel.org, kasan-dev@googlegroups.com,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH v2 24/44] arm64,smp: Remove trace_.*_rcuidle() usage
+        linux-arch@vger.kernel.org, kasan-dev@googlegroups.com
+Subject: [PATCH v2 19/44] cpuidle,intel_idle: Fix CPUIDLE_FLAG_INIT_XSTATE
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -108,35 +107,64 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Ever since commit d3afc7f12987 ("arm64: Allow IPIs to be handled as
-normal interrupts") this function is called in regular IRQ context.
+vmlinux.o: warning: objtool: intel_idle_s2idle+0xd5: call to fpu_idle_fpregs() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_xstate+0x11: call to fpu_idle_fpregs() leaves .noinstr.text section
+vmlinux.o: warning: objtool: fpu_idle_fpregs+0x9: call to xfeatures_in_use() leaves .noinstr.text section
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
 ---
- arch/arm64/kernel/smp.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/fpu/xcr.h       |    4 ++--
+ arch/x86/include/asm/special_insns.h |    2 +-
+ arch/x86/kernel/fpu/core.c           |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -865,7 +865,7 @@ static void do_handle_IPI(int ipinr)
- 	unsigned int cpu = smp_processor_id();
+--- a/arch/x86/include/asm/fpu/xcr.h
++++ b/arch/x86/include/asm/fpu/xcr.h
+@@ -5,7 +5,7 @@
+ #define XCR_XFEATURE_ENABLED_MASK	0x00000000
+ #define XCR_XFEATURE_IN_USE_MASK	0x00000001
  
- 	if ((unsigned)ipinr < NR_IPI)
--		trace_ipi_entry_rcuidle(ipi_types[ipinr]);
-+		trace_ipi_entry(ipi_types[ipinr]);
+-static inline u64 xgetbv(u32 index)
++static __always_inline u64 xgetbv(u32 index)
+ {
+ 	u32 eax, edx;
  
- 	switch (ipinr) {
- 	case IPI_RESCHEDULE:
-@@ -914,7 +914,7 @@ static void do_handle_IPI(int ipinr)
- 	}
- 
- 	if ((unsigned)ipinr < NR_IPI)
--		trace_ipi_exit_rcuidle(ipi_types[ipinr]);
-+		trace_ipi_exit(ipi_types[ipinr]);
+@@ -27,7 +27,7 @@ static inline void xsetbv(u32 index, u64
+  *
+  * Callers should check X86_FEATURE_XGETBV1.
+  */
+-static inline u64 xfeatures_in_use(void)
++static __always_inline u64 xfeatures_in_use(void)
+ {
+ 	return xgetbv(XCR_XFEATURE_IN_USE_MASK);
+ }
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -295,7 +295,7 @@ static inline int enqcmds(void __iomem *
+ 	return 0;
  }
  
- static irqreturn_t ipi_handler(int irq, void *data)
+-static inline void tile_release(void)
++static __always_inline void tile_release(void)
+ {
+ 	/*
+ 	 * Instruction opcode for TILERELEASE; supported in binutils
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -856,12 +856,12 @@ int fpu__exception_code(struct fpu *fpu,
+  * Initialize register state that may prevent from entering low-power idle.
+  * This function will be invoked from the cpuidle driver only when needed.
+  */
+-void fpu_idle_fpregs(void)
++noinstr void fpu_idle_fpregs(void)
+ {
+ 	/* Note: AMX_TILE being enabled implies XGETBV1 support */
+ 	if (cpu_feature_enabled(X86_FEATURE_AMX_TILE) &&
+ 	    (xfeatures_in_use() & XFEATURE_MASK_XTILE)) {
+ 		tile_release();
+-		fpregs_deactivate(&current->thread.fpu);
++		__this_cpu_write(fpu_fpregs_owner_ctx, NULL);
+ 	}
+ }
 
 
