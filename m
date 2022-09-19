@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 191B9ECAA41
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A66C2ECAA44
 	for <linux-s390@archiver.kernel.org>; Mon, 19 Sep 2022 10:17:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230415AbiISKRo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Sep 2022 06:17:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49332 "EHLO
+        id S230428AbiISKRq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Sep 2022 06:17:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229926AbiISKRG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 06:17:06 -0400
+        with ESMTP id S229553AbiISKRF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 06:17:05 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55BBD1EC62;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55D7D220D3;
         Mon, 19 Sep 2022 03:17:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=t0hoKUhhRPcpNA2sMhDiSnk+WMkt/R0zO6loPF3PH9w=; b=Pu2ax4C+q2gikvdKh53kb5LQaq
-        1icXVAPPb5rTxmDMICtYx2G9B9yrHKvYB27SoYQJT/Juj9Z0e/ciHJ7RnfVuY0UEjWNyVpkpns/fy
-        /NILdltY1jI6makeZnfd6Ue64JSOcginNFswX+VLat0o+YrsIuhjqYP8sxzm+/aHtz2+5+wAVzwMQ
-        Z6tx/N/mzW2m5hIYqNNQHq8hVqXusyw1qoanShE7Uh/Lm8p05qkgyTLMAP6KM2PwHkRt1IYSrnHns
-        bdeqefliBxf1GDAvIiKTpMroNoGSw6cOFgqeoY/+lppO/2cDzth/JGUAVVk19kUUcCVXxh2cgXBOx
-        JuF2Xc/w==;
+        bh=WVCZz4VCnGePSihfWXfUVWek2uxL69eYF/NrdeQus6U=; b=ivBskP0aWQgi9l0mKK9jTzFXqc
+        ZaruQT1GQRrgEFzxRyDZun0oUQSETW6STOVGluWDi3qyaP4sssJsMWlDUZ3GA9Pz0X87ahb90byEQ
+        bhOXfPvW2zvD6yBkUDxk8BE+7zJhSnLWDPFkAW6QGLcPYNbWGozjqGe7xhepdJzb53dFBO7ECLGwt
+        QO1KrbQvccpeuYnZb9ZuwYEgH2WsFobCaskTraK3wrmMGpyKyUxInAVIxF2jY4xcbgzeGmq/omTnx
+        ORL3apzPH+JFJPdVDrr6iVZccffw6jLJlq1Lm1Hgq/35itx04lz+am6dEV+G+6PLGd2kSPpHIcEpd
+        Ptxwcg6w==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oaDpE-004ahd-SP; Mon, 19 Sep 2022 10:16:28 +0000
+        id 1oaDpH-004aiJ-81; Mon, 19 Sep 2022 10:16:31 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7F6DD301BCC;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id DD4D7302EAA;
         Mon, 19 Sep 2022 12:16:24 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id C99462BA49037; Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
-Message-ID: <20220919101520.466971769@infradead.org>
+        id 002B62BA49041; Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
+Message-ID: <20220919101521.072508494@infradead.org>
 User-Agent: quilt/0.66
-Date:   Mon, 19 Sep 2022 11:59:41 +0200
+Date:   Mon, 19 Sep 2022 11:59:50 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     peterz@infradead.org
 Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
@@ -98,10 +98,8 @@ Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
         linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-arch@vger.kernel.org, kasan-dev@googlegroups.com,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH v2 02/44] x86/idle: Replace x86_idle with a static_call
+        linux-arch@vger.kernel.org, kasan-dev@googlegroups.com
+Subject: [PATCH v2 11/44] cpuidle,omap4: Push RCU-idle into driver
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -109,117 +107,119 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Typical boot time setup; no need to suffer an indirect call for that.
+Doing RCU-idle outside the driver, only to then temporarily enable it
+again, some *four* times, before going idle is daft.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Tony Lindgren <tony@atomide.com>
 ---
- arch/x86/kernel/process.c |   50 +++++++++++++++++++++++++---------------------
- 1 file changed, 28 insertions(+), 22 deletions(-)
+ arch/arm/mach-omap2/cpuidle44xx.c |   29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -24,6 +24,7 @@
- #include <linux/cpuidle.h>
- #include <linux/acpi.h>
- #include <linux/elf-randomize.h>
-+#include <linux/static_call.h>
- #include <trace/events/power.h>
- #include <linux/hw_breakpoint.h>
- #include <asm/cpu.h>
-@@ -692,7 +693,23 @@ void __switch_to_xtra(struct task_struct
- unsigned long boot_option_idle_override = IDLE_NO_OVERRIDE;
- EXPORT_SYMBOL(boot_option_idle_override);
+--- a/arch/arm/mach-omap2/cpuidle44xx.c
++++ b/arch/arm/mach-omap2/cpuidle44xx.c
+@@ -105,7 +105,9 @@ static int omap_enter_idle_smp(struct cp
+ 	}
+ 	raw_spin_unlock_irqrestore(&mpu_lock, flag);
  
--static void (*x86_idle)(void);
-+/*
-+ * We use this if we don't have any better idle routine..
-+ */
-+void __cpuidle default_idle(void)
-+{
-+	raw_safe_halt();
-+}
-+#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
-+EXPORT_SYMBOL(default_idle);
-+#endif
-+
-+DEFINE_STATIC_CALL_NULL(x86_idle, default_idle);
-+
-+static bool x86_idle_set(void)
-+{
-+	return !!static_call_query(x86_idle);
-+}
++	ct_idle_enter();
+ 	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
++	ct_idle_exit();
  
- #ifndef CONFIG_SMP
- static inline void play_dead(void)
-@@ -715,28 +732,17 @@ void arch_cpu_idle_dead(void)
- /*
-  * Called from the generic idle code.
-  */
--void arch_cpu_idle(void)
--{
--	x86_idle();
--}
--
--/*
-- * We use this if we don't have any better idle routine..
-- */
--void __cpuidle default_idle(void)
-+void __cpuidle arch_cpu_idle(void)
- {
--	raw_safe_halt();
-+	static_call(x86_idle)();
- }
--#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
--EXPORT_SYMBOL(default_idle);
--#endif
+ 	raw_spin_lock_irqsave(&mpu_lock, flag);
+ 	if (cx->mpu_state_vote == num_online_cpus())
+@@ -151,10 +153,10 @@ static int omap_enter_idle_coupled(struc
+ 				 (cx->mpu_logic_state == PWRDM_POWER_OFF);
  
- #ifdef CONFIG_XEN
- bool xen_set_default_idle(void)
- {
--	bool ret = !!x86_idle;
-+	bool ret = x86_idle_set();
+ 	/* Enter broadcast mode for periodic timers */
+-	RCU_NONIDLE(tick_broadcast_enable());
++	tick_broadcast_enable();
  
--	x86_idle = default_idle;
-+	static_call_update(x86_idle, default_idle);
+ 	/* Enter broadcast mode for one-shot timers */
+-	RCU_NONIDLE(tick_broadcast_enter());
++	tick_broadcast_enter();
  
- 	return ret;
- }
-@@ -859,20 +865,20 @@ void select_idle_routine(const struct cp
- 	if (boot_option_idle_override == IDLE_POLL && smp_num_siblings > 1)
- 		pr_warn_once("WARNING: polling idle and HT enabled, performance may degrade\n");
- #endif
--	if (x86_idle || boot_option_idle_override == IDLE_POLL)
-+	if (x86_idle_set() || boot_option_idle_override == IDLE_POLL)
- 		return;
+ 	/*
+ 	 * Call idle CPU PM enter notifier chain so that
+@@ -166,7 +168,7 @@ static int omap_enter_idle_coupled(struc
  
- 	if (boot_cpu_has_bug(X86_BUG_AMD_E400)) {
- 		pr_info("using AMD E400 aware idle routine\n");
--		x86_idle = amd_e400_idle;
-+		static_call_update(x86_idle, amd_e400_idle);
- 	} else if (prefer_mwait_c1_over_halt(c)) {
- 		pr_info("using mwait in idle threads\n");
--		x86_idle = mwait_idle;
-+		static_call_update(x86_idle, mwait_idle);
- 	} else if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST)) {
- 		pr_info("using TDX aware idle routine\n");
--		x86_idle = tdx_safe_halt;
-+		static_call_update(x86_idle, tdx_safe_halt);
- 	} else
--		x86_idle = default_idle;
-+		static_call_update(x86_idle, default_idle);
- }
+ 	if (dev->cpu == 0) {
+ 		pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
+-		RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
++		omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
  
- void amd_e400_c1e_apic_setup(void)
-@@ -925,7 +931,7 @@ static int __init idle_setup(char *str)
- 		 * To continue to load the CPU idle driver, don't touch
- 		 * the boot_option_idle_override.
- 		 */
--		x86_idle = default_idle;
-+		static_call_update(x86_idle, default_idle);
- 		boot_option_idle_override = IDLE_HALT;
- 	} else if (!strcmp(str, "nomwait")) {
  		/*
+ 		 * Call idle CPU cluster PM enter notifier chain
+@@ -178,14 +180,16 @@ static int omap_enter_idle_coupled(struc
+ 				index = 0;
+ 				cx = state_ptr + index;
+ 				pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
+-				RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
++				omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
+ 				mpuss_can_lose_context = 0;
+ 			}
+ 		}
+ 	}
+ 
++	ct_idle_enter();
+ 	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
+ 	cpu_done[dev->cpu] = true;
++	ct_idle_exit();
+ 
+ 	/* Wakeup CPU1 only if it is not offlined */
+ 	if (dev->cpu == 0 && cpumask_test_cpu(1, cpu_online_mask)) {
+@@ -194,9 +198,9 @@ static int omap_enter_idle_coupled(struc
+ 		    mpuss_can_lose_context)
+ 			gic_dist_disable();
+ 
+-		RCU_NONIDLE(clkdm_deny_idle(cpu_clkdm[1]));
+-		RCU_NONIDLE(omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON));
+-		RCU_NONIDLE(clkdm_allow_idle(cpu_clkdm[1]));
++		clkdm_deny_idle(cpu_clkdm[1]);
++		omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON);
++		clkdm_allow_idle(cpu_clkdm[1]);
+ 
+ 		if (IS_PM44XX_ERRATUM(PM_OMAP4_ROM_SMP_BOOT_ERRATUM_GICD) &&
+ 		    mpuss_can_lose_context) {
+@@ -222,7 +226,7 @@ static int omap_enter_idle_coupled(struc
+ 	cpu_pm_exit();
+ 
+ cpu_pm_out:
+-	RCU_NONIDLE(tick_broadcast_exit());
++	tick_broadcast_exit();
+ 
+ fail:
+ 	cpuidle_coupled_parallel_barrier(dev, &abort_barrier);
+@@ -247,7 +251,8 @@ static struct cpuidle_driver omap4_idle_
+ 			/* C2 - CPU0 OFF + CPU1 OFF + MPU CSWR */
+ 			.exit_latency = 328 + 440,
+ 			.target_residency = 960,
+-			.flags = CPUIDLE_FLAG_COUPLED,
++			.flags = CPUIDLE_FLAG_COUPLED |
++				 CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter = omap_enter_idle_coupled,
+ 			.name = "C2",
+ 			.desc = "CPUx OFF, MPUSS CSWR",
+@@ -256,7 +261,8 @@ static struct cpuidle_driver omap4_idle_
+ 			/* C3 - CPU0 OFF + CPU1 OFF + MPU OSWR */
+ 			.exit_latency = 460 + 518,
+ 			.target_residency = 1100,
+-			.flags = CPUIDLE_FLAG_COUPLED,
++			.flags = CPUIDLE_FLAG_COUPLED |
++				 CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter = omap_enter_idle_coupled,
+ 			.name = "C3",
+ 			.desc = "CPUx OFF, MPUSS OSWR",
+@@ -282,7 +288,8 @@ static struct cpuidle_driver omap5_idle_
+ 			/* C2 - CPU0 RET + CPU1 RET + MPU CSWR */
+ 			.exit_latency = 48 + 60,
+ 			.target_residency = 100,
+-			.flags = CPUIDLE_FLAG_TIMER_STOP,
++			.flags = CPUIDLE_FLAG_TIMER_STOP |
++				 CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter = omap_enter_idle_smp,
+ 			.name = "C2",
+ 			.desc = "CPUx CSWR, MPUSS CSWR",
 
 
