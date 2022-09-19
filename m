@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ADB2CCA473
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D000FECAA31
 	for <linux-s390@archiver.kernel.org>; Mon, 19 Sep 2022 10:17:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230398AbiISKRl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Sep 2022 06:17:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49328 "EHLO
+        id S230404AbiISKRm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Sep 2022 06:17:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229779AbiISKRG (ORCPT
+        with ESMTP id S229678AbiISKRG (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 06:17:06 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5589F1EC58;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5559B1C91F;
         Mon, 19 Sep 2022 03:17:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=vB057xACRVSJThllhGE8f2SmJ9TT+oL90mm46lxduII=; b=kywikNV+JOhuRC6ERD1VlqqQP3
-        erY7uC0VJQwPrnJCDMV8vfbpvSyHcY5xZAwrHnLhU5SZPz5xsRyEakEPdOOJm3k5Xas/FH1DSzD0x
-        JpjT7nP0xdYKwFrD4JURDMdgc59IXKV8ZuNXomLhDpG/Fj4XRo/JBHLnr5d8v3/5Fr6jiBv6mjn0F
-        0/mLjpSN/K9XY5Ib4bNuBDGghVOMVV0dUFwAUO+xXbcCitVgxm2fBTuHCaU8/6F92gZK0Sn/AvWyA
-        UiOBLuXdDZrgv/G0qDliEH3JMAvX3TIRnlGHv57WGn7U9pGViPVLLg38RK01Fa5hPm/uyqkvYdoqF
-        pVe3AaZA==;
+        bh=wztoayxqdaRhc3fzwYQuz0RAh5ZT6y7bJFX0CXMuNy8=; b=ADXtthd/kB2UkNVNsBZX3mcAgx
+        eb1wSA1egq4M07Od+XfETtj3lhd4iMNEvYwcU9NzeS13eZKp+mowXOQTzEFZK7CeroXVfNcUNAucm
+        DFEs4ENnbXNf93/JuDzTXaj8dDvpaoObTItrP5rfAcPTaGTUO9u17CB7M9lBwSzhZqApt31copOyD
+        THHS1zzgB7BqCqSJl0DeM5JLgmoPtje3pC9taSIf0jDAy3NiwNozoFE6k7Aa6gH0axWhSw0Ae2Kln
+        k7+RKfh2KfpdBiXJ6godhy6Y1cfSrmD10KmQxJ5TbTEnSM6kxy+r95TYqIDfTireSwql4ofArgV57
+        wDOwI0dQ==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oaDpI-004aiZ-8o; Mon, 19 Sep 2022 10:16:32 +0000
+        id 1oaDpF-004ahj-DU; Mon, 19 Sep 2022 10:16:29 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E7288302ED7;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9BFB4302A1D;
         Mon, 19 Sep 2022 12:16:24 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 0FB662BA49045; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
-Message-ID: <20220919101521.274051658@infradead.org>
+        id D336C2BA49039; Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
+Message-ID: <20220919101520.602636221@infradead.org>
 User-Agent: quilt/0.66
-Date:   Mon, 19 Sep 2022 11:59:53 +0200
+Date:   Mon, 19 Sep 2022 11:59:43 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     peterz@infradead.org
 Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
@@ -99,7 +99,7 @@ Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
         linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
         linux-arch@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: [PATCH v2 14/44] cpuidle,cpu_pm: Remove RCU fiddling from cpu_pm_{enter,exit}()
+Subject: [PATCH v2 04/44] cpuidle: Move IRQ state validation
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -107,44 +107,41 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-All callers should still have RCU enabled.
+Make cpuidle_enter_state() consistent with the s2idle variant and
+verify ->enter() always returns with interrupts disabled.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
 ---
- kernel/cpu_pm.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/cpuidle/cpuidle.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/kernel/cpu_pm.c
-+++ b/kernel/cpu_pm.c
-@@ -30,16 +30,9 @@ static int cpu_pm_notify(enum cpu_pm_eve
- {
- 	int ret;
+--- a/drivers/cpuidle/cpuidle.c
++++ b/drivers/cpuidle/cpuidle.c
+@@ -236,7 +236,11 @@ int cpuidle_enter_state(struct cpuidle_d
+ 	stop_critical_timings();
+ 	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+ 		ct_idle_enter();
++
+ 	entered_state = target_state->enter(dev, drv, index);
++	if (WARN_ONCE(!irqs_disabled(), "%ps leaked IRQ state", target_state->enter))
++		raw_local_irq_disable();
++
+ 	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+ 		ct_idle_exit();
+ 	start_critical_timings();
+@@ -248,12 +252,8 @@ int cpuidle_enter_state(struct cpuidle_d
+ 	/* The cpu is no longer idle or about to enter idle. */
+ 	sched_idle_set_state(NULL);
  
--	/*
--	 * This introduces a RCU read critical section, which could be
--	 * disfunctional in cpu idle. Copy RCU_NONIDLE code to let RCU know
--	 * this.
--	 */
--	ct_irq_enter_irqson();
- 	rcu_read_lock();
- 	ret = raw_notifier_call_chain(&cpu_pm_notifier.chain, event, NULL);
- 	rcu_read_unlock();
--	ct_irq_exit_irqson();
+-	if (broadcast) {
+-		if (WARN_ON_ONCE(!irqs_disabled()))
+-			local_irq_disable();
+-
++	if (broadcast)
+ 		tick_broadcast_exit();
+-	}
  
- 	return notifier_to_errno(ret);
- }
-@@ -49,11 +42,9 @@ static int cpu_pm_notify_robust(enum cpu
- 	unsigned long flags;
- 	int ret;
- 
--	ct_irq_enter_irqson();
- 	raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
- 	ret = raw_notifier_call_chain_robust(&cpu_pm_notifier.chain, event_up, event_down, NULL);
- 	raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
--	ct_irq_exit_irqson();
- 
- 	return notifier_to_errno(ret);
- }
+ 	if (!cpuidle_state_is_coupled(drv, index))
+ 		local_irq_enable();
 
 
