@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FE96ECAA29
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Sep 2022 10:22:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6494AECAA31
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Sep 2022 10:22:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230331AbiISKWv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Sep 2022 06:22:51 -0400
+        id S231927AbiISKWx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Sep 2022 06:22:53 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230421AbiISKRp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 06:17:45 -0400
+        with ESMTP id S229897AbiISKRs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 06:17:48 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72F1922B20;
-        Mon, 19 Sep 2022 03:17:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A51622BED;
+        Mon, 19 Sep 2022 03:17:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=DdEsMVUZF4If17doP56YIzy8DGEaYRA+HGcY5bau4R0=; b=jqHZgeFh3oCBgwT003zG9s2gjC
-        NezJyvyixinM4ERqxFhZtUISrOXW8i6MLLnuICKomLr7AbtR8v72zY+8bw/cWPW2/QvND6Rwx4Q2d
-        qjrqewLEupnsgcJ14d1u/q+BvBv5v8kX/h8JBR56A5BEetgbXcPWarCexJ78cxzK5gZJYUDUAEoOT
-        vM8X10xsA7/NNWmxGL3307kKYqIC1woYOcW8+VSoI+sRpSxqk/Ew8xBvTA93sr8w9fFjmdHB/anNI
-        DljTLjNK/qwU3GgRskIhPhKOq40gbXaYpXRYIxmcmMo7792McGRuHm+laihmXnhk0bIFOHTEjtfMi
-        BBIavKFA==;
+        bh=QBURQn+mxYjA6ZNht+ExoGHyL1lX5y6iU6jaWv/bZEo=; b=eB9R5mWQ/WETD9Rv4elTwBcjuu
+        3r70NEYVBnbUdskYPN4O7fQWjT5rx89Gozkd32cpNZ/DdpjkqOPcM2ZQMXDWVhHDcgNaBFI6Jwa5K
+        jZlaLCyq8FzucFYNqVPdMhsS45njG1/lz41uhN1wd67+kWfBn+YPZCXx1mMIqejRnKQw+i57eO/l7
+        ID7qXfyai+mZMUC4XVmyeqZlX16jg3lxRfae32iZHZIy8xa3fqW49G2roydHcf8lCPYqodsh5e1Zs
+        gWuRPDkOYylki6VgB9yxMLQL/c8XExe1Qv4N0dIhFasMn3vBkSUDOfaq0Y0VATr4VkkUQXotE0SEb
+        dazCrrUQ==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oaDq5-004b7h-H1; Mon, 19 Sep 2022 10:17:21 +0000
+        id 1oaDq9-004bBk-59; Mon, 19 Sep 2022 10:17:25 +0000
 Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits))
         (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 122E8302EF6;
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 79DF9302F63;
         Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
-        id 251012BA7B0F1; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
-Message-ID: <20220919101521.543128460@infradead.org>
+        id 8C73F2BAC75BF; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101522.842219871@infradead.org>
 User-Agent: quilt/0.66
-Date:   Mon, 19 Sep 2022 11:59:57 +0200
+Date:   Mon, 19 Sep 2022 12:00:16 +0200
 From:   Peter Zijlstra <peterz@infradead.org>
 To:     peterz@infradead.org
 Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
@@ -99,7 +99,7 @@ Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
         linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
         linux-arch@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: [PATCH v2 18/44] cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE *again*
+Subject: [PATCH v2 37/44] arm,omap2: Use WFI for omap2_pm_idle()
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -107,42 +107,93 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-  vmlinux.o: warning: objtool: intel_idle_irq+0x10c: call to trace_hardirqs_off() leaves .noinstr.text section
+arch_cpu_idle() is a very simple idle interface and exposes only a
+single idle state and is expected to not require RCU and not do any
+tracing/instrumentation.
 
-As per commit 32d4fd5751ea ("cpuidle,intel_idle: Fix
-CPUIDLE_FLAG_IRQ_ENABLE"):
+As such, omap2_pm_idle() is not a valid implementation. Replace it
+with a simple (shallow) omap2_do_wfi() call.
 
-  "must not have tracing in idle functions"
+Omap2 doesn't have a cpuidle driver; but adding one would be the
+recourse to (re)gain the other idle states.
 
-Clearly people can't read and tinker along until splat dissapears.
-This straight up reverts commit d295ad34f236 ("intel_idle: Fix false
-positive RCU splats due to incorrect hardirqs state").
-
-It doesn't re-introduce the problem because preceding patches fixed it
-properly.
-
-Fixes: d295ad34f236 ("intel_idle: Fix false positive RCU splats due to incorrect hardirqs state")
+Suggested-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/idle/intel_idle.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ arch/arm/mach-omap2/pm24xx.c |   51 +------------------------------------------
+ 1 file changed, 2 insertions(+), 49 deletions(-)
 
---- a/drivers/idle/intel_idle.c
-+++ b/drivers/idle/intel_idle.c
-@@ -168,13 +168,7 @@ static __cpuidle int intel_idle_irq(stru
+--- a/arch/arm/mach-omap2/pm24xx.c
++++ b/arch/arm/mach-omap2/pm24xx.c
+@@ -116,50 +116,12 @@ static int omap2_enter_full_retention(vo
  
- 	raw_local_irq_enable();
- 	ret = __intel_idle(dev, drv, index);
+ static int sti_console_enabled;
+ 
+-static int omap2_allow_mpu_retention(void)
+-{
+-	if (!omap2xxx_cm_mpu_retention_allowed())
+-		return 0;
+-	if (sti_console_enabled)
+-		return 0;
 -
--	/*
--	 * The lockdep hardirqs state may be changed to 'on' with timer
--	 * tick interrupt followed by __do_softirq(). Use local_irq_disable()
--	 * to keep the hardirqs state correct.
--	 */
--	local_irq_disable();
-+	raw_local_irq_disable();
+-	return 1;
+-}
+-
+-static void omap2_enter_mpu_retention(void)
++static void omap2_do_wfi(void)
+ {
+ 	const int zero = 0;
  
- 	return ret;
+-	/* The peripherals seem not to be able to wake up the MPU when
+-	 * it is in retention mode. */
+-	if (omap2_allow_mpu_retention()) {
+-		/* REVISIT: These write to reserved bits? */
+-		omap_prm_clear_mod_irqs(CORE_MOD, PM_WKST1, ~0);
+-		omap_prm_clear_mod_irqs(CORE_MOD, OMAP24XX_PM_WKST2, ~0);
+-		omap_prm_clear_mod_irqs(WKUP_MOD, PM_WKST, ~0);
+-
+-		/* Try to enter MPU retention */
+-		pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_RET);
+-
+-	} else {
+-		/* Block MPU retention */
+-		pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_ON);
+-	}
+-
+ 	/* WFI */
+ 	asm("mcr p15, 0, %0, c7, c0, 4" : : "r" (zero) : "memory", "cc");
+-
+-	pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_ON);
+-}
+-
+-static int omap2_can_sleep(void)
+-{
+-	if (omap2xxx_cm_fclks_active())
+-		return 0;
+-	if (__clk_is_enabled(osc_ck))
+-		return 0;
+-
+-	return 1;
  }
+ 
+ static void omap2_pm_idle(void)
+@@ -169,16 +131,7 @@ static void omap2_pm_idle(void)
+ 	if (omap_irq_pending())
+ 		return;
+ 
+-	error = cpu_cluster_pm_enter();
+-	if (error || !omap2_can_sleep()) {
+-		omap2_enter_mpu_retention();
+-		goto out_cpu_cluster_pm;
+-	}
+-
+-	omap2_enter_full_retention();
+-
+-out_cpu_cluster_pm:
+-	cpu_cluster_pm_exit();
++	omap2_do_wfi();
+ }
+ 
+ static void __init prcm_setup_regs(void)
 
 
