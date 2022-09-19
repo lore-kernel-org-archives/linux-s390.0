@@ -2,134 +2,175 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 934EFECAAD3
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Sep 2022 15:49:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CF55C54EE9
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Sep 2022 16:18:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230244AbiISPtm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Sep 2022 11:49:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37232 "EHLO
+        id S229528AbiISQSH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Sep 2022 12:18:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230256AbiISPtk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 11:49:40 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75FA364E0;
-        Mon, 19 Sep 2022 08:49:38 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28JFiGE2030562;
-        Mon, 19 Sep 2022 15:49:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=k5zyy+PzyR1XcIeMTHmS1nBmS8QzqDY6Kobzf54J4Bw=;
- b=dcY8HAutTxSh3a178suKUNvOJgbUerTFuAgKpkxPEzdX0zDOPu4hNwTccWatteXkPUMU
- /FimxP9zUxXPQIfXl3mjUSIurFCSg1ooVs1OV8zTnkcxSH7jh2KblxhQ5Ci5nIo7z5Rs
- vb559W4lbZuvzS9Q8NBtgSdyAJbvxxmPuwAsGKRxMj+tvxcqOptfdeikn+vMa23rQ3Ww
- bB/rCMi4fkXj15WUx5VP7G7mWtJn9Db8mMRomDYrak84bM0Qj9LkNd0YH/3rNnw7sLHt
- INNXjeO0v5ujnsIcuOGej0Pm1DdU6lnKIwN0aV47uv7VerOXvfXy8AjV/G3dWzFiXJMe uw== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jpuav05jk-1
+        with ESMTP id S229449AbiISQSG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 12:18:06 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E7E829CA2;
+        Mon, 19 Sep 2022 09:18:05 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28JGBsA9021409;
+        Mon, 19 Sep 2022 16:18:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=0apBg6MkrWoXI0NWsMipFahhj9etyrcEeKzVJWh9FOg=;
+ b=YEac65XXBhbVAlZ/b/nTAbHXEAdHb53ulQAIDvEIkunItUGksPKvWKQIwFy3KUqX2ixd
+ NC0MZsT9r9g3B+l//206iDZ8zUSG/IVEwOAa3B/jaTV/GYZEWsa+K8WQzkakx6vv8DCq
+ /MtV8X2qtkDZnP9xoZkbeMiQXI70sSc5DNtdoeQuBKYyhg8KwISR5n92ABHFSvviD5bs
+ uiaxRziuXI0tu2+eizl6kFCX7GDijvKTLTNjiKOJ6YyBLfMkW3dIuZMfZ1moTVQtG5xc
+ i5RGp16jL10Slyw2LvUaRUem4zkGMAOhPRxp5SAAaVlqiEm0hagOsEfVySqW7JZLZTXU Og== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jpuqx066w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Sep 2022 15:49:37 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28JFb85f020949;
-        Mon, 19 Sep 2022 15:49:35 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3jn5v8jp1d-1
+        Mon, 19 Sep 2022 16:18:03 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28JGC8Ed021967;
+        Mon, 19 Sep 2022 16:18:02 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jpuqx065w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Sep 2022 15:49:35 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28JFnV1737945844
+        Mon, 19 Sep 2022 16:18:02 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28JG6xtE013293;
+        Mon, 19 Sep 2022 16:18:00 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3jn5gj2pt9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Sep 2022 16:18:00 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28JGHvIw44302608
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 19 Sep 2022 15:49:31 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D01EBAE04D;
-        Mon, 19 Sep 2022 15:49:31 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BDA4AAE045;
-        Mon, 19 Sep 2022 15:49:31 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 19 Sep 2022 15:49:31 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-        id 8078FE02C8; Mon, 19 Sep 2022 17:49:31 +0200 (CEST)
-From:   Stefan Haberland <sth@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 1/1] s390/dasd: fix Oops in dasd_alias_get_start_dev due to missing pavgroup
-Date:   Mon, 19 Sep 2022 17:49:31 +0200
-Message-Id: <20220919154931.4123002-2-sth@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220919154931.4123002-1-sth@linux.ibm.com>
-References: <20220919154931.4123002-1-sth@linux.ibm.com>
+        Mon, 19 Sep 2022 16:17:57 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 10A2B4C044;
+        Mon, 19 Sep 2022 16:17:57 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 746D04C040;
+        Mon, 19 Sep 2022 16:17:56 +0000 (GMT)
+Received: from [9.171.62.75] (unknown [9.171.62.75])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Sep 2022 16:17:56 +0000 (GMT)
+Message-ID: <2728b10e-d3f1-e472-25f1-d1658414f1da@linux.ibm.com>
+Date:   Mon, 19 Sep 2022 18:17:56 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.0
+Subject: Re: [PATCH v2] KVM: s390: Pass initialized arg even if unused
+Content-Language: en-US
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20220825192540.1560559-1-scgl@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20220825192540.1560559-1-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: uOh-CxPQy2UgRryuA9yFqCrZB07wLxNe
-X-Proofpoint-ORIG-GUID: uOh-CxPQy2UgRryuA9yFqCrZB07wLxNe
+X-Proofpoint-ORIG-GUID: Heka_rtSxD8YCU_RuxCt0j-eOAA89IYu
+X-Proofpoint-GUID: 7ypYL0kmmOhd3KoBzMVvZeSjN3WLX-bK
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-19_05,2022-09-16_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- suspectscore=0 impostorscore=0 spamscore=0 adultscore=0 clxscore=1015
- mlxscore=0 mlxlogscore=732 lowpriorityscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209190104
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ lowpriorityscore=0 adultscore=0 suspectscore=0 malwarescore=0 mlxscore=0
+ clxscore=1011 priorityscore=1501 bulkscore=0 spamscore=0 phishscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209190108
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Fix Oops in dasd_alias_get_start_dev() function caused by the pavgroup
-pointer being NULL.
 
-The pavgroup pointer is checked on the entrance of the function but
-without the lcu->lock being held. Therefore there is a race window
-between dasd_alias_get_start_dev() and _lcu_update() which sets
-pavgroup to NULL with the lcu->lock held.
 
-Fix by checking the pavgroup pointer with lcu->lock held.
+Am 25.08.22 um 21:25 schrieb Janis Schoetterl-Glausch:
+> This silences smatch warnings reported by kbuild bot:
+> arch/s390/kvm/gaccess.c:859 guest_range_to_gpas() error: uninitialized symbol 'prot'.
+> arch/s390/kvm/gaccess.c:1064 access_guest_with_key() error: uninitialized symbol 'prot'.
+> 
+> This is because it cannot tell that the value is not used in this case.
+> The trans_exc* only examine prot if code is PGM_PROTECTION.
+> Pass a dummy value for other codes.
+> 
+> Reported-by: kernel test robot <lkp@intel.com>
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-Cc: <stable@vger.kernel.org> # 2.6.25+
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
----
- drivers/s390/block/dasd_alias.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
-index dc78a523a69f..b6b938aa6615 100644
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -675,12 +675,12 @@ int dasd_alias_remove_device(struct dasd_device *device)
- struct dasd_device *dasd_alias_get_start_dev(struct dasd_device *base_device)
- {
- 	struct dasd_eckd_private *alias_priv, *private = base_device->private;
--	struct alias_pav_group *group = private->pavgroup;
- 	struct alias_lcu *lcu = private->lcu;
- 	struct dasd_device *alias_device;
-+	struct alias_pav_group *group;
- 	unsigned long flags;
- 
--	if (!group || !lcu)
-+	if (!lcu)
- 		return NULL;
- 	if (lcu->pav == NO_PAV ||
- 	    lcu->flags & (NEED_UAC_UPDATE | UPDATE_PENDING))
-@@ -697,6 +697,11 @@ struct dasd_device *dasd_alias_get_start_dev(struct dasd_device *base_device)
- 	}
- 
- 	spin_lock_irqsave(&lcu->lock, flags);
-+	group = private->pavgroup;
-+	if (!group) {
-+		spin_unlock_irqrestore(&lcu->lock, flags);
-+		return NULL;
-+	}
- 	alias_device = group->next;
- 	if (!alias_device) {
- 		if (list_empty(&group->aliaslist)) {
--- 
-2.34.1
-
+Thanks applied.
+> ---
+> v1 -> v2
+>   * drop unlikely, WARN_ON_ONCE instead of WARN (thanks Heiko)
+> 
+>   arch/s390/kvm/gaccess.c | 16 +++++++++++++---
+>   1 file changed, 13 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> index 082ec5f2c3a5..0243b6e38d36 100644
+> --- a/arch/s390/kvm/gaccess.c
+> +++ b/arch/s390/kvm/gaccess.c
+> @@ -489,6 +489,8 @@ enum prot_type {
+>   	PROT_TYPE_ALC  = 2,
+>   	PROT_TYPE_DAT  = 3,
+>   	PROT_TYPE_IEP  = 4,
+> +	/* Dummy value for passing an initialized value when code != PGM_PROTECTION */
+> +	PROT_NONE,
+>   };
+>   
+>   static int trans_exc_ending(struct kvm_vcpu *vcpu, int code, unsigned long gva, u8 ar,
+> @@ -504,6 +506,10 @@ static int trans_exc_ending(struct kvm_vcpu *vcpu, int code, unsigned long gva,
+>   	switch (code) {
+>   	case PGM_PROTECTION:
+>   		switch (prot) {
+> +		case PROT_NONE:
+> +			/* We should never get here, acts like termination */
+> +			WARN_ON_ONCE(1);
+> +			break;
+>   		case PROT_TYPE_IEP:
+>   			tec->b61 = 1;
+>   			fallthrough;
+> @@ -968,8 +974,10 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+>   				return rc;
+>   		} else {
+>   			gpa = kvm_s390_real_to_abs(vcpu, ga);
+> -			if (kvm_is_error_gpa(vcpu->kvm, gpa))
+> +			if (kvm_is_error_gpa(vcpu->kvm, gpa)) {
+>   				rc = PGM_ADDRESSING;
+> +				prot = PROT_NONE;
+> +			}
+>   		}
+>   		if (rc)
+>   			return trans_exc(vcpu, rc, ga, ar, mode, prot);
+> @@ -1112,8 +1120,6 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+>   		if (rc == PGM_PROTECTION && try_storage_prot_override)
+>   			rc = access_guest_page_with_key(vcpu->kvm, mode, gpas[idx],
+>   							data, fragment_len, PAGE_SPO_ACC);
+> -		if (rc == PGM_PROTECTION)
+> -			prot = PROT_TYPE_KEYC;
+>   		if (rc)
+>   			break;
+>   		len -= fragment_len;
+> @@ -1123,6 +1129,10 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+>   	if (rc > 0) {
+>   		bool terminate = (mode == GACC_STORE) && (idx > 0);
+>   
+> +		if (rc == PGM_PROTECTION)
+> +			prot = PROT_TYPE_KEYC;
+> +		else
+> +			prot = PROT_NONE;
+>   		rc = trans_exc_ending(vcpu, rc, ga, ar, mode, prot, terminate);
+>   	}
+>   out_unlock:
