@@ -2,202 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98966ECAAD8
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 09:53:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3236C6FA8E
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 10:43:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229827AbiITJw7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Sep 2022 05:52:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40624 "EHLO
+        id S231261AbiITKn4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Sep 2022 06:43:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230216AbiITJwr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 05:52:47 -0400
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF3F86EF37;
-        Tue, 20 Sep 2022 02:52:45 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R301e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VQIslnZ_1663667555;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VQIslnZ_1663667555)
-          by smtp.aliyun-inc.com;
-          Tue, 20 Sep 2022 17:52:42 +0800
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v2 2/2] net/smc: Unbind r/w buffer size from clcsock and make them tunable
-Date:   Tue, 20 Sep 2022 17:52:22 +0800
-Message-Id: <1663667542-119851-3-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1663667542-119851-1-git-send-email-guwen@linux.alibaba.com>
-References: <1663667542-119851-1-git-send-email-guwen@linux.alibaba.com>
+        with ESMTP id S231287AbiITKnb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 06:43:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ACD225C5;
+        Tue, 20 Sep 2022 03:43:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BCF8628F0;
+        Tue, 20 Sep 2022 10:43:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A744C433C1;
+        Tue, 20 Sep 2022 10:43:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663670608;
+        bh=6GsQ3yhKLr/MxdSlXebBHOnZZwkqV+Km5n+FdtLELFs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=B5dAVjAuYVAf/ldcpMwVOIccr93eh+i/PPqe86bcTTpe9rquyYiwNXWsEYN6MEgtC
+         4dkSGP8Y6MjqZepb+9gQ6s3zfFi8AQZlWHaT9YE94OBgT652ETiHQ4+oyg1H9cMKe0
+         W4ejHxERjCdEHRyFhCMtozUTXVDZIa2H0g10CJTUgcjhZqBq48hlTCa71o1rmNMJUn
+         UuRNJ769Ea2tTmdOKpPB1SWcTi7Afm+dzY4ofsUzOPWyR3eaWqkGsJ5+yZC/8xtTFB
+         fdtVAvZE4UfiE+hEXckkBlXeuH+b1N2KqaqSOzsoRx2yLdTrKi9779585hh4U8ohjY
+         b1TN7NMPsPyxQ==
+Date:   Tue, 20 Sep 2022 12:43:25 +0200
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
+        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
+        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
+        shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, guoren@kernel.org, bcain@quicinc.com,
+        chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
+        sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de,
+        dinguyen@kernel.org, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+        James.Bottomley@hansenpartnership.com, deller@gmx.de,
+        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
+        amakhalov@vmware.com, pv-drivers@vmware.com,
+        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
+        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
+        gregkh@linuxfoundation.org, mturquette@baylibre.com,
+        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
+        sudeep.holla@arm.com, agross@kernel.org,
+        bjorn.andersson@linaro.org, konrad.dybcio@somainline.org,
+        anup@brainfault.org, thierry.reding@gmail.com,
+        jonathanh@nvidia.com, jacob.jun.pan@linux.intel.com,
+        atishp@atishpatra.org, Arnd Bergmann <arnd@arndb.de>,
+        yury.norov@gmail.com, andriy.shevchenko@linux.intel.com,
+        linux@rasmusvillemoes.dk, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, rostedt@goodmis.org, pmladek@suse.com,
+        senozhatsky@chromium.org, john.ogness@linutronix.de,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, bsegall@google.com, mgorman@suse.de,
+        bristot@redhat.com, vschneid@redhat.com, fweisbec@gmail.com,
+        ryabinin.a.a@gmail.com, glider@google.com, andreyknvl@gmail.com,
+        dvyukov@google.com, vincenzo.frascino@arm.com,
+        Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-arch@vger.kernel.org, kasan-dev@googlegroups.com,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: Re: [PATCH v2 03/44] cpuidle/poll: Ensure IRQ state is invariant
+Message-ID: <20220920104325.GA72346@lothringen>
+References: <20220919095939.761690562@infradead.org>
+ <20220919101520.534233547@infradead.org>
+ <20220919131927.GA58444@lothringen>
+ <YymAXPkZkyFIEjXM@hirez.programming.kicks-ass.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YymAXPkZkyFIEjXM@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Tony Lu <tonylu@linux.alibaba.com>
+On Tue, Sep 20, 2022 at 10:57:00AM +0200, Peter Zijlstra wrote:
+> On Mon, Sep 19, 2022 at 03:19:27PM +0200, Frederic Weisbecker wrote:
+> > On Mon, Sep 19, 2022 at 11:59:42AM +0200, Peter Zijlstra wrote:
+> > > cpuidle_state::enter() methods should be IRQ invariant
+> > 
+> > Got a bit confused with the invariant thing since the first chunck I
+> > see in this patch is a conversion to an non-traceable local_irq_enable().
+> > 
+> > Maybe just add a short mention about that and why?
+> 
+> Changelog now reads:
+> 
+> ---
+> Subject: cpuidle/poll: Ensure IRQ state is invariant
+> From: Peter Zijlstra <peterz@infradead.org>
+> Date: Tue May 31 15:43:32 CEST 2022
+> 
+> cpuidle_state::enter() methods should be IRQ invariant.
+> 
+> Additionally make sure to use raw_local_irq_*() methods since this
+> cpuidle callback will be called with RCU already disabled.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Currently, SMC uses smc->sk.sk_{rcv|snd}buf to create buffers for
-send buffer and RMB. And the values of buffer size are from tcp_{w|r}mem
-in clcsock.
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
 
-The buffer size from TCP socket doesn't fit SMC well. Generally, buffers
-are usually larger than TCP for SMC-R/-D to get higher performance, for
-they are different underlay devices and paths.
-
-So this patch unbinds buffer size from TCP, and introduces two sysctl
-knobs to tune them independently. Also, these knobs are per net
-namespace and work for containers.
-
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
----
- Documentation/networking/smc-sysctl.rst | 18 ++++++++++++++++++
- include/net/netns/smc.h                 |  2 ++
- net/smc/af_smc.c                        |  5 ++---
- net/smc/smc_core.c                      |  8 ++++----
- net/smc/smc_sysctl.c                    | 21 +++++++++++++++++++++
- 5 files changed, 47 insertions(+), 7 deletions(-)
-
-diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
-index 45ba152..6d8acdb 100644
---- a/Documentation/networking/smc-sysctl.rst
-+++ b/Documentation/networking/smc-sysctl.rst
-@@ -41,3 +41,21 @@ smcr_testlink_time - INTEGER
- 	disabling TEST_LINK.
- 
- 	Default: 30 seconds.
-+
-+wmem - INTEGER
-+	Initial size of send buffer used by SMC sockets.
-+	The default value inherits from net.ipv4.tcp_wmem[1].
-+
-+	The minimum value is 16KiB and there is no hard limit for max value, but
-+	only allowed 512KiB for SMC-R and 1MiB for SMC-D.
-+
-+	Default: 16K
-+
-+rmem - INTEGER
-+	Initial size of receive buffer (RMB) used by SMC sockets.
-+	The default value inherits from net.ipv4.tcp_rmem[1].
-+
-+	The minimum value is 16KiB and there is no hard limit for max value, but
-+	only allowed 512KiB for SMC-R and 1MiB for SMC-D.
-+
-+	Default: 128K
-diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
-index d295e2c..582212a 100644
---- a/include/net/netns/smc.h
-+++ b/include/net/netns/smc.h
-@@ -20,5 +20,7 @@ struct netns_smc {
- 	unsigned int			sysctl_autocorking_size;
- 	unsigned int			sysctl_smcr_buf_type;
- 	int				sysctl_smcr_testlink_time;
-+	int				sysctl_wmem;
-+	int				sysctl_rmem;
- };
- #endif
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 0939cc3..e44ca70 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -379,6 +379,8 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
- 	sk->sk_state = SMC_INIT;
- 	sk->sk_destruct = smc_destruct;
- 	sk->sk_protocol = protocol;
-+	WRITE_ONCE(sk->sk_sndbuf, READ_ONCE(net->smc.sysctl_wmem));
-+	WRITE_ONCE(sk->sk_rcvbuf, READ_ONCE(net->smc.sysctl_rmem));
- 	smc = smc_sk(sk);
- 	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
- 	INIT_WORK(&smc->connect_work, smc_connect_work);
-@@ -3253,9 +3255,6 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
- 		smc->clcsock = clcsock;
- 	}
- 
--	smc->sk.sk_sndbuf = max(smc->clcsock->sk->sk_sndbuf, SMC_BUF_MIN_SIZE);
--	smc->sk.sk_rcvbuf = max(smc->clcsock->sk->sk_rcvbuf, SMC_BUF_MIN_SIZE);
--
- out:
- 	return rc;
- }
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index ebf56cd..ea41f22 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -2307,10 +2307,10 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 
- 	if (is_rmb)
- 		/* use socket recv buffer size (w/o overhead) as start value */
--		sk_buf_size = smc->sk.sk_rcvbuf / 2;
-+		sk_buf_size = smc->sk.sk_rcvbuf;
- 	else
- 		/* use socket send buffer size (w/o overhead) as start value */
--		sk_buf_size = smc->sk.sk_sndbuf / 2;
-+		sk_buf_size = smc->sk.sk_sndbuf;
- 
- 	for (bufsize_short = smc_compress_bufsize(sk_buf_size, is_smcd, is_rmb);
- 	     bufsize_short >= 0; bufsize_short--) {
-@@ -2369,7 +2369,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 	if (is_rmb) {
- 		conn->rmb_desc = buf_desc;
- 		conn->rmbe_size_short = bufsize_short;
--		smc->sk.sk_rcvbuf = bufsize * 2;
-+		smc->sk.sk_rcvbuf = bufsize;
- 		atomic_set(&conn->bytes_to_rcv, 0);
- 		conn->rmbe_update_limit =
- 			smc_rmb_wnd_update_limit(buf_desc->len);
-@@ -2377,7 +2377,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
- 	} else {
- 		conn->sndbuf_desc = buf_desc;
--		smc->sk.sk_sndbuf = bufsize * 2;
-+		smc->sk.sk_sndbuf = bufsize;
- 		atomic_set(&conn->sndbuf_space, bufsize);
- 	}
- 	return 0;
-diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
-index 3224d30..b6f79fa 100644
---- a/net/smc/smc_sysctl.c
-+++ b/net/smc/smc_sysctl.c
-@@ -19,6 +19,9 @@
- #include "smc_llc.h"
- #include "smc_sysctl.h"
- 
-+static int min_sndbuf = SMC_BUF_MIN_SIZE;
-+static int min_rcvbuf = SMC_BUF_MIN_SIZE;
-+
- static struct ctl_table smc_table[] = {
- 	{
- 		.procname       = "autocorking_size",
-@@ -43,6 +46,22 @@
- 		.mode		= 0644,
- 		.proc_handler	= proc_dointvec_jiffies,
- 	},
-+	{
-+		.procname	= "wmem",
-+		.data		= &init_net.smc.sysctl_wmem,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= &min_sndbuf,
-+	},
-+	{
-+		.procname	= "rmem",
-+		.data		= &init_net.smc.sysctl_rmem,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= &min_rcvbuf,
-+	},
- 	{  }
- };
- 
-@@ -69,6 +88,8 @@ int __net_init smc_sysctl_net_init(struct net *net)
- 	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
- 	net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
- 	net->smc.sysctl_smcr_testlink_time = SMC_LLC_TESTLINK_DEFAULT_TIME;
-+	WRITE_ONCE(net->smc.sysctl_wmem, READ_ONCE(net->ipv4.sysctl_tcp_wmem[1]));
-+	WRITE_ONCE(net->smc.sysctl_rmem, READ_ONCE(net->ipv4.sysctl_tcp_rmem[1]));
- 
- 	return 0;
- 
--- 
-1.8.3.1
+Thanks!
 
