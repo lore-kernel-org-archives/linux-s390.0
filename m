@@ -2,149 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C7BC54EE9
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 12:32:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61720C54EE9
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 14:00:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231209AbiITMb6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Sep 2022 08:31:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47960 "EHLO
+        id S230394AbiITOAd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Sep 2022 10:00:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229689AbiITMbw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 08:31:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2626E564CE;
-        Tue, 20 Sep 2022 05:31:51 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4963B80BEC;
-        Tue, 20 Sep 2022 12:31:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CCCC433D6;
-        Tue, 20 Sep 2022 12:31:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663677108;
-        bh=i2971qM7wlevODiVHlQWVkeQKCoULSDtCivyYa6BY3w=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Q359WuuE7X8iHPUglRgZ6umBriKE4r+Hq60s0D7bZenVvQZ4nI53Q/0IHEDWUvL08
-         uO1lUj+/+gsUuHABZ0IUgFE9VpucvwIQJdQ0+o+qLceGFQWOjTx274Wv0QgoQwQqDB
-         Bq6B/yj6zX6+ne9r87JfQG1DqPPHAUwk/5wBhBEUUm5zmwQcKDqLTClYTCw1gL+EWj
-         y+co7RjqxrjwqgzVQOyvkrVOgNfaKYqf/Dnk/7RydhOFfw29XBhF+VqBugULRYy6nW
-         kGdHmx4EM6/oydyvS6EAGcuvFJCcs2df/Ji6kGzIJMqPXxrjzmWTkMGZJXBpD98pEC
-         ZvljhnwREUPvw==
-Date:   Tue, 20 Sep 2022 14:31:45 +0200
-From:   Frederic Weisbecker <frederic@kernel.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
-        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
-        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
-        shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
-        tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com,
-        will@kernel.org, guoren@kernel.org, bcain@quicinc.com,
-        chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
-        sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de,
-        dinguyen@kernel.org, jonas@southpole.se,
-        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
-        James.Bottomley@HansenPartnership.com, deller@gmx.de,
-        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
-        davem@davemloft.net, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        acme@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
-        amakhalov@vmware.com, pv-drivers@vmware.com,
-        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
-        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
-        gregkh@linuxfoundation.org, mturquette@baylibre.com,
-        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
-        sudeep.holla@arm.com, agross@kernel.org,
-        bjorn.andersson@linaro.org, konrad.dybcio@somainline.org,
-        anup@brainfault.org, thierry.reding@gmail.com,
-        jonathanh@nvidia.com, jacob.jun.pan@linux.intel.com,
-        atishp@atishpatra.org, Arnd Bergmann <arnd@arndb.de>,
-        yury.norov@gmail.com, andriy.shevchenko@linux.intel.com,
-        linux@rasmusvillemoes.dk, dennis@kernel.org, tj@kernel.org,
-        cl@linux.com, rostedt@goodmis.org, pmladek@suse.com,
-        senozhatsky@chromium.org, john.ogness@linutronix.de,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        dietmar.eggemann@arm.com, bsegall@google.com, mgorman@suse.de,
-        bristot@redhat.com, vschneid@redhat.com, fweisbec@gmail.com,
-        ryabinin.a.a@gmail.com, glider@google.com, andreyknvl@gmail.com,
-        dvyukov@google.com, vincenzo.frascino@arm.com,
-        Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-perf-users@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-arch@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: Re: [PATCH v2 00/44] cpuidle,rcu: Clean up the mess
-Message-ID: <20220920123145.GC72346@lothringen>
-References: <20220919095939.761690562@infradead.org>
+        with ESMTP id S230325AbiITOAb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 10:00:31 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2690A17051;
+        Tue, 20 Sep 2022 07:00:30 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28KDkAw5010415;
+        Tue, 20 Sep 2022 14:00:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=j+EMvjBsy0IMEg+i0Vc5T5tC5c3LuWqT+jfH1OLp0qE=;
+ b=ngEDVwmakLzLg0EZwmF+gK3XMK39n1gOrWot4J6jp2nHJfz9lUUWwPImwlmHDzIPia9Z
+ OtxhHgbsczFZBEVZi2++yTCq6kxzCY1KMbZ1rsiAhHUvyP+tOwKB5qDqmBX54Q5eojhY
+ siJL96KC2RAM/lW6HRNbGJrcNQs5FaEM9yJ4P8h4MFK2Tg7f+5KgWF0fVizUIf7XqhbO
+ izajrDcRxYeGMmFSAT9C+tpQX+6x7dOL2RpG8jl0RKydavyuZmztB2tTJy97olHhgVxz
+ eFUxbYHhmh6Zc/L2d1HzF4g6oImuuhcnV6XgpOc8I4gLWzBU2lb1Ol7EyVCj9Xx+WgJc bw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jqepr0daf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Sep 2022 14:00:18 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28KDlE9U013676;
+        Tue, 20 Sep 2022 14:00:16 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jqepr0d4e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Sep 2022 14:00:15 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28KDt1cv003987;
+        Tue, 20 Sep 2022 14:00:12 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma02dal.us.ibm.com with ESMTP id 3jn5v9s46s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Sep 2022 14:00:12 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com ([9.208.128.117])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28KE0BrO65601932
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 20 Sep 2022 14:00:12 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 199C958043;
+        Tue, 20 Sep 2022 14:00:11 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 45E065805F;
+        Tue, 20 Sep 2022 14:00:09 +0000 (GMT)
+Received: from [9.155.210.227] (unknown [9.155.210.227])
+        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 20 Sep 2022 14:00:09 +0000 (GMT)
+Message-ID: <52b73ecf-1a00-69ce-1cb8-8adb8bdd97c8@linux.ibm.com>
+Date:   Tue, 20 Sep 2022 16:00:08 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220919095939.761690562@infradead.org>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.2.2
+Subject: Re: [PATCH net-next v2 0/2] Separate SMC parameter settings from TCP
+ sysctls
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1663667542-119851-1-git-send-email-guwen@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1663667542-119851-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: NbJ7CKR4-1Qc9gUnA9A7-QUt7h1mbzgh
+X-Proofpoint-GUID: eHeb1O3jttufCdabq3PARyDWTOADBkRZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-20_04,2022-09-20_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ spamscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0 suspectscore=0
+ bulkscore=0 mlxlogscore=968 clxscore=1011 impostorscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209200079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 19, 2022 at 11:59:39AM +0200, Peter Zijlstra wrote:
-> Hi All!
-> 
-> At long last, a respin of the cpuidle vs rcu cleanup patches.
-> 
-> v1: https://lkml.kernel.org/r/20220608142723.103523089@infradead.org
-> 
-> These here patches clean up the mess that is cpuidle vs rcuidle.
-> 
-> At the end of the ride there's only on RCU_NONIDLE user left:
-> 
->   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
-> 
-> and 'one' trace_*_rcuidle() user:
-> 
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
-> 
-> However this last is all in deprecated code that should be unused for GENERIC_ENTRY.
-> 
-> I've touched a lot of code that I can't test and I might've broken something by
-> accident. In particular the whole ARM cpuidle stuff was quite involved.
-> 
-> Please all; have a look where you haven't already.
-> 
-> 
-> New since v1:
-> 
->  - rebase on top of Frederic's rcu-context-tracking rename fest
->  - more omap goodness as per the last discusion (thanks Tony!)
->  - removed one more RCU_NONIDLE() from arm64/risc-v perf code
->  - ubsan/kasan fixes
->  - intel_idle module-param for testing
->  - a bunch of extra __always_inline, because compilers are silly.
 
-Except for those I have already tagged as Reviewed:
 
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
+On 20.09.22 11:52, Wen Gu wrote:
+> SMC shares some sysctls with TCP, but considering the difference
+> between these two protocols, it may not be very suitable for SMC
+> to reuse TCP parameter settings in some cases, such as keepalive
+> time or buffer size.
+> 
+> So this patch set aims to introduce some SMC specific sysctls to
+> independently and flexibly set the parameters that suit SMC.
+> 
+> v2->v1:
+> - Use proc_dointvec_jiffies as proc_handler and allow value 0 to
+>    disable TEST_LINK.
+> 
+> Tony Lu (1):
+>    net/smc: Unbind r/w buffer size from clcsock and make them tunable
+> 
+> Wen Gu (1):
+>    net/smc: Introduce a specific sysctl for TEST_LINK time
+> 
+>   Documentation/networking/smc-sysctl.rst | 25 +++++++++++++++++++++++++
+>   include/net/netns/smc.h                 |  3 +++
+>   net/smc/af_smc.c                        |  5 ++---
+>   net/smc/smc_core.c                      |  8 ++++----
+>   net/smc/smc_llc.c                       |  2 +-
+>   net/smc/smc_llc.h                       |  1 +
+>   net/smc/smc_sysctl.c                    | 30 ++++++++++++++++++++++++++++++
+>   7 files changed, 66 insertions(+), 8 deletions(-)
+> 
+Looks good. Thank you!
 
-Thanks for the hard work!
+For the series:
+Acked-by: Wenjia Zhang <wenjia@linux.ibm.com>
