@@ -2,95 +2,165 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEA3FC54EE9
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 03:39:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24F1DECAAD8
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 04:55:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229624AbiITDjz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Sep 2022 23:39:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
+        id S229718AbiITEz1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Sep 2022 00:55:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229471AbiITDjx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 23:39:53 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA521400A;
-        Mon, 19 Sep 2022 20:39:51 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id m3so1907131eda.12;
-        Mon, 19 Sep 2022 20:39:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=G999qRJ3ZYDAwyPJfqHMd90vcXhx8IHao6Ql7QiFPDQ=;
-        b=a1adS1ECR642XvCjjjLjLzQ6JfBYYWC6Zjk4Ayb0GPq1HNHS6cqyiHrOVDg6U66sl0
-         oRwS5IaWQZ+A5oOC1m7PxvHbKpXhbG7+ITj7+GYBrhpBh9xKw8vK67u8q6EX1Xki8DUo
-         CDP74oWnx9ZaM60n/aZKsxAgdaJUVTWMaF9yFWNxcQkdtfYRxgwyEspizTHzaFbOCzgV
-         ow1iuQ8bKgJYPcLGUqqzxM7BgkoIsKCZhQGQhb9cCsywveib9s1aSgybsdN2E41GWeXS
-         rALuCfC8AzbIeVWaRYMIHWZdHmEgrfViS3GY5sZGLUldXsqTqQIWHrw+E1895ArI8ghu
-         cFYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=G999qRJ3ZYDAwyPJfqHMd90vcXhx8IHao6Ql7QiFPDQ=;
-        b=jm8Fgs0HLPj97TBOxVxZMjXc5lcBeZEjFpgiNMPfmDbOsWb82x1Ri/dDToDmFvWgC5
-         y+mueOXZJbSextKT4uj2X0ks5NBcQd4RLvKfmNfwrd67l+IHHayhXgC2AxLv9HyQB3et
-         kd6GUYVG52qRgyt3fJjzRqMT4NYWvI5y6KFtOYiMOS3A4RXIieKpn9Nw8iNFjIvFC0Mp
-         CIRDqbLEjTjC91yvrVwnlJcke3FhRD0/m4ol3oq/uMzO6RQrOzgtPAVNlPsif/+cURvh
-         pgyBSWNxW+IKqY/BB4KG0ga7V3wQ3xxn5ly1CAxzDXOR7U8cjDta28qEPUdKW/LlbDoq
-         B2MQ==
-X-Gm-Message-State: ACrzQf0iT9Hky+MaZDlUtSltzgWUJHjhhRwLPVnzWWv2VSj/WHUWafUs
-        pstEFO0rPjYf7y5lcM8Wikwme+UEzaoKs3SpyVk=
-X-Google-Smtp-Source: AMsMyM6UiGVnTD/J8ryFZQsJHTbdkIhpQZQxOdBwdC1toRqikXsXkHg47dV0ojfdIgLd8MUR/GxUavW0TPpgHSHF44M=
-X-Received: by 2002:aa7:cb87:0:b0:43b:e650:6036 with SMTP id
- r7-20020aa7cb87000000b0043be6506036mr18386887edt.350.1663645189918; Mon, 19
- Sep 2022 20:39:49 -0700 (PDT)
+        with ESMTP id S229557AbiITEz0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 00:55:26 -0400
+Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003D3422EE;
+        Mon, 19 Sep 2022 21:55:24 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R521e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VQHUiMh_1663649720;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VQHUiMh_1663649720)
+          by smtp.aliyun-inc.com;
+          Tue, 20 Sep 2022 12:55:21 +0800
+Date:   Tue, 20 Sep 2022 12:55:20 +0800
+From:   "dust.li" <dust.li@linux.alibaba.com>
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next 1/2] net/smc: Introduce a specific sysctl for
+ TEST_LINK time
+Message-ID: <20220920045520.GC108825@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <1663641907-15852-1-git-send-email-guwen@linux.alibaba.com>
+ <1663642434-30035-1-git-send-email-guwen@linux.alibaba.com>
 MIME-Version: 1.0
-References: <20220822082120.8347-1-yangyicong@huawei.com> <20220822082120.8347-5-yangyicong@huawei.com>
- <302febae-508c-d73e-8676-d51752946645@arm.com>
-In-Reply-To: <302febae-508c-d73e-8676-d51752946645@arm.com>
-From:   Barry Song <21cnbao@gmail.com>
-Date:   Tue, 20 Sep 2022 15:39:38 +1200
-Message-ID: <CAGsJ_4ywwFJFi+q3Ra5UE3twzS9eExtvuXgoGK-8u4c1ZdXCBw@mail.gmail.com>
-Subject: Re: [PATCH v3 4/4] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, catalin.marinas@arm.com, will@kernel.org,
-        linux-doc@vger.kernel.org, corbet@lwn.net, peterz@infradead.org,
-        arnd@arndb.de, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
-        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1663642434-30035-1-git-send-email-guwen@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 20, 2022 at 3:00 PM Anshuman Khandual
-<anshuman.khandual@arm.com> wrote:
+On Tue, Sep 20, 2022 at 10:53:54AM +0800, Wen Gu wrote:
+>SMC-R tests the viability of link by sending out TEST_LINK LLC
+>messages over RoCE fabric when connections on link have been
+>idle for a time longer than keepalive interval (testlink time).
 >
+>But using tcp_keepalive_time as testlink time maybe not quite
+>suitable because it is default no less than two hours[1], which
+>is too long for single link to find peer dead. The active host
+>will still use peer-dead link (QP) sending messages, and can't
+>find out until get IB_WC_RETRY_EXC_ERR error CQEs, which takes
+>more time than TEST_LINK timeout (SMC_LLC_WAIT_TIME) normally.
 >
-> On 8/22/22 13:51, Yicong Yang wrote:
-> > +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> > +{
-> > +     return true;
-> > +}
+>So this patch introduces a independent sysctl for SMC-R to set
+>link keepalive time, in order to detect link down in time. The
+>default value is 30 seconds.
 >
-> This needs to be conditional on systems, where there will be performance
-> improvements, and should not just be enabled all the time on all systems.
-> num_online_cpus() > X, which does not hold any cpu hotplug lock would be
-> a good metric ?
+>[1] https://www.rfc-editor.org/rfc/rfc1122#page-101
+>
+>Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>---
+> Documentation/networking/smc-sysctl.rst |  7 +++++++
+> include/net/netns/smc.h                 |  1 +
+> net/smc/smc_llc.c                       |  2 +-
+> net/smc/smc_llc.h                       |  1 +
+> net/smc/smc_sysctl.c                    | 14 ++++++++++++++
+> 5 files changed, 24 insertions(+), 1 deletion(-)
+>
+>diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
+>index 742e90e..f8c3d59 100644
+>--- a/Documentation/networking/smc-sysctl.rst
+>+++ b/Documentation/networking/smc-sysctl.rst
+>@@ -34,3 +34,10 @@ smcr_buf_type - INTEGER
+>         - 1 - Use virtually contiguous buffers
+>         - 2 - Mixed use of the two types. Try physically contiguous buffers first.
+>           If not available, use virtually contiguous buffers then.
+>+
+>+smcr_testlink_time - INTEGER
+>+	How frequently SMC-R link sends out TEST_LINK LLC messages to confirm
+>+	viability, after the last activity of connections on it. The maximum
+>+	value is (INT_MAX / HZ) seconds, the minimum value is 1 second.
+>+
+>+	Default: 30 seconds.
+>diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+>index 2adbe2b..d295e2c 100644
+>--- a/include/net/netns/smc.h
+>+++ b/include/net/netns/smc.h
+>@@ -19,5 +19,6 @@ struct netns_smc {
+> #endif
+> 	unsigned int			sysctl_autocorking_size;
+> 	unsigned int			sysctl_smcr_buf_type;
+>+	int				sysctl_smcr_testlink_time;
+> };
+> #endif
+>diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+>index 175026a..388bd2e 100644
+>--- a/net/smc/smc_llc.c
+>+++ b/net/smc/smc_llc.c
+>@@ -2127,7 +2127,7 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
+> 	init_waitqueue_head(&lgr->llc_flow_waiter);
+> 	init_waitqueue_head(&lgr->llc_msg_waiter);
+> 	mutex_init(&lgr->llc_conf_mutex);
+>-	lgr->llc_testlink_time = READ_ONCE(net->ipv4.sysctl_tcp_keepalive_time);
+>+	lgr->llc_testlink_time = READ_ONCE(net->smc.sysctl_smcr_testlink_time) * HZ;
+> }
+> 
+> /* called after lgr was removed from lgr_list */
+>diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+>index 4404e52..1de9a29 100644
+>--- a/net/smc/smc_llc.h
+>+++ b/net/smc/smc_llc.h
+>@@ -19,6 +19,7 @@
+> 
+> #define SMC_LLC_WAIT_FIRST_TIME		(5 * HZ)
+> #define SMC_LLC_WAIT_TIME		(2 * HZ)
+>+#define SMC_LLC_TESTLINK_DEFAULT_TIME	30
 
-for a small system, i don't see how this patch will help, e.g. cpus <= 4;
-so we can actually disable tlb-batch on small systems.
-just need to check if we will have any race condition since hotplug will
-make the condition true and false dynamically.
+I'm wondering why we don't follow the upper to macros using (30 * HZ) ?
 
-Thanks
-Barry
+
+> 
+> enum smc_llc_reqresp {
+> 	SMC_LLC_REQ,
+>diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+>index 0613868..7f68520 100644
+>--- a/net/smc/smc_sysctl.c
+>+++ b/net/smc/smc_sysctl.c
+>@@ -16,8 +16,12 @@
+> 
+> #include "smc.h"
+> #include "smc_core.h"
+>+#include "smc_llc.h"
+> #include "smc_sysctl.h"
+> 
+>+static int smcr_testlink_time_min = 1;
+>+static int smcr_testlink_time_max = (INT_MAX / HZ);
+>+
+> static struct ctl_table smc_table[] = {
+> 	{
+> 		.procname       = "autocorking_size",
+>@@ -35,6 +39,15 @@
+> 		.extra1		= SYSCTL_ZERO,
+> 		.extra2		= SYSCTL_TWO,
+> 	},
+>+	{
+>+		.procname	= "smcr_testlink_time",
+>+		.data		= &init_net.smc.sysctl_smcr_testlink_time,
+>+		.maxlen		= sizeof(int),
+>+		.mode		= 0644,
+>+		.proc_handler	= proc_dointvec_minmax,
+>+		.extra1		= &smcr_testlink_time_min,
+>+		.extra2		= &smcr_testlink_time_max,
+>+	},
+> 	{  }
+> };
+> 
+>@@ -60,6 +73,7 @@ int __net_init smc_sysctl_net_init(struct net *net)
+> 
+> 	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
+> 	net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
+>+	net->smc.sysctl_smcr_testlink_time = SMC_LLC_TESTLINK_DEFAULT_TIME;
+> 
+> 	return 0;
+> 
+>-- 
+>1.8.3.1
