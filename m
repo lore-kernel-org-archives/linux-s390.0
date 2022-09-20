@@ -2,85 +2,85 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2CFEC54EE9
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 07:37:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC159C54EE9
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 07:37:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229911AbiITHhM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Sep 2022 03:37:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44614 "EHLO
+        id S230209AbiITHhV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Sep 2022 03:37:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230201AbiITHhL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 03:37:11 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D6C160516;
-        Tue, 20 Sep 2022 00:37:09 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28K7VlJe012159;
-        Tue, 20 Sep 2022 07:37:09 GMT
+        with ESMTP id S229473AbiITHhU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 03:37:20 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28CDA606B4;
+        Tue, 20 Sep 2022 00:37:18 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28K7JhFH003403;
+        Tue, 20 Sep 2022 07:37:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=XJS6h7Hqf7r1OPV/ZjjGlGunF+tbbmUOOmgrsrVKS2s=;
- b=muV1alMZrSNVGOSbNLkrtNIYHxyUFu4RLfOPF8pN5kuyh+ctD6Fasp2DJsQzaak+7Otc
- EVBPWczKU1h/Sdl+zr1Q+e5VPYvUOm6r5zJdLOOH/d5KdHKu6SEAQUB4CVB0wzKTIG6M
- hB4mTWOMNJFriHUUnJ+DnJ1XdJridzPN6KHS/fDOKZ1T0rgWrLCT7Rwz2MBmtuXf/sWi
- 7oR4kWvK4t3cBuQzE7OG7S45CxiT9qfea5SyW2ulCh2DfP01s+dJB/pMq7c5EWhaDs0g
- qlQveQzDFGB0ZCICHiSBXCQGSu87MdlnyBZX9+8WGNqnreLguUPSCJ1G/QUCmXQwIfh7 IQ== 
+ : mime-version; s=pp1; bh=cD+v84j6lTvUofwhz5cILra8bqEbQk/dHqf+ffSrRZs=;
+ b=WuJbhctw2vZ7L12jcxgQ0T+g5Kojbe2luyGsKpBzvI+G6CLR0aTFgbgPasr+eEJc/zeV
+ 12dbkv1X+qC37swbh5oY6kA12KD693zyfQb9PuXPExCknCvurJzHaLPdPU/ITkKGEZHg
+ 6tbNZqW4geVVBRahkEUUbpnruSmjBog0iFMOtu8FWjqeLoDaWUXssq3oAtiaVQNzaOzE
+ 9kp40vcU/8baR9a1cid7mbkIEln4VBv4pLGq3TB1uyepxvqShSLEkozQN6TueqQ+YdVv
+ ONLUj5Fcrp/XF+YIVv2qpXG9uzc40VkpCB7rp4sHgqjV+lYY+Qfz20EyL+vrXsf286jV iw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jq978046k-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jq91j8eqy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Sep 2022 07:37:08 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28K7VnaG012206;
-        Tue, 20 Sep 2022 07:37:08 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jq9780458-1
+        Tue, 20 Sep 2022 07:37:17 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28K7LUxF008920;
+        Tue, 20 Sep 2022 07:37:17 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jq91j8epb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Sep 2022 07:37:08 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28K7KrWU005773;
-        Tue, 20 Sep 2022 07:32:06 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma01fra.de.ibm.com with ESMTP id 3jn5v8jj5p-1
+        Tue, 20 Sep 2022 07:37:17 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28K7LoLf026014;
+        Tue, 20 Sep 2022 07:32:15 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06fra.de.ibm.com with ESMTP id 3jn5ghjk08-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Sep 2022 07:32:05 +0000
+        Tue, 20 Sep 2022 07:32:14 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28K7W29p45154560
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28K7WBtJ48562556
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 20 Sep 2022 07:32:02 GMT
+        Tue, 20 Sep 2022 07:32:12 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B090011C050;
-        Tue, 20 Sep 2022 07:32:02 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DCEC711C050;
+        Tue, 20 Sep 2022 07:32:11 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B5AD311C04A;
-        Tue, 20 Sep 2022 07:32:01 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E156511C04A;
+        Tue, 20 Sep 2022 07:32:10 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 20 Sep 2022 07:32:01 +0000 (GMT)
+        Tue, 20 Sep 2022 07:32:10 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         borntraeger@de.ibm.com, cohuck@redhat.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         thuth@redhat.com, Nico Boehr <nrb@linux.ibm.com>
-Subject: [kvm-unit-tests GIT PULL 03/11] s390x: smp: add tests for calls in wait state
-Date:   Tue, 20 Sep 2022 07:30:27 +0000
-Message-Id: <20220920073035.29201-4-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 11/11] s390x: create persistent comm-key
+Date:   Tue, 20 Sep 2022 07:30:35 +0000
+Message-Id: <20220920073035.29201-12-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220920073035.29201-1-frankja@linux.ibm.com>
 References: <20220920073035.29201-1-frankja@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _HAdkx2w_g2LlAUGlBjTp1T9BB0RkbdF
-X-Proofpoint-ORIG-GUID: 4ezAsU8EtN-DEZEvHoSwAEuoMD_PZ2w6
+X-Proofpoint-GUID: qpVH3qM3mSUC9N5mePuU9xNyUC3kT6E1
+X-Proofpoint-ORIG-GUID: IwYVTwR21lqrkOoQ845O73F4THGX4kw2
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-20_02,2022-09-16_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- bulkscore=0 impostorscore=0 phishscore=0 lowpriorityscore=0
- mlxlogscore=999 priorityscore=1501 clxscore=1015 mlxscore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ lowpriorityscore=0 impostorscore=0 clxscore=1015 malwarescore=0
+ suspectscore=0 adultscore=0 bulkscore=0 priorityscore=1501 spamscore=0
+ mlxscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2209130000 definitions=main-2209200045
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -88,138 +88,82 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Nico Boehr <nrb@linux.ibm.com>
 
-When the SIGP interpretation facility is in use a SIGP external call to
-a waiting CPU will result in an exit of the calling cpu. For non-pv
-guests it's a code 56 (partial execution) exit otherwise its a code 108
-(secure instruction notification) exit. Those exits are handled
-differently from a normal SIGP instruction intercept that happens
-without interpretation and hence need to be tested.
+To decrypt the dump of a PV guest, the comm-key (CCK) is required. Until
+now, no comm-key was provided to genprotimg, therefore decrypting the
+dump of a kvm-unit-test under PV was not possible.
+
+This patch makes sure that we create a random CCK if there's no
+$(TEST_DIR)/comm.key file.
+
+Also allow dumping of PV tests by passing the appropriate PCF to
+genprotimg (bit 34). --x-pcf is used to be compatible with older
+genprotimg versions, which don't support --enable-dump. 0xe0 is the
+default PCF value and only bit 34 is added.
+
+Unfortunately, recent versions of genprotimg removed the --x-comm-key
+argument which was used by older versions to specify the CCK. To support
+these versions, we need to parse the genprotimg help output and decide
+which argument to use.
 
 Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220810074616.1223561-4-nrb@linux.ibm.com
-Message-Id: <20220810074616.1223561-4-nrb@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220909121453.202548-3-nrb@linux.ibm.com
+Message-Id: <20220909121453.202548-3-nrb@linux.ibm.com>
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- s390x/smp.c | 97 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 97 insertions(+)
+ s390x/Makefile | 26 ++++++++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 5a269087..91f3e3bc 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -356,6 +356,102 @@ static void test_calls(void)
- 	}
- }
+diff --git a/s390x/Makefile b/s390x/Makefile
+index a3647689..649486f2 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -164,15 +164,33 @@ $(SNIPPET_DIR)/c/%.hdr: $(SNIPPET_DIR)/c/%.gbin $(HOST_KEY_DOCUMENT)
+ 	$(RM) $(@:.elf=.aux.o)
+ 	@chmod a-x $@
  
-+static void call_in_wait_ext_int_fixup(struct stack_frame_int *stack)
-+{
-+	/* Clear wait bit so we don't immediately wait again after the fixup */
-+	lowcore.ext_old_psw.mask &= ~PSW_MASK_WAIT;
-+}
++# Secure Execution Customer Communication Key file
++# 32 bytes of key material, uses existing one if available
++comm-key = $(TEST_DIR)/comm.key
++$(comm-key):
++	dd if=/dev/urandom of=$@ bs=32 count=1 status=none
 +
-+static void call_in_wait_setup(void)
-+{
-+	expect_ext_int();
-+	ctl_set_bit(0, current_sigp_call_case->cr0_bit);
-+	register_ext_cleanup_func(call_in_wait_ext_int_fixup);
+ %.bin: %.elf
+ 	$(OBJCOPY) -O binary  $< $@
+ 
+-genprotimg_args = --host-key-document $(HOST_KEY_DOCUMENT) --no-verify
++# The genprotimg arguments for the cck changed over time so we need to
++# figure out which argument to use in order to set the cck
++GENPROTIMG_HAS_COMM_KEY = $(shell $(GENPROTIMG) --help | grep -q -- --comm-key && echo yes)
++ifeq ($(GENPROTIMG_HAS_COMM_KEY),yes)
++	GENPROTIMG_COMM_KEY = --comm-key $(comm-key)
++else
++	GENPROTIMG_COMM_KEY = --x-comm-key $(comm-key)
++endif
+ 
+-%selftest.pv.bin: %selftest.bin $(HOST_KEY_DOCUMENT) $(patsubst %.pv.bin,%.parmfile,$@)
++# use x-pcf to be compatible with old genprotimg versions
++# allow dumping + PCKMO
++genprotimg_pcf = 0x200000e0
++genprotimg_args = --host-key-document $(HOST_KEY_DOCUMENT) --no-verify $(GENPROTIMG_COMM_KEY) --x-pcf $(genprotimg_pcf)
 +
-+	set_flag(1);
-+}
-+
-+static void call_in_wait_received(void)
-+{
-+	report(lowcore.ext_int_code == current_sigp_call_case->ext_int_expected_type, "received");
-+
-+	set_flag(1);
-+}
-+
-+static void call_in_wait_cleanup(void)
-+{
-+	ctl_clear_bit(0, current_sigp_call_case->cr0_bit);
-+	register_ext_cleanup_func(NULL);
-+
-+	set_flag(1);
-+}
-+
-+static void test_calls_in_wait(void)
-+{
-+	int i;
-+	struct psw psw;
-+
-+	report_prefix_push("psw wait");
-+	for (i = 0; i < ARRAY_SIZE(cases_sigp_call); i++) {
-+		current_sigp_call_case = &cases_sigp_call[i];
-+
-+		report_prefix_push(current_sigp_call_case->name);
-+		if (!current_sigp_call_case->supports_pv && uv_os_is_guest()) {
-+			report_skip("Not supported under PV");
-+			report_prefix_pop();
-+			continue;
-+		}
-+
-+		/* Let the secondary CPU setup the external mask and the external interrupt cleanup function */
-+		set_flag(0);
-+		psw.mask = extract_psw_mask();
-+		psw.addr = (unsigned long)call_in_wait_setup;
-+		smp_cpu_start(1, psw);
-+
-+		/* Wait until the receiver has finished setup */
-+		wait_for_flag();
-+		set_flag(0);
-+
-+		/*
-+		 * To avoid races, we need to know that the secondary CPU has entered wait,
-+		 * but the architecture provides no way to check whether the secondary CPU
-+		 * is in wait.
-+		 *
-+		 * But since a waiting CPU is considered operating, simply stop the CPU, set
-+		 * up the restart new PSW mask in wait, send the restart interrupt and then
-+		 * wait until the CPU becomes operating (done by smp_cpu_start).
-+		 */
-+		smp_cpu_stop(1);
-+		psw.mask = extract_psw_mask() | PSW_MASK_EXT | PSW_MASK_WAIT;
-+		psw.addr = (unsigned long)call_in_wait_received;
-+		smp_cpu_start(1, psw);
-+
-+		smp_sigp(1, current_sigp_call_case->call, 0, NULL);
-+
-+		/* Wait until the receiver has handled the call */
-+		wait_for_flag();
-+		smp_cpu_stop(1);
-+		set_flag(0);
-+
-+		/*
-+		 * Now clean up the mess we have left behind. If the cleanup
-+		 * were part of call_in_wait_received we would not get a chance
-+		 * to catch an interrupt that is presented twice since we would
-+		 * disable the external call on the first interrupt.
-+		 */
-+		psw.mask = extract_psw_mask();
-+		psw.addr = (unsigned long)call_in_wait_cleanup;
-+		smp_cpu_start(1, psw);
-+
-+		/* Wait until the cleanup has been completed */
-+		wait_for_flag();
-+		smp_cpu_stop(1);
-+
-+		report_prefix_pop();
-+	}
-+	report_prefix_pop();
-+}
-+
- static void test_sense_running(void)
- {
- 	report_prefix_push("sense_running");
-@@ -474,6 +570,7 @@ int main(void)
- 	test_store_status();
- 	test_set_prefix();
- 	test_calls();
-+	test_calls_in_wait();
- 	test_sense_running();
- 	test_reset();
- 	test_reset_initial();
++%selftest.pv.bin: %selftest.bin $(HOST_KEY_DOCUMENT) $(patsubst %.pv.bin,%.parmfile,$@) $(comm-key)
+ 	$(GENPROTIMG) $(genprotimg_args) --parmfile $(patsubst %.pv.bin,%.parmfile,$@) --image $< -o $@
+ 
+-%.pv.bin: %.bin $(HOST_KEY_DOCUMENT)
++%.pv.bin: %.bin $(HOST_KEY_DOCUMENT) $(comm-key)
+ 	$(GENPROTIMG) $(genprotimg_args) --image $< -o $@
+ 
+ $(snippet_asmlib): $$(patsubst %.o,%.S,$$@) $(asm-offsets)
+@@ -180,7 +198,7 @@ $(snippet_asmlib): $$(patsubst %.o,%.S,$$@) $(asm-offsets)
+ 
+ 
+ arch_clean: asm_offsets_clean
+-	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(SNIPPET_DIR)/*/*.{o,elf,*bin,*obj,hdr} $(SNIPPET_DIR)/asm/.*.d $(TEST_DIR)/.*.d lib/s390x/.*.d
++	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(SNIPPET_DIR)/*/*.{o,elf,*bin,*obj,hdr} $(SNIPPET_DIR)/asm/.*.d $(TEST_DIR)/.*.d lib/s390x/.*.d $(comm-key)
+ 
+ generated-files = $(asm-offsets)
+ $(tests:.elf=.o) $(asmlib) $(cflatobjs): $(generated-files)
 -- 
 2.34.1
 
