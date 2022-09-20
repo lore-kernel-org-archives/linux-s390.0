@@ -2,106 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11F90ECAAD8
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 08:29:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34C4DECAAD8
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 08:41:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229570AbiITI3H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Sep 2022 04:29:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
+        id S231499AbiITIlt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Sep 2022 04:41:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231396AbiITI1x (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 04:27:53 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5659696F2;
-        Tue, 20 Sep 2022 01:26:02 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28K8DrTh025801;
-        Tue, 20 Sep 2022 08:26:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=UDzkbnD66p8Er9WZd2o/NMugtvzk0/WLEycMDcZBuC8=;
- b=KF3KS0zo9S++guFnpfgf5k91hPion1s8uhVhRHOT+Bs+LZ9Z0amuCLOlu4ZAlETvW1TW
- OahHCduaOl+dJAYB85/RvrHdi7GPmR/M/TIEAPxxw2yPyQtBJru+wa3pfIEX/E7PxkGe
- I5GM6iMy9CdRysZCORKisCf4X/SpKTms8CppCJKpRQItTJHcZnAag1NJbtwF1kh90wRu
- zpcSSm/+su98NFIqh9s6lpjo7vPWOND8XaTFaoKB0a1bQ5RB8YU75hmWyyKjA8qJH20h
- 2XIyqHKMv41SgQBNspLzVAe6Uj2DTL7N880KtjHtRpYRcBBWlWC2LGabhzoYLjfV37vi hA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jq9trgct1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Sep 2022 08:26:01 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28K8FHSK032159;
-        Tue, 20 Sep 2022 08:26:01 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jq9trgcs1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Sep 2022 08:26:01 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28K8LLJ1015414;
-        Tue, 20 Sep 2022 08:25:59 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03ams.nl.ibm.com with ESMTP id 3jn5v93hu7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Sep 2022 08:25:59 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28K8Pubh34931136
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 20 Sep 2022 08:25:56 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E4E1252051;
-        Tue, 20 Sep 2022 08:25:55 +0000 (GMT)
-Received: from [9.171.60.222] (unknown [9.171.60.222])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 46CBB5204E;
-        Tue, 20 Sep 2022 08:25:55 +0000 (GMT)
-Message-ID: <8b8eb1d8-a8ae-d57f-559f-5e9d0fc981b9@linux.ibm.com>
-Date:   Tue, 20 Sep 2022 10:25:54 +0200
+        with ESMTP id S229905AbiITIlP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 04:41:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5111B29CBC;
+        Tue, 20 Sep 2022 01:39:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E24F6621AA;
+        Tue, 20 Sep 2022 08:39:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BF8AC433D6;
+        Tue, 20 Sep 2022 08:39:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663663189;
+        bh=QLZ/gLimlgPenm2mvkYzFXUkUzl2sWERNFTd7Lrn/1M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AfHPkPepFM7eYC1abChd5HUgbgK6NK5Ayauo2eAkkQ+CyceHVol/FwKHrD0RdQLfO
+         zvLwJIz5hFTcfKysjcDoPWgnwe9DDEKNj2dGeGEO2/kIpq57wb6SpC09LCGTp41BhC
+         qxQ5vAd4G1aZwL9mb4aPm0WIseAcnDPeseRWtIJM6uCN6SGJfOOrvPOzsT+VAJwBNz
+         wiUajd+Ahq99S7H8TFLbbtoaLHF3PS+Az8pt1+z7xkCsVe2mpsMmqYqlwHg5cIBClI
+         ExOjOWmHHdRNPqJTL8pOkUMYH9TCMDUfjtUV19S9P9aYLdb8Rxs1AEAhPOImHVP1XR
+         BbrIzh74M2mzQ==
+Date:   Tue, 20 Sep 2022 10:39:45 +0200
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
+        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
+        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
+        shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, guoren@kernel.org, bcain@quicinc.com,
+        chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
+        sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de,
+        dinguyen@kernel.org, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+        James.Bottomley@hansenpartnership.com, deller@gmx.de,
+        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
+        amakhalov@vmware.com, pv-drivers@vmware.com,
+        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
+        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
+        gregkh@linuxfoundation.org, mturquette@baylibre.com,
+        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
+        sudeep.holla@arm.com, agross@kernel.org,
+        bjorn.andersson@linaro.org, konrad.dybcio@somainline.org,
+        anup@brainfault.org, thierry.reding@gmail.com,
+        jonathanh@nvidia.com, jacob.jun.pan@linux.intel.com,
+        atishp@atishpatra.org, Arnd Bergmann <arnd@arndb.de>,
+        yury.norov@gmail.com, andriy.shevchenko@linux.intel.com,
+        linux@rasmusvillemoes.dk, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, rostedt@goodmis.org, pmladek@suse.com,
+        senozhatsky@chromium.org, john.ogness@linutronix.de,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        dietmar.eggemann@arm.com, bsegall@google.com, mgorman@suse.de,
+        bristot@redhat.com, vschneid@redhat.com, fweisbec@gmail.com,
+        ryabinin.a.a@gmail.com, glider@google.com, andreyknvl@gmail.com,
+        dvyukov@google.com, vincenzo.frascino@arm.com,
+        Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-arch@vger.kernel.org, kasan-dev@googlegroups.com
+Subject: Re: [PATCH v2 09/44] cpuidle,omap3: Push RCU-idle into driver
+Message-ID: <20220920083945.GA69891@lothringen>
+References: <20220919095939.761690562@infradead.org>
+ <20220919101520.936337959@infradead.org>
+ <20220919143142.GA61009@lothringen>
+ <YyiIaeQY8STLK0d0@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.1
-Subject: Re: [PATCH] KVM: s390: pci: fix GAIT physical vs virtual pointers
- usage
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     nrb@linux.ibm.com, pmorel@linux.ibm.com, schnelle@linux.ibm.com,
-        farman@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
-        david@redhat.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220907155952.87356-1-mjrosato@linux.ibm.com>
-Content-Language: en-US
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220907155952.87356-1-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: TmlArscMU7N6LQGiHGFn0By2ZJrVtUOZ
-X-Proofpoint-ORIG-GUID: TqWAQ-Tp0UBpljdVtmcMJ92IiZc5-AP9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-20_02,2022-09-16_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- spamscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0
- mlxlogscore=999 malwarescore=0 suspectscore=0 impostorscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209200049
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YyiIaeQY8STLK0d0@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/7/22 17:59, Matthew Rosato wrote:
-> The GAIT and all of its entries must be represented by physical
-> addresses as this structure is shared with underlying firmware.
-> We can keep a virtual address of the GAIT origin in order to
-> handle processing in the kernel, but when traversing the entries
-> we must again convert the physical AISB stored in that GAIT entry
-> into a virtual address in order to process it.
+On Mon, Sep 19, 2022 at 05:19:05PM +0200, Peter Zijlstra wrote:
+> On Mon, Sep 19, 2022 at 04:31:42PM +0200, Frederic Weisbecker wrote:
+> > On Mon, Sep 19, 2022 at 11:59:48AM +0200, Peter Zijlstra wrote:
+> > > Doing RCU-idle outside the driver, only to then teporarily enable it
+> > > again before going idle is daft.
+> > 
+> > That doesn't tell where those calls are.
 > 
-> Note: this currently doesn't fix a real bug, since virtual addresses
-> are indentical to physical ones.
+> cpu_pm_enter/exit and the power domain stuff, possibly also the clock
+> domain stuff. It's all over :/
 > 
-> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-> Acked-by: Nico Boehr <nrb@linux.ibm.com>
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> I suppose I can add a blub and copy/paste it around the various patches
+> if you want.
 
-Thanks, applied
+Yes please, sorry I don't want to bother but, just for the sake of
+git blame to report something useful in 5 years.
 
+Thanks.
