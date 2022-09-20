@@ -2,92 +2,155 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DFA1C6FA82
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 02:49:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE815C54EE9
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Sep 2022 02:54:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230223AbiITCte (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Sep 2022 22:49:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54354 "EHLO
+        id S229676AbiITCyM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Sep 2022 22:54:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230038AbiITCtb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 22:49:31 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB4C92B3
-        for <linux-s390@vger.kernel.org>; Mon, 19 Sep 2022 19:49:26 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id i15-20020a17090a4b8f00b0020073b4ac27so1072083pjh.3
-        for <linux-s390@vger.kernel.org>; Mon, 19 Sep 2022 19:49:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=rI0IpfDVb05suW6mssP/QFC86Iigix9NLenW3JQ6Phs=;
-        b=lnIljFKp1ED3j5wPYTN7mdVUfk7FiKkjAkcUsYSYUMCZpdQ5U8vkDdIo4K0hiw1RH3
-         +GFslTzjK43l0+rnV0YItKzr73eqf7dBzWl3BzQNkwS39xy9TTbRZE0df01R7//5oEJr
-         gCiIxE6Vh5vvSGpkucOrRiDvI3G32scMCweV8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=rI0IpfDVb05suW6mssP/QFC86Iigix9NLenW3JQ6Phs=;
-        b=NtpAMdza93t4Z8Faq7DZJ8r4hichZ9A3fH3fldvvLeeyTsW/qzn1gnZjcHaD0JuX2P
-         z+Hyci9Yw+uN1OqZKXpXZsaY3DbGSYEuDMj+qSLJWp+NVlkwS5APZw9a10XV+jwaPWES
-         1rc8URZGO+/G7HwmsEuVw/Ko8hFIiP8ohHX2JnqPlqU2Dq6W+RR8xysFUxCp/Dt15/J4
-         xo2AcF2KCQfLvdlYO3AMNCp5tposBjBvG8Na+pESK3aZZXuTKNGTPdtHfmlKW4HnPEBX
-         IGWEpyKiKcud+PyHli7jkgNNnAky4waNgszPQornQMIfu6LmE/A/je31cFMhOFrOcvb3
-         I2CQ==
-X-Gm-Message-State: ACrzQf3ZeTdcUPszw7kC4UaeNWIifqNEjghF2mB5MVun6TH1vGQ24qfn
-        8fuscuz3p/0b6s8h2aC8XSTF7A==
-X-Google-Smtp-Source: AMsMyM7S+Aze7xjQjfeMxV1IycjxiN9uStAZCOz26LYAWGHUeF519ICUTt9w2zkpb7un7hJ/v+di5Q==
-X-Received: by 2002:a17:902:8e84:b0:178:57e4:805b with SMTP id bg4-20020a1709028e8400b0017857e4805bmr2741327plb.144.1663642166279;
-        Mon, 19 Sep 2022 19:49:26 -0700 (PDT)
-Received: from google.com ([240f:75:7537:3187:5744:3726:1f8b:92ad])
-        by smtp.gmail.com with ESMTPSA id j6-20020a170903024600b00178a9b193cfsm119779plh.140.2022.09.19.19.49.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Sep 2022 19:49:25 -0700 (PDT)
-Date:   Tue, 20 Sep 2022 11:49:14 +0900
-From:   Sergey Senozhatsky <senozhatsky@chromium.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     linux@armlinux.org.uk, linux-imx@nxp.com, tglx@linutronix.de,
-        mingo@redhat.com, x86@kernel.org, rostedt@goodmis.org,
-        pmladek@suse.com, senozhatsky@chromium.org,
-        john.ogness@linutronix.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-perf-users@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-arch@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: Re: [PATCH v2 25/44] printk: Remove trace_.*_rcuidle() usage
-Message-ID: <YykqKm5j5q9DEKk7@google.com>
-References: <20220919095939.761690562@infradead.org>
- <20220919101522.021681292@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220919101522.021681292@infradead.org>
+        with ESMTP id S229580AbiITCyK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Sep 2022 22:54:10 -0400
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A288F54652;
+        Mon, 19 Sep 2022 19:54:08 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VQGxTZu_1663642435;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VQGxTZu_1663642435)
+          by smtp.aliyun-inc.com;
+          Tue, 20 Sep 2022 10:54:06 +0800
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH net-next 1/2] net/smc: Introduce a specific sysctl for TEST_LINK time
+Date:   Tue, 20 Sep 2022 10:53:54 +0800
+Message-Id: <1663642434-30035-1-git-send-email-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1663641907-15852-1-git-send-email-guwen@linux.alibaba.com>
+References: <1663641907-15852-1-git-send-email-guwen@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On (22/09/19 12:00), Peter Zijlstra wrote:
-> The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
-> tracepoint"), was printk usage from the cpuidle path where RCU was
-> already disabled.
-> 
-> Per the patches earlier in this series, this is no longer the case.
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-> Acked-by: Petr Mladek <pmladek@suse.com>
+SMC-R tests the viability of link by sending out TEST_LINK LLC
+messages over RoCE fabric when connections on link have been
+idle for a time longer than keepalive interval (testlink time).
 
-Acked-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+But using tcp_keepalive_time as testlink time maybe not quite
+suitable because it is default no less than two hours[1], which
+is too long for single link to find peer dead. The active host
+will still use peer-dead link (QP) sending messages, and can't
+find out until get IB_WC_RETRY_EXC_ERR error CQEs, which takes
+more time than TEST_LINK timeout (SMC_LLC_WAIT_TIME) normally.
+
+So this patch introduces a independent sysctl for SMC-R to set
+link keepalive time, in order to detect link down in time. The
+default value is 30 seconds.
+
+[1] https://www.rfc-editor.org/rfc/rfc1122#page-101
+
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ Documentation/networking/smc-sysctl.rst |  7 +++++++
+ include/net/netns/smc.h                 |  1 +
+ net/smc/smc_llc.c                       |  2 +-
+ net/smc/smc_llc.h                       |  1 +
+ net/smc/smc_sysctl.c                    | 14 ++++++++++++++
+ 5 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
+index 742e90e..f8c3d59 100644
+--- a/Documentation/networking/smc-sysctl.rst
++++ b/Documentation/networking/smc-sysctl.rst
+@@ -34,3 +34,10 @@ smcr_buf_type - INTEGER
+         - 1 - Use virtually contiguous buffers
+         - 2 - Mixed use of the two types. Try physically contiguous buffers first.
+           If not available, use virtually contiguous buffers then.
++
++smcr_testlink_time - INTEGER
++	How frequently SMC-R link sends out TEST_LINK LLC messages to confirm
++	viability, after the last activity of connections on it. The maximum
++	value is (INT_MAX / HZ) seconds, the minimum value is 1 second.
++
++	Default: 30 seconds.
+diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+index 2adbe2b..d295e2c 100644
+--- a/include/net/netns/smc.h
++++ b/include/net/netns/smc.h
+@@ -19,5 +19,6 @@ struct netns_smc {
+ #endif
+ 	unsigned int			sysctl_autocorking_size;
+ 	unsigned int			sysctl_smcr_buf_type;
++	int				sysctl_smcr_testlink_time;
+ };
+ #endif
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 175026a..388bd2e 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -2127,7 +2127,7 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
+ 	init_waitqueue_head(&lgr->llc_flow_waiter);
+ 	init_waitqueue_head(&lgr->llc_msg_waiter);
+ 	mutex_init(&lgr->llc_conf_mutex);
+-	lgr->llc_testlink_time = READ_ONCE(net->ipv4.sysctl_tcp_keepalive_time);
++	lgr->llc_testlink_time = READ_ONCE(net->smc.sysctl_smcr_testlink_time) * HZ;
+ }
+ 
+ /* called after lgr was removed from lgr_list */
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 4404e52..1de9a29 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -19,6 +19,7 @@
+ 
+ #define SMC_LLC_WAIT_FIRST_TIME		(5 * HZ)
+ #define SMC_LLC_WAIT_TIME		(2 * HZ)
++#define SMC_LLC_TESTLINK_DEFAULT_TIME	30
+ 
+ enum smc_llc_reqresp {
+ 	SMC_LLC_REQ,
+diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+index 0613868..7f68520 100644
+--- a/net/smc/smc_sysctl.c
++++ b/net/smc/smc_sysctl.c
+@@ -16,8 +16,12 @@
+ 
+ #include "smc.h"
+ #include "smc_core.h"
++#include "smc_llc.h"
+ #include "smc_sysctl.h"
+ 
++static int smcr_testlink_time_min = 1;
++static int smcr_testlink_time_max = (INT_MAX / HZ);
++
+ static struct ctl_table smc_table[] = {
+ 	{
+ 		.procname       = "autocorking_size",
+@@ -35,6 +39,15 @@
+ 		.extra1		= SYSCTL_ZERO,
+ 		.extra2		= SYSCTL_TWO,
+ 	},
++	{
++		.procname	= "smcr_testlink_time",
++		.data		= &init_net.smc.sysctl_smcr_testlink_time,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &smcr_testlink_time_min,
++		.extra2		= &smcr_testlink_time_max,
++	},
+ 	{  }
+ };
+ 
+@@ -60,6 +73,7 @@ int __net_init smc_sysctl_net_init(struct net *net)
+ 
+ 	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
+ 	net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
++	net->smc.sysctl_smcr_testlink_time = SMC_LLC_TESTLINK_DEFAULT_TIME;
+ 
+ 	return 0;
+ 
+-- 
+1.8.3.1
+
