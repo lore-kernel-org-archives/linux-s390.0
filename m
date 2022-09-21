@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9383C6FA82
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Sep 2022 03:27:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0899CC32771
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Sep 2022 03:28:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231219AbiIUD1q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Sep 2022 23:27:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60112 "EHLO
+        id S231236AbiIUD2T (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Sep 2022 23:28:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231255AbiIUD1X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 23:27:23 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B90EE7EFEC;
-        Tue, 20 Sep 2022 20:27:20 -0700 (PDT)
+        with ESMTP id S231281AbiIUD1i (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 23:27:38 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30948796A7;
+        Tue, 20 Sep 2022 20:27:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1663730841; x=1695266841;
+  t=1663730857; x=1695266857;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=dDtsOeZEKZeVRJLbUwk/2idlkEX+Yr4BRsiywP8eIAU=;
-  b=SKi9DMExqwOW0atK+VfUf0F5HscT00+il6HPiAUcvGTiNOGWcJPraqDb
-   MfASojpQk86ijes98PAOf/1o1Ssba5qUlQD8QnyqWmp2FfpB7p64IvicG
-   wcU+CRQmkExU4vied5HUsslBOWdcRMSk8LLKBNCE+LmLlYbz/epsNZdIj
-   N0hk2uzHFnevGj3wHM7Nz3G52ao2wJUVBh4kHprEE2rCGB7ZJkX8P+hSG
-   oFQEOD4ic6oES90QyJZSxzlaNK6JYQg28X9IT7U1Moa7h3tDeQ/cCFnjB
-   QmjKMrpDxzSI8f3c5JmJmigmYdg4Dbs5ueP9JrHa08Xdif7y0DW6WvYbU
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10476"; a="301284786"
+  bh=B6KCuKXzBeZe6OvWGgPHzWOHrAzPHxMmmQYQw0sU8zU=;
+  b=HqO1RnoUTqvm4GaBoKc2lRdozmu9mDTlB7yl9uSMY+m/N6vtGEDpGijl
+   QHuaqRGLGxGzP5eEj1EXcqZy8Vws0q9eA5vjCxnNiRqUonM1CPGfepZRh
+   7vc6bScd095/8+TYXyYle6bCfb1NUgQPsd/ucfiz1Jkq5ArdKshpN6IQf
+   pW7VReYjtEBeRs41K8wxnETrTo7NHKGK0Kwnv4QGDG5m40TtT26vYR+1i
+   N51TjqA7o5jkzUt5fuiTdORX5ngXwTFSuh7GBoAU3b+bRagBzivmK3Px5
+   1TDjTnLwhx3aIuIOZ3Uvbp6oEB7ViAccAftV6JbAK6jM1x6dFTju8TyYV
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10476"; a="279612635"
 X-IronPort-AV: E=Sophos;i="5.93,332,1654585200"; 
-   d="scan'208";a="301284786"
+   d="scan'208";a="279612635"
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2022 20:27:20 -0700
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2022 20:27:36 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.93,332,1654585200"; 
-   d="scan'208";a="761574303"
+   d="scan'208";a="761574371"
 Received: from sqa-gate.sh.intel.com (HELO michael.clx.dev.tsp.org) ([10.239.48.212])
-  by fmsmga001.fm.intel.com with ESMTP; 20 Sep 2022 20:27:12 -0700
+  by fmsmga001.fm.intel.com with ESMTP; 20 Sep 2022 20:27:28 -0700
 From:   Kevin Tian <kevin.tian@intel.com>
 To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
@@ -77,9 +77,9 @@ To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org
 Cc:     Yi Liu <yi.l.liu@intel.com>
-Subject: [PATCH v4 07/15] vfio/mbochs: Use the new device life cycle helpers
-Date:   Wed, 21 Sep 2022 18:43:53 +0800
-Message-Id: <20220921104401.38898-8-kevin.tian@intel.com>
+Subject: [PATCH v4 09/15] vfio/ap: Use the new device life cycle helpers
+Date:   Wed, 21 Sep 2022 18:43:55 +0800
+Message-Id: <20220921104401.38898-10-kevin.tian@intel.com>
 X-Mailer: git-send-email 2.21.3
 In-Reply-To: <20220921104401.38898-1-kevin.tian@intel.com>
 References: <20220921104401.38898-1-kevin.tian@intel.com>
@@ -91,144 +91,116 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Yi Liu <yi.l.liu@intel.com>
 
-and manage avail_mbytes inside @init/@release.
+and manage available_instances inside @init/@release.
 
 Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 Signed-off-by: Kevin Tian <kevin.tian@intel.com>
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- samples/vfio-mdev/mbochs.c | 73 ++++++++++++++++++++++++--------------
- 1 file changed, 46 insertions(+), 27 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 50 ++++++++++++++++++-------------
+ 1 file changed, 29 insertions(+), 21 deletions(-)
 
-diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-index 344c2901a82b..6901947e27d2 100644
---- a/samples/vfio-mdev/mbochs.c
-+++ b/samples/vfio-mdev/mbochs.c
-@@ -505,13 +505,14 @@ static int mbochs_reset(struct mdev_state *mdev_state)
- 	return 0;
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 6c8c41fac4e1..161597357a64 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -684,42 +684,44 @@ static bool vfio_ap_mdev_filter_matrix(unsigned long *apm, unsigned long *aqm,
+ 			     AP_DOMAINS);
  }
  
--static int mbochs_probe(struct mdev_device *mdev)
-+static int mbochs_init_dev(struct vfio_device *vdev)
+-static int vfio_ap_mdev_probe(struct mdev_device *mdev)
++static int vfio_ap_mdev_init_dev(struct vfio_device *vdev)
  {
--	int avail_mbytes = atomic_read(&mbochs_avail_mbytes);
-+	struct mdev_state *mdev_state =
-+		container_of(vdev, struct mdev_state, vdev);
-+	struct mdev_device *mdev = to_mdev_device(vdev->dev);
- 	const struct mbochs_type *type =
- 		&mbochs_types[mdev_get_type_group_id(mdev)];
--	struct device *dev = mdev_dev(mdev);
--	struct mdev_state *mdev_state;
-+	int avail_mbytes = atomic_read(&mbochs_avail_mbytes);
- 	int ret = -ENOMEM;
+-	struct ap_matrix_mdev *matrix_mdev;
+-	int ret;
++	struct ap_matrix_mdev *matrix_mdev =
++		container_of(vdev, struct ap_matrix_mdev, vdev);
  
- 	do {
-@@ -520,14 +521,9 @@ static int mbochs_probe(struct mdev_device *mdev)
- 	} while (!atomic_try_cmpxchg(&mbochs_avail_mbytes, &avail_mbytes,
- 				     avail_mbytes - type->mbytes));
+ 	if ((atomic_dec_if_positive(&matrix_dev->available_instances) < 0))
+ 		return -EPERM;
  
--	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
--	if (mdev_state == NULL)
--		goto err_avail;
--	vfio_init_group_dev(&mdev_state->vdev, &mdev->dev, &mbochs_dev_ops);
+-	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
+-	if (!matrix_mdev) {
+-		ret = -ENOMEM;
+-		goto err_dec_available;
+-	}
+-	vfio_init_group_dev(&matrix_mdev->vdev, &mdev->dev,
+-			    &vfio_ap_matrix_dev_ops);
 -
- 	mdev_state->vconfig = kzalloc(MBOCHS_CONFIG_SPACE_SIZE, GFP_KERNEL);
--	if (mdev_state->vconfig == NULL)
--		goto err_mem;
-+	if (!mdev_state->vconfig)
-+		goto err_avail;
+-	matrix_mdev->mdev = mdev;
++	matrix_mdev->mdev = to_mdev_device(vdev->dev);
+ 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
+ 	matrix_mdev->pqap_hook = handle_pqap;
+ 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
+ 	hash_init(matrix_mdev->qtable.queues);
  
- 	mdev_state->memsize = type->mbytes * 1024 * 1024;
- 	mdev_state->pagecount = mdev_state->memsize >> PAGE_SHIFT;
-@@ -535,10 +531,7 @@ static int mbochs_probe(struct mdev_device *mdev)
- 				    sizeof(struct page *),
- 				    GFP_KERNEL);
- 	if (!mdev_state->pages)
--		goto err_mem;
--
--	dev_info(dev, "%s: %s, %d MB, %ld pages\n", __func__,
--		 type->name, type->mbytes, mdev_state->pagecount);
-+		goto err_vconfig;
- 
- 	mutex_init(&mdev_state->ops_lock);
- 	mdev_state->mdev = mdev;
-@@ -553,19 +546,47 @@ static int mbochs_probe(struct mdev_device *mdev)
- 	mbochs_create_config_space(mdev_state);
- 	mbochs_reset(mdev_state);
- 
-+	dev_info(vdev->dev, "%s: %s, %d MB, %ld pages\n", __func__,
-+		 type->name, type->mbytes, mdev_state->pagecount);
 +	return 0;
-+
-+err_vconfig:
-+	kfree(mdev_state->vconfig);
-+err_avail:
-+	atomic_add(type->mbytes, &mbochs_avail_mbytes);
-+	return ret;
 +}
 +
-+static int mbochs_probe(struct mdev_device *mdev)
++static int vfio_ap_mdev_probe(struct mdev_device *mdev)
 +{
-+	struct mdev_state *mdev_state;
-+	int ret = -ENOMEM;
++	struct ap_matrix_mdev *matrix_mdev;
++	int ret;
 +
-+	mdev_state = vfio_alloc_device(mdev_state, vdev, &mdev->dev,
-+				       &mbochs_dev_ops);
-+	if (IS_ERR(mdev_state))
-+		return PTR_ERR(mdev_state);
++	matrix_mdev = vfio_alloc_device(ap_matrix_mdev, vdev, &mdev->dev,
++					&vfio_ap_matrix_dev_ops);
++	if (IS_ERR(matrix_mdev))
++		return PTR_ERR(matrix_mdev);
 +
- 	ret = vfio_register_emulated_iommu_dev(&mdev_state->vdev);
+ 	ret = vfio_register_emulated_iommu_dev(&matrix_mdev->vdev);
  	if (ret)
--		goto err_mem;
+-		goto err_list;
 +		goto err_put_vdev;
- 	dev_set_drvdata(&mdev->dev, mdev_state);
+ 	dev_set_drvdata(&mdev->dev, matrix_mdev);
+ 	mutex_lock(&matrix_dev->mdevs_lock);
+ 	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
+ 	mutex_unlock(&matrix_dev->mdevs_lock);
  	return 0;
--err_mem:
--	vfio_uninit_group_dev(&mdev_state->vdev);
-+
+ 
+-err_list:
+-	vfio_uninit_group_dev(&matrix_mdev->vdev);
+-	kfree(matrix_mdev);
+-err_dec_available:
+-	atomic_inc(&matrix_dev->available_instances);
 +err_put_vdev:
-+	vfio_put_device(&mdev_state->vdev);
-+	return ret;
++	vfio_put_device(&matrix_mdev->vdev);
+ 	return ret;
+ }
+ 
+@@ -766,6 +768,12 @@ static void vfio_ap_mdev_unlink_fr_queues(struct ap_matrix_mdev *matrix_mdev)
+ 	}
+ }
+ 
++static void vfio_ap_mdev_release_dev(struct vfio_device *vdev)
++{
++	atomic_inc(&matrix_dev->available_instances);
++	vfio_free_device(vdev);
 +}
 +
-+static void mbochs_release_dev(struct vfio_device *vdev)
-+{
-+	struct mdev_state *mdev_state =
-+		container_of(vdev, struct mdev_state, vdev);
-+
-+	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
- 	kfree(mdev_state->pages);
- 	kfree(mdev_state->vconfig);
--	kfree(mdev_state);
--err_avail:
--	atomic_add(type->mbytes, &mbochs_avail_mbytes);
--	return ret;
-+	vfio_free_device(vdev);
+ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+ {
+ 	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(&mdev->dev);
+@@ -779,9 +787,7 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+ 	list_del(&matrix_mdev->node);
+ 	mutex_unlock(&matrix_dev->mdevs_lock);
+ 	mutex_unlock(&matrix_dev->guests_lock);
+-	vfio_uninit_group_dev(&matrix_mdev->vdev);
+-	kfree(matrix_mdev);
+-	atomic_inc(&matrix_dev->available_instances);
++	vfio_put_device(&matrix_mdev->vdev);
  }
  
- static void mbochs_remove(struct mdev_device *mdev)
-@@ -573,11 +594,7 @@ static void mbochs_remove(struct mdev_device *mdev)
- 	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
+ static ssize_t name_show(struct mdev_type *mtype,
+@@ -1794,6 +1800,8 @@ static const struct attribute_group vfio_queue_attr_group = {
+ };
  
- 	vfio_unregister_group_dev(&mdev_state->vdev);
--	vfio_uninit_group_dev(&mdev_state->vdev);
--	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
--	kfree(mdev_state->pages);
--	kfree(mdev_state->vconfig);
--	kfree(mdev_state);
-+	vfio_put_device(&mdev_state->vdev);
- }
- 
- static ssize_t mbochs_read(struct vfio_device *vdev, char __user *buf,
-@@ -1397,6 +1414,8 @@ static struct attribute_group *mdev_type_groups[] = {
- 
- static const struct vfio_device_ops mbochs_dev_ops = {
- 	.close_device = mbochs_close_device,
-+	.init = mbochs_init_dev,
-+	.release = mbochs_release_dev,
- 	.read = mbochs_read,
- 	.write = mbochs_write,
- 	.ioctl = mbochs_ioctl,
+ static const struct vfio_device_ops vfio_ap_matrix_dev_ops = {
++	.init = vfio_ap_mdev_init_dev,
++	.release = vfio_ap_mdev_release_dev,
+ 	.open_device = vfio_ap_mdev_open_device,
+ 	.close_device = vfio_ap_mdev_close_device,
+ 	.ioctl = vfio_ap_mdev_ioctl,
 -- 
 2.21.3
 
