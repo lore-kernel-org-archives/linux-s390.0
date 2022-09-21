@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE1D5C6FA82
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Sep 2022 03:28:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5280DC6FA8B
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Sep 2022 03:28:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231281AbiIUD2X (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Sep 2022 23:28:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60112 "EHLO
+        id S231401AbiIUD2Z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Sep 2022 23:28:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231374AbiIUD1r (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 23:27:47 -0400
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC3827E83B;
-        Tue, 20 Sep 2022 20:27:44 -0700 (PDT)
+        with ESMTP id S231398AbiIUD17 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Sep 2022 23:27:59 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A2357EFD4;
+        Tue, 20 Sep 2022 20:27:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1663730865; x=1695266865;
+  t=1663730875; x=1695266875;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Mdk7i5r1Q4jvMSjb8yKHvxvRcwp1UXLwmv8Eh1azr44=;
-  b=FeLf+ZczsTjTWjOfKVAmDfm7hidQIF7JN5Omz42U5y+Lx89K5/AqJwRX
-   aoQn4mMWJXgp8AFHbZchcEkzCITUJuFVP0vOUVgUtSyLEquCvzkxvntE2
-   iSQDwCSY7Vpsg3F5QSnk9dxVaaQHl+tpW1dLlVry7sOWGmc5rPrEE++ZU
-   UseYPIQZIzzH5486lsbbPHb0kr1DQtl3yn6qS0JUUUtcavr1sE0vOpb+5
-   TP4UP/7Udo2MSDZtOYvT8bhey/5v2MK3qzPAAiVAWPXzdN+cHYmkJn5Ku
-   Bi0CeZsHgEabES6HVeIX9DWKRHWYkE0zz/fB2NM2VHp97sH1lirNOHqlV
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10476"; a="297483590"
+  bh=voXvV+TvCxvDe+YNBMVq0fqcfmfefLBKYnPfTwa/RVM=;
+  b=didrE9MNKIR71Sj+uDw9LcfT9EfkKdQxcUGoiSk5JpAV8OUoXxJ0CDup
+   pyVJGhYfn/ANaIESwfvBZJeq1MCd2zayXchzwGUFNNPUgD+qgCV0RYe8b
+   jrXR3NjBrlJyX0mzlgiFkuFPoXhKAJEN8ooFLhWo+oIxX7GrA3UDAb4jl
+   C9y7J3TL50ubAHAK1pBVxrIC87Tj3SvvN3xBWarLWB1BWFQFNCrjVBVuK
+   vruluBWuzX9+p+zu6heQN80urDdf0QPPAo7FVNczbV9pvp+oR8TTBVy89
+   QTgIjBrc4qsCwWulNH97ur1A4pFWsWb/wVvfiYlcir4ht9DkfrSH7RfiH
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10476"; a="361643317"
 X-IronPort-AV: E=Sophos;i="5.93,332,1654585200"; 
-   d="scan'208";a="297483590"
+   d="scan'208";a="361643317"
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2022 20:27:28 -0700
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2022 20:27:53 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.93,332,1654585200"; 
-   d="scan'208";a="761574334"
+   d="scan'208";a="761574432"
 Received: from sqa-gate.sh.intel.com (HELO michael.clx.dev.tsp.org) ([10.239.48.212])
-  by fmsmga001.fm.intel.com with ESMTP; 20 Sep 2022 20:27:20 -0700
+  by fmsmga001.fm.intel.com with ESMTP; 20 Sep 2022 20:27:44 -0700
 From:   Kevin Tian <kevin.tian@intel.com>
 To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
@@ -77,9 +77,9 @@ To:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org
 Cc:     Yi Liu <yi.l.liu@intel.com>
-Subject: [PATCH v4 08/15] drm/i915/gvt: Use the new device life cycle helpers
-Date:   Wed, 21 Sep 2022 18:43:54 +0800
-Message-Id: <20220921104401.38898-9-kevin.tian@intel.com>
+Subject: [PATCH v4 11/15] vfio/platform: Use the new device life cycle helpers
+Date:   Wed, 21 Sep 2022 18:43:57 +0800
+Message-Id: <20220921104401.38898-12-kevin.tian@intel.com>
 X-Mailer: git-send-email 2.21.3
 In-Reply-To: <20220921104401.38898-1-kevin.tian@intel.com>
 References: <20220921104401.38898-1-kevin.tian@intel.com>
@@ -89,243 +89,289 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Move vfio_device to the start of intel_vgpu as required by the new
-helpers.
+Move vfio_device_ops from platform core to platform drivers so device
+specific init/cleanup can be added.
 
-Change intel_gvt_create_vgpu() to use intel_vgpu as the first param
-as other vgpu helpers do.
+Introduce two new helpers vfio_platform_init/release_common() for the
+use in driver @init/@release.
+
+vfio_platform_probe/remove_common() will be deprecated.
 
 Signed-off-by: Kevin Tian <kevin.tian@intel.com>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Tested-by: Eric Auger <eric.auger@redhat.com>
 ---
- drivers/gpu/drm/i915/gvt/gvt.h   |  5 ++-
- drivers/gpu/drm/i915/gvt/kvmgt.c | 52 ++++++++++++++++++++++----------
- drivers/gpu/drm/i915/gvt/vgpu.c  | 33 ++++++++------------
- 3 files changed, 50 insertions(+), 40 deletions(-)
+ drivers/vfio/platform/vfio_platform.c         | 66 +++++++++++++++----
+ drivers/vfio/platform/vfio_platform_common.c  | 53 ++++++++++++---
+ drivers/vfio/platform/vfio_platform_private.h | 15 +++++
+ 3 files changed, 111 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gvt/gvt.h b/drivers/gpu/drm/i915/gvt/gvt.h
-index 705689e64011..89fab7896fc6 100644
---- a/drivers/gpu/drm/i915/gvt/gvt.h
-+++ b/drivers/gpu/drm/i915/gvt/gvt.h
-@@ -172,6 +172,7 @@ struct intel_vgpu_submission {
- #define KVMGT_DEBUGFS_FILENAME		"kvmgt_nr_cache_entries"
+diff --git a/drivers/vfio/platform/vfio_platform.c b/drivers/vfio/platform/vfio_platform.c
+index 04f40c5acfd6..82cedcebfd90 100644
+--- a/drivers/vfio/platform/vfio_platform.c
++++ b/drivers/vfio/platform/vfio_platform.c
+@@ -7,6 +7,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/vfio.h>
++#include <linux/pm_runtime.h>
+ #include <linux/platform_device.h>
  
- struct intel_vgpu {
-+	struct vfio_device vfio_device;
- 	struct intel_gvt *gvt;
- 	struct mutex vgpu_lock;
- 	int id;
-@@ -211,7 +212,6 @@ struct intel_vgpu {
+ #include "vfio_platform_private.h"
+@@ -36,14 +37,11 @@ static int get_platform_irq(struct vfio_platform_device *vdev, int i)
+ 	return platform_get_irq_optional(pdev, i);
+ }
  
- 	u32 scan_nonprivbb;
- 
--	struct vfio_device vfio_device;
- 	struct vfio_region *region;
- 	int num_regions;
- 	struct eventfd_ctx *intx_trigger;
-@@ -494,8 +494,7 @@ void intel_gvt_clean_vgpu_types(struct intel_gvt *gvt);
- 
- struct intel_vgpu *intel_gvt_create_idle_vgpu(struct intel_gvt *gvt);
- void intel_gvt_destroy_idle_vgpu(struct intel_vgpu *vgpu);
--struct intel_vgpu *intel_gvt_create_vgpu(struct intel_gvt *gvt,
--					 struct intel_vgpu_type *type);
-+int intel_gvt_create_vgpu(struct intel_vgpu *vgpu, struct intel_vgpu_type *type);
- void intel_gvt_destroy_vgpu(struct intel_vgpu *vgpu);
- void intel_gvt_release_vgpu(struct intel_vgpu *vgpu);
- void intel_gvt_reset_vgpu_locked(struct intel_vgpu *vgpu, bool dmlr,
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index e3cd58946477..41bba40feef8 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -1546,7 +1546,33 @@ static const struct attribute_group *intel_vgpu_groups[] = {
- 	NULL,
- };
- 
-+static int intel_vgpu_init_dev(struct vfio_device *vfio_dev)
-+{
-+	struct mdev_device *mdev = to_mdev_device(vfio_dev->dev);
-+	struct device *pdev = mdev_parent_dev(mdev);
-+	struct intel_gvt *gvt = kdev_to_i915(pdev)->gvt;
-+	struct intel_vgpu_type *type;
-+	struct intel_vgpu *vgpu = vfio_dev_to_vgpu(vfio_dev);
-+
-+	type = &gvt->types[mdev_get_type_group_id(mdev)];
-+	if (!type)
-+		return -EINVAL;
-+
-+	vgpu->gvt = gvt;
-+	return intel_gvt_create_vgpu(vgpu, type);
-+}
-+
-+static void intel_vgpu_release_dev(struct vfio_device *vfio_dev)
-+{
-+	struct intel_vgpu *vgpu = vfio_dev_to_vgpu(vfio_dev);
-+
-+	intel_gvt_destroy_vgpu(vgpu);
-+	vfio_free_device(vfio_dev);
-+}
-+
- static const struct vfio_device_ops intel_vgpu_dev_ops = {
-+	.init		= intel_vgpu_init_dev,
-+	.release	= intel_vgpu_release_dev,
- 	.open_device	= intel_vgpu_open_device,
- 	.close_device	= intel_vgpu_close_device,
- 	.read		= intel_vgpu_read,
-@@ -1558,35 +1584,28 @@ static const struct vfio_device_ops intel_vgpu_dev_ops = {
- 
- static int intel_vgpu_probe(struct mdev_device *mdev)
+-static int vfio_platform_probe(struct platform_device *pdev)
++static int vfio_platform_init_dev(struct vfio_device *core_vdev)
  {
--	struct device *pdev = mdev_parent_dev(mdev);
--	struct intel_gvt *gvt = kdev_to_i915(pdev)->gvt;
--	struct intel_vgpu_type *type;
- 	struct intel_vgpu *vgpu;
- 	int ret;
- 
--	type = &gvt->types[mdev_get_type_group_id(mdev)];
--	if (!type)
--		return -EINVAL;
+-	struct vfio_platform_device *vdev;
+-	int ret;
 -
--	vgpu = intel_gvt_create_vgpu(gvt, type);
-+	vgpu = vfio_alloc_device(intel_vgpu, vfio_device, &mdev->dev,
-+				 &intel_vgpu_dev_ops);
- 	if (IS_ERR(vgpu)) {
- 		gvt_err("failed to create intel vgpu: %ld\n", PTR_ERR(vgpu));
- 		return PTR_ERR(vgpu);
- 	}
+-	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
+-	if (!vdev)
+-		return -ENOMEM;
++	struct vfio_platform_device *vdev =
++		container_of(core_vdev, struct vfio_platform_device, vdev);
++	struct platform_device *pdev = to_platform_device(core_vdev->dev);
  
--	vfio_init_group_dev(&vgpu->vfio_device, &mdev->dev,
--			    &intel_vgpu_dev_ops);
--
- 	dev_set_drvdata(&mdev->dev, vgpu);
- 	ret = vfio_register_emulated_iommu_dev(&vgpu->vfio_device);
+ 	vdev->opaque = (void *) pdev;
+ 	vdev->name = pdev->name;
+@@ -52,24 +50,64 @@ static int vfio_platform_probe(struct platform_device *pdev)
+ 	vdev->get_irq = get_platform_irq;
+ 	vdev->reset_required = reset_required;
+ 
+-	ret = vfio_platform_probe_common(vdev, &pdev->dev);
 -	if (ret) {
--		intel_gvt_destroy_vgpu(vgpu);
+-		kfree(vdev);
 -		return ret;
 -	}
++	return vfio_platform_init_common(vdev);
++}
++
++static const struct vfio_device_ops vfio_platform_ops;
++static int vfio_platform_probe(struct platform_device *pdev)
++{
++	struct vfio_platform_device *vdev;
++	int ret;
++
++	vdev = vfio_alloc_device(vfio_platform_device, vdev, &pdev->dev,
++				 &vfio_platform_ops);
++	if (IS_ERR(vdev))
++		return PTR_ERR(vdev);
++
++	ret = vfio_register_group_dev(&vdev->vdev);
 +	if (ret)
 +		goto out_put_vdev;
- 
- 	gvt_dbg_core("intel_vgpu_create succeeded for mdev: %s\n",
- 		     dev_name(mdev_dev(mdev)));
++
++	pm_runtime_enable(&pdev->dev);
+ 	dev_set_drvdata(&pdev->dev, vdev);
  	return 0;
 +
 +out_put_vdev:
-+	vfio_put_device(&vgpu->vfio_device);
++	vfio_put_device(&vdev->vdev);
 +	return ret;
- }
- 
- static void intel_vgpu_remove(struct mdev_device *mdev)
-@@ -1595,7 +1614,8 @@ static void intel_vgpu_remove(struct mdev_device *mdev)
- 
- 	if (WARN_ON_ONCE(vgpu->attached))
- 		return;
--	intel_gvt_destroy_vgpu(vgpu);
++}
 +
-+	vfio_put_device(&vgpu->vfio_device);
++static void vfio_platform_release_dev(struct vfio_device *core_vdev)
++{
++	struct vfio_platform_device *vdev =
++		container_of(core_vdev, struct vfio_platform_device, vdev);
++
++	vfio_platform_release_common(vdev);
++	vfio_free_device(core_vdev);
  }
  
- static struct mdev_driver intel_vgpu_mdev_driver = {
-diff --git a/drivers/gpu/drm/i915/gvt/vgpu.c b/drivers/gpu/drm/i915/gvt/vgpu.c
-index 46da19b3225d..5c533fbc2c8d 100644
---- a/drivers/gpu/drm/i915/gvt/vgpu.c
-+++ b/drivers/gpu/drm/i915/gvt/vgpu.c
-@@ -302,8 +302,6 @@ void intel_gvt_destroy_vgpu(struct intel_vgpu *vgpu)
- 	mutex_lock(&gvt->lock);
- 	intel_gvt_update_vgpu_types(gvt);
- 	mutex_unlock(&gvt->lock);
--
--	vfree(vgpu);
- }
- 
- #define IDLE_VGPU_IDR 0
-@@ -363,28 +361,23 @@ void intel_gvt_destroy_idle_vgpu(struct intel_vgpu *vgpu)
- 	vfree(vgpu);
- }
- 
--static struct intel_vgpu *__intel_gvt_create_vgpu(struct intel_gvt *gvt,
--		struct intel_vgpu_creation_params *param)
-+static int __intel_gvt_create_vgpu(struct intel_vgpu *vgpu,
-+				   struct intel_vgpu_creation_params *param)
+ static int vfio_platform_remove(struct platform_device *pdev)
  {
-+	struct intel_gvt *gvt = vgpu->gvt;
- 	struct drm_i915_private *dev_priv = gvt->gt->i915;
--	struct intel_vgpu *vgpu;
- 	int ret;
+ 	struct vfio_platform_device *vdev = dev_get_drvdata(&pdev->dev);
  
- 	gvt_dbg_core("low %llu MB high %llu MB fence %llu\n",
- 			param->low_gm_sz, param->high_gm_sz,
- 			param->fence_sz);
- 
--	vgpu = vzalloc(sizeof(*vgpu));
--	if (!vgpu)
--		return ERR_PTR(-ENOMEM);
--
- 	ret = idr_alloc(&gvt->vgpu_idr, vgpu, IDLE_VGPU_IDR + 1, GVT_MAX_VGPU,
- 		GFP_KERNEL);
- 	if (ret < 0)
--		goto out_free_vgpu;
-+		return ret;
- 
- 	vgpu->id = ret;
--	vgpu->gvt = gvt;
- 	vgpu->sched_ctl.weight = param->weight;
- 	mutex_init(&vgpu->vgpu_lock);
- 	mutex_init(&vgpu->dmabuf_lock);
-@@ -437,7 +430,7 @@ static struct intel_vgpu *__intel_gvt_create_vgpu(struct intel_gvt *gvt,
- 	if (ret)
- 		goto out_clean_sched_policy;
- 
--	return vgpu;
-+	return 0;
- 
- out_clean_sched_policy:
- 	intel_vgpu_clean_sched_policy(vgpu);
-@@ -455,9 +448,7 @@ static struct intel_vgpu *__intel_gvt_create_vgpu(struct intel_gvt *gvt,
- 	intel_vgpu_clean_mmio(vgpu);
- out_clean_idr:
- 	idr_remove(&gvt->vgpu_idr, vgpu->id);
--out_free_vgpu:
--	vfree(vgpu);
--	return ERR_PTR(ret);
-+	return ret;
+-	vfio_platform_remove_common(vdev);
+-	kfree(vdev);
++	vfio_unregister_group_dev(&vdev->vdev);
++	pm_runtime_disable(vdev->device);
++	vfio_put_device(&vdev->vdev);
+ 	return 0;
  }
  
- /**
-@@ -470,11 +461,11 @@ static struct intel_vgpu *__intel_gvt_create_vgpu(struct intel_gvt *gvt,
-  * Returns:
-  * pointer to intel_vgpu, error pointer if failed.
++static const struct vfio_device_ops vfio_platform_ops = {
++	.name		= "vfio-platform",
++	.init		= vfio_platform_init_dev,
++	.release	= vfio_platform_release_dev,
++	.open_device	= vfio_platform_open_device,
++	.close_device	= vfio_platform_close_device,
++	.ioctl		= vfio_platform_ioctl,
++	.read		= vfio_platform_read,
++	.write		= vfio_platform_write,
++	.mmap		= vfio_platform_mmap,
++};
++
+ static struct platform_driver vfio_platform_driver = {
+ 	.probe		= vfio_platform_probe,
+ 	.remove		= vfio_platform_remove,
+diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
+index 256f55b84e70..4c01bf0adebb 100644
+--- a/drivers/vfio/platform/vfio_platform_common.c
++++ b/drivers/vfio/platform/vfio_platform_common.c
+@@ -218,7 +218,7 @@ static int vfio_platform_call_reset(struct vfio_platform_device *vdev,
+ 	return -EINVAL;
+ }
+ 
+-static void vfio_platform_close_device(struct vfio_device *core_vdev)
++void vfio_platform_close_device(struct vfio_device *core_vdev)
+ {
+ 	struct vfio_platform_device *vdev =
+ 		container_of(core_vdev, struct vfio_platform_device, vdev);
+@@ -236,8 +236,9 @@ static void vfio_platform_close_device(struct vfio_device *core_vdev)
+ 	vfio_platform_regions_cleanup(vdev);
+ 	vfio_platform_irq_cleanup(vdev);
+ }
++EXPORT_SYMBOL_GPL(vfio_platform_close_device);
+ 
+-static int vfio_platform_open_device(struct vfio_device *core_vdev)
++int vfio_platform_open_device(struct vfio_device *core_vdev)
+ {
+ 	struct vfio_platform_device *vdev =
+ 		container_of(core_vdev, struct vfio_platform_device, vdev);
+@@ -273,9 +274,10 @@ static int vfio_platform_open_device(struct vfio_device *core_vdev)
+ 	vfio_platform_regions_cleanup(vdev);
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(vfio_platform_open_device);
+ 
+-static long vfio_platform_ioctl(struct vfio_device *core_vdev,
+-				unsigned int cmd, unsigned long arg)
++long vfio_platform_ioctl(struct vfio_device *core_vdev,
++			 unsigned int cmd, unsigned long arg)
+ {
+ 	struct vfio_platform_device *vdev =
+ 		container_of(core_vdev, struct vfio_platform_device, vdev);
+@@ -382,6 +384,7 @@ static long vfio_platform_ioctl(struct vfio_device *core_vdev,
+ 
+ 	return -ENOTTY;
+ }
++EXPORT_SYMBOL_GPL(vfio_platform_ioctl);
+ 
+ static ssize_t vfio_platform_read_mmio(struct vfio_platform_region *reg,
+ 				       char __user *buf, size_t count,
+@@ -438,8 +441,8 @@ static ssize_t vfio_platform_read_mmio(struct vfio_platform_region *reg,
+ 	return -EFAULT;
+ }
+ 
+-static ssize_t vfio_platform_read(struct vfio_device *core_vdev,
+-				  char __user *buf, size_t count, loff_t *ppos)
++ssize_t vfio_platform_read(struct vfio_device *core_vdev,
++			   char __user *buf, size_t count, loff_t *ppos)
+ {
+ 	struct vfio_platform_device *vdev =
+ 		container_of(core_vdev, struct vfio_platform_device, vdev);
+@@ -460,6 +463,7 @@ static ssize_t vfio_platform_read(struct vfio_device *core_vdev,
+ 
+ 	return -EINVAL;
+ }
++EXPORT_SYMBOL_GPL(vfio_platform_read);
+ 
+ static ssize_t vfio_platform_write_mmio(struct vfio_platform_region *reg,
+ 					const char __user *buf, size_t count,
+@@ -515,8 +519,8 @@ static ssize_t vfio_platform_write_mmio(struct vfio_platform_region *reg,
+ 	return -EFAULT;
+ }
+ 
+-static ssize_t vfio_platform_write(struct vfio_device *core_vdev, const char __user *buf,
+-				   size_t count, loff_t *ppos)
++ssize_t vfio_platform_write(struct vfio_device *core_vdev, const char __user *buf,
++			    size_t count, loff_t *ppos)
+ {
+ 	struct vfio_platform_device *vdev =
+ 		container_of(core_vdev, struct vfio_platform_device, vdev);
+@@ -537,6 +541,7 @@ static ssize_t vfio_platform_write(struct vfio_device *core_vdev, const char __u
+ 
+ 	return -EINVAL;
+ }
++EXPORT_SYMBOL_GPL(vfio_platform_write);
+ 
+ static int vfio_platform_mmap_mmio(struct vfio_platform_region region,
+ 				   struct vm_area_struct *vma)
+@@ -558,7 +563,7 @@ static int vfio_platform_mmap_mmio(struct vfio_platform_region region,
+ 			       req_len, vma->vm_page_prot);
+ }
+ 
+-static int vfio_platform_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma)
++int vfio_platform_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma)
+ {
+ 	struct vfio_platform_device *vdev =
+ 		container_of(core_vdev, struct vfio_platform_device, vdev);
+@@ -598,6 +603,7 @@ static int vfio_platform_mmap(struct vfio_device *core_vdev, struct vm_area_stru
+ 
+ 	return -EINVAL;
+ }
++EXPORT_SYMBOL_GPL(vfio_platform_mmap);
+ 
+ static const struct vfio_device_ops vfio_platform_ops = {
+ 	.name		= "vfio-platform",
+@@ -639,6 +645,35 @@ static int vfio_platform_of_probe(struct vfio_platform_device *vdev,
+  * If the firmware is ACPI type, then acpi_disabled is 0. All other checks are
+  * valid checks. We cannot claim that this system is DT.
   */
--struct intel_vgpu *intel_gvt_create_vgpu(struct intel_gvt *gvt,
--				struct intel_vgpu_type *type)
-+int intel_gvt_create_vgpu(struct intel_vgpu *vgpu, struct intel_vgpu_type *type)
- {
-+	struct intel_gvt *gvt = vgpu->gvt;
- 	struct intel_vgpu_creation_params param;
--	struct intel_vgpu *vgpu;
++int vfio_platform_init_common(struct vfio_platform_device *vdev)
++{
 +	int ret;
- 
- 	param.primary = 1;
- 	param.low_gm_sz = type->low_gm_size;
-@@ -488,15 +479,15 @@ struct intel_vgpu *intel_gvt_create_vgpu(struct intel_gvt *gvt,
- 	param.high_gm_sz = BYTES_TO_MB(param.high_gm_sz);
- 
- 	mutex_lock(&gvt->lock);
--	vgpu = __intel_gvt_create_vgpu(gvt, &param);
--	if (!IS_ERR(vgpu)) {
-+	ret = __intel_gvt_create_vgpu(vgpu, &param);
-+	if (!ret) {
- 		/* calculate left instance change for types */
- 		intel_gvt_update_vgpu_types(gvt);
- 		intel_gvt_update_reg_whitelist(vgpu);
- 	}
- 	mutex_unlock(&gvt->lock);
- 
--	return vgpu;
++	struct device *dev = vdev->vdev.dev;
++
++	ret = vfio_platform_acpi_probe(vdev, dev);
++	if (ret)
++		ret = vfio_platform_of_probe(vdev, dev);
++
++	if (ret)
++		return ret;
++
++	vdev->device = dev;
++	mutex_init(&vdev->igate);
++
++	ret = vfio_platform_get_reset(vdev);
++	if (ret && vdev->reset_required)
++		dev_err(dev, "No reset function found for device %s\n",
++			vdev->name);
 +	return ret;
- }
++}
++EXPORT_SYMBOL_GPL(vfio_platform_init_common);
++
++void vfio_platform_release_common(struct vfio_platform_device *vdev)
++{
++	vfio_platform_put_reset(vdev);
++}
++EXPORT_SYMBOL_GPL(vfio_platform_release_common);
++
+ int vfio_platform_probe_common(struct vfio_platform_device *vdev,
+ 			       struct device *dev)
+ {
+diff --git a/drivers/vfio/platform/vfio_platform_private.h b/drivers/vfio/platform/vfio_platform_private.h
+index 691b43f4b2b2..a769d649fb97 100644
+--- a/drivers/vfio/platform/vfio_platform_private.h
++++ b/drivers/vfio/platform/vfio_platform_private.h
+@@ -81,6 +81,21 @@ struct vfio_platform_reset_node {
+ int vfio_platform_probe_common(struct vfio_platform_device *vdev,
+ 			       struct device *dev);
+ void vfio_platform_remove_common(struct vfio_platform_device *vdev);
++int vfio_platform_init_common(struct vfio_platform_device *vdev);
++void vfio_platform_release_common(struct vfio_platform_device *vdev);
++
++int vfio_platform_open_device(struct vfio_device *core_vdev);
++void vfio_platform_close_device(struct vfio_device *core_vdev);
++long vfio_platform_ioctl(struct vfio_device *core_vdev,
++			 unsigned int cmd, unsigned long arg);
++ssize_t vfio_platform_read(struct vfio_device *core_vdev,
++			   char __user *buf, size_t count,
++			   loff_t *ppos);
++ssize_t vfio_platform_write(struct vfio_device *core_vdev,
++			    const char __user *buf,
++			    size_t count, loff_t *ppos);
++int vfio_platform_mmap(struct vfio_device *core_vdev,
++		       struct vm_area_struct *vma);
  
- /**
+ int vfio_platform_irq_init(struct vfio_platform_device *vdev);
+ void vfio_platform_irq_cleanup(struct vfio_platform_device *vdev);
 -- 
 2.21.3
 
