@@ -2,73 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78352C32771
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Sep 2022 08:27:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16FA9C6FA8B
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Sep 2022 08:45:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229751AbiIUI1G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Sep 2022 04:27:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47954 "EHLO
+        id S230103AbiIUIpg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Sep 2022 04:45:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230030AbiIUI0h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Sep 2022 04:26:37 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F05162C4;
-        Wed, 21 Sep 2022 01:25:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=N+sWBwv5MxF+6L51ydEyB/jrgY323m4Yuf+2/IegXt4=; b=O7cVp4ViyjbDED2MT57s8CArTF
-        J7kYu9tRk1fnkzTktLGQXVs586llVSIWhD/yW4lryR7aPAkol4HRjkMiV1t+Nfz9hueTNgekkURIO
-        z+yUMSQ4OFaWQ49/SUgLunFG49kuif1zJp57EW1uIukdqKgKpI9GO4fpdunpOPVTBXTrTBQGnwGsf
-        9bAE3n5MrZFnNnLHrJSJcljwllDRsasEoah/KhT0pzpT2pyRAq40XdRB+k90yJo5u67lLd/SZYvLE
-        ii/M9BMy5W8s49SjqmvD/EfTCTVa7WuFktvF8/eE5sreUcEjbU8lWm+6fGBXDyYtVxJinG5S6czIU
-        wYN6zxEA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oav2u-0069Vh-1E; Wed, 21 Sep 2022 08:25:28 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 948DD300074;
-        Wed, 21 Sep 2022 10:25:23 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 775192BB085DD; Wed, 21 Sep 2022 10:25:23 +0200 (CEST)
-Date:   Wed, 21 Sep 2022 10:25:23 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
-Cc:     anil.s.keshavamurthy@intel.com, borntraeger@linux.ibm.com,
-        catalin.marinas@arm.com, dave.hansen@linux.intel.com,
-        gor@linux.ibm.com, guoren@kernel.org, hca@linux.ibm.com,
-        hpa@zytor.com, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, mark.rutland@arm.com,
-        mhiramat@kernel.org, namit@vmware.com, palmer@dabbelt.com,
-        paul.walmsley@sifive.com, x86@kernel.org,
-        Yipeng Zou <zouyipeng@huawei.com>, chris.zjh@huawei.com,
-        liaochang1@huawei.com
-Subject: Re: [PATCH 0/2] make weak attributes in {k,u}probes
-Message-ID: <YyrKc/tpLllEBH/m@hirez.programming.kicks-ass.net>
-References: <20220917015522.44583-1-zouyipeng@huawei.com>
- <1663692878.h3l8c563n8.naveen@linux.ibm.com>
+        with ESMTP id S229657AbiIUIpf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Sep 2022 04:45:35 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E392A78210;
+        Wed, 21 Sep 2022 01:45:32 -0700 (PDT)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4MXX4T0cFqzHpq5;
+        Wed, 21 Sep 2022 16:43:21 +0800 (CST)
+Received: from localhost.localdomain (10.67.164.66) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Wed, 21 Sep 2022 16:45:30 +0800
+From:   Yicong Yang <yangyicong@huawei.com>
+To:     <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
+        <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
+        <catalin.marinas@arm.com>, <will@kernel.org>,
+        <linux-doc@vger.kernel.org>
+CC:     <corbet@lwn.net>, <peterz@infradead.org>, <arnd@arndb.de>,
+        <linux-kernel@vger.kernel.org>, <darren@os.amperecomputing.com>,
+        <yangyicong@hisilicon.com>, <huzhanyuan@oppo.com>,
+        <lipeifeng@oppo.com>, <zhangshiming@oppo.com>, <guojian@oppo.com>,
+        <realmz6@gmail.com>, <linux-mips@vger.kernel.org>,
+        <openrisc@lists.librecores.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        Barry Song <21cnbao@gmail.com>, <wangkefeng.wang@huawei.com>,
+        <xhao@linux.alibaba.com>, <prime.zeng@hisilicon.com>,
+        <anshuman.khandual@arm.com>
+Subject: [PATCH v4 0/2] mm: arm64: bring up BATCHED_UNMAP_TLB_FLUSH
+Date:   Wed, 21 Sep 2022 16:43:00 +0800
+Message-ID: <20220921084302.43631-1-yangyicong@huawei.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1663692878.h3l8c563n8.naveen@linux.ibm.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.164.66]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 20, 2022 at 10:32:46PM +0530, Naveen N. Rao wrote:
-> Yipeng Zou wrote:
-> > We have some function implementation under some arch does nothing.
-> > We can mark it with weak attributes to improve.
-> 
-> That's not always an improvement. See [1] for an example, among many other
-> patches to reduce use of __weak functions in the kernel.
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-More weak 'fun':
+Though ARM64 has the hardware to do tlb shootdown, the hardware
+broadcasting is not free.
+A simplest micro benchmark shows even on snapdragon 888 with only
+8 cores, the overhead for ptep_clear_flush is huge even for paging
+out one page mapped by only one process:
+5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
 
-  https://lkml.kernel.org/r/20220419203807.655552918@infradead.org
+While pages are mapped by multiple processes or HW has more CPUs,
+the cost should become even higher due to the bad scalability of
+tlb shootdown.
+
+The same benchmark can result in 16.99% CPU consumption on ARM64
+server with around 100 cores according to Yicong's test on patch
+4/4.
+
+This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+1. only send tlbi instructions in the first stage -
+	arch_tlbbatch_add_mm()
+2. wait for the completion of tlbi by dsb while doing tlbbatch
+	sync in arch_tlbbatch_flush()
+Testing on snapdragon shows the overhead of ptep_clear_flush
+is removed by the patchset. The micro benchmark becomes 5% faster
+even for one page mapped by single process on snapdragon 888.
+
+-v4:
+1. Add tags from Kefeng and Anshuman, Thanks.
+2. Limit the TLB batch/defer on systems with >4 CPUs, per Anshuman
+3. Merge previous Patch 1,2-3 into one, per Anshuman
+Link: https://lore.kernel.org/linux-mm/20220822082120.8347-1-yangyicong@huawei.com/
+
+-v3:
+1. Declare arch's tlbbatch defer support by arch_tlbbatch_should_defer() instead
+   of ARCH_HAS_MM_CPUMASK, per Barry and Kefeng
+2. Add Tested-by from Xin Hao
+Link: https://lore.kernel.org/linux-mm/20220711034615.482895-1-21cnbao@gmail.com/
+
+-v2:
+1. Collected Yicong's test result on kunpeng920 ARM64 server;
+2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
+   according to the comments of Peter Zijlstra and Dave Hansen
+3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
+   is empty according to the comments of Nadav Amit
+
+Thanks, Peter, Dave and Nadav for your testing or reviewing
+, and comments.
+
+-v1:
+https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
+
+
+Anshuman Khandual (1):
+  mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
+
+Barry Song (1):
+  arm64: support batched/deferred tlb shootdown during page reclamation
+
+ .../features/vm/TLB/arch-support.txt          |  2 +-
+ arch/arm64/Kconfig                            |  1 +
+ arch/arm64/include/asm/tlbbatch.h             | 12 ++++++
+ arch/arm64/include/asm/tlbflush.h             | 37 ++++++++++++++++++-
+ arch/x86/include/asm/tlbflush.h               | 15 +++++++-
+ mm/rmap.c                                     | 19 ++++------
+ 6 files changed, 70 insertions(+), 16 deletions(-)
+ create mode 100644 arch/arm64/include/asm/tlbbatch.h
+
+-- 
+2.24.0
+
