@@ -2,142 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B031DC6FA82
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Sep 2022 13:00:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9837BC54EE9
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Sep 2022 13:05:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231717AbiIVNAG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Sep 2022 09:00:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41416 "EHLO
+        id S229787AbiIVNFp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Sep 2022 09:05:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230165AbiIVNAA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Sep 2022 09:00:00 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94DBC9599
-        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 05:59:59 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28MCPxJm021371
-        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 12:59:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=8zyMtoHW5jwzHVvlxI7FZIhnrw+I9tIbySzZiMSyseU=;
- b=TAtpK1hrAoGE4Ae8Tq3uS+9CdmVgSEPH0aWrEeYu19pZ0l7RFllyiQO4BLxLz9T92rBp
- ltQ/9DV4FGv+JrRPPkMY0178oH5DE2SITGbIDzclS6i7NcEuBaJN0vg14724/Fhe1K4B
- me+Eq+BCalqPRsHUvRJkF3CEeLjln3MxHol5ylptFZ7hyM4rShHcJ0HBAgcS5WlrmNjr
- ofdf44MisTjsOaGax+82r831ghAWs4+qDc41XOtIeeAOrbJ0BvvVu9V9e3Z263RVArHN
- 6FDSbbcirb1cqC8elHlKBCRsv6MBbRivHOTlJXQGpaaIY4sGxVnVo7pobsKeIn73v6ta 8A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jrqq4151h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 12:59:59 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28MCRJPP025993
-        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 12:59:58 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jrqq4150h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Sep 2022 12:59:58 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28MCol6H015689;
-        Thu, 22 Sep 2022 12:59:56 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma02fra.de.ibm.com with ESMTP id 3jn5v8vy3x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Sep 2022 12:59:56 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28MCxqe039846274
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 22 Sep 2022 12:59:53 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D9B9FA4051;
-        Thu, 22 Sep 2022 12:59:52 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE98AA4053;
-        Thu, 22 Sep 2022 12:59:52 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 22 Sep 2022 12:59:52 +0000 (GMT)
-From:   Vineeth Vijayan <vneethv@linux.ibm.com>
-To:     cohuck@redhat.com
-Cc:     oberpar@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH] docs/ABI: remove invalid email address from sysfs-bus-css
-Date:   Thu, 22 Sep 2022 14:59:52 +0200
-Message-Id: <20220922125952.2825830-1-vneethv@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229673AbiIVNFo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Sep 2022 09:05:44 -0400
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13696E3EFB;
+        Thu, 22 Sep 2022 06:05:41 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VQStrrr_1663851937;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VQStrrr_1663851937)
+          by smtp.aliyun-inc.com;
+          Thu, 22 Sep 2022 21:05:38 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH net-next] net/smc: Support SO_REUSEPORT
+Date:   Thu, 22 Sep 2022 20:19:07 +0800
+Message-Id: <20220922121906.72406-1-tonylu@linux.alibaba.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jYSabxJloDo5-vjNNMvIdajP_VEenEuZ
-X-Proofpoint-ORIG-GUID: FLXhHBGn4GB2RVIbr34l8ji-FlU9iDuV
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-22_08,2022-09-22_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
- phishscore=0 suspectscore=0 adultscore=0 bulkscore=0 malwarescore=0
- clxscore=1015 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209220083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Remove Cornelia's invalid email address from the file as suggested by
-her. List only the linux-s390 vger address as the contact.
+This enables SO_REUSEPORT [1] for clcsock when it is set on smc socket,
+so that some applications which uses it can be transparently replaced
+with SMC. Also, this helps improve load distribution.
 
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Here is a simple test of NGINX + wrk with SMC. The CPU usage is collected
+on NGINX (server) side as below.
+
+Disable SO_REUSEPORT:
+
+05:15:33 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+05:15:34 PM  all    7.02    0.00   11.86    0.00    2.04    8.93    0.00    0.00    0.00   70.15
+05:15:34 PM    0    0.00    0.00    0.00    0.00   16.00   70.00    0.00    0.00    0.00   14.00
+05:15:34 PM    1   11.58    0.00   22.11    0.00    0.00    0.00    0.00    0.00    0.00   66.32
+05:15:34 PM    2    1.00    0.00    1.00    0.00    0.00    0.00    0.00    0.00    0.00   98.00
+05:15:34 PM    3   16.84    0.00   30.53    0.00    0.00    0.00    0.00    0.00    0.00   52.63
+05:15:34 PM    4   28.72    0.00   44.68    0.00    0.00    0.00    0.00    0.00    0.00   26.60
+05:15:34 PM    5    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
+05:15:34 PM    6    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
+05:15:34 PM    7    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
+
+Enable SO_REUSEPORT:
+
+05:15:20 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+05:15:21 PM  all    8.56    0.00   14.40    0.00    2.20    9.86    0.00    0.00    0.00   64.98
+05:15:21 PM    0    0.00    0.00    4.08    0.00   14.29   76.53    0.00    0.00    0.00    5.10
+05:15:21 PM    1    9.09    0.00   16.16    0.00    1.01    0.00    0.00    0.00    0.00   73.74
+05:15:21 PM    2    9.38    0.00   16.67    0.00    1.04    0.00    0.00    0.00    0.00   72.92
+05:15:21 PM    3   10.42    0.00   17.71    0.00    1.04    0.00    0.00    0.00    0.00   70.83
+05:15:21 PM    4    9.57    0.00   15.96    0.00    0.00    0.00    0.00    0.00    0.00   74.47
+05:15:21 PM    5    9.18    0.00   15.31    0.00    0.00    1.02    0.00    0.00    0.00   74.49
+05:15:21 PM    6    8.60    0.00   15.05    0.00    0.00    0.00    0.00    0.00    0.00   76.34
+05:15:21 PM    7   12.37    0.00   14.43    0.00    0.00    0.00    0.00    0.00    0.00   73.20
+
+Using SO_REUSEPORT helps the load distribution of NGINX be more
+balanced.
+
+[1] https://man7.org/linux/man-pages/man7/socket.7.html
+
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
 ---
- Documentation/ABI/testing/sysfs-bus-css | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ net/smc/af_smc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-css b/Documentation/ABI/testing/sysfs-bus-css
-index 12a733fe357f..d4d5cfb63b90 100644
---- a/Documentation/ABI/testing/sysfs-bus-css
-+++ b/Documentation/ABI/testing/sysfs-bus-css
-@@ -1,22 +1,19 @@
- What:		/sys/bus/css/devices/.../type
- Date:		March 2008
--Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
--		linux-s390@vger.kernel.org
-+Contact:	linux-s390@vger.kernel.org
- Description:	Contains the subchannel type, as reported by the hardware.
- 		This attribute is present for all subchannel types.
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 0939cc3b915a..d933a804c94b 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -427,6 +427,7 @@ static int smc_bind(struct socket *sock, struct sockaddr *uaddr,
+ 		goto out_rel;
  
- What:		/sys/bus/css/devices/.../modalias
- Date:		March 2008
--Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
--		linux-s390@vger.kernel.org
-+Contact:	linux-s390@vger.kernel.org
- Description:	Contains the module alias as reported with uevents.
- 		It is of the format css:t<type> and present for all
- 		subchannel types.
+ 	smc->clcsock->sk->sk_reuse = sk->sk_reuse;
++	smc->clcsock->sk->sk_reuseport = sk->sk_reuseport;
+ 	rc = kernel_bind(smc->clcsock, uaddr, addr_len);
  
- What:		/sys/bus/css/drivers/io_subchannel/.../chpids
- Date:		December 2002
--Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
--		linux-s390@vger.kernel.org
-+Contact:	linux-s390@vger.kernel.org
- Description:	Contains the ids of the channel paths used by this
- 		subchannel, as reported by the channel subsystem
- 		during subchannel recognition.
-@@ -26,8 +23,7 @@ Users:		s390-tools, HAL
- 
- What:		/sys/bus/css/drivers/io_subchannel/.../pimpampom
- Date:		December 2002
--Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
--		linux-s390@vger.kernel.org
-+Contact:	linux-s390@vger.kernel.org
- Description:	Contains the PIM/PAM/POM values, as reported by the
- 		channel subsystem when last queried by the common I/O
- 		layer (this implies that this attribute is not necessarily
-@@ -38,8 +34,7 @@ Users:		s390-tools, HAL
- 
- What:		/sys/bus/css/devices/.../driver_override
- Date:		June 2019
--Contact:	Cornelia Huck <cohuck@redhat.com>
--		linux-s390@vger.kernel.org
-+Contact:	linux-s390@vger.kernel.org
- Description:	This file allows the driver for a device to be specified. When
- 		specified, only a driver with a name matching the value written
- 		to driver_override will have an opportunity to bind to the
+ out_rel:
 -- 
-2.34.1
+2.19.1.6.gb485710b
 
