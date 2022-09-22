@@ -2,78 +2,80 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA565C54EE9
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Sep 2022 13:07:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0379C6FA82
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Sep 2022 13:07:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229982AbiIVNHN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Sep 2022 09:07:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52894 "EHLO
+        id S230266AbiIVNH4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Sep 2022 09:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229704AbiIVNHM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Sep 2022 09:07:12 -0400
+        with ESMTP id S231371AbiIVNH4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Sep 2022 09:07:56 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5F0FEA595
-        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 06:07:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDEADEBBD9;
+        Thu, 22 Sep 2022 06:07:52 -0700 (PDT)
 Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28MC7vAQ040487
-        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 13:07:10 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28MC7s08040211;
+        Thu, 22 Sep 2022 13:07:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=TOx+McXdu6sMebhsentVSIyAaaXg3hSDB9T9ebXcDio=;
- b=lnH0CY8q5p54N1FyyGddoM1k4s+tzrBPlts+xETYusOJqlBaigI0xVJyRadL5xChwOmH
- mg+qH3HDWe9XYR7kqZdWW2f3VwXQucz0Zi9rhDQh57R4WBGiCw7ga1Wm2NVqmaqMkLao
- K+HVoAAIYuuXimHUOJUvDh9LVfNYbWCYeOPIfy9S0/LLD8kI9oEBU0RuL3Bg/FuY8S00
- EnU9KQkVWqJtT+/OHSFFd2nirZOUIRe86jE+BdHUrihxrZD9PvyUWLhJDz2Stpy5mDlT
- RDbOVJ0qfbjphdAmumfHUeZ3PdbjJ9fGzC1Re5h6P/gQxqa3T1R9VBrOG1hTVvHHPMwg OQ== 
+ bh=q7LEtkkgFV0njCg4g7kbXCJa8wesV8Ayt2anvsqHOas=;
+ b=sXwzZnbOLXR/uT/ONZALao69gWV+4uP48hRtN5By1nyFojYAaSMBgGp2WxISI5NU3c1k
+ m5/ZGD2OjKEqMlqRW12afDhs3ImWUok67RFGVcZ2q5R6wozn1rMv4e9sS/R/bL6uN4Vr
+ W2eAYRCJuhnW1prVYbNv6GKu+V4HrUo76wSO6v8inNDymjP+IU5dN67Qe68F+raxKpu+
+ JDbG4GCQtqinOfrEOCDHtFpeY7jgD/Mye6+m7diRGGyNp/1AqmqoIrk1aT8rOcseR1Sq
+ vT30tmTYhgh2IS52He88usNnc0GbgPEAqLsP33UB5733H/wXZMpDNhvuWx3NJWWZAifl zw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jrptcb5tf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 13:07:09 +0000
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jrptcb7ud-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 22 Sep 2022 13:07:50 +0000
 Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28MCAPPC010418
-        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 13:07:09 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jrptcb5m6-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28MC8q2X003722;
+        Thu, 22 Sep 2022 13:07:48 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jrptcb7k4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Sep 2022 13:07:08 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28MD5CM3009725;
-        Thu, 22 Sep 2022 13:07:06 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3jn5v8ppm6-1
+        Thu, 22 Sep 2022 13:07:47 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28MD6PFt029854;
+        Thu, 22 Sep 2022 13:07:42 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma01dal.us.ibm.com with ESMTP id 3jn5va8ycy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Sep 2022 13:07:05 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28MD72G441222516
+        Thu, 22 Sep 2022 13:07:42 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com ([9.208.128.117])
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28MD7fmE52822472
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 22 Sep 2022 13:07:02 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 77845AE057;
-        Thu, 22 Sep 2022 13:07:02 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 52198AE045;
-        Thu, 22 Sep 2022 13:07:02 +0000 (GMT)
-Received: from [9.145.147.112] (unknown [9.145.147.112])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 22 Sep 2022 13:07:02 +0000 (GMT)
-Message-ID: <e81df559-8a54-aa95-5d05-6c75398e6ab6@linux.ibm.com>
-Date:   Thu, 22 Sep 2022 15:07:01 +0200
+        Thu, 22 Sep 2022 13:07:41 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3D54458063;
+        Thu, 22 Sep 2022 13:07:41 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 344C358043;
+        Thu, 22 Sep 2022 13:07:40 +0000 (GMT)
+Received: from [9.163.12.13] (unknown [9.163.12.13])
+        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 22 Sep 2022 13:07:40 +0000 (GMT)
+Message-ID: <2f6ba289-050a-f77b-3cd2-694317f070bb@linux.ibm.com>
+Date:   Thu, 22 Sep 2022 15:07:38 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: [PATCH] docs/ABI: remove invalid email address from sysfs-bus-css
-Content-Language: en-US
-From:   Vineeth Vijayan <vneethv@linux.ibm.com>
-To:     cohuck@redhat.com
-Cc:     oberpar@linux.ibm.com, linux-s390@vger.kernel.org
-References: <20220922125952.2825830-1-vneethv@linux.ibm.com>
-In-Reply-To: <20220922125952.2825830-1-vneethv@linux.ibm.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.3.0
+Subject: Re: [PATCH net] net/smc: Stop the CLC flow if no link to map buffers
+ on
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1663656189-32090-1-git-send-email-guwen@linux.alibaba.com>
+ <cd996f1e-5ebf-c253-6a87-ce0e055b84c8@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <cd996f1e-5ebf-c253-6a87-ce0e055b84c8@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4p5MmWoU8oUppFeh9RuUg7XrEdGrmisM
-X-Proofpoint-ORIG-GUID: lR_VVdslksQDKu4KtGrANl-ct_M7RJ5j
+X-Proofpoint-GUID: JKHiD98_WXfXleaHOmMGugA6scgw81oZ
+X-Proofpoint-ORIG-GUID: urIaQd7aj4pxtRKMF2gbw-9AIrixF_GO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-22_08,2022-09-22_01,2022-06-22_01
@@ -86,66 +88,75 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Please ignore this patch.
 
-I will share the updated one.
 
-On 9/22/22 14:59, Vineeth Vijayan wrote:
-> Remove Cornelia's invalid email address from the file as suggested by
-> her. List only the linux-s390 vger address as the contact.
->
-> Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-> ---
->   Documentation/ABI/testing/sysfs-bus-css | 15 +++++----------
->   1 file changed, 5 insertions(+), 10 deletions(-)
->
-> diff --git a/Documentation/ABI/testing/sysfs-bus-css b/Documentation/ABI/testing/sysfs-bus-css
-> index 12a733fe357f..d4d5cfb63b90 100644
-> --- a/Documentation/ABI/testing/sysfs-bus-css
-> +++ b/Documentation/ABI/testing/sysfs-bus-css
-> @@ -1,22 +1,19 @@
->   What:		/sys/bus/css/devices/.../type
->   Date:		March 2008
-> -Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> -		linux-s390@vger.kernel.org
-> +Contact:	linux-s390@vger.kernel.org
->   Description:	Contains the subchannel type, as reported by the hardware.
->   		This attribute is present for all subchannel types.
->   
->   What:		/sys/bus/css/devices/.../modalias
->   Date:		March 2008
-> -Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> -		linux-s390@vger.kernel.org
-> +Contact:	linux-s390@vger.kernel.org
->   Description:	Contains the module alias as reported with uevents.
->   		It is of the format css:t<type> and present for all
->   		subchannel types.
->   
->   What:		/sys/bus/css/drivers/io_subchannel/.../chpids
->   Date:		December 2002
-> -Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> -		linux-s390@vger.kernel.org
-> +Contact:	linux-s390@vger.kernel.org
->   Description:	Contains the ids of the channel paths used by this
->   		subchannel, as reported by the channel subsystem
->   		during subchannel recognition.
-> @@ -26,8 +23,7 @@ Users:		s390-tools, HAL
->   
->   What:		/sys/bus/css/drivers/io_subchannel/.../pimpampom
->   Date:		December 2002
-> -Contact:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> -		linux-s390@vger.kernel.org
-> +Contact:	linux-s390@vger.kernel.org
->   Description:	Contains the PIM/PAM/POM values, as reported by the
->   		channel subsystem when last queried by the common I/O
->   		layer (this implies that this attribute is not necessarily
-> @@ -38,8 +34,7 @@ Users:		s390-tools, HAL
->   
->   What:		/sys/bus/css/devices/.../driver_override
->   Date:		June 2019
-> -Contact:	Cornelia Huck <cohuck@redhat.com>
-> -		linux-s390@vger.kernel.org
-> +Contact:	linux-s390@vger.kernel.org
->   Description:	This file allows the driver for a device to be specified. When
->   		specified, only a driver with a name matching the value written
->   		to driver_override will have an opportunity to bind to the
+On 22.09.22 10:29, Wen Gu wrote:
+> 
+> 
+> On 2022/9/20 14:43, Wen Gu wrote:
+> 
+>> There might be a potential race between SMC-R buffer map and
+>> link group termination.
+>>
+>> smc_smcr_terminate_all()     | smc_connect_rdma()
+>> --------------------------------------------------------------
+>>                               | smc_conn_create()
+>> for links in smcibdev        |
+>>          schedule links down  |
+>>                               | smc_buf_create()
+>>                               |  \- smcr_buf_map_usable_links()
+>>                               |      \- no usable links found,
+>>                               |         (rmb->mr = NULL)
+>>                               |
+>>                               | smc_clc_send_confirm()
+>>                               |  \- access conn->rmb_desc->mr[]->rkey
+>>                               |     (panic)
+>>
+>> During reboot and IB device module remove, all links will be set
+>> down and no usable links remain in link groups. In such situation
+>> smcr_buf_map_usable_links() should return an error and stop the
+>> CLC flow accessing to uninitialized mr.
+>>
+>> Fixes: b9247544c1bc ("net/smc: convert static link ID instances to 
+>> support multiple links")
+>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>> ---
+>>   net/smc/smc_core.c | 5 ++++-
+>>   1 file changed, 4 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+>> index ebf56cd..df89c2e 100644
+>> --- a/net/smc/smc_core.c
+>> +++ b/net/smc/smc_core.c
+>> @@ -2239,7 +2239,7 @@ static struct smc_buf_desc 
+>> *smcr_new_buf_create(struct smc_link_group *lgr,
+>>   static int smcr_buf_map_usable_links(struct smc_link_group *lgr,
+>>                        struct smc_buf_desc *buf_desc, bool is_rmb)
+>>   {
+>> -    int i, rc = 0;
+>> +    int i, rc = 0, cnt = 0;
+>>       /* protect against parallel link reconfiguration */
+>>       mutex_lock(&lgr->llc_conf_mutex);
+>> @@ -2252,9 +2252,12 @@ static int smcr_buf_map_usable_links(struct 
+>> smc_link_group *lgr,
+>>               rc = -ENOMEM;
+>>               goto out;
+>>           }
+>> +        cnt++;
+>>       }
+>>   out:
+>>       mutex_unlock(&lgr->llc_conf_mutex);
+>> +    if (!rc && !cnt)
+>> +        rc = -EINVAL;
+>>       return rc;
+>>   }
+> 
+> Any comments or reviews are welcome and appreciated.
+> 
+> Thanks,
+> Wen Gu
+
+Sorry for the late answer!
+Good catch! Thank you!
+
+Acked-by: Wenjia Zhang <wenjia@linux.ibm.com>
