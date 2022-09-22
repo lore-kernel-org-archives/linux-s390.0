@@ -2,247 +2,160 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEA38C54EE9
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Sep 2022 14:33:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E062C6FA82
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Sep 2022 17:58:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230047AbiIVOds (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Sep 2022 10:33:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53160 "EHLO
+        id S232221AbiIVR6b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Sep 2022 13:58:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230038AbiIVOd2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Sep 2022 10:33:28 -0400
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2076.outbound.protection.outlook.com [40.107.243.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F428F6861;
-        Thu, 22 Sep 2022 07:33:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TTPntmyFpsBN/pyWAL8ndowAXpB0wotVJcpE7KL1mkPEArKhqZyoEbWaja2VeIIK6b5KRArvpmbkkueE+lfTmTXiMf9KQKA9vwGAxTOL/vEhrfCL+j60Vp6FG7zJx/9edXBEsvE7S3pQZdaujB/l6AYGZZZuJIf80g7vrHf1C5BdQwXxmG2X/iXObfoLiuewEnREa5lzNzjL0RN5oEzOSDdE2X/TXE+ij2r8lrmDZkF2besdCvRISGL95wGI/mRV0hxRgYAUpXerbcLB3j5TMgBm9z4qCnLRolOjWSVjnJkE7q4mfTTnLi3sWQZazKsbzlgdd1Hqgv/4UXLecXGM1g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NyIozbPkd9TwZAQfn3jxwZQtN3iwYF3S523+UJcNPNo=;
- b=ay7ig2cBpGJGlQRjkOuhnrMaqKYVmoDdi4Sm8sy9LWw1g02zk2MJQ7Z5WIpewxveZgiHwt6qb+rrksDgb7QKUnMhKnqS9TmngJn2p0k9wlQdLed/CBkpSk2S5ZuYX0e17qfDZvCTb3NIIWo/+pVdIaUomIWPrgbaf6bX6lQZYRr9jNT0Ysmm11RSJUvWFgsAAD8JO30uajpye+AYpMduTkqAqC7/RF8ht+bCScLXWzUQRo1TJjtsqJLJqzyibceP6ho2TyV1yzEijQCGmOoeW5apRse1it6UhDmCvR+zc94DEkW54LWeGB1asi/OArRK+pLRSayFZSxt+aFhQ2ILNQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NyIozbPkd9TwZAQfn3jxwZQtN3iwYF3S523+UJcNPNo=;
- b=UN052K4IWkAbUj6T34H2Onn/5JIzkvPEvwxaj4jhTJYHE+pfq/8/tYhlJxqG12O8g6bFaOPrxWuZz7Omm3ppGtsuAAfZHzZ0BUNnZjxvgOWx04HKPYO2qFOvXBGRbTTzTBq9lSf/qqQWZQh0mLtK3Hd/h7RCiW/DqEoQX3csAV8PG8cQsOlFLHZg7dFb6KkoUCWIO3nV+45AB9bHvrQIiDk3YXUufBiDaPZMibEJrkZCmuFwJt5wJVYPyVfhsWMAnRVxnWQBLvOLgVfdnWBmNWButbVhmsURxcqN9rZsQaKo8ACAh+hYUUXM6PBiJCoGeWDIrJg/6OMnbVREuOV5Aw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by MW3PR12MB4473.namprd12.prod.outlook.com (2603:10b6:303:56::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.19; Thu, 22 Sep
- 2022 14:33:23 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5%7]) with mapi id 15.20.5654.019; Thu, 22 Sep 2022
- 14:33:22 +0000
-Date:   Thu, 22 Sep 2022 11:33:22 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] iommu/s390: Fix duplicate domain attachments
-Message-ID: <YyxyMtKXyvgHt3Kp@nvidia.com>
-References: <20220922095239.2115309-1-schnelle@linux.ibm.com>
- <20220922095239.2115309-2-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220922095239.2115309-2-schnelle@linux.ibm.com>
-X-ClientProxiedBy: BL0PR0102CA0016.prod.exchangelabs.com
- (2603:10b6:207:18::29) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S232218AbiIVR63 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Sep 2022 13:58:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83D4F106534
+        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 10:58:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1663869504;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=g4NUGUXkPyLpfZsihmjyO9VtgQj5aWbqHvYtbi+s6OQ=;
+        b=QRTp4VGsmIF6wFgOpwcacy5nlVLDFxUsTzcTWMkPL5sHeJ/UsLJvQLeuGES77VMKLt+7Nw
+        ma1oxU0QC3YYBDZWOjchtk3Emo94AsaxjlzRwPKSy93ikI83wsP0bNSa4F67WQ08T/5f8e
+        lDsBnvMst131nUzb/NLhd+JRsy4hZuw=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-669-shVCZrkqPnqrdwoSq_rjng-1; Thu, 22 Sep 2022 13:58:23 -0400
+X-MC-Unique: shVCZrkqPnqrdwoSq_rjng-1
+Received: by mail-io1-f70.google.com with SMTP id j20-20020a6b3114000000b006a3211a0ff0so5107989ioa.7
+        for <linux-s390@vger.kernel.org>; Thu, 22 Sep 2022 10:58:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=g4NUGUXkPyLpfZsihmjyO9VtgQj5aWbqHvYtbi+s6OQ=;
+        b=UTEki2gJIFNkd13v7Az7SaQefJvyMGRMMSdRr6g9ez5lAF/PkwSaIJdUvoq9QSioIj
+         /Tau7K51yrZxXSqbRL+low3CQn8k1Y0keiFQmOpvftI+gRwrChow7saj1KfrbUImIGAR
+         ojwgryiXRgT5tcb355vYGQjC1kGTLO5YBvvkX3wCVB90rymP4OTB+WXzsqKOGsjxlZ1c
+         3+4iq65xH/s3kilFi3gP74XMr0o4mO8wzqtx0QQLrRudPsLm3cP6GY7v7E3S2hw0oSO/
+         wKWSNoXv6ygO5cbrAfRDG8pMGns/3DDD5pshLVNI1k+QaOeQhkEH4hiJOyQeAmRiMylV
+         EAlw==
+X-Gm-Message-State: ACrzQf0vWEWkJ2GElpROzeBczl0jrzXEso65BkfLi6TMdWG3O9Faf6Uj
+        WYtJshgDDN+LpoNekkS5+kRF6pWh5/Me9GUBKBaYd0ED9phOoEpDRMB6muOqaFrF+ISye7PsCWV
+        hVsIgwTDEAyb3FxjQxgbJCg==
+X-Received: by 2002:a05:6638:1305:b0:35a:6a4e:9e57 with SMTP id r5-20020a056638130500b0035a6a4e9e57mr2680879jad.126.1663869503056;
+        Thu, 22 Sep 2022 10:58:23 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM530vCbzgK3QTaLWq3W4wuBNaUAkWaoYeBZZnU7wvG9GWi4I/K5zklV/6TeHh+w/3LQU5zx2g==
+X-Received: by 2002:a05:6638:1305:b0:35a:6a4e:9e57 with SMTP id r5-20020a056638130500b0035a6a4e9e57mr2680865jad.126.1663869502854;
+        Thu, 22 Sep 2022 10:58:22 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id p5-20020a056638216500b0035a498d222asm2456730jak.35.2022.09.22.10.58.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Sep 2022 10:58:22 -0700 (PDT)
+Date:   Thu, 22 Sep 2022 11:58:20 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Kevin Tian <kevin.tian@intel.com>
+Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Longfang Liu <liulongfang@huawei.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>
+Subject: Re: [PATCH v4 00/15] Tidy up vfio_device life cycle
+Message-ID: <20220922115820.5ac023ab.alex.williamson@redhat.com>
+In-Reply-To: <20220921104401.38898-1-kevin.tian@intel.com>
+References: <20220921104401.38898-1-kevin.tian@intel.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4192:EE_|MW3PR12MB4473:EE_
-X-MS-Office365-Filtering-Correlation-Id: b66c4488-ad33-40e6-8b52-08da9ca766ff
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: l9o/kwDEqkr8kuQ1oW62HNpV2tsOQRr56GOaYtxZX5YnH1OfKgYcisJqdtyqIn2fMFbvt8Z6rPqnPb1u9zT/qMu9ivEiwTgs1KNmN0HRA72C6AZ2b8zzrOSnspoKwqb28wUZ+oUpFK/LvbLRP3f17SJuw06/lcKtFwIVQYprwmbGZts+/JrKwSJDc4e3jUdXZd5vV5L2D2VRkuYxlCOvqtGzN1/o+F8Kt0aJrEdHQ0US2aEJv3PLI11afVTpRcXCSIkThapkweLRrD20NUxlFP76JlWsSnaplsuWBdkpNtpf55Yr8CjmlgcjizDTKjwqvsXQGQMzL/8sMbd9hQPqUj+2o76YTCKy2hYzvlUSMOJfSmEpd/kVy5cJwdmFSMphvX7IXuWZmTUMAizsjFAt73CHQzh2iIvL8nS4HbSMblY5UnrOdvoVov+zV3rlJNP4adXeEb+1lgy/xq1QuzwwXX5n0VVeoTYzFR82QIriw7LgQ6Z57otORpSaEjGPPgWGTOjSGGIYoA2WO53XxX+psLXAFg7//dT60fSiqYvpmGp4tUSixiVwGMwtftT2EGJRui4P93wMzU1cEKIQH4EcmR42+7EzDAV19aNCnbdbsLvT9cQ7RutgIaOmnXsf7kVQw1uQHCB3zALOch3aUhYoixA7kbu7oayOv4XDqs13Cq0pzbnO+BBmvxa8QD+ctJswN8sRxotJmz+6lcA1Zwjydw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(366004)(39860400002)(346002)(396003)(136003)(451199015)(36756003)(66946007)(83380400001)(4326008)(66556008)(2906002)(66476007)(7416002)(5660300002)(86362001)(38100700002)(8936002)(66899012)(478600001)(6486002)(2616005)(186003)(8676002)(54906003)(6916009)(41300700001)(26005)(6512007)(316002)(6506007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?TynLlrR46+MzMUkyzCPdL51OpdybAZQA1D5oyOediYCRac/qxSoBGk2d6HWq?=
- =?us-ascii?Q?vit8zu6zXFvFOYNe8muM7FdGTQTGXK3o6IR97E++hNVGRemWxPbcdqmIr5t8?=
- =?us-ascii?Q?14HXttUtEwfU0FJX5Tq4HVkPycTBa6dMXZTaNbrARES/YwMyQzmXOJcML8sP?=
- =?us-ascii?Q?y1CHiUoDGWJvKnjhC69nND/QWL+N3VDYWkCt4IiB/TMvgZhz9HE01Kmg1/CE?=
- =?us-ascii?Q?XcUVsPFyQueRcp4CfKb2A7dOJ6xAK6r4OD1v9T8CqRxIfNPUbe5eCt9Nwij8?=
- =?us-ascii?Q?yGoYJ4Wpu/p5FJQDsNCCL5WJC8xZapVQGY9YTFejnjv8YRkSz0ObbSJ7Gy0o?=
- =?us-ascii?Q?9yCN26eoPTU4+Ur01clc8iCHCX/nhJB0BL03xf97WTyiXEpwB+B9jOma8qFW?=
- =?us-ascii?Q?I+jmkNk4tJ/1si0PIc2E/mvjc0owp1t5c8mLhP2hGcn5u8P9tcA81RmOSqop?=
- =?us-ascii?Q?9e6xoaWMtOKt2xx4sjCYPpEQLcygLUROyXg19VVr0l9EHCCtgxe9TODtSD72?=
- =?us-ascii?Q?HWiubJlYZP4D0rGjgB9AiGUhqNguBKMqyngSxi5wkMamj4V0qGTbEQs7dIxi?=
- =?us-ascii?Q?J0ebcLyjVssWWQJXp2STWhcHgb44UBoBEoXs2CcGllVY7zXT3/tO4bEHckfE?=
- =?us-ascii?Q?l4P5e/yj0TOuGpE26GPxZ1uQaOuDPi3+1Odq3mFZrcAugz6uiQK5o/hPtD6z?=
- =?us-ascii?Q?vGbdxKGBFyCTt4h9Dh8NpNIxEA1gimuCbxZ5mRjfleUxJ/O4Yyc8kLV+vANx?=
- =?us-ascii?Q?+n7GbxtNMgldfDzafHb0u0B5XF/sntVegUAwbdobdfuhaoB0sOwJ8fzPDy3F?=
- =?us-ascii?Q?SOkpYBxNQyCfrWjmRc9J2CbC+IhZ6bhtHCNL2ljGs1losjegfuXYAnDNoPWu?=
- =?us-ascii?Q?x28VvvLW6G5Z9fxsJJRoR7OoCig0MJk9bvHB4GCSWr0GrGjlnIHxdS72FdGO?=
- =?us-ascii?Q?06+nH7LSSxSOY/NGETY1dJlAVmTEOuAILNcDBOeoA5X95RoLRCd7EIfquNL1?=
- =?us-ascii?Q?cAsXN+2NuWiNvVFL9AvYZAxYlaCaaVS77fyrBG/1Z4zsVPwVp896EMm1Ai2S?=
- =?us-ascii?Q?ncYFD281I7/8nmpAqRjpLSB5mmXZSfaih5H7qNm9n+cPpfFFeY/tbjLS22cB?=
- =?us-ascii?Q?htnwzMXPlmF5FIBje+14LfM1v9U5gNkhgwf2Ynw+PH/Zs9m5jAuIZ5Qe1vR9?=
- =?us-ascii?Q?1JkqBzD5vpWPlzQp/peMD6iK+9nOXBM+t4fxLGr5WdzT8VMRJTkqrw5crgJq?=
- =?us-ascii?Q?czAkdbJI1I2HLHaXsQF2DyrNxEPoTMFzAaAON+1Wyc4XpGBbPc2T5WtH+54E?=
- =?us-ascii?Q?H2h5X3xUl5o+vg6C8Kjf5iwpIltAf++EJw+AZ8BjhFIvIEbhw9qwzNe5xGbu?=
- =?us-ascii?Q?ufpqiHP3DwLnf4NuWayqxDfWwPw5LI/yW0DJZFUyfpWRYJ2t4Kr946xBQcYg?=
- =?us-ascii?Q?0SHAM+hp8hK2qG+fF7U0DfkEcdmL8ec5mnhTxnROPahUGyaFmT6YP/1/SMYO?=
- =?us-ascii?Q?bd2P4Q5G3bdCbE4yXma5TsY6DVlyWb9xUKGKgpWdBsIWfA5gfIjBw+8PDZfl?=
- =?us-ascii?Q?CVbGV+wJXPcT+Rgsi5HLpVK0w5S5w/mgfxNOF6kB?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b66c4488-ad33-40e6-8b52-08da9ca766ff
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Sep 2022 14:33:22.9091
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: l6G3CuXz446wTImafAvoMFyKnE7cj887EEefLE+oXQrZTBN7v2GzInhX08sPEOLG
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR12MB4473
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 22, 2022 at 11:52:37AM +0200, Niklas Schnelle wrote:
-> Since commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
-> calls") we can end up with duplicates in the list of devices attached to
-> a domain. This is inefficient and confusing since only one domain can
-> actually be in control of the IOMMU translations for a device. Fix this
-> by detaching the device from the previous domain, if any, on attach.
-> Add a WARN_ON() in case we still have attached devices on freeing the
-> domain.
+On Wed, 21 Sep 2022 18:43:46 +0800
+Kevin Tian <kevin.tian@intel.com> wrote:
+
+> The idea is to let vfio core manage the vfio_device life cycle instead
+> of duplicating the logic cross drivers. Besides cleaner code in driver
+> side this also allows adding struct device to vfio_device as the first
+> step toward adding cdev uAPI in the future. Another benefit is that
+> user can now look at sysfs to decide whether a device is bound to
+> vfio [1], e.g.:
 > 
-> Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
-> Changes since v1:
-> - WARN_ON() non-empty list in s390_domain_free()
-> - Drop the found flag and instead WARN_ON() if we're detaching
->   from a domain that isn't the active domain for the device
+> 	/sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
 > 
->  drivers/iommu/s390-iommu.c | 81 ++++++++++++++++++++++----------------
->  1 file changed, 46 insertions(+), 35 deletions(-)
+> Though most drivers can fit the new model naturally:
 > 
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index c898bcbbce11..187d2c7ba9ff 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -78,19 +78,48 @@ static struct iommu_domain *s390_domain_alloc(unsigned domain_type)
->  static void s390_domain_free(struct iommu_domain *domain)
->  {
->  	struct s390_domain *s390_domain = to_s390_domain(domain);
-> +	unsigned long flags;
->  
-> +	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> +	WARN_ON(!list_empty(&s390_domain->devices));
-> +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+>  - vfio_alloc_device() to allocate and initialize vfio_device
+>  - vfio_put_device() to release vfio_device
+>  - dev_ops->init() for driver private initialization
+>  - dev_ops->release() for driver private cleanup
+> 
+> vfio-ccw is the only exception due to a life cycle mess that its private
+> structure mixes both parent and mdev info hence must be alloc/freed
+> outside of the life cycle of vfio device.
+> 
+> Per prior discussions this won't be fixed in short term by IBM folks [2].
+> 
+> Instead of waiting this series introduces a few tricks to move forward:
+> 
+>  - vfio_init_device() to initialize a pre-allocated device structure;
+> 
+>  - require *EVERY* driver to implement @release and free vfio_device
+>    inside. Then vfio-ccw can use a completion mechanism to delay the
+>    free to css driver;
+> 
+> The second trick is not a real burden to other drivers because they
+> all require a @release for private cleanup anyway. Later once the ccw
+> mess is fixed a simple cleanup can be done by moving free from @release
+> to vfio core.
+> 
+> Thanks
+> Kevin
+> 
+> [1] https://listman.redhat.com/archives/libvir-list/2022-August/233482.html
+> [2] https://lore.kernel.org/all/0ee29bd6583f17f0ee4ec0769fa50e8ea6703623.camel@linux.ibm.com/
+> 
+> v4:
+>  - fix use-after-free issue in @release of mtty/mbochs and also change
+>    mdpy/ap to free vfio-device as the last thing in @release (Alex)
+>  - revert the rename from 'vfio' to 'vfio_group' in procfs (Alex) 
 
-Minor, but, this is about to free the memory holding the lock, we
-don't need to take it to do the WARN_ON.. list_empty() is already
-lockless safe.
+Applied to vfio next branch for v6.1.  Thanks,
 
-> static int __s390_iommu_detach_device(struct s390_domain *s390_domain,
->                                      struct zpci_dev *zdev)
-> {
+Alex
 
-This doesn't return a failure code anymore, make it void
-
->  static int s390_iommu_attach_device(struct iommu_domain *domain,
->  				    struct device *dev)
->  {
->  	struct s390_domain *s390_domain = to_s390_domain(domain);
->  	struct zpci_dev *zdev = to_zpci_dev(dev);
->  	struct s390_domain_device *domain_device;
-> +	struct s390_domain *prev_domain = NULL;
->  	unsigned long flags;
-> -	int cc, rc;
-> +	int cc, rc = 0;
->  
->  	if (!zdev)
->  		return -ENODEV;
-> @@ -99,16 +128,15 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  	if (!domain_device)
->  		return -ENOMEM;
->  
-> -	if (zdev->dma_table && !zdev->s390_domain) {
-> -		cc = zpci_dma_exit_device(zdev);
-> -		if (cc) {
-> +	if (zdev->s390_domain) {
-> +		prev_domain = zdev->s390_domain;
-> +		rc = __s390_iommu_detach_device(zdev->s390_domain, zdev);
-> +	} else if (zdev->dma_table) {
-> +		if (zpci_dma_exit_device(zdev))
->  			rc = -EIO;
-> -			goto out_free;
-> -		}
->  	}
-> -
-> -	if (zdev->s390_domain)
-> -		zpci_unregister_ioat(zdev, 0);
-> +	if (rc)
-> +		goto out_free;
->  
->  	zdev->dma_table = s390_domain->dma_table;
->  	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> @@ -129,7 +157,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  		   domain->geometry.aperture_end != zdev->end_dma) {
->  		rc = -EINVAL;
->  		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> -		goto out_restore;
-> +		goto out_unregister_restore;
->  	}
->  	domain_device->zdev = zdev;
->  	zdev->s390_domain = s390_domain;
-> @@ -138,14 +166,15 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  
->  	return 0;
->  
-> +out_unregister_restore:
-> +	zpci_unregister_ioat(zdev, 0);
->  out_restore:
-> -	if (!zdev->s390_domain) {
-> +	zdev->dma_table = NULL;
-> +	if (prev_domain)
-> +		s390_iommu_attach_device(&prev_domain->domain,
-> +					 dev);
-
-Huh. That is a surprising thing
-
-I think this function needs some re-ordering to avoid this condition
-
-The checks for aperture should be earlier, and they are not quite
-right. The aperture is only allowed to grow. If it starts out as 0 and
-then is set to something valid on first attach, a later attach cannot
-then shrink it. There could already be mappings in the domain under
-the now invalidated aperture and no caller is prepared to deal with
-this.
-
-That leaves the only error case as zpci_register_ioat() - which seems
-like it is the actual "attach" operation. Since
-__s390_iommu_detach_device() is just internal accounting (and can't
-fail) it should be moved after
-
-So the logic order should be
-
-1) Attempt to widen the aperture, if this fails the domain is
-   incompatible bail immediately
-
-2) zpci_register_ioat() to make the new domain current in the HW
- 
-3) fixup the internal records to record the now current domain (eg 
-   __s390_iommu_detach_device)
-
-And some similar changing to the non-domain path..
-
-No sketchy error unwind attempting to re-attach a domain..
-
-Jason
