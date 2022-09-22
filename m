@@ -2,67 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A0FFC6FA8B
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Sep 2022 07:49:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 875E1C6FA8B
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Sep 2022 08:30:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229687AbiIVHt3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Sep 2022 03:49:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49220 "EHLO
+        id S230102AbiIVIaD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Sep 2022 04:30:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229578AbiIVHt1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Sep 2022 03:49:27 -0400
-Received: from ssh248.corpemail.net (ssh248.corpemail.net [210.51.61.248])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A921AFAC4;
-        Thu, 22 Sep 2022 00:49:24 -0700 (PDT)
-Received: from ([60.208.111.195])
-        by ssh248.corpemail.net ((D)) with ASMTP (SSL) id QGT00019;
-        Thu, 22 Sep 2022 15:49:19 +0800
-Received: from localhost.localdomain (10.200.104.97) by
- jtjnmail201607.home.langchao.com (10.100.2.7) with Microsoft SMTP Server id
- 15.1.2507.12; Thu, 22 Sep 2022 15:49:20 +0800
-From:   Bo Liu <liubo03@inspur.com>
-To:     <borntraeger@linux.ibm.com>, <frankja@linux.ibm.com>,
-        <imbrenda@linux.ibm.com>, <david@redhat.com>, <hca@linux.ibm.com>,
-        <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <svens@linux.ibm.com>
-CC:     <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, Bo Liu <liubo03@inspur.com>
-Subject: [PATCH] KVM: s390: Fix double word in comments
-Date:   Thu, 22 Sep 2022 03:49:02 -0400
-Message-ID: <20220922074902.2345-1-liubo03@inspur.com>
-X-Mailer: git-send-email 2.18.2
+        with ESMTP id S230216AbiIVI37 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Sep 2022 04:29:59 -0400
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E9EB12AC6;
+        Thu, 22 Sep 2022 01:29:38 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R561e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VQRkpTA_1663835375;
+Received: from 30.221.128.159(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VQRkpTA_1663835375)
+          by smtp.aliyun-inc.com;
+          Thu, 22 Sep 2022 16:29:36 +0800
+Message-ID: <cd996f1e-5ebf-c253-6a87-ce0e055b84c8@linux.alibaba.com>
+Date:   Thu, 22 Sep 2022 16:29:34 +0800
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.200.104.97]
-tUid:   2022922154919890efbf21344134e13fb188b7e6eb9bf
-X-Abuse-Reports-To: service@corp-email.com
-Abuse-Reports-To: service@corp-email.com
-X-Complaints-To: service@corp-email.com
-X-Report-Abuse-To: service@corp-email.com
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.12.0
+Subject: Re: [PATCH net] net/smc: Stop the CLC flow if no link to map buffers
+ on
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1663656189-32090-1-git-send-email-guwen@linux.alibaba.com>
+In-Reply-To: <1663656189-32090-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Remove the repeated word "not" in comments.
 
-Signed-off-by: Bo Liu <liubo03@inspur.com>
----
- arch/s390/kvm/interrupt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index ab569faf0df2..4b3c02ab9f70 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -577,7 +577,7 @@ static int __write_machine_check(struct kvm_vcpu *vcpu,
- 	/*
- 	 * All other possible payload for a machine check (e.g. the register
- 	 * contents in the save area) will be handled by the ultravisor, as
--	 * the hypervisor does not not have the needed information for
-+	 * the hypervisor does not have the needed information for
- 	 * protected guests.
- 	 */
- 	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
--- 
-2.27.0
+On 2022/9/20 14:43, Wen Gu wrote:
 
+> There might be a potential race between SMC-R buffer map and
+> link group termination.
+> 
+> smc_smcr_terminate_all()     | smc_connect_rdma()
+> --------------------------------------------------------------
+>                               | smc_conn_create()
+> for links in smcibdev        |
+>          schedule links down  |
+>                               | smc_buf_create()
+>                               |  \- smcr_buf_map_usable_links()
+>                               |      \- no usable links found,
+>                               |         (rmb->mr = NULL)
+>                               |
+>                               | smc_clc_send_confirm()
+>                               |  \- access conn->rmb_desc->mr[]->rkey
+>                               |     (panic)
+> 
+> During reboot and IB device module remove, all links will be set
+> down and no usable links remain in link groups. In such situation
+> smcr_buf_map_usable_links() should return an error and stop the
+> CLC flow accessing to uninitialized mr.
+> 
+> Fixes: b9247544c1bc ("net/smc: convert static link ID instances to support multiple links")
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>   net/smc/smc_core.c | 5 ++++-
+>   1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index ebf56cd..df89c2e 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -2239,7 +2239,7 @@ static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
+>   static int smcr_buf_map_usable_links(struct smc_link_group *lgr,
+>   				     struct smc_buf_desc *buf_desc, bool is_rmb)
+>   {
+> -	int i, rc = 0;
+> +	int i, rc = 0, cnt = 0;
+>   
+>   	/* protect against parallel link reconfiguration */
+>   	mutex_lock(&lgr->llc_conf_mutex);
+> @@ -2252,9 +2252,12 @@ static int smcr_buf_map_usable_links(struct smc_link_group *lgr,
+>   			rc = -ENOMEM;
+>   			goto out;
+>   		}
+> +		cnt++;
+>   	}
+>   out:
+>   	mutex_unlock(&lgr->llc_conf_mutex);
+> +	if (!rc && !cnt)
+> +		rc = -EINVAL;
+>   	return rc;
+>   }
+>   
+
+Any comments or reviews are welcome and appreciated.
+
+Thanks,
+Wen Gu
