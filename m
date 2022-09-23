@@ -2,311 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCBECC04A95
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Sep 2022 17:11:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8F20C04A95
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Sep 2022 19:01:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232429AbiIWRLA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Sep 2022 13:11:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46470 "EHLO
+        id S231409AbiIWTBD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Sep 2022 15:01:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232339AbiIWRKv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Sep 2022 13:10:51 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 241051332C6;
-        Fri, 23 Sep 2022 10:10:50 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id A442F219F6;
-        Fri, 23 Sep 2022 17:10:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1663953048; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=xRNAJ6WoOj4XE/anYgf0uFQPiWuSiXd20sifVlYbfSI=;
-        b=raLQQC9M+NzAUGzZFkbPA9XJ9mNXXka8R75/HBvzUQ6LQ1EqP2jMZKX8+PlAMp1JpqYoyz
-        bmv4ymVMtZfRyBkOBVgAn4gQX2XCOBVQDNSmbfOhaZi5o9LkURAtoAgbQb2ikdKJw2pFkW
-        bhLCtvOtcxJ/NMmn2OFi1H1a1blu4d4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1663953048;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=xRNAJ6WoOj4XE/anYgf0uFQPiWuSiXd20sifVlYbfSI=;
-        b=T8MLpD0MTfFbi3ordJMRqnganxXt+cxKyxAcaIYAdpQ5MCo4ULGuWBeEmaSCDpjS/I8xzy
-        ciH2UhVi66W9CEAA==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        by relay2.suse.de (Postfix) with ESMTP id 372302C15F;
-        Fri, 23 Sep 2022 17:10:48 +0000 (UTC)
-From:   Michal Suchanek <msuchanek@suse.de>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Michal Suchanek <msuchanek@suse.de>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Baoquan He <bhe@redhat.com>,
-        linux-arm-kernel@lists.infradead.org (moderated list:ARM64 PORT
-        (AARCH64 ARCHITECTURE)),
-        linuxppc-dev@lists.ozlabs.org (open list:LINUX FOR POWERPC (32-BIT AND
-        64-BIT)), linux-s390@vger.kernel.org (open list:S390),
-        kexec@lists.infradead.org (open list:KEXEC)
-Subject: [PATCH 5.15 3/6] kexec: drop weak attribute from functions
-Date:   Fri, 23 Sep 2022 19:10:31 +0200
-Message-Id: <bd917b12ca9d86bad38567fa3615dcc23de36c9c.1663951201.git.msuchanek@suse.de>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <cover.1663951201.git.msuchanek@suse.de>
-References: <cover.1663951201.git.msuchanek@suse.de>
+        with ESMTP id S229520AbiIWTBC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Sep 2022 15:01:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CFC711C16E;
+        Fri, 23 Sep 2022 12:01:00 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28NHUNPa011217;
+        Fri, 23 Sep 2022 19:00:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=FEmSAHpnGZZKPEHAy8wKFDjqwBbkabkHr/RfCgrZI5Q=;
+ b=JbllU5j8LSZTV4E0jhztoGbI8Dshru3FDspozyZLDcyOBr7wMgZeUGWenxll+4qkIsCh
+ LUJ9dennOlSBdxVIn6uyE898iVvrv3gW3QcEXnOMCesvFOz/zXQPTvdEAf3Q9ea/oWoF
+ OjPZtwT0iffoa7EhWwy3WE/sPQ+YqecM6MjDSgIqWzf/iRkblrDdZ9VwBqNSFMgQ1ykD
+ MOI2Q/MqZDdrI6CtlAzYdjNH7XxqvYqcPRQYPKj8WjVo7ZbONqQRZPaYlcHla88M2bEF
+ GMiZH2wSDelSH8nWZ1ApoD0+lC+F2EiJ9rJjBCUn7n/WI688N0rQfR7JzjNDWSofBReC Fw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jsau7wcxm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Sep 2022 19:00:21 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28NHsR5X029455;
+        Fri, 23 Sep 2022 19:00:21 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jsau7wcw9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Sep 2022 19:00:20 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28NIo5oJ015035;
+        Fri, 23 Sep 2022 19:00:19 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma01wdc.us.ibm.com with ESMTP id 3jn5va1jdc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Sep 2022 19:00:19 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com ([9.208.128.117])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28NJ0I1O7078588
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 23 Sep 2022 19:00:19 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3BDC958068;
+        Fri, 23 Sep 2022 19:00:18 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9C7295805D;
+        Fri, 23 Sep 2022 19:00:16 +0000 (GMT)
+Received: from [9.163.12.13] (unknown [9.163.12.13])
+        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 23 Sep 2022 19:00:16 +0000 (GMT)
+Message-ID: <1e57129a-f937-b77d-795b-d0ba05ba17be@linux.ibm.com>
+Date:   Fri, 23 Sep 2022 21:00:15 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.3.0
+Subject: Re: [PATCH net-next] net/smc: Support SO_REUSEPORT
+To:     Tony Lu <tonylu@linux.alibaba.com>, kgraul@linux.ibm.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220922121906.72406-1-tonylu@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <20220922121906.72406-1-tonylu@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: SOXLTJPZY7Kyn8L4L6QfYVfZ7ctvR51y
+X-Proofpoint-ORIG-GUID: Tvob0PTbBengd4xsqA8Sw73iEiohWYjN
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-23_06,2022-09-22_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 suspectscore=0 clxscore=1015 adultscore=0
+ priorityscore=1501 mlxlogscore=999 mlxscore=0 lowpriorityscore=0
+ phishscore=0 spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2209130000 definitions=main-2209230120
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
 
-commit 0738eceb6201691534df07e0928d0a6168a35787 upstream.
 
-Drop __weak attribute from functions in kexec_core.c:
-- machine_kexec_post_load()
-- arch_kexec_protect_crashkres()
-- arch_kexec_unprotect_crashkres()
-- crash_free_reserved_phys_range()
+On 22.09.22 14:19, Tony Lu wrote:
+> This enables SO_REUSEPORT [1] for clcsock when it is set on smc socket,
+> so that some applications which uses it can be transparently replaced
+> with SMC. Also, this helps improve load distribution.
+> 
+> Here is a simple test of NGINX + wrk with SMC. The CPU usage is collected
+> on NGINX (server) side as below.
+> 
+> Disable SO_REUSEPORT:
+> 
+> 05:15:33 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+> 05:15:34 PM  all    7.02    0.00   11.86    0.00    2.04    8.93    0.00    0.00    0.00   70.15
+> 05:15:34 PM    0    0.00    0.00    0.00    0.00   16.00   70.00    0.00    0.00    0.00   14.00
+> 05:15:34 PM    1   11.58    0.00   22.11    0.00    0.00    0.00    0.00    0.00    0.00   66.32
+> 05:15:34 PM    2    1.00    0.00    1.00    0.00    0.00    0.00    0.00    0.00    0.00   98.00
+> 05:15:34 PM    3   16.84    0.00   30.53    0.00    0.00    0.00    0.00    0.00    0.00   52.63
+> 05:15:34 PM    4   28.72    0.00   44.68    0.00    0.00    0.00    0.00    0.00    0.00   26.60
+> 05:15:34 PM    5    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
+> 05:15:34 PM    6    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
+> 05:15:34 PM    7    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
+> 
+> Enable SO_REUSEPORT:
+> 
+> 05:15:20 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+> 05:15:21 PM  all    8.56    0.00   14.40    0.00    2.20    9.86    0.00    0.00    0.00   64.98
+> 05:15:21 PM    0    0.00    0.00    4.08    0.00   14.29   76.53    0.00    0.00    0.00    5.10
+> 05:15:21 PM    1    9.09    0.00   16.16    0.00    1.01    0.00    0.00    0.00    0.00   73.74
+> 05:15:21 PM    2    9.38    0.00   16.67    0.00    1.04    0.00    0.00    0.00    0.00   72.92
+> 05:15:21 PM    3   10.42    0.00   17.71    0.00    1.04    0.00    0.00    0.00    0.00   70.83
+> 05:15:21 PM    4    9.57    0.00   15.96    0.00    0.00    0.00    0.00    0.00    0.00   74.47
+> 05:15:21 PM    5    9.18    0.00   15.31    0.00    0.00    1.02    0.00    0.00    0.00   74.49
+> 05:15:21 PM    6    8.60    0.00   15.05    0.00    0.00    0.00    0.00    0.00    0.00   76.34
+> 05:15:21 PM    7   12.37    0.00   14.43    0.00    0.00    0.00    0.00    0.00    0.00   73.20
+> 
+> Using SO_REUSEPORT helps the load distribution of NGINX be more
+> balanced.
+> 
+> [1] https://man7.org/linux/man-pages/man7/socket.7.html
+> 
+> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+> ---
+>   net/smc/af_smc.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 0939cc3b915a..d933a804c94b 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -427,6 +427,7 @@ static int smc_bind(struct socket *sock, struct sockaddr *uaddr,
+>   		goto out_rel;
+>   
+>   	smc->clcsock->sk->sk_reuse = sk->sk_reuse;
+> +	smc->clcsock->sk->sk_reuseport = sk->sk_reuseport;
+>   	rc = kernel_bind(smc->clcsock, uaddr, addr_len);
+>   
+>   out_rel:
 
-Link: https://lkml.kernel.org/r/c0f6219e03cb399d166d518ab505095218a902dd.1656659357.git.naveen.n.rao@linux.vnet.ibm.com
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Suggested-by: Eric Biederman <ebiederm@xmission.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
----
- arch/arm64/include/asm/kexec.h   | 18 ++++++++++++++++--
- arch/powerpc/include/asm/kexec.h |  5 +++++
- arch/s390/include/asm/kexec.h    | 11 +++++++++++
- arch/x86/include/asm/kexec.h     |  6 ++++++
- include/linux/kexec.h            | 32 ++++++++++++++++++++++++++++----
- kernel/kexec_core.c              | 27 ---------------------------
- 6 files changed, 66 insertions(+), 33 deletions(-)
+It looks good to me. Thank you!
 
-diff --git a/arch/arm64/include/asm/kexec.h b/arch/arm64/include/asm/kexec.h
-index 91d81824f869..ae3695a15610 100644
---- a/arch/arm64/include/asm/kexec.h
-+++ b/arch/arm64/include/asm/kexec.h
-@@ -84,12 +84,28 @@ static inline void crash_setup_regs(struct pt_regs *newregs,
- extern bool crash_is_nosave(unsigned long pfn);
- extern void crash_prepare_suspend(void);
- extern void crash_post_resume(void);
-+
-+void crash_free_reserved_phys_range(unsigned long begin, unsigned long end);
-+#define crash_free_reserved_phys_range crash_free_reserved_phys_range
- #else
- static inline bool crash_is_nosave(unsigned long pfn) {return false; }
- static inline void crash_prepare_suspend(void) {}
- static inline void crash_post_resume(void) {}
- #endif
- 
-+struct kimage;
-+
-+#if defined(CONFIG_KEXEC_CORE)
-+int machine_kexec_post_load(struct kimage *image);
-+#define machine_kexec_post_load machine_kexec_post_load
-+
-+void arch_kexec_protect_crashkres(void);
-+#define arch_kexec_protect_crashkres arch_kexec_protect_crashkres
-+
-+void arch_kexec_unprotect_crashkres(void);
-+#define arch_kexec_unprotect_crashkres arch_kexec_unprotect_crashkres
-+#endif
-+
- #define ARCH_HAS_KIMAGE_ARCH
- 
- struct kimage_arch {
-@@ -101,8 +117,6 @@ struct kimage_arch {
- #ifdef CONFIG_KEXEC_FILE
- extern const struct kexec_file_ops kexec_image_ops;
- 
--struct kimage;
--
- int arch_kimage_file_post_load_cleanup(struct kimage *image);
- #define arch_kimage_file_post_load_cleanup arch_kimage_file_post_load_cleanup
- 
-diff --git a/arch/powerpc/include/asm/kexec.h b/arch/powerpc/include/asm/kexec.h
-index 6152fa220054..d8394e77e987 100644
---- a/arch/powerpc/include/asm/kexec.h
-+++ b/arch/powerpc/include/asm/kexec.h
-@@ -97,6 +97,11 @@ static inline bool kdump_in_progress(void)
- void relocate_new_kernel(unsigned long indirection_page, unsigned long reboot_code_buffer,
- 			 unsigned long start_address) __noreturn;
- 
-+#if defined(CONFIG_CRASH_DUMP) && defined(CONFIG_PPC_RTAS)
-+void crash_free_reserved_phys_range(unsigned long begin, unsigned long end);
-+#define crash_free_reserved_phys_range crash_free_reserved_phys_range
-+#endif
-+
- #ifdef CONFIG_KEXEC_FILE
- extern const struct kexec_file_ops kexec_elf64_ops;
- 
-diff --git a/arch/s390/include/asm/kexec.h b/arch/s390/include/asm/kexec.h
-index d13bd221cd37..4f713092e68c 100644
---- a/arch/s390/include/asm/kexec.h
-+++ b/arch/s390/include/asm/kexec.h
-@@ -85,6 +85,17 @@ struct kimage_arch {
- extern const struct kexec_file_ops s390_kexec_image_ops;
- extern const struct kexec_file_ops s390_kexec_elf_ops;
- 
-+#ifdef CONFIG_CRASH_DUMP
-+void crash_free_reserved_phys_range(unsigned long begin, unsigned long end);
-+#define crash_free_reserved_phys_range crash_free_reserved_phys_range
-+
-+void arch_kexec_protect_crashkres(void);
-+#define arch_kexec_protect_crashkres arch_kexec_protect_crashkres
-+
-+void arch_kexec_unprotect_crashkres(void);
-+#define arch_kexec_unprotect_crashkres arch_kexec_unprotect_crashkres
-+#endif
-+
- #ifdef CONFIG_KEXEC_FILE
- struct purgatory_info;
- int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-diff --git a/arch/x86/include/asm/kexec.h b/arch/x86/include/asm/kexec.h
-index 5b6e2ae54906..4fd92330f23d 100644
---- a/arch/x86/include/asm/kexec.h
-+++ b/arch/x86/include/asm/kexec.h
-@@ -186,6 +186,12 @@ extern int arch_kexec_post_alloc_pages(void *vaddr, unsigned int pages,
- extern void arch_kexec_pre_free_pages(void *vaddr, unsigned int pages);
- #define arch_kexec_pre_free_pages arch_kexec_pre_free_pages
- 
-+void arch_kexec_protect_crashkres(void);
-+#define arch_kexec_protect_crashkres arch_kexec_protect_crashkres
-+
-+void arch_kexec_unprotect_crashkres(void);
-+#define arch_kexec_unprotect_crashkres arch_kexec_unprotect_crashkres
-+
- #ifdef CONFIG_KEXEC_FILE
- struct purgatory_info;
- int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-index f1e5327a7bf8..1638c8d7d216 100644
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -384,7 +384,10 @@ extern void machine_kexec_cleanup(struct kimage *image);
- extern int kernel_kexec(void);
- extern struct page *kimage_alloc_control_pages(struct kimage *image,
- 						unsigned int order);
--int machine_kexec_post_load(struct kimage *image);
-+
-+#ifndef machine_kexec_post_load
-+static inline int machine_kexec_post_load(struct kimage *image) { return 0; }
-+#endif
- 
- extern void __crash_kexec(struct pt_regs *);
- extern void crash_kexec(struct pt_regs *);
-@@ -423,10 +426,21 @@ extern bool kexec_in_progress;
- 
- int crash_shrink_memory(unsigned long new_size);
- size_t crash_get_memory_size(void);
--void crash_free_reserved_phys_range(unsigned long begin, unsigned long end);
- 
--void arch_kexec_protect_crashkres(void);
--void arch_kexec_unprotect_crashkres(void);
-+#ifndef arch_kexec_protect_crashkres
-+/*
-+ * Protection mechanism for crashkernel reserved memory after
-+ * the kdump kernel is loaded.
-+ *
-+ * Provide an empty default implementation here -- architecture
-+ * code may override this
-+ */
-+static inline void arch_kexec_protect_crashkres(void) { }
-+#endif
-+
-+#ifndef arch_kexec_unprotect_crashkres
-+static inline void arch_kexec_unprotect_crashkres(void) { }
-+#endif
- 
- #ifndef page_to_boot_pfn
- static inline unsigned long page_to_boot_pfn(struct page *page)
-@@ -456,6 +470,16 @@ static inline phys_addr_t boot_phys_to_phys(unsigned long boot_phys)
- }
- #endif
- 
-+#ifndef crash_free_reserved_phys_range
-+static inline void crash_free_reserved_phys_range(unsigned long begin, unsigned long end)
-+{
-+	unsigned long addr;
-+
-+	for (addr = begin; addr < end; addr += PAGE_SIZE)
-+		free_reserved_page(boot_pfn_to_page(addr >> PAGE_SHIFT));
-+}
-+#endif
-+
- static inline unsigned long virt_to_boot_phys(void *addr)
- {
- 	return phys_to_boot_phys(__pa((unsigned long)addr));
-diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
-index 5a5d192a89ac..0951df148c1e 100644
---- a/kernel/kexec_core.c
-+++ b/kernel/kexec_core.c
-@@ -591,11 +591,6 @@ static void kimage_free_extra_pages(struct kimage *image)
- 
- }
- 
--int __weak machine_kexec_post_load(struct kimage *image)
--{
--	return 0;
--}
--
- void kimage_terminate(struct kimage *image)
- {
- 	if (*image->entry != 0)
-@@ -1000,15 +995,6 @@ size_t crash_get_memory_size(void)
- 	return size;
- }
- 
--void __weak crash_free_reserved_phys_range(unsigned long begin,
--					   unsigned long end)
--{
--	unsigned long addr;
--
--	for (addr = begin; addr < end; addr += PAGE_SIZE)
--		free_reserved_page(boot_pfn_to_page(addr >> PAGE_SHIFT));
--}
--
- int crash_shrink_memory(unsigned long new_size)
- {
- 	int ret = 0;
-@@ -1205,16 +1191,3 @@ int kernel_kexec(void)
- 	mutex_unlock(&kexec_mutex);
- 	return error;
- }
--
--/*
-- * Protection mechanism for crashkernel reserved memory after
-- * the kdump kernel is loaded.
-- *
-- * Provide an empty default implementation here -- architecture
-- * code may override this
-- */
--void __weak arch_kexec_protect_crashkres(void)
--{}
--
--void __weak arch_kexec_unprotect_crashkres(void)
--{}
--- 
-2.35.3
-
+Acked-by: Wenjia Zhang <wenjia@linux.ibm.com>
