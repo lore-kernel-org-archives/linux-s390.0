@@ -2,438 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5210EC6FA82
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Sep 2022 09:28:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9E13C6FA82
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Sep 2022 12:10:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229622AbiIWJ20 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Sep 2022 05:28:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41760 "EHLO
+        id S232109AbiIWMKU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Sep 2022 08:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231855AbiIWJ1y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Sep 2022 05:27:54 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A96F1900;
-        Fri, 23 Sep 2022 02:27:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=qpAI9lJpdDF9HWWBLsg6Mwha9epSJ6GbEs45TDgguZk=; b=mNnDkHhfw/OkvjXieZ+D1CEoER
-        eR1r7pIeTtNxLMCQPc/QWfCkdXBsp/3Jkmu4Ge/Y6DkUsVoq8hPAeoTGsP5YiBli2r8qgAj6aavoN
-        uPlqqfd8c5hOp7r+DmBeUHDUPho870TQV3Fy9T638fewVRMpIgVWZEv9YqMsT/N+wmuigkkjIdP6g
-        vmw/UP5fcFOd0X+NVpsQcbN6Cg9gUueJMIyvBYzxX2JBscpDFeo2oPgDnkYnYp4dMBHr846oDAI5Z
-        d0YB/uGxBKZ1gU955Kk8iTnaxqIEzaQu7c5/bHk8bK0+fmpo1/++yQvOlYmboVGWAetRj9AAiK9zt
-        +Ddgac+Q==;
-Received: from ip4d15bec4.dynamic.kabel-deutschland.de ([77.21.190.196] helo=localhost)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1obey2-003Jz8-Pg; Fri, 23 Sep 2022 09:27:31 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        Kevin Tian <kevin.tian@intel.com>
-Subject: [PATCH 14/14] vfio/mdev: add mdev available instance checking to the core
-Date:   Fri, 23 Sep 2022 11:26:52 +0200
-Message-Id: <20220923092652.100656-15-hch@lst.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220923092652.100656-1-hch@lst.de>
-References: <20220923092652.100656-1-hch@lst.de>
-MIME-Version: 1.0
+        with ESMTP id S231676AbiIWMIO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Sep 2022 08:08:14 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897BB18B3E;
+        Fri, 23 Sep 2022 05:04:39 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28NBcKV4009282;
+        Fri, 23 Sep 2022 12:04:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=cMQsJdyHoIadexI0enjCs7e7g+XMk0AFDRQak/aforc=;
+ b=fz+pJyVluDMesZAoKmGPpwhBdb+3t/JQXg2nk0Fv408z2ck+JZuKec2xUD1mI49hT8Ew
+ ZwWUCAdiVf67BZSO15EwfB75e9Ckz1qbCs68aAcGpRrwWh99GQd7RkWzn4wtOL1/Fc2T
+ yYjkRsJKo7xDSyT1tM/TTK2A5nXgMaz5Au3AJmU2rifwmz/JYFA9igMKGL7yn/6nqC4B
+ erxCtaLz5xELgZ032vwKBO22Al03IDhuFsTLvHJrYBYmSFpUPcCQ21EVGRIkMMtszsUK
+ /U05t8WORKlDbv4FxXPDkKtXsksqN3qG+h7pRmyUO1lOtcKxtgyEXed5iF28qULFEXRZ Nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jsa67bxng-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Sep 2022 12:04:38 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28NBgGLs026501;
+        Fri, 23 Sep 2022 12:04:38 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jsa67bxme-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Sep 2022 12:04:38 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28NBpvW2025569;
+        Fri, 23 Sep 2022 12:04:36 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3jn5v8nwhv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Sep 2022 12:04:35 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28NC4WWl14549396
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 23 Sep 2022 12:04:32 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7B403AE053;
+        Fri, 23 Sep 2022 12:04:32 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 14015AE045;
+        Fri, 23 Sep 2022 12:04:32 +0000 (GMT)
+Received: from localhost.localdomain.com (unknown [9.171.28.252])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 23 Sep 2022 12:04:32 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     pbonzini@redhat.com
+Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+Subject: [GIT PULL 0/4] KVM: s390: Fixes for 6.0 take 2
+Date:   Fri, 23 Sep 2022 14:04:08 +0200
+Message-Id: <20220923120412.15294-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.37.3
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: m3kXJyrkLONkSIA0crx7crZPNn9rtW92
+X-Proofpoint-ORIG-GUID: mXvgXl-3u3q0Kf8YYqhJR7jS7JdQ-Rs_
 Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-23_04,2022-09-22_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=772
+ malwarescore=0 spamscore=0 bulkscore=0 adultscore=0 suspectscore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 mlxscore=0
+ lowpriorityscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2209130000 definitions=main-2209230079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+Paolo,
 
-Many of the mdev drivers use a simple counter for keeping track of the
-available instances. Move this code to the core code and store the counter
-in the mdev_parent. Implement it using correct locking, fixing mdpy.
+vfio-pci has kept us busy for a bit so here are three additional pci fixes.
+Additionally there's a smatch fix by Janis.
 
-Drivers just provide the value in the mdev_driver at registration time
-and the core code takes care of maintaining it and exposing the value in
-sysfs.
+It might be a bit late for rc7 but we wanted to have the coverage.
+Enjoy the weekend!
 
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-[hch: count instances per-parent instead of per-type, use an atomic_t
- to avoid taking mdev_list_lock in the show method]
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
----
- drivers/s390/cio/vfio_ccw_drv.c       |  1 -
- drivers/s390/cio/vfio_ccw_ops.c       | 15 +--------------
- drivers/s390/cio/vfio_ccw_private.h   |  2 --
- drivers/s390/crypto/vfio_ap_ops.c     | 13 +------------
- drivers/s390/crypto/vfio_ap_private.h |  2 --
- drivers/vfio/mdev/mdev_core.c         | 22 +++++++++++++++++++---
- drivers/vfio/mdev/mdev_sysfs.c        |  5 ++++-
- include/linux/mdev.h                  |  3 +++
- samples/vfio-mdev/mdpy.c              | 22 ++++------------------
- 9 files changed, 32 insertions(+), 53 deletions(-)
+The following changes since commit 521a547ced6477c54b4b0cc206000406c221b4d6:
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index e5f21c725326b..7f5402fe857a2 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -141,7 +141,6 @@ static struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch)
- 	INIT_LIST_HEAD(&private->crw);
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
- 	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
--	atomic_set(&private->avail, 1);
- 
- 	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
- 				       GFP_KERNEL);
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 559ca18055928..6ae4d012d8008 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -44,13 +44,6 @@ static void vfio_ccw_dma_unmap(struct vfio_device *vdev, u64 iova, u64 length)
- 	vfio_ccw_mdev_reset(private);
- }
- 
--static unsigned int vfio_ccw_get_available(struct mdev_type *mtype)
--{
--	struct vfio_ccw_private *private = dev_get_drvdata(mtype->parent->dev);
--
--	return atomic_read(&private->avail);
--}
--
- static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
- {
- 	struct vfio_ccw_private *private =
-@@ -68,9 +61,6 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
- 	if (private->state == VFIO_CCW_STATE_NOT_OPER)
- 		return -ENODEV;
- 
--	if (atomic_dec_if_positive(&private->avail) < 0)
--		return -EPERM;
--
- 	ret = vfio_init_device(&private->vdev, &mdev->dev, &vfio_ccw_dev_ops);
- 	if (ret)
- 		return ret;
-@@ -88,7 +78,6 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
- 
- err_put_vdev:
- 	vfio_put_device(&private->vdev);
--	atomic_inc(&private->avail);
- 	return ret;
- }
- 
-@@ -130,8 +119,6 @@ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
- 	 * cycle.
- 	 */
- 	wait_for_completion(&private->release_comp);
--
--	atomic_inc(&private->avail);
- }
- 
- static int vfio_ccw_mdev_open_device(struct vfio_device *vdev)
-@@ -605,6 +592,7 @@ static const struct vfio_device_ops vfio_ccw_dev_ops = {
- 
- struct mdev_driver vfio_ccw_mdev_driver = {
- 	.device_api = VFIO_DEVICE_API_CCW_STRING,
-+	.max_instances = 1,
- 	.driver = {
- 		.name = "vfio_ccw_mdev",
- 		.owner = THIS_MODULE,
-@@ -612,5 +600,4 @@ struct mdev_driver vfio_ccw_mdev_driver = {
- 	},
- 	.probe = vfio_ccw_mdev_probe,
- 	.remove = vfio_ccw_mdev_remove,
--	.get_available = vfio_ccw_get_available,
- };
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 52caa721ec06c..bd5fb81456af8 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -73,7 +73,6 @@ struct vfio_ccw_crw {
-  * @sch: pointer to the subchannel
-  * @state: internal state of the device
-  * @completion: synchronization helper of the I/O completion
-- * @avail: available for creating a mediated device
-  * @io_region: MMIO region to input/output I/O arguments/results
-  * @io_mutex: protect against concurrent update of I/O regions
-  * @region: additional regions for other subchannel operations
-@@ -97,7 +96,6 @@ struct vfio_ccw_private {
- 	struct subchannel	*sch;
- 	int			state;
- 	struct completion	*completion;
--	atomic_t		avail;
- 	struct ccw_io_region	*io_region;
- 	struct mutex		io_mutex;
- 	struct vfio_ccw_region *region;
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 8606f5d75188c..2884189f38771 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -689,9 +689,6 @@ static int vfio_ap_mdev_init_dev(struct vfio_device *vdev)
- 	struct ap_matrix_mdev *matrix_mdev =
- 		container_of(vdev, struct ap_matrix_mdev, vdev);
- 
--	if ((atomic_dec_if_positive(&matrix_dev->available_instances) < 0))
--		return -EPERM;
--
- 	matrix_mdev->mdev = to_mdev_device(vdev->dev);
- 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
- 	matrix_mdev->pqap_hook = handle_pqap;
-@@ -770,7 +767,6 @@ static void vfio_ap_mdev_unlink_fr_queues(struct ap_matrix_mdev *matrix_mdev)
- 
- static void vfio_ap_mdev_release_dev(struct vfio_device *vdev)
- {
--	atomic_inc(&matrix_dev->available_instances);
- 	vfio_free_device(vdev);
- }
- 
-@@ -790,11 +786,6 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
- 	vfio_put_device(&matrix_mdev->vdev);
- }
- 
--static unsigned int vfio_ap_mdev_get_available(struct mdev_type *mtype)
--{
--	return atomic_read(&matrix_dev->available_instances);
--}
--
- #define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
- 			 "already assigned to %s"
- 
-@@ -1772,6 +1763,7 @@ static const struct vfio_device_ops vfio_ap_matrix_dev_ops = {
- 
- static struct mdev_driver vfio_ap_matrix_driver = {
- 	.device_api = VFIO_DEVICE_API_AP_STRING,
-+	.max_instances = MAX_ZDEV_ENTRIES_EXT,
- 	.driver = {
- 		.name = "vfio_ap_mdev",
- 		.owner = THIS_MODULE,
-@@ -1780,15 +1772,12 @@ static struct mdev_driver vfio_ap_matrix_driver = {
- 	},
- 	.probe = vfio_ap_mdev_probe,
- 	.remove = vfio_ap_mdev_remove,
--	.get_available = vfio_ap_mdev_get_available,
- };
- 
- int vfio_ap_mdev_register(void)
- {
- 	int ret;
- 
--	atomic_set(&matrix_dev->available_instances, MAX_ZDEV_ENTRIES_EXT);
--
- 	ret = mdev_register_driver(&vfio_ap_matrix_driver);
- 	if (ret)
- 		return ret;
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 441dc8dda380b..2eddd5f34ed34 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -29,7 +29,6 @@
-  * struct ap_matrix_dev - Contains the data for the matrix device.
-  *
-  * @device:	generic device structure associated with the AP matrix device
-- * @available_instances: number of mediated matrix devices that can be created
-  * @info:	the struct containing the output from the PQAP(QCI) instruction
-  * @mdev_list:	the list of mediated matrix devices created
-  * @mdevs_lock: mutex for locking the AP matrix device. This lock will be
-@@ -46,7 +45,6 @@
-  */
- struct ap_matrix_dev {
- 	struct device device;
--	atomic_t available_instances;
- 	struct ap_config_info info;
- 	struct list_head mdev_list;
- 	struct mutex mdevs_lock; /* serializes access to each ap_matrix_mdev */
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
-index 93f8caf2e5f77..58f91b3bd670c 100644
---- a/drivers/vfio/mdev/mdev_core.c
-+++ b/drivers/vfio/mdev/mdev_core.c
-@@ -70,6 +70,7 @@ int mdev_register_parent(struct mdev_parent *parent, struct device *dev,
- 	parent->mdev_driver = mdev_driver;
- 	parent->types = types;
- 	parent->nr_types = nr_types;
-+	atomic_set(&parent->available_instances, mdev_driver->max_instances);
- 
- 	if (!mdev_bus_compat_class) {
- 		mdev_bus_compat_class = class_compat_register("mdev_bus");
-@@ -115,14 +116,17 @@ EXPORT_SYMBOL(mdev_unregister_parent);
- static void mdev_device_release(struct device *dev)
- {
- 	struct mdev_device *mdev = to_mdev_device(dev);
--
--	/* Pairs with the get in mdev_device_create() */
--	kobject_put(&mdev->type->kobj);
-+	struct mdev_parent *parent = mdev->type->parent;
- 
- 	mutex_lock(&mdev_list_lock);
- 	list_del(&mdev->next);
-+	if (!parent->mdev_driver->get_available)
-+		atomic_inc(&parent->available_instances);
- 	mutex_unlock(&mdev_list_lock);
- 
-+	/* Pairs with the get in mdev_device_create() */
-+	kobject_put(&mdev->type->kobj);
-+
- 	dev_dbg(&mdev->dev, "MDEV: destroying\n");
- 	kfree(mdev);
- }
-@@ -144,6 +148,18 @@ int mdev_device_create(struct mdev_type *type, const guid_t *uuid)
- 		}
- 	}
- 
-+	if (!drv->get_available) {
-+		/*
-+		 * Note: that non-atomic read and dec is fine here because
-+		 * all modifications are under mdev_list_lock.
-+		 */
-+		if (!atomic_read(&parent->available_instances)) {
-+			mutex_unlock(&mdev_list_lock);
-+			return -EUSERS;
-+		}
-+		atomic_dec(&parent->available_instances);
-+	}
-+
- 	mdev = kzalloc(sizeof(*mdev), GFP_KERNEL);
- 	if (!mdev) {
- 		mutex_unlock(&mdev_list_lock);
-diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/vfio/mdev/mdev_sysfs.c
-index 658b3bf5ed0bf..abe3359dd477f 100644
---- a/drivers/vfio/mdev/mdev_sysfs.c
-+++ b/drivers/vfio/mdev/mdev_sysfs.c
-@@ -108,7 +108,10 @@ static ssize_t available_instances_show(struct mdev_type *mtype,
- {
- 	struct mdev_driver *drv = mtype->parent->mdev_driver;
- 
--	return sysfs_emit(buf, "%u\n", drv->get_available(mtype));
-+	if (drv->get_available)
-+		return sysfs_emit(buf, "%u\n", drv->get_available(mtype));
-+	return sysfs_emit(buf, "%u\n",
-+			  atomic_read(&mtype->parent->available_instances));
- }
- static MDEV_TYPE_ATTR_RO(available_instances);
- 
-diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index 33674cb5ed5d4..139d05b26f820 100644
---- a/include/linux/mdev.h
-+++ b/include/linux/mdev.h
-@@ -45,6 +45,7 @@ struct mdev_parent {
- 	struct rw_semaphore unreg_sem;
- 	struct mdev_type **types;
- 	unsigned int nr_types;
-+	atomic_t available_instances;
- };
- 
- static inline struct mdev_device *to_mdev_device(struct device *dev)
-@@ -55,6 +56,7 @@ static inline struct mdev_device *to_mdev_device(struct device *dev)
- /**
-  * struct mdev_driver - Mediated device driver
-  * @device_api: string to return for the device_api sysfs
-+ * @max_instances: maximum number of instances supported (optional)
-  * @probe: called when new device created
-  * @remove: called when device removed
-  * @get_available: Return the max number of instances that can be created
-@@ -63,6 +65,7 @@ static inline struct mdev_device *to_mdev_device(struct device *dev)
-  **/
- struct mdev_driver {
- 	const char *device_api;
-+	unsigned int max_instances;
- 	int (*probe)(struct mdev_device *dev);
- 	void (*remove)(struct mdev_device *dev);
- 	unsigned int (*get_available)(struct mdev_type *mtype);
-diff --git a/samples/vfio-mdev/mdpy.c b/samples/vfio-mdev/mdpy.c
-index a7cf59246ddd0..946e8cfde6fdd 100644
---- a/samples/vfio-mdev/mdpy.c
-+++ b/samples/vfio-mdev/mdpy.c
-@@ -42,11 +42,6 @@
- 
- MODULE_LICENSE("GPL v2");
- 
--static int max_devices = 4;
--module_param_named(count, max_devices, int, 0444);
--MODULE_PARM_DESC(count, "number of " MDPY_NAME " devices");
--
--
- #define MDPY_TYPE_1 "vga"
- #define MDPY_TYPE_2 "xga"
- #define MDPY_TYPE_3 "hd"
-@@ -93,7 +88,6 @@ static struct class	*mdpy_class;
- static struct cdev	mdpy_cdev;
- static struct device	mdpy_dev;
- static struct mdev_parent mdpy_parent;
--static u32		mdpy_count;
- static const struct vfio_device_ops mdpy_dev_ops;
- 
- /* State of each mdev device */
-@@ -235,9 +229,6 @@ static int mdpy_init_dev(struct vfio_device *vdev)
- 	u32 fbsize;
- 	int ret = -ENOMEM;
- 
--	if (mdpy_count >= max_devices)
--		return ret;
--
- 	mdev_state->vconfig = kzalloc(MDPY_CONFIG_SPACE_SIZE, GFP_KERNEL);
- 	if (!mdev_state->vconfig)
- 		return ret;
-@@ -257,8 +248,6 @@ static int mdpy_init_dev(struct vfio_device *vdev)
- 
- 	dev_info(vdev->dev, "%s: %s (%dx%d)\n", __func__, type->type.pretty_name,
- 		 type->width, type->height);
--
--	mdpy_count++;
- 	return 0;
- 
- out_vconfig:
-@@ -292,7 +281,6 @@ static void mdpy_release_dev(struct vfio_device *vdev)
- 	struct mdev_state *mdev_state =
- 		container_of(vdev, struct mdev_state, vdev);
- 
--	mdpy_count--;
- 	vfree(mdev_state->memblk);
- 	kfree(mdev_state->vconfig);
- 	vfio_free_device(vdev);
-@@ -669,11 +657,6 @@ static ssize_t mdpy_show_description(struct mdev_type *mtype, char *buf)
- 		       type->width, type->height);
- }
- 
--static unsigned int mdpy_get_available(struct mdev_type *mtype)
--{
--	return max_devices - mdpy_count;
--}
--
- static const struct vfio_device_ops mdpy_dev_ops = {
- 	.init = mdpy_init_dev,
- 	.release = mdpy_release_dev,
-@@ -685,6 +668,7 @@ static const struct vfio_device_ops mdpy_dev_ops = {
- 
- static struct mdev_driver mdpy_driver = {
- 	.device_api = VFIO_DEVICE_API_PCI_STRING,
-+	.max_instances = 4,
- 	.driver = {
- 		.name = "mdpy",
- 		.owner = THIS_MODULE,
-@@ -693,7 +677,6 @@ static struct mdev_driver mdpy_driver = {
- 	},
- 	.probe = mdpy_probe,
- 	.remove	= mdpy_remove,
--	.get_available = mdpy_get_available,
- 	.show_description = mdpy_show_description,
- };
- 
-@@ -770,5 +753,8 @@ static void __exit mdpy_dev_exit(void)
- 	mdpy_class = NULL;
- }
- 
-+module_param_named(count, mdpy_driver.max_instances, int, 0444);
-+MODULE_PARM_DESC(count, "number of " MDPY_NAME " devices");
-+
- module_init(mdpy_dev_init)
- module_exit(mdpy_dev_exit)
+  Linux 6.0-rc6 (2022-09-18 13:44:14 -0700)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-master-6.0-2
+
+for you to fetch changes up to 189e7d876e48d7c791fe1c9c01516f70f5621a9f:
+
+  KVM: s390: pci: register pci hooks without interpretation (2022-09-21 16:18:38 +0200)
+
+----------------------------------------------------------------
+More pci fixes
+Fix for a code analyser warning
+----------------------------------------------------------------
+
+Janis Schoetterl-Glausch (1):
+  KVM: s390: Pass initialized arg even if unused
+
+Matthew Rosato (3):
+  KVM: s390: pci: fix plain integer as NULL pointer warnings
+  KVM: s390: pci: fix GAIT physical vs virtual pointers usage
+  KVM: s390: pci: register pci hooks without interpretation
+
+ arch/s390/kvm/gaccess.c   | 16 +++++++++++++---
+ arch/s390/kvm/interrupt.c |  2 +-
+ arch/s390/kvm/kvm-s390.c  |  4 ++--
+ arch/s390/kvm/pci.c       | 20 ++++++++++++++------
+ arch/s390/kvm/pci.h       |  6 +++---
+ 5 files changed, 33 insertions(+), 15 deletions(-)
+
 -- 
-2.30.2
+2.37.3
 
