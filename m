@@ -2,151 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8F20C04A95
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Sep 2022 19:01:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0C21C6FA83
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Sep 2022 19:04:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231409AbiIWTBD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Sep 2022 15:01:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42600 "EHLO
+        id S231474AbiIWTEj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Sep 2022 15:04:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229520AbiIWTBC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Sep 2022 15:01:02 -0400
+        with ESMTP id S229583AbiIWTEi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Sep 2022 15:04:38 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CFC711C16E;
-        Fri, 23 Sep 2022 12:01:00 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28NHUNPa011217;
-        Fri, 23 Sep 2022 19:00:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=FEmSAHpnGZZKPEHAy8wKFDjqwBbkabkHr/RfCgrZI5Q=;
- b=JbllU5j8LSZTV4E0jhztoGbI8Dshru3FDspozyZLDcyOBr7wMgZeUGWenxll+4qkIsCh
- LUJ9dennOlSBdxVIn6uyE898iVvrv3gW3QcEXnOMCesvFOz/zXQPTvdEAf3Q9ea/oWoF
- OjPZtwT0iffoa7EhWwy3WE/sPQ+YqecM6MjDSgIqWzf/iRkblrDdZ9VwBqNSFMgQ1ykD
- MOI2Q/MqZDdrI6CtlAzYdjNH7XxqvYqcPRQYPKj8WjVo7ZbONqQRZPaYlcHla88M2bEF
- GMiZH2wSDelSH8nWZ1ApoD0+lC+F2EiJ9rJjBCUn7n/WI688N0rQfR7JzjNDWSofBReC Fw== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CFAE2DFF;
+        Fri, 23 Sep 2022 12:04:33 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28NH6DdC025652;
+        Fri, 23 Sep 2022 19:03:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=MuBSUJNz2EZLJFjx/Wk5ELtrb2nH5vloc/QhcYKQVkM=;
+ b=FR/IRFY+xcS5+T96EwH2BEsei7I8INijO+y1CvmB0XLIxHsR+E/m3MRItHxgavaGJwcA
+ KsyUmZFYDmvNH1P73Uj/EZEUYCMWsxAPZTpWNV+OGzjfa0xnaUBhmJrhAfoMzrE6Ey8N
+ wxbf8fka4FoKcEJ9JcI4pQ5+ynBLMJs81tMVS+usEOsrKX5ZybA9ae0myEN7KxcCPtW7
+ LtQRsfCCvfwaMgMtpR/nllUJxa8hKrM8msTJKGgBGo9NkEyi7hOoKneuqLC4fjGfbNHy
+ OLg48NU4twXsjqFqCkqDOOMvZ7r/bn3RK7zpG4w0PSmEsU+ZIsoxVXv1L8IMsrf42V4L Pg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jsau7wcxm-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jsam5pwyj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Sep 2022 19:00:21 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28NHsR5X029455;
-        Fri, 23 Sep 2022 19:00:21 GMT
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jsau7wcw9-1
+        Fri, 23 Sep 2022 19:03:43 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28NInoc6008637;
+        Fri, 23 Sep 2022 19:03:42 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jsam5pwwn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Sep 2022 19:00:20 +0000
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28NIo5oJ015035;
-        Fri, 23 Sep 2022 19:00:19 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma01wdc.us.ibm.com with ESMTP id 3jn5va1jdc-1
+        Fri, 23 Sep 2022 19:03:42 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28NIo3SS026482;
+        Fri, 23 Sep 2022 19:03:41 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma02wdc.us.ibm.com with ESMTP id 3jn5va1m27-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Sep 2022 19:00:19 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com ([9.208.128.117])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28NJ0I1O7078588
+        Fri, 23 Sep 2022 19:03:41 +0000
+Received: from smtpav06.dal12v.mail.ibm.com ([9.208.128.130])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28NJ3fLn7799506
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 23 Sep 2022 19:00:19 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3BDC958068;
-        Fri, 23 Sep 2022 19:00:18 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C7295805D;
-        Fri, 23 Sep 2022 19:00:16 +0000 (GMT)
-Received: from [9.163.12.13] (unknown [9.163.12.13])
-        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 23 Sep 2022 19:00:16 +0000 (GMT)
-Message-ID: <1e57129a-f937-b77d-795b-d0ba05ba17be@linux.ibm.com>
-Date:   Fri, 23 Sep 2022 21:00:15 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.3.0
-Subject: Re: [PATCH net-next] net/smc: Support SO_REUSEPORT
-To:     Tony Lu <tonylu@linux.alibaba.com>, kgraul@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20220922121906.72406-1-tonylu@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <20220922121906.72406-1-tonylu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SOXLTJPZY7Kyn8L4L6QfYVfZ7ctvR51y
-X-Proofpoint-ORIG-GUID: Tvob0PTbBengd4xsqA8Sw73iEiohWYjN
+        Fri, 23 Sep 2022 19:03:41 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7F0E658059;
+        Fri, 23 Sep 2022 19:03:39 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BAF6E58043;
+        Fri, 23 Sep 2022 19:03:36 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.173.46])
+        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 23 Sep 2022 19:03:36 +0000 (GMT)
+Message-ID: <67337b60a4d3cae00794d3cfd0e5add9899f18b7.camel@linux.ibm.com>
+Subject: Re: [PATCH 5.15 0/6] arm64: kexec_file: use more system keyrings to
+ verify kernel image signature + dependencies
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Michal Suchanek <msuchanek@suse.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Philipp Rudo <prudo@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Baoquan He <bhe@redhat.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
+        <linuxppc-dev@lists.ozlabs.org>,
+        "open list:KEXEC" <kexec@lists.infradead.org>,
+        Coiby Xu <coxu@redhat.com>, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        James Morse <james.morse@arm.com>,
+        AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date:   Fri, 23 Sep 2022 15:03:36 -0400
+In-Reply-To: <cover.1663951201.git.msuchanek@suse.de>
+References: <cover.1663951201.git.msuchanek@suse.de>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: SsokmeIEOQvFjsuuW5hlsedfFQGtkcPI
+X-Proofpoint-ORIG-GUID: xC2eJ1JrrMo3jvaPpOW6BQ5aqRsb_2NA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-23_06,2022-09-22_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 suspectscore=0 clxscore=1015 adultscore=0
- priorityscore=1501 mlxlogscore=999 mlxscore=0 lowpriorityscore=0
- phishscore=0 spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 malwarescore=0 bulkscore=0 mlxscore=0 adultscore=0
+ impostorscore=0 clxscore=1011 lowpriorityscore=0 mlxlogscore=999
+ suspectscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
  scancount=1 engine=8.12.0-2209130000 definitions=main-2209230120
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Fri, 2022-09-23 at 19:10 +0200, Michal Suchanek wrote:
+> Hello,
+> 
+> this is backport of commit 0d519cadf751
+> ("arm64: kexec_file: use more system keyrings to verify kernel image signature")
+> to table 5.15 tree including the preparatory patches.
+> 
+> Some patches needed minor adjustment for context.
 
+In general when backporting this patch set, there should be a
+dependency on backporting these commits as well.  In this instance for
+linux-5.15.y, they've already been backported.
 
-On 22.09.22 14:19, Tony Lu wrote:
-> This enables SO_REUSEPORT [1] for clcsock when it is set on smc socket,
-> so that some applications which uses it can be transparently replaced
-> with SMC. Also, this helps improve load distribution.
-> 
-> Here is a simple test of NGINX + wrk with SMC. The CPU usage is collected
-> on NGINX (server) side as below.
-> 
-> Disable SO_REUSEPORT:
-> 
-> 05:15:33 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-> 05:15:34 PM  all    7.02    0.00   11.86    0.00    2.04    8.93    0.00    0.00    0.00   70.15
-> 05:15:34 PM    0    0.00    0.00    0.00    0.00   16.00   70.00    0.00    0.00    0.00   14.00
-> 05:15:34 PM    1   11.58    0.00   22.11    0.00    0.00    0.00    0.00    0.00    0.00   66.32
-> 05:15:34 PM    2    1.00    0.00    1.00    0.00    0.00    0.00    0.00    0.00    0.00   98.00
-> 05:15:34 PM    3   16.84    0.00   30.53    0.00    0.00    0.00    0.00    0.00    0.00   52.63
-> 05:15:34 PM    4   28.72    0.00   44.68    0.00    0.00    0.00    0.00    0.00    0.00   26.60
-> 05:15:34 PM    5    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
-> 05:15:34 PM    6    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
-> 05:15:34 PM    7    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
-> 
-> Enable SO_REUSEPORT:
-> 
-> 05:15:20 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-> 05:15:21 PM  all    8.56    0.00   14.40    0.00    2.20    9.86    0.00    0.00    0.00   64.98
-> 05:15:21 PM    0    0.00    0.00    4.08    0.00   14.29   76.53    0.00    0.00    0.00    5.10
-> 05:15:21 PM    1    9.09    0.00   16.16    0.00    1.01    0.00    0.00    0.00    0.00   73.74
-> 05:15:21 PM    2    9.38    0.00   16.67    0.00    1.04    0.00    0.00    0.00    0.00   72.92
-> 05:15:21 PM    3   10.42    0.00   17.71    0.00    1.04    0.00    0.00    0.00    0.00   70.83
-> 05:15:21 PM    4    9.57    0.00   15.96    0.00    0.00    0.00    0.00    0.00    0.00   74.47
-> 05:15:21 PM    5    9.18    0.00   15.31    0.00    0.00    1.02    0.00    0.00    0.00   74.49
-> 05:15:21 PM    6    8.60    0.00   15.05    0.00    0.00    0.00    0.00    0.00    0.00   76.34
-> 05:15:21 PM    7   12.37    0.00   14.43    0.00    0.00    0.00    0.00    0.00    0.00   73.20
-> 
-> Using SO_REUSEPORT helps the load distribution of NGINX be more
-> balanced.
-> 
-> [1] https://man7.org/linux/man-pages/man7/socket.7.html
-> 
-> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-> ---
->   net/smc/af_smc.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 0939cc3b915a..d933a804c94b 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -427,6 +427,7 @@ static int smc_bind(struct socket *sock, struct sockaddr *uaddr,
->   		goto out_rel;
->   
->   	smc->clcsock->sk->sk_reuse = sk->sk_reuse;
-> +	smc->clcsock->sk->sk_reuseport = sk->sk_reuseport;
->   	rc = kernel_bind(smc->clcsock, uaddr, addr_len);
->   
->   out_rel:
+543ce63b664e ("lockdown: Fix kexec lockdown bypass with ima policy")
+af16df54b89d ("ima: force signature verification when CONFIG_KEXEC_SIG is configured")
 
-It looks good to me. Thank you!
+-- 
+thanks,
 
-Acked-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Mimi
+
