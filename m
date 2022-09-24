@@ -2,133 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74D34C07E9D
-	for <linux-s390@archiver.kernel.org>; Sat, 24 Sep 2022 14:44:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39F17C32771
+	for <linux-s390@archiver.kernel.org>; Sat, 24 Sep 2022 16:10:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229573AbiIXOoO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 24 Sep 2022 10:44:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54548 "EHLO
+        id S233391AbiIXQKV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 24 Sep 2022 12:10:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbiIXOoN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Sep 2022 10:44:13 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E3B31DFE;
-        Sat, 24 Sep 2022 07:44:08 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 854FE21880;
-        Sat, 24 Sep 2022 14:44:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1664030646; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ldCH7q8JyvLEKaktegyDOVQARi1eF2vv5KGzrW1iCKE=;
-        b=ZYYExhvhe3hvVYy4oVk/eFH8gYNpGCko5Ihe7Zb9d4XHzj0gN+cbmJ5znD+HxwJBv4rbaf
-        xOAiTy+7OSutCerOOUzrNf7vSiurU7B6noAUxrtuNDY8e/xv8++TCq4sPot33lF0rn5bY3
-        j5D7iIgKtKQkzwHDFuKS1s7nX1iR+bg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1664030646;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ldCH7q8JyvLEKaktegyDOVQARi1eF2vv5KGzrW1iCKE=;
-        b=LwyQx+Mw9MIzMldTchSCV/M9BlwXBCMS+77FXL0rg1zfTVtmjUy+KUTCczSeB7Oi5a4eGF
-        DV0wxb7/VTheveCg==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 2218E2C172;
-        Sat, 24 Sep 2022 14:44:05 +0000 (UTC)
-Date:   Sat, 24 Sep 2022 16:44:03 +0200
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        keyrings@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
+        with ESMTP id S232153AbiIXQKU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Sep 2022 12:10:20 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3D47220FA;
+        Sat, 24 Sep 2022 09:10:17 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28ODob3f004287;
+        Sat, 24 Sep 2022 16:10:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=a4zcKXoJ05wmFaNpgRVGyWwOgOwSRvLYCZBnIZmH8hs=;
+ b=RjMIuiKNYFqW5cDQMfVdVR8gFCjOW7e9PipZ8dLpSeFQLQojuKgqOsnQUUAmxcIIuLkr
+ E5TX/96tXvfv3w1MHnfnrt0C0mpzUWSgweMSNp+2jT3SHf86is4hev28Isr6R2cYc4BG
+ AbBmHrifuHDBPAftspOhoYIZdYeOH32nDEo6RZgPyhVVOSt53o6aLMP7QGVF8+0M7a9D
+ iJ6e/M+G0mGomFox6iMbjz1cPkHol0CTe7Z8tX1FHV9HhtVSJTp/9sGGGKFSOR9oOoUS
+ ZKNzsfct0BQORMMnVEX/EsVK4JVuIwn1GEDW3nLq0nhn9rIZKqx5BJLORjp9DYeVp7nw nA== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jswxx0n82-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 24 Sep 2022 16:10:16 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28OG5gor008063;
+        Sat, 24 Sep 2022 16:10:14 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3jssh98h28-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 24 Sep 2022 16:10:14 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28OGAAbh52494838
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 24 Sep 2022 16:10:10 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C939542041;
+        Sat, 24 Sep 2022 16:10:10 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6BA9842045;
+        Sat, 24 Sep 2022 16:10:10 +0000 (GMT)
+Received: from localhost (unknown [9.171.68.51])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sat, 24 Sep 2022 16:10:10 +0000 (GMT)
+Date:   Sat, 24 Sep 2022 18:10:08 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        "open list:S390" <linux-s390@vger.kernel.org>,
-        Coiby Xu <coxu@redhat.com>, Baoquan He <bhe@redhat.com>,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" 
-        <linux-arm-kernel@lists.infradead.org>,
-        Philipp Rudo <prudo@redhat.com>,
-        " open list:KEXEC" <kexec@lists.infradead.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        James Morse <james.morse@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
-        <linuxppc-dev@lists.ozlabs.org>
-Subject: Re: [PATCH 5.15 0/6] arm64: kexec_file: use more system keyrings to
- verify kernel image signature + dependencies
-Message-ID: <20220924144403.GA28810@kitsune.suse.cz>
-References: <cover.1663951201.git.msuchanek@suse.de>
- <67337b60a4d3cae00794d3cfd0e5add9899f18b7.camel@linux.ibm.com>
- <20220923191650.GX28810@kitsune.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 6.0-rc7
+Message-ID: <your-ad-here.call-01664035808-ext-9945@work.hours>
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220923191650.GX28810@kitsune.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: P-hKLUEv0vRCgVAQK6XNQ1CNk_yv2rry
+X-Proofpoint-ORIG-GUID: P-hKLUEv0vRCgVAQK6XNQ1CNk_yv2rry
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-24_07,2022-09-22_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ adultscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0
+ malwarescore=0 clxscore=1011 phishscore=0 suspectscore=0 impostorscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209240120
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Sep 23, 2022 at 09:16:50PM +0200, Michal Suchánek wrote:
-> Hello,
-> 
-> On Fri, Sep 23, 2022 at 03:03:36PM -0400, Mimi Zohar wrote:
-> > On Fri, 2022-09-23 at 19:10 +0200, Michal Suchanek wrote:
-> > > Hello,
-> > > 
-> > > this is backport of commit 0d519cadf751
-> > > ("arm64: kexec_file: use more system keyrings to verify kernel image signature")
-> > > to table 5.15 tree including the preparatory patches.
-> > > 
-> > > Some patches needed minor adjustment for context.
-> > 
-> > In general when backporting this patch set, there should be a
-> > dependency on backporting these commits as well.  In this instance for
-> > linux-5.15.y, they've already been backported.
-> > 
-> > 543ce63b664e ("lockdown: Fix kexec lockdown bypass with ima policy")
+Hello Linus,
 
-AFAICT this is everywhere relevant, likely because it's considered a CVE
-fix.
+please pull s390 changes for 6.0-rc7.
 
-> > af16df54b89d ("ima: force signature verification when CONFIG_KEXEC_SIG is configured")
+Thank you,
+Vasily
 
-This is missing in 5.4, and 5.4 is missing this prerequisite:
-fd7af71be542 ("kexec: do not verify the signature without the lockdown or mandatory signature")
+The following changes since commit 8d96bba75a43ba564bf8732e955d9f519d2bbaec:
 
-> 
-> Thanks for bringing these up. It might be in general useful to backport
-> these fixes as well.
-> 
-> However, this patchset does one very specific thing: it lifts the x86
-> kexec_file signature verification to arch-independent and uses it on
-> arm64 to unify all features (and any existing warts) between EFI
-> architectures.
-> 
-> So unless I am missing something the fixes you pointed out are
-> completely independent of this.
-> 
-> Thanks
-> 
-> Michal
+  s390/smp: enforce lowcore protection on CPU restart (2022-09-07 14:04:01 +0200)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-5
+
+for you to fetch changes up to 1918f2b20c3de73ef6f644979896e20a2e7dbb2d:
+
+  s390/vfio-ap: bypass unnecessary processing of AP resources (2022-09-21 22:33:16 +0200)
+
+----------------------------------------------------------------
+s390 updates for v6.0-rc7
+
+- Fix potential hangs in VFIO AP driver.
+
+----------------------------------------------------------------
+Tony Krowiak (1):
+      s390/vfio-ap: bypass unnecessary processing of AP resources
+
+ drivers/s390/crypto/vfio_ap_ops.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
