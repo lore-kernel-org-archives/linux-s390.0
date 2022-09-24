@@ -2,122 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59F4DC07E9D
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Sep 2022 19:16:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56CEEC04A95
+	for <linux-s390@archiver.kernel.org>; Sat, 24 Sep 2022 01:21:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231440AbiIWTQ4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Sep 2022 15:16:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34498 "EHLO
+        id S229556AbiIXBV2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Sep 2022 21:21:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229520AbiIWTQz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Sep 2022 15:16:55 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A1C412C687;
-        Fri, 23 Sep 2022 12:16:54 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id D7BDD1F88F;
-        Fri, 23 Sep 2022 19:16:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1663960612; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=M7ZPOnaCl1bvAhxAcIcfHQhBd3XlM8j/v3z+xwYqH9Y=;
-        b=RxICWe9ShUOJ30yrxK1Sg337ibKGDWiBuCCfxe3PxnQDXehTnWoUAxFGm5efJJElnCRWYC
-        T/EEFnwjXDbp1a3EUY+qRjBlZgJmh01Kq/w3WmKQrPle99zuvPSp1ZWQvpmJBRW3Md/Gh+
-        hUMW16JhjAIT9slsMZQE8GgUslBWn+U=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1663960612;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=M7ZPOnaCl1bvAhxAcIcfHQhBd3XlM8j/v3z+xwYqH9Y=;
-        b=3o5yz8IUMFuZYyHXKnE++yxz0+3AfWIuGDj2UVpRZKJG7D+gcy2qYgZToe/bEoYUVe37Df
-        Pa8q+QubOpYRpICg==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 841FF2C15C;
-        Fri, 23 Sep 2022 19:16:51 +0000 (UTC)
-Date:   Fri, 23 Sep 2022 21:16:50 +0200
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Philipp Rudo <prudo@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        "open list:S390" <linux-s390@vger.kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        "open list:KEXEC" <kexec@lists.infradead.org>,
-        Coiby Xu <coxu@redhat.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        James Morse <james.morse@arm.com>,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>
-Subject: Re: [PATCH 5.15 0/6] arm64: kexec_file: use more system keyrings to
- verify kernel image signature + dependencies
-Message-ID: <20220923191650.GX28810@kitsune.suse.cz>
-References: <cover.1663951201.git.msuchanek@suse.de>
- <67337b60a4d3cae00794d3cfd0e5add9899f18b7.camel@linux.ibm.com>
+        with ESMTP id S230089AbiIXBV1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Sep 2022 21:21:27 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEDA6FA0CB
+        for <linux-s390@vger.kernel.org>; Fri, 23 Sep 2022 18:21:26 -0700 (PDT)
+Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MZB1j0w9lzHtgq;
+        Sat, 24 Sep 2022 09:16:41 +0800 (CST)
+Received: from ubuntu1804.huawei.com (10.67.174.58) by
+ dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Sat, 24 Sep 2022 09:21:25 +0800
+From:   Xiu Jianfeng <xiujianfeng@huawei.com>
+To:     <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>
+CC:     <linux-s390@vger.kernel.org>, <xiujianfeng@huawei.com>
+Subject: [PATCH] s390/tape: Add __init/__exit annotations to module init/exit funcs
+Date:   Sat, 24 Sep 2022 09:17:44 +0800
+Message-ID: <20220924011744.230947-1-xiujianfeng@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <67337b60a4d3cae00794d3cfd0e5add9899f18b7.camel@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.58]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpeml500023.china.huawei.com (7.185.36.114)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
+Add missing __init/__exit annotations to module init/exit funcs.
 
-On Fri, Sep 23, 2022 at 03:03:36PM -0400, Mimi Zohar wrote:
-> On Fri, 2022-09-23 at 19:10 +0200, Michal Suchanek wrote:
-> > Hello,
-> > 
-> > this is backport of commit 0d519cadf751
-> > ("arm64: kexec_file: use more system keyrings to verify kernel image signature")
-> > to table 5.15 tree including the preparatory patches.
-> > 
-> > Some patches needed minor adjustment for context.
-> 
-> In general when backporting this patch set, there should be a
-> dependency on backporting these commits as well.  In this instance for
-> linux-5.15.y, they've already been backported.
-> 
-> 543ce63b664e ("lockdown: Fix kexec lockdown bypass with ima policy")
-> af16df54b89d ("ima: force signature verification when CONFIG_KEXEC_SIG is configured")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+---
+ drivers/s390/char/tape_34xx.c | 4 ++--
+ drivers/s390/char/tape_3590.c | 4 ++--
+ drivers/s390/char/tape_core.c | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-Thanks for bringing these up. It might be in general useful to backport
-these fixes as well.
+diff --git a/drivers/s390/char/tape_34xx.c b/drivers/s390/char/tape_34xx.c
+index 751945fb6793..091018d62450 100644
+--- a/drivers/s390/char/tape_34xx.c
++++ b/drivers/s390/char/tape_34xx.c
+@@ -1194,7 +1194,7 @@ static struct ccw_driver tape_34xx_driver = {
+ 	.int_class = IRQIO_TAP,
+ };
+ 
+-static int
++static int __init
+ tape_34xx_init (void)
+ {
+ 	int rc;
+@@ -1215,7 +1215,7 @@ tape_34xx_init (void)
+ 	return rc;
+ }
+ 
+-static void
++static void __exit
+ tape_34xx_exit(void)
+ {
+ 	ccw_driver_unregister(&tape_34xx_driver);
+diff --git a/drivers/s390/char/tape_3590.c b/drivers/s390/char/tape_3590.c
+index 0d484fe43d7e..a3cf48d971ea 100644
+--- a/drivers/s390/char/tape_3590.c
++++ b/drivers/s390/char/tape_3590.c
+@@ -1657,7 +1657,7 @@ static struct ccw_driver tape_3590_driver = {
+ /*
+  * Setup discipline structure.
+  */
+-static int
++static int __init
+ tape_3590_init(void)
+ {
+ 	int rc;
+@@ -1684,7 +1684,7 @@ tape_3590_init(void)
+ 	return rc;
+ }
+ 
+-static void
++static void __exit
+ tape_3590_exit(void)
+ {
+ 	ccw_driver_unregister(&tape_3590_driver);
+diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
+index a6d2a4792185..c660e661e8d8 100644
+--- a/drivers/s390/char/tape_core.c
++++ b/drivers/s390/char/tape_core.c
+@@ -1271,7 +1271,7 @@ tape_mtop(struct tape_device *device, int mt_op, int mt_count)
+ /*
+  * Tape init function.
+  */
+-static int
++static int __init
+ tape_init (void)
+ {
+ 	TAPE_DBF_AREA = debug_register ( "tape", 2, 2, 4*sizeof(long));
+@@ -1288,7 +1288,7 @@ tape_init (void)
+ /*
+  * Tape exit function.
+  */
+-static void
++static void __exit
+ tape_exit(void)
+ {
+ 	DBF_EVENT(6, "tape exit\n");
+-- 
+2.17.1
 
-However, this patchset does one very specific thing: it lifts the x86
-kexec_file signature verification to arch-independent and uses it on
-arm64 to unify all features (and any existing warts) between EFI
-architectures.
-
-So unless I am missing something the fixes you pointed out are
-completely independent of this.
-
-Thanks
-
-Michal
