@@ -2,108 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39F17C32771
-	for <linux-s390@archiver.kernel.org>; Sat, 24 Sep 2022 16:10:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D266C07E9D
+	for <linux-s390@archiver.kernel.org>; Sun, 25 Sep 2022 00:52:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233391AbiIXQKV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 24 Sep 2022 12:10:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42274 "EHLO
+        id S233935AbiIYAwx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 24 Sep 2022 20:52:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232153AbiIXQKU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Sep 2022 12:10:20 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3D47220FA;
-        Sat, 24 Sep 2022 09:10:17 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28ODob3f004287;
-        Sat, 24 Sep 2022 16:10:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=a4zcKXoJ05wmFaNpgRVGyWwOgOwSRvLYCZBnIZmH8hs=;
- b=RjMIuiKNYFqW5cDQMfVdVR8gFCjOW7e9PipZ8dLpSeFQLQojuKgqOsnQUUAmxcIIuLkr
- E5TX/96tXvfv3w1MHnfnrt0C0mpzUWSgweMSNp+2jT3SHf86is4hev28Isr6R2cYc4BG
- AbBmHrifuHDBPAftspOhoYIZdYeOH32nDEo6RZgPyhVVOSt53o6aLMP7QGVF8+0M7a9D
- iJ6e/M+G0mGomFox6iMbjz1cPkHol0CTe7Z8tX1FHV9HhtVSJTp/9sGGGKFSOR9oOoUS
- ZKNzsfct0BQORMMnVEX/EsVK4JVuIwn1GEDW3nLq0nhn9rIZKqx5BJLORjp9DYeVp7nw nA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jswxx0n82-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 24 Sep 2022 16:10:16 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28OG5gor008063;
-        Sat, 24 Sep 2022 16:10:14 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3jssh98h28-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 24 Sep 2022 16:10:14 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28OGAAbh52494838
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 24 Sep 2022 16:10:10 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C939542041;
-        Sat, 24 Sep 2022 16:10:10 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6BA9842045;
-        Sat, 24 Sep 2022 16:10:10 +0000 (GMT)
-Received: from localhost (unknown [9.171.68.51])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Sat, 24 Sep 2022 16:10:10 +0000 (GMT)
-Date:   Sat, 24 Sep 2022 18:10:08 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S233773AbiIYAwv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Sep 2022 20:52:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0CAD40E3C;
+        Sat, 24 Sep 2022 17:52:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CDEF60AEB;
+        Sun, 25 Sep 2022 00:52:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 5D463C433D6;
+        Sun, 25 Sep 2022 00:52:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1664067170;
+        bh=Hvs1QUukH+qLqqh/cHfKigmnb3q5kQy/7O3VICf76x4=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=BAwhnaihhoZbcpAY68wnIqtfw9ye+cRAK5at8Hf5QC39FyoxxuWK/qpSw/dOzwh4l
+         2jd44+Vsen4unH4njmd2F/RZRkYkYU8u093uj9N403Y0vdBAVA8bwn0kwv5T9EOzbQ
+         217gkOxvITZmC04ouLS72J941TIHjLPYvBUbVe0p4z51mPbLgm9PPYSvq7v0Y6dFMy
+         xJosSrve4FZo/i8rE3oC0dQIpF6tfghYPPOTQ5Ab1hFxO+b+iW0f29YjkxCFIlUMu2
+         e2i199S1EKvxblSoEPMcqXEdB1MLb9pKWUFGW2INlKOkkDkdPiEiHaZ5LxUvxfrwPi
+         PjRBRkqKFF2eA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 43419C73FEC;
+        Sun, 25 Sep 2022 00:52:50 +0000 (UTC)
+Subject: Re: [GIT PULL] s390 updates for 6.0-rc7
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01664035808-ext-9945@work.hours>
+References: <your-ad-here.call-01664035808-ext-9945@work.hours>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <your-ad-here.call-01664035808-ext-9945@work.hours>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-5
+X-PR-Tracked-Commit-Id: 1918f2b20c3de73ef6f644979896e20a2e7dbb2d
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 23b99237f86df34cbcefa81d1fa45bc316b4a124
+Message-Id: <166406717027.14733.4589444944005345403.pr-tracker-bot@kernel.org>
+Date:   Sun, 25 Sep 2022 00:52:50 +0000
+To:     Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 updates for 6.0-rc7
-Message-ID: <your-ad-here.call-01664035808-ext-9945@work.hours>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: P-hKLUEv0vRCgVAQK6XNQ1CNk_yv2rry
-X-Proofpoint-ORIG-GUID: P-hKLUEv0vRCgVAQK6XNQ1CNk_yv2rry
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-24_07,2022-09-22_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- adultscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0
- malwarescore=0 clxscore=1011 phishscore=0 suspectscore=0 impostorscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209240120
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+The pull request you sent on Sat, 24 Sep 2022 18:10:08 +0200:
 
-please pull s390 changes for 6.0-rc7.
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-5
 
-Thank you,
-Vasily
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/23b99237f86df34cbcefa81d1fa45bc316b4a124
 
-The following changes since commit 8d96bba75a43ba564bf8732e955d9f519d2bbaec:
+Thank you!
 
-  s390/smp: enforce lowcore protection on CPU restart (2022-09-07 14:04:01 +0200)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-5
-
-for you to fetch changes up to 1918f2b20c3de73ef6f644979896e20a2e7dbb2d:
-
-  s390/vfio-ap: bypass unnecessary processing of AP resources (2022-09-21 22:33:16 +0200)
-
-----------------------------------------------------------------
-s390 updates for v6.0-rc7
-
-- Fix potential hangs in VFIO AP driver.
-
-----------------------------------------------------------------
-Tony Krowiak (1):
-      s390/vfio-ap: bypass unnecessary processing of AP resources
-
- drivers/s390/crypto/vfio_ap_ops.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
