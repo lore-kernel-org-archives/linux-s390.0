@@ -2,70 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D266C07E9D
-	for <linux-s390@archiver.kernel.org>; Sun, 25 Sep 2022 00:52:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDD4FC32771
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 06:47:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233935AbiIYAwx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 24 Sep 2022 20:52:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49116 "EHLO
+        id S233662AbiIZGrh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Sep 2022 02:47:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233773AbiIYAwv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Sep 2022 20:52:51 -0400
+        with ESMTP id S233274AbiIZGrg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 02:47:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0CAD40E3C;
-        Sat, 24 Sep 2022 17:52:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF6224BE0;
+        Sun, 25 Sep 2022 23:47:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CDEF60AEB;
-        Sun, 25 Sep 2022 00:52:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 5D463C433D6;
-        Sun, 25 Sep 2022 00:52:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664067170;
-        bh=Hvs1QUukH+qLqqh/cHfKigmnb3q5kQy/7O3VICf76x4=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=BAwhnaihhoZbcpAY68wnIqtfw9ye+cRAK5at8Hf5QC39FyoxxuWK/qpSw/dOzwh4l
-         2jd44+Vsen4unH4njmd2F/RZRkYkYU8u093uj9N403Y0vdBAVA8bwn0kwv5T9EOzbQ
-         217gkOxvITZmC04ouLS72J941TIHjLPYvBUbVe0p4z51mPbLgm9PPYSvq7v0Y6dFMy
-         xJosSrve4FZo/i8rE3oC0dQIpF6tfghYPPOTQ5Ab1hFxO+b+iW0f29YjkxCFIlUMu2
-         e2i199S1EKvxblSoEPMcqXEdB1MLb9pKWUFGW2INlKOkkDkdPiEiHaZ5LxUvxfrwPi
-         PjRBRkqKFF2eA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 43419C73FEC;
-        Sun, 25 Sep 2022 00:52:50 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 6.0-rc7
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01664035808-ext-9945@work.hours>
-References: <your-ad-here.call-01664035808-ext-9945@work.hours>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <your-ad-here.call-01664035808-ext-9945@work.hours>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-5
-X-PR-Tracked-Commit-Id: 1918f2b20c3de73ef6f644979896e20a2e7dbb2d
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 23b99237f86df34cbcefa81d1fa45bc316b4a124
-Message-Id: <166406717027.14733.4589444944005345403.pr-tracker-bot@kernel.org>
-Date:   Sun, 25 Sep 2022 00:52:50 +0000
-To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FB5061503;
+        Mon, 26 Sep 2022 06:47:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D481C433D6;
+        Mon, 26 Sep 2022 06:47:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1664174854;
+        bh=Y2sNyycpz3WfUGxxxwkrxUxDfizPmjY1zyzAphv6PIM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=R01HPFGgQkDQRVV6X/B85xXIWfuTBp4FYgiRlfvicfMadW+sS9Aa4uveH3JqL9r23
+         Ff6Sw3/AUKjIe4eR/Md3V2qY3UjWduTwexkEjHI2Udigby3+gkYfFqPtAt3lvzZ5yX
+         uFPWzkAzYRCDL1i9yqqNN14LCX5p+qNGKO1nNU1M=
+Date:   Mon, 26 Sep 2022 08:47:32 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Philipp Rudo <prudo@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Baoquan He <bhe@redhat.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
+        <linuxppc-dev@lists.ozlabs.org>,
+        "open list:KEXEC" <kexec@lists.infradead.org>,
+        Coiby Xu <coxu@redhat.com>, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        James Morse <james.morse@arm.com>,
+        AKASHI Takahiro <takahiro.akashi@linaro.org>
+Subject: Re: [PATCH 5.15 0/6] arm64: kexec_file: use more system keyrings to
+ verify kernel image signature + dependencies
+Message-ID: <YzFLBJukjDy7uNVl@kroah.com>
+References: <cover.1663951201.git.msuchanek@suse.de>
+ <Yy7Ll1QJ+u+nkic9@kroah.com>
+ <20220924094521.GY28810@kitsune.suse.cz>
+ <Yy7YTnJKkv1UtvWF@kroah.com>
+ <20220924115523.GZ28810@kitsune.suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220924115523.GZ28810@kitsune.suse.cz>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Sat, 24 Sep 2022 18:10:08 +0200:
+On Sat, Sep 24, 2022 at 01:55:23PM +0200, Michal Suchánek wrote:
+> On Sat, Sep 24, 2022 at 12:13:34PM +0200, Greg Kroah-Hartman wrote:
+> > On Sat, Sep 24, 2022 at 11:45:21AM +0200, Michal Suchánek wrote:
+> > > On Sat, Sep 24, 2022 at 11:19:19AM +0200, Greg Kroah-Hartman wrote:
+> > > > On Fri, Sep 23, 2022 at 07:10:28PM +0200, Michal Suchanek wrote:
+> > > > > Hello,
+> > > > > 
+> > > > > this is backport of commit 0d519cadf751
+> > > > > ("arm64: kexec_file: use more system keyrings to verify kernel image signature")
+> > > > > to table 5.15 tree including the preparatory patches.
+> > > > 
+> > > > This feels to me like a new feature for arm64, one that has never worked
+> > > > before and you are just making it feature-parity with x86, right?
+> > > > 
+> > > > Or is this a regression fix somewhere?  Why is this needed in 5.15.y and
+> > > > why can't people who need this new feature just use a newer kernel
+> > > > version (5.19?)
+> > > 
+> > > It's half-broken implementation of the kexec kernel verification. At the time
+> > > it was implemented for arm64 we had the platform and secondary keyrings
+> > > and x86 was using them but on arm64 the initial implementation ignores
+> > > them.
+> > 
+> > Ok, so it's something that never worked.  Adding support to get it to
+> > work doesn't really fall into the stable kernel rules, right?
+> 
+> Not sure. It was defective, not using the facilities available at the
+> time correctly. Which translates to kernels that can be kexec'd on x86
+> failing to kexec on arm64 without any explanation (signed with same key,
+> built for the appropriate arch).
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.0-5
+Feature parity across architectures is not a "regression", but rather a
+"this feature is not implemented for this architecture yet" type of
+thing.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/23b99237f86df34cbcefa81d1fa45bc316b4a124
+> > Again, what's wrong with 5.19 for anyone who wants this?  Who does want
+> > this?
+> 
+> Not sure, really.
+> 
+> The final patch was repeatedly backported to stable and failed to build
+> because the prerequisites were missing.
 
-Thank you!
+That's because it was tagged, but now that you show the full set of
+requirements, it's pretty obvious to me that this is not relevant for
+going this far back.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+thanks,
+
+greg k-h
