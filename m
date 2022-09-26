@@ -2,93 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B481BC32771
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 16:47:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21AFCC6FA96
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 18:42:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229457AbiIZQrU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Sep 2022 12:47:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56388 "EHLO
+        id S231416AbiIZSm4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Sep 2022 14:42:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229626AbiIZQqj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 12:46:39 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FD52BB1
-        for <linux-s390@vger.kernel.org>; Mon, 26 Sep 2022 08:37:50 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28QEa7f1004943;
-        Mon, 26 Sep 2022 15:37:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=O2xn9IAc0c1I6U0hHLQfA9OJXarWryZCpk2Q32o5lcY=;
- b=CZbdCH93aXVcNK/gf2PZ79bw33tPd76o22cO6fFi1VmuoKf/N5FBNRDSuHEDtQOeSsx9
- 1P9YE4eATcfF1kWEFUHgCdW6WFeADPXYNZsi9f3c8oXmvl87r8cT0m+UEqtcVToBC+Ww
- iduzyAjX3XWvkOngAuGyRhnECmVeIfC6Y0K97W7RlZLwLbHA1jobWFdPHWhRB5rRU4LB
- 8vVQC6ANDG1e73I8ceIujav1SpVOQ1Z/oLqYr8LbuZgN2NZv06R+XLHXotQBoZTRg42u
- ns9FZ+P96dIHpexIER8MBqv7n0Fop9QvX5fIoexoxPi1bcFtJw5+lummzYshzmDr2o4K lg== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jucjrde3n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Sep 2022 15:37:46 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28QFZqrB012804;
-        Mon, 26 Sep 2022 15:37:44 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3juapug9yw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Sep 2022 15:37:44 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28QFbfpt42140062
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 26 Sep 2022 15:37:41 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6B4B74C046;
-        Mon, 26 Sep 2022 15:37:41 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3F2F04C044;
-        Mon, 26 Sep 2022 15:37:41 +0000 (GMT)
-Received: from [9.171.90.72] (unknown [9.171.90.72])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 26 Sep 2022 15:37:41 +0000 (GMT)
-Message-ID: <0960f728-9785-ef1c-dd2d-67338bd65047@linux.ibm.com>
-Date:   Mon, 26 Sep 2022 17:37:41 +0200
+        with ESMTP id S231295AbiIZSlx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 14:41:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C11AC41982;
+        Mon, 26 Sep 2022 11:41:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2D516120E;
+        Mon, 26 Sep 2022 18:41:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8346C433D7;
+        Mon, 26 Sep 2022 18:40:49 +0000 (UTC)
+Date:   Mon, 26 Sep 2022 14:41:57 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
+        mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
+        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
+        shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, guoren@kernel.org, bcain@quicinc.com,
+        chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org,
+        sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de,
+        dinguyen@kernel.org, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+        James.Bottomley@HansenPartnership.com, deller@gmx.de,
+        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+        acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
+        amakhalov@vmware.com, pv-drivers@vmware.com,
+        boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
+        rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
+        gregkh@linuxfoundation.org, mturquette@baylibre.com,
+        sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
+        sudeep.holla@arm.com, agross@kernel.org,
+        bjorn.andersson@linaro.org, konrad.dybcio@somainline.org,
+        anup@brainfault.org, thierry.reding@gmail.com,
+        jonathanh@nvidia.com, jacob.jun.pan@linux.intel.com,
+        atishp@atishpatra.org, Arnd Bergmann <arnd@arndb.de>,
+        yury.norov@gmail.com, andriy.shevchenko@linux.intel.com,
+        linux@rasmusvillemoes.dk, dennis@kernel.org, tj@kernel.org,
+        cl@linux.com, pmladek@suse.com, senozhatsky@chromium.org,
+        john.ogness@linutronix.de, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
+        vschneid@redhat.com, fweisbec@gmail.com, ryabinin.a.a@gmail.com,
+        glider@google.com, andreyknvl@gmail.com, dvyukov@google.com,
+        vincenzo.frascino@arm.com,
+        Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-perf-users@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-arch@vger.kernel.org, kasan-dev@googlegroups.com
+Subject: Re: [PATCH v2 33/44] ftrace: WARN on rcuidle
+Message-ID: <20220926144157.0406dfbb@gandalf.local.home>
+In-Reply-To: <20220919101522.573936213@infradead.org>
+References: <20220919095939.761690562@infradead.org>
+        <20220919101522.573936213@infradead.org>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.1
-Subject: Re: RFC: dasd: use blk_mq_alloc_disk
-Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     hoeppner@linux.ibm.com, linux-s390@vger.kernel.org
-References: <20220721133251.1878402-1-hch@lst.de>
- <668f8eba-6e60-fa4c-99dd-ed07cdc46ea3@linux.ibm.com>
- <20220923154419.GA22651@lst.de>
-From:   Stefan Haberland <sth@linux.ibm.com>
-In-Reply-To: <20220923154419.GA22651@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pOxrnaL6e4FL2sLhUvwDnZnsufOeJ9MT
-X-Proofpoint-ORIG-GUID: pOxrnaL6e4FL2sLhUvwDnZnsufOeJ9MT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-26_08,2022-09-22_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
- suspectscore=0 lowpriorityscore=0 priorityscore=1501 mlxscore=0
- phishscore=0 mlxlogscore=915 impostorscore=0 clxscore=1015 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209260098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 23.09.22 um 17:44 schrieb Christoph Hellwig:
-> On Fri, Sep 23, 2022 at 05:42:10PM +0200, Stefan Haberland wrote:
->> I have tested it on s390 and reviewed the code. Looks good to me.
->>
->> Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
->>
->> Would you like to send it to Jens directly or should I take it?
-> I think it would be best if you could send it on.  Thanks!
 
-applied, thanks.
+Nit, the subject should have "tracing:" an not "ftrace:" as the former
+encompasses the tracing infrastructure and the latter is for the function
+hook part of that.
+
+On Mon, 19 Sep 2022 12:00:12 +0200
+Peter Zijlstra <peterz@infradead.org> wrote:
+
+> CONFIG_GENERIC_ENTRY disallows any and all tracing when RCU isn't
+> enabled.
+> 
+> XXX if s390 (the only other GENERIC_ENTRY user as of this writing)
+> isn't comfortable with this, we could switch to
+> HAVE_NOINSTR_VALIDATION which is x86_64 only atm.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>  include/linux/tracepoint.h |   13 ++++++++++++-
+>  kernel/trace/trace.c       |    3 +++
+>  2 files changed, 15 insertions(+), 1 deletion(-)
+> 
+> --- a/include/linux/tracepoint.h
+> +++ b/include/linux/tracepoint.h
+> @@ -178,6 +178,16 @@ static inline struct tracepoint *tracepo
+>  #endif /* CONFIG_HAVE_STATIC_CALL */
+>  
+>  /*
+> + * CONFIG_GENERIC_ENTRY archs are expected to have sanitized entry and idle
+> + * code that disallow any/all tracing/instrumentation when RCU isn't watching.
+> + */
+> +#ifdef CONFIG_GENERIC_ENTRY
+> +#define RCUIDLE_COND(rcuidle)	(rcuidle)
+> +#else
+
+Should probably move the below comment to here:
+
+ /* srcu can't be used from NMI */
+
+> +#define RCUIDLE_COND(rcuidle)	(rcuidle && in_nmi())
+> +#endif
+> +
+> +/*
+>   * it_func[0] is never NULL because there is at least one element in the array
+>   * when the array itself is non NULL.
+>   */
+> @@ -189,7 +199,8 @@ static inline struct tracepoint *tracepo
+>  			return;						\
+>  									\
+>  		/* srcu can't be used from NMI */			\
+
+And remove the above.
+
+-- Steve
+
+> -		WARN_ON_ONCE(rcuidle && in_nmi());			\
+> +		if (WARN_ON_ONCE(RCUIDLE_COND(rcuidle)))		\
+> +			return;						\
+>  									\
+>  		/* keep srcu and sched-rcu usage consistent */		\
+>  		preempt_disable_notrace();				\
+> --- a/kernel/trace/trace.c
+> +++ b/kernel/trace/trace.c
+> @@ -3104,6 +3104,9 @@ void __trace_stack(struct trace_array *t
+>  		return;
+>  	}
+>  
+> +	if (WARN_ON_ONCE(IS_ENABLED(CONFIG_GENERIC_ENTRY)))
+> +		return;
+> +
+>  	/*
+>  	 * When an NMI triggers, RCU is enabled via ct_nmi_enter(),
+>  	 * but if the above rcu_is_watching() failed, then the NMI
+> 
 
