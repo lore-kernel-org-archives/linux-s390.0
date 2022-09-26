@@ -2,218 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04708C07E9D
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 15:00:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B933DC6FA83
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 15:09:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235445AbiIZO76 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Sep 2022 10:59:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53486 "EHLO
+        id S235720AbiIZPJ0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Sep 2022 11:09:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235483AbiIZO7i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 10:59:38 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 733D65D0E5;
-        Mon, 26 Sep 2022 06:30:09 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28QChv0h013211;
-        Mon, 26 Sep 2022 13:29:57 GMT
+        with ESMTP id S235867AbiIZPIq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 11:08:46 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 519F61176;
+        Mon, 26 Sep 2022 06:41:42 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28QCD2Yl003782;
+        Mon, 26 Sep 2022 13:41:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  mime-version : content-transfer-encoding; s=pp1;
- bh=rgbfy+nZxnjpEYxv0t52YaUKJNuHCfDCkTrEBVsBgPw=;
- b=f7n5Nyp1pCf2Lj4CFd2Rvf96M7FPqGdj8yEvoVw2zJ/icMD7tSxwqN8zW2BTXmj9ZjWV
- u3fEYEdPjUelD+a5Bms/jvWy1TNRM/m6dk2bxYS4IpufNcsXAUfvvDBxQbQBbHOYsxOV
- Io2NMAfXCOBV94HoGkwDHm0SPGHN0FU/Kj1VY9FGLCeuORsmtokGBEb+FAoB9YIEcMaL
- 5f/Woic9dCR6pTZH2SRf3Q3+MBhSdazlTeusgcG2qLCkGsSHhgtO+xenkPnN1XGkdsUH
- sOTHb3NTTJdWCqGA5KFBR1SrFlN7F4YQ3U7+oHp7hdm45/Hd3iE4E5zy22Gdco7XTn7A 7w== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jucbj9cm2-1
+ bh=QTf0c91xIH+BOTabS4mh2abHbhOlWiSw/XJtSH6mw1k=;
+ b=iQcHze6sV/i5WW617dIicZLT0xwe0cc9CKWnvD8W+S5o2G7SWX6gwMee0USfuw+bgou3
+ oXyvSizK2EfIr2+N2gQaOcz5rTfnWKJ1Bd+qWbf2NrYtHDyJHPyD0kVAIZcFwpbsicMR
+ Xexj5GtSnuLR8jgA6Ponm4mkKcb7cgCX2TjKmcmFRUpBEWLameWTRH8S4MBJS2oaC1M1
+ sFwoO6nWpM+oUD8rUS8FtbhrbWzFve9FbKduxJkQk57/UyCBgV8UvaVVvTCmfEBEkW8G
+ eCEUquUmd/BUpxKSi4co5e/PhbydD/YWMl1bofJDcDoYeuMTo1Cm6ZpwoSAOXitl3pbd zg== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jubvxjmdu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Sep 2022 13:29:56 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28QDLPEx030127;
-        Mon, 26 Sep 2022 13:29:54 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3juapug5h3-1
+        Mon, 26 Sep 2022 13:41:31 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28QDa9pL016702;
+        Mon, 26 Sep 2022 13:41:29 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3jss5hsvgt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Sep 2022 13:29:54 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28QDTp1530540216
+        Mon, 26 Sep 2022 13:41:29 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28QDfrPb42926558
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 26 Sep 2022 13:29:51 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 112D3A4053;
-        Mon, 26 Sep 2022 13:29:51 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 44D20A4040;
-        Mon, 26 Sep 2022 13:29:50 +0000 (GMT)
+        Mon, 26 Sep 2022 13:41:53 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 291974C04A;
+        Mon, 26 Sep 2022 13:41:26 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 651244C044;
+        Mon, 26 Sep 2022 13:41:25 +0000 (GMT)
 Received: from sig-9-145-86-133.uk.ibm.com (unknown [9.145.86.133])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 26 Sep 2022 13:29:50 +0000 (GMT)
-Message-ID: <b581d4f575b834831f8c17054f73b5b92a891d25.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 1/3] iommu/s390: Fix duplicate domain attachments
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 26 Sep 2022 13:41:25 +0000 (GMT)
+Message-ID: <68397430eab0fee46d8c61b8a8d6c2ecd27447d4.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 2/3] s390/pci: remove unused bus_next field from
+ struct zpci_dev
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+To:     Pierre Morel <pmorel@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev
+Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
         hca@linux.ibm.com, gor@linux.ibm.com,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, linux-kernel@vger.kernel.org
-Date:   Mon, 26 Sep 2022 15:29:49 +0200
-In-Reply-To: <YyxyMtKXyvgHt3Kp@nvidia.com>
+        robin.murphy@arm.com, jgg@nvidia.com, linux-kernel@vger.kernel.org
+Date:   Mon, 26 Sep 2022 15:41:24 +0200
+In-Reply-To: <8ba5cee2-5e5c-6b73-3ac7-56e78e432698@linux.ibm.com>
 References: <20220922095239.2115309-1-schnelle@linux.ibm.com>
-         <20220922095239.2115309-2-schnelle@linux.ibm.com>
-         <YyxyMtKXyvgHt3Kp@nvidia.com>
+         <20220922095239.2115309-3-schnelle@linux.ibm.com>
+         <e0754578-1735-5811-0533-19ef0c6be2b0@linux.ibm.com>
+         <8ba5cee2-5e5c-6b73-3ac7-56e78e432698@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RuCXoDObvouvgFlIW-yK9f-iI2DZ751n
-X-Proofpoint-GUID: RuCXoDObvouvgFlIW-yK9f-iI2DZ751n
+X-Proofpoint-ORIG-GUID: oQecqKzWqFYL0ZRBx3ayVt9mMDVqtd9G
+X-Proofpoint-GUID: oQecqKzWqFYL0ZRBx3ayVt9mMDVqtd9G
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-26_08,2022-09-22_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- mlxlogscore=999 bulkscore=0 clxscore=1015 lowpriorityscore=0 phishscore=0
- adultscore=0 suspectscore=0 spamscore=0 impostorscore=0 malwarescore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=918 mlxscore=0
+ spamscore=0 suspectscore=0 phishscore=0 priorityscore=1501 impostorscore=0
+ adultscore=0 malwarescore=0 clxscore=1015 bulkscore=0 lowpriorityscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2209260083
+ definitions=main-2209260086
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2022-09-22 at 11:33 -0300, Jason Gunthorpe wrote:
-> On Thu, Sep 22, 2022 at 11:52:37AM +0200, Niklas Schnelle wrote:
-> > Since commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
-> > calls") we can end up with duplicates in the list of devices attached to
-> > a domain. This is inefficient and confusing since only one domain can
-> > actually be in control of the IOMMU translations for a device. Fix this
-> > by detaching the device from the previous domain, if any, on attach.
-> > Add a WARN_ON() in case we still have attached devices on freeing the
-> > domain.
+On Mon, 2022-09-26 at 11:23 +0200, Pierre Morel wrote:
+> 
+> On 9/26/22 11:17, Pierre Morel wrote:
 > > 
-> > Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > ---
-> > Changes since v1:
-> > - WARN_ON() non-empty list in s390_domain_free()
-> > - Drop the found flag and instead WARN_ON() if we're detaching
-> >   from a domain that isn't the active domain for the device
+> > On 9/22/22 11:52, Niklas Schnelle wrote:
+> > > This field was added in commit 44510d6fa0c0 ("s390/pci: Handling
+> > > multifunctions") but is an unused remnant of an earlier version where
+> > > the devices on the virtual bus were connected in a linked list instead
+> > > of a fixed 256 entry array of pointers.
+> > > 
+> > > It is also not used for the list of busses as that is threaded through
+> > > struct zpci_bus not through struct zpci_dev.
+> > > 
+> > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 > > 
-> >  drivers/iommu/s390-iommu.c | 81 ++++++++++++++++++++++----------------
-> >  1 file changed, 46 insertions(+), 35 deletions(-)
+> > Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 > > 
-> > diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> > index c898bcbbce11..187d2c7ba9ff 100644
-> > --- a/drivers/iommu/s390-iommu.c
-> > +++ b/drivers/iommu/s390-iommu.c
-> > @@ -78,19 +78,48 @@ static struct iommu_domain *s390_domain_alloc(unsigned domain_type)
-> >  static void s390_domain_free(struct iommu_domain *domain)
-> >  {
-> >  	struct s390_domain *s390_domain = to_s390_domain(domain);
-> > +	unsigned long flags;
-> >  
-> > +	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> > +	WARN_ON(!list_empty(&s390_domain->devices));
-> > +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> > 
 > 
-> Minor, but, this is about to free the memory holding the lock, we
-> don't need to take it to do the WARN_ON.. list_empty() is already
-> lockless safe.
-> 
-> > static int __s390_iommu_detach_device(struct s390_domain *s390_domain,
-> >                                      struct zpci_dev *zdev)
-> > {
-> 
-> This doesn't return a failure code anymore, make it void
-> 
-> >  static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  				    struct device *dev)
-> >  {
-> >  	struct s390_domain *s390_domain = to_s390_domain(domain);
-> >  	struct zpci_dev *zdev = to_zpci_dev(dev);
-> >  	struct s390_domain_device *domain_device;
-> > +	struct s390_domain *prev_domain = NULL;
-> >  	unsigned long flags;
-> > -	int cc, rc;
-> > +	int cc, rc = 0;
-> >  
-> >  	if (!zdev)
-> >  		return -ENODEV;
-> > @@ -99,16 +128,15 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  	if (!domain_device)
-> >  		return -ENOMEM;
-> >  
-> > -	if (zdev->dma_table && !zdev->s390_domain) {
-> > -		cc = zpci_dma_exit_device(zdev);
-> > -		if (cc) {
-> > +	if (zdev->s390_domain) {
-> > +		prev_domain = zdev->s390_domain;
-> > +		rc = __s390_iommu_detach_device(zdev->s390_domain, zdev);
-> > +	} else if (zdev->dma_table) {
-> > +		if (zpci_dma_exit_device(zdev))
-> >  			rc = -EIO;
-> > -			goto out_free;
-> > -		}
-> >  	}
-> > -
-> > -	if (zdev->s390_domain)
-> > -		zpci_unregister_ioat(zdev, 0);
-> > +	if (rc)
-> > +		goto out_free;
-> >  
-> >  	zdev->dma_table = s390_domain->dma_table;
-> >  	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> > @@ -129,7 +157,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  		   domain->geometry.aperture_end != zdev->end_dma) {
-> >  		rc = -EINVAL;
-> >  		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> > -		goto out_restore;
-> > +		goto out_unregister_restore;
-> >  	}
-> >  	domain_device->zdev = zdev;
-> >  	zdev->s390_domain = s390_domain;
-> > @@ -138,14 +166,15 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  
-> >  	return 0;
-> >  
-> > +out_unregister_restore:
-> > +	zpci_unregister_ioat(zdev, 0);
-> >  out_restore:
-> > -	if (!zdev->s390_domain) {
-> > +	zdev->dma_table = NULL;
-> > +	if (prev_domain)
-> > +		s390_iommu_attach_device(&prev_domain->domain,
-> > +					 dev);
-> 
-> Huh. That is a surprising thing
-> 
-> I think this function needs some re-ordering to avoid this condition
-> 
-> The checks for aperture should be earlier, and they are not quite
-> right. The aperture is only allowed to grow. If it starts out as 0 and
-> then is set to something valid on first attach, a later attach cannot
-> then shrink it. There could already be mappings in the domain under
-> the now invalidated aperture and no caller is prepared to deal with
-> this.
-> 
-> That leaves the only error case as zpci_register_ioat() - which seems
-> like it is the actual "attach" operation. Since
-> __s390_iommu_detach_device() is just internal accounting (and can't
-> fail) it should be moved after
+> Also couldn't it be detached of the series and posted on its own?
 
-I did miss a problem in my initial answer. While zpci_register_ioat()
-is indeed the actual "attach" operation, it assumes that at that point
-no DMA address translations are registered. In that state DMA is
-blocked of course. With that zpci_register_ioat() needs to come after
-the zpci_unregister_ioat() that is part of __s390_iommu_detach_device()
-and zpci_dma_exit_device(). If we do call those though we fundamentally
-need to restore the previous domain / DMA API state on any subsequent
-failure. If we don't restore we would leave the device detached from
-any domain with DMA blocked. I wonder if this could be an acceptable
-failure state though? It's safe as no DMA is possible and we could get
-out of it with a successful attach.
+As this is entirely s390 specific this can go via the s390 tree without
+re-posting. Since we're still figuring the rest of the series out it
+might even make it upstream before that and then we can more easily
+refer to it as a pre-requisite.
+
+> 
+> > > ---
+> > >   arch/s390/include/asm/pci.h | 1 -
+> > >   1 file changed, 1 deletion(-)
+> > > 
+> > > diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> > > index 7b4cdadbc023..108e732d7b14 100644
+> > > --- a/arch/s390/include/asm/pci.h
+> > > +++ b/arch/s390/include/asm/pci.h
+> > > @@ -117,7 +117,6 @@ struct zpci_bus {
+> > >   struct zpci_dev {
+> > >       struct zpci_bus *zbus;
+> > >       struct list_head entry;        /* list of all zpci_devices, 
+> > > needed for hotplug, etc. */
+> > > -    struct list_head bus_next;
+> > >       struct kref kref;
+> > >       struct hotplug_slot hotplug_slot;
+
 
