@@ -2,155 +2,245 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F378C07E9D
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 07:40:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9A4BC07E9D
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 08:02:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233792AbiIZHke (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Sep 2022 03:40:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35328 "EHLO
+        id S234277AbiIZICn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Sep 2022 04:02:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233434AbiIZHkb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 03:40:31 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47DFB1134;
-        Mon, 26 Sep 2022 00:40:30 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 047492202B;
-        Mon, 26 Sep 2022 07:40:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1664178029; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SGZgF0E5n6faFRHhYY7N3tOGSEz4OpXs9crU58jmWdU=;
-        b=ajctCEzyJ9wmkcfXOUq0jfEs4L/5cNYEyNJOJ1KcieGxEAQvc732ap1pHIJ4C92tIF0uXq
-        NXUcABSHaygqzdjrzMFCTQqDUTokrml15WfmjyvY+Bv+c27iRvkzAfPAFJlU8QEOY6fYgi
-        zwbZ/0r921bgS71pHwHfHYkgpx2cMX8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1664178029;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SGZgF0E5n6faFRHhYY7N3tOGSEz4OpXs9crU58jmWdU=;
-        b=x+OxzRwQ/tUWaClskW5Kd19q8pt6RZ7bPmXvleufQQRIc0MJ3nhgKPbqF9RxnfM88P9yS3
-        f6x7a0flFLubCzBA==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 395402C145;
-        Mon, 26 Sep 2022 07:40:26 +0000 (UTC)
-Date:   Mon, 26 Sep 2022 09:40:25 +0200
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Philipp Rudo <prudo@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        "open list:S390" <linux-s390@vger.kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        "open list:KEXEC" <kexec@lists.infradead.org>,
-        Coiby Xu <coxu@redhat.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        James Morse <james.morse@arm.com>,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>
-Subject: Re: [PATCH 5.15 0/6] arm64: kexec_file: use more system keyrings to
- verify kernel image signature + dependencies
-Message-ID: <20220926074024.GD28810@kitsune.suse.cz>
-References: <cover.1663951201.git.msuchanek@suse.de>
- <Yy7Ll1QJ+u+nkic9@kroah.com>
- <20220924094521.GY28810@kitsune.suse.cz>
- <Yy7YTnJKkv1UtvWF@kroah.com>
- <20220924115523.GZ28810@kitsune.suse.cz>
- <YzFLBJukjDy7uNVl@kroah.com>
+        with ESMTP id S233569AbiIZICJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 04:02:09 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83845C53;
+        Mon, 26 Sep 2022 00:59:34 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28Q7ArL5025180;
+        Mon, 26 Sep 2022 07:59:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qVwWwHO5F57N5wbt52J88VX+qaLzg5TAP2NBWmLl0HU=;
+ b=YbPaj1+i9j3X/1JD3WsOyw1HOKYahI+VvVywbKaCz6Qd9OKdDd5MqMEZ0Etl/dKK1Y/V
+ AZy9gsxVYgy+fXIEYGDgZ2HwqtdzXcoIXejMWvutggqnQbYnHlV0NbxkNQk2NlpxgBoL
+ sK+sckTbRflfacSe6mt1igrr+p/5ZtTgOVPDxCGNCNJXyTCFUoNmujF5OeOVbDO+PMu5
+ pRUOBzBcc/4mwddqc7Dw8KLMf2Tt6UeHz1VCeL3TXsHjE+B8qGQEqHVeFMTO7SS8cag7
+ bkvT4eG6hYfmbLAlfQ2m4RVw6MWqjelI4WIXxfEe2bEl8+g5gaODMfXGHtow0z7UusF6 ww== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jtbxr685h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Sep 2022 07:59:33 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28Q7m2G8002263;
+        Mon, 26 Sep 2022 07:59:33 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jtbxr684t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Sep 2022 07:59:33 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28Q7q6MA013347;
+        Mon, 26 Sep 2022 07:59:31 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3jssh9a3p3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Sep 2022 07:59:31 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28Q7xSfT33620352
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 26 Sep 2022 07:59:28 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 01FF54C046;
+        Mon, 26 Sep 2022 07:59:28 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC2884C040;
+        Mon, 26 Sep 2022 07:59:27 +0000 (GMT)
+Received: from [9.171.90.15] (unknown [9.171.90.15])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 26 Sep 2022 07:59:27 +0000 (GMT)
+Message-ID: <08831aac-ecaa-9cc4-3900-2b0049eec910@linux.ibm.com>
+Date:   Mon, 26 Sep 2022 09:59:27 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YzFLBJukjDy7uNVl@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+Subject: Re: [kvm-unit-tests PATCH v6 1/2] s390x: Add specification exception
+ test
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220826161112.3786131-1-scgl@linux.ibm.com>
+ <20220826161112.3786131-2-scgl@linux.ibm.com>
+Content-Language: en-US
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220826161112.3786131-2-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: iGapM5Um-OibpNz4LBVDB549yOZwY8GF
+X-Proofpoint-GUID: f4JMAMcGj5-67R-3cYHQsKwiSIAzhtF3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-26_05,2022-09-22_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ spamscore=0 clxscore=1015 phishscore=0 lowpriorityscore=0 bulkscore=0
+ priorityscore=1501 mlxlogscore=999 suspectscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209260046
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 26, 2022 at 08:47:32AM +0200, Greg Kroah-Hartman wrote:
-> On Sat, Sep 24, 2022 at 01:55:23PM +0200, Michal Suchánek wrote:
-> > On Sat, Sep 24, 2022 at 12:13:34PM +0200, Greg Kroah-Hartman wrote:
-> > > On Sat, Sep 24, 2022 at 11:45:21AM +0200, Michal Suchánek wrote:
-> > > > On Sat, Sep 24, 2022 at 11:19:19AM +0200, Greg Kroah-Hartman wrote:
-> > > > > On Fri, Sep 23, 2022 at 07:10:28PM +0200, Michal Suchanek wrote:
-> > > > > > Hello,
-> > > > > > 
-> > > > > > this is backport of commit 0d519cadf751
-> > > > > > ("arm64: kexec_file: use more system keyrings to verify kernel image signature")
-> > > > > > to table 5.15 tree including the preparatory patches.
-> > > > > 
-> > > > > This feels to me like a new feature for arm64, one that has never worked
-> > > > > before and you are just making it feature-parity with x86, right?
-> > > > > 
-> > > > > Or is this a regression fix somewhere?  Why is this needed in 5.15.y and
-> > > > > why can't people who need this new feature just use a newer kernel
-> > > > > version (5.19?)
-> > > > 
-> > > > It's half-broken implementation of the kexec kernel verification. At the time
-> > > > it was implemented for arm64 we had the platform and secondary keyrings
-> > > > and x86 was using them but on arm64 the initial implementation ignores
-> > > > them.
-> > > 
-> > > Ok, so it's something that never worked.  Adding support to get it to
-> > > work doesn't really fall into the stable kernel rules, right?
-> > 
-> > Not sure. It was defective, not using the facilities available at the
-> > time correctly. Which translates to kernels that can be kexec'd on x86
-> > failing to kexec on arm64 without any explanation (signed with same key,
-> > built for the appropriate arch).
+On 8/26/22 18:11, Janis Schoetterl-Glausch wrote:
+> Generate specification exceptions and check that they occur.
 > 
-> Feature parity across architectures is not a "regression", but rather a
-> "this feature is not implemented for this architecture yet" type of
-> thing.
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-That depends on the view - before kexec verification you could boot any
-kernel, now you can boot some kernels signed with a valid key, but not
-others - the initial implementation is buggy, probably because it
-is based on an old version of the x86 code.
+Minor issues below, apart from that:
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
+> ---
+>   s390x/Makefile           |   1 +
+>   lib/s390x/asm/arch_def.h |   5 +
+>   s390x/spec_ex.c          | 194 +++++++++++++++++++++++++++++++++++++++
+>   s390x/unittests.cfg      |   3 +
+>   4 files changed, 203 insertions(+)
+>   create mode 100644 s390x/spec_ex.c
 > 
-> > > Again, what's wrong with 5.19 for anyone who wants this?  Who does want
-> > > this?
-> > 
-> > Not sure, really.
-> > 
-> > The final patch was repeatedly backported to stable and failed to build
-> > because the prerequisites were missing.
-> 
-> That's because it was tagged, but now that you show the full set of
-> requirements, it's pretty obvious to me that this is not relevant for
-> going this far back.
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index efd5e0c1..58b1bf54 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -27,6 +27,7 @@ tests += $(TEST_DIR)/uv-host.elf
+>   tests += $(TEST_DIR)/edat.elf
+>   tests += $(TEST_DIR)/mvpg-sie.elf
+>   tests += $(TEST_DIR)/spec_ex-sie.elf
+> +tests += $(TEST_DIR)/spec_ex.elf
+>   tests += $(TEST_DIR)/firq.elf
+>   tests += $(TEST_DIR)/epsw.elf
+>   tests += $(TEST_DIR)/adtl-status.elf
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index e7ae454b..b6e60fb0 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -41,6 +41,11 @@ struct psw {
+>   	uint64_t	addr;
+>   };
+>   
+> +struct short_psw {
+> +	uint32_t	mask;
+> +	uint32_t	addr;
+> +};
+> +
+>   struct cpu {
+>   	struct lowcore *lowcore;
+>   	uint64_t *stack;
+> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+> new file mode 100644
+> index 00000000..68469e4b
+> --- /dev/null
+> +++ b/s390x/spec_ex.c
+> @@ -0,0 +1,194 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Copyright IBM Corp. 2021, 2022
+> + *
+> + * Specification exception test.
+> + * Tests that specification exceptions occur when expected.
+> + *
+> + * Can be extended by adding triggers to spec_ex_triggers, see comments below.
+> + */
+> +#include <stdlib.h>
+> +#include <libcflat.h>
+> +#include <bitops.h>
+> +#include <asm/interrupt.h>
+> +
+> +/* toggled to signal occurrence of invalid psw fixup */
+> +static bool invalid_psw_expected;
+> +static struct psw expected_psw;
+> +static struct psw invalid_psw;
+> +static struct psw fixup_psw;
+> +
+> +/*
+> + * The standard program exception handler cannot deal with invalid old PSWs,
+> + * especially not invalid instruction addresses, as in that case one cannot
+> + * find the instruction following the faulting one from the old PSW.
+> + * The PSW to return to is set by load_psw.
+> + */
+> +static void fixup_invalid_psw(struct stack_frame_int *stack)
+> +{
+> +	/* signal occurrence of invalid psw fixup */
+> +	invalid_psw_expected = false;
 
-That also works.
+Hmmmm (TM), assert(invalid_psw_expected) ?
 
-Thanks
+> +	invalid_psw = lowcore.pgm_old_psw;
+> +	lowcore.pgm_old_psw = fixup_psw;
+> +}
+> +
+> +/*
+> + * Load possibly invalid psw, but setup fixup_psw before,
+> + * so that fixup_invalid_psw() can bring us back onto the right track.
+> + * Also acts as compiler barrier, -> none required in expect/check_invalid_psw
+> + */
+> +static void load_psw(struct psw psw)
+> +{
+> +	uint64_t scratch;
+> +
+> +	/*
+> +	 * The fixup psw is current psw with the instruction address replaced by
 
-Michal
+is the current psw
+
+> +	 * the address of the nop following the instruction loading the new psw. > +	 */
+> +	fixup_psw.mask = extract_psw_mask();
+> +	asm volatile ( "larl	%[scratch],0f\n"
+> +		"	stg	%[scratch],%[fixup_addr]\n"
+> +		"	lpswe	%[psw]\n"
+> +		"0:	nop\n"
+> +		: [scratch] "=&d" (scratch),
+> +		  [fixup_addr] "=&T" (fixup_psw.addr)
+> +		: [psw] "Q" (psw)
+> +		: "cc", "memory"
+> +	);
+> +}
+> +
+> +static void load_short_psw(struct short_psw psw)
+> +{
+> +	uint64_t scratch;
+> +
+> +	fixup_psw.mask = extract_psw_mask();
+> +	asm volatile ( "larl	%[scratch],0f\n"
+> +		"	stg	%[scratch],%[fixup_addr]\n"
+> +		"	lpsw	%[psw]\n"
+> +		"0:	nop\n"
+> +		: [scratch] "=&d" (scratch),
+> +		  [fixup_addr] "=&T" (fixup_psw.addr)
+> +		: [psw] "Q" (psw)
+> +		: "cc", "memory"
+> +	);
+> +}
+> +
+> +static void expect_invalid_psw(struct psw psw)
+> +{
+> +	expected_psw = psw;
+> +	invalid_psw_expected = true;
+> +}
+> +
+> +static int check_invalid_psw(void)
+> +{
+
+/* Since the fixup sets this to false we check for false here. */
+
+> +	if (!invalid_psw_expected) {
+> +		if (expected_psw.mask == invalid_psw.mask &&
+> +		    expected_psw.addr == invalid_psw.addr)
+> +			return 0;
+> +		report_fail("Wrong invalid PSW");
+> +	} else {
+> +		report_fail("Expected exception due to invalid PSW");
+> +	}
+> +	return 1;
+> +}
+> +
+
