@@ -2,142 +2,93 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84CC0C07E9D
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 15:13:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B481BC32771
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 16:47:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235192AbiIZPNG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Sep 2022 11:13:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57630 "EHLO
+        id S229457AbiIZQrU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Sep 2022 12:47:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235650AbiIZPM2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 11:12:28 -0400
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2070.outbound.protection.outlook.com [40.107.223.70])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DF864DF36;
-        Mon, 26 Sep 2022 06:51:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OOBaqfHSQFHj31Z1NaYUQvEQS+Z5slb3ZPSuqYUFA8xgJqXMjGhDSNcIUjFipv6+aFno0Y2zsfgiPt6jZjUvVPBmK1FHE/08zESUuOrzMg54nfuJflDXZ2p+q33ECBWRwPznYH0BcESDhpOpgWoKZWyeukxlxp3KaTeQ3c9actJhgGQAOBx3Q3UEITM9cEX5MO0J06zgygRhboQWKVEjo4cZ7sC8Q3k7dDGP12WkpzG2v0P/OdApQ9HSsPFCW1IpGSpx9wyoWqi7yY8ByljHueTjyGlEXCi74KHImZFdAVeYsmZg+YPTwcSZRX7QM0rUKjqyP7f2p45HWgWvWzW7AQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2cPFv+XV0PDapbXTowIrg7vfX/xcfuYIAOAWrW+lOtc=;
- b=X+sO13a3JoK27WBszLCD9175Fom+QrXDyqeVugbxbc/mtOn1ArA5zRyhMn5pBGO2Z8Mg7p6wMfOqSnJsGvvcSn7Clw/UiP0ug/VYW7//ux0n3h1kum380ucg5KmWOqsOQufRlQ0t0GgsubbrwmZUO5ikL1HRbIp4yE+yqfWlP1rIOdI7prw8KN72My7HAZVIjSHpADqdgyPKpHzvwYuML2hqPgPuylGjwtBx/brWoxlM4fx5Ut57vz92k5M7GBS4C3v/ppM7e0B4nh274dqO6tifQwl1zuCHBt1oChB5N4U2slHjt/FyN/nPJLNzymWSzoPBnr48+iNszGnnAX6XJQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2cPFv+XV0PDapbXTowIrg7vfX/xcfuYIAOAWrW+lOtc=;
- b=KsBVPP9dK1mG3lIytaZ8DwdyPdavl+sVOVX9Vuzdvo0e5sIw3d/pVH2/OjW882fLGpP3eQaS2pudf1FtcCQ1bG7Ma9PNJgTxTvrRGBBUoDkNmYuy7Ea3WY1PyWHXcxZ1pOtgWXfmoBwIcqmKek+oo3R9J8BwFNy6Xf/aAZi05mRDh+rxmijlrbMiUHt/CF6kKbqGmtnasux0ICSufYp9IbsARJgkq39eWD5YRjshZ5w1Pv4qtU0O47K6FLNZH48o8K7EhFrCFPrtOYStELnmCwDzqdz74kk8SexVsWG6dCaLcJ58grT1NzsPMYhHBv5PuO22XVo+U9wVw18UOxsQsA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by DM4PR12MB7597.namprd12.prod.outlook.com (2603:10b6:8:10b::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5654.24; Mon, 26 Sep
- 2022 13:51:48 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::462:7fe:f04f:d0d5%8]) with mapi id 15.20.5654.025; Mon, 26 Sep 2022
- 13:51:48 +0000
-Date:   Mon, 26 Sep 2022 10:51:47 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] iommu/s390: Fix duplicate domain attachments
-Message-ID: <YzGuc7jVSvE2g91T@nvidia.com>
-References: <20220922095239.2115309-1-schnelle@linux.ibm.com>
- <20220922095239.2115309-2-schnelle@linux.ibm.com>
- <YyxyMtKXyvgHt3Kp@nvidia.com>
- <b581d4f575b834831f8c17054f73b5b92a891d25.camel@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b581d4f575b834831f8c17054f73b5b92a891d25.camel@linux.ibm.com>
-X-ClientProxiedBy: BL0PR01CA0035.prod.exchangelabs.com (2603:10b6:208:71::48)
- To MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+        with ESMTP id S229626AbiIZQqj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 12:46:39 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FD52BB1
+        for <linux-s390@vger.kernel.org>; Mon, 26 Sep 2022 08:37:50 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28QEa7f1004943;
+        Mon, 26 Sep 2022 15:37:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=O2xn9IAc0c1I6U0hHLQfA9OJXarWryZCpk2Q32o5lcY=;
+ b=CZbdCH93aXVcNK/gf2PZ79bw33tPd76o22cO6fFi1VmuoKf/N5FBNRDSuHEDtQOeSsx9
+ 1P9YE4eATcfF1kWEFUHgCdW6WFeADPXYNZsi9f3c8oXmvl87r8cT0m+UEqtcVToBC+Ww
+ iduzyAjX3XWvkOngAuGyRhnECmVeIfC6Y0K97W7RlZLwLbHA1jobWFdPHWhRB5rRU4LB
+ 8vVQC6ANDG1e73I8ceIujav1SpVOQ1Z/oLqYr8LbuZgN2NZv06R+XLHXotQBoZTRg42u
+ ns9FZ+P96dIHpexIER8MBqv7n0Fop9QvX5fIoexoxPi1bcFtJw5+lummzYshzmDr2o4K lg== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jucjrde3n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Sep 2022 15:37:46 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28QFZqrB012804;
+        Mon, 26 Sep 2022 15:37:44 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 3juapug9yw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Sep 2022 15:37:44 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28QFbfpt42140062
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 26 Sep 2022 15:37:41 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6B4B74C046;
+        Mon, 26 Sep 2022 15:37:41 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3F2F04C044;
+        Mon, 26 Sep 2022 15:37:41 +0000 (GMT)
+Received: from [9.171.90.72] (unknown [9.171.90.72])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 26 Sep 2022 15:37:41 +0000 (GMT)
+Message-ID: <0960f728-9785-ef1c-dd2d-67338bd65047@linux.ibm.com>
+Date:   Mon, 26 Sep 2022 17:37:41 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4192:EE_|DM4PR12MB7597:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0568330a-6b9b-45a0-4c19-08da9fc641bd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: l4xPyu5av1hLKCQf//TDpiOS5o4oKdEALk3K0nm9sNTC99J0sSO2w7bRILvEFdNd6F0aeVdBfbQrbVDyWNSpAQs7+wkxi+LI2QOJLh+HE1vvudNipKbY6FJUNBFdUNeqKSXOwCXzUFYSARcSrf4eK4i5lMvIYbf5IzRKvVnVlnvyhQKK3f3QlKJS2VLTRffsnGX3bXeeyRtgEzbcHVweaEUFepiFjO7XW+VRhSaHQD2BTYhXruNZ51Tj96MgeDre2pe6q8MGX6y6jLleUR9m3dBohXIipAbACneKvVVzprEPajktrHIr2i4MZJ9bDrvDPk0mi0ZMA/31hoKtQ3lLA4CXSTNV9GrDwPOfo3v9Obtu/ns+DAVnwQrJEbqDQ04Kh9uYlOGN5nwhCahvnw/xLZJVayb3/yydxJjdD6PeoCr5zhJIUttengg4yzOknQw0yZBWPPJ6IyG2iS1CB981W+mV8sfDGTRkBsMfwq5Zj1eGSUyrxYcwrUrF1XOzXIQX8SDyruQhlsGLWSpqTZUiP6y1UmwdvTzputOvjIX4Y+EFYaBmAX+ettqMr6FeQj0zuX0+kh+ypH6Tep2+7axA7s4ngyJgMiDGu7wOECWcKYJ2jMw2E+7xXhWfPuc227tyiM3Ra+hEQ/QZ3EaFMbClL8GiaH1buttzTIm1K5/bEAwqfy6GPz4Nb/8Og9xYQIi1vi2oNrHoY4egdlV/7Mh8uw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(376002)(396003)(366004)(136003)(346002)(451199015)(83380400001)(86362001)(6506007)(41300700001)(6916009)(186003)(54906003)(316002)(36756003)(8676002)(38100700002)(66946007)(66556008)(66476007)(4326008)(2906002)(6486002)(2616005)(5660300002)(6512007)(478600001)(7416002)(26005)(8936002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?vH1AZV3z8AvuxEYsx0bXllJuQ4LjXySTQg0GkUPu5//0kMTneIpUatZvoJD8?=
- =?us-ascii?Q?2BJNmkGhGasY+jyUBHZ9uY7Kdh8+TgzYZT8Q/ka52ax8WHf84FyK8aj7cRFv?=
- =?us-ascii?Q?LpBDgFtc3Mt+0EVDI2XnlOgGFscJ8Xehhdp51Zd1x2gSqD8WT9RuTlky0BEf?=
- =?us-ascii?Q?xJQyxxHw3TDJOK2hbhnCqyBTXzYlWcGVJh2w2pEqNObLVk//7F5tp/wql88g?=
- =?us-ascii?Q?cqLHQKpqof/CRv0Xu9c6YLX2vdNYM0ozCyQwrKbPyEzKwkJ2K+EgaYOibtf4?=
- =?us-ascii?Q?L8IBqNFgJ+tEhd9Q97h16QQv52Edk723rjOfmbvFT7rpc9e+6Eqd1NTCPn1f?=
- =?us-ascii?Q?inBLbfKRvs9pYFfkWUIw3cn++ghMUm6ek0une1E/CS/6f4+ZShW3PNsNDFVl?=
- =?us-ascii?Q?kBuzaRPfEf4yZ0/uUFJTPxAxvy/SnrIIS7KOribYur6NowjGuPgGF9JbJrDP?=
- =?us-ascii?Q?nqcuY48kvQdeMvtdNz63wegHndFyAHJWOys7H9845ihrIjHBAoU7ccMBilZ0?=
- =?us-ascii?Q?eHB4/niKjKHIVRdZhGF2sdrZUFwBtkAr3eDTpTzHed6iz52yYnRw25LQcHis?=
- =?us-ascii?Q?MuPbwGAX5irjICBc1MfQoCGmFaXBg0ge28o/B7DL1S4WDjllx72AaSwkiWRz?=
- =?us-ascii?Q?h2ww+xtHvTIPVrJMjwRcTM2LQygo8aPgNl4vPO9ZTmAxOFDxRFWljmSJums2?=
- =?us-ascii?Q?o658YbRICLPNpUmgyumuKkljmJ7Td/1G4dVPqhiQn0KY2iJ9Lhx8SfXw6ptV?=
- =?us-ascii?Q?3P5SUUcFA6lDuGZZultD5d8lg0gyFuQ2lZQHOmN1gXZ8uzTlU5hRQxHm57rC?=
- =?us-ascii?Q?zyXdsWXQQroHgQlHT084hRV+bMHrxNOmhDUpZA1/6wgqIY8IUZLeEe8D8uCW?=
- =?us-ascii?Q?wU/QzCA9LdT2/2L+FRfFnLZM1TnOE2SOisSajJjEJq9uvDVElG+go36lqHps?=
- =?us-ascii?Q?G+oHBxtV26ahxNx3DnhSvxZAjMsEWWOzxbIyUqJtoL2JSNock456WbTExjf7?=
- =?us-ascii?Q?tE7gYHI84OcgN+arAAQophL+xUlry1r+LSGfjoylmd/EBBcq5OR9juoNzKKb?=
- =?us-ascii?Q?90MSdH5/WqDOKB86QRz3doB5U/samONFgP31TpzpX5eyfsxiweT6c9Cd+v2T?=
- =?us-ascii?Q?A+On2I52My4iq4roA0bD1Jey/n4ogDA6c1OkNj9JXV1WAxRRsBUPq0mjZpUS?=
- =?us-ascii?Q?a6a95xlMIeH2un3DN+ais9mpD60OT0RKWSxIQprRkK/sNDa1OuFO2CbmWFln?=
- =?us-ascii?Q?hEjreTrdRZcYwEcqRCrPlNcA+Dk+o7PNlMRpBtVq7aXND2dmKpCoNhUIMidB?=
- =?us-ascii?Q?Z1nUuZZsIcK5y1+H5Lu2ViIVM9b8QGPCjC+71E6dPOSHByZitZdHDDACin/3?=
- =?us-ascii?Q?QrQXiaOVoUebyPHm5NhGsPEuEAiESJSk0dEQlqhc1K7j2gN+WDtm3YrvhECB?=
- =?us-ascii?Q?YYSAWwvWIuEfOozArIw4eyTnzDObXc7SGSUOeG6swJxgeUBn2i8/z/Otq+Fa?=
- =?us-ascii?Q?MKBjdgc39Obl9DXHpu4DyBqrT2UU5oSp9J926QcQ7lwam6ByUqqPPF1TLOoS?=
- =?us-ascii?Q?sevrdxWorfyCYO0OIWQ=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0568330a-6b9b-45a0-4c19-08da9fc641bd
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Sep 2022 13:51:48.3174
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xp73XPEzWaxZIazAahMaoD87PsfqQxFccjoE2LVDA6h44ar6DdFbwGc/hOa17qps
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB7597
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+Subject: Re: RFC: dasd: use blk_mq_alloc_disk
+Content-Language: en-US
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     hoeppner@linux.ibm.com, linux-s390@vger.kernel.org
+References: <20220721133251.1878402-1-hch@lst.de>
+ <668f8eba-6e60-fa4c-99dd-ed07cdc46ea3@linux.ibm.com>
+ <20220923154419.GA22651@lst.de>
+From:   Stefan Haberland <sth@linux.ibm.com>
+In-Reply-To: <20220923154419.GA22651@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: pOxrnaL6e4FL2sLhUvwDnZnsufOeJ9MT
+X-Proofpoint-ORIG-GUID: pOxrnaL6e4FL2sLhUvwDnZnsufOeJ9MT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-26_08,2022-09-22_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ suspectscore=0 lowpriorityscore=0 priorityscore=1501 mlxscore=0
+ phishscore=0 mlxlogscore=915 impostorscore=0 clxscore=1015 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209260098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 26, 2022 at 03:29:49PM +0200, Niklas Schnelle wrote:
-> I did miss a problem in my initial answer. While zpci_register_ioat()
-> is indeed the actual "attach" operation, it assumes that at that point
-> no DMA address translations are registered. In that state DMA is
-> blocked of course. With that zpci_register_ioat() needs to come after
-> the zpci_unregister_ioat() that is part of __s390_iommu_detach_device()
-> and zpci_dma_exit_device(). If we do call those though we fundamentally
-> need to restore the previous domain / DMA API state on any subsequent
-> failure. If we don't restore we would leave the device detached from
-> any domain with DMA blocked. I wonder if this could be an acceptable
-> failure state though? It's safe as no DMA is possible and we could get
-> out of it with a successful attach.
+Am 23.09.22 um 17:44 schrieb Christoph Hellwig:
+> On Fri, Sep 23, 2022 at 05:42:10PM +0200, Stefan Haberland wrote:
+>> I have tested it on s390 and reviewed the code. Looks good to me.
+>>
+>> Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+>>
+>> Would you like to send it to Jens directly or should I take it?
+> I think it would be best if you could send it on.  Thanks!
 
-Is this because of that FW call it does?
+applied, thanks.
 
-It seems like an FW API misdesign to not allow an unfailable change of
-translation, if the FW forces an unregister first then there are
-always error cases you can't correctly recover from.
-
-IMHO if the FW fails an attach you are just busted, there is no reason
-to think it would suddenly accept attaching the old domain just
-because it has a different physical address, right?
-
-So make it simple, leave it DMA blocked and throw a WARN_ON..
-
-Talk to your FW people about fixing the API?
-
-Jason
