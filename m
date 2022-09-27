@@ -2,111 +2,336 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ADBAC07E9D
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 13:33:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 110E2C07E9D
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 14:27:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232866AbiI0Ndx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Sep 2022 09:33:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43754 "EHLO
+        id S231993AbiI0O1c convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Sep 2022 10:27:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232007AbiI0NdZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 09:33:25 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB3929CB2;
-        Tue, 27 Sep 2022 06:32:03 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28RC7MK7021419;
-        Tue, 27 Sep 2022 13:31:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=MdCRng429X186D9J5471uKUeBpf1L3mUsZeSHfDOuuo=;
- b=Ea++vmzat+1IfdSk5AE8yUJBcop1GbKcnP2NoXbX/dbGGYA9QRi9t7/kwgfnN8xIIfaL
- ggq5fz5qhSr2SSScuUd8DxhEzavE23skcgkzrLFTnZU0ceiFXTsIpTAssbbXEOrW/epZ
- EqfP5OMXXosSPMJkwk4zR2/GxKxl1L8lwy5oiYiP4YYslzHH7ycs7K9wchAVC/J9tj2V
- I+qPKnzogVaBILi2/4xNhUg3r5a/Qt10bH0/BqvQreC7ysYW6Rxy39WkiZyfzYnxtKCJ
- pTFaQY/djLGnmjUF9SIinb6C9jU0apkHWuSkafNwlZmv8JVcz6DNbJsb6ibeUnYBrSPV JA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3juwmn0x1h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Sep 2022 13:31:54 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28RC7woq023440;
-        Tue, 27 Sep 2022 13:31:54 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3juwmn0wyy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Sep 2022 13:31:54 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28RDQB7l007072;
-        Tue, 27 Sep 2022 13:31:51 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3jss5j3w2g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Sep 2022 13:31:51 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28RDVmtU5374536
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 27 Sep 2022 13:31:48 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8808642041;
-        Tue, 27 Sep 2022 13:31:48 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 401AF42042;
-        Tue, 27 Sep 2022 13:31:48 +0000 (GMT)
-Received: from [9.152.224.236] (unknown [9.152.224.236])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 27 Sep 2022 13:31:48 +0000 (GMT)
-Message-ID: <03ac1fb3-ea5d-d5b8-1d7e-92c13fba339d@linux.ibm.com>
-Date:   Tue, 27 Sep 2022 15:31:47 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.1
+        with ESMTP id S232127AbiI0O12 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 10:27:28 -0400
+Received: from relay.hostedemail.com (smtprelay0010.hostedemail.com [216.40.44.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 599CCE7E14;
+        Tue, 27 Sep 2022 07:27:17 -0700 (PDT)
+Received: from omf13.hostedemail.com (a10.router.float.18 [10.200.18.1])
+        by unirelay02.hostedemail.com (Postfix) with ESMTP id 0F921120EB0;
+        Tue, 27 Sep 2022 14:27:15 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf13.hostedemail.com (Postfix) with ESMTPA id D232220012;
+        Tue, 27 Sep 2022 14:26:56 +0000 (UTC)
+Message-ID: <5138b5a347b79a5f35b75d0babf5f41dbace879a.camel@perches.com>
 Subject: Re: [PATCH 3/7] s390/qeth: Convert snprintf() to scnprintf()
-Content-Language: en-US
-To:     Jakub Kicinski <kuba@kernel.org>,
-        Jules Irenge <jbi.octave@gmail.com>
-Cc:     borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, agordeev@linux.ibm.com
-References: <YzHyniCyf+G/2xI8@fedora> <20220926173312.7a735619@kernel.org>
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20220926173312.7a735619@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: M714Eh_pQXytoOwcg4b1iSr1bFrEZ10w
-X-Proofpoint-ORIG-GUID: LrFxKqbuAeCJmJhsbHQj367zWD2JyA2_
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-27_05,2022-09-27_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- bulkscore=0 mlxscore=0 clxscore=1015 suspectscore=0 lowpriorityscore=0
- mlxlogscore=819 spamscore=0 phishscore=0 priorityscore=1501 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2209270080
+From:   Joe Perches <joe@perches.com>
+To:     Jules Irenge <jbi.octave@gmail.com>, borntraeger@linux.ibm.com
+Cc:     svens@linux.ibm.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        agordeev@linux.ibm.com
+Date:   Tue, 27 Sep 2022 07:27:11 -0700
+In-Reply-To: <YzHyniCyf+G/2xI8@fedora>
+References: <YzHyniCyf+G/2xI8@fedora>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
+MIME-Version: 1.0
+X-Rspamd-Server: rspamout03
+X-Rspamd-Queue-Id: D232220012
+X-Stat-Signature: hfrsqr1aiuhwykc1jk9pd19i58j8h7zf
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX1/6MoNGsdYFiQboGBrqKwtQnwUUXPcFSwo=
+X-HE-Tag: 1664288816-783624
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 2022-09-26 at 19:42 +0100, Jules Irenge wrote:
+> Coccinnelle reports a warning
+> Warning: Use scnprintf or sprintf
+> Adding to that, there has been a slow migration from snprintf to scnprintf.
+> This LWN article explains the rationale for this change
+> https: //lwn.net/Articles/69419/
+> Ie. snprintf() returns what *would* be the resulting length,
+> while scnprintf() returns the actual length.
+[]
+> diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+[]
+> @@ -500,9 +500,9 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
+>  	struct qeth_card *card = dev_get_drvdata(dev);
+>  
+>  	if (card->info.hwtrap)
+> -		return snprintf(buf, 5, "arm\n");
+> +		return scnprintf(buf, 5, "arm\n");
+>  	else
+> -		return snprintf(buf, 8, "disarm\n");
+> +		return scnprintf(buf, 8, "disarm\n");
+>  }
 
+Use sysfs_emit instead.
 
-On 27.09.22 02:33, Jakub Kicinski wrote:
-> On Mon, 26 Sep 2022 19:42:38 +0100 Jules Irenge wrote:
->> Coccinnelle reports a warning
->> Warning: Use scnprintf or sprintf
->> Adding to that, there has been a slow migration from snprintf to scnprintf.
->> This LWN article explains the rationale for this change
->> https: //lwn.net/Articles/69419/
->> Ie. snprintf() returns what *would* be the resulting length,
->> while scnprintf() returns the actual length.
->>
->> Signed-off-by: Jules Irenge <jbi.octave@gmail.com>
-> 
-> Looks legit but please repost this separately.
-> We only see patch 3 of the series.
-When you repost, you can add
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+For the entire file, perhaps something like: (untested)
+---
+ drivers/s390/net/qeth_core_sys.c | 109 +++++++++++++++++++++------------------
+ 1 file changed, 60 insertions(+), 49 deletions(-)
 
-Thank you
-Alexandra
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index 406be169173ce..d7d6fd78129b3 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -20,19 +20,21 @@ static ssize_t qeth_dev_state_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
++	const char *type = "UNKNOWN";
+ 
+ 	switch (card->state) {
+ 	case CARD_STATE_DOWN:
+-		return sprintf(buf, "DOWN\n");
++		type = "DOWN";
++		break;
+ 	case CARD_STATE_SOFTSETUP:
+-		if (card->dev->flags & IFF_UP)
+-			return sprintf(buf, "UP (LAN %s)\n",
+-				       netif_carrier_ok(card->dev) ? "ONLINE" :
+-								     "OFFLINE");
+-		return sprintf(buf, "SOFTSETUP\n");
+-	default:
+-		return sprintf(buf, "UNKNOWN\n");
++		if (!(card->dev->flags & IFF_UP)) {
++			type = "SOFTSETUP";
++			break;
++		}
++		return sysfs_emit(buf, "UP (LAN %sLINE)\n",
++				  netif_carrier_ok(card->dev) ? "ON" : "OFF");
+ 	}
++	return sysfs_emit(buf, "%s\n", type);
+ }
+ 
+ static DEVICE_ATTR(state, 0444, qeth_dev_state_show, NULL);
+@@ -42,7 +44,7 @@ static ssize_t qeth_dev_chpid_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%02X\n", card->info.chpid);
++	return sysfs_emit(buf, "%02X\n", card->info.chpid);
+ }
+ 
+ static DEVICE_ATTR(chpid, 0444, qeth_dev_chpid_show, NULL);
+@@ -52,7 +54,7 @@ static ssize_t qeth_dev_if_name_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%s\n", netdev_name(card->dev));
++	return sysfs_emit(buf, "%s\n", netdev_name(card->dev));
+ }
+ 
+ static DEVICE_ATTR(if_name, 0444, qeth_dev_if_name_show, NULL);
+@@ -62,7 +64,7 @@ static ssize_t qeth_dev_card_type_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%s\n", qeth_get_cardname_short(card));
++	return sysfs_emit(buf, "%s\n", qeth_get_cardname_short(card));
+ }
+ 
+ static DEVICE_ATTR(card_type, 0444, qeth_dev_card_type_show, NULL);
+@@ -86,7 +88,7 @@ static ssize_t qeth_dev_inbuf_size_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%s\n", qeth_get_bufsize_str(card));
++	return sysfs_emit(buf, "%s\n", qeth_get_bufsize_str(card));
+ }
+ 
+ static DEVICE_ATTR(inbuf_size, 0444, qeth_dev_inbuf_size_show, NULL);
+@@ -96,7 +98,7 @@ static ssize_t qeth_dev_portno_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->dev->dev_port);
++	return sysfs_emit(buf, "%i\n", card->dev->dev_port);
+ }
+ 
+ static ssize_t qeth_dev_portno_store(struct device *dev,
+@@ -134,7 +136,7 @@ static DEVICE_ATTR(portno, 0644, qeth_dev_portno_show, qeth_dev_portno_store);
+ static ssize_t qeth_dev_portname_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+-	return sprintf(buf, "no portname required\n");
++	return sysfs_emit(buf, "no portname required\n");
+ }
+ 
+ static ssize_t qeth_dev_portname_store(struct device *dev,
+@@ -154,22 +156,27 @@ static ssize_t qeth_dev_prioqing_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
++	const char *type = "disabled";
+ 
+ 	switch (card->qdio.do_prio_queueing) {
+ 	case QETH_PRIO_Q_ING_PREC:
+-		return sprintf(buf, "%s\n", "by precedence");
++		type = "by precedence";
++		break;
+ 	case QETH_PRIO_Q_ING_TOS:
+-		return sprintf(buf, "%s\n", "by type of service");
++		type = "by type of service";
++		break;
+ 	case QETH_PRIO_Q_ING_SKB:
+-		return sprintf(buf, "%s\n", "by skb-priority");
++		type = "by skb-priority";
++		break;
+ 	case QETH_PRIO_Q_ING_VLAN:
+-		return sprintf(buf, "%s\n", "by VLAN headers");
++		type = "by VLAN headers";
++		break;
+ 	case QETH_PRIO_Q_ING_FIXED:
+-		return sprintf(buf, "always queue %i\n",
+-			       card->qdio.default_out_queue);
+-	default:
+-		return sprintf(buf, "disabled\n");
++		return sysfs_emit(buf, "always queue %i\n",
++				  card->qdio.default_out_queue);
+ 	}
++
++	return sysfs_emit(buf, "%s\n", type);
+ }
+ 
+ static ssize_t qeth_dev_prioqing_store(struct device *dev,
+@@ -242,7 +249,7 @@ static ssize_t qeth_dev_bufcnt_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->qdio.in_buf_pool.buf_count);
++	return sysfs_emit(buf, "%i\n", card->qdio.in_buf_pool.buf_count);
+ }
+ 
+ static ssize_t qeth_dev_bufcnt_store(struct device *dev,
+@@ -298,7 +305,7 @@ static DEVICE_ATTR(recover, 0200, NULL, qeth_dev_recover_store);
+ static ssize_t qeth_dev_performance_stats_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+-	return sprintf(buf, "1\n");
++	return sysfs_emit(buf, "1\n");
+ }
+ 
+ static ssize_t qeth_dev_performance_stats_store(struct device *dev,
+@@ -335,7 +342,7 @@ static ssize_t qeth_dev_layer2_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->options.layer);
++	return sysfs_emit(buf, "%i\n", card->options.layer);
+ }
+ 
+ static ssize_t qeth_dev_layer2_store(struct device *dev,
+@@ -407,17 +414,21 @@ static ssize_t qeth_dev_isolation_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
++	const char *type = "N/A";
+ 
+ 	switch (card->options.isolation) {
+ 	case ISOLATION_MODE_NONE:
+-		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_NONE);
++		type = ATTR_QETH_ISOLATION_NONE;
++		break;
+ 	case ISOLATION_MODE_FWD:
+-		return snprintf(buf, 9, "%s\n", ATTR_QETH_ISOLATION_FWD);
++		type = ATTR_QETH_ISOLATION_FWD;
++		break;
+ 	case ISOLATION_MODE_DROP:
+-		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_DROP);
+-	default:
+-		return snprintf(buf, 5, "%s\n", "N/A");
++		type = ATTR_QETH_ISOLATION_DROP;
++		break;
+ 	}
++
++	return sysfs_emit("%s\n", type);
+ }
+ 
+ static ssize_t qeth_dev_isolation_store(struct device *dev,
+@@ -467,28 +478,31 @@ static ssize_t qeth_dev_switch_attrs_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 	struct qeth_switch_info sw_info;
+-	int	rc = 0;
++	int len = 0;
++	int rc;
+ 
+ 	if (!qeth_card_hw_is_reachable(card))
+-		return sprintf(buf, "n/a\n");
++		return sysfs_emit(buf, "n/a\n");
+ 
+ 	rc = qeth_query_switch_attributes(card, &sw_info);
+ 	if (rc)
+ 		return rc;
+ 
+ 	if (!sw_info.capabilities)
+-		rc = sprintf(buf, "unknown");
++		return sysfs_emit(buf, "unknown\n");
+ 
+ 	if (sw_info.capabilities & QETH_SWITCH_FORW_802_1)
+-		rc = sprintf(buf, (sw_info.settings & QETH_SWITCH_FORW_802_1 ?
+-							"[802.1]" : "802.1"));
+-	if (sw_info.capabilities & QETH_SWITCH_FORW_REFL_RELAY)
+-		rc += sprintf(buf + rc,
+-			(sw_info.settings & QETH_SWITCH_FORW_REFL_RELAY ?
+-							" [rr]" : " rr"));
+-	rc += sprintf(buf + rc, "\n");
+-
+-	return rc;
++		len += sysfs_emit_at(buf, len,
++				     sw_info.settings & QETH_SWITCH_FORW_802_1 ?
++				     "[802.1]" : "802.1");
++	if (sw_info.capabilities & QETH_SWITCH_FORW_REFL_RELAY) {
++		if (len)
++			len += sysfs_emit_at(buf, len, " ");
++		len += sysfs_emit_at(buf, len,
++				     sw_info.settings & QETH_SWITCH_FORW_REFL_RELAY ?
++				     "[rr]" : "rr");
++	}
++	return sysfs_emit_at(buf, len, "\n");
+ }
+ 
+ static DEVICE_ATTR(switch_attrs, 0444,
+@@ -499,10 +513,7 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (card->info.hwtrap)
+-		return snprintf(buf, 5, "arm\n");
+-	else
+-		return snprintf(buf, 8, "disarm\n");
++	return sysfs_emit(buf, "%s\n", card->info.hwtrap ? "arm" : "disarm");
+ }
+ 
+ static ssize_t qeth_hw_trap_store(struct device *dev,
+@@ -573,7 +584,7 @@ static ssize_t qeth_dev_blkt_total_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->info.blkt.time_total);
++	return sysfs_emit(buf, "%i\n", card->info.blkt.time_total);
+ }
+ 
+ static ssize_t qeth_dev_blkt_total_store(struct device *dev,
+@@ -593,7 +604,7 @@ static ssize_t qeth_dev_blkt_inter_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->info.blkt.inter_packet);
++	return sysfs_emit(buf, "%i\n", card->info.blkt.inter_packet);
+ }
+ 
+ static ssize_t qeth_dev_blkt_inter_store(struct device *dev,
+@@ -613,7 +624,7 @@ static ssize_t qeth_dev_blkt_inter_jumbo_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->info.blkt.inter_packet_jumbo);
++	return sysfs_emit(buf, "%i\n", card->info.blkt.inter_packet_jumbo);
+ }
+ 
+ static ssize_t qeth_dev_blkt_inter_jumbo_store(struct device *dev,
+
