@@ -2,62 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A836EC32771
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 00:33:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96BB9C6FA86
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 00:40:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229611AbiI0AdQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Sep 2022 20:33:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55220 "EHLO
+        id S229610AbiI0AkC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Sep 2022 20:40:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229613AbiI0AdP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 20:33:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9489FEE640;
-        Mon, 26 Sep 2022 17:33:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F5626151F;
-        Tue, 27 Sep 2022 00:33:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36662C433D6;
-        Tue, 27 Sep 2022 00:33:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664238793;
-        bh=F9uwrTRrrB6ehWWU5SZkXZTq8t8gAoqykefYLXGJx/c=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=K/EyzvmioHAobjA0jyeiVZYDyNTnQwrkVVjzWM6SnGxk1HAyiuxjg6e+wLgZjuAwG
-         +AGnSP+mPEcibS/Qy3IBg8KmFSfRp8fJhW6oVvPQV5IzeOdB4um2SjeN/I2xHQSR1y
-         7xa92B08CE8hYgOsLdz8bJ34cKoVwiV5PflX96wyouyJ2Ghctbrnd5JuuNCRMXyL4U
-         cOc5MOuf/hMu7A/qyyFU+T9laFC41NzHMSG6n1EYM4A0OO6YCyk9wyHl4c7KOj7T0x
-         yiGOX0d3EeNnFsBaNz9t2y87wENyYtKRalViuMTPTB2dX0EHj0vZtr0QpjHT/TwXZ7
-         u/tujSjHv8Z3A==
-Date:   Mon, 26 Sep 2022 17:33:12 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Jules Irenge <jbi.octave@gmail.com>
-Cc:     borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        with ESMTP id S229699AbiI0AkA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 20:40:00 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FDB61FCDC
+        for <linux-s390@vger.kernel.org>; Mon, 26 Sep 2022 17:39:56 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id w13so7728940plp.1
+        for <linux-s390@vger.kernel.org>; Mon, 26 Sep 2022 17:39:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=gjxDtq0Rs25czueJLh+kJywKCTsPWEllkeEaIximls0=;
+        b=Qt+pUXJLWWjyzrTWNLVv+IQOkUSuFq6QCzrTd+bfNJnEC/mlmP7mJ1ZUPsX+Z6hY3m
+         UM7tKgEFBDCquZJfU17BA8hgD9xba/Apk87oVo5NgbL4bDm6u2I2ISuoXK3+DTdTX8VJ
+         rzbW/CRrTHVIGYT5eCnI9w3mgYaszxwfLJYmk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=gjxDtq0Rs25czueJLh+kJywKCTsPWEllkeEaIximls0=;
+        b=t+gcur2iur+80oMRY+zXWeRz+qwkqSZsQR9LeoW5lZl4MyIzqbzVNFN/AGhEBb4Kbk
+         hlovRmH/ti7GBY3VfuXQzfIic+whWy117RByojTdO1C0ktXPIly0kBJFPVGdMhGj56fV
+         6bC2YyPGctrtUjI9DrYVnk2OZO/4J6T5VZHfaiS8/oyezuOvJdJotWotOOy9aGUNLUMc
+         Iwmcr/tODEqntfjg8Lhtz2Rdh5yRGhxVmu2DvfD/YI49dtU9YL6F6KAO6I1PmHuYOh8r
+         hP/lUtSyS12DsE+PuWAF9gdhkzhUSl9oVZ4fqtazQKP3DQZwpcnI0O8LpiustTfJb1bV
+         X50w==
+X-Gm-Message-State: ACrzQf0YAOGoztr/LYGh1zSDlHLHM+wuXBUpJDB+ULTVuyEoETW/XZaq
+        QA/YfQUPXQrhnLg5Urix1UZPoA==
+X-Google-Smtp-Source: AMsMyM5pQdcBoOOjpvAnHrRCRpqxxSRTU/ZRyp8BkwhdPdn40BuanqBBOrCLJUQGCUnzyKSBznk1fQ==
+X-Received: by 2002:a17:903:2005:b0:178:3a78:80f5 with SMTP id s5-20020a170903200500b001783a7880f5mr24986789pla.174.1664239195767;
+        Mon, 26 Sep 2022 17:39:55 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id h13-20020aa796cd000000b00540a346477csm133564pfq.76.2022.09.26.17.39.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Sep 2022 17:39:55 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Alexandra Winter <wintera@linux.ibm.com>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
         linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, agordeev@linux.ibm.com
-Subject: Re: [PATCH 3/7] s390/qeth: Convert snprintf() to scnprintf()
-Message-ID: <20220926173312.7a735619@kernel.org>
-In-Reply-To: <YzHyniCyf+G/2xI8@fedora>
-References: <YzHyniCyf+G/2xI8@fedora>
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: [PATCH] s390/qeth: Split memcpy() of struct qeth_ipacmd_addr_change flexible array
+Date:   Mon, 26 Sep 2022 17:39:53 -0700
+Message-Id: <20220927003953.1942442-1-keescook@chromium.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1525; h=from:subject; bh=bUXptYsfn3QynH+ULXH8Hc9/lgFc7+jyEV9USOVT9ms=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBjMkZYJo3tqJvuRRvDT0Kc6P0APNVENYY0JXVpJPN6 o6X87pSJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYzJGWAAKCRCJcvTf3G3AJoKLD/ 4pR/ZckZK4sdm9vPPPFA6WxL7A7xzH3EEfNBZ9NGAtkbm3elkZ/DRy0ULpzf7cp9z3/+g8ELZZio3Q llnRP2YMWF2GtNjMvhOctWgPQs7E3S80c5K3o5/j8A4PCZYo1RZli9eCra34cEQVrtKBXRRkspKGkv OjOrwLys51OAEu1HlZi3JckcCBQjGMjGQdDY+kk08Gt2XJv7N7iUxvy4kpp4bF6jobSVhmpKkyvDZt Mv4ydOMUF0j03BktcAJ4z/EtNf4JRPYuoVZIm1+JQiG51ewlVlndEhZ6kCiiIQPdq+RkkR/sMMC0s1 tsByRgpVn4jm95vXnuFV6lzdXnFSlsLQnTsjktuThpW+Nl5Cy0BVubYDZlOUlEcwP8u7PFiOkPcoWo 6Alczo9emoomb9jpWVbfd1Y5E2mW+mwukZlPd5z561oY2BDXC5oPLjCf5pDiRrM1pej99tT9ecFlTc ntLfR9LdRzBrQoyya648IpdOWzMgF5/VqJAaijut2pe7EYXILso1I6wKy0pvf1HLwE2DEv5kKUrMkm CfjGvONdqD3v0wbW3/p5bxPOac1ZgjsdxeF5a83y+Yn4MaY1MQRE4oQg/8DptmBvHLCooSHxqfRaG9 R8ITRB0DB14zuluOnP1MMssvrXDnUVNElfF2eAUJLu5LYQ9dEMKNeDvKstJA==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 26 Sep 2022 19:42:38 +0100 Jules Irenge wrote:
-> Coccinnelle reports a warning
-> Warning: Use scnprintf or sprintf
-> Adding to that, there has been a slow migration from snprintf to scnprintf.
-> This LWN article explains the rationale for this change
-> https: //lwn.net/Articles/69419/
-> Ie. snprintf() returns what *would* be the resulting length,
-> while scnprintf() returns the actual length.
-> 
-> Signed-off-by: Jules Irenge <jbi.octave@gmail.com>
+To work around a misbehavior of the compiler's ability to see into
+composite flexible array structs (as detailed in the coming memcpy()
+hardening series[1]), split the memcpy() of the header and the payload
+so no false positive run-time overflow warning will be generated.
 
-Looks legit but please repost this separately.
-We only see patch 3 of the series.
+[1] https://lore.kernel.org/linux-hardening/20220901065914.1417829-2-keescook@chromium.org/
+
+Cc: Alexandra Winter <wintera@linux.ibm.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ drivers/s390/net/qeth_l2_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 2d4436cbcb47..0ce635b7b472 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1530,8 +1530,8 @@ static void qeth_addr_change_event(struct qeth_card *card,
+ 	else
+ 		INIT_DELAYED_WORK(&data->dwork, qeth_l2_dev2br_worker);
+ 	data->card = card;
+-	memcpy(&data->ac_event, hostevs,
+-			sizeof(struct qeth_ipacmd_addr_change) + extrasize);
++	data->ac_event = *hostevs;
++	memcpy(data->ac_event.entry, hostevs->entry, extrasize);
+ 	queue_delayed_work(card->event_wq, &data->dwork, 0);
+ }
+ 
+-- 
+2.34.1
+
