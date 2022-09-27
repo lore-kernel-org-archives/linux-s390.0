@@ -2,95 +2,62 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF1EFC6FA82
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Sep 2022 18:44:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A836EC32771
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 00:33:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230475AbiIZSoS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Sep 2022 14:44:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38066 "EHLO
+        id S229611AbiI0AdQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Sep 2022 20:33:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230473AbiIZSn7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 14:43:59 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D25488A16;
-        Mon, 26 Sep 2022 11:42:42 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id 184-20020a1c02c1000000b003b494ffc00bso122920wmc.0;
-        Mon, 26 Sep 2022 11:42:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :from:to:cc:subject:date;
-        bh=gp0fbvy2tUrmKm/iw/c/azuvn8FXFqwnpF65hLRML3k=;
-        b=ZmnLsxN10+ZD+EjAF3JReD7uJAXFJdjUtOJquBOO4lCnM5uS5tRaD7ZSPV3ik/PDvc
-         TgzTKXoyQJ8nqxm3hEQMcBGNBz7ujDezxSkCYqfGyH+CRU3d66jEkYx4F8KwVq6ZBCl0
-         +mx1DUuLEYCcXmyCStjn1QrX/cH05VJNV/1tsmsPAvtt5RlUYz98x8YL4tJptlEouuKV
-         ZvfgYUQCftMhSzns0BFxYr6ZnGqVLhyKW2k6ELm7DhcSXSwiyH678O47pLc3oYU4Wj1U
-         kUSDT5EzzPdLgcwnJWjx818rYWIw4KlQfxMGva5EjXPw6dchviDSgFQUsiREE4mCvJgw
-         UUig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date;
-        bh=gp0fbvy2tUrmKm/iw/c/azuvn8FXFqwnpF65hLRML3k=;
-        b=MO9Ls0TtQiU1kotYYcbdEzx752FYNRUgZ4x9zK9O2QSZd7r1JWhE5wHd1fiwCcutsq
-         YwFvTEtFN0pTuMckTqmlkPzLRzzrY+JnvhfY2uyCRTjaMCRN/o/MmSxN0vCgKwXPuPIz
-         D+XU3u+4miHAsNPQ/NDsRkEsSShF6EGRApr7o0i9Hv1kKhT51v16S/rcM3W8JvNyhj4v
-         PpRHfG4RKuyP2QBLcLG9AOIwZeOomDe1juJcDQZXoCST+kIVnzceIffxNSTiXC6JpihU
-         QpwpxwMTlbIi+SC1/HC9SOxyGc656RI8fy0fQFX88HCwYNqIx1c2QDOGbT3bv89SFWKC
-         hOcA==
-X-Gm-Message-State: ACrzQf13KfCDlicxgPKgo7mQrBj7NfMfQBG6qNrN89X1+GlrHkobBvB6
-        VSNPDu1GciNLKA6DR/b2NSkdZp3L8A==
-X-Google-Smtp-Source: AMsMyM79aYinHSO7lUY6m3XeLtBfKUEDiqH8wQeOFu/1WkmCSWQvG0Feu519/19iTJdFJce0GVmkjw==
-X-Received: by 2002:a05:600c:4f55:b0:3b4:b687:a7b7 with SMTP id m21-20020a05600c4f5500b003b4b687a7b7mr57464wmq.185.1664217760790;
-        Mon, 26 Sep 2022 11:42:40 -0700 (PDT)
-Received: from fedora (88-106-97-87.dynamic.dsl.as9105.com. [88.106.97.87])
-        by smtp.gmail.com with ESMTPSA id h9-20020a05600c350900b003b492338f45sm13562149wmq.39.2022.09.26.11.42.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Sep 2022 11:42:40 -0700 (PDT)
-Date:   Mon, 26 Sep 2022 19:42:38 +0100
-From:   Jules Irenge <jbi.octave@gmail.com>
-To:     borntraeger@linux.ibm.com
-Cc:     svens@linux.ibm.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        agordeev@linux.ibm.com
-Subject: [PATCH 3/7] s390/qeth: Convert snprintf() to scnprintf()
-Message-ID: <YzHyniCyf+G/2xI8@fedora>
+        with ESMTP id S229613AbiI0AdP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 20:33:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9489FEE640;
+        Mon, 26 Sep 2022 17:33:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F5626151F;
+        Tue, 27 Sep 2022 00:33:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36662C433D6;
+        Tue, 27 Sep 2022 00:33:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1664238793;
+        bh=F9uwrTRrrB6ehWWU5SZkXZTq8t8gAoqykefYLXGJx/c=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=K/EyzvmioHAobjA0jyeiVZYDyNTnQwrkVVjzWM6SnGxk1HAyiuxjg6e+wLgZjuAwG
+         +AGnSP+mPEcibS/Qy3IBg8KmFSfRp8fJhW6oVvPQV5IzeOdB4um2SjeN/I2xHQSR1y
+         7xa92B08CE8hYgOsLdz8bJ34cKoVwiV5PflX96wyouyJ2Ghctbrnd5JuuNCRMXyL4U
+         cOc5MOuf/hMu7A/qyyFU+T9laFC41NzHMSG6n1EYM4A0OO6YCyk9wyHl4c7KOj7T0x
+         yiGOX0d3EeNnFsBaNz9t2y87wENyYtKRalViuMTPTB2dX0EHj0vZtr0QpjHT/TwXZ7
+         u/tujSjHv8Z3A==
+Date:   Mon, 26 Sep 2022 17:33:12 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Jules Irenge <jbi.octave@gmail.com>
+Cc:     borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, agordeev@linux.ibm.com
+Subject: Re: [PATCH 3/7] s390/qeth: Convert snprintf() to scnprintf()
+Message-ID: <20220926173312.7a735619@kernel.org>
+In-Reply-To: <YzHyniCyf+G/2xI8@fedora>
+References: <YzHyniCyf+G/2xI8@fedora>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Coccinnelle reports a warning
-Warning: Use scnprintf or sprintf
-Adding to that, there has been a slow migration from snprintf to scnprintf.
-This LWN article explains the rationale for this change
-https: //lwn.net/Articles/69419/
-Ie. snprintf() returns what *would* be the resulting length,
-while scnprintf() returns the actual length.
+On Mon, 26 Sep 2022 19:42:38 +0100 Jules Irenge wrote:
+> Coccinnelle reports a warning
+> Warning: Use scnprintf or sprintf
+> Adding to that, there has been a slow migration from snprintf to scnprintf.
+> This LWN article explains the rationale for this change
+> https: //lwn.net/Articles/69419/
+> Ie. snprintf() returns what *would* be the resulting length,
+> while scnprintf() returns the actual length.
+> 
+> Signed-off-by: Jules Irenge <jbi.octave@gmail.com>
 
-Signed-off-by: Jules Irenge <jbi.octave@gmail.com>
----
- drivers/s390/net/qeth_core_sys.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
-index 406be169173c..b40802d707a1 100644
---- a/drivers/s390/net/qeth_core_sys.c
-+++ b/drivers/s390/net/qeth_core_sys.c
-@@ -500,9 +500,9 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
- 	struct qeth_card *card = dev_get_drvdata(dev);
- 
- 	if (card->info.hwtrap)
--		return snprintf(buf, 5, "arm\n");
-+		return scnprintf(buf, 5, "arm\n");
- 	else
--		return snprintf(buf, 8, "disarm\n");
-+		return scnprintf(buf, 8, "disarm\n");
- }
- 
- static ssize_t qeth_hw_trap_store(struct device *dev,
--- 
-2.37.3
-
+Looks legit but please repost this separately.
+We only see patch 3 of the series.
