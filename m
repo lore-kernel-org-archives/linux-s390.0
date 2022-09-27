@@ -2,211 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E6EEC6FA86
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 02:40:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78105C6FA83
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 05:47:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229734AbiI0CkJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Sep 2022 22:40:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44536 "EHLO
+        id S229699AbiI0FrG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Sep 2022 01:47:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiI0CkH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Sep 2022 22:40:07 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 061C79F8E7
-        for <linux-s390@vger.kernel.org>; Mon, 26 Sep 2022 19:40:04 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id h8-20020a17090a054800b00205ccbae31eso1749865pjf.5
-        for <linux-s390@vger.kernel.org>; Mon, 26 Sep 2022 19:40:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:cc:to
-         :from:date:from:to:cc:subject:date;
-        bh=V8M4eGg3gaCQZE6o72RB5TOdPiGCPoyqG6tJ9FqxFAs=;
-        b=MRYnGiyGQzAlQYCTGUTcEAcktEcLJHH7qTRBTxWQAbCpG3ywr6mwuBCNXi9xbv61Qp
-         T5efRWUQRkpxvfkxyDtfKKxy2R41uCAHqVvSK3vNqoRUwVqVUywP3p0k61kxKKM2DznB
-         fi3D5K9hrECwmWmAPj232bfprA2GiCcfznZ9dnioj0HGAi/5gbEJRd5EPaFolfVw4krz
-         GpGKeczFd65BMaKa33nKHpfzkBsaoL0QnLjxOge4vLRzLbBo5XSzEcajxxgMLexMZ4ad
-         qt0jW7DRonlwaOsj1cMyFyMNCWybcVliKgdJNUQLp90VyFThq1qVRPqwAPF5/xPtySgO
-         qi1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:mail-followup-to:message-id:subject:cc:to
-         :from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=V8M4eGg3gaCQZE6o72RB5TOdPiGCPoyqG6tJ9FqxFAs=;
-        b=YCCZufN7JxSZSI5crg69q6jMdwc6DiMShFaCL8Vrqkg9dBn+m66qYVZjj3Mh8koyRw
-         TjA6ZJ+nffR35VuAii9GaY60bamg5srepsOVahYrQbuY+TtIL/Bpu9kyA3ysjCwysxCh
-         FWU3ie10j/Oy5tPXO5CKrfwUbQna6g5sROqXcfopezBCngxvcAUUJkS2RC0vcP652lbU
-         NCkf35jhGJ+FnHDCGfP+Kt2xN5O8z1AXcf1S4XAsbnyPMiJIKQ+iIvhEvgQAb92BzODR
-         SwV9I/Tt5Iwr7sXX2ob3gGnaqTeIQ2pN5m3W0iTXLK265sf7jpdZqVr60Aui6MOaZL/j
-         AtuQ==
-X-Gm-Message-State: ACrzQf22XPlS8xWjKLWDHXdkMPZH7pmCKIWBat54BarosXeo5kf2tnQa
-        RBw4fo4UZggNU/u1kO/AROtjTA==
-X-Google-Smtp-Source: AMsMyM6sitMgi6yITxtgKf/FIi6qTHBWgbXvjfJeLHcB7uXBXtwNqJ3kNZYPd9pZHeK4TfymUUh2rA==
-X-Received: by 2002:a17:902:f688:b0:179:e82e:2dec with SMTP id l8-20020a170902f68800b00179e82e2decmr1943916plg.25.1664246403786;
-        Mon, 26 Sep 2022 19:40:03 -0700 (PDT)
-Received: from laputa ([2400:4050:c3e1:100:835a:afba:269b:b6fb])
-        by smtp.gmail.com with ESMTPSA id w11-20020aa79a0b000000b0052d4b0d0c74sm245374pfj.70.2022.09.26.19.39.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Sep 2022 19:40:02 -0700 (PDT)
-Date:   Tue, 27 Sep 2022 11:39:52 +0900
-From:   AKASHI Takahiro <takahiro.akashi@linaro.org>
-To:     Michal Such??nek <msuchanek@suse.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S229508AbiI0FrF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 01:47:05 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A03F8E4F7;
+        Mon, 26 Sep 2022 22:47:04 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28R5iTeK002319;
+        Tue, 27 Sep 2022 05:47:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=P7KrxF62RnnerM2HxZ6cCjnRG6c/qbQvf8hziWiGcMs=;
+ b=mXRUKcIcFa1HhCnCGvXPvGhhYug9Lsb71+8MU1DC05mp3t+WtrO6nuY6P6w/KUu9s2Ul
+ UITpPgTp2VaWlILmclxv250r8G/pZuVom3y4v2PR0Kx7wUiSlbMBFaKvnjTj8h9wmS6G
+ xypCDeBf/RvD1AFhZiHrGCBMJi6gweckoJ9EaO/ov+7gBhz+pQPpovLaaEm523/EEA1O
+ /ZW7ZZVa9HZ3dQlK8hb1v8GHEfXEDO6wePEfkzOUMXtQaDRSt9Ew1f6kmEK9pcJJeSl0
+ VTmhk0OUoR7QI1yFoaP4HNJLMs/rjm8Sy0ptoFIqSdESSZKxN5yfQid6AYuFv4rv0wpM ww== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jutgthbna-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Sep 2022 05:47:03 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28R5LVG0007948;
+        Tue, 27 Sep 2022 05:47:03 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jutgthbmg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Sep 2022 05:47:03 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28R5as0R012861;
+        Tue, 27 Sep 2022 05:47:00 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03fra.de.ibm.com with ESMTP id 3jssh92g15-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Sep 2022 05:47:00 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28R5kv1D4522616
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 27 Sep 2022 05:46:57 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6A146A404D;
+        Tue, 27 Sep 2022 05:46:57 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1903EA4040;
+        Tue, 27 Sep 2022 05:46:57 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.239])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 27 Sep 2022 05:46:57 +0000 (GMT)
+Date:   Tue, 27 Sep 2022 07:46:55 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Colin Ian King <colin.i.king@gmail.com>
+Cc:     Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Philipp Rudo <prudo@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        "open list:S390" <linux-s390@vger.kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        "open list:KEXEC" <kexec@lists.infradead.org>,
-        Coiby Xu <coxu@redhat.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        James Morse <james.morse@arm.com>
-Subject: Re: [PATCH 5.15 0/6] arm64: kexec_file: use more system keyrings to
- verify kernel image signature + dependencies
-Message-ID: <20220927023952.GB34139@laputa>
-Mail-Followup-To: AKASHI Takahiro <takahiro.akashi@linaro.org>,
-        Michal Such??nek <msuchanek@suse.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Philipp Rudo <prudo@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        Baoquan He <bhe@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        "open list:S390" <linux-s390@vger.kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" <linux-arm-kernel@lists.infradead.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" <linuxppc-dev@lists.ozlabs.org>,
-        "open list:KEXEC" <kexec@lists.infradead.org>,
-        Coiby Xu <coxu@redhat.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        James Morse <james.morse@arm.com>
-References: <cover.1663951201.git.msuchanek@suse.de>
- <Yy7Ll1QJ+u+nkic9@kroah.com>
- <20220924094521.GY28810@kitsune.suse.cz>
- <Yy7YTnJKkv1UtvWF@kroah.com>
- <20220924115523.GZ28810@kitsune.suse.cz>
- <YzFLBJukjDy7uNVl@kroah.com>
- <20220926074024.GD28810@kitsune.suse.cz>
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][next] s390/dasd: Fix spelling mistake "Ivalid" ->
+ "Invalid"
+Message-ID: <YzKOT6+oP4ckWBxh@osiris>
+References: <20220923132103.2486724-1-colin.i.king@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220926074024.GD28810@kitsune.suse.cz>
+In-Reply-To: <20220923132103.2486724-1-colin.i.king@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: SmM9pHXfc0VdsYB_w49t18rK2VejN5Jm
+X-Proofpoint-ORIG-GUID: lKoNIGf49kkdRyiC-UAh010TzMUjnsSy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-26_11,2022-09-22_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 mlxscore=0 spamscore=0
+ mlxlogscore=936 suspectscore=0 adultscore=0 malwarescore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2209270031
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 26, 2022 at 09:40:25AM +0200, Michal Such??nek wrote:
-> On Mon, Sep 26, 2022 at 08:47:32AM +0200, Greg Kroah-Hartman wrote:
-> > On Sat, Sep 24, 2022 at 01:55:23PM +0200, Michal Suchánek wrote:
-> > > On Sat, Sep 24, 2022 at 12:13:34PM +0200, Greg Kroah-Hartman wrote:
-> > > > On Sat, Sep 24, 2022 at 11:45:21AM +0200, Michal Suchánek wrote:
-> > > > > On Sat, Sep 24, 2022 at 11:19:19AM +0200, Greg Kroah-Hartman wrote:
-> > > > > > On Fri, Sep 23, 2022 at 07:10:28PM +0200, Michal Suchanek wrote:
-> > > > > > > Hello,
-> > > > > > > 
-> > > > > > > this is backport of commit 0d519cadf751
-> > > > > > > ("arm64: kexec_file: use more system keyrings to verify kernel image signature")
-> > > > > > > to table 5.15 tree including the preparatory patches.
-> > > > > > 
-> > > > > > This feels to me like a new feature for arm64, one that has never worked
-> > > > > > before and you are just making it feature-parity with x86, right?
-> > > > > > 
-> > > > > > Or is this a regression fix somewhere?  Why is this needed in 5.15.y and
-> > > > > > why can't people who need this new feature just use a newer kernel
-> > > > > > version (5.19?)
-> > > > > 
-> > > > > It's half-broken implementation of the kexec kernel verification. At the time
-> > > > > it was implemented for arm64 we had the platform and secondary keyrings
-> > > > > and x86 was using them but on arm64 the initial implementation ignores
-> > > > > them.
-> > > > 
-> > > > Ok, so it's something that never worked.  Adding support to get it to
-> > > > work doesn't really fall into the stable kernel rules, right?
-> > > 
-> > > Not sure. It was defective, not using the facilities available at the
-> > > time correctly. Which translates to kernels that can be kexec'd on x86
-> > > failing to kexec on arm64 without any explanation (signed with same key,
-> > > built for the appropriate arch).
-> > 
-> > Feature parity across architectures is not a "regression", but rather a
-> > "this feature is not implemented for this architecture yet" type of
-> > thing.
+On Fri, Sep 23, 2022 at 02:21:03PM +0100, Colin Ian King wrote:
+> There is a spelling mistake in a pr_warn message. Fix it.
 > 
-> That depends on the view - before kexec verification you could boot any
-> kernel, now you can boot some kernels signed with a valid key, but not
-> others - the initial implementation is buggy, probably because it
-> is based on an old version of the x86 code.
-
-Buggy?
-The feature of supporting platform ring had been slipped in just before
-I submitted the latest patch series which was eventually merged.
-(I should have noticed it though.)
-
-Looking at changes in the commit 278311e417be ("kexec, KEYS: Make use of platform
-keyring for signature verify"), it seems to be obvious that it is a new feature
-because it introduced a new Kconfig option, CONFIG_INTEGRITY_PLATFORM_KEYRING,
-which allows for enabling/disabling platform ring support.
-
--Takahiro Akashi
-
-> > 
-> > > > Again, what's wrong with 5.19 for anyone who wants this?  Who does want
-> > > > this?
-> > > 
-> > > Not sure, really.
-> > > 
-> > > The final patch was repeatedly backported to stable and failed to build
-> > > because the prerequisites were missing.
-> > 
-> > That's because it was tagged, but now that you show the full set of
-> > requirements, it's pretty obvious to me that this is not relevant for
-> > going this far back.
+> Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+> ---
+>  drivers/s390/block/dasd_ioctl.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> That also works.
-> 
-> Thanks
-> 
-> Michal
+> diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
+> index d0ddf2cc9786..484de696839c 100644
+> --- a/drivers/s390/block/dasd_ioctl.c
+> +++ b/drivers/s390/block/dasd_ioctl.c
+> @@ -401,7 +401,7 @@ dasd_ioctl_copy_pair_swap(struct block_device *bdev, void __user *argp)
+>  		return -EFAULT;
+>  	}
+>  	if (memchr_inv(data.reserved, 0, sizeof(data.reserved))) {
+> -		pr_warn("%s: Ivalid swap data specified.\n",
+> +		pr_warn("%s: Invalid swap data specified.\n",
 
+While at it you could also remove the full stop at the end of the
+string, which is inconsistent to all other pr_warn() invocations
+within the dasd device driver.
