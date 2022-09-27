@@ -2,223 +2,145 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EDD5C07E9D
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 11:39:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92905C07E9D
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 11:54:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230081AbiI0LjF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Sep 2022 07:39:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43446 "EHLO
+        id S231701AbiI0Lym (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Sep 2022 07:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230169AbiI0LjE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 07:39:04 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A6ED1449D3;
-        Tue, 27 Sep 2022 04:39:03 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id b5so9153537pgb.6;
-        Tue, 27 Sep 2022 04:39:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=Za2InhZkbyYKnD28W32y98g/AVSxLF4A9r63BGgksLE=;
-        b=JUUR6JaExhRepcLumPfEHU7gwLXOU8uyIF3TEk3AezJswqYXqfGqc4tiKMuYgx4aFW
-         e9aa8S5qmiL1j/mc44Wq6K67E8FvwmEtKKlTb1KAVFJFta12uuV0dFB+OnbNZvN3lap5
-         6Sj7j4xDLHynLQ8Q0krx2e5OChz5PsKBGJik6yyAHPAhdXt5QHsUfaJ47+B/cU1L7Vo0
-         9fToh3Re+MICaIcpV0VcfTk9/nkwOZ/N1zu6ARYeY6CaIlwACPbvde9zn9LOzqns9DsK
-         rF63imbnMI0qFRKjHwWjYwx2YGrKfhlxbmYHwskLHAkMVC2/RzIfmAshNcamvgrSWfCt
-         QMmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=Za2InhZkbyYKnD28W32y98g/AVSxLF4A9r63BGgksLE=;
-        b=7yWSAwu96AOGmoTqawI5FZIBNDuzFvtMCTyHs8f+nesH5/0Zxtt9DNyk5wnH3PYI7W
-         1m5WfiDSsmrmxkb7vnkC1/0bgZUwKpM3+60ecfAs5i3g8yTeSiQ5o2VcfBvbyxdysHq5
-         +cUYX3AALgXVxuJ4nfhNPsFL7hKZvAiViu+J9aYwsy8E9s4Aftx5+s1C2D4pFugHhZb6
-         hin4Jw9aiGHYLu7GFtgyYU75TGmwgYlXOcWQK/K3zB1G01Gx1BVH+eI4rC06pzjcKmBk
-         MPLh6FfvJzHDDkWKj/CU5y9ktCjN95UpxgQh4k9riYzMTOxdnNX5/BbUR+1tJVtJ5nxH
-         cMYg==
-X-Gm-Message-State: ACrzQf0HyJWMTGoITqJEKh82UUIRapevk2GXhtb53PyQ1VxZb/Gnm5sE
-        UUri4iULwSSaj0hvAf/q0nuIUZPrVaKZu7eU
-X-Google-Smtp-Source: AMsMyM6hEvLPVMu+HdNNHrsWOMsl4Urq4ho7/eCbDspcDtyEw0ARkXXED3a8E3QOa7EReZkDya1x7A==
-X-Received: by 2002:a63:ff50:0:b0:439:ae51:503c with SMTP id s16-20020a63ff50000000b00439ae51503cmr24597571pgk.158.1664278742595;
-        Tue, 27 Sep 2022 04:39:02 -0700 (PDT)
-Received: from localhost.localdomain ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id k60-20020a17090a4cc200b002006f15ad4fsm8241431pjh.10.2022.09.27.04.39.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Sep 2022 04:39:02 -0700 (PDT)
-From:   zhangsongyi.cgel@gmail.com
-X-Google-Original-From: zhang.songyi@zte.com.cn
-To:     freude@linux.ibm.com
-Cc:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        zhang songyi <zhang.songyi@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>
-Subject: [PATCH linux-next] s390/ap: Convert to use sysfs_emit() APIs
-Date:   Tue, 27 Sep 2022 11:38:57 +0000
-Message-Id: <20220927113857.259596-1-zhang.songyi@zte.com.cn>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S230209AbiI0Lyi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 07:54:38 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 625DE32EC9;
+        Tue, 27 Sep 2022 04:54:37 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28RBroAh015071;
+        Tue, 27 Sep 2022 11:54:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=xLsQWoQYEmSnbRzAfDyJ0GosO+ncb/MY/54nvuNAncY=;
+ b=jvMOG30kZWLXWnxFa1bRIaAeEM+52Yms3ru2FpsOoeFuuuankwbnlwWwMxRFrLNoPZzO
+ syvhWINRVewZZ2WFOEkI1GbFADfMTJn4Y7ffgDY9tRyqz6hQpaxN24cik9AP48rwvWPD
+ 5hmjH7n50yewRbJ/ALGVtNdn1S6bbR4iUHo3jTs+mjXQGkMqUFFshnyV2YVrIfIMCHf7
+ /f8mmxRgwZKT0K4/DQCIGlHQ+Own5IInFqhc2zuf8PQvEU+0X/2fYNAO6MHauaUkzlSr
+ 65S1L0Lys4HeMBsgd4FOVEMOHZs4ag0qRlEAq4DSkK5I3o5GXciJe3rcd6jx1qyDAor3 UQ== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jv0pr00bf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Sep 2022 11:54:33 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28RBoEuH031152;
+        Tue, 27 Sep 2022 11:54:31 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma05fra.de.ibm.com with ESMTP id 3jssh8ttsc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Sep 2022 11:54:31 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28RBoFkW46203376
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 27 Sep 2022 11:50:15 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 64C9C4204B;
+        Tue, 27 Sep 2022 11:54:28 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0944C42045;
+        Tue, 27 Sep 2022 11:54:28 +0000 (GMT)
+Received: from [9.152.224.236] (unknown [9.152.224.236])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 27 Sep 2022 11:54:27 +0000 (GMT)
+Message-ID: <23b905f8-2836-8879-fe9f-9521e0f8674e@linux.ibm.com>
+Date:   Tue, 27 Sep 2022 13:54:27 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.13.1
+Subject: Re: [PATCH] s390/qeth: Split memcpy() of struct
+ qeth_ipacmd_addr_change flexible array
+Content-Language: en-US
+To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Cc:     Wenjia Zhang <wenjia@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+References: <20220927003953.1942442-1-keescook@chromium.org>
+ <YzJO0f7v7N4Z+9Dk@work>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <YzJO0f7v7N4Z+9Dk@work>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: RBvWxvqcdxstuJ3M2seMtC6vRdy9bNz0
+X-Proofpoint-GUID: RBvWxvqcdxstuJ3M2seMtC6vRdy9bNz0
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-27_03,2022-09-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 mlxscore=0 clxscore=1011 lowpriorityscore=0 spamscore=0
+ phishscore=0 impostorscore=0 mlxlogscore=999 adultscore=0 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209270069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: zhang songyi <zhang.songyi@zte.com.cn>
-
-Follow the advice of the Documentation/filesystems/sysfs.rst and show()
-should only use sysfs_emit() or sysfs_emit_at() when formatting the value
-to be returned to user space.
-
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: zhang songyi <zhang.songyi@zte.com.cn>
----
- drivers/s390/crypto/ap_bus.c | 37 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 59ac98f2bd27..0f7f0d179289 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -1165,7 +1165,7 @@ EXPORT_SYMBOL(ap_parse_mask_str);
- 
- static ssize_t ap_domain_show(struct bus_type *bus, char *buf)
- {
--	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_domain_index);
-+	return sysfs_emit(buf, "%d\n", ap_domain_index);
- }
- 
- static ssize_t ap_domain_store(struct bus_type *bus,
-@@ -1193,9 +1193,9 @@ static BUS_ATTR_RW(ap_domain);
- static ssize_t ap_control_domain_mask_show(struct bus_type *bus, char *buf)
- {
- 	if (!ap_qci_info)	/* QCI not supported */
--		return scnprintf(buf, PAGE_SIZE, "not supported\n");
-+		return sysfs_emit(buf, "not supported\n");
- 
--	return scnprintf(buf, PAGE_SIZE,
-+	return sysfs_emit(buf,
- 			 "0x%08x%08x%08x%08x%08x%08x%08x%08x\n",
- 			 ap_qci_info->adm[0], ap_qci_info->adm[1],
- 			 ap_qci_info->adm[2], ap_qci_info->adm[3],
-@@ -1208,9 +1208,9 @@ static BUS_ATTR_RO(ap_control_domain_mask);
- static ssize_t ap_usage_domain_mask_show(struct bus_type *bus, char *buf)
- {
- 	if (!ap_qci_info)	/* QCI not supported */
--		return scnprintf(buf, PAGE_SIZE, "not supported\n");
-+		return sysfs_emit(buf, "not supported\n");
- 
--	return scnprintf(buf, PAGE_SIZE,
-+	return sysfs_emit(buf,
- 			 "0x%08x%08x%08x%08x%08x%08x%08x%08x\n",
- 			 ap_qci_info->aqm[0], ap_qci_info->aqm[1],
- 			 ap_qci_info->aqm[2], ap_qci_info->aqm[3],
-@@ -1223,9 +1223,9 @@ static BUS_ATTR_RO(ap_usage_domain_mask);
- static ssize_t ap_adapter_mask_show(struct bus_type *bus, char *buf)
- {
- 	if (!ap_qci_info)	/* QCI not supported */
--		return scnprintf(buf, PAGE_SIZE, "not supported\n");
-+		return sysfs_emit(buf, "not supported\n");
- 
--	return scnprintf(buf, PAGE_SIZE,
-+	return sysfs_emit(buf,
- 			 "0x%08x%08x%08x%08x%08x%08x%08x%08x\n",
- 			 ap_qci_info->apm[0], ap_qci_info->apm[1],
- 			 ap_qci_info->apm[2], ap_qci_info->apm[3],
-@@ -1237,15 +1237,14 @@ static BUS_ATTR_RO(ap_adapter_mask);
- 
- static ssize_t ap_interrupts_show(struct bus_type *bus, char *buf)
- {
--	return scnprintf(buf, PAGE_SIZE, "%d\n",
--			 ap_irq_flag ? 1 : 0);
-+	return sysfs_emit(buf, "%d\n", ap_irq_flag ? 1 : 0);
- }
- 
- static BUS_ATTR_RO(ap_interrupts);
- 
- static ssize_t config_time_show(struct bus_type *bus, char *buf)
- {
--	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_config_time);
-+	return sysfs_emit(buf, "%d\n", ap_config_time);
- }
- 
- static ssize_t config_time_store(struct bus_type *bus,
-@@ -1264,7 +1263,7 @@ static BUS_ATTR_RW(config_time);
- 
- static ssize_t poll_thread_show(struct bus_type *bus, char *buf)
- {
--	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_poll_kthread ? 1 : 0);
-+	return sysfs_emit(buf, "%d\n", ap_poll_kthread ? 1 : 0);
- }
- 
- static ssize_t poll_thread_store(struct bus_type *bus,
-@@ -1288,7 +1287,7 @@ static BUS_ATTR_RW(poll_thread);
- 
- static ssize_t poll_timeout_show(struct bus_type *bus, char *buf)
- {
--	return scnprintf(buf, PAGE_SIZE, "%llu\n", poll_timeout);
-+	return sysfs_emit(buf, "%llu\n", poll_timeout);
- }
- 
- static ssize_t poll_timeout_store(struct bus_type *bus, const char *buf,
-@@ -1317,14 +1316,14 @@ static BUS_ATTR_RW(poll_timeout);
- 
- static ssize_t ap_max_domain_id_show(struct bus_type *bus, char *buf)
- {
--	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_max_domain_id);
-+	return sysfs_emit(buf, "%d\n", ap_max_domain_id);
- }
- 
- static BUS_ATTR_RO(ap_max_domain_id);
- 
- static ssize_t ap_max_adapter_id_show(struct bus_type *bus, char *buf)
- {
--	return scnprintf(buf, PAGE_SIZE, "%d\n", ap_max_adapter_id);
-+	return sysfs_emit(buf, "%d\n", ap_max_adapter_id);
- }
- 
- static BUS_ATTR_RO(ap_max_adapter_id);
-@@ -1335,7 +1334,7 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
- 
- 	if (mutex_lock_interruptible(&ap_perms_mutex))
- 		return -ERESTARTSYS;
--	rc = scnprintf(buf, PAGE_SIZE,
-+	rc = sysfs_emit(buf,
- 		       "0x%016lx%016lx%016lx%016lx\n",
- 		       ap_perms.apm[0], ap_perms.apm[1],
- 		       ap_perms.apm[2], ap_perms.apm[3]);
-@@ -1428,7 +1427,7 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
- 
- 	if (mutex_lock_interruptible(&ap_perms_mutex))
- 		return -ERESTARTSYS;
--	rc = scnprintf(buf, PAGE_SIZE,
-+	rc = sysfs_emit(buf,
- 		       "0x%016lx%016lx%016lx%016lx\n",
- 		       ap_perms.aqm[0], ap_perms.aqm[1],
- 		       ap_perms.aqm[2], ap_perms.aqm[3]);
-@@ -1517,7 +1516,7 @@ static BUS_ATTR_RW(aqmask);
- 
- static ssize_t scans_show(struct bus_type *bus, char *buf)
- {
--	return scnprintf(buf, PAGE_SIZE, "%llu\n",
-+	return sysfs_emit(buf, "%llu\n",
- 			 atomic64_read(&ap_scan_bus_count));
- }
- 
-@@ -1540,9 +1539,9 @@ static ssize_t bindings_show(struct bus_type *bus, char *buf)
- 
- 	ap_calc_bound_apqns(&apqns, &n);
- 	if (atomic64_read(&ap_scan_bus_count) >= 1 && n == apqns)
--		rc = scnprintf(buf, PAGE_SIZE, "%u/%u (complete)\n", n, apqns);
-+		rc = sysfs_emit(buf, "%u/%u (complete)\n", n, apqns);
- 	else
--		rc = scnprintf(buf, PAGE_SIZE, "%u/%u\n", n, apqns);
-+		rc = sysfs_emit(buf, "%u/%u\n", n, apqns);
- 
- 	return rc;
- }
--- 
-2.25.1
 
 
+On 27.09.22 03:16, Gustavo A. R. Silva wrote:
+> On Mon, Sep 26, 2022 at 05:39:53PM -0700, Kees Cook wrote:
+>> To work around a misbehavior of the compiler's ability to see into
+>> composite flexible array structs (as detailed in the coming memcpy()
+>> hardening series[1]), split the memcpy() of the header and the payload
+>> so no false positive run-time overflow warning will be generated.
+>>
+>> [1] https://lore.kernel.org/linux-hardening/20220901065914.1417829-2-keescook@chromium.org/
+>>
+>> Cc: Alexandra Winter <wintera@linux.ibm.com>
+>> Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+>> Cc: Heiko Carstens <hca@linux.ibm.com>
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+>> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+>> Cc: Sven Schnelle <svens@linux.ibm.com>
+>> Cc: linux-s390@vger.kernel.org
+>> Cc: netdev@vger.kernel.org
+>> Signed-off-by: Kees Cook <keescook@chromium.org>
+> 
+> Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+> 
+> Thanks!
+> --
+> Gustavo
+> 
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+
+Thank you
+Alexandra
+>> ---
+>>  drivers/s390/net/qeth_l2_main.c | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+>> index 2d4436cbcb47..0ce635b7b472 100644
+>> --- a/drivers/s390/net/qeth_l2_main.c
+>> +++ b/drivers/s390/net/qeth_l2_main.c
+>> @@ -1530,8 +1530,8 @@ static void qeth_addr_change_event(struct qeth_card *card,
+>>  	else
+>>  		INIT_DELAYED_WORK(&data->dwork, qeth_l2_dev2br_worker);
+>>  	data->card = card;
+>> -	memcpy(&data->ac_event, hostevs,
+>> -			sizeof(struct qeth_ipacmd_addr_change) + extrasize);
+>> +	data->ac_event = *hostevs;
+>> +	memcpy(data->ac_event.entry, hostevs->entry, extrasize);
+>>  	queue_delayed_work(card->event_wq, &data->dwork, 0);
+>>  }
+>>  
+>> -- 
+>> 2.34.1
+>>
