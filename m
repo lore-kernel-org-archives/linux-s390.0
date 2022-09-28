@@ -2,91 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59DC3C6FA8E
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 14:57:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55CDFC04A95
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 18:56:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234152AbiI1O5A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Sep 2022 10:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60394 "EHLO
+        id S234142AbiI1S46 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Sep 2022 14:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234476AbiI1O45 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 10:56:57 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF03187F82
-        for <linux-s390@vger.kernel.org>; Wed, 28 Sep 2022 07:56:54 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id f23so11974762plr.6
-        for <linux-s390@vger.kernel.org>; Wed, 28 Sep 2022 07:56:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date;
-        bh=Evbxzhf/pidjDLKsn2x4GwyfLG+kx9sCzYCgU3SIOzs=;
-        b=BM1130YISbPJoEOXY/XCelyXBLiqKFFgWlZ1zO9bWO4yWVB1jy5NiSl6zC8Zw0ZnOq
-         yMxwa7RbWXozsdZod//bJcczi+DGoI/EzIZR9FbULZO6zL7C58GSqcICXa3CPQR0vKPw
-         4CHlme+4OT/d9WAfN5O62gcyqDnYhpMeZVhfwDF/HF+WFbVZ2dYsxQicpeu17iolJmEV
-         670OH3TniBwAS+zuM27lg/z2oFkWxiQiQvSw+y+e5eZRmuvY53kiMxPbmAGlTMIjNMhJ
-         1CZ1YZtp2DloLEmy133y1rEWxV7rdG0iVflGez8uxfBkiHfwhpj0mN3tQCTzsK77Q42b
-         RnAw==
+        with ESMTP id S232346AbiI1S45 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 14:56:57 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E48F1D5A
+        for <linux-s390@vger.kernel.org>; Wed, 28 Sep 2022 11:56:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1664391415;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/G4Vq697fdL4v+7M0FMtvwUHBXoZlZMDykWA34n1ZXM=;
+        b=QjOiwsY7FAGk480aT0I7rnS+eZ7MhYDFLwlrkFkcuFRQQ/nn5qHEGhrbXNYQPDWukGwB7e
+        V8tql7YCJJ9iaTYYYe6pra3kg5K1a7K7rei67DJnaG0K8/j1HawEm+8FJ7mujMZ+iZ3my4
+        sxjk28F5QCi2MO6KfZGRCjg3GLg9Stg=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-201-VHyBgmt3OQ-YoziH6aQ2Qg-1; Wed, 28 Sep 2022 14:56:54 -0400
+X-MC-Unique: VHyBgmt3OQ-YoziH6aQ2Qg-1
+Received: by mail-io1-f70.google.com with SMTP id b5-20020a05660214c500b006a43c89e0bdso8392871iow.22
+        for <linux-s390@vger.kernel.org>; Wed, 28 Sep 2022 11:56:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=Evbxzhf/pidjDLKsn2x4GwyfLG+kx9sCzYCgU3SIOzs=;
-        b=Gv876BIeSRQEtdqGwb7IRVeXsAy79Bcq5v9tRUXQnZl5cVHso/fPuGP4ogd83dzaYW
-         A9DZmR/7gl8Wy/q3NFLZ1CZXYwSVZpMmtx++NqAMHWrDQpmxNwe6RHiF9AGMkN3poIKh
-         DL3pI0mKmqLFI0VdFOIUYWuje1dhOKJ5bTHBUx4MBaO9LIvBfgQ9jzRzwK72G5heORSK
-         YPDmV93rhGWXvVVMW6sUQQZp3DOMiVou7vV0R5r/2OXIpkaNQZtwal2UByXDCE6rixro
-         hqoL70U47OzU66HL/8r3YEG9w60p06lJTxlR8Xva3VqQ9kSUU/2331MyTEG8+4RcBZGh
-         yi1w==
-X-Gm-Message-State: ACrzQf1bEoj8Qf5DtubgLgoOJdGaNoiA+jJPu5982Z/ARDCwQO1yyoi+
-        XWCHaABqxqB5mb6kaXYSogj6Hntu1xFLWQ==
-X-Google-Smtp-Source: AMsMyM6ocIj7PO1ySCSvMbUGBqoq5MSHPeCi/XmsKI1HBbCZRFlkoveHIhm/K4wkMWZA9bp4faDdcg==
-X-Received: by 2002:a17:90b:4b88:b0:202:e381:e643 with SMTP id lr8-20020a17090b4b8800b00202e381e643mr10825059pjb.148.1664377014372;
-        Wed, 28 Sep 2022 07:56:54 -0700 (PDT)
-Received: from [127.0.0.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id c13-20020a170902d48d00b001782751833bsm3863908plg.223.2022.09.28.07.56.53
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date;
+        bh=/G4Vq697fdL4v+7M0FMtvwUHBXoZlZMDykWA34n1ZXM=;
+        b=1i964DqMf5d0mb8H9F3v7IS0kbmanHEB+MaDecmySCDc4C3pa8QloSxt8+bmhbriO8
+         4vR3vJ0h2w+y0NbRfltYR7ZXAtbUhq6elrSEUoeFnjYZY72Gt/t3u51nJ2hEH79yBSyt
+         PrkVgQjNOusZ70t/wICP6lc5wKuBevk4As2M6vpM0VLUpnwdgssWmGd/tynNDCT2eHmw
+         g15RF3qt6yYf1ioetbn7VArXFS47V5xc9BdFPPariMtaViUp0GwKKtI+uZLueO3uKe8W
+         yDnXyUGY/eeOaYSEfkpLY8jSnUNb+Ufta5Pi3FhPankYgFCGozYFUL1ONsOR/58pQpeE
+         Ckzw==
+X-Gm-Message-State: ACrzQf2YmbG5Zcsq02QWp1klI2PhMcpWPeuZYB9gkVoHt0w4Ccp5SqOt
+        7jSkOqf6SrCzHXlMD2c60bhed/Ib1df2ATdH5jly/fhUiU2ttEw+n1h4MI9k0juLf0uYf0VN4Bk
+        WTHIbSs1DmqYRWZFdELq0HQ==
+X-Received: by 2002:a05:6e02:1a6f:b0:2f9:1b98:9412 with SMTP id w15-20020a056e021a6f00b002f91b989412mr225940ilv.204.1664391413851;
+        Wed, 28 Sep 2022 11:56:53 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4+rrxfEBEydSabU2v5S3BOdqrNy/3aSdw+xUzsmxEdtmSd7NFDLxd30KRxn4ox+Ehtolvebw==
+X-Received: by 2002:a05:6e02:1a6f:b0:2f9:1b98:9412 with SMTP id w15-20020a056e021a6f00b002f91b989412mr225931ilv.204.1664391413632;
+        Wed, 28 Sep 2022 11:56:53 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id g6-20020a05663810e600b00349fb9b1abesm2084847jae.106.2022.09.28.11.56.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Sep 2022 07:56:53 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20220928143945.1687114-1-sth@linux.ibm.com>
-References: <20220928143945.1687114-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 0/1] s390/dasd: use blk_mq_alloc_disk
-Message-Id: <166437701324.16288.5697183698335314295.b4-ty@kernel.dk>
-Date:   Wed, 28 Sep 2022 08:56:53 -0600
+        Wed, 28 Sep 2022 11:56:52 -0700 (PDT)
+Date:   Wed, 28 Sep 2022 12:56:50 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org
+Subject: Re: simplify the mdev interface v8
+Message-ID: <20220928125650.0a2ea297.alex.williamson@redhat.com>
+In-Reply-To: <20220928121110.GA30738@lst.de>
+References: <20220923092652.100656-1-hch@lst.de>
+        <20220927140737.0b4c9a54.alex.williamson@redhat.com>
+        <20220927155426.23f4b8e9.alex.williamson@redhat.com>
+        <20220928121110.GA30738@lst.de>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.11.0-dev-d9ed3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 28 Sep 2022 16:39:44 +0200, Stefan Haberland wrote:
-> please apply the following patch that improves the queue allocation.
-> Will you still take it for-next?
+On Wed, 28 Sep 2022 14:11:10 +0200
+Christoph Hellwig <hch@lst.de> wrote:
+
+> On Tue, Sep 27, 2022 at 03:54:26PM -0600, Alex Williamson wrote:
+> > Oops, I had to drop this, I get a null pointer from gvt-g code:  
 > 
-> regards,
-> Stefan
+> Ok, this is a stupid bug in the second patch in the series.  I did not
+> hit it in my mdev testing as my script just uses the first type and
+> thus never hits these, but as your trace showed mdevctl and once I
+> used that I could reproduce it.  The fix for patch 2 is below, and
+> the git tree at:
 > 
-> Christoph Hellwig (1):
->   s390/dasd: use blk_mq_alloc_disk
+>    git://git.infradead.org/users/hch/misc.git mvdev-lifetime
 > 
-> [...]
+> has been updated with that folded in and the recent reviews.
 
-Applied, thanks!
+That fixes the crash, but available_instances isn't working:
 
-[1/1] s390/dasd: use blk_mq_alloc_disk
-      commit: c68f4f4e296b6011032b4f88d0ce72eb72a6bb07
+[root@nuc ~]# cd /sys/class/mdev_bus/0000\:00\:02.0/mdev_supported_types/
+[root@nuc mdev_supported_types]# ls */devices/
+i915-GVTg_V4_1/devices/:
 
-Best regards,
--- 
-Jens Axboe
+i915-GVTg_V4_2/devices/:
 
+i915-GVTg_V4_4/devices/:
+
+i915-GVTg_V4_8/devices/:
+[root@nuc mdev_supported_types]# grep . */available_instances
+i915-GVTg_V4_1/available_instances:1
+i915-GVTg_V4_2/available_instances:2
+i915-GVTg_V4_4/available_instances:5
+i915-GVTg_V4_8/available_instances:7
+[root@nuc mdev_supported_types]# uuidgen > i915-GVTg_V4_1/create
+[root@nuc mdev_supported_types]# ls */devices/
+i915-GVTg_V4_1/devices/:
+669d83b1-81d8-4fd4-8d8b-7f972721c83f
+
+i915-GVTg_V4_2/devices/:
+
+i915-GVTg_V4_4/devices/:
+
+i915-GVTg_V4_8/devices/:
+[root@nuc mdev_supported_types]# grep . */available_instances
+i915-GVTg_V4_1/available_instances:0
+i915-GVTg_V4_2/available_instances:0
+i915-GVTg_V4_4/available_instances:1
+i915-GVTg_V4_8/available_instances:1
+[root@nuc mdev_supported_types]# echo 1 > i915-GVTg_V4_1/devices/669d83b1-81d8-4fd4-8d8b-7f972721c83f/remove 
+[root@nuc mdev_supported_types]# ls */devices/
+i915-GVTg_V4_1/devices/:
+
+i915-GVTg_V4_2/devices/:
+
+i915-GVTg_V4_4/devices/:
+
+i915-GVTg_V4_8/devices/:
+[root@nuc mdev_supported_types]# grep . */available_instances
+i915-GVTg_V4_1/available_instances:0
+i915-GVTg_V4_2/available_instances:0
+i915-GVTg_V4_4/available_instances:1
+i915-GVTg_V4_8/available_instances:1
 
