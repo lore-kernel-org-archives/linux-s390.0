@@ -2,173 +2,410 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35BACC04A95
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 13:32:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 404A4C04A95
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 14:40:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233544AbiI1NcZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Sep 2022 09:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33752 "EHLO
+        id S234014AbiI1Oj7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Sep 2022 10:39:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230486AbiI1NcY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 09:32:24 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2089.outbound.protection.outlook.com [40.107.92.89])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B617686729;
-        Wed, 28 Sep 2022 06:32:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UAE0UHgE7wdfKzofRYZeQq8qF4O3kstnxvhpGDQtrHycsutXJWVp9SO6Ty+no/6C4V+r+yzqo46sHtIsNdUK+pNvcbYIn5XbNXXePRdo2ZF4/YUzFEiIPev/wa2135oyMCx+GpXXSLV9RjJOa1NxGrZIiBqxSk0/a9uoXpzWRre1yZMVKj/j5BtIy+tfF/Ig6j2srfxEgWbFxvaN3QP/FYlSDNau199r4NcCEUpSyFF0weKX2muOypiLRd4Nthf+ngrYNXGV/7jcVEJzm7XHb2hN9LDiohndthLOV8m/6hE9KCt5M348K4tyya+90C4tVjZdtD1BHUOtMT+KUNeHiQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jbn++JLI/IaVbjTpfEpNv3vg5hAJTZtAmwdsfWj6W8g=;
- b=Wo8XjMq6IyP4Oixx94poUNKdtpFwCb/zxwiyEX8Qpu/T/PHKc1JH8fLxF5gIBszysWUab+GJET3ucJi4Onb5gmpLhXXccdUkYdYgqrS16iv7DBEzKKWTp7Jn9hMts+pfSRfp/bkSz8Gm2WNqbStGg7PBkEvBrKK+bGQfGn/tJUyIloQhKlXSXI5ZL/bH4PjeBrOmhQAttHW4CNQdJGBaSbDR5hkcPPKVljonUbZzV4tUR3ToFeFwEcaYuYPLEjIaa2bB/t4Q0ac5rCdsddKNUXXCxAvPStcRjznkPI2HFU1gJvKCUawURtURTLLnJ8QD4fHYeFaqsMsaHZHXmuAX4Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jbn++JLI/IaVbjTpfEpNv3vg5hAJTZtAmwdsfWj6W8g=;
- b=k8zwVZfhBALghIT7wpUKUDH2j5yyrLGmUde5f1V3fCeIQnA2BghBz3a0AqJg9AJ/0FMcjRLhAojlC+Jyc8K1rAFFS23yTnZ5naVoXD5R3s2c/5MRaAaE1k8YZbED7mSAPWCmR6l5QWMEZ+/hvTNzkKAslxHXvrDDCU378//14NogFoejEVALAuSpLsf6338Iy7elwlvvP6HTJEGVRk8Z7ImGFR8Fzs5Ap4EefWKThuJcZO9opw48zeocFc5waxdvr3r6VDDYCdRw3caj/kH6Kp+vEqUatr8rjxZLTaaRgLRSESvojpAadtEa6lCHZE/FUFABM3olXgXbjCDAIQCggA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by CH0PR12MB5106.namprd12.prod.outlook.com (2603:10b6:610:bd::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.17; Wed, 28 Sep
- 2022 13:32:22 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::f0c0:3a28:55e9:e99c]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::f0c0:3a28:55e9:e99c%5]) with mapi id 15.20.5676.018; Wed, 28 Sep 2022
- 13:32:21 +0000
-Date:   Wed, 28 Sep 2022 10:32:20 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] iommu/s390: Fix duplicate domain attachments
-Message-ID: <YzRM5HG0t36KUAVC@nvidia.com>
-References: <20220922095239.2115309-1-schnelle@linux.ibm.com>
- <20220922095239.2115309-2-schnelle@linux.ibm.com>
- <YyxyMtKXyvgHt3Kp@nvidia.com>
- <81463119aeadd55465cfac1f5bc6a8b79f0c9738.camel@linux.ibm.com>
- <YzGtQY+uw4ZzZoSH@nvidia.com>
- <1a10b5baedafb56335231ccbd585412bbb3a108c.camel@linux.ibm.com>
- <YzMrSIGMPSgJ94sG@nvidia.com>
- <a4005a4ae804f852656ff2a6f2f994958b0b02e3.camel@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a4005a4ae804f852656ff2a6f2f994958b0b02e3.camel@linux.ibm.com>
-X-ClientProxiedBy: BL1PR13CA0251.namprd13.prod.outlook.com
- (2603:10b6:208:2ba::16) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S233296AbiI1Oj5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 10:39:57 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53C92193;
+        Wed, 28 Sep 2022 07:39:54 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28SELjg1006600;
+        Wed, 28 Sep 2022 14:39:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=77RP8tZ2OPf5NGyvdylm+oH4ZflNtKI+PMweG91K4vw=;
+ b=cCOemz+ERDaFyTJYK8bbmkzSiMMnuwe02eFnPCk/lPf9treXm/YGHFdu9teQEvxWgDry
+ 8PvjhObpJ+rTXs+2InqcyeOnsHifNqa2nZ+kNAH/JGoIp14OfH4+gLAB+rm84m7lvptd
+ zMGlFk/E/wTgRVQi0m71CirUhjyCUL1tKZd45uLwGsCufNubWPE8vv5NYP5zwT8HSmtX
+ jgM19wyIa2Yv/UTRtJ8ipU7MNMefgPQqPCVukZW6hJKEs0IIaHoPUSElZ2MtyTkGqyi2
+ beHWlvXxknaexFDPoQBTIYa/NC9bNVm5xlHP+OWEwGh11o63sSKt9lCy4rLysLYuDgZF KQ== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jvpcwc2s8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Sep 2022 14:39:51 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28SEZXfw004105;
+        Wed, 28 Sep 2022 14:39:49 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3juapuk1da-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Sep 2022 14:39:49 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28SEdkka2490934
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 28 Sep 2022 14:39:46 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5A7C742041;
+        Wed, 28 Sep 2022 14:39:46 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 389BB4203F;
+        Wed, 28 Sep 2022 14:39:46 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 28 Sep 2022 14:39:46 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
+        id F23FAE06BA; Wed, 28 Sep 2022 16:39:45 +0200 (CEST)
+From:   Stefan Haberland <sth@linux.ibm.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 1/1] s390/dasd: use blk_mq_alloc_disk
+Date:   Wed, 28 Sep 2022 16:39:45 +0200
+Message-Id: <20220928143945.1687114-2-sth@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220928143945.1687114-1-sth@linux.ibm.com>
+References: <20220928143945.1687114-1-sth@linux.ibm.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4192:EE_|CH0PR12MB5106:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9c854ce0-2506-4d29-c9fd-08daa155df41
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: zYYRsj5JCN8lZd0njVTVAy0KXzD+TAgRgXt8gRfpExaZOAGqKxpUNArGSct1JxLr/vOdN2dO5BRMh9NMKRfNhmui//Lnf6v24tdiYoaUUxhJOgiUtd5+734WemqzH2TYLhi6+CNwvkK99OjcW2Ex6JdD0BYbYh8TePA07oda3jXpYNHTkcYWyYd0BcJnfoUd23/wW7u5u6PwmS09C92aLO8pVMmYjURpG7Zfx02LTmNpkHaKdH2uFwAoZjogI5NP33joxqQijOJWlVdYN3TTKgDvXAvf71w9I5a4SU+mHDjZ0FGrCHsdViErtH/RVr71fPfqDSZp/e2I4Pm7KZfe+o75nj6Gn1o3JvPIUthQg6UcPaj+HNhqsXBiavgGFEN4YPqRq0SyGjWTzCMs0gjZpNtYajaC/cUlsNu6YcL3aYCPc2jEpYSN1EaOvR9cHoiPFmNK1YwVkbT64TWOk9O+Qe4zv4vxuEunEWiB/fNPsGL1e4vNXkQzi/aa9vOfMgG04qIZcvzH6Q75oYMeTXymOP8EeY9KGxGt2LoCMJ+p1B+nx/eslVEi4kXb5kSpuKzLbU+ev2JpFvkNPWggPnFNDvH7hZ8LrRYEHU8aU4/d+A0DtAC50cVr9qbtnOVmjbMxnvm3rWz3kIjbCFqTyjHNRSKcsqTvD4NiUwiFQhvGAZDxxQWDCNtJaWj2RIFR8YebKojTaB1wCcEoiv/j5uyz+g==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(136003)(366004)(346002)(39860400002)(396003)(451199015)(83380400001)(2616005)(186003)(38100700002)(7416002)(41300700001)(8936002)(5660300002)(2906002)(478600001)(6486002)(26005)(6512007)(6506007)(8676002)(66476007)(4326008)(66556008)(66946007)(316002)(6916009)(54906003)(36756003)(86362001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?cK5b+ILuD3qg/fC5TqphxJy5uJg7sl6HwupvwS9nu/IIT0SUYk57yJFqZOUs?=
- =?us-ascii?Q?6jRRQVOBT5q6fTYLTNWx6erQi4E54+Vqq3kMOKgcnNgA8RfpDncsm1LlXUz/?=
- =?us-ascii?Q?KdoyFHDdr6E+s97s2kKQnGNdRG8P8/wfxK4FQEQzgtrLesjl1ad1HPYJ9U2m?=
- =?us-ascii?Q?VgWhoae76GjES4lTMyEi1lDNqYm1ChYm/C2CTbQsC9+AmQVN6U3CZ0DPp4EB?=
- =?us-ascii?Q?SiqjPZ6DEUFiWajLvDgvVRuZ80pWdjzOYXZJOog69CzxqTaEnX7td4lZPfKp?=
- =?us-ascii?Q?c3DTEIVs8iAvu/XTCUG8xWFrtoOI293lRIB0A7wleDheKq/+NWDfDI9/8Auw?=
- =?us-ascii?Q?2nV34d/jXAhNYAIdNw1BXbXgCQ3D2IZJgbevr4PGs1AhvlXeMQLKaZXo7sXt?=
- =?us-ascii?Q?7uAKZ9LraEkYxaZ+g+uP55e/ifThsAvMqGqPbELySg5IWLZcdZwTzmJsxltt?=
- =?us-ascii?Q?1KDpE5dW0NJN0HE8usEj+XnOOG++Z2QCMNVwjlnG1sYGfDyHjEX3rCBdbXzH?=
- =?us-ascii?Q?3epNM5/mB9aWC/2lygPdA1LQl0n/HgRUS+0SncAkB58jGsvPMiaFPNrCI1iI?=
- =?us-ascii?Q?I24s/lrYjKQNJhVdWW6UgksYj+t7EOr4uybK6qHZXdz3G9hloEeJN7oW2Cy9?=
- =?us-ascii?Q?nv9/Ps/z0bZMTI3N2e5w+wDYnZ+d9bv5Q2wHU7svRPlgVNwEvnreUeKJ59TR?=
- =?us-ascii?Q?LBPiUiauxnDBfPD+I7fefiXdvNg2CC7HNZEGKM+SiHbXqJFs/cmapG21wXMM?=
- =?us-ascii?Q?WxwtfWB5BcY5VOoFco0wJolUMVC90s9AZJGYkqCJCX7yACUjicMfL7Q+ojAp?=
- =?us-ascii?Q?qAkq1SHw5IsId6j4DNmBROrs8YXlxPtJdskkepqCs6krPbEw2gl9F1UGsAH5?=
- =?us-ascii?Q?ZVjF7aLckh4+XmGdwCPpKxztfQTxdw5RiBhG0ipEShRVeLdFnHCNON557un3?=
- =?us-ascii?Q?QTiwNqpwyu5ckduhTY1EkKfgO2VKsdrjCaY4lw2brGLTdj+UYpHJw76tfQP0?=
- =?us-ascii?Q?glAQMSH9OJVG5CViVhI/tu2DDCkga+DCje0q07O4wq+qrYkWlFbwl8by3XXl?=
- =?us-ascii?Q?8ERFFV0xoexZnxB6Bp7LpRNY4jpSRDR/v+4LUl+9wHqPJCeysd1GoLmb9A7x?=
- =?us-ascii?Q?rESosBR8Mnajs1Wdc/0+BhysVHfKBzfRBI+bu8I9YjeAJBfS13J/zVeDH8Li?=
- =?us-ascii?Q?mpD9dtkdKIsI0+jpmGGKftMKzxvt3/qEiuN2ShC6Xs2w4qp1yCsV01yRmN2D?=
- =?us-ascii?Q?PElvSTGSxB/rTy6NR5GCs2m8yDSnky3+eGXhKlb3ZA9ab9YPptX40J7+i4BN?=
- =?us-ascii?Q?xJGKEZk5Knk0vBAvpwAltg3RSllTjS19tBWIW8YLyOGrXdl933s/knoTkDnj?=
- =?us-ascii?Q?GTfOPPswhq+p/dQ/OZIyKWDZCZ6sXUGGThUeqv0U00fzrjZWD8pv8Lg4xKSc?=
- =?us-ascii?Q?QshwCMYsvELewdPPEcH7DHFgbC7kYoJVHPoU396tU07t81GFcefbxNh2Jbdr?=
- =?us-ascii?Q?ZV2pUzhnTS12JGHvCa30w0tqqM/9zemTF97gk39wqVPVvSnwsyuRkVDmE3Ru?=
- =?us-ascii?Q?itR060j0DziybQ7KWlo=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9c854ce0-2506-4d29-c9fd-08daa155df41
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Sep 2022 13:32:21.8456
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tcDxeN6j7ddcnbXL1lRBx0xxdkG4i08YW/YBrNn+SY+IDsvV0kHqDtRJa5duFWQM
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR12MB5106
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: cWhYUPVYcX2AKn9fMgTISI5nLOFCFe7n
+X-Proofpoint-ORIG-GUID: cWhYUPVYcX2AKn9fMgTISI5nLOFCFe7n
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-28_06,2022-09-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ priorityscore=1501 mlxscore=0 lowpriorityscore=0 impostorscore=0
+ phishscore=0 mlxlogscore=888 adultscore=0 suspectscore=0 malwarescore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209280086
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 28, 2022 at 10:58:22AM +0200, Niklas Schnelle wrote:
-> On Tue, 2022-09-27 at 13:56 -0300, Jason Gunthorpe wrote:
-> > On Tue, Sep 27, 2022 at 06:33:48PM +0200, Niklas Schnelle wrote:
-> >  
-> > > Not sure what the non-MSI reservation is for? It does seem like x86_64
-> > > also uses this for quite large ranges.
-> > 
-> > There are lots of things that are unsuitable for DMA on x86 platforms,
-> > unfortunately.. But yeah, I'm not sure either.
-> > 
-> > > This is because I'm getting a map request for an IOVA in the reserved
-> > > region.
-> > 
-> > How come? iova_reserve_iommu_regions() reads the reserved regions and
-> > loads them as reserved into the iovad which should cause
-> > iommu_dma_alloc_iova() and alloc_iova_fast() to not return values in
-> > those ranges.
-> > 
-> > It all looks like it is supposed to work
-> > 
-> > Did something go wrong in the initialization order perhaps?
-> > 
-> > Jason
-> 
-> It was of course a classic off-by-one, the table size is a number of
-> entries but geometry.aperture_end seems to be the largest allowed IOVA.
-> So we need:
+From: Christoph Hellwig <hch@lst.de>
 
-Right, I dislike this naming usually 'end' means "start + length" and
-'last' means "start + length - 1"
+As far as I can tell there is no need for the staged setup in
+dasd, so allocate the tagset and the disk with the queue in
+dasd_gendisk_alloc.
 
-> Otherwise the first IOVA allocated is ZPCI_TABLE_SIZE_RT itself.
-> Similarly we need the second reserved region if (zdev->end_dma <
-> ZPCI_TABLE_SIZE_RT - 1). In your patch I think you had the
-> MAX_DMA_TABLE_ADDR name right but would have also calculated the number
-> of entries.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+---
+ drivers/s390/block/dasd.c        | 83 ++++----------------------------
+ drivers/s390/block/dasd_devmap.c |  7 +--
+ drivers/s390/block/dasd_diag.c   |  2 +-
+ drivers/s390/block/dasd_eckd.c   |  2 +-
+ drivers/s390/block/dasd_fba.c    |  2 +-
+ drivers/s390/block/dasd_genhd.c  | 29 +++++++++--
+ drivers/s390/block/dasd_int.h    |  2 +-
+ 7 files changed, 39 insertions(+), 88 deletions(-)
 
-Make sense..
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index c03f26e79f45..5a6d9c15395f 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -41,15 +41,6 @@
+ 
+ #define DASD_DIAG_MOD		"dasd_diag_mod"
+ 
+-static unsigned int queue_depth = 32;
+-static unsigned int nr_hw_queues = 4;
+-
+-module_param(queue_depth, uint, 0444);
+-MODULE_PARM_DESC(queue_depth, "Default queue depth for new DASD devices");
+-
+-module_param(nr_hw_queues, uint, 0444);
+-MODULE_PARM_DESC(nr_hw_queues, "Default number of hardware queues for new DASD devices");
+-
+ /*
+  * SECTION: exported variables of dasd.c
+  */
+@@ -68,8 +59,6 @@ MODULE_LICENSE("GPL");
+ /*
+  * SECTION: prototypes for static functions of dasd.c
+  */
+-static int  dasd_alloc_queue(struct dasd_block *);
+-static void dasd_free_queue(struct dasd_block *);
+ static int dasd_flush_block_queue(struct dasd_block *);
+ static void dasd_device_tasklet(unsigned long);
+ static void dasd_block_tasklet(unsigned long);
+@@ -198,21 +187,11 @@ EXPORT_SYMBOL_GPL(dasd_free_block);
+  */
+ static int dasd_state_new_to_known(struct dasd_device *device)
+ {
+-	int rc;
+-
+ 	/*
+ 	 * As long as the device is not in state DASD_STATE_NEW we want to
+ 	 * keep the reference count > 0.
+ 	 */
+ 	dasd_get_device(device);
+-
+-	if (device->block) {
+-		rc = dasd_alloc_queue(device->block);
+-		if (rc) {
+-			dasd_put_device(device);
+-			return rc;
+-		}
+-	}
+ 	device->state = DASD_STATE_KNOWN;
+ 	return 0;
+ }
+@@ -226,9 +205,6 @@ static int dasd_state_known_to_new(struct dasd_device *device)
+ 	dasd_eer_disable(device);
+ 	device->state = DASD_STATE_NEW;
+ 
+-	if (device->block)
+-		dasd_free_queue(device->block);
+-
+ 	/* Give up reference we took in dasd_state_new_to_known. */
+ 	dasd_put_device(device);
+ 	return 0;
+@@ -1591,9 +1567,8 @@ void dasd_generic_handle_state_change(struct dasd_device *device)
+ 	dasd_schedule_device_bh(device);
+ 	if (device->block) {
+ 		dasd_schedule_block_bh(device->block);
+-		if (device->block->request_queue)
+-			blk_mq_run_hw_queues(device->block->request_queue,
+-					     true);
++		if (device->block->gdp)
++			blk_mq_run_hw_queues(device->block->gdp->queue, true);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(dasd_generic_handle_state_change);
+@@ -2691,7 +2666,7 @@ static void dasd_block_timeout(struct timer_list *t)
+ 	dasd_device_remove_stop_bits(block->base, DASD_STOPPED_PENDING);
+ 	spin_unlock_irqrestore(get_ccwdev_lock(block->base->cdev), flags);
+ 	dasd_schedule_block_bh(block);
+-	blk_mq_run_hw_queues(block->request_queue, true);
++	blk_mq_run_hw_queues(block->gdp->queue, true);
+ }
+ 
+ /*
+@@ -3239,7 +3214,7 @@ static void dasd_request_done(struct request *req)
+ 	blk_mq_run_hw_queues(req->q, true);
+ }
+ 
+-static struct blk_mq_ops dasd_mq_ops = {
++struct blk_mq_ops dasd_mq_ops = {
+ 	.queue_rq = do_dasd_request,
+ 	.complete = dasd_request_done,
+ 	.timeout = dasd_times_out,
+@@ -3247,45 +3222,6 @@ static struct blk_mq_ops dasd_mq_ops = {
+ 	.exit_hctx = dasd_exit_hctx,
+ };
+ 
+-/*
+- * Allocate and initialize request queue and default I/O scheduler.
+- */
+-static int dasd_alloc_queue(struct dasd_block *block)
+-{
+-	int rc;
+-
+-	block->tag_set.ops = &dasd_mq_ops;
+-	block->tag_set.cmd_size = sizeof(struct dasd_ccw_req);
+-	block->tag_set.nr_hw_queues = nr_hw_queues;
+-	block->tag_set.queue_depth = queue_depth;
+-	block->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
+-	block->tag_set.numa_node = NUMA_NO_NODE;
+-
+-	rc = blk_mq_alloc_tag_set(&block->tag_set);
+-	if (rc)
+-		return rc;
+-
+-	block->request_queue = blk_mq_init_queue(&block->tag_set);
+-	if (IS_ERR(block->request_queue))
+-		return PTR_ERR(block->request_queue);
+-
+-	block->request_queue->queuedata = block;
+-
+-	return 0;
+-}
+-
+-/*
+- * Deactivate and free request queue.
+- */
+-static void dasd_free_queue(struct dasd_block *block)
+-{
+-	if (block->request_queue) {
+-		blk_mq_destroy_queue(block->request_queue);
+-		blk_mq_free_tag_set(&block->tag_set);
+-		block->request_queue = NULL;
+-	}
+-}
+-
+ static int dasd_open(struct block_device *bdev, fmode_t mode)
+ {
+ 	struct dasd_device *base;
+@@ -3762,10 +3698,9 @@ int dasd_generic_path_operational(struct dasd_device *device)
+ 	dasd_schedule_device_bh(device);
+ 	if (device->block) {
+ 		dasd_schedule_block_bh(device->block);
+-		if (device->block->request_queue)
+-			blk_mq_run_hw_queues(device->block->request_queue,
+-					     true);
+-		}
++		if (device->block->gdp)
++			blk_mq_run_hw_queues(device->block->gdp->queue, true);
++	}
+ 
+ 	if (!device->stopped)
+ 		wake_up(&generic_waitq);
+@@ -3916,8 +3851,8 @@ void dasd_generic_space_avail(struct dasd_device *device)
+ 
+ 	if (device->block) {
+ 		dasd_schedule_block_bh(device->block);
+-		if (device->block->request_queue)
+-			blk_mq_run_hw_queues(device->block->request_queue, true);
++		if (device->block->gdp)
++			blk_mq_run_hw_queues(device->block->gdp->queue, true);
+ 	}
+ 	if (!device->stopped)
+ 		wake_up(&generic_waitq);
+diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
+index 2f7341412ea9..1beb596d1434 100644
+--- a/drivers/s390/block/dasd_devmap.c
++++ b/drivers/s390/block/dasd_devmap.c
+@@ -1578,7 +1578,6 @@ dasd_timeout_store(struct device *dev, struct device_attribute *attr,
+ 		   const char *buf, size_t count)
+ {
+ 	struct dasd_device *device;
+-	struct request_queue *q;
+ 	unsigned long val;
+ 
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+@@ -1590,15 +1589,13 @@ dasd_timeout_store(struct device *dev, struct device_attribute *attr,
+ 		dasd_put_device(device);
+ 		return -EINVAL;
+ 	}
+-	q = device->block->request_queue;
+-	if (!q) {
++	if (!device->block->gdp) {
+ 		dasd_put_device(device);
+ 		return -ENODEV;
+ 	}
+ 
+ 	device->blk_timeout = val;
+-
+-	blk_queue_rq_timeout(q, device->blk_timeout * HZ);
++	blk_queue_rq_timeout(device->block->gdp->queue, val * HZ);
+ 
+ 	dasd_put_device(device);
+ 	return count;
+diff --git a/drivers/s390/block/dasd_diag.c b/drivers/s390/block/dasd_diag.c
+index 94ee59864971..f956a4ac9881 100644
+--- a/drivers/s390/block/dasd_diag.c
++++ b/drivers/s390/block/dasd_diag.c
+@@ -627,7 +627,7 @@ dasd_diag_dump_sense(struct dasd_device *device, struct dasd_ccw_req * req,
+ static void dasd_diag_setup_blk_queue(struct dasd_block *block)
+ {
+ 	unsigned int logical_block_size = block->bp_block;
+-	struct request_queue *q = block->request_queue;
++	struct request_queue *q = block->gdp->queue;
+ 	int max;
+ 
+ 	max = DIAG_MAX_BLOCKS << block->s2b_shift;
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 95b0cd071cad..662730f3b027 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -6844,7 +6844,7 @@ static void dasd_eckd_handle_hpf_error(struct dasd_device *device,
+ static void dasd_eckd_setup_blk_queue(struct dasd_block *block)
+ {
+ 	unsigned int logical_block_size = block->bp_block;
+-	struct request_queue *q = block->request_queue;
++	struct request_queue *q = block->gdp->queue;
+ 	struct dasd_device *device = block->base;
+ 	int max;
+ 
+diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
+index 60be7f7bf2d1..cddfb01a3dca 100644
+--- a/drivers/s390/block/dasd_fba.c
++++ b/drivers/s390/block/dasd_fba.c
+@@ -767,7 +767,7 @@ dasd_fba_dump_sense(struct dasd_device *device, struct dasd_ccw_req * req,
+ static void dasd_fba_setup_blk_queue(struct dasd_block *block)
+ {
+ 	unsigned int logical_block_size = block->bp_block;
+-	struct request_queue *q = block->request_queue;
++	struct request_queue *q = block->gdp->queue;
+ 	unsigned int max_bytes, max_discard_sectors;
+ 	int max;
+ 
+diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
+index 5a83f0a39901..998a961e1704 100644
+--- a/drivers/s390/block/dasd_genhd.c
++++ b/drivers/s390/block/dasd_genhd.c
+@@ -25,7 +25,14 @@
+ 
+ #include "dasd_int.h"
+ 
+-static struct lock_class_key dasd_bio_compl_lkclass;
++static unsigned int queue_depth = 32;
++static unsigned int nr_hw_queues = 4;
++
++module_param(queue_depth, uint, 0444);
++MODULE_PARM_DESC(queue_depth, "Default queue depth for new DASD devices");
++
++module_param(nr_hw_queues, uint, 0444);
++MODULE_PARM_DESC(nr_hw_queues, "Default number of hardware queues for new DASD devices");
+ 
+ /*
+  * Allocate and register gendisk structure for device.
+@@ -41,10 +48,21 @@ int dasd_gendisk_alloc(struct dasd_block *block)
+ 	if (base->devindex >= DASD_PER_MAJOR)
+ 		return -EBUSY;
+ 
+-	gdp = blk_mq_alloc_disk_for_queue(block->request_queue,
+-					  &dasd_bio_compl_lkclass);
+-	if (!gdp)
+-		return -ENOMEM;
++	block->tag_set.ops = &dasd_mq_ops;
++	block->tag_set.cmd_size = sizeof(struct dasd_ccw_req);
++	block->tag_set.nr_hw_queues = nr_hw_queues;
++	block->tag_set.queue_depth = queue_depth;
++	block->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
++	block->tag_set.numa_node = NUMA_NO_NODE;
++	rc = blk_mq_alloc_tag_set(&block->tag_set);
++	if (rc)
++		return rc;
++
++	gdp = blk_mq_alloc_disk(&block->tag_set, block);
++	if (IS_ERR(gdp)) {
++		blk_mq_free_tag_set(&block->tag_set);
++		return PTR_ERR(gdp);
++	}
+ 
+ 	/* Initialize gendisk structure. */
+ 	gdp->major = DASD_MAJOR;
+@@ -100,6 +118,7 @@ void dasd_gendisk_free(struct dasd_block *block)
+ 		block->gdp->private_data = NULL;
+ 		put_disk(block->gdp);
+ 		block->gdp = NULL;
++		blk_mq_free_tag_set(&block->tag_set);
+ 	}
+ }
+ 
+diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+index c7223c4eba52..97adc8a7ae6b 100644
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -642,7 +642,6 @@ struct dasd_device {
+ struct dasd_block {
+ 	/* Block device stuff. */
+ 	struct gendisk *gdp;
+-	struct request_queue *request_queue;
+ 	spinlock_t request_queue_lock;
+ 	struct blk_mq_tag_set tag_set;
+ 	struct block_device *bdev;
+@@ -850,6 +849,7 @@ extern debug_info_t *dasd_debug_area;
+ extern struct dasd_profile dasd_global_profile;
+ extern unsigned int dasd_global_profile_level;
+ extern const struct block_device_operations dasd_device_operations;
++extern struct blk_mq_ops dasd_mq_ops;
+ 
+ extern struct kmem_cache *dasd_page_cache;
+ 
+-- 
+2.34.1
 
-> On the other hand with the dma-iommu.c conversion it no longer makes
-> sense to lower zdev->end_dma artificially, so at least on current
-> machine LPARs we would end up with just a lower reserved region
-> 0x0000000000000000 to 0x00000000ffffffff and can use IOVAs up to
-> aperture_end.
-
-So zdev->end_dma == MAX_DMA_TABLE_ADDR?
-
-(and is zdev->end_dma and 'end' or 'last' ?)
-
-Can you include this patch once you are happy with it, it nicely
-tidies this series?
-
-Thanks,
-Jason 
