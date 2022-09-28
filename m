@@ -2,125 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8860C32771
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 08:24:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E370BC32771
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 08:58:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231587AbiI1IYm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Sep 2022 04:24:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42562 "EHLO
+        id S233278AbiI1I6r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Sep 2022 04:58:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233507AbiI1IYk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 04:24:40 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289D526DE;
-        Wed, 28 Sep 2022 01:24:38 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28S81EL7018633;
-        Wed, 28 Sep 2022 08:24:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=mI+gFKOJAA7q2PrHJEp9qUHuwPBApdzVA7c154AlUmY=;
- b=Tp9CaJWAvUaBgtgg1bZDYx9VYszd5nzW7UTL4zDxLS8J2QNL/YacLWavhbS+hKe7gE5r
- qSMABX7TMHzD3QVPcn6IRiwVlP7/aoj3alEC4TYLKMACuy3kg+Dg84KkldY+TqC1omUN
- ZwYxtqMaWtbAR7p0qvyt7OH913SzQjqxzLnopdorfTzX4xXvpuQUPldJD84sf+8sxamr
- cManjfIhSLGFfh7jkpxJ6sy6Wo46OREjKzioFBN/L7mwa7+Bmec2hKfKBidcxUJ/8kcg
- mNW0nK4PL4wzAXKo6rkrmsCGm+GRlcfwqgKOc6INKbNnRYl7fLqMoDGHW++w4pYN9dIq jA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jvjd0rprt-1
+        with ESMTP id S233299AbiI1I6q (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 04:58:46 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 689A026AF9;
+        Wed, 28 Sep 2022 01:58:45 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28S811H4031360;
+        Wed, 28 Sep 2022 08:58:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=FsRgbWQXFcfgM8eZUdskc6+blLFC+RSC50HFPlyGQCI=;
+ b=PyJDtWr6n0YW3eGZr0tkN+oIV6fxMbKi+6Nzb1Kz3vWJgMCZcvS5uLQCdY8Hf0q0zdP7
+ NWwJAPV2bBbhpTFjr2IEEidqxFa6lWx6tSBD2kUudcdvWoUeUw8Ev2HLVEyIcFavKKXu
+ qdKK61X5m9lDEhp3cBRrbPgjvm9qfTCQVVntPIYqB1hgtMSupoLFeW1tSmIVIIXDyrJ/
+ yuhun3dTbQe7gaMK7GprtENLRlE+New7/Zj/X7+SXad6QWjXH6B00Tq+Bo8ka9dtiLiM
+ /pkxusSnnwDFTslUiVfbZvKSTYuJIV+3bDxGABpHuBVaglWL7oAzBVxRF6WgQ/f7N6C0 zQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jvg35wmre-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Sep 2022 08:24:36 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28S8F2b9016954;
-        Wed, 28 Sep 2022 08:24:35 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jvjd0rpr8-1
+        Wed, 28 Sep 2022 08:58:28 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28S8pXwX014398;
+        Wed, 28 Sep 2022 08:58:26 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3jss5j4ys9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Sep 2022 08:24:35 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28S8L0RE003738;
-        Wed, 28 Sep 2022 08:24:33 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3jssh93pwr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Sep 2022 08:24:33 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28S8Owpj52953404
+        Wed, 28 Sep 2022 08:58:26 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28S8wNqN39977534
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Sep 2022 08:24:58 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0E40911C052;
-        Wed, 28 Sep 2022 08:24:30 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ABD7B11C04A;
-        Wed, 28 Sep 2022 08:24:29 +0000 (GMT)
-Received: from [9.145.184.40] (unknown [9.145.184.40])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Sep 2022 08:24:29 +0000 (GMT)
-Message-ID: <cfcc8d22-8efd-8b0b-d24f-cb734f9ef927@linux.ibm.com>
-Date:   Wed, 28 Sep 2022 10:24:29 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.1
-Subject: Re: [PATCH 3/7] s390/qeth: Convert snprintf() to scnprintf()
-Content-Language: en-US
-To:     Joe Perches <joe@perches.com>, Jules Irenge <jbi.octave@gmail.com>,
-        borntraeger@linux.ibm.com
-Cc:     svens@linux.ibm.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        agordeev@linux.ibm.com
-References: <YzHyniCyf+G/2xI8@fedora>
- <5138b5a347b79a5f35b75d0babf5f41dbace879a.camel@perches.com>
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <5138b5a347b79a5f35b75d0babf5f41dbace879a.camel@perches.com>
-Content-Type: text/plain; charset=UTF-8
+        Wed, 28 Sep 2022 08:58:23 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 470E7AE051;
+        Wed, 28 Sep 2022 08:58:23 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75D68AE04D;
+        Wed, 28 Sep 2022 08:58:22 +0000 (GMT)
+Received: from sig-9-145-173-198.de.ibm.com (unknown [9.145.173.198])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 28 Sep 2022 08:58:22 +0000 (GMT)
+Message-ID: <a4005a4ae804f852656ff2a6f2f994958b0b02e3.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 1/3] iommu/s390: Fix duplicate domain attachments
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
+        robin.murphy@arm.com, linux-kernel@vger.kernel.org
+Date:   Wed, 28 Sep 2022 10:58:22 +0200
+In-Reply-To: <YzMrSIGMPSgJ94sG@nvidia.com>
+References: <20220922095239.2115309-1-schnelle@linux.ibm.com>
+         <20220922095239.2115309-2-schnelle@linux.ibm.com>
+         <YyxyMtKXyvgHt3Kp@nvidia.com>
+         <81463119aeadd55465cfac1f5bc6a8b79f0c9738.camel@linux.ibm.com>
+         <YzGtQY+uw4ZzZoSH@nvidia.com>
+         <1a10b5baedafb56335231ccbd585412bbb3a108c.camel@linux.ibm.com>
+         <YzMrSIGMPSgJ94sG@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: WJUU4QSdAVgwLmyEbefhVoMAyFdUVnZR
-X-Proofpoint-GUID: -rKPFWaD7l21EQy1DW8f_nJI7wJ6Tx7a
+X-Proofpoint-GUID: lx9oSVER93bUljVWUuAzuQXOiWrkDvvN
+X-Proofpoint-ORIG-GUID: lx9oSVER93bUljVWUuAzuQXOiWrkDvvN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-28_03,2022-09-27_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- suspectscore=0 mlxscore=0 clxscore=1011 impostorscore=0 malwarescore=0
- spamscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209280048
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
+ malwarescore=0 clxscore=1015 mlxlogscore=675 lowpriorityscore=0 mlxscore=0
+ impostorscore=0 priorityscore=1501 spamscore=0 adultscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2209280051
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 27.09.22 16:27, Joe Perches wrote:
-> On Mon, 2022-09-26 at 19:42 +0100, Jules Irenge wrote:
->> Coccinnelle reports a warning
->> Warning: Use scnprintf or sprintf
->> Adding to that, there has been a slow migration from snprintf to scnprintf.
->> This LWN article explains the rationale for this change
->> https: //lwn.net/Articles/69419/
->> Ie. snprintf() returns what *would* be the resulting length,
->> while scnprintf() returns the actual length.
-> []
->> diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
-> []
->> @@ -500,9 +500,9 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
->>  	struct qeth_card *card = dev_get_drvdata(dev);
->>  
->>  	if (card->info.hwtrap)
->> -		return snprintf(buf, 5, "arm\n");
->> +		return scnprintf(buf, 5, "arm\n");
->>  	else
->> -		return snprintf(buf, 8, "disarm\n");
->> +		return scnprintf(buf, 8, "disarm\n");
->>  }
+On Tue, 2022-09-27 at 13:56 -0300, Jason Gunthorpe wrote:
+> On Tue, Sep 27, 2022 at 06:33:48PM +0200, Niklas Schnelle wrote:
+>  
+> > Not sure what the non-MSI reservation is for? It does seem like x86_64
+> > also uses this for quite large ranges.
 > 
-> Use sysfs_emit instead.
+> There are lots of things that are unsuitable for DMA on x86 platforms,
+> unfortunately.. But yeah, I'm not sure either.
 > 
+> > This is because I'm getting a map request for an IOVA in the reserved
+> > region.
+> 
+> How come? iova_reserve_iommu_regions() reads the reserved regions and
+> loads them as reserved into the iovad which should cause
+> iommu_dma_alloc_iova() and alloc_iova_fast() to not return values in
+> those ranges.
+> 
+> It all looks like it is supposed to work
+> 
+> Did something go wrong in the initialization order perhaps?
+> 
+> Jason
 
-Thank you Joe, that sounds like the best way to handle this. 
-I propose that I take this onto my ToDo list and test it in the s390 environment.
-I will add 
-Reported-by: Jules Irenge <jbi.octave@gmail.com>
-Suggested-by: Joe Perches <joe@perches.com>
+It was of course a classic off-by-one, the table size is a number of
+entries but geometry.aperture_end seems to be the largest allowed IOVA.
+So we need:
+
+s390_domain->domain.geometry.force_aperture = true;
+s390_domain->domain.geometry.aperture_start = 0;
+s390_domain->domain.geometry.aperture_end = ZPCI_TABLE_SIZE_RT - 1;
+
+Otherwise the first IOVA allocated is ZPCI_TABLE_SIZE_RT itself.
+Similarly we need the second reserved region if (zdev->end_dma <
+ZPCI_TABLE_SIZE_RT - 1). In your patch I think you had the
+MAX_DMA_TABLE_ADDR name right but would have also calculated the number
+of entries.
+
+On the other hand with the dma-iommu.c conversion it no longer makes
+sense to lower zdev->end_dma artificially, so at least on current
+machine LPARs we would end up with just a lower reserved region
+0x0000000000000000 to 0x00000000ffffffff and can use IOVAs up to
+aperture_end.
 
