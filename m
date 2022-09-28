@@ -2,103 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78160C6FA8E
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 14:40:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59DC3C6FA8E
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 14:57:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233296AbiI1Oj7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Sep 2022 10:39:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45388 "EHLO
+        id S234152AbiI1O5A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Sep 2022 10:57:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229486AbiI1Oj5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 10:39:57 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2CA5F109;
-        Wed, 28 Sep 2022 07:39:55 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28SELmYF030115;
-        Wed, 28 Sep 2022 14:39:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=S4Sw5g476FKg253Iuh8/mKfXAsW++hfc74Ft3+hynOU=;
- b=cJlnzcG+JY4FrFIS0770xa/OUA5+Ip5tLXp4PqKvZ2oNKMmkAl3H4qwKSSu2sMS7qU1P
- N41rDG1bVhW25fu08eRUBq/me17OBmd567+p+2QmSCNlSZF460wUkWuvGOUOrUujUqnz
- n/RfJj9NNoNtGxdxEJ3fq0MNGzETHW9TALZ6ZbHKKiusO+p01k1S/NvDFBOLfJtR/WIL
- MYDgu/SDQlgcLBlPLTsVaS+3KsXAbbzz20WWg+IKSohbr0mRT2pjD8rMdrwmPUjintj1
- fx3ZNMsTWGNFw56XbHOY1gKasr2hp7DNzGz6DaxUxSEXb5gKh7OREIralhr0DM46dnG2 sg== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jvqxp0gwk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Sep 2022 14:39:52 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28SEaGvp032090;
-        Wed, 28 Sep 2022 14:39:49 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04fra.de.ibm.com with ESMTP id 3jssh941wr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Sep 2022 14:39:49 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28SEdkka2490932
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Sep 2022 14:39:46 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4BAD642042;
-        Wed, 28 Sep 2022 14:39:46 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 38DCF42041;
-        Wed, 28 Sep 2022 14:39:46 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed, 28 Sep 2022 14:39:46 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-        id F08BBE02B5; Wed, 28 Sep 2022 16:39:45 +0200 (CEST)
-From:   Stefan Haberland <sth@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S234476AbiI1O45 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 10:56:57 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF03187F82
+        for <linux-s390@vger.kernel.org>; Wed, 28 Sep 2022 07:56:54 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id f23so11974762plr.6
+        for <linux-s390@vger.kernel.org>; Wed, 28 Sep 2022 07:56:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date;
+        bh=Evbxzhf/pidjDLKsn2x4GwyfLG+kx9sCzYCgU3SIOzs=;
+        b=BM1130YISbPJoEOXY/XCelyXBLiqKFFgWlZ1zO9bWO4yWVB1jy5NiSl6zC8Zw0ZnOq
+         yMxwa7RbWXozsdZod//bJcczi+DGoI/EzIZR9FbULZO6zL7C58GSqcICXa3CPQR0vKPw
+         4CHlme+4OT/d9WAfN5O62gcyqDnYhpMeZVhfwDF/HF+WFbVZ2dYsxQicpeu17iolJmEV
+         670OH3TniBwAS+zuM27lg/z2oFkWxiQiQvSw+y+e5eZRmuvY53kiMxPbmAGlTMIjNMhJ
+         1CZ1YZtp2DloLEmy133y1rEWxV7rdG0iVflGez8uxfBkiHfwhpj0mN3tQCTzsK77Q42b
+         RnAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=Evbxzhf/pidjDLKsn2x4GwyfLG+kx9sCzYCgU3SIOzs=;
+        b=Gv876BIeSRQEtdqGwb7IRVeXsAy79Bcq5v9tRUXQnZl5cVHso/fPuGP4ogd83dzaYW
+         A9DZmR/7gl8Wy/q3NFLZ1CZXYwSVZpMmtx++NqAMHWrDQpmxNwe6RHiF9AGMkN3poIKh
+         DL3pI0mKmqLFI0VdFOIUYWuje1dhOKJ5bTHBUx4MBaO9LIvBfgQ9jzRzwK72G5heORSK
+         YPDmV93rhGWXvVVMW6sUQQZp3DOMiVou7vV0R5r/2OXIpkaNQZtwal2UByXDCE6rixro
+         hqoL70U47OzU66HL/8r3YEG9w60p06lJTxlR8Xva3VqQ9kSUU/2331MyTEG8+4RcBZGh
+         yi1w==
+X-Gm-Message-State: ACrzQf1bEoj8Qf5DtubgLgoOJdGaNoiA+jJPu5982Z/ARDCwQO1yyoi+
+        XWCHaABqxqB5mb6kaXYSogj6Hntu1xFLWQ==
+X-Google-Smtp-Source: AMsMyM6ocIj7PO1ySCSvMbUGBqoq5MSHPeCi/XmsKI1HBbCZRFlkoveHIhm/K4wkMWZA9bp4faDdcg==
+X-Received: by 2002:a17:90b:4b88:b0:202:e381:e643 with SMTP id lr8-20020a17090b4b8800b00202e381e643mr10825059pjb.148.1664377014372;
+        Wed, 28 Sep 2022 07:56:54 -0700 (PDT)
+Received: from [127.0.0.1] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id c13-20020a170902d48d00b001782751833bsm3863908plg.223.2022.09.28.07.56.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Sep 2022 07:56:53 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Stefan Haberland <sth@linux.ibm.com>
+Cc:     Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 0/1] s390/dasd: use blk_mq_alloc_disk
-Date:   Wed, 28 Sep 2022 16:39:44 +0200
-Message-Id: <20220928143945.1687114-1-sth@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20220928143945.1687114-1-sth@linux.ibm.com>
+References: <20220928143945.1687114-1-sth@linux.ibm.com>
+Subject: Re: [PATCH 0/1] s390/dasd: use blk_mq_alloc_disk
+Message-Id: <166437701324.16288.5697183698335314295.b4-ty@kernel.dk>
+Date:   Wed, 28 Sep 2022 08:56:53 -0600
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: rRlN1LCUqa8PtkVNOixxU1_VeJV7qSB5
-X-Proofpoint-GUID: rRlN1LCUqa8PtkVNOixxU1_VeJV7qSB5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-28_06,2022-09-28_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
- mlxlogscore=841 impostorscore=0 mlxscore=0 suspectscore=0 spamscore=0
- priorityscore=1501 phishscore=0 bulkscore=0 lowpriorityscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209280086
+X-Mailer: b4 0.11.0-dev-d9ed3
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Jens,
+On Wed, 28 Sep 2022 16:39:44 +0200, Stefan Haberland wrote:
+> please apply the following patch that improves the queue allocation.
+> Will you still take it for-next?
+> 
+> regards,
+> Stefan
+> 
+> Christoph Hellwig (1):
+>   s390/dasd: use blk_mq_alloc_disk
+> 
+> [...]
 
-please apply the following patch that improves the queue allocation.
-Will you still take it for-next?
+Applied, thanks!
 
-regards,
-Stefan
+[1/1] s390/dasd: use blk_mq_alloc_disk
+      commit: c68f4f4e296b6011032b4f88d0ce72eb72a6bb07
 
-Christoph Hellwig (1):
-  s390/dasd: use blk_mq_alloc_disk
-
- drivers/s390/block/dasd.c        | 83 ++++----------------------------
- drivers/s390/block/dasd_devmap.c |  7 +--
- drivers/s390/block/dasd_diag.c   |  2 +-
- drivers/s390/block/dasd_eckd.c   |  2 +-
- drivers/s390/block/dasd_fba.c    |  2 +-
- drivers/s390/block/dasd_genhd.c  | 29 +++++++++--
- drivers/s390/block/dasd_int.h    |  2 +-
- 7 files changed, 39 insertions(+), 88 deletions(-)
-
+Best regards,
 -- 
-2.34.1
+Jens Axboe
+
 
