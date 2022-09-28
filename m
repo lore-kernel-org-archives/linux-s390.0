@@ -2,80 +2,89 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8082CC54EE9
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 02:00:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37C48C6FA82
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 05:25:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232625AbiI1CAV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Sep 2022 22:00:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55102 "EHLO
+        id S232444AbiI1FZw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Sep 2022 01:25:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230357AbiI1CAU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 22:00:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB1A1616F2;
-        Tue, 27 Sep 2022 19:00:19 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2923661B30;
-        Wed, 28 Sep 2022 02:00:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 7EAB0C433D6;
-        Wed, 28 Sep 2022 02:00:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664330418;
-        bh=PSkT84+kLIOyET1QVrc8xAtKCtLxdBnnOFxQ+LAf9zo=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=m+SRhqt6l9/qk2xlfHKESN4o+fL1gq5HmysFZJSiHmUBPqSeCJKtPjnzarP42uF2J
-         cgJPqcGsopj98nk8d2dxuYoaCnhxIRbZMgXJXf1cAgXfjlV4icdVIaGs7K08CApe4N
-         GoEZu/nyqJVCJeEoyHeiDhjbZnGcgGJzyBu8Ny4oKVkFY8WVDpRHHVXnEkQwH/1J/T
-         8kTfgtISlLD9U08kSLIt+Mi2slAGcAU17X4QnjFRLyHn/COrdJv/ZHGBacKsKSqQ16
-         NBfUds5C9yXfmA2Vh0AMdCejyFbNfw8fUiSobxa1n4937sCExDII4lVz6WuUbiVVaD
-         xDGuad+F9exwQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5A3C4C04E59;
-        Wed, 28 Sep 2022 02:00:18 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232171AbiI1FZv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 01:25:51 -0400
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 559371CD6A0
+        for <linux-s390@vger.kernel.org>; Tue, 27 Sep 2022 22:25:49 -0700 (PDT)
+Received: by mail-lj1-x22d.google.com with SMTP id h3so13180121lja.1
+        for <linux-s390@vger.kernel.org>; Tue, 27 Sep 2022 22:25:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=IPCLwIQ+UERHPm9w4nQGFYrwmlLzJ4AJ3JlVNkOLjfk=;
+        b=owmaWL8J0DjnByEMa+cLbTORIRrq8yp3lKV8crjvgMM/NkKnWeQIxzmI5VTzceEs3i
+         S3i46YmZL6hhUlOZgye5isjPYmsTL9s7ZQbh4KxfmQHhPEMfq8R8W01RbLcG9+VJVBK9
+         8fBxKiJNmH3HTgTCP9QbaG5As7Xex+3GS9vMzEkw0RXkyxtNit3zG4NH6cmFKNhRPLcJ
+         1wpCfkC3/obFIyVNyGRuEV+B6a4cqc/MfTeighQRcl1evlTq2RPNa22Fpm7esVybK8t9
+         XiN03BRQL3c+PNAEazrBabL0xPu6A+N1Pr1UnZe63PhoxCuf5jkappeLkxgBidmJu+mi
+         rgAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=IPCLwIQ+UERHPm9w4nQGFYrwmlLzJ4AJ3JlVNkOLjfk=;
+        b=i98kAu8G8B8xA9NWnZQFPMRwBW2WU/eYrpryYxal+Pski9AkWllGYgO1HxYEv484nK
+         aeVSIRYy+27MpHWMn+NbGavmxus4eoILwssSFaUGb4B3ZTEZl7dBe4FkbVk1ZI5dZSqc
+         B4DM+7FWt/q2OWHrWo0cYhwlEALa+6yZDBLcLAqCt5XS73cSyeCzqrJp3mpxQ0Wlc0Uy
+         nzHHELx/GijbXag72ntWrjxBwuHqgUF3th5xHvEoXKou2uUeFEffKianax5AHLi2RBA5
+         cSf6chjaiaHecE67P9eELsuJjF8GS4VgbS64lLKRAX6IPKWTEbK7GiH7Nb+fBFir1Uac
+         hg7Q==
+X-Gm-Message-State: ACrzQf0VyGZo+87y8oBnaZxgqCwLjlHSMQ31nSMvP9BmNjJ9cdgER6Z0
+        G7a21KtsIS1K9TIIQR+F3LxWx+rua0OQULDUEq6J5A==
+X-Google-Smtp-Source: AMsMyM7wMhHzCDPMFbCTrNC4bpJlQfmpId5OarS9R/571Zfneoaf+BQ5BEj/3dPyNZFm2pWs5O4V9tiCRmerzE31Li4=
+X-Received: by 2002:a2e:3909:0:b0:26c:2ea4:1a79 with SMTP id
+ g9-20020a2e3909000000b0026c2ea41a79mr10902755lja.401.1664342747490; Tue, 27
+ Sep 2022 22:25:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH] s390/qeth: Split memcpy() of struct qeth_ipacmd_addr_change
- flexible array
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <166433041836.32421.4705173383339135260.git-patchwork-notify@kernel.org>
-Date:   Wed, 28 Sep 2022 02:00:18 +0000
-References: <20220927003953.1942442-1-keescook@chromium.org>
-In-Reply-To: <20220927003953.1942442-1-keescook@chromium.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+References: <20220830193701.1702962-1-maskray@google.com> <20220910075316.no72fdyqjvunomwm@google.com>
+In-Reply-To: <20220910075316.no72fdyqjvunomwm@google.com>
+From:   Fangrui Song <maskray@google.com>
+Date:   Tue, 27 Sep 2022 22:25:35 -0700
+Message-ID: <CAFP8O3+OwanSJdzd5V3oGJ_MOJOSVdbn+4iBJJKm2LCR8mCA0Q@mail.gmail.com>
+Subject: Re: [PATCH] vdso: Improve cmd_vdso_check to check all dynamic relocations
+To:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+On Sat, Sep 10, 2022 at 12:53 AM Fangrui Song <maskray@google.com> wrote:
+>
+> On 2022-08-30, Fangrui Song wrote:
+> >The actual intention is that no dynamic relocation exists. However, some
+> >GNU ld ports produce unneeded R_*_NONE. (If a port is not care enough to
+> >determine the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
+> >relocations. E.g. powerpc64le ld as of 2.38 has the issue with
+> >defconfig.) R_*_NONE are generally no-op in the dynamic loaders. So just
+> >ignore them.
+> >
+> >With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
+> >bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
+> >not called "absolute relocations". (The patch is motivated by the arm64
+> >port missing R_AARCH64_RELATIVE.)
+> >
+> >While here, replace "egrep" with "grep" as "egrep" is deprecated in GNU
+> >grep 3.7.
+> >
+> >Signed-off-by: Fangrui Song <maskray@google.com>
+> >---
+> >[...]
+> >
+>
+> Ping.
 
-This patch was applied to netdev/net-next.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Mon, 26 Sep 2022 17:39:53 -0700 you wrote:
-> To work around a misbehavior of the compiler's ability to see into
-> composite flexible array structs (as detailed in the coming memcpy()
-> hardening series[1]), split the memcpy() of the header and the payload
-> so no false positive run-time overflow warning will be generated.
-> 
-> [1] https://lore.kernel.org/linux-hardening/20220901065914.1417829-2-keescook@chromium.org/
-> 
-> [...]
-
-Here is the summary with links:
-  - s390/qeth: Split memcpy() of struct qeth_ipacmd_addr_change flexible array
-    https://git.kernel.org/netdev/net-next/c/8f1e1658d365
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Ping^2 :)
