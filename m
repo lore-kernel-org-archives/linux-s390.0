@@ -2,89 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37C48C6FA82
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 05:25:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8860C32771
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 08:24:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232444AbiI1FZw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Sep 2022 01:25:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34554 "EHLO
+        id S231587AbiI1IYm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Sep 2022 04:24:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232171AbiI1FZv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 01:25:51 -0400
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 559371CD6A0
-        for <linux-s390@vger.kernel.org>; Tue, 27 Sep 2022 22:25:49 -0700 (PDT)
-Received: by mail-lj1-x22d.google.com with SMTP id h3so13180121lja.1
-        for <linux-s390@vger.kernel.org>; Tue, 27 Sep 2022 22:25:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=IPCLwIQ+UERHPm9w4nQGFYrwmlLzJ4AJ3JlVNkOLjfk=;
-        b=owmaWL8J0DjnByEMa+cLbTORIRrq8yp3lKV8crjvgMM/NkKnWeQIxzmI5VTzceEs3i
-         S3i46YmZL6hhUlOZgye5isjPYmsTL9s7ZQbh4KxfmQHhPEMfq8R8W01RbLcG9+VJVBK9
-         8fBxKiJNmH3HTgTCP9QbaG5As7Xex+3GS9vMzEkw0RXkyxtNit3zG4NH6cmFKNhRPLcJ
-         1wpCfkC3/obFIyVNyGRuEV+B6a4cqc/MfTeighQRcl1evlTq2RPNa22Fpm7esVybK8t9
-         XiN03BRQL3c+PNAEazrBabL0xPu6A+N1Pr1UnZe63PhoxCuf5jkappeLkxgBidmJu+mi
-         rgAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=IPCLwIQ+UERHPm9w4nQGFYrwmlLzJ4AJ3JlVNkOLjfk=;
-        b=i98kAu8G8B8xA9NWnZQFPMRwBW2WU/eYrpryYxal+Pski9AkWllGYgO1HxYEv484nK
-         aeVSIRYy+27MpHWMn+NbGavmxus4eoILwssSFaUGb4B3ZTEZl7dBe4FkbVk1ZI5dZSqc
-         B4DM+7FWt/q2OWHrWo0cYhwlEALa+6yZDBLcLAqCt5XS73cSyeCzqrJp3mpxQ0Wlc0Uy
-         nzHHELx/GijbXag72ntWrjxBwuHqgUF3th5xHvEoXKou2uUeFEffKianax5AHLi2RBA5
-         cSf6chjaiaHecE67P9eELsuJjF8GS4VgbS64lLKRAX6IPKWTEbK7GiH7Nb+fBFir1Uac
-         hg7Q==
-X-Gm-Message-State: ACrzQf0VyGZo+87y8oBnaZxgqCwLjlHSMQ31nSMvP9BmNjJ9cdgER6Z0
-        G7a21KtsIS1K9TIIQR+F3LxWx+rua0OQULDUEq6J5A==
-X-Google-Smtp-Source: AMsMyM7wMhHzCDPMFbCTrNC4bpJlQfmpId5OarS9R/571Zfneoaf+BQ5BEj/3dPyNZFm2pWs5O4V9tiCRmerzE31Li4=
-X-Received: by 2002:a2e:3909:0:b0:26c:2ea4:1a79 with SMTP id
- g9-20020a2e3909000000b0026c2ea41a79mr10902755lja.401.1664342747490; Tue, 27
- Sep 2022 22:25:47 -0700 (PDT)
+        with ESMTP id S233507AbiI1IYk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 04:24:40 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289D526DE;
+        Wed, 28 Sep 2022 01:24:38 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28S81EL7018633;
+        Wed, 28 Sep 2022 08:24:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=mI+gFKOJAA7q2PrHJEp9qUHuwPBApdzVA7c154AlUmY=;
+ b=Tp9CaJWAvUaBgtgg1bZDYx9VYszd5nzW7UTL4zDxLS8J2QNL/YacLWavhbS+hKe7gE5r
+ qSMABX7TMHzD3QVPcn6IRiwVlP7/aoj3alEC4TYLKMACuy3kg+Dg84KkldY+TqC1omUN
+ ZwYxtqMaWtbAR7p0qvyt7OH913SzQjqxzLnopdorfTzX4xXvpuQUPldJD84sf+8sxamr
+ cManjfIhSLGFfh7jkpxJ6sy6Wo46OREjKzioFBN/L7mwa7+Bmec2hKfKBidcxUJ/8kcg
+ mNW0nK4PL4wzAXKo6rkrmsCGm+GRlcfwqgKOc6INKbNnRYl7fLqMoDGHW++w4pYN9dIq jA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jvjd0rprt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Sep 2022 08:24:36 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28S8F2b9016954;
+        Wed, 28 Sep 2022 08:24:35 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jvjd0rpr8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Sep 2022 08:24:35 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28S8L0RE003738;
+        Wed, 28 Sep 2022 08:24:33 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3jssh93pwr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Sep 2022 08:24:33 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28S8Owpj52953404
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 28 Sep 2022 08:24:58 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0E40911C052;
+        Wed, 28 Sep 2022 08:24:30 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ABD7B11C04A;
+        Wed, 28 Sep 2022 08:24:29 +0000 (GMT)
+Received: from [9.145.184.40] (unknown [9.145.184.40])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 28 Sep 2022 08:24:29 +0000 (GMT)
+Message-ID: <cfcc8d22-8efd-8b0b-d24f-cb734f9ef927@linux.ibm.com>
+Date:   Wed, 28 Sep 2022 10:24:29 +0200
 MIME-Version: 1.0
-References: <20220830193701.1702962-1-maskray@google.com> <20220910075316.no72fdyqjvunomwm@google.com>
-In-Reply-To: <20220910075316.no72fdyqjvunomwm@google.com>
-From:   Fangrui Song <maskray@google.com>
-Date:   Tue, 27 Sep 2022 22:25:35 -0700
-Message-ID: <CAFP8O3+OwanSJdzd5V3oGJ_MOJOSVdbn+4iBJJKm2LCR8mCA0Q@mail.gmail.com>
-Subject: Re: [PATCH] vdso: Improve cmd_vdso_check to check all dynamic relocations
-To:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.13.1
+Subject: Re: [PATCH 3/7] s390/qeth: Convert snprintf() to scnprintf()
+Content-Language: en-US
+To:     Joe Perches <joe@perches.com>, Jules Irenge <jbi.octave@gmail.com>,
+        borntraeger@linux.ibm.com
+Cc:     svens@linux.ibm.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        agordeev@linux.ibm.com
+References: <YzHyniCyf+G/2xI8@fedora>
+ <5138b5a347b79a5f35b75d0babf5f41dbace879a.camel@perches.com>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <5138b5a347b79a5f35b75d0babf5f41dbace879a.camel@perches.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WJUU4QSdAVgwLmyEbefhVoMAyFdUVnZR
+X-Proofpoint-GUID: -rKPFWaD7l21EQy1DW8f_nJI7wJ6Tx7a
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-28_03,2022-09-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ suspectscore=0 mlxscore=0 clxscore=1011 impostorscore=0 malwarescore=0
+ spamscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209280048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Sep 10, 2022 at 12:53 AM Fangrui Song <maskray@google.com> wrote:
->
-> On 2022-08-30, Fangrui Song wrote:
-> >The actual intention is that no dynamic relocation exists. However, some
-> >GNU ld ports produce unneeded R_*_NONE. (If a port is not care enough to
-> >determine the exact .rel[a].dyn size, the trailing zeros become R_*_NONE
-> >relocations. E.g. powerpc64le ld as of 2.38 has the issue with
-> >defconfig.) R_*_NONE are generally no-op in the dynamic loaders. So just
-> >ignore them.
-> >
-> >With the change, we can remove ARCH_REL_TYPE_ABS. ARCH_REL_TYPE_ABS is a
-> >bit misnomer as ports may check RELAVETIVE/GLOB_DAT/JUMP_SLOT which are
-> >not called "absolute relocations". (The patch is motivated by the arm64
-> >port missing R_AARCH64_RELATIVE.)
-> >
-> >While here, replace "egrep" with "grep" as "egrep" is deprecated in GNU
-> >grep 3.7.
-> >
-> >Signed-off-by: Fangrui Song <maskray@google.com>
-> >---
-> >[...]
-> >
->
-> Ping.
 
-Ping^2 :)
+
+On 27.09.22 16:27, Joe Perches wrote:
+> On Mon, 2022-09-26 at 19:42 +0100, Jules Irenge wrote:
+>> Coccinnelle reports a warning
+>> Warning: Use scnprintf or sprintf
+>> Adding to that, there has been a slow migration from snprintf to scnprintf.
+>> This LWN article explains the rationale for this change
+>> https: //lwn.net/Articles/69419/
+>> Ie. snprintf() returns what *would* be the resulting length,
+>> while scnprintf() returns the actual length.
+> []
+>> diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+> []
+>> @@ -500,9 +500,9 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
+>>  	struct qeth_card *card = dev_get_drvdata(dev);
+>>  
+>>  	if (card->info.hwtrap)
+>> -		return snprintf(buf, 5, "arm\n");
+>> +		return scnprintf(buf, 5, "arm\n");
+>>  	else
+>> -		return snprintf(buf, 8, "disarm\n");
+>> +		return scnprintf(buf, 8, "disarm\n");
+>>  }
+> 
+> Use sysfs_emit instead.
+> 
+
+Thank you Joe, that sounds like the best way to handle this. 
+I propose that I take this onto my ToDo list and test it in the s390 environment.
+I will add 
+Reported-by: Jules Irenge <jbi.octave@gmail.com>
+Suggested-by: Joe Perches <joe@perches.com>
+
