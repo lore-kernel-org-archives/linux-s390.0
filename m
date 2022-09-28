@@ -2,165 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27C38C54EE9
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Sep 2022 21:54:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91BA6C6FA83
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 00:24:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230055AbiI0Vyo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Sep 2022 17:54:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51636 "EHLO
+        id S232454AbiI1AYx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Sep 2022 20:24:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232053AbiI0Vym (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 17:54:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF3748E94
-        for <linux-s390@vger.kernel.org>; Tue, 27 Sep 2022 14:54:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1664315680;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rZzJ0d2P7ikWA32yAcih+LzhGSM0xnRgmRpdOhVozRU=;
-        b=IhLfOC7hV6Ar9TTMbvnX9QKSEJq7pGxxh18Y4QHRCqVjqzF9fmV3b5YVPx9Z7Vd1d/iEqe
-        uQUxBH7eBXGrsUJbfkEI0556CrWl7P92AS4Li25m413Ayqi4y0vQb7DAnWt6Ivs0Rmug+1
-        /enWg1gjjpPncCVhKRzbMO7AwlZtjZ4=
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
- [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-356-ZAhW0oPOOm-KHcF8V4g05A-1; Tue, 27 Sep 2022 17:54:31 -0400
-X-MC-Unique: ZAhW0oPOOm-KHcF8V4g05A-1
-Received: by mail-io1-f71.google.com with SMTP id e14-20020a6b500e000000b006a13488a320so6589160iob.12
-        for <linux-s390@vger.kernel.org>; Tue, 27 Sep 2022 14:54:31 -0700 (PDT)
+        with ESMTP id S232817AbiI1AYf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 20:24:35 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 461911138EB;
+        Tue, 27 Sep 2022 17:24:04 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id rk17so10740732ejb.1;
+        Tue, 27 Sep 2022 17:24:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=yrRvoMA2qzsQLaNGkBWV3qKU0u6GXYvGhupTkuY6VEY=;
+        b=N4SqAspV6MMkhBYCFIyWw1zoLE0Rd7s2OcFI1DceVn/pHLgQQpIGuPVe/Y5xz2rq7u
+         4AwEph2NeuV3pICsTTUzwRekddH0yOeND7JGqULNGiEUieyWRG6v6tDzpLe64Ks46WYl
+         +E7aPSySmJM5rrRbU/QTtIuWWnrypBa5Nee0vTcASR26Pbtt3a1rnWEXJiAhZ0LuaF3z
+         G0Kpy5TJl/IDsRofANqT6QeQSyO+rxKfvYX1lEVX/uIl1opJ/g6T4wX2v3xFu9sWUBhf
+         nxjbUpm/gkJf8RF8BM1xVL9NUSyaLL/yweBBM9Jtss7d1JdDL1D0xSUAW2CB9lb+daDC
+         gCuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=rZzJ0d2P7ikWA32yAcih+LzhGSM0xnRgmRpdOhVozRU=;
-        b=fNDaPiUXTDfj43Y2rbxA0aTUGPfmQs3m9nlvgg/nytEVjnZR7eJHZr9lHMOcek64YA
-         BGqQLc3oKEe82e0S38j/HpLCELBEWPqm4ILZ2m+KP8SQQxaCzWPGvrG9d5prY9Sh6w/b
-         AF/Beh3ud9xRmBW51MHo2Rs2sFMHm0BK0r/kZH4Gfr4j8w1LNx9hKsgJq2ogN8nPBeIg
-         R64wAHKDlaAxPUYWg2fyMITSs9REbvVJUJTYsafZxXWGOzPIR4mulhoyz7XNhEc3Gxy6
-         hro27ijw536p1g6gQ1vUWdH94QHqo0l+q0yyey+OEgot82XvaCB6MLIwZY3eJ536/nFu
-         bcmw==
-X-Gm-Message-State: ACrzQf2AhX+sRDD8+onFWtdVsZ/Oe2Qi/xnb+XziZXcqUYrnzxoL23zh
-        18BZLHq2UxZOzOaeoxjPPhSYEF86TKl/lvq4OeRAYZgq79bjWs9AdKIgXi8rushI4Isk+VgqyHi
-        L/KtCmNskyPLaDhrk6TpIEw==
-X-Received: by 2002:a05:6e02:12c6:b0:2f6:5f42:89ed with SMTP id i6-20020a056e0212c600b002f65f4289edmr13738517ilm.153.1664315669416;
-        Tue, 27 Sep 2022 14:54:29 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM58fQvCqD5ZPjUzJ6YttmTNX+eReUM5WIfUb7VKW6HusYb6PDM+YxmVl6VkO0au8ckJVis+Bg==
-X-Received: by 2002:a05:6e02:12c6:b0:2f6:5f42:89ed with SMTP id i6-20020a056e0212c600b002f65f4289edmr13738509ilm.153.1664315669186;
-        Tue, 27 Sep 2022 14:54:29 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id a12-20020a02940c000000b0035a872cdad8sm351146jai.157.2022.09.27.14.54.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Sep 2022 14:54:28 -0700 (PDT)
-Date:   Tue, 27 Sep 2022 15:54:26 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org
-Subject: Re: simplify the mdev interface v8
-Message-ID: <20220927155426.23f4b8e9.alex.williamson@redhat.com>
-In-Reply-To: <20220927140737.0b4c9a54.alex.williamson@redhat.com>
-References: <20220923092652.100656-1-hch@lst.de>
-        <20220927140737.0b4c9a54.alex.williamson@redhat.com>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=yrRvoMA2qzsQLaNGkBWV3qKU0u6GXYvGhupTkuY6VEY=;
+        b=j0VYDRs5klCIdfjk4CA9knBeIGVZqAtIdfICpLMQqP27BrwyAW5SGw/vh/uN3U/4ln
+         Dv64rBpQ/TRjU0hI38+OVJm8ILu5ALNqyw8msGbnoWAV1qeYPon3n8woM1N+EP+L3hcU
+         0nPTtLaw7+/DtWkQtQrN+BjUNOlC61YyAN5Xz42BD3OXxCeiuOQBNsZT2GdfjiDJ010A
+         Y4e+91GkAGyuQBszYDJnU1SaGtl0Zqt5+KXcHx751q6Z0HvK+D+peCGaqFjCKEXD8Lfu
+         8eWt0ZrXG/1KiY9A9Rpse28+b6Ws3SUNNOgJIlZaKCOnMVdONvlQ03uRbjSlX1onCKqz
+         m8pw==
+X-Gm-Message-State: ACrzQf0Gxq6q7ET/Zi31BKEHCz2cMfP3p4e4OqAbwkURdOAxqfjcylnX
+        TbIf0H3cwqkmZ0q4/7WDFhTDCxPHRxLEkJ/7+ffqRfDt1nc=
+X-Google-Smtp-Source: AMsMyM7eMgPelqF9CjnEbxsTqqXy6pmBZpLW9pueVjK2kG6gmJQBXY3G4jO1eBrNDVmQMCspWLB2ar5LjeuRSz4OCpA=
+X-Received: by 2002:a17:907:7eaa:b0:782:3d2b:20b0 with SMTP id
+ qb42-20020a1709077eaa00b007823d2b20b0mr25078507ejc.746.1664324641882; Tue, 27
+ Sep 2022 17:24:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20220921084302.43631-1-yangyicong@huawei.com> <20220921084302.43631-3-yangyicong@huawei.com>
+ <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com> <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
+In-Reply-To: <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
+From:   Barry Song <21cnbao@gmail.com>
+Date:   Wed, 28 Sep 2022 13:23:50 +1300
+Message-ID: <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
+Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+To:     Yicong Yang <yangyicong@huawei.com>
+Cc:     Anshuman Khandual <anshuman.khandual@arm.com>,
+        yangyicong@hisilicon.com, corbet@lwn.net, peterz@infradead.org,
+        arnd@arndb.de, linux-kernel@vger.kernel.org,
+        darren@os.amperecomputing.com, huzhanyuan@oppo.com,
+        lipeifeng@oppo.com, zhangshiming@oppo.com, guojian@oppo.com,
+        realmz6@gmail.com, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-mm@kvack.org, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
+        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
+        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>,
+        catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 27 Sep 2022 14:07:37 -0600
-Alex Williamson <alex.williamson@redhat.com> wrote:
+On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
+>
+> On 2022/9/27 14:16, Anshuman Khandual wrote:
+> > [...]
+> >
+> > On 9/21/22 14:13, Yicong Yang wrote:
+> >> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> >> +{
+> >> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
+> >> +    if (num_online_cpus() <= 4)
+> >
+> > It would be great to have some more inputs from others, whether 4 (which should
+> > to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
+> > is optimal for an wide range of arm64 platforms.
+> >
 
-> On Fri, 23 Sep 2022 11:26:38 +0200
-> Christoph Hellwig <hch@lst.de> wrote:
-> 
-> > Hi all,
-> > 
-> > this series significantly simplifies the mdev driver interface by
-> > following the patterns for device model interaction used elsewhere in
-> > the kernel.
-> > 
-> > Changes since v7:
-> >  - rebased to the latests vfio/next branch
-> >  - move the mdev.h include from cio.h to vfio_ccw_private.h
-> >  - don't free the parent in mdev_type_release
-> >  - set the pretty_name for vfio_ap
-> >  - fix the available_instances check in mdev_device_create  
-> 
-> Thanks for your persistence, I think all threads are resolved at this
-> point.  Applied to vfio next branch for v6.1.  Thanks,
+I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
+with 5,6,7
+cores.
+I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
+this patch.
 
-Oops, I had to drop this, I get a null pointer from gvt-g code:
+so it seems safe to have
+if (num_online_cpus()  < 8)
 
-[   92.132636] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[   92.139597] #PF: supervisor read access in kernel mode
-[   92.144734] #PF: error_code(0x0000) - not-present page
-[   92.149865] PGD 0 P4D 0 
-[   92.152405] Oops: 0000 [#2] PREEMPT SMP PTI
-[   92.156592] CPU: 2 PID: 950 Comm: mdevctl Tainted: G      D W          6.0.0-rc4+ #1
-[   92.164330] Hardware name:  /NUC5i5MYBE, BIOS MYBDWi5v.86A.0054.2019.0520.1531 05/20/2019
-[   92.172495] RIP: 0010:intel_vgpu_get_available+0x7e/0xb0 [kvmgt]
-[   92.178518] Code: 00 45 2b a5 a0 00 00 00 89 d1 41 2b 8d 90 00 00 00 29 d3 41 83 ec 04 8d a9 00 00 00 f8 e8 fa f3 43 e1 49 8b 4e 70 89 e8 31 d2 <f7> 31 31 d2 89 c5 44 89 e0 f7 71 08 39 c5 0f 47 e8 89 d8 31 d2 5b
-[   92.197264] RSP: 0018:ffffaf57818ffd80 EFLAGS: 00010246
-[   92.202490] RAX: 0000000038000000 RBX: 00000000a8000000 RCX: 0000000000000000
-[   92.209622] RDX: 0000000000000000 RSI: ffffffffc0454160 RDI: ffff9b389aaa8000
-[   92.216747] RBP: 0000000038000000 R08: ffff9b3881826f08 R09: ffff9b38969aeb40
-[   92.223879] R10: 0000000000000000 R11: 0000000000000000 R12: 000000000000001c
-[   92.231004] R13: ffff9b389aaa8000 R14: ffff9b3881826ef0 R15: 0000000000000001
-[   92.238136] FS:  00007f2f76f12800(0000) GS:ffff9b3bf6d00000(0000) knlGS:0000000000000000
-[   92.246222] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   92.251968] CR2: 0000000000000000 CR3: 000000011686e002 CR4: 00000000003706e0
-[   92.259101] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   92.266234] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   92.273366] Call Trace:
-[   92.275811]  <TASK>
-[   92.277919]  available_instances_show+0x1f/0x60 [mdev]
-[   92.283055]  sysfs_kf_seq_show+0xa3/0xe0
-[   92.286983]  seq_read_iter+0x122/0x450
-[   92.290735]  vfs_read+0x1d2/0x2a0
-[   92.294056]  ksys_read+0x53/0xd0
-[   92.297286]  do_syscall_64+0x5b/0x80
-[   92.300866]  ? syscall_exit_to_user_mode+0x17/0x40
-[   92.305659]  ? do_syscall_64+0x67/0x80
-[   92.309412]  ? exc_page_fault+0x70/0x170
-[   92.313337]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[   92.318388] RIP: 0033:0x7f2f76d01852
-[   92.321977] Code: c0 e9 b2 fe ff ff 50 48 8d 3d 9a d0 0b 00 e8 55 f6 01 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
-[   92.340725] RSP: 002b:00007fff85c74b58 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
-[   92.348290] RAX: ffffffffffffffda RBX: 0000000000001000 RCX: 00007f2f76d01852
-[   92.355422] RDX: 0000000000001000 RSI: 0000562f18d61120 RDI: 0000000000000005
-[   92.362555] RBP: 0000000000001000 R08: 00007f2f76df8eb0 R09: 00007f2f76df8eb0
-[   92.369689] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fff85c74c58
-[   92.376820] R13: 0000000000000000 R14: 00007fff85c74c70 R15: 0000000000000005
-[   92.383946]  </TASK>
-[   92.386137] Modules linked in: nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables rfkill nfnetlink qrtr sunrpc vfat fat snd_hda_codec_realtek snd_hda_codec_generic snd_hda_codec_hdmi ledtrig_audio snd_hda_intel snd_intel_dspcfg snd_intel_sdw_acpi snd_hda_codec snd_hda_core snd_hwdep mei_pxp intel_rapl_msr intel_rapl_common snd_pcm x86_pkg_temp_thermal intel_powerclamp coretemp mei_wdt mei_hdcp kvm_intel mei_me rapl mei intel_cstate snd_timer snd at24 intel_uncore soundcore iTCO_wdt intel_pmc_bxt iTCO_vendor_support lpc_ich pcspkr i2c_i801 i2c_smbus acpi_pad fuse zram kvmgt vfio_iommu_type1 vfio kvm irqbypass i915 mdev drm_buddy crct10dif_pclmul crc32_pclmul drm_display_helper crc32c_intel cec e1000e ghash_clmulni_intel ttm video pinctrl_lynxpoint
-[   92.386194] Unloaded tainted modules: acpi_cpufreq():1 acpi_cpufreq():1 acpi_cpufreq():1 acpi_cpufreq():1 fjes():1 fjes():1 fjes():1 fjes():1 fjes():1 pcc_cpufreq():1 pcc_cpufreq():1 pcc_cpufreq():1 pcc_cpufreq():1 acpi_cpufreq():1 pcc_cpufreq():1 acpi_cpufreq():1 pcc_cpufreq():1 acpi_cpufreq():1 acpi_cpufreq():1 pcc_cpufreq():1 pcc_cpufreq():1 acpi_cpufreq():1 acpi_cpufreq():1 acpi_cpufreq():1 acpi_cpufreq():1 fjes():1 fjes():1 fjes():1 fjes():1 fjes():1
-[   92.504665] CR2: 0000000000000000
-[   92.507982] ---[ end trace 0000000000000000 ]---
-[   92.512603] RIP: 0010:intel_vgpu_get_available+0x7e/0xb0 [kvmgt]
-[   92.518626] Code: 00 45 2b a5 a0 00 00 00 89 d1 41 2b 8d 90 00 00 00 29 d3 41 83 ec 04 8d a9 00 00 00 f8 e8 fa f3 43 e1 49 8b 4e 70 89 e8 31 d2 <f7> 31 31 d2 89 c5 44 89 e0 f7 71 08 39 c5 0f 47 e8 89 d8 31 d2 5b
-[   92.537370] RSP: 0018:ffffaf5780557d20 EFLAGS: 00010246
-[   92.542598] RAX: 0000000038000000 RBX: 00000000a8000000 RCX: 0000000000000000
-[   92.549729] RDX: 0000000000000000 RSI: ffffffffc0454160 RDI: ffff9b389aaa8000
-[   92.556861] RBP: 0000000038000000 R08: ffff9b3881826e90 R09: ffff9b3897860240
-[   92.563987] R10: 0000000000000000 R11: 0000000000000001 R12: 000000000000001c
-[   92.571119] R13: ffff9b389aaa8000 R14: ffff9b3881826e78 R15: 0000000000000001
-[   92.578251] FS:  00007f2f76f12800(0000) GS:ffff9b3bf6d00000(0000) knlGS:0000000000000000
-[   92.586336] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   92.592074] CR2: 0000000000000000 CR3: 000000011686e002 CR4: 00000000003706e0
-[   92.599199] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   92.606333] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>
+> Do you prefer this macro to be static or make it configurable through kconfig then
+> different platforms can make choice based on their own situations? It maybe hard to
+> test on all the arm64 platforms.
 
+Maybe we can have this default enabled on machines with 8 and more cpus and
+provide a tlbflush_batched = on or off to allow users enable or
+disable it according
+to their hardware and products. Similar example: rodata=on or off.
+
+Hi Anshuman, Will,  Catalin, Andrew,
+what do you think about this approach?
+
+BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
+https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+
+I do believe we need it based on the expensive cost of tlb shootdown in arm64
+even by hardware broadcast.
+
+>
+> Thanks.
+>
+> >> +            return false;> +
+> >> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
+> >> +    if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
+> >> +            return false;
+> >> +#endif
+> >> +
+> >> +    return true;
+> >> +}
+> >> +
+> >
+> > [...]
+> >
+> > .
+> >
+
+Thanks
+Barry
