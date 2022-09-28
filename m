@@ -2,138 +2,80 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91BA6C6FA83
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 00:24:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8082CC54EE9
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 02:00:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232454AbiI1AYx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Sep 2022 20:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42058 "EHLO
+        id S232625AbiI1CAV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Sep 2022 22:00:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232817AbiI1AYf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 20:24:35 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 461911138EB;
-        Tue, 27 Sep 2022 17:24:04 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id rk17so10740732ejb.1;
-        Tue, 27 Sep 2022 17:24:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=yrRvoMA2qzsQLaNGkBWV3qKU0u6GXYvGhupTkuY6VEY=;
-        b=N4SqAspV6MMkhBYCFIyWw1zoLE0Rd7s2OcFI1DceVn/pHLgQQpIGuPVe/Y5xz2rq7u
-         4AwEph2NeuV3pICsTTUzwRekddH0yOeND7JGqULNGiEUieyWRG6v6tDzpLe64Ks46WYl
-         +E7aPSySmJM5rrRbU/QTtIuWWnrypBa5Nee0vTcASR26Pbtt3a1rnWEXJiAhZ0LuaF3z
-         G0Kpy5TJl/IDsRofANqT6QeQSyO+rxKfvYX1lEVX/uIl1opJ/g6T4wX2v3xFu9sWUBhf
-         nxjbUpm/gkJf8RF8BM1xVL9NUSyaLL/yweBBM9Jtss7d1JdDL1D0xSUAW2CB9lb+daDC
-         gCuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=yrRvoMA2qzsQLaNGkBWV3qKU0u6GXYvGhupTkuY6VEY=;
-        b=j0VYDRs5klCIdfjk4CA9knBeIGVZqAtIdfICpLMQqP27BrwyAW5SGw/vh/uN3U/4ln
-         Dv64rBpQ/TRjU0hI38+OVJm8ILu5ALNqyw8msGbnoWAV1qeYPon3n8woM1N+EP+L3hcU
-         0nPTtLaw7+/DtWkQtQrN+BjUNOlC61YyAN5Xz42BD3OXxCeiuOQBNsZT2GdfjiDJ010A
-         Y4e+91GkAGyuQBszYDJnU1SaGtl0Zqt5+KXcHx751q6Z0HvK+D+peCGaqFjCKEXD8Lfu
-         8eWt0ZrXG/1KiY9A9Rpse28+b6Ws3SUNNOgJIlZaKCOnMVdONvlQ03uRbjSlX1onCKqz
-         m8pw==
-X-Gm-Message-State: ACrzQf0Gxq6q7ET/Zi31BKEHCz2cMfP3p4e4OqAbwkURdOAxqfjcylnX
-        TbIf0H3cwqkmZ0q4/7WDFhTDCxPHRxLEkJ/7+ffqRfDt1nc=
-X-Google-Smtp-Source: AMsMyM7eMgPelqF9CjnEbxsTqqXy6pmBZpLW9pueVjK2kG6gmJQBXY3G4jO1eBrNDVmQMCspWLB2ar5LjeuRSz4OCpA=
-X-Received: by 2002:a17:907:7eaa:b0:782:3d2b:20b0 with SMTP id
- qb42-20020a1709077eaa00b007823d2b20b0mr25078507ejc.746.1664324641882; Tue, 27
- Sep 2022 17:24:01 -0700 (PDT)
+        with ESMTP id S230357AbiI1CAU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Sep 2022 22:00:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB1A1616F2;
+        Tue, 27 Sep 2022 19:00:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2923661B30;
+        Wed, 28 Sep 2022 02:00:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7EAB0C433D6;
+        Wed, 28 Sep 2022 02:00:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1664330418;
+        bh=PSkT84+kLIOyET1QVrc8xAtKCtLxdBnnOFxQ+LAf9zo=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=m+SRhqt6l9/qk2xlfHKESN4o+fL1gq5HmysFZJSiHmUBPqSeCJKtPjnzarP42uF2J
+         cgJPqcGsopj98nk8d2dxuYoaCnhxIRbZMgXJXf1cAgXfjlV4icdVIaGs7K08CApe4N
+         GoEZu/nyqJVCJeEoyHeiDhjbZnGcgGJzyBu8Ny4oKVkFY8WVDpRHHVXnEkQwH/1J/T
+         8kTfgtISlLD9U08kSLIt+Mi2slAGcAU17X4QnjFRLyHn/COrdJv/ZHGBacKsKSqQ16
+         NBfUds5C9yXfmA2Vh0AMdCejyFbNfw8fUiSobxa1n4937sCExDII4lVz6WuUbiVVaD
+         xDGuad+F9exwQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5A3C4C04E59;
+        Wed, 28 Sep 2022 02:00:18 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220921084302.43631-1-yangyicong@huawei.com> <20220921084302.43631-3-yangyicong@huawei.com>
- <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com> <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
-In-Reply-To: <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
-From:   Barry Song <21cnbao@gmail.com>
-Date:   Wed, 28 Sep 2022 13:23:50 +1300
-Message-ID: <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To:     Yicong Yang <yangyicong@huawei.com>
-Cc:     Anshuman Khandual <anshuman.khandual@arm.com>,
-        yangyicong@hisilicon.com, corbet@lwn.net, peterz@infradead.org,
-        arnd@arndb.de, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, huzhanyuan@oppo.com,
-        lipeifeng@oppo.com, zhangshiming@oppo.com, guojian@oppo.com,
-        realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-mm@kvack.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
-        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>,
-        catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] s390/qeth: Split memcpy() of struct qeth_ipacmd_addr_change
+ flexible array
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <166433041836.32421.4705173383339135260.git-patchwork-notify@kernel.org>
+Date:   Wed, 28 Sep 2022 02:00:18 +0000
+References: <20220927003953.1942442-1-keescook@chromium.org>
+In-Reply-To: <20220927003953.1942442-1-keescook@chromium.org>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
->
-> On 2022/9/27 14:16, Anshuman Khandual wrote:
-> > [...]
-> >
-> > On 9/21/22 14:13, Yicong Yang wrote:
-> >> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> >> +{
-> >> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
-> >> +    if (num_online_cpus() <= 4)
-> >
-> > It would be great to have some more inputs from others, whether 4 (which should
-> > to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
-> > is optimal for an wide range of arm64 platforms.
-> >
+Hello:
 
-I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
-with 5,6,7
-cores.
-I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
-this patch.
+This patch was applied to netdev/net-next.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-so it seems safe to have
-if (num_online_cpus()  < 8)
+On Mon, 26 Sep 2022 17:39:53 -0700 you wrote:
+> To work around a misbehavior of the compiler's ability to see into
+> composite flexible array structs (as detailed in the coming memcpy()
+> hardening series[1]), split the memcpy() of the header and the payload
+> so no false positive run-time overflow warning will be generated.
+> 
+> [1] https://lore.kernel.org/linux-hardening/20220901065914.1417829-2-keescook@chromium.org/
+> 
+> [...]
 
->
-> Do you prefer this macro to be static or make it configurable through kconfig then
-> different platforms can make choice based on their own situations? It maybe hard to
-> test on all the arm64 platforms.
+Here is the summary with links:
+  - s390/qeth: Split memcpy() of struct qeth_ipacmd_addr_change flexible array
+    https://git.kernel.org/netdev/net-next/c/8f1e1658d365
 
-Maybe we can have this default enabled on machines with 8 and more cpus and
-provide a tlbflush_batched = on or off to allow users enable or
-disable it according
-to their hardware and products. Similar example: rodata=on or off.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Hi Anshuman, Will,  Catalin, Andrew,
-what do you think about this approach?
 
-BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
-https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
-
-I do believe we need it based on the expensive cost of tlb shootdown in arm64
-even by hardware broadcast.
-
->
-> Thanks.
->
-> >> +            return false;> +
-> >> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
-> >> +    if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
-> >> +            return false;
-> >> +#endif
-> >> +
-> >> +    return true;
-> >> +}
-> >> +
-> >
-> > [...]
-> >
-> > .
-> >
-
-Thanks
-Barry
