@@ -2,146 +2,253 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55CDFC04A95
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 18:56:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5503C04A95
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 20:17:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234142AbiI1S46 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Sep 2022 14:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50864 "EHLO
+        id S233425AbiI1URU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Sep 2022 16:17:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232346AbiI1S45 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 14:56:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E48F1D5A
-        for <linux-s390@vger.kernel.org>; Wed, 28 Sep 2022 11:56:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1664391415;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/G4Vq697fdL4v+7M0FMtvwUHBXoZlZMDykWA34n1ZXM=;
-        b=QjOiwsY7FAGk480aT0I7rnS+eZ7MhYDFLwlrkFkcuFRQQ/nn5qHEGhrbXNYQPDWukGwB7e
-        V8tql7YCJJ9iaTYYYe6pra3kg5K1a7K7rei67DJnaG0K8/j1HawEm+8FJ7mujMZ+iZ3my4
-        sxjk28F5QCi2MO6KfZGRCjg3GLg9Stg=
-Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
- [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-201-VHyBgmt3OQ-YoziH6aQ2Qg-1; Wed, 28 Sep 2022 14:56:54 -0400
-X-MC-Unique: VHyBgmt3OQ-YoziH6aQ2Qg-1
-Received: by mail-io1-f70.google.com with SMTP id b5-20020a05660214c500b006a43c89e0bdso8392871iow.22
-        for <linux-s390@vger.kernel.org>; Wed, 28 Sep 2022 11:56:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:organization:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
-         :from:to:cc:subject:date;
-        bh=/G4Vq697fdL4v+7M0FMtvwUHBXoZlZMDykWA34n1ZXM=;
-        b=1i964DqMf5d0mb8H9F3v7IS0kbmanHEB+MaDecmySCDc4C3pa8QloSxt8+bmhbriO8
-         4vR3vJ0h2w+y0NbRfltYR7ZXAtbUhq6elrSEUoeFnjYZY72Gt/t3u51nJ2hEH79yBSyt
-         PrkVgQjNOusZ70t/wICP6lc5wKuBevk4As2M6vpM0VLUpnwdgssWmGd/tynNDCT2eHmw
-         g15RF3qt6yYf1ioetbn7VArXFS47V5xc9BdFPPariMtaViUp0GwKKtI+uZLueO3uKe8W
-         yDnXyUGY/eeOaYSEfkpLY8jSnUNb+Ufta5Pi3FhPankYgFCGozYFUL1ONsOR/58pQpeE
-         Ckzw==
-X-Gm-Message-State: ACrzQf2YmbG5Zcsq02QWp1klI2PhMcpWPeuZYB9gkVoHt0w4Ccp5SqOt
-        7jSkOqf6SrCzHXlMD2c60bhed/Ib1df2ATdH5jly/fhUiU2ttEw+n1h4MI9k0juLf0uYf0VN4Bk
-        WTHIbSs1DmqYRWZFdELq0HQ==
-X-Received: by 2002:a05:6e02:1a6f:b0:2f9:1b98:9412 with SMTP id w15-20020a056e021a6f00b002f91b989412mr225940ilv.204.1664391413851;
-        Wed, 28 Sep 2022 11:56:53 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4+rrxfEBEydSabU2v5S3BOdqrNy/3aSdw+xUzsmxEdtmSd7NFDLxd30KRxn4ox+Ehtolvebw==
-X-Received: by 2002:a05:6e02:1a6f:b0:2f9:1b98:9412 with SMTP id w15-20020a056e021a6f00b002f91b989412mr225931ilv.204.1664391413632;
-        Wed, 28 Sep 2022 11:56:53 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id g6-20020a05663810e600b00349fb9b1abesm2084847jae.106.2022.09.28.11.56.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Sep 2022 11:56:52 -0700 (PDT)
-Date:   Wed, 28 Sep 2022 12:56:50 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org
-Subject: Re: simplify the mdev interface v8
-Message-ID: <20220928125650.0a2ea297.alex.williamson@redhat.com>
-In-Reply-To: <20220928121110.GA30738@lst.de>
-References: <20220923092652.100656-1-hch@lst.de>
-        <20220927140737.0b4c9a54.alex.williamson@redhat.com>
-        <20220927155426.23f4b8e9.alex.williamson@redhat.com>
-        <20220928121110.GA30738@lst.de>
-Organization: Red Hat
+        with ESMTP id S231301AbiI1URT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 16:17:19 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB9466C115;
+        Wed, 28 Sep 2022 13:17:18 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28SIi3cp020618;
+        Wed, 28 Sep 2022 20:17:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=pG1ghc692U9Q8xE03Gx97GPYR3yPEjzveHJEZlWmu8c=;
+ b=SNl129ihOhzZ9CZQ5KduoOzRfifavftOyCZcK3TXzcp/zxeio9VKQ9DV4UpzHLTIfKbe
+ CG25oNIavUOH1ZIQg9LAi7qLZtLiN4YQ1UnPXe01xNirCr4dH8UYund04klLbpY88i0R
+ WYzCK7B5HA8M1hSRZIZ8l+ZWgHA+aSQWfwcTpeRXWcTKX6VNXh42KuFuCRWSluthM4zb
+ HXfgzwdYVWKxWGg4KXgMO9SvaqlxsDf32JsM/iUrj0jN4HeO/foWR0ZWzGZI0E0FIab9
+ NeRSRSDLUf5sOqTH1Fhp04BPa2GOGNZU0EhLEVfgHcDYRobxffVo41AShbSGWX42rV4v ww== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jvq2nmq1r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Sep 2022 20:17:17 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28SJR79U009946;
+        Wed, 28 Sep 2022 20:17:17 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3jvq2nmq11-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Sep 2022 20:17:17 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28SK6u1V020292;
+        Wed, 28 Sep 2022 20:17:15 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3jssh948gg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Sep 2022 20:17:15 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28SKHCJE5309130
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 28 Sep 2022 20:17:12 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 572F0A404D;
+        Wed, 28 Sep 2022 20:17:12 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1669AA4040;
+        Wed, 28 Sep 2022 20:17:12 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 28 Sep 2022 20:17:12 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v7 0/2] Add specification exception tests
+Date:   Wed, 28 Sep 2022 22:17:08 +0200
+Message-Id: <20220928201710.3185449-1-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 3fTC2ayBeMBjy7yGgkLaotTBQuwcemhJ
+X-Proofpoint-GUID: I3povTG3MmhWHn1JB414HQwWAvw4yyDc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-28_09,2022-09-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ spamscore=0 impostorscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0
+ mlxlogscore=999 adultscore=0 bulkscore=0 priorityscore=1501 clxscore=1011
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2209280120
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 28 Sep 2022 14:11:10 +0200
-Christoph Hellwig <hch@lst.de> wrote:
+Test that specification exceptions cause the correct interruption code
+during both normal and transactional execution.
 
-> On Tue, Sep 27, 2022 at 03:54:26PM -0600, Alex Williamson wrote:
-> > Oops, I had to drop this, I get a null pointer from gvt-g code:  
-> 
-> Ok, this is a stupid bug in the second patch in the series.  I did not
-> hit it in my mdev testing as my script just uses the first type and
-> thus never hits these, but as your trace showed mdevctl and once I
-> used that I could reproduce it.  The fix for patch 2 is below, and
-> the git tree at:
-> 
->    git://git.infradead.org/users/hch/misc.git mvdev-lifetime
-> 
-> has been updated with that folded in and the recent reviews.
+TCG fails the tests setting an invalid PSW bit.
+I had a look at how best to fix it, but where best to check for early
+PSW exceptions was not immediately clear to me. Ideas welcome.
 
-That fixes the crash, but available_instances isn't working:
+v6 -> v7
+	assert that we're expecting the invalid PSW we're seeing
+	rebased onto master
+	picked up tags (thanks Nico & Janosch)
+	comments and style changes
 
-[root@nuc ~]# cd /sys/class/mdev_bus/0000\:00\:02.0/mdev_supported_types/
-[root@nuc mdev_supported_types]# ls */devices/
-i915-GVTg_V4_1/devices/:
+v5 -> v6
+	rebased onto master
+	comments and style changes
 
-i915-GVTg_V4_2/devices/:
+v4 -> v5
+	add lpsw with invalid bit 12 test
+		TCG fails as with lpswe but must also invert bit 12
+	update copyright statement
+	add comments
+	cleanups and style fixes
 
-i915-GVTg_V4_4/devices/:
+v3 -> v4
+	remove iterations argument in order to simplify the code
+		for manual performance testing adding a for loop is easy
+	move report out of fixup_invalid_psw
+	simplify/improve readability of triggers
+	use positive error values
 
-i915-GVTg_V4_8/devices/:
-[root@nuc mdev_supported_types]# grep . */available_instances
-i915-GVTg_V4_1/available_instances:1
-i915-GVTg_V4_2/available_instances:2
-i915-GVTg_V4_4/available_instances:5
-i915-GVTg_V4_8/available_instances:7
-[root@nuc mdev_supported_types]# uuidgen > i915-GVTg_V4_1/create
-[root@nuc mdev_supported_types]# ls */devices/
-i915-GVTg_V4_1/devices/:
-669d83b1-81d8-4fd4-8d8b-7f972721c83f
+v2 -> v3
+	remove non-ascii symbol
+	clean up load_psw
+	fix nits
 
-i915-GVTg_V4_2/devices/:
+v1 -> v2
+	Add license and test description
+	Split test patch into normal test and transactional execution test
+	Add comments to
+		invalid PSW fixup function
+		with_transaction
+	Rename some variables/functions
+	Pass mask as single parameter to asm
+	Get rid of report_info_if macro
+	Introduce report_pass/fail and use them
 
-i915-GVTg_V4_4/devices/:
+Janis Schoetterl-Glausch (2):
+  s390x: Add specification exception test
+  s390x: Test specification exceptions during transaction
 
-i915-GVTg_V4_8/devices/:
-[root@nuc mdev_supported_types]# grep . */available_instances
-i915-GVTg_V4_1/available_instances:0
-i915-GVTg_V4_2/available_instances:0
-i915-GVTg_V4_4/available_instances:1
-i915-GVTg_V4_8/available_instances:1
-[root@nuc mdev_supported_types]# echo 1 > i915-GVTg_V4_1/devices/669d83b1-81d8-4fd4-8d8b-7f972721c83f/remove 
-[root@nuc mdev_supported_types]# ls */devices/
-i915-GVTg_V4_1/devices/:
+ s390x/Makefile           |   1 +
+ lib/s390x/asm/arch_def.h |   6 +
+ s390x/spec_ex.c          | 392 +++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg      |   3 +
+ 4 files changed, 402 insertions(+)
+ create mode 100644 s390x/spec_ex.c
 
-i915-GVTg_V4_2/devices/:
+Range-diff against v6:
+1:  bbfb5d40 ! 1:  a239437a s390x: Add specification exception test
+    @@ Commit message
+         Generate specification exceptions and check that they occur.
+     
+         Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+    +    Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+    +    Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+     
+      ## s390x/Makefile ##
+     @@ s390x/Makefile: tests += $(TEST_DIR)/uv-host.elf
+    @@ s390x/spec_ex.c (new)
+     + */
+     +static void fixup_invalid_psw(struct stack_frame_int *stack)
+     +{
+    ++	assert_msg(invalid_psw_expected,
+    ++		   "Unexpected invalid PSW during program interrupt fixup: %#lx %#lx",
+    ++		   lowcore.pgm_old_psw.mask, lowcore.pgm_old_psw.addr);
+     +	/* signal occurrence of invalid psw fixup */
+     +	invalid_psw_expected = false;
+     +	invalid_psw = lowcore.pgm_old_psw;
+    @@ s390x/spec_ex.c (new)
+     +	uint64_t scratch;
+     +
+     +	/*
+    -+	 * The fixup psw is current psw with the instruction address replaced by
+    -+	 * the address of the nop following the instruction loading the new psw.
+    ++	 * The fixup psw is the current psw with the instruction address replaced
+    ++	 * by the address of the nop following the instruction loading the new psw.
+     +	 */
+     +	fixup_psw.mask = extract_psw_mask();
+     +	asm volatile ( "larl	%[scratch],0f\n"
+    @@ s390x/spec_ex.c (new)
+     +
+     +static int check_invalid_psw(void)
+     +{
+    ++	/* Since the fixup sets this to false we check for false here. */
+     +	if (!invalid_psw_expected) {
+     +		if (expected_psw.mask == invalid_psw.mask &&
+     +		    expected_psw.addr == invalid_psw.addr)
+    @@ s390x/spec_ex.c (new)
+     +/* A short PSW needs to have bit 12 set to be valid. */
+     +static int short_psw_bit_12_is_0(void)
+     +{
+    ++	struct psw invalid = {
+    ++		.mask = BIT(63 - 12),
+    ++		.addr = 0x00000000deadbeee
+    ++	};
+     +	struct short_psw short_invalid = {
+     +		.mask = 0x0,
+     +		.addr = 0xdeadbeee
+     +	};
+     +
+    ++	expect_invalid_psw(invalid);
+    ++	load_short_psw(short_invalid);
+     +	/*
+     +	 * lpsw may optionally check bit 12 before loading the new psw
+     +	 * -> cannot check the expected invalid psw like with lpswe
+     +	 */
+    -+	load_short_psw(short_invalid);
+     +	return 0;
+     +}
+     +
+2:  0f19be7d ! 2:  697409f7 s390x: Test specification exceptions during transaction
+    @@ Commit message
+         Check that we see the expected code for (some) specification exceptions.
+     
+         Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+    +    Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+    +    Acked-by: Janosch Frank <frankja@linux.ibm.com>
+     
+      ## lib/s390x/asm/arch_def.h ##
+     @@ lib/s390x/asm/arch_def.h: struct cpu {
+    @@ s390x/spec_ex.c: static int not_even(void)
+      /*
+       * Harness for specification exception testing.
+       * func only triggers exception, reporting is taken care of automatically.
+    -+ * If a trigger is transactable it will also  be executed during a transaction.
+    ++ * If a trigger is transactable it will also be executed during a transaction.
+       */
+      struct spec_ex_trigger {
+      	const char *name;
+    @@ s390x/spec_ex.c: static void test_spec_ex(const struct spec_ex_trigger *trigger)
+     +#define TRANSACTION_MAX_RETRIES 5
+     +
+     +/*
+    -+ * NULL must be passed to __builtin_tbegin via constant, forbid diagnose from
+    -+ * being NULL to keep things simple
+    ++ * NULL must not be passed to __builtin_tbegin via variable, only constant,
+    ++ * forbid diagnose from being NULL at all to keep things simple
+     + */
+     +static int __attribute__((nonnull))
+     +with_transaction(int (*trigger)(void), struct __htm_tdb *diagnose)
+    @@ s390x/spec_ex.c: static void test_spec_ex(const struct spec_ex_trigger *trigger)
+     +
+     +static void test_spec_ex_trans(struct args *args, const struct spec_ex_trigger *trigger)
+     +{
+    -+	const uint16_t expected_pgm = PGM_INT_CODE_SPECIFICATION
+    -+				      | PGM_INT_CODE_TX_ABORTED_EVENT;
+    ++	const uint16_t expected_pgm = PGM_INT_CODE_SPECIFICATION |
+    ++				      PGM_INT_CODE_TX_ABORTED_EVENT;
+     +	union {
+     +		struct __htm_tdb tdb;
+     +		uint64_t dwords[sizeof(struct __htm_tdb) / sizeof(uint64_t)];
 
-i915-GVTg_V4_4/devices/:
-
-i915-GVTg_V4_8/devices/:
-[root@nuc mdev_supported_types]# grep . */available_instances
-i915-GVTg_V4_1/available_instances:0
-i915-GVTg_V4_2/available_instances:0
-i915-GVTg_V4_4/available_instances:1
-i915-GVTg_V4_8/available_instances:1
+base-commit: d8a4f9e5e8d69d4ef257b40d6cd666bd2f63494e
+-- 
+2.36.1
 
