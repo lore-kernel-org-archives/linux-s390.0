@@ -2,140 +2,381 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9F30C4167B
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Sep 2022 16:27:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 146AFC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Sep 2022 16:55:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235724AbiI2Q1I (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Sep 2022 12:27:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56984 "EHLO
+        id S233909AbiI2Qz3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Sep 2022 12:55:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236140AbiI2Q01 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Sep 2022 12:26:27 -0400
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2048.outbound.protection.outlook.com [40.107.220.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37969130BF4;
-        Thu, 29 Sep 2022 09:24:08 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CT4Iw5REyPV3W0g4QNaxugYyuX9HeEq2w1cSDF4/SDfQa2HfxgEzxRDwL+cqKJaiQ/IFP1QSBT8i33XY8K+cB/vEW7p3i9qe7maxNKuSSAFo81Kes/1znk/MvA8KihIGyteez1LyU/1e0xjZfJO7nslNpVvG6H/RwoPawdxuNaNdtY2axDfQC3vHxeKBgOIe/2E8QlJy0nZ9OiRskD8OMVw/rY4XzHaxYocDHLisWSu5lMoxjbPzPdTm6lm8DV3JS2b2LYLQaGheIjBcCoYVI3bW9TD5MJ2BtPOd1qAaIomuBTW+z3cy655JovkD2z6pzdH/+6EMpyQBs53lUeWlNg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8xiokt5oydiKsB3HbIjhnTIjtLPzDzjlRKb0+QoeaIk=;
- b=mB7U0WW74HEnpX5137t+5ES2RT3c2eVvZj4/yTGXinLE6wIGdQuiJwDrl42gS4o77bOVm/S0XtEwgMLXsfM/nqb7IUI+zCQ+WAmuk1C5uYVdCqixsimQm1rQo+SQhIa2kW3SLC/NScUmozly54P4VeTI44iZms+uTAbfH/+s5Ihpigrn32lTU9l/7wMK8wDBcJdK0DKOYNPClObgohV37APF7gCpI2Zh/931bQdPq1ZnF9ORAJrzIXwkPf4pO4CxZRbU7fIZgm/rMN5zk3kCqmi9I5LM0gsDx/lx0oNrjYyVj7EJZ5VLj0DWIz3Hwrwql7HY/gFxwxsqENpq0ABzpw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8xiokt5oydiKsB3HbIjhnTIjtLPzDzjlRKb0+QoeaIk=;
- b=LP+LGxgX60EaMeAkzqa+GK5J/v6eGn5vE7qZLj8fJFiODhmDBjxAKC4CEfUz2dtDSwsRUpnOPYWc+qdw8ry7QLwDKVPmcS1bZqnNAm3qwYO1ls9/AmptduRXGQz6NKprDe1BRtIhEEmbotUfsw3fatmTAEZdd7Z5xEYeAkDJJWwnYg1hXb1k2Xj3fiEipGybh3anA0eGSe4LKqyALITbRCeiVu2E58o1r7t8buvb1TO0FS3TJnhcAcoTq6D2Q4JSbwatmW4rkMDUz1E1ceZdgEW4RDRAZ2s9KY+drayST5fEpIQQgawUEMIQdRkmKoth2IoOgZ9XQlgdT4R0pqx+Wg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by CH2PR12MB4135.namprd12.prod.outlook.com (2603:10b6:610:7c::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.17; Thu, 29 Sep
- 2022 16:24:07 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::f0c0:3a28:55e9:e99c]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::f0c0:3a28:55e9:e99c%5]) with mapi id 15.20.5676.019; Thu, 29 Sep 2022
- 16:24:06 +0000
-Date:   Thu, 29 Sep 2022 13:24:05 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 3/5] iommu/s390: Fix potential s390_domain aperture
- shrinking
-Message-ID: <YzXGpQkSG4cw3ahm@nvidia.com>
-References: <20220929153302.3195115-1-schnelle@linux.ibm.com>
- <20220929153302.3195115-4-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220929153302.3195115-4-schnelle@linux.ibm.com>
-X-ClientProxiedBy: MN2PR12CA0023.namprd12.prod.outlook.com
- (2603:10b6:208:a8::36) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S234594AbiI2Qz2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Sep 2022 12:55:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66539A9D6
+        for <linux-s390@vger.kernel.org>; Thu, 29 Sep 2022 09:55:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1664470525;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RQjiwvr6S5lV8usREpdzXKjDN4TlUL9iWSrNpQhtESA=;
+        b=WSeZy1evygcHoX9xf+sjuKBxOC+xAUNfIogeLvs5lDzeMMFpZH4E4DxREjht2Jt9rMRXV+
+        kILffwgM1LbPTJwRwjUAZEG1XHBSHZEZ7gaB9t6Prx1dRp5ttwr5ovbw+u+wjwbvHiseMe
+        6l8RF3qgKLLtkAN1rX3jqFkcQ/RI++g=
+Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
+ [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-654-g4rRkxzyOeOxPcF42TOd9Q-1; Thu, 29 Sep 2022 12:55:24 -0400
+X-MC-Unique: g4rRkxzyOeOxPcF42TOd9Q-1
+Received: by mail-il1-f199.google.com with SMTP id f4-20020a056e020b4400b002f6681cca5bso1537550ilu.14
+        for <linux-s390@vger.kernel.org>; Thu, 29 Sep 2022 09:55:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date;
+        bh=RQjiwvr6S5lV8usREpdzXKjDN4TlUL9iWSrNpQhtESA=;
+        b=4G7yGplmJsIg6e60vTor7TEdDPtOvP5LS8LFPWcoJ7j+6i0fx76RkDhI9RkY75AY+k
+         Ey8P+wAhUstQERRLjJ47x3NZqJomQa1f8IfC2lAnQCU0F3JmjFre+OCYAjeLDLkgzWRW
+         NizFyXN2O+2PRcK7T0p6S3yug4jawfuEnfGyTJGONNY92bo8/aiYbz/8jJT4hD9z4ZMr
+         zDMWNPaZ4+EaLbluQHYOKtSBgpFxtTjvMFvf7tAFL0cLcfdwqeMRbk8JENCdKbgBpC+6
+         Y3N91qrzVcNz2fu9vHfv3EJD3JZSPxbHKYgd3umMvjX2DMJv/HhZHGfVs48dGrnfjOnd
+         I8Xg==
+X-Gm-Message-State: ACrzQf14xcE8WyKm273npUkvu3CwTrK4O7gkhA3Q7QfEYKsNcMsNh55e
+        tVAWbqNN0YI/2Aj6bLCmYrDJ9m4TmKz1J4nU/6nsh8IHHz0XIWfOO+9vOXBC5p0wsDSuc/GZoL+
+        GjffyGpEhJF/ZS08yhQYnxQ==
+X-Received: by 2002:a05:6638:1315:b0:35a:7c96:9737 with SMTP id r21-20020a056638131500b0035a7c969737mr2295852jad.302.1664470523411;
+        Thu, 29 Sep 2022 09:55:23 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6mkt2EWia9wOjOYtm7HS/78Deb0xTalFmW+HBr2mznlyx7ZjLzWBXZ2b3KtC8/dcDQ+raHsg==
+X-Received: by 2002:a05:6638:1315:b0:35a:7c96:9737 with SMTP id r21-20020a056638131500b0035a7c969737mr2295839jad.302.1664470523148;
+        Thu, 29 Sep 2022 09:55:23 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id e3-20020a0566380cc300b0034c164e05c4sm3107915jak.177.2022.09.29.09.55.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Sep 2022 09:55:22 -0700 (PDT)
+Date:   Thu, 29 Sep 2022 10:55:19 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Kevin Tian <kevin.tian@intel.com>
+Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Longfang Liu <liulongfang@huawei.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>
+Subject: Re: [PATCH v4 15/15] vfio: Add struct device to vfio_device
+Message-ID: <20220929105519.5c9ae1d8.alex.williamson@redhat.com>
+In-Reply-To: <20220921104401.38898-16-kevin.tian@intel.com>
+References: <20220921104401.38898-1-kevin.tian@intel.com>
+        <20220921104401.38898-16-kevin.tian@intel.com>
+Organization: Red Hat
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4192:EE_|CH2PR12MB4135:EE_
-X-MS-Office365-Filtering-Correlation-Id: e87bbfe7-73a0-4697-9c1c-08daa23707f7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: KyQ45eVRpqBINR+wYIeGQDHNfUZqDWxBPJjbWwNCLkdC5aLnxta/PpNMh6HGsWoRd+rBV0JM7NUr58r8BqlNLl31g7wXcWU1GdYMb/tEaNWR+rq+elORe7KpLEHrpNSjE8aA2+qBqxCADtmUc72G3QC58TyNP6y1l1D8q+kyAkrCFzYRJd2HCNCWixkSqpuyXLNyElvyWZRX/SbCdZl2VNw3eEHe1kSQRrONVcyxMekSCXnxqPFbwPkfPHRHuPu0vAp5pHYw1hf3IyAlgpGWg1/f5eu22Q4WU3YxqKiPAGZIWU+sEaCxmCJq4iK+3L26XwpcEH8lBT4IS13V/hYFuD8ZyVKWTBOnDJZ3ralUUOCZBS90S1WNuqDvzYIDcSsODJpwMxtUMshd2jB+cdzb8K+MyJO7l5lLQqDN8tSWCKvvsdhhLo6xX67bL3tcttuqx58Z2IHqBnUySY0TcB6Qq/bOMlr+GDGU/Rs7IxwNUPjxmskq69vhgRlinqL3225vIY4MIxbR/nBd5b8xdQls7JhkeVqYbfUSf/5bKs5xj/uytBJpzCOn61mlSIniGJ3F9JfZHRgqnZI2k2xhtaSiij8afhAdsKZwYqaPo+EAl+sprJVXPY+d8qQU03GuOdg7tPECTR9HYV1IBC2LXSNO2qcgApkmNJPLOku07WODSVgzLOGJYfb2S9VDma8ev5T8Ufb3LvrzVW2cdqCgACRMZQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(39860400002)(346002)(396003)(366004)(136003)(451199015)(478600001)(6486002)(6506007)(66899015)(316002)(186003)(2616005)(6916009)(54906003)(38100700002)(2906002)(8676002)(83380400001)(6512007)(26005)(36756003)(41300700001)(8936002)(66946007)(66556008)(5660300002)(7416002)(4326008)(66476007)(86362001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?cCTFdXdHdfQ4xCz/t+xY7PTOgMPchxngIL0nxXsH4vg8kp+QbIHhbmFifucT?=
- =?us-ascii?Q?4EevUiscXMBrHiyBetjlzuyWDVorUBFvDqQvoPUc7VAKzQ/G9Lx0ALlF5YIr?=
- =?us-ascii?Q?29gAi4ID2oiyFFGuO6FG92iKZh7KJKCytB5W2SK3a9rXFMLf3BmKL19FTR2L?=
- =?us-ascii?Q?YcWJZRp2NpjwWxuXUMbaaEWlDkYhdvaC5FdJ2EJHOhweMtYsLhfekVDUzOFM?=
- =?us-ascii?Q?yUD4sFVXq11/ZZ0zWU25qrDm4tKvYFqpCIFPIIoK+oKPW0Wyptrc46xW0ajR?=
- =?us-ascii?Q?X7ooUo8b1sSVEJ3yAjM5a86Oy6riltmQTW5FdPWVhFvKY7LyvlANGoTZwagS?=
- =?us-ascii?Q?+GGef3XS260Kl4bez7vXyPDKUHj+J8fYZsu4dbowwMrZOkgK+MYmGxujfNy1?=
- =?us-ascii?Q?GE1FdmjANYhjcum6d4a+B93vsdJ7aqklxn4s+cO8jEU/PNvvtLpjv9zAtBrF?=
- =?us-ascii?Q?dUYO2q23UR+4GgDSELqczBISm9zj5EnJDJt8IxSnCsWti8fr2UYd8O1tBgfo?=
- =?us-ascii?Q?skmq7y29rSqLudM7ixV3NzYP6U2PqVs1IjsOZafCZIXEYMc+2aGNa0c8GdZ+?=
- =?us-ascii?Q?lUfqHaRsnW7gHXDoekMu8mDmTT6N3M6j6jqhn+vqESr3gKB/QkfZkBsSXuJu?=
- =?us-ascii?Q?6+Gq3SBkrj6nI4xIvQhS4OvzmCxU3X6Rf4MHQQPO7OU0xf5Zk1LetfpwXu6a?=
- =?us-ascii?Q?HEB+f1/2YR0vBQ4OIUF8n+vKoxHB4439uRMeOGwnLEYCXtRtZvQyVwVg2TYE?=
- =?us-ascii?Q?dvHzOCvMtIuwX81Cr+ypg92UkG0m5aig10p8rNx1zI2vvrgLOhFqvhkF+dDA?=
- =?us-ascii?Q?fZVCBRzAHJxe/CiKTB7g9xjv8LxM/QcOXtTR9//xLItQ7SrXScddo951f837?=
- =?us-ascii?Q?dajHbZ/BrUATb1UEuSW8fHc0dRsxuacRXtgkAhtIJiOqUd2Pk+YOTJsK9PGF?=
- =?us-ascii?Q?zwhlFG/2PP+sspjmGHOATA+aHpVfhcB1FJnx8ttfSPohoOjg2mDRl6IShxW4?=
- =?us-ascii?Q?Vftfgnc197vBH8K7aPoL0FOa9RlrhItOdfrF+7pn+7QMeyA0w01r6m2F2sYM?=
- =?us-ascii?Q?SP4M4fk1oGddxqt6uib81uTaL97sJGp5SSiDaduScZIhymncZqW313X9hdWl?=
- =?us-ascii?Q?3TK1gWvnWKzwnoYQwk1z9mM2W5XHiBcn+wCSkFol0VdbU1SUbhxTM5Z0/QUi?=
- =?us-ascii?Q?w2/7HqBgH7lTe5X9jr4Pdx+oXERz9beRKUithny4xWgxeBxd2HGfWvEUQEPL?=
- =?us-ascii?Q?kpxlQaSu8hcqkRB+j7rdwJA5jTfJf2Ue4RSMwZUUjDeWfM6mHXNhpk/n3CRS?=
- =?us-ascii?Q?tMoBLYwBp4Yz25pZMbTWFT2HYdTVGo10oE4EkwRhWgxBXfADeuWMy4cjXD72?=
- =?us-ascii?Q?jTJ+PHTFrEytvQQjvBgFcggh3402J1gC67WcnA0ISoCWZJkRI2YHEoaP4rkl?=
- =?us-ascii?Q?5xr/tCkyMRO4ZIfD1qjLkZ7S3pvBOMH8WXZ2ARJY/5vOk0YyC+Ibex+Bqb80?=
- =?us-ascii?Q?S44aSCP0D0j/yazMblITtM0ICcASLx9BoCchg5KxJWQ+zjrmR18JmqteU5/M?=
- =?us-ascii?Q?2KlKV7YeNiFykc+x01Q=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e87bbfe7-73a0-4697-9c1c-08daa23707f7
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Sep 2022 16:24:06.8477
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: SmgYpjnGC0C81ePPsS3rzNLOCMzKyQLuEuZHl2R19pkH11Hm7zBVc5wTtOoA30fk
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4135
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 29, 2022 at 05:33:00PM +0200, Niklas Schnelle wrote:
-> The s390 IOMMU driver currently sets the IOMMU domain's aperture to
-> match the device specific DMA address range of the device that is first
-> attached. This is not ideal. For one if the domain has no device
-> attached in the meantime the aperture could be shrunk allowing
-> translations outside the aperture to exist in the translation tables.
-> Also this is a bit of a misuse of the aperture which really should
-> describe what addresses can be translated and not some device specific
-> limitations.
+Hi Kevin,
+
+This introduced the regression discovered here:
+
+https://lore.kernel.org/all/20220928125650.0a2ea297.alex.williamson@redhat.com/
+
+Seems we're not releasing the resources when removing an mdev.  This is
+a regression, so it needs to be fixed or reverted before the merge
+window.  Thanks,
+
+Alex
+
+On Wed, 21 Sep 2022 18:44:01 +0800
+Kevin Tian <kevin.tian@intel.com> wrote:
+
+> From: Yi Liu <yi.l.liu@intel.com>
 > 
-> Instead of misusing the aperture like this we can instead create
-> reserved ranges for the ranges inaccessible to the attached devices
-> allowing devices with overlapping ranges to still share an IOMMU domain.
-> This also significantly simplifies s390_iommu_attach_device() allowing
-> us to move the aperture check to the beginning of the function and
-> removing the need to hold the device list's lock to check the aperture.
+> and replace kref. With it a 'vfio-dev/vfioX' node is created under the
+> sysfs path of the parent, indicating the device is bound to a vfio
+> driver, e.g.:
+> 
+> /sys/devices/pci0000\:6f/0000\:6f\:01.0/vfio-dev/vfio0
+> 
+> It is also a preparatory step toward adding cdev for supporting future
+> device-oriented uAPI.
+> 
+> Add Documentation/ABI/testing/sysfs-devices-vfio-dev.
 > 
 > Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
+> Signed-off-by: Kevin Tian <kevin.tian@intel.com>
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->  drivers/iommu/s390-iommu.c | 50 +++++++++++++++++++++++++++-----------
->  1 file changed, 36 insertions(+), 14 deletions(-)
+>  .../ABI/testing/sysfs-devices-vfio-dev        |  8 +++
+>  MAINTAINERS                                   |  1 +
+>  drivers/vfio/vfio_main.c                      | 64 +++++++++++++++----
+>  include/linux/vfio.h                          |  6 +-
+>  4 files changed, 65 insertions(+), 14 deletions(-)
+>  create mode 100644 Documentation/ABI/testing/sysfs-devices-vfio-dev
+> 
+> diff --git a/Documentation/ABI/testing/sysfs-devices-vfio-dev b/Documentation/ABI/testing/sysfs-devices-vfio-dev
+> new file mode 100644
+> index 000000000000..e21424fd9666
+> --- /dev/null
+> +++ b/Documentation/ABI/testing/sysfs-devices-vfio-dev
+> @@ -0,0 +1,8 @@
+> +What:		 /sys/.../<device>/vfio-dev/vfioX/
+> +Date:		 September 2022
+> +Contact:	 Yi Liu <yi.l.liu@intel.com>
+> +Description:
+> +		 This directory is created when the device is bound to a
+> +		 vfio driver. The layout under this directory matches what
+> +		 exists for a standard 'struct device'. 'X' is a unique
+> +		 index marking this device in vfio.
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index d30f26e07cd3..02c8f11b1c17 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -21312,6 +21312,7 @@ R:	Cornelia Huck <cohuck@redhat.com>
+>  L:	kvm@vger.kernel.org
+>  S:	Maintained
+>  T:	git git://github.com/awilliam/linux-vfio.git
+> +F:	Documentation/ABI/testing/sysfs-devices-vfio-dev
+>  F:	Documentation/driver-api/vfio.rst
+>  F:	drivers/vfio/
+>  F:	include/linux/vfio.h
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index c27449613a1d..f9d10dbcf3e6 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -49,6 +49,8 @@ static struct vfio {
+>  	struct mutex			group_lock; /* locks group_list */
+>  	struct ida			group_ida;
+>  	dev_t				group_devt;
+> +	struct class			*device_class;
+> +	struct ida			device_ida;
+>  } vfio;
+>  
+>  struct vfio_iommu_driver {
+> @@ -485,12 +487,13 @@ static struct vfio_device *vfio_group_get_device(struct vfio_group *group,
+>   * VFIO driver API
+>   */
+>  /* Release helper called by vfio_put_device() */
+> -void vfio_device_release(struct kref *kref)
+> +static void vfio_device_release(struct device *dev)
+>  {
+>  	struct vfio_device *device =
+> -			container_of(kref, struct vfio_device, kref);
+> +			container_of(dev, struct vfio_device, device);
+>  
+>  	vfio_release_device_set(device);
+> +	ida_free(&vfio.device_ida, device->index);
+>  
+>  	/*
+>  	 * kvfree() cannot be done here due to a life cycle mess in
+> @@ -500,7 +503,6 @@ void vfio_device_release(struct kref *kref)
+>  	 */
+>  	device->ops->release(device);
+>  }
+> -EXPORT_SYMBOL_GPL(vfio_device_release);
+>  
+>  /*
+>   * Allocate and initialize vfio_device so it can be registered to vfio
+> @@ -548,6 +550,13 @@ int vfio_init_device(struct vfio_device *device, struct device *dev,
+>  {
+>  	int ret;
+>  
+> +	ret = ida_alloc_max(&vfio.device_ida, MINORMASK, GFP_KERNEL);
+> +	if (ret < 0) {
+> +		dev_dbg(dev, "Error to alloc index\n");
+> +		return ret;
+> +	}
+> +
+> +	device->index = ret;
+>  	init_completion(&device->comp);
+>  	device->dev = dev;
+>  	device->ops = ops;
+> @@ -558,11 +567,15 @@ int vfio_init_device(struct vfio_device *device, struct device *dev,
+>  			goto out_uninit;
+>  	}
+>  
+> -	kref_init(&device->kref);
+> +	device_initialize(&device->device);
+> +	device->device.release = vfio_device_release;
+> +	device->device.class = vfio.device_class;
+> +	device->device.parent = device->dev;
+>  	return 0;
+>  
+>  out_uninit:
+>  	vfio_release_device_set(device);
+> +	ida_free(&vfio.device_ida, device->index);
+>  	return ret;
+>  }
+>  EXPORT_SYMBOL_GPL(vfio_init_device);
+> @@ -659,6 +672,7 @@ static int __vfio_register_dev(struct vfio_device *device,
+>  		struct vfio_group *group)
+>  {
+>  	struct vfio_device *existing_device;
+> +	int ret;
+>  
+>  	if (IS_ERR(group))
+>  		return PTR_ERR(group);
+> @@ -675,16 +689,21 @@ static int __vfio_register_dev(struct vfio_device *device,
+>  		dev_WARN(device->dev, "Device already exists on group %d\n",
+>  			 iommu_group_id(group->iommu_group));
+>  		vfio_device_put_registration(existing_device);
+> -		if (group->type == VFIO_NO_IOMMU ||
+> -		    group->type == VFIO_EMULATED_IOMMU)
+> -			iommu_group_remove_device(device->dev);
+> -		vfio_group_put(group);
+> -		return -EBUSY;
+> +		ret = -EBUSY;
+> +		goto err_out;
+>  	}
+>  
+>  	/* Our reference on group is moved to the device */
+>  	device->group = group;
+>  
+> +	ret = dev_set_name(&device->device, "vfio%d", device->index);
+> +	if (ret)
+> +		goto err_out;
+> +
+> +	ret = device_add(&device->device);
+> +	if (ret)
+> +		goto err_out;
+> +
+>  	/* Refcounting can't start until the driver calls register */
+>  	refcount_set(&device->refcount, 1);
+>  
+> @@ -693,6 +712,12 @@ static int __vfio_register_dev(struct vfio_device *device,
+>  	mutex_unlock(&group->device_lock);
+>  
+>  	return 0;
+> +err_out:
+> +	if (group->type == VFIO_NO_IOMMU ||
+> +	    group->type == VFIO_EMULATED_IOMMU)
+> +		iommu_group_remove_device(device->dev);
+> +	vfio_group_put(group);
+> +	return ret;
+>  }
+>  
+>  int vfio_register_group_dev(struct vfio_device *device)
+> @@ -779,6 +804,9 @@ void vfio_unregister_group_dev(struct vfio_device *device)
+>  	list_del(&device->group_next);
+>  	mutex_unlock(&group->device_lock);
+>  
+> +	/* Balances device_add in register path */
+> +	device_del(&device->device);
+> +
+>  	if (group->type == VFIO_NO_IOMMU || group->type == VFIO_EMULATED_IOMMU)
+>  		iommu_group_remove_device(device->dev);
+>  
+> @@ -2362,6 +2390,7 @@ static int __init vfio_init(void)
+>  	int ret;
+>  
+>  	ida_init(&vfio.group_ida);
+> +	ida_init(&vfio.device_ida);
+>  	mutex_init(&vfio.group_lock);
+>  	mutex_init(&vfio.iommu_drivers_lock);
+>  	INIT_LIST_HEAD(&vfio.group_list);
+> @@ -2377,11 +2406,18 @@ static int __init vfio_init(void)
+>  	vfio.class = class_create(THIS_MODULE, "vfio");
+>  	if (IS_ERR(vfio.class)) {
+>  		ret = PTR_ERR(vfio.class);
+> -		goto err_class;
+> +		goto err_group_class;
+>  	}
+>  
+>  	vfio.class->devnode = vfio_devnode;
+>  
+> +	/* /sys/class/vfio-dev/vfioX */
+> +	vfio.device_class = class_create(THIS_MODULE, "vfio-dev");
+> +	if (IS_ERR(vfio.device_class)) {
+> +		ret = PTR_ERR(vfio.device_class);
+> +		goto err_dev_class;
+> +	}
+> +
+>  	ret = alloc_chrdev_region(&vfio.group_devt, 0, MINORMASK + 1, "vfio");
+>  	if (ret)
+>  		goto err_alloc_chrdev;
+> @@ -2398,9 +2434,12 @@ static int __init vfio_init(void)
+>  err_driver_register:
+>  	unregister_chrdev_region(vfio.group_devt, MINORMASK + 1);
+>  err_alloc_chrdev:
+> +	class_destroy(vfio.device_class);
+> +	vfio.device_class = NULL;
+> +err_dev_class:
+>  	class_destroy(vfio.class);
+>  	vfio.class = NULL;
+> -err_class:
+> +err_group_class:
+>  	misc_deregister(&vfio_dev);
+>  	return ret;
+>  }
+> @@ -2412,8 +2451,11 @@ static void __exit vfio_cleanup(void)
+>  #ifdef CONFIG_VFIO_NOIOMMU
+>  	vfio_unregister_iommu_driver(&vfio_noiommu_ops);
+>  #endif
+> +	ida_destroy(&vfio.device_ida);
+>  	ida_destroy(&vfio.group_ida);
+>  	unregister_chrdev_region(vfio.group_devt, MINORMASK + 1);
+> +	class_destroy(vfio.device_class);
+> +	vfio.device_class = NULL;
+>  	class_destroy(vfio.class);
+>  	vfio.class = NULL;
+>  	misc_deregister(&vfio_dev);
+> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+> index 3cf857b1eec7..ee399a768070 100644
+> --- a/include/linux/vfio.h
+> +++ b/include/linux/vfio.h
+> @@ -47,7 +47,8 @@ struct vfio_device {
+>  	struct kvm *kvm;
+>  
+>  	/* Members below here are private, not for driver use */
+> -	struct kref kref;	/* object life cycle */
+> +	unsigned int index;
+> +	struct device device;	/* device.kref covers object life circle */
+>  	refcount_t refcount;	/* user count on registered device*/
+>  	unsigned int open_count;
+>  	struct completion comp;
+> @@ -178,10 +179,9 @@ struct vfio_device *_vfio_alloc_device(size_t size, struct device *dev,
+>  int vfio_init_device(struct vfio_device *device, struct device *dev,
+>  		     const struct vfio_device_ops *ops);
+>  void vfio_free_device(struct vfio_device *device);
+> -void vfio_device_release(struct kref *kref);
+>  static inline void vfio_put_device(struct vfio_device *device)
+>  {
+> -	kref_put(&device->kref, vfio_device_release);
+> +	put_device(&device->device);
+>  }
+>  
+>  int vfio_register_group_dev(struct vfio_device *device);
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-
-Jason
