@@ -2,102 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1C31C04A95
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Sep 2022 23:10:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A43F5C04A95
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Sep 2022 07:11:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234124AbiI1XKt convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Sep 2022 19:10:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
+        id S235010AbiI2HLX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Sep 2022 03:11:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233770AbiI1XKs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Sep 2022 19:10:48 -0400
-Received: from relay.hostedemail.com (smtprelay0011.hostedemail.com [216.40.44.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D694D4EF
-        for <linux-s390@vger.kernel.org>; Wed, 28 Sep 2022 16:10:46 -0700 (PDT)
-Received: from omf15.hostedemail.com (a10.router.float.18 [10.200.18.1])
-        by unirelay09.hostedemail.com (Postfix) with ESMTP id 42F1F810C9;
-        Wed, 28 Sep 2022 23:04:10 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf15.hostedemail.com (Postfix) with ESMTPA id C450B1A;
-        Wed, 28 Sep 2022 23:04:01 +0000 (UTC)
-Message-ID: <46a600465f08edbda7d413f6dd0b1b1edd57cfa4.camel@perches.com>
-Subject: Re: [PATCH 3/7] s390/qeth: Convert snprintf() to scnprintf()
-From:   Joe Perches <joe@perches.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>,
-        Jules Irenge <jbi.octave@gmail.com>, borntraeger@linux.ibm.com
-Cc:     svens@linux.ibm.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        agordeev@linux.ibm.com
-Date:   Wed, 28 Sep 2022 16:04:07 -0700
-In-Reply-To: <cfcc8d22-8efd-8b0b-d24f-cb734f9ef927@linux.ibm.com>
-References: <YzHyniCyf+G/2xI8@fedora>
-         <5138b5a347b79a5f35b75d0babf5f41dbace879a.camel@perches.com>
-         <cfcc8d22-8efd-8b0b-d24f-cb734f9ef927@linux.ibm.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
+        with ESMTP id S235004AbiI2HLW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Sep 2022 03:11:22 -0400
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B208712262D;
+        Thu, 29 Sep 2022 00:11:21 -0700 (PDT)
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id F33C168BFE; Thu, 29 Sep 2022 09:11:17 +0200 (CEST)
+Date:   Thu, 29 Sep 2022 09:11:17 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org
+Subject: Re: simplify the mdev interface v8
+Message-ID: <20220929071117.GA32553@lst.de>
+References: <20220923092652.100656-1-hch@lst.de> <20220927140737.0b4c9a54.alex.williamson@redhat.com> <20220927155426.23f4b8e9.alex.williamson@redhat.com> <20220928121110.GA30738@lst.de> <20220928125650.0a2ea297.alex.williamson@redhat.com>
 MIME-Version: 1.0
-X-Stat-Signature: 77c4p56xgruk3p35i1uacr4yaetb35qj
-X-Rspamd-Server: rspamout01
-X-Rspamd-Queue-Id: C450B1A
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Session-ID: U2FsdGVkX18eEEanHqR4OnqcwMowgOsKUxuaq/Kzxbo=
-X-HE-Tag: 1664406241-228711
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220928125650.0a2ea297.alex.williamson@redhat.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-09-28 at 10:24 +0200, Alexandra Winter wrote:
-> On 27.09.22 16:27, Joe Perches wrote:
-> > On Mon, 2022-09-26 at 19:42 +0100, Jules Irenge wrote:
-> > > Coccinnelle reports a warning
-> > > Warning: Use scnprintf or sprintf
-> > > Adding to that, there has been a slow migration from snprintf to scnprintf.
-> > > This LWN article explains the rationale for this change
-> > > https: //lwn.net/Articles/69419/
-> > > Ie. snprintf() returns what *would* be the resulting length,
-> > > while scnprintf() returns the actual length.
-> > []
-> > > diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
-> > []
-> > > @@ -500,9 +500,9 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
-> > >  	struct qeth_card *card = dev_get_drvdata(dev);
-> > >  
-> > >  	if (card->info.hwtrap)
-> > > -		return snprintf(buf, 5, "arm\n");
-> > > +		return scnprintf(buf, 5, "arm\n");
-> > >  	else
-> > > -		return snprintf(buf, 8, "disarm\n");
-> > > +		return scnprintf(buf, 8, "disarm\n");
-> > >  }
-> > 
-> > Use sysfs_emit instead.
-> > 
-> 
-> Thank you Joe, that sounds like the best way to handle this. 
-> I propose that I take this onto my ToDo list and test it in the s390 environment.
-> I will add 
-> Reported-by: Jules Irenge <jbi.octave@gmail.com>
-> Suggested-by: Joe Perches <joe@perches.com>
-> 
+On Wed, Sep 28, 2022 at 12:56:50PM -0600, Alex Williamson wrote:
+> That fixes the crash, but available_instances isn't working:
 
-Thanks.
+I see the same behavior both with and without my series.  Given that
+the code to report it didn't change that is also very much expected.
 
-btw: I was careless when I wrote one section of the proposed patch.
-
-In this patch block,
-
-@@ -467,28 +478,31 @@ static ssize_t qeth_dev_switch_attrs_show(struct device *dev,
-
-The last line
-
-+	return sysfs_emit_at(buf, len, "\n");
-
-is not correct
-
-It needs to be changed to:
-
-	len += sysfs_emit_at(buf, len, "\n");
-
-	return len;
-
+So something in i915 fails to update the resources when deleting
+instances, but it is an existing issue.
