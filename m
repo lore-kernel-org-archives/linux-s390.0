@@ -2,121 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6869DC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Sep 2022 21:08:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA0DDC4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Sep 2022 21:31:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229779AbiI3VI1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Sep 2022 17:08:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40036 "EHLO
+        id S232083AbiI3Vb6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Sep 2022 17:31:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231266AbiI3VIQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Sep 2022 17:08:16 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 557301ABFD6;
-        Fri, 30 Sep 2022 14:08:14 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28UKtdCJ005292;
-        Fri, 30 Sep 2022 21:08:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=lBZS4quJVcXGtuq5XVTDI8+2rAA6hPvupU3l89M/Tw4=;
- b=YM7HWOWj5DKKVEYhlz8FcD9+36Rv/7JfYe10otGtbyqdE/F39MB1DKUQbBgUVdsTNHxX
- U82QV1TKohB/9ZhOW+mHsiSateVf7RW4kq7W179wSSJ9LWIPjRNYxDZ0zvwxTJTlpJbf
- 7tPDv+dMfC5UYPhXhxW4ZQI/pwCle48oO+R6dl2MSi9vMpG1CQI1R4FfwbsMAOa8g/qH
- N4vWtFwjzVwZA928POZLvhxKCnYrdNl+Whr1UW2YmdVf2GB3cqjSZ6x8+kRIWL33I9zA
- xtq5AMaY9mmftz/LBcKZ61DYyqoYtbNQtJhHluv48pTj4Budet/r2MhlX6kwn5TUh3tz Ng== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jx7wxra70-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Sep 2022 21:08:05 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28UKvX1R021549;
-        Fri, 30 Sep 2022 21:08:05 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jx7wxra5v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Sep 2022 21:08:05 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28UL72P1009803;
-        Fri, 30 Sep 2022 21:08:02 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 3jssh96e11-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Sep 2022 21:08:02 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28UL7xrM852608
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 30 Sep 2022 21:07:59 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 50299A405B;
-        Fri, 30 Sep 2022 21:07:59 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CB7EAA405C;
-        Fri, 30 Sep 2022 21:07:58 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 30 Sep 2022 21:07:58 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH v1 6/9] KVM: s390: selftest: memop: Add bad address test
-Date:   Fri, 30 Sep 2022 23:07:48 +0200
-Message-Id: <20220930210751.225873-7-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220930210751.225873-1-scgl@linux.ibm.com>
-References: <20220930210751.225873-1-scgl@linux.ibm.com>
+        with ESMTP id S231968AbiI3Vb5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Sep 2022 17:31:57 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 404EE18CB3D
+        for <linux-s390@vger.kernel.org>; Fri, 30 Sep 2022 14:31:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1664573512;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=u99SFb2mm6IMO2C/mDjsVShY7ib8HgVHNq4m7TjUMlU=;
+        b=is4Ec/N7Y2KZFLY5ROYxSVIlxZXpyWG1DB3xBBkpjx9MKPrBifwjC+NbAXZwljo7ID5HLI
+        jKpsIBs5Ws8RAqJ6daIG1YCfmlIak7N6rH9USOZKZsna3yYio+WFbuQurKDPLEk4CQllAc
+        simcdXY4+n/dxg8G+zcC+X/rTQeqv+w=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-43-nxmiZkYYNYaoFIY6_Mg54Q-1; Fri, 30 Sep 2022 17:31:51 -0400
+X-MC-Unique: nxmiZkYYNYaoFIY6_Mg54Q-1
+Received: by mail-il1-f200.google.com with SMTP id x6-20020a056e021bc600b002f8c7ccd2c4so4316580ilv.17
+        for <linux-s390@vger.kernel.org>; Fri, 30 Sep 2022 14:31:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date;
+        bh=u99SFb2mm6IMO2C/mDjsVShY7ib8HgVHNq4m7TjUMlU=;
+        b=q5q08mQ0rqsxytlHUbzy9tHVcbO6dvoLmAE9i6cCXkKXB7YZh4E/5fPgCnwxhBbCM/
+         TqWP2c0J8iu93TwyzMTWp8jgR32BCAWGK5jHmBipNcvr5j0+Kf9vvyOsD2IfMJcFhE51
+         cGDi8MrIcsd79RAaTvgdh1PMhDUkd3fWqgB4pcTymrQzyzw/kyjvVXewOtNf7Cq/s0Cg
+         pzll7RvftEQf09u8vq9wfCHOBb3h4ak+C6dE73rvTWsRxuAmrkaUvs/3+wCmq0XUysOb
+         0zLPgTCyA93Xc6GP6ywDvNLC0ff7c4Wer0TYslCAlwk3qFpaewGbtotSuWdX6v/wvh4q
+         IT8w==
+X-Gm-Message-State: ACrzQf3hd2zN3EYaq0DP+1SGxHaAWa5FA97l7vyUGfl64KhBtzHdnKt2
+        YrkFQb/av47yt3HSH1tDjmy017hP6DwNbZ4Ijdd/IigeklYT4HNtwHDyQEvcphDuIVcMp4PT1Xx
+        bemxCxns9YD78I+QrKTNdvw==
+X-Received: by 2002:a05:6638:3712:b0:35a:9c8a:698d with SMTP id k18-20020a056638371200b0035a9c8a698dmr5772790jav.151.1664573510567;
+        Fri, 30 Sep 2022 14:31:50 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4VTcmsFBjypWqMFwP2pQez8YMxKnmnM54iEalnSS3t8MH21D5OVP8HPDXTGJs8BfLF5xZXKQ==
+X-Received: by 2002:a05:6638:3712:b0:35a:9c8a:698d with SMTP id k18-20020a056638371200b0035a9c8a698dmr5772780jav.151.1664573510387;
+        Fri, 30 Sep 2022 14:31:50 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id f16-20020a056638169000b0035a578870a4sm1337172jat.129.2022.09.30.14.31.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Sep 2022 14:31:49 -0700 (PDT)
+Date:   Fri, 30 Sep 2022 15:31:48 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Kirti Wankhede <kwankhede@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org
+Subject: Re: simplify the mdev interface v8
+Message-ID: <20220930153148.5eb8808e.alex.williamson@redhat.com>
+In-Reply-To: <20220928121110.GA30738@lst.de>
+References: <20220923092652.100656-1-hch@lst.de>
+        <20220927140737.0b4c9a54.alex.williamson@redhat.com>
+        <20220927155426.23f4b8e9.alex.williamson@redhat.com>
+        <20220928121110.GA30738@lst.de>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KVu4CkKwF42xLoWueu6_wGHPGELTkvHA
-X-Proofpoint-ORIG-GUID: USE_noVHJB6zQS2o0N9S8gJURJi8BHUd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-30_04,2022-09-29_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- mlxlogscore=999 mlxscore=0 lowpriorityscore=0 priorityscore=1501
- impostorscore=0 suspectscore=0 phishscore=0 clxscore=1015 adultscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209300131
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add test that tries to access, instead of CHECK_ONLY.
+On Wed, 28 Sep 2022 14:11:10 +0200
+Christoph Hellwig <hch@lst.de> wrote:
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
----
- tools/testing/selftests/kvm/s390x/memop.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+> On Tue, Sep 27, 2022 at 03:54:26PM -0600, Alex Williamson wrote:
+> > Oops, I had to drop this, I get a null pointer from gvt-g code:  
+> 
+> Ok, this is a stupid bug in the second patch in the series.  I did not
+> hit it in my mdev testing as my script just uses the first type and
+> thus never hits these, but as your trace showed mdevctl and once I
+> used that I could reproduce it.  The fix for patch 2 is below, and
+> the git tree at:
+> 
+>    git://git.infradead.org/users/hch/misc.git mvdev-lifetime
+> 
+> has been updated with that folded in and the recent reviews.
+> 
+> ---
+> diff --git a/drivers/gpu/drm/i915/gvt/vgpu.c b/drivers/gpu/drm/i915/gvt/vgpu.c
+> index 1b67328c714f1..b0d5dafd013f4 100644
+> --- a/drivers/gpu/drm/i915/gvt/vgpu.c
+> +++ b/drivers/gpu/drm/i915/gvt/vgpu.c
+> @@ -123,7 +123,7 @@ int intel_gvt_init_vgpu_types(struct intel_gvt *gvt)
+>  
+>  		sprintf(gvt->types[i].name, "GVTg_V%u_%s",
+>  			GRAPHICS_VER(gvt->gt->i915) == 8 ? 4 : 5, conf->name);
+> -		gvt->types->conf = conf;
+> +		gvt->types[i].conf = conf;
+>  		gvt->types[i].avail_instance = min(low_avail / conf->low_mm,
+>  						   high_avail / conf->high_mm);
 
-diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-index 286185a59238..311cf7d33247 100644
---- a/tools/testing/selftests/kvm/s390x/memop.c
-+++ b/tools/testing/selftests/kvm/s390x/memop.c
-@@ -641,7 +641,9 @@ static void _test_errors_common(struct test_info info, enum mop_target target, i
- 
- 	/* Bad guest address: */
- 	rv = ERR_MOP(info, target, WRITE, mem1, size, GADDR((void *)~0xfffUL), CHECK_ONLY);
--	TEST_ASSERT(rv > 0, "ioctl does not report bad guest memory access");
-+	TEST_ASSERT(rv > 0, "ioctl does not report bad guest memory address");
-+	rv = ERR_MOP(info, target, WRITE, mem1, size, GADDR((void *)~0xfffUL));
-+	TEST_ASSERT(rv > 0, "ioctl does not report bad guest memory address");
- 
- 	/* Bad host address: */
- 	rv = ERR_MOP(info, target, WRITE, 0, size, GADDR_V(mem1));
--- 
-2.34.1
+Fix folded in, re-applied to vfio next branch for v6.1.  Thanks,
+
+Alex
 
