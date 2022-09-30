@@ -2,126 +2,168 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53545C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Sep 2022 08:01:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DB8BC433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Sep 2022 14:02:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230296AbiI3IBu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Sep 2022 04:01:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52618 "EHLO
+        id S229594AbiI3OCE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Sep 2022 10:02:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231139AbiI3IBp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Sep 2022 04:01:45 -0400
+        with ESMTP id S231648AbiI3OB7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Sep 2022 10:01:59 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22B2A129FCE;
-        Fri, 30 Sep 2022 01:01:44 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28U7H2ef021657;
-        Fri, 30 Sep 2022 08:01:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=XvKkvCtRGCWdox4k9XJ4eNOaUFUePFB4u7AUf7aqW1M=;
- b=jdj7RmO9krwtDkkxucrkhgmpZrCO9Z+jlAuUU0cLCu1enx6vSqyr3wotCGaaziO6Iz7F
- PgCOH410qRsfYQ/dSvNVMl9CBvimSvsRDkbIQQpH0Uth8ScBrX/NJVcrQrhhAz0roGU0
- sBrDyNs+dKb6G/uFf1lNtV2Ymbfic9R+1xWRbYkHm+sOAd9f+sz/s9BNdp0MXZVogpet
- dHChVBqrT4qKq6NcdEKRVxd6fBy2fzIQ5KDlimNB/AODtwRTi9KLOgfe5ayN33SFrQtc
- MVqQOj15bWikjMDbKELingwCmmp65A2O52MLQpZzMGax9+W8FGy2xaYXaLIhm8v3ZdMc yw== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jwuxas74a-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33B0612477C;
+        Fri, 30 Sep 2022 07:01:58 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28UDnWG9010887;
+        Fri, 30 Sep 2022 14:01:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=S8c6sUr6AFbx9JlLmOoBsRB56ukYkox76clX6oT288o=;
+ b=FfVHCSLXRGUwWcIj2efi8YgCKmtNPpEGHqTZow1c5nMdz468lnjrdJ5HDFZnRkSD+/xn
+ OhFZttmqoufMxZbDSGZVnTyJXc7sqOpsZmpitUr0b1Y+4KOwBdcPBR0AZs/dCRjzHyPI
+ yt7t2UDzeynCqn5EhQG3ZX8eFcYQ+CnJO9cI0ADmS9ALBl/3+1UGf6vqIWOsc54teEYL
+ BLpJu+lgDI4ryKWGaapfk7j+MrT1zdgpALZ1igIXPKNpw5dUF8Q7WSR0QhKfxrQduYaH
+ nJk0T1qnpf7kRtMowce3gTvonSSaIeB7++6FPOQyEJhbIUvlE5t0ILu/3PoepFnrs9of rQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jx1pagd4y-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Sep 2022 08:01:25 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28U7pasV023077;
-        Fri, 30 Sep 2022 08:01:24 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma01fra.de.ibm.com with ESMTP id 3jssh8wty0-1
+        Fri, 30 Sep 2022 14:01:57 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28UDoJ7c013568;
+        Fri, 30 Sep 2022 14:01:56 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jx1pagd3n-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Sep 2022 08:01:24 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28U81KPN4915950
+        Fri, 30 Sep 2022 14:01:56 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28UDpLZc004831;
+        Fri, 30 Sep 2022 14:01:54 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma02fra.de.ibm.com with ESMTP id 3jssh9658f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Sep 2022 14:01:54 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 28UDvVn721758380
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 30 Sep 2022 08:01:21 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D9F3652051;
-        Fri, 30 Sep 2022 08:01:20 +0000 (GMT)
-Received: from sig-9-145-158-199.de.ibm.com (unknown [9.145.158.199])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 230575204E;
-        Fri, 30 Sep 2022 08:01:20 +0000 (GMT)
-Message-ID: <094e77fd96696ada25eb1a620b46ef21c0cf6cc0.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 4/5] iommu/s390: Fix incorrect aperture check
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, linux-kernel@vger.kernel.org
-Date:   Fri, 30 Sep 2022 10:01:19 +0200
-In-Reply-To: <YzXArysnUGFhywQT@nvidia.com>
-References: <20220929153302.3195115-1-schnelle@linux.ibm.com>
-         <20220929153302.3195115-5-schnelle@linux.ibm.com>
-         <YzXArysnUGFhywQT@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        Fri, 30 Sep 2022 13:57:31 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7EE54A4040;
+        Fri, 30 Sep 2022 14:01:51 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 29401A404D;
+        Fri, 30 Sep 2022 14:01:51 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.242])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 30 Sep 2022 14:01:51 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        seiden@linux.ibm.com, nrb@linux.ibm.com
+Subject: [PATCH v14 0/6] KVM: s390: pv: implement lazy destroy for reboot
+Date:   Fri, 30 Sep 2022 16:01:44 +0200
+Message-Id: <20220930140150.37463-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.37.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Zdh27Ld83o7w6gxwY6OSW1TZKLG0UZMz
-X-Proofpoint-ORIG-GUID: Zdh27Ld83o7w6gxwY6OSW1TZKLG0UZMz
+X-Proofpoint-ORIG-GUID: xP_JoddyHi2jtuK_UQE2yf3YkQu159SH
+X-Proofpoint-GUID: EEo5D1fMQueLvW0vozetwBCCaO-gqsGP
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-30_04,2022-09-29_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 bulkscore=0 malwarescore=0 clxscore=1015 phishscore=0
- mlxlogscore=913 suspectscore=0 impostorscore=0 adultscore=0 mlxscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209300045
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ mlxlogscore=895 impostorscore=0 suspectscore=0 priorityscore=1501
+ clxscore=1015 adultscore=0 spamscore=0 phishscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209300086
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2022-09-29 at 12:58 -0300, Jason Gunthorpe wrote:
-> On Thu, Sep 29, 2022 at 05:33:01PM +0200, Niklas Schnelle wrote:
-> > The domain->geometry.aperture_end specifies the last valid address treat
-> > it as such when checking if a DMA address is valid.
-> > 
-> > Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-> > Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > ---
-> >  drivers/iommu/s390-iommu.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> > index ed0e64f478cf..6d4a9c7db32c 100644
-> > --- a/drivers/iommu/s390-iommu.c
-> > +++ b/drivers/iommu/s390-iommu.c
-> > @@ -210,7 +210,7 @@ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
-> >  	int rc = 0;
-> >  
-> >  	if (dma_addr < s390_domain->domain.geometry.aperture_start ||
-> > -	    dma_addr + size > s390_domain->domain.geometry.aperture_end)
-> > +	    dma_addr + size > s390_domain->domain.geometry.aperture_end + 1)
-> 
-> The reason the iommu layer uses 'last' (= start + size - 1) not 'end'
-> is to allow for the very last byte of the range to be used.
-> 
-> Meaning (start + size) == 0 in some cases due to the overflow.
-> 
-> Generally when working with lasts's I prefer people write code in a
-> way that doesn't trigger the overflow, because there are some
-> complicated C rules about integer promotion that can mean the desired
-> overflow silently doesn't happen in obscure cases - especially if
-> unsigned long != u64
-> 
-> So, I'd write this as:
-> 
->   (dma_addr + size - 1) > s390_domain->domain.geometry.aperture_end
-> 
-> Jason
+Previously, when a protected VM was rebooted or when it was shut down,
+its memory was made unprotected, and then the protected VM itself was
+destroyed. Looping over the whole address space can take some time,
+considering the overhead of the various Ultravisor Calls (UVCs). This
+means that a reboot or a shutdown would take a potentially long amount
+of time, depending on the amount of used memory.
 
-Makes sense. Thanks.
+This patchseries implements a deferred destroy mechanism for protected
+guests. When a protected guest is destroyed, its memory can be cleared
+in background, allowing the guest to restart or terminate significantly
+faster than before.
 
+There are 2 possibilities when a protected VM is torn down:
+* it still has an address space associated (reboot case)
+* it does not have an address space anymore (shutdown case)
+
+For the reboot case, two new commands are available for the
+KVM_S390_PV_COMMAND:
+
+KVM_PV_ASYNC_CLEANUP_PREPARE: prepares the current protected VM for
+asynchronous teardown. The current VM will then continue immediately
+as non-protected. If a protected VM had already been set aside without
+starting the teardown process, this call will fail. In this case the
+userspace process should issue a normal KVM_PV_DISABLE
+
+KVM_PV_ASYNC_CLEANUP_PERFORM: tears down the protected VM previously
+set aside for asychronous teardown. This PV command should ideally be
+issued by userspace from a separate thread. If a fatal signal is
+received (or the process terminates naturally), the command will
+terminate immediately without completing. The rest of the normal KVM
+teardown process will take care of properly cleaning up all leftovers.
+
+The idea is that userspace should first issue the
+KVM_PV_ASYNC_CLEANUP_PREPARE command, and in case of success, create a
+new thread and issue KVM_PV_ASYNC_CLEANUP_PERFORM from there. This also
+allows for proper accounting of the CPU time needed for the
+asynchronous teardown.
+
+This means that the same address space can have memory belonging to
+more than one protected guest, although only one will be running, the
+others will in fact not even have any CPUs.
+
+The shutdown case should be dealt with in userspace (e.g. using
+clone(CLONE_VM)).
+
+A module parameter is also provided to disable the new functionality,
+which is otherwise enabled by default. This should not be an issue
+since the new functionality is opt-in anyway. This is mainly thought to
+aid debugging.
+
+v13->v14
+* improve wording of commit messages
+* improve wording of documentation
+* improve wording of comments
+* add if (!async_destroy) check in ioctl handler
+* use UVC_RC_EXECUTED macro instead of hardcoded value
+* use kzalloc instead of kmalloc with __GFP_ZERO flag
+* rebase
+
+v12->v13
+* drop the patches that have been already merged
+* rebase
+
+Claudio Imbrenda (6):
+  KVM: s390: pv: asynchronous destroy for reboot
+  KVM: s390: pv: api documentation for asynchronous destroy
+  KVM: s390: pv: add KVM_CAP_S390_PROTECTED_ASYNC_DISABLE
+  KVM: s390: pv: avoid export before import if possible
+  KVM: s390: pv: support for Destroy fast UVC
+  KVM: s390: pv: module parameter to fence asynchronous destroy
+
+ Documentation/virt/kvm/api.rst   |  37 +++-
+ arch/s390/include/asm/kvm_host.h |   2 +
+ arch/s390/include/asm/uv.h       |  10 +
+ arch/s390/kernel/uv.c            |   7 +
+ arch/s390/kvm/kvm-s390.c         |  58 +++++-
+ arch/s390/kvm/kvm-s390.h         |   3 +
+ arch/s390/kvm/pv.c               | 331 ++++++++++++++++++++++++++++++-
+ include/uapi/linux/kvm.h         |   3 +
+ 8 files changed, 429 insertions(+), 22 deletions(-)
+
+-- 
+2.37.3
 
