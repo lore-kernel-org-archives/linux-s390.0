@@ -2,134 +2,634 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DF49C433FE
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Oct 2022 12:46:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 379C0C433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Oct 2022 13:44:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230180AbiJDMqr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Oct 2022 08:46:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44546 "EHLO
+        id S229613AbiJDNoE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Oct 2022 09:44:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230184AbiJDMqa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Oct 2022 08:46:30 -0400
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2057.outbound.protection.outlook.com [40.107.94.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB19117A97;
-        Tue,  4 Oct 2022 05:44:51 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cGEXz9TUO0i/LktcKZe6y6QjaClP5bW3ViZnQl8AwxDWdokqln5LDFjTL4mEy45NCcK5sObybU3cp0vyjcLj+b7GGRrSAn0pM2JzuVNgnPDsJx6eO05VG/lDWzNPxo73BazsGmR26NVw1esyDCrpiIiuj5H0W2BiCLQUUwNgdCRHZM3SBIB+6+ZIv0Hyeot7zu/4GdBGkKHxTcOoBqzol2biCOY0vWZuHAt1lPc0wMmc+eRsjgBO54m/GMZuY9zHXKQKE2OKyHQSoDZIsHQZxgGqyUIAKW3gDLx9cAYxkipK7xOrvKLo5c0oIvgisxvzwcmO/GLRLPW+YNDe9ijA0A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=uT+1nvZyFSWVtJDbuLPbESfO2MkshVQLXdPAv2/mAt8=;
- b=GyKdEbwpovEKheOUyvyB+OlzZeybYZ+Z9ejrGW3ONQ68aNF/pWFWbSJ1qxDh+f3DzIjkcayF+M6X81fDOaqkBxT+HmX6iPI8Cc2nBn9Qf3aVf1BcGKZhgmnU8OBQTMVWr4d0P0cA3NJcnjJrqkihM8PON6IRqLqQhq15p+18CRCS3fPcHyVM7ViU2T7glWaI8IWFnTAE1e4PPZHtfKrC1zbi3cRQPTVPLF+ukKgmEiQYrr726l1BCqSv7rEhNdBdfrjoYp3/MomT8SNTxCj6V2G7xm82V4VYGzCZkSupMGQMfI1PjxvRxF9x3YyrL+TbjZrnAYU1Z0l9xbmuPYmWfA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uT+1nvZyFSWVtJDbuLPbESfO2MkshVQLXdPAv2/mAt8=;
- b=H53xdLMD1gFISGEGvFNby5ac0x6M0+OAPvOuPKd2gVz1YyXP0HUHDgqYi3zG4qUvUAiAABNrNP7oArRRFJIEaCetCiadxuqSexrPGz0/yUDyqOQdMWEMLXTZ41KN+jMx6+oM/bcHdOB/1wFSYt9gov8xMIF1XmPJ3NBInq9staTMpS5dxrs9D80BhevH0Y+GvhHE+htGGj0e8k1Xtak5a++Eve3aF6QEIqT51jlWmbijSWOagnn0lc4pRvLIHl3s2hy2xKHgBq7lT9nsdeD5fsz9wvgxrvwgAu0ermGfpYdE2lk6NT8wBcvdsnrxvAebrKeKbyasExIsGhDomjGbuA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by SN7PR12MB7324.namprd12.prod.outlook.com (2603:10b6:806:29b::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.20; Tue, 4 Oct
- 2022 12:43:40 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::8557:6d56:cba9:dbba]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::8557:6d56:cba9:dbba%5]) with mapi id 15.20.5676.031; Tue, 4 Oct 2022
- 12:43:40 +0000
-Date:   Tue, 4 Oct 2022 09:43:38 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/5] iommu/s390: Fix duplicate domain attachments
-Message-ID: <YzwqesQTmkjwoNbj@nvidia.com>
-References: <20221004120706.2957492-1-schnelle@linux.ibm.com>
- <20221004120706.2957492-2-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221004120706.2957492-2-schnelle@linux.ibm.com>
-X-ClientProxiedBy: BL1PR13CA0114.namprd13.prod.outlook.com
- (2603:10b6:208:2b9::29) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S229446AbiJDNoD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Oct 2022 09:44:03 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43DFA2ACB;
+        Tue,  4 Oct 2022 06:44:00 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 294DhsGR014518;
+        Tue, 4 Oct 2022 13:43:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ikA0tcEOwTxlW8giZzZ/QS/XHelhEnPsm8pyYJ4c2h8=;
+ b=KdnVWOu5T7crGadXdiopC2LdVLcoAMNnf3BpPAjt99730p8bljdPO3QmF66fEcQ8k5VL
+ P8trB9vRP1hyshdzEmGzPCAPgbU6rXEf6AYMNnxx775Z7azYbm2wDCV/xZOHY2sVkatc
+ uCMYI6ZPLjihNS2lDOQRMxSbqxbVslUbjvgQuMa/PZAfYFkOW8WKAayH2LxaBuy9TajE
+ z49MuykUYtFlWSL8MzAF0m8R/2w0VZQ4+ydvww8JOq2uu3QHN3CBjfQ+OYref7d8jbQY
+ LU5rAlKNM6edkXo66gg8Q6KbKSQlBOn24KsnFd2saIgCHfg2pDfTykrwwfiEHHe3fsv3 9g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k0gpu9676-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Oct 2022 13:43:59 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 294DhwwM016822;
+        Tue, 4 Oct 2022 13:43:58 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k0gpu95up-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Oct 2022 13:43:53 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 294DedJo026787;
+        Tue, 4 Oct 2022 13:43:33 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06fra.de.ibm.com with ESMTP id 3jxcthu3n2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Oct 2022 13:43:33 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 294DhUMN60948892
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 4 Oct 2022 13:43:30 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2FC5AA405C;
+        Tue,  4 Oct 2022 13:43:30 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B3682A4054;
+        Tue,  4 Oct 2022 13:43:29 +0000 (GMT)
+Received: from [9.145.154.3] (unknown [9.145.154.3])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  4 Oct 2022 13:43:29 +0000 (GMT)
+Message-ID: <0cd04469-d840-0cc7-8faf-8f07aa2dd876@linux.ibm.com>
+Date:   Tue, 4 Oct 2022 15:43:29 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4192:EE_|SN7PR12MB7324:EE_
-X-MS-Office365-Filtering-Correlation-Id: 39074925-b1d4-4f29-e799-08daa6060fd5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: skeaa3lEcFOIa4DUJheLfaXAu8pxKqIBJywwVqlHHET7u+bpSgDkBmhgws1w7UHjNCc7Wkb/y5ZiqfWJTjBIHZga0uYU4m0mef2LiKiPBtzp2DM4P4XjF0sIIIKH+zUgJG+3PwUDdwh7Qi5jGJMz+54gtNgP69VGz/eOK2zRhQ4JeJ5rVGgedQ1WBz/aH2nzc3LURz3R4Rvq8vcoi7uOvdfGnw/u5moFpJH7YbYwhLmxe5HTn6KdLhew2aZMKKp73hth5jcyylkovc4Ye4NqyWAIOSSRwwl4erMpL59VB8mIbGQd1Q7YWpP0+z1IGYWTA9G261qLj9RzStCMwmCTvWM3HPOVawM6xmUJWFye5xmCDF12pAMki5CxhqECUn5/yXapBYhqxRps4xNwvCjeTRBGbxQR0xbcMaj6nUH7w9QQ+oC26KEWEYROtzwyOR4t32WpPZ2QSIT0xyP3u4HGqLkjeW3dBx7t8iEOQJqV39yVDllVMgDuh/12SSEagTO2wUsEgQXga1PkUIlSuSXZIKqSAyNP0bQ2oAJgMCul02uWyS04IBk2KQAgxR6p0/p2JZwcDlAU1HMSRw3AzJbDviUtQrN7nMvnzHIZjBr2QHgCll9FRYhCP/R2yhipglxCMV9izLnN+q2tXY4eQUXjUQURx3KfnnaUtWgArmnfJ80XT7cwFDqvz1eYGANHdHduR12bEnPnuxU0O1CH/OlipA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(136003)(346002)(396003)(39860400002)(366004)(451199015)(26005)(41300700001)(4326008)(6512007)(8676002)(6486002)(66476007)(6506007)(5660300002)(7416002)(8936002)(66946007)(66556008)(86362001)(478600001)(316002)(6916009)(54906003)(38100700002)(2616005)(2906002)(186003)(83380400001)(36756003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?seWGz09AGmtVaOK4KDL7/D6bRfbG6MEKgRTHpHSvXE45iQuLM4j4GFDK7sQH?=
- =?us-ascii?Q?tILqGu9GwCigp0u14+eddb/ngrVYZ6rHw4rm6/Y3ZffTCvrUqsKGCod6EZTK?=
- =?us-ascii?Q?C8YE8KyNZQ3jXC4VF5xR3eJhae+nRM/XVub6DfSXcMAcluZaEjKZP5+QZCAU?=
- =?us-ascii?Q?UEFiLqQbXojgs24pUPtQtufHXeKavuT5kCWH3R93QvddfTgG0IIVz0ad3HkC?=
- =?us-ascii?Q?eG0qnwqLJ4dmaixWQstS9BTAeHELTUFVeh4Fs62CPm6tHmuCNo830ZcvBTvs?=
- =?us-ascii?Q?8aI3ucxiouI59u24qPvRfUrvkbXcx+r3TXnAB416ylSBQf/cvqbmDpZTZJCJ?=
- =?us-ascii?Q?k9BM2X86v85tzEtd2yF/qnD6kiBplg3HY3FO/zVpwZ/37txqmkbyJK7QfxNN?=
- =?us-ascii?Q?MUoetqMgOMcEXaQU3rDZb0uX6RPv/GIPZ4Bu0KeML3v7nFUFJk5JmtQuoSg7?=
- =?us-ascii?Q?DE/4wk2P+Fyjt8/EX+WDaMm4AbvqhAUUZ+Js5RZECx5lGUV5Tlbb0Zii3O2Q?=
- =?us-ascii?Q?cv6T+MhaO4GbXWmYia0C2OoQB/lh9GpaEYcYQC07uE7fwUY3yTC1xJpK3Wtb?=
- =?us-ascii?Q?qn5+M5diKeRYG6o+5MSp/V8WhGbMrVAjpnV+GNhP4aL368LWF+vGFnE4jd4T?=
- =?us-ascii?Q?/WesBSEkKnVq/jivAsMLxk6LZA2BjpjWV1Io2vlYWrRrOWOypaDm8s/EsruF?=
- =?us-ascii?Q?kcJ2GMmfMJHB41rPeyolqS68BO98j19TAY6kKUu1qg3EJCo2cACEJHqnkijx?=
- =?us-ascii?Q?z3kRgsX2hBV3giL8h1ebdOrjhWHeUPmb5VabSLxEZn+c6aTOndSxvl14qCCX?=
- =?us-ascii?Q?ZVTWslaYXRfTBJ19r7er+fVuPA20Mxrf7sg+W9HKGw1sMxSI8JrDat+cdMKb?=
- =?us-ascii?Q?Abon5eMKTb6Cdt1qApkhLDwKovfJJy/D5IwE1s2SlJ/6gIG5LYVeyg3rvZ7q?=
- =?us-ascii?Q?0tI7r5hFkbS/pn+i9h6KhFIKliSF2O1cXulWD5+a6Y3jakC+V1Z8RYKY6TYf?=
- =?us-ascii?Q?V/GS8VIcKSdiTnnTkbub1YMQQ0CUuE1mUC9OmTlIHcuAYUbvqGxvXsVJBd0n?=
- =?us-ascii?Q?1ddVuadxd/8AsCZ/1DMgnI0+k+oNj7a9Iuzy/hs/q1dPrV9H5vOHwOJFm5Ga?=
- =?us-ascii?Q?khWm9dLcWZ9n4cdtxq59+BpuqtrovHEW8Ri3iqc5O7AM5fpGIvqoCZzsp1io?=
- =?us-ascii?Q?PJ4EDwiNKm+t/nnd6586xKMN7YPnBkdTyIBjp9Wt4/DU14aJ4YPmvrIoNph6?=
- =?us-ascii?Q?w8nT5vxDNz1v5NSgdTi0uBvktYRhP1WCqoDRAy6OEF0+yUZ7eQ7fwUpBhfnI?=
- =?us-ascii?Q?mxEYI7EFa8rWI0QmxiZl54stZiG+ex5X7ZgA2VTy5OmrSawLUu9b3ZaKIq+U?=
- =?us-ascii?Q?ytk8TGuDbor+xXQzBMBoMk73iJlSxOjOk3OPcW6CWwCsqBOGPfXpL1uYXrFo?=
- =?us-ascii?Q?KbBIA69zt6o12eMASV4O3sGO++HUcRRtVR25rniD78f0vYjcKoYJifiHbINj?=
- =?us-ascii?Q?lMYM41GQ9YmJPLutgeoVmgwjE6Js+3QbNJrEfC5VBeSAFunLdBjhDntpa2Ne?=
- =?us-ascii?Q?B7wrVZV3sW836Br6cHs=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 39074925-b1d4-4f29-e799-08daa6060fd5
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Oct 2022 12:43:40.1422
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: K9gYga1b+9tsb+G+CD9sxCDhaqo9ORV6bRBnZAolTQYAtuYLcSvSdJ0JNIBsdCLX
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7324
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+Subject: Re: [PATCH v14 1/6] KVM: s390: pv: asynchronous destroy for reboot
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com, nrb@linux.ibm.com
+References: <20220930140150.37463-1-imbrenda@linux.ibm.com>
+ <20220930140150.37463-2-imbrenda@linux.ibm.com>
+From:   Steffen Eiden <seiden@linux.ibm.com>
+In-Reply-To: <20220930140150.37463-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0MaqZ9qJQ_PiyCls0c8R_ilHBRV9XqBl
+X-Proofpoint-ORIG-GUID: DOyZs_zn5CzlU4mo7pWmLqu6j8EYbNgO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-10-04_06,2022-09-29_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 impostorscore=0 suspectscore=0 adultscore=0 spamscore=0
+ mlxscore=0 clxscore=1011 mlxlogscore=999 bulkscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210040088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 04, 2022 at 02:07:02PM +0200, Niklas Schnelle wrote:
-> Since commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
-> calls") we can end up with duplicates in the list of devices attached to
-> a domain. This is inefficient and confusing since only one domain can
-> actually be in control of the IOMMU translations for a device. Fix this
-> by detaching the device from the previous domain, if any, on attach.
-> Add a WARN_ON() in case we still have attached devices on freeing the
-> domain. While here remove the re-attach on failure dance as it was
-> determined to be unlikely to help and may confuse debug and recovery.
+Hi Claudio,
+
+LGTM, but I have some nits.
+
+On 9/30/22 16:01, Claudio Imbrenda wrote:
+> Until now, destroying a protected guest was an entirely synchronous
+> operation that could potentially take a very long time, depending on
+> the size of the guest, due to the time needed to clean up the address
+> space from protected pages.
 > 
-> Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> This patch implements an asynchronous destroy mechanism, that allows a
+> protected guest to reboot significantly faster than previously.
+> 
+> This is achieved by clearing the pages of the old guest in background.
+> In case of reboot, the new guest will be able to run in the same
+> address space almost immediately.
+> 
+> The old protected guest is then only destroyed when all of its memory
+> has been destroyed or otherwise made non protected.
+> 
+> Two new PV commands are added for the KVM_S390_PV_COMMAND ioctl:
+> 
+> KVM_PV_ASYNC_CLEANUP_PREPARE: set aside the current protected VM for
+> later asynchronous teardown. The current KVM VM will then continue
+> immediately as non-protected. If a protected VM had already been
+> set aside for asynchronous teardown, but without starting the teardown
+> process, this call will fail. There can be at most one VM set aside at
+> any time. Once it is set aside, the protected VM only exists in the
+> context of the Ultravisor, it is not associated with the KVM VM
+> anymore. Its protected CPUs have already been destroyed, but not its
+> memory. This command can be issued again immediately after starting
+> KVM_PV_ASYNC_CLEANUP_PERFORM, without having to wait for completion.
+> 
+> KVM_PV_ASYNC_CLEANUP_PERFORM: tears down the protected VM previously
+> set aside using KVM_PV_ASYNC_CLEANUP_PREPARE. Ideally the
+> KVM_PV_ASYNC_CLEANUP_PERFORM PV command should be issued by userspace
+> from a separate thread. If a fatal signal is received (or if the
+> process terminates naturally), the command will terminate immediately
+> without completing. All protected VMs whose teardown was interrupted
+> will be put in the need_cleanup list. The rest of the normal KVM
+> teardown process will take care of properly cleaning up all remaining
+> protected VMs, including the ones on the need_cleanup list.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+With nits fixed/discussed:
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+
 > ---
-> v3 -> v4:
-> - Drop s390_domain from __s390_iommu_detach_device() (Jason)
-> - WARN_ON() mismatched domain in s390_iommu_detach_device() (Jason)
-> - Use __s390_iommu_detach_device() in s390_iommu_release_device() (Jason)
+>   arch/s390/include/asm/kvm_host.h |   2 +
+>   arch/s390/kvm/kvm-s390.c         |  49 +++++-
+>   arch/s390/kvm/kvm-s390.h         |   3 +
+>   arch/s390/kvm/pv.c               | 290 +++++++++++++++++++++++++++++--
+>   include/uapi/linux/kvm.h         |   2 +
+>   5 files changed, 328 insertions(+), 18 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index b1e98a9ed152..470521b8df76 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -942,6 +942,8 @@ struct kvm_s390_pv {
+>   	unsigned long stor_base;
+>   	void *stor_var;
+>   	bool dumping;
+> +	void *set_aside;
+> +	struct list_head need_cleanup;
+>   	struct mmu_notifier mmu_notifier;
+>   };
+>   
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index b7ef0b71014d..d0027964a6f5 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -209,6 +209,8 @@ unsigned int diag9c_forwarding_hz;
+>   module_param(diag9c_forwarding_hz, uint, 0644);
+>   MODULE_PARM_DESC(diag9c_forwarding_hz, "Maximum diag9c forwarding per second, 0 to turn off");
+>
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+IMO it would be better to initialize this variable explicitly here.
+You do this later in patch [6/6].
+Whats the reason to do this not at this point.
 
-Jason
+
+> +static int async_destroy;
+> +
+>   /*
+>    * For now we handle at most 16 double words as this is what the s390 base
+>    * kernel handles and stores in the prefix page. If we ever need to go beyond
+> @@ -2504,9 +2506,13 @@ static int kvm_s390_pv_dmp(struct kvm *kvm, struct kvm_pv_cmd *cmd,
+>   
+>   static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>   {
+> +	const bool needslock = (cmd->cmd != KVM_PV_ASYNC_CLEANUP_PERFORM);
+`need_lock` ? or just `lock` ?
+> +	void __user *argp = (void __user *)cmd->data;
+>   	int r = 0;
+>   	u16 dummy;
+> -	void __user *argp = (void __user *)cmd->data;
+> +
+> +	if (needslock)
+> +		mutex_lock(&kvm->lock);
+>   
+>   	switch (cmd->cmd) {
+>   	case KVM_PV_ENABLE: {
+> @@ -2540,6 +2546,31 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>   		set_bit(IRQ_PEND_EXT_SERVICE, &kvm->arch.float_int.masked_irqs);
+>   		break;
+>   	}
+> +	case KVM_PV_ASYNC_CLEANUP_PREPARE:
+> +		r = -EINVAL;
+> +		if (!kvm_s390_pv_is_protected(kvm) || !async_destroy)
+> +			break;
+> +
+> +		r = kvm_s390_cpus_from_pv(kvm, &cmd->rc, &cmd->rrc);
+> +		/*
+> +		 * If a CPU could not be destroyed, destroy VM will also fail.
+> +		 * There is no point in trying to destroy it. Instead return
+> +		 * the rc and rrc from the first CPU that failed destroying.
+> +		 */
+> +		if (r)
+> +			break;
+> +		r = kvm_s390_pv_set_aside(kvm, &cmd->rc, &cmd->rrc);
+> +
+> +		/* no need to block service interrupts any more */
+> +		clear_bit(IRQ_PEND_EXT_SERVICE, &kvm->arch.float_int.masked_irqs);
+> +		break;
+> +	case KVM_PV_ASYNC_CLEANUP_PERFORM:
+> +		r = -EINVAL;
+> +		if (!async_destroy)
+> +			break;
+> +		/* kvm->lock must not be held; this is asserted inside the function. */
+> +		r = kvm_s390_pv_deinit_aside_vm(kvm, &cmd->rc, &cmd->rrc);
+> +		break;
+>   	case KVM_PV_DISABLE: {
+>   		r = -EINVAL;
+>   		if (!kvm_s390_pv_is_protected(kvm))
+> @@ -2553,7 +2584,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>   		 */
+>   		if (r)
+>   			break;
+> -		r = kvm_s390_pv_deinit_vm(kvm, &cmd->rc, &cmd->rrc);
+> +		r = kvm_s390_pv_deinit_cleanup_all(kvm, &cmd->rc, &cmd->rrc);
+>   
+>   		/* no need to block service interrupts any more */
+>   		clear_bit(IRQ_PEND_EXT_SERVICE, &kvm->arch.float_int.masked_irqs);
+> @@ -2703,6 +2734,9 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>   	default:
+>   		r = -ENOTTY;
+>   	}
+> +	if (needslock)
+> +		mutex_unlock(&kvm->lock);
+> +
+>   	return r;
+>   }
+>   
+> @@ -2907,9 +2941,8 @@ long kvm_arch_vm_ioctl(struct file *filp,
+>   			r = -EINVAL;
+>   			break;
+>   		}
+> -		mutex_lock(&kvm->lock);
+> +		/* must be called without kvm->lock */
+>   		r = kvm_s390_handle_pv(kvm, &args);
+> -		mutex_unlock(&kvm->lock);
+>   		if (copy_to_user(argp, &args, sizeof(args))) {
+>   			r = -EFAULT;
+>   			break;
+> @@ -3228,6 +3261,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>   	kvm_s390_vsie_init(kvm);
+>   	if (use_gisa)
+>   		kvm_s390_gisa_init(kvm);
+> +	INIT_LIST_HEAD(&kvm->arch.pv.need_cleanup);
+> +	kvm->arch.pv.set_aside = NULL;
+>   	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
+>   
+>   	return 0;
+> @@ -3272,11 +3307,9 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+>   	/*
+>   	 * We are already at the end of life and kvm->lock is not taken.
+>   	 * This is ok as the file descriptor is closed by now and nobody
+> -	 * can mess with the pv state. To avoid lockdep_assert_held from
+> -	 * complaining we do not use kvm_s390_pv_is_protected.
+> +	 * can mess with the pv state.
+>   	 */
+> -	if (kvm_s390_pv_get_handle(kvm))
+> -		kvm_s390_pv_deinit_vm(kvm, &rc, &rrc);
+> +	kvm_s390_pv_deinit_cleanup_all(kvm, &rc, &rrc);
+>   	/*
+>   	 * Remove the mmu notifier only when the whole KVM VM is torn down,
+>   	 * and only if one was registered to begin with. If the VM is
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index f6fd668f887e..e70b895f640e 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -243,6 +243,9 @@ static inline u32 kvm_s390_get_gisa_desc(struct kvm *kvm)
+>   /* implemented in pv.c */
+>   int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
+>   int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
+> +int kvm_s390_pv_set_aside(struct kvm *kvm, u16 *rc, u16 *rrc);
+> +int kvm_s390_pv_deinit_aside_vm(struct kvm *kvm, u16 *rc, u16 *rrc);
+> +int kvm_s390_pv_deinit_cleanup_all(struct kvm *kvm, u16 *rc, u16 *rrc);
+>   int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc);
+>   int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc);
+>   int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 7cb7799a0acb..335eeec6e3da 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -18,6 +18,29 @@
+>   #include <linux/mmu_notifier.h>
+>   #include "kvm-s390.h"
+>   
+> +/**
+> + * struct pv_vm_to_be_destroyed - Represents a protected VM that needs to
+> + * be destroyed
+> + *
+> + * @list: list head for the list of leftover VMs
+> + * @old_gmap_table: the gmap table of the leftover protected VM
+> + * @handle: the handle of the leftover protected VM
+> + * @stor_var: pointer to the variable storage of the leftover protected VM
+> + * @stor_base: address of the base storage of the leftover protected VM
+> + *
+> + * Represents a protected VM that is still registered with the Ultravisor,
+> + * but which does not correspond any longer to an active KVM VM. It should
+> + * be destroyed at some point later, either asynchronously or when the
+> + * process terminates.
+> + */
+> +struct pv_vm_to_be_destroyed {
+> +	struct list_head list;
+> +	unsigned long old_gmap_table;
+> +	u64 handle;
+> +	void *stor_var;
+> +	unsigned long stor_base;
+> +};
+> +
+>   static void kvm_s390_clear_pv_state(struct kvm *kvm)
+>   {
+>   	kvm->arch.pv.handle = 0;
+> @@ -159,23 +182,149 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+>   	return -ENOMEM;
+>   }
+>   
+> -/* this should not fail, but if it does, we must not free the donated memory */
+> -int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+> +/**
+> + * kvm_s390_pv_dispose_one_leftover - Clean up one leftover protected VM.
+> + * @kvm: the KVM that was associated with this leftover protected VM
+> + * @leftover: details about the leftover protected VM that needs a clean up
+> + * @rc: the RC code of the Destroy Secure Configuration UVC
+> + * @rrc: the RRC code of the Destroy Secure Configuration UVC
+> + *
+> + * Destroy one leftover protected VM.
+> + * On success, kvm->mm->context.protected_count will be decremented atomically
+> + * and all other resources used by the VM will be freed.
+> + *
+> + * Return: 0 in case of success, otherwise 1
+> + */
+> +static int kvm_s390_pv_dispose_one_leftover(struct kvm *kvm,
+> +					    struct pv_vm_to_be_destroyed *leftover,
+> +					    u16 *rc, u16 *rrc)
+>   {
+>   	int cc;
+>   
+> -	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
+> -			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
+> -	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+> +	cc = uv_cmd_nodata(leftover->handle, UVC_CMD_DESTROY_SEC_CONF, rc, rrc); > +	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY LEFTOVER VM: rc %x rrc %x", 
+*rc, *rrc);
+> +	WARN_ONCE(cc, "protvirt destroy leftover vm failed rc %x rrc %x", *rc, *rrc);
+> +	if (cc)
+> +		return cc;
+maybe set the handle to zero here to be extra sure.
+`leftover` will get free'd directly after this function,
+but that might change and I assume we do not want to end up with
+invalid handles hanging arround.
+>   	/*
+> -	 * if the mm still has a mapping, make all its pages accessible
+> -	 * before destroying the guest
+> +	 * Intentionally leak unusable memory. If the UVC fails, the memory
+> +	 * used for the VM and its metadata is permanently unusable.
+> +	 * This can only happen in case of a serious KVM or hardware bug; it
+> +	 * is not expected to happen in normal operation.
+>   	 */
+> -	if (mmget_not_zero(kvm->mm)) {
+> -		s390_uv_destroy_range(kvm->mm, 0, TASK_SIZE);
+> -		mmput(kvm->mm);
+> +	free_pages(leftover->stor_base, get_order(uv_info.guest_base_stor_len));
+> +	free_pages(leftover->old_gmap_table, CRST_ALLOC_ORDER);
+> +	vfree(leftover->stor_var);
+> +	atomic_dec(&kvm->mm->context.protected_count);
+> +	return 0;
+> +}
+> +
+> +/**
+> + * kvm_s390_destroy_lower_2g - Destroy the first 2GB of protected guest memory.
+> + * @kvm: the VM whose memory is to be cleared.
+> + *
+> + * Destroy the first 2GB of guest memory, to avoid prefix issues after reboot.
+> + * The CPUs of the protected VM need to be destroyed beforehand.
+> + */
+> +static void kvm_s390_destroy_lower_2g(struct kvm *kvm)
+> +{
+> +	const unsigned long pages_2g = SZ_2G / PAGE_SIZE;
+> +	struct kvm_memory_slot *slot;
+> +	unsigned long len;
+> +	int srcu_idx;
+> +
+> +	srcu_idx = srcu_read_lock(&kvm->srcu);
+> +
+> +	/* Take the memslot containing guest absolute address 0 */
+> +	slot = gfn_to_memslot(kvm, 0);
+> +	/* Clear all slots or parts thereof that are below 2GB */
+> +	while (slot && slot->base_gfn < pages_2g) {
+> +		len = min_t(u64, slot->npages, pages_2g - slot->base_gfn) * PAGE_SIZE;
+> +		s390_uv_destroy_range(kvm->mm, slot->userspace_addr, slot->userspace_addr + len);
+> +		/* Take the next memslot */
+> +		slot = gfn_to_memslot(kvm, slot->base_gfn + slot->npages);
+> +	}
+> +
+> +	srcu_read_unlock(&kvm->srcu, srcu_idx);
+> +}
+> +
+> +/**
+> + * kvm_s390_pv_set_aside - Set aside a protected VM for later teardown.
+> + * @kvm: the VM
+> + * @rc: return value for the RC field of the UVCB
+> + * @rrc: return value for the RRC field of the UVCB
+> + *
+> + * Set aside the protected VM for a subsequent teardown. The VM will be able
+> + * to continue immediately as a non-secure VM, and the information needed to
+> + * properly tear down the protected VM is set aside. If another protected VM
+> + * was already set aside without starting its teardown, this function will
+> + * fail.
+> + * The CPUs of the protected VM need to be destroyed beforehand.
+> + *
+> + * Context: kvm->lock needs to be held
+> + *
+> + * Return: 0 in case of success, -EINVAL if another protected VM was already set
+> + * aside, -ENOMEM if the system ran out of memory.
+> + */
+> +int kvm_s390_pv_set_aside(struct kvm *kvm, u16 *rc, u16 *rrc)
+> +{
+> +	struct pv_vm_to_be_destroyed *priv;
+> +
+> +	/*
+> +	 * If another protected VM was already prepared for teardown, refuse.
+> +	 * A normal deinitialization has to be performed instead.
+> +	 */
+> +	if (kvm->arch.pv.set_aside)
+> +		return -EINVAL;
+> +	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	priv->stor_var = kvm->arch.pv.stor_var;
+> +	priv->stor_base = kvm->arch.pv.stor_base;
+> +	priv->handle = kvm_s390_pv_get_handle(kvm);
+> +	priv->old_gmap_table = (unsigned long)kvm->arch.gmap->table;
+> +	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+> +	if (s390_replace_asce(kvm->arch.gmap)) {
+> +		kfree(priv);
+> +		return -ENOMEM;
+>   	}
+>   
+> +	kvm_s390_destroy_lower_2g(kvm);
+> +	kvm_s390_clear_pv_state(kvm);
+> +	kvm->arch.pv.set_aside = priv;
+> +
+> +	*rc = UVC_RC_EXECUTED;
+> +	*rrc = 42;
+> +	return 0;
+> +}
+> +
+> +/**
+> + * kvm_s390_pv_deinit_vm - Deinitialize the current protected VM
+> + * @kvm: the KVM whose protected VM needs to be deinitialized
+> + * @rc: the RC code of the UVC
+> + * @rrc: the RRC code of the UVC
+> + *
+> + * Deinitialize the current protected VM. This function will destroy and
+> + * cleanup the current protected VM, but it will not cleanup the guest
+> + * memory. This function should only be called when the protected VM has
+> + * just been created and therefore does not have any guest memory, or when
+> + * the caller cleans up the guest memory separately.
+> + *
+> + * This function should not fail, but if it does, the donated memory must
+> + * not be freed.
+> + *
+> + * Context: kvm->lock needs to be held
+> + *
+> + * Return: 0 in case of success, otherwise -EIO
+> + */
+> +int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+> +{
+> +	int cc;
+> +
+> +	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
+> +			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
+> +	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+>   	if (!cc) {
+>   		atomic_dec(&kvm->mm->context.protected_count);
+>   		kvm_s390_pv_dealloc_vm(kvm);
+> @@ -189,6 +338,127 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+>   	return cc ? -EIO : 0;
+>   }
+>   
+> +/**
+> + * kvm_s390_pv_deinit_cleanup_all - Clean up all protected VMs associated
+> + * with a specific KVM.
+> + * @kvm: the KVM to be cleaned up
+> + * @rc: the RC code of the first failing UVC
+> + * @rrc: the RRC code of the first failing UVC
+> + *
+> + * This function will clean up all protected VMs associated with a KVM.
+> + * This includes the active one, the one prepared for deinitialization with
+> + * kvm_s390_pv_set_aside, and any still pending in the need_cleanup list.
+> + *
+> + * Context: kvm->lock needs to be held unless being called from
+> + * kvm_arch_destroy_vm.
+> + *
+> + * Return: 0 if all VMs are successfully cleaned up, otherwise -EIO
+> + */
+> +int kvm_s390_pv_deinit_cleanup_all(struct kvm *kvm, u16 *rc, u16 *rrc)
+> +{
+> +	struct pv_vm_to_be_destroyed *cur;
+> +	bool need_zap = false;
+> +	u16 _rc, _rrc;
+> +	int cc = 0;
+> +
+> +	/* Make sure the counter does not reach 0 before calling s390_uv_destroy_range */
+> +	atomic_inc(&kvm->mm->context.protected_count);
+> +
+> +	*rc = 1;
+> +	/* If the current VM is protected, destroy it */
+> +	if (kvm_s390_pv_get_handle(kvm)) {
+> +		cc = kvm_s390_pv_deinit_vm(kvm, rc, rrc);
+> +		need_zap = true;
+> +	}
+> +
+> +	/* If a previous protected VM was set aside, put it in the need_cleanup list */
+> +	if (kvm->arch.pv.set_aside) {
+> +		list_add(kvm->arch.pv.set_aside, &kvm->arch.pv.need_cleanup);
+> +		kvm->arch.pv.set_aside = NULL;
+> +	}
+> +
+> +	/* Cleanup all protected VMs in the need_cleanup list */
+> +	while (!list_empty(&kvm->arch.pv.need_cleanup)) {
+> +		cur = list_first_entry(&kvm->arch.pv.need_cleanup, typeof(*cur), list);
+> +		need_zap = true;
+> +		if (kvm_s390_pv_dispose_one_leftover(kvm, cur, &_rc, &_rrc)) {
+> +			cc = 1;
+> +			/* do not overwrite a previous error code */
+use UVC_RC_EXECUTED
+> +			if (*rc == 1) {
+> +				*rc = _rc;
+> +				*rrc = _rrc;
+> +			}
+> +		}
+> +		list_del(&cur->list);
+> +		kfree(cur);
+> +	}
+> +
+> +	/*
+> +	 * If the mm still has a mapping, try to mark all its pages as
+> +	 * accessible. The counter should not reach zero before this
+> +	 * cleanup has been performed.
+> +	 */
+> +	if (need_zap && mmget_not_zero(kvm->mm)) {
+> +		s390_uv_destroy_range(kvm->mm, 0, TASK_SIZE);
+> +		mmput(kvm->mm);
+> +	}
+> +
+> +	/* Now the counter can safely reach 0 */
+> +	atomic_dec(&kvm->mm->context.protected_count);
+> +	return cc ? -EIO : 0;
+> +}
+> +
+> +/**
+> + * kvm_s390_pv_deinit_aside_vm - Teardown a previously set aside protected VM.
+> + * @kvm the VM previously associated with the protected VM
+> + * @rc return value for the RC field of the UVCB
+> + * @rrc return value for the RRC field of the UVCB
+> + *
+> + * Tear down the protected VM that had been previously prepared for teardown
+> + * using kvm_s390_pv_set_aside_vm. Ideally this should be called by
+> + * userspace asynchronously from a separate thread.
+> + *
+> + * Context: kvm->lock must not be held.
+> + *
+> + * Return: 0 in case of success, -EINVAL if no protected VM had been
+> + * prepared for asynchronous teardowm, -EIO in case of other errors.
+> + */
+> +int kvm_s390_pv_deinit_aside_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+> +{
+> +	struct pv_vm_to_be_destroyed *p;
+> +	int ret = 0;
+> +
+> +	lockdep_assert_not_held(&kvm->lock);
+> +	mutex_lock(&kvm->lock);
+> +	p = kvm->arch.pv.set_aside;
+> +	kvm->arch.pv.set_aside = NULL;
+> +	mutex_unlock(&kvm->lock);
+> +	if (!p)
+> +		return -EINVAL;
+> +
+> +	/* When a fatal signal is received, stop immediately */
+> +	if (s390_uv_destroy_range_interruptible(kvm->mm, 0, TASK_SIZE_MAX))
+> +		goto done;
+> +	if (kvm_s390_pv_dispose_one_leftover(kvm, p, rc, rrc))
+> +		ret = -EIO;
+> +	kfree(p);
+> +	p = NULL;
+> +done:
+> +	/*
+> +	 * p is not NULL if we aborted because of a fatal signal, in which
+> +	 * case queue the leftover for later cleanup.
+> +	 */
+> +	if (p) {
+> +		mutex_lock(&kvm->lock);
+> +		list_add(&p->list, &kvm->arch.pv.need_cleanup);
+> +		mutex_unlock(&kvm->lock);
+> +		/* Did not finish, but pretend things went well */
+use UVC_RC_EXECUTED
+> +		*rc = 1;
+> +		*rrc = 42;
+> +	}
+> +	return ret;
+> +}
+> +
+>   static void kvm_s390_pv_mmu_notifier_release(struct mmu_notifier *subscription,
+>   					     struct mm_struct *mm)
+>   {
+> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> index eed0315a77a6..02602c5c1975 100644
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -1739,6 +1739,8 @@ enum pv_cmd_id {
+>   	KVM_PV_UNSHARE_ALL,
+>   	KVM_PV_INFO,
+>   	KVM_PV_DUMP,
+> +	KVM_PV_ASYNC_CLEANUP_PREPARE,
+> +	KVM_PV_ASYNC_CLEANUP_PERFORM,
+>   };
+>   
+>   struct kvm_pv_cmd {
