@@ -2,159 +2,250 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6386FC433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  3 Oct 2022 16:22:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1946DC4332F
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Oct 2022 08:15:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbiJCQWE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 Oct 2022 12:22:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43478 "EHLO
+        id S230100AbiJDIPt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Oct 2022 04:15:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229826AbiJCQWC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Oct 2022 12:22:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 045361A805
-        for <linux-s390@vger.kernel.org>; Mon,  3 Oct 2022 09:21:54 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA57261148
-        for <linux-s390@vger.kernel.org>; Mon,  3 Oct 2022 16:21:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C863C433D7;
-        Mon,  3 Oct 2022 16:21:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664814113;
-        bh=VTqxixtRfZ1cqoQoc7riPul/A+U8/gArsffJmC8qpto=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=a3CTmKINIb0JgJDTUTT2zDLBirlmklF9ciLNeNaXcOgWEKU8tXE4nmexWQkW1SSSD
-         Zk00wtwpggMkrnxbhhPiVOStWn++Qnm9yYSeZo6o+M9djPmEk4tILvJGSWtvl8Xnfx
-         amktooN8CjXGlFqG/fBA5KFeC629SeOakNwF5sxmyyI4zwXsSSfqr6Hh4VY+anWhFB
-         Zq3ayG9WpH4w/8Ql38zNgmAU9TPxlpqn6ODHNy/D4yu/mLM4TPHBZbbQJME/W4lOos
-         vMdMIS+pfMt8mM3WQ/Cgj3wowQU3oc3RNMQdXFcYXE3vQd7aa1bjtVfhwl0QJ9Entk
-         bg7rj/4jBC83g==
-Date:   Mon, 3 Oct 2022 09:21:50 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Yury Norov <yury.norov@gmail.com>
-Cc:     kernel test robot <lkp@intel.com>, llvm@lists.linux.dev,
-        kbuild-all@lists.01.org,
-        Linux Memory Management List <linux-mm@kvack.org>,
+        with ESMTP id S230071AbiJDIP3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Oct 2022 04:15:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F159520B3
+        for <linux-s390@vger.kernel.org>; Tue,  4 Oct 2022 01:14:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1664871204;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=4SEPz4izziLGyZZQpQAS5WWJH9dzKde6xEWRITwwvro=;
+        b=S7lrcr6zkVfRLutUJf5vNPyuI40C/WkiCLmBbRkXi1U9O5/LJNGUhvu3uOISiE+i9Pl23N
+        0K5nJYsOwI5baPqf+X8ZTnCuZZxFcq1trkDJm8CVNrbPvYHKxmumdhj5ddYoEnwayqVdVK
+        wRGTj5GK11uM3Gky82vu0MPVbklG+GE=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-8-CyBFoh6MOaiekiRKXzGF6w-1; Tue, 04 Oct 2022 04:13:23 -0400
+X-MC-Unique: CyBFoh6MOaiekiRKXzGF6w-1
+Received: by mail-wm1-f70.google.com with SMTP id 133-20020a1c028b000000b003bd776ce0f3so123628wmc.0
+        for <linux-s390@vger.kernel.org>; Tue, 04 Oct 2022 01:13:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
+         :content-language:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=4SEPz4izziLGyZZQpQAS5WWJH9dzKde6xEWRITwwvro=;
+        b=C1+6vfVYBcAaHR+7mn1Mkuce/6CW0tL+Bms6+7DsS4DcRfIeSUhD9OB7rTtBUBMwCl
+         PPvbWQ6+44vKXiQXCsVbJTeWWc6n8zZ83iMAVw3wrmnAzY/b7447eYfFjsGsgUxhYFzv
+         LXMvyuZoi0Nn3dFOfnnJ+n18aUxwTBQhTMGUSx0tiuqkDFoRcez8S3k5VPmus4UCGqGh
+         aXxfeX+g+eYk6C90365zzVoIbMDxAEYAD2XwzaDVDSPhMWBZSNfUVgWl3YAEPDjIa6ct
+         wi6ySXhXxQQ92xj7eNA8X+rH3mksq/5y9kZscYQfpZN+jX08xlDkJ8HT3YRb/wTrh3QN
+         AYBQ==
+X-Gm-Message-State: ACrzQf2mzV0eAsmXorRTBMKRToeaPLvHis/ErNrOCnOT9gMdcxujy64I
+        Y5S3mW6e8a1EJrfbYcK8Y+gv3eDFX2DXS6VSmUa7bdbGq3QBgs1JgTNPQ3XVGr4YSxLQRu7aIbz
+        DL3GALAX76kAzZCeXqbBMjA==
+X-Received: by 2002:a05:600c:a04:b0:3b4:f20e:63f4 with SMTP id z4-20020a05600c0a0400b003b4f20e63f4mr9326468wmp.201.1664871201963;
+        Tue, 04 Oct 2022 01:13:21 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7Elcz96X2vnDOISc0Fm0vuaZoMWuBIs/A7V2AFtBPjUPP+3RQq7GKyzaXipTZnmux/ACQIMA==
+X-Received: by 2002:a05:600c:a04:b0:3b4:f20e:63f4 with SMTP id z4-20020a05600c0a0400b003b4f20e63f4mr9326456wmp.201.1664871201722;
+        Tue, 04 Oct 2022 01:13:21 -0700 (PDT)
+Received: from [192.168.0.5] (ip-109-43-178-246.web.vodafone.de. [109.43.178.246])
+        by smtp.gmail.com with ESMTPSA id j2-20020adfd202000000b002285f73f11dsm14819436wrh.81.2022.10.04.01.13.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Oct 2022 01:13:21 -0700 (PDT)
+Message-ID: <ffd5935b-a933-18b8-c6a8-2863bbb3d906@redhat.com>
+Date:   Tue, 4 Oct 2022 10:13:18 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.0
+Content-Language: en-US
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [linux-next:master 7287/11993] s390x-linux-ld:
- topology.c:undefined reference to `__tsan_memcpy'
-Message-ID: <YzsMHqG9LvMZXTz8@dev-arch.thelio-3990X>
-References: <202210010718.2kaVANGb-lkp@intel.com>
- <YzeW3yqxvkpYKCxa@yury-laptop>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YzeW3yqxvkpYKCxa@yury-laptop>
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+References: <20220930210751.225873-1-scgl@linux.ibm.com>
+ <20220930210751.225873-3-scgl@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [PATCH v1 2/9] KVM: s390: Extend MEM_OP ioctl by storage key
+ checked cmpxchg
+In-Reply-To: <20220930210751.225873-3-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Yury,
-
-On Fri, Sep 30, 2022 at 06:24:47PM -0700, Yury Norov wrote:
-> On Sat, Oct 01, 2022 at 07:12:48AM +0800, kernel test robot wrote:
-> > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-> > head:   274d7803837da78dfc911bcda0d593412676fc20
-> > commit: aa47a7c215e79a2ade6916f163c5a17b561bce4f [7287/11993] lib/cpumask: deprecate nr_cpumask_bits
-> > config: s390-randconfig-r023-20220926
-> > compiler: clang version 16.0.0 (https://github.com/llvm/llvm-project 791a7ae1ba3efd6bca96338e10ffde557ba83920)
-> > reproduce (this is a W=1 build):
-> >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-> >         chmod +x ~/bin/make.cross
-> >         # install s390 cross compiling tool for clang build
-> >         # apt-get install binutils-s390x-linux-gnu
-> >         # https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=aa47a7c215e79a2ade6916f163c5a17b561bce4f
-> >         git remote add linux-next https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
-> >         git fetch --no-tags linux-next master
-> >         git checkout aa47a7c215e79a2ade6916f163c5a17b561bce4f
-> >         # save the config file
-> >         mkdir build_dir && cp config build_dir/.config
-> >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash
-> > 
-> > If you fix the issue, kindly add following tag where applicable
-> > | Reported-by: kernel test robot <lkp@intel.com>
-> > 
-> > All errors (new ones prefixed by >>):
-> > 
-> >    s390x-linux-ld: ipl.c:(.text+0x1004): undefined reference to `__tsan_memcpy'
-> >    s390x-linux-ld: ipl.c:(.text+0x1046): undefined reference to `__tsan_memset'
-> >    s390x-linux-ld: arch/s390/kernel/ipl.o: in function `reipl_fcp_scpdata_write':
+On 30/09/2022 23.07, Janis Schoetterl-Glausch wrote:
+> User space can use the MEM_OP ioctl to make storage key checked reads
+> and writes to the guest, however, it has no way of performing atomic,
+> key checked, accesses to the guest.
+> Extend the MEM_OP ioctl in order to allow for this, by adding a cmpxchg
+> mode. For now, support this mode for absolute accesses only.
 > 
-> I can't reproduce the bug. In fact, the build is broken for me on
-> next-20220930. To make the s390 image somehow building, I commented
-> out some functions that aren't found by the LD.
-
-Sorry for the noise, this is not a kernel issue, it is a toolchain
-problem that will be fixed soon:
-
-https://github.com/ClangBuiltLinux/linux/issues/1704
-https://lore.kernel.org/20220912094541.929856-1-elver@google.com/
-
-I had asked the Intel folks to stop sending reports based on this build
-breakage a few times but it seems like their filter is not working
-still?
-
-https://lore.kernel.org/Yx3HnuEDyFG0+G62@dev-arch.thelio-3990X/
-https://lore.kernel.org/Yy3PxL973jtEtEUK@dev-arch.thelio-3990X/
-
-Cheers,
-Nathan
-
-> Thanks,
-> Yury
+> This mode can be use, for example, to set the device-state-change
+> indicator and the adapter-local-summary indicator atomically.
 > 
-> diff --git a/drivers/irqchip/irq-al-fic.c b/drivers/irqchip/irq-al-fic.c
-> index 886de028a901..d696d78132a0 100644
-> --- a/drivers/irqchip/irq-al-fic.c
-> +++ b/drivers/irqchip/irq-al-fic.c
-> @@ -235,6 +235,7 @@ static struct al_fic *al_fic_wire_init(struct device_node *node,
->         return ERR_PTR(ret);
->  }
-> 
-> +void __iomem *of_iomap(struct device_node *np, int index);
->  static int __init al_fic_init_dt(struct device_node *node,
->                                  struct device_node *parent)
->  {
-> @@ -249,7 +250,7 @@ static int __init al_fic_init_dt(struct device_node *node,
->                 return -EINVAL;
->         }
-> 
-> -       base = of_iomap(node, 0);
-> +       base = NULL;//of_iomap(node, 0);
->         if (!base) {
->                 pr_err("%s: fail to map memory\n", node->name);
->                 return -ENOMEM;
-> diff --git a/drivers/net/ethernet/altera/altera_tse_main.c b/drivers/net/ethernet/altera/altera_tse_main.c
-> index 7633b227b2ca..4e4c9d9743bf 100644
-> --- a/drivers/net/ethernet/altera/altera_tse_main.c
-> +++ b/drivers/net/ethernet/altera/altera_tse_main.c
-> @@ -1122,8 +1122,8 @@ static int request_and_map(struct platform_device *pdev, const char *name,
->                 return -EBUSY;
->         }
-> 
-> -       *ptr = devm_ioremap(device, region->start,
-> -                                   resource_size(region));
-> +       *ptr = NULL;//devm_ioremap(device, region->start,
-> +               //                  resource_size(region));
->         if (*ptr == NULL) {
->                 dev_err(device, "ioremap of %s failed!", name);
->                 return -ENOMEM;
-> diff --git a/fs/afs/dir.c b/fs/afs/dir.c
-> index 230c2d19116d..9f88be3c2b08 100644
-> --- a/fs/afs/dir.c
-> +++ b/fs/afs/dir.c
-> @@ -49,6 +49,7 @@ static bool afs_dir_dirty_folio(struct address_space *mapping,
->                 struct folio *folio)
->  {
->         BUG(); /* This should never happen. */
-> +       return false;
->  }
-> 
->  const struct file_operations afs_dir_file_operations = {
-> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> ---
+...
+> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> index eed0315a77a6..b856705f3f6b 100644
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -580,7 +580,9 @@ struct kvm_translation {
+>   struct kvm_s390_mem_op {
+>   	/* in */
+>   	__u64 gaddr;		/* the guest address */
+> +	/* in & out */
+>   	__u64 flags;		/* flags */
+> +	/* in */
+>   	__u32 size;		/* amount of bytes */
+>   	__u32 op;		/* type of operation */
+>   	__u64 buf;		/* buffer in userspace */
+> @@ -588,6 +590,8 @@ struct kvm_s390_mem_op {
+>   		struct {
+>   			__u8 ar;	/* the access register number */
+>   			__u8 key;	/* access key, ignored if flag unset */
+> +			/* in & out */
+> +			__u64 old[2];	/* ignored if flag unset */
+
+The alignment looks very unfortunate now ... could you please add a "__u8 
+pad[6]" or "__u8 pad[14]" in front of the new field?
+
+>   		};
+>   		__u32 sida_offset; /* offset into the sida */
+>   		__u8 reserved[32]; /* ignored */
+> @@ -604,6 +608,7 @@ struct kvm_s390_mem_op {
+>   #define KVM_S390_MEMOP_F_CHECK_ONLY		(1ULL << 0)
+>   #define KVM_S390_MEMOP_F_INJECT_EXCEPTION	(1ULL << 1)
+>   #define KVM_S390_MEMOP_F_SKEY_PROTECTION	(1ULL << 2)
+> +#define KVM_S390_MEMOP_F_CMPXCHG		(1ULL << 3)
+>   
+>   /* for KVM_INTERRUPT */
+>   struct kvm_interrupt {
+> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+> index 9408d6cc8e2c..a1cb66ae0995 100644
+> --- a/arch/s390/kvm/gaccess.h
+> +++ b/arch/s390/kvm/gaccess.h
+> @@ -206,6 +206,10 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+>   int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+>   		      void *data, unsigned long len, enum gacc_mode mode);
+>   
+> +int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
+> +			       unsigned __int128 *old,
+> +			       unsigned __int128 new, u8 access_key);
+> +
+>   /**
+>    * write_guest_with_key - copy data from kernel space to guest space
+>    * @vcpu: virtual cpu
+> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> index 0243b6e38d36..c0e490ecc372 100644
+> --- a/arch/s390/kvm/gaccess.c
+> +++ b/arch/s390/kvm/gaccess.c
+> @@ -1161,6 +1161,62 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+>   	return rc;
+>   }
+>   
+> +/**
+> + * cmpxchg_guest_abs_with_key() - Perform cmpxchg on guest absolute address.
+> + * @kvm: Virtual machine instance.
+> + * @gpa: Absolute guest address of the location to be changed.
+> + * @len: Operand length of the cmpxchg, required: 1 <= len <= 16. Providing a
+> + *       non power of two will result in failure.
+> + * @old_p: Pointer to old value. If the location at @gpa contains this value, the
+> + *         exchange will succeed. After calling cmpxchg_guest_abs_with_key() *@old
+> + *         contains the value at @gpa before the attempt to exchange the value.
+> + * @new: The value to place at @gpa.
+> + * @access_key: The access key to use for the guest access.
+> + *
+> + * Atomically exchange the value at @gpa by @new, if it contains *@old.
+> + * Honors storage keys.
+> + *
+> + * Return: * 0: successful exchange
+> + *         * 1: exchange unsuccessful
+> + *         * a program interruption code indicating the reason cmpxchg could
+> + *           not be attempted
+> + *         * -EINVAL: address misaligned or len not power of two
+> + */
+> +int cmpxchg_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, int len,
+> +			       unsigned __int128 *old_p, unsigned __int128 new,
+> +			       u8 access_key)
+> +{
+> +	gfn_t gfn = gpa >> PAGE_SHIFT;
+> +	struct kvm_memory_slot *slot = gfn_to_memslot(kvm, gfn);
+> +	bool writable;
+> +	hva_t hva;
+> +	int ret;
+> +
+> +	if (!IS_ALIGNED(gpa, len))
+> +		return -EINVAL;
+> +
+> +	hva = gfn_to_hva_memslot_prot(slot, gfn, &writable);
+> +	if (kvm_is_error_hva(hva))
+> +		return PGM_ADDRESSING;
+> +	/*
+> +	 * Check if it's a ro memslot, even tho that can't occur (they're unsupported).
+
+Not everybody is used to read such abbreviated English ... I'd recommend to 
+spell it rather properly (ro ==> read-only, tho ==> though)
+
+> +	 * Don't try to actually handle that case.
+> +	 */
+> +	if (!writable)
+> +		return -EOPNOTSUPP;
+> +
+> +	hva += offset_in_page(gpa);
+> +	ret = cmpxchg_user_key_size(len, (void __user *)hva, old_p, new, access_key);
+> +	mark_page_dirty_in_slot(kvm, slot, gfn);
+> +	/*
+> +	 * Assume that the fault is caused by key protection, the alternative
+> +	 * is that the user page is write protected.
+> +	 */
+> +	if (ret == -EFAULT)
+> +		ret = PGM_PROTECTION;
+> +	return ret;
+> +}
+> +
+>   /**
+>    * guest_translate_address_with_key - translate guest logical into guest absolute address
+>    * @vcpu: virtual cpu
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index b7ef0b71014d..d594d1318d2a 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -576,7 +576,6 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>   	case KVM_CAP_S390_VCPU_RESETS:
+>   	case KVM_CAP_SET_GUEST_DEBUG:
+>   	case KVM_CAP_S390_DIAG318:
+> -	case KVM_CAP_S390_MEM_OP_EXTENSION:
+>   		r = 1;
+>   		break;
+>   	case KVM_CAP_SET_GUEST_DEBUG2:
+> @@ -590,6 +589,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>   	case KVM_CAP_S390_MEM_OP:
+>   		r = MEM_OP_MAX_SIZE;
+>   		break;
+> +	case KVM_CAP_S390_MEM_OP_EXTENSION:
+> +		r = 0x3;
+
+Add a comment to explain that magic value 0x3 ?
+
+> +		break;
+>   	case KVM_CAP_NR_VCPUS:
+>   	case KVM_CAP_MAX_VCPUS:
+>   	case KVM_CAP_MAX_VCPU_ID:
+
+  Thomas
+
