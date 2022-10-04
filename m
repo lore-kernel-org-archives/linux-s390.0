@@ -2,293 +2,211 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23F16C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Oct 2022 15:16:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9B16C433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Oct 2022 15:19:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229851AbiJDPQB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Oct 2022 11:16:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43702 "EHLO
+        id S229639AbiJDPTh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Oct 2022 11:19:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229586AbiJDPP7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Oct 2022 11:15:59 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5A25E30F
-        for <linux-s390@vger.kernel.org>; Tue,  4 Oct 2022 08:15:57 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id p3-20020a17090a284300b0020a85fa3ffcso7244715pjf.2
-        for <linux-s390@vger.kernel.org>; Tue, 04 Oct 2022 08:15:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=J2ppHC6gj92crGPpSrELKUpyhixWpF3W0/4C0ZdDtPI=;
-        b=UiXw6aHZigxzPRMUFzDILsNVsAdyFtr3B9KxKEI8m7E01CsajejevTYV7BdP2wsOm/
-         HvcPZBMM+TkW28eTt3F1DhxxBtezuv0XTDjtGYW8B2mbElhkTInGpM6vTu+4Ez1+Z4Zl
-         CSSAi6wcg4/gLFK0z0F/WRWRc047jLnY5XkW7fk/hHejtLeNbcKkU7CbDUwW9lkytUXr
-         cd/OQHjN7wB6eRDMRvJyzU3msr1RCb52XcEzMB0ZW808FTM1QI6i/jSUk70317I5p+kD
-         nFmZIjIA0zvgwBAFP/4LpKCKrT0ZRrqcJXuKYGFTLZWpkF7eqaysYMEZs2++diGTMeSz
-         qF/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=J2ppHC6gj92crGPpSrELKUpyhixWpF3W0/4C0ZdDtPI=;
-        b=b8VI7Pd29TKaz7KU7Ikbh03d9IW8t4YOcWUdFn9/8x9TAsgJMaRh4HUpFOQZs9ZbKF
-         kCAcLujr47Y1lQxQ1/dlfLHm2W1ngJHN9S9B/1dMdxG0QPjtqNEJ4kicpMb6Me36zzLo
-         FbRUssBZ6gj9L/RsKHx6i9+ffikdCSXX7oDQNjAFqSNVdjCd+iSRAcQvzb0sfdXVAEPU
-         gPYXMOTUbj0cwCSPTxVXoAoajhPnKnjGFFDgUFF2fGjI1vg0cIvPd2aTqG/5/nrQ32o2
-         Rta7MKSwM6f3zR2o0qtyFLNQYPlsl8EVIkNt33EAqz7FO+0ITpzd+hWqbD2vK7mr3Wmm
-         qNHQ==
-X-Gm-Message-State: ACrzQf0y+d0qcdTbsUmPSD9cFD0VWkoqLtueqOKZXRT+xv+XrrhVrz0k
-        arrEbG1USitYQGN3Qm/Law5vL7spQRrFTRfYQWo+gg==
-X-Google-Smtp-Source: AMsMyM7n+Vc130we6EQHET/igQcvZPTbfdglKFSS5m9j3dBgMdP/YI1FG0U2Mdd0MJ/1Rl84IgnhjST9lkox2h0baYs=
-X-Received: by 2002:a17:90b:1b06:b0:202:cce0:2148 with SMTP id
- nu6-20020a17090b1b0600b00202cce02148mr262733pjb.84.1664896556863; Tue, 04 Oct
- 2022 08:15:56 -0700 (PDT)
+        with ESMTP id S229673AbiJDPTY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Oct 2022 11:19:24 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C894642DA;
+        Tue,  4 Oct 2022 08:19:21 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 294DvmGk021811;
+        Tue, 4 Oct 2022 15:19:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=cJcjObqfqKIY0C1YqVlRsUx8YbOlfIoaXp/hjSrgKJs=;
+ b=qO+UT/KJK5dMb5aFWO5tJ4QK7tfnmpPWsnUB6dETdmb5DXHZmzl7MQRDfhOJIT9QtDAB
+ xFq+mamwaa4SUWmBaLTywZSgDsvFPjNkpIZ0yptL/7B7FcQF4sQLUfeZ2NNwSVNOBhhC
+ mq8GA9KP0u/OWtzIXmlvF1TLIkN4yJOpKZvnImxpIPPcEkzn7K9HyVGwRengmtS0EjxC
+ YX8W7lvyrm8QzkJ6QFIEoOniXAMNtWMpRm74FauOFjJVQ3h+0tke+RlOmO4Pg4hJ4fM3
+ xt1X4hxaseiDE7VTRkxyuUHmHuSwyeXuborfbX+/9HBE5ZKh+fro4Tb6bSomDqnypBIn ZQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k0gw1d26m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Oct 2022 15:19:14 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 294Dw9D6023895;
+        Tue, 4 Oct 2022 15:19:14 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k0gw1d25c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Oct 2022 15:19:13 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 294F6Dkg010962;
+        Tue, 4 Oct 2022 15:19:11 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3jxd694d59-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Oct 2022 15:19:11 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 294FJ8UT3342914
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 4 Oct 2022 15:19:08 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 11C49AE04D;
+        Tue,  4 Oct 2022 15:19:08 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5EAF6AE045;
+        Tue,  4 Oct 2022 15:19:07 +0000 (GMT)
+Received: from [9.171.7.248] (unknown [9.171.7.248])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  4 Oct 2022 15:19:07 +0000 (GMT)
+Message-ID: <52545d8b-956b-8934-8a7e-212729ea2855@linux.ibm.com>
+Date:   Tue, 4 Oct 2022 17:19:07 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.0
+Subject: Re: [PATCH v2] vfio: Follow a strict lifetime for struct iommu_group
+To:     Alex Williamson <alex.williamson@redhat.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>,
+        Marc Hartmayer <mhartmay@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>,
+        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
+        Qian Cai <cai@lca.pw>, Joerg Roedel <jroedel@suse.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <0-v2-a3c5f4429e2a+55-iommu_group_lifetime_jgg@nvidia.com>
+ <4cb6e49e-554e-57b3-e2d3-bc911d99083f@linux.ibm.com>
+ <20220927140541.6f727b01.alex.williamson@redhat.com>
+Content-Language: en-US
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20220927140541.6f727b01.alex.williamson@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: u5RbipeS9S4CTFHZY9uC1j9AxihcJ6Tl
+X-Proofpoint-GUID: FS3ot2_0L3bzuNOtVe29Ry5svUf638me
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-References: <20220919095939.761690562@infradead.org>
-In-Reply-To: <20220919095939.761690562@infradead.org>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Tue, 4 Oct 2022 17:15:20 +0200
-Message-ID: <CAPDyKFqwV27k5r8Pqo0bOqKQ2WKfcMdQoua665nA953U36+rXg@mail.gmail.com>
-Subject: Re: [PATCH v2 00/44] cpuidle,rcu: Clean up the mess
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
-        linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org,
-        pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org,
-        vincent.guittot@linaro.org, mpe@ellerman.id.au,
-        chenhuacai@kernel.org, christophe.leroy@csgroup.eu,
-        linux-acpi@vger.kernel.org, agross@kernel.org,
-        geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org,
-        mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net,
-        pmladek@suse.com, linux-pm@vger.kernel.org,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        linux-um@lists.infradead.org, npiggin@gmail.com,
-        tglx@linutronix.de, linux-omap@vger.kernel.org,
-        dietmar.eggemann@arm.com, andreyknvl@gmail.com,
-        gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
-        svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        mark.rutland@arm.com, linux-ia64@vger.kernel.org,
-        dave.hansen@linux.intel.com,
-        virtualization@lists.linux-foundation.org,
-        James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
-        thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
-        linux-s390@vger.kernel.org, vschneid@redhat.com,
-        john.ogness@linutronix.de, ysato@users.sourceforge.jp,
-        linux-sh@vger.kernel.org, festevam@gmail.com, deller@gmx.de,
-        daniel.lezcano@linaro.org, jonathanh@nvidia.com, dennis@kernel.org,
-        lenb@kernel.org, linux-xtensa@linux-xtensa.org,
-        kernel@pengutronix.de, gor@linux.ibm.com,
-        linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, loongarch@lists.linux.dev,
-        shorne@gmail.com, chris@zankel.net, sboyd@kernel.org,
-        dinguyen@kernel.org, bristot@redhat.com,
-        alexander.shishkin@linux.intel.com, fweisbec@gmail.com,
-        lpieralisi@kernel.org, atishp@atishpatra.org,
-        linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com,
-        will@kernel.org, boris.ostrovsky@oracle.com, khilman@kernel.org,
-        linux-csky@vger.kernel.org, pv-drivers@vmware.com,
-        linux-snps-arc@lists.infradead.org, mgorman@suse.de,
-        jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
-        ulli.kroll@googlemail.com, linux-clk@vger.kernel.org,
-        rostedt@goodmis.org, ink@jurassic.park.msu.ru, bcain@quicinc.com,
-        tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
-        ryabinin.a.a@gmail.com, sudeep.holla@arm.com, shawnguo@kernel.org,
-        davem@davemloft.net, dalias@libc.org, tony@atomide.com,
-        amakhalov@vmware.com, konrad.dybcio@somainline.org,
-        bjorn.andersson@linaro.org, glider@google.com, hpa@zytor.com,
-        sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-riscv@lists.infradead.org, vincenzo.frascino@arm.com,
-        anton.ivanov@cambridgegreys.com, jonas@southpole.se,
-        yury.norov@gmail.com, richard@nod.at, x86@kernel.org,
-        linux@armlinux.org.uk, mingo@redhat.com, aou@eecs.berkeley.edu,
-        hca@linux.ibm.com, richard.henderson@linaro.org,
-        stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
-        acme@kernel.org, paul.walmsley@sifive.com,
-        linux-tegra@vger.kernel.org, namhyung@kernel.org,
-        andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org,
-        dvyukov@google.com, jgross@suse.com, monstr@monstr.eu,
-        linux-mips@vger.kernel.org, palmer@dabbelt.com,
-        anup@brainfault.org, bp@alien8.de, johannes@sipsolutions.net,
-        linuxppc-dev@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-10-04_06,2022-09-29_03,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ bulkscore=0 adultscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
+ priorityscore=1501 clxscore=1011 mlxscore=0 impostorscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2210040097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 19 Sept 2022 at 12:18, Peter Zijlstra <peterz@infradead.org> wrote:
->
-> Hi All!
->
-> At long last, a respin of the cpuidle vs rcu cleanup patches.
->
-> v1: https://lkml.kernel.org/r/20220608142723.103523089@infradead.org
->
-> These here patches clean up the mess that is cpuidle vs rcuidle.
->
-> At the end of the ride there's only on RCU_NONIDLE user left:
->
->   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
->
-> and 'one' trace_*_rcuidle() user:
->
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
->
-> However this last is all in deprecated code that should be unused for GENERIC_ENTRY.
->
-> I've touched a lot of code that I can't test and I might've broken something by
-> accident. In particular the whole ARM cpuidle stuff was quite involved.
->
-> Please all; have a look where you haven't already.
->
->
-> New since v1:
->
->  - rebase on top of Frederic's rcu-context-tracking rename fest
->  - more omap goodness as per the last discusion (thanks Tony!)
->  - removed one more RCU_NONIDLE() from arm64/risc-v perf code
->  - ubsan/kasan fixes
->  - intel_idle module-param for testing
->  - a bunch of extra __always_inline, because compilers are silly.
->
-> ---
->  arch/alpha/kernel/process.c               |  1 -
->  arch/alpha/kernel/vmlinux.lds.S           |  1 -
->  arch/arc/kernel/process.c                 |  3 ++
->  arch/arc/kernel/vmlinux.lds.S             |  1 -
->  arch/arm/include/asm/vmlinux.lds.h        |  1 -
->  arch/arm/kernel/process.c                 |  1 -
->  arch/arm/kernel/smp.c                     |  6 +--
->  arch/arm/mach-gemini/board-dt.c           |  3 +-
->  arch/arm/mach-imx/cpuidle-imx6q.c         |  4 +-
->  arch/arm/mach-imx/cpuidle-imx6sx.c        |  5 ++-
->  arch/arm/mach-omap2/common.h              |  6 ++-
->  arch/arm/mach-omap2/cpuidle34xx.c         | 16 +++++++-
->  arch/arm/mach-omap2/cpuidle44xx.c         | 29 +++++++-------
->  arch/arm/mach-omap2/omap-mpuss-lowpower.c | 12 +++++-
->  arch/arm/mach-omap2/pm.h                  |  2 +-
->  arch/arm/mach-omap2/pm24xx.c              | 51 +-----------------------
->  arch/arm/mach-omap2/pm34xx.c              | 14 +++++--
->  arch/arm/mach-omap2/pm44xx.c              |  2 +-
->  arch/arm/mach-omap2/powerdomain.c         | 10 ++---
->  arch/arm64/kernel/idle.c                  |  1 -
->  arch/arm64/kernel/smp.c                   |  4 +-
->  arch/arm64/kernel/vmlinux.lds.S           |  1 -
->  arch/csky/kernel/process.c                |  1 -
->  arch/csky/kernel/smp.c                    |  2 +-
->  arch/csky/kernel/vmlinux.lds.S            |  1 -
->  arch/hexagon/kernel/process.c             |  1 -
->  arch/hexagon/kernel/vmlinux.lds.S         |  1 -
->  arch/ia64/kernel/process.c                |  1 +
->  arch/ia64/kernel/vmlinux.lds.S            |  1 -
->  arch/loongarch/kernel/idle.c              |  1 +
->  arch/loongarch/kernel/vmlinux.lds.S       |  1 -
->  arch/m68k/kernel/vmlinux-nommu.lds        |  1 -
->  arch/m68k/kernel/vmlinux-std.lds          |  1 -
->  arch/m68k/kernel/vmlinux-sun3.lds         |  1 -
->  arch/microblaze/kernel/process.c          |  1 -
->  arch/microblaze/kernel/vmlinux.lds.S      |  1 -
->  arch/mips/kernel/idle.c                   |  8 ++--
->  arch/mips/kernel/vmlinux.lds.S            |  1 -
->  arch/nios2/kernel/process.c               |  1 -
->  arch/nios2/kernel/vmlinux.lds.S           |  1 -
->  arch/openrisc/kernel/process.c            |  1 +
->  arch/openrisc/kernel/vmlinux.lds.S        |  1 -
->  arch/parisc/kernel/process.c              |  2 -
->  arch/parisc/kernel/vmlinux.lds.S          |  1 -
->  arch/powerpc/kernel/idle.c                |  5 +--
->  arch/powerpc/kernel/vmlinux.lds.S         |  1 -
->  arch/riscv/kernel/process.c               |  1 -
->  arch/riscv/kernel/vmlinux-xip.lds.S       |  1 -
->  arch/riscv/kernel/vmlinux.lds.S           |  1 -
->  arch/s390/kernel/idle.c                   |  1 -
->  arch/s390/kernel/vmlinux.lds.S            |  1 -
->  arch/sh/kernel/idle.c                     |  1 +
->  arch/sh/kernel/vmlinux.lds.S              |  1 -
->  arch/sparc/kernel/leon_pmc.c              |  4 ++
->  arch/sparc/kernel/process_32.c            |  1 -
->  arch/sparc/kernel/process_64.c            |  3 +-
->  arch/sparc/kernel/vmlinux.lds.S           |  1 -
->  arch/um/kernel/dyn.lds.S                  |  1 -
->  arch/um/kernel/process.c                  |  1 -
->  arch/um/kernel/uml.lds.S                  |  1 -
->  arch/x86/boot/compressed/vmlinux.lds.S    |  1 +
->  arch/x86/coco/tdx/tdcall.S                | 15 +------
->  arch/x86/coco/tdx/tdx.c                   | 25 ++++--------
->  arch/x86/events/amd/brs.c                 | 13 +++----
->  arch/x86/include/asm/fpu/xcr.h            |  4 +-
->  arch/x86/include/asm/irqflags.h           | 11 ++----
->  arch/x86/include/asm/mwait.h              | 14 +++----
->  arch/x86/include/asm/nospec-branch.h      |  2 +-
->  arch/x86/include/asm/paravirt.h           |  6 ++-
->  arch/x86/include/asm/perf_event.h         |  2 +-
->  arch/x86/include/asm/shared/io.h          |  4 +-
->  arch/x86/include/asm/shared/tdx.h         |  1 -
->  arch/x86/include/asm/special_insns.h      |  8 ++--
->  arch/x86/include/asm/xen/hypercall.h      |  2 +-
->  arch/x86/kernel/cpu/bugs.c                |  2 +-
->  arch/x86/kernel/fpu/core.c                |  4 +-
->  arch/x86/kernel/paravirt.c                | 14 ++++++-
->  arch/x86/kernel/process.c                 | 65 +++++++++++++++----------------
->  arch/x86/kernel/vmlinux.lds.S             |  1 -
->  arch/x86/lib/memcpy_64.S                  |  5 +--
->  arch/x86/lib/memmove_64.S                 |  4 +-
->  arch/x86/lib/memset_64.S                  |  4 +-
->  arch/x86/xen/enlighten_pv.c               |  2 +-
->  arch/x86/xen/irq.c                        |  2 +-
->  arch/xtensa/kernel/process.c              |  1 +
->  arch/xtensa/kernel/vmlinux.lds.S          |  1 -
->  drivers/acpi/processor_idle.c             | 36 ++++++++++-------
->  drivers/base/power/runtime.c              | 24 ++++++------
->  drivers/clk/clk.c                         |  8 ++--
->  drivers/cpuidle/cpuidle-arm.c             |  1 +
->  drivers/cpuidle/cpuidle-big_little.c      |  8 +++-
->  drivers/cpuidle/cpuidle-mvebu-v7.c        |  7 ++++
->  drivers/cpuidle/cpuidle-psci.c            | 10 +++--
->  drivers/cpuidle/cpuidle-qcom-spm.c        |  1 +
->  drivers/cpuidle/cpuidle-riscv-sbi.c       | 10 +++--
->  drivers/cpuidle/cpuidle-tegra.c           | 21 +++++++---
->  drivers/cpuidle/cpuidle.c                 | 21 +++++-----
->  drivers/cpuidle/dt_idle_states.c          |  2 +-
->  drivers/cpuidle/poll_state.c              | 10 ++++-
->  drivers/idle/intel_idle.c                 | 19 +++++----
->  drivers/perf/arm_pmu.c                    | 11 +-----
->  drivers/perf/riscv_pmu_sbi.c              |  8 +---
->  include/asm-generic/vmlinux.lds.h         |  9 ++---
->  include/linux/compiler_types.h            |  8 +++-
->  include/linux/cpu.h                       |  3 --
->  include/linux/cpuidle.h                   | 34 ++++++++++++++++
->  include/linux/cpumask.h                   |  4 +-
->  include/linux/percpu-defs.h               |  2 +-
->  include/linux/sched/idle.h                | 40 ++++++++++++++-----
->  include/linux/thread_info.h               | 18 ++++++++-
->  include/linux/tracepoint.h                | 13 ++++++-
->  kernel/cpu_pm.c                           |  9 -----
->  kernel/printk/printk.c                    |  2 +-
->  kernel/sched/idle.c                       | 47 +++++++---------------
->  kernel/time/tick-broadcast-hrtimer.c      | 29 ++++++--------
->  kernel/time/tick-broadcast.c              |  6 ++-
->  kernel/trace/trace.c                      |  3 ++
->  lib/ubsan.c                               |  5 ++-
->  mm/kasan/kasan.h                          |  4 ++
->  mm/kasan/shadow.c                         | 38 ++++++++++++++++++
->  tools/objtool/check.c                     | 17 ++++++++
->  121 files changed, 511 insertions(+), 420 deletions(-)
+Am 27.09.22 um 22:05 schrieb Alex Williamson:
+> On Mon, 26 Sep 2022 13:03:56 -0400
+> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+> 
+>> On 9/22/22 8:06 PM, Jason Gunthorpe wrote:
+>>> The iommu_group comes from the struct device that a driver has been bound
+>>> to and then created a struct vfio_device against. To keep the iommu layer
+>>> sane we want to have a simple rule that only an attached driver should be
+>>> using the iommu API. Particularly only an attached driver should hold
+>>> ownership.
+>>>
+>>> In VFIO's case since it uses the group APIs and it shares between
+>>> different drivers it is a bit more complicated, but the principle still
+>>> holds.
+>>>
+>>> Solve this by waiting for all users of the vfio_group to stop before
+>>> allowing vfio_unregister_group_dev() to complete. This is done with a new
+>>> completion to know when the users go away and an additional refcount to
+>>> keep track of how many device drivers are sharing the vfio group. The last
+>>> driver to be unregistered will clean up the group.
+>>>
+>>> This solves crashes in the S390 iommu driver that come because VFIO ends
+>>> up racing releasing ownership (which attaches the default iommu_domain to
+>>> the device) with the removal of that same device from the iommu
+>>> driver. This is a side case that iommu drivers should not have to cope
+>>> with.
+>>>
+>>>     iommu driver failed to attach the default/blocking domain
+>>>     WARNING: CPU: 0 PID: 5082 at drivers/iommu/iommu.c:1961 iommu_detach_group+0x6c/0x80
+>>>     Modules linked in: macvtap macvlan tap vfio_pci vfio_pci_core irqbypass vfio_virqfd kvm nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables nfnetlink mlx5_ib sunrpc ib_uverbs ism smc uvdevice ib_core s390_trng eadm_sch tape_3590 tape tape_class vfio_ccw mdev vfio_iommu_type1 vfio zcrypt_cex4 sch_fq_codel configfs ghash_s390 prng chacha_s390 libchacha aes_s390 mlx5_core des_s390 libdes sha3_512_s390 nvme sha3_256_s390 sha512_s390 sha256_s390 sha1_s390 sha_common nvme_core zfcp scsi_transport_fc pkey zcrypt rng_core autofs4
+>>>     CPU: 0 PID: 5082 Comm: qemu-system-s39 Tainted: G        W          6.0.0-rc3 #5
+>>>     Hardware name: IBM 3931 A01 782 (LPAR)
+>>>     Krnl PSW : 0704c00180000000 000000095bb10d28 (iommu_detach_group+0x70/0x80)
+>>>                R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+>>>     Krnl GPRS: 0000000000000001 0000000900000027 0000000000000039 000000095c97ffe0
+>>>                00000000fffeffff 00000009fc290000 00000000af1fda50 00000000af590b58
+>>>                00000000af1fdaf0 0000000135c7a320 0000000135e52258 0000000135e52200
+>>>                00000000a29e8000 00000000af590b40 000000095bb10d24 0000038004b13c98
+>>>     Krnl Code: 000000095bb10d18: c020003d56fc        larl    %r2,000000095c2bbb10
+>>>                            000000095bb10d1e: c0e50019d901        brasl   %r14,000000095be4bf20
+>>>                           #000000095bb10d24: af000000            mc      0,0
+>>>                           >000000095bb10d28: b904002a            lgr     %r2,%r10
+>>>                            000000095bb10d2c: ebaff0a00004        lmg     %r10,%r15,160(%r15)
+>>>                            000000095bb10d32: c0f4001aa867        brcl    15,000000095be65e00
+>>>                            000000095bb10d38: c004002168e0        brcl    0,000000095bf3def8
+>>>                            000000095bb10d3e: eb6ff0480024        stmg    %r6,%r15,72(%r15)
+>>>     Call Trace:
+>>>      [<000000095bb10d28>] iommu_detach_group+0x70/0x80
+>>>     ([<000000095bb10d24>] iommu_detach_group+0x6c/0x80)
+>>>      [<000003ff80243b0e>] vfio_iommu_type1_detach_group+0x136/0x6c8 [vfio_iommu_type1]
+>>>      [<000003ff80137780>] __vfio_group_unset_container+0x58/0x158 [vfio]
+>>>      [<000003ff80138a16>] vfio_group_fops_unl_ioctl+0x1b6/0x210 [vfio]
+>>>     pci 0004:00:00.0: Removing from iommu group 4
+>>>      [<000000095b5b62e8>] __s390x_sys_ioctl+0xc0/0x100
+>>>      [<000000095be5d3b4>] __do_syscall+0x1d4/0x200
+>>>      [<000000095be6c072>] system_call+0x82/0xb0
+>>>     Last Breaking-Event-Address:
+>>>      [<000000095be4bf80>] __warn_printk+0x60/0x68
+>>>
+>>> It indicates that domain->ops->attach_dev() failed because the driver has
+>>> already passed the point of destructing the device.
+>>>
+>>> Fixes: 9ac8545199a1 ("iommu: Fix use-after-free in iommu_release_device")
+>>> Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>>> Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>>> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+>>> ---
+>>>   drivers/vfio/vfio.h      |  8 +++++
+>>>   drivers/vfio/vfio_main.c | 68 ++++++++++++++++++++++++++--------------
+>>>   2 files changed, 53 insertions(+), 23 deletions(-)
+>>>
+>>> v2
+>>>   - Rebase on the vfio struct device series and the container.c series
+>>>   - Drop patches 1 & 2, we need to have working error unwind, so another
+>>>     test is not a problem
+>>>   - Fold iommu_group_remove_device() into vfio_device_remove_group() so
+>>>     that it forms a strict pairing with the two allocation functions.
+>>>   - Drop the iommu patch from the series, it needs more work and discussion
+>>> v1 https://lore.kernel.org/r/0-v1-ef00ffecea52+2cb-iommu_group_lifetime_jgg@nvidia.com
+>>>
+>>> This could probably use another quick sanity test due to all the rebasing,
+>>> Alex if you are happy let's wait for Matthew.
+>>>    
+>>
+>> I have been re-running the same series of tests on this version (on top of vfio-next) and this still resolves the reported issue.  Thanks Jason!
+> 
+> Thanks all.  Applied to vfio next branch for v6.1.  Thanks,
 
-Thanks for cleaning up the situation!
+So now I have bisected this to a regression in our KVM CI for vfio-ap. Our testcase MultipleMdevAPMatrixTestCase hangs forever.
+I see  virtnodedevd spinning 100% and "mdevctl stop --uuid=d70d7685-a1b5-47a1-bdea-336925e0a95d" seems to wait for something:
 
-I have applied this on a plain v6.0 (only one patch had a minor
-conflict) and tested this on an ARM64 Dragonboard 410c, which uses
-cpuidle-psci and the cpuidle-psci-domain. I didn't observe any
-problems, so feel free to add:
+[  186.815543] task:mdevctl         state:D stack:    0 pid: 1639 ppid:  1604 flags:0x00000001
+[  186.815546] Call Trace:
+[  186.815547]  [<0000002baf277386>] __schedule+0x296/0x650
+[  186.815549]  [<0000002baf2777a2>] schedule+0x62/0x108
+[  186.815551]  [<0000002baf27db20>] schedule_timeout+0xc0/0x108
+[  186.815553]  [<0000002baf278166>] __wait_for_common+0xc6/0x250
+[  186.815556]  [<000003ff800c263a>] vfio_device_remove_group.isra.0+0xb2/0x118 [vfio]
+[  186.815561]  [<000003ff805caadc>] vfio_ap_mdev_remove+0x2c/0x198 [vfio_ap]
+[  186.815565]  [<0000002baef1d4de>] device_release_driver_internal+0x1c6/0x288
+[  186.815570]  [<0000002baef1b27c>] bus_remove_device+0x10c/0x198
+[  186.815572]  [<0000002baef14b54>] device_del+0x19c/0x3e0
+[  186.815575]  [<000003ff800d9e3a>] mdev_device_remove+0xb2/0x108 [mdev]
+[  186.815579]  [<000003ff800da096>] remove_store+0x7e/0x90 [mdev]
+[  186.815581]  [<0000002baea53c30>] kernfs_fop_write_iter+0x138/0x210
+[  186.815586]  [<0000002bae98e310>] vfs_write+0x1a0/0x2f0
+[  186.815588]  [<0000002bae98e6d8>] ksys_write+0x70/0x100
+[  186.815590]  [<0000002baf26fe2c>] __do_syscall+0x1d4/0x200
+[  186.815593]  [<0000002baf27eb42>] system_call+0x82/0xb0
 
-Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-Kind regards
-Uffe
+Any quick idea?
