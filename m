@@ -2,155 +2,131 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74FF8C43217
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 09:48:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 889CEC433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 09:54:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229751AbiJEJsQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Oct 2022 05:48:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35248 "EHLO
+        id S229672AbiJEJyA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Oct 2022 05:54:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229772AbiJEJsN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 05:48:13 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE3E6D57F
-        for <linux-s390@vger.kernel.org>; Wed,  5 Oct 2022 02:48:11 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id i7-20020a17090a65c700b0020ad9666a86so1170882pjs.0
-        for <linux-s390@vger.kernel.org>; Wed, 05 Oct 2022 02:48:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=uAiOjs73GnPtRWDKlCBYpOmHeG3ElDSPTXYVbLmJn3Y=;
-        b=dh/s9gbrJ1NP2il6j7m7392rb5m/0olUhLw6ywfYrwbm+b05mgthbXGVeHCne6faSe
-         nEB8FWIww9/Mh3TPJYBTwQxHk9YQhBfOYEWSgISGS3x2V+1PSzpPW0fGwHCNvRUrDmsC
-         V4LPjNBP1ZNWd2lWycmQ+cVlk2hOYpk0wbD3BQW90ktRdTfHVQoOGdzFfsVLA+UV8P0L
-         yaYjHeb70WMgWdHpn0iX5L8LgNN78O1ThcYXr+GHqSaFRNBAWLFYqLr8IpSUK6wbVOaM
-         BO7XUtm7Hdl6sqI52mxM7YweUuOKwjFV07IZc9k6gah2y9PsEzpdZlxqQ3TbFVT9xR+n
-         gOow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=uAiOjs73GnPtRWDKlCBYpOmHeG3ElDSPTXYVbLmJn3Y=;
-        b=hHz5TC4qZcgXreitdbDyxOw81FjvM9UzSyAq7zKmJiI1oWE0GM+Vm4QGft9xBKU6Kg
-         FiPQWpNfmss/TN2MEgsr7Hj5WUTul5pKUIcoMznUPLcPEvLqXbSjKNuUBW4hK+8aGoZd
-         Lk86CUirYb4R/zI3UgOw2Gpfb1S5AdzFqwmUrHGh+XsutFdBKN21CMmexrUlPgco+2Os
-         fYfRXG/0hXfJHWGtSjV9oNy4n//CGyJW/Nxks9M7bEjqcDTlZ7dA5bzQyV7MX15Jm6iA
-         RG016u7BKyB5/lpIwwMMACAtmUf+zPu6mRLborWQpcKALX4ClQE8rV7wahcKlu8za1DB
-         1NdQ==
-X-Gm-Message-State: ACrzQf3RHjdY3tTllncXq/p7DKHSdpq1HXDT8LnFfIrqRu32e3XZggKD
-        8e3IJw5xl5dpmDdBk27k67C0FweAx7bpUS1RvrsXRQ==
-X-Google-Smtp-Source: AMsMyM6eqXlNc1atZOkkKgiG1yV3Y78Coz+AbzCXphLyt0GPdUFcokJxxEDnXeFGnrVe0bHv3fHf9rWqZFSPgK8TTJI=
-X-Received: by 2002:a17:90b:4d07:b0:1ef:521c:f051 with SMTP id
- mw7-20020a17090b4d0700b001ef521cf051mr4350723pjb.164.1664963290949; Wed, 05
- Oct 2022 02:48:10 -0700 (PDT)
+        with ESMTP id S229534AbiJEJx7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 05:53:59 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9D70D33A3C;
+        Wed,  5 Oct 2022 02:53:58 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2D764113E;
+        Wed,  5 Oct 2022 02:54:05 -0700 (PDT)
+Received: from [10.57.65.170] (unknown [10.57.65.170])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 79CBD3F67D;
+        Wed,  5 Oct 2022 02:53:55 -0700 (PDT)
+Message-ID: <ce73a798-c2e4-7d2f-1c2e-854170ea0b59@arm.com>
+Date:   Wed, 5 Oct 2022 10:53:50 +0100
 MIME-Version: 1.0
-References: <20221005032257.80681-1-kch@nvidia.com> <20221005032257.80681-2-kch@nvidia.com>
- <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
-In-Reply-To: <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Wed, 5 Oct 2022 11:47:34 +0200
-Message-ID: <CAPDyKFpBpiydQn+=24CqtaH_qa3tQfN2gQSiUrHCjnLSuy4=Kg@mail.gmail.com>
-Subject: Re: [RFC PATCH 01/21] block: add and use init tagset helper
-To:     Chaitanya Kulkarni <kch@nvidia.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-omap@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org, axboe@kernel.dk, efremov@linux.com,
-        josef@toxicpanda.com, idryomov@gmail.com,
-        dongsheng.yang@easystack.cn, haris.iqbal@ionos.com,
-        jinpu.wang@ionos.com, mst@redhat.com, jasowang@redhat.com,
-        pbonzini@redhat.com, stefanha@redhat.com, ohad@wizery.com,
-        andersson@kernel.org, baolin.wang@linux.alibaba.com,
-        richard@nod.at, miquel.raynal@bootlin.com, vigneshr@ti.com,
-        marcan@marcan.st, sven@svenpeter.dev, alyssa@rosenzweig.io,
-        kbusch@kernel.org, hch@lst.de, sagi@grimberg.me, sth@linux.ibm.com,
-        hoeppner@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, jejb@linux.ibm.com,
-        martin.petersen@oracle.com, hare@suse.de, bhelgaas@google.com,
-        john.garry@huawei.com, mcgrof@kernel.org,
-        christophe.jaillet@wanadoo.fr, vaibhavgupta40@gmail.com,
-        wsa+renesas@sang-engineering.com, johannes.thumshirn@wdc.com,
-        bvanassche@acm.org, ming.lei@redhat.com,
-        shinichiro.kawasaki@wdc.com, vincent.fu@samsung.com,
-        christoph.boehmwalder@linbit.com, joel@jms.id.au,
-        vincent.whitchurch@axis.com, nbd@other.debian.org,
-        ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, asahi@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: [PATCH v4 5/5] iommu/s390: Fix incorrect pgsize_bitmap
+Content-Language: en-GB
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev
+Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
+        jgg@nvidia.com, linux-kernel@vger.kernel.org
+References: <20221004120706.2957492-1-schnelle@linux.ibm.com>
+ <20221004120706.2957492-6-schnelle@linux.ibm.com>
+ <eb1955e4-a618-ebf0-562d-17f9dd58b0da@arm.com>
+ <b3c6fd2b-74d4-91d7-dc53-ba526c41b067@linux.ibm.com>
+ <a02a3cee-773a-da00-616f-04652c0905ce@arm.com>
+ <0da03411190c004e85cc856965b0aca901fd78fb.camel@linux.ibm.com>
+From:   Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <0da03411190c004e85cc856965b0aca901fd78fb.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 5 Oct 2022 at 07:11, Damien Le Moal
-<damien.lemoal@opensource.wdc.com> wrote:
->
-> On 10/5/22 12:22, Chaitanya Kulkarni wrote:
-> > Add and use the helper to initialize the common fields of the tag_set
-> > such as blk_mq_ops, number of h/w queues, queue depth, command size,
-> > numa_node, timeout, BLK_MQ_F_XXX flags, driver data. This initialization
-> > is spread all over the block drivers. This avoids the code repetation of
-> > the inialization code of the tag set in current block drivers and any
->
-> s/inialization/initialization
-> s/repetation/repetition
->
-> > future ones.
-> >
-> > Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-> > ---
-> >  block/blk-mq.c                | 20 ++++++++++++++++++++
-> >  drivers/block/null_blk/main.c | 10 +++-------
-> >  include/linux/blk-mq.h        |  5 +++++
-> >  3 files changed, 28 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/block/blk-mq.c b/block/blk-mq.c
-> > index 8070b6c10e8d..e3a8dd81bbe2 100644
-> > --- a/block/blk-mq.c
-> > +++ b/block/blk-mq.c
-> > @@ -4341,6 +4341,26 @@ static int blk_mq_alloc_tag_set_tags(struct blk_mq_tag_set *set,
-> >       return blk_mq_realloc_tag_set_tags(set, 0, new_nr_hw_queues);
-> >  }
-> >
-> > +void blk_mq_init_tag_set(struct blk_mq_tag_set *set,
-> > +             const struct blk_mq_ops *ops, unsigned int nr_hw_queues,
-> > +             unsigned int queue_depth, unsigned int cmd_size, int numa_node,
-> > +             unsigned int timeout, unsigned int flags, void *driver_data)
->
-> That is an awful lot of arguments... I would be tempted to say pack all
-> these into a struct but then that would kind of negate this patchset goal.
-> Using a function with that many arguments will be error prone, and hard to
-> review... Not a fan.
+On 2022-10-04 17:13, Niklas Schnelle wrote:
+> On Tue, 2022-10-04 at 16:31 +0100, Robin Murphy wrote:
+>> On 2022-10-04 16:12, Matthew Rosato wrote:
+>>> On 10/4/22 11:02 AM, Robin Murphy wrote:
+>>>> On 2022-10-04 13:07, Niklas Schnelle wrote:
+>>>>> The .pgsize_bitmap property of struct iommu_ops is not a page mask but
+>>>>> rather has a bit set for each size of pages the IOMMU supports. As the
+>>>>> comment correctly pointed out at this moment the code only support 4K
+>>>>> pages so simply use SZ_4K here.
+>>>>
+>>>> Unless it's already been done somewhere else, you'll want to switch over to the {map,unmap}_pages() interfaces as well to avoid taking a hit on efficiency here. The "page mask" thing was an old hack to trick the core API into making fewer map/unmap calls where the driver could map arbitrary numbers of pages at once anyway. The multi-page interfaces now do that more honestly and generally better (since they work for non-power-of-two sizes as well).
+>>>
+>>> Thanks for the heads up -- Niklas has some additional series coming soon as described here:
+>>>
+>>> https://lore.kernel.org/linux-iommu/a10424adbe01a0fd40372cbd0736d11e517951a1.camel@linux.ibm.com/
+>>>
+>>> So implementing the _pages() interfaces is soon up on the roadmap.  But given what you say I wonder if this patch should just wait until the series that implements {map,unmap}_pages().
+>>
+>> Perhaps, although the full change should be trivial enough that there's
+>> probably just as much argument for doing the whole thing in its own
+>> right for the sake of this cleanup. The main point is that
+>> S390_IOMMU_PGSIZES is not incorrect as such, it's just not spelling out
+>> the deliberate trick that it's achieving - everyone copied it from
+>> intel-iommu, but since that got converted to the new interfaces the
+>> original explanation is now gone. The only effect of "fixing" it in
+>> isolation right now will be to make large VFIO mappings slower.
+>>
+>> Robin.
+> 
+> The patch changing to map_pages()/unmap_pages() is currently part of a
+> larger series of improvements, some of which are less trivial. So I'm
+> planning to send those as RFC first. Those include changing the
+> spin_lock protected list to RCU so the map/unmap can paralellize
+> better. Another one is atomic updates to the IOMMU tables to do away
+> with locks in map/unmap. So I think pulling that whole
+> series into this one isn't ideal. I could pull just the
+> map_pages()/unmap_pages() change though.
 
-I completely agree.
+Yeah, literally just updating the s390_iommu_{map,unmap} function 
+prototypes and replacing "size" with "pgsize * count" within is all 
+that's needed to clean up this hack properly. That can (and probably 
+should) be completely independent of other improvements deeper down.
 
-But there is also another problem going down this route. If/when we
-realize that there is another parameter needed in the blk_mq_tag_set.
-Today that's quite easy to add (assuming the parameter can be
-optional), without changing the blk_mq_init_tag_set() interface.
+Thanks,
+Robin.
 
->
-> > +{
-> > +     if (!set)
-> > +             return;
-> > +
-> > +     set->ops = ops;
-> > +     set->nr_hw_queues = nr_hw_queues;
-> > +     set->queue_depth = queue_depth;
-> > +     set->cmd_size = cmd_size;
-> > +     set->numa_node = numa_node;
-> > +     set->timeout = timeout;
-> > +     set->flags = flags;
-> > +     set->driver_data = driver_data;
-> > +}
-> > +
->
-
-[...]
-
-Kind regards
-Uffe
+> 
+>>
+>>>>> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+>>>>> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>>>>> ---
+>>>>>     drivers/iommu/s390-iommu.c | 9 +--------
+>>>>>     1 file changed, 1 insertion(+), 8 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+>>>>> index 94c444b909bd..6bf23e7830a2 100644
+>>>>> --- a/drivers/iommu/s390-iommu.c
+>>>>> +++ b/drivers/iommu/s390-iommu.c
+>>>>> @@ -12,13 +12,6 @@
+>>>>>     #include <linux/sizes.h>
+>>>>>     #include <asm/pci_dma.h>
+>>>>>     -/*
+>>>>> - * Physically contiguous memory regions can be mapped with 4 KiB alignment,
+>>>>> - * we allow all page sizes that are an order of 4KiB (no special large page
+>>>>> - * support so far).
+>>>>> - */
+>>>>> -#define S390_IOMMU_PGSIZES    (~0xFFFUL)
+>>>>> -
+>>>>>     static const struct iommu_ops s390_iommu_ops;
+>>>>>       struct s390_domain {
+>>>>> @@ -350,7 +343,7 @@ static const struct iommu_ops s390_iommu_ops = {
+>>>>>         .probe_device = s390_iommu_probe_device,
+>>>>>         .release_device = s390_iommu_release_device,
+>>>>>         .device_group = generic_device_group,
+>>>>> -    .pgsize_bitmap = S390_IOMMU_PGSIZES,
+>>>>> +    .pgsize_bitmap = SZ_4K,
+>>>>>         .get_resv_regions = s390_iommu_get_resv_regions,
+>>>>>         .default_domain_ops = &(const struct iommu_domain_ops) {
+>>>>>             .attach_dev    = s390_iommu_attach_device,
+> 
+> 
