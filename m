@@ -2,207 +2,186 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A35FAC433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Oct 2022 21:12:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEDBEC433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 03:23:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229459AbiJDVMw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Oct 2022 17:12:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
+        id S229711AbiJEDXV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Oct 2022 23:23:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbiJDVMv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Oct 2022 17:12:51 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C6E95F7C6;
-        Tue,  4 Oct 2022 14:12:50 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 294J1fm1029319;
-        Tue, 4 Oct 2022 21:12:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=ybPiVCLipzMS22kFfV5SbC1HhChZcTgMTg/hzzxXb1o=;
- b=VoAXbhBcQbsUrno7SAZkzvjokE/IbAlbjwcNiBD0jcvBOrudBFo5rLNEdQnIRs+o1r5D
- 7phD84kWaVXVTHKSBRrucHr/QhobUT9KtrB2RWFg8GEWcsmr7FmCuUVUT1N7xMuhpRx+
- WiLpdxtm8sx/8x6UNSM5fyPSq0VGZ4JV3xUM//08Pmo+uvTZnYhWvT1tcEL69h8vhJ1P
- Ha8/w1TnuiU5nsvVlP8PXNotYceKr/tm4tftAhYBypoJlESuRG5NYHsR3Ecl0LtSYKiH
- 0EHjMkaWDVyjBbgxLmb8IKDBTA7rbjE7fbQNWPPszvHSQMY8jXZEeOQOhJJ/vwdKmS9v Ng== 
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3k0gpq5g39-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Oct 2022 21:12:36 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 294L5jrt003102;
-        Tue, 4 Oct 2022 21:12:35 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma03dal.us.ibm.com with ESMTP id 3jxd69w31t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Oct 2022 21:12:34 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com ([9.208.128.116])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 294LCXR69110134
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 4 Oct 2022 21:12:33 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0651058050;
-        Tue,  4 Oct 2022 21:12:33 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 06C8858045;
-        Tue,  4 Oct 2022 21:12:31 +0000 (GMT)
-Received: from [9.77.144.104] (unknown [9.77.144.104])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  4 Oct 2022 21:12:30 +0000 (GMT)
-Message-ID: <c76d2534-3318-32f0-f115-0c44fac53dc9@linux.ibm.com>
-Date:   Tue, 4 Oct 2022 17:12:30 -0400
+        with ESMTP id S229530AbiJEDXT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Oct 2022 23:23:19 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2047.outbound.protection.outlook.com [40.107.92.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6AAB719BF;
+        Tue,  4 Oct 2022 20:23:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=EAnP4nz11d924n5Ea6rkfbTTWZkOcBMR/h7ZkQJ1oHltLxDJaeH/Iez5BS7J79qQ2VcFFwKYgIGmCiYXjOb76HvhXSy2EaAQdXrVxivVboL/NYUst26hybzA8F8XTgXAFdbEcsSJMarnV5z3mvpNv6/2qB++DsmW8q+cjiY5mYdZRhiZtGSYFd3lR+A2iFGBWA/Ij8OWKnFTulTcMU+8KAKsLHdCYRDn4ExerGOo0Cz+trXQUARNz81ypcs8fpGxbeso3FeGPHnm9ypVjlCvgTaHFSZVumbmAN2zpDwlny92lM3GEdkISUQHh9Y61BlOgXREHFsrbzCGQ5y2BJTFOg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=YrgGetB/TLOjMS3vQknhv/SINTgMiPk7KqpkdclIcUs=;
+ b=Xdz1XM9XgHs5tzhGy60K1VMGf7QyJWaVPAJhDsbnmp5W/XTYb8Bi8f8nb1UQ9e1IMXiPYTTYFi+RlZ3dI4B1Y65Z0QQl37FH3c1C70lf2zoeoThJTzvL5pDhglUPoxYHgg6oC5ZPXVTzZ7fI8eRAMYUPXqTcCbnYF3bAL97S2ILwtM1l2jXOjFCoIw/7vNwUKgtUw5eRwCmMqR8F6tJ6kWA6QAr1QEgGdFMtX9EEuzAUXyUW/5oQ5M9j8wHfEwj0ontzAsr9fQnTHG8LgEDXWpyAJq2jM6WEwKhEfCq2J7ZwlH6dHyJLv/NzzbtfG8MmACbtqAtD5iuTsSetceIsug==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=YrgGetB/TLOjMS3vQknhv/SINTgMiPk7KqpkdclIcUs=;
+ b=iW3jsrpo9QXt4SmTdh80KE4thGPDh8fejFIagobwIQSERcoWvLGWdLcnqwJhThlAROWm8mvRxQA47EVCi2eq5eIqa5WE0yHiZwRofiP/64oBAIcTBy9/FMHs0x/UhCYe76qnqD/RIxdsnzqz50SrhQQ5XHpX7WIjLrthz2kNv59+A3mkKtYd3h3MQR4rPdtfo4TK1QbuPLEW/MLJ9voFSb02DML6kB8S+aqt7c7YeYtZ6sH/cLX22f9gL/69KTjRMugSIK3H29HTjUPGFQd45Kix5z6Vce1d/4Amspy1WZOvPhvdO4CpC2PD1IOhhn2ZmJ7Dkg4nMNlIVcZcz5zeig==
+Received: from BN8PR04CA0001.namprd04.prod.outlook.com (2603:10b6:408:70::14)
+ by DM6PR12MB4863.namprd12.prod.outlook.com (2603:10b6:5:1b9::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.24; Wed, 5 Oct
+ 2022 03:23:16 +0000
+Received: from BN8NAM11FT062.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:70:cafe::c8) by BN8PR04CA0001.outlook.office365.com
+ (2603:10b6:408:70::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.26 via Frontend
+ Transport; Wed, 5 Oct 2022 03:23:16 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ BN8NAM11FT062.mail.protection.outlook.com (10.13.177.34) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5709.10 via Frontend Transport; Wed, 5 Oct 2022 03:23:16 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26; Tue, 4 Oct 2022
+ 20:23:08 -0700
+Received: from dev.nvidia.com (10.126.230.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29; Tue, 4 Oct 2022
+ 20:23:05 -0700
+From:   Chaitanya Kulkarni <kch@nvidia.com>
+To:     <linux-block@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-omap@vger.kernel.org>, <linux-remoteproc@vger.kernel.org>,
+        <linux-mmc@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-nvme@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <linux-scsi@vger.kernel.org>
+CC:     <axboe@kernel.dk>, <efremov@linux.com>, <josef@toxicpanda.com>,
+        <idryomov@gmail.com>, <dongsheng.yang@easystack.cn>,
+        <haris.iqbal@ionos.com>, <jinpu.wang@ionos.com>, <mst@redhat.com>,
+        <jasowang@redhat.com>, <pbonzini@redhat.com>,
+        <stefanha@redhat.com>, <ohad@wizery.com>, <andersson@kernel.org>,
+        <baolin.wang@linux.alibaba.com>, <ulf.hansson@linaro.org>,
+        <richard@nod.at>, <miquel.raynal@bootlin.com>, <vigneshr@ti.com>,
+        <marcan@marcan.st>, <sven@svenpeter.dev>, <alyssa@rosenzweig.io>,
+        <kbusch@kernel.org>, <hch@lst.de>, <sagi@grimberg.me>,
+        <sth@linux.ibm.com>, <hoeppner@linux.ibm.com>, <hca@linux.ibm.com>,
+        <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
+        <jejb@linux.ibm.com>, <martin.petersen@oracle.com>, <hare@suse.de>,
+        <kch@nvidia.com>, <bhelgaas@google.com>, <john.garry@huawei.com>,
+        <mcgrof@kernel.org>, <christophe.jaillet@wanadoo.fr>,
+        <vaibhavgupta40@gmail.com>, <wsa+renesas@sang-engineering.com>,
+        <damien.lemoal@opensource.wdc.com>, <johannes.thumshirn@wdc.com>,
+        <bvanassche@acm.org>, <ming.lei@redhat.com>,
+        <shinichiro.kawasaki@wdc.com>, <vincent.fu@samsung.com>,
+        <christoph.boehmwalder@linbit.com>, <joel@jms.id.au>,
+        <vincent.whitchurch@axis.com>, <nbd@other.debian.org>,
+        <ceph-devel@vger.kernel.org>,
+        <virtualization@lists.linux-foundation.org>,
+        <asahi@lists.linux.dev>
+Subject: [RFC PATCH 00/21] block: add and use init tagset helper
+Date:   Tue, 4 Oct 2022 20:22:36 -0700
+Message-ID: <20221005032257.80681-1-kch@nvidia.com>
+X-Mailer: git-send-email 2.29.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: [PATCH v4 3/5] iommu/s390: Fix potential s390_domain aperture
- shrinking
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev
-Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, jgg@nvidia.com, linux-kernel@vger.kernel.org
-References: <20221004120706.2957492-1-schnelle@linux.ibm.com>
- <20221004120706.2957492-4-schnelle@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20221004120706.2957492-4-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yKQ5wHsc7Y0LxX5owqJxKQG2PHNVo0Yj
-X-Proofpoint-ORIG-GUID: yKQ5wHsc7Y0LxX5owqJxKQG2PHNVo0Yj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-10-04_09,2022-09-29_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- impostorscore=0 suspectscore=0 bulkscore=0 adultscore=0 priorityscore=1501
- clxscore=1015 spamscore=0 mlxlogscore=999 malwarescore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210040136
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.126.230.35]
+X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT062:EE_|DM6PR12MB4863:EE_
+X-MS-Office365-Filtering-Correlation-Id: fce348ec-947a-4641-efb6-08daa680f183
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 9FlJpRPPWo/UczTdTCd5SyHamL/pqbpEL/Ib+DcXgEmnGmZ9HEQsxCsQSSaqCQcTZjccDkXjj6u6yhsKWFHSidDTY7fUyBz2KqAnbklpfj1swJc7PjxXCgzNELZVysLo4szooec2ZY8lzfdkSE6HtdY+DtVcTMVjT8/jV+DKt5E6leNDKjVvSwh8EQ+Et7lmmqiT5dBceOsWFEahHF9xDSoPAe8cAus+8SNEDsQM/6NnzlmMJLTqU3TNS2er/HUj3CSYob4ij3EhgCsbqwKE9P/opr4klhGiEvSjB3DqbxFBhoQWFGh3JkLy/bkJIE9ynCNZz144NHMITmR5CHCTeusxffP0uhFo7kUdiQBTkgxqKecyfPQnuhlX/bH6m9Szl15GpW7txUmH/1j62W3KaE9uc5ouAyMtQlwD5YGw+snHXJjYVq7VluiZGSPIx5lNKrFTs9brAjh+oHAqB/n511BLraQb8GC6Uxu2tRGuunDb47VIS8P+D/hbiblfD/8mXucfE4lBfj0SIMlLUoPlKp0fkZ4FwsXtU2X1Gkn+mFFL+PnaG2Bvhazs80UG8ITqBnJHvmm8BR0hiA5I9yOwQqNN/La6BsPmng/IjQ0jXZDQtHd5tXAwu7XpWpAsOHNrnNQejJI1nT3M/dr+3H7VZ902lZCeV4RpYrjbSktdNLt+0q4Qgde1mX3VLGrvRqUzqyMBNIPAnRd4/ehBsgzMWgL1bZOGZzvOa9nJKokVBQEo8fw8n1c1PismK7nqoMDbHtoaNR1b+Woq9GxppbdQ+Uk3j/bTNKU/oQZ46LetuLMSQ2+S8Aek1LfTGwDQtcXmq39TIGsaevKwgzMGZjrTtWGxjjuYVEglp3ZjLIPlBV0=
+X-Forefront-Antispam-Report: CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230022)(4636009)(346002)(376002)(39860400002)(136003)(396003)(451199015)(46966006)(40470700004)(36840700001)(7696005)(41300700001)(36756003)(6666004)(82740400003)(5660300002)(7366002)(7406005)(7416002)(8936002)(26005)(8676002)(316002)(70206006)(70586007)(4326008)(336012)(40480700001)(83380400001)(47076005)(426003)(82310400005)(16526019)(186003)(1076003)(921005)(356005)(7636003)(40460700003)(2906002)(2616005)(36860700001)(478600001)(110136005)(54906003)(21314003)(2101003)(83996005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Oct 2022 03:23:16.2764
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: fce348ec-947a-4641-efb6-08daa680f183
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT062.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4863
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/4/22 8:07 AM, Niklas Schnelle wrote:
-> The s390 IOMMU driver currently sets the IOMMU domain's aperture to
-> match the device specific DMA address range of the device that is first
-> attached. This is not ideal. For one if the domain has no device
-> attached in the meantime the aperture could be shrunk allowing
-> translations outside the aperture to exist in the translation tables.
-> Also this is a bit of a misuse of the aperture which really should
-> describe what addresses can be translated and not some device specific
-> limitations.
-> 
-> Instead of misusing the aperture like this we can instead create
-> reserved ranges for the ranges inaccessible to the attached devices
-> allowing devices with overlapping ranges to still share an IOMMU domain.
-> This also significantly simplifies s390_iommu_attach_device() allowing
-> us to move the aperture check to the beginning of the function and
-> removing the need to hold the device list's lock to check the aperture.
-> 
-> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Hi,
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Add and use the helper to initialize the common fields of the tag_set
+such as blk_mq_ops, number of h/w queues, queue depth, command size,
+numa_node, timeout, BLK_MQ_F_XXX flags, driver data. This initialization
+is spread all over the block drivers. This avoids repetation of
+inialization code of the tag set in current block drivers and any future
+ones.
 
-> ---
->  drivers/iommu/s390-iommu.c | 50 +++++++++++++++++++++++++++-----------
->  1 file changed, 36 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index 6f87dd4b85af..762dc55aea1e 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -62,6 +62,9 @@ static struct iommu_domain *s390_domain_alloc(unsigned domain_type)
->  		kfree(s390_domain);
->  		return NULL;
->  	}
-> +	s390_domain->domain.geometry.force_aperture = true;
-> +	s390_domain->domain.geometry.aperture_start = 0;
-> +	s390_domain->domain.geometry.aperture_end = ZPCI_TABLE_SIZE_RT - 1;
->  
->  	spin_lock_init(&s390_domain->dma_table_lock);
->  	spin_lock_init(&s390_domain->list_lock);
-> @@ -107,30 +110,24 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  	if (!zdev)
->  		return -ENODEV;
->  
-> +	if (domain->geometry.aperture_start > zdev->end_dma ||
-> +	    domain->geometry.aperture_end < zdev->start_dma)
-> +		return -EINVAL;
-> +
->  	if (zdev->s390_domain)
->  		__s390_iommu_detach_device(zdev);
->  	else if (zdev->dma_table)
->  		zpci_dma_exit_device(zdev);
->  
-> -	zdev->dma_table = s390_domain->dma_table;
->  	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> -				virt_to_phys(zdev->dma_table));
-> +				virt_to_phys(s390_domain->dma_table));
->  	if (cc)
->  		return -EIO;
->  
-> -	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> -	/* First device defines the DMA range limits */
-> -	if (list_empty(&s390_domain->devices)) {
-> -		domain->geometry.aperture_start = zdev->start_dma;
-> -		domain->geometry.aperture_end = zdev->end_dma;
-> -		domain->geometry.force_aperture = true;
-> -	/* Allow only devices with identical DMA range limits */
-> -	} else if (domain->geometry.aperture_start != zdev->start_dma ||
-> -		   domain->geometry.aperture_end != zdev->end_dma) {
-> -		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> -		return -EINVAL;
-> -	}
-> +	zdev->dma_table = s390_domain->dma_table;
->  	zdev->s390_domain = s390_domain;
-> +
-> +	spin_lock_irqsave(&s390_domain->list_lock, flags);
->  	list_add(&zdev->iommu_list, &s390_domain->devices);
->  	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
->  
-> @@ -148,6 +145,30 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
->  	zpci_dma_init_device(zdev);
->  }
->  
-> +static void s390_iommu_get_resv_regions(struct device *dev,
-> +					struct list_head *list)
-> +{
-> +	struct zpci_dev *zdev = to_zpci_dev(dev);
-> +	struct iommu_resv_region *region;
-> +
-> +	if (zdev->start_dma) {
-> +		region = iommu_alloc_resv_region(0, zdev->start_dma, 0,
-> +						 IOMMU_RESV_RESERVED);
-> +		if (!region)
-> +			return;
-> +		list_add_tail(&region->list, list);
-> +	}
-> +
-> +	if (zdev->end_dma < ZPCI_TABLE_SIZE_RT - 1) {
-> +		region = iommu_alloc_resv_region(zdev->end_dma + 1,
-> +						 ZPCI_TABLE_SIZE_RT - zdev->end_dma - 1,
-> +						 0, IOMMU_RESV_RESERVED);
-> +		if (!region)
-> +			return;
-> +		list_add_tail(&region->list, list);
-> +	}
-> +}
-> +
->  static struct iommu_device *s390_iommu_probe_device(struct device *dev)
->  {
->  	struct zpci_dev *zdev = to_zpci_dev(dev);
-> @@ -330,6 +351,7 @@ static const struct iommu_ops s390_iommu_ops = {
->  	.release_device = s390_iommu_release_device,
->  	.device_group = generic_device_group,
->  	.pgsize_bitmap = S390_IOMMU_PGSIZES,
-> +	.get_resv_regions = s390_iommu_get_resv_regions,
->  	.default_domain_ops = &(const struct iommu_domain_ops) {
->  		.attach_dev	= s390_iommu_attach_device,
->  		.detach_dev	= s390_iommu_detach_device,
+P.S. I'm aware of the EXPORT_SYMBOL_GPL() checkpatch warn just to make
+get some feedback to so I can remove the RFC tag.
+
+-ck
+
+Chaitanya Kulkarni (21):
+  block: add and use init tagset helper
+  loop: use lib tagset init helper
+  nbd: use lib tagset init helper
+  rnbd: use lib tagset init helper
+  bsg-lib: use lib tagset init helper
+  rnbd-clt: use lib tagset init helper
+  virtio-blk: use lib tagset init helper
+  scsi: use lib tagset init helper
+  block: use lib tagset init helper
+  amiflop: use lib tagset init helper
+  floppy: use lib tagset init helper
+  mtip32xx: use lib tagset init helper
+  z3ram: use lib tagset init helper
+  scm_blk: use lib tagset init helper
+  ubi: use lib tagset init helper
+  mmc: core: use lib tagset init helper
+  dasd: use lib tagset init helper
+  nvme-core: use lib tagset init helper for I/O q
+  nvme-core: use lib tagset init helper for adminq
+  nvme-apple: use lib tagset init helper
+  nvme-pci: use lib tagset init helper
+
+ block/blk-mq.c                    | 27 ++++++++++++++++++++++-----
+ block/bsg-lib.c                   |  9 +++------
+ drivers/block/amiflop.c           |  8 +++-----
+ drivers/block/floppy.c            |  7 ++-----
+ drivers/block/loop.c              | 12 ++++--------
+ drivers/block/mtip32xx/mtip32xx.c | 13 ++++---------
+ drivers/block/nbd.c               | 11 +++--------
+ drivers/block/null_blk/main.c     | 10 +++-------
+ drivers/block/rbd.c               | 11 +++++------
+ drivers/block/rnbd/rnbd-clt.c     | 25 +++++++++++--------------
+ drivers/block/virtio_blk.c        | 14 +++++---------
+ drivers/block/z2ram.c             |  7 ++-----
+ drivers/mmc/core/queue.c          |  9 +++------
+ drivers/mtd/ubi/block.c           | 11 +++--------
+ drivers/nvme/host/apple.c         | 25 ++++++++-----------------
+ drivers/nvme/host/core.c          | 21 +++++----------------
+ drivers/nvme/host/pci.c           | 25 +++++++------------------
+ drivers/s390/block/dasd_genhd.c   |  9 +++------
+ drivers/s390/block/scm_blk.c      | 10 +++-------
+ drivers/scsi/scsi_lib.c           | 13 +++++--------
+ include/linux/blk-mq.h            |  5 +++++
+ 21 files changed, 109 insertions(+), 173 deletions(-)
+
+-- 
+2.29.0
 
