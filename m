@@ -2,310 +2,155 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E073C433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 07:59:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74FF8C43217
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 09:48:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230004AbiJEH7k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Oct 2022 03:59:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48364 "EHLO
+        id S229751AbiJEJsQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Oct 2022 05:48:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230023AbiJEH7S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 03:59:18 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE204754B9;
-        Wed,  5 Oct 2022 00:59:16 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2956AJuF031516;
-        Wed, 5 Oct 2022 07:59:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=1ZXjOUYkf0/p7kvq8+0h0qy8M54rTqIEq9cNWgWeZ4g=;
- b=ExcnS3rx9H8iN/pAAsJBJsfBfpXp0BQ186F1qREXBme80m4VpASSdurmf+z1vSpJ0PQa
- OZ8v40n6rSZN+YvAFuTe9mxMy2DVeFI/bPI87HbxysTQ+pwb5HGZS1EtOQLkxFSgMh19
- sci5tJtAB5rCVJBc6nqAmeqLR06ENS9elAvvjCV1W1ChA9zHN/0pNntR2qA3uUgzIHbk
- mOz4h9HGNfI481ushfB/2EcOOJy/GiVMToJiacFAsTqObsvx+hqJw9xjUiEJaz5T/ALK
- FuU3f84ezxQFlmXiyyrzTveKvFbOZuGe47TMqTEq0G2bAi+y+w8c0WD+EBASNeubOygB 3A== 
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k0gwum0bt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Oct 2022 07:59:04 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2957pPcx030941;
-        Wed, 5 Oct 2022 07:59:02 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03fra.de.ibm.com with ESMTP id 3jxd68uufd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Oct 2022 07:59:02 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2957sTgA43122960
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 5 Oct 2022 07:54:29 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 297F1A404D;
-        Wed,  5 Oct 2022 07:58:59 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A43A2A4040;
-        Wed,  5 Oct 2022 07:58:58 +0000 (GMT)
-Received: from oc-nschnelle.boeblingen.de.ibm.com (unknown [9.155.199.46])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  5 Oct 2022 07:58:58 +0000 (GMT)
-Message-ID: <dd92817a13601a4a449096b7ae94caa66a113853.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 1/5] iommu/s390: Fix duplicate domain attachments
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev,
-        Jason Gunthorpe <jgg@nvidia.com>
-Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, linux-kernel@vger.kernel.org
-Date:   Wed, 05 Oct 2022 09:58:58 +0200
-In-Reply-To: <2a56d7bc-3beb-51fe-fc65-f2f3bd192e34@linux.ibm.com>
-References: <20221004120706.2957492-1-schnelle@linux.ibm.com>
-         <20221004120706.2957492-2-schnelle@linux.ibm.com>
-         <2a56d7bc-3beb-51fe-fc65-f2f3bd192e34@linux.ibm.com>
+        with ESMTP id S229772AbiJEJsN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 05:48:13 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE3E6D57F
+        for <linux-s390@vger.kernel.org>; Wed,  5 Oct 2022 02:48:11 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id i7-20020a17090a65c700b0020ad9666a86so1170882pjs.0
+        for <linux-s390@vger.kernel.org>; Wed, 05 Oct 2022 02:48:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=uAiOjs73GnPtRWDKlCBYpOmHeG3ElDSPTXYVbLmJn3Y=;
+        b=dh/s9gbrJ1NP2il6j7m7392rb5m/0olUhLw6ywfYrwbm+b05mgthbXGVeHCne6faSe
+         nEB8FWIww9/Mh3TPJYBTwQxHk9YQhBfOYEWSgISGS3x2V+1PSzpPW0fGwHCNvRUrDmsC
+         V4LPjNBP1ZNWd2lWycmQ+cVlk2hOYpk0wbD3BQW90ktRdTfHVQoOGdzFfsVLA+UV8P0L
+         yaYjHeb70WMgWdHpn0iX5L8LgNN78O1ThcYXr+GHqSaFRNBAWLFYqLr8IpSUK6wbVOaM
+         BO7XUtm7Hdl6sqI52mxM7YweUuOKwjFV07IZc9k6gah2y9PsEzpdZlxqQ3TbFVT9xR+n
+         gOow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=uAiOjs73GnPtRWDKlCBYpOmHeG3ElDSPTXYVbLmJn3Y=;
+        b=hHz5TC4qZcgXreitdbDyxOw81FjvM9UzSyAq7zKmJiI1oWE0GM+Vm4QGft9xBKU6Kg
+         FiPQWpNfmss/TN2MEgsr7Hj5WUTul5pKUIcoMznUPLcPEvLqXbSjKNuUBW4hK+8aGoZd
+         Lk86CUirYb4R/zI3UgOw2Gpfb1S5AdzFqwmUrHGh+XsutFdBKN21CMmexrUlPgco+2Os
+         fYfRXG/0hXfJHWGtSjV9oNy4n//CGyJW/Nxks9M7bEjqcDTlZ7dA5bzQyV7MX15Jm6iA
+         RG016u7BKyB5/lpIwwMMACAtmUf+zPu6mRLborWQpcKALX4ClQE8rV7wahcKlu8za1DB
+         1NdQ==
+X-Gm-Message-State: ACrzQf3RHjdY3tTllncXq/p7DKHSdpq1HXDT8LnFfIrqRu32e3XZggKD
+        8e3IJw5xl5dpmDdBk27k67C0FweAx7bpUS1RvrsXRQ==
+X-Google-Smtp-Source: AMsMyM6eqXlNc1atZOkkKgiG1yV3Y78Coz+AbzCXphLyt0GPdUFcokJxxEDnXeFGnrVe0bHv3fHf9rWqZFSPgK8TTJI=
+X-Received: by 2002:a17:90b:4d07:b0:1ef:521c:f051 with SMTP id
+ mw7-20020a17090b4d0700b001ef521cf051mr4350723pjb.164.1664963290949; Wed, 05
+ Oct 2022 02:48:10 -0700 (PDT)
+MIME-Version: 1.0
+References: <20221005032257.80681-1-kch@nvidia.com> <20221005032257.80681-2-kch@nvidia.com>
+ <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
+In-Reply-To: <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Wed, 5 Oct 2022 11:47:34 +0200
+Message-ID: <CAPDyKFpBpiydQn+=24CqtaH_qa3tQfN2gQSiUrHCjnLSuy4=Kg@mail.gmail.com>
+Subject: Re: [RFC PATCH 01/21] block: add and use init tagset helper
+To:     Chaitanya Kulkarni <kch@nvidia.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org, axboe@kernel.dk, efremov@linux.com,
+        josef@toxicpanda.com, idryomov@gmail.com,
+        dongsheng.yang@easystack.cn, haris.iqbal@ionos.com,
+        jinpu.wang@ionos.com, mst@redhat.com, jasowang@redhat.com,
+        pbonzini@redhat.com, stefanha@redhat.com, ohad@wizery.com,
+        andersson@kernel.org, baolin.wang@linux.alibaba.com,
+        richard@nod.at, miquel.raynal@bootlin.com, vigneshr@ti.com,
+        marcan@marcan.st, sven@svenpeter.dev, alyssa@rosenzweig.io,
+        kbusch@kernel.org, hch@lst.de, sagi@grimberg.me, sth@linux.ibm.com,
+        hoeppner@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, jejb@linux.ibm.com,
+        martin.petersen@oracle.com, hare@suse.de, bhelgaas@google.com,
+        john.garry@huawei.com, mcgrof@kernel.org,
+        christophe.jaillet@wanadoo.fr, vaibhavgupta40@gmail.com,
+        wsa+renesas@sang-engineering.com, johannes.thumshirn@wdc.com,
+        bvanassche@acm.org, ming.lei@redhat.com,
+        shinichiro.kawasaki@wdc.com, vincent.fu@samsung.com,
+        christoph.boehmwalder@linbit.com, joel@jms.id.au,
+        vincent.whitchurch@axis.com, nbd@other.debian.org,
+        ceph-devel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, asahi@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: D0R6H6PpJnJAl9l7JpYs-kpzCXo0KvpB
-X-Proofpoint-ORIG-GUID: D0R6H6PpJnJAl9l7JpYs-kpzCXo0KvpB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-10-04_09,2022-09-29_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
- spamscore=0 impostorscore=0 phishscore=0 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 adultscore=0 mlxscore=0 malwarescore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2210050046
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-10-04 at 12:18 -0400, Matthew Rosato wrote:
-> On 10/4/22 8:07 AM, Niklas Schnelle wrote:
-> > Since commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
-> > calls") we can end up with duplicates in the list of devices attached to
-> > a domain. This is inefficient and confusing since only one domain can
-> > actually be in control of the IOMMU translations for a device. Fix this
-> > by detaching the device from the previous domain, if any, on attach.
-> > Add a WARN_ON() in case we still have attached devices on freeing the
-> > domain. While here remove the re-attach on failure dance as it was
-> > determined to be unlikely to help and may confuse debug and recovery.
-> > 
-> > Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> 
-> I've been testing this in isolation and it looks good to me, but one question...
-> 
+On Wed, 5 Oct 2022 at 07:11, Damien Le Moal
+<damien.lemoal@opensource.wdc.com> wrote:
+>
+> On 10/5/22 12:22, Chaitanya Kulkarni wrote:
+> > Add and use the helper to initialize the common fields of the tag_set
+> > such as blk_mq_ops, number of h/w queues, queue depth, command size,
+> > numa_node, timeout, BLK_MQ_F_XXX flags, driver data. This initialization
+> > is spread all over the block drivers. This avoids the code repetation of
+> > the inialization code of the tag set in current block drivers and any
+>
+> s/inialization/initialization
+> s/repetation/repetition
+>
+> > future ones.
+> >
+> > Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
 > > ---
-> > v3 -> v4:
-> > - Drop s390_domain from __s390_iommu_detach_device() (Jason)
-> > - WARN_ON() mismatched domain in s390_iommu_detach_device() (Jason)
-> > - Use __s390_iommu_detach_device() in s390_iommu_release_device() (Jason)
-> > 
-> >  drivers/iommu/s390-iommu.c | 97 +++++++++++++++-----------------------
-> >  1 file changed, 39 insertions(+), 58 deletions(-)
-> > 
-> > diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> > index c898bcbbce11..0f58e897bc95 100644
-> > --- a/drivers/iommu/s390-iommu.c
-> > +++ b/drivers/iommu/s390-iommu.c
-> > @@ -79,10 +79,36 @@ static void s390_domain_free(struct iommu_domain *domain)
-> >  {
-> >  	struct s390_domain *s390_domain = to_s390_domain(domain);
-> >  
-> > +	WARN_ON(!list_empty(&s390_domain->devices));
-> >  	dma_cleanup_tables(s390_domain->dma_table);
-> >  	kfree(s390_domain);
+> >  block/blk-mq.c                | 20 ++++++++++++++++++++
+> >  drivers/block/null_blk/main.c | 10 +++-------
+> >  include/linux/blk-mq.h        |  5 +++++
+> >  3 files changed, 28 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/block/blk-mq.c b/block/blk-mq.c
+> > index 8070b6c10e8d..e3a8dd81bbe2 100644
+> > --- a/block/blk-mq.c
+> > +++ b/block/blk-mq.c
+> > @@ -4341,6 +4341,26 @@ static int blk_mq_alloc_tag_set_tags(struct blk_mq_tag_set *set,
+> >       return blk_mq_realloc_tag_set_tags(set, 0, new_nr_hw_queues);
 > >  }
-> >  
-> > +static void __s390_iommu_detach_device(struct zpci_dev *zdev)
+> >
+> > +void blk_mq_init_tag_set(struct blk_mq_tag_set *set,
+> > +             const struct blk_mq_ops *ops, unsigned int nr_hw_queues,
+> > +             unsigned int queue_depth, unsigned int cmd_size, int numa_node,
+> > +             unsigned int timeout, unsigned int flags, void *driver_data)
+>
+> That is an awful lot of arguments... I would be tempted to say pack all
+> these into a struct but then that would kind of negate this patchset goal.
+> Using a function with that many arguments will be error prone, and hard to
+> review... Not a fan.
+
+I completely agree.
+
+But there is also another problem going down this route. If/when we
+realize that there is another parameter needed in the blk_mq_tag_set.
+Today that's quite easy to add (assuming the parameter can be
+optional), without changing the blk_mq_init_tag_set() interface.
+
+>
 > > +{
-> > +	struct s390_domain *s390_domain = zdev->s390_domain;
-> > +	struct s390_domain_device *domain_device, *tmp;
-> > +	unsigned long flags;
+> > +     if (!set)
+> > +             return;
 > > +
-> > +	if (!s390_domain)
-> > +		return;
-> > +
-> > +	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> > +	list_for_each_entry_safe(domain_device, tmp, &s390_domain->devices,
-> > +				 list) {
-> > +		if (domain_device->zdev == zdev) {
-> > +			list_del(&domain_device->list);
-> > +			kfree(domain_device);
-> > +			break;
-> > +		}
-> > +	}
-> > +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> > +
-> > +	zpci_unregister_ioat(zdev, 0);
-> > +	zdev->s390_domain = NULL;
-> > +	zdev->dma_table = NULL;
+> > +     set->ops = ops;
+> > +     set->nr_hw_queues = nr_hw_queues;
+> > +     set->queue_depth = queue_depth;
+> > +     set->cmd_size = cmd_size;
+> > +     set->numa_node = numa_node;
+> > +     set->timeout = timeout;
+> > +     set->flags = flags;
+> > +     set->driver_data = driver_data;
 > > +}
 > > +
-> >  static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  				    struct device *dev)
-> >  {
-> > @@ -90,7 +116,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  	struct zpci_dev *zdev = to_zpci_dev(dev);
-> >  	struct s390_domain_device *domain_device;
-> >  	unsigned long flags;
-> > -	int cc, rc;
-> > +	int cc, rc = 0;
-> >  
-> >  	if (!zdev)
-> >  		return -ENODEV;
-> > @@ -99,23 +125,17 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  	if (!domain_device)
-> >  		return -ENOMEM;
-> >  
-> > -	if (zdev->dma_table && !zdev->s390_domain) {
-> > -		cc = zpci_dma_exit_device(zdev);
-> > -		if (cc) {
-> > -			rc = -EIO;
-> > -			goto out_free;
-> > -		}
-> > -	}
-> > -
-> >  	if (zdev->s390_domain)
-> > -		zpci_unregister_ioat(zdev, 0);
-> > +		__s390_iommu_detach_device(zdev);
-> > +	else if (zdev->dma_table)
-> > +		zpci_dma_exit_device(zdev);
-> >  
-> >  	zdev->dma_table = s390_domain->dma_table;
-> >  	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> >  				virt_to_phys(zdev->dma_table));
-> >  	if (cc) {
-> >  		rc = -EIO;
-> > -		goto out_restore;
-> > +		goto out_free;
-> >  	}
-> >  
-> >  	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> > @@ -129,7 +149,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  		   domain->geometry.aperture_end != zdev->end_dma) {
-> >  		rc = -EINVAL;
-> >  		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> > -		goto out_restore;
-> > +		goto out_free;
-> >  	}
-> >  	domain_device->zdev = zdev;
-> >  	zdev->s390_domain = s390_domain;
-> > @@ -138,14 +158,6 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  
-> >  	return 0;
-> >  
-> > -out_restore:
-> > -	if (!zdev->s390_domain) {
-> > -		zpci_dma_init_device(zdev);
-> > -	} else {
-> > -		zdev->dma_table = zdev->s390_domain->dma_table;
-> > -		zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> > -				   virt_to_phys(zdev->dma_table));
-> > -	}
-> 
-> ^ I see you removed this awkward backout scenario (and replace the aperture check later) and I generally agree, but I'm looking at just this patch in isolation since its a fix...
-> If we leave due to a failed register_ioat or aperture mismatch, what do we expect to happen moving forward?  In one case (aperture mismatch -- how?) something is left registered with firmware and another (register_ioat fails) we have nothing registered with firmware (as we've discussed for, then the device is probably in an error state).  Is the expectation that the device is just broken for now and, more importantly, will device recovery clean both of these scenarios up?
+>
 
-A failed aperture test leaving the IOAT registered would indeed be bad.
-I guess I focused too much on the failure scenarios at the state after
-these patches where this can't happen. I think this would leave us in a
-bad state because zpci_register_ioat() succeeded with the domain's DMA
-table but we won't have attached leading to the wrong decisions in
-recovery paths (see below). 
+[...]
 
-I think we should do a zpci_unregister_ioat() and zdev->dma_table =
-NULL in this case just to be safe. It's certainly still much less
-fragile than the full rollback and even if the zpci_unregister_ioat()
-fails it prevents recovery from restoring the wrong DMA translation
-tables. I don't think we can really get into this situation though as
-the aperture should match what firmware accepts but it's still a valid
-code path.
-
-@Jason would you be okay with that?
-
-Recovery (via zpci_hot_reset_device()) should then be able to deal with
-these situations as long as zdev->dma_table matches the IOAT
-registration state.
-
-1. If zdev->dma_table != NULL we re-register the previous DMA table
-2. If zdev->dma_table == NULL we do zpci_dma_init_device()
-
-> 
-> 
-> >  out_free:
-> >  	kfree(domain_device);
-> >  
-> > @@ -155,32 +167,12 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
-> >  static void s390_iommu_detach_device(struct iommu_domain *domain,
-> >  				     struct device *dev)
-> >  {
-> > -	struct s390_domain *s390_domain = to_s390_domain(domain);
-> >  	struct zpci_dev *zdev = to_zpci_dev(dev);
-> > -	struct s390_domain_device *domain_device, *tmp;
-> > -	unsigned long flags;
-> > -	int found = 0;
-> >  
-> > -	if (!zdev)
-> > -		return;
-> > +	WARN_ON(zdev->s390_domain != to_s390_domain(domain));
-> >  
-> > -	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> > -	list_for_each_entry_safe(domain_device, tmp, &s390_domain->devices,
-> > -				 list) {
-> > -		if (domain_device->zdev == zdev) {
-> > -			list_del(&domain_device->list);
-> > -			kfree(domain_device);
-> > -			found = 1;
-> > -			break;
-> > -		}
-> > -	}
-> > -	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> > -
-> > -	if (found && (zdev->s390_domain == s390_domain)) {
-> > -		zdev->s390_domain = NULL;
-> > -		zpci_unregister_ioat(zdev, 0);
-> > -		zpci_dma_init_device(zdev);
-> > -	}
-> > +	__s390_iommu_detach_device(zdev);
-> > +	zpci_dma_init_device(zdev);
-> >  }
-> >  
-> >  static struct iommu_device *s390_iommu_probe_device(struct device *dev)
-> > @@ -193,24 +185,13 @@ static struct iommu_device *s390_iommu_probe_device(struct device *dev)
-> >  static void s390_iommu_release_device(struct device *dev)
-> >  {
-> >  	struct zpci_dev *zdev = to_zpci_dev(dev);
-> > -	struct iommu_domain *domain;
-> >  
-> >  	/*
-> > -	 * This is a workaround for a scenario where the IOMMU API common code
-> > -	 * "forgets" to call the detach_dev callback: After binding a device
-> > -	 * to vfio-pci and completing the VFIO_SET_IOMMU ioctl (which triggers
-> > -	 * the attach_dev), removing the device via
-> > -	 * "echo 1 > /sys/bus/pci/devices/.../remove" won't trigger detach_dev,
-> > -	 * only release_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
-> > -	 * notifier.
-> > -	 *
-> > -	 * So let's call detach_dev from here if it hasn't been called before.
-> > +	 * release_device is expected to detach any domain currently attached
-> > +	 * to the device, but keep it attached to other devices in the group.
-> >  	 */
-> > -	if (zdev && zdev->s390_domain) {
-> > -		domain = iommu_get_domain_for_dev(dev);
-> > -		if (domain)
-> > -			s390_iommu_detach_device(domain, dev);
-> > -	}
-> > +	if (zdev)
-> > +		__s390_iommu_detach_device(zdev);
-> >  }
-> >  
-> >  static int s390_iommu_update_trans(struct s390_domain *s390_domain,
-
-
+Kind regards
+Uffe
