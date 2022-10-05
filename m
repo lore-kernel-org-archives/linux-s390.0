@@ -2,64 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 651E7C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 06:27:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 188A8C433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 06:32:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbiJEG1n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Oct 2022 02:27:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52840 "EHLO
+        id S229669AbiJEGcp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Oct 2022 02:32:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229666AbiJEG1m (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 02:27:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37714733D1
-        for <linux-s390@vger.kernel.org>; Tue,  4 Oct 2022 23:27:41 -0700 (PDT)
+        with ESMTP id S229697AbiJEGcn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 02:32:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2A217437D
+        for <linux-s390@vger.kernel.org>; Tue,  4 Oct 2022 23:32:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1664951260;
+        s=mimecast20190719; t=1664951562;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Hzgr+GJhjprVie4kFrMDBNKKq7b6UhoiqIdbK544F4E=;
-        b=O6A/xE9WM/x6EHyd3+QY1Rxqm8t24x1nLwSyYIOtv5vqnct1esKuLDi9gaEfXHzRQSvml4
-        NV3YsUHEDZdin0J02Zo57WekRDa8mBt2poJX4cLNkDDBHcwB0L7ATbXP0tqPavPayz4Szv
-        A9IUqLR3j/fyoPEZ05xlzCe/NiOsPLk=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=i2fZF5NpPxB+zfptp/E3otmQs3yA+XxyrCxE6wqs+1E=;
+        b=DYIdmskBmaXyqyncXZ6GhzNjF4X+XjLQyZKXpc1SME/rs4Mn4MCPrrZ63x4HL67RjnqnsI
+        uh8E1sjMqKlMw9yhpq1XBefg8JN5FHpfp6D80MeE9uw7bk6ztslKGOOv3sQ1e+2vP4QOQG
+        LQX244R/NXeUSxce5QYwnciRJfApn2w=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-658-SloAd0JOPxSotHTgZ9L7qQ-1; Wed, 05 Oct 2022 02:27:31 -0400
-X-MC-Unique: SloAd0JOPxSotHTgZ9L7qQ-1
-Received: by mail-wm1-f70.google.com with SMTP id n32-20020a05600c3ba000b003b5054c71faso519941wms.9
-        for <linux-s390@vger.kernel.org>; Tue, 04 Oct 2022 23:27:31 -0700 (PDT)
+ us-mta-391-FZEr6HgLP1mYlX2G1626Yw-1; Wed, 05 Oct 2022 02:32:37 -0400
+X-MC-Unique: FZEr6HgLP1mYlX2G1626Yw-1
+Received: by mail-wm1-f71.google.com with SMTP id r8-20020a1c4408000000b003be06269377so278508wma.6
+        for <linux-s390@vger.kernel.org>; Tue, 04 Oct 2022 23:32:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date;
-        bh=Hzgr+GJhjprVie4kFrMDBNKKq7b6UhoiqIdbK544F4E=;
-        b=mp44pBOGuMn4m8eBJ7098Ie6YwXe8DPoJ0cO2TwOKXU5qFyX8+Y6YUVbLTA7Ao6yk+
-         6QRzAr/XnB16laqfCHXtz76tYQ4FgGCL8JWiIKIpZMEZZWKeAzDcZrYo1mZWJnjCInTu
-         jiLQX9T9tvL9LLYRjbNBnZ4E6CmbHUsm5E7sUP8Wj942QNH5/CYy0Vv5Ex+FudZ3420z
-         VzFe778sWcg9Oqgu9105MOlI0hb8fab8XIG83fz3t9JHJqV8GwkuVq9fSA+WssWxKpSm
-         snCABPA24pUWCWOzvEUgOYUtoyRBRq/ehL+GAi54o5Ww13zz0IXWC7b6ylyNuVb0cnNr
-         YjEA==
-X-Gm-Message-State: ACrzQf0z2N2pvewnt9ZEsGIgpftQ6/OY1qhtOnYpwLlowwHtLHWlD1Tn
-        t5FUUMHwMiOj4ARFhzBlEPry082034zHAGRBEVK2mjljjB76XO2iZb4o44rI5Y+LFzWpgRAhjPK
-        xZe4rlE5qwox7v2NrdiyY8A==
-X-Received: by 2002:a5d:6dac:0:b0:22a:fbff:b2d3 with SMTP id u12-20020a5d6dac000000b0022afbffb2d3mr17477369wrs.543.1664951250884;
-        Tue, 04 Oct 2022 23:27:30 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM51k5PL/MMj9nNisaw28ILfu80lWeQorWwHNn3p0/GD+K8Uowfp7d1JM62SxQHy7Gip404Y4Q==
-X-Received: by 2002:a5d:6dac:0:b0:22a:fbff:b2d3 with SMTP id u12-20020a5d6dac000000b0022afbffb2d3mr17477361wrs.543.1664951250690;
-        Tue, 04 Oct 2022 23:27:30 -0700 (PDT)
+        bh=i2fZF5NpPxB+zfptp/E3otmQs3yA+XxyrCxE6wqs+1E=;
+        b=4YgNy0PfN+Fq6JdkunGgUWD3vpJ/0VmLsEJKjB0A/6bgm/HY0uFRvjV2/rd/crvy7W
+         5JzXoqFKOrVcVgM1XgEdrzkZ267lFpb+Yw0zCNHB9AYEQcTEmFZRr93z7mOH1Iwg4/aV
+         1n8kME6mnkcvDFVSdb31unbJ8hXYQeiecgdCAGXVN7fu0WWgp4X8P7SaR5j5P0tY8vsM
+         if4YEAbqnX9Vgbpkq0VRt3kusc3sj/XY3a7buyhEVwpL9VLTAPjsuPxGyPjhJFMfOsSn
+         /b99L9sYmeBqpdtH+HS3cD/JGlvR06F3v7DOa0dbmcY4aZuwuKHTUyKBpcCzOnRcV66i
+         C1fg==
+X-Gm-Message-State: ACrzQf3gROrqYWefOFwLROhmURgmVHow2dd6nXT7tjNEhAUVirjHfD8P
+        Xt+kX16fpmGvoZRxgm/53DiU2gGIu5r+ZRhJYpe4dy2Hucusn/4dXGiT7Qy1n1VECnahMAoUD+x
+        w1f9ZNkohaLLb9gnTZp7PhQ==
+X-Received: by 2002:a05:600c:1549:b0:3b4:8fd7:af4 with SMTP id f9-20020a05600c154900b003b48fd70af4mr2124932wmg.100.1664951556628;
+        Tue, 04 Oct 2022 23:32:36 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6oN6PV4QL5PeEwB3AulW8hy8JRxoJitj3BA4H8xzN2l786Y0utSyQ0xn5AhPGpmYJfRD5rnQ==
+X-Received: by 2002:a05:600c:1549:b0:3b4:8fd7:af4 with SMTP id f9-20020a05600c154900b003b48fd70af4mr2124913wmg.100.1664951556442;
+        Tue, 04 Oct 2022 23:32:36 -0700 (PDT)
 Received: from [192.168.0.5] (ip-109-43-177-249.web.vodafone.de. [109.43.177.249])
-        by smtp.gmail.com with ESMTPSA id r6-20020a5d4986000000b0022ccae2fa62sm2068711wrq.22.2022.10.04.23.27.27
+        by smtp.gmail.com with ESMTPSA id s16-20020a1cf210000000b003a5f3f5883dsm997040wmc.17.2022.10.04.23.32.34
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Oct 2022 23:27:29 -0700 (PDT)
-Message-ID: <69854d56-510c-dab0-7cd6-f593ae2bef14@redhat.com>
-Date:   Wed, 5 Oct 2022 08:27:26 +0200
+        Tue, 04 Oct 2022 23:32:35 -0700 (PDT)
+Message-ID: <37197cfe-d109-332f-089b-266d7e8e23f8@redhat.com>
+Date:   Wed, 5 Oct 2022 08:32:33 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.13.0
+Subject: Re: [PATCH v1 2/9] KVM: s390: Extend MEM_OP ioctl by storage key
+ checked cmpxchg
 Content-Language: en-US
 To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -76,49 +78,52 @@ Cc:     David Hildenbrand <david@redhat.com>,
         Shuah Khan <shuah@kernel.org>,
         Sven Schnelle <svens@linux.ibm.com>
 References: <20220930210751.225873-1-scgl@linux.ibm.com>
- <20220930210751.225873-4-scgl@linux.ibm.com>
- <85399389-9b5a-d72a-5db1-b8418008ad58@redhat.com>
- <dca9e17ffbe71c76665ba25a6d9cd91d4aa0c329.camel@linux.ibm.com>
+ <20220930210751.225873-3-scgl@linux.ibm.com>
 From:   Thomas Huth <thuth@redhat.com>
-Subject: Re: [PATCH v1 3/9] Documentation: KVM: s390: Describe
- KVM_S390_MEMOP_F_CMPXCHG
-In-Reply-To: <dca9e17ffbe71c76665ba25a6d9cd91d4aa0c329.camel@linux.ibm.com>
+In-Reply-To: <20220930210751.225873-3-scgl@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 04/10/2022 20.51, Janis Schoetterl-Glausch wrote:
-> On Tue, 2022-10-04 at 10:16 +0200, Thomas Huth wrote:
->> On 30/09/2022 23.07, Janis Schoetterl-Glausch wrote:
->>> Describe the semantics of the new KVM_S390_MEMOP_F_CMPXCHG flag for
->>> absolute vm write memops which allows user space to perform (storage key
->>> checked) cmpxchg operations on guest memory.
->>>
->>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->>> ---
->>>    Documentation/virt/kvm/api.rst | 18 +++++++++++++++++-
->>>    1 file changed, 17 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
->>> index abd7c32126ce..0e02d66e38ae 100644
->>> --- a/Documentation/virt/kvm/api.rst
->>> +++ b/Documentation/virt/kvm/api.rst
->>> @@ -3771,6 +3771,7 @@ Parameters are specified via the following structure::
->>>    		struct {
+On 30/09/2022 23.07, Janis Schoetterl-Glausch wrote:
+> User space can use the MEM_OP ioctl to make storage key checked reads
+> and writes to the guest, however, it has no way of performing atomic,
+> key checked, accesses to the guest.
+> Extend the MEM_OP ioctl in order to allow for this, by adding a cmpxchg
+> mode. For now, support this mode for absolute accesses only.
 > 
-> What is the reason you initially didn't copy the /* in */ comment here?
+> This mode can be use, for example, to set the device-state-change
+> indicator and the adapter-local-summary indicator atomically.
+> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> ---
+> 
+> 
+> The return value of MEM_OP is:
+>    0 on success,
+>    < 0 on generic error (e.g. -EFAULT or -ENOMEM),
+>    > 0 if an exception occurred while walking the page tables
+> A cmpxchg failing because the old value doesn't match is neither an
+> error nor an exception, so the question is how best to signal that
+> condition. This is not strictly necessary since user space can compare
+> the value of old after the MEM_OP with the value it set. If they're
+> different the cmpxchg failed. It might be a better user interface if
+> there is an easier way to see if the cmpxchg failed.
+> This patch sets the cmpxchg flag bit to 0 on a successful cmpxchg.
+> This way you can compare against a constant instead of the old old
+> value.
+> This has the disadvantage of being a bit weird, other suggestions
+> welcome.
 
-You mean in commit 41408c28f283b ? Uh, don't ask me, that's more than 7 
-years ago...
+This also breaks the old API of defining the ioctl as _IOW only ... with 
+your change to the flags field, it effectively gets IOWR instead.
 
-Anyway, please be aware that the MEMOP ioctl is defined as IOW only:
-
-#define KVM_S390_MEM_OP _IOW(KVMIO, 0xb1, struct kvm_s390_mem_op)
-
-... so if you now introduce an "out" field in that struct, this might have 
-some impact, e.g. on Valgrind etc.
+Maybe it would be better to put all the new logic into a new struct and only 
+pass a pointer to that struct in kvm_s390_mem_op, so that the ioctl stays 
+IOW ? ... or maybe even introduce a completely new ioctl for this 
+functionality instead?
 
   Thomas
 
