@@ -2,223 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5847C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 05:11:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 651E7C433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 06:27:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229697AbiJEFLf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Oct 2022 01:11:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52746 "EHLO
+        id S229646AbiJEG1n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Oct 2022 02:27:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229760AbiJEFLa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 01:11:30 -0400
-Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C61C69
-        for <linux-s390@vger.kernel.org>; Tue,  4 Oct 2022 22:11:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1664946688; x=1696482688;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=t4Ggk8JN7aJqaDrHkVXVhSu8+EOy8cvFecQ8rYNiwuM=;
-  b=oOVx3DxfTksLmySJrx00s3AXDoIMjPnTzhgTvWanwH+i6WqGbOy5Tgt3
-   Lrfnyt15ZRLoa51Tehf1gxFsr7V8iq67YqcImRAm4nYM5GYxXFZa8wVaS
-   4RTWWiY9Xl5Dzy7dHjXnekgj0HVQ2+ai8RUovcBf3WxdRnQUDRDqhtgha
-   k/F/x19+9OPGNW5CopFp0rehEfLZJgQywp+D+fw/SacqL93ZSlvgyWH9q
-   j6FHwwn4meL+acCA0JG7qppnABQhPi8K3R5/q6HytCOE5CGUgKDTvuso4
-   D7BA3wTqR1x2hlnQnrq25a0/BlVa+hJxPedojDy42ojznf5HNgALwoyWn
-   A==;
-X-IronPort-AV: E=Sophos;i="5.95,159,1661788800"; 
-   d="scan'208";a="211366258"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 05 Oct 2022 13:11:26 +0800
-IronPort-SDR: CPDKvNSyqDQUq9O7+qI840grjztsBxu7tsMRHASOlpc+CJ5ehEsNlK9BaIexzJCaB8HL6dZCwN
- QLebdFZDtlQqWZYAGtmHSzx2ONndcnmtYuafnVSWI8i+rqoXeoWA19BTmX6WLGfSFiRm46t7zu
- 2qiJmeAYc+P8E7NAybuw+FN7VuHgBZSeNcROW2RRyCYri08ACwBFgIfSo8cF2nB2xyzgHtAtMH
- 0lWs9OcsEebg0vKT9YdzDj3zi6KDiUxpyCcRBi0MNe0MBexFYMp4v/24t0FyZeVlfE4YZuERc0
- eWSVNvEu8WpG6YDuHeYGRyTF
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 04 Oct 2022 21:25:40 -0700
-IronPort-SDR: RrTVS1oLgpmS8uqlky+SPlOx/rS+gyyO38KStYOXv19jhSe1tgAg++rFRS6Fdjke+N0YplSCrB
- NnNC3MGd93Hzj6D+i5jAmfvmHJbvAQg2VYPND379VNgtg88f2/IASP7e2nKEhssy/+bnQ5i6v7
- xh+ODcNKcRQg0lp9qEVyQAIcyk2/jOxqOTXEfzzewv12rid21sT9O/xKW7J8GWopCRiZTLCwoI
- NJQeLlaEXBpimnb/+PbFIR7LmovQTIavvuBpDPX3rO22LjehnEf7hPtPuXfq3/B9mBrEfKVUc7
- zzQ=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 04 Oct 2022 22:11:27 -0700
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4Mj2jT5CFHz1RWxq
-        for <linux-s390@vger.kernel.org>; Tue,  4 Oct 2022 22:11:25 -0700 (PDT)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1664946685; x=1667538686; bh=t4Ggk8JN7aJqaDrHkVXVhSu8+EOy8cvFecQ
-        8rYNiwuM=; b=tLHviaNBSZE88xLdQVOFiXAWb32/6ojwACuLRRnG8xU9QNHEWqD
-        f50ptDx5qVWJYd6IRLeybuJOMi2M6t5KRZI3AxvWZksBtihDPujw8HBCFBVcUIpO
-        ZfC3UqxRdafUnH0qS8IsrY5TqmTzapsn4pisieIRMNWD7VofvqnWQyDmT8TxJChB
-        KhPs6ot/7bsSNTEjACMw8pxc5R4wP5XrPylMOZlJtJDzi6yEHX9iayUOd3W/Y9EM
-        lajOzQCUf/ULm/9m5UmUAMRiYIxjEIGpDaIN3IIJblmsuApIMI/WI7OzPk1XLIjn
-        5iKMLXkiVy+cs7ipqm1Z7lpyxgZvmyF7ogw==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 7SYUoJAIlyHI for <linux-s390@vger.kernel.org>;
-        Tue,  4 Oct 2022 22:11:25 -0700 (PDT)
-Received: from [10.225.163.106] (unknown [10.225.163.106])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4Mj2jD37C6z1RvLy;
-        Tue,  4 Oct 2022 22:11:12 -0700 (PDT)
-Message-ID: <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
-Date:   Wed, 5 Oct 2022 14:11:11 +0900
+        with ESMTP id S229666AbiJEG1m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 02:27:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37714733D1
+        for <linux-s390@vger.kernel.org>; Tue,  4 Oct 2022 23:27:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1664951260;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Hzgr+GJhjprVie4kFrMDBNKKq7b6UhoiqIdbK544F4E=;
+        b=O6A/xE9WM/x6EHyd3+QY1Rxqm8t24x1nLwSyYIOtv5vqnct1esKuLDi9gaEfXHzRQSvml4
+        NV3YsUHEDZdin0J02Zo57WekRDa8mBt2poJX4cLNkDDBHcwB0L7ATbXP0tqPavPayz4Szv
+        A9IUqLR3j/fyoPEZ05xlzCe/NiOsPLk=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-658-SloAd0JOPxSotHTgZ9L7qQ-1; Wed, 05 Oct 2022 02:27:31 -0400
+X-MC-Unique: SloAd0JOPxSotHTgZ9L7qQ-1
+Received: by mail-wm1-f70.google.com with SMTP id n32-20020a05600c3ba000b003b5054c71faso519941wms.9
+        for <linux-s390@vger.kernel.org>; Tue, 04 Oct 2022 23:27:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
+         :content-language:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=Hzgr+GJhjprVie4kFrMDBNKKq7b6UhoiqIdbK544F4E=;
+        b=mp44pBOGuMn4m8eBJ7098Ie6YwXe8DPoJ0cO2TwOKXU5qFyX8+Y6YUVbLTA7Ao6yk+
+         6QRzAr/XnB16laqfCHXtz76tYQ4FgGCL8JWiIKIpZMEZZWKeAzDcZrYo1mZWJnjCInTu
+         jiLQX9T9tvL9LLYRjbNBnZ4E6CmbHUsm5E7sUP8Wj942QNH5/CYy0Vv5Ex+FudZ3420z
+         VzFe778sWcg9Oqgu9105MOlI0hb8fab8XIG83fz3t9JHJqV8GwkuVq9fSA+WssWxKpSm
+         snCABPA24pUWCWOzvEUgOYUtoyRBRq/ehL+GAi54o5Ww13zz0IXWC7b6ylyNuVb0cnNr
+         YjEA==
+X-Gm-Message-State: ACrzQf0z2N2pvewnt9ZEsGIgpftQ6/OY1qhtOnYpwLlowwHtLHWlD1Tn
+        t5FUUMHwMiOj4ARFhzBlEPry082034zHAGRBEVK2mjljjB76XO2iZb4o44rI5Y+LFzWpgRAhjPK
+        xZe4rlE5qwox7v2NrdiyY8A==
+X-Received: by 2002:a5d:6dac:0:b0:22a:fbff:b2d3 with SMTP id u12-20020a5d6dac000000b0022afbffb2d3mr17477369wrs.543.1664951250884;
+        Tue, 04 Oct 2022 23:27:30 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM51k5PL/MMj9nNisaw28ILfu80lWeQorWwHNn3p0/GD+K8Uowfp7d1JM62SxQHy7Gip404Y4Q==
+X-Received: by 2002:a5d:6dac:0:b0:22a:fbff:b2d3 with SMTP id u12-20020a5d6dac000000b0022afbffb2d3mr17477361wrs.543.1664951250690;
+        Tue, 04 Oct 2022 23:27:30 -0700 (PDT)
+Received: from [192.168.0.5] (ip-109-43-177-249.web.vodafone.de. [109.43.177.249])
+        by smtp.gmail.com with ESMTPSA id r6-20020a5d4986000000b0022ccae2fa62sm2068711wrq.22.2022.10.04.23.27.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Oct 2022 23:27:29 -0700 (PDT)
+Message-ID: <69854d56-510c-dab0-7cd6-f593ae2bef14@redhat.com>
+Date:   Wed, 5 Oct 2022 08:27:26 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [RFC PATCH 01/21] block: add and use init tagset helper
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.0
 Content-Language: en-US
-To:     Chaitanya Kulkarni <kch@nvidia.com>, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Cc:     axboe@kernel.dk, efremov@linux.com, josef@toxicpanda.com,
-        idryomov@gmail.com, dongsheng.yang@easystack.cn,
-        haris.iqbal@ionos.com, jinpu.wang@ionos.com, mst@redhat.com,
-        jasowang@redhat.com, pbonzini@redhat.com, stefanha@redhat.com,
-        ohad@wizery.com, andersson@kernel.org,
-        baolin.wang@linux.alibaba.com, ulf.hansson@linaro.org,
-        richard@nod.at, miquel.raynal@bootlin.com, vigneshr@ti.com,
-        marcan@marcan.st, sven@svenpeter.dev, alyssa@rosenzweig.io,
-        kbusch@kernel.org, hch@lst.de, sagi@grimberg.me, sth@linux.ibm.com,
-        hoeppner@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, jejb@linux.ibm.com,
-        martin.petersen@oracle.com, hare@suse.de, bhelgaas@google.com,
-        john.garry@huawei.com, mcgrof@kernel.org,
-        christophe.jaillet@wanadoo.fr, vaibhavgupta40@gmail.com,
-        wsa+renesas@sang-engineering.com, johannes.thumshirn@wdc.com,
-        bvanassche@acm.org, ming.lei@redhat.com,
-        shinichiro.kawasaki@wdc.com, vincent.fu@samsung.com,
-        christoph.boehmwalder@linbit.com, joel@jms.id.au,
-        vincent.whitchurch@axis.com, nbd@other.debian.org,
-        ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, asahi@lists.linux.dev
-References: <20221005032257.80681-1-kch@nvidia.com>
- <20221005032257.80681-2-kch@nvidia.com>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <20221005032257.80681-2-kch@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+References: <20220930210751.225873-1-scgl@linux.ibm.com>
+ <20220930210751.225873-4-scgl@linux.ibm.com>
+ <85399389-9b5a-d72a-5db1-b8418008ad58@redhat.com>
+ <dca9e17ffbe71c76665ba25a6d9cd91d4aa0c329.camel@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [PATCH v1 3/9] Documentation: KVM: s390: Describe
+ KVM_S390_MEMOP_F_CMPXCHG
+In-Reply-To: <dca9e17ffbe71c76665ba25a6d9cd91d4aa0c329.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/5/22 12:22, Chaitanya Kulkarni wrote:
-> Add and use the helper to initialize the common fields of the tag_set
-> such as blk_mq_ops, number of h/w queues, queue depth, command size,
-> numa_node, timeout, BLK_MQ_F_XXX flags, driver data. This initialization
-> is spread all over the block drivers. This avoids the code repetation of
-> the inialization code of the tag set in current block drivers and any
-
-s/inialization/initialization
-s/repetation/repetition
-
-> future ones.
+On 04/10/2022 20.51, Janis Schoetterl-Glausch wrote:
+> On Tue, 2022-10-04 at 10:16 +0200, Thomas Huth wrote:
+>> On 30/09/2022 23.07, Janis Schoetterl-Glausch wrote:
+>>> Describe the semantics of the new KVM_S390_MEMOP_F_CMPXCHG flag for
+>>> absolute vm write memops which allows user space to perform (storage key
+>>> checked) cmpxchg operations on guest memory.
+>>>
+>>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>>> ---
+>>>    Documentation/virt/kvm/api.rst | 18 +++++++++++++++++-
+>>>    1 file changed, 17 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+>>> index abd7c32126ce..0e02d66e38ae 100644
+>>> --- a/Documentation/virt/kvm/api.rst
+>>> +++ b/Documentation/virt/kvm/api.rst
+>>> @@ -3771,6 +3771,7 @@ Parameters are specified via the following structure::
+>>>    		struct {
 > 
-> Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-> ---
->  block/blk-mq.c                | 20 ++++++++++++++++++++
->  drivers/block/null_blk/main.c | 10 +++-------
->  include/linux/blk-mq.h        |  5 +++++
->  3 files changed, 28 insertions(+), 7 deletions(-)
-> 
-> diff --git a/block/blk-mq.c b/block/blk-mq.c
-> index 8070b6c10e8d..e3a8dd81bbe2 100644
-> --- a/block/blk-mq.c
-> +++ b/block/blk-mq.c
-> @@ -4341,6 +4341,26 @@ static int blk_mq_alloc_tag_set_tags(struct blk_mq_tag_set *set,
->  	return blk_mq_realloc_tag_set_tags(set, 0, new_nr_hw_queues);
->  }
->  
-> +void blk_mq_init_tag_set(struct blk_mq_tag_set *set,
-> +		const struct blk_mq_ops *ops, unsigned int nr_hw_queues,
-> +		unsigned int queue_depth, unsigned int cmd_size, int numa_node,
-> +		unsigned int timeout, unsigned int flags, void *driver_data)
+> What is the reason you initially didn't copy the /* in */ comment here?
 
-That is an awful lot of arguments... I would be tempted to say pack all
-these into a struct but then that would kind of negate this patchset goal.
-Using a function with that many arguments will be error prone, and hard to
-review... Not a fan.
+You mean in commit 41408c28f283b ? Uh, don't ask me, that's more than 7 
+years ago...
 
-> +{
-> +	if (!set)
-> +		return;
-> +
-> +	set->ops = ops;
-> +	set->nr_hw_queues = nr_hw_queues;
-> +	set->queue_depth = queue_depth;
-> +	set->cmd_size = cmd_size;
-> +	set->numa_node = numa_node;
-> +	set->timeout = timeout;
-> +	set->flags = flags;
-> +	set->driver_data = driver_data;
-> +}
-> +
+Anyway, please be aware that the MEMOP ioctl is defined as IOW only:
 
-No blank line here.
+#define KVM_S390_MEM_OP _IOW(KVMIO, 0xb1, struct kvm_s390_mem_op)
 
-> +EXPORT_SYMBOL_GPL(blk_mq_init_tag_set);
-> +
->  /*
->   * Alloc a tag set to be associated with one or more request queues.
->   * May fail with EINVAL for various error conditions. May adjust the
-> diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
-> index 1f154f92f4c2..0b07aab980c4 100644
-> --- a/drivers/block/null_blk/main.c
-> +++ b/drivers/block/null_blk/main.c
-> @@ -1926,13 +1926,9 @@ static int null_init_tag_set(struct nullb *nullb, struct blk_mq_tag_set *set)
->  			flags |= BLK_MQ_F_BLOCKING;
->  	}
->  
-> -	set->ops = &null_mq_ops;
-> -	set->cmd_size	= sizeof(struct nullb_cmd);
-> -	set->flags = flags;
-> -	set->driver_data = nullb;
-> -	set->nr_hw_queues = hw_queues;
-> -	set->queue_depth = queue_depth;
-> -	set->numa_node = numa_node;
-> +	blk_mq_init_tag_set(set, &null_mq_ops, hw_queues, queue_depth,
-> +			sizeof(struct nullb_cmd), numa_node, 0, flags, nullb);
-> +
->  	if (poll_queues) {
->  		set->nr_hw_queues += poll_queues;
->  		set->nr_maps = 3;
-> diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-> index ba18e9bdb799..06087a8e4398 100644
-> --- a/include/linux/blk-mq.h
-> +++ b/include/linux/blk-mq.h
-> @@ -708,6 +708,11 @@ int blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
->  		struct request_queue *q);
->  void blk_mq_destroy_queue(struct request_queue *);
->  
-> +
+... so if you now introduce an "out" field in that struct, this might have 
+some impact, e.g. on Valgrind etc.
 
-No need for the extra whiteline.
-
-> +void blk_mq_init_tag_set(struct blk_mq_tag_set *set,
-> +		const struct blk_mq_ops *ops, unsigned int nr_hw_queues,
-> +		unsigned int queue_depth, unsigned int cmd_size, int numa_node,
-> +		unsigned int timeout, unsigned int flags, void *driver_data);
->  int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set);
->  int blk_mq_alloc_sq_tag_set(struct blk_mq_tag_set *set,
->  		const struct blk_mq_ops *ops, unsigned int queue_depth,
-
--- 
-Damien Le Moal
-Western Digital Research
+  Thomas
 
