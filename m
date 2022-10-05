@@ -2,72 +2,49 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDD9DC433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 13:47:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3E94C433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 13:57:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229707AbiJENrB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Oct 2022 09:47:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33426 "EHLO
+        id S229676AbiJEN5d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Oct 2022 09:57:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230048AbiJENrA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 09:47:00 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 226C67AC37;
-        Wed,  5 Oct 2022 06:46:59 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 295DfRDT004144;
-        Wed, 5 Oct 2022 13:46:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=g4wKXjb3R6Wbyo5roIJKdWLIYa+vWFE8cdeQdpMEy74=;
- b=UE3VvP6CenpgJOaAiI0qH5Q5CqsqN8KZh+cna5j7nCyGbTL6aQtUhhpVd8SNzDDnAgWD
- TI+aJ4s3BZ+f5bZqdCJu7K97RBJJVM1oVUeAB5DKT6jEXD/vfnjx3e4h1LaF2DI1Jpgp
- 2DNHPXuvkbTG5w5P8KBmRn0ZOFfl4B380LAkomQU1tBKEBJVvh24WKCtie1hOKDdpwiD
- yl2dKJkMp76WyXOWHcZ8AnSXLBvJI3vOg4kvp9/0soI7Z+1VO/1m9BBo84d9eWWVBvmu
- RYx3JOTkbPCuKNUn2xtEPqOngOMByMEcFXOumS90d5bSaq0AtJaZPHV/xkmQqNiAQLwj /g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k0hc0tuc5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Oct 2022 13:46:51 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 295DjP73024031;
-        Wed, 5 Oct 2022 13:46:51 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k0hc0tuba-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Oct 2022 13:46:50 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 295DakO1027354;
-        Wed, 5 Oct 2022 13:46:50 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma04dal.us.ibm.com with ESMTP id 3jxd6aapr4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Oct 2022 13:46:50 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com ([9.208.128.114])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 295DkmG553346752
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 5 Oct 2022 13:46:48 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2B5F658059;
-        Wed,  5 Oct 2022 13:46:48 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 821FE58061;
-        Wed,  5 Oct 2022 13:46:46 +0000 (GMT)
-Received: from [9.160.167.172] (unknown [9.160.167.172])
-        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  5 Oct 2022 13:46:46 +0000 (GMT)
-Message-ID: <8982bc22-9afa-dde4-9f4e-38948db58789@linux.ibm.com>
-Date:   Wed, 5 Oct 2022 09:46:45 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: [PATCH v2] vfio: Follow a strict lifetime for struct iommu_group
-Content-Language: en-US
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        with ESMTP id S229681AbiJEN5b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 09:57:31 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2048.outbound.protection.outlook.com [40.107.244.48])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE7646567C;
+        Wed,  5 Oct 2022 06:57:30 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=AkumViN9JiSlODspm8nYJFjdymPTTYJmSuKTA+tln/vecaYVPL3GJ+lrGv/riTuzHIneXUgbNp6KjLQShOMpxt2Q2QAdAM2qEPORHWF7aNDWx4L9cgHHLY7ylu3FjsVeEZB3o3drWbdMimTKVb0Q/7nNS2vphOrkHYVm+jPadnSkpxsErY8OlbXKTeUWPpcVxGVIki3aztP3ZfZn1RnVGGo2JGBm2/21c8Yt+SQrX9jCuyAM6Y2FPK+wbNy6RxdHigvHiM8J6Q+fKrsofxZkv1jbYL2lHFEWQIHdLSC0347kcfe996COwQhpn/Q0Nr+Hsswur5EzmMUf8K4PzplUjA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Vk8vJsGPQpGvjhude0+apF7bM3grXm+7pZVMxAzhiqo=;
+ b=aZfUBBTZQt54c1d8HIwVRVIm7k46+t5cenP3UqYwc0rOCf+5gb041NWgCltFtPbgza+qFwFf/G38PRWEeG3H3q4F/+1sRGRi4fpOB6t0ikSZmnToEhK9BhsUlHXjsapGQBVUGBqQST5/souWO5yDrhPILS7SrLcxZiP7D6rBNRcRnjv/d3QSPm3Lmz/FP6kncxFyP/yW1kmWRVnKTuaJ47hgzwr0Y0x+UrumP66c+fn+cwhaEyW+yA/HoOY4McYi5V92RTIP/uYUnlM+IX+56hB4EXKfPHBKYQg6ABD7qOZKbmu7DWXBO0Dc6JnRe4wZaQlLh9Y1lhqBnscsD+1j/g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Vk8vJsGPQpGvjhude0+apF7bM3grXm+7pZVMxAzhiqo=;
+ b=Krda83tUrHZ2jNy0XKYjt2Ok1qHIyinNJyA2m+ndIHPAbkNZePSQTuqs72q8QnyJZn+lkH0XOiMGiIadqpB67MC3Avdtsu65w2ACN0E9ezuRZ0N2M4gr4MWUUQDl0fzVy7nFMhizJJ+cCew/QcxJewc8tgxVgKVp0fnq0UvEMnCcbP0wpSJuJOc+AOlbdCao587tsC0lztrkgtXMWzs+RIOssSiFI6EfC/jGjt152U7ze6dgeDr6WPrcXM/90McfsSwvO4qzIB5oe/hFMhNK4VLsyYOlQ+aMSEbkmREXwK1exInGEWQakqRvO8o2/wauB6MQvuDTQUK7rN74qit2Bw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by SN7PR12MB7106.namprd12.prod.outlook.com (2603:10b6:806:2a1::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.20; Wed, 5 Oct
+ 2022 13:57:29 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::7a81:a4e4:bb9c:d1de%5]) with mapi id 15.20.5676.032; Wed, 5 Oct 2022
+ 13:57:29 +0000
+Date:   Wed, 5 Oct 2022 10:57:28 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
         "Jason J . Herne" <jjherne@linux.ibm.com>,
         Marc Hartmayer <mhartmay@linux.ibm.com>,
@@ -76,6 +53,8 @@ Cc:     Alex Williamson <alex.williamson@redhat.com>,
         Qian Cai <cai@lca.pw>, Joerg Roedel <jroedel@suse.de>,
         Marek Szyprowski <m.szyprowski@samsung.com>,
         linux-s390 <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v2] vfio: Follow a strict lifetime for struct iommu_group
+Message-ID: <Yz2NSDa3E6LpW1c5@nvidia.com>
 References: <0-v2-a3c5f4429e2a+55-iommu_group_lifetime_jgg@nvidia.com>
  <4cb6e49e-554e-57b3-e2d3-bc911d99083f@linux.ibm.com>
  <20220927140541.6f727b01.alex.williamson@redhat.com>
@@ -85,202 +64,83 @@ References: <0-v2-a3c5f4429e2a+55-iommu_group_lifetime_jgg@nvidia.com>
  <YzxfK/e14Bx9yNyo@nvidia.com>
  <0a0d7937-316a-a0e2-9d7d-df8f3f8a38e3@linux.ibm.com>
  <33bc5258-5c95-99ee-a952-5b0b2826da3a@linux.ibm.com>
-In-Reply-To: <33bc5258-5c95-99ee-a952-5b0b2826da3a@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3HQQo8NmTQQvK_SCaGtLw498GaJ3xSF1
-X-Proofpoint-ORIG-GUID: dh6cgWgBcgQ2PMRV1zkIPkh0BHGtltZY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-10-05_03,2022-10-05_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
- bulkscore=0 spamscore=0 mlxlogscore=684 priorityscore=1501 suspectscore=0
- malwarescore=0 impostorscore=0 adultscore=0 phishscore=0 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2210050085
+ <8982bc22-9afa-dde4-9f4e-38948db58789@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8982bc22-9afa-dde4-9f4e-38948db58789@linux.ibm.com>
+X-ClientProxiedBy: BL1PR13CA0136.namprd13.prod.outlook.com
+ (2603:10b6:208:2bb::21) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SN7PR12MB7106:EE_
+X-MS-Office365-Filtering-Correlation-Id: a28648f9-d2a2-42c8-4cde-08daa6d98ab1
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YYRzSYe0azjaB9Y93Kr9bwcYdAFArvP7iaIufVv5XD5oCAvAvyX4NmbexOkOsI3cxHJL7uyCYhL9XdR0N7GEEyqibufbBGVk/cQLgW6uuoa5ow+1DjmeBOPo6o13gNm7cT3mhoCdkHn4khEJQ0+2PvIvA1yUfqVHdpO+LU3+5h7xUOLgx868J4Nz+rpOba05LRgsepAQRqRQDKHrFcxJ3m5gzdEdNntOv9SS68cjhQk4Q9JtYkOTGnCjAwwHvb/z65Wzp/onnL80R+Kk8DthTc2B4oxtJe/inPtiJPW3zd7SDgLEWd4dcdZC6zhJrn1aUebXKlcB0w+nJPD0u+yQ+WLbROiNPnP2EK4D5tfZeT8Fv+Dt7HkdgP232lztSbG5I7jNcH9F86YlkxiwtfAIC9Xrla9mx8MqFBzLDL0JfH05MkfyA7AJ2ErstL3BBgzMNlepXXboBU5Y6RFcCxd922SGbGGkmemsP8xqLzLbmYCZWs20dICVBkDmWD7s8PYMgmHtDpin5NenZFZkSvja3c4Je93pnoUO7hNo6laeKzPo7rVZHFEJv6kizVcXyIlmK3XoXi0uVmJxPYqxq30uI7wvk96V++2CO0eo0mL8Kxi9PeJVFUkuiXpHnrOaU1edVyG3fakVK+P2WEUuJaQ7FSsum5jKTeK1nhow4F+A8PnlqVXHl1hRhiME75hDd4MOBo30tjcxP4GEt3kXVxe2ZQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(136003)(366004)(346002)(376002)(39860400002)(451199015)(7416002)(4744005)(2906002)(8936002)(41300700001)(66946007)(66556008)(66476007)(8676002)(86362001)(4326008)(54906003)(6916009)(316002)(6506007)(38100700002)(2616005)(6486002)(478600001)(186003)(5660300002)(6512007)(26005)(36756003)(83380400001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?min78wBHzIjUmOQ9OZ8+fqRVpeR2n8Q/3S+fp8U+YBvjEdsk0Oaen1ukTeRu?=
+ =?us-ascii?Q?BGKQvUVTt94Nycnk5rdMve4q9cK/WnJ7DCd7K0RVFVKY1h1c6S3zGWD5nkHa?=
+ =?us-ascii?Q?gMUqVADtB72QV23vtd74dAcgvIL7q08XIWkYZu/L33ta7Kcq+B6dkb6SqeeY?=
+ =?us-ascii?Q?tc36TUkHN39A2nwFLlFRqYdC+dsuETxQszr7+a9M0ZmWbLkrUqqfuIFk2eYO?=
+ =?us-ascii?Q?kNbYdH+CsNaiRW6wqKVDUc/beq3SgCFdZs3BJH/wOg2JhbXEu2DK/8PHNOKM?=
+ =?us-ascii?Q?HbYAyRv2hdeyS1oaWZCX1ER2g3sL8vE0OSFQOEMwWvV9bRQ+Xoz4yQaYJirf?=
+ =?us-ascii?Q?GwTeOZXzw1Beam/NGjryp/9lCkXEZxYYIhi9atConBmaGW9yux4PSqbPESAZ?=
+ =?us-ascii?Q?VtkIxe1u36+Z3gSZrmtJ6NXJUR+533nnuOSWqDVvKFrdQeypAXeFE86aMPEZ?=
+ =?us-ascii?Q?W5fxHH97X3uq/L/5HD8TYDguxgnGAosbaIlcb8EOT7SAB7louTF8nG1HMtyx?=
+ =?us-ascii?Q?H88NmNTQfBbIayPhEDWKPZs6So0gZv/xWhSGfMfkaW1NTael8BkiGUW4WnL5?=
+ =?us-ascii?Q?Gf60gWHlCXLgzjIb+HnJrNWYThnaEI0zsDjoWqUc2p7uYw1ToUDj/iDRSey0?=
+ =?us-ascii?Q?tWkYiyRZ77R+Xa0lWi+slkS+f5soX0wKctkUZyGKGnk8/hclwkTdj4du0bZu?=
+ =?us-ascii?Q?iN8hOw+kM4WNCrhkW6yK6/OjlWfnN8oGJRSsFUvAqQBbop3x+nM3GyMHpoga?=
+ =?us-ascii?Q?40xbA1wFlOy7WHsOxWrdJClCCmPpgyRNoZkYDrHpFzUoE6O2I/J4YQFfdtWH?=
+ =?us-ascii?Q?CYQLsaYG+sgrl/2PeYZdm8dzuL3EFWGn7UriouVhUE08Z+NAqjprayiKs+ID?=
+ =?us-ascii?Q?QzbpBmeyF1W734hdp5nRip7i4u7fAhymQ/7i8E87mTHIoH61hKFaP2IgNtkT?=
+ =?us-ascii?Q?PPxClSIMpl/EuyuwGr/RXd9L/fdJgtKXNoxGXgkF/QXzCXQFfh+M3ITPq//z?=
+ =?us-ascii?Q?DlnEwioS1xv+HJ8sQr30FhAfnt4nEpfO6zLTUYod0szoTvqxLTCP0+uMzUFP?=
+ =?us-ascii?Q?KPYxrSpj4Fq/DLp/0KzSQjiYjIeE6uUi6yYd7AThiMn6QP6xna0mjO66dunO?=
+ =?us-ascii?Q?T+Af8B7oribjZfrDkvCAplG649/quNDjnF7g8M1FY7vMuojzvTKvf/1wtfVA?=
+ =?us-ascii?Q?PBTNCUH2FStoMyhN1KV1/T+WzOnhdeDCs/b+AjERtPY84iKz/PfIIekg602r?=
+ =?us-ascii?Q?cPgJSAG3+NoJx1uDR+fXVhnvGkywaFCa8S0x4M+2pJgvKWBqhZc2PWatbcQN?=
+ =?us-ascii?Q?tcWV9DNRmJEqG91ydMeuk2ioBCHCrcUMNOlWhhnwxhV5xuxSa1+wmC2vEdr9?=
+ =?us-ascii?Q?THCxhyEHmVhM64hs/GpvBfE2qmvB/cCW8ymrYScg5tZ9paSQxi0MSTXWQAz1?=
+ =?us-ascii?Q?YTjtRYQ0N9U1PQHWgfumARiAfT4GnyS2SfvqP3EgZqaqyaYP4gcrALCt8zoV?=
+ =?us-ascii?Q?qBvKwAz26jYdFDNapvYHOcVU8IiFhOYxnpJMN+A1NcVlel0B3xv23AiEPh33?=
+ =?us-ascii?Q?BIdlfmKZJoSyHgMo6BU=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a28648f9-d2a2-42c8-4cde-08daa6d98ab1
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Oct 2022 13:57:29.2741
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: I4swNtt9DuSL3m06N2225CSp8XR17/6N+SnAW9BWYUimJg5d9Il2FXMn2900FOf4
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7106
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/4/22 2:22 PM, Matthew Rosato wrote:
-> On 10/4/22 1:36 PM, Christian Borntraeger wrote:
->>
->>
->> Am 04.10.22 um 18:28 schrieb Jason Gunthorpe:
->>> On Tue, Oct 04, 2022 at 05:44:53PM +0200, Christian Borntraeger wrote:
->>>
->>>>> Does some userspace have the group FD open when it stucks like this,
->>>>> eg what does fuser say?
->>>>
->>>> /proc/<virtnodedevd>/fd
->>>> 51480 0 dr-x------. 2 root root  0  4. Okt 17:16 .
->>>> 43593 0 dr-xr-xr-x. 9 root root  0  4. Okt 17:16 ..
->>>> 65252 0 lr-x------. 1 root root 64  4. Okt 17:42 0 -> /dev/null
->>>> 65253 0 lrwx------. 1 root root 64  4. Okt 17:42 1 -> 'socket:[51479]'
->>>> 65261 0 lrwx------. 1 root root 64  4. Okt 17:42 10 -> 'anon_inode:[eventfd]'
->>>> 65262 0 lrwx------. 1 root root 64  4. Okt 17:42 11 -> 'socket:[51485]'
->>>> 65263 0 lrwx------. 1 root root 64  4. Okt 17:42 12 -> 'socket:[51487]'
->>>> 65264 0 lrwx------. 1 root root 64  4. Okt 17:42 13 -> 'socket:[51486]'
->>>> 65265 0 lrwx------. 1 root root 64  4. Okt 17:42 14 -> 'anon_inode:[eventfd]'
->>>> 65266 0 lrwx------. 1 root root 64  4. Okt 17:42 15 -> 'socket:[60421]'
->>>> 65267 0 lrwx------. 1 root root 64  4. Okt 17:42 16 -> 'anon_inode:[eventfd]'
->>>> 65268 0 lrwx------. 1 root root 64  4. Okt 17:42 17 -> 'socket:[28008]'
->>>> 65269 0 l-wx------. 1 root root 64  4. Okt 17:42 18 -> /run/libvirt/nodedev/driver.pid
->>>> 65270 0 lrwx------. 1 root root 64  4. Okt 17:42 19 -> 'socket:[28818]'
->>>> 65254 0 lrwx------. 1 root root 64  4. Okt 17:42 2 -> 'socket:[51479]'
->>>> 65271 0 lr-x------. 1 root root 64  4. Okt 17:42 20 -> '/dev/vfio/3 (deleted)'
->>>
->>> Seems like a userspace bug to keep the group FD open after the /dev/
->>> file has been deleted :|
->>>
->>> What do you think about this?
->>>
->>> commit a54a852b1484b1605917a8f4d80691db333b25ed
->>> Author: Jason Gunthorpe <jgg@ziepe.ca>
->>> Date:   Tue Oct 4 13:14:37 2022 -0300
->>>
->>>      vfio: Make the group FD disassociate from the iommu_group
->>>           Allow the vfio_group struct to exist with a NULL iommu_group pointer. When
->>>      the pointer is NULL the vfio_group users promise not to touch the
->>>      iommu_group. This allows a driver to be hot unplugged while userspace is
->>>      keeping the group FD open.
->>>           SPAPR mode is excluded from this behavior because of how it wrongly hacks
->>>      part of its iommu interface through KVM. Due to this we loose control over
->>>      what it is doing and cannot revoke the iommu_group usage in the IOMMU
->>>      layer via vfio_group_detach_container().
->>>           Thus, for SPAPR the group FDs must still be closed before a device can be
->>>      hot unplugged.
->>>           This fixes a userspace regression where we learned that virtnodedevd
->>>      leaves a group FD open even though the /dev/ node for it has been deleted
->>>      and all the drivers for it unplugged.
->>>           Fixes: ca5f21b25749 ("vfio: Follow a strict lifetime for struct iommu_group")
->>>      Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
->>>      Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
->>
->> Almost :-)
->>
->> drivers/vfio/vfio_main.c: In function 'vfio_file_is_group':
->> drivers/vfio/vfio_main.c:1606:47: error: expected ')' before ';' token
->>  1606 |         return (file->f_op == &vfio_group_fops;
->>       |                ~                              ^
->>       |                                               )
->> drivers/vfio/vfio_main.c:1606:48: error: expected ';' before '}' token
->>  1606 |         return (file->f_op == &vfio_group_fops;
->>       |                                                ^
->>       |                                                ;
->>  1607 | }
->>       | ~
->>
->>
->> With that fixed I get:
->>
->> ERROR: modpost: "vfio_file_is_group" [drivers/vfio/pci/vfio-pci-core.ko] undefined!
->>
->> With that worked around (m -> y)
-> 
-> 
-> Looks like this can be solved with EXPORT_SYMBOL_GPL(vfio_file_is_group);
-> 
-> Also:
-> 
-> arch/s390/kvm/../../../virt/kvm/vfio.c:64:28: warning: ‘kvm_vfio_file_iommu_group’ defined but not used [-Wunused-function]
->    64 | static struct iommu_group *kvm_vfio_file_iommu_group(struct file *file)
->       |                            ^~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> kvm_vfio_file_iommu_group looks like it is now SPAPR-only
-> 
->>
->>
->> Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
->>
->> At least the vfio-ap part
-> 
-> Nope, with this s390 vfio-pci at least breaks:
-> 
-> [  132.943389] kernel BUG at lib/list_debug.c:53!
-> [  132.943406] monitor event: 0040 ilc:2 [#1] SMP 
-> [  132.943410] Modules linked in: vfio_pci kvm vfio_pci_core irqbypass vfio_virqfd vhost_vsock vmw_vsock_virtio_transport_common vsock vhost vhost_iotlb nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defr
-> ag_ipv4 ip_set nf_tables nfnetlink sunrpc mlx5_ib ism smc ib_uverbs ib_core uvdevice s390_trng tape_3590 tape tape_class eadm_sch vfio_ccw mdev vfio_iommu_type1 vfio zcrypt_cex4 sch_fq_codel configfs ghash_s390 prng chacha_s390 libchacha mlx5_core aes_s390 des_s390 libdes sha3_512_s390 nvme sha3_256_s390 sha512_s390 sh
-> a256_s390 nvme_core sha1_s390 sha_common zfcp scsi_transport_fc pkey zcrypt rng_core autofs4 [last unloaded: vfio_pci]
-> [  132.943457] CPU: 12 PID: 4991 Comm: nose2 Tainted: G        W          6.0.0-rc4 #40
-> [  132.943460] Hardware name: IBM 3931 A01 782 (LPAR)
-> [  132.943462] Krnl PSW : 0704c00180000000 00000000cbc90568 (__list_del_entry_valid+0xd8/0xf0)
-> [  132.943469]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-> [  132.943474] Krnl GPRS: 8000000000000001 0000000900000027 000000000000004e 00000000ccc1ffe0
-> [  132.943477]            00000000fffeffff 00000009fc290000 0000000000000000 0000000000000080
-> [  132.943480]            00000000acc86438 0000000000000000 00000000acc86420 00000000a1492800
-> [  132.943483]            00000000922a0000 000003ffb9dce260 00000000cbc90564 0000038004a6b9f8
-> [  132.943489] Krnl Code: 00000000cbc90558: c0200045eff3        larl    %r2,00000000cc54e53e
-> [  132.943489]            00000000cbc9055e: c0e50022c7d9        brasl   %r14,00000000cc0e9510
-> [  132.943489]           #00000000cbc90564: af000000            mc      0,0
-> [  132.943489]           >00000000cbc90568: b9040032            lgr     %r3,%r2
-> [  132.943489]            00000000cbc9056c: c0200045efd4        larl    %r2,00000000cc54e514
-> [  132.943489]            00000000cbc90572: c0e50022c7cf        brasl   %r14,00000000cc0e9510
-> [  132.943489]            00000000cbc90578: af000000            mc      0,0
-> [  132.943489]            00000000cbc9057c: 0707                bcr     0,%r7
-> [  132.943510] Call Trace:
-> [  132.943512]  [<00000000cbc90568>] __list_del_entry_valid+0xd8/0xf0 
-> [  132.943515] ([<00000000cbc90564>] __list_del_entry_valid+0xd4/0xf0)
-> [  132.943518]  [<000003ff8011a1b8>] vfio_group_detach_container+0x88/0x170 [vfio] 
-> [  132.943524]  [<000003ff801176c0>] vfio_device_remove_group.isra.0+0xb0/0x1e0 [vfio] 
-> [  132.943529]  [<000003ff804f9e54>] vfio_pci_core_unregister_device+0x34/0x80 [vfio_pci_core] 
-> [  132.943535]  [<000003ff804ae1c4>] vfio_pci_remove+0x2c/0x40 [vfio_pci] 
-> [  132.943539]  [<00000000cbd58c3c>] pci_device_remove+0x3c/0x98 
-> [  132.943542]  [<00000000cbdbdbce>] device_release_driver_internal+0x1c6/0x288 
-> [  132.943545]  [<00000000cbd4e284>] pci_stop_bus_device+0x94/0xc0 
-> [  132.943549]  [<00000000cbd4e570>] pci_stop_and_remove_bus_device_locked+0x30/0x48 
-> [  132.943552]  [<00000000cb55d980>] zpci_bus_remove_device+0x68/0xa8 
-> [  132.943555]  [<00000000cb556e82>] zpci_deconfigure_device+0x3a/0xe0 
-> [  132.943558]  [<00000000cbd65d04>] power_write_file+0x7c/0x130 
-> [  132.943561]  [<00000000cb8fbc90>] kernfs_fop_write_iter+0x138/0x210 
-> [  132.943565]  [<00000000cb837344>] vfs_write+0x194/0x2e0 "
-> [  132.943568]  [<00000000cb8376fa>] ksys_write+0x6a/0xf8 
-> [  132.943571]  [<00000000cc0f918c>] __do_syscall+0x1d4/0x200 
-> [  132.943575]  [<00000000cc107e42>] system_call+0x82/0xb0 
-> [  132.943577] Last Breaking-Event-Address:
-> [  132.943579]  [<00000000cc0e955c>] _printk+0x4c/0x58
-> [  132.943585] Kernel panic - not syncing: Fatal exception: panic_on_oops
+On Wed, Oct 05, 2022 at 09:46:45AM -0400, Matthew Rosato wrote:
 
-(again, with the follow-up applied) Besides the panic above I just noticed there is also this warning that immediately precedes and is perhaps more useful.  Re: what triggers the WARN, both group->owner and group->owner_cnt are already 0:
+ 
+> (again, with the follow-up applied) Besides the panic above I just
+> noticed there is also this warning that immediately precedes and is
+> perhaps more useful.  Re: what triggers the WARN, both group->owner
+> and group->owner_cnt are already 0
 
-[  375.262923] WARNING: CPU: 8 PID: 5182 at drivers/iommu/iommu.c:3211 iommu_group_release_dma_owner+0x38/0x90
-[  375.262932] Modules linked in: vhost_vsock vmw_vsock_virtio_transport_common vsock vhost vhost_iotlb macvtap macvlan tap vfio_pci vfio_pci_core irqbypass vfio_virqfd kvm nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf
-_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables nfnetlink sunrpc mlx5_ib ib_uverbs ism smc ib_core uvdevice s390_trng eadm_sch tape_3590 tape tape_class vfio_ccw mdev vfio_iommu_type1 vfio zcrypt_cex4 sch_fq_codel configfs ghash_s390 prng chacha_s390 libchacha aes_s390 des_s390 mlx5_core libdes sha3_512_s390 sha3_256_s390
- nvme sha512_s390 sha256_s390 sha1_s390 sha_common nvme_core zfcp scsi_transport_fc pkey zcrypt rng_core autofs4
-[  375.262969] CPU: 8 PID: 5182 Comm: nose2 Not tainted 6.0.0-rc4 #50
-[  375.262971] Hardware name: IBM 3931 A01 782 (LPAR)
-[  375.262972] Krnl PSW : 0704c00180000000 00000001d1cd8b34 (iommu_group_release_dma_owner+0x3c/0x90)
-[  375.262976]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-[  375.262979] Krnl GPRS: 8000000000000001 0000000000000000 00000000844dd058 00000000ba60c200
-[  375.262981]            00000000fffeffff 00000009fc290000 0000000000000000 0000000000000080
-[  375.262984]            00000000b1a6d840 00000000b1a6d858 00000000844dd058 00000000844dd000
-[  375.262986]            00000000ba60c200 000003ff962ce260 00000001d1cd8b26 0000038003d0f9d8
-[  375.262994] Krnl Code: 00000001d1cd8b26: e310b0c00012        lt      %r1,192(%r11)
-[  375.262994]            00000001d1cd8b2c: a774000c            brc     7,00000001d1cd8b44
-[  375.262994]           #00000001d1cd8b30: af000000            mc      0,0
-[  375.262994]           >00000001d1cd8b34: b904002a            lgr     %r2,%r10
-[  375.262994]            00000001d1cd8b38: ebaff0a00004        lmg     %r10,%r15,160(%r15)
-[  375.262994]            00000001d1cd8b3e: c0f4001aa84d        brcl    15,00000001d202dbd8
-[  375.262994]            00000001d1cd8b44: e310b0c80002        ltg     %r1,200(%r11)
-[  375.262994]            00000001d1cd8b4a: a784fff3            brc     8,00000001d1cd8b30
-[  375.263048] Call Trace:
-[  375.263051]  [<00000001d1cd8b34>] iommu_group_release_dma_owner+0x3c/0x90 
-[  375.263058]  [<000003ff801431c8>] vfio_group_detach_container+0x98/0x1a0 [vfio] 
-[  375.263067]  [<000003ff801406c0>] vfio_device_remove_group.isra.0+0xb0/0x1e0 [vfio] 
-[  375.263071]  [<000003ff80540e54>] vfio_pci_core_unregister_device+0x34/0x80 [vfio_pci_core] 
-[  375.263079]  [<000003ff804f31c4>] vfio_pci_remove+0x2c/0x40 [vfio_pci] 
-[  375.263082]  [<00000001d1c84c3c>] pci_device_remove+0x3c/0x98 
-[  375.263085]  [<00000001d1ce9bce>] device_release_driver_internal+0x1c6/0x288 
-[  375.263090]  [<00000001d1c7a284>] pci_stop_bus_device+0x94/0xc0 
-[  375.263093]  [<00000001d1c7a570>] pci_stop_and_remove_bus_device_locked+0x30/0x48 
-[  375.263096]  [<00000001d1489980>] zpci_bus_remove_device+0x68/0xa8 
-[  375.263100]  [<00000001d1482e82>] zpci_deconfigure_device+0x3a/0xe0 
-[  375.263104]  [<00000001d1c91d04>] power_write_file+0x7c/0x130 
-[  375.263108]  [<00000001d1827c90>] kernfs_fop_write_iter+0x138/0x210 
-[  375.263114]  [<00000001d1763344>] vfs_write+0x194/0x2e0 
-[  375.263119]  [<00000001d17636fa>] ksys_write+0x6a/0xf8 
-[  375.263121]  [<00000001d202518c>] __do_syscall+0x1d4/0x200 
-[  375.263127]  [<00000001d2033e42>] system_call+0x82/0xb0 
-[  375.263132] Last Breaking-Event-Address:
-[  375.263132]  [<00000001d202f394>] mutex_lock+0x1c/0x28
+And this is after the 2nd try that fixes the locking?
+
+This shows that vfio_group_detach_container() is called twice (which
+was my guess), hoever this looks to be impossible as both calls are
+protected by 'if (group->container)' and the function NULL's
+group->container and it is all under the proper lock.
+
+My guess was that missing locking caused the two cases to race and
+trigger WARN, but the locking should fix that.
+
+So I'm at a loss, can you investigate a bit?
+
+Jason
