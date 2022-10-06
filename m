@@ -2,61 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11D4FC433FE
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Oct 2022 21:03:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA337C433FE
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Oct 2022 21:07:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230226AbiJFVDY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Oct 2022 17:03:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49924 "EHLO
+        id S232109AbiJFVHo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Oct 2022 17:07:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231416AbiJFVDX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Oct 2022 17:03:23 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1145DC2CA3;
-        Thu,  6 Oct 2022 14:03:20 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 296JfcmE011093;
-        Thu, 6 Oct 2022 21:03:09 GMT
+        with ESMTP id S232023AbiJFVHn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Oct 2022 17:07:43 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85659C14A3;
+        Thu,  6 Oct 2022 14:07:42 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 296Kqeik004263;
+        Thu, 6 Oct 2022 21:07:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=10OWtucJr95xAXqq/kQhrTeDW/DzA+7mwoCnOhBtP5c=;
- b=qCd9tC6TYk7WwnPn89SRMou2z+VqGstEKH2iCBMxAS+ItDHZ4sm3FKi2LN6ekuXpdFLQ
- C8d56qQn2dCSVvm33wvhtcLKDMGIRpKGPyAObfW89TJISBM1IJMgC7SxpxXozjy8b+Le
- 24p86Uei1XFqyX/Lyaw2MkpFSXM2HYhkp+3ckCXHcoHjoJ0iRZINrnqoJJ1X9wtuCgya
- AOGM+8gVrYwVIk51RyDyp01ANswXtmmpPetn04yoRAomY6+fRnHSpdE+HAiccf53iE10
- CXnskntlQuCcb45aj10IUzZaUebSlEVTi3T3mqCWPGs7TxE2MSl1FUoTAW1Mcb9ZTR2i EA== 
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k25daab1g-1
+ bh=1R0M70lNStrUnDIQ1CEWm8D1AU631195rQW77wCIWUs=;
+ b=ZxQFPDzS3VIoXXpnfJfqqv/N3lRpINmelmoC9iPYd9psiPCnRvBuxFcAbqXNTe6T7PfY
+ V2a6b8BGy1BdU6fBMfvsggm0Czr9vQSB5NzLL5r+6Lx/l7p6ZqsqXguF+sECgk8vpGnJ
+ MwAROhCrHl7KpaC5v3L4g0OKXoP6tUxOlBjhMcEeNNbe6/wrGB38jCfdLj5ElXmv6XAu
+ dO8ZifZdEUNrZ/xs6/a9OZ3wezo+ufml5dVSjXyDn7aQRstp+SfvIThkVHQaI7XjAXHu
+ F8YtI3YD0tR2VlhIsgeAKA46gmEmnLtzjlTKu+vwiVL3lPHRdv1ThPO00YVhJFq64jCb YQ== 
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3k26ej0ehs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Oct 2022 21:03:09 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 296KpObN017132;
-        Thu, 6 Oct 2022 21:03:08 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma03wdc.us.ibm.com with ESMTP id 3jxd69vuxr-1
+        Thu, 06 Oct 2022 21:07:26 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 296Koofp009179;
+        Thu, 6 Oct 2022 21:02:26 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma04dal.us.ibm.com with ESMTP id 3jxd6anynh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Oct 2022 21:03:08 +0000
+        Thu, 06 Oct 2022 21:02:25 +0000
 Received: from smtpav01.wdc07v.mail.ibm.com ([9.208.128.113])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 296L36Mj64618880
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 296L2OwS15532516
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 6 Oct 2022 21:03:07 GMT
+        Thu, 6 Oct 2022 21:02:24 GMT
 Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 76CC558065;
-        Thu,  6 Oct 2022 21:03:06 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id AB72A58065;
+        Thu,  6 Oct 2022 21:02:23 +0000 (GMT)
 Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B02795804B;
-        Thu,  6 Oct 2022 21:03:04 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DAB7458059;
+        Thu,  6 Oct 2022 21:02:21 +0000 (GMT)
 Received: from [9.65.202.26] (unknown [9.65.202.26])
         by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  6 Oct 2022 21:03:04 +0000 (GMT)
-Message-ID: <33573393-3b75-5c71-6f62-8b207f46fd16@linux.ibm.com>
-Date:   Thu, 6 Oct 2022 17:03:04 -0400
+        Thu,  6 Oct 2022 21:02:21 +0000 (GMT)
+Message-ID: <c778fc2b-2c0d-777c-52fb-1b315cf95552@linux.ibm.com>
+Date:   Thu, 6 Oct 2022 17:02:21 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.3.0
-Subject: Re: [PATCH v5 6/6] iommu/s390: Implement map_pages()/unmap_pages()
- instead of map()/unmap()
+Subject: Re: [PATCH v5 1/6] iommu/s390: Fix duplicate domain attachments
 Content-Language: en-US
 To:     Niklas Schnelle <schnelle@linux.ibm.com>,
         Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev
@@ -66,152 +65,117 @@ Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
         svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
         robin.murphy@arm.com, jgg@nvidia.com, linux-kernel@vger.kernel.org
 References: <20221006144700.3380098-1-schnelle@linux.ibm.com>
- <20221006144700.3380098-7-schnelle@linux.ibm.com>
+ <20221006144700.3380098-2-schnelle@linux.ibm.com>
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20221006144700.3380098-7-schnelle@linux.ibm.com>
+In-Reply-To: <20221006144700.3380098-2-schnelle@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dfVBkdg1zQo_lSG0eKwLKDW4UvHuoC-D
-X-Proofpoint-ORIG-GUID: dfVBkdg1zQo_lSG0eKwLKDW4UvHuoC-D
+X-Proofpoint-ORIG-GUID: QCJJp0LGdo9-qAkW-bUc7SQl1oyt8ygO
+X-Proofpoint-GUID: QCJJp0LGdo9-qAkW-bUc7SQl1oyt8ygO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-10-06_04,2022-10-06_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- bulkscore=0 adultscore=0 mlxlogscore=999 spamscore=0 mlxscore=0
- phishscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 mlxlogscore=851 priorityscore=1501 mlxscore=0 malwarescore=0
+ clxscore=1015 spamscore=0 bulkscore=0 suspectscore=0 phishscore=0
  impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2209130000 definitions=main-2210060124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/6/22 10:47 AM, Niklas Schnelle wrote:
-> While s390-iommu currently implements the map_page()/unmap_page()
-> operations which only map/unmap a single page at a time the internal
-> s390_iommu_update_trans() API already supports mapping/unmapping a range
-> of pages at once. Take advantage of this by implementing the
-> map_pages()/unmap_pages() operations instead thus allowing users of the
-> IOMMU drivers to map multiple pages in a single call followed by
-> a single I/O TLB flush if needed.
+On 10/6/22 10:46 AM, Niklas Schnelle wrote:
+> Since commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
+> calls") we can end up with duplicates in the list of devices attached to
+> a domain. This is inefficient and confusing since only one domain can
+> actually be in control of the IOMMU translations for a device. Fix this
+> by detaching the device from the previous domain, if any, on attach.
+> Add a WARN_ON() in case we still have attached devices on freeing the
+> domain. While here remove the re-attach on failure dance as it was
+> determined to be unlikely to help and may confuse debug and recovery.
 > 
+> Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
 > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 > ---
->  drivers/iommu/s390-iommu.c | 48 +++++++++++++++++++++++++-------------
->  1 file changed, 32 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index ac200f0b81fa..7b92855135ac 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -189,20 +189,15 @@ static void s390_iommu_release_device(struct device *dev)
->  
->  static int s390_iommu_update_trans(struct s390_domain *s390_domain,
->  				   phys_addr_t pa, dma_addr_t dma_addr,
-> -				   size_t size, int flags)
-> +				   unsigned long nr_pages, int flags)
+> v4->v5:
+> - Unregister IOAT and set zdev->dma_table on error (Matt)
+>
+...
+
+>  static int s390_iommu_attach_device(struct iommu_domain *domain,
+>  				    struct device *dev)
 >  {
->  	phys_addr_t page_addr = pa & PAGE_MASK;
->  	dma_addr_t start_dma_addr = dma_addr;
-> -	unsigned long irq_flags, nr_pages, i;
-> +	unsigned long irq_flags, i;
->  	struct zpci_dev *zdev;
->  	unsigned long *entry;
->  	int rc = 0;
+> @@ -90,7 +116,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+>  	struct zpci_dev *zdev = to_zpci_dev(dev);
+>  	struct s390_domain_device *domain_device;
+>  	unsigned long flags;
+> -	int cc, rc;
+> +	int cc, rc = 0;
 >  
-> -	if (dma_addr < s390_domain->domain.geometry.aperture_start ||
-> -	    (dma_addr + size - 1) > s390_domain->domain.geometry.aperture_end)
-> -		return -EINVAL;
+>  	if (!zdev)
+>  		return -ENODEV;
+> @@ -99,23 +125,17 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+>  	if (!domain_device)
+>  		return -ENOMEM;
+>  
+> -	if (zdev->dma_table && !zdev->s390_domain) {
+> -		cc = zpci_dma_exit_device(zdev);
+> -		if (cc) {
+> -			rc = -EIO;
+> -			goto out_free;
+> -		}
+> -	}
 > -
-> -	nr_pages = PAGE_ALIGN(size) >> PAGE_SHIFT;
->  	if (!nr_pages)
->  		return 0;
+>  	if (zdev->s390_domain)
+> -		zpci_unregister_ioat(zdev, 0);
+> +		__s390_iommu_detach_device(zdev);
+> +	else if (zdev->dma_table)
+> +		zpci_dma_exit_device(zdev);
 >  
-> @@ -245,11 +240,24 @@ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
->  	return rc;
->  }
->  
-> -static int s390_iommu_map(struct iommu_domain *domain, unsigned long iova,
-> -			  phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
-> +static int s390_iommu_map_pages(struct iommu_domain *domain,
-> +				unsigned long iova, phys_addr_t paddr,
-> +				size_t pgsize, size_t pgcount,
-> +				int prot, gfp_t gfp, size_t *mapped)
->  {
->  	struct s390_domain *s390_domain = to_s390_domain(domain);
->  	int flags = ZPCI_PTE_VALID, rc = 0;
-> +	size_t size = pgcount << __ffs(pgsize);
-> +
-> +	if (pgsize != SZ_4K)
-> +		return -EINVAL;
-> +
-> +	if (iova < s390_domain->domain.geometry.aperture_start ||
-> +	    (iova + size - 1) > s390_domain->domain.geometry.aperture_end)
-> +		return -EINVAL;
-> +
-> +	if (!IS_ALIGNED(iova | paddr, pgsize))
-> +		return -EINVAL;
->  
->  	if (!(prot & IOMMU_READ))
->  		return -EINVAL;
-> @@ -258,7 +266,9 @@ static int s390_iommu_map(struct iommu_domain *domain, unsigned long iova,
->  		flags |= ZPCI_TABLE_PROTECTED;
->  
->  	rc = s390_iommu_update_trans(s390_domain, paddr, iova,
-> -				     size, flags);
-> +				     pgcount, flags);
-> +	if (!rc)
-> +		*mapped = size;
->  
->  	return rc;
->  }
-> @@ -294,21 +304,27 @@ static phys_addr_t s390_iommu_iova_to_phys(struct iommu_domain *domain,
->  	return phys;
->  }
->  
-> -static size_t s390_iommu_unmap(struct iommu_domain *domain,
-> -			       unsigned long iova, size_t size,
-> -			       struct iommu_iotlb_gather *gather)
-> +static size_t s390_iommu_unmap_pages(struct iommu_domain *domain,
-> +				     unsigned long iova,
-> +				     size_t pgsize, size_t pgcount,
-> +				     struct iommu_iotlb_gather *gather)
->  {
->  	struct s390_domain *s390_domain = to_s390_domain(domain);
-> +	size_t size = pgcount << __ffs(pgsize);
->  	int flags = ZPCI_PTE_INVALID;
->  	phys_addr_t paddr;
->  	int rc;
->  
-> +	if (iova < s390_domain->domain.geometry.aperture_start ||
-> +	    (iova + size - 1) > s390_domain->domain.geometry.aperture_end)
-> +		return 0;
-> +
-
-Overall this LGTM and runs well with my testing.  But I'm curious why we silently ignore an egregiously bad unmap request here?  We've already done an -EINVAL for an attempt to map_pages() something outside of the aperture.  If something still tries to unmap_pages() outside of the aperture, that seems like a bug?  Maybe this should be surrounded by a if (WARN_ON(... || ...) to signify the unexpected behavior and then still return 0?
-
-Otherwise:
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-
->  	paddr = s390_iommu_iova_to_phys(domain, iova);
->  	if (!paddr)
->  		return 0;
->  
->  	rc = s390_iommu_update_trans(s390_domain, paddr, iova,
-> -				     size, flags);
-> +				     pgcount, flags);
->  	if (rc)
->  		return 0;
->  
-> @@ -354,8 +370,8 @@ static const struct iommu_ops s390_iommu_ops = {
->  	.default_domain_ops = &(const struct iommu_domain_ops) {
->  		.attach_dev	= s390_iommu_attach_device,
->  		.detach_dev	= s390_iommu_detach_device,
-> -		.map		= s390_iommu_map,
-> -		.unmap		= s390_iommu_unmap,
-> +		.map_pages	= s390_iommu_map_pages,
-> +		.unmap_pages	= s390_iommu_unmap_pages,
->  		.iova_to_phys	= s390_iommu_iova_to_phys,
->  		.free		= s390_domain_free,
+>  	zdev->dma_table = s390_domain->dma_table;
+>  	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
+>  				virt_to_phys(zdev->dma_table));
+>  	if (cc) {
+>  		rc = -EIO;
+> -		goto out_restore;
+> +		goto out_free;
 >  	}
+
+Hmm, with this we will leave attach_dev with a zdev->dma_table associated with this domain (not one generated via zpci_dma_init_device) and zdev->s390_domain == 0.  Won't this cause both s390_domain_free and zpci_dma_exit_device() to try and free the same dma table?
+
+I think we also have to leave with a NULL zdev->dma_table in this case too (you technically could skip the zpci_unregister_ioat)
+
+>  
+>  	spin_lock_irqsave(&s390_domain->list_lock, flags);
+> @@ -127,9 +147,9 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+>  	/* Allow only devices with identical DMA range limits */
+>  	} else if (domain->geometry.aperture_start != zdev->start_dma ||
+>  		   domain->geometry.aperture_end != zdev->end_dma) {
+> -		rc = -EINVAL;
+>  		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> -		goto out_restore;
+> +		rc = -EINVAL;
+> +		goto out_unregister;
+>  	}
+>  	domain_device->zdev = zdev;
+>  	zdev->s390_domain = s390_domain;
+> @@ -138,14 +158,9 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+>  
+>  	return 0;
+>  
+> -out_restore:
+> -	if (!zdev->s390_domain) {
+> -		zpci_dma_init_device(zdev);
+> -	} else {
+> -		zdev->dma_table = zdev->s390_domain->dma_table;
+> -		zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
+> -				   virt_to_phys(zdev->dma_table));
+> -	}
+> +out_unregister:
+> +	zpci_unregister_ioat(zdev, 0);
+> +	zdev->dma_table = NULL;
+>  out_free:
+>  	kfree(domain_device);
+>  
 
