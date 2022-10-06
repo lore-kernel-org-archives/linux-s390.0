@@ -2,147 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56C67C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Oct 2022 19:17:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 493A6C433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Oct 2022 10:56:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229774AbiJETRM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Oct 2022 15:17:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37104 "EHLO
+        id S231177AbiJFK4r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Oct 2022 06:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229712AbiJETRL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Oct 2022 15:17:11 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F308913F68;
-        Wed,  5 Oct 2022 12:17:06 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 295J4kaW010737;
-        Wed, 5 Oct 2022 19:16:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=E8ePKIa98iVONEUZny1Gqy0ELAIf6a02zctey4g5Hfg=;
- b=B826LO+hllWUOwTXlZcVCjpwz9qVKABVW3DBmiW6vkmbn8bYpkMB9RPsNFQK7qklA8iB
- Oyqs26wjKG1UbFWVs06Nl+1i0DTckgQd/e6aw9gjUwndmKf1JPlJHl/eTSgFjtIOoZvn
- m793mobhX/wITZyYO7cpgnurU1jsJg6VCka1b7wxMPoiNpVuw8+oV9rwRyPT51xqDMNj
- 650zgOWCEHOUbr/BTiLSkXzZDV438M57T2gb7YAS9U9PT/eSQmZiNj7GbbbWtwlmMvxA
- EO64ao6Rwt9BEp/k/6qpSJ+eHlpEp0/lPdieIEjhmuQs3i6d8bqGLZHplPf+f6je2V2A mQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k1fs2r9v2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Oct 2022 19:16:55 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 295J4k8W010746;
-        Wed, 5 Oct 2022 19:16:55 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k1fs2r9ug-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Oct 2022 19:16:54 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 295J5N5R016797;
-        Wed, 5 Oct 2022 19:16:53 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03fra.de.ibm.com with ESMTP id 3jxd68vcdd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Oct 2022 19:16:53 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 295JCIrB46727446
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 5 Oct 2022 19:12:18 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7032DA4051;
-        Wed,  5 Oct 2022 19:16:49 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 26256A4040;
-        Wed,  5 Oct 2022 19:16:45 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.56.127])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  5 Oct 2022 19:16:45 +0000 (GMT)
-Message-ID: <730ad052651fc393b18c7f5664788fb66719b970.camel@linux.ibm.com>
-Subject: Re: [PATCH v1 2/9] KVM: s390: Extend MEM_OP ioctl by storage key
- checked cmpxchg
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-Date:   Wed, 05 Oct 2022 21:16:43 +0200
-In-Reply-To: <37197cfe-d109-332f-089b-266d7e8e23f8@redhat.com>
-References: <20220930210751.225873-1-scgl@linux.ibm.com>
-         <20220930210751.225873-3-scgl@linux.ibm.com>
-         <37197cfe-d109-332f-089b-266d7e8e23f8@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        with ESMTP id S230512AbiJFK4q (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Oct 2022 06:56:46 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884C098CA6
+        for <linux-s390@vger.kernel.org>; Thu,  6 Oct 2022 03:56:45 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id y8so1672918pfp.13
+        for <linux-s390@vger.kernel.org>; Thu, 06 Oct 2022 03:56:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=ZP/zKyJp37FXzbL8/Q6HCrJnDQOzN4qDGcvULMOGl+8=;
+        b=izLmH9lZB6NiCBhbFy6zp5sHJpwwzANBNFy10+0d2h+OQYna4oQt1JRC4gySHOJaBE
+         C2edzHf9oAycjpqmvc3zr95lplNqCyN6Qrsy/TfsCZLwccu3YeFV7ZA1GjK7XUv+GgXq
+         Tuk570WSL8Q2yvIG9tAST5uqLh1Qmf+JVnt6Ud97ZB3z/MyvKM2xPUBhHQU+5ANqHVBW
+         zcqfeD6cyyH8OC3wMR2rPrFiUK51lZXLJ7a/P5xlrPYtgohjtbZYsEydjn2+7oqZAS+g
+         pnx//3AJ44/nD0lN5FHk8REtfdKdsZNcmU5fmjDnnoYuedkavA9qZrKFN3XuBkfQ58ZT
+         WbFg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=ZP/zKyJp37FXzbL8/Q6HCrJnDQOzN4qDGcvULMOGl+8=;
+        b=FTXAWya2o1P4fScsKiyesb8CQa33kATffWuXCVgP+ACI40lnMC5o8igxRwfj74nosx
+         JNRCOQxdRrP1jVPsWLB0j9HoF6Zltdyy8MzlsvL6KLLakrkbFLuI5WSHBuILJfAzrEry
+         8QxVMrEUcDHEuogWoPXz9AKIiNBIMhlaq+u+fAUZ0rC7X+C3374rVvFWL734I5YiXlaO
+         SfkNznFYYenpQdGIs5r525YZHywWbWxLRjrrLsTBNb0EmvSzmkf0cTHgZlj+f39P76/e
+         MnArbC5xWwoK78QWMezGUw5JnhBnhfBR+grfuJOOcZ52wHuvW750Aq2ScLc92bHvw3ol
+         7cxg==
+X-Gm-Message-State: ACrzQf3rTQwGkF52W7yZ+RZPag+RszmT91VF33Er8rNLU032rGnz9ckq
+        +/kxMk06eTOmjrD+2QsBhRueRF80hvA=
+X-Google-Smtp-Source: AMsMyM7E9sg4+9jUJ262BwYr7E96Q1fquYQVe4NtsFinjhmM2HLIM/EXr89tQVa6T1TtdV8YmnB01g==
+X-Received: by 2002:a05:6a00:22d1:b0:562:5d7d:5588 with SMTP id f17-20020a056a0022d100b005625d7d5588mr4299810pfj.58.1665053804730;
+        Thu, 06 Oct 2022 03:56:44 -0700 (PDT)
+Received: from bobo.ibm.com ([118.208.156.99])
+        by smtp.gmail.com with ESMTPSA id u9-20020a170903124900b0017808db132bsm12195291plh.137.2022.10.06.03.56.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Oct 2022 03:56:43 -0700 (PDT)
+From:   Nicholas Piggin <npiggin@gmail.com>
+To:     linux-s390@vger.kernel.org
+Cc:     Nicholas Piggin <npiggin@gmail.com>
+Subject: [PATCH] s390: remove the last remnants of cputime_t
+Date:   Thu,  6 Oct 2022 20:56:35 +1000
+Message-Id: <20221006105635.115775-1-npiggin@gmail.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dI4glRReVo79bjt7WRwpkeV2XRY1dYI6
-X-Proofpoint-ORIG-GUID: 7U8shb_UzHkEW4OF4lqyth2MGUMsiqw4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-10-05_05,2022-10-05_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
- impostorscore=0 mlxscore=0 adultscore=0 malwarescore=0 bulkscore=0
- lowpriorityscore=0 suspectscore=0 mlxlogscore=884 spamscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210050119
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-10-05 at 08:32 +0200, Thomas Huth wrote:
-> On 30/09/2022 23.07, Janis Schoetterl-Glausch wrote:
-> > User space can use the MEM_OP ioctl to make storage key checked reads
-> > and writes to the guest, however, it has no way of performing atomic,
-> > key checked, accesses to the guest.
-> > Extend the MEM_OP ioctl in order to allow for this, by adding a cmpxchg
-> > mode. For now, support this mode for absolute accesses only.
-> > 
-> > This mode can be use, for example, to set the device-state-change
-> > indicator and the adapter-local-summary indicator atomically.
-> > 
-> > Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> > ---
-> > 
-> > 
-> > The return value of MEM_OP is:
-> >    0 on success,
-> >    < 0 on generic error (e.g. -EFAULT or -ENOMEM),
-> >    > 0 if an exception occurred while walking the page tables
-> > A cmpxchg failing because the old value doesn't match is neither an
-> > error nor an exception, so the question is how best to signal that
-> > condition. This is not strictly necessary since user space can compare
-> > the value of old after the MEM_OP with the value it set. If they're
-> > different the cmpxchg failed. It might be a better user interface if
-> > there is an easier way to see if the cmpxchg failed.
-> > This patch sets the cmpxchg flag bit to 0 on a successful cmpxchg.
-> > This way you can compare against a constant instead of the old old
-> > value.
-> > This has the disadvantage of being a bit weird, other suggestions
-> > welcome.
-> 
-> This also breaks the old API of defining the ioctl as _IOW only ... with 
-> your change to the flags field, it effectively gets IOWR instead.
+cputime_t was a core kernel type, removed by commits
+ed5c8c854f2b..b672592f0221. As explained in commit b672592f0221
+("sched/cputime: Remove generic asm headers"), the final cleanup is for
+the arch to provide cputime_to_nsec[s](). Commit e53051e757d6
+("s390/cputime: provide archicture specific cputime_to_nsecs") did that,
+but just didn't remove the then-unused cputime_to_usecs() and associated
+remnants.
 
-Oh, right.
-> 
-> Maybe it would be better to put all the new logic into a new struct and only 
-> pass a pointer to that struct in kvm_s390_mem_op, so that the ioctl stays 
-> IOW ? ... or maybe even introduce a completely new ioctl for this 
-> functionality instead?
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+---
+Sorry this isn't build or compile tested, I'm doing the same for powerpc
+then we can remove the cputime_to_nsecs fallback from core code too.
 
-Hmmm, the latter seems a bit ugly since there is so much commonality
-with the existing memop. 
-> 
->   Thomas
-> 
+Thanks,
+Nick
+
+ arch/s390/include/asm/cputime.h | 15 ---------------
+ 1 file changed, 15 deletions(-)
+
+diff --git a/arch/s390/include/asm/cputime.h b/arch/s390/include/asm/cputime.h
+index 1d389847b588..7f9284e2a7db 100644
+--- a/arch/s390/include/asm/cputime.h
++++ b/arch/s390/include/asm/cputime.h
+@@ -11,21 +11,6 @@
+ #include <linux/types.h>
+ #include <asm/timex.h>
+ 
+-#define CPUTIME_PER_USEC 4096ULL
+-#define CPUTIME_PER_SEC (CPUTIME_PER_USEC * USEC_PER_SEC)
+-
+-/* We want to use full resolution of the CPU timer: 2**-12 micro-seconds. */
+-
+-#define cmpxchg_cputime(ptr, old, new) cmpxchg64(ptr, old, new)
+-
+-/*
+- * Convert cputime to microseconds.
+- */
+-static inline u64 cputime_to_usecs(const u64 cputime)
+-{
+-	return cputime >> 12;
+-}
+-
+ /*
+  * Convert cputime to nanoseconds.
+  */
+-- 
+2.37.2
 
