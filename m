@@ -2,53 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32186C4321E
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Oct 2022 14:47:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91EC5C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Oct 2022 14:47:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231146AbiJFOr2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Oct 2022 10:47:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55004 "EHLO
+        id S231200AbiJFOr3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Oct 2022 10:47:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230098AbiJFOrW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Oct 2022 10:47:22 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BAB534735;
-        Thu,  6 Oct 2022 07:47:21 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 296EAQc8031130;
-        Thu, 6 Oct 2022 14:47:07 GMT
+        with ESMTP id S230185AbiJFOr1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Oct 2022 10:47:27 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CBF31D32C;
+        Thu,  6 Oct 2022 07:47:26 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 296EfigW031385;
+        Thu, 6 Oct 2022 14:47:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=+/0pG+udMeKW2EMYqbZEMBLeC9BKAzpaWAWiIKWvvJc=;
- b=WBpaIeBdhRbYs5k2kmfk9d1I1BXSIE/lk30UYRjQebNAZV1TEaetrak2ppslW/JY4jy2
- zCD441i/NoU2qOt8yatkuiS87Tfhq2RctAjI1QreeulicOBYD/h/TkByGHEj4JsLqypu
- yZLwBUfNE04sNA1JVl4ZLZvLtE0Y9kFM0iSJR1dpTK3gu95WljROlj7myFFL7l4W8Ra2
- SFW15zf+ccasrEWn0IUY0Kukw11Sg0d1VgZAuXY5D/48DgDVQLXUvpRnkWigNBQESad2
- u6DQU+WlyOzuMlZZj23FiDg/cNKaQkw8gI/xsxVPRlhBwnedC8Rrq4trOdRBaRNVqwMI Vg== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k1y14met3-1
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=+eqGyc5+lrsVFliv/gThTMTvnR8r005YDiYq5MGQBXA=;
+ b=TBUD85knHfsbnlIHt6dApHyY6OHl+Q7heie37OS8yPb5kHqKmbe8lE5xbfS549E95XPK
+ aQuE3+RzVkF9lFIQ1QksY3YKH6HDtiE4AhTXaO7m1MxnLqMhOo9bGmAKr3H/BS2hhOzP
+ G3ovIxjYxV43UEAJD7q5GeHRKPSEyEOecIw6ud8zl4awrfvG4341MJTb8qHsQK8q6Avl
+ vL46lRF3bVVCPSWZL/IjqJ0DTaTz3vsyuh9tP+gcrMTuOYFxRdxribEoXyTRcgl9KM21
+ 0xYf6lAcicp6wYrDqWMOK0AfcMdjly/cAEUqX38pQ5lKDTQYR1tjp1qxxE2ySr9Yi/0+ VA== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k208tsvka-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 06 Oct 2022 14:47:09 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 296EaT6H014398;
+        Thu, 6 Oct 2022 14:47:07 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3jxd68wau3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 06 Oct 2022 14:47:07 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 296EaEHg010135;
-        Thu, 6 Oct 2022 14:47:04 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3jxd6978dj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Oct 2022 14:47:04 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 296El11D3736164
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 296EgVMK48824604
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 6 Oct 2022 14:47:01 GMT
+        Thu, 6 Oct 2022 14:42:31 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BDD9A4051;
-        Thu,  6 Oct 2022 14:47:01 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1C29BA4051;
+        Thu,  6 Oct 2022 14:47:04 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1B7FEA404D;
-        Thu,  6 Oct 2022 14:47:01 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id A305AA404D;
+        Thu,  6 Oct 2022 14:47:03 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  6 Oct 2022 14:47:01 +0000 (GMT)
+        Thu,  6 Oct 2022 14:47:03 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev
@@ -57,123 +58,68 @@ Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
         robin.murphy@arm.com, jgg@nvidia.com, linux-kernel@vger.kernel.org
-Subject: [PATCH v5 0/6] iommu/s390: Fixes related to attach and aperture handling
-Date:   Thu,  6 Oct 2022 16:46:54 +0200
-Message-Id: <20221006144700.3380098-1-schnelle@linux.ibm.com>
+Subject: [PATCH v5 5/6] iommu/s390: Fix incorrect pgsize_bitmap
+Date:   Thu,  6 Oct 2022 16:46:59 +0200
+Message-Id: <20221006144700.3380098-6-schnelle@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: udQcGw2uTYCiTbt37zij0xCKy34e4Suf
-X-Proofpoint-GUID: udQcGw2uTYCiTbt37zij0xCKy34e4Suf
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20221006144700.3380098-1-schnelle@linux.ibm.com>
+References: <20221006144700.3380098-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: CSDdLlojLoxoBGNG7DFwkmphXVOYzzT1
+X-Proofpoint-GUID: CSDdLlojLoxoBGNG7DFwkmphXVOYzzT1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-10-06_02,2022-10-06_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 bulkscore=0
- impostorscore=0 mlxscore=0 spamscore=0 suspectscore=0 malwarescore=0
- priorityscore=1501 adultscore=0 phishscore=0 clxscore=1015
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210060085
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
+ spamscore=0 phishscore=0 suspectscore=0 malwarescore=0 lowpriorityscore=0
+ impostorscore=0 clxscore=1015 bulkscore=0 priorityscore=1501 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2210060085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi All,
+The .pgsize_bitmap property of struct iommu_ops is not a page mask but
+rather has a bit set for each size of pages the IOMMU supports. As the
+comment correctly pointed out at this moment the code only support 4K
+pages so simply use SZ_4K here.
 
-This is v5 of a follow up to Matt's recent series[0] where he tackled
-a race that turned out to be outside of the s390 IOMMU driver itself as
-well as duplicate device attachments. After an internal discussion we came
-up with what I believe is a cleaner fix. Instead of actively checking for
-duplicates we instead detach from any previous domain on attach. From my
-cursory reading of the code this seems to be what the Intel IOMMU driver is
-doing as well.
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ drivers/iommu/s390-iommu.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-Moreover we drop the attempt to re-attach the device to its previous IOMMU
-domain on failure. This was fragile, unlikely to help and unexpected for
-calling code. Thanks Jason for the suggestion.
-
-We can also get rid of struct s390_domain_device entirely if we instead
-thread the list through the attached struct zpci_devs. This saves us from
-having to allocate during attach and gets rid of one level of indirection
-during IOMMU operations.
-
-Additionally 3 more fixes have been added in v3 that weren't in v2 of this
-series. One is for a potential situation where the aperture of a domain
-could shrink and leave invalid translations. The next one fixes an off by
-one in checking validity of an IOVA and the last one fixes a wrong value
-for pgsize_bitmap.
-
-In v4 we also add a patch changing to the map_pages()/unmap_pages()
-interface in order to prevent a performance regression due to the
-pgsize_bitmap change.
-
-*Note*:
-This series is against the s390 features branch[1] which already contains
-the bus_next field removal that was part of v2.
-
-It is also available as a branch with the GPG signed tag
-s390_iommu_fixes_v5 on my niks/linux.git on git.kernel.org[2].
-
-*Open Question*:
-Which tree should this go via?
-
-Best regards,
-Niklas
-
-Changes since v4:
-- Add patch to change to the map_pages()/unmap_pages() API to prevent
-  a performance regression from the pgsize_bitmap change (Robin)
-- In patch 1 unregister IOAT on error (Matt)
-- Turn the aperture check in attach into a WARN_ON() in patch 3 (Jason)
-
-Changes since v3:
-- Drop s390_domain from __s390_iommu_detach_device() (Jason)
-- WARN_ON() mismatched domain in s390_iommu_detach_device() (Jason)
-- Use __s390_iommu_detach_device() in s390_iommu_release_device() (Jason)
-- Make aperture check resistant against overflow (Jason)
-
-Changes since v2:
-- The patch removing the unused bus_next field has been spun out and
-  already made it into the s390 feature branch on git.kernel.org
-- Make __s390_iommu_detach_device() return void (Jason)
-- Remove the re-attach on failure dance as it is unlikely to help
-  and complicates debug and recovery (Jason)
-- Ignore attempts to detach from domain that is not the active one
-- Add patch to fix potential shrinking of the aperture and use
-  reserved ranges per device instead of the aperture to respect
-  IOVA range restrictions (Jason)
-- Add a fix for an off by one error on checking an IOVA against
-  the aperture
-- Add a fix for wrong pgsize_bitmap
-
-Changes since v1:
-- After patch 3 we don't have to search in the devices list on detach as
-  we alreadz have hold of the zpci_dev (Jason)
-- Add a WARN_ON() if somehow ended up detaching a device from a domain that
-  isn't the device's current domain.
-- Removed the iteration and list delete from s390_domain_free() instead
-  just WARN_ON() when we're freeing without having detached
-- The last two points should help catching sequencing errors much more
-  quickly in the future.
-
-[0] https://lore.kernel.org/linux-iommu/20220831201236.77595-1-mjrosato@linux.ibm.com/
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git
-
-Niklas Schnelle (6):
-  iommu/s390: Fix duplicate domain attachments
-  iommu/s390: Get rid of s390_domain_device
-  iommu/s390: Fix potential s390_domain aperture shrinking
-  iommu/s390: Fix incorrect aperture check
-  iommu/s390: Fix incorrect pgsize_bitmap
-  iommu/s390: Implement map_pages()/unmap_pages() instead of
-    map()/unmap()
-
- arch/s390/include/asm/pci.h |   1 +
- drivers/iommu/s390-iommu.c  | 221 +++++++++++++++++-------------------
- 2 files changed, 107 insertions(+), 115 deletions(-)
-
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index a89fd0256f99..ac200f0b81fa 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -12,13 +12,6 @@
+ #include <linux/sizes.h>
+ #include <asm/pci_dma.h>
+ 
+-/*
+- * Physically contiguous memory regions can be mapped with 4 KiB alignment,
+- * we allow all page sizes that are an order of 4KiB (no special large page
+- * support so far).
+- */
+-#define S390_IOMMU_PGSIZES	(~0xFFFUL)
+-
+ static const struct iommu_ops s390_iommu_ops;
+ 
+ struct s390_domain {
+@@ -356,7 +349,7 @@ static const struct iommu_ops s390_iommu_ops = {
+ 	.probe_device = s390_iommu_probe_device,
+ 	.release_device = s390_iommu_release_device,
+ 	.device_group = generic_device_group,
+-	.pgsize_bitmap = S390_IOMMU_PGSIZES,
++	.pgsize_bitmap = SZ_4K,
+ 	.get_resv_regions = s390_iommu_get_resv_regions,
+ 	.default_domain_ops = &(const struct iommu_domain_ops) {
+ 		.attach_dev	= s390_iommu_attach_device,
 -- 
 2.34.1
 
