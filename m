@@ -2,289 +2,220 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8600C433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  7 Oct 2022 13:29:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35C45C352AA
+	for <linux-s390@archiver.kernel.org>; Fri,  7 Oct 2022 14:08:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229700AbiJGN3P (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 7 Oct 2022 09:29:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54264 "EHLO
+        id S229888AbiJGOIZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 7 Oct 2022 10:08:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229650AbiJGN3N (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Oct 2022 09:29:13 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFC8CA889;
-        Fri,  7 Oct 2022 06:29:12 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 297DLncI015651;
-        Fri, 7 Oct 2022 13:28:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=KmLWC7caEAF8G8pcYDWCwiGe6+5p+IexfVJhmKq4pss=;
- b=HLHx4BPVdWM5VCFtXgmSxOo3Hk+Eih400mMYjJTZpUtWf3weG0SZWIIhUXrR8WtruZfS
- CXwXCl8ZHnAW61Us1AttA/jm8kcdg92YDnhcs04cnG0R5jEb2e/9cAzDKTP+QG2qEhID
- LQ6CyWjy3W29YNmvYWKnAtS1rlfZkpZB3JLgT/EfrIHiZoAltTRG8KOwMS5eJKcK4u4W
- hFgVj40TBw3oiWdy+lS3r3uTkbru01SK/MD25e/YRgcnPaBsTJaF0Y5fLm4MjDQolTpa
- ghgBy5AdLpSyCAYWOfPecrwsdD/mEV8Ouwwnwe33LU9SUQg1Ii//724D2VRQiZ0dVZXJ rg== 
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k2mxar7t8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 07 Oct 2022 13:28:53 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 297DLh6J011727;
-        Fri, 7 Oct 2022 13:28:52 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma05wdc.us.ibm.com with ESMTP id 3jxd6a11yr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 07 Oct 2022 13:28:52 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com ([9.208.128.116])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 297DSoKO58720730
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 7 Oct 2022 13:28:51 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8600F58052;
-        Fri,  7 Oct 2022 13:28:50 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4074C58045;
-        Fri,  7 Oct 2022 13:28:48 +0000 (GMT)
-Received: from [9.160.126.121] (unknown [9.160.126.121])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  7 Oct 2022 13:28:48 +0000 (GMT)
-Message-ID: <e9754210-0907-56ac-c286-0aa82ee79e4c@linux.ibm.com>
-Date:   Fri, 7 Oct 2022 09:28:47 -0400
+        with ESMTP id S229445AbiJGOIU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Oct 2022 10:08:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74FBC120EE1;
+        Fri,  7 Oct 2022 07:08:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2A6961D16;
+        Fri,  7 Oct 2022 14:08:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 070E7C433C1;
+        Fri,  7 Oct 2022 14:08:11 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="nfYgePI9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1665151688;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=GwMExxyHWRhjupCjy80ATuiTjwid+3186g/nbW9UcWo=;
+        b=nfYgePI9KM8BlGnmbR3ouUoTgbqX0bmg+MHxz9qox2mDg1Ao4QNQA34F1ojE6QWVH7lnMZ
+        JCnOmfX2/22xviCjt9MflZdzSKJ6jqjmdSwH6RCVEhuoe4krJ9q8+B6hn4YxZ0DzwoUloS
+        EW51bMUr/eMjeREL5G2BmpFXN0LLrR0=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 7db71c1d (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Fri, 7 Oct 2022 14:08:08 +0000 (UTC)
+Date:   Fri, 7 Oct 2022 08:07:58 -0600
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "patches@lists.linux.dev" <patches@lists.linux.dev>,
+        Andreas Noever <andreas.noever@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christoph =?utf-8?Q?B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Christoph Hellwig <hch@lst.de>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dave Airlie <airlied@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        Jan Kara <jack@suse.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Jens Axboe <axboe@kernel.dk>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        KP Singh <kpsingh@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Marco Elver <elver@google.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Richard Weinberger <richard@nod.at>,
+        Russell King <linux@armlinux.org.uk>,
+        Theodore Ts'o <tytso@mit.edu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Graf <tgraf@suug.ch>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>,
+        Yury Norov <yury.norov@gmail.com>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        "kasan-dev@googlegroups.com" <kasan-dev@googlegroups.com>,
+        "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Chuck Lever <chuck.lever@oracle.com>, Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH v3 3/5] treewide: use get_random_u32() when possible
+Message-ID: <Y0Ayvov/KQmrIwTS@zx2c4.com>
+References: <20221006165346.73159-1-Jason@zx2c4.com>
+ <20221006165346.73159-4-Jason@zx2c4.com>
+ <848ed24c-13ef-6c38-fd13-639b33809194@csgroup.eu>
+ <CAHmME9raQ4E00r9r8NyWJ17iSXE_KniTG0onCNAfMmfcGar1eg@mail.gmail.com>
+ <f10fcfbf-2da6-cf2d-6027-fbf8b52803e9@csgroup.eu>
+ <6396875c-146a-acf5-dd9e-7f93ba1b4bc3@csgroup.eu>
+ <CAHmME9pE4saqnwxhsAwt-xegYGjsavPOGnHCbZhUXD7kaJ+GAA@mail.gmail.com>
+ <501b0fc3-6c67-657f-781e-25ee0283bc2e@csgroup.eu>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: [PATCH v6 1/6] iommu/s390: Fix duplicate domain attachments
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, iommu@lists.linux.dev
-Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, jgg@nvidia.com, linux-kernel@vger.kernel.org
-References: <20221007095005.2017126-1-schnelle@linux.ibm.com>
- <20221007095005.2017126-2-schnelle@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20221007095005.2017126-2-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: udghyNtkqEZ8lOwdLRlc10adetjrinGe
-X-Proofpoint-GUID: udghyNtkqEZ8lOwdLRlc10adetjrinGe
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-10-06_05,2022-10-07_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 bulkscore=0
- spamscore=0 mlxscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 phishscore=0 suspectscore=0 impostorscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210070078
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <501b0fc3-6c67-657f-781e-25ee0283bc2e@csgroup.eu>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/7/22 5:50 AM, Niklas Schnelle wrote:
-> Since commit fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev
-> calls") we can end up with duplicates in the list of devices attached to
-> a domain. This is inefficient and confusing since only one domain can
-> actually be in control of the IOMMU translations for a device. Fix this
-> by detaching the device from the previous domain, if any, on attach.
-> Add a WARN_ON() in case we still have attached devices on freeing the
-> domain. While here remove the re-attach on failure dance as it was
-> determined to be unlikely to help and may confuse debug and recovery.
+On Fri, Oct 07, 2022 at 04:57:24AM +0000, Christophe Leroy wrote:
 > 
-> Fixes: fa7e9ecc5e1c ("iommu/s390: Tolerate repeat attach_dev calls")
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-
-Looks good to me now, thanks!
-
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-
-> ---
-> v5->v6:
-> - Only set zdev->dma_table once zpci_register_ioat() succeeded (Matt)
-> v4->v5:
-> - Unregister IOAT and set zdev->dma_table on error (Matt)
 > 
->  drivers/iommu/s390-iommu.c | 106 ++++++++++++++++---------------------
->  1 file changed, 45 insertions(+), 61 deletions(-)
+> Le 07/10/2022 à 01:36, Jason A. Donenfeld a écrit :
+> > On 10/6/22, Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
+> >>
+> >>
+> >> Le 06/10/2022 à 19:31, Christophe Leroy a écrit :
+> >>>
+> >>>
+> >>> Le 06/10/2022 à 19:24, Jason A. Donenfeld a écrit :
+> >>>> Hi Christophe,
+> >>>>
+> >>>> On Thu, Oct 6, 2022 at 11:21 AM Christophe Leroy
+> >>>> <christophe.leroy@csgroup.eu> wrote:
+> >>>>> Le 06/10/2022 à 18:53, Jason A. Donenfeld a écrit :
+> >>>>>> The prandom_u32() function has been a deprecated inline wrapper around
+> >>>>>> get_random_u32() for several releases now, and compiles down to the
+> >>>>>> exact same code. Replace the deprecated wrapper with a direct call to
+> >>>>>> the real function. The same also applies to get_random_int(), which is
+> >>>>>> just a wrapper around get_random_u32().
+> >>>>>>
+> >>>>>> Reviewed-by: Kees Cook <keescook@chromium.org>
+> >>>>>> Acked-by: Toke Høiland-Jørgensen <toke@toke.dk> # for sch_cake
+> >>>>>> Acked-by: Chuck Lever <chuck.lever@oracle.com> # for nfsd
+> >>>>>> Reviewed-by: Jan Kara <jack@suse.cz> # for ext4
+> >>>>>> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> >>>>>> ---
+> >>>>>
+> >>>>>> diff --git a/arch/powerpc/kernel/process.c
+> >>>>>> b/arch/powerpc/kernel/process.c
+> >>>>>> index 0fbda89cd1bb..9c4c15afbbe8 100644
+> >>>>>> --- a/arch/powerpc/kernel/process.c
+> >>>>>> +++ b/arch/powerpc/kernel/process.c
+> >>>>>> @@ -2308,6 +2308,6 @@ void notrace __ppc64_runlatch_off(void)
+> >>>>>>     unsigned long arch_align_stack(unsigned long sp)
+> >>>>>>     {
+> >>>>>>         if (!(current->personality & ADDR_NO_RANDOMIZE) &&
+> >>>>>> randomize_va_space)
+> >>>>>> -             sp -= get_random_int() & ~PAGE_MASK;
+> >>>>>> +             sp -= get_random_u32() & ~PAGE_MASK;
+> >>>>>>         return sp & ~0xf;
+> >>>>>
+> >>>>> Isn't that a candidate for prandom_u32_max() ?
+> >>>>>
+> >>>>> Note that sp is deemed to be 16 bytes aligned at all time.
+> >>>>
+> >>>> Yes, probably. It seemed non-trivial to think about, so I didn't. But
+> >>>> let's see here... maybe it's not too bad:
+> >>>>
+> >>>> If PAGE_MASK is always ~(PAGE_SIZE-1), then ~PAGE_MASK is
+> >>>> (PAGE_SIZE-1), so prandom_u32_max(PAGE_SIZE) should yield the same
+> >>>> thing? Is that accurate? And holds across platforms (this comes up a
+> >>>> few places)? If so, I'll do that for a v4.
+> >>>>
+> >>>
+> >>> On powerpc it is always (from arch/powerpc/include/asm/page.h) :
+> >>>
+> >>> /*
+> >>>    * Subtle: (1 << PAGE_SHIFT) is an int, not an unsigned long. So if we
+> >>>    * assign PAGE_MASK to a larger type it gets extended the way we want
+> >>>    * (i.e. with 1s in the high bits)
+> >>>    */
+> >>> #define PAGE_MASK      (~((1 << PAGE_SHIFT) - 1))
+> >>>
+> >>> #define PAGE_SIZE        (1UL << PAGE_SHIFT)
+> >>>
+> >>>
+> >>> So it would work I guess.
+> >>
+> >> But taking into account that sp must remain 16 bytes aligned, would it
+> >> be better to do something like ?
+> >>
+> >> 	sp -= prandom_u32_max(PAGE_SIZE >> 4) << 4;
+> >>
+> >> 	return sp;
+> > 
+> > Does this assume that sp is already aligned at the beginning of the
+> > function? I'd assume from the function's name that this isn't the
+> > case?
 > 
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index c898bcbbce11..96173cfee324 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -79,10 +79,36 @@ static void s390_domain_free(struct iommu_domain *domain)
->  {
->  	struct s390_domain *s390_domain = to_s390_domain(domain);
->  
-> +	WARN_ON(!list_empty(&s390_domain->devices));
->  	dma_cleanup_tables(s390_domain->dma_table);
->  	kfree(s390_domain);
->  }
->  
-> +static void __s390_iommu_detach_device(struct zpci_dev *zdev)
-> +{
-> +	struct s390_domain *s390_domain = zdev->s390_domain;
-> +	struct s390_domain_device *domain_device, *tmp;
-> +	unsigned long flags;
-> +
-> +	if (!s390_domain)
-> +		return;
-> +
-> +	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> +	list_for_each_entry_safe(domain_device, tmp, &s390_domain->devices,
-> +				 list) {
-> +		if (domain_device->zdev == zdev) {
-> +			list_del(&domain_device->list);
-> +			kfree(domain_device);
-> +			break;
-> +		}
-> +	}
-> +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> +
-> +	zpci_unregister_ioat(zdev, 0);
-> +	zdev->s390_domain = NULL;
-> +	zdev->dma_table = NULL;
-> +}
-> +
->  static int s390_iommu_attach_device(struct iommu_domain *domain,
->  				    struct device *dev)
->  {
-> @@ -90,7 +116,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  	struct zpci_dev *zdev = to_zpci_dev(dev);
->  	struct s390_domain_device *domain_device;
->  	unsigned long flags;
-> -	int cc, rc;
-> +	int cc, rc = 0;
->  
->  	if (!zdev)
->  		return -ENODEV;
-> @@ -99,24 +125,18 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  	if (!domain_device)
->  		return -ENOMEM;
->  
-> -	if (zdev->dma_table && !zdev->s390_domain) {
-> -		cc = zpci_dma_exit_device(zdev);
-> -		if (cc) {
-> -			rc = -EIO;
-> -			goto out_free;
-> -		}
-> -	}
-> -
->  	if (zdev->s390_domain)
-> -		zpci_unregister_ioat(zdev, 0);
-> +		__s390_iommu_detach_device(zdev);
-> +	else if (zdev->dma_table)
-> +		zpci_dma_exit_device(zdev);
->  
-> -	zdev->dma_table = s390_domain->dma_table;
->  	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> -				virt_to_phys(zdev->dma_table));
-> +				virt_to_phys(s390_domain->dma_table));
->  	if (cc) {
->  		rc = -EIO;
-> -		goto out_restore;
-> +		goto out_free;
->  	}
-> +	zdev->dma_table = s390_domain->dma_table;
->  
->  	spin_lock_irqsave(&s390_domain->list_lock, flags);
->  	/* First device defines the DMA range limits */
-> @@ -127,9 +147,9 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  	/* Allow only devices with identical DMA range limits */
->  	} else if (domain->geometry.aperture_start != zdev->start_dma ||
->  		   domain->geometry.aperture_end != zdev->end_dma) {
-> -		rc = -EINVAL;
->  		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> -		goto out_restore;
-> +		rc = -EINVAL;
-> +		goto out_unregister;
->  	}
->  	domain_device->zdev = zdev;
->  	zdev->s390_domain = s390_domain;
-> @@ -138,14 +158,9 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  
->  	return 0;
->  
-> -out_restore:
-> -	if (!zdev->s390_domain) {
-> -		zpci_dma_init_device(zdev);
-> -	} else {
-> -		zdev->dma_table = zdev->s390_domain->dma_table;
-> -		zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> -				   virt_to_phys(zdev->dma_table));
-> -	}
-> +out_unregister:
-> +	zpci_unregister_ioat(zdev, 0);
-> +	zdev->dma_table = NULL;
->  out_free:
->  	kfree(domain_device);
->  
-> @@ -155,32 +170,12 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  static void s390_iommu_detach_device(struct iommu_domain *domain,
->  				     struct device *dev)
->  {
-> -	struct s390_domain *s390_domain = to_s390_domain(domain);
->  	struct zpci_dev *zdev = to_zpci_dev(dev);
-> -	struct s390_domain_device *domain_device, *tmp;
-> -	unsigned long flags;
-> -	int found = 0;
->  
-> -	if (!zdev)
-> -		return;
-> +	WARN_ON(zdev->s390_domain != to_s390_domain(domain));
->  
-> -	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> -	list_for_each_entry_safe(domain_device, tmp, &s390_domain->devices,
-> -				 list) {
-> -		if (domain_device->zdev == zdev) {
-> -			list_del(&domain_device->list);
-> -			kfree(domain_device);
-> -			found = 1;
-> -			break;
-> -		}
-> -	}
-> -	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> -
-> -	if (found && (zdev->s390_domain == s390_domain)) {
-> -		zdev->s390_domain = NULL;
-> -		zpci_unregister_ioat(zdev, 0);
-> -		zpci_dma_init_device(zdev);
-> -	}
-> +	__s390_iommu_detach_device(zdev);
-> +	zpci_dma_init_device(zdev);
->  }
->  
->  static struct iommu_device *s390_iommu_probe_device(struct device *dev)
-> @@ -193,24 +188,13 @@ static struct iommu_device *s390_iommu_probe_device(struct device *dev)
->  static void s390_iommu_release_device(struct device *dev)
->  {
->  	struct zpci_dev *zdev = to_zpci_dev(dev);
-> -	struct iommu_domain *domain;
->  
->  	/*
-> -	 * This is a workaround for a scenario where the IOMMU API common code
-> -	 * "forgets" to call the detach_dev callback: After binding a device
-> -	 * to vfio-pci and completing the VFIO_SET_IOMMU ioctl (which triggers
-> -	 * the attach_dev), removing the device via
-> -	 * "echo 1 > /sys/bus/pci/devices/.../remove" won't trigger detach_dev,
-> -	 * only release_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
-> -	 * notifier.
-> -	 *
-> -	 * So let's call detach_dev from here if it hasn't been called before.
-> +	 * release_device is expected to detach any domain currently attached
-> +	 * to the device, but keep it attached to other devices in the group.
->  	 */
-> -	if (zdev && zdev->s390_domain) {
-> -		domain = iommu_get_domain_for_dev(dev);
-> -		if (domain)
-> -			s390_iommu_detach_device(domain, dev);
-> -	}
-> +	if (zdev)
-> +		__s390_iommu_detach_device(zdev);
->  }
->  
->  static int s390_iommu_update_trans(struct s390_domain *s390_domain,
+> Ah you are right, I overlooked it.
 
+So I think to stay on the safe side, I'm going to go with
+`prandom_u32_max(PAGE_SIZE)`. Sound good?
+
+Jason
