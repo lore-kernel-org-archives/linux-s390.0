@@ -2,202 +2,219 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C001AC433FE
-	for <linux-s390@archiver.kernel.org>; Sat,  8 Oct 2022 20:11:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE854C352AA
+	for <linux-s390@archiver.kernel.org>; Sat,  8 Oct 2022 21:42:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229669AbiJHULq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 8 Oct 2022 16:11:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33286 "EHLO
+        id S229513AbiJHVmh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 8 Oct 2022 17:42:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229537AbiJHULp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 8 Oct 2022 16:11:45 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0A129364;
-        Sat,  8 Oct 2022 13:11:44 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 298H3e3l033294;
-        Sat, 8 Oct 2022 20:11:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=vYAzWrf71f5+iSFKC/iENj96+1aAZKoRDQGd5z9ZAr0=;
- b=I/J3YiGFIHb11oY2bxakUfFNqI/LGKlI9sW7oL+dRp0Hhrgi6lpiYdILKFnil6DmpO2P
- Z4MYJt5yeaHWd5mnrcmSqktyU6oP7Stb1EzJMiYuiaobcDp0R4w7u66DreVbKUet5JAs
- AwDEZmPCVtAch1qmyexjSDuFSLQ5C/cJiPuJkQbgxLETPVPKBn2RQ0syH5Le09bLon5C
- cZPaXO+nkXf0KDh5RP62OQi6Lor1l2ha06m1Uno8aLNRMRqAiejhDd/sR4ym9vtMWY44
- mbxfe7A8Rlxy0ph/SYrZH0unvaFRpYv4ni6lJbZ3l+GMRFRxiHlP7doFJyEkHFZq7HuJ GA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k30gqfryn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 08 Oct 2022 20:11:42 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 298K6efh020299;
-        Sat, 8 Oct 2022 20:11:40 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3k30u90rhe-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 08 Oct 2022 20:11:40 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 298KBbX532965354
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 8 Oct 2022 20:11:37 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 33A4C52050;
-        Sat,  8 Oct 2022 20:11:37 +0000 (GMT)
-Received: from localhost (unknown [9.171.10.159])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id D474C5204E;
-        Sat,  8 Oct 2022 20:11:36 +0000 (GMT)
-Date:   Sat, 8 Oct 2022 22:11:35 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 patches for the 6.1 merge window
-Message-ID: <your-ad-here.call-01665259895-ext-4990@work.hours>
+        with ESMTP id S229379AbiJHVme (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 8 Oct 2022 17:42:34 -0400
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A533D33843;
+        Sat,  8 Oct 2022 14:42:32 -0700 (PDT)
+Received: by mail-qk1-x72e.google.com with SMTP id s7so883581qkj.1;
+        Sat, 08 Oct 2022 14:42:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=XB90Z1qj3kPK5TTwJuNvzg1Gu7i5Rnz3wWrq9Xc3CzQ=;
+        b=EumsjgKwMc2Jw8Mczz4R6dcA2SGR+dlJiih8Ckk15eXQbl1ssNNcUUrPo+6xLg3PJJ
+         ACJZlZtsMQ8qHF+g94jmQvqwnd0JN02OtmaV0630S04pQ33UTiRtB3d/9RZxV3IEWRUS
+         2r7jZGZp8PRabENWrLu/RcNXt+h8W/EQbCXY+rIwGHkU8CMyznzvzkw9HGkZzTxMPx8w
+         xr6afYXFnKmA95gCiWV/Ff4HwGyaoBIjl31rvLZlakhTDvtM9Lwa0DyWxf0sryHaK1o0
+         LvM2pyhtabu/3Ucoe1BChll32HfoeeOvRbBxpmidXxDJ1YSjQ/R5moFvf8yAnsYhmD4z
+         nBbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=XB90Z1qj3kPK5TTwJuNvzg1Gu7i5Rnz3wWrq9Xc3CzQ=;
+        b=pnqBt2PAvQobAd6828jURmlj1TOl6sNv+XtbKNnpUJGdYyy5OITP5vbqVQ/sOEy3Rv
+         bW4JNa+6+CXr2EGgiaI5wrb0/InqKzsu0hoRPtNcdX6UoITptRmSUN+zZR9ro4rO4hdJ
+         pviwGNBtLydG9Tt3ukhPFMn9L/tKFz5BTK/vjTkWXeowCp4qyW/4HxVgxocLA8O6tpp3
+         8SNVU6Q1M7EzFPexYErM2Rfh75GgOUJcJwSzL6ZiDqA6nWufdtoFGKAK0DvwZaePMlyK
+         WRSNwx+OISx6aGCKCAtNNnmR6F5rJqYXNyH7g6bKIay72zCehuutE2Qy341AxVKpbtDP
+         tWxg==
+X-Gm-Message-State: ACrzQf06Hk4xpinfxatCOAJzWII7AJi9kOILVAsTr9jTE0nVjicJFdwC
+        9BgLU2SsjLrZ7Qys29AyoBY=
+X-Google-Smtp-Source: AMsMyM7nAvlv/cx8tIjuG0BzVtQBP7E1oOPDn/AxmQr3oNkBQsYkcM4WMSw6/AtojLZMWFu7HL2rZw==
+X-Received: by 2002:a05:620a:46a4:b0:6ce:c4af:5a54 with SMTP id bq36-20020a05620a46a400b006cec4af5a54mr8239989qkb.377.1665265351668;
+        Sat, 08 Oct 2022 14:42:31 -0700 (PDT)
+Received: from localhost ([2601:4c1:c100:2270:4fea:6b67:9485:addd])
+        by smtp.gmail.com with ESMTPSA id j1-20020a05620a410100b006cfaee39ccesm5821626qko.114.2022.10.08.14.42.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 08 Oct 2022 14:42:31 -0700 (PDT)
+Date:   Sat, 8 Oct 2022 14:42:30 -0700
+From:   Yury Norov <yury.norov@gmail.com>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux-kernel@vger.kernel.org, patches@lists.linux.dev,
+        Andreas Noever <andreas.noever@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christoph =?iso-8859-1?Q?B=F6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Christoph Hellwig <hch@lst.de>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dave Airlie <airlied@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        Jan Kara <jack@suse.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Jens Axboe <axboe@kernel.dk>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        KP Singh <kpsingh@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Marco Elver <elver@google.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Richard Weinberger <richard@nod.at>,
+        Russell King <linux@armlinux.org.uk>,
+        Theodore Ts'o <tytso@mit.edu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Graf <tgraf@suug.ch>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>,
+        dri-devel@lists.freedesktop.org, kasan-dev@googlegroups.com,
+        kernel-janitors@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-mm@kvack.org,
+        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-nvme@lists.infradead.org, linux-parisc@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-usb@vger.kernel.org,
+        linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        loongarch@lists.linux.dev, netdev@vger.kernel.org,
+        sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v5 0/7] treewide cleanup of random integer usage
+Message-ID: <Y0HuxsLysThhsaTl@yury-laptop>
+References: <20221008055359.286426-1-Jason@zx2c4.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QL8ZRs519MOGrL_sxnYedTe6dTCJ0NJv
-X-Proofpoint-ORIG-GUID: QL8ZRs519MOGrL_sxnYedTe6dTCJ0NJv
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-10-07_04,2022-10-07_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 mlxlogscore=698 clxscore=1015 malwarescore=0
- lowpriorityscore=0 adultscore=0 suspectscore=0 impostorscore=0 mlxscore=0
- spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210080130
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221008055359.286426-1-Jason@zx2c4.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+On Fri, Oct 07, 2022 at 11:53:52PM -0600, Jason A. Donenfeld wrote:
+> Changes v4->v5:
+> - Coccinelle is now used for as much mechanical aspects as possible,
+>   with mechanical parts split off from non-mechanical parts. This should
+>   drastically reduce the amount of code that needs to be reviewed
+>   carefully. Each commit mentions now if it was done by hand or is
+>   mechanical.
+> 
+> Hi folks,
+> 
+> This is a five part treewide cleanup of random integer handling. The
+> rules for random integers are:
+> 
+> - If you want a secure or an insecure random u64, use get_random_u64().
+> - If you want a secure or an insecure random u32, use get_random_u32().
+>   * The old function prandom_u32() has been deprecated for a while now
+>     and is just a wrapper around get_random_u32(). Same for
+>     get_random_int().
+> - If you want a secure or an insecure random u16, use get_random_u16().
+> - If you want a secure or an insecure random u8, use get_random_u8().
+> - If you want secure or insecure random bytes, use get_random_bytes().
+>   * The old function prandom_bytes() has been deprecated for a while now
+>     and has long been a wrapper around get_random_bytes().
+> - If you want a non-uniform random u32, u16, or u8 bounded by a certain
+>   open interval maximum, use prandom_u32_max().
+>   * I say "non-uniform", because it doesn't do any rejection sampling or
+>     divisions. Hence, it stays within the prandom_* namespace.
+> 
+> These rules ought to be applied uniformly, so that we can clean up the
+> deprecated functions, and earn the benefits of using the modern
+> functions. In particular, in addition to the boring substitutions, this
+> patchset accomplishes a few nice effects:
+> 
+> - By using prandom_u32_max() with an upper-bound that the compiler can
+>   prove at compile-time is ≤65536 or ≤256, internally get_random_u16()
+>   or get_random_u8() is used, which wastes fewer batched random bytes,
+>   and hence has higher throughput.
+> 
+> - By using prandom_u32_max() instead of %, when the upper-bound is not a
+>   constant, division is still avoided, because prandom_u32_max() uses
+>   a faster multiplication-based trick instead.
+> 
+> - By using get_random_u16() or get_random_u8() in cases where the return
+>   value is intended to indeed be a u16 or a u8, we waste fewer batched
+>   random bytes, and hence have higher throughput.
+> 
+> So, based on those rules and benefits from following them, this patchset
+> breaks down into the following five steps:
+> 
+> 1) Replace `prandom_u32() % max` and variants thereof with
+>    prandom_u32_max(max).
+> 
+>    * Part 1 is done with Coccinelle. Part 2 is done by hand.
+> 
+> 2) Replace `(type)get_random_u32()` and variants thereof with
+>    get_random_u16() or get_random_u8(). I took the pains to actually
+>    look and see what every lvalue type was across the entire tree.
+> 
+>    * Part 1 is done with Coccinelle. Part 2 is done by hand.
+> 
+> 3) Replace remaining deprecated uses of prandom_u32() and
+>    get_random_int() with get_random_u32(). 
+> 
+>    * A boring search and replace operation.
+> 
+> 4) Replace remaining deprecated uses of prandom_bytes() with
+>    get_random_bytes().
+> 
+>    * A boring search and replace operation.
+> 
+> 5) Remove the deprecated and now-unused prandom_u32() and
+>    prandom_bytes() inline wrapper functions.
+> 
+>    * Just deleting code and updating comments.
+> 
+> I was thinking of taking this through my random.git tree (on which this
+> series is currently based) and submitting it near the end of the merge
+> window, or waiting for the very end of the 6.1 cycle when there will be
+> the fewest new patches brewing. If somebody with some treewide-cleanup
+> experience might share some wisdom about what the best timing usually
+> winds up being, I'm all ears.
+> 
+> Please take a look! The number of lines touched is quite small, so this
+> should be reviewable, and as much as is possible has been pushed into
+> Coccinelle scripts.
 
-please pull s390 changes for 6.1.
+For the series:
+Reviewed-by: Yury Norov <yury.norov@gmail.com>
 
-Thank you,
-Vasily
+Although, looking at it, I have a feeling that kernel needs to drop all
+fixed-size random APIs like get_random_uXX() or get_random_int(), because
+people will continue using the 'get_random_int() % num' carelessly.
 
-The following changes since commit b90cb1053190353cc30f0fef0ef1f378ccc063c5:
-
-  Linux 6.0-rc3 (2022-08-28 15:05:29 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-1
-
-for you to fetch changes up to 8fb65e05bd60058e15842e511b3ee5299ac51829:
-
-  s390/pci: remove unused bus_next field from struct zpci_dev (2022-09-28 11:12:44 +0200)
-
-----------------------------------------------------------------
-s390 updates for the 6.1 merge window
-
-- Make use of the IBM z16 processor activity instrumentation facility
-  extension to count neural network processor assist operations: add a new
-  PMU device driver so that perf can make use of this.
-
-- Rework memcpy_real() to avoid DAT-off mode.
-
-- Rework absolute lowcore access code.
-
-- Various small fixes and improvements all over the code.
-
-----------------------------------------------------------------
-Alexander Gordeev (10):
-      s390/boot: fix absolute zero lowcore corruption on boot
-      s390/smp: enforce lowcore protection on CPU restart
-      s390/smp: call smp_reinit_ipl_cpu() before scheduler is available
-      s390/smp: rework absolute lowcore access
-      s390/smp,ptdump: add absolute lowcore markers
-      s390/dump: save IPL CPU registers once DAT is available
-      s390/mm: rework memcpy_real() to avoid DAT-off mode
-      s390/mm,ptdump: add real memory copy page markers
-      s390/mm: uninline copy_oldmem_kernel() function
-      s390/mm: fix no previous prototype warnings in maccess.c
-
-Gaosheng Cui (1):
-      s390/cio: remove unused ccw_device_force_console() declaration
-
-Gerald Schaefer (2):
-      s390/mm: remove useless hugepage address alignment
-      s390/hugetlb: fix prepare_hugepage_range() check for 2 GB hugepages
-
-Heiko Carstens (5):
-      s390: update defconfigs
-      s390/delay: sync comment within __delay() with reality
-      s390/mm: remove unused access parameter from do_fault_error()
-      s390/mm: split lowcore pages with set_memory_4k()
-      s390/ptdump: add missing amode31 markers
-
-Josh Poimboeuf (1):
-      s390: fix nospec table alignments
-
-Niklas Schnelle (2):
-      s390/pci: convert high_memory to physical address
-      s390/pci: remove unused bus_next field from struct zpci_dev
-
-Thomas Richter (1):
-      s390/pai: Add support for PAI Extension 1 NNPA counters
-
-Vasily Gorbik (1):
-      Merge branch 'fixes' into features
-
-Wolfram Sang (1):
-      s390: move from strlcpy with unused retval to strscpy
-
- arch/s390/boot/startup.c             |   8 +-
- arch/s390/configs/debug_defconfig    |  53 +--
- arch/s390/configs/defconfig          |  49 +--
- arch/s390/configs/zfcpdump_defconfig |   6 +-
- arch/s390/include/asm/abs_lowcore.h  |  17 +
- arch/s390/include/asm/ccwdev.h       |   1 -
- arch/s390/include/asm/ctl_reg.h      |   3 +-
- arch/s390/include/asm/hugetlb.h      |   6 +-
- arch/s390/include/asm/lowcore.h      |   4 +-
- arch/s390/include/asm/maccess.h      |  17 +
- arch/s390/include/asm/os_info.h      |  14 -
- arch/s390/include/asm/pai.h          |   6 +-
- arch/s390/include/asm/pci.h          |   1 -
- arch/s390/include/asm/pgtable.h      |   4 +
- arch/s390/include/asm/processor.h    |  17 -
- arch/s390/include/asm/smp.h          |   4 +-
- arch/s390/kernel/Makefile            |   4 +-
- arch/s390/kernel/abs_lowcore.c       |  95 +++++
- arch/s390/kernel/crash_dump.c        |  40 +--
- arch/s390/kernel/debug.c             |   2 +-
- arch/s390/kernel/early.c             |   2 +-
- arch/s390/kernel/ipl.c               |   9 +-
- arch/s390/kernel/machine_kexec.c     |   8 +-
- arch/s390/kernel/nmi.c               |   2 +-
- arch/s390/kernel/os_info.c           |  10 +-
- arch/s390/kernel/perf_pai_ext.c      | 671 +++++++++++++++++++++++++++++++++++
- arch/s390/kernel/setup.c             |  48 ++-
- arch/s390/kernel/smp.c               |  97 ++---
- arch/s390/kernel/vmlinux.lds.S       |   1 +
- arch/s390/lib/delay.c                |  11 +-
- arch/s390/mm/dump_pagetables.c       |  20 ++
- arch/s390/mm/fault.c                 |  17 +-
- arch/s390/mm/init.c                  |   2 +-
- arch/s390/mm/maccess.c               | 175 ++++-----
- arch/s390/mm/vmem.c                  | 104 +++++-
- arch/s390/pci/pci_dma.c              |   2 +-
- drivers/s390/block/dasd_devmap.c     |   2 +-
- drivers/s390/block/dasd_eer.c        |   4 +-
- drivers/s390/block/dcssblk.c         |   2 +-
- drivers/s390/char/hmcdrv_cache.c     |   2 +-
- drivers/s390/char/tape_class.c       |   4 +-
- drivers/s390/char/zcore.c            |   1 +
- drivers/s390/cio/qdio_debug.c        |   2 +-
- drivers/s390/net/ctcm_main.c         |   2 +-
- drivers/s390/net/fsm.c               |   2 +-
- drivers/s390/net/qeth_ethtool.c      |   4 +-
- drivers/s390/scsi/zfcp_aux.c         |   2 +-
- drivers/s390/scsi/zfcp_fc.c          |   2 +-
- 48 files changed, 1243 insertions(+), 316 deletions(-)
- create mode 100644 arch/s390/include/asm/abs_lowcore.h
- create mode 100644 arch/s390/include/asm/maccess.h
- create mode 100644 arch/s390/kernel/abs_lowcore.c
- create mode 100644 arch/s390/kernel/perf_pai_ext.c
+Thanks,
+Yury
