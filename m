@@ -2,72 +2,93 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 189B9C4167B
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Oct 2022 07:55:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F264C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Oct 2022 10:15:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231396AbiJJHzQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Oct 2022 03:55:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55274 "EHLO
+        id S230245AbiJJKPA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Oct 2022 06:15:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229596AbiJJHzP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Oct 2022 03:55:15 -0400
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD4031DA70;
-        Mon, 10 Oct 2022 00:55:12 -0700 (PDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 21BA768AA6; Mon, 10 Oct 2022 09:55:05 +0200 (CEST)
-Date:   Mon, 10 Oct 2022 09:55:04 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     Chaitanya Kulkarni <kch@nvidia.com>, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org, axboe@kernel.dk, efremov@linux.com,
-        josef@toxicpanda.com, idryomov@gmail.com,
-        dongsheng.yang@easystack.cn, haris.iqbal@ionos.com,
-        jinpu.wang@ionos.com, mst@redhat.com, jasowang@redhat.com,
-        pbonzini@redhat.com, stefanha@redhat.com, ohad@wizery.com,
-        andersson@kernel.org, baolin.wang@linux.alibaba.com,
-        ulf.hansson@linaro.org, richard@nod.at, miquel.raynal@bootlin.com,
-        vigneshr@ti.com, marcan@marcan.st, sven@svenpeter.dev,
-        alyssa@rosenzweig.io, kbusch@kernel.org, hch@lst.de,
-        sagi@grimberg.me, sth@linux.ibm.com, hoeppner@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, jejb@linux.ibm.com,
-        martin.petersen@oracle.com, hare@suse.de, bhelgaas@google.com,
-        john.garry@huawei.com, christophe.jaillet@wanadoo.fr,
-        vaibhavgupta40@gmail.com, wsa+renesas@sang-engineering.com,
-        damien.lemoal@opensource.wdc.com, johannes.thumshirn@wdc.com,
-        bvanassche@acm.org, ming.lei@redhat.com,
-        shinichiro.kawasaki@wdc.com, vincent.fu@samsung.com,
-        christoph.boehmwalder@linbit.com, joel@jms.id.au,
-        vincent.whitchurch@axis.com, nbd@other.debian.org,
-        ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, asahi@lists.linux.dev
-Subject: Re: [RFC PATCH 00/21] block: add and use init tagset helper
-Message-ID: <20221010075504.GA21272@lst.de>
-References: <20221005032257.80681-1-kch@nvidia.com> <Y0BvRaVO0iUVmHgB@bombadil.infradead.org>
+        with ESMTP id S230121AbiJJKO6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Oct 2022 06:14:58 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7A881401A;
+        Mon, 10 Oct 2022 03:14:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=HPidJK9k0wDj5SKTPSWA/1fb2xWJmy1rprDVNz5gd7I=; b=gZPg5tHvpsY0bShNV9wsEEgKzL
+        JRcE92EijJ+834KzNf4yHcapJ0hmZIzBsOs1iJJf2o8DPH+7tLJl7xpUpC4ILJ0EgFxvypPoxwPQS
+        Ui0s3kNXhjHb5xf3YtykfLjUFUuIE3oI2vRyAWAGkmtMp/rUR9JlTu5XKrCj5lcXrvl1T/FTb9kF4
+        XpNxRKqVTksqhCKqSRBJ2I7jQLs42ALK7yx950VZ6Bno7tlRTEb6tCQLnZ8V2850A4JBeYzGwdxmz
+        cB7sVWx5zACwknyQTBTKjYT01aJ58pvGMpg5bHg6113Xy0JDD9W6pchvv8I35x+bvrpMOAwIiJO9v
+        9GwnBM2w==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1ohpnq-0048Q4-3g; Mon, 10 Oct 2022 10:14:30 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 8F80E300465;
+        Mon, 10 Oct 2022 12:14:24 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 5EB4F2022F86C; Mon, 10 Oct 2022 12:14:24 +0200 (CEST)
+Date:   Mon, 10 Oct 2022 12:14:24 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Ravi Bangoria <ravi.bangoria@amd.com>
+Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
+        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
+        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
+        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
+        will@kernel.org, robh@kernel.org, mingo@redhat.com,
+        catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org,
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
+        santosh.shukla@amd.com
+Subject: Re: [PATCH] perf: Rewrite core context handling
+Message-ID: <Y0PwgBz6asJOHSan@hirez.programming.kicks-ass.net>
+References: <20220829113347.295-1-ravi.bangoria@amd.com>
+ <e1d933d1-4772-1357-9cf1-6e5b842508c8@amd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y0BvRaVO0iUVmHgB@bombadil.infradead.org>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+In-Reply-To: <e1d933d1-4772-1357-9cf1-6e5b842508c8@amd.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Oct 07, 2022 at 11:26:13AM -0700, Luis Chamberlain wrote:
-> *If* there were commonalities at init and these could be broken up into
-> common groups, each having their own set of calls, then we simplify and
-> can abstract these. I say this without doing a complete review of the
-> removals, but if there really isn't much of commonalities I tend to
-> agree with Bart that open coding this is better.
+On Wed, Sep 07, 2022 at 04:58:49PM +0530, Ravi Bangoria wrote:
+> > -static void
+> > -ctx_flexible_sched_in(struct perf_event_context *ctx,
+> > -		      struct perf_cpu_context *cpuctx)
+> > +/* XXX .busy thingy from Peter's patch */
+> > +static void ctx_flexible_sched_in(struct perf_event_context *ctx, struct pmu *pmu)
+> 
+> This one turned out to be very easy. Given that, we iterate over each
+> pmu, we can just return error if we fail to schedule any flexible event.
+> (It wouldn't be straight forward like this if we needed to implement
+> pmu=NULL optimization.)
+> 
+> ---
+> diff --git a/kernel/events/core.c b/kernel/events/core.c
+> index e0232e0bb74e..923656af73fe 100644
+> --- a/kernel/events/core.c
+> +++ b/kernel/events/core.c
+> @@ -3751,6 +3751,7 @@ static int merge_sched_in(struct perf_event *event, void *data)
+>  			cpc = this_cpu_ptr(event->pmu_ctx->pmu->cpu_pmu_context);
+>  			perf_mux_hrtimer_restart(cpc);
+>  			group_update_userpage(event);
+> +			return -EBUSY;
+>  		}
+>  	}
+>  
 
-The commonality is that there are various required or optional
-fields to fill out.  I actually have a WIP series to make the tag_set
-dynamically allocated and refcounted to fix some long standing life time
-issues.  That creates a new alloc helper that will take a few mandatory
-arguments and would heavily clash with this series.
+I'm afraid this breaks things; consider:
+
+  f79256532682 ("perf/core: fix userpage->time_enabled of inactive events")
+
+I totally hate this -- because it means we *HAVE* to iterate the
+inactive events, but alas.
