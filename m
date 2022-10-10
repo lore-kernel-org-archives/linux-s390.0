@@ -2,69 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DA5EC433F5
-	for <linux-s390@archiver.kernel.org>; Sun,  9 Oct 2022 21:17:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94EBDC4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Oct 2022 05:18:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231386AbiJIVRv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 9 Oct 2022 17:17:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53256 "EHLO
+        id S230274AbiJJFSU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Oct 2022 01:18:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231808AbiJIVRd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 9 Oct 2022 17:17:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 573D8200;
-        Sun,  9 Oct 2022 14:17:18 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7AA760C93;
-        Sun,  9 Oct 2022 21:17:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 5A6D9C433B5;
-        Sun,  9 Oct 2022 21:17:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665350237;
-        bh=L6uejkkTX8dEsd4WE0nNYlh2Qkh164jJBtYdqjGdxGY=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=mhgY/MxhEhNzGNCoBd/SMpEiXe3Ehxfvw98lWZGT6WNpTd1kmGK4rhVKePWaxj4Qs
-         Eib3KuGk1Yo1s/pW6r6KXHpk3O/YKZZsr4UpgnFhA4yb4R15bLIg3d/7L/B6yPbnLc
-         crq8oq3I+NAOoysbMqjbisDM/PFuipgE1DBcTrBycME7bKj22fgrmhNe341gvI3Hzb
-         6Q52vVuqPJkEdX0ym7YTeYXruBo461qKOtYd9AZIehU2gXpsgMPadEAOP/oTIQZuOj
-         57BGOGPHVW70lwO9UZvAALta9aE2DvIrIkDnBezv/YLN3DakjbkCuZU/EJcFwBPJUN
-         V0gJUezRyJ8SQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 4BC9BC73FE7;
-        Sun,  9 Oct 2022 21:17:17 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 patches for the 6.1 merge window
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01665259895-ext-4990@work.hours>
-References: <your-ad-here.call-01665259895-ext-4990@work.hours>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <your-ad-here.call-01665259895-ext-4990@work.hours>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-1
-X-PR-Tracked-Commit-Id: 8fb65e05bd60058e15842e511b3ee5299ac51829
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 03785a69ae47a17fe57fee31058fef7cd3042977
-Message-Id: <166535023730.11566.12447474641592050744.pr-tracker-bot@kernel.org>
-Date:   Sun, 09 Oct 2022 21:17:17 +0000
-To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+        with ESMTP id S229854AbiJJFST (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Oct 2022 01:18:19 -0400
+Received: from out2.migadu.com (out2.migadu.com [188.165.223.204])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429404D4C4;
+        Sun,  9 Oct 2022 22:18:18 -0700 (PDT)
+Message-ID: <8da9812d-eb84-2a84-321e-ea2826ef8981@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1665379096;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RPNRy9onik+CC8H+dbLBGG/JFwC/8JgqUDFh6TQvjgI=;
+        b=dVajeWBCcCO1PzScOej77248yySjwbUmP9SvX6xR/puhU5jnZMHgj6LOku/wZMaMMQ98Ki
+        yfo+nMCN0uF3CE04ZlxkeKXtYTYNGRGuE1oxwx74rgy0CIYe1/njfj6gTTjQAl8S86mL5O
+        rJsCdqqalBAjnegbuN5Fmk7Xe1Lqvpk=
+Date:   Sun, 9 Oct 2022 22:18:11 -0700
+MIME-Version: 1.0
+Subject: Re: [PATCH v3 4/4] arc: Use generic dump_stack_print_cmdline()
+ implementation
+Content-Language: en-US
+To:     Helge Deller <deller@gmx.de>, linux-s390@vger.kernel.org,
+        Josh Triplett <josh@joshtriplett.org>, x86@kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+References: <20220808130917.30760-1-deller@gmx.de>
+ <20220808130917.30760-5-deller@gmx.de>
+Cc:     Alexey Brodkin <abrodkin@synopsys.com>,
+        Shahab Vahedi <Shahab.Vahedi@synopsys.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Vineet Gupta <vineet.gupta@linux.dev>
+In-Reply-To: <20220808130917.30760-5-deller@gmx.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Sat, 8 Oct 2022 22:11:35 +0200:
+On 8/8/22 06:09, Helge Deller wrote:
+> The process program name and command line is now shown in generic code
+> in dump_stack_print_info(), so drop the arc-specific implementation.
+>
+> Signed-off-by: Helge Deller <deller@gmx.de>
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-1
+But that info printing was added back in 2018 by e36df28f532f882.
+I don't think arc is using show_regs_print_info -> dump_stack_print_info 
+yet.
+Or is there a different code path now which calls here ?
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/03785a69ae47a17fe57fee31058fef7cd3042977
+> ---
+>   arch/arc/kernel/troubleshoot.c | 24 ------------------------
+>   1 file changed, 24 deletions(-)
+>
+> diff --git a/arch/arc/kernel/troubleshoot.c b/arch/arc/kernel/troubleshoot.c
+> index 7654c2e42dc0..9807e590ee55 100644
+> --- a/arch/arc/kernel/troubleshoot.c
+> +++ b/arch/arc/kernel/troubleshoot.c
+> @@ -51,29 +51,6 @@ static void print_regs_callee(struct callee_regs *regs)
+>   		regs->r24, regs->r25);
+>   }
+>
+> -static void print_task_path_n_nm(struct task_struct *tsk)
+> -{
+> -	char *path_nm = NULL;
+> -	struct mm_struct *mm;
+> -	struct file *exe_file;
+> -	char buf[ARC_PATH_MAX];
+> -
+> -	mm = get_task_mm(tsk);
+> -	if (!mm)
+> -		goto done;
+> -
+> -	exe_file = get_mm_exe_file(mm);
+> -	mmput(mm);
+> -
+> -	if (exe_file) {
+> -		path_nm = file_path(exe_file, buf, ARC_PATH_MAX-1);
+> -		fput(exe_file);
+> -	}
+> -
+> -done:
+> -	pr_info("Path: %s\n", !IS_ERR(path_nm) ? path_nm : "?");
+> -}
+> -
+>   static void show_faulting_vma(unsigned long address)
+>   {
+>   	struct vm_area_struct *vma;
+> @@ -176,7 +153,6 @@ void show_regs(struct pt_regs *regs)
+>   	 */
+>   	preempt_enable();
 
-Thank you!
+Maybe we remove preempt* as well now (perhaps as a follow up patch) 
+since that was added by f731a8e89f8c78 "ARC: show_regs: lockdep: 
+re-enable preemption" where show_regs -> print_task_path_n_nm -> mmput 
+was triggering lockdep splat which is supposedly removed.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+>
+> -	print_task_path_n_nm(tsk);
+>   	show_regs_print_info(KERN_INFO);
+>
+>   	show_ecr_verbose(regs);
+> --
+> 2.37.1
+>
+>
+> _______________________________________________
+> linux-snps-arc mailing list
+> linux-snps-arc@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-snps-arc
+
