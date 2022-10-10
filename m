@@ -2,249 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10988C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Oct 2022 10:23:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 517CEC433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Oct 2022 10:38:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231887AbiJJKXs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Oct 2022 06:23:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47064 "EHLO
+        id S230499AbiJJKia (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Oct 2022 06:38:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231886AbiJJKXr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Oct 2022 06:23:47 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78B852E76;
-        Mon, 10 Oct 2022 03:23:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=PwC8Ko8ExloPOXLLOvDYQPBx8XQllNZ4yCha6ElpxdQ=; b=UePuHnVsJtFRhZgctGBQoYPgOV
-        RciNxCEgZnd32TL1YJC6DBwI9vKLnBA9U8XGrOYLaNbuzIYNqCIYh3AYV4/wnxActoxvXS3cLhK0P
-        QNSYgKSNtsIu9wh0M64ol6REId3RcuPGLj1QDka1ndjJgDTncRLv5uz8S7eXR+QJEC0WfSYP1Rvbf
-        RQldgMUm0NucL9j4hwmgQvHWoDWjAGHvADY/3MYGQtKOBufGM/YgurPKans6xIMamHhCQ4XluXZ80
-        4sYWVooCiNyi6vHJH4m5YpnqFFclbdlB28wSbrzou5cHNwvJ8QxmWL7HC2ZyAfKnLUixH+sFKg/fB
-        U3qXJSWA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ohpwH-002GBJ-Uc; Mon, 10 Oct 2022 10:23:14 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id B50AB30045D;
-        Mon, 10 Oct 2022 12:23:12 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 9E4C12022F86C; Mon, 10 Oct 2022 12:23:12 +0200 (CEST)
-Date:   Mon, 10 Oct 2022 12:23:12 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Ravi Bangoria <ravi.bangoria@amd.com>
-Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
-        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
-        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
-        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
-        will@kernel.org, robh@kernel.org, mingo@redhat.com,
-        catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org,
-        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
-        santosh.shukla@amd.com
-Subject: Re: [PATCH] perf: Rewrite core context handling
-Message-ID: <Y0PykAbq/SLjUqhO@hirez.programming.kicks-ass.net>
-References: <20220829113347.295-1-ravi.bangoria@amd.com>
- <9d7a9f37-f037-00b8-afd3-72bb840a90df@amd.com>
+        with ESMTP id S231235AbiJJKi3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Oct 2022 06:38:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF825C9D4
+        for <linux-s390@vger.kernel.org>; Mon, 10 Oct 2022 03:38:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665398307;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=hK9Fcz441oIKG5a7FgR5S+4f/f2VUnED47PafWI5itI=;
+        b=O7UTiSmxVcsPxl7bYPfH8Q5SOA7uLxJ90IGWYDWMQ4pQxJb/qxj3Od6baVbkRa7yhF+Pyh
+        ukGsxFPYi4SbsrNGcA82WOQNS8sDM3/WuJhD13P232KZvvu2x/MZ2G5q3Bqhh3bnkcj4VI
+        LEel+oc+bhzvPCylnXuUijnZgLeAXaA=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-271-hB7w2ShsPN64vv_SH-7tsw-1; Mon, 10 Oct 2022 06:38:26 -0400
+X-MC-Unique: hB7w2ShsPN64vv_SH-7tsw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5D04D85A5A6;
+        Mon, 10 Oct 2022 10:38:25 +0000 (UTC)
+Received: from localhost (ovpn-12-34.pek2.redhat.com [10.72.12.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7DBA9215CDC3;
+        Mon, 10 Oct 2022 10:38:24 +0000 (UTC)
+Date:   Mon, 10 Oct 2022 18:38:20 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     kernel test robot <lkp@intel.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, kbuild-all@lists.01.org,
+        linux-mm@kvack.org, akpm@linux-foundation.org, hch@infradead.org,
+        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
+        christophe.leroy@csgroup.eu, schnelle@linux.ibm.com,
+        David.Laight@aculab.com, shorne@gmail.com,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 09/11] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <Y0P2HEa4q5/XDj0Z@MiWiFi-R3L-srv>
+References: <20221009103114.149036-10-bhe@redhat.com>
+ <202210092100.mfRPyPqR-lkp@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9d7a9f37-f037-00b8-afd3-72bb840a90df@amd.com>
+In-Reply-To: <202210092100.mfRPyPqR-lkp@intel.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 06, 2022 at 11:20:53AM +0530, Ravi Bangoria wrote:
-
-> This one was simple enough so I prepared a patch for this. Let
-> me know if you see any issues with below diff.
-
-I've extraed this as a separate patch since it's not strictly required
-for correctness and the patch is a quite large enough.
-
-> ---
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index 820c56c66b26..e0232e0bb74e 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -9807,6 +9807,44 @@ static struct pmu perf_swevent = {
->  
->  #ifdef CONFIG_EVENT_TRACING
->  
-> +static void tp_perf_event_destroy(struct perf_event *event)
-> +{
-> +	perf_trace_destroy(event);
-> +}
-> +
-> +static int perf_tp_event_init(struct perf_event *event)
-> +{
-> +	int err;
-> +
-> +	if (event->attr.type != PERF_TYPE_TRACEPOINT)
-> +		return -ENOENT;
-> +
-> +	/*
-> +	 * no branch sampling for tracepoint events
-> +	 */
-> +	if (has_branch_stack(event))
-> +		return -EOPNOTSUPP;
-> +
-> +	err = perf_trace_init(event);
-> +	if (err)
-> +		return err;
-> +
-> +	event->destroy = tp_perf_event_destroy;
-> +
-> +	return 0;
-> +}
-> +
-> +static struct pmu perf_tracepoint = {
-> +	.task_ctx_nr	= perf_sw_context,
-> +
-> +	.event_init	= perf_tp_event_init,
-> +	.add		= perf_trace_add,
-> +	.del		= perf_trace_del,
-> +	.start		= perf_swevent_start,
-> +	.stop		= perf_swevent_stop,
-> +	.read		= perf_swevent_read,
-> +};
-> +
->  static int perf_tp_filter_match(struct perf_event *event,
->  				struct perf_sample_data *data)
->  {
-> @@ -9856,6 +9894,49 @@ void perf_trace_run_bpf_submit(void *raw_data, int size, int rctx,
->  }
->  EXPORT_SYMBOL_GPL(perf_trace_run_bpf_submit);
->  
-> +
-> +static void __perf_tp_event_target_task(u64 count, void *record,
-> +					struct pt_regs *regs,
-> +					struct perf_sample_data *data,
-> +					struct perf_event *event)
-> +{
-> +	struct trace_entry *entry = record;
-> +
-> +	if (event->attr.config != entry->type)
-> +		return;
-> +	/* Cannot deliver synchronous signal to other task. */
-> +	if (event->attr.sigtrap)
-> +		return;
-> +	if (perf_tp_event_match(event, data, regs))
-> +		perf_swevent_event(event, count, data, regs);
-> +}
-> +
-> +static void perf_tp_event_target_task(u64 count, void *record,
-> +				      struct pt_regs *regs,
-> +				      struct perf_sample_data *data,
-> +				      struct perf_event_context *ctx)
-> +{
-> +	struct perf_event *event, *sibling;
-> +
-> +	event = perf_event_groups_first(&ctx->pinned_groups, smp_processor_id(),
-> +					&perf_tracepoint, NULL);
-> +	for (; event; event = perf_event_groups_next(event, &perf_tracepoint)) {
-> +		__perf_tp_event_target_task(count, record, regs, data, event);
-> +		for_each_sibling_event(sibling, event) {
-> +			__perf_tp_event_target_task(count, record, regs, data, sibling);
-> +		}
-> +	}
-> +
-> +	event = perf_event_groups_first(&ctx->flexible_groups, smp_processor_id(),
-> +					&perf_tracepoint, NULL);
-> +	for (; event; event = perf_event_groups_next(event, &perf_tracepoint)) {
-> +		__perf_tp_event_target_task(count, record, regs, data, event);
-> +		for_each_sibling_event(sibling, event) {
-> +			__perf_tp_event_target_task(count, record, regs, data, sibling);
-> +		}
-> +	}
-> +}
-> +
->  void perf_tp_event(u16 event_type, u64 count, void *record, int entry_size,
->  		   struct pt_regs *regs, struct hlist_head *head, int rctx,
->  		   struct task_struct *task)
-> @@ -9886,29 +9967,15 @@ void perf_tp_event(u16 event_type, u64 count, void *record, int entry_size,
->  	 */
->  	if (task && task != current) {
->  		struct perf_event_context *ctx;
-> -		struct trace_entry *entry = record;
->  
->  		rcu_read_lock();
->  		ctx = rcu_dereference(task->perf_event_ctxp);
->  		if (!ctx)
->  			goto unlock;
->  
-> -		// XXX iterate groups instead, we should be able to
-> -		// find the subtree for the perf_tracepoint pmu and CPU.
-> -
-> -		list_for_each_entry_rcu(event, &ctx->event_list, event_entry) {
-> -			if (event->cpu != smp_processor_id())
-> -				continue;
-> -			if (event->attr.type != PERF_TYPE_TRACEPOINT)
-> -				continue;
-> -			if (event->attr.config != entry->type)
-> -				continue;
-> -			/* Cannot deliver synchronous signal to other task. */
-> -			if (event->attr.sigtrap)
-> -				continue;
-> -			if (perf_tp_event_match(event, &data, regs))
-> -				perf_swevent_event(event, count, &data, regs);
-> -		}
-> +		raw_spin_lock(&ctx->lock);
-> +		perf_tp_event_target_task(count, record, regs, &data, ctx);
-> +		raw_spin_unlock(&ctx->lock);
->  unlock:
->  		rcu_read_unlock();
->  	}
-> @@ -9917,44 +9984,6 @@ void perf_tp_event(u16 event_type, u64 count, void *record, int entry_size,
->  }
->  EXPORT_SYMBOL_GPL(perf_tp_event);
->  
-> -static void tp_perf_event_destroy(struct perf_event *event)
-> -{
-> -	perf_trace_destroy(event);
-> -}
-> -
-> -static int perf_tp_event_init(struct perf_event *event)
-> -{
-> -	int err;
-> -
-> -	if (event->attr.type != PERF_TYPE_TRACEPOINT)
-> -		return -ENOENT;
-> -
-> -	/*
-> -	 * no branch sampling for tracepoint events
-> -	 */
-> -	if (has_branch_stack(event))
-> -		return -EOPNOTSUPP;
-> -
-> -	err = perf_trace_init(event);
-> -	if (err)
-> -		return err;
-> -
-> -	event->destroy = tp_perf_event_destroy;
-> -
-> -	return 0;
-> -}
-> -
-> -static struct pmu perf_tracepoint = {
-> -	.task_ctx_nr	= perf_sw_context,
-> -
-> -	.event_init	= perf_tp_event_init,
-> -	.add		= perf_trace_add,
-> -	.del		= perf_trace_del,
-> -	.start		= perf_swevent_start,
-> -	.stop		= perf_swevent_stop,
-> -	.read		= perf_swevent_read,
-> -};
-> -
->  #if defined(CONFIG_KPROBE_EVENTS) || defined(CONFIG_UPROBE_EVENTS)
->  /*
->   * Flags in config, used by dynamic PMU kprobe and uprobe
+On 10/09/22 at 09:54pm, kernel test robot wrote:
+> Hi Baoquan,
 > 
-> ---
+> I love your patch! Yet something to improve:
+> 
+> [auto build test ERROR on linus/master]
+> [also build test ERROR on next-20221007]
+> [cannot apply to akpm-mm/mm-everything openrisc/for-next deller-parisc/for-next s390/features v6.0]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> 
+> url:    https://github.com/intel-lab-lkp/linux/commits/Baoquan-He/mm-ioremap-Convert-architectures-to-take-GENERIC_IOREMAP-way/20221009-183524
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git a6afa4199d3d038fbfdff5511f7523b0e30cb774
+> config: s390-buildonly-randconfig-r006-20221009
+> compiler: s390-linux-gcc (GCC) 12.1.0
+> reproduce (this is a W=1 build):
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # https://github.com/intel-lab-lkp/linux/commit/69f65149d2e87de076edbb2b4dd9532f8f57dd8b
+>         git remote add linux-review https://github.com/intel-lab-lkp/linux
+>         git fetch --no-tags linux-review Baoquan-He/mm-ioremap-Convert-architectures-to-take-GENERIC_IOREMAP-way/20221009-183524
+>         git checkout 69f65149d2e87de076edbb2b4dd9532f8f57dd8b
+>         # save the config file
+>         mkdir build_dir && cp config build_dir/.config
+>         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash
+> 
+> If you fix the issue, kindly add following tag where applicable
+> | Reported-by: kernel test robot <lkp@intel.com>
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    s390-linux-ld: mm/ioremap.o: in function `ioremap_prot':
+> >> ioremap.c:(.text+0x9a): undefined reference to `arch_ioremap'
+>    s390-linux-ld: mm/ioremap.o: in function `iounmap':
+> >> ioremap.c:(.text+0x234): undefined reference to `arch_iounmap'
+>    s390-linux-ld: drivers/dma/qcom/hidma.o: in function `hidma_probe':
+>    hidma.c:(.text+0x4b46): undefined reference to `devm_ioremap_resource'
+>    s390-linux-ld: hidma.c:(.text+0x4b9e): undefined reference to `devm_ioremap_resource'
+
+The above compiling errors are caused by unsetting CONFIG_PCI in
+s390-buildonly-randconfig-r006-20221009 attached. I keep the items for
+reference. Because s390 puts io mem functions in arch/s390/pci/pci.c.
+While building arch/s390/pci/pci.c in needs CONFIG_PCI enabled. I don't
+think disabling CONFIG_PCI in s390x makes sense in reality, except of
+the randconfig testing.
+
+Hi Niklas, lkp
+
+What do you think about this? We can just ignore this building error
+with randconfig in lkp?
+
+> 
+> -- 
+> 0-DAY CI Kernel Test Service
+> https://01.org/lkp
+
+> #
+> # Automatically generated file; DO NOT EDIT.
+> # Linux/s390 6.0.0 Kernel Configuration
+> #
+...... 
+> # end of General setup
+> 
+> CONFIG_MMU=y
+......
+> # Device Drivers
+> #
+> CONFIG_HAVE_PCI=y
+> # CONFIG_PCI is not set
+......
+
