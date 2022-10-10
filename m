@@ -2,136 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 517CEC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Oct 2022 10:38:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E9ECC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Oct 2022 11:00:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230499AbiJJKia (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Oct 2022 06:38:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50442 "EHLO
+        id S231849AbiJJLAN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Oct 2022 07:00:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231235AbiJJKi3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Oct 2022 06:38:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF825C9D4
-        for <linux-s390@vger.kernel.org>; Mon, 10 Oct 2022 03:38:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665398307;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=hK9Fcz441oIKG5a7FgR5S+4f/f2VUnED47PafWI5itI=;
-        b=O7UTiSmxVcsPxl7bYPfH8Q5SOA7uLxJ90IGWYDWMQ4pQxJb/qxj3Od6baVbkRa7yhF+Pyh
-        ukGsxFPYi4SbsrNGcA82WOQNS8sDM3/WuJhD13P232KZvvu2x/MZ2G5q3Bqhh3bnkcj4VI
-        LEel+oc+bhzvPCylnXuUijnZgLeAXaA=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-271-hB7w2ShsPN64vv_SH-7tsw-1; Mon, 10 Oct 2022 06:38:26 -0400
-X-MC-Unique: hB7w2ShsPN64vv_SH-7tsw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5D04D85A5A6;
-        Mon, 10 Oct 2022 10:38:25 +0000 (UTC)
-Received: from localhost (ovpn-12-34.pek2.redhat.com [10.72.12.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7DBA9215CDC3;
-        Mon, 10 Oct 2022 10:38:24 +0000 (UTC)
-Date:   Mon, 10 Oct 2022 18:38:20 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     kernel test robot <lkp@intel.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, kbuild-all@lists.01.org,
-        linux-mm@kvack.org, akpm@linux-foundation.org, hch@infradead.org,
-        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
-        christophe.leroy@csgroup.eu, schnelle@linux.ibm.com,
-        David.Laight@aculab.com, shorne@gmail.com,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 09/11] s390: mm: Convert to GENERIC_IOREMAP
-Message-ID: <Y0P2HEa4q5/XDj0Z@MiWiFi-R3L-srv>
-References: <20221009103114.149036-10-bhe@redhat.com>
- <202210092100.mfRPyPqR-lkp@intel.com>
+        with ESMTP id S231801AbiJJLAH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Oct 2022 07:00:07 -0400
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2067.outbound.protection.outlook.com [40.107.102.67])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC9C4BA65;
+        Mon, 10 Oct 2022 04:00:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UN8vaHplcP2tzp/tqGaY/JBAKQV06BwNboybozgtqaWtAeO88r6YGp9ugaAj2kwM48p0H4O7MAdnJfeuO3KARClVQCIF2s6+5rtm2r+0OtDYG7ULCASrk9iEYCr71D6D+rVpmJIa1OZZgMtypLJ1vS413snRVYY+7nbqwR+pbCCID05ssNcW5O3CtdkFUdwvAVqPuW1nKU/EgGiYnIqVOzk7NJ1AISxLMtVrpEfJ9T1XSqy7bgOwW/G98BK5E4y3uqGJMRwYnXU3aCm+ccpCzhFS4/n11XgziosX9yMp42MUiSAflitAfbGsw1Nd+fmRMwvkBbOxZmmOywTaO2pW0A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QvbLCsVgqSSYj5HBtQqqIdcpp2QxjCyPZs24Xo6xsD4=;
+ b=GsQ4KE3AjspdqhzXq4YDgNIF7cZh0NQBCLA65RNIlxZlEKB3tKjzD1AFCV3HL42K+LW7m1KqBDVXdu/K4CBYueyct8mAAnnEbW+wC1TDF6bh2vlM4bFiJyLYP3ots7ZCcdbvlz9PITZ9eAz8jdwnHQeack0yTZV9nt6ZSPBqnThiJhPDEdPDlIMGZ2q7BTq862tatFUTHkRBYYTW3zaCm5n4/2i6HRUpKk02sRO34G5OTDuTpp3UbUlPUjfEC/JVrSy5ngX7l8yvNFYTDq1kE1SIOugCc2b5e2XVoWRn3kLl6sxXUm0whisiYztIFtpXPlsnX+oPkh30OIyqvjkadQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QvbLCsVgqSSYj5HBtQqqIdcpp2QxjCyPZs24Xo6xsD4=;
+ b=GyKwSCVva14Vf6d9soGPkjWPYEmEw2JbRSQBZGKaVnqTpsRZ58hCqC+kO21BI/P7UrwElSATtwAS5Eo8FsmndvDeTBhbDZHoEmNd1RnJ/jwUJN/5K9ZgiWFkvfWWtC+hKRCCafR1us4qJAvgDc7JpSbZuHxvXF3QxY+HAUe4FKs=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from PH7PR12MB6588.namprd12.prod.outlook.com (2603:10b6:510:210::10)
+ by DM6PR12MB4284.namprd12.prod.outlook.com (2603:10b6:5:21a::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5709.15; Mon, 10 Oct
+ 2022 11:00:02 +0000
+Received: from PH7PR12MB6588.namprd12.prod.outlook.com
+ ([fe80::4a1c:7d22:b1b:1adc]) by PH7PR12MB6588.namprd12.prod.outlook.com
+ ([fe80::4a1c:7d22:b1b:1adc%6]) with mapi id 15.20.5676.032; Mon, 10 Oct 2022
+ 11:00:02 +0000
+Message-ID: <aa2484ea-03b1-f3fd-339e-145e3fb79c78@amd.com>
+Date:   Mon, 10 Oct 2022 16:29:45 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH] perf: Rewrite core context handling
+Content-Language: en-US
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
+        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
+        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
+        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
+        will@kernel.org, robh@kernel.org, mingo@redhat.com,
+        catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org,
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
+        santosh.shukla@amd.com, Ravi Bangoria <ravi.bangoria@amd.com>
+References: <20220829113347.295-1-ravi.bangoria@amd.com>
+ <e1d933d1-4772-1357-9cf1-6e5b842508c8@amd.com>
+ <Y0PwgBz6asJOHSan@hirez.programming.kicks-ass.net>
+From:   Ravi Bangoria <ravi.bangoria@amd.com>
+In-Reply-To: <Y0PwgBz6asJOHSan@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: PN2PR01CA0011.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:c01:25::16) To PH7PR12MB6588.namprd12.prod.outlook.com
+ (2603:10b6:510:210::10)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202210092100.mfRPyPqR-lkp@intel.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH7PR12MB6588:EE_|DM6PR12MB4284:EE_
+X-MS-Office365-Filtering-Correlation-Id: a6859159-301d-46cf-88ce-08daaaae9451
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: fsRmK0sZ8Sq2jNZzNhMFbYfIKpO0pK71euV5GXRyM+36nfPZeDfExYo7HIgA9wLsMsgWfpDbAdWMeWTvM13kK7twRfqStcr5KHBDy9542YWbW6Vg6JJr/TjltAGGPVlVL3BQu4+/3A8JuXwGPcdW0pPZ9eLxVv6qTqcXTAPEJn9wxIDNAKRjOcJX9fozVqThKJxW+tywNDyHL8hNDxl3T04eVq7UDLLk5lZ6cNfOy5dGd+8Luxel+kxkE9jWrreTW6YgoBweC/MBdn/m50GxVK9L6Lb31zacSvTzTNq5wShuW2j68hvOkummDeVIv4lHXDWkgd1Lua+n6cwh9qZDLaBLihQkYMJPh0EtwJN5gkOwzYIQ+OCk0j8LdghksBFJgcxhp6ME1GcFWm8RTYbudArzvHTtegBQUOXrB+G/p05FMCJkJukYt3eAs68P4L85XOYItczON9i7VVd6+m/Abmlwxt8u+hstv+lhuLbY64PwjNB1iT+8ZUXFcUUiI03MDZhdq6Y1AFE/+cSZ2UJKd7iTEoWxPJviqu2cAAaaDN4R3ePmnYMuIgzPAn7L6TEzyubBPNY0k31XllZCEHHLoOIGU4xMF691ZMN/iUCKlU4TgWSyHGSfBc1d09uVXk+lR4v/fnA5vHZR4WG7CWFyy7ako8r3Vhfw7gExf+StwN4vGjsimXhgobB0GH62kDOXZajm/l6auggPeGD4BBBK4pC8Dj7XLzQ/yebQUAskvHZ0JjHv+A10sR8Ad0nGu0FcTGinye+qPLLskYkO2RkinR9CE0Hc1JhzwyjbOCSIP3/oIeqXeBhmC3Xx2vzsNC5I
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB6588.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(136003)(39860400002)(366004)(396003)(346002)(451199015)(86362001)(31696002)(38100700002)(316002)(36756003)(6916009)(478600001)(6486002)(8936002)(7416002)(5660300002)(44832011)(4326008)(66946007)(66476007)(2906002)(41300700001)(66556008)(83380400001)(6506007)(53546011)(6666004)(8676002)(2616005)(6512007)(26005)(186003)(31686004)(21314003)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ekV4TVlPMW5iNEIySmNVczlsUWc5clY3NDgwQVZ4dEVOVkI2d29mRUhqbjRw?=
+ =?utf-8?B?RzUxamt5TVlPb3JqSzJaK3dhck9sSGZicnZCOUM0ZWhEYmpwc0VXZDJLQzN3?=
+ =?utf-8?B?MTh1dGN3QitKNXpKU0JPazZLWVpVQTFaV3loMGFlUWFwUXc4S2xZZm5NclRs?=
+ =?utf-8?B?ODBGN2tCeWpsZDdjM0dxekFsVG5CV1ZzNVlJTytla1ZtYjJFdUJIcDR3dkZw?=
+ =?utf-8?B?TENhRWR5WktyMUVEN2Nid1JFUW00UENtODhSOW93NjYvdVYwNXMzcnpRUlR3?=
+ =?utf-8?B?RHd3UHlzN0dVNjVqeHh2L0l3c1lkUHhOUjZnVk16RHJyL2RpWnp3TzFOVFQ5?=
+ =?utf-8?B?OTZ2Q1JLalhQRlVrUmg3VW1IM0ZIc2UrZmxPeW1HSzNXRjU1bHV3dGV2WnhX?=
+ =?utf-8?B?eHpobnIzZ3lMTG9PcnVPYzdnMk9wVlpBL29jU3c1VW9WQ1NESEZ4amRhcWth?=
+ =?utf-8?B?NzFSUG9YS1dlREc5cXhXV0xVMVFPNWlwTnVRbWFFLzJCTkhZcDl4MkNaUTcw?=
+ =?utf-8?B?WmczZGp1NG4yZ2cwb01tSGx0R2wyZ2o0TjAyd3J0TWtXWEtRc2dLbTVFekxE?=
+ =?utf-8?B?RWtHZmdWUWZsTUY2Ty9wZlhNYnFISmx6dGoyd09oeEd3c1ljOU5HUHNyZVlH?=
+ =?utf-8?B?V2gzcnZZcHZCdmRwVExENS9idENjRlNpTDQzUUNvdlV0b1VhaFZ0dXdhYzIx?=
+ =?utf-8?B?VUhWSStxZXVOb253SHNJSG1tTCsrdm9xdWhKcmVXb0VnbnJha3dIc2FNSi9o?=
+ =?utf-8?B?SHBpQmJ2STlIZlhqN0ZKTHdHUmMzeW9uRktkZ2RwdEVVVTZ2YW9YT0FkV25l?=
+ =?utf-8?B?QTFYWWMzN29nU3o1VUFjZEd3a3NYcmxmVDZZTTYvc202V3ZiSm9QNS9xcFgy?=
+ =?utf-8?B?WkVQN1pLeldQN0RldFNjeXJnVDh6NmpzR3BsbVowRzFiaGg5WTFyS2ZveTgv?=
+ =?utf-8?B?RjkxQ2RxSXE5ZmJFSXpQZjlKb3ZrRnc3SDYzV2pKS05PSGNISWdsRW8zZW9r?=
+ =?utf-8?B?S3lUQW9abXdPYUN4TVFBWGtyQUkwWk9HcWtENmthMEJLMkFVL0VBTjZFdHYz?=
+ =?utf-8?B?ZU5LTFdRa29jUms3UEgxMkdhMlhvLzRGZzhPNWNqaTREZDR2ZHJ2eUdvZGJW?=
+ =?utf-8?B?V2ltSWJObFJpSTZLd3RIeDVtZGFBMVhDVFlWTmVMd2xoYXRCWWRDWGtKbVo2?=
+ =?utf-8?B?bnI5MkcrN3pmY2doNDU1V1lScTQzMEFPTFA0RGdtNGhmalg5dU9iZi9zTjJm?=
+ =?utf-8?B?ZXlRb2d2ekRnd2JyeEhLbXpSZmw2TzNtTVJiRG9TU0NiTExSVXAxZ2lWN2pE?=
+ =?utf-8?B?bVBRQVBsS0pIaGRWa3NqU0NhZTA2aC9QT0RWZW13MjJITlhzem9YRUNiNU1m?=
+ =?utf-8?B?R1Vna2U2SzZ6RHR3dzJ3TmEvOEZYWkhZbFoxZExpZ0k3eGVYVFFwOVFMbnRX?=
+ =?utf-8?B?SHpNc21SUnBmUU9LSGFUdXgvc2pCMnRqQzM2aVdJSTZiR3luUnAwM2FoSkpN?=
+ =?utf-8?B?UkcyQkwwQ1dXMVlCV004aDA0TzdlMHczMDFRV3Vjd3pqTkVDMTk2Q3JlVFpk?=
+ =?utf-8?B?eEtsQ0kvL1F0MUVFK3ZRUXExV3lRTzdsaGM0eFArUXhaMi91Y2FCbFNva09L?=
+ =?utf-8?B?Nk13TFdQeEtWY0JZdWx6M0hLcFBnM0ROL3FwUGFXOWN3blFWSC9seDVRMndL?=
+ =?utf-8?B?R091NHhiK00yM0E1MDFxUDRNdFFEb0RIK09aK0ZHUzN0RTdBbmtLR2J6NzR2?=
+ =?utf-8?B?WEYwK0FjcmZZOHhma1JlRUdmRmp3Y3NvY0MzbDdlZ1ZSck1DZ3I0Y29vQzNL?=
+ =?utf-8?B?aDhwdjl6cHQ4c2xFdnh0MWhvN05Ud2ZFcGxhMk43VVhUeEVFNTNiNzZsWFVo?=
+ =?utf-8?B?N2NHdmUvY2RvK1VNSHUyaStMTTN4TjZZd2hJdTNqWmlOdE1iTW9VU3ZFcnd4?=
+ =?utf-8?B?UE1SS25iV2tlMnJkYUNwVUZCb2RHdEx4NHhHTkZ2WWpPNktvaVMyUDVvUkR0?=
+ =?utf-8?B?bGZjSnRhUFpwZVpCMnpvY0cyV1ZnOGpMZk5zaGZRSS9WeHYzcVFsQlZRQThx?=
+ =?utf-8?B?a3NMWUVQcVB6RWVRV0kyUCtvRjI4SDQ2Zk1PY3pudlpmNS9uVWFNcjRmV1Bu?=
+ =?utf-8?Q?e284L3iuPVLyzM+kk5+7N40kD?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a6859159-301d-46cf-88ce-08daaaae9451
+X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB6588.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Oct 2022 11:00:01.9810
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 59EthyghzGF0rpskTNtgzOLp8wME86RGWyjIzFbJanziGi5mtpKGfqjSIqR93WvEXg1p4j4n66SwLXUtmsj44g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4284
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/09/22 at 09:54pm, kernel test robot wrote:
-> Hi Baoquan,
+On 10-Oct-22 3:44 PM, Peter Zijlstra wrote:
+> On Wed, Sep 07, 2022 at 04:58:49PM +0530, Ravi Bangoria wrote:
+>>> -static void
+>>> -ctx_flexible_sched_in(struct perf_event_context *ctx,
+>>> -		      struct perf_cpu_context *cpuctx)
+>>> +/* XXX .busy thingy from Peter's patch */
+>>> +static void ctx_flexible_sched_in(struct perf_event_context *ctx, struct pmu *pmu)
+>>
+>> This one turned out to be very easy. Given that, we iterate over each
+>> pmu, we can just return error if we fail to schedule any flexible event.
+>> (It wouldn't be straight forward like this if we needed to implement
+>> pmu=NULL optimization.)
+>>
+>> ---
+>> diff --git a/kernel/events/core.c b/kernel/events/core.c
+>> index e0232e0bb74e..923656af73fe 100644
+>> --- a/kernel/events/core.c
+>> +++ b/kernel/events/core.c
+>> @@ -3751,6 +3751,7 @@ static int merge_sched_in(struct perf_event *event, void *data)
+>>  			cpc = this_cpu_ptr(event->pmu_ctx->pmu->cpu_pmu_context);
+>>  			perf_mux_hrtimer_restart(cpc);
+>>  			group_update_userpage(event);
+>> +			return -EBUSY;
+>>  		}
+>>  	}
+>>  
 > 
-> I love your patch! Yet something to improve:
+> I'm afraid this breaks things; consider:
 > 
-> [auto build test ERROR on linus/master]
-> [also build test ERROR on next-20221007]
-> [cannot apply to akpm-mm/mm-everything openrisc/for-next deller-parisc/for-next s390/features v6.0]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch#_base_tree_information]
+>   f79256532682 ("perf/core: fix userpage->time_enabled of inactive events")
 > 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Baoquan-He/mm-ioremap-Convert-architectures-to-take-GENERIC_IOREMAP-way/20221009-183524
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git a6afa4199d3d038fbfdff5511f7523b0e30cb774
-> config: s390-buildonly-randconfig-r006-20221009
-> compiler: s390-linux-gcc (GCC) 12.1.0
-> reproduce (this is a W=1 build):
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # https://github.com/intel-lab-lkp/linux/commit/69f65149d2e87de076edbb2b4dd9532f8f57dd8b
->         git remote add linux-review https://github.com/intel-lab-lkp/linux
->         git fetch --no-tags linux-review Baoquan-He/mm-ioremap-Convert-architectures-to-take-GENERIC_IOREMAP-way/20221009-183524
->         git checkout 69f65149d2e87de076edbb2b4dd9532f8f57dd8b
->         # save the config file
->         mkdir build_dir && cp config build_dir/.config
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash
-> 
-> If you fix the issue, kindly add following tag where applicable
-> | Reported-by: kernel test robot <lkp@intel.com>
-> 
-> All errors (new ones prefixed by >>):
-> 
->    s390-linux-ld: mm/ioremap.o: in function `ioremap_prot':
-> >> ioremap.c:(.text+0x9a): undefined reference to `arch_ioremap'
->    s390-linux-ld: mm/ioremap.o: in function `iounmap':
-> >> ioremap.c:(.text+0x234): undefined reference to `arch_iounmap'
->    s390-linux-ld: drivers/dma/qcom/hidma.o: in function `hidma_probe':
->    hidma.c:(.text+0x4b46): undefined reference to `devm_ioremap_resource'
->    s390-linux-ld: hidma.c:(.text+0x4b9e): undefined reference to `devm_ioremap_resource'
+> I totally hate this -- because it means we *HAVE* to iterate the
+> inactive events, but alas.
 
-The above compiling errors are caused by unsetting CONFIG_PCI in
-s390-buildonly-randconfig-r006-20221009 attached. I keep the items for
-reference. Because s390 puts io mem functions in arch/s390/pci/pci.c.
-While building arch/s390/pci/pci.c in needs CONFIG_PCI enabled. I don't
-think disabling CONFIG_PCI in s390x makes sense in reality, except of
-the randconfig testing.
+Sure. Will drop this.
 
-Hi Niklas, lkp
-
-What do you think about this? We can just ignore this building error
-with randconfig in lkp?
-
-> 
-> -- 
-> 0-DAY CI Kernel Test Service
-> https://01.org/lkp
-
-> #
-> # Automatically generated file; DO NOT EDIT.
-> # Linux/s390 6.0.0 Kernel Configuration
-> #
-...... 
-> # end of General setup
-> 
-> CONFIG_MMU=y
-......
-> # Device Drivers
-> #
-> CONFIG_HAVE_PCI=y
-> # CONFIG_PCI is not set
-......
-
+Thanks,
+Ravi
