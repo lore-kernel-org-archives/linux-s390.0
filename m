@@ -2,141 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3E3BC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Oct 2022 11:01:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56321C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Oct 2022 11:38:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231486AbiJJLBn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Oct 2022 07:01:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39880 "EHLO
+        id S232170AbiJJLiY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Oct 2022 07:38:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231715AbiJJLBm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Oct 2022 07:01:42 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2087.outbound.protection.outlook.com [40.107.93.87])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C3E66102;
-        Mon, 10 Oct 2022 04:01:41 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OldLaKX/t5uLyDN0U3a3aDqKOasYg7ztp9wq00EAEHzElW0Y3YriQMZSr1tkDLOHqTxvmx/LOxtrbK0ogvtPUix/jPFPFYnBP2iNod5/WjZ688zpUB0OlHaJbrcqZ28V5w/OWba+TRXeRPUQTDSdYUVbwO2nF6YcaILP8yE0odDTwjPUdmqDcYckmUX5QD3kE4tv9PWM9om0mqTcl8WlLr6GrDnm7HSXtbn/0g4vUtin9mUPUJ1JyrgKbt3y9EBPT5krFuut+jCW0UzP+2Mh2NCju4PM0d2d+C7dzJscM9NGF5EYj7PyBLJYsTN0tw6OgwMW4AEfD0oJDwjnfb3v+w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tqbJndKhM851haovRGT0w12+ppTqIP/WvpRQBgF2wUk=;
- b=BgkNtwNV45U4/z1CkmVWX6JfvVzj2HcZid8v7Sb6ieNf3teZMPfYFVdnuMk51kDBgFRYbTpRa1BknivTqdqRbaXmKEgmVW0JVOdK4jv6V+oTUC/RQvUhrbuZao9WJkkFTUtlxLIwmSnVXYDIIMnTHC5Ym9O1DJGbOEqb4pc+7162gUR0cqWEqhzinA4BC6JvxeU/9+S1tRh7MzVZbGvWGekXMHD32gYyGukc/D01+YDqU37lw/C77JnERvF/T6YBMbIwsuE7gnJU97t2x9H8OiBErXkBG5jsz4z2h986rKhNyPcym6xH33joyHlxrmK9AAfefHoPX7WQ5MqGGuty0A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tqbJndKhM851haovRGT0w12+ppTqIP/WvpRQBgF2wUk=;
- b=acDmjKcfXQxr+P9Fp2PyzcIxt7yWQiO7VPG5+BFNp/9uog+rXc5w6Fqa2hNySyUiDrCPsh2kUYvW+K9WSQPlf0LN2XSteJar6CYCDwiTcmT3hOAn8nMTQC7DzC3/TjxScREhAztKyz5kI6N8j7BtadI8PE2PbtJZo1cs+Z0a6AU=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB6588.namprd12.prod.outlook.com (2603:10b6:510:210::10)
- by DS7PR12MB6213.namprd12.prod.outlook.com (2603:10b6:8:97::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5709.15; Mon, 10 Oct
- 2022 11:01:39 +0000
-Received: from PH7PR12MB6588.namprd12.prod.outlook.com
- ([fe80::4a1c:7d22:b1b:1adc]) by PH7PR12MB6588.namprd12.prod.outlook.com
- ([fe80::4a1c:7d22:b1b:1adc%6]) with mapi id 15.20.5676.032; Mon, 10 Oct 2022
- 11:01:39 +0000
-Message-ID: <2678797b-0ce4-29d1-5bbf-d5e0ce89aa46@amd.com>
-Date:   Mon, 10 Oct 2022 16:31:22 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH] perf: Rewrite core context handling
-Content-Language: en-US
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
-        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
-        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
-        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
-        will@kernel.org, robh@kernel.org, mingo@redhat.com,
-        catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org,
-        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
-        santosh.shukla@amd.com, Ravi Bangoria <ravi.bangoria@amd.com>
-References: <20220829113347.295-1-ravi.bangoria@amd.com>
- <9d7a9f37-f037-00b8-afd3-72bb840a90df@amd.com>
- <Y0PykAbq/SLjUqhO@hirez.programming.kicks-ass.net>
-From:   Ravi Bangoria <ravi.bangoria@amd.com>
-In-Reply-To: <Y0PykAbq/SLjUqhO@hirez.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: PN2PR01CA0061.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:c01:23::6) To PH7PR12MB6588.namprd12.prod.outlook.com
- (2603:10b6:510:210::10)
+        with ESMTP id S232165AbiJJLiV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Oct 2022 07:38:21 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D0766EF31;
+        Mon, 10 Oct 2022 04:38:20 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29AAqbGF021720;
+        Mon, 10 Oct 2022 11:38:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=S6O5fHkBMWsvsufbHC+ODoDBDUPcjZJwEDIZpUTly8o=;
+ b=okuJQ4aDORpv4MPv34J8fWdoGnQiV3xhUOxblmKG7kHOHj4XF7oC6UKPYXU9GqFOqn49
+ zUl8QSgjF4e7Tc3wAH6pfozmNXR91SKXY5Ncsp+2z8ND/d42+aNRZ8Ge1YRoefq5L9iG
+ 16HthD7TIt58gaVKFyRfVwhXHEIXF+J33sNTayFYdCVt9HIRn1746ttTMwACl3hcXm6+
+ Qqx7WMLhbBpwhZtFTj9n0maBG3Ctw94HKQCzEV4YxbS3lrx6JzP07jUP2hoBhfrKJVTb
+ 8saM0O1Nh9eaa56EjGr3aLzWVl2zgRH2i6Ggz9s3CY+V94OcrXretoNRc83zls1gpwzo BQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3k3ju72d3p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 Oct 2022 11:38:19 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29AAlvYN010358;
+        Mon, 10 Oct 2022 11:38:19 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3k3ju72d32-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 Oct 2022 11:38:18 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29ABasVs009443;
+        Mon, 10 Oct 2022 11:38:17 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 3k30u9a05m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 Oct 2022 11:38:17 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29ABcDlh25559574
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 10 Oct 2022 11:38:13 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CDCD011C04C;
+        Mon, 10 Oct 2022 11:38:13 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5ED9B11C050;
+        Mon, 10 Oct 2022 11:38:13 +0000 (GMT)
+Received: from [9.171.5.210] (unknown [9.171.5.210])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 10 Oct 2022 11:38:13 +0000 (GMT)
+Message-ID: <577ff026-949e-4c03-39c6-1e33edae0f16@linux.ibm.com>
+Date:   Mon, 10 Oct 2022 13:38:13 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB6588:EE_|DS7PR12MB6213:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7a34364a-ff0f-4cb2-7faf-08daaaaece8e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: yGNVXiLdGxgk3YxQt9uXX4KOZ7beel+sweMh07LCoIuhKAK0trWninQ5AXYcpOdzVblhi+40MBk/puHXJSEPVYSo2zkBmXCknfQvsIJ1DstAADquTbSKzzHH4PG/ekbaJ978Por2jXjW9rjr0rp/AQO1idCVPiSoYqjdRcfShUV560GNRWkC6wzuAwbg/NzEXME5M8IdBUVRw/WmgSMGf5Vc6mJwzxpmSa+nHI9NlYnaMA+cW7PIBpyqpdWHYcRm0dTKmwgstJMp1InVJAxr+nZ25dAwbjSIX3odcRJ8vJtPvJnozbfikMQGVYoSfyr5xIm1ccSa0q7yavBYzyjRZ7KaT48+FlIYIuRo600DKMrBYlZi+Dxl+BQK+jbbQ11QGzdfun4/FAgFOyscdMBwD2lQeO9sYQx/ggkhY/iPlYH5CJjDabYPva7IIy5vIxomT2VNmtJxEfGna12KzJHrHiNC5c/OXuuPY8phCym1doZBMrGq/j6NK9pPOQ8y6m8E5cvKu8M8DIgq7fY4j88tkWLDwb4DbXT8LvUudM6ih0GzXOa7mzIMilsj8bjlSqFQ4aLOIKKaLp22TLs2Tnth2K+FjnNbUUU2ioPp1i3K1H/8fnXt+euZhoKV6eEZWbm3dR0ofm0/7hQt3/wTyqlhXz3asiVzqDUuCffNLUl80E50sSzF4yPHRr7ldjtFY2rDxgszaWyLlxh/7Tvz76o7kmNm0E/TZpxn6t2ocrfbcT489uNnYSGhhVHNJr/yZFG/+hx5RP//9NacsxGyQo/hu07RDqpCGEm8F7A6Jr7MCn8=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB6588.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(346002)(376002)(396003)(366004)(136003)(451199015)(6666004)(186003)(478600001)(31696002)(6486002)(53546011)(6506007)(86362001)(31686004)(26005)(6512007)(2616005)(6916009)(38100700002)(8676002)(66556008)(2906002)(66946007)(66476007)(36756003)(4326008)(316002)(8936002)(4744005)(41300700001)(44832011)(5660300002)(7416002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?WTA5NkpKR05jN2NKZTdBVUJGTnNVSWpwSHhjbmNXditMNFdoNElMYXNRVkZY?=
- =?utf-8?B?a0pWUDhMU2RFRFNId2VaQ0Z1REp4OEZBK1RCcUM0VExDUEJ1WVRRdFJuSk5q?=
- =?utf-8?B?QWQ5VHdWdG1FUXZjVEVrWmRJU1JNNHQ0QUd0K1JxdUlMVDZJWlVjYndZcDND?=
- =?utf-8?B?RFo3TUtiTTV4QldmakhQZU85QjFTZEJhbUVSbDhrWTVlM1Bma3RFNWdsZVph?=
- =?utf-8?B?bitVdEFXa01DM2VHYTNpZ2llOHNqdWdKV0taQlNBZHJCbEc5a25XOC9CeCtk?=
- =?utf-8?B?QVNWTll1dWwzTE80OHQ4L0krT2V4NFM4SHNjckR5dzBSVXp3R2tubTJrWXlL?=
- =?utf-8?B?QmpGUVN2VlNTd0RXOERjc2VYTVhmS3kyWTJTamJIbG9pcEFoSU93bkR1K08z?=
- =?utf-8?B?azY4c1JxNTNZRE1xcDNlaC9MbTRRMzNqazM1aCtTMWZEa3hQc214MUR1OGFy?=
- =?utf-8?B?eVl3SEdxWEphR3lBT2lWYllEV3c2eDladkNMaWJxcnppcGN3Q2R3bUlSOHJO?=
- =?utf-8?B?b3RZNERhM3A1azArTWpHdGQ5RkhtYk1hSXFOenF1TmZKbmVXdlVQUklVVSt3?=
- =?utf-8?B?ZlBUc3VrQlhJQXlHd3E1cUtVdFowSnVBQTF1cFdpa2NMeHZrMGdRN3RwKzJ0?=
- =?utf-8?B?SUdxd2xXNVlpaitXU04rZVphV21JRjNsbFdkWUJhYzNMOUtyQTFWSEZuSWF1?=
- =?utf-8?B?OElvU01CUEUxYUV6ZVpMTTA2am55OE9LeUx6S3FXQWdzZHo4VFZxTzMva1pO?=
- =?utf-8?B?cjFMQThudVdEUkVkT3VhTWxzYnpqUzJPL2NPSHFMNmp4Z2w0YTkzSlVlU2xZ?=
- =?utf-8?B?NGQ4Tk8xa216aHFJODJYTXVtcEZJQTZMaVM5RHJ6WVBuQjA4V3E2U2ZJbnlQ?=
- =?utf-8?B?S0I0dzRUUXVXNHozcEZoN2ZJOHdDNU5Td2pCSUdONWZrSkhUNHNCYzBSR1lT?=
- =?utf-8?B?S3JHanQzcS85Z2xqTE5ScllYb2ZSUkRoeWtqQkl3VXdpWExOZ1FoaWFCTXpD?=
- =?utf-8?B?MGJTQWRJNmdjTDA5VWY2ZHVzV0l3eDZIcXFQN3c3WFZWWk5aQjVMTkZ2elhN?=
- =?utf-8?B?cXRSS05sSVZybWJhalVxYW9BYU11c29sZldmTGxCajBkclZHOEc1a091dWtm?=
- =?utf-8?B?blM3ZFFKd1dGcW5jMm9acVBYVzhmZlgweVBtdVEwdGF5WVB5ejZ6MTh2L1B5?=
- =?utf-8?B?cVo3d3hXbU9VdUprYW9VcE5OMVEzaEVoTkZ6M2Z0VjhHbmJkZjFhS1Fsd1Rt?=
- =?utf-8?B?c2xrZFkxVDlZYjNDZWY4cTdkbVFJRFVEUXlKcTBrTEpmTGhmVzY5akdxWWtG?=
- =?utf-8?B?OGpkSEhpRUo5SnRGZWxEUVFEUDZHTFNKVnNjNTByby9Ydld0bm5DRDY1QSt5?=
- =?utf-8?B?M2dBSDJNWm10ZlRCRWw2ckNVeExPd3B2MHhJMklNbXBpR1dxK0RTamZWYzFF?=
- =?utf-8?B?SmNDNmsyRm9BbjdUbEFMUTZGUmZTZzV5VWU3L25mN0tUeXV3MmhCMitUaE1p?=
- =?utf-8?B?VmI0TmxQVWd4ZThLbFNzaDRVZ2I4LzF4SXdSSFNyd1F5THpwNVlNZm52UHVT?=
- =?utf-8?B?dVV0bU1DMzhyYzJ0d3ovNzZpelEyVko2Y2l1VHBLeGZRejlwaHVmZ01qaFZG?=
- =?utf-8?B?R2JYOWw5WGtiSVFvZm8yeWpJL1podi9pclJCUkt2MGszbk9jb2tHbCtObTRJ?=
- =?utf-8?B?TG1LYjh3WXo0VTNCb1loVHF5Y2ZIRXNRbzdHOWVlUTRkYzgzZ2x3ZEVTTEda?=
- =?utf-8?B?U3JvYW9xVjc5dDVFeUpEVW13dVZBOC80QnFuWXRZSDM2eXRHQlpEc0VNT3dL?=
- =?utf-8?B?NnF3Ulp2dm9hbFRURkVqVks5NmJFOHRDemwzRXlWdllUT1cyK1RIMVpBYXFo?=
- =?utf-8?B?S29TanFFemJ5b3Y5dU9mRndUa2VSajBGSXdIWUxNRGVnakFwK1Rxbllhd2RI?=
- =?utf-8?B?K002dWduOEovcHVkdVVWd2UxaWcxYWQrM2RPRDVncmhuVFlyb2dTYy80cmxw?=
- =?utf-8?B?RFJFNjdDYVcxNjl6NnYybHU3RWdaZklDbnlkSGtydFd0cXk1bHdPejRRZHlw?=
- =?utf-8?B?TDYrNldBVGV5RTNrWjF5eVlmYlkrZjN2aWluU01wQnkxQTNUM1hSTzkyMFdq?=
- =?utf-8?Q?etnPIt5CKEfIlKaeGM5hWo7L6?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7a34364a-ff0f-4cb2-7faf-08daaaaece8e
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB6588.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Oct 2022 11:01:39.6728
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 6qjP+v8oJP+CrBj/nzKsfpZN3oNQTDgJLAHv7IqZJtFdTvhEO/o6JnUudjBBFEvqZIaiQReOQzGselTutlMXZQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6213
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: [PATCH v14 1/6] KVM: s390: pv: asynchronous destroy for reboot
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, thuth@redhat.com, david@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        scgl@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com
+References: <20220930140150.37463-1-imbrenda@linux.ibm.com>
+ <20220930140150.37463-2-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220930140150.37463-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: NB8pUlyRzWDpPdt271XT1_mkLX-3HdSG
+X-Proofpoint-ORIG-GUID: hPFNEKS-ue8JarCen9F2VjD9Ha6MAKEM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-10-10_06,2022-10-10_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ lowpriorityscore=0 spamscore=0 bulkscore=0 priorityscore=1501
+ clxscore=1011 mlxscore=0 suspectscore=0 malwarescore=0 impostorscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210100067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10-Oct-22 3:53 PM, Peter Zijlstra wrote:
-> On Tue, Sep 06, 2022 at 11:20:53AM +0530, Ravi Bangoria wrote:
+On 9/30/22 16:01, Claudio Imbrenda wrote:
+> Until now, destroying a protected guest was an entirely synchronous
+> operation that could potentially take a very long time, depending on
+> the size of the guest, due to the time needed to clean up the address
+> space from protected pages.
 > 
->> This one was simple enough so I prepared a patch for this. Let
->> me know if you see any issues with below diff.
+> This patch implements an asynchronous destroy mechanism, that allows a
+> protected guest to reboot significantly faster than previously.
 > 
-> I've extraed this as a separate patch since it's not strictly required
-> for correctness and the patch is a quite large enough.
+> This is achieved by clearing the pages of the old guest in background.
+> In case of reboot, the new guest will be able to run in the same
+> address space almost immediately.
+> 
+> The old protected guest is then only destroyed when all of its memory
+> has been destroyed or otherwise made non protected.
+> 
+> Two new PV commands are added for the KVM_S390_PV_COMMAND ioctl:
+> 
+> KVM_PV_ASYNC_CLEANUP_PREPARE: set aside the current protected VM for
+> later asynchronous teardown. The current KVM VM will then continue
+> immediately as non-protected. If a protected VM had already been
+> set aside for asynchronous teardown, but without starting the teardown
+> process, this call will fail. There can be at most one VM set aside at
+> any time. Once it is set aside, the protected VM only exists in the
+> context of the Ultravisor, it is not associated with the KVM VM
+> anymore. Its protected CPUs have already been destroyed, but not its
+> memory. This command can be issued again immediately after starting
+> KVM_PV_ASYNC_CLEANUP_PERFORM, without having to wait for completion.
+> 
+> KVM_PV_ASYNC_CLEANUP_PERFORM: tears down the protected VM previously
+> set aside using KVM_PV_ASYNC_CLEANUP_PREPARE. Ideally the
+> KVM_PV_ASYNC_CLEANUP_PERFORM PV command should be issued by userspace
+> from a separate thread. If a fatal signal is received (or if the
+> process terminates naturally), the command will terminate immediately
+> without completing. All protected VMs whose teardown was interrupted
+> will be put in the need_cleanup list. The rest of the normal KVM
+> teardown process will take care of properly cleaning up all remaining
+> protected VMs, including the ones on the need_cleanup list.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 
-Sure. I'll keep it separate.
+That was quite a read.
 
-Thanks,
-Ravi
+With Steffen's nits fixed:
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
