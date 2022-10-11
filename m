@@ -2,364 +2,92 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62895C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Oct 2022 17:48:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74F20C43219
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Oct 2022 20:35:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229671AbiJKRsU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Oct 2022 13:48:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49258 "EHLO
+        id S229966AbiJKUfX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Oct 2022 16:35:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbiJKRsT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Oct 2022 13:48:19 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97A1F4B0D8;
-        Tue, 11 Oct 2022 10:48:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=QbyueNdz5ktWQYiaJAogjVJuk6d8QvogUuT/OZRZF9s=; b=AdLJrb9YQoNNqypB1pE3YR8rtD
-        9iS0hNVGDPx3KjuabbQSU51og2f+tO/fzvGiuBqhItXPE8o/qgGJs6LxK8xI7VftAelUcsNqAYIiw
-        aJ3flIKx9pbK1Oj9nwWxzU9qrhDUvi3lNxAAQ0Z6RqJ1jt3jH4hZGcKxzCqbGK51s0EVqowKZB0eH
-        aTpJZHDK/66lByhl+c2doIpJSMlL/vNbichcV9oF5I6PyjmcmBYhnQJqgRXf9qyGWuZo0Ai7y5QJ2
-        5cewfu0+17fSYzqlfx8Rnf5k9n6qp0qgk8zTVhExZHjKy3TF0KhwXYT9rpQlwkQfeb3RXMHgUEcj/
-        wNZBm4uQ==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oiJM6-002dEO-R7; Tue, 11 Oct 2022 17:47:51 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 0188E30015F;
-        Tue, 11 Oct 2022 19:47:48 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id D94412B123E21; Tue, 11 Oct 2022 19:47:48 +0200 (CEST)
-Date:   Tue, 11 Oct 2022 19:47:48 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Ravi Bangoria <ravi.bangoria@amd.com>
-Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
-        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
-        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
-        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
-        will@kernel.org, robh@kernel.org, mingo@redhat.com,
-        catalin.marinas@arm.com, ndesaulniers@google.com,
-        srw@sladewatkins.net, linux-arm-kernel@lists.infradead.org,
-        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
-        santosh.shukla@amd.com
-Subject: Re: [PATCH v2] perf: Rewrite core context handling
-Message-ID: <Y0WsRItHmfI5uaq3@hirez.programming.kicks-ass.net>
-References: <20221008062424.313-1-ravi.bangoria@amd.com>
- <Y0VTn0qLWd925etP@hirez.programming.kicks-ass.net>
- <ba47d079-6d97-0412-69a0-fa15999b5024@amd.com>
- <Y0V3kOWInrvCvVtk@hirez.programming.kicks-ass.net>
+        with ESMTP id S230009AbiJKUfO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Oct 2022 16:35:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DAC817058;
+        Tue, 11 Oct 2022 13:35:10 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A2F9B81698;
+        Tue, 11 Oct 2022 20:35:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0CA5C433C1;
+        Tue, 11 Oct 2022 20:34:59 +0000 (UTC)
+Date:   Tue, 11 Oct 2022 16:34:53 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Valentin Schneider <vschneid@redhat.com>
+Cc:     Marcelo Tosatti <mtosatti@redhat.com>, linux-alpha@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Douglas RAILLARD <douglas.raillard@arm.com>
+Subject: Re: [RFC PATCH 0/5] Generic IPI sending tracepoint
+Message-ID: <20221011163453.2133ab4a@rorschach.local.home>
+In-Reply-To: <xhsmhilkqfi7z.mognet@vschneid.remote.csb>
+References: <20221007154145.1877054-1-vschneid@redhat.com>
+        <Y0CFnWDpMNGajIRD@fuller.cnet>
+        <xhsmhilkqfi7z.mognet@vschneid.remote.csb>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y0V3kOWInrvCvVtk@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 11, 2022 at 04:02:56PM +0200, Peter Zijlstra wrote:
-> On Tue, Oct 11, 2022 at 06:49:55PM +0530, Ravi Bangoria wrote:
-> > On 11-Oct-22 4:59 PM, Peter Zijlstra wrote:
-> > > On Sat, Oct 08, 2022 at 11:54:24AM +0530, Ravi Bangoria wrote:
-> > > 
-> > >> +static void perf_event_swap_task_ctx_data(struct perf_event_context *prev_ctx,
-> > >> +					  struct perf_event_context *next_ctx)
-> > >> +{
-> > >> +	struct perf_event_pmu_context *prev_epc, *next_epc;
-> > >> +
-> > >> +	if (!prev_ctx->nr_task_data)
-> > >> +		return;
-> > >> +
-> > >> +	prev_epc = list_first_entry(&prev_ctx->pmu_ctx_list,
-> > >> +				    struct perf_event_pmu_context,
-> > >> +				    pmu_ctx_entry);
-> > >> +	next_epc = list_first_entry(&next_ctx->pmu_ctx_list,
-> > >> +				    struct perf_event_pmu_context,
-> > >> +				    pmu_ctx_entry);
-> > >> +
-> > >> +	while (&prev_epc->pmu_ctx_entry != &prev_ctx->pmu_ctx_list &&
-> > >> +	       &next_epc->pmu_ctx_entry != &next_ctx->pmu_ctx_list) {
-> > >> +
-> > >> +		WARN_ON_ONCE(prev_epc->pmu != next_epc->pmu);
-> > >> +
-> > >> +		/*
-> > >> +		 * PMU specific parts of task perf context can require
-> > >> +		 * additional synchronization. As an example of such
-> > >> +		 * synchronization see implementation details of Intel
-> > >> +		 * LBR call stack data profiling;
-> > >> +		 */
-> > >> +		if (prev_epc->pmu->swap_task_ctx)
-> > >> +			prev_epc->pmu->swap_task_ctx(prev_epc, next_epc);
-> > >> +		else
-> > >> +			swap(prev_epc->task_ctx_data, next_epc->task_ctx_data);
-> > > 
-> > > Did I forget to advance the iterators here?
-> > 
-> > Yeah. Seems so. I overlooked it too.
+On Tue, 11 Oct 2022 17:17:04 +0100
+Valentin Schneider <vschneid@redhat.com> wrote:
+
+> tep_get_field_val() just yields an unsigned long long of value 0x200018,
+> which AFAICT is just the [length, offset] thing associated with dynamic
+> arrays. Not really usable, and I don't see anything exported in the lib to
+> extract and use those values.
+
+Correct.
+
 > 
-> OK; so I'm not slowly going crazy staring at this code ;-) Let me go add
-> it now then. :-)
-> 
-> But first I gotta taxi the kids around for a bit, bbl.
+> tep_get_field_raw() is better, it handles the dynamic array for us and
+> yields a pointer to the cpumask array at the tail of the record. With that
+> it's easy to get an output such as: cpumask[size=32]=[4,0,0,0,]. Still,
+> this isn't a native type for many programming languages.
 
-OK, so I've been going over the perf_event_pmu_context life-time thing
-as well, there were a bunch of XXXs there and I'm not sure Im happy with
-things, but I'd also forgotten most of it.
+Yeah, this is the interface that I would have used. And it would likely
+require some kind of wrapper to make it into what you prefer.
 
-Ideally epc works like it's a regular member of ctx -- locking wise that
-is, but I'm not sure we can make that stick -- see the ctx->mutex issues
-we have with put_ctx().
+Note, I've been complaining for some time now how much I hate the
+libtraceevent interface, and want to rewrite it. (I just spoke to
+someone that wants to implement it in Rust). But the question comes
+down to how to make it backward compatible. Perhaps we don't and just
+up the major version number (libtraceevent 2.0).
 
-As such, I'm going to have to re-audit all the epc usage to see if
-pure ctx->lock is sufficient.
+What would you recommend as an API to process cpumasks better?
 
-I did do make epc RCU freed, because pretty much everything is and that
-was easy enough to make happen -- it means we don't need to worry about
-that.
-
-But I'm going cross-eyes from staring at this all day, so more tomorrow.
-The below is what I currently have.
-
----
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -833,13 +833,13 @@ struct perf_event {
-  *           `--------[1:n]---------'     `-[n:1]-> pmu <-[1:n]-'
-  *
-  *
-- * XXX destroy epc when empty
-- *   refcount, !rcu
-+ * epc lifetime is refcount based and RCU freed (similar to perf_event_context).
-+ * epc locking is as if it were a member of perf_event_context; specifically:
-  *
-- * XXX epc locking
-+ *   modification, both: ctx->mutex && ctx->lock
-+ *   reading, either: ctx->mutex || ctx->lock
-  *
-- *   event->pmu_ctx            ctx->mutex && inactive
-- *   ctx->pmu_ctx_list         ctx->mutex && ctx->lock
-+ * XXX except this isn't true ... see put_pmu_ctx().
-  *
-  */
- struct perf_event_pmu_context {
-@@ -857,6 +857,7 @@ struct perf_event_pmu_context {
- 	unsigned int			nr_events;
- 
- 	atomic_t			refcount; /* event <-> epc */
-+	struct rcu_head			rcu_head;
- 
- 	void				*task_ctx_data; /* pmu specific data */
- 	/*
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -1727,6 +1727,10 @@ perf_event_groups_next(struct perf_event
- 	return NULL;
- }
- 
-+#define perf_event_groups_for_cpu_pmu(event, groups, cpu, pmu)		\
-+	for (event = perf_event_groups_first(groups, cpu, pmu, NULL);	\
-+	     event; event = perf_event_groups_next(event, pmu))
-+
- /*
-  * Iterate through the whole groups tree.
-  */
-@@ -3366,6 +3370,14 @@ static void perf_event_sync_stat(struct
- 	}
- }
- 
-+#define list_for_each_entry_double(pos1, pos2, head1, head2, member)	\
-+	for (pos1 = list_first_entry(head1, typeof(*pos1), member),	\
-+	     pos2 = list_first_entry(head2, typeof(*pos2), member);	\
-+	     !list_entry_is_head(pos1, head1, member) &&		\
-+	     !list_entry_is_head(pos2, head2, member);			\
-+	     pos1 = list_next_entry(pos1, member),			\
-+	     pos2 = list_next_entry(pos2, member))
-+
- static void perf_event_swap_task_ctx_data(struct perf_event_context *prev_ctx,
- 					  struct perf_event_context *next_ctx)
- {
-@@ -3374,16 +3386,9 @@ static void perf_event_swap_task_ctx_dat
- 	if (!prev_ctx->nr_task_data)
- 		return;
- 
--	prev_epc = list_first_entry(&prev_ctx->pmu_ctx_list,
--				    struct perf_event_pmu_context,
--				    pmu_ctx_entry);
--	next_epc = list_first_entry(&next_ctx->pmu_ctx_list,
--				    struct perf_event_pmu_context,
--				    pmu_ctx_entry);
--
--	while (&prev_epc->pmu_ctx_entry != &prev_ctx->pmu_ctx_list &&
--	       &next_epc->pmu_ctx_entry != &next_ctx->pmu_ctx_list) {
--
-+	list_for_each_entry_double(prev_epc, next_epc,
-+				   &prev_ctx->pmu_ctx_list, &next_ctx->pmu_ctx_list,
-+				   pmu_ctx_entry) {
- 		WARN_ON_ONCE(prev_epc->pmu != next_epc->pmu);
- 
- 		/*
-@@ -3706,7 +3711,6 @@ static noinline int visit_groups_merge(s
- 		perf_assert_pmu_disabled((*evt)->pmu_ctx->pmu);
- 	}
- 
--
- 	min_heapify_all(&event_heap, &perf_min_heap);
- 
- 	while (event_heap.nr) {
-@@ -3845,7 +3849,6 @@ ctx_sched_in(struct perf_event_context *
- 		/* start ctx time */
- 		__update_context_time(ctx, false);
- 		perf_cgroup_set_timestamp(cpuctx);
--		// XXX ctx->task =? task
- 		/*
- 		 * CPU-release for the below ->is_active store,
- 		 * see __load_acquire() in perf_event_time_now()
-@@ -4815,6 +4818,15 @@ find_get_pmu_context(struct pmu *pmu, st
- 
- 	__perf_init_event_pmu_context(new, pmu);
- 
-+	/*
-+	 * XXX
-+	 *
-+	 * lockdep_assert_held(&ctx->mutex);
-+	 *
-+	 * can't because perf_event_init_task() doesn't actually hold the
-+	 * child_ctx->mutex.
-+	 */
-+
- 	raw_spin_lock_irq(&ctx->lock);
- 	list_for_each_entry(epc, &ctx->pmu_ctx_list, pmu_ctx_entry) {
- 		if (epc->pmu == pmu) {
-@@ -4849,6 +4861,14 @@ static void get_pmu_ctx(struct perf_even
- 	WARN_ON_ONCE(!atomic_inc_not_zero(&epc->refcount));
- }
- 
-+static void free_epc_rcu(struct rcu_head *head)
-+{
-+	struct perf_event_pmu_context *epc = container_of(head, typeof(*epc), rcu_head);
-+
-+	kfree(epc->task_ctx_data);
-+	kfree(epc);
-+}
-+
- static void put_pmu_ctx(struct perf_event_pmu_context *epc)
- {
- 	unsigned long flags;
-@@ -4859,7 +4879,14 @@ static void put_pmu_ctx(struct perf_even
- 	if (epc->ctx) {
- 		struct perf_event_context *ctx = epc->ctx;
- 
--		// XXX ctx->mutex
-+		/*
-+		 * XXX
-+		 *
-+		 * lockdep_assert_held(&ctx->mutex);
-+		 *
-+		 * can't because of the call-site in _free_event()/put_event()
-+		 * which isn't always called under ctx->mutex.
-+		 */
- 
- 		WARN_ON_ONCE(list_empty(&epc->pmu_ctx_entry));
- 		raw_spin_lock_irqsave(&ctx->lock, flags);
-@@ -4874,17 +4901,15 @@ static void put_pmu_ctx(struct perf_even
- 	if (epc->embedded)
- 		return;
- 
--	kfree(epc->task_ctx_data);
--	kfree(epc);
-+	call_rcu(&epc->rcu_head, free_epc_rcu);
- }
- 
- static void perf_event_free_filter(struct perf_event *event);
- 
- static void free_event_rcu(struct rcu_head *head)
- {
--	struct perf_event *event;
-+	struct perf_event *event = container_of(head, typeof(*event), rcu_head);
- 
--	event = container_of(head, struct perf_event, rcu_head);
- 	if (event->ns)
- 		put_pid_ns(event->ns);
- 	perf_event_free_filter(event);
-@@ -12643,13 +12668,6 @@ perf_event_create_kernel_counter(struct
- 		goto err_alloc;
- 	}
- 
--	pmu_ctx = find_get_pmu_context(pmu, ctx, event);
--	if (IS_ERR(pmu_ctx)) {
--		err = PTR_ERR(pmu_ctx);
--		goto err_ctx;
--	}
--	event->pmu_ctx = pmu_ctx;
--
- 	WARN_ON_ONCE(ctx->parent_ctx);
- 	mutex_lock(&ctx->mutex);
- 	if (ctx->task == TASK_TOMBSTONE) {
-@@ -12657,6 +12675,13 @@ perf_event_create_kernel_counter(struct
- 		goto err_unlock;
- 	}
- 
-+	pmu_ctx = find_get_pmu_context(pmu, ctx, event);
-+	if (IS_ERR(pmu_ctx)) {
-+		err = PTR_ERR(pmu_ctx);
-+		goto err_unlock;
-+	}
-+	event->pmu_ctx = pmu_ctx;
-+
- 	if (!task) {
- 		/*
- 		 * Check if the @cpu we're creating an event for is online.
-@@ -12668,13 +12693,13 @@ perf_event_create_kernel_counter(struct
- 			container_of(ctx, struct perf_cpu_context, ctx);
- 		if (!cpuctx->online) {
- 			err = -ENODEV;
--			goto err_unlock;
-+			goto err_pmu_ctx;
- 		}
- 	}
- 
- 	if (!exclusive_event_installable(event, ctx)) {
- 		err = -EBUSY;
--		goto err_unlock;
-+		goto err_pmu_ctx;
- 	}
- 
- 	perf_install_in_context(ctx, event, event->cpu);
-@@ -12683,9 +12708,10 @@ perf_event_create_kernel_counter(struct
- 
- 	return event;
- 
-+err_pmu_ctx:
-+	put_pmu_ctx(pmu_ctx);
- err_unlock:
- 	mutex_unlock(&ctx->mutex);
--err_ctx:
- 	perf_unpin_context(ctx);
- 	put_ctx(ctx);
- err_alloc:
-@@ -12702,9 +12728,7 @@ static void __perf_pmu_remove(struct per
- {
- 	struct perf_event *event, *sibling;
- 
--	for (event = perf_event_groups_first(groups, cpu, pmu, NULL);
--	     event; event = perf_event_groups_next(event, pmu)) {
--
-+	perf_event_groups_for_cpu_pmu(event, groups, cpu, pmu) {
- 		perf_remove_from_context(event, 0);
- 		unaccount_event_cpu(event, cpu);
- 		put_pmu_ctx(event->pmu_ctx);
-@@ -12998,7 +13022,7 @@ void perf_event_free_task(struct task_st
- 	struct perf_event_context *ctx;
- 	struct perf_event *event, *tmp;
- 
--	ctx = rcu_dereference(task->perf_event_ctxp);
-+	ctx = rcu_access_pointer(task->perf_event_ctxp);
- 	if (!ctx)
- 		return;
- 
+-- Steve
