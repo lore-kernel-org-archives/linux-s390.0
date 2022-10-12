@@ -2,378 +2,520 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D113C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Oct 2022 20:48:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC928C4167B
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Oct 2022 20:56:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229959AbiJLUsK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Oct 2022 16:48:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49554 "EHLO
+        id S229894AbiJLU40 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Oct 2022 16:56:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229905AbiJLUsD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Oct 2022 16:48:03 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81F655E556;
-        Wed, 12 Oct 2022 13:47:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=9sjzWyKdmZ9OHhAKFmjjGkydIB7vKqM9NhqC/8vlv8Y=; b=LOSgfJ4C+rzH5Qa9aLLf1JkUWk
-        +VzpDxeba7h2b44jUArU54rfYAIiCnJDuQT9GqdHFrqlbpH2WH8Xz8wK5OzwYZAt17nEtQ37C4hK2
-        UEavj5NENKwlyFIJn6DyrGMaEDg6p4BnLkgFBxWDX7Nx0R7/Ps2oA8Zgj2bh60gjBNlo1awu2m8Fx
-        gkqsyXQhc+H4OagJixgZgM6v7jMNsyOTKTLuVmz67xCbE6kRvxIyDB+Dv4LwoQBUAlJEJtN14uk/D
-        IyZRdLuFYVw0nbTtXsFZlU3FzXKl1J39rbJi5vJWvg1x8Q3DDL/xVfaOUrzy3/ImaJRPizT1j16E7
-        8WLBSZ9w==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oiidN-002wt9-7C; Wed, 12 Oct 2022 20:47:22 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 70541300023;
-        Wed, 12 Oct 2022 22:47:19 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 56BEA2B6BE2AB; Wed, 12 Oct 2022 22:47:19 +0200 (CEST)
-Date:   Wed, 12 Oct 2022 22:47:19 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Ravi Bangoria <ravi.bangoria@amd.com>
-Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
-        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
-        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
-        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
-        will@kernel.org, robh@kernel.org, mingo@redhat.com,
-        catalin.marinas@arm.com, ndesaulniers@google.com,
-        srw@sladewatkins.net, linux-arm-kernel@lists.infradead.org,
-        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
-        santosh.shukla@amd.com
-Subject: Re: [PATCH v2] perf: Rewrite core context handling
-Message-ID: <Y0cn1xazYpNmqhRo@hirez.programming.kicks-ass.net>
-References: <20221008062424.313-1-ravi.bangoria@amd.com>
- <Y0VTn0qLWd925etP@hirez.programming.kicks-ass.net>
- <ba47d079-6d97-0412-69a0-fa15999b5024@amd.com>
- <Y0V3kOWInrvCvVtk@hirez.programming.kicks-ass.net>
- <Y0WsRItHmfI5uaq3@hirez.programming.kicks-ass.net>
- <174fb540-ec18-eeca-191d-c02e1f1005d2@amd.com>
- <Y0awHa8oS5yal5M9@hirez.programming.kicks-ass.net>
+        with ESMTP id S229831AbiJLU4Y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Oct 2022 16:56:24 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FF4D52442;
+        Wed, 12 Oct 2022 13:56:23 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29CKTKje000746;
+        Wed, 12 Oct 2022 20:56:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=k4UMvHvRDWSxsi04ivbQr3mS8jwKk1ZlyDwG8UrNMjQ=;
+ b=TPX/aAMoxZXBg5iq9sRoWtSgKmYO9dUEW5UlCWY6f5dh/kwKC8pbed4P9yTpwLtIb/n6
+ 8OSiO0uzONog6Ww8f5vcT7BtLfTtexb4CEnKnvsiDy85rlUdo62cBcGYRtDZRgxrw855
+ YGonY6dab2kiURkreCaP+jq5R4xC2r1lx6RV34Kft7zOY554BiVMAOJ31RfbxYfjQtm6
+ 5n7itaGflHukMH66Q9+o0JOGwQ5dhLICKSQlX9vgK0BSEddhnnXpw/sIRO55LHxdc4Kh
+ YNmU9Uv1gHHh1EcPCwfK3n8+jHbO1PhqzEE0vgdIjzvNlQUKIT4mZ6Nbu/7OdM+pDrF8 Yw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k64npgkjv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Oct 2022 20:56:19 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29CKU1Bp004390;
+        Wed, 12 Oct 2022 20:56:18 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k64npgkj5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Oct 2022 20:56:18 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29CKsERC030564;
+        Wed, 12 Oct 2022 20:56:15 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma02fra.de.ibm.com with ESMTP id 3k30u94xx7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Oct 2022 20:56:15 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29CKuB322753224
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 Oct 2022 20:56:12 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C69DD52050;
+        Wed, 12 Oct 2022 20:56:11 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 53F675204F;
+        Wed, 12 Oct 2022 20:56:11 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: [PATCH v2 0/9] KVM: s390: Extend MEM_OP ioctl by storage key checked cmpxchg
+Date:   Wed, 12 Oct 2022 22:56:00 +0200
+Message-Id: <20221012205609.2811294-1-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y0awHa8oS5yal5M9@hirez.programming.kicks-ass.net>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: _d5Ea63GoI-zWm0jzRdjJPTvHSccRuQh
+X-Proofpoint-ORIG-GUID: n4_vvOciVxAVP8lPo5K3AaJE1B9THS1A
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-12_09,2022-10-12_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 clxscore=1015 lowpriorityscore=0 spamscore=0
+ impostorscore=0 mlxlogscore=999 adultscore=0 mlxscore=0 malwarescore=0
+ suspectscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210120129
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Oct 12, 2022 at 02:16:29PM +0200, Peter Zijlstra wrote:
+User space can use the MEM_OP ioctl to make storage key checked reads
+and writes to the guest, however, it has no way of performing atomic,
+key checked, accesses to the guest.
+Extend the MEM_OP ioctl in order to allow for this, by adding a cmpxchg
+mode. For now, support this mode for absolute accesses only.
 
-> That's the intent yeah. But due to not always holding ctx->mutex over
-> put_pmu_ctx() this might be moot. I'm almost through auditing epc usage
-> and I think ctx->lock is sufficient, fingers crossed.
+This mode can be use, for example, to set the device-state-change
+indicator and the adapter-local-summary indicator atomically.
 
-So the very last epc usage threw a spanner into the works and made
-things complicated.
+Also contains some fixes/changes for the memop selftest independent of
+the cmpxchg changes.
 
-Specifically sys_perf_event_open()'s group_leader case uses
-event->pmu_ctx while only holding ctx->mutex. Therefore we can't fully
-let go of ctx->mutex locking and purely rely on ctx->lock.
+v1 -> v2
+ * get rid of xrk instruction for cmpxchg byte and short implementation
+ * pass old parameter via pointer instead of in mem_op struct
+ * indicate failure of cmpxchg due to wrong old value by special return
+   code
+ * picked up R-b's (thanks Thomas)
 
-Now the good news is that the annoying put_pmu_ctx() without holding
-ctx->mutex case doesn't actually matter here. Since we hold a reference
-on the group_leader (per the filedesc) the event can't go away,
-therefore it must have a pmu_ctx, and then holding ctx->mutex ensures
-the pmu_ctx is stable -- iow it serializes against
-sys_perf_event_open()'s move_group and perf_pmu_migrate_context()
-changing the epc around.
+Janis Schoetterl-Glausch (9):
+  s390/uaccess: Add storage key checked cmpxchg access to user space
+  KVM: s390: Extend MEM_OP ioctl by storage key checked cmpxchg
+  Documentation: KVM: s390: Describe KVM_S390_MEMOP_F_CMPXCHG
+  KVM: s390: selftest: memop: Pass mop_desc via pointer
+  KVM: s390: selftest: memop: Replace macros by functions
+  KVM: s390: selftest: memop: Add cmpxchg tests
+  KVM: s390: selftest: memop: Add bad address test
+  KVM: s390: selftest: memop: Fix typo
+  KVM: s390: selftest: memop: Fix wrong address being used in test
 
-So we're going with the normal mutex+lock for modification rule, but
-allow the weird put_pmu_ctx() exception.
+ Documentation/virt/kvm/api.rst            |  21 +-
+ include/uapi/linux/kvm.h                  |   5 +
+ arch/s390/include/asm/uaccess.h           | 189 ++++++
+ arch/s390/kvm/gaccess.h                   |   4 +
+ arch/s390/kvm/gaccess.c                   |  57 ++
+ arch/s390/kvm/kvm-s390.c                  |  35 +-
+ tools/testing/selftests/kvm/s390x/memop.c | 674 +++++++++++++++++-----
+ 7 files changed, 833 insertions(+), 152 deletions(-)
 
-I have the below delta.
+Range-diff against v1:
+ 1:  7b4392170faa !  1:  58adf2b7688a s390/uaccess: Add storage key checked cmpxchg access to user space
+    @@ arch/s390/include/asm/uaccess.h: do {									\
+     +						    unsigned __int128 *old_p,
+     +						    unsigned __int128 new, u8 access_key)
+     +{
+    -+	u32 shift, mask, old_word, new_word, align_mask, tmp, diff;
+    ++	u32 shift, mask, old_word, new_word, align_mask, tmp;
+     +	u64 aligned;
+     +	int ret = -EFAULT;
+     +
+    @@ arch/s390/include/asm/uaccess.h: do {									\
+     +		new_word = ((u8)new) << shift;
+     +		break;
+     +	}
+    ++	tmp = old_word; /* don't modify *old_p on fault */
+     +	asm volatile(
+     +		       "spka	0(%[access_key])\n"
+     +		"	sacf	256\n"
+     +		"0:	l	%[tmp],%[aligned]\n"
+    -+		"1:	nr	%[tmp],%[hole_mask]\n"
+    ++		"1:	nr	%[tmp],%[mask]\n"
+    ++		"	xilf	%[mask],0xffffffff\n"
+     +		"	or	%[new_word],%[tmp]\n"
+    -+		"	or	%[old_word],%[tmp]\n"
+    -+		"	lr	%[tmp],%[old_word]\n"
+    -+		"2:	cs	%[tmp],%[new_word],%[aligned]\n"
+    -+		"3:	jnl	4f\n"
+    -+		"	xrk	%[diff],%[tmp],%[old_word]\n"
+    -+		"	nr	%[diff],%[hole_mask]\n"
+    -+		"	xr	%[new_word],%[diff]\n"
+    -+		"	xr	%[old_word],%[diff]\n"
+    -+		"	xrk	%[diff],%[tmp],%[old_word]\n"
+    ++		"	or	%[tmp],%[old_word]\n"
+    ++		"2:	lr	%[old_word],%[tmp]\n"
+    ++		"3:	cs	%[tmp],%[new_word],%[aligned]\n"
+    ++		"4:	jnl	5f\n"
+    ++		/* We'll restore old_word before the cs, use reg for the diff */
+    ++		"	xr	%[old_word],%[tmp]\n"
+    ++		/* Apply diff assuming only bits outside target byte(s) changed */
+    ++		"	xr	%[new_word],%[old_word]\n"
+    ++		/* If prior assumption false we exit loop, so not an issue */
+    ++		"	nr	%[old_word],%[mask]\n"
+     +		"	jz	2b\n"
+    -+		"4:	ipm	%[ret]\n"
+    ++		"5:	ipm	%[ret]\n"
+     +		"	srl	%[ret],28\n"
+    -+		"5:	sacf	768\n"
+    ++		"6:	sacf	768\n"
+     +		"	spka	%[default_key]\n"
+    -+		EX_TABLE(0b, 5b) EX_TABLE(1b, 5b)
+    -+		EX_TABLE(2b, 5b) EX_TABLE(3b, 5b)
+    ++		EX_TABLE(0b, 6b) EX_TABLE(1b, 6b)
+    ++		EX_TABLE(3b, 6b) EX_TABLE(4b, 6b)
+     +		: [old_word] "+&d" (old_word),
+     +		  [new_word] "+&d" (new_word),
+    -+		  [tmp] "=&d" (tmp),
+    ++		  [tmp] "+&d" (tmp),
+     +		  [aligned] "+Q" (*(u32 *)aligned),
+    -+		  [diff] "=&d" (diff),
+     +		  [ret] "+d" (ret)
+     +		: [access_key] "a" (access_key << 4),
+    -+		  [hole_mask] "d" (~mask),
+    ++		  [mask] "d" (~mask),
+     +		  [default_key] "J" (PAGE_DEFAULT_KEY)
+     +		: "cc"
+     +	);
+    @@ arch/s390/include/asm/uaccess.h: do {									\
+     + * cmpxchg_user_key_size() - cmpxchg with user space target, honoring storage keys
+     + * @size: Size of the value being cmpxchg'ed, one of 1,2,4,8,16.
+     + * @address: User space address of value to compare to *@old_p and exchange with
+    -+ *           *@new. Must be aligned to @size.
+    ++ *           @new. Must be aligned to @size.
+     + * @old_p: Pointer to old value. Interpreted as a @size byte integer and compared
+     + *         to the content pointed to by @address in order to determine if the
+     + *         exchange occurs. The value read from @address is written back to *@old_p.
+ 2:  80e3fda3d2af !  2:  c6731b0063ab KVM: s390: Extend MEM_OP ioctl by storage key checked cmpxchg
+    @@ Commit message
+         Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+     
+      ## include/uapi/linux/kvm.h ##
+    -@@ include/uapi/linux/kvm.h: struct kvm_translation {
+    - struct kvm_s390_mem_op {
+    - 	/* in */
+    - 	__u64 gaddr;		/* the guest address */
+    -+	/* in & out */
+    - 	__u64 flags;		/* flags */
+    -+	/* in */
+    - 	__u32 size;		/* amount of bytes */
+    - 	__u32 op;		/* type of operation */
+    - 	__u64 buf;		/* buffer in userspace */
+     @@ include/uapi/linux/kvm.h: struct kvm_s390_mem_op {
+      		struct {
+      			__u8 ar;	/* the access register number */
+      			__u8 key;	/* access key, ignored if flag unset */
+    -+			/* in & out */
+    -+			__u64 old[2];	/* ignored if flag unset */
+    ++			__u8 pad1[6];	/* ignored */
+    ++			__u64 old_p;	/* ignored if flag unset */
+      		};
+      		__u32 sida_offset; /* offset into the sida */
+      		__u8 reserved[32]; /* ignored */
+    @@ include/uapi/linux/kvm.h: struct kvm_s390_mem_op {
+      #define KVM_S390_MEMOP_F_INJECT_EXCEPTION	(1ULL << 1)
+      #define KVM_S390_MEMOP_F_SKEY_PROTECTION	(1ULL << 2)
+     +#define KVM_S390_MEMOP_F_CMPXCHG		(1ULL << 3)
+    ++/* Non program exception return codes (pgm codes are 16 bit) */
+    ++#define KVM_S390_MEMOP_R_NO_XCHG		((1 << 16) + 0)
+      
+      /* for KVM_INTERRUPT */
+      struct kvm_interrupt {
+    @@ arch/s390/kvm/gaccess.c: int access_guest_real(struct kvm_vcpu *vcpu, unsigned l
+     +	if (kvm_is_error_hva(hva))
+     +		return PGM_ADDRESSING;
+     +	/*
+    -+	 * Check if it's a ro memslot, even tho that can't occur (they're unsupported).
+    ++	 * Check if it's a read-only memslot, even though that cannot occur
+    ++	 * since those are unsupported.
+     +	 * Don't try to actually handle that case.
+     +	 */
+     +	if (!writable)
+    @@ arch/s390/kvm/gaccess.c: int access_guest_real(struct kvm_vcpu *vcpu, unsigned l
+     +	ret = cmpxchg_user_key_size(len, (void __user *)hva, old_p, new, access_key);
+     +	mark_page_dirty_in_slot(kvm, slot, gfn);
+     +	/*
+    -+	 * Assume that the fault is caused by key protection, the alternative
+    -+	 * is that the user page is write protected.
+    ++	 * Assume that the fault is caused by protection, either key protection
+    ++	 * or user page write protection.
+     +	 */
+     +	if (ret == -EFAULT)
+     +		ret = PGM_PROTECTION;
+    @@ arch/s390/kvm/kvm-s390.c: int kvm_vm_ioctl_check_extension(struct kvm *kvm, long
+      		r = MEM_OP_MAX_SIZE;
+      		break;
+     +	case KVM_CAP_S390_MEM_OP_EXTENSION:
+    ++		/*
+    ++		 * Flag bits indicating which extensions are supported.
+    ++		 * The first extension doesn't use a flag, but pretend it does,
+    ++		 * this way that can be changed in the future.
+    ++		 */
+     +		r = 0x3;
+     +		break;
+      	case KVM_CAP_NR_VCPUS:
+      	case KVM_CAP_MAX_VCPUS:
+      	case KVM_CAP_MAX_VCPU_ID:
+     @@ arch/s390/kvm/kvm-s390.c: static bool access_key_invalid(u8 access_key)
+    - 	return access_key > 0xf;
+    - }
+    - 
+    --static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+    -+static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop, bool *modified)
+    + static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
+      {
+      	void __user *uaddr = (void __user *)mop->buf;
+    -+	unsigned __int128 old;
+    ++	void __user *old_p = (void __user *)mop->old_p;
+     +	union {
+     +		unsigned __int128 quad;
+     +		char raw[sizeof(unsigned __int128)];
+    -+	} new = { .quad = 0 };
+    ++	} old = { .quad = 0}, new = { .quad = 0 };
+    ++	unsigned int off_in_quad = sizeof(unsigned __int128) - mop->size;
+      	u64 supported_flags;
+      	void *tmpbuf = NULL;
+      	int r, srcu_idx;
+      
+    -+	*modified = false;
+      	supported_flags = KVM_S390_MEMOP_F_SKEY_PROTECTION
+     -			  | KVM_S390_MEMOP_F_CHECK_ONLY;
+     +			  | KVM_S390_MEMOP_F_CHECK_ONLY
+    @@ arch/s390/kvm/kvm-s390.c: static int kvm_s390_vm_mem_op(struct kvm *kvm, struct
+     +	if (mop->flags & KVM_S390_MEMOP_F_CMPXCHG) {
+     +		if (mop->size > sizeof(new))
+     +			return -EINVAL;
+    -+		if (copy_from_user(&new.raw[sizeof(new) - mop->size], uaddr, mop->size))
+    ++		/* off_in_quad has been validated */
+    ++		if (copy_from_user(&new.raw[off_in_quad], uaddr, mop->size))
+    ++			return -EFAULT;
+    ++		if (copy_from_user(&old.raw[off_in_quad], old_p, mop->size))
+     +			return -EFAULT;
+    -+		memcpy(&old, mop->old, sizeof(old));
+     +	}
+      	if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
+      		tmpbuf = vmalloc(mop->size);
+    @@ arch/s390/kvm/kvm-s390.c: static int kvm_s390_vm_mem_op(struct kvm *kvm, struct
+      			r = check_gpa_range(kvm, mop->gaddr, mop->size, GACC_STORE, mop->key);
+     +		} else if (mop->flags & KVM_S390_MEMOP_F_CMPXCHG) {
+     +			r = cmpxchg_guest_abs_with_key(kvm, mop->gaddr, mop->size,
+    -+						       &old, new.quad, mop->key);
+    -+			if (!r) {
+    -+				mop->flags &= ~KVM_S390_MEMOP_F_CMPXCHG;
+    -+			} else if (r == 1) {
+    -+				memcpy(mop->old, &old, sizeof(old));
+    -+				r = 0;
+    ++						       &old.quad, new.quad, mop->key);
+    ++			if (r == 1) {
+    ++				r = KVM_S390_MEMOP_R_NO_XCHG;
+    ++				if (copy_to_user(old_p, &old.raw[off_in_quad], mop->size))
+    ++					r = -EFAULT;
+     +			}
+    -+			*modified = true;
+      		} else {
+      			if (copy_from_user(tmpbuf, uaddr, mop->size)) {
+      				r = -EFAULT;
+    -@@ arch/s390/kvm/kvm-s390.c: long kvm_arch_vm_ioctl(struct file *filp,
+    - 	}
+    - 	case KVM_S390_MEM_OP: {
+    - 		struct kvm_s390_mem_op mem_op;
+    -+		bool modified;
+    - 
+    --		if (copy_from_user(&mem_op, argp, sizeof(mem_op)) == 0)
+    --			r = kvm_s390_vm_mem_op(kvm, &mem_op);
+    --		else
+    -+		r = copy_from_user(&mem_op, argp, sizeof(mem_op));
+    -+		if (r) {
+    - 			r = -EFAULT;
+    -+			break;
+    -+		}
+    -+		r = kvm_s390_vm_mem_op(kvm, &mem_op, &modified);
+    -+		if (r)
+    -+			break;
+    -+		if (modified) {
+    -+			r = copy_to_user(argp, &mem_op, sizeof(mem_op));
+    -+			if (r) {
+    -+				r = -EFAULT;
+    -+				break;
+    -+			}
+    -+		}
+    - 		break;
+    - 	}
+    - 	case KVM_S390_ZPCI_OP: {
+ 3:  cf036cd58aff <  -:  ------------ Documentation: KVM: s390: Describe KVM_S390_MEMOP_F_CMPXCHG
+ -:  ------------ >  3:  6cb32b244899 Documentation: KVM: s390: Describe KVM_S390_MEMOP_F_CMPXCHG
+ 4:  e1d25110a983 !  4:  5f1217ad9d31 KVM: s390: selftest: memop: Pass mop_desc via pointer
+    @@ Commit message
+         The struct is quite large, so this seems nicer.
+     
+         Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+    +    Reviewed-by: Thomas Huth <thuth@redhat.com>
+     
+      ## tools/testing/selftests/kvm/s390x/memop.c ##
+     @@ tools/testing/selftests/kvm/s390x/memop.c: struct mop_desc {
+ 5:  e02924290577 =  5:  86a15b53846a KVM: s390: selftest: memop: Replace macros by functions
+ 7:  de6ac5a125e2 !  6:  49e67d7559de KVM: s390: selftest: memop: Add cmpxchg tests
+    @@ tools/testing/selftests/kvm/s390x/memop.c: static struct kvm_s390_mem_op ksmo_fr
+      	}
+     +	if (desc->old) {
+     +		ksmo.flags |= KVM_S390_MEMOP_F_CMPXCHG;
+    -+		switch (ksmo.size) {
+    -+		case 1:
+    -+			ksmo.old[1] = *(uint8_t *)desc->old;
+    -+			break;
+    -+		case 2:
+    -+			ksmo.old[1] = *(uint16_t *)desc->old;
+    -+			break;
+    -+		case 4:
+    -+			ksmo.old[1] = *(uint32_t *)desc->old;
+    -+			break;
+    -+		case 8:
+    -+			ksmo.old[1] = *(uint64_t *)desc->old;
+    -+			break;
+    -+		case 16:
+    -+			memcpy(ksmo.old, desc->old, sizeof(ksmo.old));
+    -+			break;
+    -+		}
+    ++		ksmo.old_p = (uint64_t)desc->old;
+     +	}
+      	if (desc->_ar)
+      		ksmo.ar = desc->ar;
+      	else
+    -@@ tools/testing/selftests/kvm/s390x/memop.c: static struct kvm_s390_mem_op ksmo_from_desc(const struct mop_desc *desc)
+    - 	return ksmo;
+    - }
+    - 
+    -+static void cmpxchg_write_back(struct kvm_s390_mem_op *ksmo, struct mop_desc *desc)
+    -+{
+    -+	if (desc->old) {
+    -+		switch (ksmo->size) {
+    -+		case 1:
+    -+			*(uint8_t *)desc->old = ksmo->old[1];
+    -+			break;
+    -+		case 2:
+    -+			*(uint16_t *)desc->old = ksmo->old[1];
+    -+			break;
+    -+		case 4:
+    -+			*(uint32_t *)desc->old = ksmo->old[1];
+    -+			break;
+    -+		case 8:
+    -+			*(uint64_t *)desc->old = ksmo->old[1];
+    -+			break;
+    -+		case 16:
+    -+			memcpy(desc->old, ksmo->old, sizeof(ksmo->old));
+    -+			break;
+    -+		}
+    -+	}
+    -+	if (desc->cmpxchg_success)
+    -+		*desc->cmpxchg_success = !(ksmo->flags & KVM_S390_MEMOP_F_CMPXCHG);
+    -+}
+    -+
+    - struct test_info {
+    - 	struct kvm_vm *vm;
+    - 	struct kvm_vcpu *vcpu;
+     @@ tools/testing/selftests/kvm/s390x/memop.c: static void print_memop(struct kvm_vcpu *vcpu, const struct kvm_s390_mem_op *ksm
+      		printf("ABSOLUTE, WRITE, ");
+      		break;
+      	}
+     -	printf("gaddr=%llu, size=%u, buf=%llu, ar=%u, key=%u",
+     -	       ksmo->gaddr, ksmo->size, ksmo->buf, ksmo->ar, ksmo->key);
+    -+	printf("gaddr=%llu, size=%u, buf=%llu, ar=%u, key=%u, old[0]=%llu, old[1]=%llu",
+    ++	printf("gaddr=%llu, size=%u, buf=%llu, ar=%u, key=%u, old_p=%llx",
+     +	       ksmo->gaddr, ksmo->size, ksmo->buf, ksmo->ar, ksmo->key,
+    -+	       ksmo->old[0], ksmo->old[1]);
+    ++	       ksmo->old_p);
+      	if (ksmo->flags & KVM_S390_MEMOP_F_CHECK_ONLY)
+      		printf(", CHECK_ONLY");
+      	if (ksmo->flags & KVM_S390_MEMOP_F_INJECT_EXCEPTION)
+    @@ tools/testing/selftests/kvm/s390x/memop.c: static void print_memop(struct kvm_vc
+      }
+      
+     -static void memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo)
+    -+static void memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo,
+    -+			struct mop_desc *desc)
+    ++static int err_memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo,
+    ++			   struct mop_desc *desc)
+      {
+      	struct kvm_vcpu *vcpu = info.vcpu;
+      
+    -@@ tools/testing/selftests/kvm/s390x/memop.c: static void memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo)
+    - 		vm_ioctl(info.vm, KVM_S390_MEM_OP, ksmo);
+    + 	if (!vcpu)
+    +-		vm_ioctl(info.vm, KVM_S390_MEM_OP, ksmo);
+    ++		return __vm_ioctl(info.vm, KVM_S390_MEM_OP, ksmo);
+      	else
+    - 		vcpu_ioctl(vcpu, KVM_S390_MEM_OP, ksmo);
+    -+	cmpxchg_write_back(ksmo, desc);
+    +-		vcpu_ioctl(vcpu, KVM_S390_MEM_OP, ksmo);
+    ++		return __vcpu_ioctl(vcpu, KVM_S390_MEM_OP, ksmo);
+      }
+      
+     -static int err_memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo)
+    -+static int err_memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo,
+    -+			   struct mop_desc *desc)
+    ++static void memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo,
+    ++			struct mop_desc *desc)
+      {
+    - 	struct kvm_vcpu *vcpu = info.vcpu;
+    +-	struct kvm_vcpu *vcpu = info.vcpu;
+     +	int r;
+    ++
+    ++	r = err_memop_ioctl(info, ksmo, desc);
+    ++	if (ksmo->flags & KVM_S390_MEMOP_F_CMPXCHG) {
+    ++		if (desc->cmpxchg_success)
+    ++			*desc->cmpxchg_success = !r;
+    ++		if (r == KVM_S390_MEMOP_R_NO_XCHG)
+    ++			r = 0;
+    ++	}
+    ++	TEST_ASSERT(!r, __KVM_IOCTL_ERROR("KVM_S390_MEM_OP", r));
+      
+    - 	if (!vcpu)
+    +-	if (!vcpu)
+     -		return __vm_ioctl(info.vm, KVM_S390_MEM_OP, ksmo);
+    -+		r = __vm_ioctl(info.vm, KVM_S390_MEM_OP, ksmo);
+    - 	else
+    +-	else
+     -		return __vcpu_ioctl(vcpu, KVM_S390_MEM_OP, ksmo);
+    -+		r = __vcpu_ioctl(vcpu, KVM_S390_MEM_OP, ksmo);
+    -+	cmpxchg_write_back(ksmo, desc);
+    -+	return r;
+      }
+      
+      #define MEMOP(err, info_p, mop_target_p, access_mode_p, buf_p, size_p, ...)	\
+ 6:  f4ce20cd7eff =  7:  faad9cf03ea6 KVM: s390: selftest: memop: Add bad address test
+ 8:  0bad86fd6183 !  8:  8070036aa89a KVM: s390: selftest: memop: Fix typo
+    @@ Metadata
+      ## Commit message ##
+         KVM: s390: selftest: memop: Fix typo
+     
+    +    "acceeded" isn't a word, should be "exceeded".
+    +
+         Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+    +    Reviewed-by: Thomas Huth <thuth@redhat.com>
+     
+      ## tools/testing/selftests/kvm/s390x/memop.c ##
+     @@ tools/testing/selftests/kvm/s390x/memop.c: static void test_errors_key_fetch_prot_override_enabled(void)
+ 9:  7a1e9cb79bbb =  9:  18c423e4e3ad KVM: s390: selftest: memop: Fix wrong address being used in test
 
-I'm hoping we can call this done -- I'm going to see if I can bribe Mark
-to take a look at the arm64 thing soon and then hopefully queue the
-whole thing once -rc1 happens. That should give us a good long soak
-until the next merge window.
-
----
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -826,21 +826,28 @@ struct perf_event {
- };
- 
- /*
-- *           ,------------------------[1:n]---------------------.
-+ *           ,-----------------------[1:n]----------------------.
-  *           V                                                  V
-  * perf_event_context <-[1:n]-> perf_event_pmu_context <--- perf_event
-  *           ^                      ^     |                     |
-  *           `--------[1:n]---------'     `-[n:1]-> pmu <-[1:n]-'
-  *
-  *
-- * XXX destroy epc when empty
-- *   refcount, !rcu
-- *
-- * XXX epc locking
-- *
-- *   event->pmu_ctx            ctx->mutex && inactive
-- *   ctx->pmu_ctx_list         ctx->mutex && ctx->lock
-- *
-+ * struct perf_event_pmu_context  lifetime is refcount based and RCU freed
-+ * (similar to perf_event_context). Locking is as if it were a member of
-+ * perf_event_context; specifically:
-+ *
-+ *   modification, both: ctx->mutex && ctx->lock
-+ *   reading, either:    ctx->mutex || ctx->lock
-+ *
-+ * There is one exception to this; namely put_pmu_ctx() isn't always called
-+ * with ctx->mutex held; this means that as long as we can guarantee the epc
-+ * has events the above rules hold.
-+ *
-+ * Specificially, sys_perf_event_open()'s group_leader case depends on
-+ * ctx->mutex pinning the configuration. Since we hold a reference on
-+ * group_leader (through the filedesc) it can't fo away, therefore it's
-+ * associated pmu_ctx must exist and cannot change due to ctx->mutex.
-  */
- struct perf_event_pmu_context {
- 	struct pmu			*pmu;
-@@ -857,6 +864,7 @@ struct perf_event_pmu_context {
- 	unsigned int			nr_events;
- 
- 	atomic_t			refcount; /* event <-> epc */
-+	struct rcu_head			rcu_head;
- 
- 	void				*task_ctx_data; /* pmu specific data */
- 	/*
-@@ -906,7 +914,7 @@ struct perf_event_context {
- 	int				nr_freq;
- 	int				rotate_disable;
- 
--	refcount_t			refcount;
-+	refcount_t			refcount; /* event <-> ctx */
- 	struct task_struct		*task;
- 
- 	/*
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -1727,6 +1727,10 @@ perf_event_groups_next(struct perf_event
- 	return NULL;
- }
- 
-+#define perf_event_groups_for_cpu_pmu(event, groups, cpu, pmu)		\
-+	for (event = perf_event_groups_first(groups, cpu, pmu, NULL);	\
-+	     event; event = perf_event_groups_next(event, pmu))
-+
- /*
-  * Iterate through the whole groups tree.
-  */
-@@ -3366,6 +3370,14 @@ static void perf_event_sync_stat(struct
- 	}
- }
- 
-+#define double_list_for_each_entry(pos1, pos2, head1, head2, member)	\
-+	for (pos1 = list_first_entry(head1, typeof(*pos1), member),	\
-+	     pos2 = list_first_entry(head2, typeof(*pos2), member);	\
-+	     !list_entry_is_head(pos1, head1, member) &&		\
-+	     !list_entry_is_head(pos2, head2, member);			\
-+	     pos1 = list_next_entry(pos1, member),			\
-+	     pos2 = list_next_entry(pos2, member))
-+
- static void perf_event_swap_task_ctx_data(struct perf_event_context *prev_ctx,
- 					  struct perf_event_context *next_ctx)
- {
-@@ -3374,17 +3386,12 @@ static void perf_event_swap_task_ctx_dat
- 	if (!prev_ctx->nr_task_data)
- 		return;
- 
--	prev_epc = list_first_entry(&prev_ctx->pmu_ctx_list,
--				    struct perf_event_pmu_context,
--				    pmu_ctx_entry);
--	next_epc = list_first_entry(&next_ctx->pmu_ctx_list,
--				    struct perf_event_pmu_context,
--				    pmu_ctx_entry);
--
--	while (&prev_epc->pmu_ctx_entry != &prev_ctx->pmu_ctx_list &&
--	       &next_epc->pmu_ctx_entry != &next_ctx->pmu_ctx_list) {
-+	double_list_for_each_entry(prev_epc, next_epc,
-+				   &prev_ctx->pmu_ctx_list, &next_ctx->pmu_ctx_list,
-+				   pmu_ctx_entry) {
- 
--		WARN_ON_ONCE(prev_epc->pmu != next_epc->pmu);
-+		if (WARN_ON_ONCE(prev_epc->pmu != next_epc->pmu))
-+			continue;
- 
- 		/*
- 		 * PMU specific parts of task perf context can require
-@@ -3706,7 +3713,6 @@ static noinline int visit_groups_merge(s
- 		perf_assert_pmu_disabled((*evt)->pmu_ctx->pmu);
- 	}
- 
--
- 	min_heapify_all(&event_heap, &perf_min_heap);
- 
- 	while (event_heap.nr) {
-@@ -3845,7 +3851,6 @@ ctx_sched_in(struct perf_event_context *
- 		/* start ctx time */
- 		__update_context_time(ctx, false);
- 		perf_cgroup_set_timestamp(cpuctx);
--		// XXX ctx->task =? task
- 		/*
- 		 * CPU-release for the below ->is_active store,
- 		 * see __load_acquire() in perf_event_time_now()
-@@ -4815,6 +4820,15 @@ find_get_pmu_context(struct pmu *pmu, st
- 
- 	__perf_init_event_pmu_context(new, pmu);
- 
-+	/*
-+	 * XXX
-+	 *
-+	 * lockdep_assert_held(&ctx->mutex);
-+	 *
-+	 * can't because perf_event_init_task() doesn't actually hold the
-+	 * child_ctx->mutex.
-+	 */
-+
- 	raw_spin_lock_irq(&ctx->lock);
- 	list_for_each_entry(epc, &ctx->pmu_ctx_list, pmu_ctx_entry) {
- 		if (epc->pmu == pmu) {
-@@ -4849,6 +4863,14 @@ static void get_pmu_ctx(struct perf_even
- 	WARN_ON_ONCE(!atomic_inc_not_zero(&epc->refcount));
- }
- 
-+static void free_epc_rcu(struct rcu_head *head)
-+{
-+	struct perf_event_pmu_context *epc = container_of(head, typeof(*epc), rcu_head);
-+
-+	kfree(epc->task_ctx_data);
-+	kfree(epc);
-+}
-+
- static void put_pmu_ctx(struct perf_event_pmu_context *epc)
- {
- 	unsigned long flags;
-@@ -4859,7 +4881,14 @@ static void put_pmu_ctx(struct perf_even
- 	if (epc->ctx) {
- 		struct perf_event_context *ctx = epc->ctx;
- 
--		// XXX ctx->mutex
-+		/*
-+		 * XXX
-+		 *
-+		 * lockdep_assert_held(&ctx->mutex);
-+		 *
-+		 * can't because of the call-site in _free_event()/put_event()
-+		 * which isn't always called under ctx->mutex.
-+		 */
- 
- 		WARN_ON_ONCE(list_empty(&epc->pmu_ctx_entry));
- 		raw_spin_lock_irqsave(&ctx->lock, flags);
-@@ -4874,17 +4903,15 @@ static void put_pmu_ctx(struct perf_even
- 	if (epc->embedded)
- 		return;
- 
--	kfree(epc->task_ctx_data);
--	kfree(epc);
-+	call_rcu(&epc->rcu_head, free_epc_rcu);
- }
- 
- static void perf_event_free_filter(struct perf_event *event);
- 
- static void free_event_rcu(struct rcu_head *head)
- {
--	struct perf_event *event;
-+	struct perf_event *event = container_of(head, typeof(*event), rcu_head);
- 
--	event = container_of(head, struct perf_event, rcu_head);
- 	if (event->ns)
- 		put_pid_ns(event->ns);
- 	perf_event_free_filter(event);
-@@ -12436,6 +12463,9 @@ SYSCALL_DEFINE5(perf_event_open,
- 			 * Allow the addition of software events to hw
- 			 * groups, this is safe because software events
- 			 * never fail to schedule.
-+			 *
-+			 * Note the comment that goes with struct
-+			 * pmu_event_pmu_context.
- 			 */
- 			pmu = group_leader->pmu_ctx->pmu;
- 		} else if (!is_software_event(event) &&
-@@ -12643,13 +12673,6 @@ perf_event_create_kernel_counter(struct
- 		goto err_alloc;
- 	}
- 
--	pmu_ctx = find_get_pmu_context(pmu, ctx, event);
--	if (IS_ERR(pmu_ctx)) {
--		err = PTR_ERR(pmu_ctx);
--		goto err_ctx;
--	}
--	event->pmu_ctx = pmu_ctx;
--
- 	WARN_ON_ONCE(ctx->parent_ctx);
- 	mutex_lock(&ctx->mutex);
- 	if (ctx->task == TASK_TOMBSTONE) {
-@@ -12657,6 +12680,13 @@ perf_event_create_kernel_counter(struct
- 		goto err_unlock;
- 	}
- 
-+	pmu_ctx = find_get_pmu_context(pmu, ctx, event);
-+	if (IS_ERR(pmu_ctx)) {
-+		err = PTR_ERR(pmu_ctx);
-+		goto err_unlock;
-+	}
-+	event->pmu_ctx = pmu_ctx;
-+
- 	if (!task) {
- 		/*
- 		 * Check if the @cpu we're creating an event for is online.
-@@ -12668,13 +12698,13 @@ perf_event_create_kernel_counter(struct
- 			container_of(ctx, struct perf_cpu_context, ctx);
- 		if (!cpuctx->online) {
- 			err = -ENODEV;
--			goto err_unlock;
-+			goto err_pmu_ctx;
- 		}
- 	}
- 
- 	if (!exclusive_event_installable(event, ctx)) {
- 		err = -EBUSY;
--		goto err_unlock;
-+		goto err_pmu_ctx;
- 	}
- 
- 	perf_install_in_context(ctx, event, event->cpu);
-@@ -12683,9 +12713,10 @@ perf_event_create_kernel_counter(struct
- 
- 	return event;
- 
-+err_pmu_ctx:
-+	put_pmu_ctx(pmu_ctx);
- err_unlock:
- 	mutex_unlock(&ctx->mutex);
--err_ctx:
- 	perf_unpin_context(ctx);
- 	put_ctx(ctx);
- err_alloc:
-@@ -12702,9 +12733,7 @@ static void __perf_pmu_remove(struct per
- {
- 	struct perf_event *event, *sibling;
- 
--	for (event = perf_event_groups_first(groups, cpu, pmu, NULL);
--	     event; event = perf_event_groups_next(event, pmu)) {
--
-+	perf_event_groups_for_cpu_pmu(event, groups, cpu, pmu) {
- 		perf_remove_from_context(event, 0);
- 		unaccount_event_cpu(event, cpu);
- 		put_pmu_ctx(event->pmu_ctx);
-@@ -12998,7 +13027,7 @@ void perf_event_free_task(struct task_st
- 	struct perf_event_context *ctx;
- 	struct perf_event *event, *tmp;
- 
--	ctx = rcu_dereference(task->perf_event_ctxp);
-+	ctx = rcu_access_pointer(task->perf_event_ctxp);
- 	if (!ctx)
- 		return;
- 
-
+base-commit: 4fe89d07dcc2804c8b562f6c7896a45643d34b2f
+-- 
+2.34.1
 
