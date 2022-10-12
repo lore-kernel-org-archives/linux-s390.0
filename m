@@ -2,191 +2,137 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA2DFC433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Oct 2022 09:21:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF756C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Oct 2022 09:32:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229889AbiJLJVE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Oct 2022 05:21:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41618 "EHLO
+        id S229780AbiJLJcS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Oct 2022 05:32:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230017AbiJLJUm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Oct 2022 05:20:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E311D0C6
-        for <linux-s390@vger.kernel.org>; Wed, 12 Oct 2022 02:20:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665566439;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=I3P7oPtImaphFMRrVE6g+ZColp81HMQz95/EX453FiI=;
-        b=e0h7aSh8F+5jIVRR44J7HOvWboPhhqSqMhR1ED2N7FlcyrEfcKs1wWgevLEFzqEjMOf8A9
-        CXZW4/NcQDRvMeoeEdb6w2XeV//tNSrCGk3XuC+foMosrQ02Vw9p6JBWcGKOCuJO9k7Gy0
-        Zulhis8cfXnooE3xoP4TZ/ixZFE81RE=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-612-FJzsnLBlMJqrL_Twqn-zXg-1; Wed, 12 Oct 2022 05:20:35 -0400
-X-MC-Unique: FJzsnLBlMJqrL_Twqn-zXg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2891185A583;
-        Wed, 12 Oct 2022 09:20:35 +0000 (UTC)
-Received: from localhost (ovpn-12-34.pek2.redhat.com [10.72.12.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4874C1121325;
-        Wed, 12 Oct 2022 09:20:32 +0000 (UTC)
-Date:   Wed, 12 Oct 2022 17:20:29 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        akpm@linux-foundation.org, hch@infradead.org,
-        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
-        christophe.leroy@csgroup.eu, David.Laight@aculab.com,
-        shorne@gmail.com, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 09/11] s390: mm: Convert to GENERIC_IOREMAP
-Message-ID: <Y0aG3bLkPKVKcuTv@MiWiFi-R3L-srv>
-References: <20221009103114.149036-1-bhe@redhat.com>
- <20221009103114.149036-10-bhe@redhat.com>
- <b6ac5c44917390b9a5cc7ebb87a089568279c459.camel@linux.ibm.com>
- <Y0ZWBMKKIuf5Q+qk@MiWiFi-R3L-srv>
- <d78edb587ecda0aa09ba80446d0f1883e391996d.camel@linux.ibm.com>
+        with ESMTP id S229867AbiJLJcR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Oct 2022 05:32:17 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25CF6DFA4;
+        Wed, 12 Oct 2022 02:32:16 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29C8fptX008075;
+        Wed, 12 Oct 2022 09:32:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=rZSXgZuBbs+bLzzkjTvXCrJ5CUl17Nvp3jhT3hccX6c=;
+ b=nBSM8wu9zKg2KZ2FsdVwOAiRmtOt9b9O93A2NTPIxCWlfDYZ2v5Kk6a2cwEud7fpVe8o
+ PTSTV9EliRgPQSD2iLhDRCcMMgvyr9YJRX4H/mMugFUg0SNtdoX5hd1DmHF7+LJV2h/j
+ 1alkEjIjXBgI86wVNYo60FAmypvm7gsouJHSJMwKbI+8azoP0kSB1E7tLl1MKzrR3AYY
+ lBQQBJ9xv4Ca/n+VwXBqvj57F4CjI9FzQ6hk/pLGWqUaETwwJai4r5GwKlNr5vTCoxvu
+ SdSEj6Gp78M5DuSaSKbWdlx9Wx5kfmZb8o5ffR8nrveziIGv90YId74ZBrxYiAhWTUoN JQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k5ta09d5t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Oct 2022 09:32:16 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29C9420l024779;
+        Wed, 12 Oct 2022 09:32:16 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k5ta09d4n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Oct 2022 09:32:15 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29C9K5pd031624;
+        Wed, 12 Oct 2022 09:32:13 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3k30u9cau8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Oct 2022 09:32:13 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29C9WAL059244878
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 Oct 2022 09:32:10 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 36F11A4051;
+        Wed, 12 Oct 2022 09:32:10 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D859FA404D;
+        Wed, 12 Oct 2022 09:32:09 +0000 (GMT)
+Received: from [9.152.224.253] (unknown [9.152.224.253])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 12 Oct 2022 09:32:09 +0000 (GMT)
+Message-ID: <a29e8e63-3cbc-30cc-e0db-8e2bb8616ecb@linux.ibm.com>
+Date:   Wed, 12 Oct 2022 11:32:09 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d78edb587ecda0aa09ba80446d0f1883e391996d.camel@linux.ibm.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: [PATCH v15 1/6] KVM: s390: pv: asynchronous destroy for reboot
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com, nrb@linux.ibm.com
+References: <20221010145442.85867-1-imbrenda@linux.ibm.com>
+ <20221010145442.85867-2-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From:   Steffen Eiden <seiden@linux.ibm.com>
+In-Reply-To: <20221010145442.85867-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: OYBjoMb2oUXI4dhastfz94TeK1CKS7DA
+X-Proofpoint-ORIG-GUID: hjFMmBOTloprzUoaqYvwfjpGK1c6-sjH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-12_04,2022-10-11_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ lowpriorityscore=0 spamscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 mlxscore=0 adultscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2210120062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/12/22 at 09:37am, Niklas Schnelle wrote:
-> On Wed, 2022-10-12 at 13:52 +0800, Baoquan He wrote:
-> > On 10/11/22 at 05:16pm, Niklas Schnelle wrote:
-> > > On Sun, 2022-10-09 at 18:31 +0800, Baoquan He wrote:
-> > > > By taking GENERIC_IOREMAP method, the generic ioremap_prot() and
-> > > > iounmap() are visible and available to arch. Arch only needs to
-> > > > provide implementation of arch_ioremap() or arch_iounmap() if there's
-> > > > arch specific handling needed in its ioremap() or iounmap(). This
-> > > > change will simplify implementation by removing duplicated codes with
-> > > > generic ioremap() and iounmap(), and has the equivalent functioality
-> > > > as before.
-> > > > 
-> > > > For s390, add hooks arch_ioremap() and arch_iounmap() for s390's special
-> > > > operation when ioremap() and iounmap(), then ioremap_[wc|wt]() are
-> > > > converted to use ioremap_prot() from GENERIC_IOREMAP.
-> > > > 
-> > > > Signed-off-by: Baoquan He <bhe@redhat.com>
-> > > > Cc: Niklas Schnelle <schnelle@linux.ibm.com>
-> > > > Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> > > > Cc: Heiko Carstens <hca@linux.ibm.com>
-> > > > Cc: Vasily Gorbik <gor@linux.ibm.com>
-> > > > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> > > > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> > > > Cc: Sven Schnelle <svens@linux.ibm.com>
-> > > > Cc: linux-s390@vger.kernel.org
-> > > > ---
-> > > > v2->v3:
-> > > > - Add code comment inside arch_ioremap() to help uderstand the
-> > > >   obsucre code. Christoph suggested this, Niklas provided the
-> > > >   paragraph of text.
-> > > > 
-> > > >  arch/s390/Kconfig          |  1 +
-> > > >  arch/s390/include/asm/io.h | 25 +++++++++------
-> > > >  arch/s390/pci/pci.c        | 65 ++++++++------------------------------
-> > > >  3 files changed, 30 insertions(+), 61 deletions(-)
-> > > > 
-> > > > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> > > > index 318fce77601d..c59e1b25f59d 100644
-> > > > --- a/arch/s390/Kconfig
-> > > > +++ b/arch/s390/Kconfig
-> > > > @@ -135,6 +135,7 @@ config S390
-> > > >  	select GENERIC_SMP_IDLE_THREAD
-> > > >  	select GENERIC_TIME_VSYSCALL
-> > > >  	select GENERIC_VDSO_TIME_NS
-> > > > +	select GENERIC_IOREMAP
-> > > 
-> > > I think you should add the "if PCI" from the diff in your last mail to
-> > > this patch.
-> > 
-> > That's reasonable, will do.
-> > 
-> > The code change in driver should be posted separately to get reviewing
-> > from the relevant drvier maintainers. I may wrap it into this series in
-> > next post so that people know its background.
+
+
+On 10/10/22 16:54, Claudio Imbrenda wrote:
+> Until now, destroying a protected guest was an entirely synchronous
+> operation that could potentially take a very long time, depending on
+> the size of the guest, due to the time needed to clean up the address
+> space from protected pages.
 > 
-> I agree about doing the driver change separately. Since the problem
-> already exists one could send it separately. If you want I can take of
-> that too.
-
-Both is fine to me, since you suggested the fix.
-
+> This patch implements an asynchronous destroy mechanism, that allows a
+> protected guest to reboot significantly faster than previously.
 > 
-> > 
-> > > >  	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
-> > > >  	select HAVE_ARCH_AUDITSYSCALL
-> > > >  	select HAVE_ARCH_JUMP_LABEL
-> > ......
-> > > > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> > > > index 73cdc5539384..3c00dc7d79bc 100644
-> > > > --- a/arch/s390/pci/pci.c
-> > > > +++ b/arch/s390/pci/pci.c
-> > > > @@ -244,64 +244,25 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
-> > > >         zpci_memcpy_toio(to, from, count);
-> > > >  }
-> > > >  
-> > > > -static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
-> > > > +void __iomem *
-> > > > +arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val)
-> > > >  {
-> > > > -	unsigned long offset, vaddr;
-> > > > -	struct vm_struct *area;
-> > > > -	phys_addr_t last_addr;
-> > > > -
-> > > > -	last_addr = addr + size - 1;
-> > > > -	if (!size || last_addr < addr)
-> > > > -		return NULL;
-> > > > -
-> > > > +	/*
-> > > > +	 * When PCI MIO instructions are unavailable the "physical" address
-> > > > +	 * encodes a hint for accessing the PCI memory space it represents.
-> > > > +	 * Just pass it unchanged such that ioread/iowrite can decode it.
-> > > > +	 */
-> > > >  	if (!static_branch_unlikely(&have_mio))
-> > > > -		return (void __iomem *) addr;
-> > > > -
-> > > > -	offset = addr & ~PAGE_MASK;
-> > > > -	addr &= PAGE_MASK;
-> > > > -	size = PAGE_ALIGN(size + offset);
-> > > > -	area = get_vm_area(size, VM_IOREMAP);
-> > > > -	if (!area)
-> > > > -		return NULL;
-> > > > -
-> > > > -	vaddr = (unsigned long) area->addr;
-> > > > -	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
-> > > > -		free_vm_area(area);
-> > > > -		return NULL;
-> > > > -	}
-> > > > -	return (void __iomem *) ((unsigned long) area->addr + offset);
-> > > > +		return (void __iomem *) *paddr;
-> > > 
-> > > nit: no space after the cast
-> > 
-> > Sorry, remember you pointed this out in v2, while I didn't get what
-> > it is. Could you be more specific or give the right line of code?
-> > 
-> > Are you suggesting below line? 
-> > 
-> > -	return (void __iomem *) ((unsigned long) area->addr + offset);
-> > +		return (void __iomem *)*paddr;
+> This is achieved by clearing the pages of the old guest in background.
+> In case of reboot, the new guest will be able to run in the same
+> address space almost immediately.
 > 
-> Yes, though I did just check and somehow checkpatch doesn't complain,
-> maybe because of the dereference. I do think I remember it complaining
-> but I guess if it doesn't you might as well keep it this way.
+> The old protected guest is then only destroyed when all of its memory
+> has been destroyed or otherwise made non protected.
+> 
+> Two new PV commands are added for the KVM_S390_PV_COMMAND ioctl:
+> 
+> KVM_PV_ASYNC_CLEANUP_PREPARE: set aside the current protected VM for
+> later asynchronous teardown. The current KVM VM will then continue
+> immediately as non-protected. If a protected VM had already been
+> set aside for asynchronous teardown, but without starting the teardown
+> process, this call will fail. There can be at most one VM set aside at
+> any time. Once it is set aside, the protected VM only exists in the
+> context of the Ultravisor, it is not associated with the KVM VM
+> anymore. Its protected CPUs have already been destroyed, but not its
+> memory. This command can be issued again immediately after starting
+> KVM_PV_ASYNC_CLEANUP_PERFORM, without having to wait for completion.
+> 
+> KVM_PV_ASYNC_CLEANUP_PERFORM: tears down the protected VM previously
+> set aside using KVM_PV_ASYNC_CLEANUP_PREPARE. Ideally the
+> KVM_PV_ASYNC_CLEANUP_PERFORM PV command should be issued by userspace
+> from a separate thread. If a fatal signal is received (or if the
+> process terminates naturally), the command will terminate immediately
+> without completing. All protected VMs whose teardown was interrupted
+> will be put in the need_cleanup list. The rest of the normal KVM
+> teardown process will take care of properly cleaning up all remaining
+> protected VMs, including the ones on the need_cleanup list.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
 
-OK, I will keep it unless checkpatch complaim about it. Thanks.
-
+[snip]
