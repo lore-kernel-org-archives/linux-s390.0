@@ -2,102 +2,191 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9194EC433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Oct 2022 08:53:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA2DFC433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Oct 2022 09:21:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229920AbiJLIxQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Oct 2022 04:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34578 "EHLO
+        id S229889AbiJLJVE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Oct 2022 05:21:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229932AbiJLIw4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Oct 2022 04:52:56 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4DA3BA245;
-        Wed, 12 Oct 2022 01:51:28 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29C8QdYH028826;
-        Wed, 12 Oct 2022 08:51:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : to : cc : from : message-id : date; s=pp1;
- bh=Z1DlNNqdZU14TGTuO37SQall8njRe9kqoMnhQB+s8MY=;
- b=qp0Ksn3cbbKEj9YmfdjXtQ1Bsu7ZVNMoImqvemyKF/g0GL7/tEte9/bwEqeqTPOSx7kD
- QIOlfmbMoyFabGZZVpxVPLP/HQZ2zP4pLnBtAMJqjDJWlVhvVV6a2SXe7a7+pvDsppUu
- DMIH39Vmp4qpm979P8RgNKo3cYitQFNnC61WdVKJHXyO/g2Eyt2uuB/94wMrw++khDRt
- jSp6QC+MhnV0HE4v6uVes0uqfY9sQkzWABdW0Yg0iWkjf51ycT3LvFDeib1k5m1PyyNS
- jNxv2Y8nMMJ0uOAhlrOmP0WvjTN0UeOX6jvhEnDcrmd1McVfMXHl8AEhb1FM1MN18cAx ew== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k5t2y0qtd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Oct 2022 08:51:27 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29C8ROeq006747;
-        Wed, 12 Oct 2022 08:51:27 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k5t2y0qsm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Oct 2022 08:51:27 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29C8ojH2021105;
-        Wed, 12 Oct 2022 08:51:25 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3k30fjdqcs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Oct 2022 08:51:24 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29C8pLEM45547900
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 Oct 2022 08:51:21 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D0BAF4C044;
-        Wed, 12 Oct 2022 08:51:21 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B3CB54C040;
-        Wed, 12 Oct 2022 08:51:21 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.15.252])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 12 Oct 2022 08:51:21 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230017AbiJLJUm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Oct 2022 05:20:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E311D0C6
+        for <linux-s390@vger.kernel.org>; Wed, 12 Oct 2022 02:20:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665566439;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=I3P7oPtImaphFMRrVE6g+ZColp81HMQz95/EX453FiI=;
+        b=e0h7aSh8F+5jIVRR44J7HOvWboPhhqSqMhR1ED2N7FlcyrEfcKs1wWgevLEFzqEjMOf8A9
+        CXZW4/NcQDRvMeoeEdb6w2XeV//tNSrCGk3XuC+foMosrQ02Vw9p6JBWcGKOCuJO9k7Gy0
+        Zulhis8cfXnooE3xoP4TZ/ixZFE81RE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-612-FJzsnLBlMJqrL_Twqn-zXg-1; Wed, 12 Oct 2022 05:20:35 -0400
+X-MC-Unique: FJzsnLBlMJqrL_Twqn-zXg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2891185A583;
+        Wed, 12 Oct 2022 09:20:35 +0000 (UTC)
+Received: from localhost (ovpn-12-34.pek2.redhat.com [10.72.12.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4874C1121325;
+        Wed, 12 Oct 2022 09:20:32 +0000 (UTC)
+Date:   Wed, 12 Oct 2022 17:20:29 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        akpm@linux-foundation.org, hch@infradead.org,
+        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
+        christophe.leroy@csgroup.eu, David.Laight@aculab.com,
+        shorne@gmail.com, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 09/11] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <Y0aG3bLkPKVKcuTv@MiWiFi-R3L-srv>
+References: <20221009103114.149036-1-bhe@redhat.com>
+ <20221009103114.149036-10-bhe@redhat.com>
+ <b6ac5c44917390b9a5cc7ebb87a089568279c459.camel@linux.ibm.com>
+ <Y0ZWBMKKIuf5Q+qk@MiWiFi-R3L-srv>
+ <d78edb587ecda0aa09ba80446d0f1883e391996d.camel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20221010145442.85867-7-imbrenda@linux.ibm.com>
-References: <20221010145442.85867-1-imbrenda@linux.ibm.com> <20221010145442.85867-7-imbrenda@linux.ibm.com>
-Subject: Re: [PATCH v15 6/6] KVM: s390: pv: module parameter to fence asynchronous destroy
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
-        david@redhat.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
-        seiden@linux.ibm.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <166556468146.11451.2769365636558478267@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Wed, 12 Oct 2022 10:51:21 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: sEWM-3eYQ9-YEcFrsZ80Xhn_KtGKNt6O
-X-Proofpoint-ORIG-GUID: 71uGxkgJBwOG2jRzvu9fGNeXe-Sbk-0E
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-12_03,2022-10-11_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=821
- malwarescore=0 clxscore=1011 mlxscore=0 suspectscore=0 adultscore=0
- priorityscore=1501 bulkscore=0 phishscore=0 impostorscore=0 spamscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210120055
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d78edb587ecda0aa09ba80446d0f1883e391996d.camel@linux.ibm.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Claudio Imbrenda (2022-10-10 16:54:42)
-> Add the module parameter "async_destroy", to allow the asynchronous
-> destroy mechanism to be switched off. This might be useful for
-> debugging purposes.
->=20
-> The parameter is enabled by default since the feature is opt-in anyway.
->=20
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+On 10/12/22 at 09:37am, Niklas Schnelle wrote:
+> On Wed, 2022-10-12 at 13:52 +0800, Baoquan He wrote:
+> > On 10/11/22 at 05:16pm, Niklas Schnelle wrote:
+> > > On Sun, 2022-10-09 at 18:31 +0800, Baoquan He wrote:
+> > > > By taking GENERIC_IOREMAP method, the generic ioremap_prot() and
+> > > > iounmap() are visible and available to arch. Arch only needs to
+> > > > provide implementation of arch_ioremap() or arch_iounmap() if there's
+> > > > arch specific handling needed in its ioremap() or iounmap(). This
+> > > > change will simplify implementation by removing duplicated codes with
+> > > > generic ioremap() and iounmap(), and has the equivalent functioality
+> > > > as before.
+> > > > 
+> > > > For s390, add hooks arch_ioremap() and arch_iounmap() for s390's special
+> > > > operation when ioremap() and iounmap(), then ioremap_[wc|wt]() are
+> > > > converted to use ioremap_prot() from GENERIC_IOREMAP.
+> > > > 
+> > > > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > > > Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > > Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> > > > Cc: Heiko Carstens <hca@linux.ibm.com>
+> > > > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > > > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> > > > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > > > Cc: Sven Schnelle <svens@linux.ibm.com>
+> > > > Cc: linux-s390@vger.kernel.org
+> > > > ---
+> > > > v2->v3:
+> > > > - Add code comment inside arch_ioremap() to help uderstand the
+> > > >   obsucre code. Christoph suggested this, Niklas provided the
+> > > >   paragraph of text.
+> > > > 
+> > > >  arch/s390/Kconfig          |  1 +
+> > > >  arch/s390/include/asm/io.h | 25 +++++++++------
+> > > >  arch/s390/pci/pci.c        | 65 ++++++++------------------------------
+> > > >  3 files changed, 30 insertions(+), 61 deletions(-)
+> > > > 
+> > > > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> > > > index 318fce77601d..c59e1b25f59d 100644
+> > > > --- a/arch/s390/Kconfig
+> > > > +++ b/arch/s390/Kconfig
+> > > > @@ -135,6 +135,7 @@ config S390
+> > > >  	select GENERIC_SMP_IDLE_THREAD
+> > > >  	select GENERIC_TIME_VSYSCALL
+> > > >  	select GENERIC_VDSO_TIME_NS
+> > > > +	select GENERIC_IOREMAP
+> > > 
+> > > I think you should add the "if PCI" from the diff in your last mail to
+> > > this patch.
+> > 
+> > That's reasonable, will do.
+> > 
+> > The code change in driver should be posted separately to get reviewing
+> > from the relevant drvier maintainers. I may wrap it into this series in
+> > next post so that people know its background.
+> 
+> I agree about doing the driver change separately. Since the problem
+> already exists one could send it separately. If you want I can take of
+> that too.
 
-I seem to have forgotten to give my:
+Both is fine to me, since you suggested the fix.
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> 
+> > 
+> > > >  	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
+> > > >  	select HAVE_ARCH_AUDITSYSCALL
+> > > >  	select HAVE_ARCH_JUMP_LABEL
+> > ......
+> > > > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> > > > index 73cdc5539384..3c00dc7d79bc 100644
+> > > > --- a/arch/s390/pci/pci.c
+> > > > +++ b/arch/s390/pci/pci.c
+> > > > @@ -244,64 +244,25 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+> > > >         zpci_memcpy_toio(to, from, count);
+> > > >  }
+> > > >  
+> > > > -static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
+> > > > +void __iomem *
+> > > > +arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val)
+> > > >  {
+> > > > -	unsigned long offset, vaddr;
+> > > > -	struct vm_struct *area;
+> > > > -	phys_addr_t last_addr;
+> > > > -
+> > > > -	last_addr = addr + size - 1;
+> > > > -	if (!size || last_addr < addr)
+> > > > -		return NULL;
+> > > > -
+> > > > +	/*
+> > > > +	 * When PCI MIO instructions are unavailable the "physical" address
+> > > > +	 * encodes a hint for accessing the PCI memory space it represents.
+> > > > +	 * Just pass it unchanged such that ioread/iowrite can decode it.
+> > > > +	 */
+> > > >  	if (!static_branch_unlikely(&have_mio))
+> > > > -		return (void __iomem *) addr;
+> > > > -
+> > > > -	offset = addr & ~PAGE_MASK;
+> > > > -	addr &= PAGE_MASK;
+> > > > -	size = PAGE_ALIGN(size + offset);
+> > > > -	area = get_vm_area(size, VM_IOREMAP);
+> > > > -	if (!area)
+> > > > -		return NULL;
+> > > > -
+> > > > -	vaddr = (unsigned long) area->addr;
+> > > > -	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
+> > > > -		free_vm_area(area);
+> > > > -		return NULL;
+> > > > -	}
+> > > > -	return (void __iomem *) ((unsigned long) area->addr + offset);
+> > > > +		return (void __iomem *) *paddr;
+> > > 
+> > > nit: no space after the cast
+> > 
+> > Sorry, remember you pointed this out in v2, while I didn't get what
+> > it is. Could you be more specific or give the right line of code?
+> > 
+> > Are you suggesting below line? 
+> > 
+> > -	return (void __iomem *) ((unsigned long) area->addr + offset);
+> > +		return (void __iomem *)*paddr;
+> 
+> Yes, though I did just check and somehow checkpatch doesn't complain,
+> maybe because of the dereference. I do think I remember it complaining
+> but I guess if it doesn't you might as well keep it this way.
+
+OK, I will keep it unless checkpatch complaim about it. Thanks.
+
