@@ -2,137 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF756C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Oct 2022 09:32:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5439C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Oct 2022 12:17:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229780AbiJLJcS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Oct 2022 05:32:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42556 "EHLO
+        id S229676AbiJLMRI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Oct 2022 08:17:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229867AbiJLJcR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Oct 2022 05:32:17 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25CF6DFA4;
-        Wed, 12 Oct 2022 02:32:16 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29C8fptX008075;
-        Wed, 12 Oct 2022 09:32:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=rZSXgZuBbs+bLzzkjTvXCrJ5CUl17Nvp3jhT3hccX6c=;
- b=nBSM8wu9zKg2KZ2FsdVwOAiRmtOt9b9O93A2NTPIxCWlfDYZ2v5Kk6a2cwEud7fpVe8o
- PTSTV9EliRgPQSD2iLhDRCcMMgvyr9YJRX4H/mMugFUg0SNtdoX5hd1DmHF7+LJV2h/j
- 1alkEjIjXBgI86wVNYo60FAmypvm7gsouJHSJMwKbI+8azoP0kSB1E7tLl1MKzrR3AYY
- lBQQBJ9xv4Ca/n+VwXBqvj57F4CjI9FzQ6hk/pLGWqUaETwwJai4r5GwKlNr5vTCoxvu
- SdSEj6Gp78M5DuSaSKbWdlx9Wx5kfmZb8o5ffR8nrveziIGv90YId74ZBrxYiAhWTUoN JQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k5ta09d5t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Oct 2022 09:32:16 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29C9420l024779;
-        Wed, 12 Oct 2022 09:32:16 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k5ta09d4n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Oct 2022 09:32:15 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29C9K5pd031624;
-        Wed, 12 Oct 2022 09:32:13 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03fra.de.ibm.com with ESMTP id 3k30u9cau8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Oct 2022 09:32:13 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29C9WAL059244878
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 Oct 2022 09:32:10 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 36F11A4051;
-        Wed, 12 Oct 2022 09:32:10 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D859FA404D;
-        Wed, 12 Oct 2022 09:32:09 +0000 (GMT)
-Received: from [9.152.224.253] (unknown [9.152.224.253])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 12 Oct 2022 09:32:09 +0000 (GMT)
-Message-ID: <a29e8e63-3cbc-30cc-e0db-8e2bb8616ecb@linux.ibm.com>
-Date:   Wed, 12 Oct 2022 11:32:09 +0200
+        with ESMTP id S229678AbiJLMRH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Oct 2022 08:17:07 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD5DB5146;
+        Wed, 12 Oct 2022 05:17:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=771q3x4hOnkGzc78SSiuR2Kc8F2eZjEEOxi50XFCd14=; b=E1drx2e5ov2RYK9oK5Zx5/KeJi
+        euNoevVzCIAtLYs/LZRRj1ulRyX2D/g1DoT/h6nJ8WHN4wg8v9l8zMHApB0wkPYhVKPO75VrWjbuZ
+        6MezWJMrWmFs+QNaXuL1ijf3KmKfIZqg2nux/9HZGvrJjKNQB4C3JgNYbiafLXR01Q7K+kpVkjcxl
+        yA/QkyrirVfJz1SUdljE2HM4DMFlxizmQa9C0Gij2voz7Mv8EFIszLrDBUY4ZHMnXzldcVLvtj55A
+        qfhTY8b4HbKz14NvEk9HXzGkBgibBW6NpB/P9lmwrLP9E63vjpm2kMHSQU/7f0TdNQivVL5jIjQlp
+        UsjTPjFA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1oiaf1-002rHx-8r; Wed, 12 Oct 2022 12:16:32 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CCA95300023;
+        Wed, 12 Oct 2022 14:16:29 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id A982F20E06FFE; Wed, 12 Oct 2022 14:16:29 +0200 (CEST)
+Date:   Wed, 12 Oct 2022 14:16:29 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Ravi Bangoria <ravi.bangoria@amd.com>
+Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
+        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
+        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
+        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
+        will@kernel.org, robh@kernel.org, mingo@redhat.com,
+        catalin.marinas@arm.com, ndesaulniers@google.com,
+        srw@sladewatkins.net, linux-arm-kernel@lists.infradead.org,
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
+        santosh.shukla@amd.com
+Subject: Re: [PATCH v2] perf: Rewrite core context handling
+Message-ID: <Y0awHa8oS5yal5M9@hirez.programming.kicks-ass.net>
+References: <20221008062424.313-1-ravi.bangoria@amd.com>
+ <Y0VTn0qLWd925etP@hirez.programming.kicks-ass.net>
+ <ba47d079-6d97-0412-69a0-fa15999b5024@amd.com>
+ <Y0V3kOWInrvCvVtk@hirez.programming.kicks-ass.net>
+ <Y0WsRItHmfI5uaq3@hirez.programming.kicks-ass.net>
+ <174fb540-ec18-eeca-191d-c02e1f1005d2@amd.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [PATCH v15 1/6] KVM: s390: pv: asynchronous destroy for reboot
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
-        david@redhat.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, scgl@linux.ibm.com, nrb@linux.ibm.com
-References: <20221010145442.85867-1-imbrenda@linux.ibm.com>
- <20221010145442.85867-2-imbrenda@linux.ibm.com>
-Content-Language: en-US
-From:   Steffen Eiden <seiden@linux.ibm.com>
-In-Reply-To: <20221010145442.85867-2-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: OYBjoMb2oUXI4dhastfz94TeK1CKS7DA
-X-Proofpoint-ORIG-GUID: hjFMmBOTloprzUoaqYvwfjpGK1c6-sjH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-12_04,2022-10-11_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- lowpriorityscore=0 spamscore=0 bulkscore=0 phishscore=0 priorityscore=1501
- malwarescore=0 suspectscore=0 mlxscore=0 adultscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2210120062
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <174fb540-ec18-eeca-191d-c02e1f1005d2@amd.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Oct 12, 2022 at 02:09:00PM +0530, Ravi Bangoria wrote:
 
+> > @@ -3366,6 +3370,14 @@ static void perf_event_sync_stat(struct
+> >  	}
+> >  }
+> >  
+> > +#define list_for_each_entry_double(pos1, pos2, head1, head2, member)	\
+> > +	for (pos1 = list_first_entry(head1, typeof(*pos1), member),	\
+> > +	     pos2 = list_first_entry(head2, typeof(*pos2), member);	\
+> > +	     !list_entry_is_head(pos1, head1, member) &&		\
+> > +	     !list_entry_is_head(pos2, head2, member);			\
+> > +	     pos1 = list_next_entry(pos1, member),			\
+> > +	     pos2 = list_next_entry(pos2, member))
+> > +
+> >  static void perf_event_swap_task_ctx_data(struct perf_event_context *prev_ctx,
+> >  					  struct perf_event_context *next_ctx)
+> >  {
+> > @@ -3374,16 +3386,9 @@ static void perf_event_swap_task_ctx_dat
+> >  	if (!prev_ctx->nr_task_data)
+> >  		return;
+> >  
+> > -	prev_epc = list_first_entry(&prev_ctx->pmu_ctx_list,
+> > -				    struct perf_event_pmu_context,
+> > -				    pmu_ctx_entry);
+> > -	next_epc = list_first_entry(&next_ctx->pmu_ctx_list,
+> > -				    struct perf_event_pmu_context,
+> > -				    pmu_ctx_entry);
+> > -
+> > -	while (&prev_epc->pmu_ctx_entry != &prev_ctx->pmu_ctx_list &&
+> > -	       &next_epc->pmu_ctx_entry != &next_ctx->pmu_ctx_list) {
+> > -
+> > +	list_for_each_entry_double(prev_epc, next_epc,
+> > +				   &prev_ctx->pmu_ctx_list, &next_ctx->pmu_ctx_list,
+> > +				   pmu_ctx_entry) {
+> 
+> There are more places which can use list_for_each_entry_double().
+> I'll fix those.
 
-On 10/10/22 16:54, Claudio Imbrenda wrote:
-> Until now, destroying a protected guest was an entirely synchronous
-> operation that could potentially take a very long time, depending on
-> the size of the guest, due to the time needed to clean up the address
-> space from protected pages.
-> 
-> This patch implements an asynchronous destroy mechanism, that allows a
-> protected guest to reboot significantly faster than previously.
-> 
-> This is achieved by clearing the pages of the old guest in background.
-> In case of reboot, the new guest will be able to run in the same
-> address space almost immediately.
-> 
-> The old protected guest is then only destroyed when all of its memory
-> has been destroyed or otherwise made non protected.
-> 
-> Two new PV commands are added for the KVM_S390_PV_COMMAND ioctl:
-> 
-> KVM_PV_ASYNC_CLEANUP_PREPARE: set aside the current protected VM for
-> later asynchronous teardown. The current KVM VM will then continue
-> immediately as non-protected. If a protected VM had already been
-> set aside for asynchronous teardown, but without starting the teardown
-> process, this call will fail. There can be at most one VM set aside at
-> any time. Once it is set aside, the protected VM only exists in the
-> context of the Ultravisor, it is not associated with the KVM VM
-> anymore. Its protected CPUs have already been destroyed, but not its
-> memory. This command can be issued again immediately after starting
-> KVM_PV_ASYNC_CLEANUP_PERFORM, without having to wait for completion.
-> 
-> KVM_PV_ASYNC_CLEANUP_PERFORM: tears down the protected VM previously
-> set aside using KVM_PV_ASYNC_CLEANUP_PREPARE. Ideally the
-> KVM_PV_ASYNC_CLEANUP_PERFORM PV command should be issued by userspace
-> from a separate thread. If a fatal signal is received (or if the
-> process terminates naturally), the command will terminate immediately
-> without completing. All protected VMs whose teardown was interrupted
-> will be put in the need_cleanup list. The rest of the normal KVM
-> teardown process will take care of properly cleaning up all remaining
-> protected VMs, including the ones on the need_cleanup list.
-> 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+I've gone and renamed it: double_list_for_each_entry(), but yeah, didn't
+look too hard for other users.
 
-[snip]
+> > @@ -4859,7 +4879,14 @@ static void put_pmu_ctx(struct perf_even
+> >  	if (epc->ctx) {
+> >  		struct perf_event_context *ctx = epc->ctx;
+> >  
+> > -		// XXX ctx->mutex
+> > +		/*
+> > +		 * XXX
+> > +		 *
+> > +		 * lockdep_assert_held(&ctx->mutex);
+> > +		 *
+> > +		 * can't because of the call-site in _free_event()/put_event()
+> > +		 * which isn't always called under ctx->mutex.
+> > +		 */
+> 
+> Yes. I came across the same and could not figure out how to solve
+> this. So Just kept XXX as is.
+
+Yeah, I can sorta fix it, but it's ugly so there we are.
+
+> >  
+> >  		WARN_ON_ONCE(list_empty(&epc->pmu_ctx_entry));
+> >  		raw_spin_lock_irqsave(&ctx->lock, flags);
+
+> > @@ -12657,6 +12675,13 @@ perf_event_create_kernel_counter(struct
+> >  		goto err_unlock;
+> >  	}
+> >  
+> > +	pmu_ctx = find_get_pmu_context(pmu, ctx, event);
+> > +	if (IS_ERR(pmu_ctx)) {
+> > +		err = PTR_ERR(pmu_ctx);
+> > +		goto err_unlock;
+> > +	}
+> > +	event->pmu_ctx = pmu_ctx;
+> 
+> We should call find_get_pmu_context() with ctx->mutex held and thus
+> above perf_event_create_kernel_counter() change. Is my understanding
+> correct?
+
+That's the intent yeah. But due to not always holding ctx->mutex over
+put_pmu_ctx() this might be moot. I'm almost through auditing epc usage
+and I think ctx->lock is sufficient, fingers crossed.
+
+> > +
+> >  	if (!task) {
+> >  		/*
+> >  		 * Check if the @cpu we're creating an event for is online.
+
+> > @@ -12998,7 +13022,7 @@ void perf_event_free_task(struct task_st
+> >  	struct perf_event_context *ctx;
+> >  	struct perf_event *event, *tmp;
+> >  
+> > -	ctx = rcu_dereference(task->perf_event_ctxp);
+> > +	ctx = rcu_access_pointer(task->perf_event_ctxp);
+> 
+> We dereference ctx pointer but with mutex and lock held. And thus
+> rcu_access_pointer() is sufficient. Is my understanding correct?
+
+We do not in fact hold ctx->lock here IIRC; but this is a NULL test, if
+it is !NULL we know we have a reference on it and are good.
