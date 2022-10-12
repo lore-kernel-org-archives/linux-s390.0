@@ -2,122 +2,232 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DC5C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Oct 2022 23:02:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4198CC4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Oct 2022 05:52:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229641AbiJKXCC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Oct 2022 19:02:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41736 "EHLO
+        id S229519AbiJLFwP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Oct 2022 01:52:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229616AbiJKXB5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Oct 2022 19:01:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A9B95E63;
-        Tue, 11 Oct 2022 16:01:54 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229665AbiJLFwO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Oct 2022 01:52:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19D1687FA3
+        for <linux-s390@vger.kernel.org>; Tue, 11 Oct 2022 22:52:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665553932;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=5QSAAaXZXllgX8yVoPm+c1cm+iIcy0BJKgHI2x2HPqw=;
+        b=OyrG1FbuBJSqKlTsVR9+YMWbtMnSl3rbDCiBYzLalzB6pzWpT9dU5dZJXOvLhX8g5jnYHe
+        Kq9EoztvCn5VA6EW+wcDYFMYnH+we8Q40e0QrsKb9eDaXBwWuWQwGZs6j66+61wbl2YZsX
+        p+oqu6lOlk7VegeQUEitNwZMubCaB+Q=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-267-D1CQ0-vDOvWSF53RoDnr0g-1; Wed, 12 Oct 2022 01:52:11 -0400
+X-MC-Unique: D1CQ0-vDOvWSF53RoDnr0g-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E2E8B817F6;
-        Tue, 11 Oct 2022 23:01:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9723CC433D6;
-        Tue, 11 Oct 2022 23:01:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665529308;
-        bh=gCI+X2WOw4l6GrJak35sDaAf8gDE0fXgutS5wo82m0c=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=AJFptayVxOqteJVOLykn7hUdHTEFBSFYdPDnURZs6EbQ5lnc5EDwMPEWLIY2Zkc6k
-         ToDJ69GFb03nJ1ZHa3Bu1XZh90AT8husNifCGxqExcBTtq73zRbzdbLGz1yV1PS0BR
-         YgADbRNTz4kaxl1FPtL5h69IOLIEA3uAgLFu6LoZOj6vAhrzGGJogNzed4iTNoQ9kU
-         RplOVmj/pT0WrloWUBcPNyJldLUtdrL9BReJJkpTFUke93m8zD4dIphjguaBr6M6BU
-         xC/9Fc6Zmo9mtTlbNcRQZT+mur3mj5hpEnCkCHrxZUfVSrUfpxEhWQqxTOA+fraPtq
-         COtQHCYR1WDtw==
-Date:   Tue, 11 Oct 2022 16:01:44 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     linux-kernel@vger.kernel.org, patches@lists.linux.dev,
-        Andreas Noever <andreas.noever@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christoph =?UTF-8?B?QsO2aG13YWxkZXI=?= 
-        <christoph.boehmwalder@linbit.com>, Christoph Hellwig <hch@lst.de>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Dave Airlie <airlied@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "H . Peter Anvin" <hpa@zytor.com>,
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1C47185A583;
+        Wed, 12 Oct 2022 05:52:10 +0000 (UTC)
+Received: from localhost (ovpn-12-34.pek2.redhat.com [10.72.12.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id E027849BB64;
+        Wed, 12 Oct 2022 05:52:07 +0000 (UTC)
+Date:   Wed, 12 Oct 2022 13:52:04 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        akpm@linux-foundation.org, hch@infradead.org,
+        agordeev@linux.ibm.com, wangkefeng.wang@huawei.com,
+        christophe.leroy@csgroup.eu, David.Laight@aculab.com,
+        shorne@gmail.com, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        Jan Kara <jack@suse.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Jens Axboe <axboe@kernel.dk>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        KP Singh <kpsingh@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Marco Elver <elver@google.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Richard Weinberger <richard@nod.at>,
-        Russell King <linux@armlinux.org.uk>,
-        Theodore Ts'o <tytso@mit.edu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Graf <tgraf@suug.ch>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        dri-devel@lists.freedesktop.org, kasan-dev@googlegroups.com,
-        kernel-janitors@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-mm@kvack.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-nvme@lists.infradead.org, linux-parisc@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-usb@vger.kernel.org,
-        linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        loongarch@lists.linux.dev, netdev@vger.kernel.org,
-        sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v6 0/7] treewide cleanup of random integer usage
-Message-ID: <20221011160144.1c0dc2af@kernel.org>
-In-Reply-To: <20221010230613.1076905-1-Jason@zx2c4.com>
-References: <20221010230613.1076905-1-Jason@zx2c4.com>
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 09/11] s390: mm: Convert to GENERIC_IOREMAP
+Message-ID: <Y0ZWBMKKIuf5Q+qk@MiWiFi-R3L-srv>
+References: <20221009103114.149036-1-bhe@redhat.com>
+ <20221009103114.149036-10-bhe@redhat.com>
+ <b6ac5c44917390b9a5cc7ebb87a089568279c459.camel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b6ac5c44917390b9a5cc7ebb87a089568279c459.camel@linux.ibm.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 10 Oct 2022 17:06:06 -0600 Jason A. Donenfeld wrote:
-> - If you want a secure or an insecure random u64, use get_random_u64().
-> - If you want a secure or an insecure random u32, use get_random_u32().
->   * The old function prandom_u32() has been deprecated for a while now
->     and is just a wrapper around get_random_u32(). Same for
->     get_random_int().
-> - If you want a secure or an insecure random u16, use get_random_u16().
-> - If you want a secure or an insecure random u8, use get_random_u8().
-> - If you want secure or insecure random bytes, use get_random_bytes().
->   * The old function prandom_bytes() has been deprecated for a while now
->     and has long been a wrapper around get_random_bytes().
-> - If you want a non-uniform random u32, u16, or u8 bounded by a certain
->   open interval maximum, use prandom_u32_max().
->   * I say "non-uniform", because it doesn't do any rejection sampling or
->     divisions. Hence, it stays within the prandom_* namespace.
+On 10/11/22 at 05:16pm, Niklas Schnelle wrote:
+> On Sun, 2022-10-09 at 18:31 +0800, Baoquan He wrote:
+> > By taking GENERIC_IOREMAP method, the generic ioremap_prot() and
+> > iounmap() are visible and available to arch. Arch only needs to
+> > provide implementation of arch_ioremap() or arch_iounmap() if there's
+> > arch specific handling needed in its ioremap() or iounmap(). This
+> > change will simplify implementation by removing duplicated codes with
+> > generic ioremap() and iounmap(), and has the equivalent functioality
+> > as before.
+> > 
+> > For s390, add hooks arch_ioremap() and arch_iounmap() for s390's special
+> > operation when ioremap() and iounmap(), then ioremap_[wc|wt]() are
+> > converted to use ioremap_prot() from GENERIC_IOREMAP.
+> > 
+> > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> > Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> > Cc: Heiko Carstens <hca@linux.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > Cc: Sven Schnelle <svens@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
+> > ---
+> > v2->v3:
+> > - Add code comment inside arch_ioremap() to help uderstand the
+> >   obsucre code. Christoph suggested this, Niklas provided the
+> >   paragraph of text.
+> > 
+> >  arch/s390/Kconfig          |  1 +
+> >  arch/s390/include/asm/io.h | 25 +++++++++------
+> >  arch/s390/pci/pci.c        | 65 ++++++++------------------------------
+> >  3 files changed, 30 insertions(+), 61 deletions(-)
+> > 
+> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> > index 318fce77601d..c59e1b25f59d 100644
+> > --- a/arch/s390/Kconfig
+> > +++ b/arch/s390/Kconfig
+> > @@ -135,6 +135,7 @@ config S390
+> >  	select GENERIC_SMP_IDLE_THREAD
+> >  	select GENERIC_TIME_VSYSCALL
+> >  	select GENERIC_VDSO_TIME_NS
+> > +	select GENERIC_IOREMAP
+> 
+> I think you should add the "if PCI" from the diff in your last mail to
+> this patch.
 
-Acked-by: Jakub Kicinski <kuba@kernel.org>
+That's reasonable, will do.
+
+The code change in driver should be posted separately to get reviewing
+from the relevant drvier maintainers. I may wrap it into this series in
+next post so that people know its background.
+
+> 
+> >  	select HAVE_ALIGNED_STRUCT_PAGE if SLUB
+> >  	select HAVE_ARCH_AUDITSYSCALL
+> >  	select HAVE_ARCH_JUMP_LABEL
+......
+> > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> > index 73cdc5539384..3c00dc7d79bc 100644
+> > --- a/arch/s390/pci/pci.c
+> > +++ b/arch/s390/pci/pci.c
+> > @@ -244,64 +244,25 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+> >         zpci_memcpy_toio(to, from, count);
+> >  }
+> >  
+> > -static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
+> > +void __iomem *
+> > +arch_ioremap(phys_addr_t *paddr, size_t size, unsigned long *prot_val)
+> >  {
+> > -	unsigned long offset, vaddr;
+> > -	struct vm_struct *area;
+> > -	phys_addr_t last_addr;
+> > -
+> > -	last_addr = addr + size - 1;
+> > -	if (!size || last_addr < addr)
+> > -		return NULL;
+> > -
+> > +	/*
+> > +	 * When PCI MIO instructions are unavailable the "physical" address
+> > +	 * encodes a hint for accessing the PCI memory space it represents.
+> > +	 * Just pass it unchanged such that ioread/iowrite can decode it.
+> > +	 */
+> >  	if (!static_branch_unlikely(&have_mio))
+> > -		return (void __iomem *) addr;
+> > -
+> > -	offset = addr & ~PAGE_MASK;
+> > -	addr &= PAGE_MASK;
+> > -	size = PAGE_ALIGN(size + offset);
+> > -	area = get_vm_area(size, VM_IOREMAP);
+> > -	if (!area)
+> > -		return NULL;
+> > -
+> > -	vaddr = (unsigned long) area->addr;
+> > -	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
+> > -		free_vm_area(area);
+> > -		return NULL;
+> > -	}
+> > -	return (void __iomem *) ((unsigned long) area->addr + offset);
+> > +		return (void __iomem *) *paddr;
+> 
+> nit: no space after the cast
+
+Sorry, remember you pointed this out in v2, while I didn't get what
+it is. Could you be more specific or give the right line of code?
+
+Are you suggesting below line? 
+
+-	return (void __iomem *) ((unsigned long) area->addr + offset);
++		return (void __iomem *)*paddr;
+
+> 
+> > +	return NULL;
+> >  }
+> >  
+> > -void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
+> > +bool arch_iounmap(void __iomem *addr)
+> >  {
+> > -	return __ioremap(addr, size, __pgprot(prot));
+> > -}
+> > -EXPORT_SYMBOL(ioremap_prot);
+> > -
+> > -void __iomem *ioremap(phys_addr_t addr, size_t size)
+> > -{
+> > -	return __ioremap(addr, size, PAGE_KERNEL);
+> > -}
+> > -EXPORT_SYMBOL(ioremap);
+> > -
+> > -void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
+> > -{
+> > -	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
+> > -}
+> > -EXPORT_SYMBOL(ioremap_wc);
+> > -
+> > -void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
+> > -{
+> > -	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
+> > -}
+> > -EXPORT_SYMBOL(ioremap_wt);
+> > -
+> > -void iounmap(volatile void __iomem *addr)
+> > -{
+> > -	if (static_branch_likely(&have_mio))
+> > -		vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
+> > +	if (!static_branch_likely(&have_mio))
+> > +		return false;
+> > +	return true;
+> >  }
+> > -EXPORT_SYMBOL(iounmap);
+> >  
+> >  /* Create a virtual mapping cookie for a PCI BAR */
+> >  static void __iomem *pci_iomap_range_fh(struct pci_dev *pdev, int bar,
+> 
+> Gave this a round of testing on s390 with both the MIO and non-MIO
+> cases. I also see you addressed my previous comments and it looks good
+> to me. As you showed in the other mail the compile error is a pre
+> existing problem so shouldn't influence this change. So assuming you
+> add the "if PCI" and the nit above you can add my:
+
+Thanks a lot, will add that part to this patch and add your tags.
+
+> 
+> Tested-by: Niklas
+> Schnelle <schnelle@linux.ibm.com>
+> Reviewed-by: Niklas Schnelle
+> <schnelle@linux.ibm.com>
+> 
+> 
+
