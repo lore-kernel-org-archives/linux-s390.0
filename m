@@ -2,91 +2,105 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F62CC4167B
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Oct 2022 11:41:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1132CC43219
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Oct 2022 13:15:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229785AbiJMLlC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Oct 2022 07:41:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34334 "EHLO
+        id S229914AbiJMNPr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Oct 2022 09:15:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229782AbiJMLkz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Oct 2022 07:40:55 -0400
-Received: from mail.sf-mail.de (mail.sf-mail.de [IPv6:2a01:4f8:1c17:6fae:616d:6c69:616d:6c69])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEED2ACA28
-        for <linux-s390@vger.kernel.org>; Thu, 13 Oct 2022 04:40:52 -0700 (PDT)
-Received: (qmail 12515 invoked from network); 13 Oct 2022 11:40:25 -0000
-Received: from p200300cf070ada0076d435fffeb7be92.dip0.t-ipconnect.de ([2003:cf:70a:da00:76d4:35ff:feb7:be92]:49034 HELO eto.sf-tec.de) (auth=eike@sf-mail.de)
-        by mail.sf-mail.de (Qsmtpd 0.38dev) with (TLS_AES_256_GCM_SHA384 encrypted) ESMTPSA
-        for <fw@strlen.de>; Thu, 13 Oct 2022 13:40:25 +0200
-From:   Rolf Eike Beer <eike-kernel@sf-tec.de>
-To:     Florian Westphal <fw@strlen.de>
-Cc:     linux-kernel@vger.kernel.org, patches@lists.linux.dev,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Florian Westphal <fw@strlen.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Thomas Graf <tgraf@suug.ch>, kasan-dev@googlegroups.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kernel-janitors@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-mm@kvack.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-nvme@lists.infradead.org, linux-parisc@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-usb@vger.kernel.org,
-        linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        loongarch@lists.linux.dev, netdev@vger.kernel.org,
-        sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v6 5/7] treewide: use get_random_u32() when possible
-Date:   Thu, 13 Oct 2022 13:40:40 +0200
-Message-ID: <11986571.xaOnivgMc4@eto.sf-tec.de>
-In-Reply-To: <20221013101635.GB11818@breakpoint.cc>
-References: <20221010230613.1076905-1-Jason@zx2c4.com> <3026360.ZldQQBzMgz@eto.sf-tec.de> <20221013101635.GB11818@breakpoint.cc>
+        with ESMTP id S229814AbiJMNPp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Oct 2022 09:15:45 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6F5CC58B1;
+        Thu, 13 Oct 2022 06:15:41 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29DC82x4027207;
+        Thu, 13 Oct 2022 13:15:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references :
+ subject : from : cc : to : message-id : date; s=pp1;
+ bh=rvIJft1MUgkh93ftBlUOYL2iI6qC1lxTF4kHloBjFG4=;
+ b=X+UWrLCJZ4dTBrb45UjUIzDjrJO+oaELgVfwWbHi89fS6mQn1wKa5QFVU591c+vjwll5
+ SpmrPPKyk5jyh9Lzm7XnNLBjcE6+GYDyT/c3c3D4FPQ569O7vxe7bp0cc20M1CaIv0rM
+ Tt4bR+x4zm7E+LiKoGWLgGnkvMK522spKibu/LM+18OPIYhgcp+1eqeBzC9zMzs9PT62
+ 5cOacWZ0DSKc68314Rqqc4qLdCmLTM+3LEk9zl6BnMusmSMi21SnHcCcq5nY964eYzfA
+ 4b8O9lM9z4LbxhPOJkLISGPA8wR1Fb1rJ6nd1qnClZkezHPINTatAa1Kx+KA6rEMtqG5 XA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k6eqksb4k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Oct 2022 13:15:31 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29DCiFjf009592;
+        Thu, 13 Oct 2022 13:15:30 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k6eqksb3n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Oct 2022 13:15:30 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29DD5UOA030517;
+        Thu, 13 Oct 2022 13:15:28 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3k30u9nrp3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Oct 2022 13:15:28 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29DDFP8R38011380
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 13 Oct 2022 13:15:25 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8344CAE04D;
+        Thu, 13 Oct 2022 13:15:25 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 658A4AE045;
+        Thu, 13 Oct 2022 13:15:25 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.21.117])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 13 Oct 2022 13:15:25 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart22512332.f9tG50R4rC"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20221012205609.2811294-10-scgl@linux.ibm.com>
+References: <20221012205609.2811294-1-scgl@linux.ibm.com> <20221012205609.2811294-10-scgl@linux.ibm.com>
+Subject: Re: [PATCH v2 9/9] KVM: s390: selftest: memop: Fix wrong address being used in test
+From:   Nico Boehr <nrb@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Message-ID: <166566692515.10648.15937826144484733293@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Thu, 13 Oct 2022 15:15:25 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: a_ZxqlSLCWyDHFO3LHbo3CkYedqVj_08
+X-Proofpoint-ORIG-GUID: Apwg8LvAc8CSn3OC86lqHEjBnhMXIG1q
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-13_08,2022-10-13_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ lowpriorityscore=0 mlxscore=0 spamscore=0 malwarescore=0 clxscore=1011
+ suspectscore=0 mlxlogscore=857 priorityscore=1501 bulkscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2210130078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---nextPart22512332.f9tG50R4rC
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"; protected-headers="v1"
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Florian Westphal <fw@strlen.de>
-Date: Thu, 13 Oct 2022 13:40:40 +0200
-Message-ID: <11986571.xaOnivgMc4@eto.sf-tec.de>
-In-Reply-To: <20221013101635.GB11818@breakpoint.cc>
-MIME-Version: 1.0
+Quoting Janis Schoetterl-Glausch (2022-10-12 22:56:09)
+> The guest code sets the key for mem1 only. In order to provoke a
+> protection exception the test codes needs to address mem1.
+>=20
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-Am Donnerstag, 13. Oktober 2022, 12:16:35 CEST schrieb Florian Westphal:
-> Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
-> > Florian, can you comment and maybe fix it?
-> 
-> Can't comment, do not remember -- this was 5 years ago.
-> 
-> > Or you wanted to move the variable before the loop and keep the random
-> > state between the loops and only reseed when all '1' bits have been
-> > consumed.
-> Probably.  No clue, best to NOT change it to not block Jasons series and
-> then just simplify this and remove all the useless shifts.
-
-Sure. Jason, just in case you are going to do a v7 this could move to u8 then.
-
---nextPart22512332.f9tG50R4rC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQSaYVDeqwKa3fTXNeNcpIk+abn8TgUCY0f5OAAKCRBcpIk+abn8
-TncNAKCia3h4AG/9IzqybWbLcwE6uVgTqACfRr3dPUK8JMrKIqGzYOiL96isZhg=
-=zppL
------END PGP SIGNATURE-----
-
---nextPart22512332.f9tG50R4rC--
-
-
-
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
