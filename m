@@ -2,64 +2,83 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60301C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Oct 2022 10:17:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BCFFC433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Oct 2022 11:00:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229745AbiJMKRF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Oct 2022 06:17:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40894 "EHLO
+        id S229587AbiJMLAU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Oct 2022 07:00:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229618AbiJMKRD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Oct 2022 06:17:03 -0400
-Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:12e:520::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED085F6C22;
-        Thu, 13 Oct 2022 03:17:00 -0700 (PDT)
-Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
-        (envelope-from <fw@strlen.de>)
-        id 1oivGV-00028B-QF; Thu, 13 Oct 2022 12:16:35 +0200
-Date:   Thu, 13 Oct 2022 12:16:35 +0200
-From:   Florian Westphal <fw@strlen.de>
-To:     Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc:     linux-kernel@vger.kernel.org, patches@lists.linux.dev,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Florian Westphal <fw@strlen.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Thomas Graf <tgraf@suug.ch>, kasan-dev@googlegroups.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kernel-janitors@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-mm@kvack.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-nvme@lists.infradead.org, linux-parisc@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-usb@vger.kernel.org,
-        linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        loongarch@lists.linux.dev, netdev@vger.kernel.org,
-        sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v6 5/7] treewide: use get_random_u32() when possible
-Message-ID: <20221013101635.GB11818@breakpoint.cc>
-References: <20221010230613.1076905-1-Jason@zx2c4.com>
- <20221010230613.1076905-6-Jason@zx2c4.com>
- <3026360.ZldQQBzMgz@eto.sf-tec.de>
+        with ESMTP id S229547AbiJMLAS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Oct 2022 07:00:18 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF67160C9D;
+        Thu, 13 Oct 2022 04:00:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=1kt3Nt1T71dSHeBMzhW3EUeOzPlxOUDZLoubcBCIwV8=; b=sGG1MCa6hZQMG59So6zoxk0b3y
+        MPNgF7h6vElznfKaZefWySoFCwCy9MeJvjGyqJKlUahKRcHH2zWU/HL5nmF49JHtKOoRdH5UPvHGr
+        V0fMjATm/E/JaTWiYG9IKXFxuWfy35cFuQS9WA/Fit2ixtVJFw1tkrzk0K0j+2I9P2S/+fE1fBJPy
+        zycy4+djRv7LW0h4qZjCl7e/IR2a2+QhB8GN1bCzdMohAsJxhtV7F5qmf1gfn0sPxJE4/AWk+v8QL
+        L/WNd0IEAK+Bblx2F1+phbZTCeBpt99TDmviSxSg587+4Y+g9HoMTT2IUu9Gx1kffFyCVRC26Fkhc
+        MdASJ0Bg==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1oivwR-006ekn-JJ; Thu, 13 Oct 2022 10:59:55 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 0CC96300446;
+        Thu, 13 Oct 2022 12:59:50 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id EB92B2BB8B0C7; Thu, 13 Oct 2022 12:59:49 +0200 (CEST)
+Date:   Thu, 13 Oct 2022 12:59:49 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Ravi Bangoria <ravi.bangoria@amd.com>
+Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
+        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
+        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
+        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
+        will@kernel.org, robh@kernel.org, mingo@redhat.com,
+        catalin.marinas@arm.com, ndesaulniers@google.com,
+        srw@sladewatkins.net, linux-arm-kernel@lists.infradead.org,
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
+        santosh.shukla@amd.com
+Subject: Re: [PATCH v2] perf: Rewrite core context handling
+Message-ID: <Y0fvpQEEl/tK6mJ5@hirez.programming.kicks-ass.net>
+References: <20221008062424.313-1-ravi.bangoria@amd.com>
+ <Y0VTn0qLWd925etP@hirez.programming.kicks-ass.net>
+ <ba47d079-6d97-0412-69a0-fa15999b5024@amd.com>
+ <Y0V3kOWInrvCvVtk@hirez.programming.kicks-ass.net>
+ <Y0WsRItHmfI5uaq3@hirez.programming.kicks-ass.net>
+ <174fb540-ec18-eeca-191d-c02e1f1005d2@amd.com>
+ <Y0awHa8oS5yal5M9@hirez.programming.kicks-ass.net>
+ <Y0cn1xazYpNmqhRo@hirez.programming.kicks-ass.net>
+ <99caec5f-dcdf-70c6-8909-11552ce42a20@amd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3026360.ZldQQBzMgz@eto.sf-tec.de>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <99caec5f-dcdf-70c6-8909-11552ce42a20@amd.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
-> Florian, can you comment and maybe fix it?
+On Thu, Oct 13, 2022 at 03:37:23PM +0530, Ravi Bangoria wrote:
 
-Can't comment, do not remember -- this was 5 years ago.
+> > -	refcount_t			refcount;
+> > +	refcount_t			refcount; /* event <-> ctx */
+> 
+> Ok. We need to remove all those // XXX get/put_ctx() from code
+> which we added to make refcount a pmu_ctx <-> ctx.
 
-> Or you wanted to move the variable before the loop and keep the random state
-> between the loops and only reseed when all '1' bits have been consumed.
+Them already gone :-) I've not yet fixed up the typoes, but current
+version should be here:
 
-Probably.  No clue, best to NOT change it to not block Jasons series and
-then just simplify this and remove all the useless shifts.
+  https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git/log/?h=perf/core
+
+Thanks!
