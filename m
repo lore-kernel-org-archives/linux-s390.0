@@ -2,114 +2,97 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77992C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Oct 2022 14:26:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 538C0C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Oct 2022 14:50:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230142AbiJNO0T (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 Oct 2022 10:26:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35662 "EHLO
+        id S229843AbiJNOuv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 Oct 2022 10:50:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbiJNO0S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Oct 2022 10:26:18 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FA7A155DA1
-        for <linux-s390@vger.kernel.org>; Fri, 14 Oct 2022 07:26:18 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29ED6rjl032103;
-        Fri, 14 Oct 2022 14:26:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=L6BeFL5wVFsB6jItEFwXUUiwnfVZ3ajPya+hJFicxdM=;
- b=eKfuaBSrvLh7VKDSlp71z22hFdmJ9WydCPQW449gBtAze54KxMqq90ge+2jPBJ/OZD2O
- FocPNe57CqsaIwsie6deiMRetOp8waGw6ct2PQSFmqyDxn522mse+yqMT8wvqgTsqo2+
- kFS4HaEiHb4yi06AbiqXVvQjIqPKamKuIJD0Jy2I32hgsa/l0tLRY2+HO7tQEgTmtKaW
- qfk3og4MTh5mPjdP0+EEKpFX4U0NmNTCIgKSnh7BnUsDnifKfSOhrRV+POII10iTYcex
- OhkM6uyTf1lnDXMUAnu+Sy22fd6NU7/IaZXkfQN0VJHmxcdPbAIgOkGI8/OrOrRhsV9u iQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k6nax3ags-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 Oct 2022 14:26:17 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29EDjL0c002822;
-        Fri, 14 Oct 2022 14:26:16 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k6nax3afn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 Oct 2022 14:26:16 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29EELDfG008070;
-        Fri, 14 Oct 2022 14:26:14 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 3k30u9q6nj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 Oct 2022 14:26:14 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29EEQB9u28902080
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Oct 2022 14:26:12 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DFAEEA4055;
-        Fri, 14 Oct 2022 14:26:11 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE4F3A4040;
-        Fri, 14 Oct 2022 14:26:11 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 14 Oct 2022 14:26:11 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-        id 8DF09E0221; Fri, 14 Oct 2022 16:26:11 +0200 (CEST)
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     linux-s390@vger.kernel.org
-Cc:     Yury Norov <yury.norov@gmail.com>,
-        Andrew Jones <ajones@ventanamicro.com>
-Subject: [PATCH] s390/cpuinfo: prevent warning when reading /proc/cpuinfo
-Date:   Fri, 14 Oct 2022 16:26:11 +0200
-Message-Id: <20221014142611.1145407-1-agordeev@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -jeEWt-KhpYKLGu9gh2Juhk34unNVvfb
-X-Proofpoint-ORIG-GUID: zJwggHm6dx8yNOoSN7KWNXYW0D3uw6Ti
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S229504AbiJNOuu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Oct 2022 10:50:50 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A77729353;
+        Fri, 14 Oct 2022 07:50:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=249VpeP5z23JCwoRImQsSaQUvJdFuBIcLotEmhMimd4=; b=aMZnZDf75nFx/l4E8yVY2CYUIW
+        4Zawy1yqyfjRnf1akSd7M+uO12IBhOM0meTDGEOcE/TpDPithdjb1LQEFjgBZDUep7s8NSWy1kkq/
+        0mnRIAqZcr0tpbrguBJkE1DonuWqDesT8aT4OPIYYJNogF5BzA1LM4MNk/gLWPJ+dxcDHkIBIrOcI
+        FNHi3YpMa30HoCpHeABIB2Mn5czC9NMN0C0ip6bUUPVCBlmH4BwOQJCYIWYN2VCbPx5JNc9RomzKg
+        2uPpz9bfjk0TH/phISnueuUNQRdN2yqSoBJ/XEjkjmn7pSAktdbeF1gGnmPeFRdHiLc6QbTP2MTLH
+        wH9nklMQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1ojM0w-007hQ8-OC; Fri, 14 Oct 2022 14:50:18 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 77E2030008D;
+        Fri, 14 Oct 2022 16:50:12 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 5C9C22C17FC1F; Fri, 14 Oct 2022 16:50:12 +0200 (CEST)
+Date:   Fri, 14 Oct 2022 16:50:12 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Ravi Bangoria <ravi.bangoria@amd.com>
+Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
+        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
+        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
+        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
+        will@kernel.org, robh@kernel.org, mingo@redhat.com,
+        catalin.marinas@arm.com, ndesaulniers@google.com,
+        srw@sladewatkins.net, linux-arm-kernel@lists.infradead.org,
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
+        santosh.shukla@amd.com
+Subject: Re: [PATCH v2] perf: Rewrite core context handling
+Message-ID: <Y0l3JDtF9NaLIF+X@hirez.programming.kicks-ass.net>
+References: <Y0VTn0qLWd925etP@hirez.programming.kicks-ass.net>
+ <ba47d079-6d97-0412-69a0-fa15999b5024@amd.com>
+ <Y0V3kOWInrvCvVtk@hirez.programming.kicks-ass.net>
+ <Y0WsRItHmfI5uaq3@hirez.programming.kicks-ass.net>
+ <174fb540-ec18-eeca-191d-c02e1f1005d2@amd.com>
+ <Y0awHa8oS5yal5M9@hirez.programming.kicks-ass.net>
+ <Y0cn1xazYpNmqhRo@hirez.programming.kicks-ass.net>
+ <99caec5f-dcdf-70c6-8909-11552ce42a20@amd.com>
+ <Y0fvpQEEl/tK6mJ5@hirez.programming.kicks-ass.net>
+ <0df72f8e-1c17-2140-c841-5a75fb43db14@amd.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-14_08,2022-10-14_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
- mlxlogscore=999 phishscore=0 priorityscore=1501 impostorscore=0
- suspectscore=0 clxscore=1011 malwarescore=0 spamscore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210140079
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0df72f8e-1c17-2140-c841-5a75fb43db14@amd.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Commit 78e5a3399421 ("cpumask: fix checking valid cpu range") has
-started issuing warnings when reading /proc/cpuinfo and config
-DEBUG_PER_CPU_MAPS is enabled. Avoid calling cpumask_next() with
-the cpu index equal to nr_cpu_ids - 1 and ensure no warning is
-generated.
+On Fri, Oct 14, 2022 at 03:26:07PM +0530, Ravi Bangoria wrote:
+> On 13-Oct-22 4:29 PM, Peter Zijlstra wrote:
+> > On Thu, Oct 13, 2022 at 03:37:23PM +0530, Ravi Bangoria wrote:
+> > 
+> >>> -	refcount_t			refcount;
+> >>> +	refcount_t			refcount; /* event <-> ctx */
+> >>
+> >> Ok. We need to remove all those // XXX get/put_ctx() from code
+> >> which we added to make refcount a pmu_ctx <-> ctx.
+> > 
+> > Them already gone :-) I've not yet fixed up the typoes, but current
+> > version should be here:
+> > 
+> >   https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git/log/?h=perf/core
+> > 
+> > Thanks!
+> 
+> I've been running perf-fuzzer on Xeon machine since yesterday and I don't see any
+> issue. Will do the same on my AMD machine as well over the weekend.
 
-Link: https://lore.kernel.org/r/20221012081905.1800640-1-ajones@ventanamicro.com
-Reported-by: Andrew Jones <ajones@ventanamicro.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
----
- arch/s390/kernel/processor.c | 2 ++
- 1 file changed, 2 insertions(+)
+Awesome -- I've started fuzzing on the ADL (with the big.LITTLE PMU
+setup) and I've had it run on my very aged IVB-EP machine. Both so far
+(knock on wood) with no issues.
 
-diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
-index a194611ba88c..908a0be900ea 100644
---- a/arch/s390/kernel/processor.c
-+++ b/arch/s390/kernel/processor.c
-@@ -334,6 +334,8 @@ static int show_cpuinfo(struct seq_file *m, void *v)
- 
- static inline void *c_update(loff_t *pos)
- {
-+	if (*pos >= nr_cpu_ids)
-+		return NULL;
- 	if (*pos)
- 		*pos = cpumask_next(*pos - 1, cpu_online_mask);
- 	else
--- 
-2.34.1
-
+The most modern AMD machine I have at hand is a 2 socket Interlagos, and
+I doubt anybody really much cares about that these days -- but I can run
+it for giggles.
