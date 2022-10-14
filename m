@@ -2,130 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4468AC43217
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Oct 2022 15:58:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 948A9C4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Oct 2022 17:55:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229542AbiJNP6y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 Oct 2022 11:58:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55386 "EHLO
+        id S230397AbiJNRzr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 Oct 2022 13:55:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230160AbiJNP6v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Oct 2022 11:58:51 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 083FA122757
-        for <linux-s390@vger.kernel.org>; Fri, 14 Oct 2022 08:58:50 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id 13so11479425ejn.3
-        for <linux-s390@vger.kernel.org>; Fri, 14 Oct 2022 08:58:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uFKG/UoJdjvjZL4a++TyBLwRn5J9ab/1o+9LeC1+Wdk=;
-        b=TWAL9EKRVGNsLjKjhYh/mC6I8/1d/oatjVnsDN9OWuvFem7UzU02ZKqRzzv3m+6WNJ
-         XpbFkMRKHd8kMuyJPFPJ2O4coxdaDl4faAyVqhStpaSUGYq7BHI1TWK1CROOsrCSLceS
-         oCa0J4Fufc1QFYIqSNT7YYCBkHCuQagy+1h8ytDYHkttIN15LC4NsO9AFDHEPqj1jTqO
-         4aCSqLM2Nu3stjaVcqAwPtMDAHgS/shNxwcrymDs9yg/ism0dyRjPiNJywK3a2Ao/iyX
-         qrOsHJe4Ab8pwfjJp7mLQWu47/wJG/qQKDv8bTBXEBTHUkrCbt724EXqhc5mXve0RXVF
-         Q5Ug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=uFKG/UoJdjvjZL4a++TyBLwRn5J9ab/1o+9LeC1+Wdk=;
-        b=4Sh5/hC/SSmR8nyEBlL5f5SrmR/q2QN5K/7/Q0uZYcKb/xyvOxx6cJIK7Ll2uRoZ3c
-         tz6cfIQ5TpgK7G8cifACQfXLWlYhW4w0JeEnrKiHX/0DsZYBjC5Lj6LHKMMXizzsuJc9
-         sY28uDBrQqJab018rA6azP+2mcndse14YPkLW+l1EtSeW9qdNRNXBRRlqIzPAXAC+EDB
-         0YVZBq8C91aGCo9vs7eqj4+OXMiKd5aiYkLkWEzJ02sNw1bhWYtyJ/sy8Y5EaXRbuMii
-         epjUCqfXlvbWSJxwGfuGN2tOgBXeT8mSVvMe7S49Gm9BrxpQc01MGtISOR476ypKMen8
-         QP9Q==
-X-Gm-Message-State: ACrzQf0yxMhZdp4qesRRE7lAxdNNnkE3ep5zjRs9T5g1uVGkaQZhzwUN
-        DEIBaNMmtbLvwlrUaXbLeD1+Fw==
-X-Google-Smtp-Source: AMsMyM7/e9vDSoMxdhGGaaPUCS7n6lh8z7ltnxJPYvupdtdDP7MiBbMySEaXciThld3Qry9um9n4rA==
-X-Received: by 2002:a17:906:4783:b0:780:5be5:c81b with SMTP id cw3-20020a170906478300b007805be5c81bmr4152627ejc.76.1665763128360;
-        Fri, 14 Oct 2022 08:58:48 -0700 (PDT)
-Received: from localhost (cst2-173-61.cust.vodafone.cz. [31.30.173.61])
-        by smtp.gmail.com with ESMTPSA id z15-20020a170906434f00b007806c1474e1sm1686070ejm.127.2022.10.14.08.58.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Oct 2022 08:58:48 -0700 (PDT)
-From:   Andrew Jones <ajones@ventanamicro.com>
-To:     x86@kernel.org, linux-riscv@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        openrisc@lists.librecores.org,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev@lists.ozlabs.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S230410AbiJNRzR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Oct 2022 13:55:17 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB2D5E30F;
+        Fri, 14 Oct 2022 10:55:04 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29EHhFdZ027137;
+        Fri, 14 Oct 2022 17:55:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=kcBMuUqCrFDIyUYHPm6sprdE+QukYKz3A/V/aplsMJE=;
+ b=hf5uQ7Q9xE+22o56neVfoImRDc83xTyCl1jJmZiVuNUi9q1Q3Wthx1QPrFDlxaSjIHzh
+ 9FCcQBkyaUtA1tIoEEtWX5iHQTzEQIDPQVEP4Hni36ZKbGVOAhGZrpHXxBHzwApbO7TT
+ 0s+lAXgb5m2cLB9oEnf18YVuNIK+BANM68iZycqioyomcwYlSjLyrnYnhACIA9BIx3Ye
+ bIJADLBdBgUhdSM27mkceaVmftMJ8an90gr7m4t18idn7kMGwICahA9ItyXxVC10e7Bu
+ hTmHapm0dsEQbDY/7vhsXxIxcrcejzR5Ro3DHwW45ADwir2rPCTzOiw6YSbskU15s7uf Dg== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k7cdr8fqx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Oct 2022 17:55:02 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29EHos2N032706;
+        Fri, 14 Oct 2022 17:55:00 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3k30u99qa9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Oct 2022 17:55:00 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29EHsvQP66126242
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Oct 2022 17:54:57 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6E468A4062;
+        Fri, 14 Oct 2022 17:54:57 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 19D66A405B;
+        Fri, 14 Oct 2022 17:54:57 +0000 (GMT)
+Received: from localhost (unknown [9.171.62.74])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 14 Oct 2022 17:54:57 +0000 (GMT)
+Date:   Fri, 14 Oct 2022 19:54:55 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Anup Patel <anup@brainfault.org>,
-        Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH v3 1/2] RISC-V: Fix /proc/cpuinfo cpumask warning
-Date:   Fri, 14 Oct 2022 17:58:44 +0200
-Message-Id: <20221014155845.1986223-2-ajones@ventanamicro.com>
-X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221014155845.1986223-1-ajones@ventanamicro.com>
-References: <20221014155845.1986223-1-ajones@ventanamicro.com>
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 patches for the 6.1 merge window #2
+Message-ID: <your-ad-here.call-01665770095-ext-6515@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: CZqZ7RsPFA52biaBE9laLo08iYIKgFkN
+X-Proofpoint-GUID: CZqZ7RsPFA52biaBE9laLo08iYIKgFkN
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-14_09,2022-10-14_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=731
+ clxscore=1015 lowpriorityscore=0 spamscore=0 phishscore=0 bulkscore=0
+ adultscore=0 suspectscore=0 impostorscore=0 priorityscore=1501
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210140097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Commit 78e5a3399421 ("cpumask: fix checking valid cpu range") has
-started issuing warnings[*] when cpu indices equal to nr_cpu_ids - 1
-are passed to cpumask_next* functions. seq_read_iter() and cpuinfo's
-start and next seq operations implement a pattern like
+Hello Linus,
 
-  n = cpumask_next(n - 1, mask);
-  show(n);
-  while (1) {
-      ++n;
-      n = cpumask_next(n - 1, mask);
-      if (n >= nr_cpu_ids)
-          break;
-      show(n);
-  }
+please pull couple more s390 changes for 6.1.
 
-which will issue the warning when reading /proc/cpuinfo. Ensure no
-warning is generated by validating the cpu index before calling
-cpumask_next().
+Thank you,
+Vasily
 
-[*] Warnings will only appear with DEBUG_PER_CPU_MAPS enabled.
+The following changes since commit 03785a69ae47a17fe57fee31058fef7cd3042977:
 
-Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
-Cc: Yury Norov <yury.norov@gmail.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
----
- arch/riscv/kernel/cpu.c | 3 +++
- 1 file changed, 3 insertions(+)
+  Merge tag 's390-6.1-1' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux (2022-10-09 13:51:40 -0700)
 
-diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
-index 4d0dece5996c..5aa0ae8dd115 100644
---- a/arch/riscv/kernel/cpu.c
-+++ b/arch/riscv/kernel/cpu.c
-@@ -166,6 +166,9 @@ static void print_mmu(struct seq_file *f)
- 
- static void *c_start(struct seq_file *m, loff_t *pos)
- {
-+	if (*pos == nr_cpu_ids)
-+		return NULL;
-+
- 	*pos = cpumask_next(*pos - 1, cpu_online_mask);
- 	if ((*pos) < nr_cpu_ids)
- 		return (void *)(uintptr_t)(1 + *pos);
--- 
-2.37.3
+are available in the Git repository at:
 
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-2
+
+for you to fetch changes up to bf18140d30541c2c1e5c0f57879634f3d0d04912:
+
+  s390/vmur: generate uevent on unsolicited device end (2022-10-10 10:15:10 +0200)
+
+----------------------------------------------------------------
+s390 updates for the 6.1 merge window #2
+
+- Generate a change uevent on unsolicited device end I/O interrupt for z/VM
+  unit record devices supported by the vmur driver. This event can be used to
+  automatically trigger processing of files as they arrive in the z/VM reader.
+
+----------------------------------------------------------------
+Peter Oberparleiter (2):
+      s390/vmur: remove unnecessary BUG statement
+      s390/vmur: generate uevent on unsolicited device end
+
+ drivers/s390/char/vmur.c | 37 ++++++++++++++++++++++++++++++++++---
+ drivers/s390/char/vmur.h |  2 ++
+ 2 files changed, 36 insertions(+), 3 deletions(-)
