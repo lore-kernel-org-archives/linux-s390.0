@@ -2,97 +2,97 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 538C0C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Oct 2022 14:50:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78B5CC433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Oct 2022 15:06:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229843AbiJNOuv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 Oct 2022 10:50:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41494 "EHLO
+        id S229615AbiJNPGz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 Oct 2022 11:06:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229504AbiJNOuu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Oct 2022 10:50:50 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A77729353;
-        Fri, 14 Oct 2022 07:50:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=249VpeP5z23JCwoRImQsSaQUvJdFuBIcLotEmhMimd4=; b=aMZnZDf75nFx/l4E8yVY2CYUIW
-        4Zawy1yqyfjRnf1akSd7M+uO12IBhOM0meTDGEOcE/TpDPithdjb1LQEFjgBZDUep7s8NSWy1kkq/
-        0mnRIAqZcr0tpbrguBJkE1DonuWqDesT8aT4OPIYYJNogF5BzA1LM4MNk/gLWPJ+dxcDHkIBIrOcI
-        FNHi3YpMa30HoCpHeABIB2Mn5czC9NMN0C0ip6bUUPVCBlmH4BwOQJCYIWYN2VCbPx5JNc9RomzKg
-        2uPpz9bfjk0TH/phISnueuUNQRdN2yqSoBJ/XEjkjmn7pSAktdbeF1gGnmPeFRdHiLc6QbTP2MTLH
-        wH9nklMQ==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ojM0w-007hQ8-OC; Fri, 14 Oct 2022 14:50:18 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 77E2030008D;
-        Fri, 14 Oct 2022 16:50:12 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 5C9C22C17FC1F; Fri, 14 Oct 2022 16:50:12 +0200 (CEST)
-Date:   Fri, 14 Oct 2022 16:50:12 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Ravi Bangoria <ravi.bangoria@amd.com>
-Cc:     acme@kernel.org, alexander.shishkin@linux.intel.com,
-        jolsa@redhat.com, namhyung@kernel.org, songliubraving@fb.com,
-        eranian@google.com, ak@linux.intel.com, mark.rutland@arm.com,
-        frederic@kernel.org, maddy@linux.ibm.com, irogers@google.com,
-        will@kernel.org, robh@kernel.org, mingo@redhat.com,
-        catalin.marinas@arm.com, ndesaulniers@google.com,
-        srw@sladewatkins.net, linux-arm-kernel@lists.infradead.org,
-        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sandipan.das@amd.com, ananth.narayan@amd.com, kim.phillips@amd.com,
-        santosh.shukla@amd.com
-Subject: Re: [PATCH v2] perf: Rewrite core context handling
-Message-ID: <Y0l3JDtF9NaLIF+X@hirez.programming.kicks-ass.net>
-References: <Y0VTn0qLWd925etP@hirez.programming.kicks-ass.net>
- <ba47d079-6d97-0412-69a0-fa15999b5024@amd.com>
- <Y0V3kOWInrvCvVtk@hirez.programming.kicks-ass.net>
- <Y0WsRItHmfI5uaq3@hirez.programming.kicks-ass.net>
- <174fb540-ec18-eeca-191d-c02e1f1005d2@amd.com>
- <Y0awHa8oS5yal5M9@hirez.programming.kicks-ass.net>
- <Y0cn1xazYpNmqhRo@hirez.programming.kicks-ass.net>
- <99caec5f-dcdf-70c6-8909-11552ce42a20@amd.com>
- <Y0fvpQEEl/tK6mJ5@hirez.programming.kicks-ass.net>
- <0df72f8e-1c17-2140-c841-5a75fb43db14@amd.com>
+        with ESMTP id S229653AbiJNPGy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Oct 2022 11:06:54 -0400
+Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5276D1D3740
+        for <linux-s390@vger.kernel.org>; Fri, 14 Oct 2022 08:06:53 -0700 (PDT)
+Received: by mail-vs1-xe33.google.com with SMTP id h3so5174463vsa.4
+        for <linux-s390@vger.kernel.org>; Fri, 14 Oct 2022 08:06:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=OKKLw5KpOFoEDU+ZMbJdxpdxk4I3yUTB+hx1+wLggXc=;
+        b=Lo0431jxonAdepGgqX8MNbJQG/9lk+Jo1Skvxvs+XgGDdAD6WX6wrSZxetKmcew3tY
+         19Xx0kCMjF4sHRVdJ9Kq4G3bPdqKi+DWJbVPx9nlA1u/fmsRAeCfEFsQ2QvU32HaA3Oo
+         /kgZCZILkzjYimgvp16lnffpf3V6T9IgQ2Fvxhe3BAApX6Am4mhKiy31lBWdEgarzCD1
+         P+ki0XPcLsM0PriDiO9cUdRp11wDMu15I1sxpHVPhk1l570z1T/sQKeeucXUl8PIw5MU
+         TLlRHTbjPeRDB6eJTGhvxUftSeiA8j+Y3F14rmQh+CBC624j6sjh2ygvrwsd9dzmjlZl
+         6dTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=OKKLw5KpOFoEDU+ZMbJdxpdxk4I3yUTB+hx1+wLggXc=;
+        b=lXUwQpu+TGODuuCq1hbZHDN6hzmGYTBPa7F60ewJGkfMB/nt8VTevjx5upgfk3fsY3
+         G/YxWQJD4thYhh1Npe5oby1/BmlkKBbCkhONnUshxB8KR0jIKNcW60N2sNq4xaIwoyM4
+         dRp0Yd3Hwmo2ufYMEd96+LCXJf3PGphjcwndV14Wtbmd4AJS9mizU6QFc7x/7WjAjXFI
+         JvLvyE2E4OVbidRuJmepYWaBKnbp1piSjPymQFWm2rUnFIiv9IO0hGXGcwEt4Cr10c5r
+         sKUvO71KFeHQIyEKw8uvjAxVUDivHuaVAviVAwGVJOIWm38bY407df8ByQZjXd8DCisD
+         CbQg==
+X-Gm-Message-State: ACrzQf3ES6xeZ/JUywCoVT0/+bPdLl+terE6Lc6KlkcA2L08ttUHgVEX
+        /bO9MhzCYq5x0dtLzAnp4r4003FrTjXdYWbR7FQ=
+X-Google-Smtp-Source: AMsMyM65HaFUoTyt2rdXaI9Ho3KvMqvx0YRQtYeHx2EiCzHFGakoF2fTTRp9LWxQ/EMVow6z+ye4Pfx8tn3YGebtPwM=
+X-Received: by 2002:a05:6102:31b6:b0:3a6:eeec:a566 with SMTP id
+ d22-20020a05610231b600b003a6eeeca566mr3240056vsh.28.1665760012241; Fri, 14
+ Oct 2022 08:06:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0df72f8e-1c17-2140-c841-5a75fb43db14@amd.com>
+References: <20221014142611.1145407-1-agordeev@linux.ibm.com>
+In-Reply-To: <20221014142611.1145407-1-agordeev@linux.ibm.com>
+From:   Yury Norov <yury.norov@gmail.com>
+Date:   Fri, 14 Oct 2022 08:06:41 -0700
+Message-ID: <CAAH8bW8Uvb-GzoZiPVEeNGQL-y1cF90sGs99_PRetmcpisF81Q@mail.gmail.com>
+Subject: Re: [PATCH] s390/cpuinfo: prevent warning when reading /proc/cpuinfo
+To:     Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, Andrew Jones <ajones@ventanamicro.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Oct 14, 2022 at 03:26:07PM +0530, Ravi Bangoria wrote:
-> On 13-Oct-22 4:29 PM, Peter Zijlstra wrote:
-> > On Thu, Oct 13, 2022 at 03:37:23PM +0530, Ravi Bangoria wrote:
-> > 
-> >>> -	refcount_t			refcount;
-> >>> +	refcount_t			refcount; /* event <-> ctx */
-> >>
-> >> Ok. We need to remove all those // XXX get/put_ctx() from code
-> >> which we added to make refcount a pmu_ctx <-> ctx.
-> > 
-> > Them already gone :-) I've not yet fixed up the typoes, but current
-> > version should be here:
-> > 
-> >   https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git/log/?h=perf/core
-> > 
-> > Thanks!
-> 
-> I've been running perf-fuzzer on Xeon machine since yesterday and I don't see any
-> issue. Will do the same on my AMD machine as well over the weekend.
+On Fri, Oct 14, 2022 at 7:26 AM Alexander Gordeev
+<agordeev@linux.ibm.com> wrote:
+>
+> Commit 78e5a3399421 ("cpumask: fix checking valid cpu range") has
+> started issuing warnings when reading /proc/cpuinfo and config
+> DEBUG_PER_CPU_MAPS is enabled. Avoid calling cpumask_next() with
+> the cpu index equal to nr_cpu_ids - 1 and ensure no warning is
+> generated.
+>
+> Link: https://lore.kernel.org/r/20221012081905.1800640-1-ajones@ventanamicro.com
+> Reported-by: Andrew Jones <ajones@ventanamicro.com>
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
+>  arch/s390/kernel/processor.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
+> index a194611ba88c..908a0be900ea 100644
+> --- a/arch/s390/kernel/processor.c
+> +++ b/arch/s390/kernel/processor.c
+> @@ -334,6 +334,8 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+>
+>  static inline void *c_update(loff_t *pos)
+>  {
+> +       if (*pos >= nr_cpu_ids)
+> +               return NULL;
+>         if (*pos)
+>                 *pos = cpumask_next(*pos - 1, cpu_online_mask);
+>         else
 
-Awesome -- I've started fuzzing on the ADL (with the big.LITTLE PMU
-setup) and I've had it run on my very aged IVB-EP machine. Both so far
-(knock on wood) with no issues.
-
-The most modern AMD machine I have at hand is a 2 socket Interlagos, and
-I doubt anybody really much cares about that these days -- but I can run
-it for giggles.
+This silences the warning entirely. If you don't need it, I'd suggest
+using find_next_bit()
+instead. But from the discussion to similar patch, I think you need to
+allow nr_cpu_ids
+only:
+ +       if (*pos == nr_cpu_ids)
+ +               return NULL;
