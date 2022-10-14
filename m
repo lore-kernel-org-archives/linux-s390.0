@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7415C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Oct 2022 15:58:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4468AC43217
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Oct 2022 15:58:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230143AbiJNP6y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S229542AbiJNP6y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Fri, 14 Oct 2022 11:58:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55406 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230218AbiJNP6w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Oct 2022 11:58:52 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3004122771
-        for <linux-s390@vger.kernel.org>; Fri, 14 Oct 2022 08:58:51 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id s30so7473188eds.1
-        for <linux-s390@vger.kernel.org>; Fri, 14 Oct 2022 08:58:51 -0700 (PDT)
+        with ESMTP id S230160AbiJNP6v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Oct 2022 11:58:51 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 083FA122757
+        for <linux-s390@vger.kernel.org>; Fri, 14 Oct 2022 08:58:50 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id 13so11479425ejn.3
+        for <linux-s390@vger.kernel.org>; Fri, 14 Oct 2022 08:58:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=ventanamicro.com; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XBIOqGjmdzThiZsnnbTdUiYSPQXS/qp/QRUJHndogxY=;
-        b=de2qcklml8jKYdhJlyXqmJXoz8FYGzMVRLfN9JcOUqf4UOLuKCrWZr59qwP/CI15i8
-         9ZEYt9iqHJUORqeLDasCpf2TvKXJ2eNiOMML8Fk+bz7YKFJbV57Ez3yS2OMYxbifi8aU
-         80V2z5mOPzJ5j+SPiaK/ExtA7pvzSXkVFgQy9BgPDzmgfE18Klp1ebv/IKnNb6TVl3x7
-         K0gO3P8T9E6LTR2oS1WZnI3pbS2vkD6iCSFlqd/rinFyB9u6Ftb/GsYDL097UX4vn1na
-         X5w9kGup7pabQp9pwZ84Krxhofd+fyywuWkx0d61FPGLmHqmWuc2PbVNpdjodZPMfLJV
-         6NYQ==
+        bh=uFKG/UoJdjvjZL4a++TyBLwRn5J9ab/1o+9LeC1+Wdk=;
+        b=TWAL9EKRVGNsLjKjhYh/mC6I8/1d/oatjVnsDN9OWuvFem7UzU02ZKqRzzv3m+6WNJ
+         XpbFkMRKHd8kMuyJPFPJ2O4coxdaDl4faAyVqhStpaSUGYq7BHI1TWK1CROOsrCSLceS
+         oCa0J4Fufc1QFYIqSNT7YYCBkHCuQagy+1h8ytDYHkttIN15LC4NsO9AFDHEPqj1jTqO
+         4aCSqLM2Nu3stjaVcqAwPtMDAHgS/shNxwcrymDs9yg/ism0dyRjPiNJywK3a2Ao/iyX
+         qrOsHJe4Ab8pwfjJp7mLQWu47/wJG/qQKDv8bTBXEBTHUkrCbt724EXqhc5mXve0RXVF
+         Q5Ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XBIOqGjmdzThiZsnnbTdUiYSPQXS/qp/QRUJHndogxY=;
-        b=mbP1zm6KrNMEJZfm/coREvXY0lpqBrHwTM6TAagy0HvTomgRAYGqFCBQgv5tQPT6H8
-         TrlK4yoyfSJ0A5Lk2SlnztrLdhl6EHao+awzb5RCcybUiJ5rHmlgw05O7+678BHKpPCe
-         ed9Bo7jfukihFOqkPo/S+Ol2ppKH79pT53qlOKP/jA60CjFtEMqAw2ANazzwel3ZYmye
-         eUHnynVRRN/JOomWH42Q37raSevDzV8epRLXP/pjDkUBUtc3Zccn/LkRxShpypWWgb9n
-         /uCADwtRSxEA4E8TBlLFBKTEBhkh2l4Pd89slQsOKjpeO2M033plJyvCtu3SRvq3WmbH
-         OQTg==
-X-Gm-Message-State: ACrzQf27WIWUFzOAL4IIZwK6OuoqnCbDsfF4cbMnA6/PGeQX0XKXhIqq
-        gJkYObzD+QQKCrrrhqCRQPHd+Q==
-X-Google-Smtp-Source: AMsMyM7AeOygOXkM1z/GTKaGU+3a1Uh1fQyGWBmDx0oj1luEK/7mcX83iQG4d2XLgbn9xXhJP10WDg==
-X-Received: by 2002:a05:6402:3485:b0:45c:d688:6848 with SMTP id v5-20020a056402348500b0045cd6886848mr4672473edc.279.1665763129826;
-        Fri, 14 Oct 2022 08:58:49 -0700 (PDT)
+        bh=uFKG/UoJdjvjZL4a++TyBLwRn5J9ab/1o+9LeC1+Wdk=;
+        b=4Sh5/hC/SSmR8nyEBlL5f5SrmR/q2QN5K/7/Q0uZYcKb/xyvOxx6cJIK7Ll2uRoZ3c
+         tz6cfIQ5TpgK7G8cifACQfXLWlYhW4w0JeEnrKiHX/0DsZYBjC5Lj6LHKMMXizzsuJc9
+         sY28uDBrQqJab018rA6azP+2mcndse14YPkLW+l1EtSeW9qdNRNXBRRlqIzPAXAC+EDB
+         0YVZBq8C91aGCo9vs7eqj4+OXMiKd5aiYkLkWEzJ02sNw1bhWYtyJ/sy8Y5EaXRbuMii
+         epjUCqfXlvbWSJxwGfuGN2tOgBXeT8mSVvMe7S49Gm9BrxpQc01MGtISOR476ypKMen8
+         QP9Q==
+X-Gm-Message-State: ACrzQf0yxMhZdp4qesRRE7lAxdNNnkE3ep5zjRs9T5g1uVGkaQZhzwUN
+        DEIBaNMmtbLvwlrUaXbLeD1+Fw==
+X-Google-Smtp-Source: AMsMyM7/e9vDSoMxdhGGaaPUCS7n6lh8z7ltnxJPYvupdtdDP7MiBbMySEaXciThld3Qry9um9n4rA==
+X-Received: by 2002:a17:906:4783:b0:780:5be5:c81b with SMTP id cw3-20020a170906478300b007805be5c81bmr4152627ejc.76.1665763128360;
+        Fri, 14 Oct 2022 08:58:48 -0700 (PDT)
 Received: from localhost (cst2-173-61.cust.vodafone.cz. [31.30.173.61])
-        by smtp.gmail.com with ESMTPSA id 12-20020a170906300c00b0077a1dd3e7b7sm1746796ejz.102.2022.10.14.08.58.49
+        by smtp.gmail.com with ESMTPSA id z15-20020a170906434f00b007806c1474e1sm1686070ejm.127.2022.10.14.08.58.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Oct 2022 08:58:49 -0700 (PDT)
+        Fri, 14 Oct 2022 08:58:48 -0700 (PDT)
 From:   Andrew Jones <ajones@ventanamicro.com>
 To:     x86@kernel.org, linux-riscv@lists.infradead.org,
         linux-kernel@vger.kernel.org
@@ -67,10 +67,11 @@ Cc:     Thomas Gleixner <tglx@linutronix.de>,
         linuxppc-dev@lists.ozlabs.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
-Date:   Fri, 14 Oct 2022 17:58:45 +0200
-Message-Id: <20221014155845.1986223-3-ajones@ventanamicro.com>
+        linux-s390@vger.kernel.org, Anup Patel <anup@brainfault.org>,
+        Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v3 1/2] RISC-V: Fix /proc/cpuinfo cpumask warning
+Date:   Fri, 14 Oct 2022 17:58:44 +0200
+Message-Id: <20221014155845.1986223-2-ajones@ventanamicro.com>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221014155845.1986223-1-ajones@ventanamicro.com>
 References: <20221014155845.1986223-1-ajones@ventanamicro.com>
@@ -104,15 +105,18 @@ cpumask_next().
 
 Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
 Cc: Yury Norov <yury.norov@gmail.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- arch/x86/kernel/cpu/proc.c | 3 +++
+ arch/riscv/kernel/cpu.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/proc.c b/arch/x86/kernel/cpu/proc.c
-index 099b6f0d96bd..de3f93ac6e49 100644
---- a/arch/x86/kernel/cpu/proc.c
-+++ b/arch/x86/kernel/cpu/proc.c
-@@ -153,6 +153,9 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
+index 4d0dece5996c..5aa0ae8dd115 100644
+--- a/arch/riscv/kernel/cpu.c
++++ b/arch/riscv/kernel/cpu.c
+@@ -166,6 +166,9 @@ static void print_mmu(struct seq_file *f)
  
  static void *c_start(struct seq_file *m, loff_t *pos)
  {
@@ -121,7 +125,7 @@ index 099b6f0d96bd..de3f93ac6e49 100644
 +
  	*pos = cpumask_next(*pos - 1, cpu_online_mask);
  	if ((*pos) < nr_cpu_ids)
- 		return &cpu_data(*pos);
+ 		return (void *)(uintptr_t)(1 + *pos);
 -- 
 2.37.3
 
