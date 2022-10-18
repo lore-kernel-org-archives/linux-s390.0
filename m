@@ -2,173 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BD0FC4167E
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Oct 2022 09:20:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15014C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Oct 2022 14:52:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230329AbiJRJUg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Oct 2022 05:20:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51202 "EHLO
+        id S230017AbiJROv6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Oct 2022 10:51:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230034AbiJRJUc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Oct 2022 05:20:32 -0400
-Received: from mailbox.box.xen0n.name (mail.xen0n.name [115.28.160.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8F608F277;
-        Tue, 18 Oct 2022 02:20:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xen0n.name; s=mail;
-        t=1666084821; bh=N48MFgDUmr1tfKHznoAthvRtR1Wpy0hSpJqTj7oKYC4=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=cHV6qrCjD47k3jGPjUQF3lwihop1RDaw3yjdG73m7BjSD1b/7jyWqLqeN+Uyk642T
-         VvEcixZUqLhrENpMZkopSZmIH+3rzqlov7m3aEUZuBieiNorHcibY7orD6PjU5mrAB
-         wuldpVWm+HQ77bl4gfDeA0Z+scSMeI8G3x4eFq+M=
-Received: from [100.100.57.122] (unknown [220.248.53.61])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 69A5760087;
-        Tue, 18 Oct 2022 17:20:20 +0800 (CST)
-Message-ID: <27ffa400-b947-7c83-0e79-c8eb9f96e12e@xen0n.name>
-Date:   Tue, 18 Oct 2022 17:20:19 +0800
+        with ESMTP id S229916AbiJROv5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Oct 2022 10:51:57 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40071DE83;
+        Tue, 18 Oct 2022 07:51:56 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29IEkpSN021027;
+        Tue, 18 Oct 2022 14:51:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=8HZIWFsyMYRnuxJWz3yxtN85ktBDufyzEaa6Pm6pmFU=;
+ b=e8rmeAN6nWKVINjRfkZPzVYggT3M0EY8/rsEXogEihXWu8bwGfLO3GLjlxXfGC0phdIl
+ YrQxeJ9Mpg7oaobLXZrEvVaUgWOGfpWqcpGLKTOU35U+wDl2EQjIdkq//GuTuQTO0on0
+ pkblxUA6/AMV4onaeqESkje0VNL3jjncZyQwZtbdfpAZQJ6pEG9WCPw4VrCeZP2OKiJH
+ 9PXKByYvu/bbrAARdVNcwm9ByZs9fPt12DYE/nVcyMxDWcY/qLeKkWPktH3yQGJhe2vW
+ qXkORnwmd5BA6ve/DyL2/DtVVW7ZKT2BF4z3kit4Vx3vUkQ4+dCV5elOebgmpuKul0+N lA== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k9vt03n7g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 18 Oct 2022 14:51:38 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29IEpaWp002081;
+        Tue, 18 Oct 2022 14:51:36 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma05fra.de.ibm.com with ESMTP id 3k7mg8v48y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 18 Oct 2022 14:51:36 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29IEpWdh10223900
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 18 Oct 2022 14:51:32 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C2E8052050;
+        Tue, 18 Oct 2022 14:51:32 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4962B5204E;
+        Tue, 18 Oct 2022 14:51:32 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/5] iommu/s390: Further improvements
+Date:   Tue, 18 Oct 2022 16:51:27 +0200
+Message-Id: <20221018145132.998866-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: AhKd-wIQ79dJdqEtxY4FiafhjEIzM05N
+X-Proofpoint-ORIG-GUID: AhKd-wIQ79dJdqEtxY4FiafhjEIzM05N
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0)
- Gecko/20100101 Thunderbird/107.0a1
-Subject: Re: [PATCH] mm: remove kern_addr_valid() completely
-Content-Language: en-US
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        linux-fsdevel@vger.kernel.org
-Cc:     Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>
-References: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
-From:   WANG Xuerui <kernel@xen0n.name>
-In-Reply-To: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-18_04,2022-10-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ priorityscore=1501 mlxlogscore=299 lowpriorityscore=0 clxscore=1015
+ mlxscore=0 impostorscore=0 adultscore=0 suspectscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210180083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/10/18 15:40, Kefeng Wang wrote:
-> Most architectures(except arm64/x86/sparc) simply return 1 for
+Hi All,
 
-one space before the opening parens
+This series of patches improves the s390 IOMMU driver. These improvements help
+existing IOMMU users, mainly vfio-pci, but at the same time are also in
+preparation of converting s390 to use the common DMA API implementation in
+drivers/iommu/dma-iommu.c instead of its platform specific DMA API in
+arch/s390/pci/pci_dma.c that sidesteps the IOMMU driver to control the same
+hardware interface directly.
 
-> kern_addr_valid(), which is only used in read_kcore(), and it
-> calls copy_from_kernel_nofault() which could check whether the
-> address is a valid kernel address, so no need kern_addr_valid(),
+Among the included changes patch 1 improves the robustness of switching IOMMU
+domains and patch 2 adds the I/O TLB operations necessary for the DMA API
+conversion. Patches 3, 4, and 5 aim to improve performance with patch 5 being
+the most intrusive by removing the I/O translation table lock and using atomic
+updates instead.
 
-minor grammatical nit:
+This series goes on top of v7 of my previous series of IOMMU fixes[0] and
+similarly is available for easy testing in the iommu_improve_v1 branch with
+signed tag s390_iommu_improve_v1 of my git.kernel.org tree[1].
 
-"... which already checks whether the address is a valid kernel address. 
-So kern_addr_valid is unnecessary, let's remove it."
+Best regards,
+Niklas Schnelle
 
-> let's remove unneeded kern_addr_valid() completely.
-> 
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> ---
->   arch/alpha/include/asm/pgtable.h          |  2 -
->   arch/arc/include/asm/pgtable-bits-arcv2.h |  2 -
->   arch/arm/include/asm/pgtable-nommu.h      |  2 -
->   arch/arm/include/asm/pgtable.h            |  4 --
->   arch/arm64/include/asm/pgtable.h          |  2 -
->   arch/arm64/mm/mmu.c                       | 47 -----------------------
->   arch/arm64/mm/pageattr.c                  |  3 +-
->   arch/csky/include/asm/pgtable.h           |  3 --
->   arch/hexagon/include/asm/page.h           |  7 ----
->   arch/ia64/include/asm/pgtable.h           | 16 --------
->   arch/loongarch/include/asm/pgtable.h      |  2 -
->   arch/m68k/include/asm/pgtable_mm.h        |  2 -
->   arch/m68k/include/asm/pgtable_no.h        |  1 -
->   arch/microblaze/include/asm/pgtable.h     |  3 --
->   arch/mips/include/asm/pgtable.h           |  2 -
->   arch/nios2/include/asm/pgtable.h          |  2 -
->   arch/openrisc/include/asm/pgtable.h       |  2 -
->   arch/parisc/include/asm/pgtable.h         | 15 --------
->   arch/powerpc/include/asm/pgtable.h        |  7 ----
->   arch/riscv/include/asm/pgtable.h          |  2 -
->   arch/s390/include/asm/pgtable.h           |  2 -
->   arch/sh/include/asm/pgtable.h             |  2 -
->   arch/sparc/include/asm/pgtable_32.h       |  6 ---
->   arch/sparc/mm/init_32.c                   |  3 +-
->   arch/sparc/mm/init_64.c                   |  1 -
->   arch/um/include/asm/pgtable.h             |  2 -
->   arch/x86/include/asm/pgtable_32.h         |  9 -----
->   arch/x86/include/asm/pgtable_64.h         |  1 -
->   arch/x86/mm/init_64.c                     | 41 --------------------
->   arch/xtensa/include/asm/pgtable.h         |  2 -
->   fs/proc/kcore.c                           | 26 +++++--------
->   31 files changed, 11 insertions(+), 210 deletions(-)
-> 
-> diff --git a/arch/loongarch/include/asm/pgtable.h b/arch/loongarch/include/asm/pgtable.h
-> index 946704bee599..fc70b7041b76 100644
-> --- a/arch/loongarch/include/asm/pgtable.h
-> +++ b/arch/loongarch/include/asm/pgtable.h
-> @@ -421,8 +421,6 @@ static inline void update_mmu_cache_pmd(struct vm_area_struct *vma,
->   	__update_tlb(vma, address, (pte_t *)pmdp);
->   }
->   
-> -#define kern_addr_valid(addr)	(1)
-> -
->   static inline unsigned long pmd_pfn(pmd_t pmd)
->   {
->   	return (pmd_val(pmd) & _PFN_MASK) >> _PFN_SHIFT;
+[0] https://lore.kernel.org/linux-iommu/20221017124558.1386337-1-schnelle@linux.ibm.com/
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
 
-Acked-by: WANG Xuerui <git@xen0n.name> # loongarch
+Niklas Schnelle (5):
+  iommu/s390: Make attach succeed even if the device is in error state
+  iommu/s390: Add I/O TLB ops
+  iommu/s390: Use RCU to allow concurrent domain_list iteration
+  iommu/s390: Optimize IOMMU table walking
+  s390/pci: use lock-free I/O translation updates
 
-Thanks!
+ arch/s390/include/asm/pci.h |   4 +-
+ arch/s390/kvm/pci.c         |   6 +-
+ arch/s390/pci/pci.c         |  13 +--
+ arch/s390/pci/pci_dma.c     |  77 +++++++++------
+ drivers/iommu/s390-iommu.c  | 180 ++++++++++++++++++++++++------------
+ 5 files changed, 183 insertions(+), 97 deletions(-)
 
 -- 
-WANG "xen0n" Xuerui
-
-Linux/LoongArch mailing list: https://lore.kernel.org/loongarch/
+2.34.1
 
