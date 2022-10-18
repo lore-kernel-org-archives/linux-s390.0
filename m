@@ -2,50 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15014C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Oct 2022 14:52:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EA74C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Oct 2022 14:52:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230017AbiJROv6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Oct 2022 10:51:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41448 "EHLO
+        id S229987AbiJROv7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Oct 2022 10:51:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229916AbiJROv5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Oct 2022 10:51:57 -0400
+        with ESMTP id S230077AbiJROv6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Oct 2022 10:51:58 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40071DE83;
-        Tue, 18 Oct 2022 07:51:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146A7CD5CF;
+        Tue, 18 Oct 2022 07:51:57 -0700 (PDT)
 Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29IEkpSN021027;
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29IEb6uc020482;
         Tue, 18 Oct 2022 14:51:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=8HZIWFsyMYRnuxJWz3yxtN85ktBDufyzEaa6Pm6pmFU=;
- b=e8rmeAN6nWKVINjRfkZPzVYggT3M0EY8/rsEXogEihXWu8bwGfLO3GLjlxXfGC0phdIl
- YrQxeJ9Mpg7oaobLXZrEvVaUgWOGfpWqcpGLKTOU35U+wDl2EQjIdkq//GuTuQTO0on0
- pkblxUA6/AMV4onaeqESkje0VNL3jjncZyQwZtbdfpAZQJ6pEG9WCPw4VrCeZP2OKiJH
- 9PXKByYvu/bbrAARdVNcwm9ByZs9fPt12DYE/nVcyMxDWcY/qLeKkWPktH3yQGJhe2vW
- qXkORnwmd5BA6ve/DyL2/DtVVW7ZKT2BF4z3kit4Vx3vUkQ4+dCV5elOebgmpuKul0+N lA== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k9vt03n7g-1
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=y40TQkm/ZnRKoH3GsxCmsZ4syLt7ZMojVUT0PEPJfR8=;
+ b=CI4tJXHyU23O7eUIjF11gg1Z4gqB9A33N4EUPiKzINnFMeoDAD9Ta+1T62SroJ73MRaa
+ UYiOoTbDdqUkCyE07iFfCaTyruxv9rxGs4f0B2FXNINqSCFveh3d5SxtNsuoMiDXFc+F
+ k+RNdMw/7Pkw6VmLLE+20prI2EK8VZt/l5nTkDArC+VkqJ+F1GGqSVDq98aSVAm2gnEw
+ L4IxfQmAY05QldEKdRgdudcm2w7SLcLZJpxQSHVloR2s5Mt2hJSgCyYOLW/dQVS/xp3u
+ sGiK4g4356JFOkcxEnvJV6JGvtD7RG/q+btCcqvNbjZR18iP9UNrl9wn51MXo0+LMoOj lw== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k9vt03n7t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Oct 2022 14:51:38 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29IEpaWp002081;
+        Tue, 18 Oct 2022 14:51:39 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29IEopsu013418;
         Tue, 18 Oct 2022 14:51:36 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 3k7mg8v48y-1
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3k7m4jnfq1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 18 Oct 2022 14:51:36 +0000
 Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29IEpWdh10223900
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29IEpXFY3408488
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Oct 2022 14:51:32 GMT
+        Tue, 18 Oct 2022 14:51:33 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C2E8052050;
-        Tue, 18 Oct 2022 14:51:32 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B2C4852051;
+        Tue, 18 Oct 2022 14:51:33 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4962B5204E;
-        Tue, 18 Oct 2022 14:51:32 +0000 (GMT)
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4240552050;
+        Tue, 18 Oct 2022 14:51:33 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
         Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
@@ -57,21 +58,22 @@ Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
         hca@linux.ibm.com, gor@linux.ibm.com,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] iommu/s390: Further improvements
-Date:   Tue, 18 Oct 2022 16:51:27 +0200
-Message-Id: <20221018145132.998866-1-schnelle@linux.ibm.com>
+Subject: [PATCH 2/5] iommu/s390: Add I/O TLB ops
+Date:   Tue, 18 Oct 2022 16:51:29 +0200
+Message-Id: <20221018145132.998866-3-schnelle@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: AhKd-wIQ79dJdqEtxY4FiafhjEIzM05N
-X-Proofpoint-ORIG-GUID: AhKd-wIQ79dJdqEtxY4FiafhjEIzM05N
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20221018145132.998866-1-schnelle@linux.ibm.com>
+References: <20221018145132.998866-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: bdL_S_Al1h7BXiuZgr-CH-lo8Xih-SJ-
+X-Proofpoint-ORIG-GUID: bdL_S_Al1h7BXiuZgr-CH-lo8Xih-SJ-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-18_04,2022-10-18_01,2022-06-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- priorityscore=1501 mlxlogscore=299 lowpriorityscore=0 clxscore=1015
+ priorityscore=1501 mlxlogscore=999 lowpriorityscore=0 clxscore=1015
  mlxscore=0 impostorscore=0 adultscore=0 suspectscore=0 phishscore=0
  malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2209130000 definitions=main-2210180083
@@ -79,45 +81,140 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi All,
+Currently s390-iommu does an I/O TLB flush (RPCIT) for every update of
+the I/O translation table explicitly. For one this is wasteful since
+RPCIT can be skipped after a mapping operation if zdev->tlb_refresh is
+unset. Moreover we can do a single RPCIT for a range of pages including
+whne doing lazy unmapping.
 
-This series of patches improves the s390 IOMMU driver. These improvements help
-existing IOMMU users, mainly vfio-pci, but at the same time are also in
-preparation of converting s390 to use the common DMA API implementation in
-drivers/iommu/dma-iommu.c instead of its platform specific DMA API in
-arch/s390/pci/pci_dma.c that sidesteps the IOMMU driver to control the same
-hardware interface directly.
+Thankfully both of these optimizations can be achieved by implementing
+the IOMMU operations common code provides for the different types of I/O
+tlb flushes:
 
-Among the included changes patch 1 improves the robustness of switching IOMMU
-domains and patch 2 adds the I/O TLB operations necessary for the DMA API
-conversion. Patches 3, 4, and 5 aim to improve performance with patch 5 being
-the most intrusive by removing the I/O translation table lock and using atomic
-updates instead.
+ * flush_iotlb_all: Flushes the I/O TLB for the entire IOVA space
+ * iotlb_sync:  Flushes the I/O TLB for a range of pages that can be
+   gathered up, for example to implement lazy unmapping.
+ * iotlb_sync_map: Flushes the I/O TLB after a mapping operation
 
-This series goes on top of v7 of my previous series of IOMMU fixes[0] and
-similarly is available for easy testing in the iommu_improve_v1 branch with
-signed tag s390_iommu_improve_v1 of my git.kernel.org tree[1].
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ drivers/iommu/s390-iommu.c | 76 ++++++++++++++++++++++++++++++++------
+ 1 file changed, 65 insertions(+), 11 deletions(-)
 
-Best regards,
-Niklas Schnelle
-
-[0] https://lore.kernel.org/linux-iommu/20221017124558.1386337-1-schnelle@linux.ibm.com/
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
-
-Niklas Schnelle (5):
-  iommu/s390: Make attach succeed even if the device is in error state
-  iommu/s390: Add I/O TLB ops
-  iommu/s390: Use RCU to allow concurrent domain_list iteration
-  iommu/s390: Optimize IOMMU table walking
-  s390/pci: use lock-free I/O translation updates
-
- arch/s390/include/asm/pci.h |   4 +-
- arch/s390/kvm/pci.c         |   6 +-
- arch/s390/pci/pci.c         |  13 +--
- arch/s390/pci/pci_dma.c     |  77 +++++++++------
- drivers/iommu/s390-iommu.c  | 180 ++++++++++++++++++++++++------------
- 5 files changed, 183 insertions(+), 97 deletions(-)
-
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index ee88e717254b..a4c2e9bc6d83 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -199,14 +199,72 @@ static void s390_iommu_release_device(struct device *dev)
+ 		__s390_iommu_detach_device(zdev);
+ }
+ 
++static void s390_iommu_flush_iotlb_all(struct iommu_domain *domain)
++{
++	struct s390_domain *s390_domain = to_s390_domain(domain);
++	struct zpci_dev *zdev;
++	unsigned long flags;
++	int rc;
++
++	spin_lock_irqsave(&s390_domain->list_lock, flags);
++	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
++		rc = zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
++					zdev->end_dma - zdev->start_dma + 1);
++		if (rc)
++			break;
++	}
++	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
++}
++
++static void s390_iommu_iotlb_sync(struct iommu_domain *domain,
++				  struct iommu_iotlb_gather *gather)
++{
++	struct s390_domain *s390_domain = to_s390_domain(domain);
++	size_t size = gather->end - gather->start + 1;
++	struct zpci_dev *zdev;
++	unsigned long flags;
++	int rc;
++
++	/* If gather was never added to there is nothing to flush */
++	if (gather->start == ULONG_MAX)
++		return;
++
++	spin_lock_irqsave(&s390_domain->list_lock, flags);
++	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
++		rc = zpci_refresh_trans((u64)zdev->fh << 32, gather->start,
++					size);
++		if (rc)
++			break;
++	}
++	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
++}
++
++static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
++				      unsigned long iova, size_t size)
++{
++	struct s390_domain *s390_domain = to_s390_domain(domain);
++	struct zpci_dev *zdev;
++	unsigned long flags;
++	int rc;
++
++	spin_lock_irqsave(&s390_domain->list_lock, flags);
++	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
++		if (!zdev->tlb_refresh)
++			continue;
++		rc = zpci_refresh_trans((u64)zdev->fh << 32,
++					iova, size);
++		if (rc)
++			break;
++	}
++	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
++}
++
+ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
+ 				   phys_addr_t pa, dma_addr_t dma_addr,
+ 				   unsigned long nr_pages, int flags)
+ {
+ 	phys_addr_t page_addr = pa & PAGE_MASK;
+-	dma_addr_t start_dma_addr = dma_addr;
+ 	unsigned long irq_flags, i;
+-	struct zpci_dev *zdev;
+ 	unsigned long *entry;
+ 	int rc = 0;
+ 
+@@ -225,15 +283,6 @@ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
+ 		dma_addr += PAGE_SIZE;
+ 	}
+ 
+-	spin_lock(&s390_domain->list_lock);
+-	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
+-		rc = zpci_refresh_trans((u64)zdev->fh << 32,
+-					start_dma_addr, nr_pages * PAGE_SIZE);
+-		if (rc)
+-			break;
+-	}
+-	spin_unlock(&s390_domain->list_lock);
+-
+ undo_cpu_trans:
+ 	if (rc && ((flags & ZPCI_PTE_VALID_MASK) == ZPCI_PTE_VALID)) {
+ 		flags = ZPCI_PTE_INVALID;
+@@ -340,6 +389,8 @@ static size_t s390_iommu_unmap_pages(struct iommu_domain *domain,
+ 	if (rc)
+ 		return 0;
+ 
++	iommu_iotlb_gather_add_range(gather, iova, size);
++
+ 	return size;
+ }
+ 
+@@ -384,6 +435,9 @@ static const struct iommu_ops s390_iommu_ops = {
+ 		.detach_dev	= s390_iommu_detach_device,
+ 		.map_pages	= s390_iommu_map_pages,
+ 		.unmap_pages	= s390_iommu_unmap_pages,
++		.flush_iotlb_all = s390_iommu_flush_iotlb_all,
++		.iotlb_sync      = s390_iommu_iotlb_sync,
++		.iotlb_sync_map  = s390_iommu_iotlb_sync_map,
+ 		.iova_to_phys	= s390_iommu_iova_to_phys,
+ 		.free		= s390_domain_free,
+ 	}
 -- 
 2.34.1
 
