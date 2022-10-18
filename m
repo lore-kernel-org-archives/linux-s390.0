@@ -2,54 +2,62 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77AA8C4167B
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Oct 2022 07:38:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56A2CC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Oct 2022 08:05:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230347AbiJRHie (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Oct 2022 03:38:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50100 "EHLO
+        id S230113AbiJRIFb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Oct 2022 04:05:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229788AbiJRHi3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Oct 2022 03:38:29 -0400
-Received: from mail-oa1-f50.google.com (mail-oa1-f50.google.com [209.85.160.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B20C013E14;
-        Tue, 18 Oct 2022 00:38:26 -0700 (PDT)
-Received: by mail-oa1-f50.google.com with SMTP id 586e51a60fabf-1322fa1cf6fso15921380fac.6;
-        Tue, 18 Oct 2022 00:38:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Mwq8mRE5qiqVJEFTV8PMaTxlxiFl0HRvXCI1ESDIAgA=;
-        b=uP1CncYWtzYR0ygZYHBqCusvQI3qLcARvKVbzdEo2TAs5CmdLuBBDSnvJC3CnEFymc
-         maOukJKMOanGciB5JKE+T7waF5I+BUrDHfHLjWFH3Mb4iO2Y9l4k5b4Q8zfXsmy7r6gY
-         FZ0M4pDzN7VVTrbIBwKD/hhhW0hX2swM2tihpju5CyITx3ey6gEwzsQ04iQCsN3BYFBZ
-         Mf/+G4stxLCBiFpIMxX6+FVVEEP3yvW+/SG49U9spnuwOZ4yujCiARpmS7lHoVb9COwy
-         juvLB7ddY+Q5RCRjySpjacgpYTr6+AqlCT4BusL/EyruYzuWYcFhOm5MmUvznr2r91RY
-         uH9g==
-X-Gm-Message-State: ACrzQf1/N7RbVTPNFnCefcE7yJPZk/vQj7w4sbummdliIV+DhK/c8kWo
-        E3d1oqf3tYmu0uyiT4X0rawbBxEnkAZQy6Ln
-X-Google-Smtp-Source: AMsMyM5csXdwREba7gw4KDgdxJUyoCgiqL87E6aLqBvQuxbl5zbkJBBFIZNp0ZmIdatu48jChwFRVg==
-X-Received: by 2002:a05:6870:fb90:b0:131:db1f:7785 with SMTP id kv16-20020a056870fb9000b00131db1f7785mr855895oab.189.1666078705512;
-        Tue, 18 Oct 2022 00:38:25 -0700 (PDT)
-Received: from mail-oo1-f45.google.com (mail-oo1-f45.google.com. [209.85.161.45])
-        by smtp.gmail.com with ESMTPSA id t9-20020a9d7489000000b006618bbede10sm5569962otk.53.2022.10.18.00.38.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Oct 2022 00:38:25 -0700 (PDT)
-Received: by mail-oo1-f45.google.com with SMTP id k11-20020a4ab28b000000b0047659ccfc28so2964440ooo.8;
-        Tue, 18 Oct 2022 00:38:25 -0700 (PDT)
-X-Received: by 2002:a81:848c:0:b0:356:e173:2c7a with SMTP id
- u134-20020a81848c000000b00356e1732c7amr1276352ywf.502.1666078253767; Tue, 18
- Oct 2022 00:30:53 -0700 (PDT)
-MIME-Version: 1.0
-References: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
-In-Reply-To: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Tue, 18 Oct 2022 09:30:42 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdWwAgPkifAkah7MoBKBoyB4tb+HM5cgvenwNFaAfbg+UQ@mail.gmail.com>
-Message-ID: <CAMuHMdWwAgPkifAkah7MoBKBoyB4tb+HM5cgvenwNFaAfbg+UQ@mail.gmail.com>
-Subject: Re: [PATCH] mm: remove kern_addr_valid() completely
+        with ESMTP id S229550AbiJRIF3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Oct 2022 04:05:29 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49A979582;
+        Tue, 18 Oct 2022 01:05:27 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29I7HvI4001484;
+        Tue, 18 Oct 2022 08:04:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=ikDs1J0DF5pj2v5VnRsw8nC5xHt147jm8avpuSN/808=;
+ b=PeBEWzINopbxSIEX8dTTnvGpTwR0bkiq7qfZm5a4PzcW2VN0u9ULY5aMLykSYvFwlReB
+ qJtql6j6aLL4LBAfr3YSyzl8QrtnYeI7Ik9zjj2V8hTrlMScPSFYh7hOQmgPWcKq6ceQ
+ g4MWTwRzACL/TfAfBkjQk5cRLy2tpRSpmVPAanLXnX6DirufMl/B8xqOlMr5OsTI/EOT
+ dZJRZUgOC4HYAAomAbu3IJSdS83dtKxgqAYRSGTV0i9apZxEpS1kJoN5OTNreOKC9xL+
+ ctAQA8a5HUzTQ7cQOxVQopHO95f5LAUAu5P8WQSJEpUHWh9/E1RjiGdgfsVUppbxZnx5 /Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k9qmrscv5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 18 Oct 2022 08:04:00 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29I82x8a003447;
+        Tue, 18 Oct 2022 08:03:59 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3k9qmrsctn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 18 Oct 2022 08:03:59 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29I7pQS0031741;
+        Tue, 18 Oct 2022 08:03:56 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3k7mg8ukwq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 18 Oct 2022 08:03:56 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29I83rUG66519352
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 18 Oct 2022 08:03:53 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2AFD44203F;
+        Tue, 18 Oct 2022 08:03:53 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 722D442042;
+        Tue, 18 Oct 2022 08:03:51 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.239])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 18 Oct 2022 08:03:51 +0000 (GMT)
+Date:   Tue, 18 Oct 2022 10:03:50 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
 To:     Kefeng Wang <wangkefeng.wang@huawei.com>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -72,6 +80,7 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
         WANG Xuerui <kernel@xen0n.name>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Greg Ungerer <gerg@linux-m68k.org>,
         Michal Simek <monstr@monstr.eu>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
@@ -87,7 +96,6 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Paul Walmsley <paul.walmsley@sifive.com>,
         Palmer Dabbelt <palmer@dabbelt.com>,
         Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -106,32 +114,39 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Chris Zankel <chris@zankel.net>,
         Max Filippov <jcmvbkbc@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] mm: remove kern_addr_valid() completely
+Message-ID: <Y05d5ii/2OqYLqa0@osiris>
+References: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 3DqUa3ziEZjw8-MntDOZ-RiynYYIojwD
+X-Proofpoint-ORIG-GUID: bUEZUCXPCfex028D9haUfwRNUTiIJ5wD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-18_01,2022-10-17_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1011
+ mlxscore=0 phishscore=0 mlxlogscore=539 impostorscore=0 spamscore=0
+ priorityscore=1501 bulkscore=0 lowpriorityscore=0 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210180046
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 18, 2022 at 9:25 AM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
+On Tue, Oct 18, 2022 at 03:40:14PM +0800, Kefeng Wang wrote:
 > Most architectures(except arm64/x86/sparc) simply return 1 for
 > kern_addr_valid(), which is only used in read_kcore(), and it
 > calls copy_from_kernel_nofault() which could check whether the
 > address is a valid kernel address, so no need kern_addr_valid(),
 > let's remove unneeded kern_addr_valid() completely.
->
+> 
 > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+...
+>  arch/s390/include/asm/pgtable.h           |  2 -
 
->  arch/m68k/include/asm/pgtable_mm.h        |  2 -
->  arch/m68k/include/asm/pgtable_no.h        |  1 -
-
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> [m68k]
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+For s390:
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
