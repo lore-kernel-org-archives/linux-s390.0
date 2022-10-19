@@ -2,165 +2,355 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81D76C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 19 Oct 2022 14:54:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DEBC4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 19 Oct 2022 16:21:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230036AbiJSOyJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 Oct 2022 10:54:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52998 "EHLO
+        id S229872AbiJSQV5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 Oct 2022 12:21:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231468AbiJSOxJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Oct 2022 10:53:09 -0400
+        with ESMTP id S230104AbiJSQVy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Oct 2022 12:21:54 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E30EFEC51A;
-        Wed, 19 Oct 2022 07:44:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19A0A1C2F04;
+        Wed, 19 Oct 2022 09:21:52 -0700 (PDT)
 Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29JEgDc0012825;
-        Wed, 19 Oct 2022 14:44:46 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29JFwAgv002738;
+        Wed, 19 Oct 2022 16:21:46 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=T9ipHhLWjB4FtbXLtXXC5uRsveoymZZqeV5ExTNBY10=;
- b=UljNcdwFHsHrpZoyCXMsdW36XZ0sSp3RvCX7g68FwFoxS1aandACxdR41FIRu4Y9BWlf
- hAfRuPJ+54zLjqnYIyl9aU8TqEa0JKv1jAn/oINPbQqZgE5xJf7O/tZfdskvPjj5HSbu
- Nw1meFtJ6c8LMDEirLEBAIxRjm9qoR65oILmgw6qVJNSQ4JSrxBFWswlfrAkbArYc8UM
- l03CEMr9BePefBYsapbC9j+1lpvPJyQFfejoLIan9BNwzD+JH5ERM6GTQ6vBYcFDJIIH
- R/3lu0cbnHRZB1jREJowIHn2+3yAVh+5C3DAG19++DwzfkQjQxY556QsHNyemFTYNRBX vg== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kak7w82em-1
+ bh=V33GEawH2nePAn9P5wgIMcuZW8hDM0NZh1CWUPD4IoE=;
+ b=MERLb02zYlT/MHm2Q+HuD+ymQUQXD4b8hwvnWo6MFhmmAFydjE+xYw/x8u3T3TYQIgqn
+ a+3BQKvZhpcT4Q+2lXWkCSRDB6rRkzKqR3LZ1LCqCG6WieFViprzvzz7Fvx2D/gmg8tA
+ xr3yPKnzY81e/bgXhT53gZ2x2FVqYp5tU84XGJv55qc/lZNrGc70ZQka8gyrKFizmlUn
+ 4TxBDCfO5+9oh/J7tCZpp/9D/nyAWum1kFVDb/aEl5K5rVT3hCJ2IgmhGorjSrfGuXrI
+ bSl750mgVbhLSrF+zf7bDPFBT28iLKIahMr2hBAyboGQswPOmMSzaxL6LDsE8BBTRAj5 lg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kambb1ayx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Oct 2022 14:44:45 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29JEZQjO016360;
-        Wed, 19 Oct 2022 14:44:43 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3k7mg95fuf-1
+        Wed, 19 Oct 2022 16:21:45 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29JFxBOt004712;
+        Wed, 19 Oct 2022 16:21:44 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kambb1awy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Oct 2022 14:44:43 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29JEidiX63308238
+        Wed, 19 Oct 2022 16:21:44 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29JGL1Fu000988;
+        Wed, 19 Oct 2022 16:21:41 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kajmrr62h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 Oct 2022 16:21:41 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29JGLcV359244886
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 Oct 2022 14:44:40 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CCEB44C046;
-        Wed, 19 Oct 2022 14:44:39 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 591824C044;
-        Wed, 19 Oct 2022 14:44:39 +0000 (GMT)
+        Wed, 19 Oct 2022 16:21:38 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3A84811C054;
+        Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 12C6B11C050;
+        Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 19 Oct 2022 14:44:39 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>
-Subject: [RFC 6/6] iommu/s390: flush queued IOVAs on RPCIT out of resource indication
-Date:   Wed, 19 Oct 2022 16:44:35 +0200
-Message-Id: <20221019144435.369902-7-schnelle@linux.ibm.com>
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+        id CA428E1465; Wed, 19 Oct 2022 18:21:37 +0200 (CEST)
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>
+Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v1 2/7] vfio/ccw: remove private->sch
+Date:   Wed, 19 Oct 2022 18:21:30 +0200
+Message-Id: <20221019162135.798901-3-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221019144435.369902-1-schnelle@linux.ibm.com>
-References: <20221019144435.369902-1-schnelle@linux.ibm.com>
+In-Reply-To: <20221019162135.798901-1-farman@linux.ibm.com>
+References: <20221019162135.798901-1-farman@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Zvaae_gU5yUneCMK3W5k3ZpMFxHyxn3x
-X-Proofpoint-ORIG-GUID: Zvaae_gU5yUneCMK3W5k3ZpMFxHyxn3x
+X-Proofpoint-GUID: GelaSU-LSEfaBXzLhrA82T9YXF2cNPQi
+X-Proofpoint-ORIG-GUID: PC0243sfbGgEkklCDlKnf8X94j1LGS-d
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-19_08,2022-10-19_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- mlxscore=0 impostorscore=0 priorityscore=1501 spamscore=0 mlxlogscore=999
- clxscore=1015 adultscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2210190081
+ definitions=2022-10-19_09,2022-10-19_04,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 suspectscore=0 phishscore=0 mlxlogscore=999 clxscore=1015
+ bulkscore=0 lowpriorityscore=0 mlxscore=0 spamscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210190091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When RPCIT indicates that the underlying hypervisor has run out of
-resources it often means that its IOVA space is exhausted and IOVAs need
-to be freed before new ones can be created. By triggering a flush of the
-IOVA queue we can get the queued IOVAs freed and also get the new
-mapping established during the global flush.
+These places all rely on the ability to jump from a private
+struct back to the subchannel struct. Rather than keeping a
+copy in our back pocket, let's use the relationship provided
+by the vfio_device embedded within the private.
 
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/iommu/dma-iommu.c  |  2 +-
- drivers/iommu/dma-iommu.h  |  1 +
- drivers/iommu/s390-iommu.c | 12 ++++++++++++
- 3 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/s390/cio/vfio_ccw_chp.c     |  5 +++--
+ drivers/s390/cio/vfio_ccw_drv.c     |  3 +--
+ drivers/s390/cio/vfio_ccw_fsm.c     | 27 ++++++++++++---------------
+ drivers/s390/cio/vfio_ccw_ops.c     | 12 ++++++------
+ drivers/s390/cio/vfio_ccw_private.h |  7 ++++---
+ 5 files changed, 26 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 427fb84f50c3..4853f98f3305 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -287,7 +287,7 @@ static void flush_percpu(struct iommu_dma_cookie *cookie)
+diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
+index 13b26a1c7988..d3f3a611f95b 100644
+--- a/drivers/s390/cio/vfio_ccw_chp.c
++++ b/drivers/s390/cio/vfio_ccw_chp.c
+@@ -16,6 +16,7 @@ static ssize_t vfio_ccw_schib_region_read(struct vfio_ccw_private *private,
+ 					  char __user *buf, size_t count,
+ 					  loff_t *ppos)
+ {
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
+ 	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
+ 	struct ccw_schib_region *region;
+@@ -27,12 +28,12 @@ static ssize_t vfio_ccw_schib_region_read(struct vfio_ccw_private *private,
+ 	mutex_lock(&private->io_mutex);
+ 	region = private->region[i].data;
+ 
+-	if (cio_update_schib(private->sch)) {
++	if (cio_update_schib(sch)) {
+ 		ret = -ENODEV;
+ 		goto out;
  	}
+ 
+-	memcpy(region, &private->sch->schib, sizeof(*region));
++	memcpy(region, &sch->schib, sizeof(*region));
+ 
+ 	if (copy_to_user(buf, (void *)region + pos, count)) {
+ 		ret = -EFAULT;
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 634760ca0dea..4ee953c8ae39 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -154,7 +154,6 @@ static struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch)
+ 	if (!private)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	private->sch = sch;
+ 	mutex_init(&private->io_mutex);
+ 	private->state = VFIO_CCW_STATE_STANDBY;
+ 	INIT_LIST_HEAD(&private->crw);
+@@ -383,7 +382,7 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
+ 	if (!private || !mask)
+ 		return 0;
+ 
+-	trace_vfio_ccw_chp_event(private->sch->schid, mask, event);
++	trace_vfio_ccw_chp_event(sch->schid, mask, event);
+ 	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: mask=0x%x event=%d\n",
+ 			   sch->schid.cssid,
+ 			   sch->schid.ssid, sch->schid.sch_no,
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index a59c758869f8..e67fad897af3 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -18,15 +18,13 @@
+ 
+ static int fsm_io_helper(struct vfio_ccw_private *private)
+ {
+-	struct subchannel *sch;
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 	union orb *orb;
+ 	int ccode;
+ 	__u8 lpm;
+ 	unsigned long flags;
+ 	int ret;
+ 
+-	sch = private->sch;
+-
+ 	spin_lock_irqsave(sch->lock, flags);
+ 
+ 	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
+@@ -80,13 +78,11 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+ 
+ static int fsm_do_halt(struct vfio_ccw_private *private)
+ {
+-	struct subchannel *sch;
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 	unsigned long flags;
+ 	int ccode;
+ 	int ret;
+ 
+-	sch = private->sch;
+-
+ 	spin_lock_irqsave(sch->lock, flags);
+ 
+ 	VFIO_CCW_TRACE_EVENT(2, "haltIO");
+@@ -121,13 +117,11 @@ static int fsm_do_halt(struct vfio_ccw_private *private)
+ 
+ static int fsm_do_clear(struct vfio_ccw_private *private)
+ {
+-	struct subchannel *sch;
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 	unsigned long flags;
+ 	int ccode;
+ 	int ret;
+ 
+-	sch = private->sch;
+-
+ 	spin_lock_irqsave(sch->lock, flags);
+ 
+ 	VFIO_CCW_TRACE_EVENT(2, "clearIO");
+@@ -160,7 +154,7 @@ static int fsm_do_clear(struct vfio_ccw_private *private)
+ static void fsm_notoper(struct vfio_ccw_private *private,
+ 			enum vfio_ccw_event event)
+ {
+-	struct subchannel *sch = private->sch;
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 
+ 	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: notoper event %x state %x\n",
+ 			   sch->schid.cssid,
+@@ -228,7 +222,7 @@ static void fsm_async_retry(struct vfio_ccw_private *private,
+ static void fsm_disabled_irq(struct vfio_ccw_private *private,
+ 			     enum vfio_ccw_event event)
+ {
+-	struct subchannel *sch = private->sch;
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 
+ 	/*
+ 	 * An interrupt in a disabled state means a previous disable was not
+@@ -238,7 +232,9 @@ static void fsm_disabled_irq(struct vfio_ccw_private *private,
+ }
+ inline struct subchannel_id get_schid(struct vfio_ccw_private *p)
+ {
+-	return p->sch->schid;
++	struct subchannel *sch = to_subchannel(p->vdev.dev->parent);
++
++	return sch->schid;
  }
  
--static void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie)
-+void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie)
+ /*
+@@ -360,10 +356,11 @@ static void fsm_async_request(struct vfio_ccw_private *private,
+ static void fsm_irq(struct vfio_ccw_private *private,
+ 		    enum vfio_ccw_event event)
  {
- 	if (!cookie->fq_domain)
- 		return;
-diff --git a/drivers/iommu/dma-iommu.h b/drivers/iommu/dma-iommu.h
-index 942790009292..cac06030aa26 100644
---- a/drivers/iommu/dma-iommu.h
-+++ b/drivers/iommu/dma-iommu.h
-@@ -13,6 +13,7 @@ int iommu_get_dma_cookie(struct iommu_domain *domain);
- void iommu_put_dma_cookie(struct iommu_domain *domain);
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 	struct irb *irb = this_cpu_ptr(&cio_irb);
  
- int iommu_dma_init_fq(struct iommu_domain *domain);
-+void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie);
+ 	VFIO_CCW_TRACE_EVENT(6, "IRQ");
+-	VFIO_CCW_TRACE_EVENT(6, dev_name(&private->sch->dev));
++	VFIO_CCW_TRACE_EVENT(6, dev_name(&sch->dev));
  
- void iommu_dma_get_resv_regions(struct device *dev, struct list_head *list);
+ 	memcpy(&private->irb, irb, sizeof(*irb));
  
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 506f8b92931f..270662584f96 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -502,6 +502,10 @@ static void s390_iommu_flush_iotlb_all(struct iommu_domain *domain)
- 		atomic64_inc(&s390_domain->ctrs.global_rpcits);
- 		rc = zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
- 					zdev->end_dma - zdev->start_dma + 1);
-+		if (rc == -ENOMEM) {
-+			iommu_dma_flush_fq(domain->iova_cookie);
-+			rc = 0;
-+		}
- 		if (rc)
- 			break;
- 	}
-@@ -525,6 +529,10 @@ static void s390_iommu_iotlb_sync(struct iommu_domain *domain,
- 		atomic64_inc(&s390_domain->ctrs.sync_rpcits);
- 		rc = zpci_refresh_trans((u64)zdev->fh << 32, gather->start,
- 					size);
-+		if (rc == -ENOMEM) {
-+			iommu_dma_flush_fq(domain->iova_cookie);
-+			rc = 0;
-+		}
- 		if (rc)
- 			break;
- 	}
-@@ -545,6 +553,10 @@ static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
- 		atomic64_inc(&s390_domain->ctrs.sync_map_rpcits);
- 		rc = zpci_refresh_trans((u64)zdev->fh << 32,
- 					iova, size);
-+		if (rc == -ENOMEM) {
-+			iommu_dma_flush_fq(domain->iova_cookie);
-+			rc = 0;
-+		}
- 		if (rc)
- 			break;
- 	}
+@@ -376,7 +373,7 @@ static void fsm_irq(struct vfio_ccw_private *private,
+ static void fsm_open(struct vfio_ccw_private *private,
+ 		     enum vfio_ccw_event event)
+ {
+-	struct subchannel *sch = private->sch;
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 	int ret;
+ 
+ 	spin_lock_irq(sch->lock);
+@@ -397,7 +394,7 @@ static void fsm_open(struct vfio_ccw_private *private,
+ static void fsm_close(struct vfio_ccw_private *private,
+ 		      enum vfio_ccw_event event)
+ {
+-	struct subchannel *sch = private->sch;
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 	int ret;
+ 
+ 	spin_lock_irq(sch->lock);
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index b1cd89d900ab..cf383c729d53 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -69,9 +69,9 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+ 		return ret;
+ 
+ 	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: create\n",
+-			   private->sch->schid.cssid,
+-			   private->sch->schid.ssid,
+-			   private->sch->schid.sch_no);
++			   sch->schid.cssid,
++			   sch->schid.ssid,
++			   sch->schid.sch_no);
+ 
+ 	ret = vfio_register_emulated_iommu_dev(&private->vdev);
+ 	if (ret)
+@@ -108,9 +108,9 @@ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
+ 	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
+ 
+ 	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: remove\n",
+-			   private->sch->schid.cssid,
+-			   private->sch->schid.ssid,
+-			   private->sch->schid.sch_no);
++			   sch->schid.cssid,
++			   sch->schid.ssid,
++			   sch->schid.sch_no);
+ 
+ 	vfio_unregister_group_dev(&private->vdev);
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index 673e9a81a172..0fdff1435230 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -70,7 +70,6 @@ struct vfio_ccw_crw {
+ /**
+  * struct vfio_ccw_private
+  * @vdev: Embedded VFIO device
+- * @sch: pointer to the subchannel
+  * @state: internal state of the device
+  * @completion: synchronization helper of the I/O completion
+  * @io_region: MMIO region to input/output I/O arguments/results
+@@ -92,7 +91,6 @@ struct vfio_ccw_crw {
+  */
+ struct vfio_ccw_private {
+ 	struct vfio_device vdev;
+-	struct subchannel	*sch;
+ 	int			state;
+ 	struct completion	*completion;
+ 	struct ccw_io_region	*io_region;
+@@ -157,7 +155,10 @@ extern fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS];
+ static inline void vfio_ccw_fsm_event(struct vfio_ccw_private *private,
+ 				      enum vfio_ccw_event event)
+ {
+-	trace_vfio_ccw_fsm_event(private->sch->schid, private->state, event);
++	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
++
++	if (sch)
++		trace_vfio_ccw_fsm_event(sch->schid, private->state, event);
+ 	vfio_ccw_jumptable[private->state][event](private, event);
+ }
+ 
 -- 
 2.34.1
 
