@@ -2,63 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DEBC4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 19 Oct 2022 16:21:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60AEAC43219
+	for <linux-s390@archiver.kernel.org>; Wed, 19 Oct 2022 16:22:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229872AbiJSQV5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 Oct 2022 12:21:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60530 "EHLO
+        id S230341AbiJSQV7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 Oct 2022 12:21:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230104AbiJSQVy (ORCPT
+        with ESMTP id S230151AbiJSQVy (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Oct 2022 12:21:54 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19A0A1C2F04;
-        Wed, 19 Oct 2022 09:21:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21063196EDB;
+        Wed, 19 Oct 2022 09:21:53 -0700 (PDT)
 Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29JFwAgv002738;
-        Wed, 19 Oct 2022 16:21:46 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29JFwOdk003117;
+        Wed, 19 Oct 2022 16:21:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=V33GEawH2nePAn9P5wgIMcuZW8hDM0NZh1CWUPD4IoE=;
- b=MERLb02zYlT/MHm2Q+HuD+ymQUQXD4b8hwvnWo6MFhmmAFydjE+xYw/x8u3T3TYQIgqn
- a+3BQKvZhpcT4Q+2lXWkCSRDB6rRkzKqR3LZ1LCqCG6WieFViprzvzz7Fvx2D/gmg8tA
- xr3yPKnzY81e/bgXhT53gZ2x2FVqYp5tU84XGJv55qc/lZNrGc70ZQka8gyrKFizmlUn
- 4TxBDCfO5+9oh/J7tCZpp/9D/nyAWum1kFVDb/aEl5K5rVT3hCJ2IgmhGorjSrfGuXrI
- bSl750mgVbhLSrF+zf7bDPFBT28iLKIahMr2hBAyboGQswPOmMSzaxL6LDsE8BBTRAj5 lg== 
+ bh=ZXD2NF3bhb9xa6K8S7PWWXyNpAdQgQN41ZXfCUSfxLA=;
+ b=cfLCYZtMWYOFsJm21oqZTrl4tXt/srGxeUu4imP6iDpd8wsELKLL2021z6QgNXNwCjW9
+ 4ItIxPjualisAo92EnitLuNvK5ZgnH5oDADp2oshbt1TWLLzZZFmbpP8EPdzXgsvJL8i
+ iHKJvN6+93OBVj6SBu3IMOcRh+wrED+ElZgOZUMwOpLMxgX2IDwhN0W25NK+c0kBPZ1w
+ RdE6OBdP/WNGL5S64L4UhoRpi2uLisLt9zzu+EhwrkfrOpSFcqjuk8cVLrL2YHHbDXNM
+ F6R+tksyoJfLoYTeZ4PPwuEpWmgpntDvkC9k593eUhcN4V9skrdqYelbkn4bq03PoTUV hA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kambb1ayx-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kambb1b05-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 19 Oct 2022 16:21:45 +0000
 Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29JFxBOt004712;
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29JG0dGN008834;
         Wed, 19 Oct 2022 16:21:44 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kambb1awy-1
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kambb1ax3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 19 Oct 2022 16:21:44 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29JGL1Fu000988;
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29JGLTBh015554;
         Wed, 19 Oct 2022 16:21:41 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3kajmrr62h-1
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3k7mg97cx3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 19 Oct 2022 16:21:41 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29JGLcV359244886
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29JGMBQo52363548
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 Oct 2022 16:21:38 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3A84811C054;
+        Wed, 19 Oct 2022 16:22:11 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 77BB3A404D;
         Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 12C6B11C050;
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5899FA4040;
         Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
         Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id CA428E1465; Wed, 19 Oct 2022 18:21:37 +0200 (CEST)
+        id DA8C2E1693; Wed, 19 Oct 2022 18:21:37 +0200 (CEST)
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Alex Williamson <alex.williamson@redhat.com>,
@@ -93,17 +93,17 @@ Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v1 2/7] vfio/ccw: remove private->sch
-Date:   Wed, 19 Oct 2022 18:21:30 +0200
-Message-Id: <20221019162135.798901-3-farman@linux.ibm.com>
+Subject: [PATCH v1 6/7] vfio/ccw: replace vfio_init_device with _alloc_
+Date:   Wed, 19 Oct 2022 18:21:34 +0200
+Message-Id: <20221019162135.798901-7-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221019162135.798901-1-farman@linux.ibm.com>
 References: <20221019162135.798901-1-farman@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: GelaSU-LSEfaBXzLhrA82T9YXF2cNPQi
-X-Proofpoint-ORIG-GUID: PC0243sfbGgEkklCDlKnf8X94j1LGS-d
+X-Proofpoint-GUID: AtH2RdMo3ch1mwnGrA92KYP9LojR7_EX
+X-Proofpoint-ORIG-GUID: dWtngy90OA-mfsIT0f1Ujgtf3a4TtoZN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-19_09,2022-10-19_04,2022-06-22_01
@@ -116,241 +116,141 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These places all rely on the ability to jump from a private
-struct back to the subchannel struct. Rather than keeping a
-copy in our back pocket, let's use the relationship provided
-by the vfio_device embedded within the private.
+Now that we have a reasonable separation of structs that follow
+the subchannel and mdev lifecycles, there's no reason we can't
+call the official vfio_alloc_device routine for our private data,
+and behave like everyone else.
 
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_chp.c     |  5 +++--
- drivers/s390/cio/vfio_ccw_drv.c     |  3 +--
- drivers/s390/cio/vfio_ccw_fsm.c     | 27 ++++++++++++---------------
- drivers/s390/cio/vfio_ccw_ops.c     | 12 ++++++------
- drivers/s390/cio/vfio_ccw_private.h |  7 ++++---
- 5 files changed, 26 insertions(+), 28 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c     | 29 -----------------------------
+ drivers/s390/cio/vfio_ccw_ops.c     | 28 ++++++++++++++++++----------
+ drivers/s390/cio/vfio_ccw_private.h |  3 ---
+ drivers/vfio/vfio_main.c            |  3 ---
+ 4 files changed, 18 insertions(+), 45 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-index 13b26a1c7988..d3f3a611f95b 100644
---- a/drivers/s390/cio/vfio_ccw_chp.c
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -16,6 +16,7 @@ static ssize_t vfio_ccw_schib_region_read(struct vfio_ccw_private *private,
- 					  char __user *buf, size_t count,
- 					  loff_t *ppos)
- {
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
- 	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
- 	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
- 	struct ccw_schib_region *region;
-@@ -27,12 +28,12 @@ static ssize_t vfio_ccw_schib_region_read(struct vfio_ccw_private *private,
- 	mutex_lock(&private->io_mutex);
- 	region = private->region[i].data;
- 
--	if (cio_update_schib(private->sch)) {
-+	if (cio_update_schib(sch)) {
- 		ret = -ENODEV;
- 		goto out;
- 	}
- 
--	memcpy(region, &private->sch->schib, sizeof(*region));
-+	memcpy(region, &sch->schib, sizeof(*region));
- 
- 	if (copy_to_user(buf, (void *)region + pos, count)) {
- 		ret = -EFAULT;
 diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 634760ca0dea..4ee953c8ae39 100644
+index 686a9b9f6731..9bbf41315aca 100644
 --- a/drivers/s390/cio/vfio_ccw_drv.c
 +++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -154,7 +154,6 @@ static struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch)
- 	if (!private)
- 		return ERR_PTR(-ENOMEM);
- 
--	private->sch = sch;
- 	mutex_init(&private->io_mutex);
- 	private->state = VFIO_CCW_STATE_STANDBY;
- 	INIT_LIST_HEAD(&private->crw);
-@@ -383,7 +382,7 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
- 	if (!private || !mask)
- 		return 0;
- 
--	trace_vfio_ccw_chp_event(private->sch->schid, mask, event);
-+	trace_vfio_ccw_chp_event(sch->schid, mask, event);
- 	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: mask=0x%x event=%d\n",
- 			   sch->schid.cssid,
- 			   sch->schid.ssid, sch->schid.sch_no,
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index a59c758869f8..e67fad897af3 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -18,15 +18,13 @@
- 
- static int fsm_io_helper(struct vfio_ccw_private *private)
- {
--	struct subchannel *sch;
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
- 	union orb *orb;
- 	int ccode;
- 	__u8 lpm;
- 	unsigned long flags;
- 	int ret;
- 
--	sch = private->sch;
--
- 	spin_lock_irqsave(sch->lock, flags);
- 
- 	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
-@@ -80,13 +78,11 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
- 
- static int fsm_do_halt(struct vfio_ccw_private *private)
- {
--	struct subchannel *sch;
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
- 	unsigned long flags;
- 	int ccode;
- 	int ret;
- 
--	sch = private->sch;
--
- 	spin_lock_irqsave(sch->lock, flags);
- 
- 	VFIO_CCW_TRACE_EVENT(2, "haltIO");
-@@ -121,13 +117,11 @@ static int fsm_do_halt(struct vfio_ccw_private *private)
- 
- static int fsm_do_clear(struct vfio_ccw_private *private)
- {
--	struct subchannel *sch;
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
- 	unsigned long flags;
- 	int ccode;
- 	int ret;
- 
--	sch = private->sch;
--
- 	spin_lock_irqsave(sch->lock, flags);
- 
- 	VFIO_CCW_TRACE_EVENT(2, "clearIO");
-@@ -160,7 +154,7 @@ static int fsm_do_clear(struct vfio_ccw_private *private)
- static void fsm_notoper(struct vfio_ccw_private *private,
- 			enum vfio_ccw_event event)
- {
--	struct subchannel *sch = private->sch;
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
- 
- 	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: notoper event %x state %x\n",
- 			   sch->schid.cssid,
-@@ -228,7 +222,7 @@ static void fsm_async_retry(struct vfio_ccw_private *private,
- static void fsm_disabled_irq(struct vfio_ccw_private *private,
- 			     enum vfio_ccw_event event)
- {
--	struct subchannel *sch = private->sch;
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
- 
- 	/*
- 	 * An interrupt in a disabled state means a previous disable was not
-@@ -238,7 +232,9 @@ static void fsm_disabled_irq(struct vfio_ccw_private *private,
- }
- inline struct subchannel_id get_schid(struct vfio_ccw_private *p)
- {
--	return p->sch->schid;
-+	struct subchannel *sch = to_subchannel(p->vdev.dev->parent);
-+
-+	return sch->schid;
+@@ -146,35 +146,6 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
  }
  
- /*
-@@ -360,10 +356,11 @@ static void fsm_async_request(struct vfio_ccw_private *private,
- static void fsm_irq(struct vfio_ccw_private *private,
- 		    enum vfio_ccw_event event)
+-struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch)
+-{
+-	struct vfio_ccw_private *private;
+-
+-	private = kzalloc(sizeof(*private), GFP_KERNEL);
+-	if (!private)
+-		return ERR_PTR(-ENOMEM);
+-
+-	return private;
+-}
+-
+-void vfio_ccw_free_private(struct vfio_ccw_private *private)
+-{
+-	struct vfio_ccw_crw *crw, *temp;
+-
+-	list_for_each_entry_safe(crw, temp, &private->crw, next) {
+-		list_del(&crw->next);
+-		kfree(crw);
+-	}
+-
+-	kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
+-	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
+-	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+-	kmem_cache_free(vfio_ccw_io_region, private->io_region);
+-	kfree(private->cp.guest_cp);
+-	mutex_destroy(&private->io_mutex);
+-	kfree(private);
+-}
+-
+ static void vfio_ccw_free_parent(struct device *dev)
  {
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
- 	struct irb *irb = this_cpu_ptr(&cio_irb);
- 
- 	VFIO_CCW_TRACE_EVENT(6, "IRQ");
--	VFIO_CCW_TRACE_EVENT(6, dev_name(&private->sch->dev));
-+	VFIO_CCW_TRACE_EVENT(6, dev_name(&sch->dev));
- 
- 	memcpy(&private->irb, irb, sizeof(*irb));
- 
-@@ -376,7 +373,7 @@ static void fsm_irq(struct vfio_ccw_private *private,
- static void fsm_open(struct vfio_ccw_private *private,
- 		     enum vfio_ccw_event event)
- {
--	struct subchannel *sch = private->sch;
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
- 	int ret;
- 
- 	spin_lock_irq(sch->lock);
-@@ -397,7 +394,7 @@ static void fsm_open(struct vfio_ccw_private *private,
- static void fsm_close(struct vfio_ccw_private *private,
- 		      enum vfio_ccw_event event)
- {
--	struct subchannel *sch = private->sch;
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
- 	int ret;
- 
- 	spin_lock_irq(sch->lock);
+ 	struct vfio_ccw_parent *parent = container_of(dev, struct vfio_ccw_parent, dev);
 diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index b1cd89d900ab..cf383c729d53 100644
+index 261cb8150abb..9619dc35080f 100644
 --- a/drivers/s390/cio/vfio_ccw_ops.c
 +++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -69,9 +69,9 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
- 		return ret;
+@@ -103,15 +103,10 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+ 	struct vfio_ccw_private *private;
+ 	int ret;
  
- 	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: create\n",
--			   private->sch->schid.cssid,
--			   private->sch->schid.ssid,
--			   private->sch->schid.sch_no);
-+			   sch->schid.cssid,
-+			   sch->schid.ssid,
-+			   sch->schid.sch_no);
+-	private = vfio_ccw_alloc_private(sch);
+-	if (!private)
+-		return -ENOMEM;
+-
+-	ret = vfio_init_device(&private->vdev, &mdev->dev, &vfio_ccw_dev_ops);
+-	if (ret) {
+-		kfree(private);
+-		return ret;
+-	}
++	private = vfio_alloc_device(vfio_ccw_private, vdev, &mdev->dev,
++				    &vfio_ccw_dev_ops);
++	if (IS_ERR(private))
++		return PTR_ERR(private);
  
- 	ret = vfio_register_emulated_iommu_dev(&private->vdev);
- 	if (ret)
-@@ -108,9 +108,9 @@ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
- 	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
+ 	dev_set_drvdata(&parent->dev, private);
  
- 	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: remove\n",
--			   private->sch->schid.cssid,
--			   private->sch->schid.ssid,
--			   private->sch->schid.sch_no);
-+			   sch->schid.cssid,
-+			   sch->schid.ssid,
-+			   sch->schid.sch_no);
- 
- 	vfio_unregister_group_dev(&private->vdev);
- 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 673e9a81a172..0fdff1435230 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -70,7 +70,6 @@ struct vfio_ccw_crw {
- /**
-  * struct vfio_ccw_private
-  * @vdev: Embedded VFIO device
-- * @sch: pointer to the subchannel
-  * @state: internal state of the device
-  * @completion: synchronization helper of the I/O completion
-  * @io_region: MMIO region to input/output I/O arguments/results
-@@ -92,7 +91,6 @@ struct vfio_ccw_crw {
-  */
- struct vfio_ccw_private {
- 	struct vfio_device vdev;
--	struct subchannel	*sch;
- 	int			state;
- 	struct completion	*completion;
- 	struct ccw_io_region	*io_region;
-@@ -157,7 +155,10 @@ extern fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS];
- static inline void vfio_ccw_fsm_event(struct vfio_ccw_private *private,
- 				      enum vfio_ccw_event event)
+@@ -136,8 +131,21 @@ static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
  {
--	trace_vfio_ccw_fsm_event(private->sch->schid, private->state, event);
-+	struct subchannel *sch = to_subchannel(private->vdev.dev->parent);
+ 	struct vfio_ccw_private *private =
+ 		container_of(vdev, struct vfio_ccw_private, vdev);
++	struct vfio_ccw_crw *crw, *temp;
 +
-+	if (sch)
-+		trace_vfio_ccw_fsm_event(sch->schid, private->state, event);
- 	vfio_ccw_jumptable[private->state][event](private, event);
++	list_for_each_entry_safe(crw, temp, &private->crw, next) {
++		list_del(&crw->next);
++		kfree(crw);
++	}
++
++	kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
++	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
++	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
++	kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	kfree(private->cp.guest_cp);
++	mutex_destroy(&private->io_mutex);
+ 
+-	vfio_ccw_free_private(private);
++	vfio_free_device(vdev);
  }
  
+ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index ddaf6846022d..2ca408881659 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -116,9 +116,6 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch);
+ void vfio_ccw_sch_io_todo(struct work_struct *work);
+ void vfio_ccw_crw_todo(struct work_struct *work);
+ 
+-struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch);
+-void vfio_ccw_free_private(struct vfio_ccw_private *private);
+-
+ extern struct mdev_driver vfio_ccw_mdev_driver;
+ 
+ /*
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index 2d168793d4e1..28f36c6d9d3f 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -386,8 +386,6 @@ EXPORT_SYMBOL_GPL(_vfio_alloc_device);
+ 
+ /*
+  * Initialize a vfio_device so it can be registered to vfio core.
+- *
+- * Only vfio-ccw driver should call this interface.
+  */
+ int vfio_init_device(struct vfio_device *device, struct device *dev,
+ 		     const struct vfio_device_ops *ops)
+@@ -422,7 +420,6 @@ int vfio_init_device(struct vfio_device *device, struct device *dev,
+ 	ida_free(&vfio.device_ida, device->index);
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(vfio_init_device);
+ 
+ /*
+  * The helper called by driver @release callback to free the device
 -- 
 2.34.1
 
