@@ -2,70 +2,52 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E56B6C4167B
-	for <linux-s390@archiver.kernel.org>; Wed, 19 Oct 2022 16:22:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B9A0C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 19 Oct 2022 17:15:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230357AbiJSQWF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 Oct 2022 12:22:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60520 "EHLO
+        id S230155AbiJSRPg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 Oct 2022 13:15:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229664AbiJSQVz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Oct 2022 12:21:55 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19DD1196B5E;
-        Wed, 19 Oct 2022 09:21:52 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29JGC8VJ014957;
-        Wed, 19 Oct 2022 16:21:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=eMozdXaZXYQ37LuqRoXbJc5/QDGJq45946BtdJ8p0cY=;
- b=bCrWj8flsRQnA45Hglt1uY37pNa4fgeeDYoITglQPXfP6JT3CCXja9LqJZRLgc+LWdxj
- GGw0qW+bfqrOyf6HwVLHYeQr/f8ohaF6z3SlViOr9aR7hnDYCf1q/Da0Y3FCKlqmt9fJ
- IugR+76Q4IANLKn9JGhk+mR8ehIO/6VMzhwa04AzBAYN8uJuqg19WyBotfzAMkFw0msc
- c6NHivwLgnOa4oUrR5Gmj1SIjIntXKirb9giyvrdGbwkf56sjbg+WrexYFnzUpjqghuv
- a4Vz4a+lvMrbEuLmUhwE5SzctVipKsaOYF3k7RiEu4U5JT2BWUbAYLR/bvhLbTaQrNyD Yw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kamhx0b81-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Oct 2022 16:21:45 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29JGCFL5016709;
-        Wed, 19 Oct 2022 16:21:44 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kamhx0b6b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Oct 2022 16:21:44 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29JGKLot010026;
-        Wed, 19 Oct 2022 16:21:41 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma01fra.de.ibm.com with ESMTP id 3k99fn33u2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Oct 2022 16:21:41 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29JGLcGs31982240
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 Oct 2022 16:21:38 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3835D4C050;
-        Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 142D04C046;
-        Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id C60DAE1428; Wed, 19 Oct 2022 18:21:37 +0200 (CEST)
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        with ESMTP id S230139AbiJSRPf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Oct 2022 13:15:35 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D3732D9D;
+        Wed, 19 Oct 2022 10:15:33 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Z+6V8vxvRZI+ZQfawB/po2SZjFzYhK+YfB6P2VJrfsfolHIqJFkoMDFwcADs45rJ3/9SZJiyu6tsLQUNb8zDauyayF5TK8ZGm2zmpTynPd/OKD9t7/lA6wkQHA15pwwT8Svlb2jKtixxg8n4BsVmzddknfouOfwQFG/NFgcZbsYe+J9ojiEiWCuHIdnq2i7jztoMHwiudPrgRIPRit4f7cI4o8F8CFPqkaUgkrhkDr9HFCLZjVZbkXC9Y0V9Tb2hbBLV7bbXzMYwkHH9bTRrvNhKHkj57huf9Buk4nTW+kpSy+uRnREn1ckdrsgM0swltDD5llvdjmH+fQa7VPQrfg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=moa5J+x8ZOwrrGnqC65CPwi0xigEEJOaQhiVe8YwbGs=;
+ b=cL31vsr+DXK0MvbHffxby83lo5kh7Zm112hjh4+IBpsFLPGXTqxDdpgZ0usKZsWflvc8JxeziuHLfX4L2wFVi/o0vCNr1yWJ2vP/x9WLI3bcYNNT2kUwYTD1iMfKO5qlYTll3yMnJ8rbzJuH9k3ZkqJBzwmJthfDY96idB0MU4kVqCCOh7OR+HL/lta1GyEujHCfIsi+qAB3X4zNwg6m/aBA1svuC8AsEFUnqK5qDP43QgDbm7z/cFnUIWIXLxwd++VWA/xqqq2XKH8PLgy1VncrfOLfLCZP2Y9SctuZF2RwOwC4zdZSL2EitA73yfYdRHoSCnk3JrxrGgjU409OGg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=moa5J+x8ZOwrrGnqC65CPwi0xigEEJOaQhiVe8YwbGs=;
+ b=StcR7+ve5FJ+TMDjeV/j8Nz+BOpPj76G2Xp1M2wvmG7+d4ULHqk0EuQ8tB86Yod0I+vgmQMMv6iVRJIbvrDgCIZTnZW/cIfZJQIdScBiELxV2AhR/7ZO8bxLrmQLWDtpJTUPNH9RJBZ8NkwZp5XHoPnFB6RWrapQG1SOxkXB8oRU2kGYj1QPTBOfglnPN5L/ZAsKark+MOyuqI9eVmAkG1ExLB6xpT+QotE/ZkJCpgrCoxbjJuxD03suz0v4RIZyg3w40D3B7NPCnvup+d3oxfozsPptAcevxMul5JzIsRt83NvHG2ZLRVQXlkwgxj8RqRlCMwXwNl3y8E7XOa+r4w==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by DM4PR12MB7600.namprd12.prod.outlook.com (2603:10b6:8:108::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.26; Wed, 19 Oct
+ 2022 17:15:32 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::7a81:a4e4:bb9c:d1de%6]) with mapi id 15.20.5723.033; Wed, 19 Oct 2022
+ 17:15:31 +0000
+Date:   Wed, 19 Oct 2022 14:15:30 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Alex Williamson <alex.williamson@redhat.com>,
         Cornelia Huck <cohuck@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>
-Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
         Jani Nikula <jani.nikula@linux.intel.com>,
         Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
@@ -92,346 +74,84 @@ Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         intel-gvt-dev@lists.freedesktop.org,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v1 1/7] vfio/ccw: create a parent struct
-Date:   Wed, 19 Oct 2022 18:21:29 +0200
-Message-Id: <20221019162135.798901-2-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221019162135.798901-1-farman@linux.ibm.com>
+        kvm@vger.kernel.org
+Subject: Re: [PATCH v1 6/7] vfio/ccw: replace vfio_init_device with _alloc_
+Message-ID: <Y1Awsh56Ur/cDrHh@nvidia.com>
 References: <20221019162135.798901-1-farman@linux.ibm.com>
+ <20221019162135.798901-7-farman@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221019162135.798901-7-farman@linux.ibm.com>
+X-ClientProxiedBy: MN2PR19CA0037.namprd19.prod.outlook.com
+ (2603:10b6:208:19b::14) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: xdUVnKlaSZKDPBgZKZOKF8S5108RcOnD
-X-Proofpoint-GUID: w8Trvg-ZShCuD7vL0VvUowAacLNVe1HS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-19_09,2022-10-19_04,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- impostorscore=0 mlxscore=0 clxscore=1015 adultscore=0 malwarescore=0
- bulkscore=0 mlxlogscore=999 priorityscore=1501 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210190091
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DM4PR12MB7600:EE_
+X-MS-Office365-Filtering-Correlation-Id: 83d74008-cb3b-42d7-f916-08dab1f586c0
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: aEbATsebNcP7Fg61ktbvHtNSf4VjYbWBwED6ckBY0nGL0qp15sSu5otEa1YDuWeMu/8TPuWU7/SA9LzAKKvaNQSoKhh7tcDcqTx886d2SRPp+nLoITTjzuL8nzEPdAvEqodcIZ9E9b/lTTk1Oa31v2Kl6QmxslKVT1GMbRq+YxQKqymTgqOEYsTXrxo5slj2SZL03bunwwM6KLSCWwkY+HBYqzKQ/XRNCtv6mg3yLfUbf9x7YTsnG9h90C89cvzFJldBoGmlaK8Lm+NEjyeSMBj6pcv4o5ELyGrv2P5R8g78CntUpcOxcfIDvuOcf7Mu9igcPziTgHizbvBHpAs+SyzZM8L/6ryW3W4QU6IaUnjvjZW5u8tk8vb+geEoWO2ZKX5CkI0MCpdqFS1XLdM9g7cQvD6bVR5HU1icz6rYhmmHRhbEtfQJUyVSRRlfrkfXiDUFufhvwqBM+1Ply9EcZG3fl4x4Y/SjG/gW2UF7CZ4+7+cS7IcIb1GYd7MxDsK3wikgcLN7O0BCZs0I9R9cdY02JJciGcWLajYxAeFC/cXJWOEL3lhrfMkyS3K1RxVnCeToHr8clw1N6PzblUuoh2r6JgdavcI+G5k7FCpQwCgAlDWo1uc2Xy66EC+QArKRrAe9h+9dlSnj6eL9MChJq0C897jBDeS3/1MSXgBs1htyhG39ZdPedDa2yrmkWuBKIz/NQPuvX/+YtJ5D8EghiQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(396003)(136003)(346002)(39860400002)(376002)(451199015)(36756003)(86362001)(38100700002)(66556008)(316002)(6916009)(54906003)(7416002)(5660300002)(7406005)(4744005)(8936002)(186003)(66476007)(2906002)(6506007)(2616005)(66946007)(478600001)(6512007)(6486002)(26005)(41300700001)(4326008)(8676002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?TJnT5/dtaW4Qrq4V6mVMrzYp/tYa5MdjXOvNp3b//J1sHuKEIr7aJrUM96eW?=
+ =?us-ascii?Q?DQMcCBM8T2q1spaCSmysQKCvA8FyZ+BgWD6c6aebvNeJgqtWHwwIXvfIhUAQ?=
+ =?us-ascii?Q?I17Q6gY3QHS7ABC1e17l3Wo2fpk60cxarf3C4WUekQtCZQI4CwBjBYwaCvFv?=
+ =?us-ascii?Q?sxD1dbI8aSfdyjK16JW6NQgaw6Ynz1xhXuIlDbX2GPcJm0lTeXzZnnaiUs0A?=
+ =?us-ascii?Q?Qi8veOaCyQZGkuRsi6Z/2r+Rb5NHDZ139a6m5ClS34ErbWMDZJ+/0ybVx3Af?=
+ =?us-ascii?Q?aAeerw6tph5wO+orCaTqt/1ml7J1J5b2X92tem119LROemKq+ckdHJ5wPQvp?=
+ =?us-ascii?Q?G5dlFyHN7y8AN6YsNUx581zb9Wokd+IR5zJCPixrlC0T+BIcMD7Xfi8QK1Rl?=
+ =?us-ascii?Q?P7tFt2lFTBY+jCFZB3H87pYxY6nVli0ggX56HJ6ftvfEDQkR2Ezi34FNzVNX?=
+ =?us-ascii?Q?CmrdselhMpiVOW+XzokVOhqD74WjxpzwKWseqagTlVQaWFbbIxkYCn6L4dKn?=
+ =?us-ascii?Q?U8/h0JSYcZYQoQdO1D1d8MvjxpRxUigPS242p4lqH0TjkYs8hThXULurfYpq?=
+ =?us-ascii?Q?xd/Ixu3qlygrBq+HmVG5x8pKwxg0F7gBEdIUC0rdwAT1TISOrsCQWCWCRcgy?=
+ =?us-ascii?Q?ndnIh7hto3y10vKcKoGgdH5UG7p1HrsiQm4rxwaSQ+hk70KnjKM/SrJholDL?=
+ =?us-ascii?Q?BgTeCEtvrCvW+BvARxWdzPD8Ml2QG2ejGpArUDJmJqpp+tcezdHB2LVLG3ne?=
+ =?us-ascii?Q?XiiAvXOay23zdQSH4X+sqMkG8kTlWecFvgDaL77SKR64EZg/Pv/UvdSSo10T?=
+ =?us-ascii?Q?W1Raq2kACl9PVXoxUFBlSQxAqbDBSZesWTrtCYuqp72ek57+Czm7i5N9wrKC?=
+ =?us-ascii?Q?LOSSujhc3urweC9yQbZcW6clyZV4DbJE9MrCqSqL3L1hNpFq5HnLumNZoiBF?=
+ =?us-ascii?Q?kWlPL/5m/fgErS7VxDKK+pW219j2dQPAxIkK2SfclJAyjb+p5fe1itqCIpOx?=
+ =?us-ascii?Q?Oq0v5yNUGt1ZJTee7MIN6JCzhnqXZEcWldsNjoUpa1U9N1SX7Ik101fFdVIP?=
+ =?us-ascii?Q?7tL69YATnj2NzqscFbnzVscFA3Yd99dopHneWjGzB0qsEGU/jEHL1ERc9Cr5?=
+ =?us-ascii?Q?yUqxlT3ZGWvPW8zCWr8gx5lIQKMRXAsiK68GM1s6fgMiKeayTePwPS4s6WdL?=
+ =?us-ascii?Q?sAmjUFVd5LaXlPPCK1oB919PYNz/Hkx7WOiMzS/SRBKey/ttda7PB9vf1AEP?=
+ =?us-ascii?Q?8Qh83UCOFd6jeInj0XAGuZnF1EK4buDsphrqeS4rda+wBqsA1ntJqba3eh5y?=
+ =?us-ascii?Q?fJ7s1wZKaMHAAxVzEqPVEZXg6GDO50iGz+eO9Q8JPt5iMjwoCcHdC4BB+Y/T?=
+ =?us-ascii?Q?KPVIoC4a9XumVnZZQ4MEj1XymLHP2sWBenU9Nc0IVswNenoEyHcscSvvolW8?=
+ =?us-ascii?Q?U8xj067uf7zuO4Kvj6WuzxtU/WXGXKK0P+ltOokvR4mWodYUBQQYzqCfFoYO?=
+ =?us-ascii?Q?i4srC9UPbEhz5iQ7omtZlMAGrYb80ZWNMkGtXQCmUFiBLx/JKR4uDAYd6Spk?=
+ =?us-ascii?Q?wl/e0MdALHPcNQ6AqIs=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 83d74008-cb3b-42d7-f916-08dab1f586c0
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Oct 2022 17:15:31.9117
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: mLBsXjG/earih/mHhaf87AYpyLZueUs1LoTMGTtfJf/ra5/oLKMdwB4GOICsvT4L
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB7600
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Move the stuff associated with the mdev parent (and thus the
-subchannel struct) into its own struct, and leave the rest in
-the existing private structure.
+On Wed, Oct 19, 2022 at 06:21:34PM +0200, Eric Farman wrote:
 
-The subchannel will point to the parent, and the parent will point
-to the private, for the areas where one or both are needed. Further
-separation of these structs will follow.
+>  /*
+>   * Initialize a vfio_device so it can be registered to vfio core.
+> - *
+> - * Only vfio-ccw driver should call this interface.
+>   */
+>  int vfio_init_device(struct vfio_device *device, struct device *dev,
+>  		     const struct vfio_device_ops *ops)
+> @@ -422,7 +420,6 @@ int vfio_init_device(struct vfio_device *device, struct device *dev,
+>  	ida_free(&vfio.device_ida, device->index);
+>  	return ret;
+>  }
+> -EXPORT_SYMBOL_GPL(vfio_init_device);
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_drv.c     | 104 ++++++++++++++++++++--------
- drivers/s390/cio/vfio_ccw_ops.c     |   9 ++-
- drivers/s390/cio/vfio_ccw_parent.h  |  28 ++++++++
- drivers/s390/cio/vfio_ccw_private.h |   5 --
- 4 files changed, 112 insertions(+), 34 deletions(-)
- create mode 100644 drivers/s390/cio/vfio_ccw_parent.h
+Should be made static as well
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 7f5402fe857a..634760ca0dea 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -20,6 +20,7 @@
- #include "chp.h"
- #include "ioasm.h"
- #include "css.h"
-+#include "vfio_ccw_parent.h"
- #include "vfio_ccw_private.h"
- 
- struct workqueue_struct *vfio_ccw_work_q;
-@@ -36,7 +37,8 @@ debug_info_t *vfio_ccw_debug_trace_id;
-  */
- int vfio_ccw_sch_quiesce(struct subchannel *sch)
- {
--	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
- 	DECLARE_COMPLETION_ONSTACK(completion);
- 	int iretry, ret = 0;
- 
-@@ -51,19 +53,21 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 			break;
- 		}
- 
--		/*
--		 * Flush all I/O and wait for
--		 * cancel/halt/clear completion.
--		 */
--		private->completion = &completion;
--		spin_unlock_irq(sch->lock);
-+		if (private) {
-+			/*
-+			 * Flush all I/O and wait for
-+			 * cancel/halt/clear completion.
-+			 */
-+			private->completion = &completion;
-+			spin_unlock_irq(sch->lock);
- 
--		if (ret == -EBUSY)
--			wait_for_completion_timeout(&completion, 3*HZ);
-+			if (ret == -EBUSY)
-+				wait_for_completion_timeout(&completion, 3*HZ);
- 
--		private->completion = NULL;
--		flush_workqueue(vfio_ccw_work_q);
--		spin_lock_irq(sch->lock);
-+			private->completion = NULL;
-+			flush_workqueue(vfio_ccw_work_q);
-+			spin_lock_irq(sch->lock);
-+		}
- 		ret = cio_disable_subchannel(sch);
- 	} while (ret == -EBUSY);
- 
-@@ -121,7 +125,22 @@ static void vfio_ccw_crw_todo(struct work_struct *work)
-  */
- static void vfio_ccw_sch_irq(struct subchannel *sch)
- {
--	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
-+
-+	/*
-+	 * The subchannel should still be disabled at this point,
-+	 * so an interrupt would be quite surprising. As with an
-+	 * interrupt while the FSM is closed, let's attempt to
-+	 * disable the subchannel again.
-+	 */
-+	if (!private) {
-+		VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: unexpected interrupt\n",
-+			sch->schid.cssid, sch->schid.ssid, sch->schid.sch_no);
-+
-+		cio_disable_subchannel(sch);
-+		return;
-+	}
- 
- 	inc_irq_stat(IRQIO_CIO);
- 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
-@@ -201,10 +220,19 @@ static void vfio_ccw_free_private(struct vfio_ccw_private *private)
- 	mutex_destroy(&private->io_mutex);
- 	kfree(private);
- }
-+
-+static void vfio_ccw_free_parent(struct device *dev)
-+{
-+	struct vfio_ccw_parent *parent = container_of(dev, struct vfio_ccw_parent, dev);
-+
-+	kfree(parent);
-+}
-+
- static int vfio_ccw_sch_probe(struct subchannel *sch)
- {
- 	struct pmcw *pmcw = &sch->schib.pmcw;
- 	struct vfio_ccw_private *private;
-+	struct vfio_ccw_parent *parent;
- 	int ret = -ENOMEM;
- 
- 	if (pmcw->qf) {
-@@ -213,18 +241,28 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 		return -ENODEV;
- 	}
- 
-+	parent = kzalloc(sizeof(*parent), GFP_KERNEL);
-+	if (IS_ERR(parent))
-+		return PTR_ERR(parent);
-+
-+	parent->dev.release = &vfio_ccw_free_parent;
-+	device_initialize(&parent->dev);
-+
- 	private = vfio_ccw_alloc_private(sch);
--	if (IS_ERR(private))
-+	if (IS_ERR(private)) {
-+		put_device(&parent->dev);
- 		return PTR_ERR(private);
-+	}
- 
--	dev_set_drvdata(&sch->dev, private);
-+	dev_set_drvdata(&sch->dev, parent);
-+	dev_set_drvdata(&parent->dev, private);
- 
--	private->mdev_type.sysfs_name = "io";
--	private->mdev_type.pretty_name = "I/O subchannel (Non-QDIO)";
--	private->mdev_types[0] = &private->mdev_type;
--	ret = mdev_register_parent(&private->parent, &sch->dev,
-+	parent->mdev_type.sysfs_name = "io";
-+	parent->mdev_type.pretty_name = "I/O subchannel (Non-QDIO)";
-+	parent->mdev_types[0] = &parent->mdev_type;
-+	ret = mdev_register_parent(&parent->parent, &sch->dev,
- 				   &vfio_ccw_mdev_driver,
--				   private->mdev_types, 1);
-+				   parent->mdev_types, 1);
- 	if (ret)
- 		goto out_free;
- 
-@@ -234,20 +272,24 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	return 0;
- 
- out_free:
-+	dev_set_drvdata(&parent->dev, NULL);
- 	dev_set_drvdata(&sch->dev, NULL);
- 	vfio_ccw_free_private(private);
-+	put_device(&parent->dev);
- 	return ret;
- }
- 
- static void vfio_ccw_sch_remove(struct subchannel *sch)
- {
--	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
- 
--	mdev_unregister_parent(&private->parent);
-+	mdev_unregister_parent(&parent->parent);
- 
- 	dev_set_drvdata(&sch->dev, NULL);
- 
- 	vfio_ccw_free_private(private);
-+	put_device(&parent->dev);
- 
- 	VFIO_CCW_MSG_EVENT(4, "unbound from subchannel %x.%x.%04x\n",
- 			   sch->schid.cssid, sch->schid.ssid,
-@@ -256,7 +298,11 @@ static void vfio_ccw_sch_remove(struct subchannel *sch)
- 
- static void vfio_ccw_sch_shutdown(struct subchannel *sch)
- {
--	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
-+
-+	if (WARN_ON(!private))
-+		return;
- 
- 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_CLOSE);
- 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
-@@ -274,7 +320,8 @@ static void vfio_ccw_sch_shutdown(struct subchannel *sch)
-  */
- static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- {
--	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
- 	unsigned long flags;
- 	int rc = -EAGAIN;
- 
-@@ -287,8 +334,10 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 
- 	rc = 0;
- 
--	if (cio_update_schib(sch))
--		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
-+	if (cio_update_schib(sch)) {
-+		if (private)
-+			vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
-+	}
- 
- out_unlock:
- 	spin_unlock_irqrestore(sch->lock, flags);
-@@ -326,7 +375,8 @@ static void vfio_ccw_queue_crw(struct vfio_ccw_private *private,
- static int vfio_ccw_chp_event(struct subchannel *sch,
- 			      struct chp_link *link, int event)
- {
--	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
- 	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
- 	int retry = 255;
- 
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 6ae4d012d800..b1cd89d900ab 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -14,6 +14,7 @@
- #include <linux/nospec.h>
- #include <linux/slab.h>
- 
-+#include "vfio_ccw_parent.h"
- #include "vfio_ccw_private.h"
- 
- static const struct vfio_device_ops vfio_ccw_dev_ops;
-@@ -55,7 +56,9 @@ static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
- 
- static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
- {
--	struct vfio_ccw_private *private = dev_get_drvdata(mdev->dev.parent);
-+	struct subchannel *sch = to_subchannel(mdev->dev.parent);
-+	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
- 	int ret;
- 
- 	if (private->state == VFIO_CCW_STATE_NOT_OPER)
-@@ -100,7 +103,9 @@ static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
- 
- static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
- {
--	struct vfio_ccw_private *private = dev_get_drvdata(mdev->dev.parent);
-+	struct subchannel *sch = to_subchannel(mdev->dev.parent);
-+	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
- 
- 	VFIO_CCW_MSG_EVENT(2, "sch %x.%x.%04x: remove\n",
- 			   private->sch->schid.cssid,
-diff --git a/drivers/s390/cio/vfio_ccw_parent.h b/drivers/s390/cio/vfio_ccw_parent.h
-new file mode 100644
-index 000000000000..834c00077802
---- /dev/null
-+++ b/drivers/s390/cio/vfio_ccw_parent.h
-@@ -0,0 +1,28 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * MDEV Parent contents for vfio_ccw driver
-+ *
-+ * Copyright IBM Corp. 2022
-+ */
-+
-+#ifndef _VFIO_CCW_PARENT_H_
-+#define _VFIO_CCW_PARENT_H_
-+
-+#include <linux/mdev.h>
-+
-+/**
-+ * struct vfio_ccw_parent
-+ *
-+ * @dev: embedded device struct
-+ * @parent: parent data structures for mdevs created
-+ * @mdev_type(s): identifying information for mdevs created
-+ */
-+struct vfio_ccw_parent {
-+	struct device		dev;
-+
-+	struct mdev_parent	parent;
-+	struct mdev_type	mdev_type;
-+	struct mdev_type	*mdev_types[1];
-+};
-+
-+#endif
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index bd5fb81456af..673e9a81a172 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -89,7 +89,6 @@ struct vfio_ccw_crw {
-  * @io_work: work for deferral process of I/O handling
-  * @crw_work: work for deferral process of CRW handling
-  * @release_comp: synchronization helper for vfio device release
-- * @parent: parent data structures for mdevs created
-  */
- struct vfio_ccw_private {
- 	struct vfio_device vdev;
-@@ -116,10 +115,6 @@ struct vfio_ccw_private {
- 	struct work_struct	crw_work;
- 
- 	struct completion	release_comp;
--
--	struct mdev_parent	parent;
--	struct mdev_type	mdev_type;
--	struct mdev_type	*mdev_types[1];
- } __aligned(8);
- 
- int vfio_ccw_sch_quiesce(struct subchannel *sch);
--- 
-2.34.1
-
+Jason
