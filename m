@@ -2,63 +2,62 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1300C43219
-	for <linux-s390@archiver.kernel.org>; Wed, 19 Oct 2022 16:22:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66992C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 19 Oct 2022 16:22:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230490AbiJSQWB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 Oct 2022 12:22:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60690 "EHLO
+        id S231158AbiJSQWD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 Oct 2022 12:22:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230118AbiJSQV5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Oct 2022 12:21:57 -0400
+        with ESMTP id S230219AbiJSQVz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Oct 2022 12:21:55 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8721189C1E;
-        Wed, 19 Oct 2022 09:21:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 607B11C2E83;
+        Wed, 19 Oct 2022 09:21:55 -0700 (PDT)
 Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29JGC6HC014621;
-        Wed, 19 Oct 2022 16:21:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=TXLZAQtJsJggPkIDpdYGEE9we8Oz6PH+Z15itzJhP00=;
- b=VlR7JLXAYey+AuQEQso4SYmoKZ+WM8FPU62L3wSyzHy7TdRO5brvwtOv0C14sdvCy/OE
- vlVTXVnFWi/+Ro5aHU6hZaK5Hig1CwzsQixCYItuHEK6gpn4uTHcPCOBdpytJGg9NPnM
- qHbq0HjV3YaRBXkWbXMhg/bHC8JRJWNQS8kt+GdIsQxvhIYhZ7rXY+o54SPYHyUslYjh
- 4W1R8ZMWpcYSjSwMR7bbXTKTkz2r9RHxKvQRTYqEnFQJuYwfFHTiBmJc7qksg9USak26
- rNgi3oKbK7YKYVKV90qpjWoYrliP8/5oFQiqBWh133EJknX9zt4gWemVAKTiw/dd5vhI Fw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kamhx0bar-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Oct 2022 16:21:49 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29JGCDx2016440;
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29JGC381014500;
         Wed, 19 Oct 2022 16:21:48 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kamhx0b6a-1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=ueHhensO89tMZ5aZeuuWx+fIGWz1CSWGE0UZFzQ8/3k=;
+ b=mEVvrGRCJPg0Ad7IK0WXlo5/iBCR8zS8Tf6Z1Ir9mldutxVRRyYHJ5o2F0TM5+iRaQ7w
+ DGg4z/Q6tnucXy5yvQ57aOrPQJA7nN72j8/Yao+dX03yZQuwyBHMRY86BiRDxxonw+Hp
+ 9fp9j9x4HtP9yx8S0ZnnGnClEh7zMUVd/2xCRIk6UWD+VPElTTKqFPZq2vzNtVd81Yra
+ Stt7h4ZR9LlM/86msftcY7I5RiyyfbjrvFbHkzeOIVZU9SrpHBarfI7rRru9UnLpdTLR
+ mlgxgBT2GFya+aO8YVkup8ZOwkK9SfEG7jbjVTY0Hw0ZfYm+ofyZ0zHeRMotYDpCD3Gm ug== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kamhx0b9u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 19 Oct 2022 16:21:48 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29JGKLQJ016286;
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29JGCDwx016440;
+        Wed, 19 Oct 2022 16:21:47 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kamhx0b65-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 Oct 2022 16:21:46 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29JGKFOV000526;
         Wed, 19 Oct 2022 16:21:41 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03fra.de.ibm.com with ESMTP id 3k7mg9dk0f-1
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kajmrr62g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 19 Oct 2022 16:21:41 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29JGLc7b918040
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29JGGbVt41288134
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 Oct 2022 16:21:38 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 41E794C058;
+        Wed, 19 Oct 2022 16:16:37 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 26420A4060;
         Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 199164C04A;
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0F61AA405C;
         Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
         Wed, 19 Oct 2022 16:21:38 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id CE6D5E14BB; Wed, 19 Oct 2022 18:21:37 +0200 (CEST)
+        id C2ACAE023C; Wed, 19 Oct 2022 18:21:37 +0200 (CEST)
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Alex Williamson <alex.williamson@redhat.com>,
@@ -93,17 +92,16 @@ Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v1 3/7] vfio/ccw: move private initialization to callback
-Date:   Wed, 19 Oct 2022 18:21:31 +0200
-Message-Id: <20221019162135.798901-4-farman@linux.ibm.com>
+Subject: [PATCH v1 0/7] vfio-ccw parent rework
+Date:   Wed, 19 Oct 2022 18:21:28 +0200
+Message-Id: <20221019162135.798901-1-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221019162135.798901-1-farman@linux.ibm.com>
-References: <20221019162135.798901-1-farman@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: OH12thvtw1vhpW2BSLrClRqJ6DsMFAxz
-X-Proofpoint-GUID: diAw04pVHcYXDJoTM_Os6kNe0eVcds5s
+X-Proofpoint-ORIG-GUID: QVeqQa4fNXWqhRly__j8I7Qai_FQvnJM
+X-Proofpoint-GUID: tk4o-9iVTqbbG68tiiPnDNh-ZUS3ib5b
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-19_09,2022-10-19_04,2022-06-22_01
@@ -116,190 +114,76 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There's already a device initialization callback that is
-used to initialize the release completion workaround.
+Hi all,
 
-Move the other elements of the vfio_ccw_private struct that
-require distinct initialization over to that routine.
+There have been discussions and attempts [1][2] to rework the vfio-ccw device
+lifecycle to better align with the needs/expectations of vfio and mdev.
+While those languished, commit cb9ff3f3b84c ("vfio: Add helpers for unifying
+vfio_device life cycle") implemented a couple of tricks that help vfio and the
+drivers that interact with it, while keeping vfio-ccw as-is. A handful of
+commits titled "vfio/xxx: Use the new device life cycle helpers" implemented
+those tricks for each of the drivers.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_drv.c     | 57 +++--------------------------
- drivers/s390/cio/vfio_ccw_ops.c     | 43 ++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_private.h |  7 +++-
- 3 files changed, 55 insertions(+), 52 deletions(-)
+This series attempts to address the oddities/shortcomings of vfio-ccw, such
+that vfio-ccw can use the same helpers as everyone else, and the tricks that
+were implemented by the other drivers can be removed. It is built on 6.1-rc1,
+and thus includes the various changes [3][4] that have occurred in and around
+these parts.
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 4ee953c8ae39..cc9ed2fd970f 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -24,10 +24,10 @@
- #include "vfio_ccw_private.h"
- 
- struct workqueue_struct *vfio_ccw_work_q;
--static struct kmem_cache *vfio_ccw_io_region;
--static struct kmem_cache *vfio_ccw_cmd_region;
--static struct kmem_cache *vfio_ccw_schib_region;
--static struct kmem_cache *vfio_ccw_crw_region;
-+struct kmem_cache *vfio_ccw_io_region;
-+struct kmem_cache *vfio_ccw_cmd_region;
-+struct kmem_cache *vfio_ccw_schib_region;
-+struct kmem_cache *vfio_ccw_crw_region;
- 
- debug_info_t *vfio_ccw_debug_msg_id;
- debug_info_t *vfio_ccw_debug_trace_id;
-@@ -74,7 +74,7 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 	return ret;
- }
- 
--static void vfio_ccw_sch_io_todo(struct work_struct *work)
-+void vfio_ccw_sch_io_todo(struct work_struct *work)
- {
- 	struct vfio_ccw_private *private;
- 	struct irb *irb;
-@@ -110,7 +110,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		eventfd_signal(private->io_trigger, 1);
- }
- 
--static void vfio_ccw_crw_todo(struct work_struct *work)
-+void vfio_ccw_crw_todo(struct work_struct *work)
- {
- 	struct vfio_ccw_private *private;
- 
-@@ -154,52 +154,7 @@ static struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch)
- 	if (!private)
- 		return ERR_PTR(-ENOMEM);
- 
--	mutex_init(&private->io_mutex);
--	private->state = VFIO_CCW_STATE_STANDBY;
--	INIT_LIST_HEAD(&private->crw);
--	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
--	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
--
--	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
--				       GFP_KERNEL);
--	if (!private->cp.guest_cp)
--		goto out_free_private;
--
--	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
--					       GFP_KERNEL | GFP_DMA);
--	if (!private->io_region)
--		goto out_free_cp;
--
--	private->cmd_region = kmem_cache_zalloc(vfio_ccw_cmd_region,
--						GFP_KERNEL | GFP_DMA);
--	if (!private->cmd_region)
--		goto out_free_io;
--
--	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
--						  GFP_KERNEL | GFP_DMA);
--
--	if (!private->schib_region)
--		goto out_free_cmd;
--
--	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
--						GFP_KERNEL | GFP_DMA);
--
--	if (!private->crw_region)
--		goto out_free_schib;
- 	return private;
--
--out_free_schib:
--	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
--out_free_cmd:
--	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
--out_free_io:
--	kmem_cache_free(vfio_ccw_io_region, private->io_region);
--out_free_cp:
--	kfree(private->cp.guest_cp);
--out_free_private:
--	mutex_destroy(&private->io_mutex);
--	kfree(private);
--	return ERR_PTR(-ENOMEM);
- }
- 
- static void vfio_ccw_free_private(struct vfio_ccw_private *private)
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index cf383c729d53..626b8eb3507b 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -50,8 +50,51 @@ static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
- 	struct vfio_ccw_private *private =
- 		container_of(vdev, struct vfio_ccw_private, vdev);
- 
-+	mutex_init(&private->io_mutex);
-+	private->state = VFIO_CCW_STATE_STANDBY;
-+	INIT_LIST_HEAD(&private->crw);
-+	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
-+	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
- 	init_completion(&private->release_comp);
-+
-+	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
-+				       GFP_KERNEL);
-+	if (!private->cp.guest_cp)
-+		goto out_free_private;
-+
-+	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
-+					       GFP_KERNEL | GFP_DMA);
-+	if (!private->io_region)
-+		goto out_free_cp;
-+
-+	private->cmd_region = kmem_cache_zalloc(vfio_ccw_cmd_region,
-+						GFP_KERNEL | GFP_DMA);
-+	if (!private->cmd_region)
-+		goto out_free_io;
-+
-+	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
-+						  GFP_KERNEL | GFP_DMA);
-+	if (!private->schib_region)
-+		goto out_free_cmd;
-+
-+	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
-+						GFP_KERNEL | GFP_DMA);
-+	if (!private->crw_region)
-+		goto out_free_schib;
-+
- 	return 0;
-+
-+out_free_schib:
-+	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
-+out_free_cmd:
-+	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
-+out_free_io:
-+	kmem_cache_free(vfio_ccw_io_region, private->io_region);
-+out_free_cp:
-+	kfree(private->cp.guest_cp);
-+out_free_private:
-+	mutex_destroy(&private->io_mutex);
-+	return -ENOMEM;
- }
- 
- static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 0fdff1435230..b35940057073 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -116,6 +116,8 @@ struct vfio_ccw_private {
- } __aligned(8);
- 
- int vfio_ccw_sch_quiesce(struct subchannel *sch);
-+void vfio_ccw_sch_io_todo(struct work_struct *work);
-+void vfio_ccw_crw_todo(struct work_struct *work);
- 
- extern struct mdev_driver vfio_ccw_mdev_driver;
- 
-@@ -163,7 +165,10 @@ static inline void vfio_ccw_fsm_event(struct vfio_ccw_private *private,
- }
- 
- extern struct workqueue_struct *vfio_ccw_work_q;
--
-+extern struct kmem_cache *vfio_ccw_io_region;
-+extern struct kmem_cache *vfio_ccw_cmd_region;
-+extern struct kmem_cache *vfio_ccw_schib_region;
-+extern struct kmem_cache *vfio_ccw_crw_region;
- 
- /* s390 debug feature, similar to base cio */
- extern debug_info_t *vfio_ccw_debug_msg_id;
+Patches 1-5 rework the behavior of the vfio-ccw driver's private struct.
+In summary, the mdev pieces are split out of vfio_ccw_private and into a
+new vfio_ccw_parent struct that will continue to follow today's lifecycle.
+The remainder (bulk) of the private struct moves to follow the mdev
+probe/remove pair. There's opportunity for further separation of the
+things in the private struct, which would simplify some of the vfio-ccw
+code, but it got too hairy as I started that. Once vfio-ccw is no longer
+considered unique, those cleanups can happen at our leisure. 
+
+Patch 6 removes the trickery where vfio-ccw uses vfio_init_device instead of
+vfio_alloc_device, and thus removes vfio_init_device from the outside world.
+
+Patch 7 removes vfio_free_device from vfio-ccw and the other drivers (hello,
+CC list!), letting it be handled by vfio_device_release directly.
+
+Looking forward to the feedback.
+
+Thanks,
+Eric
+
+[1] https://lore.kernel.org/kvm/0-v3-57c1502c62fd+2190-ccw_mdev_jgg@nvidia.com/
+[2] https://lore.kernel.org/kvm/20220602171948.2790690-1-farman@linux.ibm.com/
+[3] https://lore.kernel.org/kvm/20220923092652.100656-1-hch@lst.de/
+[4] https://lore.kernel.org/kvm/20220921104401.38898-1-kevin.tian@intel.com/
+
+Eric Farman (7):
+  vfio/ccw: create a parent struct
+  vfio/ccw: remove private->sch
+  vfio/ccw: move private initialization to callback
+  vfio/ccw: move private to mdev lifecycle
+  vfio/ccw: remove release completion
+  vfio/ccw: replace vfio_init_device with _alloc_
+  vfio: Remove vfio_free_device
+
+ drivers/gpu/drm/i915/gvt/kvmgt.c      |   1 -
+ drivers/s390/cio/vfio_ccw_chp.c       |   5 +-
+ drivers/s390/cio/vfio_ccw_drv.c       | 182 ++++++++++----------------
+ drivers/s390/cio/vfio_ccw_fsm.c       |  27 ++--
+ drivers/s390/cio/vfio_ccw_ops.c       | 108 ++++++++++-----
+ drivers/s390/cio/vfio_ccw_parent.h    |  28 ++++
+ drivers/s390/cio/vfio_ccw_private.h   |  22 ++--
+ drivers/s390/crypto/vfio_ap_ops.c     |   6 -
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c     |   1 -
+ drivers/vfio/pci/vfio_pci_core.c      |   1 -
+ drivers/vfio/platform/vfio_amba.c     |   1 -
+ drivers/vfio/platform/vfio_platform.c |   1 -
+ drivers/vfio/vfio_main.c              |  25 +---
+ include/linux/vfio.h                  |   1 -
+ samples/vfio-mdev/mbochs.c            |   1 -
+ samples/vfio-mdev/mdpy.c              |   1 -
+ samples/vfio-mdev/mtty.c              |   1 -
+ 17 files changed, 204 insertions(+), 208 deletions(-)
+ create mode 100644 drivers/s390/cio/vfio_ccw_parent.h
+
 -- 
 2.34.1
 
