@@ -2,144 +2,165 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56164C43217
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Oct 2022 05:17:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A77CC433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Oct 2022 06:44:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229886AbiJTFRF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Oct 2022 01:17:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48598 "EHLO
+        id S229845AbiJTGoF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Oct 2022 02:44:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbiJTFRE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Oct 2022 01:17:04 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD7F17C541;
-        Wed, 19 Oct 2022 22:17:02 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29K57qHS005263;
-        Thu, 20 Oct 2022 05:16:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=mAgQ5fC4sKpQ3PvxLcsGXTrIfrhjVMDrWRX9tOmZF6I=;
- b=puEaCzteE8wpU73EkQgNFMQUyxVppPU4kzJJCPoHqY8sBQO8mnJUm1y/Gk19FgylMPCV
- U1/kNUFJqUKy1D7nE4JeKj0A+B179H3TgbxxqIaY63sF8pe5ilywXBhEgzb0GXB2MnPp
- gmlEtog7CP59u8xZlN1sg45QNxukQ32KwwXH4yq5Rd84sLT/g6DWR+Se/cklo7pZJucf
- XeSkmvoAnMzM5A8UREExOm+vYjawCSl6ec2lRGvrRjkwPONNjzRcBroEn9IUupa2Qe6U
- CRsiuoxZXsMpC9fPm24xICi4UKJ3eQ1SVuFWV6utwofUlZ+QVwiixAZQK9xAeAxm7+59 SA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kavjv52xm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Oct 2022 05:16:51 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29K58f1j009219;
-        Thu, 20 Oct 2022 05:16:50 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kavjv52wh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Oct 2022 05:16:50 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29K55SWF032014;
-        Thu, 20 Oct 2022 05:16:49 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04ams.nl.ibm.com with ESMTP id 3k7mg9876n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Oct 2022 05:16:48 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29K5BhTs50331938
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Oct 2022 05:11:43 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E9C24C046;
-        Thu, 20 Oct 2022 05:16:45 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A7BBB4C040;
-        Thu, 20 Oct 2022 05:16:44 +0000 (GMT)
-Received: from [9.171.43.76] (unknown [9.171.43.76])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 20 Oct 2022 05:16:44 +0000 (GMT)
-Message-ID: <b74752cc-5833-c1b5-3697-262c523e794b@linux.ibm.com>
-Date:   Thu, 20 Oct 2022 07:16:44 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: [PATCH v3 rcu 08/11] arch/s390: Add
- ARCH_HAS_NMI_SAFE_THIS_CPU_OPS Kconfig option
-To:     "Paul E. McKenney" <paulmck@kernel.org>, rcu@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, kernel-team@fb.com,
-        rostedt@goodmis.org, Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Ogness <john.ogness@linutronix.de>,
-        Petr Mladek <pmladek@suse.com>, linux-s390@vger.kernel.org
-References: <20221019225838.GA2500612@paulmck-ThinkPad-P17-Gen-1>
- <20221019225846.2501109-8-paulmck@kernel.org>
-Content-Language: en-US
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20221019225846.2501109-8-paulmck@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JLD47XnEjZuXK5fP6AH8MFxtxqmnzhJ8
-X-Proofpoint-ORIG-GUID: lKMJ8UibkdU9hWACLHOimuOXOdYYZxRb
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-20_01,2022-10-19_04,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 priorityscore=1501 mlxscore=0 bulkscore=0 mlxlogscore=999
- phishscore=0 spamscore=0 adultscore=0 clxscore=1011 lowpriorityscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210200028
+        with ESMTP id S230258AbiJTGoD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Oct 2022 02:44:03 -0400
+Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8E681C1158;
+        Wed, 19 Oct 2022 23:43:59 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R291e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VSdzyG._1666248232;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VSdzyG._1666248232)
+          by smtp.aliyun-inc.com;
+          Thu, 20 Oct 2022 14:43:57 +0800
+From:   "D.Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net-next v3 00/10] optimize the parallelism of SMC-R connections
+Date:   Thu, 20 Oct 2022 14:43:42 +0800
+Message-Id: <1666248232-63751-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: "D.Wythe" <alibuda@linux.alibaba.com>
+
+This patch set attempts to optimize the parallelism of SMC-R connections,
+mainly to reduce unnecessary blocking on locks, and to fix exceptions that
+occur after thoses optimization.
+
+According to Off-CPU graph, SMC worker's off-CPU as that:
+
+smc_close_passive_work                  (1.09%)
+        smcr_buf_unuse                  (1.08%)
+                smc_llc_flow_initiate   (1.02%)
+
+smc_listen_work                         (48.17%)
+        __mutex_lock.isra.11            (47.96%)
 
 
-Am 20.10.22 um 00:58 schrieb Paul E. McKenney:
-> The s390 architecture uses either a cmpxchg loop (old systems)
-> or the laa add-to-memory instruction (new systems) to implement
-> this_cpu_add(), both of which are NMI safe.  This means that the old
-> and more-efficient srcu_read_lock() may be used in NMI context, without
-> the need for srcu_read_lock_nmisafe().  Therefore, add the new Kconfig
-> option ARCH_HAS_NMI_SAFE_THIS_CPU_OPS to arch/arm64/Kconfig, which will
-						s390 ?
-> cause NEED_SRCU_NMI_SAFE to be deselected, thus preserving the current
-> srcu_read_lock() behavior.
-> 
-> Link: https://lore.kernel.org/all/20220910221947.171557773@linutronix.de/
-> 
-> Suggested-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-> Suggested-by: Frederic Weisbecker <frederic@kernel.org>
-> Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-> Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: John Ogness <john.ogness@linutronix.de>
-> Cc: Petr Mladek <pmladek@suse.com>
-> Cc: <linux-s390@vger.kernel.org>
-> ---
->   arch/s390/Kconfig | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 318fce77601d3..0acdfda332908 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -73,6 +73,7 @@ config S390
->   	select ARCH_HAS_GIGANTIC_PAGE
->   	select ARCH_HAS_KCOV
->   	select ARCH_HAS_MEM_ENCRYPT
-> +	select ARCH_HAS_NMI_SAFE_THIS_CPU_OPS
->   	select ARCH_HAS_PTE_SPECIAL
->   	select ARCH_HAS_SCALED_CPUTIME
->   	select ARCH_HAS_SET_MEMORY
+An ideal SMC-R connection process should only block on the IO events
+of the network, but it's quite clear that the SMC-R connection now is
+queued on the lock most of the time.
+
+The goal of this patchset is to achieve our ideal situation where
+network IO events are blocked for the majority of the connection lifetime.
+
+There are three big locks here:
+
+1. smc_client_lgr_pending & smc_server_lgr_pending
+
+2. llc_conf_mutex
+
+3. rmbs_lock & sndbufs_lock
+
+And an implementation issue:
+
+1. confirm/delete rkey msg can't be sent concurrently while
+protocol allows indeed.
+
+Unfortunately,The above problems together affect the parallelism of
+SMC-R connection. If any of them are not solved. our goal cannot
+be achieved.
+
+After this patch set, we can get a quite ideal off-CPU graph as
+following:
+
+smc_close_passive_work                                  (41.58%)
+        smcr_buf_unuse                                  (41.57%)
+                smc_llc_do_delete_rkey                  (41.57%)
+
+smc_listen_work                                         (39.10%)
+        smc_clc_wait_msg                                (13.18%)
+                tcp_recvmsg_locked                      (13.18)
+        smc_listen_find_device                          (25.87%)
+                smcr_lgr_reg_rmbs                       (25.87%)
+                        smc_llc_do_confirm_rkey         (25.87%)
+
+We can see that most of the waiting times are waiting for network IO
+events. This also has a certain performance improvement on our
+short-lived conenction wrk/nginx benchmark test:
+
++--------------+------+------+-------+--------+------+--------+
+|conns/qps     |c4    | c8   |  c16  |  c32   | c64  |  c200  |
++--------------+------+------+-------+--------+------+--------+
+|SMC-R before  |9.7k  | 10k  |  10k  |  9.9k  | 9.1k |  8.9k  |
++--------------+------+------+-------+--------+------+--------+
+|SMC-R now     |13k   | 19k  |  18k  |  16k   | 15k  |  12k   |
++--------------+------+------+-------+--------+------+--------+
+|TCP           |15k   | 35k  |  51k  |  80k   | 100k |  162k  |
++--------------+------+------+-------+--------+------+--------+
+
+The reason why the benefit is not obvious after the number of connections
+has increased dues to workqueue. If we try to change workqueue to UNBOUND,
+we can obtain at least 4-5 times performance improvement, reach up to half
+of TCP. However, this is not an elegant solution, the optimization of it
+will be much more complicated. But in any case, we will submit relevant
+optimization patches as soon as possible.
+
+Please note that the premise here is that the lock related problem
+must be solved first, otherwise, no matter how we optimize the workqueue,
+there won't be much improvement.
+
+Because there are a lot of related changes to the code, if you have
+any questions or suggestions, please let me know.
+
+Thanks
+D. Wythe
+
+v1 -> v2:
+
+1. Fix panic in SMC-D scenario
+2. Fix lnkc related hashfn calculation exception, caused by operator
+priority
+3. Only wake up one connection if the lnk is not active
+4. Delete obsolete unlock logic in smc_listen_work()
+5. PATCH format, do Reverse Christmas tree
+6. PATCH format, change all xxx_lnk_xxx function to xxx_link_xxx 
+7. PATCH format, add correct fix tag for the patches for fixes.
+8. PATCH format, fix some spelling error
+9. PATCH format, rename slow to do_slow
+
+v2 -> v3:
+
+1. add SMC-D support, remove the concept of link cluster since SMC-D has
+no link at all. Replace it by lgr decision maker, who provides suggestions
+to SMC-D and SMC-R on whether to create new link group.
+
+2. Fix the corruption problem described by PATCH 'fix application
+data exception' on SMC-D.
+
+D. Wythe (10):
+  net/smc: remove locks smc_client_lgr_pending and
+    smc_server_lgr_pending
+  net/smc: fix SMC_CLC_DECL_ERR_REGRMB without smc_server_lgr_pending
+  net/smc: allow confirm/delete rkey response deliver multiplex
+  net/smc: make SMC_LLC_FLOW_RKEY run concurrently
+  net/smc: llc_conf_mutex refactor, replace it with rw_semaphore
+  net/smc: use read semaphores to reduce unnecessary blocking in
+    smc_buf_create() & smcr_buf_unuse()
+  net/smc: reduce unnecessary blocking in smcr_lgr_reg_rmbs()
+  net/smc: replace mutex rmbs_lock and sndbufs_lock with rw_semaphore
+  net/smc: Fix potential panic dues to unprotected
+    smc_llc_srv_add_link()
+  net/smc: fix application data exception
+
+ net/smc/af_smc.c   |  70 ++++----
+ net/smc/smc_core.c | 478 +++++++++++++++++++++++++++++++++++++++++++++++------
+ net/smc/smc_core.h |  36 +++-
+ net/smc/smc_llc.c  | 277 ++++++++++++++++++++++---------
+ net/smc/smc_llc.h  |   6 +
+ net/smc/smc_wr.c   |  10 --
+ net/smc/smc_wr.h   |  10 ++
+ 7 files changed, 712 insertions(+), 175 deletions(-)
+
+-- 
+1.8.3.1
+
