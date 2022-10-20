@@ -2,452 +2,199 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E48FC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Oct 2022 13:19:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96F9FC433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Oct 2022 13:42:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230389AbiJTNTt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Oct 2022 09:19:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34750 "EHLO
+        id S230172AbiJTNmC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Oct 2022 09:42:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231193AbiJTNTl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Oct 2022 09:19:41 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1080B13F58;
-        Thu, 20 Oct 2022 06:19:29 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5E38CED1;
-        Thu, 20 Oct 2022 06:18:41 -0700 (PDT)
-Received: from [10.57.5.187] (unknown [10.57.5.187])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C9AA23F67D;
-        Thu, 20 Oct 2022 06:18:31 -0700 (PDT)
-Message-ID: <a8e778da-7b41-a6ba-83c3-c366a426c3da@arm.com>
-Date:   Thu, 20 Oct 2022 14:18:26 +0100
+        with ESMTP id S230123AbiJTNlf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Oct 2022 09:41:35 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5801A650D;
+        Thu, 20 Oct 2022 06:41:22 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29KDGrx4025981;
+        Thu, 20 Oct 2022 13:41:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : from
+ : to : subject : cc : message-id : date; s=pp1;
+ bh=t8l3kKsZDZ/AZkt0hRQbiV3KZM8BxnPFYuJg5YPTk8o=;
+ b=Dkb96XS0AdGa/jCNdSv2V5p6tlnzzobgrkSVNrZe5LYVk0Egq6MFNbAPcMuD9ESihsn6
+ QCi7A0RPewtJM4Hv57MVkjCvyRQ92eUTgKp5hJuszvmST7xwisucp9RVhEvdIcRyYn2h
+ O9o9dGX16V6BPv9n0IknRuvLPNEnsHdWZTMB1yZJ++9xHwiG7YAHCPFlFsjkzcfYLIr1
+ 7egAPcJ/8BxHlwmAmswVspTQuTg8P//SkmkTlXCIOayvhK01MlblQYPnYyBtSiKWD0Ui
+ cA9Ohhk+/2miyROJYVmJc+xzAbqoxZTBjAfGnXtm2iWvBXd3mg2QKhvXgXKU53XtYDJS +Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kb72y12gb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Oct 2022 13:41:03 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29KDH2tY026402;
+        Thu, 20 Oct 2022 13:41:02 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kb72y12ed-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Oct 2022 13:41:02 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29KDaLVO006241;
+        Thu, 20 Oct 2022 13:41:00 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kajmrsqer-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Oct 2022 13:41:00 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29KDevWa61211124
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 20 Oct 2022 13:40:57 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1B4A64C044;
+        Thu, 20 Oct 2022 13:40:57 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F0E504C040;
+        Thu, 20 Oct 2022 13:40:56 +0000 (GMT)
+Received: from t14-nrb (unknown [9.155.203.253])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 20 Oct 2022 13:40:56 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.3.3
-Subject: Re: [RFC 5/6] iommu/dma: Add simple batching flush queue
- implementation
-Content-Language: en-GB
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>
-References: <20221019144435.369902-1-schnelle@linux.ibm.com>
- <20221019144435.369902-6-schnelle@linux.ibm.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <20221019144435.369902-6-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20221012205609.2811294-2-scgl@linux.ibm.com>
+References: <20221012205609.2811294-1-scgl@linux.ibm.com> <20221012205609.2811294-2-scgl@linux.ibm.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH v2 1/9] s390/uaccess: Add storage key checked cmpxchg access to user space
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Message-ID: <166627325676.27216.13358887886569042677@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Thu, 20 Oct 2022 15:40:56 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: DLrlK0IIG6wl0xaMkZClxGmT1kqTLDv1
+X-Proofpoint-GUID: 6NA1uWqsDKKHW0CEddXjic_nuy0441YH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-20_04,2022-10-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1015 mlxscore=0
+ spamscore=0 phishscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210200080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-10-19 15:44, Niklas Schnelle wrote:
-> Having dma-iommu prepared for alternative flush queue implementations we
-> add a simple per-domain flush queue that optimzes for scenarios where
-> global IOTLB flushes are used but are quite expensive and poorly
-> parallelized. This is for example the case when IOTLB flushes are used
-> to trigger updates to an underlying hypervisor's shadow tables and
-> approximates the global flushing scheme previously in use on s390.
-> 
-> This is achieved by having a per-domain global flush queue that allows
-> queuing a much large number of lazily freed IOVAs than the per-CPU flush
-> queues. While using a single queue reduces parallelism this is not
-> a problem when global IOTLB flushes are synchronized in the hypervisor
-> anyway. While this flush queue allows queuing a large number of IOVAs we
-> do limit the time a freed IOVA remains accessible by hardware to
-> 1 second using a timeout that is reset on flush.
-> 
-> Enable this new flush queue implementation by default on s390 systems
-> which use IOTLB flushes to trigger shadowing namely z/VM and KVM guests.
+Quoting Janis Schoetterl-Glausch (2022-10-12 22:56:01)
+[...]
+> diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uacc=
+ess.h
+> index f7038b800cc3..f148f5a22c93 100644
+[...]
+> +static __always_inline int __cmpxchg_user_key_small(int size, u64 addres=
+s,
+> +                                                   unsigned __int128 *ol=
+d_p,
+> +                                                   unsigned __int128 new=
+, u8 access_key)
+> +{
 
-There seems to be way more duplication here than there probably needs to 
-be. Is there any reason we can't keep using the same iova_fq and 
-iova_fq_entry structures and just refactor how cookie->fq is 
-allocated/freed/dereferenced to choose between percpu and direct? Making 
-the queue size and timout variable - and thus potentially tuneable - 
-isn't necessarily a bad thing for percpu queues either (the size can be 
-constrained to powers of two and stored as a mask to keep the wrapping 
-arithemetic efficient).
+This function is quite hard to understand for me without some context. I ha=
+ve a
+few suggestions for some comments and one small question below.
 
-Thanks,
-Robin.
+> +       u32 shift, mask, old_word, new_word, align_mask, tmp;
+> +       u64 aligned;
+> +       int ret =3D -EFAULT;
+> +
 
-> Link: https://lore.kernel.org/linux-iommu/3e402947-61f9-b7e8-1414-fde006257b6f@arm.com/
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
->   drivers/iommu/dma-iommu.c  | 157 +++++++++++++++++++++++++++++++++++--
->   drivers/iommu/iommu.c      |  19 +++--
->   drivers/iommu/s390-iommu.c |  11 +++
->   include/linux/iommu.h      |   6 ++
->   4 files changed, 180 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-> index 77d969f5aad7..427fb84f50c3 100644
-> --- a/drivers/iommu/dma-iommu.c
-> +++ b/drivers/iommu/dma-iommu.c
-> @@ -49,8 +49,13 @@ struct iommu_dma_cookie {
->   		/* Full allocator for IOMMU_DMA_IOVA_COOKIE */
->   		struct {
->   			struct iova_domain		iovad;
-> -			/* Flush queue */
-> -			struct iova_percpu __percpu *percpu_fq;
-> +			/* Flush queues */
-> +			union {
-> +				struct iova_percpu __percpu *percpu_fq;
-> +				struct iova_simple *simple_fq;
-> +			};
-> +			/* Queue timeout in milliseconds */
-> +			unsigned int		fq_timeout;
->   			/* Number of TLB flushes that have been started */
->   			atomic64_t		fq_flush_start_cnt;
->   			/* Number of TLB flushes that have been finished */
-> @@ -104,6 +109,119 @@ struct iova_percpu {
->   	spinlock_t lock;
->   };
->   
-> +/* Simplified batched flush queue for expensive IOTLB flushes */
-> +#define IOVA_SIMPLE_SIZE	32768
-> +/* Maximum time in milliseconds an IOVA can remain lazily freed */
-> +#define IOVA_SIMPLE_TIMEOUT	1000
-> +
-> +struct iova_simple_entry {
-> +	unsigned long iova_pfn;
-> +	unsigned long pages;
-> +};
-> +
-> +struct iova_simple {
-> +	/* Unlike iova_percpu we use a single queue lock */
-> +	spinlock_t lock;
-> +	unsigned int tail;
-> +	unsigned long total_pages;
-> +	struct list_head freelist;
-> +	struct iova_simple_entry entries[];
-> +};
-> +
-> +static bool is_full_simple(struct iommu_dma_cookie *cookie)
-> +{
-> +	struct iommu_domain *fq_domain = cookie->fq_domain;
-> +	struct iova_domain *iovad = &cookie->iovad;
-> +	struct iova_simple *sq = cookie->simple_fq;
-> +	unsigned long aperture_pages;
-> +
-> +	assert_spin_locked(&sq->lock);
-> +
-> +	/* If more than 7/8 the aperture is batched let's flush */
-> +	aperture_pages = ((fq_domain->geometry.aperture_end +  1) -
-> +		fq_domain->geometry.aperture_start) >> iova_shift(iovad);
-> +	aperture_pages -= aperture_pages >> 3;
-> +
-> +	return (sq->tail >= IOVA_SIMPLE_SIZE ||
-> +		sq->total_pages >= aperture_pages);
-> +}
-> +
-> +static void flush_simple(struct iommu_dma_cookie *cookie)
-> +{
-> +	struct iova_simple *sq = cookie->simple_fq;
-> +	unsigned int i;
-> +
-> +	assert_spin_locked(&sq->lock);
-> +	/* We're flushing so postpone timeout */
-> +	mod_timer(&cookie->fq_timer,
-> +		  jiffies + msecs_to_jiffies(cookie->fq_timeout));
-> +	cookie->fq_domain->ops->flush_iotlb_all(cookie->fq_domain);
-> +
-> +	put_pages_list(&sq->freelist);
-> +	for (i = 0; i < sq->tail; i++) {
-> +		free_iova_fast(&cookie->iovad,
-> +			       sq->entries[i].iova_pfn,
-> +			       sq->entries[i].pages);
-> +	}
-> +	sq->tail = 0;
-> +	sq->total_pages = 0;
-> +}
-> +
-> +static void flush_simple_lock(struct iommu_dma_cookie *cookie)
-> +{
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&cookie->simple_fq->lock, flags);
-> +	flush_simple(cookie);
-> +	spin_unlock_irqrestore(&cookie->simple_fq->lock, flags);
-> +}
-> +
-> +static void queue_iova_simple(struct iommu_dma_cookie *cookie,
-> +			      unsigned long pfn, unsigned long pages,
-> +			      struct list_head *freelist)
-> +{
-> +	struct iova_simple *sq = cookie->simple_fq;
-> +	unsigned long flags;
-> +	unsigned int idx;
-> +
-> +	spin_lock_irqsave(&sq->lock, flags);
-> +	if (is_full_simple(cookie))
-> +		flush_simple(cookie);
-> +	idx = sq->tail++;
-> +
-> +	sq->entries[idx].iova_pfn = pfn;
-> +	sq->entries[idx].pages    = pages;
-> +	list_splice(freelist, &sq->freelist);
-> +	sq->total_pages += pages;
-> +	spin_unlock_irqrestore(&sq->lock, flags);
-> +}
-> +
-> +static int iommu_dma_init_simple(struct iommu_dma_cookie *cookie)
-> +{
-> +	struct iova_simple *queue;
-> +
-> +	queue = vzalloc(sizeof(*queue) +
-> +			IOVA_SIMPLE_SIZE * sizeof(struct iova_simple_entry));
-> +	if (!queue)
-> +		return -ENOMEM;
-> +
-> +	INIT_LIST_HEAD(&queue->freelist);
-> +	cookie->fq_timeout = IOVA_SIMPLE_TIMEOUT;
-> +	cookie->simple_fq = queue;
-> +
-> +	return 0;
-> +}
-> +
-> +static void iommu_dma_free_simple(struct iommu_dma_cookie *cookie)
-> +{
-> +	if (!cookie->simple_fq)
-> +		return;
-> +
-> +	put_pages_list(&cookie->simple_fq->freelist);
-> +	vfree(cookie->simple_fq);
-> +	cookie->simple_fq = NULL;
-> +}
-> +
->   #define ring_for_each_percpu(i, fq) \
->   	for ((i) = (fq)->head; (i) != (fq)->tail; (i) = ((i) + 1) % IOVA_PERCPU_SIZE)
->   
-> @@ -169,12 +287,23 @@ static void flush_percpu(struct iommu_dma_cookie *cookie)
->   	}
->   }
->   
-> +static void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie)
-> +{
-> +	if (!cookie->fq_domain)
-> +		return;
-> +
-> +	if (cookie->fq_domain->type == IOMMU_DOMAIN_DMA_FQ)
-> +		flush_percpu(cookie);
-> +	else
-> +		flush_simple_lock(cookie);
-> +}
-> +
->   static void fq_flush_timeout(struct timer_list *t)
->   {
->   	struct iommu_dma_cookie *cookie = from_timer(cookie, t, fq_timer);
->   
->   	atomic_set(&cookie->fq_timer_on, 0);
-> -	flush_percpu(cookie);
-> +	iommu_dma_flush_fq(cookie);
->   }
->   
->   static void queue_iova_percpu(struct iommu_dma_cookie *cookie,
-> @@ -223,13 +352,16 @@ static void queue_iova(struct iommu_dma_cookie *cookie,
->   	 */
->   	smp_mb();
->   
-> -	queue_iova_percpu(cookie, pfn, pages, freelist);
-> +	if (cookie->fq_domain->type == IOMMU_DOMAIN_DMA_FQ)
-> +		queue_iova_percpu(cookie, pfn, pages, freelist);
-> +	else
-> +		queue_iova_simple(cookie, pfn, pages, freelist);
->   
->   	/* Avoid false sharing as much as possible. */
->   	if (!atomic_read(&cookie->fq_timer_on) &&
->   	    !atomic_xchg(&cookie->fq_timer_on, 1))
->   		mod_timer(&cookie->fq_timer,
-> -			  jiffies + msecs_to_jiffies(IOVA_PERCPU_TIMEOUT));
-> +			  jiffies + msecs_to_jiffies(cookie->fq_timeout));
->   }
->   
->   static void iommu_dma_free_percpu(struct iommu_dma_cookie *cookie)
-> @@ -253,7 +385,10 @@ static void iommu_dma_free_fq(struct iommu_dma_cookie *cookie)
->   {
->   	del_timer_sync(&cookie->fq_timer);
->   	/* The IOVAs will be torn down separately, so just free our queued pages */
-> -	iommu_dma_free_percpu(cookie);
-> +	if (cookie->fq_domain->type == IOMMU_DOMAIN_DMA_FQ)
-> +		iommu_dma_free_percpu(cookie);
-> +	else
-> +		iommu_dma_free_simple(cookie);
->   }
->   
->   static int iommu_dma_init_percpu(struct iommu_dma_cookie *cookie)
-> @@ -280,6 +415,7 @@ static int iommu_dma_init_percpu(struct iommu_dma_cookie *cookie)
->   			INIT_LIST_HEAD(&fq->entries[i].freelist);
->   	}
->   
-> +	cookie->fq_timeout = IOVA_PERCPU_TIMEOUT;
->   	cookie->percpu_fq = queue;
->   
->   	return 0;
-> @@ -294,7 +430,10 @@ int iommu_dma_init_fq(struct iommu_domain *domain)
->   	if (cookie->fq_domain)
->   		return 0;
->   
-> -	rc = iommu_dma_init_percpu(cookie);
-> +	if (domain->type == IOMMU_DOMAIN_DMA_FQ)
-> +		rc = iommu_dma_init_percpu(cookie);
-> +	else
-> +		rc = iommu_dma_init_simple(cookie);
->   	if (rc) {
->   		pr_warn("iova flush queue initialization failed\n");
->   		return rc;
-> @@ -613,7 +752,9 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
->   		goto done_unlock;
->   
->   	/* If the FQ fails we can simply fall back to strict mode */
-> -	if (domain->type == IOMMU_DOMAIN_DMA_FQ && iommu_dma_init_fq(domain))
-> +	if ((domain->type == IOMMU_DOMAIN_DMA_FQ ||
-> +	     domain->type == IOMMU_DOMAIN_DMA_SQ) &&
-> +	    iommu_dma_init_fq(domain))
->   		domain->type = IOMMU_DOMAIN_DMA;
->   
->   	ret = iova_reserve_iommu_regions(dev, domain);
-> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> index 4893c2429ca5..2b3a12799702 100644
-> --- a/drivers/iommu/iommu.c
-> +++ b/drivers/iommu/iommu.c
-> @@ -140,6 +140,7 @@ static const char *iommu_domain_type_str(unsigned int t)
->   		return "Unmanaged";
->   	case IOMMU_DOMAIN_DMA:
->   	case IOMMU_DOMAIN_DMA_FQ:
-> +	case IOMMU_DOMAIN_DMA_SQ:
->   		return "Translated";
->   	default:
->   		return "Unknown";
-> @@ -437,7 +438,8 @@ early_param("iommu.strict", iommu_dma_setup);
->   void iommu_set_dma_strict(void)
->   {
->   	iommu_dma_strict = true;
-> -	if (iommu_def_domain_type == IOMMU_DOMAIN_DMA_FQ)
-> +	if (iommu_def_domain_type == IOMMU_DOMAIN_DMA_FQ ||
-> +	    iommu_def_domain_type == IOMMU_DOMAIN_DMA_SQ)
->   		iommu_def_domain_type = IOMMU_DOMAIN_DMA;
->   }
->   
-> @@ -638,6 +640,9 @@ static ssize_t iommu_group_show_type(struct iommu_group *group,
->   		case IOMMU_DOMAIN_DMA_FQ:
->   			type = "DMA-FQ\n";
->   			break;
-> +		case IOMMU_DOMAIN_DMA_SQ:
-> +			type = "DMA-SQ\n";
-> +			break;
->   		}
->   	}
->   	mutex_unlock(&group->mutex);
-> @@ -2908,10 +2913,11 @@ static int iommu_change_dev_def_domain(struct iommu_group *group,
->   	}
->   
->   	/* We can bring up a flush queue without tearing down the domain */
-> -	if (type == IOMMU_DOMAIN_DMA_FQ && prev_dom->type == IOMMU_DOMAIN_DMA) {
-> +	if ((type == IOMMU_DOMAIN_DMA_FQ || type == IOMMU_DOMAIN_DMA_SQ) &&
-> +	    prev_dom->type == IOMMU_DOMAIN_DMA) {
->   		ret = iommu_dma_init_fq(prev_dom);
->   		if (!ret)
-> -			prev_dom->type = IOMMU_DOMAIN_DMA_FQ;
-> +			prev_dom->type = type;
->   		goto out;
->   	}
->   
-> @@ -2982,6 +2988,8 @@ static ssize_t iommu_group_store_type(struct iommu_group *group,
->   		req_type = IOMMU_DOMAIN_DMA;
->   	else if (sysfs_streq(buf, "DMA-FQ"))
->   		req_type = IOMMU_DOMAIN_DMA_FQ;
-> +	else if (sysfs_streq(buf, "DMA-SQ"))
-> +		req_type = IOMMU_DOMAIN_DMA_SQ;
->   	else if (sysfs_streq(buf, "auto"))
->   		req_type = 0;
->   	else
-> @@ -3033,8 +3041,9 @@ static ssize_t iommu_group_store_type(struct iommu_group *group,
->   
->   	/* Check if the device in the group still has a driver bound to it */
->   	device_lock(dev);
-> -	if (device_is_bound(dev) && !(req_type == IOMMU_DOMAIN_DMA_FQ &&
-> -	    group->default_domain->type == IOMMU_DOMAIN_DMA)) {
-> +	if (device_is_bound(dev) &&
-> +	    !((req_type == IOMMU_DOMAIN_DMA_FQ || req_type == IOMMU_DOMAIN_DMA_SQ) &&
-> +	      group->default_domain->type == IOMMU_DOMAIN_DMA)) {
->   		pr_err_ratelimited("Device is still bound to driver\n");
->   		ret = -EBUSY;
->   		goto out;
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index c2b8a7b96b8e..506f8b92931f 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -324,6 +324,15 @@ static bool s390_iommu_capable(struct device *dev, enum iommu_cap cap)
->   	}
->   }
->   
-> +static int s390_iommu_def_domain_type(struct device *dev)
-> +{
-> +	struct zpci_dev *zdev = to_zpci_dev(dev);
-> +
-> +	if (zdev->tlb_refresh)
-> +		return IOMMU_DOMAIN_DMA_SQ;
-> +	return IOMMU_DOMAIN_DMA_FQ;
-> +}
-> +
->   static struct iommu_domain *s390_domain_alloc(unsigned domain_type)
->   {
->   	struct s390_domain *s390_domain;
-> @@ -331,6 +340,7 @@ static struct iommu_domain *s390_domain_alloc(unsigned domain_type)
->   	switch (domain_type) {
->   	case IOMMU_DOMAIN_DMA:
->   	case IOMMU_DOMAIN_DMA_FQ:
-> +	case IOMMU_DOMAIN_DMA_SQ:
->   	case IOMMU_DOMAIN_UNMANAGED:
->   		break;
->   	default:
-> @@ -774,6 +784,7 @@ subsys_initcall(s390_iommu_init);
->   
->   static const struct iommu_ops s390_iommu_ops = {
->   	.capable = s390_iommu_capable,
-> +	.def_domain_type = s390_iommu_def_domain_type,
->   	.domain_alloc = s390_domain_alloc,
->   	.probe_device = s390_iommu_probe_device,
->   	.probe_finalize = s390_iommu_probe_finalize,
-> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-> index a325532aeab5..6c3fe62ec0df 100644
-> --- a/include/linux/iommu.h
-> +++ b/include/linux/iommu.h
-> @@ -63,6 +63,7 @@ struct iommu_domain_geometry {
->   					      implementation              */
->   #define __IOMMU_DOMAIN_PT	(1U << 2)  /* Domain is identity mapped   */
->   #define __IOMMU_DOMAIN_DMA_FQ	(1U << 3)  /* DMA-API uses flush queue    */
-> +#define __IOMMU_DOMAIN_DMA_SQ	(1U << 4)  /* DMA-API uses max fill queue */
->   
->   /*
->    * This are the possible domain-types
-> @@ -77,6 +78,8 @@ struct iommu_domain_geometry {
->    *				  certain optimizations for these domains
->    *	IOMMU_DOMAIN_DMA_FQ	- As above, but definitely using batched TLB
->    *				  invalidation.
-> + *	IOMMU_DOMAIN_DMA_SQ	- As above, but batched invalidations are only
-> + *				  flushed when running out of queue space.
->    */
->   #define IOMMU_DOMAIN_BLOCKED	(0U)
->   #define IOMMU_DOMAIN_IDENTITY	(__IOMMU_DOMAIN_PT)
-> @@ -86,6 +89,9 @@ struct iommu_domain_geometry {
->   #define IOMMU_DOMAIN_DMA_FQ	(__IOMMU_DOMAIN_PAGING |	\
->   				 __IOMMU_DOMAIN_DMA_API |	\
->   				 __IOMMU_DOMAIN_DMA_FQ)
-> +#define IOMMU_DOMAIN_DMA_SQ	(__IOMMU_DOMAIN_PAGING |	\
-> +				 __IOMMU_DOMAIN_DMA_API |	\
-> +				 __IOMMU_DOMAIN_DMA_SQ)
->   
->   struct iommu_domain {
->   	unsigned type;
+something like this:
+
+/*
+ * There is no instruction for 2 and 1 byte compare swap, hence emulate it =
+with
+ * a 4-byte compare swap.
+ * When the 4-bytes compare swap fails, it can be because the actual value =
+user
+ * space wanted to exchange mismatched. In this case, return to user space.
+ * Or it can be because something outside of the value user space wanted to
+ * access mismatched (the "remainder" of the word). In this case, retry in
+ * kernel space.
+ */
+
+> +       switch (size) {
+> +       case 2:
+
+/* assume address is 2-byte-aligned - cannot cross word boundary */
+
+> +               align_mask =3D 2;
+
+/* fancy way of saying aligned =3D address & ~align_mask */
+
+> +               aligned =3D (address ^ (address & align_mask));
+
+/* generate mask to extract value to xchg from the word */
+
+> +               shift =3D (sizeof(u32) - (address & align_mask) - size) *=
+ 8;
+> +               mask =3D 0xffff << shift;
+> +               old_word =3D ((u16)*old_p) << shift;
+> +               new_word =3D ((u16)new) << shift;
+> +               break;
+> +       case 1:
+> +               align_mask =3D 3;
+> +               aligned =3D (address ^ (address & align_mask));
+> +               shift =3D (sizeof(u32) - (address & align_mask) - size) *=
+ 8;
+> +               mask =3D 0xff << shift;
+> +               old_word =3D ((u8)*old_p) << shift;
+> +               new_word =3D ((u8)new) << shift;
+> +               break;
+> +       }
+> +       tmp =3D old_word; /* don't modify *old_p on fault */
+> +       asm volatile(
+> +                      "spka    0(%[access_key])\n"
+
+/* secondary space has user asce loaded */
+
+> +               "       sacf    256\n"
+> +               "0:     l       %[tmp],%[aligned]\n"
+> +               "1:     nr      %[tmp],%[mask]\n"
+
+/* invert mask to generate mask for the remainder */
+
+> +               "       xilf    %[mask],0xffffffff\n"
+> +               "       or      %[new_word],%[tmp]\n"
+> +               "       or      %[tmp],%[old_word]\n"
+> +               "2:     lr      %[old_word],%[tmp]\n"
+> +               "3:     cs      %[tmp],%[new_word],%[aligned]\n"
+> +               "4:     jnl     5f\n"
+> +               /* We'll restore old_word before the cs, use reg for the =
+diff */
+> +               "       xr      %[old_word],%[tmp]\n"
+> +               /* Apply diff assuming only bits outside target byte(s) c=
+hanged */
+> +               "       xr      %[new_word],%[old_word]\n"
+> +               /* If prior assumption false we exit loop, so not an issu=
+e */
+> +               "       nr      %[old_word],%[mask]\n"
+> +               "       jz      2b\n"
+
+So if the remainder changed but the actual value to exchange stays the same=
+, we
+loop in the kernel. Does it maybe make sense to limit the number of iterati=
+ons
+we spend retrying? I think while looping here the calling process can't be
+killed, can it?
