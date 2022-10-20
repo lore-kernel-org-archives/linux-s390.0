@@ -2,106 +2,180 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1EBCC4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Oct 2022 12:16:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD507C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Oct 2022 12:26:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229767AbiJTMQy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Oct 2022 08:16:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40982 "EHLO
+        id S229752AbiJTM0x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Oct 2022 08:26:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230096AbiJTMQv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Oct 2022 08:16:51 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AE711905E6;
-        Thu, 20 Oct 2022 05:16:47 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29KBq7pB013776;
-        Thu, 20 Oct 2022 12:16:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=G5pEjTb2W11m3oZ9DMfyFhpHsGdJyRTiA4oZDkkj9Cw=;
- b=CwPOBYyTLm7oVP4xk4lE0ah2Pdx4w863AONmTmNKW50RUeprZaKbe/Nj8TwGkRQ3DMMt
- tPKLQea2r5imGSj0Zsxd2BKwjTkT0KSyZdO4ZAPrLIhnelHTEOoom3pmnWunX264LlTa
- g8hIm/LxYWhKfMB6z0otha3ZnJRHhkXuulnDEfJa4b22YHOSrG56n2AGAKLE7VmCSXwV
- Ps2uGf0ES8AlturxmbaGXFhIH2uNNwbYJe8cLnVw891Tb3fkG7sMw+3zSTMrZ0PNJHef
- QvilAivxJG31q+ocL8mIM5AlUSoH0MfZhXYNlOKs3G3y5Am6eqYmAGGEqtomOLelCv3U rQ== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kb5u8s0ce-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Oct 2022 12:16:28 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29KC5hZT030950;
-        Thu, 20 Oct 2022 12:16:27 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06fra.de.ibm.com with ESMTP id 3k7m4jeq0s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Oct 2022 12:16:26 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29KCBLPx36372762
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Oct 2022 12:11:21 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CAF8EAE051;
-        Thu, 20 Oct 2022 12:16:23 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3D7FAAE045;
-        Thu, 20 Oct 2022 12:16:23 +0000 (GMT)
-Received: from oc-nschnelle.boeblingen.de.ibm.com (unknown [9.155.199.46])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 20 Oct 2022 12:16:23 +0000 (GMT)
-Message-ID: <ca76170852152cb9fef207a16b39b67035e5bd28.camel@linux.ibm.com>
-Subject: Re: [RFC 1/6] s390/ism: Set DMA coherent mask
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>
-Date:   Thu, 20 Oct 2022 14:16:23 +0200
-In-Reply-To: <Y1EB1pvWkoHXQh+a@infradead.org>
-References: <20221019144435.369902-1-schnelle@linux.ibm.com>
-         <20221019144435.369902-2-schnelle@linux.ibm.com>
-         <Y1EB1pvWkoHXQh+a@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YL3H8FkwAFmflvy2fXNpq3J6HPheuH9n
-X-Proofpoint-ORIG-GUID: YL3H8FkwAFmflvy2fXNpq3J6HPheuH9n
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-20_03,2022-10-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- priorityscore=1501 phishscore=0 malwarescore=0 spamscore=0 mlxlogscore=761
- impostorscore=0 mlxscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2210200072
+        with ESMTP id S229657AbiJTM0w (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Oct 2022 08:26:52 -0400
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2064.outbound.protection.outlook.com [40.107.243.64])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5C6191883;
+        Thu, 20 Oct 2022 05:26:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=oFIWeUQIzWL4AT5KzhG4nz9AxSGmaz1Ebntansbdu3muP8E7zdX3eyitkRKS/BXjVufleRd5/pGZ4q1wwAd3sAn3JFhzOza/0P6d3Qurzoq6AmEkXyTsx7vwfalkdFbZ9q4T4D1OItSO/0WGO03WGSpwBAbjgPBp3cj6Nz69xAIYWzqm8oExeQBsYN7ZAdCPmJPYashmqFKlPUSW8p41Yke7osHLsPC0BGFjbNbARH1RAD7gbWGDzmASCVL+Qw3mfJVF9TczVjQr/ye7g/EqoFxvi8uxJkJRKUPbrBKYF0eAafVAhULTcg1it843JuUBc9wvs/tuIivzMo8YAy5MeQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=bwvS8aL1DUZ/JHgDrwRKcIKtXmC95b5x/uVex0bu09c=;
+ b=n05q8OP+xT8JHZCj8axyIhLoXa9lUmhQL7BLLI72xzGWdtiuLq3NqYTibe3Rr2hZSflMV3JCr7KtG8u4jxtFdOhAfvQLJ8C1EnZKrlzNBo7faQPFicarF3XnAJePk1GKbj9DYMN75icevwD/KDPOdCK0ych+7ujlOX8w16km60YqBLwYnPRYWl+q1y2oXi6Wf2N7AYeTTSJ3JUsdATBPPwJXUZRxw3XLikP0T81+c1HTN+rWVkxEeehPSXIhc0E3HA8RDekUdDO12qNrGXgoZt5apnFXuVWytZIeRDxy6fpqgW/7CY+QvAA6QmWGyuGJYI+PzoBTXTRHB7Nx2yMRdg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bwvS8aL1DUZ/JHgDrwRKcIKtXmC95b5x/uVex0bu09c=;
+ b=GKnBhw12FvIMjxy9X1juf9lPWAd+EcdMYH+3qzvjzu6p831b+Aj/wOTmus6gxaWsCwxyB5iWXOVurDs+LDkXxHmAn+J0l4w86S+h9+33BBRiZnE37KA4dNO60TCZVfrN1e4nEkkXYSvbILOOQ/7cUHeyaXx5J0P8T0gujd95wUWG0eA/MLoSW+UgtlhImKhrkd8rwQPb4u8FiWvA1JjhekBlypEYEZ8XOoE49pnkuRN7NJwZzrjgWA8kkaygkVK8YC5wt3U8e4vPWcf7Lcky5PPqcOQL+JoUBKXxWxJKfZYB2PEEkARCoE00EXOoZENCxrlyHKsCSGI0IfPkco2aSA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by MW3PR12MB4441.namprd12.prod.outlook.com (2603:10b6:303:59::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.34; Thu, 20 Oct
+ 2022 12:26:49 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::7a81:a4e4:bb9c:d1de%6]) with mapi id 15.20.5723.033; Thu, 20 Oct 2022
+ 12:26:49 +0000
+Date:   Thu, 20 Oct 2022 09:26:48 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH v1 6/7] vfio/ccw: replace vfio_init_device with _alloc_
+Message-ID: <Y1E+iEkW3GgKyYIi@nvidia.com>
+References: <20221019162135.798901-1-farman@linux.ibm.com>
+ <20221019162135.798901-7-farman@linux.ibm.com>
+ <Y1Awsh56Ur/cDrHh@nvidia.com>
+ <44b6c9d164b1ba02483ed23a89ec843f18f1cd63.camel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <44b6c9d164b1ba02483ed23a89ec843f18f1cd63.camel@linux.ibm.com>
+X-ClientProxiedBy: MN2PR05CA0033.namprd05.prod.outlook.com
+ (2603:10b6:208:c0::46) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MW3PR12MB4441:EE_
+X-MS-Office365-Filtering-Correlation-Id: f3f561b4-dc2b-4aec-c427-08dab2965c37
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: TO2JpyCE+8wKhBfqAIGIE8Z+qim8Rn9tVYfeD374pYAzOUVtDXYIKgtY5yZqD0hHSExfoRLZjpVD1TiBQLjoiyhf4VQBIa3ldSHEujOLI0dSVq8aosv91YnhRPPu7JETzRmLGhegtbLGVvV4QodwEv2kJqwy0evtWFGdn8f90lbbS9NeG9eTLt4zkHOPDswYRQO4KDM8NEAGKe0H4pyW2TIHOePr9lttgaWgA/bdbmRJK3HZdSsJdgo3QiOI7HQHGvwvpC74zS9d9gqiLCANbA60eEgLRowrO3Crj3dpp+yO0DibbFjErxDfgTPSy3hkZd/6eE6PJBZQ8s27uV5gon4nzZZZzf6e2WiyJPi+cbkElXUW9l52NTydFWE1p3QROd3PhlP/UIa45B4xwQH2ue88B4RHAzWYbVMWv5nqpZWHcudgje/rnH7UxTGK1TM1IcM/2CHioG1IxgeTvs9qOKCrM9RzkZvlZ5xqsqbIbrJIZUoKfH6BzZ6A2cBobQ0XTbwIvUVtWiOuJBsaFPQ8pO61UlSA80yBvcQEqgMePC+pWvlXP5vDyvPS80pkS9iZ8E0hcQGGqICObPOpIO8Srit4FiYYl9AVNsYtrCELtey2DZhcS3Du244ldLiusbEDWUh+uvy5EnxOH3iA3jhRW5r1OXVXv5pnHY7GJRXwq1+qGqnANk00y3NxEpaPAbJnx7IVNx/Hy/SNw2VZV5o7fAzJPWNCHWwTWYyqNxzrA8A0GhqihhcXbgXYcs2NUXhd
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(346002)(136003)(366004)(376002)(396003)(451199015)(38100700002)(478600001)(6486002)(6512007)(8936002)(186003)(316002)(6916009)(41300700001)(54906003)(66946007)(86362001)(36756003)(66556008)(7416002)(2906002)(4001150100001)(8676002)(2616005)(6506007)(26005)(5660300002)(4326008)(66476007)(7406005)(67856001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?azNkYitHdkdtenNHQ1hob1M3S2xZenUrR0FDWHRZcGJIZUVkY2lyeEd2ZURm?=
+ =?utf-8?B?cUMzaG5wMnRFM3lXZ0M4b3ErVE9kdzB4K3hUOG11Q1lhMVhJVzFFQUJveFJ2?=
+ =?utf-8?B?aXgydEVPUTlpTzVzMFJHNXJZcGMya3ZyYjNhRHJGN3ZLSHdsQlpqb2lxd1Rp?=
+ =?utf-8?B?T045cVEwM3hmQUhpa1hoODV0by83aTQ0UGhTZXlseTNyTHBBcEdIUGtVY05X?=
+ =?utf-8?B?QjlpdXEzeGNXLzFGa2JqUFE5ekxRb1RCMFJxMHFnK1dsRHZCUjZEQUhONTFt?=
+ =?utf-8?B?WUVmMmd6anViNE5FRnc2bEJqR0k5eW1aaG9KSERpSnpzVjBLcXQ5anFFZFNT?=
+ =?utf-8?B?TlZlc3grbjNKVzl0ZG1tWGlKQXBKdlV2YUxmQWpsdVF3eHBVbEVzbHRGbkwr?=
+ =?utf-8?B?Q2JBVVN4WHVIRU9CT1lkSnQzNGI2UE0wREZFNkM5MFVlcktqTWtKNFJaMDVD?=
+ =?utf-8?B?M0VpSDJSZ1VmWjh5SmIyT21hQkhUZE95U0xiU0xmY1F0VHRxQmVPdFUxaE1W?=
+ =?utf-8?B?WjVMSWZYYVQ0Z2ZpaE9ZSGRvY1JMejhsVCtvcFFXVlZXVmU2dFJCTDBnY2Vz?=
+ =?utf-8?B?SHNGeDVhL2pKNWxlOGw1cjE1NjdrZWNpSmp6MlNIbWtJYnZLSStCWG5ndmNa?=
+ =?utf-8?B?Mk1lMFROTE1kbjZ4N0lMcDZJenhhMjVJZ3oyUDNldHpsMjFJUzdCV3BORExW?=
+ =?utf-8?B?QWF2TWM3blhURkJoL3FjK1FSSC9iQTZNbEpwWlJFZ2U2S213MjkveFdqSmpr?=
+ =?utf-8?B?ZURhY0p2VnhyM05uQTd0dFBDcFd3dmlNTjY2UHNmQzdrMnF6TkFPdnlzakVI?=
+ =?utf-8?B?eGdmVmNYL2lCS1B3RUMyQVJibktTejNyd2swcHBxYkdFUEZ5ZnZ0TnY3UHVH?=
+ =?utf-8?B?a3hxQ2F0Z28zZmhkUGt5L3ZrV0Rnek0xS0l2RHpraFRIb3gzeU5BZ0E0UUtv?=
+ =?utf-8?B?dm9PR20raUVOODlRK1BFZ3Q3dlRZOG9GOENJTDlURDlJNGFWcHVvcFFWZzBB?=
+ =?utf-8?B?ZDJLUk5zbmhScGhRTFlscG9HdmxORXlkZnp1eStIL1RhcWhibXplRTlqeDNB?=
+ =?utf-8?B?ZVl1OGZ0cUpIZHU5bFJ6T2Q5eWFhQ0ozN2ZJVldWTUR5UVdyVWhzNWVuRjBB?=
+ =?utf-8?B?bHZUdVZoS1VqWXg3UVVlSGl4NG5PTmxMaldTVyszalVUOFY0K29kL25Qa0NW?=
+ =?utf-8?B?dUNYQ0JPL0tJdGZybUZaZGxKd2wwMTI3TUxDa2lIb0tFV3NFVmRReXZYOHVR?=
+ =?utf-8?B?UkJEMlpiUDZPcnE0VVE0SDBBUmJvcFJESjUvSmo3eFZSVG03bDlkZ1g1UFlD?=
+ =?utf-8?B?ZWx2L240LzNJT1dyU251SjJLUlBXMW4zbi95MVkwMWEvU25ZbVM4cDdGVzRX?=
+ =?utf-8?B?WmFtbWlqdzFONEFLNjZBYmJoWXkybkJKS3MrdTZhSW1YUjFMdlhkWEg5dnBC?=
+ =?utf-8?B?OWZUMno5aEpnT0tNNTRXQ3BqeGt4cDNsVkptV1ZWUzUrQnpRY21CNjBaUElI?=
+ =?utf-8?B?MlFxdFc1TWEyQzNWUHdGMFB2Ym5ReUdBdVRLcm4xMUpkeUQ4OVZVa2FEanUz?=
+ =?utf-8?B?VlY5RUNDT1V0c3NMVGhRWGMrTURJa3dEODZTckN4S1hlVDFFY09hb245TjRj?=
+ =?utf-8?B?OFFpTHNIWHA0Q01MQXZNb2M4c09zNDZLNVpnVytpQW91MmR3bUFiUVBYYWQz?=
+ =?utf-8?B?TkIvVWJMS1FuMW5UQ0VlYVI1MlQyeTIvSEp4VkpadnRVR09Mb2NmaE9WS3Zs?=
+ =?utf-8?B?RGRBZXB5VmthWjNSZUhjNEo1ckpiUDJLaXVtL1B3NHg3WjYrMEFnb3BBeU03?=
+ =?utf-8?B?ekc1cGZlWkpnRTM1K3I4MmZQMjFONkRFUXFiM0VJd0hGbU40RUVwZEFISG5j?=
+ =?utf-8?B?U3V1TjRiL3psYkdnZ2ZOcEJTWDhRcVRYWGN6VkV3aVNIM0NYZGl4M202S0Z5?=
+ =?utf-8?B?MGRGL3pVbTRoRzI1WUdjeVNrTzEvZENsVjVQcERTeTFkWmpkTEFvWFFNQ29J?=
+ =?utf-8?B?SW01aVJiL3Nwdk1xWFhNK21EVWZHbVpFTVROZjBpVEZIZmU4U2hrSklydGZa?=
+ =?utf-8?B?SWN2UGV6dUZrK0Y5emZxZGN2UzliM09mV1dsTi9Cc2ZaZHpaN2g5cHlIdTI4?=
+ =?utf-8?Q?F3zc=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f3f561b4-dc2b-4aec-c427-08dab2965c37
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Oct 2022 12:26:49.0546
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: yoVIokIo35gi1RDBMPy8mkdlIPuWrpT797QfVbMWfQ97MPaVAdh6BdC1HRsixBqm
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR12MB4441
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2022-10-20 at 01:07 -0700, Christoph Hellwig wrote:
-> On Wed, Oct 19, 2022 at 04:44:30PM +0200, Niklas Schnelle wrote:
-> >  	if (ret)
-> >  		goto err_resource;
-> >  
-> > +	ret = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64));
+On Wed, Oct 19, 2022 at 01:57:41PM -0400, Eric Farman wrote:
+> On Wed, 2022-10-19 at 14:15 -0300, Jason Gunthorpe wrote:
+> > On Wed, Oct 19, 2022 at 06:21:34PM +0200, Eric Farman wrote:
+> > 
+> > >  /*
+> > >   * Initialize a vfio_device so it can be registered to vfio core.
+> > > - *
+> > > - * Only vfio-ccw driver should call this interface.
+> > >   */
+> > >  int vfio_init_device(struct vfio_device *device, struct device
+> > > *dev,
+> > >                      const struct vfio_device_ops *ops)
+> > > @@ -422,7 +420,6 @@ int vfio_init_device(struct vfio_device
+> > > *device, struct device *dev,
+> > >         ida_free(&vfio.device_ida, device->index);
+> > >         return ret;
+> > >  }
+> > > -EXPORT_SYMBOL_GPL(vfio_init_device);
+> > 
+> > Should be made static as well
 > 
-> Nit:  but you could also just replace the call to dma_set_mask abobe with
-> a call to dma_set_mask_and_coherent.
+> Agreed. Only reason I didn't was there's a prototype in
+> include/linux/vfio.h to satisfy the call to vfio_init_device from
+> _vfio_alloc_device, and I didn't want to get into moving things around
+> if I didn't need to. I can do that on top, if you'd like.
 
-That makes sense, thanks. Will be added for v2. Also obviously this
-change is only a prerequisite and could be applied separately, the
-changed coherent mask won't affect use with the existing DMA
-implementation.
+You can just add a one line forward static declaration at the top of
+the file in this patch.
 
+Jason
