@@ -2,134 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D22E1C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Oct 2022 11:05:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD5D0C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Oct 2022 11:18:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229789AbiJTLFa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Oct 2022 07:05:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
+        id S229943AbiJTLSu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Oct 2022 07:18:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231224AbiJTLF1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Oct 2022 07:05:27 -0400
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2061.outbound.protection.outlook.com [40.107.220.61])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02431F708D;
-        Thu, 20 Oct 2022 04:05:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SXBnQm0RqhE5ltyfcRc/rbev96AYJkx6aWQ7WP1O/mXwgHDtaRCiSJy16t3fzreM4haqqKyTiBabYD/FjQ6SuxJT4X/kG4+BFFlsIMsJ+pww4qCiCoHMM3tLb6umCAWqjjsIUetQd0Op6w9ZAfyuFwAL7ru/Klyynk2WPqlON6rxZ2RAcbhTlpn7zZEQz0oE2hNEOFhgb3BH9F27+CnQS2MymLsqPxyPKA3l1kt6DrDXm1oE8EKLWTA/4CTuf2KO4NJ+65cjLuzsAiyitxzad/q3r2R9D+3SHIQ3HrxE1OmNIs37PmFZczl8YrNCL/Xu4UxYCVE6LsAskiEyHWDJhw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=RJadNk4dQ25WPPBB+hjLuQllRIhVQV3CQkzNDMF/naQ=;
- b=hMpIovCAEtym2hKDQQ1MZIeDrLlW2/Bj9wLcptjgL4O93rtC6ApqnI7F7+Gd/r46mYVTGOuPQXD3NQnJbBMRVcUIlTVSh1hThEkBTlvUmbQXAyGZmMvWZzJpp1uGHapuG1Y6wZ6mS8WCBYaslzx5o5xtC3/lU0jANJMxib2zFxTRWaoHKulMFo7HVvYdZR1tgiXxGGwKimRV/EY/Yn/LiI1K+r6jSh7deHNnXdZr09OZDfMYy0nGFNW0KanFPW0x2AtCZB9BU1RmxjsLKqceVRZSu8q/qZVN0kNUZ8U8DKj9H+ZNdf+2Xy4RO6OCkDajNcvF8gRJSwGO99KjSRvYWg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RJadNk4dQ25WPPBB+hjLuQllRIhVQV3CQkzNDMF/naQ=;
- b=k11+4A/aWu8KSS1T7ndH4Ftu+Acuc4+lDwUcxbcSp9N8nQ04TJGCFmmomtwjIKWBT7IyFUk214s5n/Ng3ecgmr3jRkA18o8JGmSdr0uwy1tjoyHksa8CJwhQ6AlxRBDDhuUKntOnf958L36P+NoAeJ/UzqQXx+On+ntOXTBTt/r5xA7MygYYTWipx+HO0CqbiC0F7e3lS1dH+Lbs7JAl0tGfYzpyIxMwhihWbQtAAHqlR7RHLHXPCJTDUKJANPO82B9vJcgfdKeLkcKO/MkorrkNjZ3FQCpEy6bATv/49gpnYVkaiLmhVDkWNfJvTrY89Dcug3nJBmFMe60C0bl2aA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by CY8PR12MB7561.namprd12.prod.outlook.com (2603:10b6:930:94::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.35; Thu, 20 Oct
- 2022 11:05:21 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de%6]) with mapi id 15.20.5723.033; Thu, 20 Oct 2022
- 11:05:21 +0000
-Date:   Thu, 20 Oct 2022 08:05:20 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/5] iommu/s390: Use RCU to allow concurrent domain_list
- iteration
-Message-ID: <Y1ErcEe82yjJI+ET@nvidia.com>
-References: <20221018145132.998866-1-schnelle@linux.ibm.com>
- <20221018145132.998866-4-schnelle@linux.ibm.com>
- <Y07Dz/NROAMI0Hku@nvidia.com>
- <8e268ab5e0dadf86be5fd7ffaa9debb76cea67f3.camel@linux.ibm.com>
- <Y0/lMCQ8oeXJ2HTg@nvidia.com>
- <f3551bb461b3ef3cfc1a0c644093816be1835b3f.camel@linux.ibm.com>
+        with ESMTP id S229678AbiJTLSt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Oct 2022 07:18:49 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D34991ACAAD;
+        Thu, 20 Oct 2022 04:18:48 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29KBEhqM015308;
+        Thu, 20 Oct 2022 11:18:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=m0/zDB9esedN1FeU0NeS+vO2OMMH7WbilvlrNoZH0qs=;
+ b=QLHcOiT99zePR8dQgIgQ6vEEZzAXVakIevLJo3CS4goC2W2Pq8GaR3o4USXlPI+ANvLr
+ UEW+B9TxpdfWwODw04ZIgO+t2aPqBV/xtXehaa/5HiWc5l9xOQOgo2YRMod7ZJ/7fK3s
+ qYNd8jnpfGfhYrm+JJ3ZYr3Vsk1eM7DfJuwO1SNjmmqQ+vfhNTPiEbdZ0x9U/ZG6kb31
+ FKiq36GDbNKLL41l4t0f0Xu4PGGM0LUPY3MP9LmN9myUmayZfN1nuretOaUBwgC8oHEq
+ Fcc9mo9mTEVoe5SgrwZjjLuZuY0racxPHSuRFyrFBPevE8FSqfAZ66SKkO6sLeuzIQe7 lg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kb59jg381-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Oct 2022 11:18:43 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29KBICNq031838;
+        Thu, 20 Oct 2022 11:18:43 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kb59jg377-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Oct 2022 11:18:42 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29KB6PB0014031;
+        Thu, 20 Oct 2022 11:18:41 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kajmrsh0c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Oct 2022 11:18:41 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29KBIcwL1704660
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 20 Oct 2022 11:18:38 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EBF495204F;
+        Thu, 20 Oct 2022 11:18:37 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.239])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 82DCC5204E;
+        Thu, 20 Oct 2022 11:18:37 +0000 (GMT)
+Date:   Thu, 20 Oct 2022 13:18:37 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v2 1/9] s390/uaccess: Add storage key checked cmpxchg
+ access to user space
+Message-ID: <Y1EujYeiDjy43wUN@osiris>
+References: <20221012205609.2811294-1-scgl@linux.ibm.com>
+ <20221012205609.2811294-2-scgl@linux.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f3551bb461b3ef3cfc1a0c644093816be1835b3f.camel@linux.ibm.com>
-X-ClientProxiedBy: BL1P223CA0022.NAMP223.PROD.OUTLOOK.COM
- (2603:10b6:208:2c4::27) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CY8PR12MB7561:EE_
-X-MS-Office365-Filtering-Correlation-Id: d814c4e6-1e77-4901-82ea-08dab28afb19
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: anM4sGgxkwZV0uUFR9K9gVmad26xO9dT6OwIwFLW3SmoWclBBDSzi/ncSYVv6G4TN8+OpcNnqiJXa7VrZqyChNpCUfHTRJEAgQjT1nCnw4zKvJgncz3mtVlJtTrCxHjblzeRM94ftlowsW4wmkPm/msHa1a6BEpBl9+fus3/869QdC4JIU3PdrLwDzVZr9cTyqMkLv49lZ5gKxeoK3Pvz2ZfMcntXJw5UaevXEVlS8zue9pmoSsTqlRxPjJkiFjDiKpR1hauPuJpgwRJR6kfQnYUUpyXuAy1FyRi/5Ovmahh5o06IaV7TzgGlepkL93i7xryzbLRoN5bRVOPsyesO25YHhvgLQ3KQpxCC5tHZ1FyLuMhbAwvIg/HZEB3wy5FLHOiuSfOJfSabNfwrUkEe5EPF46eKF/2ybbdYJp+LQnCkKo/a/WsTA4MV0nfl5/iYDT09kueGuVaomTwrmqbiSBo6AGbXvQIvf84I2Vr98/By2du4dW7aDJPvLQj8V8z+iQXmNkB3jOi2uuGm85cIb4R7AgGK1WtHkrSovUWM6d6hPJ5cGOLqca0vWFXCbtqrl7X9f+2Y22+iGKUC7EewlY5Ni26T2zRSQHDpKXzDD1kRVmBTPPLBsfWOgq4n5W0ut1bpmC60JAgEk81dwmoeZLsjM8pdYvaibCI6wkxmBwokQ44oOWc8PSonEP1tyIYMxqwhaOF3AlCkgTD8UR4ZuV84LlZv16hu5UmBsqbUCF/S0zcmxlDlk0kWiiSKhWo
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(376002)(366004)(396003)(346002)(39860400002)(451199015)(6486002)(186003)(2906002)(2616005)(38100700002)(478600001)(8936002)(4744005)(8676002)(7416002)(5660300002)(54906003)(36756003)(66946007)(66476007)(26005)(6916009)(316002)(41300700001)(6512007)(86362001)(66556008)(4326008)(6506007)(67856001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?RVCC+Y5DsYv9ZZAJJIWSIZHyi+inK8+2T7Srm3l5bPVO4UiGUSrUqkgEPMA6?=
- =?us-ascii?Q?U1gymKWghX0YLcDkpqMeEUPzXxn0MQIAejEpVxs9dsbA5B7MfMj8nBlMyykz?=
- =?us-ascii?Q?EnD2grKSazY2OHYS0AYTvolbmmwhm/de5TYvdhrJNTLJFkD+4boAYojxnm6G?=
- =?us-ascii?Q?IDD8LuOmXWYYT6QxF2psBzP7bP1zwBkcnKsWhnKPEqyyeKvzipiHd+U4dR66?=
- =?us-ascii?Q?G3OxBenTPlptoyFWinLAu2EbQsGBSykBNxMquhkMUrzLwjNsWrvNa49upuiI?=
- =?us-ascii?Q?EfFxr+3ZcZu8CI+2k+0g9tGS88ZGdtgRCMcwzCRLVC7UBgpaQnBb/5h37cqB?=
- =?us-ascii?Q?WaL/3jHCPt4vhRpsBMlIiHMki5wuJwUFGeDhELKq/bnTlpVQxPyK/R5uGiya?=
- =?us-ascii?Q?Qzbx0grSq9lkE8lDtA0EYmlV0QPV5SWaGT6XjmQs/hl2Xpt/W/KGJo3s0aSc?=
- =?us-ascii?Q?65xlTnRC0CC8TkwOJTQ1gjux/nKfeE5y3rMwS0T6KqJJVph62P/7LEGLT+s5?=
- =?us-ascii?Q?W4kHnN2VduiaaezJAvYO1kUkRMQttq2TFcIE/Lny/m4fQGh87eVRYfUQ0HdI?=
- =?us-ascii?Q?/p6lF42aL9f5t6jyF0DhjBtw94JKrd5ofio8Y/1C13hd29h9cu2q7G97kFbo?=
- =?us-ascii?Q?qnnQ3C/+MYjotk/GPu705xMfX6JpNO7EaXjlDIIbr+dnHtyvLEJKoI2bgEGJ?=
- =?us-ascii?Q?6p726VMSjHXVAjNATdMu8lKowOYvl774ef7S/J4UBLVNkkLS5JpCvGMEH3Xg?=
- =?us-ascii?Q?STA6WZFuIyXhplq57cB+5GiJfd/6E9UdoNyOcqLRqiDp25OIgrRnco4rBfFA?=
- =?us-ascii?Q?aPaZlFTEYfyC1AUvAAyN+LPElB3Ug6SYYOvXzxK63hRtMwfWJWq2ab6JuN6x?=
- =?us-ascii?Q?iftLfKhC+dF4rorYkUA55tAdb+YBr81lmTYBueNF+G7F/gYnjECBFyzgj0i/?=
- =?us-ascii?Q?sHyd7WDE8N74U53tW0gnecmiTrAKpEu9AEJS8u3qsoKZAnVgVm+LzKCxEcmH?=
- =?us-ascii?Q?GLbhgzdPwGu5ibWt8tjqf3QkcXYsn9EP9LkacPuYKkjF0o+rX2INJHEKFa8/?=
- =?us-ascii?Q?FjjCxy1FuehLsNSir0glgy/WO6pa5uhU4RJQot1hHbU+ssdPhbDx41pjsuDU?=
- =?us-ascii?Q?Nu/4C3+F/JR5F8X+SG3ezMx0FeAezISfX8hvchZEm9kqRrKHPy5ahaNU1G7r?=
- =?us-ascii?Q?gc68e8iVEpavHkeOa1U7rhaHoo7m6BiulHxqWbWU0uVhyuwz1ztfhaosnTgr?=
- =?us-ascii?Q?rgLn/PBZeQYKW1OXfuD2gadTkdXWWAK3IIq2NhRIYZyhfJ2U7VEJpLv/3lIW?=
- =?us-ascii?Q?HJwfsphr0BCdgY2tg68qgH+XdX2M8XKb1zmI9Hpe8IB/uIJvN64tE6h8U4L8?=
- =?us-ascii?Q?3iZ813ZbAdKCQ5LIMAtQ9MppHWpQfqtATqGShOw7f2QGfQ5Omig6Zw1kM8Kl?=
- =?us-ascii?Q?LouBQSgIbzgiZug6f/BIrXmMgkhvIKPWVzaJy/Gaf+yc8jaCG0+T2UfvQHGT?=
- =?us-ascii?Q?P3kgl5uVRZ3cYaBr/QUu5jIBsZroy+WTbfvIFJVlFmpyxu1rQH4CJhOk+DZ+?=
- =?us-ascii?Q?XfKJdG8thp4Sc9Ez8EQ=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d814c4e6-1e77-4901-82ea-08dab28afb19
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Oct 2022 11:05:21.5736
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8r5UZ7g8+jAPWsrvTZf0pvDC0kUcRZsfHc7YlZ0e1lRIyBWud59qSim1XFcDnY47
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7561
+In-Reply-To: <20221012205609.2811294-2-scgl@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DXiud5lnz0qHz52hmUW7aLhhFFDzz_2e
+X-Proofpoint-ORIG-GUID: MPFyuwfdOx1UFPeLiaJTnXuSSB6tM1Tf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-20_03,2022-10-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ mlxlogscore=696 lowpriorityscore=0 suspectscore=0 mlxscore=0 bulkscore=0
+ adultscore=0 impostorscore=0 spamscore=0 priorityscore=1501 clxscore=1011
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2210200066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Oct 20, 2022 at 10:51:10AM +0200, Niklas Schnelle wrote:
+Hi Janis,
 
-> Ok that makes sense thanks for the explanation. So yes my assessment is
-> still that in this situation the IOTLB flush is architected to return
-> an error that we can ignore. Not the most elegant I admit but at least
-> it's simple. Alternatively I guess we could use call_rcu() to do the
-> zpci_unregister_ioat() but I'm not sure how to then make sure that a
-> subsequent zpci_register_ioat() only happens after that without adding
-> too much more logic.
+On Wed, Oct 12, 2022 at 10:56:01PM +0200, Janis Schoetterl-Glausch wrote:
+> Add cmpxchg functionality similar to that in cmpxchg.h except that the
+> target is a user space address and that the address' storage key is
+> matched with the access_key argument in order to honor key-controlled
+> protection.
+> The access is performed by changing to the secondary-spaces mode and
+> setting the PSW key for the duration of the compare and swap.
+> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> ---
+> 
+> 
+> Possible variations:
+>   * check the assumptions made in cmpxchg_user_key_size and error out
+>   * call functions called by copy_to_user
+>      * access_ok? is a nop
+>      * should_fail_usercopy?
+>      * instrument_copy_to_user? doesn't make sense IMO
+>   * don't be overly strict in cmpxchg_user_key
+> 
+> 
+>  arch/s390/include/asm/uaccess.h | 189 ++++++++++++++++++++++++++++++++
+>  1 file changed, 189 insertions(+)
 
-This won't work either as the domain could have been freed before the
-call_rcu() happens, the domain needs to be detached synchronously
+This not how I would have expected something that would be
+symmetrical/consistent with what we already have. However instead of
+spending several iterations I'll send something for this.
 
-Jason
+This might take a bit due to my limited time. So please be patient.
