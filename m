@@ -2,105 +2,137 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64156C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Oct 2022 14:59:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A29E1C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Oct 2022 15:01:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229838AbiJUO7K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Oct 2022 10:59:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46532 "EHLO
+        id S229988AbiJUPB5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Oct 2022 11:01:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbiJUO7J (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Oct 2022 10:59:09 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF2A95F5C;
-        Fri, 21 Oct 2022 07:59:08 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29LELHUn005222;
-        Fri, 21 Oct 2022 14:59:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=HwTKiXCYYiWue8m4cdSl19l/YvBjk+Ld7zKbzBxK7xQ=;
- b=EhnmG7wWZvgHdpsJR4hpRe3www84gqtmidoa9qC36xYFKPYMYYU73F/r9giT23mrLGst
- O+CvyjFHH46q6idJH8zRBGhMVSwKi2Zi8/dWWtZN4Lcc7UcuTB58hGH+wcel20YXx8wF
- fy8DAMSi/LbhCJQZT72RMgNjEymVUW5DonsFts9ZGSiWi7JatDP6eyNOUKYDqZ/fPK5L
- DmhWsOoMxCxxW/l+QqRcJ1MJIQ7xFkoKEFd3u/TWaRNta80PeRZdDSUfZSKuL9CqxcLR
- zzQQRhFuHFktJYMKJNYUyrYaX0o+qx30IKGf6Y9jS3ZQ08sjXYlkulA4SafjEbVuP9Eb KQ== 
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kbw4214x8-1
+        with ESMTP id S229794AbiJUPB4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Oct 2022 11:01:56 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5EA3A14C;
+        Fri, 21 Oct 2022 08:01:53 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29LErsmm007496;
+        Fri, 21 Oct 2022 15:01:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=PS41lPi48juvAx3RMPCHcOw28hGdVSW7qqzoEp0WXQ8=;
+ b=nRLAbskwISHVjDg5xh8X0lVKuSzeeJa4TviurZu7EVk335MUH5o6kUsXvyrSPDkYia7i
+ tP1weoIz3FVLvmCCgW3LpRlxbn85SEvOf6HGm8014YhDFiJJwULl4crrMDrXjV6aN0m0
+ FzKZQFAEavUFrnhu/uL/uAwvrU10t85o5SHmFhnYeUj5XfDYVCV9HmAV+f+NYZFs69lM
+ uwanMC1d4xz65hiRkpAxiKUsjsW6jnK8Ocm/egaEv/6/8IwQ9c7qe/oltcD9ZohoCEvM
+ 59rPoSILauyE0uWteaUIc/sj9WxfkqZr5MJ+k7nYYMCwADg2QLD/ZMxGUey4Kq/X9W6t RQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kbwk5g7dh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Oct 2022 14:59:08 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29LEpUEY020627;
-        Fri, 21 Oct 2022 14:59:07 GMT
-Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
-        by ppma03dal.us.ibm.com with ESMTP id 3kapd5jw4q-1
+        Fri, 21 Oct 2022 15:01:39 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29LEoTd9026945;
+        Fri, 21 Oct 2022 15:01:36 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kajmrufnq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Oct 2022 14:59:07 +0000
-Received: from smtpav06.dal12v.mail.ibm.com ([9.208.128.130])
-        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29LEx5GB4522534
+        Fri, 21 Oct 2022 15:01:36 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29LF1XIA3932696
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 Oct 2022 14:59:05 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2625058055;
-        Fri, 21 Oct 2022 14:59:06 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C1C1758043;
-        Fri, 21 Oct 2022 14:59:05 +0000 (GMT)
-Received: from jason-laptop.endicott.ibm.com (unknown [9.60.75.234])
-        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 21 Oct 2022 14:59:05 +0000 (GMT)
-From:   "Jason J. Herne" <jjherne@linux.ibm.com>
-To:     linux-s390@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/vfio-ap: Fix memory allocation for mdev_types array
-Date:   Fri, 21 Oct 2022 10:59:05 -0400
-Message-Id: <20221021145905.15100-1-jjherne@linux.ibm.com>
-X-Mailer: git-send-email 2.37.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Fri, 21 Oct 2022 15:01:33 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6828E4C044;
+        Fri, 21 Oct 2022 15:01:33 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A09544C040;
+        Fri, 21 Oct 2022 15:01:32 +0000 (GMT)
+Received: from sig-9-145-0-12.uk.ibm.com (unknown [9.145.0.12])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 21 Oct 2022 15:01:32 +0000 (GMT)
+Message-ID: <89a748fb5caee8be5d91806aa5dfd131e92d5d82.camel@linux.ibm.com>
+Subject: Re: [PATCH 3/5] iommu/s390: Use RCU to allow concurrent domain_list
+ iteration
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org
+Date:   Fri, 21 Oct 2022 17:01:32 +0200
+In-Reply-To: <Y1KgX8EwH8T+FgWC@nvidia.com>
+References: <20221018145132.998866-1-schnelle@linux.ibm.com>
+         <20221018145132.998866-4-schnelle@linux.ibm.com>
+         <Y07Dz/NROAMI0Hku@nvidia.com>
+         <8e268ab5e0dadf86be5fd7ffaa9debb76cea67f3.camel@linux.ibm.com>
+         <Y0/lMCQ8oeXJ2HTg@nvidia.com>
+         <f3551bb461b3ef3cfc1a0c644093816be1835b3f.camel@linux.ibm.com>
+         <Y1ErcEe82yjJI+ET@nvidia.com>
+         <68d91d7a5aadbd46dc34470eccd6b86a84c9e47b.camel@linux.ibm.com>
+         <Y1KgX8EwH8T+FgWC@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: H-t_GqBm10l6j5aljCXiB7vV5SNLRZ4p
-X-Proofpoint-ORIG-GUID: H-t_GqBm10l6j5aljCXiB7vV5SNLRZ4p
+X-Proofpoint-GUID: JPssOqhliGRWJM7DZfKxHx-2QW_i9xrc
+X-Proofpoint-ORIG-GUID: JPssOqhliGRWJM7DZfKxHx-2QW_i9xrc
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-21_04,2022-10-21_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 malwarescore=0 impostorscore=0 clxscore=1011 phishscore=0
- mlxscore=0 bulkscore=0 spamscore=0 mlxlogscore=937 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1015
+ mlxlogscore=802 mlxscore=0 suspectscore=0 malwarescore=0 bulkscore=0
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2209130000 definitions=main-2210210088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The vfio-ap crypto driver fails to allocate memory for an array of
-pointers used to pass supported mdev types to mdev_register_parent().
+On Fri, 2022-10-21 at 10:36 -0300, Jason Gunthorpe wrote:
+> On Fri, Oct 21, 2022 at 02:08:02PM +0200, Niklas Schnelle wrote:
+> > On Thu, 2022-10-20 at 08:05 -0300, Jason Gunthorpe wrote:
+> > > On Thu, Oct 20, 2022 at 10:51:10AM +0200, Niklas Schnelle wrote:
+> > > 
+> > > > Ok that makes sense thanks for the explanation. So yes my assessment is
+> > > > still that in this situation the IOTLB flush is architected to return
+> > > > an error that we can ignore. Not the most elegant I admit but at least
+> > > > it's simple. Alternatively I guess we could use call_rcu() to do the
+> > > > zpci_unregister_ioat() but I'm not sure how to then make sure that a
+> > > > subsequent zpci_register_ioat() only happens after that without adding
+> > > > too much more logic.
+> > > 
+> > > This won't work either as the domain could have been freed before the
+> > > call_rcu() happens, the domain needs to be detached synchronously
+> > > 
+> > > Jason
+> > 
+> > Yeah right, that is basically the same issue I was thinking of for a
+> > subsequent zpci_register_ioat(). What about the obvious one. Just call
+> > synchronize_rcu() before zpci_unregister_ioat()?
+> 
+> Ah, it can be done, but be prepared to wait >> 1s for synchronize_rcu
+> to complete in some cases.
+> 
+> What you have seems like it could be OK, just deal with the ugly racy
+> failure
+> 
+> Jason
 
-Since we only support a single mdev type, the fix is to allocate a
-single entry in the ap_matrix_dev->mdev_types array.
+I'd tend to go with synchronize_rcu(). It won't leave us with spurious
+error logs for the failed IOTLB flushes and as you said one expects
+detach to be synchronous. I don't think waiting in it will be a
+problem. But this is definitely something you're more of an expert on
+so I'll trust your judgement. Looking at other callers of
+synchronize_rcu() quite a few of them look to be in similar
+detach/release kind of situations though not sure how frequent and
+performance critical IOMMU domain detaching is in comparison.
 
-Fixes: 63e685747784 ("s390: vfio-ap: base implementation of VFIO AP device driver")
-Cc: stable@vger.kernel.org
-Cc: Tony Krowiak <akrowiak@linux.ibm.com>
-Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_private.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 2eddd5f34ed3..976a65f32e7d 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -52,7 +52,7 @@ struct ap_matrix_dev {
- 	struct mutex guests_lock; /* serializes access to each KVM guest */
- 	struct mdev_parent parent;
- 	struct mdev_type mdev_type;
--	struct mdev_type *mdev_types[];
-+	struct mdev_type *mdev_types[1];
- };
- 
- extern struct ap_matrix_dev *matrix_dev;
--- 
-2.37.3
+Thanks,
+Niklas
 
