@@ -2,120 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38E9AFA373D
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Oct 2022 16:47:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A052C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Oct 2022 19:23:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231280AbiJUQrq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Oct 2022 12:47:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48278 "EHLO
+        id S229491AbiJUTXI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Oct 2022 15:23:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231327AbiJUQrX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Oct 2022 12:47:23 -0400
+        with ESMTP id S229998AbiJUTXG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Oct 2022 15:23:06 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03756C4C07;
-        Fri, 21 Oct 2022 09:47:01 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29LFt5LV019099;
-        Fri, 21 Oct 2022 16:46:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=ez5BH5Dj8oFv/HPxDtmpfHFCn9TPkAsmPS3teW9LZxI=;
- b=kdS+nE/+QjBqT5qrsCBMVpsw0UEEh1PKgoB1G9jMkoh3K1jhOj5Wp/8rJ3Kp8b/KLBIj
- xn83asJAQSXcYahmKJ9SRsoN4GC5xH2pcZiCGtJrh60ivrqZfrQa7bbMilMF2Lr6vFwm
- ytcHJl1v42TdFsUoMj47crKHKgi5uytmnA4CVqLo7DYz2LRWad+W6JEQwKF9NXHF6w0Q
- U5YRHsRGRJFhbRaI7A6DTBTcdI7JTWh+6riInsuYFNYkqby8pprwMbnxVpgBIkOOdPh/
- HRFBMNXa9girYcE33EpT21RN8ZfEveBLofHPfABNev+MXJ9WPo2A22IHWibd4sAyyL7S ww== 
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kbxg5stcs-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48CCE297F13;
+        Fri, 21 Oct 2022 12:22:58 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29LJAOSw016332;
+        Fri, 21 Oct 2022 19:22:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=O2wrMryTEiAay8wx5tyw/G36BC6rjJNRPY6ceokv4ko=;
+ b=Mg2ttchFt+6glxcDusxlK/LuFfgS+MfNNcU4Pd4QuIrAAc0vZOPRDG+X+473YU7YmH6X
+ 2o73eck8h//PRdFNO8av5gcS+uYlNu1k0Iv50w7VR9WAkoy7+wDhqz/wdR1YnHcq8Sc7
+ E0Ds8TwIrSenF1D++qAvpgtuhThdYmWq11E1sqF9t81LlCS4LqXjYCY/kuhXZm3NNpJN
+ CMYBpj4HvVdGVhNNyvpfoWIYEQvig4qT70cFFC61zCQ20R/2o6j+vcqlmrxSVg2UyTmW
+ +ZT05OT/hDraoaCheZyJMskvq+YQZecMGA0NsbkTuHi3aZGZivrx8F6ZoVdEPzd43cx5 qw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kc0p69jsb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Oct 2022 16:46:52 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29LGawOw026132;
-        Fri, 21 Oct 2022 16:46:52 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma04wdc.us.ibm.com with ESMTP id 3kakejvqa0-1
+        Fri, 21 Oct 2022 19:22:53 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29LJMr9Y011350;
+        Fri, 21 Oct 2022 19:22:53 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kc0p69jrh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Oct 2022 16:46:52 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com ([9.208.128.116])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29LGkoxX10945196
+        Fri, 21 Oct 2022 19:22:53 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29LJKbQR015132;
+        Fri, 21 Oct 2022 19:22:51 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3k7mg9g7pa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Oct 2022 19:22:51 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29LJMlaK328250
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 Oct 2022 16:46:51 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 989E458050;
-        Fri, 21 Oct 2022 16:46:50 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E09C25805E;
-        Fri, 21 Oct 2022 16:46:49 +0000 (GMT)
-Received: from [9.160.117.177] (unknown [9.160.117.177])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 21 Oct 2022 16:46:49 +0000 (GMT)
-Message-ID: <c0f5c096-3cab-1df4-6cc5-7f4c42271fc0@linux.ibm.com>
-Date:   Fri, 21 Oct 2022 12:46:49 -0400
+        Fri, 21 Oct 2022 19:22:47 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C5F8EA405F;
+        Fri, 21 Oct 2022 19:22:47 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2819BA405B;
+        Fri, 21 Oct 2022 19:22:47 +0000 (GMT)
+Received: from osiris (unknown [9.145.190.216])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 21 Oct 2022 19:22:47 +0000 (GMT)
+Date:   Fri, 21 Oct 2022 21:22:45 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v2 1/9] s390/uaccess: Add storage key checked cmpxchg
+ access to user space
+Message-ID: <Y1LxhaZaVZlM0Cl/@osiris>
+References: <20221012205609.2811294-1-scgl@linux.ibm.com>
+ <20221012205609.2811294-2-scgl@linux.ibm.com>
+ <166627325676.27216.13358887886569042677@t14-nrb>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [PATCH] s390/vfio-ap: Fix memory allocation for mdev_types array
-Content-Language: en-US
-To:     "Jason J. Herne" <jjherne@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
-References: <20221021145905.15100-1-jjherne@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20221021145905.15100-1-jjherne@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <166627325676.27216.13358887886569042677@t14-nrb>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: GZSjgrTMJ3slCcpxeeLLAZQYKPFre41w
-X-Proofpoint-ORIG-GUID: GZSjgrTMJ3slCcpxeeLLAZQYKPFre41w
+X-Proofpoint-ORIG-GUID: g2hTvFXAjC5Zgx26NB4fqiBeHV2Lyv3D
+X-Proofpoint-GUID: 5CTYsYsWsjZDwPO2UxkN15iFYffX3NEc
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-21_04,2022-10-21_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
- suspectscore=0 mlxlogscore=999 lowpriorityscore=0 priorityscore=1501
- phishscore=0 malwarescore=0 impostorscore=0 spamscore=0 adultscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210210099
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ spamscore=0 lowpriorityscore=0 clxscore=1015 suspectscore=0 phishscore=0
+ adultscore=0 mlxscore=0 malwarescore=0 impostorscore=0 mlxlogscore=999
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210210112
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/21/22 10:59 AM, Jason J. Herne wrote:
-> The vfio-ap crypto driver fails to allocate memory for an array of
-> pointers used to pass supported mdev types to mdev_register_parent().
+On Thu, Oct 20, 2022 at 03:40:56PM +0200, Nico Boehr wrote:
+> Quoting Janis Schoetterl-Glausch (2022-10-12 22:56:01)
+> > +               "2:     lr      %[old_word],%[tmp]\n"
+> > +               "3:     cs      %[tmp],%[new_word],%[aligned]\n"
+> > +               "4:     jnl     5f\n"
+> > +               /* We'll restore old_word before the cs, use reg for the diff */
+> > +               "       xr      %[old_word],%[tmp]\n"
+> > +               /* Apply diff assuming only bits outside target byte(s) changed */
+> > +               "       xr      %[new_word],%[old_word]\n"
+> > +               /* If prior assumption false we exit loop, so not an issue */
+> > +               "       nr      %[old_word],%[mask]\n"
+> > +               "       jz      2b\n"
 > 
-> Since we only support a single mdev type, the fix is to allocate a
-> single entry in the ap_matrix_dev->mdev_types array.
-> 
-> Fixes: 63e685747784 ("s390: vfio-ap: base implementation of VFIO AP device driver")
+> So if the remainder changed but the actual value to exchange stays the same, we
+> loop in the kernel. Does it maybe make sense to limit the number of iterations
+> we spend retrying? I think while looping here the calling process can't be
+> killed, can it?
 
-I think you want
-
-Fixes: da44c340c4fe ("vfio/mdev: simplify mdev_type handling")
-
-Where *mdev_types[] was introduced.  The fix you propose is the same way Christoph (added to CC) handled vfio-ccw, LGTM.
-
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-
-> Cc: stable@vger.kernel.org
-> Cc: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_private.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index 2eddd5f34ed3..976a65f32e7d 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -52,7 +52,7 @@ struct ap_matrix_dev {
->  	struct mutex guests_lock; /* serializes access to each KVM guest */
->  	struct mdev_parent parent;
->  	struct mdev_type mdev_type;
-> -	struct mdev_type *mdev_types[];
-> +	struct mdev_type *mdev_types[1];
->  };
->  
->  extern struct ap_matrix_dev *matrix_dev;
-
+Yes, the number of loops should be limited; quite similar what arm64
+implemented with commit 03110a5cb216 ("arm64: futex: Bound number of
+LDXR/STXR loops in FUTEX_WAKE_OP").
