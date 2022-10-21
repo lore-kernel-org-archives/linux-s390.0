@@ -2,144 +2,188 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3151CC433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Oct 2022 15:05:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F57FC433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Oct 2022 15:57:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230038AbiJUPFv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Oct 2022 11:05:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38964 "EHLO
+        id S230291AbiJUP50 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Oct 2022 11:57:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229843AbiJUPFu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Oct 2022 11:05:50 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0026D1DCCCF;
-        Fri, 21 Oct 2022 08:05:48 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29LELGVk005189;
-        Fri, 21 Oct 2022 15:05:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=eGQwYACBBdlJ+of5gf59HBFhtuCIWESCDUNLT6K+7Z0=;
- b=JHkmNhaTbzKLozsDnMaoAb+KTb6yNHMyBBt8EbxR4eolTFuZJ4P+hSw1ve/qcTFc6A8A
- ELhFWkl5zX2sE5/2ln6zmIfTaOJOQ/XbhtSMevoez5w0TxdLwLvCvQUBfjEYTT+iVUpr
- d7owqRoxHbJqeexU/sNak9pkXzDJv2/77F+6IjbZmS6GqpMyXIQ/MBocKmN+h8aiSL8z
- 0VgMsVkf2qvMJ2jS2yGaKPBb/pprkyLjuvzUONm21Kg7Rqt1TwUOKq0QNUXOjsB8kCMB
- GdNEYr0nMFCOH+d4F9qXXzL6MY3NcMMb8qHneWaq5Pf7BjfNj4GKkvXSRFeVouJCJsb4 lA== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kbw421g1c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Oct 2022 15:05:32 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29LEoUw3022806;
-        Fri, 21 Oct 2022 15:05:22 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma02fra.de.ibm.com with ESMTP id 3k7mg982q6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Oct 2022 15:05:22 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29LF5Jit51184016
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 Oct 2022 15:05:19 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0017EA404D;
-        Fri, 21 Oct 2022 15:05:18 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2CB3CA4040;
-        Fri, 21 Oct 2022 15:05:18 +0000 (GMT)
-Received: from sig-9-145-0-12.uk.ibm.com (unknown [9.145.0.12])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 21 Oct 2022 15:05:18 +0000 (GMT)
-Message-ID: <12366a6d2a367de0e2a6f26ac9485e50a32aa7e6.camel@linux.ibm.com>
-Subject: Re: [PATCH 3/5] iommu/s390: Use RCU to allow concurrent domain_list
- iteration
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org
-Date:   Fri, 21 Oct 2022 17:05:17 +0200
-In-Reply-To: <89a748fb5caee8be5d91806aa5dfd131e92d5d82.camel@linux.ibm.com>
-References: <20221018145132.998866-1-schnelle@linux.ibm.com>
-         <20221018145132.998866-4-schnelle@linux.ibm.com>
-         <Y07Dz/NROAMI0Hku@nvidia.com>
-         <8e268ab5e0dadf86be5fd7ffaa9debb76cea67f3.camel@linux.ibm.com>
-         <Y0/lMCQ8oeXJ2HTg@nvidia.com>
-         <f3551bb461b3ef3cfc1a0c644093816be1835b3f.camel@linux.ibm.com>
-         <Y1ErcEe82yjJI+ET@nvidia.com>
-         <68d91d7a5aadbd46dc34470eccd6b86a84c9e47b.camel@linux.ibm.com>
-         <Y1KgX8EwH8T+FgWC@nvidia.com>
-         <89a748fb5caee8be5d91806aa5dfd131e92d5d82.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yfa1-ZMbUzI6pGAXEC7wUTFJQGwfy7Ag
-X-Proofpoint-ORIG-GUID: yfa1-ZMbUzI6pGAXEC7wUTFJQGwfy7Ag
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-21_04,2022-10-21_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 malwarescore=0 impostorscore=0 clxscore=1015 phishscore=0
- mlxscore=0 bulkscore=0 spamscore=0 mlxlogscore=848 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210210090
+        with ESMTP id S230358AbiJUP5Q (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Oct 2022 11:57:16 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CC0A280EC7;
+        Fri, 21 Oct 2022 08:57:07 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VSk0LZR_1666367822;
+Received: from 30.32.123.91(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VSk0LZR_1666367822)
+          by smtp.aliyun-inc.com;
+          Fri, 21 Oct 2022 23:57:04 +0800
+Message-ID: <4127d84d-e3b4-ca44-2531-8aed12fdee3f@linux.alibaba.com>
+Date:   Fri, 21 Oct 2022 23:57:01 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.13.0
+Subject: Re: [PATCH net-next v3 00/10] optimize the parallelism of SMC-R
+ connections
+Content-Language: en-US
+To:     Jan Karcher <jaka@linux.ibm.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1666248232-63751-1-git-send-email-alibuda@linux.alibaba.com>
+ <62001adc-129a-d477-c916-7a4cf2000553@linux.alibaba.com>
+ <79e3bccb-55c2-3b92-b14a-7378ef02dd78@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <79e3bccb-55c2-3b92-b14a-7378ef02dd78@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 2022-10-21 at 17:01 +0200, Niklas Schnelle wrote:
-> On Fri, 2022-10-21 at 10:36 -0300, Jason Gunthorpe wrote:
-> > On Fri, Oct 21, 2022 at 02:08:02PM +0200, Niklas Schnelle wrote:
-> > > On Thu, 2022-10-20 at 08:05 -0300, Jason Gunthorpe wrote:
-> > > > On Thu, Oct 20, 2022 at 10:51:10AM +0200, Niklas Schnelle wrote:
-> > > > 
-> > > > > Ok that makes sense thanks for the explanation. So yes my assessment is
-> > > > > still that in this situation the IOTLB flush is architected to return
-> > > > > an error that we can ignore. Not the most elegant I admit but at least
-> > > > > it's simple. Alternatively I guess we could use call_rcu() to do the
-> > > > > zpci_unregister_ioat() but I'm not sure how to then make sure that a
-> > > > > subsequent zpci_register_ioat() only happens after that without adding
-> > > > > too much more logic.
-> > > > 
-> > > > This won't work either as the domain could have been freed before the
-> > > > call_rcu() happens, the domain needs to be detached synchronously
-> > > > 
-> > > > Jason
-> > > 
-> > > Yeah right, that is basically the same issue I was thinking of for a
-> > > subsequent zpci_register_ioat(). What about the obvious one. Just call
-> > > synchronize_rcu() before zpci_unregister_ioat()?
-> > 
-> > Ah, it can be done, but be prepared to wait >> 1s for synchronize_rcu
-> > to complete in some cases.
-> > 
-> > What you have seems like it could be OK, just deal with the ugly racy
-> > failure
-> > 
-> > Jason
-> 
-> I'd tend to go with synchronize_rcu(). It won't leave us with spurious
-> error logs for the failed IOTLB flushes and as you said one expects
-> detach to be synchronous. I don't think waiting in it will be a
-> problem. But this is definitely something you're more of an expert on
-> so I'll trust your judgement. Looking at other callers of
-> synchronize_rcu() quite a few of them look to be in similar
-> detach/release kind of situations though not sure how frequent and
-> performance critical IOMMU domain detaching is in comparison.
-> 
-> Thanks,
-> Niklas
-> 
+Hi Jan,
 
-Addendum, of course independently of whether to use synchronize_rcu()
-I'll change the error handling in the IOTLB ops to not skip over the
-other devices.
+Sorry for this bug. It's my bad to do not enough code checking, here is the problems:
 
+int __init smc_core_init(void)
+{
+         int i;
+
+         /* init smc lgr decision maker builder */
+         for (i = 0; i < SMC_TYPE_D; i++)
+
+
+i < SMC_TYPE_D should change to i <= SMC_TYPE_D, otherwise the SMC-D related
+map has not init yet. i thinks the two bugs was all caused by it.
+
+
+I has reproduced the first problem and verified that it can be fixed.
+Please help me to see if the SMC-D problem can be fixed too after this change, thx.
+
+By the way, Is there any way to simulate SMC-D dev for testing? All of our problems are caused by poor consideration on SMC-D.
+In fact, we have some SMC-D related work plans in the future. It seems not a perfect way to bother you every time.
+
+
+Best Wishes.
+D. Wythe
+
+On 10/21/22 7:57 PM, Jan Karcher wrote:
+> 
+> 
+> On 20/10/2022 09:00, D. Wythe wrote:
+>>
+>> Hi Jan,
+>>
+>> Sorry for the long delay, The main purpose of v3 is to put optimizes also works on SMC-D, dues to the environment,
+>> I can only tests it in SMC-R, so please help us to verify the stability and functional in SMC-D,
+>> Thanks a lot.
+>>
+>> If you have any problems, please let us know.
+>>
+>> Besides, PATCH bug fixes need to be reordered. After the code review passes and the SMC-D test goes stable, I will adjust it
+>> in next serial.
+>>
+>>
+> 
+> Hi D. Wythe,
+> 
+> thank you again for your submission. I ran the first tests and here are my findings:
+> 
+> For SMC-R we are facing problems during unloading of the smc module:
+> 
+> vvvvvvvvvv
+> 
+> [root@testsys10 ~]# dmesg -C
+> [root@testsys10 ~]# dmesg
+> [root@testsys10 ~]# rmmod ism
+> [root@testsys10 ~]# rmmod smc_diag
+> [root@testsys10 ~]# dmesg
+> [   51.671365] smc: removing smcd device 1522:00:00.0
+> [root@testsys10 ~]# rmmod smc
+> [root@testsys10 ~]# dmesg
+> [   51.671365] smc: removing smcd device 1522:00:00.0
+> [   65.378445] NET: Unregistered PF_SMC protocol family
+> [   65.378463] ------------[ cut here ]------------
+> [   65.378465] WARNING: CPU: 0 PID: 1155 at kernel/workqueue.c:3066 __flush_work.isra.0+0x28a/0x298
+> [   65.378476] Modules linked in: nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat mlx5_ib nf_conntrack ib_uverbs nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables nfnetlink mlx5_core smc(-) ib_core vfio_ccw s390_trng mdev vfio_iommu_type1 vfio sch_fq_codel configfs ghash_s390 prng chacha_s390 libchacha aes_s390 des_s390 libdes sha3_512_s390 sha3_256_s390 sha512_s390 sha256_s390 sha1_s390 sha_common pkey zcrypt rng_core autofs4 [last unloaded: smc_diag]
+> [   65.378509] CPU: 0 PID: 1155 Comm: rmmod Not tainted 6.1.0-rc1-00035-g9980a965416f #4
+> [   65.378514] Hardware name: IBM 8561 T01 701 (z/VM 7.2.0)
+> [   65.378517] Krnl PSW : 0704c00180000000 00000000f9d5f17e (__flush_work.isra.0+0x28e/0x298)
+> [   65.378523]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+> [   65.380675] Krnl GPRS: 8000000000000001 0000000000000000 000003ff7fd40270 0000000000000000
+> [   65.380683]            0000038000c73d70 000e002100000000 0000000000000000 0000000000000001
+> [   65.380686]            0000038000c73d70 0000000000000000 000003ff7fd40270 000003ff7fd40270
+> [   65.380688]            000000009b8d2100 000003ffe38f98f8 0000038000c73cd0 0000038000c73c30
+> [   65.380697] Krnl Code: 00000000f9d5f172: a7780000            lhi %r7,0
+>                            00000000f9d5f176: a7f4ff7b            brc 15,00000000f9d5f06c
+>                           #00000000f9d5f17a: af000000            mc      0,0
+>                           >00000000f9d5f17e: a7780000            lhi %r7,0
+>                            00000000f9d5f182: a7f4ff75            brc 15,00000000f9d5f06c
+>                            00000000f9d5f186: 0707                bcr 0,%r7
+>                            00000000f9d5f188: c004005daa34        brcl 0,00000000fa9145f0
+>                            00000000f9d5f18e: ebaff0680024        stmg %r10,%r15,104(%r15)
+> [   65.380773] Call Trace:
+> [   65.380774]  [<00000000f9d5f17e>] __flush_work.isra.0+0x28e/0x298
+> [   65.380779]  [<00000000f9d61228>] __cancel_work_timer+0x130/0x1c0
+> [   65.380782]  [<00000000fa46b1b4>] rhashtable_free_and_destroy+0x2c/0x170
+> [   65.380787]  [<000003ff7fd3a08e>] smc_exit+0x3e/0x1b8 [smc]
+> [   65.380804]  [<00000000f9de946a>] __do_sys_delete_module+0x1a2/0x298
+> [   65.380809]  [<00000000fa8f85ac>] __do_syscall+0x1d4/0x200
+> [   65.380814]  [<00000000fa907722>] system_call+0x82/0xb0
+> [   65.380817] Last Breaking-Event-Address:
+> [   65.380818]  [<00000000f9d5ef24>] __flush_work.isra.0+0x34/0x298
+> [   65.380820] ---[ end trace 0000000000000000 ]---
+> [   65.380828] smc: removing ib device mlx5_0
+> [   65.380833] smc: removing ib device mlx5_1
+> 
+> ^^^^^^^^^^
+> 
+> For SMC-D it seems like your decisionmaker is causing some troubles (crash). I did not have the time yet to look into it, i still dump you the console log - maybe you're seeing the problem faster then me:
+> 
+> 
+> vvvvvvvvvv
+> 
+> [  135.528259] smc-tests: test_cs_security started
+> [  136.397056] illegal operation: 0001 ilc:1 [#1] SMP
+> [  136.397064] Modules linked in: tcp_diag inet_diag ism mlx5_ib ib_uverbs mlx5_core smc_diag smc ib_core vmur nft_fib_inet nft_fib_
+> ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defra
+> g_ipv6 nf_defrag_ipv4 ip_set nf_tab
+> [  136.397093] CPU: 0 PID: 9 Comm: kworker/0:1 Not tainted 6.1.0-rc1-00035-g1c11cab281ca #4
+> [  136.397098] Hardware name: IBM 8561 T01 701 (z/VM 7.2.0)
+> [  136.397100] Workqueue: smc_hs_wq smc_listen_work [smc]
+> [  136.397123] Krnl PSW : 0704e00180000000 0000000000000002 (0x2)
+> [  136.397128]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+> [  136.397133] Krnl GPRS: 0000000000000001 0000000000000000 00000000a5670600 0000000000000000
+> 
+> [  136.398410]            0000000000000000 000003ff7feee620 00000000000000c8 0000000000000000
+> [  136.398417]            000003ff7feed2b8 00000000a5670600 000003ff7feed168 000003ff7fed1628
+> [  136.398420]            0000000080334200 0000000000000001 000003ff7fed3ab0 0000037fffb5fa30
+> [  136.398425] Krnl Code:#0000000000000000: 0000                illegal
+> [  136.398425]           >0000000000000002: 0000                illegal
+> [  136.398425]            0000000000000004: 0000                illegal
+> [  136.398425]            0000000000000006: 0000                illegal
+> [  136.398425]            0000000000000008: 0000                illegal
+> [  136.398425]            000000000000000a: 0000                illegal
+> [  136.398425]            000000000000000c: 0000                illegal
+> [  136.398425]            000000000000000e: 0000                illegal
+> [  136.398465] Call Trace:
+> [  136.398469]  [<0000000000000002>] 0x2
+> [  136.398472] ([<00000001790fdbde>] release_sock+0x6e/0xd8)
+> [  136.398482]  [<000003ff7fed746a>] smc_conn_create+0xc2/0x9d8 [smc]
+> 01: HCPGSP2629I The virtual machine is placed in CP mode due to a SIGP stop from CPU 01.
+> 01: HCPGSP2629I The virtual machine is placed in CP mode due to a SIGP stop from CPU 00.
+> 
+> [  136.408436]  [<000003ff7fec8206>] smc_find_ism_v2_device_serv+0x186/0x288 [smc]
+> [  136.408444]  [<000003ff7fec8336>] smc_listen_find_device+0x2e/0x370 [smc]
+> [  136.408452]  [<000003ff7fecaa8a>] smc_listen_work+0x2ca/0x580 [smc]
+> [  136.408459]  [<00000001788481e8>] process_one_work+0x200/0x458
+> [  136.408466]  [<000000017884896e>] worker_thread+0x66/0x480
+> [  136.408470]  [<0000000178851888>] kthread+0x108/0x110
+> [  136.408474]  [<00000001787d72cc>] __ret_from_fork+0x3c/0x58
+> [  136.408478]  [<00000001793ef75a>] ret_from_fork+0xa/0x40
+> [  136.408484] Last Breaking-Event-Address:
+> [  136.408486]  [<000003ff7fed3aae>] smc_get_or_create_lgr_decision_maker.constprop.0+0xe6/0x398 [smc]
+> [  136.408495] Kernel panic - not syncing: Fatal exception in interrupt
+> 
+> ^^^^^^^^^^
+> 
+> - Jan
