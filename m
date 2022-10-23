@@ -2,67 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77B85C04A95
-	for <linux-s390@archiver.kernel.org>; Sat, 22 Oct 2022 05:32:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EBB7C433FE
+	for <linux-s390@archiver.kernel.org>; Sun, 23 Oct 2022 12:44:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229491AbiJVFcl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 22 Oct 2022 01:32:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43462 "EHLO
+        id S230167AbiJWMoR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 23 Oct 2022 08:44:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbiJVFck (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 22 Oct 2022 01:32:40 -0400
-Received: from bg4.exmail.qq.com (bg4.exmail.qq.com [43.155.67.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B156F2ADD33;
-        Fri, 21 Oct 2022 22:32:38 -0700 (PDT)
-X-QQ-mid: bizesmtp71t1666416749ts4sifcz
-Received: from localhost.localdomain ( [182.148.15.254])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Sat, 22 Oct 2022 13:32:28 +0800 (CST)
-X-QQ-SSF: 01000000000000C0E000000A0000000
-X-QQ-FEAT: 5CNn+SP0K2ttXzeu91R1nu2YCiQn3ChaWyDwgxWfIMzjeCTZpSI5CWj7bGIca
-        75fb/Db6Hl0nupyT+u8tl9b6M7C7tK7YUSpb/OHtskIxx3+bhcT6mXJ8+CCXl7yhKncHh/9
-        Dwma3i1zW5VOGk5VkkWolAfI7olCRdoqOOTyKjGs5oX5R2/5SN2fIsksvMtxyMcQyPP8l3l
-        I9MSKk8015ADLO40KX2p3G99bfzqF0AbhL+qXFZ9BVudbfldwfoztoGxq3tVBrWSLouzlbf
-        JRuAK3iSIiWxNPbcXnLtJoHboeDVPyiaY8dd5I4OKenjt3b/28+xmpqYw0J41hqndGzUBeY
-        /d0rxSWvcZ8+ZkvN84yPokggTqIdt8W5mkj5qXlvaFe8Qo55Ww=
-X-QQ-GoodBg: 0
-From:   wangjianli <wangjianli@cdjrlc.com>
-To:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        wangjianli <wangjianli@cdjrlc.com>
-Subject: [PATCH] s390/kernel: fix repeated words in comments
-Date:   Sat, 22 Oct 2022 13:32:22 +0800
-Message-Id: <20221022053222.20614-1-wangjianli@cdjrlc.com>
-X-Mailer: git-send-email 2.36.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:cdjrlc.com:qybglogicsvr:qybglogicsvr7
+        with ESMTP id S229515AbiJWMoQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Oct 2022 08:44:16 -0400
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 685F16D877;
+        Sun, 23 Oct 2022 05:44:15 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R251e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VSpfJvR_1666529052;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VSpfJvR_1666529052)
+          by smtp.aliyun-inc.com;
+          Sun, 23 Oct 2022 20:44:13 +0800
+From:   "D.Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net-next v4 02/10] net/smc: fix SMC_CLC_DECL_ERR_REGRMB without smc_server_lgr_pending
+Date:   Sun, 23 Oct 2022 20:43:54 +0800
+Message-Id: <1666529042-40828-3-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1666529042-40828-1-git-send-email-alibuda@linux.alibaba.com>
+References: <1666529042-40828-1-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Delete the redundant word 'the'.
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-Signed-off-by: wangjianli <wangjianli@cdjrlc.com>
+As commit 4940a1fdf31c ("net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB
+error cause by server") mentioned, it works only when all connection
+creations are completely protected by smc_server_lgr_pending, since we
+already remove this lock, we need to re-fix the issues.
+
+Fixes: 4940a1fdf31c ("net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB error cause by server")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 ---
- arch/s390/kernel/sthyi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/af_smc.c   |  2 ++
+ net/smc/smc_core.c | 11 ++++++++---
+ net/smc/smc_core.h | 19 +++++++++++++++++++
+ 3 files changed, 29 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/sthyi.c b/arch/s390/kernel/sthyi.c
-index 4d141e2c132e..dfc350fab384 100644
---- a/arch/s390/kernel/sthyi.c
-+++ b/arch/s390/kernel/sthyi.c
-@@ -250,7 +250,7 @@ static void fill_diag_mac(struct sthyi_sctns *sctns,
- 	sctns->mac.infmval1 |= MAC_CNT_VLD;
- }
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index e369ab6..b55d9ad4 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2399,6 +2399,7 @@ static void smc_listen_work(struct work_struct *work)
+ 		if (rc)
+ 			goto out_decl;
+ 	}
++	smc_conn_leave_rtoken_pending(new_smc, ini);
+ 	smc_conn_save_peer_info(new_smc, cclc);
+ 	smc_listen_out_connected(new_smc);
+ 	SMC_STAT_SERV_SUCC_INC(sock_net(newclcsock->sk), ini);
+@@ -2407,6 +2408,7 @@ static void smc_listen_work(struct work_struct *work)
+ 	goto out_free;
  
--/* Returns a pointer to the the next partition block. */
-+/* Returns a pointer to the next partition block. */
- static struct diag204_x_part_block *lpar_cpu_inf(struct lpar_cpu_inf *part_inf,
- 						 bool this_lpar,
- 						 void *diag224_buf,
+ out_decl:
++	smc_conn_leave_rtoken_pending(new_smc, ini);
+ 	if (ini && ini->first_contact_local)
+ 		smc_lgr_decision_maker_on_first_contact_done(ini, false /* fail */);
+ 	smc_listen_decline(new_smc, rc, ini ? ini->first_contact_local : 0,
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index fff41c3..c76e9a4 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -2182,14 +2182,19 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 		     lgr->vlan_id == ini->vlan_id) &&
+ 		    (role == SMC_CLNT || ini->is_smcd ||
+ 		    (lgr->conns_num < SMC_RMBS_PER_LGR_MAX &&
+-		      !bitmap_full(lgr->rtokens_used_mask, SMC_RMBS_PER_LGR_MAX)))) {
++		    (SMC_RMBS_PER_LGR_MAX -
++			bitmap_weight(lgr->rtokens_used_mask, SMC_RMBS_PER_LGR_MAX)
++				> atomic_read(&lgr->rtoken_pendings))))) {
+ 			/* link group found */
+ 			ini->first_contact_local = 0;
+ 			conn->lgr = lgr;
+ 			rc = smc_lgr_register_conn(conn, false);
+ 			write_unlock_bh(&lgr->conns_lock);
+-			if (!rc && delayed_work_pending(&lgr->free_work))
+-				cancel_delayed_work(&lgr->free_work);
++			if (!rc) {
++				smc_conn_enter_rtoken_pending(smc, ini);
++				if (delayed_work_pending(&lgr->free_work))
++					cancel_delayed_work(&lgr->free_work);
++			}
+ 			break;
+ 		}
+ 		write_unlock_bh(&lgr->conns_lock);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index ad22751..dae2983 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -253,6 +253,9 @@ struct smc_link_group {
+ 	struct rb_root		conns_all;	/* connection tree */
+ 	rwlock_t		conns_lock;	/* protects conns_all */
+ 	unsigned int		conns_num;	/* current # of connections */
++	atomic_t		rtoken_pendings;/* number of connection that
++						 * lgr assigned but no rtoken got yet
++						 */
+ 	unsigned short		vlan_id;	/* vlan id of link group */
+ 
+ 	struct list_head	sndbufs[SMC_RMBE_SIZES];/* tx buffers */
+@@ -569,6 +572,22 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 
+ void smc_lgr_decision_maker_on_first_contact_done(struct smc_init_info *ini, bool success);
+ 
++static inline void smc_conn_enter_rtoken_pending(struct smc_sock *smc, struct smc_init_info *ini)
++{
++	struct smc_link_group *lgr = smc->conn.lgr;
++
++	if (lgr && !ini->first_contact_local)
++		atomic_inc(&lgr->rtoken_pendings);
++}
++
++static inline void smc_conn_leave_rtoken_pending(struct smc_sock *smc, struct smc_init_info *ini)
++{
++	struct smc_link_group *lgr = smc->conn.lgr;
++
++	if (lgr && !ini->first_contact_local)
++		atomic_dec(&lgr->rtoken_pendings);
++}
++
+ static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
+ {
+ 	return link->lgr;
 -- 
-2.36.1
+1.8.3.1
 
