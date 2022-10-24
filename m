@@ -2,321 +2,441 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C56FFFA373F
-	for <linux-s390@archiver.kernel.org>; Mon, 24 Oct 2022 15:47:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95A42FA3744
+	for <linux-s390@archiver.kernel.org>; Mon, 24 Oct 2022 16:16:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230166AbiJXPrD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 Oct 2022 11:47:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50844 "EHLO
+        id S232642AbiJXQPz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 Oct 2022 12:15:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231646AbiJXPqn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Oct 2022 11:46:43 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5593B4C61D;
-        Mon, 24 Oct 2022 07:39:01 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29OBoQpp001508;
-        Mon, 24 Oct 2022 13:11:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Szt4A0XU+tcJSCe4LmqkpfSS9FcJxB3myCyiZx7YbOg=;
- b=V+VRh6JOGOp4M+WsZNXD3MNCSDWR6pQjL0qbPWR2eE1IEtRYAz8lyaHNZtQwHm1bhTD9
- MXY9isagJnHETnhRtLfnkqVqO4TLSAwT1m+QjMlgfh9kR0sWIO26fbRa8gsz/ASy7Pp1
- RtexEkJ0DK9RaQn+xO1NpyHAjlR5CG5IQSkpbn53myGiFH8vGxuZrAq2yJMwF+H4sln4
- CqXUSs3NhcIrBSEy48uptahpaIwfAkXZgQhEtPX9eMlKmJd4mm6EaqG1F8vUKqhpFfS7
- Ye8KnCA/bsoA51KKS13vwas/FBxt4yQyiqcALSpm/n40hz0XPNfpaqO7Gaky2FVmgih8 gg== 
+        with ESMTP id S234103AbiJXQN6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Oct 2022 12:13:58 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 577BFA8CD1;
+        Mon, 24 Oct 2022 08:01:58 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29OEJkgh020906;
+        Mon, 24 Oct 2022 14:20:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=DIjw4NzJXTZKIoYlHbfr0G2wUYijs1GfX1L4RcLxP1o=;
+ b=c3/RTcvYPbhZTnhCa0RvlWGMH7EW7TVmIjckG0UK9FdotxXbm7VXjfSpn1NgpCcHr+GZ
+ hGi3JlF6PW7oIfX5dwi5k3uU9Ib8CPWyZi2KaCaQXFpjDqemNS6mBxE26OYkLl6LlnYW
+ aVIWxXtFTfUIdVcuj/+V+ByOXZYQRQJRQwTEEW8vaqL7P4/msZ+KZQeCqDXW7dVWKOCN
+ /JtqbNCeojM6pL+dTIR3Rf/Wh3erSeGOYUZ3tBPDGEIJ3lGF/MLTgjjAj3qkwXjijqoR
+ NiPAJL+zo02fSxgXf/4lLmB7tm8dsPX5B9KW21lvFtQvUwXgCO4k7ppWx31wEm4AteBy Cw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kdt6f2k2s-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kdvcf8186-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Oct 2022 13:11:48 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29OBpwcG006731;
-        Mon, 24 Oct 2022 13:11:47 GMT
+        Mon, 24 Oct 2022 14:20:44 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29OEK23o022621;
+        Mon, 24 Oct 2022 14:20:43 GMT
 Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kdt6f2k23-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kdvcf817b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Oct 2022 13:11:47 +0000
+        Mon, 24 Oct 2022 14:20:43 +0000
 Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29OD6dvr012575;
-        Mon, 24 Oct 2022 13:11:45 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma02fra.de.ibm.com with ESMTP id 3kc859jftm-1
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29OEKN9P019506;
+        Mon, 24 Oct 2022 14:20:41 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3kc859jhya-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Oct 2022 13:11:45 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29ODBgVi62521686
+        Mon, 24 Oct 2022 14:20:41 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29OEKcFY40567272
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 24 Oct 2022 13:11:42 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2F955AE04D;
-        Mon, 24 Oct 2022 13:11:42 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A7A44AE051;
-        Mon, 24 Oct 2022 13:11:41 +0000 (GMT)
-Received: from [9.171.30.142] (unknown [9.171.30.142])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 24 Oct 2022 13:11:41 +0000 (GMT)
-Message-ID: <95feb2a1-d17a-6233-d3d0-eaebf26d2284@linux.ibm.com>
-Date:   Mon, 24 Oct 2022 15:11:35 +0200
+        Mon, 24 Oct 2022 14:20:38 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 20CF852052;
+        Mon, 24 Oct 2022 14:20:38 +0000 (GMT)
+Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.20.45])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 9F4A85204F;
+        Mon, 24 Oct 2022 14:20:37 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        cohuck@redhat.com, imbrenda@linux.ibm.com, david@redhat.com,
+        nrb@linux.ibm.com, scgl@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v5 2/2] s390x: topology: Checking Configuration Topology Information
+Date:   Mon, 24 Oct 2022 16:20:35 +0200
+Message-Id: <20221024142035.22668-3-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20221024142035.22668-1-pmorel@linux.ibm.com>
+References: <20221024142035.22668-1-pmorel@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH net-next v4 00/10] optimize the parallelism of SMC-R
- connections
-To:     "D.Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1666529042-40828-1-git-send-email-alibuda@linux.alibaba.com>
-From:   Jan Karcher <jaka@linux.ibm.com>
-Organization: IBM - Network Linux on Z
-In-Reply-To: <1666529042-40828-1-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ELLv8Hej3LFrWQRI4Vmdivc-PMP3hzZo
-X-Proofpoint-ORIG-GUID: KG6u80bPC6eVrxWEUtYy6sEyWAUaWoWQ
+X-Proofpoint-ORIG-GUID: oswt0ADYpb361NakvgSI2QTM1wPHICGT
+X-Proofpoint-GUID: 2ZLROO84aqAXvgDC-efgRUSqIQKJSEb6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-24_04,2022-10-21_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- mlxscore=0 priorityscore=1501 suspectscore=0 adultscore=0
- lowpriorityscore=0 impostorscore=0 mlxlogscore=999 spamscore=0 bulkscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210240077
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
+ malwarescore=0 impostorscore=0 mlxlogscore=999 priorityscore=1501
+ suspectscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0 adultscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210240086
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi D. Wythe,
+STSI with function code 15 is used to store the CPU configuration
+topology.
 
-I re-run the tests with your fix.
-SMC-R works fine now. For SMC-D we still have the following problem. It 
-is kind of the same as i reported in v2 but even weirder:
+We check :
+- if the topology stored is coherent between the QEMU -smp
+  parameters and kernel parameters.
+- the number of CPUs
+- the maximum number of CPUs
+- the number of containers of each levels for every STSI(15.1.x)
+  instruction allowed by the machine.
 
-smc stats:
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ lib/s390x/stsi.h    |  44 ++++++++
+ s390x/topology.c    | 238 +++++++++++++++++++++++++++++++++++++++++++-
+ s390x/unittests.cfg |   1 +
+ 3 files changed, 281 insertions(+), 2 deletions(-)
 
-t8345011
-SMC-D Connections Summary
-   Total connections handled          2465
-SMC-R Connections Summary
-   Total connections handled           232
+diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+index bebc492d..8dbbfc29 100644
+--- a/lib/s390x/stsi.h
++++ b/lib/s390x/stsi.h
+@@ -29,4 +29,48 @@ struct sysinfo_3_2_2 {
+ 	uint8_t ext_names[8][256];
+ };
+ 
++struct topology_core {
++	uint8_t nl;
++	uint8_t reserved1[3];
++	uint8_t reserved4:5;
++	uint8_t d:1;
++	uint8_t pp:2;
++	uint8_t type;
++	uint16_t origin;
++	uint64_t mask;
++};
++
++struct topology_container {
++	uint8_t nl;
++	uint8_t reserved[6];
++	uint8_t id;
++};
++
++union topology_entry {
++	uint8_t nl;
++	struct topology_core cpu;
++	struct topology_container container;
++};
++
++#define CPU_TOPOLOGY_MAX_LEVEL 6
++struct sysinfo_15_1_x {
++	uint8_t reserved0[2];
++	uint16_t length;
++	uint8_t mag[CPU_TOPOLOGY_MAX_LEVEL];
++	uint8_t reserved0a;
++	uint8_t mnest;
++	uint8_t reserved0c[4];
++	union topology_entry tle[0];
++};
++
++static inline int cpus_in_tle_mask(uint64_t val)
++{
++	int i, n;
++
++	for (i = 0, n = 0; i < 64; i++, val >>= 1)
++		if (val & 0x01)
++			n++;
++	return n;
++}
++
+ #endif  /* _S390X_STSI_H_ */
+diff --git a/s390x/topology.c b/s390x/topology.c
+index ae146d16..842bf99a 100644
+--- a/s390x/topology.c
++++ b/s390x/topology.c
+@@ -15,7 +15,16 @@
+ #include <asm/facility.h>
+ #include <smp.h>
+ #include <sclp.h>
+-#include <s390x/vm.h>
++#include <s390x/hardware.h>
++#include <s390x/stsi.h>
++
++static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
++
++static int max_nested_lvl;
++static int number_of_cpus;
++static int max_cpus = 1;
++static int arch_topo_lvl[CPU_TOPOLOGY_MAX_LEVEL];	/* Topology level defined by architecture */
++static int stsi_nested_lvl[CPU_TOPOLOGY_MAX_LEVEL];	/* Topology nested level reported in STSI */
+ 
+ #define PTF_REQ_HORIZONTAL	0
+ #define PTF_REQ_VERTICAL	1
+@@ -85,7 +94,7 @@ static void test_ptf(void)
+ 	 * any Virtual Machine but KVM.
+ 	 * Let's skip the polarisation tests for other VMs.
+ 	 */
+-	if (!vm_is_kvm()) {
++	if (!host_is_kvm()) {
+ 		report_skip("Topology polarisation check is done for KVM only");
+ 		goto end;
+ 	}
+@@ -99,11 +108,232 @@ end:
+ 	report_prefix_pop();
+ }
+ 
++/*
++ * stsi_check_maxcpus
++ * @info: Pointer to the stsi information
++ *
++ * The product of the numbers of containers per level
++ * is the maximum number of CPU allowed by the machine.
++ */
++static void stsi_check_maxcpus(struct sysinfo_15_1_x *info)
++{
++	int n, i;
++
++	report_prefix_push("maximum cpus");
++
++	for (i = 0, n = 1; i < CPU_TOPOLOGY_MAX_LEVEL; i++) {
++		report_info("Mag%d: %d", CPU_TOPOLOGY_MAX_LEVEL - i, info->mag[i]);
++		n *= info->mag[i] ? info->mag[i] : 1;
++	}
++	report(n == max_cpus, "Maximum CPUs %d expected %d", n, max_cpus);
++
++	report_prefix_pop();
++}
++
++/*
++ * stsi_check_tle_coherency
++ * @info: Pointer to the stsi information
++ * @sel2: Topology level to check.
++ *
++ * We verify that we get the expected number of Topology List Entry
++ * containers for a specific level.
++ */
++static void stsi_check_tle_coherency(struct sysinfo_15_1_x *info, int sel2)
++{
++	struct topology_container *tc, *end;
++	struct topology_core *cpus;
++	int n = 0;
++	int i;
++
++	report_prefix_push("TLE coherency");
++
++	tc = &info->tle[0].container;
++	end = (struct topology_container *)((unsigned long)info + info->length);
++
++	for (i = 0; i < CPU_TOPOLOGY_MAX_LEVEL; i++)
++		stsi_nested_lvl[i] = 0;
++
++	while (tc < end) {
++		if (tc->nl > 5) {
++			report_abort("Unexpected TL Entry: tle->nl: %d", tc->nl);
++			return;
++		}
++		if (tc->nl == 0) {
++			cpus = (struct topology_core *)tc;
++			n += cpus_in_tle_mask(cpus->mask);
++			report_info("cpu type %02x  d: %d pp: %d", cpus->type, cpus->d, cpus->pp);
++			report_info("origin : %04x mask %016lx", cpus->origin, cpus->mask);
++		}
++
++		stsi_nested_lvl[tc->nl]++;
++		report_info("level %d: lvl: %d id: %d cnt: %d",
++			    tc->nl, tc->nl, tc->id, stsi_nested_lvl[tc->nl]);
++
++		/* trick: CPU TLEs are twice the size of containers TLE */
++		if (tc->nl == 0)
++			tc++;
++		tc++;
++	}
++	report(n == number_of_cpus, "Number of CPUs  : %d expect %d", n, number_of_cpus);
++	/*
++	 * For KVM we accept
++	 * - only 1 type of CPU
++	 * - only horizontal topology
++	 * - only dedicated CPUs
++	 * This leads to expect the number of entries of level 0 CPU
++	 * Topology Level Entry (TLE) to be:
++	 * 1 + (number_of_cpus - 1)  / arch_topo_lvl[0]
++	 *
++	 * For z/VM or LPAR this number can only be greater if different
++	 * polarity, CPU types because there may be a nested level 0 CPU TLE
++	 * for each of the CPU/polarity/sharing types in a level 1 container TLE.
++	 */
++	n =  (number_of_cpus - 1)  / arch_topo_lvl[0];
++	report(stsi_nested_lvl[0] >=  n + 1,
++	       "CPU Type TLE    : %d expect %d", stsi_nested_lvl[0], n + 1);
++
++	/* For each level found in STSI */
++	for (i = 1; i < CPU_TOPOLOGY_MAX_LEVEL; i++) {
++		/*
++		 * For non QEMU/KVM hypervisor the concatenation of the levels
++		 * above level 1 are architecture dependent.
++		 * Skip these checks.
++		 */
++		if (!host_is_kvm() && sel2 != 2)
++			continue;
++
++		/* For QEMU/KVM we expect a simple calculation */
++		if (sel2 > i) {
++			report(stsi_nested_lvl[i] ==  n + 1,
++			       "Container TLE  %d: %d expect %d", i, stsi_nested_lvl[i], n + 1);
++			n /= arch_topo_lvl[i];
++		}
++	}
++
++	report_prefix_pop();
++}
++
++/*
++ * check_sysinfo_15_1_x
++ * @info: pointer to the STSI info structure
++ * @sel2: the selector giving the topology level to check
++ *
++ * Check if the validity of the STSI instruction and then
++ * calls specific checks on the information buffer.
++ */
++static void check_sysinfo_15_1_x(struct sysinfo_15_1_x *info, int sel2)
++{
++	int ret;
++
++	report_prefix_pushf("mnested %d 15_1_%d", max_nested_lvl, sel2);
++
++	ret = stsi(pagebuf, 15, 1, sel2);
++	if (max_nested_lvl >= sel2) {
++		report(!ret, "Valid stsi instruction");
++	} else {
++		report(ret, "Invalid stsi instruction");
++		goto end;
++	}
++
++	stsi_check_maxcpus(info);
++	stsi_check_tle_coherency(info, sel2);
++
++end:
++	report_prefix_pop();
++}
++
++/*
++ * test_stsi
++ *
++ * Retrieves the maximum nested topology level supported by the architecture
++ * and the number of CPUs.
++ * Calls the checking for the STSI instruction in sel2 reverse level order
++ * from 6 (CPU_TOPOLOGY_MAX_LEVEL) to 2 to have the most interesting level,
++ * the one triggering a topology-change-report-pending condition, level 2,
++ * at the end of the report.
++ *
++ */
++static void test_stsi(void)
++{
++	int sel2;
++
++	report_info("SCLP maximum nested level : %d", max_nested_lvl);
++
++	number_of_cpus = sclp_get_cpu_num();
++	report_info("SCLP number of CPU: %d", number_of_cpus);
++
++	/* STSI selector 2 can takes values between 2 and 6 */
++	for (sel2 = 6; sel2 >= 2; sel2--)
++		check_sysinfo_15_1_x((struct sysinfo_15_1_x *)pagebuf, sel2);
++}
++
++/*
++ * parse_topology_args
++ * @argc: number of arguments
++ * @argv: argument array
++ *
++ * This function initialize the architecture topology levels
++ * which should be the same as the one provided by the hypervisor.
++ *
++ * We use the current names found in IBM/Z literature, Linux and QEMU:
++ * cores, sockets/packages, books, drawers and nodes to facilitate the
++ * human machine interface but store the result in a machine abstract
++ * array of architecture topology levels.
++ * Note that when QEMU uses socket as a name for the topology level 1
++ * Linux uses package or physical_package.
++ */
++static void parse_topology_args(int argc, char **argv)
++{
++	int i;
++
++	report_info("%d arguments", argc);
++	for (i = 1; i < argc; i++) {
++		if (!strcmp("-mnest", argv[i])) {
++			i++;
++			if (i >= argc)
++				report_abort("-mnest (maximum nested level) needs a parameter");
++			max_nested_lvl = atol(argv[i]);
++		} else if (!strcmp("-cores", argv[i])) {
++			i++;
++			if (i >= argc)
++				report_abort("-cores needs a parameter");
++			arch_topo_lvl[0] = atol(argv[i]);
++			report_info("cores: %d", arch_topo_lvl[0]);
++		} else if (!strcmp("-sockets", argv[i])) {
++			i++;
++			if (i >= argc)
++				report_abort("-sockets needs a parameter");
++			arch_topo_lvl[1] = atol(argv[i]);
++			report_info("sockets: %d", arch_topo_lvl[1]);
++		}
++	}
++
++	for (i = 0; i < CPU_TOPOLOGY_MAX_LEVEL; i++) {
++		if (!arch_topo_lvl[i])
++			arch_topo_lvl[i] = 1;
++		max_cpus *= arch_topo_lvl[i];
++	}
++}
++
++/*
++ * Heuristic, measures on LPAR shows that the maximum nested
++ * levels value is 4.
++ * QEMU have a maximum nexted level of 2.
++ */
++static void set_default_mnest(void)
++{
++	if (host_is_qemu())
++		max_nested_lvl = 2;
++	else if (host_is_lpar())
++		max_nested_lvl = 4;
++}
++
+ static struct {
+ 	const char *name;
+ 	void (*func)(void);
+ } tests[] = {
+ 	{ "PTF", test_ptf},
++	{ "STSI", test_stsi},
+ 	{ NULL, NULL }
+ };
+ 
+@@ -113,6 +343,10 @@ int main(int argc, char *argv[])
+ 
+ 	report_prefix_push("CPU Topology");
+ 
++	set_default_mnest();
++
++	parse_topology_args(argc, argv);
++
+ 	if (!test_facility(11)) {
+ 		report_skip("Topology facility not present");
+ 		goto end;
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index 3530cc4c..6dadf23d 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -211,3 +211,4 @@ smp = 2
+ 
+ [topology]
+ file = topology.elf
++extra_params=-smp 5,sockets=4,cores=4,maxcpus=16 -append '-mnest 2 -sockets 4 -cores 4'
+-- 
+2.31.1
 
-t8345010
-SMC-D Connections Summary
-   Total connections handled          2290
-SMC-R Connections Summary
-   Total connections handled           231
-
-
-smc linkgroups:
-
-t8345011
-[root@t8345011 ~]# smcr linkgroup
-LG-ID    LG-Role  LG-Type  VLAN  #Conns  PNET-ID
-00000400 SERV     SYM         0       0  NET25
-[root@t8345011 ~]# smcd linkgroup
-LG-ID    VLAN  #Conns  PNET-ID
-00000300    0      16  NET25
-
-t8345010
-[root@t8345010 tela-kernel]# smcr linkgroup
-LG-ID    LG-Role  LG-Type  VLAN  #Conns  PNET-ID
-00000400 CLNT     SYM         0       0  NET25
-[root@t8345010 tela-kernel]# smcd linkgroup
-LG-ID    VLAN  #Conns  PNET-ID
-00000300    0       1  NET25
-
-
-smcss:
-
-t8345011
-[root@t8345011 ~]# smcss
-State          UID   Inode   Local Address           Peer Address 
-     Intf Mode
-
-t8345010
-[root@t8345010 tela-kernel]# smcss
-State          UID   Inode   Local Address           Peer Address 
-     Intf Mode
-
-
-lsmod:
-
-t8345011
-[root@t8345011 ~]# lsmod | grep smc
-smc                   225280  18 ism,smc_diag
-t8345010
-[root@t8345010 tela-kernel]# lsmod | grep smc
-smc                   225280  3 ism,smc_diag
-
-Also smc_dbg and netstat do not show any more information on this 
-problem. We only see in the dmesg that the code seems to build up SMC-R 
-linkgroups even tho we are running the SMC-D tests.
-NOTE: we disabled the syncookies for the tests.
-
-dmesg:
-
-t8345011
-smc-tests: test_smcapp_torture_test started
-kernel: TCP: request_sock_TCP: Possible SYN flooding on port 22465. 
-Dropping request.  Check SNMP counters.
-kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000401, peerid 
-00000401, ibdev mlx5_0, ibport 1
-kernel: smc: SMC-R lg 00000400 net 1 state changed: SINGLE, pnetid NET25 
-
-kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000402, peerid 
-00000402, ibdev mlx5_1, ibport 1
-kernel: smc: SMC-R lg 00000400 net 1 state changed: SYMMETRIC, pnetid NET25
-
-t8345010
-smc-tests: test_smcapp_torture_test started
-kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000401, peerid 
-00000401, ibdev mlx5_0, ibport 1
-kernel: smc: SMC-R lg 00000400 net 1 state changed: SINGLE, pnetid NET25 
-
-kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000402, peerid 
-00000402, ibdev mlx5_1, ibport 1
-kernel: smc: SMC-R lg 00000400 net 1 state changed: SYMMETRIC, pnetid 
-NET25
-
-If this output does not help and if you want us to look deeper into it 
-feel free to let us know and we can debug further.
-
-On 23/10/2022 14:43, D.Wythe wrote:
-> From: "D.Wythe" <alibuda@linux.alibaba.com>
-> 
-> This patch set attempts to optimize the parallelism of SMC-R connections,
-> mainly to reduce unnecessary blocking on locks, and to fix exceptions that
-> occur after thoses optimization.
-> 
-> According to Off-CPU graph, SMC worker's off-CPU as that:
-> 
-> smc_close_passive_work                  (1.09%)
->          smcr_buf_unuse                  (1.08%)
->                  smc_llc_flow_initiate   (1.02%)
-> 
-> smc_listen_work                         (48.17%)
->          __mutex_lock.isra.11            (47.96%)
-> 
-> 
-> An ideal SMC-R connection process should only block on the IO events
-> of the network, but it's quite clear that the SMC-R connection now is
-> queued on the lock most of the time.
-> 
-> The goal of this patchset is to achieve our ideal situation where
-> network IO events are blocked for the majority of the connection lifetime.
-> 
-> There are three big locks here:
-> 
-> 1. smc_client_lgr_pending & smc_server_lgr_pending
-> 
-> 2. llc_conf_mutex
-> 
-> 3. rmbs_lock & sndbufs_lock
-> 
-> And an implementation issue:
-> 
-> 1. confirm/delete rkey msg can't be sent concurrently while
-> protocol allows indeed.
-> 
-> Unfortunately,The above problems together affect the parallelism of
-> SMC-R connection. If any of them are not solved. our goal cannot
-> be achieved.
-> 
-> After this patch set, we can get a quite ideal off-CPU graph as
-> following:
-> 
-> smc_close_passive_work                                  (41.58%)
->          smcr_buf_unuse                                  (41.57%)
->                  smc_llc_do_delete_rkey                  (41.57%)
-> 
-> smc_listen_work                                         (39.10%)
->          smc_clc_wait_msg                                (13.18%)
->                  tcp_recvmsg_locked                      (13.18)
->          smc_listen_find_device                          (25.87%)
->                  smcr_lgr_reg_rmbs                       (25.87%)
->                          smc_llc_do_confirm_rkey         (25.87%)
-> 
-> We can see that most of the waiting times are waiting for network IO
-> events. This also has a certain performance improvement on our
-> short-lived conenction wrk/nginx benchmark test:
-> 
-> +--------------+------+------+-------+--------+------+--------+
-> |conns/qps     |c4    | c8   |  c16  |  c32   | c64  |  c200  |
-> +--------------+------+------+-------+--------+------+--------+
-> |SMC-R before  |9.7k  | 10k  |  10k  |  9.9k  | 9.1k |  8.9k  |
-> +--------------+------+------+-------+--------+------+--------+
-> |SMC-R now     |13k   | 19k  |  18k  |  16k   | 15k  |  12k   |
-> +--------------+------+------+-------+--------+------+--------+
-> |TCP           |15k   | 35k  |  51k  |  80k   | 100k |  162k  |
-> +--------------+------+------+-------+--------+------+--------+
-> 
-> The reason why the benefit is not obvious after the number of connections
-> has increased dues to workqueue. If we try to change workqueue to UNBOUND,
-> we can obtain at least 4-5 times performance improvement, reach up to half
-> of TCP. However, this is not an elegant solution, the optimization of it
-> will be much more complicated. But in any case, we will submit relevant
-> optimization patches as soon as possible.
-> 
-> Please note that the premise here is that the lock related problem
-> must be solved first, otherwise, no matter how we optimize the workqueue,
-> there won't be much improvement.
-> 
-> Because there are a lot of related changes to the code, if you have
-> any questions or suggestions, please let me know.
-> 
-> Thanks
-> D. Wythe
-> 
-> v1 -> v2:
-> 
-> 1. Fix panic in SMC-D scenario
-> 2. Fix lnkc related hashfn calculation exception, caused by operator
-> priority
-> 3. Only wake up one connection if the lnk is not active
-> 4. Delete obsolete unlock logic in smc_listen_work()
-> 5. PATCH format, do Reverse Christmas tree
-> 6. PATCH format, change all xxx_lnk_xxx function to xxx_link_xxx
-> 7. PATCH format, add correct fix tag for the patches for fixes.
-> 8. PATCH format, fix some spelling error
-> 9. PATCH format, rename slow to do_slow
-> 
-> v2 -> v3:
-> 
-> 1. add SMC-D support, remove the concept of link cluster since SMC-D has
-> no link at all. Replace it by lgr decision maker, who provides suggestions
-> to SMC-D and SMC-R on whether to create new link group.
-> 
-> 2. Fix the corruption problem described by PATCH 'fix application
-> data exception' on SMC-D.
-> 
-> v3 -> v4:
-> 
-> 1. Fix panic caused by uninitialization map.
-> 
-> D. Wythe (10):
->    net/smc: remove locks smc_client_lgr_pending and
->      smc_server_lgr_pending
->    net/smc: fix SMC_CLC_DECL_ERR_REGRMB without smc_server_lgr_pending
->    net/smc: allow confirm/delete rkey response deliver multiplex
->    net/smc: make SMC_LLC_FLOW_RKEY run concurrently
->    net/smc: llc_conf_mutex refactor, replace it with rw_semaphore
->    net/smc: use read semaphores to reduce unnecessary blocking in
->      smc_buf_create() & smcr_buf_unuse()
->    net/smc: reduce unnecessary blocking in smcr_lgr_reg_rmbs()
->    net/smc: replace mutex rmbs_lock and sndbufs_lock with rw_semaphore
->    net/smc: Fix potential panic dues to unprotected
->      smc_llc_srv_add_link()
->    net/smc: fix application data exception
-> 
->   net/smc/af_smc.c   |  70 ++++----
->   net/smc/smc_core.c | 478 +++++++++++++++++++++++++++++++++++++++++++++++------
->   net/smc/smc_core.h |  36 +++-
->   net/smc/smc_llc.c  | 277 ++++++++++++++++++++++---------
->   net/smc/smc_llc.h  |   6 +
->   net/smc/smc_wr.c   |  10 --
->   net/smc/smc_wr.h   |  10 ++
->   7 files changed, 712 insertions(+), 175 deletions(-)
-> 
