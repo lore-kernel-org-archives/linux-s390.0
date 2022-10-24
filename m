@@ -2,253 +2,264 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95D70FA3740
-	for <linux-s390@archiver.kernel.org>; Mon, 24 Oct 2022 16:42:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3D34FA373F
+	for <linux-s390@archiver.kernel.org>; Mon, 24 Oct 2022 16:50:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231917AbiJXQmj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 Oct 2022 12:42:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35446 "EHLO
+        id S231390AbiJXQuU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 Oct 2022 12:50:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231974AbiJXQlt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Oct 2022 12:41:49 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5246226C9;
-        Mon, 24 Oct 2022 08:28:47 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29OEijmo002466;
-        Mon, 24 Oct 2022 15:07:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=CXbPk6KfVbEUj4mvUy75NRKeO6rjMSSdAQ2/7/QtbBo=;
- b=ZZmSvkhLj5SSBrPdoeQWpzZWaAldgYJ0njL5k3kby2GdmItkePmhuW7YERbZk0V+HFz1
- ZTryhdspaoIHlwMdwnSZBKOByuctSIexpOWpEUy3t53QRKQLEhMj4fBnFgdsK2MbCnNY
- zVGkR7Nc7LgLQwPOYmLMkkBOSlaaUTZH/qwoEPoITXJ0ckOK9IK8dZFpqtGcBlrOcfCB
- HqoeFbkci+wi3G5rg4HpGwTiDnejnIFKWDHCBY9EYpAzvt1YXILNTfyINbeTmevH9WTz
- TR8lv+Ssx8Fy/b0fTnNWMgQpOYB4e2J+jlM7yzJ+RgiGhpizk2CvY0a9CQACnfeaXN7l aQ== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kdvqy106m-1
+        with ESMTP id S234816AbiJXQsy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Oct 2022 12:48:54 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48FC95E579;
+        Mon, 24 Oct 2022 08:31:59 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29ODaSSb009613;
+        Mon, 24 Oct 2022 14:20:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=4Y++Kob0rReVAjonbUQ9wtbGu2bfv8RuukSnT81rxpM=;
+ b=DfFWMo+fTuZonZZn3dupPRZvkG2ww3LK+nl7lK0l1p42fZDADX0TMOi5A0tzQNpqSf/e
+ GrWbLUb6cQ36LDyt3J7KRcpeESiHcTe+YfhaOEKEnzo2MinXu7FM4zdynLzSDvhH79Pb
+ GePtrzY9EJtnNa36YEctF8/AEp+PoIb85c/Jxoei3Hn7CxygGS3UTmsj0z+QKx854a6V
+ VEHU0POmOIEaiCpqwHuD95XWfIW3wGWS38x2zSzfiUpE4pbEvrbeK3bjEOYxlZN7MLbm
+ N/wIxpC42tt3beR+WApBIOK3K32dWv3CW40VHllfdFqZTr31+S/WkyUBFqsEhiSv45uP GA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kduhg1wu6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Oct 2022 15:07:18 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29OEoQSe019281;
-        Mon, 24 Oct 2022 15:02:16 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06fra.de.ibm.com with ESMTP id 3kc7sj2kqc-1
+        Mon, 24 Oct 2022 14:20:43 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29ODasae010735;
+        Mon, 24 Oct 2022 14:20:43 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kduhg1wt7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Oct 2022 15:02:16 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29OF2Cst35586708
+        Mon, 24 Oct 2022 14:20:42 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29OE7DEt004516;
+        Mon, 24 Oct 2022 14:20:40 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kc7sj3e6t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Oct 2022 14:20:40 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29OEKb1n41353516
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 24 Oct 2022 15:02:12 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8E21AA4054;
-        Mon, 24 Oct 2022 15:02:12 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C7C1DA405F;
-        Mon, 24 Oct 2022 15:02:11 +0000 (GMT)
-Received: from sig-9-145-54-55.uk.ibm.com (unknown [9.145.54.55])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 24 Oct 2022 15:02:11 +0000 (GMT)
-Message-ID: <e16bbc699445c15788727b2094b032323168bad1.camel@linux.ibm.com>
-Subject: Re: [PATCH v7 3/6] iommu/s390: Fix potential s390_domain aperture
- shrinking
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     iommu@lists.linux.dev, Joerg Roedel <joro@8bytes.org>,
-        Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org
-Date:   Mon, 24 Oct 2022 17:02:11 +0200
-In-Reply-To: <20221017124558.1386337-4-schnelle@linux.ibm.com>
-References: <20221017124558.1386337-1-schnelle@linux.ibm.com>
-         <20221017124558.1386337-4-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
+        Mon, 24 Oct 2022 14:20:37 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 944F95204E;
+        Mon, 24 Oct 2022 14:20:37 +0000 (GMT)
+Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.20.45])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 1914D52051;
+        Mon, 24 Oct 2022 14:20:37 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        cohuck@redhat.com, imbrenda@linux.ibm.com, david@redhat.com,
+        nrb@linux.ibm.com, scgl@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v5 1/2] s390x: topology: Check the Perform Topology Function
+Date:   Mon, 24 Oct 2022 16:20:34 +0200
+Message-Id: <20221024142035.22668-2-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20221024142035.22668-1-pmorel@linux.ibm.com>
+References: <20221024142035.22668-1-pmorel@linux.ibm.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mp3qej8oda2Ka77tiT84HKTasKin6PS0
-X-Proofpoint-GUID: mp3qej8oda2Ka77tiT84HKTasKin6PS0
+X-Proofpoint-GUID: 2CT3gytEfUj-kRvQmsmppKIEUg5MAhiD
+X-Proofpoint-ORIG-GUID: wS96nJQxpthy6htSJ-LC52tLecH4k_B_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-24_04,2022-10-21_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=999 clxscore=1015 phishscore=0 mlxscore=0 impostorscore=0
- priorityscore=1501 malwarescore=0 adultscore=0 spamscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210240092
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 bulkscore=0 suspectscore=0
+ mlxlogscore=999 mlxscore=0 priorityscore=1501 adultscore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210240086
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2022-10-17 at 14:45 +0200, Niklas Schnelle wrote:
-> The s390 IOMMU driver currently sets the IOMMU domain's aperture to
-> match the device specific DMA address range of the device that is first
-> attached. This is not ideal. For one if the domain has no device
-> attached in the meantime the aperture could be shrunk allowing
-> translations outside the aperture to exist in the translation tables.
-> Also this is a bit of a misuse of the aperture which really should
-> describe what addresses can be translated and not some device specific
-> limitations.
-> 
-> Instead of misusing the aperture like this we can instead create
-> reserved ranges for the ranges inaccessible to the attached devices
-> allowing devices with overlapping ranges to still share an IOMMU domain.
-> This also significantly simplifies s390_iommu_attach_device() allowing
-> us to move the aperture check to the beginning of the function and
-> removing the need to hold the device list's lock to check the aperture.
-> 
-> As we then use the same aperture for all domains and it only depends on
-> the table properties we can already check zdev->start_dma/end_dma at
-> probe time and turn the check on attach into a WARN_ON().
-> 
-> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
-> v5->v6:
-> - Return -EINVAL after WARN_ON() in attach
-> v4->v5:
-> - Make aperture check in attach a WARN_ON() and fail in probe if
->   zdev->start_dma/end_dma doesn't git in aperture  (Jason)
-> 
->  drivers/iommu/s390-iommu.c | 63 ++++++++++++++++++++++++++------------
->  1 file changed, 43 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index af83ccde16a4..c4203a37faa4 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -62,6 +62,9 @@ static struct iommu_domain *s390_domain_alloc(unsigned domain_type)
->  		kfree(s390_domain);
->  		return NULL;
->  	}
-> +	s390_domain->domain.geometry.force_aperture = true;
-> +	s390_domain->domain.geometry.aperture_start = 0;
-> +	s390_domain->domain.geometry.aperture_end = ZPCI_TABLE_SIZE_RT - 1;
->  
->  	spin_lock_init(&s390_domain->dma_table_lock);
->  	spin_lock_init(&s390_domain->list_lock);
-> @@ -102,11 +105,15 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  	struct s390_domain *s390_domain = to_s390_domain(domain);
->  	struct zpci_dev *zdev = to_zpci_dev(dev);
->  	unsigned long flags;
-> -	int cc, rc = 0;
-> +	int cc;
->  
->  	if (!zdev)
->  		return -ENODEV;
->  
-> +	if (WARN_ON(domain->geometry.aperture_start > zdev->end_dma ||
-> +		domain->geometry.aperture_end < zdev->start_dma))
-> +		return -EINVAL;
-> +
->  	if (zdev->s390_domain)
->  		__s390_iommu_detach_device(zdev);
->  	else if (zdev->dma_table)
-> @@ -118,30 +125,14 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  		return -EIO;
->  	zdev->dma_table = s390_domain->dma_table;
->  
-> -	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> -	/* First device defines the DMA range limits */
-> -	if (list_empty(&s390_domain->devices)) {
-> -		domain->geometry.aperture_start = zdev->start_dma;
-> -		domain->geometry.aperture_end = zdev->end_dma;
-> -		domain->geometry.force_aperture = true;
-> -	/* Allow only devices with identical DMA range limits */
-> -	} else if (domain->geometry.aperture_start != zdev->start_dma ||
-> -		   domain->geometry.aperture_end != zdev->end_dma) {
-> -		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> -		rc = -EINVAL;
-> -		goto out_unregister;
-> -	}
-> +	zdev->dma_table = s390_domain->dma_table;
->  	zdev->s390_domain = s390_domain;
-> +
-> +	spin_lock_irqsave(&s390_domain->list_lock, flags);
->  	list_add(&zdev->iommu_list, &s390_domain->devices);
->  	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
->  
->  	return 0;
-> -
-> -out_unregister:
-> -	zpci_unregister_ioat(zdev, 0);
-> -	zdev->dma_table = NULL;
-> -
-> -	return rc;
->  }
->  
->  static void s390_iommu_detach_device(struct iommu_domain *domain,
-> @@ -155,6 +146,30 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
->  	zpci_dma_init_device(zdev);
->  }
->  
-> +static void s390_iommu_get_resv_regions(struct device *dev,
-> +					struct list_head *list)
-> +{
-> +	struct zpci_dev *zdev = to_zpci_dev(dev);
-> +	struct iommu_resv_region *region;
-> +
-> +	if (zdev->start_dma) {
-> +		region = iommu_alloc_resv_region(0, zdev->start_dma, 0,
-> +						 IOMMU_RESV_RESERVED);
+We check the PTF instruction.
 
-Heads up! The iommu_alloc_resv_region() function gained a gfp parameter
-from v6.1-rc1 to v6.1-rc2 so the above needs "…, GFP_KERNEL);".
-@Joerg, @Will if you don't mind I'll rebase on v6.1-rc2 and resend.
-@Jason if you want to re-add your R-b this would be good time.
+- We check polarization only for KVM.
+- We do not expect KVM to support vertical polarization.
+- We do not expect the Topology Change Report to be pending
+or not at the moment the first PTF instruction with
+PTF_CHECK function code is done as some code already did run
+a polarization change may have occur.
 
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ s390x/Makefile      |   1 +
+ s390x/topology.c    | 132 ++++++++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg |   3 +
+ 3 files changed, 136 insertions(+)
+ create mode 100644 s390x/topology.c
 
-> +		if (!region)
-> +			return;
-> +		list_add_tail(&region->list, list);
-> +	}
-> +
-> +	if (zdev->end_dma < ZPCI_TABLE_SIZE_RT - 1) {
-> +		region = iommu_alloc_resv_region(zdev->end_dma + 1,
-> +						 ZPCI_TABLE_SIZE_RT - zdev->end_dma - 1,
-> +						 0, IOMMU_RESV_RESERVED);
-
-Same as above.
-
-> +		if (!region)
-> +			return;
-> +		list_add_tail(&region->list, list);
-> +	}
-> +}
-> +
->  static struct iommu_device *s390_iommu_probe_device(struct device *dev)
->  {
->  	struct zpci_dev *zdev;
-> @@ -164,6 +179,13 @@ static struct iommu_device *s390_iommu_probe_device(struct device *dev)
->  
->  	zdev = to_zpci_dev(dev);
->  
-> +	if (zdev->start_dma > zdev->end_dma ||
-> +	    zdev->start_dma > ZPCI_TABLE_SIZE_RT - 1)
-> +		return ERR_PTR(-EINVAL);
-> +
-> +	if (zdev->end_dma > ZPCI_TABLE_SIZE_RT - 1)
-> +		zdev->end_dma = ZPCI_TABLE_SIZE_RT - 1;
-> +
->  	return &zdev->iommu_dev;
->  }
->  
-> @@ -342,6 +364,7 @@ static const struct iommu_ops s390_iommu_ops = {
->  	.release_device = s390_iommu_release_device,
->  	.device_group = generic_device_group,
->  	.pgsize_bitmap = S390_IOMMU_PGSIZES,
-> +	.get_resv_regions = s390_iommu_get_resv_regions,
->  	.default_domain_ops = &(const struct iommu_domain_ops) {
->  		.attach_dev	= s390_iommu_attach_device,
->  		.detach_dev	= s390_iommu_detach_device,
-
+diff --git a/s390x/Makefile b/s390x/Makefile
+index bf1504f9..4b9a21a7 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -39,6 +39,7 @@ tests += $(TEST_DIR)/panic-loop-extint.elf
+ tests += $(TEST_DIR)/panic-loop-pgm.elf
+ tests += $(TEST_DIR)/migration-sck.elf
+ tests += $(TEST_DIR)/exittime.elf
++tests += $(TEST_DIR)/topology.elf
+ 
+ pv-tests += $(TEST_DIR)/pv-diags.elf
+ 
+diff --git a/s390x/topology.c b/s390x/topology.c
+new file mode 100644
+index 00000000..ae146d16
+--- /dev/null
++++ b/s390x/topology.c
+@@ -0,0 +1,132 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * CPU Topology
++ *
++ * Copyright IBM Corp. 2022
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ */
++
++#include <libcflat.h>
++#include <asm/page.h>
++#include <asm/asm-offsets.h>
++#include <asm/interrupt.h>
++#include <asm/facility.h>
++#include <smp.h>
++#include <sclp.h>
++#include <s390x/vm.h>
++
++#define PTF_REQ_HORIZONTAL	0
++#define PTF_REQ_VERTICAL	1
++#define PTF_REQ_CHECK		2
++
++#define PTF_ERR_NO_REASON	0
++#define PTF_ERR_ALRDY_POLARIZED	1
++#define PTF_ERR_IN_PROGRESS	2
++
++static int ptf(unsigned long fc, unsigned long *rc)
++{
++	int cc;
++
++	asm volatile(
++		"       .insn   rre,0xb9a20000,%1,0\n"
++		"       ipm     %0\n"
++		"       srl     %0,28\n"
++		: "=d" (cc), "+d" (fc)
++		:
++		: "cc");
++
++	*rc = fc >> 8;
++	return cc;
++}
++
++static void test_ptf(void)
++{
++	unsigned long rc;
++	int cc;
++
++	/* PTF is a privilege instruction */
++	report_prefix_push("Privilege");
++	enter_pstate();
++	expect_pgm_int();
++	ptf(PTF_REQ_CHECK, &rc);
++	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
++	report_prefix_pop();
++
++	report_prefix_push("Wrong fc");
++	expect_pgm_int();
++	ptf(0xff, &rc);
++	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
++	report_prefix_pop();
++
++	report_prefix_push("Reserved bits");
++	expect_pgm_int();
++	ptf(0xffffffffffffff00UL, &rc);
++	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
++	report_prefix_pop();
++
++	report_prefix_push("Topology Report pending");
++	/*
++	 * At this moment the topology may already have changed
++	 * since the VM has been started.
++	 * However, we can test if a second PTF instruction
++	 * reports that the topology did not change since the
++	 * preceding PFT instruction.
++	 */
++	ptf(PTF_REQ_CHECK, &rc);
++	cc = ptf(PTF_REQ_CHECK, &rc);
++	report(cc == 0, "PTF check should clear topology report");
++	report_prefix_pop();
++
++	report_prefix_push("Topology polarisation check");
++	/*
++	 * We can not assume the state of the polarization for
++	 * any Virtual Machine but KVM.
++	 * Let's skip the polarisation tests for other VMs.
++	 */
++	if (!vm_is_kvm()) {
++		report_skip("Topology polarisation check is done for KVM only");
++		goto end;
++	}
++	cc = ptf(PTF_REQ_HORIZONTAL, &rc);
++	report(cc == 2 && rc == PTF_ERR_ALRDY_POLARIZED,
++	       "KVM always provides horizontal polarization");
++	cc = ptf(PTF_REQ_VERTICAL, &rc);
++	report(cc == 2 && rc == PTF_ERR_NO_REASON,
++	       "KVM doesn't support vertical polarization.");
++end:
++	report_prefix_pop();
++}
++
++static struct {
++	const char *name;
++	void (*func)(void);
++} tests[] = {
++	{ "PTF", test_ptf},
++	{ NULL, NULL }
++};
++
++int main(int argc, char *argv[])
++{
++	int i;
++
++	report_prefix_push("CPU Topology");
++
++	if (!test_facility(11)) {
++		report_skip("Topology facility not present");
++		goto end;
++	}
++
++	report_info("Machine level %ld", stsi_get_fc());
++
++	for (i = 0; tests[i].name; i++) {
++		report_prefix_push(tests[i].name);
++		tests[i].func();
++		report_prefix_pop();
++	}
++
++end:
++	report_prefix_pop();
++	return report_summary();
++}
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index 3caf81ed..3530cc4c 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -208,3 +208,6 @@ groups = migration
+ [exittime]
+ file = exittime.elf
+ smp = 2
++
++[topology]
++file = topology.elf
+-- 
+2.31.1
 
