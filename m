@@ -2,126 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D40E1C04A95
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 15:35:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43D45C38A2D
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 16:21:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233251AbiJYPfC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Oct 2022 11:35:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41774 "EHLO
+        id S232048AbiJYQVD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Oct 2022 12:21:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232356AbiJYPfA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 11:35:00 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542EC5806E
-        for <linux-s390@vger.kernel.org>; Tue, 25 Oct 2022 08:34:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666712097;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=q1GvBOBCP6KETy6rTK6QCl92NvC/MctQ2jjFIvDTUSU=;
-        b=NLEHoELw3FW3lGAgKhXLKvhRXSXYC03mFHzo1Lky6pvEkID2pMR6rKBYICtB3nSoMf1lN+
-        hZOvwTWRTtYyRiTbg2ps3opYv8AjsB4gXa1uUXfJSilHQ1M5tAt4+9YaufcCwWCq9rmZKw
-        fe94xfgCJ+R3aad6fFES1l0NAansthI=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-528-xttKZzf8MQCkbW9QSy5JMg-1; Tue, 25 Oct 2022 11:34:55 -0400
-X-MC-Unique: xttKZzf8MQCkbW9QSy5JMg-1
-Received: by mail-wr1-f71.google.com with SMTP id j20-20020adfb314000000b002366d9f67aaso3177827wrd.3
-        for <linux-s390@vger.kernel.org>; Tue, 25 Oct 2022 08:34:55 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=q1GvBOBCP6KETy6rTK6QCl92NvC/MctQ2jjFIvDTUSU=;
-        b=AqVaZnX1I52avigB2taZNMmoRJQ6exaH5cPmr3MYvzOxn1z7oR4L4g1vyrX1eFsLF8
-         a/bLBndZHKMKksKpGVG3uY8nTYJUVruOTeufewmntNt5D8quPQk+Kwm+utGXH5iBV71N
-         7j/cvAnM5x2XEZHwKNDc9ydkLAf0Edg8Mha6kh7HgiFF+sUfnDHIFx+kgNJEnZz+fpOn
-         JBOLapRfXozEXcCKHXLHwVdfJ9yo3cIC90cZ90f+AQQA28OJIyDYRrO2c2pL/AjCVvtv
-         YlpI1JCGS/v9F8xEBOQ3nlOujZZf071uytko9wi81IAqG5m3gtdqy9KLEKS7eD18kN82
-         PWPQ==
-X-Gm-Message-State: ACrzQf1Q9ziRVkjAgMeqjzDkNuXbNXwGyMxqP8iUtJd/SljTfLPAIaBn
-        Tqk8IPHWayd1in3RM3Boj5VSQOiC7I7rOKIJhNl7KcSPUnB05NSBJHEO9z1ntp6hGcBJi35Yvtg
-        XIyylKai19CpxEQtlgj+UWw==
-X-Received: by 2002:a05:6000:18ad:b0:230:6d12:fc7d with SMTP id b13-20020a05600018ad00b002306d12fc7dmr25096958wri.409.1666712094506;
-        Tue, 25 Oct 2022 08:34:54 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM5MF3ZzlWB5p5BMwQBW0Xp49UZmIOa+s5CbB/a5oA0uLsaa08jpku5+sqs+rXA4yS/NADMYVw==
-X-Received: by 2002:a05:6000:18ad:b0:230:6d12:fc7d with SMTP id b13-20020a05600018ad00b002306d12fc7dmr25096938wri.409.1666712094252;
-        Tue, 25 Oct 2022 08:34:54 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c719:d00:eae9:3af6:9999:7b63? (p200300cbc7190d00eae93af699997b63.dip0.t-ipconnect.de. [2003:cb:c719:d00:eae9:3af6:9999:7b63])
-        by smtp.gmail.com with ESMTPSA id c1-20020adfe741000000b00236883f2f5csm506813wrn.94.2022.10.25.08.34.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Oct 2022 08:34:53 -0700 (PDT)
-Message-ID: <e5eff1ef-760c-5e6f-9f32-e8a7a624993b@redhat.com>
-Date:   Tue, 25 Oct 2022 17:34:52 +0200
+        with ESMTP id S233006AbiJYQUx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 12:20:53 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83AF165C92;
+        Tue, 25 Oct 2022 09:20:49 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29PF4D3k002076;
+        Tue, 25 Oct 2022 16:20:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Iulm6ID2VpcNdrVzNPzJPmmwv9Rv9yKhaHWBitwW0jg=;
+ b=WeMDiMAka/EuTBDF6cRdmbDEnl8nANTEBF4CBOdXX7Dhg1oregkLIJ2hpajEetNuQm1P
+ 4Su+xwXVKveBBUwlwThRogv2hpKpCnaWQJyfoxgECIPxXqzl0DktlMflzfod+Uy8L85g
+ RnQ8hTAacT7pJAaHUrTiXcWsCvMfIjQ9awDX0QmMnFOIE/NSfXmjA4yv0qtMmLhnTgHc
+ D4j4qzJ6ZZyl3Ch6IJdWoGG+pRe9ZijqN/Q3WJMKWglm6QupbQAS7rQ2hLSTgzu/Gszt
+ RR0+CYleQNbWi2P6we6pgyNrHnwwN+53qRb3lg3ut0UTmHzo/sy0DR1lYLOE+9vTwdJh Mw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3keddv5pd7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Oct 2022 16:20:48 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29PFx6vU001445;
+        Tue, 25 Oct 2022 16:20:47 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3keddv5pbv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Oct 2022 16:20:47 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29PG6Aj3001554;
+        Tue, 25 Oct 2022 16:20:45 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3kc8594tdw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Oct 2022 16:20:44 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29PGLGHI52756874
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Oct 2022 16:21:16 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB30352050;
+        Tue, 25 Oct 2022 16:20:41 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.13.249])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id 1DCCB5204E;
+        Tue, 25 Oct 2022 16:20:41 +0000 (GMT)
+Date:   Tue, 25 Oct 2022 18:20:39 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Pierre Morel <pmorel@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        thuth@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        svens@linux.ibm.com
+Subject: Re: [PATCH v2 1/1] KVM: s390: vsie: clarifications on setting the
+ APCB
+Message-ID: <20221025182039.6dc82fbf@p-imbrenda>
+In-Reply-To: <0117e263-2856-b2fd-1e61-59b21e5da2e5@linux.ibm.com>
+References: <20221025091319.37110-1-pmorel@linux.ibm.com>
+        <20221025091319.37110-2-pmorel@linux.ibm.com>
+        <e9a237d7-3a34-11c8-1c5b-1a3c14e8cfb0@redhat.com>
+        <0117e263-2856-b2fd-1e61-59b21e5da2e5@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [PATCH] selftests: vm: use 1 MB hugepage size for s390
-Content-Language: en-US
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>
-Cc:     linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>,
-        linux-kselftest@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>
-References: <20221025152610.3439102-1-gerald.schaefer@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20221025152610.3439102-1-gerald.schaefer@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: geMPvLIUK-Kykafa3OpyFm8j2gpYD8kT
+X-Proofpoint-ORIG-GUID: NGSjiZc1l7YdYnPCUOSZXJzNwHooY1mr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-25_09,2022-10-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 malwarescore=0 bulkscore=0 mlxlogscore=687 phishscore=0
+ clxscore=1015 priorityscore=1501 impostorscore=0 adultscore=0 mlxscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210250091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 25.10.22 17:26, Gerald Schaefer wrote:
-> hugepage-vmemmap test fails for s390 because it assumes a hugepagesize
-> of 2 MB, while we have 1 MB on s390. This results in iterating over two
-> hugepages. If they are consecutive in memory, check_page_flags() will
-> stumble over the additional head page. Otherwise, it will stumble over
-> non-huge pageflags, after crossing the first 1 MB hugepage.
+On Tue, 25 Oct 2022 15:17:36 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
+
+> On 10/25/22 11:30, David Hildenbrand wrote:
+> > On 25.10.22 11:13, Pierre Morel wrote:  
+> >> The APCB is part of the CRYCB.
+> >> The calculation of the APCB origin can be done by adding
+> >> the APCB offset to the CRYCB origin.
+> >>
+> >> Current code makes confusing transformations, converting
+> >> the CRYCB origin to a pointer to calculate the APCB origin.
+> >>  
+> > 
+> > 
+> > While at it, can we rename "crycb_o" to "crycb_gpa" and "apcb_o" to 
+> > "apcb_gpa".
+> > 
+> > These are not pointers but guest physical addresses.
+> >   
 > 
-> Fix this by using 1 MB MAP_LENGTH for s390.
+> I can do that.
+> the _o came from the name in the documentation "origin"
+> but gpa is more obvious.
 > 
-> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> ---
->   tools/testing/selftests/vm/hugepage-vmemmap.c | 7 +++++++
->   1 file changed, 7 insertions(+)
-> 
-> diff --git a/tools/testing/selftests/vm/hugepage-vmemmap.c b/tools/testing/selftests/vm/hugepage-vmemmap.c
-> index 557bdbd4f87e..a4695f138cec 100644
-> --- a/tools/testing/selftests/vm/hugepage-vmemmap.c
-> +++ b/tools/testing/selftests/vm/hugepage-vmemmap.c
-> @@ -11,7 +11,14 @@
->   #include <sys/mman.h>
->   #include <fcntl.h>
->   
-> +/*
-> + * 1 MB hugepage size for s390
-> + */
-> +#if defined(__s390x__)
-> +#define MAP_LENGTH		(1UL * 1024 * 1024)
-> +#else
->   #define MAP_LENGTH		(2UL * 1024 * 1024)
-> +#endif
 
-Why not detect it at runtime, so this works on any architecture (e.g., 
-ppc64 with 16 MiB IIRC and arm64 with weird sizes)?
+with that fixed: 
 
-A patch that adds such detection code is currently on its way upstream:
-
-https://lore.kernel.org/all/20220927110120.106906-5-david@redhat.com/T/#u
-
-We could factor that out into vm_utils.c
-
--- 
-Thanks,
-
-David / dhildenb
-
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
