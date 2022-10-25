@@ -2,44 +2,44 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDB3DC38A2D
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 18:50:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 009D4FA373E
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 18:51:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232922AbiJYSu5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Oct 2022 14:50:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38926 "EHLO
+        id S232983AbiJYSvA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Oct 2022 14:51:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232946AbiJYSu4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 14:50:56 -0400
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2081.outbound.protection.outlook.com [40.107.243.81])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A4A92CFB;
-        Tue, 25 Oct 2022 11:50:53 -0700 (PDT)
+        with ESMTP id S232523AbiJYSu5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 14:50:57 -0400
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2062.outbound.protection.outlook.com [40.107.237.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23E729524B;
+        Tue, 25 Oct 2022 11:50:55 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SI563VnCxBg0/eBLQjbiBowglOrdCcYX1+YsjqGQszvIOPEZG74n7w5i1elCmhE56m+OdN3uyZ3Q70yt1kQDxbdvw8OcokNUXZI2d2+QrPI+pj/5880H7pdTQNorvLO+AsI95QdjvLEbeqdaeWcHsb0msw6riPbrOLpp62m0rUupSG7CpjByAVkqwqjGvyCYm3U1lmtnI3TIcqWM6sxU00RBk03p0YmtouAZo7JBar3CnNdPhOZM4PXa9HXEiGoBDnauOf4qm4JOpu3gdjEllZTlU2vc4FUqBXDmHau+V4XQqdWfqRe3ucUQKcDhICV3xh/F28YPpTbNszAiKZBbWQ==
+ b=Q9/jME7YWC/8ByV2DvTWl1RmBYzPlWw6kXKqUZmrgHyVdu/NAEgFPWsUK+gMZP6fV/8WgPJap8gOJkS/5+JvIOEMp/Pp+FqlbAscnIg8Kskz6DqkLhNoyLpB5h0x/ixpW4a0kows9JZ5LzuzuTGFduKWyakVsa4k7oPRnA+vpydep01ZHzToPNUcTecifEI2luZdsTwnfCS4Wc509JJG6NiWwqQNhJpEp5JI9REypCTrgvp8LlYSEe7tZodkZr9GN2vNEYj2lbSyvibZX+QBAKEJh4H1U/OJdfPt7aBnFITnubODiaSyKqiIllh8q1OS2UV+1iJHDYUZlsRRQNvk/A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IsHzCTSGkLJrdqQONpFo3naR3vrdgtR806sdhWqt7fs=;
- b=ncq/FZ04La/0k8GIsDuS5whD+wiTvgkwRdtibWIevdeqeyVxyH2EBknD+4EEBNSdgaAOUfgv+pe/kmTMZB9MgQWZGzmlUD2k7Au2UUoMVXUyidpT4QrEHbikolWrB2Jlew9G7+OlkZC+khaHbBAmRHisKjmyopvkDrU95ulKiBwbAAv6Jm/bAAWrLYBK2sT1HYSDvp643RVrLYzT6iOSs0ugNwGBB9GxMl+kZDizhS/5GbvLISKrLa/y6DKUCFFNnv61lvpDEas/WP7u1bzJTFq/4KcGoaNxNud9efH6vuzWQZ0otakVr5XrFnTtAu9aLYymMrGzrffkyehR6MlYGw==
+ bh=kdcA1vQ1MJCR5FjZwLhJ/UvwRjM002fRXHTZP4sXRYA=;
+ b=L6XALIss6588NE/xJEMjY2jP1gefKTEPT85qZjmKf/4T5h5fssSAqrkCQ95G7NHeILwretLk4nmazjzbkFs6bmUURBtChw2ym8t+4EB3xjT6fAx9agnqfARA9chWJeMIeGoMuqKBtuPdWIFBA9+UcTMtjHZNGpeZ4DQa1NVxbLmGCqVzYeHvcA88qKYl1xEnSfiddo9u+lnHaHCiqonpc+QWF8BRi37m7Q+7FSDa7Do1KvCjNmUPTRXiUKgTUmP4Fext7cQW7NiPjuH5rh+M/i9d44lVAUXxmK9zX+TiWXvmkv2U6H4Ml52dQcWvxDm57aRkKL58WvRIP/eouLgpJg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IsHzCTSGkLJrdqQONpFo3naR3vrdgtR806sdhWqt7fs=;
- b=pTb9mUG4BxvgnXlLEkzn1QnnpWn6ty3sI7Hypce7QgmP1c4bhrFY78HaUx2lcMTwN/bBaYoRHLMH07FneTDy6gbJtTurWH7+3zVq52gz/lz4Dk0wyih1vCTSdlvl+BdsZmHLFdVHUY/EZ66C+5OlNn1yApKL0tD6bQXOYWEeKWHIGeyupbYu5UTKpOnY1h+XY86HhyARFn5izpm6hPwbZ96ulhwCr8wCvvc26AHKJWswytKf2xYB4PzRymKKvCIdO8HPdpNXwARmFD8zSSttpjpS0zKbiS//i32XtzISKdyYfZ4s66qS+12vU7UrSWH30+/gz6nCnCzxON8qipcPwA==
+ bh=kdcA1vQ1MJCR5FjZwLhJ/UvwRjM002fRXHTZP4sXRYA=;
+ b=TL+wGHneIB/vajrakZ85/QpfAgyNx1OcJ0MTqQ3Cq97wlAYNsHOF3gNmr0FQtbfUeFL/bT8QhPLn3sdWAKT/88zi6eCiUn2xC8ul21Ro8SOquC1jQX17sH07FsXMT3mTtPKo4jl+HosiAXjIYzZPXBzFTI+w3KUtxSm1ceARfqJUa1/undrmwXBw1WQ74Uh87n/pAHYHJbpAPoDRD7c8Rmk2oMxU3zbuibkWSaYa0ckD9wC8Q02pUUKieNQhqRUgJR2h2AVf11tCVMnKq1AGdfZLsEYgEsZt8uma1d/wzEN/xPOa78U+ADN7FY4OTi5eJXGEGovpMOSP99e7Qo4g3w==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by SJ1PR12MB6124.namprd12.prod.outlook.com (2603:10b6:a03:459::15) with
+ by PH8PR12MB6938.namprd12.prod.outlook.com (2603:10b6:510:1bd::8) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.34; Tue, 25 Oct
- 2022 18:50:49 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5746.26; Tue, 25 Oct
+ 2022 18:50:48 +0000
 Received: from LV2PR12MB5869.namprd12.prod.outlook.com
  ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
  ([fe80::7a81:a4e4:bb9c:d1de%6]) with mapi id 15.20.5746.021; Tue, 25 Oct 2022
- 18:50:49 +0000
+ 18:50:48 +0000
 From:   Jason Gunthorpe <jgg@nvidia.com>
 To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         David Airlie <airlied@gmail.com>,
@@ -78,9 +78,9 @@ To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Zhi Wang <zhi.a.wang@intel.com>
 Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
         Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>
-Subject: [PATCH 10/10] iommufd: Allow iommufd to supply /dev/vfio/vfio
-Date:   Tue, 25 Oct 2022 15:50:45 -0300
-Message-Id: <10-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
+Subject: [PATCH 07/10] vfio-iommufd: Support iommufd for physical VFIO devices
+Date:   Tue, 25 Oct 2022 15:50:42 -0300
+Message-Id: <7-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
 In-Reply-To: <0-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
 References: 
 Content-Transfer-Encoding: 8bit
@@ -90,176 +90,434 @@ X-ClientProxiedBy: BL1PR13CA0273.namprd13.prod.outlook.com
  (2603:10b6:408:176::16)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SJ1PR12MB6124:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8d7ae0f1-b80e-4f2e-6332-08dab6b9d4cd
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|PH8PR12MB6938:EE_
+X-MS-Office365-Filtering-Correlation-Id: 16b20791-6b18-491f-6b3b-08dab6b9d3fb
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: g6B9llJssnaB+2irxfCUbudZ9pipiwmHWi25BHXiGGXmT1B2J7hhhWMnb7zRqIh23Ds7keWSE+102ep6ngy0E4hD0ksa++7/pflFhNPqJVq0zBMNg8dN8RtLzSiQDk+kyDxdk0zBk3Gghu8vq/UP2vFev1AxaD0XOCYoThVBFHZpfPaizTPEtVEmYvY9MuUtbj9rFwyXtbg6GQ2hMsZn4ED0b1qhZdVA3kSWnlOEgsoti4dOFOwcY5LS4Awa9W4mc7riJVvZKahOGs57WyyCSUTWKKpRzWq5xk0vTN6EaUiZRyUrbN3tcKkkQTdfdbBoOvA5tnslSl3kMxTrtKKlLYjEpAsfzgse9qC7Ad3JJekRHF1lSa9vVDH4DRYlh+Mi/GzfNsYabUl3Fvp3xAXNTqB+5BtL4F6G/oPvHDufdntXT5qALaLWvcKfjWUm8RJe1CIo7poV9Jk/MtwO5nCOIr4m9dM6F24kmP3LpAaNkC40qQXWEwhqF0LFUsDL5QyEfp2jxb5OCVThHB0HvqOEj+uuLx6ibF/tTbJ/yq4r2mWhz0bpkdyqgQwvEyJiBat+PpMPvaQt0rSA/upd37ErMWbFm0u/N32AANcJbyciEhhq8WcPzAa5ZK8toUtUbc8CzGH8X14GlO+uaZ+4c0JK1ONub6uYuO0ol1nx5C2+l2Wp1ijeBzdyboE4kJvCjNEzh11ObQ0PuMtp/7nBHlCCHjb7BrIu0zlhd0r+DHGGOMnD04E3sd+vPRyeurSb0U3q
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(376002)(396003)(136003)(39860400002)(346002)(451199015)(6512007)(26005)(921005)(8936002)(2906002)(6506007)(38100700002)(36756003)(7416002)(83380400001)(5660300002)(41300700001)(7406005)(2616005)(478600001)(6486002)(186003)(54906003)(6666004)(316002)(66556008)(66476007)(66946007)(86362001)(8676002)(110136005)(4326008);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 306yLp6SWtuRt7/LbWduWclMYF+FKXkJdoBKBuiBcocG6VdvNjN3oiJ9dgtAjfxqS60m8UzoIuiajZ18XoRhEUuk+SCuhDOJwNhs9OSb0mFRxALBEq0PtJkSZetcSSpyPpVZGmTlK0Hr8qQyioeWYZUAS6TWigLxupRBCRnCeC5qVYdfzamxu2C6gX+EQXIvustfsNlL+Kf+WMyxby9cn9qWYq0RpK3mGoN8g0hCycQ9WVCVnC39wXW6NUi48T7IEk9VOxGSB0TKefvaaAitcFABakmfL/icA95c4SDVgv4aaPZSMosCPkJ04ePCJaYZ3F2JKCPId9jLetl0XuLkw0yhzZYJoqGpITiCbZ7m8a+ccQWOmPKBRdOiCO04+Z09zztyKA3m658fG8NIC4GX0oNwvDA6Hc8Z96A+lRyKS0JxkYmnuDtGssVmZjQajHu9cN7mSZ5hCz2hDEzCc3GCc1eTSdMUwrA48DmNlRoN83mvphvX1JXN0L/XZHfdA+qtKbsbf9zSYmgly+IMpLEFoHGG7p2rGIP/hljjtkKS/99QGDKEcONkEeSRdh7jHNvjncVtzWcW3D/PYz5xprk8x3Cjwhi+I8vMwyniMLIXJLr9VjyLBeW2krSuO7FurLp7q+xUPwVy3tWdm7lRtRPa95cdIkeEOlNQl3M0AwdLC0EoJb5Nztx5+zN1DvATDUe5LAJKnApwm9Ny2WlLWSbZSsPoB7PVgX0tBmSRJZl02SKTHkaeZuSZU41Bh9cgewr84SutAW6i4au2H2DH5quhmA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(366004)(39860400002)(136003)(346002)(396003)(451199015)(86362001)(38100700002)(921005)(30864003)(6486002)(8936002)(7406005)(7416002)(5660300002)(2906002)(478600001)(6666004)(316002)(4326008)(8676002)(66946007)(66476007)(66556008)(110136005)(54906003)(41300700001)(83380400001)(26005)(6512007)(6506007)(2616005)(186003)(36756003)(4216001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?AJvJ+v4923V5kwMCjFr3hyrN3T55hSggf5+iSd9/KSW+40rqQaWj7aG4qPQc?=
- =?us-ascii?Q?dR6yx158VlbFJRahb8DFbll7KuAWMQfK8aeZoWRbBS7s10zNRyIfyjQXrkn4?=
- =?us-ascii?Q?zOcbGhxytJ6iCBW1ti6hSMf3cEYysT5NtWhpyNXSAI1HWt1fyRye8BfzTPkW?=
- =?us-ascii?Q?z8IK0LwntcED5u7XP95MlHhN2w5Nc4p7foDN4972CO05xWVJYFzzDC4ufA4x?=
- =?us-ascii?Q?EOTLPNYaj/PCVBtwEyCWKxhEYxOCRwAs7wjNKcl55ATnP6ybEnRsIEHotmjB?=
- =?us-ascii?Q?niAXm89ikLGRM07B52vSclwTR+mr2JAZHsMQyj7Bg0vZ3vL6DtYixU8wrbtR?=
- =?us-ascii?Q?S30F0iR0DZb9N7RmHhLNF7Frb76hzv8YnzwrKx/mInQWhjD9mx6AlHuL5my3?=
- =?us-ascii?Q?O8VBrDYH4iauY3oQ+uKL9mnQgXmoeeYUQa5smRbuQBh0m1qezTIzlL6ra1Hb?=
- =?us-ascii?Q?lfSshSQvUa3KwoyMyTVUMZPs26MLxqxDNJJjM13oAVwi2B80oIU7YZTsHmzq?=
- =?us-ascii?Q?y1ZW/Mi8jPiiRziMvFbOJ6UISkptAKzOzcTSIhQ4dAzUXhSl4xMrYwPPrDWI?=
- =?us-ascii?Q?dxC/7zScNyouDvsrpb6PGlvniF/vsw/xryhZ2F6gNfDfY2Kg2bPWgVlIgCgn?=
- =?us-ascii?Q?w0TOGA7MLTQcLpcCmmcpGP84a4fRJN5hAjZaU7uh6Uur/ezCXXRwzXxGYLlF?=
- =?us-ascii?Q?EilkBq7O65jgTnu0cOhCwj0Xau1CskMPAe0Pxcd8WSHUH0vf3Xd/PFEKeoJ5?=
- =?us-ascii?Q?AeElmgmXaBEH1Oe4l+XVi1N9VX542ZfEn9wXEhPmiXjbS3mBnfsEh6wl2/PW?=
- =?us-ascii?Q?hw3qE8aB9vVGSEB5oB0MUVSwRtkKXy1bAS2wASvHJSTZrpqBCao6j0/ZgGao?=
- =?us-ascii?Q?IAle6+HcPaUNlY3EhqDcsmyqRJ23IavdRmy0kB7SH5qZDGUpPCppW2icUXbZ?=
- =?us-ascii?Q?jMYESHhdk/ulcTHwwy62oV+OK6/aCTrq/xYwYjJdWgdhhmPAvgAQMxpriDjz?=
- =?us-ascii?Q?Z+XDUX+pclPfifHKssQAq7JWo1eYM/ASm5Rm8n/Tg4FYLoCjXrD3PO1cjdVb?=
- =?us-ascii?Q?w5HEao3qEZi4+IzFRlikNyZhcmrDn6rHwnaCvHWHmVoh5WGBA222gRtaKsvk?=
- =?us-ascii?Q?WWHYOuQtMbAzc2q13diLnYMfiNiF3NEXNcNJMp2pZUlBlbB9SBqcXkgM2GLX?=
- =?us-ascii?Q?UW8j7/8OYE2LHGVqOCOFdWuy8ZyMlWm5DCM3jVp/MPFPVrIJs0IcJOFlaNlw?=
- =?us-ascii?Q?cvtaw59AFCeiqgQSkDatiA/9e+L96E+FvVj2+BI20rBjAj6Hd58WvlTazD0r?=
- =?us-ascii?Q?027qdJ9TL1X6c7m/mEY5EFQCNpNUezfj29lUrY++U+XH13LqZcHFX3NbQi69?=
- =?us-ascii?Q?1kRvwJEw+Pfxc9hPDWEK/1Ux91vqilg5H0ENUljtdgoqes4aU6MK1XkzbTXq?=
- =?us-ascii?Q?4pW9jb87G2HRoILJ8ue7yGkkqtbzOqfgd9vPWnwVZW2z3rgPuxF353fKTv4Y?=
- =?us-ascii?Q?B5OGZQ4L66hrkAQMbzz9THJEO+383vlVBmelzCEb7cK8UbN47SHJtiQP9hwO?=
- =?us-ascii?Q?t1wtnrcuJ+snReOFrbs=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?pNiOlXsAk6q85gsUeiEJ/WVyTx3XYHAzh5Fm9ZTmyTisj4PDb3PVWO2CjlMo?=
+ =?us-ascii?Q?sb42tvA/aft9ypcEwZ6StR2N6R6emqTpkWr6DyWhC++KF3s4tqof8f3Sfs2a?=
+ =?us-ascii?Q?8ONgV3EYdiSJ5Jq1AlqagpfhMDfCoxFf2gYAaAee2WeR2MnbIrHRZtF0TLwC?=
+ =?us-ascii?Q?KmZoN6LFhURt+XkA6nbDWkiLqGsPnTe7ozmFNZCL8YU7fxBL1iZqutyl3joi?=
+ =?us-ascii?Q?m62FHzBSGQMazSnq5O8T7lDar9jre5K2aPtOvFupKaCVai9HTBlw5oeDJc0L?=
+ =?us-ascii?Q?m8B3la1Esh7Q5t8/R+TKW6BQ/NtjOS3ARNk0duw0fMecYYmLiDta5k5FpSOP?=
+ =?us-ascii?Q?2LmU+fkzJO/hfLMARfMjAbOf2J7oyQVBXk94ypYc9qcAVgowpbMwUHmFVl5I?=
+ =?us-ascii?Q?jmGMhcwrC3C4CQXiZPkTcGbAX4fpJPWIxy0Tnu5JUOUODrKKL8Gw/kEYVdAx?=
+ =?us-ascii?Q?7IJbJFyCDenCTT0LH0Ue2jL8Nk+GfnOY47GfFGydyvuso0m55gSjz+x1PpFM?=
+ =?us-ascii?Q?2NtM2tY7ph55cxldlpNp1GLnhBOm7wC/gIY5hj1qsFu5YHIXAsaW2aF4JUua?=
+ =?us-ascii?Q?srG0ykRPUOukuvPzFY6x3Tn930OKwDoYDgsdtjPDBaBahW7Qt6b7XOi6BBOI?=
+ =?us-ascii?Q?npJzSODlU8u8hA6CqJgWl7nBM/dSiqISSTvlUFzChYxaIQ7WFoGLsfhggKOj?=
+ =?us-ascii?Q?N55BO0/uChD/7mguGU0Bx0Zj4GSLWRPUJ7uFJOkV1BDQQxUPFCtXZZGU2ZVZ?=
+ =?us-ascii?Q?A/zKhXEWRwhMRf1aRHsiLLjNBgn/1LnXkuQEWm8inDA+doSkH1Hlsi7N91Vh?=
+ =?us-ascii?Q?rvNraSxizK2cUNfkkhP5GKpnxl70hmXr0zYmoifdUbW7xfw+I2lP1qAzQF2W?=
+ =?us-ascii?Q?ZyCNanN+WHCmQA8IOtVvJaDa7k2euSFxNeShl3uoaMSPJMzgReQ4s1Rk9qNr?=
+ =?us-ascii?Q?4p9mVvQuLH8EtXXL3XxSilTFefLTkzbX8c20Wcb1hsIQo8pwNO10+lMKdKEH?=
+ =?us-ascii?Q?vKab1dSfyn8b+vDi+uhlTaVmMFzsMQRbJ/UDUFVP1FMaGaJeUt6hZjmxVlOR?=
+ =?us-ascii?Q?jRWgelSJXGeiJdDPbfexcgdRuSls6sNiIPS+jEGpVe3Mt2gIowvYWa7MIPIY?=
+ =?us-ascii?Q?csJw4LiMUZBKkOLCuSXO5Q1FCozHYgnz1IkMtHlofk/EBCShXMw4LRuPrVrt?=
+ =?us-ascii?Q?BMbia0xiRIUO62XkF4uH9+GsoHzSwKehWLu8a3+DL8jJRVDhpIKL/gm/3ecg?=
+ =?us-ascii?Q?xuUYGutLOKAfhwVQRzetGUhMnYMvMY3bhPyUsBS7NUxEW2hOKyTjyzBMARVY?=
+ =?us-ascii?Q?z7wvY+NQ6tw/NspN0A8kDKzJMx1dKnqLfz83xXf8xGm3hz3FjBpwwutl9n0I?=
+ =?us-ascii?Q?7QrWo+lOlmpjkT4nJnDeI70cIFusuTPz5JNJc9cKJLCehhXLZkU7KaGIQzTF?=
+ =?us-ascii?Q?+wVJ/QnDwUWXIKZ52MecZ5AiCFbvRcMewChtvEWKiJk/zXNEXkx1FsLEsCJY?=
+ =?us-ascii?Q?eCkJyXYou06OUrr0stb+qltHbvGpgz1Uh6G0DzXiyqURorimJ+Xp32NHlAal?=
+ =?us-ascii?Q?WHJW5/XYUruUd6tRHPk=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8d7ae0f1-b80e-4f2e-6332-08dab6b9d4cd
+X-MS-Exchange-CrossTenant-Network-Message-Id: 16b20791-6b18-491f-6b3b-08dab6b9d3fb
 X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Oct 2022 18:50:48.4905
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Oct 2022 18:50:47.5050
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5qIcnY8mEhwpCc07D6YzRx9UCJkGLyLk7KatZ2bLxJI9TTogTZo1yQkTsDW/xKhA
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6124
+X-MS-Exchange-CrossTenant-UserPrincipalName: MgxmCpW9pLR58vcHns2z0jsc1kcIpmAqx+W69I8Q7lPgh8Je+38+EigLwgf0sVO7
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB6938
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If the VFIO container is compiled out, give a kconfig option for iommufd
-to provide the miscdev node with the same name and permissions as vfio
-uses.
+This creates the iommufd_device for the physical VFIO drivers. These are
+all the drivers that are calling vfio_register_group_dev() and expect the
+type1 code to setup a real iommu_domain against their parent struct
+device.
 
-The compatibility node supports the same ioctls as VFIO and automatically
-enables the VFIO compatible pinned page accounting mode.
+The design gives the driver a choice in how it gets connected to iommufd
+by providing bind_iommufd/unbind_iommufd/attach_ioas callbacks to
+implement as required. The core code provides three default callbacks for
+physical mode using a real iommu_domain. This is suitable for drivers
+using vfio_register_group_dev()
 
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- drivers/iommu/iommufd/Kconfig | 12 ++++++++++++
- drivers/iommu/iommufd/main.c  | 35 ++++++++++++++++++++++++++++++++---
- 2 files changed, 44 insertions(+), 3 deletions(-)
+ drivers/vfio/Makefile                         |   1 +
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c             |   3 +
+ drivers/vfio/iommufd.c                        | 104 ++++++++++++++++++
+ .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |   6 +
+ drivers/vfio/pci/mlx5/main.c                  |   3 +
+ drivers/vfio/pci/vfio_pci.c                   |   3 +
+ drivers/vfio/platform/vfio_amba.c             |   3 +
+ drivers/vfio/platform/vfio_platform.c         |   3 +
+ drivers/vfio/vfio.h                           |  15 +++
+ drivers/vfio/vfio_main.c                      |  13 ++-
+ include/linux/vfio.h                          |  25 +++++
+ 11 files changed, 177 insertions(+), 2 deletions(-)
+ create mode 100644 drivers/vfio/iommufd.c
 
-diff --git a/drivers/iommu/iommufd/Kconfig b/drivers/iommu/iommufd/Kconfig
-index f0a2012234fa09..afc83b7575cce6 100644
---- a/drivers/iommu/iommufd/Kconfig
-+++ b/drivers/iommu/iommufd/Kconfig
-@@ -14,6 +14,18 @@ config IOMMUFD
- 	  If you don't know what to do here, say N.
+diff --git a/drivers/vfio/Makefile b/drivers/vfio/Makefile
+index b693a1169286f8..3863922529ef20 100644
+--- a/drivers/vfio/Makefile
++++ b/drivers/vfio/Makefile
+@@ -6,6 +6,7 @@ obj-$(CONFIG_VFIO) += vfio.o
+ vfio-y += vfio_main.o \
+ 	  iova_bitmap.o \
+ 	  container.o
++vfio-$(CONFIG_IOMMUFD) += iommufd.o
  
- if IOMMUFD
-+config IOMMUFD_VFIO_CONTAINER
-+	bool "IOMMUFD provides the VFIO container /dev/vfio/vfio"
-+	depends on VFIO && !VFIO_CONTAINER
-+	default VFIO && !VFIO_CONTAINER
-+	help
-+	  IOMMUFD will provide /dev/vfio/vfio instead of VFIO. This relies on
-+	  IOMMUFD providing compatibility emulation to give the same ioctls.
-+	  It provides an option to build a kernel with legacy VFIO components
-+	  removed.
-+
-+	  Unless testing IOMMUFD say N here.
-+
- config IOMMUFD_TEST
- 	bool "IOMMU Userspace API Test support"
- 	depends on RUNTIME_TESTING_MENU
-diff --git a/drivers/iommu/iommufd/main.c b/drivers/iommu/iommufd/main.c
-index 8a31c1a14cdd53..19db81fbf7f08f 100644
---- a/drivers/iommu/iommufd/main.c
-+++ b/drivers/iommu/iommufd/main.c
-@@ -24,6 +24,7 @@
- #include <uapi/linux/iommufd.h>
- #include <linux/iommufd.h>
- 
-+#include "io_pagetable.h"
- #include "iommufd_private.h"
- #include "iommufd_test.h"
- 
-@@ -31,6 +32,7 @@ struct iommufd_object_ops {
- 	void (*destroy)(struct iommufd_object *obj);
+ obj-$(CONFIG_VFIO_VIRQFD) += vfio_virqfd.o
+ obj-$(CONFIG_VFIO_IOMMU_TYPE1) += vfio_iommu_type1.o
+diff --git a/drivers/vfio/fsl-mc/vfio_fsl_mc.c b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
+index b16874e913e4f5..5cd4bb47644039 100644
+--- a/drivers/vfio/fsl-mc/vfio_fsl_mc.c
++++ b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
+@@ -592,6 +592,9 @@ static const struct vfio_device_ops vfio_fsl_mc_ops = {
+ 	.read		= vfio_fsl_mc_read,
+ 	.write		= vfio_fsl_mc_write,
+ 	.mmap		= vfio_fsl_mc_mmap,
++	.bind_iommufd	= vfio_iommufd_physical_bind,
++	.unbind_iommufd	= vfio_iommufd_physical_unbind,
++	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
  };
- static struct iommufd_object_ops iommufd_object_ops[];
-+static struct miscdevice vfio_misc_dev;
  
- struct iommufd_object *_iommufd_object_alloc(struct iommufd_ctx *ictx,
- 					     size_t size,
-@@ -167,6 +169,13 @@ static int iommufd_fops_open(struct inode *inode, struct file *filp)
- 	if (!ictx)
- 		return -ENOMEM;
- 
+ static struct fsl_mc_driver vfio_fsl_mc_driver = {
+diff --git a/drivers/vfio/iommufd.c b/drivers/vfio/iommufd.c
+new file mode 100644
+index 00000000000000..8280bb32ee677c
+--- /dev/null
++++ b/drivers/vfio/iommufd.c
+@@ -0,0 +1,104 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (c) 2021-2022, NVIDIA CORPORATION & AFFILIATES
++ */
++#include <linux/vfio.h>
++#include <linux/iommufd.h>
++
++#include "vfio.h"
++
++MODULE_IMPORT_NS(IOMMUFD);
++MODULE_IMPORT_NS(IOMMUFD_VFIO);
++
++int vfio_iommufd_bind(struct vfio_device *vdev, struct iommufd_ctx *ictx)
++{
++	u32 ioas_id;
++	u32 device_id;
++	int ret;
++
++	lockdep_assert_held(&vdev->dev_set->lock);
++
 +	/*
-+	 * For compatibility with VFIO when /dev/vfio/vfio is opened we default
-+	 * to the same rlimit accounting as vfio uses.
++	 * If the driver doesn't provide this op then it means the device does
++	 * not do DMA at all. So nothing to do.
 +	 */
-+	if (filp->private_data == &vfio_misc_dev)
-+		ictx->account_mode = IOPT_PAGES_ACCOUNT_MM;
++	if (!vdev->ops->bind_iommufd)
++		return 0;
 +
- 	xa_init_flags(&ictx->objects, XA_FLAGS_ALLOC1 | XA_FLAGS_ACCOUNT);
- 	ictx->file = filp;
- 	filp->private_data = ictx;
-@@ -392,26 +401,46 @@ static struct miscdevice iommu_misc_dev = {
- 	.mode = 0660,
++	ret = vdev->ops->bind_iommufd(vdev, ictx, &device_id);
++	if (ret)
++		return ret;
++
++	if (vdev->ops->attach_ioas) {
++		ret = iommufd_vfio_compat_ioas_id(ictx, &ioas_id);
++		if (ret)
++			goto err_unbind;
++		ret = vdev->ops->attach_ioas(vdev, &ioas_id);
++		if (ret)
++			goto err_unbind;
++		vdev->iommufd_attached = true;
++	}
++
++	/*
++	 * The legacy path has no way to return the device id or the selected
++	 * pt_id
++	 */
++	return 0;
++
++err_unbind:
++	if (vdev->ops->unbind_iommufd)
++		vdev->ops->unbind_iommufd(vdev);
++	return ret;
++}
++
++void vfio_iommufd_unbind(struct vfio_device *vdev)
++{
++	lockdep_assert_held(&vdev->dev_set->lock);
++
++	if (!vdev->iommufd_device)
++		return;
++
++	if (vdev->ops->unbind_iommufd)
++		vdev->ops->unbind_iommufd(vdev);
++}
++
++/*
++ * The physical standard ops mean that the iommufd_device is bound to the
++ * physical device vdev->dev that was provided to vfio_init_group_dev(). Drivers
++ * using this ops set should call vfio_register_group_dev()
++ */
++int vfio_iommufd_physical_bind(struct vfio_device *vdev,
++			       struct iommufd_ctx *ictx, u32 *out_device_id)
++{
++	struct iommufd_device *idev;
++
++	idev = iommufd_device_bind(ictx, vdev->dev, out_device_id);
++	if (IS_ERR(idev))
++		return PTR_ERR(idev);
++	vdev->iommufd_device = idev;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(vfio_iommufd_physical_bind);
++
++void vfio_iommufd_physical_unbind(struct vfio_device *vdev)
++{
++	lockdep_assert_held(&vdev->dev_set->lock);
++
++	if (vdev->iommufd_attached) {
++		iommufd_device_detach(vdev->iommufd_device);
++		vdev->iommufd_attached = false;
++	}
++	iommufd_device_unbind(vdev->iommufd_device);
++	vdev->iommufd_device = NULL;
++}
++EXPORT_SYMBOL_GPL(vfio_iommufd_physical_unbind);
++
++int vfio_iommufd_physical_attach_ioas(struct vfio_device *vdev, u32 *pt_id)
++{
++	unsigned int flags = 0;
++
++	if (vfio_allow_unsafe_interrupts)
++		flags |= IOMMUFD_ATTACH_FLAGS_ALLOW_UNSAFE_INTERRUPT;
++	return iommufd_device_attach(vdev->iommufd_device, pt_id, flags);
++}
++EXPORT_SYMBOL_GPL(vfio_iommufd_physical_attach_ioas);
+diff --git a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+index 39eeca18a0f7c8..40019b11c5a969 100644
+--- a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
++++ b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+@@ -1246,6 +1246,9 @@ static const struct vfio_device_ops hisi_acc_vfio_pci_migrn_ops = {
+ 	.mmap = hisi_acc_vfio_pci_mmap,
+ 	.request = vfio_pci_core_request,
+ 	.match = vfio_pci_core_match,
++	.bind_iommufd = vfio_iommufd_physical_bind,
++	.unbind_iommufd = vfio_iommufd_physical_unbind,
++	.attach_ioas = vfio_iommufd_physical_attach_ioas,
  };
  
+ static const struct vfio_device_ops hisi_acc_vfio_pci_ops = {
+@@ -1261,6 +1264,9 @@ static const struct vfio_device_ops hisi_acc_vfio_pci_ops = {
+ 	.mmap = vfio_pci_core_mmap,
+ 	.request = vfio_pci_core_request,
+ 	.match = vfio_pci_core_match,
++	.bind_iommufd = vfio_iommufd_physical_bind,
++	.unbind_iommufd = vfio_iommufd_physical_unbind,
++	.attach_ioas = vfio_iommufd_physical_attach_ioas,
+ };
+ 
+ static int hisi_acc_vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+diff --git a/drivers/vfio/pci/mlx5/main.c b/drivers/vfio/pci/mlx5/main.c
+index fd6ccb8454a24a..32d1f38d351e7e 100644
+--- a/drivers/vfio/pci/mlx5/main.c
++++ b/drivers/vfio/pci/mlx5/main.c
+@@ -623,6 +623,9 @@ static const struct vfio_device_ops mlx5vf_pci_ops = {
+ 	.mmap = vfio_pci_core_mmap,
+ 	.request = vfio_pci_core_request,
+ 	.match = vfio_pci_core_match,
++	.bind_iommufd = vfio_iommufd_physical_bind,
++	.unbind_iommufd = vfio_iommufd_physical_unbind,
++	.attach_ioas = vfio_iommufd_physical_attach_ioas,
+ };
+ 
+ static int mlx5vf_pci_probe(struct pci_dev *pdev,
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 1d4919edfbde48..29091ee2e9849b 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -138,6 +138,9 @@ static const struct vfio_device_ops vfio_pci_ops = {
+ 	.mmap		= vfio_pci_core_mmap,
+ 	.request	= vfio_pci_core_request,
+ 	.match		= vfio_pci_core_match,
++	.bind_iommufd	= vfio_iommufd_physical_bind,
++	.unbind_iommufd	= vfio_iommufd_physical_unbind,
++	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
+ };
+ 
+ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
+index eaea63e5294c58..5a046098d0bdf4 100644
+--- a/drivers/vfio/platform/vfio_amba.c
++++ b/drivers/vfio/platform/vfio_amba.c
+@@ -117,6 +117,9 @@ static const struct vfio_device_ops vfio_amba_ops = {
+ 	.read		= vfio_platform_read,
+ 	.write		= vfio_platform_write,
+ 	.mmap		= vfio_platform_mmap,
++	.bind_iommufd	= vfio_iommufd_physical_bind,
++	.unbind_iommufd	= vfio_iommufd_physical_unbind,
++	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
+ };
+ 
+ static const struct amba_id pl330_ids[] = {
+diff --git a/drivers/vfio/platform/vfio_platform.c b/drivers/vfio/platform/vfio_platform.c
+index 82cedcebfd9022..b87c3b70878341 100644
+--- a/drivers/vfio/platform/vfio_platform.c
++++ b/drivers/vfio/platform/vfio_platform.c
+@@ -106,6 +106,9 @@ static const struct vfio_device_ops vfio_platform_ops = {
+ 	.read		= vfio_platform_read,
+ 	.write		= vfio_platform_write,
+ 	.mmap		= vfio_platform_mmap,
++	.bind_iommufd	= vfio_iommufd_physical_bind,
++	.unbind_iommufd	= vfio_iommufd_physical_unbind,
++	.attach_ioas	= vfio_iommufd_physical_attach_ioas,
+ };
+ 
+ static struct platform_driver vfio_platform_driver = {
+diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
+index 985e13d52989ca..809f2e8523968e 100644
+--- a/drivers/vfio/vfio.h
++++ b/drivers/vfio/vfio.h
+@@ -124,6 +124,21 @@ void vfio_device_container_unregister(struct vfio_device *device);
+ int __init vfio_container_init(void);
+ void vfio_container_cleanup(void);
+ 
++#if IS_ENABLED(CONFIG_IOMMUFD)
++int vfio_iommufd_bind(struct vfio_device *device, struct iommufd_ctx *ictx);
++void vfio_iommufd_unbind(struct vfio_device *device);
++#else
++static inline int vfio_iommufd_bind(struct vfio_device *device,
++				    struct iommufd_ctx *ictx)
++{
++	return -EOPNOTSUPP;
++}
 +
-+static struct miscdevice vfio_misc_dev = {
-+	.minor = VFIO_MINOR,
-+	.name = "vfio",
-+	.fops = &iommufd_fops,
-+	.nodename = "vfio/vfio",
-+	.mode = 0666,
-+};
-+
- static int __init iommufd_init(void)
- {
- 	int ret;
- 
- 	ret = misc_register(&iommu_misc_dev);
--	if (ret) {
--		pr_err("Failed to register misc device\n");
-+	if (ret)
- 		return ret;
--	}
- 
-+	if (IS_ENABLED(CONFIG_IOMMUFD_VFIO_CONTAINER)) {
-+		ret = misc_register(&vfio_misc_dev);
-+		if (ret)
-+			goto err_misc;
-+	}
- 	return 0;
-+err_misc:
-+	misc_deregister(&iommu_misc_dev);
-+	return ret;
- }
- 
- static void __exit iommufd_exit(void)
- {
-+	if (IS_ENABLED(CONFIG_IOMMUFD_VFIO_CONTAINER))
-+		misc_deregister(&vfio_misc_dev);
- 	misc_deregister(&iommu_misc_dev);
- }
- 
- module_init(iommufd_init);
- module_exit(iommufd_exit);
- 
-+#if IS_ENABLED(CONFIG_IOMMUFD_VFIO_CONTAINER)
-+MODULE_ALIAS_MISCDEV(VFIO_MINOR);
++static inline void vfio_iommufd_unbind(struct vfio_device *device)
++{
++}
 +#endif
- MODULE_DESCRIPTION("I/O Address Space Management for passthrough devices");
- MODULE_LICENSE("GPL");
++
+ #ifdef CONFIG_VFIO_NOIOMMU
+ extern bool vfio_noiommu __read_mostly;
+ #else
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index cf0ea744de931e..bfbda04af1ffda 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -528,6 +528,11 @@ static int __vfio_register_dev(struct vfio_device *device,
+ 	if (IS_ERR(group))
+ 		return PTR_ERR(group);
+ 
++	if (WARN_ON(device->ops->bind_iommufd &&
++		    (!device->ops->unbind_iommufd ||
++		     !device->ops->attach_ioas)))
++		return -EINVAL;
++
+ 	/*
+ 	 * If the driver doesn't specify a set then the device is added to a
+ 	 * singleton set just for itself.
+@@ -790,6 +795,10 @@ static int vfio_device_first_open(struct vfio_device *device)
+ 		ret = vfio_group_use_container(device->group);
+ 		if (ret)
+ 			goto err_module_put;
++	} else if (device->group->iommufd) {
++		ret = vfio_iommufd_bind(device, device->group->iommufd);
++		if (ret)
++			goto err_module_put;
+ 	}
+ 
+ 	device->kvm = device->group->kvm;
+@@ -806,6 +815,7 @@ static int vfio_device_first_open(struct vfio_device *device)
+ err_container:
+ 	if (device->group->container)
+ 		vfio_group_unuse_container(device->group);
++	vfio_iommufd_unbind(device);
+ 	device->kvm = NULL;
+ err_module_put:
+ 	mutex_unlock(&device->group->group_lock);
+@@ -825,6 +835,7 @@ static void vfio_device_last_close(struct vfio_device *device)
+ 	device->kvm = NULL;
+ 	if (device->group->container)
+ 		vfio_group_unuse_container(device->group);
++	vfio_iommufd_unbind(device);
+ 	mutex_unlock(&device->group->group_lock);
+ 	module_put(device->dev->driver->owner);
+ }
+@@ -1923,8 +1934,6 @@ static void __exit vfio_cleanup(void)
+ module_init(vfio_init);
+ module_exit(vfio_cleanup);
+ 
+-MODULE_IMPORT_NS(IOMMUFD);
+-MODULE_IMPORT_NS(IOMMUFD_VFIO);
+ MODULE_VERSION(DRIVER_VERSION);
+ MODULE_LICENSE("GPL v2");
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+index e7cebeb875dd1a..a7fc4d747dc226 100644
+--- a/include/linux/vfio.h
++++ b/include/linux/vfio.h
+@@ -17,6 +17,8 @@
+ #include <linux/iova_bitmap.h>
+ 
+ struct kvm;
++struct iommufd_ctx;
++struct iommufd_device;
+ 
+ /*
+  * VFIO devices can be placed in a set, this allows all devices to share this
+@@ -54,6 +56,10 @@ struct vfio_device {
+ 	struct completion comp;
+ 	struct list_head group_next;
+ 	struct list_head iommu_entry;
++#if IS_ENABLED(CONFIG_IOMMUFD)
++	struct iommufd_device *iommufd_device;
++	bool iommufd_attached;
++#endif
+ };
+ 
+ /**
+@@ -80,6 +86,10 @@ struct vfio_device_ops {
+ 	char	*name;
+ 	int	(*init)(struct vfio_device *vdev);
+ 	void	(*release)(struct vfio_device *vdev);
++	int	(*bind_iommufd)(struct vfio_device *vdev,
++				struct iommufd_ctx *ictx, u32 *out_device_id);
++	void	(*unbind_iommufd)(struct vfio_device *vdev);
++	int	(*attach_ioas)(struct vfio_device *vdev, u32 *pt_id);
+ 	int	(*open_device)(struct vfio_device *vdev);
+ 	void	(*close_device)(struct vfio_device *vdev);
+ 	ssize_t	(*read)(struct vfio_device *vdev, char __user *buf,
+@@ -96,6 +106,21 @@ struct vfio_device_ops {
+ 				  void __user *arg, size_t argsz);
+ };
+ 
++#if IS_ENABLED(CONFIG_IOMMUFD)
++int vfio_iommufd_physical_bind(struct vfio_device *vdev,
++			       struct iommufd_ctx *ictx, u32 *out_device_id);
++void vfio_iommufd_physical_unbind(struct vfio_device *vdev);
++int vfio_iommufd_physical_attach_ioas(struct vfio_device *vdev, u32 *pt_id);
++#else
++#define vfio_iommufd_physical_bind                                      \
++	((int (*)(struct vfio_device *vdev, struct iommufd_ctx *ictx,   \
++		  u32 *out_device_id)) NULL)
++#define vfio_iommufd_physical_unbind \
++	((void (*)(struct vfio_device *vdev)) NULL)
++#define vfio_iommufd_physical_attach_ioas \
++	((int (*)(struct vfio_device *vdev, u32 *pt_id)) NULL)
++#endif
++
+ /**
+  * @migration_set_state: Optional callback to change the migration state for
+  *         devices that support migration. It's mandatory for
 -- 
 2.38.0
 
