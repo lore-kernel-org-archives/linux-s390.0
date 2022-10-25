@@ -2,216 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60ED7C04A95
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 11:57:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58043C38A2D
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 12:01:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231809AbiJYL5p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Oct 2022 07:57:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38448 "EHLO
+        id S229730AbiJYMBC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Oct 2022 08:01:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231772AbiJYL5f (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 07:57:35 -0400
+        with ESMTP id S230035AbiJYMBB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 08:01:01 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9C610EE65;
-        Tue, 25 Oct 2022 04:57:30 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29PB7tYT030375;
-        Tue, 25 Oct 2022 11:57:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=k5TWJEbnOa4d5XGxqWCqQIGLk27m8XCdjUeE9UlhQCQ=;
- b=YqZt5WByh/ZkjjbhsxfeRNMSLtddSCvQf6o4el7KbgJCDHAgzI24ua5CUcMeyBMI8wp1
- 2yPhnQB4bu+q5C2UC/S8/jaSmb60Ggvf1bxQ6tqQW1mUxLgnwh11lhAofIZy+ufXCMR/
- xvMHo+a2LbjEWtYrRpjVB9iHcWMSL9LVXcXZnO9TeXLEIoMK7iQb4edP9FfLBACCjnN3
- uW0PldRh/HiEaAIedNVGTyEnnbx9uyFsZbVFpWLTM5XefNUEorfdDqJIrxT/4llbZV8r
- A6sW1ftb5VMD9vgXhyqcX5DX07Q03+kr6vXJPXJCT33clanz/GJv1yx9fwnpw030ZBlT AQ== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kedu336ua-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0E36580A;
+        Tue, 25 Oct 2022 05:01:00 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29PB7wBe006398;
+        Tue, 25 Oct 2022 12:01:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=uLeYOHBR/bVtF33uRCYysPzk+QyTRFVXI8G06nTS6Fw=;
+ b=JfN5MqyMCyS6b2uiM3G/e4/p/x6dusaYqVeF7Ef86e0DsKKC95EBZXQvgpgfyEcXIiZt
+ rngkcdYf6c9OhP6j/KR/muh0cCEZGg/FWGEfwJIH9+sa+R3VF2cSXiL1gR/DnPwe2Tbf
+ E/EStk/zLuEJUGl+/e7l5w4cnBhQWq7MY1vDzGktMxioDl5WHlkfwPbcUMH7Ox0Ndp85
+ rrpK1yfflz7pCpg6Wa+sGO4BfmbDxTR590xroyVUviAowUKquz3tMJciDnqserVbU543
+ 1h5PISlIsa2zzHjyi2Xcm9kf0CF/k796QE1oHtd/wHYUrS0gdLl0+v9NdyyJwyudEhvw Qg== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ked6qvyfb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Oct 2022 11:57:07 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29PBoAn7027204;
-        Tue, 25 Oct 2022 11:57:04 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3kc7sj40pv-1
+        Tue, 25 Oct 2022 12:00:59 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29PBoE9o023486;
+        Tue, 25 Oct 2022 12:00:57 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma05fra.de.ibm.com with ESMTP id 3kc8594e40-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Oct 2022 11:57:04 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29PBvZbd41550316
+        Tue, 25 Oct 2022 12:00:57 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29PC0sTI1376790
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 Oct 2022 11:57:35 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 66C9942047;
-        Tue, 25 Oct 2022 11:57:01 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DAF5442041;
-        Tue, 25 Oct 2022 11:57:00 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 25 Oct 2022 11:57:00 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>
-Subject: [PATCH v8 6/6] iommu/s390: Implement map_pages()/unmap_pages() instead of map()/unmap()
-Date:   Tue, 25 Oct 2022 13:56:57 +0200
-Message-Id: <20221025115657.1666860-7-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221025115657.1666860-1-schnelle@linux.ibm.com>
-References: <20221025115657.1666860-1-schnelle@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Tue, 25 Oct 2022 12:00:54 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0C2B5A405B;
+        Tue, 25 Oct 2022 12:00:54 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BDD31A4054;
+        Tue, 25 Oct 2022 12:00:53 +0000 (GMT)
+Received: from [9.171.5.17] (unknown [9.171.5.17])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 25 Oct 2022 12:00:53 +0000 (GMT)
+Message-ID: <86b97f95-9995-a64f-363f-3c5dc3ed57c7@linux.ibm.com>
+Date:   Tue, 25 Oct 2022 14:00:53 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.0
+Subject: Re: [v2] KVM: s390: pv: fix external interruption loop not always
+ detected
+To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20221005122050.60625-1-nrb@linux.ibm.com>
+Content-Language: en-US
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20221005122050.60625-1-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SMs0Bc3OlKoJABiuRJjLU3w0MKYhvKLu
-X-Proofpoint-ORIG-GUID: SMs0Bc3OlKoJABiuRJjLU3w0MKYhvKLu
+X-Proofpoint-GUID: R1BGS0umfWG8iHnUnFPr51Hi4mR-QHB0
+X-Proofpoint-ORIG-GUID: R1BGS0umfWG8iHnUnFPr51Hi4mR-QHB0
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-25_05,2022-10-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- priorityscore=1501 adultscore=0 spamscore=0 bulkscore=0 impostorscore=0
- malwarescore=0 mlxscore=0 phishscore=0 mlxlogscore=999 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2210250067
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
+ clxscore=1015 bulkscore=0 spamscore=0 adultscore=0 lowpriorityscore=0
+ malwarescore=0 suspectscore=0 priorityscore=1501 mlxscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210250069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-While s390-iommu currently implements the map_page()/unmap_page()
-operations which only map/unmap a single page at a time the internal
-s390_iommu_update_trans() API already supports mapping/unmapping a range
-of pages at once. Take advantage of this by implementing the
-map_pages()/unmap_pages() operations instead thus allowing users of the
-IOMMU drivers to map multiple pages in a single call followed by
-a single I/O TLB flush if needed.
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
-v7->v8:
-- Added Jason's R-b
 
- drivers/iommu/s390-iommu.c | 48 +++++++++++++++++++++++++-------------
- 1 file changed, 32 insertions(+), 16 deletions(-)
+Am 05.10.22 um 14:20 schrieb Nico Boehr:
+> To determine whether the guest has caused an external interruption loop
+> upon code 20 (external interrupt) intercepts, the ext_new_psw needs to
+> be inspected to see whether external interrupts are enabled.
+> 
+> Under non-PV, ext_new_psw can simply be taken from guest lowcore. Under
+> PV, KVM can only access the encrypted guest lowcore and hence the
+> ext_new_psw must not be taken from guest lowcore.
+> 
+> handle_external_interrupt() incorrectly did that and hence was not able
+> to reliably tell whether an external interruption loop is happening or
+> not. False negatives cause spurious failures of my kvm-unit-test
+> for extint loops[1] under PV.
+> 
+> Since code 20 is only caused under PV if and only if the guest's
+> ext_new_psw is enabled for external interrupts, false positive detection
+> of a external interruption loop can not happen.
+> 
+> Fix this issue by instead looking at the guest PSW in the state
+> description. Since the PSW swap for external interrupt is done by the
+> ultravisor before the intercept is caused, this reliably tells whether
+> the guest is enabled for external interrupts in the ext_new_psw.
+> 
+> Also update the comments to explain better what is happening.
+> 
+> [1] https://lore.kernel.org/kvm/20220812062151.1980937-4-nrb@linux.ibm.com/
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 104dfbec1037..7fb512bece9a 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -196,20 +196,15 @@ static void s390_iommu_release_device(struct device *dev)
- 
- static int s390_iommu_update_trans(struct s390_domain *s390_domain,
- 				   phys_addr_t pa, dma_addr_t dma_addr,
--				   size_t size, int flags)
-+				   unsigned long nr_pages, int flags)
- {
- 	phys_addr_t page_addr = pa & PAGE_MASK;
- 	dma_addr_t start_dma_addr = dma_addr;
--	unsigned long irq_flags, nr_pages, i;
-+	unsigned long irq_flags, i;
- 	struct zpci_dev *zdev;
- 	unsigned long *entry;
- 	int rc = 0;
- 
--	if (dma_addr < s390_domain->domain.geometry.aperture_start ||
--	    (dma_addr + size - 1) > s390_domain->domain.geometry.aperture_end)
--		return -EINVAL;
--
--	nr_pages = PAGE_ALIGN(size) >> PAGE_SHIFT;
- 	if (!nr_pages)
- 		return 0;
- 
-@@ -252,11 +247,24 @@ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
- 	return rc;
- }
- 
--static int s390_iommu_map(struct iommu_domain *domain, unsigned long iova,
--			  phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
-+static int s390_iommu_map_pages(struct iommu_domain *domain,
-+				unsigned long iova, phys_addr_t paddr,
-+				size_t pgsize, size_t pgcount,
-+				int prot, gfp_t gfp, size_t *mapped)
- {
- 	struct s390_domain *s390_domain = to_s390_domain(domain);
- 	int flags = ZPCI_PTE_VALID, rc = 0;
-+	size_t size = pgcount << __ffs(pgsize);
-+
-+	if (pgsize != SZ_4K)
-+		return -EINVAL;
-+
-+	if (iova < s390_domain->domain.geometry.aperture_start ||
-+	    (iova + size - 1) > s390_domain->domain.geometry.aperture_end)
-+		return -EINVAL;
-+
-+	if (!IS_ALIGNED(iova | paddr, pgsize))
-+		return -EINVAL;
- 
- 	if (!(prot & IOMMU_READ))
- 		return -EINVAL;
-@@ -265,7 +273,9 @@ static int s390_iommu_map(struct iommu_domain *domain, unsigned long iova,
- 		flags |= ZPCI_TABLE_PROTECTED;
- 
- 	rc = s390_iommu_update_trans(s390_domain, paddr, iova,
--				     size, flags);
-+				     pgcount, flags);
-+	if (!rc)
-+		*mapped = size;
- 
- 	return rc;
- }
-@@ -301,21 +311,27 @@ static phys_addr_t s390_iommu_iova_to_phys(struct iommu_domain *domain,
- 	return phys;
- }
- 
--static size_t s390_iommu_unmap(struct iommu_domain *domain,
--			       unsigned long iova, size_t size,
--			       struct iommu_iotlb_gather *gather)
-+static size_t s390_iommu_unmap_pages(struct iommu_domain *domain,
-+				     unsigned long iova,
-+				     size_t pgsize, size_t pgcount,
-+				     struct iommu_iotlb_gather *gather)
- {
- 	struct s390_domain *s390_domain = to_s390_domain(domain);
-+	size_t size = pgcount << __ffs(pgsize);
- 	int flags = ZPCI_PTE_INVALID;
- 	phys_addr_t paddr;
- 	int rc;
- 
-+	if (WARN_ON(iova < s390_domain->domain.geometry.aperture_start ||
-+	    (iova + size - 1) > s390_domain->domain.geometry.aperture_end))
-+		return 0;
-+
- 	paddr = s390_iommu_iova_to_phys(domain, iova);
- 	if (!paddr)
- 		return 0;
- 
- 	rc = s390_iommu_update_trans(s390_domain, paddr, iova,
--				     size, flags);
-+				     pgcount, flags);
- 	if (rc)
- 		return 0;
- 
-@@ -361,8 +377,8 @@ static const struct iommu_ops s390_iommu_ops = {
- 	.default_domain_ops = &(const struct iommu_domain_ops) {
- 		.attach_dev	= s390_iommu_attach_device,
- 		.detach_dev	= s390_iommu_detach_device,
--		.map		= s390_iommu_map,
--		.unmap		= s390_iommu_unmap,
-+		.map_pages	= s390_iommu_map_pages,
-+		.unmap_pages	= s390_iommu_unmap_pages,
- 		.iova_to_phys	= s390_iommu_iova_to_phys,
- 		.free		= s390_domain_free,
- 	}
--- 
-2.34.1
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 
+
+> ---
+>   arch/s390/kvm/intercept.c | 32 ++++++++++++++++++++++++--------
+>   1 file changed, 24 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> index 88112065d941..ea43463b102e 100644
+> --- a/arch/s390/kvm/intercept.c
+> +++ b/arch/s390/kvm/intercept.c
+> @@ -271,10 +271,18 @@ static int handle_prog(struct kvm_vcpu *vcpu)
+>    * handle_external_interrupt - used for external interruption interceptions
+>    * @vcpu: virtual cpu
+>    *
+> - * This interception only occurs if the CPUSTAT_EXT_INT bit was set, or if
+> - * the new PSW does not have external interrupts disabled. In the first case,
+> - * we've got to deliver the interrupt manually, and in the second case, we
+> - * drop to userspace to handle the situation there.
+> + * This interception occurs if:
+> + * - the CPUSTAT_EXT_INT bit was already set when the external interrupt
+> + *   occured. In this case, the interrupt needs to be injected manually to
+> + *   preserve interrupt priority.
+> + * - the external new PSW has external interrupts enabled, which will cause an
+> + *   interruption loop. We drop to userspace in this case.
+> + *
+> + * The latter case can be detected by inspecting the external mask bit in the
+> + * external new psw.
+> + *
+> + * Under PV, only the latter case can occur, since interrupt priorities are
+> + * handled in the ultravisor.
+>    */
+>   static int handle_external_interrupt(struct kvm_vcpu *vcpu)
+>   {
+> @@ -285,10 +293,18 @@ static int handle_external_interrupt(struct kvm_vcpu *vcpu)
+>   
+>   	vcpu->stat.exit_external_interrupt++;
+>   
+> -	rc = read_guest_lc(vcpu, __LC_EXT_NEW_PSW, &newpsw, sizeof(psw_t));
+> -	if (rc)
+> -		return rc;
+> -	/* We can not handle clock comparator or timer interrupt with bad PSW */
+> +	if (kvm_s390_pv_cpu_is_protected(vcpu))
+> +		newpsw = vcpu->arch.sie_block->gpsw;
+> +	else {
+> +		rc = read_guest_lc(vcpu, __LC_EXT_NEW_PSW, &newpsw, sizeof(psw_t));
+> +		if (rc)
+> +			return rc;
+> +	}
+> +
+> +	/*
+> +	 * Clock comparator or timer interrupt with external interrupt enabled
+> +	 * will cause interrupt loop. Drop to userspace.
+> +	 */
+>   	if ((eic == EXT_IRQ_CLK_COMP || eic == EXT_IRQ_CPU_TIMER) &&
+>   	    (newpsw.mask & PSW_MASK_EXT))
+>   		return -EOPNOTSUPP;
