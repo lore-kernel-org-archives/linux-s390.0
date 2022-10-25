@@ -2,101 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C001C04A95
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 09:31:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F52FC38A2D
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 11:09:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231991AbiJYJbI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Oct 2022 05:31:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59682 "EHLO
+        id S229613AbiJYLJj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Oct 2022 07:09:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231282AbiJYJao (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 05:30:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B74D545054
-        for <linux-s390@vger.kernel.org>; Tue, 25 Oct 2022 02:30:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666690230;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=N52J9g4cZ+1Mq7ONZQzSB0PW3bqTQoiOPUv/1Ns1UPw=;
-        b=NHD1NeptmR5ll20btXWTOXEm/iCQ7EHUn+cSh5vN6GfuOHEqmtoq27k6URFTr9LSOLtgDN
-        XhRoPNvSYVw/iY6VkOSr/nYGngsyFe0T2LfncCsvi2S9bLV7QZVwZeVvKK/diRhGm7oGXR
-        EY+9vYq0iQ8sfvs1HrCz51g7nfEJypY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-553-1OT5j1C3N7Ouo2GZDnOxGQ-1; Tue, 25 Oct 2022 05:30:28 -0400
-X-MC-Unique: 1OT5j1C3N7Ouo2GZDnOxGQ-1
-Received: by mail-wm1-f72.google.com with SMTP id f7-20020a7bcd07000000b003c6e73579d3so4967983wmj.8
-        for <linux-s390@vger.kernel.org>; Tue, 25 Oct 2022 02:30:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=N52J9g4cZ+1Mq7ONZQzSB0PW3bqTQoiOPUv/1Ns1UPw=;
-        b=qRkbiuyOkBoOKrhNerRdrhlwPvxaOGtjgqrPQgZTjTfRZ1ZpAGnkL1VdQBAHLdOgXA
-         qXmvqTCsByQsCZk0nOhqamkN/B/yqAbK89EhFvxTo0nI2SmQ7nBfwArFycSN0Ke84HLI
-         yenZ/Mq0SsGX6kw9qMT9gFkckCGurjIrxH6iKPjyvtmqrGPvj90OOsE75RPkotJRBBKg
-         7KZLJqQwuLV0M6LwU2+VStIcW8nkvoGRNp7ynY2mXRiF77VUIn3MD1eXA2wt/R52bS5v
-         NulRz7zcbdcRNGegN7CtQaI56OT/pchlw8oEdi0wPRoDo0+zUxmfOruG7McjNWmZW3+1
-         1jig==
-X-Gm-Message-State: ACrzQf38WRWF/jOGOMPuo8N798iE7gAPA9yLWByaYymlzsrgU7lY2KWs
-        RZIEK/izbQM8XmHysE/GSjnK/FKwKYu7zQ9ElyKJfOBNN69QaiQPiWKyvopYvOBZhxq/ENIC6AG
-        OzazlVkDPj0GxDTkfFFF5Og==
-X-Received: by 2002:a5d:6d0d:0:b0:230:1b65:a378 with SMTP id e13-20020a5d6d0d000000b002301b65a378mr25282790wrq.406.1666690227069;
-        Tue, 25 Oct 2022 02:30:27 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7N8lway8LYM22bmLrqzEuyTCqW2V+jEHnyQjtJOL0+fVqPU1iWuXxFShng6/h9WrTr8DpxYQ==
-X-Received: by 2002:a5d:6d0d:0:b0:230:1b65:a378 with SMTP id e13-20020a5d6d0d000000b002301b65a378mr25282776wrq.406.1666690226815;
-        Tue, 25 Oct 2022 02:30:26 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c70b:4e00:3efc:1c60:bc60:f557? (p200300cbc70b4e003efc1c60bc60f557.dip0.t-ipconnect.de. [2003:cb:c70b:4e00:3efc:1c60:bc60:f557])
-        by smtp.gmail.com with ESMTPSA id t189-20020a1c46c6000000b003c701c12a17sm10237937wma.12.2022.10.25.02.30.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Oct 2022 02:30:26 -0700 (PDT)
-Message-ID: <e9a237d7-3a34-11c8-1c5b-1a3c14e8cfb0@redhat.com>
-Date:   Tue, 25 Oct 2022 11:30:25 +0200
+        with ESMTP id S231656AbiJYLJc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 07:09:32 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 010F763F8;
+        Tue, 25 Oct 2022 04:09:23 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29PB8WQv018328;
+        Tue, 25 Oct 2022 11:09:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=3YOfkDKP0CcPTdIou62mwWmTAAg5NpH7eKPR5+Q7rIA=;
+ b=HqXlShKDuOJwqTvTqblzrkFK8Dd5o6zMfP9rmS7JoE4glbsjY8OOUs6MSUk3pBrxoMCC
+ vWwswMJZ0p8SMv+IdJk/nRJOUjjOEJVWQNBZQeZ48YfWsGkoN2Ut3FwU3/GvKdCE6z8X
+ 8MMmA2PSJ8GaSui0TP1xsnuwZIB/rwlGzIGS3RJRqFnFpa6M4ptqazEA9k19VlUTJY54
+ el3kxyBNzpNmKPoxZsfSoRCUz1MBsawW4Licv8Nt15msQEVev1o478ZGxgPCYsI06dDU
+ sQRDl1/SeRKAGMtr7wA2Ttoz6dSzsRZpkZgrYRuTVex1fL5FImWkToqjLA3kkQeYGzTN 7w== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3keea78sbh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Oct 2022 11:09:23 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29PB6ckA030332;
+        Tue, 25 Oct 2022 11:09:21 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3kdugat3sv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Oct 2022 11:09:20 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29PB9H9K59113862
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Oct 2022 11:09:17 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A3E0FAE05A;
+        Tue, 25 Oct 2022 11:09:17 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 70837AE056;
+        Tue, 25 Oct 2022 11:09:17 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.252])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 25 Oct 2022 11:09:17 +0000 (GMT)
+Date:   Tue, 25 Oct 2022 13:09:16 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [v2 1/1] KVM: s390: VSIE: sort out virtual/physical address in
+ pin_guest_page
+Message-ID: <20221025130916.1aa39c28@p-imbrenda>
+In-Reply-To: <20221025082039.117372-2-nrb@linux.ibm.com>
+References: <20221025082039.117372-1-nrb@linux.ibm.com>
+        <20221025082039.117372-2-nrb@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: [PATCH v2 1/1] KVM: s390: vsie: clarifications on setting the
- APCB
-Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, svens@linux.ibm.com
-References: <20221025091319.37110-1-pmorel@linux.ibm.com>
- <20221025091319.37110-2-pmorel@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20221025091319.37110-2-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 0VrH9kXRNF8ANmR9_8_bwx6-S877A378
+X-Proofpoint-GUID: 0VrH9kXRNF8ANmR9_8_bwx6-S877A378
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-25_05,2022-10-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 lowpriorityscore=0 bulkscore=0 phishscore=0 mlxlogscore=999
+ mlxscore=0 spamscore=0 adultscore=0 impostorscore=0 clxscore=1011
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210250064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 25.10.22 11:13, Pierre Morel wrote:
-> The APCB is part of the CRYCB.
-> The calculation of the APCB origin can be done by adding
-> the APCB offset to the CRYCB origin.
+On Tue, 25 Oct 2022 10:20:39 +0200
+Nico Boehr <nrb@linux.ibm.com> wrote:
+
+> pin_guest_page() used page_to_virt() to calculate the hpa of the pinned
+> page. This currently works, because virtual and physical addresses are
+> the same. Use page_to_phys() instead to resolve the virtual-real address
+> confusion.
 > 
-> Current code makes confusing transformations, converting
-> the CRYCB origin to a pointer to calculate the APCB origin.
+> One caller of pin_guest_page() actually expected the hpa to be a hva, so
+> add the missing phys_to_virt() conversion here.
 > 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-While at it, can we rename "crycb_o" to "crycb_gpa" and "apcb_o" to 
-"apcb_gpa".
-
-These are not pointers but guest physical addresses.
-
--- 
-Thanks,
-
-David / dhildenb
+> ---
+>  arch/s390/kvm/vsie.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index 94138f8f0c1c..0e9d020d7093 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -654,7 +654,7 @@ static int pin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t *hpa)
+>  	page = gfn_to_page(kvm, gpa_to_gfn(gpa));
+>  	if (is_error_page(page))
+>  		return -EINVAL;
+> -	*hpa = (hpa_t) page_to_virt(page) + (gpa & ~PAGE_MASK);
+> +	*hpa = (hpa_t)page_to_phys(page) + (gpa & ~PAGE_MASK);
+>  	return 0;
+>  }
+>  
+> @@ -869,7 +869,7 @@ static int pin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
+>  		WARN_ON_ONCE(rc);
+>  		return 1;
+>  	}
+> -	vsie_page->scb_o = (struct kvm_s390_sie_block *) hpa;
+> +	vsie_page->scb_o = phys_to_virt(hpa);
+>  	return 0;
+>  }
+>  
 
