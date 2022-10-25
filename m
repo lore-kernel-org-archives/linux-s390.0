@@ -2,171 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58043C38A2D
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 12:01:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65EC9C04A95
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Oct 2022 13:17:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbiJYMBC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Oct 2022 08:01:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48572 "EHLO
+        id S232730AbiJYNRs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Oct 2022 09:17:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230035AbiJYMBB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 08:01:01 -0400
+        with ESMTP id S232743AbiJYNRp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Oct 2022 09:17:45 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0E36580A;
-        Tue, 25 Oct 2022 05:01:00 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29PB7wBe006398;
-        Tue, 25 Oct 2022 12:01:00 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5944CE52E5;
+        Tue, 25 Oct 2022 06:17:44 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29PCfeYp004049;
+        Tue, 25 Oct 2022 13:17:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=uLeYOHBR/bVtF33uRCYysPzk+QyTRFVXI8G06nTS6Fw=;
- b=JfN5MqyMCyS6b2uiM3G/e4/p/x6dusaYqVeF7Ef86e0DsKKC95EBZXQvgpgfyEcXIiZt
- rngkcdYf6c9OhP6j/KR/muh0cCEZGg/FWGEfwJIH9+sa+R3VF2cSXiL1gR/DnPwe2Tbf
- E/EStk/zLuEJUGl+/e7l5w4cnBhQWq7MY1vDzGktMxioDl5WHlkfwPbcUMH7Ox0Ndp85
- rrpK1yfflz7pCpg6Wa+sGO4BfmbDxTR590xroyVUviAowUKquz3tMJciDnqserVbU543
- 1h5PISlIsa2zzHjyi2Xcm9kf0CF/k796QE1oHtd/wHYUrS0gdLl0+v9NdyyJwyudEhvw Qg== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ked6qvyfb-1
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=M9PK9LY4oTb8D3o+jZliwBeehdFYroiqI+wKOruGl0Y=;
+ b=ACvKlCaAPkCFLIhwhFDzLYFHZ275xnWnUNQCdVr6jnrN+TyUE08NeDcmxljb19Yxx/Ml
+ J3xwtiK2H7OIL6JjxV3qOkgNTb/hYUzq/+DBBWiqEXYGpNKTdtnf3veZizxaqacS4iHG
+ rMDhypTzWXpDA5L11XhsJcL+99R2iL1BfZQn7USClQ911GFcHRvSNOuJmoN16RdEMqy+
+ 8sOetSwSFFd+nVthwTdI+SyK6zpQZ67ccDyisfs6Ombv+3EbaxWwh4IEZEvkfS5/ut8V
+ DH/r5nhXh3u47xlHUh5m/R5Up1qX/8B7V5tRYW4mQuzKOTmBKoEcSHXLM1LI7tTHslOb Rw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kee35wd89-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Oct 2022 12:00:59 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29PBoE9o023486;
-        Tue, 25 Oct 2022 12:00:57 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma05fra.de.ibm.com with ESMTP id 3kc8594e40-1
+        Tue, 25 Oct 2022 13:17:43 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29PCfn9K004898;
+        Tue, 25 Oct 2022 13:17:43 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kee35wd6u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Oct 2022 12:00:57 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29PC0sTI1376790
+        Tue, 25 Oct 2022 13:17:43 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29PD6bOu013922;
+        Tue, 25 Oct 2022 13:17:40 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma01fra.de.ibm.com with ESMTP id 3kc8594351-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Oct 2022 13:17:40 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29PDHbZW2949656
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 Oct 2022 12:00:54 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0C2B5A405B;
-        Tue, 25 Oct 2022 12:00:54 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BDD31A4054;
-        Tue, 25 Oct 2022 12:00:53 +0000 (GMT)
-Received: from [9.171.5.17] (unknown [9.171.5.17])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 25 Oct 2022 12:00:53 +0000 (GMT)
-Message-ID: <86b97f95-9995-a64f-363f-3c5dc3ed57c7@linux.ibm.com>
-Date:   Tue, 25 Oct 2022 14:00:53 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: [v2] KVM: s390: pv: fix external interruption loop not always
- detected
-To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20221005122050.60625-1-nrb@linux.ibm.com>
-Content-Language: en-US
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20221005122050.60625-1-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: R1BGS0umfWG8iHnUnFPr51Hi4mR-QHB0
-X-Proofpoint-ORIG-GUID: R1BGS0umfWG8iHnUnFPr51Hi4mR-QHB0
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 25 Oct 2022 13:17:37 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 84E25A4040;
+        Tue, 25 Oct 2022 13:17:37 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C769FA404D;
+        Tue, 25 Oct 2022 13:17:36 +0000 (GMT)
+Received: from [9.171.30.119] (unknown [9.171.30.119])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 25 Oct 2022 13:17:36 +0000 (GMT)
+Message-ID: <0117e263-2856-b2fd-1e61-59b21e5da2e5@linux.ibm.com>
+Date:   Tue, 25 Oct 2022 15:17:36 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: [PATCH v2 1/1] KVM: s390: vsie: clarifications on setting the
+ APCB
+To:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, svens@linux.ibm.com
+References: <20221025091319.37110-1-pmorel@linux.ibm.com>
+ <20221025091319.37110-2-pmorel@linux.ibm.com>
+ <e9a237d7-3a34-11c8-1c5b-1a3c14e8cfb0@redhat.com>
+Content-Language: en-US
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <e9a237d7-3a34-11c8-1c5b-1a3c14e8cfb0@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WFO04gaDUtMpOw2tljq--Y9LiVCAxz3h
+X-Proofpoint-GUID: MJRwK1_i_YK8wnWfVoWROUkVP3L55NiR
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-25_05,2022-10-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- clxscore=1015 bulkscore=0 spamscore=0 adultscore=0 lowpriorityscore=0
- malwarescore=0 suspectscore=0 priorityscore=1501 mlxscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210250069
+ definitions=2022-10-25_06,2022-10-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=677
+ suspectscore=0 adultscore=0 mlxscore=0 malwarescore=0 spamscore=0
+ lowpriorityscore=0 priorityscore=1501 clxscore=1011 phishscore=0
+ bulkscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2209130000 definitions=main-2210250075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-Am 05.10.22 um 14:20 schrieb Nico Boehr:
-> To determine whether the guest has caused an external interruption loop
-> upon code 20 (external interrupt) intercepts, the ext_new_psw needs to
-> be inspected to see whether external interrupts are enabled.
+On 10/25/22 11:30, David Hildenbrand wrote:
+> On 25.10.22 11:13, Pierre Morel wrote:
+>> The APCB is part of the CRYCB.
+>> The calculation of the APCB origin can be done by adding
+>> the APCB offset to the CRYCB origin.
+>>
+>> Current code makes confusing transformations, converting
+>> the CRYCB origin to a pointer to calculate the APCB origin.
+>>
 > 
-> Under non-PV, ext_new_psw can simply be taken from guest lowcore. Under
-> PV, KVM can only access the encrypted guest lowcore and hence the
-> ext_new_psw must not be taken from guest lowcore.
 > 
-> handle_external_interrupt() incorrectly did that and hence was not able
-> to reliably tell whether an external interruption loop is happening or
-> not. False negatives cause spurious failures of my kvm-unit-test
-> for extint loops[1] under PV.
+> While at it, can we rename "crycb_o" to "crycb_gpa" and "apcb_o" to 
+> "apcb_gpa".
 > 
-> Since code 20 is only caused under PV if and only if the guest's
-> ext_new_psw is enabled for external interrupts, false positive detection
-> of a external interruption loop can not happen.
+> These are not pointers but guest physical addresses.
 > 
-> Fix this issue by instead looking at the guest PSW in the state
-> description. Since the PSW swap for external interrupt is done by the
-> ultravisor before the intercept is caused, this reliably tells whether
-> the guest is enabled for external interrupts in the ext_new_psw.
-> 
-> Also update the comments to explain better what is happening.
-> 
-> [1] https://lore.kernel.org/kvm/20220812062151.1980937-4-nrb@linux.ibm.com/
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+I can do that.
+the _o came from the name in the documentation "origin"
+but gpa is more obvious.
 
-
-> ---
->   arch/s390/kvm/intercept.c | 32 ++++++++++++++++++++++++--------
->   1 file changed, 24 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> index 88112065d941..ea43463b102e 100644
-> --- a/arch/s390/kvm/intercept.c
-> +++ b/arch/s390/kvm/intercept.c
-> @@ -271,10 +271,18 @@ static int handle_prog(struct kvm_vcpu *vcpu)
->    * handle_external_interrupt - used for external interruption interceptions
->    * @vcpu: virtual cpu
->    *
-> - * This interception only occurs if the CPUSTAT_EXT_INT bit was set, or if
-> - * the new PSW does not have external interrupts disabled. In the first case,
-> - * we've got to deliver the interrupt manually, and in the second case, we
-> - * drop to userspace to handle the situation there.
-> + * This interception occurs if:
-> + * - the CPUSTAT_EXT_INT bit was already set when the external interrupt
-> + *   occured. In this case, the interrupt needs to be injected manually to
-> + *   preserve interrupt priority.
-> + * - the external new PSW has external interrupts enabled, which will cause an
-> + *   interruption loop. We drop to userspace in this case.
-> + *
-> + * The latter case can be detected by inspecting the external mask bit in the
-> + * external new psw.
-> + *
-> + * Under PV, only the latter case can occur, since interrupt priorities are
-> + * handled in the ultravisor.
->    */
->   static int handle_external_interrupt(struct kvm_vcpu *vcpu)
->   {
-> @@ -285,10 +293,18 @@ static int handle_external_interrupt(struct kvm_vcpu *vcpu)
->   
->   	vcpu->stat.exit_external_interrupt++;
->   
-> -	rc = read_guest_lc(vcpu, __LC_EXT_NEW_PSW, &newpsw, sizeof(psw_t));
-> -	if (rc)
-> -		return rc;
-> -	/* We can not handle clock comparator or timer interrupt with bad PSW */
-> +	if (kvm_s390_pv_cpu_is_protected(vcpu))
-> +		newpsw = vcpu->arch.sie_block->gpsw;
-> +	else {
-> +		rc = read_guest_lc(vcpu, __LC_EXT_NEW_PSW, &newpsw, sizeof(psw_t));
-> +		if (rc)
-> +			return rc;
-> +	}
-> +
-> +	/*
-> +	 * Clock comparator or timer interrupt with external interrupt enabled
-> +	 * will cause interrupt loop. Drop to userspace.
-> +	 */
->   	if ((eic == EXT_IRQ_CLK_COMP || eic == EXT_IRQ_CPU_TIMER) &&
->   	    (newpsw.mask & PSW_MASK_EXT))
->   		return -EOPNOTSUPP;
+-- 
+Pierre Morel
+IBM Lab Boeblingen
