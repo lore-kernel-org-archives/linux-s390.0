@@ -2,116 +2,186 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A692FA373E
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Oct 2022 14:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46EFCC38A2D
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Oct 2022 21:25:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233928AbiJZO4o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Oct 2022 10:56:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56604 "EHLO
+        id S233282AbiJZVZH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Oct 2022 17:25:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232842AbiJZO4n (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Oct 2022 10:56:43 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05EC8B97AC;
-        Wed, 26 Oct 2022 07:56:42 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29QEnYUY003839;
-        Wed, 26 Oct 2022 14:56:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=OrFLoCeav5A66f427xEB+35dNoTUF33wC1hSWDa8HaM=;
- b=GiVNPk77e4uuixdx3JZJf8Y70SZCwuENGo/IjqV8NmscXtQjeHH4g+FSeE2AsgwAX78K
- cdQ2D79azPd9Ze4kAuGH6mmXVQLCcuakFccwM95JCHKOEqIRiUbEKtqNs17WkP3R9X8N
- +YQzYw7LvAt4K4XGtec/VhG2Eq+LpTguItCJH5qui2lJtaMjs0+OKLoK2wFZAFoacuUF
- SigAGDdr908QpK8qIdbnUuDFCP7ZwDdsWzrlvtfuesB0jBI3CZL4AG/VcEAxe4LqkiWH
- 2G9/pJaVG2P35xJ7SexmYKSWmJX1DryXUd/DSF5QrJR2VVav9FTbGAHDfsk4yS99X5rT xQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kf70ercba-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Oct 2022 14:56:41 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29QEpgpO020038;
-        Wed, 26 Oct 2022 14:56:13 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kf70erbc7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Oct 2022 14:56:13 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29QEp11n031857;
-        Wed, 26 Oct 2022 14:54:32 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma01fra.de.ibm.com with ESMTP id 3kc8595hua-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Oct 2022 14:54:31 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29QEsShn4391432
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Oct 2022 14:54:28 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E7C9AE051;
-        Wed, 26 Oct 2022 14:54:28 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DE088AE04D;
-        Wed, 26 Oct 2022 14:54:27 +0000 (GMT)
-Received: from [9.171.93.253] (unknown [9.171.93.253])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 26 Oct 2022 14:54:27 +0000 (GMT)
-Message-ID: <2609dbde-c779-fae2-989a-4512687125f5@linux.ibm.com>
-Date:   Wed, 26 Oct 2022 16:54:27 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Eric Farman <farman@linux.ibm.com>,
+        with ESMTP id S233379AbiJZVZF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Oct 2022 17:25:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B511AF0D
+        for <linux-s390@vger.kernel.org>; Wed, 26 Oct 2022 14:25:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1666819503;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2ys5yrKnSWNrdXyOIt/+2hibuD6RgZdYjr5anEvm87I=;
+        b=D7n9VPvOxaB/v9f6dEkYAchSorgHnHxw512HrRhVSP/KWGg6UTkdpFrUCoRMSAoWsMiBCl
+        BSj78YNEAizdIMmBbvW/Vwb8WYDQrNy8R9WEvA3qnbK5HzvQyxH6IqqMYSXprh+wRKf8VV
+        DXNxGQoXDPR/kQKqJoe7TWEv6iPqgW4=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-207-znyQVfaDOOKCDosKiL9H8w-1; Wed, 26 Oct 2022 17:25:02 -0400
+X-MC-Unique: znyQVfaDOOKCDosKiL9H8w-1
+Received: by mail-io1-f69.google.com with SMTP id a6-20020a056602208600b006bff2e56943so5383497ioa.11
+        for <linux-s390@vger.kernel.org>; Wed, 26 Oct 2022 14:25:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2ys5yrKnSWNrdXyOIt/+2hibuD6RgZdYjr5anEvm87I=;
+        b=34fA/0H8N1g7ohQ6GshDBRNfy5+Vcr3IzGmev6SveEn+4KWvDITWAEVXumlwc4E6RL
+         4Gz48W8LYObiXDmgzU2A7Pr6KzUGNyEwfn4JyAmzBMd6rF/d/z82ZMbfLgB8AmAEiEPn
+         8bo+kL5sOPKAGMrhEHutRbn+ZzMPBbwNKOspp/nrYGCJS8PICNiDPdfk7nlfvFt1Mkx0
+         04Wx8hUpXECJTCDtdc+YLq7wLqPfpVLxcdBXfyMygJVW2tFwnAb+Kohu6x4N8HN3NjZV
+         mVC1QtYcywdiIzWZv41avJlmU1pL6o14dgTIXrXUgj2ldp9EYvgWQxaePpvUGrY6mBnQ
+         dlvg==
+X-Gm-Message-State: ACrzQf3ba3sZkj4yhePBYTU47sWsCmU3YAzWDgKp7HlJmEZEMhd4Hyv8
+        FK5UpKstHMGdfnCPifrqRlve4TXaxoztVVurelrtLrL+mgMn7lqVDRyUhxSvdh2kDNdGo4OS+zA
+        lcQIg6K6byl0WLmvpeHfrhg==
+X-Received: by 2002:a05:6602:13c8:b0:68a:db5d:269d with SMTP id o8-20020a05660213c800b0068adb5d269dmr27084614iov.209.1666819496944;
+        Wed, 26 Oct 2022 14:24:56 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM78B1N1rhquL7I27LvLWaJii8bhooCw6yJ0rMTPt8axTAAIzjlyMmOikhzath1gqGNuTiEASg==
+X-Received: by 2002:a05:6e02:1b08:b0:2fc:4df6:e468 with SMTP id i8-20020a056e021b0800b002fc4df6e468mr27916129ilv.148.1666819486067;
+        Wed, 26 Oct 2022 14:24:46 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id x13-20020a02948d000000b0036c8a246f54sm2409348jah.142.2022.10.26.14.24.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Oct 2022 14:24:45 -0700 (PDT)
+Date:   Wed, 26 Oct 2022 15:24:42 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@gmail.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20221026013234.960859-1-rafaelmendsr@gmail.com>
- <733949e2-1086-f012-aa39-e3b84feb2688@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH] KVM: s390: pci: Fix allocation size of aift kzdev
- elements
-In-Reply-To: <733949e2-1086-f012-aa39-e3b84feb2688@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org, iommu@lists.linux.dev,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>
+Subject: Re: [PATCH 04/10] vfio: Move storage of allow_unsafe_interrupts to
+ vfio_main.c
+Message-ID: <20221026152442.4855c5de.alex.williamson@redhat.com>
+In-Reply-To: <4-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
+References: <0-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
+        <4-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: RdV3m-alHnXiTiGTnDIzZXhuA_XVw-eE
-X-Proofpoint-ORIG-GUID: 27fyGqVJCu_h6YpxBQ-tf0Lh8bXxqkWF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-26_06,2022-10-26_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- mlxscore=0 spamscore=0 priorityscore=1501 phishscore=0 mlxlogscore=888
- malwarescore=0 adultscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2210260082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/26/22 15:36, Matthew Rosato wrote:
-> On 10/25/22 9:32 PM, Rafael Mendonca wrote:
->> The 'kzdev' field of struct 'zpci_aift' is an array of pointers to
->> 'kvm_zdev' structs. Allocate the proper size accordingly.
->>
->> Reported by Coccinelle:
->>    WARNING: Use correct pointer type argument for sizeof
->>
->> Fixes: 98b1d33dac5f ("KVM: s390: pci: do initial setup for AEN interpretation")
->> Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-> 
-> Thanks for reporting & fixing.
-> 
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+On Tue, 25 Oct 2022 15:17:10 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-After consulting Matt I've put this into the CI and I'll pick it once it 
-received a bit of coverage.
+> This legacy module knob has become uAPI, when set on the vfio_iommu_type1
+> it disables some security protections in the iommu drivers. Move the
+> storage for this knob to vfio_main.c so that iommufd can access it too.
+
+I don't really understand this, we're changing the behavior of the
+iommufd_device_attach() operation based on the modules options of
+vfio_iommu_type1, which may not be loaded or even compiled into the
+kernel.  Our compatibility story falls apart when VFIO_CONTAINER is not
+set, iommufd sneaks in to usurp /dev/vfio/vfio, and the user's module
+options for type1 go unprocessed.
+
+I hate to suggest that type1 becomes a module that does nothing more
+than maintain consistency of this variable when the full type1 isn't
+available, but is that what we need to do?  Thanks,
+
+Alex
+
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/vfio/vfio.h             | 2 ++
+>  drivers/vfio/vfio_iommu_type1.c | 5 ++---
+>  drivers/vfio/vfio_main.c        | 3 +++
+>  3 files changed, 7 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
+> index f95f4925b83bbd..54e5a8e0834ccb 100644
+> --- a/drivers/vfio/vfio.h
+> +++ b/drivers/vfio/vfio.h
+> @@ -130,4 +130,6 @@ extern bool vfio_noiommu __read_mostly;
+>  enum { vfio_noiommu = false };
+>  #endif
+>  
+> +extern bool vfio_allow_unsafe_interrupts;
+> +
+>  #endif
+> diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+> index 23c24fe98c00d4..186e33a006d314 100644
+> --- a/drivers/vfio/vfio_iommu_type1.c
+> +++ b/drivers/vfio/vfio_iommu_type1.c
+> @@ -44,9 +44,8 @@
+>  #define DRIVER_AUTHOR   "Alex Williamson <alex.williamson@redhat.com>"
+>  #define DRIVER_DESC     "Type1 IOMMU driver for VFIO"
+>  
+> -static bool allow_unsafe_interrupts;
+>  module_param_named(allow_unsafe_interrupts,
+> -		   allow_unsafe_interrupts, bool, S_IRUGO | S_IWUSR);
+> +		   vfio_allow_unsafe_interrupts, bool, S_IRUGO | S_IWUSR);
+>  MODULE_PARM_DESC(allow_unsafe_interrupts,
+>  		 "Enable VFIO IOMMU support for on platforms without interrupt remapping support.");
+>  
+> @@ -2282,7 +2281,7 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+>  		    iommu_group_for_each_dev(iommu_group, (void *)IOMMU_CAP_INTR_REMAP,
+>  					     vfio_iommu_device_capable);
+>  
+> -	if (!allow_unsafe_interrupts && !msi_remap) {
+> +	if (!vfio_allow_unsafe_interrupts && !msi_remap) {
+>  		pr_warn("%s: No interrupt remapping support.  Use the module param \"allow_unsafe_interrupts\" to enable VFIO IOMMU support on this platform\n",
+>  		       __func__);
+>  		ret = -EPERM;
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index 8d809ecd982b39..1e414b2c48a511 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -51,6 +51,9 @@ static struct vfio {
+>  	struct ida			device_ida;
+>  } vfio;
+>  
+> +bool vfio_allow_unsafe_interrupts;
+> +EXPORT_SYMBOL_GPL(vfio_allow_unsafe_interrupts);
+> +
+>  static DEFINE_XARRAY(vfio_device_set_xa);
+>  static const struct file_operations vfio_group_fops;
+>  
+
