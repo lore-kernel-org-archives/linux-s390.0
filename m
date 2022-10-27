@@ -2,109 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40849C38A2D
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Oct 2022 10:42:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 164F8FA3740
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Oct 2022 12:46:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234722AbiJ0KmK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Oct 2022 06:42:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39410 "EHLO
+        id S235782AbiJ0Mqq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Oct 2022 08:46:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234928AbiJ0KmJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Oct 2022 06:42:09 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4CDC2A87AE;
-        Thu, 27 Oct 2022 03:42:07 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BF9221FB;
-        Thu, 27 Oct 2022 03:42:12 -0700 (PDT)
-Received: from [10.163.38.26] (unknown [10.163.38.26])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2EF8D3F445;
-        Thu, 27 Oct 2022 03:41:56 -0700 (PDT)
-Message-ID: <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com>
-Date:   Thu, 27 Oct 2022 16:11:59 +0530
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To:     Barry Song <21cnbao@gmail.com>, Yicong Yang <yangyicong@huawei.com>
-Cc:     yangyicong@hisilicon.com, corbet@lwn.net, peterz@infradead.org,
-        arnd@arndb.de, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, huzhanyuan@oppo.com,
-        lipeifeng@oppo.com, zhangshiming@oppo.com, guojian@oppo.com,
-        realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-mm@kvack.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
-        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>,
-        catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
-References: <20220921084302.43631-1-yangyicong@huawei.com>
- <20220921084302.43631-3-yangyicong@huawei.com>
- <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
- <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
- <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
-Content-Language: en-US
-In-Reply-To: <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+        with ESMTP id S235776AbiJ0Mqf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Oct 2022 08:46:35 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E18E52FCB;
+        Thu, 27 Oct 2022 05:46:33 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29RCDoRa023214;
+        Thu, 27 Oct 2022 12:46:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=WQPbTRa5gR7LLgmH0RftI5Axrg8xfJRdRF9MXAxmgGU=;
+ b=ap1ZYwhsfzvTTkTyhnWPSn1Th2kSPOY6xvlTn3dqDU6ov4PCfuCPua4XYpr7qevJ/7j8
+ U9vuNt8AnSSnCzEnMM/u9CQKlvItMOW6Ros3h4IdC4t4cTkZLbx0iBMHq01l8cdP6whx
+ 0ScL8LyIo4NHVIj6afAi6FLSoSlwlKd0ZUDsA5g/WPri49QAJS1PhE0+/FhcWwgY7/D/
+ kRCRX/HIsuN+VmQjm+0TxqzbyJVWwNolmNullSnZSoP2hi3g2QKw9uCOp7GqhqQaSu7X
+ 7JzaqYJ+G+2ZQjajs53UDpgW9xss7eXw6OWCWa5i/oTAAzTqsRe207LoE1kjGCZXsYOE cA== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kfst7h5jq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Oct 2022 12:46:09 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29RCZ9bO014321;
+        Thu, 27 Oct 2022 12:46:08 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kfahu21ts-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Oct 2022 12:46:08 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29RCjP3c51118418
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 27 Oct 2022 12:45:25 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5B32142042;
+        Thu, 27 Oct 2022 12:44:50 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CEC2B4203F;
+        Thu, 27 Oct 2022 12:44:49 +0000 (GMT)
+Received: from oc-nschnelle.boeblingen.de.ibm.com (unknown [9.155.199.46])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 27 Oct 2022 12:44:49 +0000 (GMT)
+Message-ID: <3c2249fc7abf481b15d4988c2bd6456c48154c44.camel@linux.ibm.com>
+Subject: Re: [PATCH 3/5] iommu/s390: Use RCU to allow concurrent domain_list
+ iteration
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org
+Date:   Thu, 27 Oct 2022 14:44:49 +0200
+In-Reply-To: <Y1a8qM4c2ZAM9glJ@nvidia.com>
+References: <Y07Dz/NROAMI0Hku@nvidia.com>
+         <8e268ab5e0dadf86be5fd7ffaa9debb76cea67f3.camel@linux.ibm.com>
+         <Y0/lMCQ8oeXJ2HTg@nvidia.com>
+         <f3551bb461b3ef3cfc1a0c644093816be1835b3f.camel@linux.ibm.com>
+         <Y1ErcEe82yjJI+ET@nvidia.com>
+         <68d91d7a5aadbd46dc34470eccd6b86a84c9e47b.camel@linux.ibm.com>
+         <Y1KgX8EwH8T+FgWC@nvidia.com>
+         <89a748fb5caee8be5d91806aa5dfd131e92d5d82.camel@linux.ibm.com>
+         <Y1K1AqVWEyY0/Uqy@nvidia.com>
+         <cef734b9f9b33380c1bbff40b56bb67b3de29341.camel@linux.ibm.com>
+         <Y1a8qM4c2ZAM9glJ@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: xgWQR3wne0PFPnrUNrg5-106MvEv69Ws
+X-Proofpoint-ORIG-GUID: xgWQR3wne0PFPnrUNrg5-106MvEv69Ws
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-27_05,2022-10-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ suspectscore=0 mlxlogscore=998 clxscore=1015 impostorscore=0 bulkscore=0
+ phishscore=0 priorityscore=1501 spamscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2210270068
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 2022-10-24 at 13:26 -0300, Jason Gunthorpe wrote:
+> On Mon, Oct 24, 2022 at 05:22:24PM +0200, Niklas Schnelle wrote:
+> 
+> > Thanks for the explanation, still would like to grok this a bit more if
+> > you don't mind. If I do read things correctly synchronize_rcu() should
+> > run in the conext of the VFIO ioctl in this case and shouldn't block
+> > anything else in the kernel, correct? At least that's how I understand
+> > the synchronize_rcu() comments and the fact that e.g.
+> > net/vmw_vsock/virtio_transport.c:virtio_vsock_remove() also does a
+> > synchronize_rcu() and can be triggered from user-space too.
+> 
+> Yes, but I wouldn't look in the kernel to understand if things are OK
+>  
+> > So we're
+> > more worried about user-space getting slowed down rather than a Denial-
+> > of-Service against other kernel tasks.
+> 
+> Yes, functionally it is OK, but for something like vfio with vIOMMU
+> you could be looking at several domains that have to be detached
+> sequentially and with grace periods > 1s you can reach multiple
+> seconds to complete something like a close() system call. Generally it
+> should be weighed carefully
+> 
+> Jason
 
+Thanks for the detailed explanation. Then let's not put a
+synchronize_rcu() in detach, as I said as long as the I/O translation
+tables are there an IOTLB flush after zpci_unregister_ioat() should
+result in an ignorable error. That said, I think if we don't have the
+synchronize_rcu() in detach we need it in s390_domain_free() before
+freeing the I/O translation tables.
 
-On 9/28/22 05:53, Barry Song wrote:
-> On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
->>
->> On 2022/9/27 14:16, Anshuman Khandual wrote:
->>> [...]
->>>
->>> On 9/21/22 14:13, Yicong Yang wrote:
->>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
->>>> +{
->>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
->>>> +    if (num_online_cpus() <= 4)
->>>
->>> It would be great to have some more inputs from others, whether 4 (which should
->>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
->>> is optimal for an wide range of arm64 platforms.
->>>
-> 
-> I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
-> with 5,6,7
-> cores.
-> I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
-> this patch.
-> 
-> so it seems safe to have
-> if (num_online_cpus()  < 8)
-> 
->>
->> Do you prefer this macro to be static or make it configurable through kconfig then
->> different platforms can make choice based on their own situations? It maybe hard to
->> test on all the arm64 platforms.
-> 
-> Maybe we can have this default enabled on machines with 8 and more cpus and
-> provide a tlbflush_batched = on or off to allow users enable or
-> disable it according
-> to their hardware and products. Similar example: rodata=on or off.
-
-No, sounds bit excessive. Kernel command line options should not be added
-for every possible run time switch options.
-
-> 
-> Hi Anshuman, Will,  Catalin, Andrew,
-> what do you think about this approach?
-> 
-> BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
-> https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
-> 
-> I do believe we need it based on the expensive cost of tlb shootdown in arm64
-> even by hardware broadcast.
-
-Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
-with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
