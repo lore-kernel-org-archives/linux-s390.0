@@ -2,138 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1786FA3744
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Oct 2022 22:08:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03D6AFA373D
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Oct 2022 23:07:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234893AbiJ0WIS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Oct 2022 18:08:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37772 "EHLO
+        id S235028AbiJ0XHW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Oct 2022 19:07:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234810AbiJ0WIR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Oct 2022 18:08:17 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D195A2204;
-        Thu, 27 Oct 2022 15:08:14 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id r14so5216523edc.7;
-        Thu, 27 Oct 2022 15:08:14 -0700 (PDT)
+        with ESMTP id S234327AbiJ0XHV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Oct 2022 19:07:21 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F598FD4B
+        for <linux-s390@vger.kernel.org>; Thu, 27 Oct 2022 16:07:21 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id s196so3176687pgs.3
+        for <linux-s390@vger.kernel.org>; Thu, 27 Oct 2022 16:07:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=r9RELUveKiUS67KqsZJxwv+GhPKYSZmmNpqGyp3KeL0=;
-        b=JfXFlJ4wCnFvi9jr1lx+vzRzL6wNpHsAjP9ImZnD7o4RBGnGK2q+Hkr1AfP8BCQ9Em
-         ClHUmPJP2mw+Jv3BwJXHu6/WlG1YnKxhdbpWzIIvAY5/f9Vxpo+eZyR9J2P450gcz8d1
-         ZC0/nutQ/zH7Y66UzyXySNTXBIJautFH3rHTDUUKyL6h8tPUGGZe1HOupswJUrG2WXWh
-         +9GBIBs7lmr8PJ9X8My5e7ss2akjSuXDKad86M5NIahpuIZGpF+4dt+j5j1ukAM1P/2k
-         hXW1Ih6c/LqiyAWoQITdGwfnPwsd65hnISqhXdmzfZ1XLNvFKrTDl6KQGSY4zv9DIe2f
-         JDtA==
+        d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3gyfpmFe14VJ3jdYNVJ0rx3Ah2uaRzNTmMnT4495S4I=;
+        b=ZNNSYZLMCiTx3pCpdTSLaMqTAwcT0XD23hboDkck2m1sj0K18I/wiwFIJBnxkxlMh1
+         TMOX+6v0XNUWVLrMkaS7nFMD6HK3C70ZLK5411vF56AMxZrrEveIWdn7U/wWYAX6hu8f
+         z7X+MhLcDZ2abQ+JkeJnFiHqWkFba2HtnVwkX4LhmKXO9kCXDrbkBH+MQc0VlITciM7I
+         DQ4GGK7LnrmeObtOo33dthlXeC/HBl0rQRBuyHKeRHXZmYYPUrcsYqTcTlXIWwUSoL9i
+         Op+9awjoXqXajuMDeHaLc5MvW/7/blHnT1v9JwgcyUng9A7q3UoZ9aZNVukbXbfjaCwz
+         UOQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=r9RELUveKiUS67KqsZJxwv+GhPKYSZmmNpqGyp3KeL0=;
-        b=zrm/S1VMhZBxZrDfMZ6Y4EHEOtv5jh91kreKJnWuiOF7uypO939+YZnCE5JrD5ot5E
-         deQQyf4ymnEv9SiQ242aLSrhZSEwaReuIJVI9qPLPruAQ7xbXTKuQCyEdwOVF+1dXujU
-         NmUu+KAv2Eps7XtqcZKV5CkbwCk64Gyk+SvSk2kQIbmmx5CsxVrVl8GDMm0tYLom7eYy
-         8UBW/MXS7KwHbrpgMouvuQepB8UCOOfsBbas5QB0FsnxpSNdV6L5GIl25C2Y2x80YTHJ
-         exZb7678MMTWgxvjcXIlQ29/1/8GLLvMew7FIDeRRh2vBlFPMELJRsSLAu1A2xchZsBT
-         Y/mg==
-X-Gm-Message-State: ACrzQf170zEhJ9SiMNexqH+jdE46TQciUakJwLDxWyLjvbzvsAIOJcwA
-        G8QiywNWspmQ1ncR8zRXUgdnMI95hj+Nh3BffiM=
-X-Google-Smtp-Source: AMsMyM7WF/u9jCTtkVgKvkXWMMsUAzTmGbv2jIoDElJSEwL95CQMTNB+W2XiN6KO+oglta/8KUl11BElPtkjS3OhWbc=
-X-Received: by 2002:aa7:d80a:0:b0:462:2c1c:8716 with SMTP id
- v10-20020aa7d80a000000b004622c1c8716mr13941343edq.185.1666908492601; Thu, 27
- Oct 2022 15:08:12 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220921084302.43631-1-yangyicong@huawei.com> <20220921084302.43631-3-yangyicong@huawei.com>
- <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com> <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
- <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com> <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com>
-In-Reply-To: <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com>
-From:   Barry Song <21cnbao@gmail.com>
-Date:   Fri, 28 Oct 2022 11:07:58 +1300
-Message-ID: <CAGsJ_4x0KhEjm5a9jhtS+YK1AT49u3sHnp2rHZVSuTGZp4nKzA@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     Yicong Yang <yangyicong@huawei.com>, yangyicong@hisilicon.com,
-        corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
-        linux-kernel@vger.kernel.org, darren@os.amperecomputing.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-mm@kvack.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
-        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>,
-        catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3gyfpmFe14VJ3jdYNVJ0rx3Ah2uaRzNTmMnT4495S4I=;
+        b=BmZ5qIVsNeaKovaK4Vg/BOPWU0LkWF5vfY//aoiq7I3qkwZxKXhEvqATdPxbDqUg4W
+         FJo2myFHcjd3q5i0m8JuPm1eVq2Y+bx/JRJ7xWjD+RZpiEGliF7thDVk/PimEnbBzUOb
+         yAB8VVMYQnZgcMCjAeUSq0DD8TZJAyF08SZZ65/mDBOyWBx3BJRdl0WDurpWsaRcsMsE
+         tsdpuU+K4Uchzdo+KUA6dGKwuTINQzNLyFFKb1/F+/ykiBVcphnO6GWzZVVQ2dbFHEBf
+         sXzQa871Cqrg709i4FQFK5OfeKB3FEePkQN5kcl6P0BIkh7uWAPE6qljTl2CS5calqd2
+         2XvA==
+X-Gm-Message-State: ACrzQf2YWAFxt/wGqBVbSeiwDI2a85OMDgkZo2W+2ueydkS1pKtv2S71
+        wdtaTAcfaK82QugPlwlxzNFN1Q==
+X-Google-Smtp-Source: AMsMyM48cCCOaGHpcUrqKPuvLPqi8N0s0YHUDIkD3gXkNLjihHit7dpsoFkfZbjAvACH4Z61kt9rCg==
+X-Received: by 2002:a65:44c1:0:b0:428:ab8f:62dd with SMTP id g1-20020a6544c1000000b00428ab8f62ddmr44319504pgs.211.1666912040505;
+        Thu, 27 Oct 2022 16:07:20 -0700 (PDT)
+Received: from localhost ([50.221.140.188])
+        by smtp.gmail.com with ESMTPSA id bf4-20020a170902b90400b00186e8526790sm1675818plb.127.2022.10.27.16.07.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Oct 2022 16:07:18 -0700 (PDT)
+Date:   Thu, 27 Oct 2022 16:07:18 -0700 (PDT)
+X-Google-Original-Date: Thu, 27 Oct 2022 15:22:27 PDT (-0700)
+Subject:     Re: [PATCH v3 0/2] Fix /proc/cpuinfo cpumask warning
+In-Reply-To: <20221014155845.1986223-1-ajones@ventanamicro.com>
+CC:     x86@kernel.org, linux-riscv@lists.infradead.org,
+        linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, yury.norov@gmail.com,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        aou@eecs.berkeley.edu, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+        openrisc@lists.librecores.org, mpe@ellerman.id.au,
+        linuxppc-dev@lists.ozlabs.org, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        linux-s390@vger.kernel.org
+From:   Palmer Dabbelt <palmer@dabbelt.com>
+To:     ajones@ventanamicro.com
+Message-ID: <mhng-b3bcbdea-1572-44ba-9d9a-e35e55b8880f@palmer-ri-x1c9a>
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Oct 27, 2022 at 11:42 PM Anshuman Khandual
-<anshuman.khandual@arm.com> wrote:
+On Fri, 14 Oct 2022 08:58:43 PDT (-0700), ajones@ventanamicro.com wrote:
+> Commit 78e5a3399421 ("cpumask: fix checking valid cpu range") has
+> started issuing warnings[*] when cpu indices equal to nr_cpu_ids - 1
+> are passed to cpumask_next* functions. seq_read_iter() and cpuinfo's
+> start and next seq operations implement a pattern like
 >
+>   n = cpumask_next(n - 1, mask);
+>   show(n);
+>   while (1) {
+>       ++n;
+>       n = cpumask_next(n - 1, mask);
+>       if (n >= nr_cpu_ids)
+>           break;
+>       show(n);
+>   }
 >
+> which will issue the warning when reading /proc/cpuinfo.
 >
-> On 9/28/22 05:53, Barry Song wrote:
-> > On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
-> >>
-> >> On 2022/9/27 14:16, Anshuman Khandual wrote:
-> >>> [...]
-> >>>
-> >>> On 9/21/22 14:13, Yicong Yang wrote:
-> >>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> >>>> +{
-> >>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
-> >>>> +    if (num_online_cpus() <= 4)
-> >>>
-> >>> It would be great to have some more inputs from others, whether 4 (which should
-> >>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
-> >>> is optimal for an wide range of arm64 platforms.
-> >>>
-> >
-> > I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
-> > with 5,6,7
-> > cores.
-> > I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
-> > this patch.
-> >
-> > so it seems safe to have
-> > if (num_online_cpus()  < 8)
-> >
-> >>
-> >> Do you prefer this macro to be static or make it configurable through kconfig then
-> >> different platforms can make choice based on their own situations? It maybe hard to
-> >> test on all the arm64 platforms.
-> >
-> > Maybe we can have this default enabled on machines with 8 and more cpus and
-> > provide a tlbflush_batched = on or off to allow users enable or
-> > disable it according
-> > to their hardware and products. Similar example: rodata=on or off.
+> [*] Warnings will only appear with DEBUG_PER_CPU_MAPS enabled.
 >
-> No, sounds bit excessive. Kernel command line options should not be added
-> for every possible run time switch options.
+> This series address the issue for x86 and riscv, but from a quick
+> grep of cpuinfo seq operations, I think at least openrisc, powerpc,
+> and s390 also need an equivalent patch. While the test is simple (see
+> next paragraph) I'm not equipped to test on each architecture.
 >
-> >
-> > Hi Anshuman, Will,  Catalin, Andrew,
-> > what do you think about this approach?
-> >
-> > BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
-> > https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
-> >
-> > I do believe we need it based on the expensive cost of tlb shootdown in arm64
-> > even by hardware broadcast.
+> To test, just build a kernel with DEBUG_PER_CPU_MAPS enabled, boot to
+> a shell, do 'cat /proc/cpuinfo', and look for a kernel warning.
 >
-> Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
-> with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
+> While the patches are being posted together in a series since they're
+> for two different architectures they don't necessarily need to go
+> through the same tree.
+>
+> v3:
+>   - Change condition from >= to == in order to still get a warning
+>     for > as that's unexpected. [Yury]
+>   - Picked up tags on the riscv patch
+>
+> v2:
+>   - Added all the information I should have in the first place
+>     to the commit message [Boris]
+>   - Changed style of fix [Boris]
+>
+> Andrew Jones (2):
+>   RISC-V: Fix /proc/cpuinfo cpumask warning
 
-Sounds good to me. It is a good start to bring up tlb batched flush in
-ARM64. Later on, we
-might want to see it in both memory reclamation and migration.
+I just took the RISC-V fix, might be worth re-sending the x86 one alone 
+as nobody's replied over there so it may be lost.
 
-Thanks
-Barry
+Thanks!
+
+>   x86: Fix /proc/cpuinfo cpumask warning
+>
+>  arch/riscv/kernel/cpu.c    | 3 +++
+>  arch/x86/kernel/cpu/proc.c | 3 +++
+>  2 files changed, 6 insertions(+)
