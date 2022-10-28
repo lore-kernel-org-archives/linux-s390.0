@@ -2,373 +2,193 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68933ECAAA1
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 08:14:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4080ECAAA1
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 09:29:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230026AbiJ1IOQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Oct 2022 04:14:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52418 "EHLO
+        id S229528AbiJ1J3f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Oct 2022 05:29:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229955AbiJ1IOE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 04:14:04 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8851C2F2E;
-        Fri, 28 Oct 2022 01:14:02 -0700 (PDT)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MzFYy41BzzVjMm;
-        Fri, 28 Oct 2022 16:09:10 +0800 (CST)
-Received: from localhost.localdomain (10.67.164.66) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Fri, 28 Oct 2022 16:14:00 +0800
-From:   Yicong Yang <yangyicong@huawei.com>
-To:     <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
-        <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
-        <catalin.marinas@arm.com>, <will@kernel.org>,
-        <anshuman.khandual@arm.com>, <linux-doc@vger.kernel.org>
-CC:     <corbet@lwn.net>, <peterz@infradead.org>, <arnd@arndb.de>,
-        <punit.agrawal@bytedance.com>, <linux-kernel@vger.kernel.org>,
-        <darren@os.amperecomputing.com>, <yangyicong@hisilicon.com>,
-        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
-        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
-        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
-        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
-        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
-        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
-        <prime.zeng@hisilicon.com>, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-Subject: [PATCH v5 2/2] arm64: support batched/deferred tlb shootdown during page reclamation
-Date:   Fri, 28 Oct 2022 16:12:55 +0800
-Message-ID: <20221028081255.19157-3-yangyicong@huawei.com>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20221028081255.19157-1-yangyicong@huawei.com>
-References: <20221028081255.19157-1-yangyicong@huawei.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.164.66]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
+        with ESMTP id S229956AbiJ1J3b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 05:29:31 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7BE319DD95;
+        Fri, 28 Oct 2022 02:29:19 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29S9D9dM004186;
+        Fri, 28 Oct 2022 09:29:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=uLFhNBsoYwHR3Eq8nBH5VOZ2zu8ZTme63QKaYCM+QLY=;
+ b=liY+pHKioyatRCYaB1bxSdbP2syCd81k/L/dGl2aYSjz4vWsW7xHclgjSum/Cx9naeVT
+ LGR0GCAK/9Ia/bYjWkGGuzL7siylXX8y8PRm2SgCIAWwe23qTB5yT/gVS1HdKF6gRJNP
+ CCN8l7d0qrm0l4WRGOKDDTXyWkHc5ALUJm/6I/wRTVfm/tnHrlDEIwlmZGyMBKuALngk
+ p/7bXC2N6/qkbfgJg5ym+cw+byjram8HZN6Jr0nANlsdZ0M60pACJ2XisX3AHDgMyKOo
+ hYlLjcv27qICpwu2llGA9P8d+CH0Gx02jWMgCUmrfe0zC0o1fiUWbIqennt7LWVxXPue Rw== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kgc8p8gkv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Oct 2022 09:29:06 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29S9KYKM023857;
+        Fri, 28 Oct 2022 09:29:04 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma05fra.de.ibm.com with ESMTP id 3kfahd2fb2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Oct 2022 09:29:04 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29S9T1Sp30933362
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 28 Oct 2022 09:29:01 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 663D74C04E;
+        Fri, 28 Oct 2022 09:29:01 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 868C24C046;
+        Fri, 28 Oct 2022 09:29:00 +0000 (GMT)
+Received: from sig-9-145-187-50.de.ibm.com (unknown [9.145.187.50])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 28 Oct 2022 09:29:00 +0000 (GMT)
+Message-ID: <1e10c0605e65f43acf6d2b5e71c7c74d6ff980b5.camel@linux.ibm.com>
+Subject: Re: [PATCH 3/5] iommu/s390: Use RCU to allow concurrent domain_list
+ iteration
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org
+Date:   Fri, 28 Oct 2022 11:29:00 +0200
+In-Reply-To: <Y1qPvg+g6EEaayF6@nvidia.com>
+References: <Y1ErcEe82yjJI+ET@nvidia.com>
+         <68d91d7a5aadbd46dc34470eccd6b86a84c9e47b.camel@linux.ibm.com>
+         <Y1KgX8EwH8T+FgWC@nvidia.com>
+         <89a748fb5caee8be5d91806aa5dfd131e92d5d82.camel@linux.ibm.com>
+         <Y1K1AqVWEyY0/Uqy@nvidia.com>
+         <cef734b9f9b33380c1bbff40b56bb67b3de29341.camel@linux.ibm.com>
+         <Y1a8qM4c2ZAM9glJ@nvidia.com>
+         <3c2249fc7abf481b15d4988c2bd6456c48154c44.camel@linux.ibm.com>
+         <Y1p/7YS338ghykGz@nvidia.com>
+         <c98fa11d4efa86ca676a9d164893db8af8ab3693.camel@linux.ibm.com>
+         <Y1qPvg+g6EEaayF6@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: c5DXM0sJle-tqorYLEZmLXgC8wtcrONS
+X-Proofpoint-ORIG-GUID: c5DXM0sJle-tqorYLEZmLXgC8wtcrONS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-28_04,2022-10-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ phishscore=0 spamscore=0 priorityscore=1501 impostorscore=0
+ mlxlogscore=999 lowpriorityscore=0 adultscore=0 clxscore=1015 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2210280057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Barry Song <v-songbaohua@oppo.com>
+On Thu, 2022-10-27 at 11:03 -0300, Jason Gunthorpe wrote:
+> On Thu, Oct 27, 2022 at 03:35:57PM +0200, Niklas Schnelle wrote:
+> > On Thu, 2022-10-27 at 09:56 -0300, Jason Gunthorpe wrote:
+> > > On Thu, Oct 27, 2022 at 02:44:49PM +0200, Niklas Schnelle wrote:
+> > > > On Mon, 2022-10-24 at 13:26 -0300, Jason Gunthorpe wrote:
+> > > > > On Mon, Oct 24, 2022 at 05:22:24PM +0200, Niklas Schnelle wrote:
+> > > > > 
+> > > > > > Thanks for the explanation, still would like to grok this a bit more if
+> > > > > > you don't mind. If I do read things correctly synchronize_rcu() should
+> > > > > > run in the conext of the VFIO ioctl in this case and shouldn't block
+> > > > > > anything else in the kernel, correct? At least that's how I understand
+> > > > > > the synchronize_rcu() comments and the fact that e.g.
+> > > > > > net/vmw_vsock/virtio_transport.c:virtio_vsock_remove() also does a
+> > > > > > synchronize_rcu() and can be triggered from user-space too.
+> > > > > 
+> > > > > Yes, but I wouldn't look in the kernel to understand if things are OK
+> > > > >  
+> > > > > > So we're
+> > > > > > more worried about user-space getting slowed down rather than a Denial-
+> > > > > > of-Service against other kernel tasks.
+> > > > > 
+> > > > > Yes, functionally it is OK, but for something like vfio with vIOMMU
+> > > > > you could be looking at several domains that have to be detached
+> > > > > sequentially and with grace periods > 1s you can reach multiple
+> > > > > seconds to complete something like a close() system call. Generally it
+> > > > > should be weighed carefully
+> > > > > 
+> > > > > Jason
+> > > > 
+> > > > Thanks for the detailed explanation. Then let's not put a
+> > > > synchronize_rcu() in detach, as I said as long as the I/O translation
+> > > > tables are there an IOTLB flush after zpci_unregister_ioat() should
+> > > > result in an ignorable error. That said, I think if we don't have the
+> > > > synchronize_rcu() in detach we need it in s390_domain_free() before
+> > > > freeing the I/O translation tables.
+> > > 
+> > > Yes, it would be appropriate to free those using one of the rcu
+> > > free'rs, (eg kfree_rcu) not synchronize_rcu()
+> > > 
+> > > Jason
+> > 
+> > They are allocated via kmem_cache_alloc() from caches shared by all
+> > IOMMU's so can't use kfree_rcu() directly. Also we're only freeing the
+> > entire I/O translation table of one IOMMU at once after it is not used
+> > anymore. Before that it is only grown. So I think synchronize_rcu() is
+> > the obvious and simple choice since we only need one grace period.
+> 
+> It has the same issue as doing it for the other reason, adding
+> synchronize_rcu() to the domain free path is undesirable.
+> 
+> The best thing is to do as kfree_rcu() does now, basically:
+> 
+> rcu_head = kzalloc(rcu_head, GFP_NOWAIT, GFP_NOWARN)
+> if (!rcu_head)
+>    synchronize_rcu()
+> else
+>    call_rcu(rcu_head)
+> 
+> And then call kmem_cache_free() from the rcu callback
 
-on x86, batched and deferred tlb shootdown has lead to 90%
-performance increase on tlb shootdown. on arm64, HW can do
-tlb shootdown without software IPI. But sync tlbi is still
-quite expensive.
+Hmm, maybe a stupid question but why can't I just put the rcu_head in
+struct s390_domain and then do a call_rcu() on that with a callback
+that does:
 
-Even running a simplest program which requires swapout can
-prove this is true,
- #include <sys/types.h>
- #include <unistd.h>
- #include <sys/mman.h>
- #include <string.h>
+	dma_cleanup_tables(s390_domain->dma_table);
+	kfree(s390_domain);
 
- int main()
- {
- #define SIZE (1 * 1024 * 1024)
-         volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
-                                          MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+I.e. the rest of the current s390_domain_free().
+Then I don't have to worry about failing to allocate the rcu_head and
+it's simple enough. Basically just do the actual freeing of the
+s390_domain via call_rcu().
 
-         memset(p, 0x88, SIZE);
+> 
+> But this is getting very complicated, you might be better to refcount
+> the domain itself and acquire the refcount under RCU. This turns the
+> locking problem into a per-domain-object lock instead of a global lock
+> which is usually good enough and simpler to understand.
+> 
+> Jason
 
-         for (int k = 0; k < 10000; k++) {
-                 /* swap in */
-                 for (int i = 0; i < SIZE; i += 4096) {
-                         (void)p[i];
-                 }
+Sorry I might be a bit slow as I'm new to RCU but I don't understand
+this yet, especially the last part. Before this patch we do have a per-
+domain lock but I'm sure that's not the kind of "per-domain-object
+lock" you're talking about or else we wouldn't need RCU at all. Is this
+maybe a different way of expressing the above idea using the analogy
+with reference counting from whatisRCU.rst? Meaning we treat the fact
+that there may still be RCU readers as "there are still references to
+s390_domain"? 
 
-                 /* swap out */
-                 madvise(p, SIZE, MADV_PAGEOUT);
-         }
- }
-
-Perf result on snapdragon 888 with 8 cores by using zRAM
-as the swap block device.
-
- ~ # perf record taskset -c 4 ./a.out
- [ perf record: Woken up 10 times to write data ]
- [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
- ~ # perf report
- # To display the perf.data header info, please use --header/--header-only options.
- # To display the perf.data header info, please use --header/--header-only options.
- #
- #
- # Total Lost Samples: 0
- #
- # Samples: 60K of event 'cycles'
- # Event count (approx.): 35706225414
- #
- # Overhead  Command  Shared Object      Symbol
- # ........  .......  .................  .............................................................................
- #
-    21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
-     8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
-     6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
-     6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
-     5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
-     3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
-     3.49%  a.out    [kernel.kallsyms]  [k] memset64
-     1.63%  a.out    [kernel.kallsyms]  [k] clear_page
-     1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
-     1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
-     1.23%  a.out    [kernel.kallsyms]  [k] xas_load
-     1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
-
-ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
-swapping in/out a page mapped by only one process. If the
-page is mapped by multiple processes, typically, like more
-than 100 on a phone, the overhead would be much higher as
-we have to run tlb flush 100 times for one single page.
-Plus, tlb flush overhead will increase with the number
-of CPU cores due to the bad scalability of tlb shootdown
-in HW, so those ARM64 servers should expect much higher
-overhead.
-
-Further perf annonate shows 95% cpu time of ptep_clear_flush
-is actually used by the final dsb() to wait for the completion
-of tlb flush. This provides us a very good chance to leverage
-the existing batched tlb in kernel. The minimum modification
-is that we only send async tlbi in the first stage and we send
-dsb while we have to sync in the second stage.
-
-With the above simplest micro benchmark, collapsed time to
-finish the program decreases around 5%.
-
-Typical collapsed time w/o patch:
- ~ # time taskset -c 4 ./a.out
- 0.21user 14.34system 0:14.69elapsed
-w/ patch:
- ~ # time taskset -c 4 ./a.out
- 0.22user 13.45system 0:13.80elapsed
-
-Also, Yicong Yang added the following observation.
-	Tested with benchmark in the commit on Kunpeng920 arm64 server,
-	observed an improvement around 12.5% with command
-	`time ./swap_bench`.
-		w/o		w/
-	real	0m13.460s	0m11.771s
-	user	0m0.248s	0m0.279s
-	sys	0m12.039s	0m11.458s
-
-	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
-	which has been eliminated by this patch:
-
-	[root@localhost yang]# perf record -- ./swap_bench && perf report
-	[...]
-	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
-
-It is tested on 4,8,128 CPU platforms and shows to be beneficial on
-large systems but may not have improvement on small systems like on
-a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
-on CONFIG_EXPERT for this stage and only make this enabled on systems
-with more than 8 CPUs. User can modify this threshold according to
-their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
-
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Nadav Amit <namit@vmware.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Tested-by: Yicong Yang <yangyicong@hisilicon.com>
-Tested-by: Xin Hao <xhao@linux.alibaba.com>
-Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- .../features/vm/TLB/arch-support.txt          |  2 +-
- arch/arm64/Kconfig                            |  6 +++
- arch/arm64/include/asm/tlbbatch.h             | 12 +++++
- arch/arm64/include/asm/tlbflush.h             | 46 ++++++++++++++++++-
- arch/x86/include/asm/tlbflush.h               |  3 +-
- mm/rmap.c                                     | 10 ++--
- 6 files changed, 71 insertions(+), 8 deletions(-)
- create mode 100644 arch/arm64/include/asm/tlbbatch.h
-
-diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
-index 039e4e91ada3..2caf815d7c6c 100644
---- a/Documentation/features/vm/TLB/arch-support.txt
-+++ b/Documentation/features/vm/TLB/arch-support.txt
-@@ -9,7 +9,7 @@
-     |       alpha: | TODO |
-     |         arc: | TODO |
-     |         arm: | TODO |
--    |       arm64: | N/A  |
-+    |       arm64: |  ok  |
-     |        csky: | TODO |
-     |     hexagon: | TODO |
-     |        ia64: | TODO |
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 505c8a1ccbe0..72975e82c7d7 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -93,6 +93,7 @@ config ARM64
- 	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
- 	select ARCH_SUPPORTS_NUMA_BALANCING
- 	select ARCH_SUPPORTS_PAGE_TABLE_CHECK
-+	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH if EXPERT
- 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
- 	select ARCH_WANT_DEFAULT_BPF_JIT
- 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
-@@ -268,6 +269,11 @@ config ARM64_CONT_PMD_SHIFT
- 	default 5 if ARM64_16K_PAGES
- 	default 4
- 
-+config ARM64_NR_CPUS_FOR_BATCHED_TLB
-+	int "Threshold to enable batched TLB flush"
-+	default 8
-+	depends on ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-+
- config ARCH_MMAP_RND_BITS_MIN
- 	default 14 if ARM64_64K_PAGES
- 	default 16 if ARM64_16K_PAGES
-diff --git a/arch/arm64/include/asm/tlbbatch.h b/arch/arm64/include/asm/tlbbatch.h
-new file mode 100644
-index 000000000000..fedb0b87b8db
---- /dev/null
-+++ b/arch/arm64/include/asm/tlbbatch.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ARCH_ARM64_TLBBATCH_H
-+#define _ARCH_ARM64_TLBBATCH_H
-+
-+struct arch_tlbflush_unmap_batch {
-+	/*
-+	 * For arm64, HW can do tlb shootdown, so we don't
-+	 * need to record cpumask for sending IPI
-+	 */
-+};
-+
-+#endif /* _ARCH_ARM64_TLBBATCH_H */
-diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
-index 412a3b9a3c25..b21cdeb57a18 100644
---- a/arch/arm64/include/asm/tlbflush.h
-+++ b/arch/arm64/include/asm/tlbflush.h
-@@ -254,17 +254,23 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
- 	dsb(ish);
- }
- 
--static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-+static inline void __flush_tlb_page_nosync(struct mm_struct *mm,
- 					 unsigned long uaddr)
- {
- 	unsigned long addr;
- 
- 	dsb(ishst);
--	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-+	addr = __TLBI_VADDR(uaddr, ASID(mm));
- 	__tlbi(vale1is, addr);
- 	__tlbi_user(vale1is, addr);
- }
- 
-+static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-+					 unsigned long uaddr)
-+{
-+	return __flush_tlb_page_nosync(vma->vm_mm, uaddr);
-+}
-+
- static inline void flush_tlb_page(struct vm_area_struct *vma,
- 				  unsigned long uaddr)
- {
-@@ -272,6 +278,42 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
- 	dsb(ish);
- }
- 
-+#ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-+
-+static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-+{
-+	/*
-+	 * TLB batched flush is proved to be beneficial for systems with large
-+	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
-+	 * is cheap on small systems which may not need this feature. So use
-+	 * a threshold for enabling this to avoid potential side effects on
-+	 * these platforms.
-+	 */
-+	if (num_online_cpus() <= CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
-+		return false;
-+
-+#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
-+	if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
-+		return false;
-+#endif
-+
-+	return true;
-+}
-+
-+static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
-+					struct mm_struct *mm,
-+					unsigned long uaddr)
-+{
-+	__flush_tlb_page_nosync(mm, uaddr);
-+}
-+
-+static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
-+{
-+	dsb(ish);
-+}
-+
-+#endif /* CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH */
-+
- /*
-  * This is meant to avoid soft lock-ups on large TLB flushing ranges and not
-  * necessarily a performance improvement.
-diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-index 8a497d902c16..5bd78ae55cd4 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -264,7 +264,8 @@ static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
- }
- 
- static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
--					struct mm_struct *mm)
-+					struct mm_struct *mm,
-+					unsigned long uaddr)
- {
- 	inc_mm_tlb_gen(mm);
- 	cpumask_or(&batch->cpumask, &batch->cpumask, mm_cpumask(mm));
-diff --git a/mm/rmap.c b/mm/rmap.c
-index a9ab10bc0144..a1b408ff44e5 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -640,12 +640,13 @@ void try_to_unmap_flush_dirty(void)
- #define TLB_FLUSH_BATCH_PENDING_LARGE			\
- 	(TLB_FLUSH_BATCH_PENDING_MASK / 2)
- 
--static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
-+static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
-+				      unsigned long uaddr)
- {
- 	struct tlbflush_unmap_batch *tlb_ubc = &current->tlb_ubc;
- 	int batch, nbatch;
- 
--	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm);
-+	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm, uaddr);
- 	tlb_ubc->flush_required = true;
- 
- 	/*
-@@ -723,7 +724,8 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
- 	}
- }
- #else
--static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
-+static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
-+				      unsigned long uaddr)
- {
- }
- 
-@@ -1596,7 +1598,7 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
- 				 */
- 				pteval = ptep_get_and_clear(mm, address, pvmw.pte);
- 
--				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
-+				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval), address);
- 			} else {
- 				pteval = ptep_clear_flush(vma, address, pvmw.pte);
- 			}
--- 
-2.24.0
+Or do you mean to use a kref that is taken by RCU readers together with
+rcu_read_lock() and dropped at rcu_read_unlock() such that during the
+RCU read critical sections the refcount can't fall below 1 and the
+domain is actually freed once we have a) put the initial reference
+during s390_domain_free() and b) put all temporary references on
+exiting the RCU read critical sections?
 
