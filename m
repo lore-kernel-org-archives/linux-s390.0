@@ -2,127 +2,157 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9903ECAAA1
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 02:15:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74B20FA3742
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 05:29:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235947AbiJ1CPF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Oct 2022 22:15:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43212 "EHLO
+        id S229711AbiJ1F3j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Oct 2022 01:29:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235948AbiJ1COx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Oct 2022 22:14:53 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4D2A11D67F;
-        Thu, 27 Oct 2022 19:14:42 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2BAF523A;
-        Thu, 27 Oct 2022 19:14:48 -0700 (PDT)
-Received: from [192.168.0.146] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AD67A3F445;
-        Thu, 27 Oct 2022 19:14:32 -0700 (PDT)
-Message-ID: <8a3ade4c-1714-5ffd-ed57-02ab0509725b@arm.com>
-Date:   Fri, 28 Oct 2022 07:44:29 +0530
+        with ESMTP id S229379AbiJ1F3h (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 01:29:37 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D69AEDA3;
+        Thu, 27 Oct 2022 22:29:29 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VTF-aiQ_1666934966;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VTF-aiQ_1666934966)
+          by smtp.aliyun-inc.com;
+          Fri, 28 Oct 2022 13:29:27 +0800
+Date:   Fri, 28 Oct 2022 13:29:25 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Jan Karcher <jaka@linux.ibm.com>
+Cc:     "D. Wythe" <alibuda@linux.alibaba.com>, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net-next v3 00/10] optimize the parallelism of SMC-R
+ connections
+Message-ID: <Y1totRGH3t9u3QlQ@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <1666248232-63751-1-git-send-email-alibuda@linux.alibaba.com>
+ <62001adc-129a-d477-c916-7a4cf2000553@linux.alibaba.com>
+ <79e3bccb-55c2-3b92-b14a-7378ef02dd78@linux.ibm.com>
+ <4127d84d-e3b4-ca44-2531-8aed12fdee3f@linux.alibaba.com>
+ <f8ea7943-4267-8b8d-f8b4-831fea7f3963@linux.ibm.com>
+ <Y1d+jDQiyn4LSKlu@TonyMac-Alibaba>
+ <35d14144-28f7-6129-d6d3-ba16dae7a646@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Content-Language: en-US
-To:     Barry Song <21cnbao@gmail.com>,
-        Punit Agrawal <punit.agrawal@bytedance.com>
-Cc:     Yicong Yang <yangyicong@huawei.com>, yangyicong@hisilicon.com,
-        corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
-        linux-kernel@vger.kernel.org, darren@os.amperecomputing.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-mm@kvack.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
-        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>,
-        catalin.marinas@arm.com, will@kernel.org, linux-doc@vger.kernel.org
-References: <20220921084302.43631-1-yangyicong@huawei.com>
- <20220921084302.43631-3-yangyicong@huawei.com>
- <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
- <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
- <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
- <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com> <87o7tx5oyx.fsf@stealth>
- <CAGsJ_4zrGfPYAXGW0g3Z-GF4vT7GD0xDjZn1dv-qruztEQTghg@mail.gmail.com>
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <CAGsJ_4zrGfPYAXGW0g3Z-GF4vT7GD0xDjZn1dv-qruztEQTghg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <35d14144-28f7-6129-d6d3-ba16dae7a646@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Oct 26, 2022 at 03:12:48PM +0200, Jan Karcher wrote:
+> 
+> 
+> On 25/10/2022 08:13, Tony Lu wrote:
+> > On Mon, Oct 24, 2022 at 03:10:54PM +0200, Jan Karcher wrote:
+> > > Hi D. Wythe,
+> > > 
+> > > I reply with the feedback on your fix to your v4 fix.
+> > > 
+> > > Regarding your questions:
+> > > We are aware of this situation and we are currently evaluating how we want
+> > > to deal with SMC-D in the future because as of right now i can understand
+> > > your frustration regarding the SMC-D testing.
+> > > Please give me some time to hit up the right people and collect some
+> > > information to answer your question. I'll let you know as soon as i have an
+> > > answer.
+> 
+> Hi Tony (and D.),
+> > 
+> > Hi Jan,
+> > 
+> > We sent a RFC [1] to mock SMC-D device for inter-VM communication. The
+> > original purpose is not to test, but for now it could be useful for the
+> > people who are going to test without physical devices in the community.
+> 
+> I'm aware of the RFC and various people in IBM looked over it.
+> 
+> As stated in the last mail we are aware that the entanglement between SMC-D
+> and ISM is causing problems for the community.
+> To give you a little insight:
+> 
+> In order to improve the code quality and usability for the broader community
+> we are working on placing an API between SMC-D and the ISM device. If this
+> API is complete it will be easier to use different "devices" for SMC-D. One
+> could be your device driver for inter-VM communication (ivshmem).
+> Another one could be a "Dummy-Device" which just implements the required
+> interface which acts as a loopback device. This would work only in a single
+> Linux instance, thus would be the perfect device to test SMC-D logic for the
+> broad community.
+
+That sounds great :-) It will provide many possibilities.
+
+> We would hope that these changes remove the hardware restrictions and that
+> the community picks up the idea and implements devices and improves SMC
+> (including SMC-D and SMC-R) even more in the future!
+> 
+> As i said - and also teased by Alexandra in a respond to your RFC - this API
+> feature is currently being developed and in our internal reviews. This would
+> make your idea with the inter-VM communication a lot easier and would
+> provide a clean base to build upon in the future.
+
+Great +1.
+
+> 
+> > 
+> > This driver basically works but I would improve it for testing. Before
+> > that, what do you think about it?
+> 
+> I think it is a great idea and we should definetly give it a shot! I'm also
+> putting a lot in code quality and future maintainability. The API is a key
+> feature there improving the usability for the community and our work as
+> maintainers. So - for the sake of the future of the SMC code base - I'd like
+> to wait with putting your changes upstream for the API and use your idea to
+> see if fits our (and your) requirements.
+
+Sure. We are very much looking forward to the new API :-) Maybe we can
+discuss this API in the mail list, and I'd like to adapt it first.
+
+> 
+> > 
+> > And where to put this driver? In kernel with SMC code or merge into
+> > separate SMC test cases. I haven't made up my mind yet.
+> 
+> We are not sure either currently, and have to think about that for a bit. I
+> think your driver could be a classic driver, since it is usable for a real
+> world problem (communication between two VMs on the same host). If we look
+> at the "Dummy-Device" above we see that it does not provide any value beside
+> testing. Feel free to share your ideas on that topic.
+
+I agree with this. SMC would provides a common ability that drivers can
+be introduced as classic driver for every individual device, maybe likes
+ethernet cards with their drivers.
+
+And for dummy devices, I have an idea that provides the same
+shared-memory ability for same host, just like loopback devices for
+TCP/IP. SMC-D with loopback devices also shows better performance compared
+with other protocols.
+
+Maybe SMC can cover all the scenes including inter-host (SMC-R),
+inter-VM (SMC-D) and inter-local-process (SMC-D) communication with the
+fastest path, and make things easier for user-space. I'd like to share
+this RFC later when it's ready.
+
+> 
+> > 
+> > [1] https://lore.kernel.org/netdev/20220720170048.20806-1-tonylu@linux.alibaba.com/
+> > 
+> > Cheers,
+> > Tony Lu
+> 
+> A friendly disclaimer: Even tho this API feature is pretty far in the
+> development process it can always be that we decide to drop it, if it does
+> not meet our quality expectations. But of course we'll keep you updated.
+> 
+
+No problem. If there has something that we can involve, we'd be pleasure
+to do that.
+
+Cheers,
+Tony Lu
 
 
-On 10/28/22 03:25, Barry Song wrote:
-> On Fri, Oct 28, 2022 at 3:19 AM Punit Agrawal
-> <punit.agrawal@bytedance.com> wrote:
->>
->> [ Apologies for chiming in late in the conversation ]
->>
->> Anshuman Khandual <anshuman.khandual@arm.com> writes:
->>
->>> On 9/28/22 05:53, Barry Song wrote:
->>>> On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
->>>>> On 2022/9/27 14:16, Anshuman Khandual wrote:
->>>>>> [...]
->>>>>>
->>>>>> On 9/21/22 14:13, Yicong Yang wrote:
->>>>>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
->>>>>>> +{
->>>>>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
->>>>>>> +    if (num_online_cpus() <= 4)
->>>>>> It would be great to have some more inputs from others, whether 4 (which should
->>>>>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
->>>>>> is optimal for an wide range of arm64 platforms.
->>>>>>
->>>> I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
->>>> with 5,6,7
->>>> cores.
->>>> I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
->>>> this patch.
->>>>
->>>> so it seems safe to have
->>>> if (num_online_cpus()  < 8)
->>>>
->>>>> Do you prefer this macro to be static or make it configurable through kconfig then
->>>>> different platforms can make choice based on their own situations? It maybe hard to
->>>>> test on all the arm64 platforms.
->>>> Maybe we can have this default enabled on machines with 8 and more cpus and
->>>> provide a tlbflush_batched = on or off to allow users enable or
->>>> disable it according
->>>> to their hardware and products. Similar example: rodata=on or off.
->>> No, sounds bit excessive. Kernel command line options should not be added
->>> for every possible run time switch options.
->>>
->>>> Hi Anshuman, Will,  Catalin, Andrew,
->>>> what do you think about this approach?
->>>>
->>>> BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
->>>> https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
->>>>
->>>> I do believe we need it based on the expensive cost of tlb shootdown in arm64
->>>> even by hardware broadcast.
->>> Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
->>> with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
->> When running the test program in the commit in a VM, I saw benefits from
->> the patches at all sizes from 2, 4, 8, 32 vcpus. On the test machine,
->> ptep_clear_flush() went from ~1% in the unpatched version to not showing
->> up.
->>
->> Yicong mentioned that he didn't see any benefit for <= 4 CPUs but is
->> there any overhead? I am wondering what are the downsides of enabling
->> the config by default.
-> As we are deferring tlb flush, but sometimes while we are modifying the vma
-> which are deferred, we need to do a sync by flush_tlb_batched_pending() in
-> mprotect() , madvise() to make sure they can see the flushed result. if nobody
-> is doing mprotect(), madvise() etc in the deferred period, the overhead is zero.
-
-Right, it is difficult to justify this overhead for smaller systems,
-which for sure would not benefit from this batched TLB framework.
+> - Jan
