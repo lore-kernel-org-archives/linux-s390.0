@@ -2,157 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74B20FA3742
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 05:29:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 331F7ECAAA1
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 07:40:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbiJ1F3j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Oct 2022 01:29:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41140 "EHLO
+        id S230144AbiJ1Hkn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Oct 2022 03:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbiJ1F3h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 01:29:37 -0400
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D69AEDA3;
-        Thu, 27 Oct 2022 22:29:29 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VTF-aiQ_1666934966;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VTF-aiQ_1666934966)
-          by smtp.aliyun-inc.com;
-          Fri, 28 Oct 2022 13:29:27 +0800
-Date:   Fri, 28 Oct 2022 13:29:25 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Jan Karcher <jaka@linux.ibm.com>
-Cc:     "D. Wythe" <alibuda@linux.alibaba.com>, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net-next v3 00/10] optimize the parallelism of SMC-R
- connections
-Message-ID: <Y1totRGH3t9u3QlQ@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <1666248232-63751-1-git-send-email-alibuda@linux.alibaba.com>
- <62001adc-129a-d477-c916-7a4cf2000553@linux.alibaba.com>
- <79e3bccb-55c2-3b92-b14a-7378ef02dd78@linux.ibm.com>
- <4127d84d-e3b4-ca44-2531-8aed12fdee3f@linux.alibaba.com>
- <f8ea7943-4267-8b8d-f8b4-831fea7f3963@linux.ibm.com>
- <Y1d+jDQiyn4LSKlu@TonyMac-Alibaba>
- <35d14144-28f7-6129-d6d3-ba16dae7a646@linux.ibm.com>
+        with ESMTP id S230088AbiJ1Hkm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 03:40:42 -0400
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77B76D877
+        for <linux-s390@vger.kernel.org>; Fri, 28 Oct 2022 00:40:40 -0700 (PDT)
+Received: by mail-wm1-x32a.google.com with SMTP id t4so2491224wmj.5
+        for <linux-s390@vger.kernel.org>; Fri, 28 Oct 2022 00:40:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ventanamicro.com; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=i2N6u0rpi5MSxrtESZE6Q60hmeXl2yrT4Q/yzn9seGQ=;
+        b=AoCvpD2g8hOJXZ2R+h0TvZDHfaokVkjBrIgJhsnS+RetduEnMeG2bCCW5x/1wmwm7y
+         tpBT95DdI7WubCuwdur/JGKGBJMJTmP2C+cDmuRV2EIc6vAsZ3DUgxOdepf3Ri0V5o/g
+         s61UXLKKrJMPwJgSYbyvTnZ2kLiEieceMzgGWlWdWLree/oXrw+5/Cgog666CiUnyi5H
+         iiuCQyE6pPGPEBhy4h9c2slAcvDIj2QVcAFikE7NBHa9TvAFyRkoKz9Xmr0z/0PG8Ue7
+         mIV0FWee9ddQzPpFwF4bakArR7lyrUpkkh9KC8i6sE/VKS8eJ/p/NH5MjHPo/bG55EaI
+         zcvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=i2N6u0rpi5MSxrtESZE6Q60hmeXl2yrT4Q/yzn9seGQ=;
+        b=R7jmXFNfAVZ6CxzXonPInoSrqP5Mbkem1BFFhg/vTZYK65ZRZHp0yZ5zuRrXx5J7+i
+         d6L0S3FR5iLwrHUFBQRgKgUJ+pGrzzhwzMreP9RSF/+lEEilZX08YDfacWquHaHBoRM/
+         9p1L2zi/DxriceHG3a4HoU41WHbmdK7MKWnDK/zEVyiU96/G3QR2r/Mzsqfx+XRXotmY
+         1tOtbKPVqPLXCJipKnc/oQ7fvKgxFA7PJozi6yeCMux1rPaWQ0BwbrRJVN0UvLKBmHRh
+         Sul3elYp/X3XEfRBGXaukKvSa4JuwTFT785qOATQlVMmkB6Hdjik+JmPJCtUj/qrApV+
+         CgBA==
+X-Gm-Message-State: ACrzQf3Z+2SlJqfBwV4Yw/LEsUPYQbpjUuCfcOvNQH0eNSsoMFbn6thu
+        isETdRR28hiXCxE77tm6VCGivQ==
+X-Google-Smtp-Source: AMsMyM6b9ooO2YT2Bk853NHb7QqLyKbP8a68ufEkfEtecmJkMMeYnDPuL+24oxMQM0KqoQzia6z3ug==
+X-Received: by 2002:a05:600c:3b88:b0:3c6:cef8:8465 with SMTP id n8-20020a05600c3b8800b003c6cef88465mr8354486wms.64.1666942839337;
+        Fri, 28 Oct 2022 00:40:39 -0700 (PDT)
+Received: from localhost (cst2-173-61.cust.vodafone.cz. [31.30.173.61])
+        by smtp.gmail.com with ESMTPSA id j3-20020a05600c1c0300b003b4ff30e566sm12687932wms.3.2022.10.28.00.40.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Oct 2022 00:40:38 -0700 (PDT)
+Date:   Fri, 28 Oct 2022 09:40:37 +0200
+From:   Andrew Jones <ajones@ventanamicro.com>
+To:     Palmer Dabbelt <palmer@dabbelt.com>
+Cc:     x86@kernel.org, linux-riscv@lists.infradead.org,
+        linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, yury.norov@gmail.com,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        aou@eecs.berkeley.edu, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+        openrisc@lists.librecores.org, mpe@ellerman.id.au,
+        linuxppc-dev@lists.ozlabs.org, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 0/2] Fix /proc/cpuinfo cpumask warning
+Message-ID: <20221028074037.ksvtvzajyulm3oy2@kamzik>
+References: <20221014155845.1986223-1-ajones@ventanamicro.com>
+ <mhng-b3bcbdea-1572-44ba-9d9a-e35e55b8880f@palmer-ri-x1c9a>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <35d14144-28f7-6129-d6d3-ba16dae7a646@linux.ibm.com>
+In-Reply-To: <mhng-b3bcbdea-1572-44ba-9d9a-e35e55b8880f@palmer-ri-x1c9a>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Oct 26, 2022 at 03:12:48PM +0200, Jan Karcher wrote:
-> 
-> 
-> On 25/10/2022 08:13, Tony Lu wrote:
-> > On Mon, Oct 24, 2022 at 03:10:54PM +0200, Jan Karcher wrote:
-> > > Hi D. Wythe,
-> > > 
-> > > I reply with the feedback on your fix to your v4 fix.
-> > > 
-> > > Regarding your questions:
-> > > We are aware of this situation and we are currently evaluating how we want
-> > > to deal with SMC-D in the future because as of right now i can understand
-> > > your frustration regarding the SMC-D testing.
-> > > Please give me some time to hit up the right people and collect some
-> > > information to answer your question. I'll let you know as soon as i have an
-> > > answer.
-> 
-> Hi Tony (and D.),
+On Thu, Oct 27, 2022 at 04:07:18PM -0700, Palmer Dabbelt wrote:
+> On Fri, 14 Oct 2022 08:58:43 PDT (-0700), ajones@ventanamicro.com wrote:
+> > Commit 78e5a3399421 ("cpumask: fix checking valid cpu range") has
+> > started issuing warnings[*] when cpu indices equal to nr_cpu_ids - 1
+> > are passed to cpumask_next* functions. seq_read_iter() and cpuinfo's
+> > start and next seq operations implement a pattern like
 > > 
-> > Hi Jan,
+> >   n = cpumask_next(n - 1, mask);
+> >   show(n);
+> >   while (1) {
+> >       ++n;
+> >       n = cpumask_next(n - 1, mask);
+> >       if (n >= nr_cpu_ids)
+> >           break;
+> >       show(n);
+> >   }
 > > 
-> > We sent a RFC [1] to mock SMC-D device for inter-VM communication. The
-> > original purpose is not to test, but for now it could be useful for the
-> > people who are going to test without physical devices in the community.
-> 
-> I'm aware of the RFC and various people in IBM looked over it.
-> 
-> As stated in the last mail we are aware that the entanglement between SMC-D
-> and ISM is causing problems for the community.
-> To give you a little insight:
-> 
-> In order to improve the code quality and usability for the broader community
-> we are working on placing an API between SMC-D and the ISM device. If this
-> API is complete it will be easier to use different "devices" for SMC-D. One
-> could be your device driver for inter-VM communication (ivshmem).
-> Another one could be a "Dummy-Device" which just implements the required
-> interface which acts as a loopback device. This would work only in a single
-> Linux instance, thus would be the perfect device to test SMC-D logic for the
-> broad community.
-
-That sounds great :-) It will provide many possibilities.
-
-> We would hope that these changes remove the hardware restrictions and that
-> the community picks up the idea and implements devices and improves SMC
-> (including SMC-D and SMC-R) even more in the future!
-> 
-> As i said - and also teased by Alexandra in a respond to your RFC - this API
-> feature is currently being developed and in our internal reviews. This would
-> make your idea with the inter-VM communication a lot easier and would
-> provide a clean base to build upon in the future.
-
-Great +1.
-
-> 
+> > which will issue the warning when reading /proc/cpuinfo.
 > > 
-> > This driver basically works but I would improve it for testing. Before
-> > that, what do you think about it?
-> 
-> I think it is a great idea and we should definetly give it a shot! I'm also
-> putting a lot in code quality and future maintainability. The API is a key
-> feature there improving the usability for the community and our work as
-> maintainers. So - for the sake of the future of the SMC code base - I'd like
-> to wait with putting your changes upstream for the API and use your idea to
-> see if fits our (and your) requirements.
-
-Sure. We are very much looking forward to the new API :-) Maybe we can
-discuss this API in the mail list, and I'd like to adapt it first.
-
-> 
+> > [*] Warnings will only appear with DEBUG_PER_CPU_MAPS enabled.
 > > 
-> > And where to put this driver? In kernel with SMC code or merge into
-> > separate SMC test cases. I haven't made up my mind yet.
-> 
-> We are not sure either currently, and have to think about that for a bit. I
-> think your driver could be a classic driver, since it is usable for a real
-> world problem (communication between two VMs on the same host). If we look
-> at the "Dummy-Device" above we see that it does not provide any value beside
-> testing. Feel free to share your ideas on that topic.
-
-I agree with this. SMC would provides a common ability that drivers can
-be introduced as classic driver for every individual device, maybe likes
-ethernet cards with their drivers.
-
-And for dummy devices, I have an idea that provides the same
-shared-memory ability for same host, just like loopback devices for
-TCP/IP. SMC-D with loopback devices also shows better performance compared
-with other protocols.
-
-Maybe SMC can cover all the scenes including inter-host (SMC-R),
-inter-VM (SMC-D) and inter-local-process (SMC-D) communication with the
-fastest path, and make things easier for user-space. I'd like to share
-this RFC later when it's ready.
-
-> 
+> > This series address the issue for x86 and riscv, but from a quick
+> > grep of cpuinfo seq operations, I think at least openrisc, powerpc,
+> > and s390 also need an equivalent patch. While the test is simple (see
+> > next paragraph) I'm not equipped to test on each architecture.
 > > 
-> > [1] https://lore.kernel.org/netdev/20220720170048.20806-1-tonylu@linux.alibaba.com/
+> > To test, just build a kernel with DEBUG_PER_CPU_MAPS enabled, boot to
+> > a shell, do 'cat /proc/cpuinfo', and look for a kernel warning.
 > > 
-> > Cheers,
-> > Tony Lu
+> > While the patches are being posted together in a series since they're
+> > for two different architectures they don't necessarily need to go
+> > through the same tree.
+> > 
+> > v3:
+> >   - Change condition from >= to == in order to still get a warning
+> >     for > as that's unexpected. [Yury]
+> >   - Picked up tags on the riscv patch
+> > 
+> > v2:
+> >   - Added all the information I should have in the first place
+> >     to the commit message [Boris]
+> >   - Changed style of fix [Boris]
+> > 
+> > Andrew Jones (2):
+> >   RISC-V: Fix /proc/cpuinfo cpumask warning
 > 
-> A friendly disclaimer: Even tho this API feature is pretty far in the
-> development process it can always be that we decide to drop it, if it does
-> not meet our quality expectations. But of course we'll keep you updated.
-> 
+> I just took the RISC-V fix, might be worth re-sending the x86 one alone as
+> nobody's replied over there so it may be lost.
 
-No problem. If there has something that we can involve, we'd be pleasure
-to do that.
+Thanks Palmer. I still believe this fix is a good idea, or at least
+not wrong, but as the cpumask change which started the warnings was
+reverted (commit 80493877d7d0 ("Revert "cpumask: fix checking valid
+cpu range".")) it seems the urgency for fixes like this one was
+reduced. I'll ping the x86 patch to see if it's still of interest
+or not.
 
-Cheers,
-Tony Lu
-
-
-> - Jan
+Thanks,
+drew
