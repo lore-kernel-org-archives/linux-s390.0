@@ -2,129 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03D6AFA373D
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Oct 2022 23:07:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B90B2FA373D
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 00:50:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235028AbiJ0XHW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Oct 2022 19:07:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56828 "EHLO
+        id S233598AbiJ1AuL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Oct 2022 20:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234327AbiJ0XHV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Oct 2022 19:07:21 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F598FD4B
-        for <linux-s390@vger.kernel.org>; Thu, 27 Oct 2022 16:07:21 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id s196so3176687pgs.3
-        for <linux-s390@vger.kernel.org>; Thu, 27 Oct 2022 16:07:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3gyfpmFe14VJ3jdYNVJ0rx3Ah2uaRzNTmMnT4495S4I=;
-        b=ZNNSYZLMCiTx3pCpdTSLaMqTAwcT0XD23hboDkck2m1sj0K18I/wiwFIJBnxkxlMh1
-         TMOX+6v0XNUWVLrMkaS7nFMD6HK3C70ZLK5411vF56AMxZrrEveIWdn7U/wWYAX6hu8f
-         z7X+MhLcDZ2abQ+JkeJnFiHqWkFba2HtnVwkX4LhmKXO9kCXDrbkBH+MQc0VlITciM7I
-         DQ4GGK7LnrmeObtOo33dthlXeC/HBl0rQRBuyHKeRHXZmYYPUrcsYqTcTlXIWwUSoL9i
-         Op+9awjoXqXajuMDeHaLc5MvW/7/blHnT1v9JwgcyUng9A7q3UoZ9aZNVukbXbfjaCwz
-         UOQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3gyfpmFe14VJ3jdYNVJ0rx3Ah2uaRzNTmMnT4495S4I=;
-        b=BmZ5qIVsNeaKovaK4Vg/BOPWU0LkWF5vfY//aoiq7I3qkwZxKXhEvqATdPxbDqUg4W
-         FJo2myFHcjd3q5i0m8JuPm1eVq2Y+bx/JRJ7xWjD+RZpiEGliF7thDVk/PimEnbBzUOb
-         yAB8VVMYQnZgcMCjAeUSq0DD8TZJAyF08SZZ65/mDBOyWBx3BJRdl0WDurpWsaRcsMsE
-         tsdpuU+K4Uchzdo+KUA6dGKwuTINQzNLyFFKb1/F+/ykiBVcphnO6GWzZVVQ2dbFHEBf
-         sXzQa871Cqrg709i4FQFK5OfeKB3FEePkQN5kcl6P0BIkh7uWAPE6qljTl2CS5calqd2
-         2XvA==
-X-Gm-Message-State: ACrzQf2YWAFxt/wGqBVbSeiwDI2a85OMDgkZo2W+2ueydkS1pKtv2S71
-        wdtaTAcfaK82QugPlwlxzNFN1Q==
-X-Google-Smtp-Source: AMsMyM48cCCOaGHpcUrqKPuvLPqi8N0s0YHUDIkD3gXkNLjihHit7dpsoFkfZbjAvACH4Z61kt9rCg==
-X-Received: by 2002:a65:44c1:0:b0:428:ab8f:62dd with SMTP id g1-20020a6544c1000000b00428ab8f62ddmr44319504pgs.211.1666912040505;
-        Thu, 27 Oct 2022 16:07:20 -0700 (PDT)
-Received: from localhost ([50.221.140.188])
-        by smtp.gmail.com with ESMTPSA id bf4-20020a170902b90400b00186e8526790sm1675818plb.127.2022.10.27.16.07.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Oct 2022 16:07:18 -0700 (PDT)
-Date:   Thu, 27 Oct 2022 16:07:18 -0700 (PDT)
-X-Google-Original-Date: Thu, 27 Oct 2022 15:22:27 PDT (-0700)
-Subject:     Re: [PATCH v3 0/2] Fix /proc/cpuinfo cpumask warning
-In-Reply-To: <20221014155845.1986223-1-ajones@ventanamicro.com>
-CC:     x86@kernel.org, linux-riscv@lists.infradead.org,
-        linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, yury.norov@gmail.com,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        aou@eecs.berkeley.edu, jonas@southpole.se,
-        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
-        openrisc@lists.librecores.org, mpe@ellerman.id.au,
-        linuxppc-dev@lists.ozlabs.org, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        linux-s390@vger.kernel.org
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     ajones@ventanamicro.com
-Message-ID: <mhng-b3bcbdea-1572-44ba-9d9a-e35e55b8880f@palmer-ri-x1c9a>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S232906AbiJ1AuK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Oct 2022 20:50:10 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A723B732;
+        Thu, 27 Oct 2022 17:50:07 -0700 (PDT)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Mz3jh6j9VzVj98;
+        Fri, 28 Oct 2022 08:45:12 +0800 (CST)
+Received: from dggpemm500005.china.huawei.com (7.185.36.74) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Fri, 28 Oct 2022 08:50:02 +0800
+Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
+ (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Fri, 28 Oct
+ 2022 08:50:01 +0800
+Subject: Re: [PATCH V7 net-next 0/6] ethtool: add support to set/get tx
+ copybreak buf size and rx buf len
+To:     Gal Pressman <gal@nvidia.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        <davem@davemloft.net>, <kuba@kernel.org>, <mkubecek@suse.cz>,
+        <andrew@lunn.ch>, <amitc@mellanox.com>, <idosch@idosch.org>,
+        <danieller@nvidia.com>, <jesse.brandeburg@intel.com>,
+        <anthony.l.nguyen@intel.com>, <jdike@addtoit.com>,
+        <richard@nod.at>, <anton.ivanov@cambridgegreys.com>,
+        <netanel@amazon.com>, <akiyano@amazon.com>, <gtzalik@amazon.com>,
+        <saeedb@amazon.com>, <chris.snook@gmail.com>,
+        <ulli.kroll@googlemail.com>, <linus.walleij@linaro.org>,
+        <jeroendb@google.com>, <csully@google.com>,
+        <awogbemila@google.com>, <jdmason@kudzu.us>,
+        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
+        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
+        <jasowang@redhat.com>, <doshir@vmware.com>,
+        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
+        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
+        <johannes@sipsolutions.net>
+CC:     <netdev@vger.kernel.org>, <lipeng321@huawei.com>,
+        <chenhao288@hisilicon.com>, <linux-s390@vger.kernel.org>
+References: <20211118121245.49842-1-huangguangbin2@huawei.com>
+ <40d6352e-8c6b-404f-8b6a-df1816239ab0@nvidia.com>
+ <4466b159-7476-f833-ec22-ee234b70110b@huawei.com>
+ <e56e1c33-3909-50ec-f116-80b6335e3ddf@nvidia.com>
+From:   Yunsheng Lin <linyunsheng@huawei.com>
+Message-ID: <0cf97cc1-1a99-21f6-93ef-e8c2f4c6f03c@huawei.com>
+Date:   Fri, 28 Oct 2022 08:50:00 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.2.0
+MIME-Version: 1.0
+In-Reply-To: <e56e1c33-3909-50ec-f116-80b6335e3ddf@nvidia.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.69.30.204]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemm500005.china.huawei.com (7.185.36.74)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 14 Oct 2022 08:58:43 PDT (-0700), ajones@ventanamicro.com wrote:
-> Commit 78e5a3399421 ("cpumask: fix checking valid cpu range") has
-> started issuing warnings[*] when cpu indices equal to nr_cpu_ids - 1
-> are passed to cpumask_next* functions. seq_read_iter() and cpuinfo's
-> start and next seq operations implement a pattern like
->
->   n = cpumask_next(n - 1, mask);
->   show(n);
->   while (1) {
->       ++n;
->       n = cpumask_next(n - 1, mask);
->       if (n >= nr_cpu_ids)
->           break;
->       show(n);
->   }
->
-> which will issue the warning when reading /proc/cpuinfo.
->
-> [*] Warnings will only appear with DEBUG_PER_CPU_MAPS enabled.
->
-> This series address the issue for x86 and riscv, but from a quick
-> grep of cpuinfo seq operations, I think at least openrisc, powerpc,
-> and s390 also need an equivalent patch. While the test is simple (see
-> next paragraph) I'm not equipped to test on each architecture.
->
-> To test, just build a kernel with DEBUG_PER_CPU_MAPS enabled, boot to
-> a shell, do 'cat /proc/cpuinfo', and look for a kernel warning.
->
-> While the patches are being posted together in a series since they're
-> for two different architectures they don't necessarily need to go
-> through the same tree.
->
-> v3:
->   - Change condition from >= to == in order to still get a warning
->     for > as that's unexpected. [Yury]
->   - Picked up tags on the riscv patch
->
-> v2:
->   - Added all the information I should have in the first place
->     to the commit message [Boris]
->   - Changed style of fix [Boris]
->
-> Andrew Jones (2):
->   RISC-V: Fix /proc/cpuinfo cpumask warning
+On 2022/10/27 17:03, Gal Pressman wrote:
+> On 27/10/2022 03:49, Yunsheng Lin wrote:
+>> On 2022/10/26 22:00, Gal Pressman wrote:
+>>> On 18/11/2021 14:12, Guangbin Huang wrote:
+>>>> From: Hao Chen <chenhao288@hisilicon.com>
+>>>>
+>>>> This series add support to set/get tx copybreak buf size and rx buf len via
+>>>> ethtool and hns3 driver implements them.
+>>>>
+>>>> Tx copybreak buf size is used for tx copybreak feature which for small size
+>>>> packet or frag. Use ethtool --get-tunable command to get it, and ethtool
+>>>> --set-tunable command to set it, examples are as follow:
+>>>>
+>>>> 1. set tx spare buf size to 102400:
+>>>> $ ethtool --set-tunable eth1 tx-buf-size 102400
+>>>>
+>>>> 2. get tx spare buf size:
+>>>> $ ethtool --get-tunable eth1 tx-buf-size
+>>>> tx-buf-size: 102400
+>>> Hi Guangbin,
+>>> Can you please clarify the difference between TX copybreak and TX
+>>> copybreak buf size?
+>> Hi Gal,
+>> 'TX copybreak buf size' is the size of buffer allocated to a queue
+>> in order to support copybreak handling when skb->len <= 'TX copybreak',
+>>
+>> see hns3_can_use_tx_bounce() for 'TX copybreak' and
+>> hns3_init_tx_spare_buffer() for 'TX copybreak buf size'.
+> 
+> Thanks Yunsheng!
+> IIUC, there's a single buffer per TX queue, not per TX packet, correct?
 
-I just took the RISC-V fix, might be worth re-sending the x86 one alone 
-as nobody's replied over there so it may be lost.
+Yes.
 
-Thanks!
+> 
+> One way to implement TX copybreak is using an inline WQE, where the WQE
+> itself serves as the bounce buffer, sounds like 'TX copybreak buf size'
+> cannot be used in such case?
 
->   x86: Fix /proc/cpuinfo cpumask warning
->
->  arch/riscv/kernel/cpu.c    | 3 +++
->  arch/x86/kernel/cpu/proc.c | 3 +++
->  2 files changed, 6 insertions(+)
+If TX copybreak is using an inline WQE, I suppose 'TX copybreak buf size'
+is not needed.
+
+> .
+> 
