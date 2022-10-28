@@ -2,114 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B90B2FA373D
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 00:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06DE6ECAAA1
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 01:20:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233598AbiJ1AuL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Oct 2022 20:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41878 "EHLO
+        id S234719AbiJ1BUS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Oct 2022 21:20:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232906AbiJ1AuK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Oct 2022 20:50:10 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A723B732;
-        Thu, 27 Oct 2022 17:50:07 -0700 (PDT)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Mz3jh6j9VzVj98;
-        Fri, 28 Oct 2022 08:45:12 +0800 (CST)
-Received: from dggpemm500005.china.huawei.com (7.185.36.74) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+        with ESMTP id S234664AbiJ1BUR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Oct 2022 21:20:17 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D30227914;
+        Thu, 27 Oct 2022 18:20:10 -0700 (PDT)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4Mz4Qm4hLyzJnNK;
+        Fri, 28 Oct 2022 09:17:20 +0800 (CST)
+Received: from [10.67.102.169] (10.67.102.169) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Fri, 28 Oct 2022 08:50:02 +0800
-Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
- (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Fri, 28 Oct
- 2022 08:50:01 +0800
-Subject: Re: [PATCH V7 net-next 0/6] ethtool: add support to set/get tx
- copybreak buf size and rx buf len
-To:     Gal Pressman <gal@nvidia.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        <davem@davemloft.net>, <kuba@kernel.org>, <mkubecek@suse.cz>,
-        <andrew@lunn.ch>, <amitc@mellanox.com>, <idosch@idosch.org>,
-        <danieller@nvidia.com>, <jesse.brandeburg@intel.com>,
-        <anthony.l.nguyen@intel.com>, <jdike@addtoit.com>,
-        <richard@nod.at>, <anton.ivanov@cambridgegreys.com>,
-        <netanel@amazon.com>, <akiyano@amazon.com>, <gtzalik@amazon.com>,
-        <saeedb@amazon.com>, <chris.snook@gmail.com>,
-        <ulli.kroll@googlemail.com>, <linus.walleij@linaro.org>,
-        <jeroendb@google.com>, <csully@google.com>,
-        <awogbemila@google.com>, <jdmason@kudzu.us>,
-        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
-        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
-        <jasowang@redhat.com>, <doshir@vmware.com>,
-        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
-        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
-        <johannes@sipsolutions.net>
-CC:     <netdev@vger.kernel.org>, <lipeng321@huawei.com>,
-        <chenhao288@hisilicon.com>, <linux-s390@vger.kernel.org>
-References: <20211118121245.49842-1-huangguangbin2@huawei.com>
- <40d6352e-8c6b-404f-8b6a-df1816239ab0@nvidia.com>
- <4466b159-7476-f833-ec22-ee234b70110b@huawei.com>
- <e56e1c33-3909-50ec-f116-80b6335e3ddf@nvidia.com>
-From:   Yunsheng Lin <linyunsheng@huawei.com>
-Message-ID: <0cf97cc1-1a99-21f6-93ef-e8c2f4c6f03c@huawei.com>
-Date:   Fri, 28 Oct 2022 08:50:00 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.2.0
+ 15.1.2375.31; Fri, 28 Oct 2022 09:20:08 +0800
+CC:     <yangyicong@hisilicon.com>, <corbet@lwn.net>,
+        <peterz@infradead.org>, <arnd@arndb.de>,
+        <linux-kernel@vger.kernel.org>, <darren@os.amperecomputing.com>,
+        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
+        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
+        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
+        <linux-mm@kvack.org>, <x86@kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linuxppc-dev@lists.ozlabs.org>, <akpm@linux-foundation.org>,
+        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
+        <prime.zeng@hisilicon.com>, Barry Song <v-songbaohua@oppo.com>,
+        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>,
+        <catalin.marinas@arm.com>, <will@kernel.org>,
+        <linux-doc@vger.kernel.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+To:     Punit Agrawal <punit.agrawal@bytedance.com>,
+        Barry Song <21cnbao@gmail.com>
+References: <20220921084302.43631-1-yangyicong@huawei.com>
+ <20220921084302.43631-3-yangyicong@huawei.com>
+ <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
+ <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
+ <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
+ <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com> <87o7tx5oyx.fsf@stealth>
+From:   Yicong Yang <yangyicong@huawei.com>
+Message-ID: <bc44cf85-aee9-03ca-9911-dbd904a43cc8@huawei.com>
+Date:   Fri, 28 Oct 2022 09:20:08 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.1
 MIME-Version: 1.0
-In-Reply-To: <e56e1c33-3909-50ec-f116-80b6335e3ddf@nvidia.com>
+In-Reply-To: <87o7tx5oyx.fsf@stealth>
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.69.30.204]
+X-Originating-IP: [10.67.102.169]
 X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemm500005.china.huawei.com (7.185.36.74)
+ canpemm500009.china.huawei.com (7.192.105.203)
 X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/10/27 17:03, Gal Pressman wrote:
-> On 27/10/2022 03:49, Yunsheng Lin wrote:
->> On 2022/10/26 22:00, Gal Pressman wrote:
->>> On 18/11/2021 14:12, Guangbin Huang wrote:
->>>> From: Hao Chen <chenhao288@hisilicon.com>
+On 2022/10/27 22:19, Punit Agrawal wrote:
+> 
+> [ Apologies for chiming in late in the conversation ]
+> 
+> Anshuman Khandual <anshuman.khandual@arm.com> writes:
+> 
+>> On 9/28/22 05:53, Barry Song wrote:
+>>> On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
 >>>>
->>>> This series add support to set/get tx copybreak buf size and rx buf len via
->>>> ethtool and hns3 driver implements them.
+>>>> On 2022/9/27 14:16, Anshuman Khandual wrote:
+>>>>> [...]
+>>>>>
+>>>>> On 9/21/22 14:13, Yicong Yang wrote:
+>>>>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+>>>>>> +{
+>>>>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
+>>>>>> +    if (num_online_cpus() <= 4)
+>>>>>
+>>>>> It would be great to have some more inputs from others, whether 4 (which should
+>>>>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
+>>>>> is optimal for an wide range of arm64 platforms.
+>>>>>
+>>>
+>>> I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
+>>> with 5,6,7
+>>> cores.
+>>> I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
+>>> this patch.
+>>>
+>>> so it seems safe to have
+>>> if (num_online_cpus()  < 8)
+>>>
 >>>>
->>>> Tx copybreak buf size is used for tx copybreak feature which for small size
->>>> packet or frag. Use ethtool --get-tunable command to get it, and ethtool
->>>> --set-tunable command to set it, examples are as follow:
->>>>
->>>> 1. set tx spare buf size to 102400:
->>>> $ ethtool --set-tunable eth1 tx-buf-size 102400
->>>>
->>>> 2. get tx spare buf size:
->>>> $ ethtool --get-tunable eth1 tx-buf-size
->>>> tx-buf-size: 102400
->>> Hi Guangbin,
->>> Can you please clarify the difference between TX copybreak and TX
->>> copybreak buf size?
->> Hi Gal,
->> 'TX copybreak buf size' is the size of buffer allocated to a queue
->> in order to support copybreak handling when skb->len <= 'TX copybreak',
+>>>> Do you prefer this macro to be static or make it configurable through kconfig then
+>>>> different platforms can make choice based on their own situations? It maybe hard to
+>>>> test on all the arm64 platforms.
+>>>
+>>> Maybe we can have this default enabled on machines with 8 and more cpus and
+>>> provide a tlbflush_batched = on or off to allow users enable or
+>>> disable it according
+>>> to their hardware and products. Similar example: rodata=on or off.
 >>
->> see hns3_can_use_tx_bounce() for 'TX copybreak' and
->> hns3_init_tx_spare_buffer() for 'TX copybreak buf size'.
+>> No, sounds bit excessive. Kernel command line options should not be added
+>> for every possible run time switch options.
+>>
+>>>
+>>> Hi Anshuman, Will,  Catalin, Andrew,
+>>> what do you think about this approach?
+>>>
+>>> BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
+>>> https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+>>>
+>>> I do believe we need it based on the expensive cost of tlb shootdown in arm64
+>>> even by hardware broadcast.
+>>
+>> Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
+>> with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
 > 
-> Thanks Yunsheng!
-> IIUC, there's a single buffer per TX queue, not per TX packet, correct?
-
-Yes.
-
+> When running the test program in the commit in a VM, I saw benefits from
+> the patches at all sizes from 2, 4, 8, 32 vcpus. On the test machine,
+> ptep_clear_flush() went from ~1% in the unpatched version to not showing
+> up.
 > 
-> One way to implement TX copybreak is using an inline WQE, where the WQE
-> itself serves as the bounce buffer, sounds like 'TX copybreak buf size'
-> cannot be used in such case?
 
-If TX copybreak is using an inline WQE, I suppose 'TX copybreak buf size'
-is not needed.
+Maybe you're booting VM on a server with more than 32 cores and Barry tested
+on his 4 CPUs embedded platform. I guess a 4 CPU VM is not fully equivalent to
+a 4 CPU real machine as the tbli and dsb in the VM may influence the host
+as well.
 
+> Yicong mentioned that he didn't see any benefit for <= 4 CPUs but is
+> there any overhead? I am wondering what are the downsides of enabling
+> the config by default.
+> 
+> Thanks,
+> Punit
 > .
 > 
