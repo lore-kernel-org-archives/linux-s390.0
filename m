@@ -2,137 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85D54ECAAA1
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 20:34:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9037FECAAA1
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 21:40:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229765AbiJ1Ueu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Oct 2022 16:34:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44572 "EHLO
+        id S229923AbiJ1Vk2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Oct 2022 17:40:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbiJ1Uet (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 16:34:49 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BA513DF15;
-        Fri, 28 Oct 2022 13:34:47 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29SKC8kO027050;
-        Fri, 28 Oct 2022 20:34:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=Z+c+2NzgQgy/iG0fUQt4UIBsAYyJLMFFQMFA1firyPg=;
- b=nF5VeWACRlgluR0P75ZSnTSB7kId4xGyNG8HFVh0SBR39x241JlI6jbGum186PhaZJOd
- TZcmyIP5AU977jSrfA8H4AQirV8dWSPjUdSxjwU9TJ9SV1St3FPKncwg4o3qKWUYjY93
- 3zv/8yXLb0+HGgKJkqefwzScyQC0t+pAUZEfXAOxmwMyL52CbtZ3AOSbBNibfmvilZq+
- AWq/MQgL29Y1F/JtJvXfooNeAzyc6UUIPSc4ilZ7/Zm8tHQqSOtP4jboRMQekOT2gDj9
- 2bgB4CgLyn/SlboLpkG2+RRAApn9VvZ5TCivamLsvwn05mkwTdBeGyxtU5bRLqPM0bm1 DA== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kgnwerkbe-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Oct 2022 20:34:46 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29SKKhlC012769;
-        Fri, 28 Oct 2022 20:34:43 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 3kg0f919au-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Oct 2022 20:34:43 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29SKTKSW47251750
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 28 Oct 2022 20:29:20 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 69243A4051;
-        Fri, 28 Oct 2022 20:34:40 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1261BA4040;
-        Fri, 28 Oct 2022 20:34:40 +0000 (GMT)
-Received: from localhost (unknown [9.171.51.250])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 28 Oct 2022 20:34:39 +0000 (GMT)
-Date:   Fri, 28 Oct 2022 22:34:38 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 updates for 6.1-rc3
-Message-ID: <your-ad-here.call-01666989278-ext-6142@work.hours>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ySwgt7YBtSaBcmJKsWgGeLxxOTE9ySfB
-X-Proofpoint-GUID: ySwgt7YBtSaBcmJKsWgGeLxxOTE9ySfB
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S229636AbiJ1Vk1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 17:40:27 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81F6110D6A8;
+        Fri, 28 Oct 2022 14:40:25 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id l11so8511702edb.4;
+        Fri, 28 Oct 2022 14:40:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=F9RrxUZJauba3tX3ZE6+TwL/IhjYDGu0yvNBASjmvvg=;
+        b=DDqlitA/aZVBQxso46/Iv2q/qaCkZ5lo3I8GWq1a8re4mIEroveoDgzrRxpMlppt9u
+         0KVqnFkXh59kEX6GswJHjBKN6I/iBoKjQUt8v2cQc22yymdzv7rCq4PYKUk0rkmHvySs
+         VB0dqoVUFiWfCZpbLiSIySOUfp7O4BPAXS42ILfvdsUEMDFViM+qOE08A7vEhIPdZGGS
+         fEyj4speB2Yk69V2CD2MN9IE5/dU7lHv7Z7Gvh3tzYP21dZke6ipgNWt7ndcMxeZIsER
+         FcDNzWfC8ydsRNLz0i/dUDDu+ZNKpy+cZuN88qNTy2T0wRzqeDY9F0bCcgcENkhZ7389
+         PyjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=F9RrxUZJauba3tX3ZE6+TwL/IhjYDGu0yvNBASjmvvg=;
+        b=bYeFx9cags0R+j2VSm4hEzLocl2bUccFZnKij401sWiGoHqN5sDGrMTeu2tpcSpnqN
+         EG4YFCBSlvg8xrEF591l1yRjBMJ5Kf+PhuLcxFmE9S3iIRFP3TVb/vm/f4cXPXweXRJP
+         CBi8QiOn+UhjtFOBUe8lFAUL26AAbTsfuDhb+gbA2q7hqBeHT3HlovHfmeXfQzhGSbrw
+         +714agvBYlsWag4V7ThGyGnLazN9gNl9NkFCvQUlC6ImlLo6KW1JHqFnMC0AMLbJsADp
+         3CNBMpDISza7k2YUP6kkIOCQNWPyOy+cqKHQ4nj1cDBSsp0KDm7rNav1BbTqFnyiG88I
+         BS9Q==
+X-Gm-Message-State: ACrzQf04InyKD0ZPQJldYZG3wjh6Huyli8HG17cm1O+x75oiTQcy/o3o
+        J1RckB6vH7aZY/Fs0EFrYd1B/yvCDrVMhqa07/gs4nSoLRvK4ScV
+X-Google-Smtp-Source: AMsMyM6UDRzIvlNjYKY0c4hyt+nkhmalBHjieXw4tVuo5TgPqmtCi4sFsVHsHu+LH6Z1/MXVj9DUPehnJMCJxo9Pco4=
+X-Received: by 2002:aa7:d744:0:b0:45c:e353:e891 with SMTP id
+ a4-20020aa7d744000000b0045ce353e891mr1485536eds.36.1666993223904; Fri, 28 Oct
+ 2022 14:40:23 -0700 (PDT)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-28_10,2022-10-27_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- priorityscore=1501 impostorscore=0 malwarescore=0 lowpriorityscore=0
- mlxlogscore=825 mlxscore=0 bulkscore=0 spamscore=0 clxscore=1015
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2210280129
+References: <20220921084302.43631-1-yangyicong@huawei.com> <20220921084302.43631-3-yangyicong@huawei.com>
+ <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com> <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
+ <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
+ <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com> <87o7tx5oyx.fsf@stealth>
+ <bc44cf85-aee9-03ca-9911-dbd904a43cc8@huawei.com> <87bkpw5bzm.fsf@stealth>
+In-Reply-To: <87bkpw5bzm.fsf@stealth>
+From:   Barry Song <21cnbao@gmail.com>
+Date:   Sat, 29 Oct 2022 10:40:11 +1300
+Message-ID: <CAGsJ_4xj2fKLOEHYC46P8ZhUPX8rw=yTNv3Zs=CPxLON6Xxvqw@mail.gmail.com>
+Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+To:     Punit Agrawal <punit.agrawal@bytedance.com>
+Cc:     Yicong Yang <yangyicong@huawei.com>, yangyicong@hisilicon.com,
+        corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
+        linux-kernel@vger.kernel.org, darren@os.amperecomputing.com,
+        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
+        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-mm@kvack.org, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
+        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
+        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>,
+        catalin.marinas@arm.com, will@kernel.org,
+        linux-doc@vger.kernel.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+On Sat, Oct 29, 2022 at 2:11 AM Punit Agrawal
+<punit.agrawal@bytedance.com> wrote:
+>
+> Yicong Yang <yangyicong@huawei.com> writes:
+>
+> > On 2022/10/27 22:19, Punit Agrawal wrote:
+> >>
+> >> [ Apologies for chiming in late in the conversation ]
+> >>
+> >> Anshuman Khandual <anshuman.khandual@arm.com> writes:
+> >>
+> >>> On 9/28/22 05:53, Barry Song wrote:
+> >>>> On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
+> >>>>>
+> >>>>> On 2022/9/27 14:16, Anshuman Khandual wrote:
+> >>>>>> [...]
+> >>>>>>
+> >>>>>> On 9/21/22 14:13, Yicong Yang wrote:
+> >>>>>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> >>>>>>> +{
+> >>>>>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
+> >>>>>>> +    if (num_online_cpus() <= 4)
+> >>>>>>
+> >>>>>> It would be great to have some more inputs from others, whether 4 (which should
+> >>>>>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
+> >>>>>> is optimal for an wide range of arm64 platforms.
+> >>>>>>
+> >>>>
+> >>>> I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
+> >>>> with 5,6,7
+> >>>> cores.
+> >>>> I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
+> >>>> this patch.
+> >>>>
+> >>>> so it seems safe to have
+> >>>> if (num_online_cpus()  < 8)
+> >>>>
+> >>>>>
+> >>>>> Do you prefer this macro to be static or make it configurable through kconfig then
+> >>>>> different platforms can make choice based on their own situations? It maybe hard to
+> >>>>> test on all the arm64 platforms.
+> >>>>
+> >>>> Maybe we can have this default enabled on machines with 8 and more cpus and
+> >>>> provide a tlbflush_batched = on or off to allow users enable or
+> >>>> disable it according
+> >>>> to their hardware and products. Similar example: rodata=on or off.
+> >>>
+> >>> No, sounds bit excessive. Kernel command line options should not be added
+> >>> for every possible run time switch options.
+> >>>
+> >>>>
+> >>>> Hi Anshuman, Will,  Catalin, Andrew,
+> >>>> what do you think about this approach?
+> >>>>
+> >>>> BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
+> >>>> https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+> >>>>
+> >>>> I do believe we need it based on the expensive cost of tlb shootdown in arm64
+> >>>> even by hardware broadcast.
+> >>>
+> >>> Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
+> >>> with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
+> >>
+> >> When running the test program in the commit in a VM, I saw benefits from
+> >> the patches at all sizes from 2, 4, 8, 32 vcpus. On the test machine,
+> >> ptep_clear_flush() went from ~1% in the unpatched version to not showing
+> >> up.
+> >>
+> >
+> > Maybe you're booting VM on a server with more than 32 cores and Barry tested
+> > on his 4 CPUs embedded platform. I guess a 4 CPU VM is not fully equivalent to
+> > a 4 CPU real machine as the tbli and dsb in the VM may influence the host
+> > as well.
+>
+> Yeah, I also wondered about this.
+>
+> I was able to test on a 6-core RK3399 based system - there the
+> ptep_clear_flush() was only 0.10% of the overall execution time. The
+> hardware seems to do a pretty good job of keeping the TLB flushing
+> overhead low.
 
-please pull s390 changes for 6.1-rc3.
+RK3399 has Dual-core ARM Cortex-A72 MPCore processor and
+Quad-core ARM Cortex-A53 MPCore processor. you are probably
+going to see different overhead of ptep_clear_flush() when you
+bind the micro-benchmark on different cores.
 
-Thank you,
-Vasily
+>
+> [...]
+>
 
-The following changes since commit 247f34f7b80357943234f93f247a1ae6b6c3a740:
-
-  Linux 6.1-rc2 (2022-10-23 15:27:33 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-3
-
-for you to fetch changes up to e38de4804421b064a9c73c5a9b7f3df96b863e4b:
-
-  s390/vfio-ap: Fix memory allocation for mdev_types array (2022-10-26 14:47:31 +0200)
-
-----------------------------------------------------------------
-s390 updates for 6.1-rc3
-
-- Remove outdated linux390 link from MAINTAINERS.
-
-- Add few missing EX_TABLE entries to inline assemblies.
-
-- Fix raw data collection for pai_ext PMU.
-
-- Add kernel image secure boot trailer for future firmware versions.
-
-- Fix out-of-bounds access on cio_ignore free.
-
-- Fix memory allocation of mdev_types array in vfio-ap.
-
-----------------------------------------------------------------
-Heiko Carstens (4):
-      MAINTAINERS: remove outdated linux390 link
-      s390/uaccess: add missing EX_TABLE entries to __clear_user()
-      s390/futex: add missing EX_TABLE entry to __futex_atomic_op()
-      s390/pci: add missing EX_TABLE entries to __pcistg_mio_inuser()/__pcilg_mio_inuser()
-
-Jason J. Herne (1):
-      s390/vfio-ap: Fix memory allocation for mdev_types array
-
-Peter Oberparleiter (2):
-      s390/boot: add secure boot trailer
-      s390/cio: fix out-of-bounds access on cio_ignore free
-
-Thomas Richter (1):
-      s390/pai: fix raw data collection for PMU pai_ext
-
- MAINTAINERS                           | 12 ------------
- arch/s390/boot/vmlinux.lds.S          | 13 +++++++++++--
- arch/s390/include/asm/futex.h         |  3 ++-
- arch/s390/kernel/perf_pai_ext.c       |  1 +
- arch/s390/lib/uaccess.c               |  6 +++---
- arch/s390/pci/pci_mmio.c              |  8 ++++----
- drivers/s390/cio/css.c                |  8 ++------
- drivers/s390/crypto/vfio_ap_private.h |  2 +-
- 8 files changed, 24 insertions(+), 29 deletions(-)
+Thanks
+Barry
