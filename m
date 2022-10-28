@@ -2,171 +2,316 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26CCDC38A02
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 18:44:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADD09C38A02
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Oct 2022 18:53:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229766AbiJ1Sol (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Oct 2022 14:44:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
+        id S230057AbiJ1SxG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Oct 2022 14:53:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230256AbiJ1Soj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 14:44:39 -0400
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2057.outbound.protection.outlook.com [40.107.220.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1955524084;
-        Fri, 28 Oct 2022 11:44:39 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=L20ZWBYiGw07Z6tQbmRs1VHjXv8Pv4oXBTuq6/qrXNY6yrG/aEKrN0gGJrUpXvTldPHlGao8pwWK2mLmWIPOMiLkbo6T1j2WKUEE8BcSFewriintxnjv6J6ZWd/a8q0UgQaNLYNq4uefhMTwharEkxN6uiuaxmguV4APsNR2jmAr2RROaL44joxCxk6VswZp0lChVK9fyJ/TR4jKBjZriG6m9nC5rCIiT5rDNKQ5evW3v6eiFjfCChH5PBcMjtPsnqs0VYPx5qkKpVoAVzliu2Icix+h8cejpS4Bf8VWWmeLJLUt2Qd+zveUy9KSCDadb68luGKyoSFpD1xRUmQJmQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=QSdzbLnBB36sSy3f47cu2i0mAOh1oRMaWZCl4w2bx1Y=;
- b=SfqMEgyeVLJfe8/+RK3eSXw02IgWtS4iS5a68F4P55v4HI5MvkRAetYEpTBQ0zklyWH1s/rsUXKeh1tcP5LC0rXR8GwQ3I/cuAnnnu86HwnA6Pya1HyroWGs385u7GfBo8VkT7OzEssMwcHArDAGvrsSBIl5ajKsZJpC6hBpmEGGz8JlRR/28lWjOgzleLrvGZRgTu1QomHlJc3Vv9fQ8/3LL7nFF7mJJUBOHSXCx6P0i0XXGeUM57sTZLBPjkJD7F4iBO0czVe2TYEW7zpvVKoDQKc3OfAJbiocA39dsU1fh4vZSoOvaZ3tn8r1VVkfDd555ob8YE6j4JRT5esGBQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QSdzbLnBB36sSy3f47cu2i0mAOh1oRMaWZCl4w2bx1Y=;
- b=TUvl0kB2+e9+aVkP54jRIBKQg18qdhdeU50TTak3r+7Zuxhv7L6CBhI+UoCj3GSU00mGwyGw9IzHnAj587Wt2wlm/8YcnLcN+Z5+UhFIvFP7qct5LG5Skfey921A3458OLbmKyZKWITnUOoWXriwGEIAKqAa6K6sqX8HqbdeZmglWYtmJfofRageVwXVCezsMW6wmWYJeE/eYWkuEkRBN88eFyRgFdRQwRRzezlBnsekb1+4K2ueypsryzY3cWMZKznSeUkFMfEgSJf96CExHWyWZim0Y1jGrAW0/Wla7Jk8StS2PstzxnlbuZe6qUWpNA+ONeIeKUEnsemMx1iG3A==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by DS0PR12MB7607.namprd12.prod.outlook.com (2603:10b6:8:13f::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5746.28; Fri, 28 Oct
- 2022 18:44:37 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de%6]) with mapi id 15.20.5769.015; Fri, 28 Oct 2022
- 18:44:37 +0000
-Date:   Fri, 28 Oct 2022 15:44:36 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@gmail.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, iommu@lists.linux.dev,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>
-Subject: Re: [PATCH 10/10] iommufd: Allow iommufd to supply /dev/vfio/vfio
-Message-ID: <Y1wjFNxwPRm7S6yZ@nvidia.com>
-References: <0-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
- <10-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
- <20221026153133.44dc05c8.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221026153133.44dc05c8.alex.williamson@redhat.com>
-X-ClientProxiedBy: BL0PR05CA0026.namprd05.prod.outlook.com
- (2603:10b6:208:91::36) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S229958AbiJ1SxF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 14:53:05 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6BF61EEA3F;
+        Fri, 28 Oct 2022 11:53:03 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29SHnW11028823;
+        Fri, 28 Oct 2022 18:52:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=3+EAgCWyrXv25Pv/hWDktrqyGP/Rd5LAnoauoyevleY=;
+ b=ot9ISdOomCP1tYW7GVfUpZx9sfdFdlfCIpFD7hUB2iB64OYZ3FFvPR+pDr3y5VZoEqvo
+ FOOb/A+V/m1U7nivmn+3tPtRqvOoEfW8LAWqurwo1H+/zlHZw9dJQu7NGrFbKMf0BN9/
+ U6Q5mdWgXvquMQPECu0JG5enPa1X/AxUWFQWwhTkVUYXHMIKfIGi1lcVWk3/fDy1ihq4
+ XfKoQjQZkp4zOfUSHhPgmp6HBLD/NbJR99PV+6JtTcIIBcyMaYwv3zro4HJZOWnwdRvZ
+ H1uPAg84Y/JLX89OzCArviowXBi3xwxJIx+uosl6X7Gaqy4KmTDKJYVwMUI0AURrwY2S Ew== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kgkttj6dp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Oct 2022 18:52:35 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29SI3PIM026451;
+        Fri, 28 Oct 2022 18:52:34 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kgkttj6db-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Oct 2022 18:52:34 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29SIoBYj002586;
+        Fri, 28 Oct 2022 18:52:33 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma03wdc.us.ibm.com with ESMTP id 3kfahenry7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Oct 2022 18:52:33 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com ([9.208.128.112])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29SIqWUn30343524
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 28 Oct 2022 18:52:32 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D96CC5805A;
+        Fri, 28 Oct 2022 18:52:31 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7B8F858054;
+        Fri, 28 Oct 2022 18:52:27 +0000 (GMT)
+Received: from [9.160.93.208] (unknown [9.160.93.208])
+        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 28 Oct 2022 18:52:27 +0000 (GMT)
+Message-ID: <8f295a4b-416a-dc17-487c-d4c4e309c738@linux.ibm.com>
+Date:   Fri, 28 Oct 2022 14:52:26 -0400
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DS0PR12MB7607:EE_
-X-MS-Office365-Filtering-Correlation-Id: 55379891-771c-46b9-f993-08dab91476ef
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: cWnlC/PT9r9mceINA9Tmv7Zllaxw88boFgoU7nrjIHgc9vXn5dlUHRhN1fnGeJI2xvKRzIc+GUOK1hY3FTpjjtARXDAE+V8bC9N9YaMWaPCNU3QsGuYVYmj08fHpqUw2LlhhOewUIT1bcCJOOnynkUfyGXi4wAWQjMncagiqHFPC/L4FA7NoTpHaZ6xV/T/iO5anAfMWupUgnLVvGgmt/erBT3l2VV2MofSLhZu9VnobVnEiGODMBcxPI1i7p7jIckxSEGAGiZF8Wn4yZPvDQZTkaij+uCZk4RMQcSKMlHCNqK9mKxW3powsKBOjJQBGSuerXT8QuAa2ywa38znrwR1E8ERmbE3p/m1HAwL+qqF1UBcTHQkFP6rQSyUaZZxgC0sjvQDHfDzqvpMZPrVPfYzDcO0o56cfpTJuWMqeOeRotVZTKoSPFxVY9dkDHo/Hj8AhqezeG+iKl6mR5zLSkV7kiSJ9dt/IgYHGHJggApTFPZwrzMp0A5uMxIWLUMRcc0CcUT78ucLNvbybGNgZDQueIXYd69+6EUWLCL2qYT9pMT9HOESBXBRCZ2Ben6ALWaDcE0jLmvsdIy91YT0Lle5dMCdqQF/94AeJWG25bgLAvgLoFsze1jzqP/UsYc+iJ9fs7JEo2qpqR72AA20Le7gS5hGf+wF6ACtwKrZ+b9KyLYwSbMHGj27pCBJ0UjmFRLCwNEw4IAALd/KEQsaQBA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(136003)(396003)(39860400002)(376002)(346002)(451199015)(38100700002)(6512007)(478600001)(6486002)(36756003)(86362001)(6916009)(54906003)(8936002)(41300700001)(4326008)(8676002)(186003)(316002)(26005)(83380400001)(7406005)(6506007)(7416002)(2616005)(5660300002)(66476007)(66946007)(66556008)(2906002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?xgaQ98LKJYMouRxjNmGTzVIzBFQ5EBnccVIFFDOBT0oLLEdad6HWHu3gmP62?=
- =?us-ascii?Q?41psuFX181yFAkRMlgNdrFt6DHNLGNFbI57kHQx7Yu2BjCLZXDUfhiCRhN94?=
- =?us-ascii?Q?GU7MpW+GuD4aoLK92sGixOXLECuYjP28zqo8HqxAAuLs10MHVRRZgkr1iMIL?=
- =?us-ascii?Q?5CfOALqKSQ7613vkGK2EBQyFik2k+6ny7VE21jD0H8AqHTj6hPf5mZXP8Fzm?=
- =?us-ascii?Q?CQ798lZpJOhrNT4ID3k3HfLa70VBmD/6eTtQicT97uf9Fj3ox1yXleuuFvHL?=
- =?us-ascii?Q?LtPcB+tY1xAGR6Z/olmQb7hsSfryQXkTMNTCPaYeLzo9sfOyyVjgmMe6kDl1?=
- =?us-ascii?Q?13ppVbE6WHhT3eqYXnH6YBCgilHKez/QXnLRt6WdDe9yJTSaK+d/EOcKHYnF?=
- =?us-ascii?Q?F9VjHiB3u0Aunsc0CoRY2ygmeDVaVknijcJQNl/SwCvoK6Te71Ntqz6mi2+n?=
- =?us-ascii?Q?QFRJagcX95GZ4oTsFlKUVDY4na0ReGhsGp98vDhWftsEtXOsB2Zm4+6hc7Av?=
- =?us-ascii?Q?t8L6K888GVPTwif1MWjQe13Hv/A9qh+kbaxPjXcl0vxWGgefxKuyvaXCTNin?=
- =?us-ascii?Q?6vamiSwyhuGFRI90rxOlIh1kx8k5Zg+1zJJdDYvsVceJzSt7waZDihoPMcg0?=
- =?us-ascii?Q?xQ9blOuDer+9qKhF3Hr7RFj7f0+FkVA9SDtszaKs5Tj03FLa2ttO3HdhJ1wz?=
- =?us-ascii?Q?shfKgoS5+mjebjwla9lAVXLOhcHpzFN63MSKBO8h6uX52kWIvP/PZYPBwG1z?=
- =?us-ascii?Q?r8AfecgUpFDswsu/ljeZFtHgaG3UZCG2Qm26cB48QKuUY3ybaKek0QMv2azV?=
- =?us-ascii?Q?mlIiQUogCGr2FHXnnfttkZm5DYEo4KoaHZsdLQ4x2X4XZ14eoQaRwOCwhEWm?=
- =?us-ascii?Q?T66GFMEec+/kpie3Pgj0DLawjGkAfp++ETNvHaD21X0kPy1XfBAiV2QpgWXt?=
- =?us-ascii?Q?2jOL8Ft/KRJlEV85tn7Zdht6OV9tUdHSP9EZyqkiCQfCahO4ypNiMQaO3FOJ?=
- =?us-ascii?Q?5terUWBTogwzgRj1GO70+xlvvxq751ZwewtT+xkm4nre6PBNubHv2Jjf93ER?=
- =?us-ascii?Q?lSAcfGx7TgkxTcpGxQS3zAivG8X0YMo6/WuoKuRi3v1wzIz9D4EGj4jCdFgj?=
- =?us-ascii?Q?gClrmcPfFM3M51tDjAhEQex4EIZMZvrI5QNOCE2fRMtmJdYJKgMmD0PaPrjr?=
- =?us-ascii?Q?xLe//uQjurJqkXk06l0wGZkaTalTRrsdPRnnftqAqaZrH9J5mtRzqVUTOxof?=
- =?us-ascii?Q?vt7X9gXD3yk95oEFHEAzqlaHZ/bdqXyEzGvgCfM13BpIu50PSLvUg2RePWe6?=
- =?us-ascii?Q?kVZMunD44sYJL4v+ycj86uiKWvxqrPjGAKZPRiW20hq9zkPNbpNRRkUe1Bq2?=
- =?us-ascii?Q?TS3WZx2biTtgBcPA0Am6N07U3N009BBi1JTJP8jqVT/ByTDuB7w3dNfqUPca?=
- =?us-ascii?Q?BRZrpUVutpuI5ywq5P45E9CQCAHvyaxMozkEu3Bi+5AsKKXgxROU158ecbzo?=
- =?us-ascii?Q?LaeVuhxEMCWh9r1G518NjRK1CFEpzx32Cpx9Ob4UMOKLcIuiUeIkT7xRPit1?=
- =?us-ascii?Q?EXN7t/Co2dPazLsf4Ew=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 55379891-771c-46b9-f993-08dab91476ef
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Oct 2022 18:44:37.4143
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sBXNdDpuslO1OPVGlczhm/SJ/XgasoYUJ/hDs6D5wmsTRLyu84OLur0ypoqqskAl
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7607
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH v1 3/7] vfio/ccw: move private initialization to callback
+Content-Language: en-US
+To:     Eric Farman <farman@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>
+Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+References: <20221019162135.798901-1-farman@linux.ibm.com>
+ <20221019162135.798901-4-farman@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20221019162135.798901-4-farman@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: GY4K8w40rmai7oD1SyWZ7J71Of9eb0LI
+X-Proofpoint-ORIG-GUID: w3cmT3KgOUDHykkn6uUR0k4KBODeUQAc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-28_07,2022-10-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ clxscore=1015 suspectscore=0 spamscore=0 bulkscore=0 impostorscore=0
+ priorityscore=1501 adultscore=0 lowpriorityscore=0 mlxscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2210280113
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Oct 26, 2022 at 03:31:33PM -0600, Alex Williamson wrote:
-> On Tue, 25 Oct 2022 15:50:45 -0300
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
+On 10/19/22 12:21 PM, Eric Farman wrote:
+> There's already a device initialization callback that is
+> used to initialize the release completion workaround.
+
+As discussed off-list, maybe clarify what callback you're talking about here and/or reference the commit that added it.
+
 > 
-> > If the VFIO container is compiled out, give a kconfig option for iommufd
-> > to provide the miscdev node with the same name and permissions as vfio
-> > uses.
-> > 
-> > The compatibility node supports the same ioctls as VFIO and automatically
-> > enables the VFIO compatible pinned page accounting mode.
+> Move the other elements of the vfio_ccw_private struct that
+> require distinct initialization over to that routine.
 > 
-> I think I'd like to see some sort of breadcrumb when /dev/vfio/vfio is
-> provided by something other than the vfio container code.  If we intend
-> to include this before P2P is resolved, that breadcrumb 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c     | 57 +++--------------------------
+>  drivers/s390/cio/vfio_ccw_ops.c     | 43 ++++++++++++++++++++++
+>  drivers/s390/cio/vfio_ccw_private.h |  7 +++-
+>  3 files changed, 55 insertions(+), 52 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 4ee953c8ae39..cc9ed2fd970f 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -24,10 +24,10 @@
+>  #include "vfio_ccw_private.h"
+>  
+>  struct workqueue_struct *vfio_ccw_work_q;
+> -static struct kmem_cache *vfio_ccw_io_region;
+> -static struct kmem_cache *vfio_ccw_cmd_region;
+> -static struct kmem_cache *vfio_ccw_schib_region;
+> -static struct kmem_cache *vfio_ccw_crw_region;
+> +struct kmem_cache *vfio_ccw_io_region;
+> +struct kmem_cache *vfio_ccw_cmd_region;
+> +struct kmem_cache *vfio_ccw_schib_region;
+> +struct kmem_cache *vfio_ccw_crw_region;
+>  
+>  debug_info_t *vfio_ccw_debug_msg_id;
+>  debug_info_t *vfio_ccw_debug_trace_id;
+> @@ -74,7 +74,7 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
+>  	return ret;
+>  }
+>  
+> -static void vfio_ccw_sch_io_todo(struct work_struct *work)
+> +void vfio_ccw_sch_io_todo(struct work_struct *work)
+>  {
+>  	struct vfio_ccw_private *private;
+>  	struct irb *irb;
+> @@ -110,7 +110,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+>  		eventfd_signal(private->io_trigger, 1);
+>  }
+>  
+> -static void vfio_ccw_crw_todo(struct work_struct *work)
+> +void vfio_ccw_crw_todo(struct work_struct *work)
+>  {
+>  	struct vfio_ccw_private *private;
+>  
+> @@ -154,52 +154,7 @@ static struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch)
+>  	if (!private)
+>  		return ERR_PTR(-ENOMEM);
 
-I don't belive I can get P2P done soon enough. I plan to do it after
-this is merged. Right now these two series are taking all my time.
+Not sure we really still need vfio_ccw_alloc_private() now or whether you can just kzalloc() inline right in vfio_ccw_sch_probe()
 
-> (dmesg I'm guessing) might also list any known limitations of the
-> compatibility to save time with debugging.  Thanks,
+Either way:
 
-Yes, that makes sense.
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 
-Do you want a dmesg at module load time, on every open, or a sysfs
-something? What seems like it would make it into a bug report?
 
-Thanks,
-Jason
+>  
+> -	mutex_init(&private->io_mutex);
+> -	private->state = VFIO_CCW_STATE_STANDBY;
+> -	INIT_LIST_HEAD(&private->crw);
+> -	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
+> -	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
+> -
+> -	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
+> -				       GFP_KERNEL);
+> -	if (!private->cp.guest_cp)
+> -		goto out_free_private;
+> -
+> -	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
+> -					       GFP_KERNEL | GFP_DMA);
+> -	if (!private->io_region)
+> -		goto out_free_cp;
+> -
+> -	private->cmd_region = kmem_cache_zalloc(vfio_ccw_cmd_region,
+> -						GFP_KERNEL | GFP_DMA);
+> -	if (!private->cmd_region)
+> -		goto out_free_io;
+> -
+> -	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
+> -						  GFP_KERNEL | GFP_DMA);
+> -
+> -	if (!private->schib_region)
+> -		goto out_free_cmd;
+> -
+> -	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
+> -						GFP_KERNEL | GFP_DMA);
+> -
+> -	if (!private->crw_region)
+> -		goto out_free_schib;
+>  	return private;
+> -
+> -out_free_schib:
+> -	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
+> -out_free_cmd:
+> -	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+> -out_free_io:
+> -	kmem_cache_free(vfio_ccw_io_region, private->io_region);
+> -out_free_cp:
+> -	kfree(private->cp.guest_cp);
+> -out_free_private:
+> -	mutex_destroy(&private->io_mutex);
+> -	kfree(private);
+> -	return ERR_PTR(-ENOMEM);
+>  }
+>  
+>  static void vfio_ccw_free_private(struct vfio_ccw_private *private)
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+> index cf383c729d53..626b8eb3507b 100644
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -50,8 +50,51 @@ static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
+>  	struct vfio_ccw_private *private =
+>  		container_of(vdev, struct vfio_ccw_private, vdev);
+>  
+> +	mutex_init(&private->io_mutex);
+> +	private->state = VFIO_CCW_STATE_STANDBY;
+> +	INIT_LIST_HEAD(&private->crw);
+> +	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
+> +	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
+>  	init_completion(&private->release_comp);
+> +
+> +	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
+> +				       GFP_KERNEL);
+> +	if (!private->cp.guest_cp)
+> +		goto out_free_private;
+> +
+> +	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
+> +					       GFP_KERNEL | GFP_DMA);
+> +	if (!private->io_region)
+> +		goto out_free_cp;
+> +
+> +	private->cmd_region = kmem_cache_zalloc(vfio_ccw_cmd_region,
+> +						GFP_KERNEL | GFP_DMA);
+> +	if (!private->cmd_region)
+> +		goto out_free_io;
+> +
+> +	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
+> +						  GFP_KERNEL | GFP_DMA);
+> +	if (!private->schib_region)
+> +		goto out_free_cmd;
+> +
+> +	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
+> +						GFP_KERNEL | GFP_DMA);
+> +	if (!private->crw_region)
+> +		goto out_free_schib;
+> +
+>  	return 0;
+> +
+> +out_free_schib:
+> +	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
+> +out_free_cmd:
+> +	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+> +out_free_io:
+> +	kmem_cache_free(vfio_ccw_io_region, private->io_region);
+> +out_free_cp:
+> +	kfree(private->cp.guest_cp);
+> +out_free_private:
+> +	mutex_destroy(&private->io_mutex);
+> +	return -ENOMEM;
+>  }
+>  
+>  static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+> index 0fdff1435230..b35940057073 100644
+> --- a/drivers/s390/cio/vfio_ccw_private.h
+> +++ b/drivers/s390/cio/vfio_ccw_private.h
+> @@ -116,6 +116,8 @@ struct vfio_ccw_private {
+>  } __aligned(8);
+>  
+>  int vfio_ccw_sch_quiesce(struct subchannel *sch);
+> +void vfio_ccw_sch_io_todo(struct work_struct *work);
+> +void vfio_ccw_crw_todo(struct work_struct *work);
+>  
+>  extern struct mdev_driver vfio_ccw_mdev_driver;
+>  
+> @@ -163,7 +165,10 @@ static inline void vfio_ccw_fsm_event(struct vfio_ccw_private *private,
+>  }
+>  
+>  extern struct workqueue_struct *vfio_ccw_work_q;
+> -
+> +extern struct kmem_cache *vfio_ccw_io_region;
+> +extern struct kmem_cache *vfio_ccw_cmd_region;
+> +extern struct kmem_cache *vfio_ccw_schib_region;
+> +extern struct kmem_cache *vfio_ccw_crw_region;
+>  
+>  /* s390 debug feature, similar to base cio */
+>  extern debug_info_t *vfio_ccw_debug_msg_id;
+
