@@ -2,69 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42EC9C38A02
-	for <linux-s390@archiver.kernel.org>; Sat, 29 Oct 2022 00:15:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B52DEFA3741
+	for <linux-s390@archiver.kernel.org>; Sat, 29 Oct 2022 01:54:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229887AbiJ2APg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Oct 2022 20:15:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57396 "EHLO
+        id S229457AbiJ2Byf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Oct 2022 21:54:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbiJ2APe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 20:15:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8835766A53;
-        Fri, 28 Oct 2022 17:15:28 -0700 (PDT)
+        with ESMTP id S229456AbiJ2Bye (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 21:54:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BF5FCDA;
+        Fri, 28 Oct 2022 18:54:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55EF562B35;
-        Sat, 29 Oct 2022 00:15:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B42AFC433C1;
-        Sat, 29 Oct 2022 00:15:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667002527;
-        bh=DT39x58SA98DxPQuDM8lZRU/NhAMZ/UEZGxOyCwD18k=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=Z9YsM0ttjROBafXYbEsov+V/sjbfg9SEarMgarIFUkuEMtgA0DEC7kbxDA/C8Qr3Z
-         4y7AtfOE9TT3wgAvW9wIeE59jb9MCIXbqOThyUAzKQ6AGgN0ZCSbEmE5o7kBBf6XOs
-         EPBE1epkkmpPKIVxV6qpgn303pFswtui5vMqt4OtTnkYirqFRxhW2LaGfpcOsoDXRx
-         ybmn6EGUAh4nTsI6CfcR8ebL8WtkpCyrX/N3du01FgyBkFz7vgeAtJfK17vUH9+eTK
-         rSg439zhwlDRnIcgbiv6Vv9l8N0zYI1wiqj/j5uqPEs+cRfAPikDyPWmxFa92CUL+x
-         OoB6DDQ4CR6uQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 9FF9BC41676;
-        Sat, 29 Oct 2022 00:15:27 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 6.1-rc3
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01666989278-ext-6142@work.hours>
-References: <your-ad-here.call-01666989278-ext-6142@work.hours>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <your-ad-here.call-01666989278-ext-6142@work.hours>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-3
-X-PR-Tracked-Commit-Id: e38de4804421b064a9c73c5a9b7f3df96b863e4b
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 576e61cea1e4b66f52f164dee0edbe4b1c999997
-Message-Id: <166700252765.12440.3406754733571646460.pr-tracker-bot@kernel.org>
-Date:   Sat, 29 Oct 2022 00:15:27 +0000
-To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFB00B82DD5;
+        Sat, 29 Oct 2022 01:54:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A501FC433C1;
+        Sat, 29 Oct 2022 01:54:24 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="kZbxGOQv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1667008462;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=SxtuEWeYOJFtWLwr3J1ri5ErnHaNd0SKCg1EYxarznQ=;
+        b=kZbxGOQv3smAq0zOS/NIscB97Oo1xyp6tYHNhM/+YUBW8znCrlcPC3/J9LH5WAhdCpYFdc
+        nPFnyUhP0Iy0ns6vejg9b6ZQq2CNW7MR6uYXT2b7SUCQ8BsWJBrLo/s9iJE9hN/p+VAoR8
+        AQgQMDWvfF5fL7jRKaQycUwPegc2sU0=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 184a9951 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Sat, 29 Oct 2022 01:54:21 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Subject: [PATCH v2] random: do not include <asm/archrandom.h> from random.h
+Date:   Sat, 29 Oct 2022 03:08:57 +0200
+Message-Id: <20221029010857.161574-1-Jason@zx2c4.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Fri, 28 Oct 2022 22:34:38 +0200:
+The <asm/archrandom.h> header is a random.c private detail, not
+something to be called by other code. As such, don't make it
+automatically available by way of random.h.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-3
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ arch/powerpc/kernel/setup-common.c | 1 +
+ arch/s390/kernel/setup.c           | 1 +
+ drivers/char/random.c              | 1 +
+ include/linux/random.h             | 2 --
+ 4 files changed, 3 insertions(+), 2 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/576e61cea1e4b66f52f164dee0edbe4b1c999997
-
-Thank you!
-
+diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
+index 6d041993a45d..9b10e57040c6 100644
+--- a/arch/powerpc/kernel/setup-common.c
++++ b/arch/powerpc/kernel/setup-common.c
+@@ -59,6 +59,7 @@
+ #include <asm/xmon.h>
+ #include <asm/cputhreads.h>
+ #include <mm/mmu_decl.h>
++#include <asm/archrandom.h>
+ #include <asm/fadump.h>
+ #include <asm/udbg.h>
+ #include <asm/hugetlb.h>
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index ab19ddb09d65..b53a45735a5d 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -52,6 +52,7 @@
+ #include <linux/hugetlb.h>
+ #include <linux/kmemleak.h>
+ 
++#include <asm/archrandom.h>
+ #include <asm/boot_data.h>
+ #include <asm/ipl.h>
+ #include <asm/facility.h>
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index e3cf4f51ed58..a7afd17db075 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -55,6 +55,7 @@
+ #include <linux/siphash.h>
+ #include <crypto/chacha.h>
+ #include <crypto/blake2s.h>
++#include <asm/archrandom.h>
+ #include <asm/processor.h>
+ #include <asm/irq.h>
+ #include <asm/irq_regs.h>
+diff --git a/include/linux/random.h b/include/linux/random.h
+index 2bdd3add3400..47e7cf126e8f 100644
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -151,8 +151,6 @@ declare_get_random_var_wait(long, unsigned long)
+  */
+ #include <linux/prandom.h>
+ 
+-#include <asm/archrandom.h>
+-
+ #ifdef CONFIG_SMP
+ int random_prepare_cpu(unsigned int cpu);
+ int random_online_cpu(unsigned int cpu);
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.38.1
+
