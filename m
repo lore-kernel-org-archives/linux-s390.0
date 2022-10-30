@@ -2,118 +2,180 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B52DEFA3741
-	for <linux-s390@archiver.kernel.org>; Sat, 29 Oct 2022 01:54:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFFEFECAAA1
+	for <linux-s390@archiver.kernel.org>; Sun, 30 Oct 2022 18:22:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229457AbiJ2Byf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Oct 2022 21:54:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43436 "EHLO
+        id S229719AbiJ3SWU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 30 Oct 2022 14:22:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbiJ2Bye (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Oct 2022 21:54:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BF5FCDA;
-        Fri, 28 Oct 2022 18:54:28 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFB00B82DD5;
-        Sat, 29 Oct 2022 01:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A501FC433C1;
-        Sat, 29 Oct 2022 01:54:24 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="kZbxGOQv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1667008462;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=SxtuEWeYOJFtWLwr3J1ri5ErnHaNd0SKCg1EYxarznQ=;
-        b=kZbxGOQv3smAq0zOS/NIscB97Oo1xyp6tYHNhM/+YUBW8znCrlcPC3/J9LH5WAhdCpYFdc
-        nPFnyUhP0Iy0ns6vejg9b6ZQq2CNW7MR6uYXT2b7SUCQ8BsWJBrLo/s9iJE9hN/p+VAoR8
-        AQgQMDWvfF5fL7jRKaQycUwPegc2sU0=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 184a9951 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Sat, 29 Oct 2022 01:54:21 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-Subject: [PATCH v2] random: do not include <asm/archrandom.h> from random.h
-Date:   Sat, 29 Oct 2022 03:08:57 +0200
-Message-Id: <20221029010857.161574-1-Jason@zx2c4.com>
-MIME-Version: 1.0
+        with ESMTP id S229574AbiJ3SWT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 30 Oct 2022 14:22:19 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6A5B854
+        for <linux-s390@vger.kernel.org>; Sun, 30 Oct 2022 11:22:18 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29UDkg35004578;
+        Sun, 30 Oct 2022 18:22:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=zIoTWuen4ZrZqY3T64H1KYNmxzw5GiUs2dPpkzdesP8=;
+ b=kUAfCh/DGCm4gs3qW97kAfaFoKvr5oK2mgEvkA9BQ0aJwaJKw+qaK9bGPnd/59OJMMIx
+ yGsaH9YSsEgkkamBu8/DE/z1EsBTHtB67evvsRhq6HxoaNBB0N9YVSn10DXV9oY0JSeL
+ Hhp4czwoc7u+ooh1dJF4QNux7HQc3lmwjTwVke/u3CAwQMaHih+EDH4l5s21H+OACZTZ
+ 5DmqIexGLpX0CnWPo1m43AhsGbdxF3KbMRPFTnFoPZRPv++gHvNr1vJhSIhk0fX6Avs7
+ LY9AHNSQ7h31H1NVrutzvpGI42qk6W42HCX0HXX/fhPTDNiHfP/KXCzICHKum9IoeObT lA== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3khe6ug925-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 30 Oct 2022 18:22:09 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29UIM1dh031753;
+        Sun, 30 Oct 2022 18:22:07 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3kgut8su3y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 30 Oct 2022 18:22:07 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 29UIM2jH31588964
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 30 Oct 2022 18:22:02 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7E888AE051;
+        Sun, 30 Oct 2022 18:22:02 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 34A4AAE045;
+        Sun, 30 Oct 2022 18:22:02 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Sun, 30 Oct 2022 18:22:02 +0000 (GMT)
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] s390: always build relocatable kernel
+Date:   Sun, 30 Oct 2022 19:22:02 +0100
+Message-Id: <20221030182202.2062705-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Guc8KgieGb6L9boNQKfHfaoF-5nuT6np
+X-Proofpoint-GUID: Guc8KgieGb6L9boNQKfHfaoF-5nuT6np
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-30_11,2022-10-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 adultscore=0 spamscore=0 mlxlogscore=999 clxscore=1011
+ phishscore=0 mlxscore=0 suspectscore=0 priorityscore=1501 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2210300116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The <asm/archrandom.h> header is a random.c private detail, not
-something to be called by other code. As such, don't make it
-automatically available by way of random.h.
+Nathan Chancellor reported several link errors on s390 with
+CONFIG_RELOCATABLE disabled, after binutils commit 906f69cf65da ("IBM
+zSystems: Issue error for *DBL relocs on misaligned symbols"). The binutils
+commit reveals potential miscompiles that might have happened already
+before with linker script defined symbols at odd addresses.
 
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+A similar bug was recently fixed in the kernel with commit c9305b6c1f52
+("s390: fix nospec table alignments").
+
+See https://github.com/ClangBuiltLinux/linux/issues/1747 for an analysis
+from Ulich Weigand.
+
+Therefore always build a relocatable kernel to avoid this problem. There is
+hardly any use-case for non-relocatable kernels, so this shouldn't be
+controversial.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1747
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/powerpc/kernel/setup-common.c | 1 +
- arch/s390/kernel/setup.c           | 1 +
- drivers/char/random.c              | 1 +
- include/linux/random.h             | 2 --
- 4 files changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/Kconfig        | 6 +++---
+ arch/s390/Makefile       | 2 --
+ arch/s390/boot/Makefile  | 3 +--
+ arch/s390/boot/startup.c | 3 +--
+ 4 files changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index 6d041993a45d..9b10e57040c6 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -59,6 +59,7 @@
- #include <asm/xmon.h>
- #include <asm/cputhreads.h>
- #include <mm/mmu_decl.h>
-+#include <asm/archrandom.h>
- #include <asm/fadump.h>
- #include <asm/udbg.h>
- #include <asm/hugetlb.h>
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index ab19ddb09d65..b53a45735a5d 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -52,6 +52,7 @@
- #include <linux/hugetlb.h>
- #include <linux/kmemleak.h>
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 318fce77601d..de575af02ffe 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -568,8 +568,7 @@ config EXPOLINE_FULL
+ endchoice
  
-+#include <asm/archrandom.h>
- #include <asm/boot_data.h>
- #include <asm/ipl.h>
- #include <asm/facility.h>
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index e3cf4f51ed58..a7afd17db075 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -55,6 +55,7 @@
- #include <linux/siphash.h>
- #include <crypto/chacha.h>
- #include <crypto/blake2s.h>
-+#include <asm/archrandom.h>
- #include <asm/processor.h>
- #include <asm/irq.h>
- #include <asm/irq_regs.h>
-diff --git a/include/linux/random.h b/include/linux/random.h
-index 2bdd3add3400..47e7cf126e8f 100644
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -151,8 +151,6 @@ declare_get_random_var_wait(long, unsigned long)
-  */
- #include <linux/prandom.h>
+ config RELOCATABLE
+-	bool "Build a relocatable kernel"
+-	default y
++	def_bool y
+ 	help
+ 	  This builds a kernel image that retains relocation information
+ 	  so it can be loaded at an arbitrary address.
+@@ -578,10 +577,11 @@ config RELOCATABLE
+ 	  bootup process.
+ 	  The relocations make the kernel image about 15% larger (compressed
+ 	  10%), but are discarded at runtime.
++	  Note: this option exists only for documentation purposes, please do
++	  not remove it.
  
--#include <asm/archrandom.h>
--
- #ifdef CONFIG_SMP
- int random_prepare_cpu(unsigned int cpu);
- int random_online_cpu(unsigned int cpu);
+ config RANDOMIZE_BASE
+ 	bool "Randomize the address of the kernel image (KASLR)"
+-	depends on RELOCATABLE
+ 	default y
+ 	help
+ 	  In support of Kernel Address Space Layout Randomization (KASLR),
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index de6d8b2ea4d8..b3235ab0ace8 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -14,10 +14,8 @@ KBUILD_AFLAGS_MODULE += -fPIC
+ KBUILD_CFLAGS_MODULE += -fPIC
+ KBUILD_AFLAGS	+= -m64
+ KBUILD_CFLAGS	+= -m64
+-ifeq ($(CONFIG_RELOCATABLE),y)
+ KBUILD_CFLAGS	+= -fPIE
+ LDFLAGS_vmlinux	:= -pie
+-endif
+ aflags_dwarf	:= -Wa,-gdwarf-2
+ KBUILD_AFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -D__ASSEMBLY__
+ ifndef CONFIG_AS_IS_LLVM
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index 883357a211a3..d52c3e2e16bc 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -37,9 +37,8 @@ CFLAGS_sclp_early_core.o += -I$(srctree)/drivers/s390/char
+ 
+ obj-y	:= head.o als.o startup.o mem_detect.o ipl_parm.o ipl_report.o
+ obj-y	+= string.o ebcdic.o sclp_early_core.o mem.o ipl_vmparm.o cmdline.o
+-obj-y	+= version.o pgm_check_info.o ctype.o ipl_data.o
++obj-y	+= version.o pgm_check_info.o ctype.o ipl_data.o machine_kexec_reloc.o
+ obj-$(findstring y, $(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) $(CONFIG_PGSTE))	+= uv.o
+-obj-$(CONFIG_RELOCATABLE)	+= machine_kexec_reloc.o
+ obj-$(CONFIG_RANDOMIZE_BASE)	+= kaslr.o
+ obj-y	+= $(if $(CONFIG_KERNEL_UNCOMPRESSED),,decompressor.o) info.o
+ obj-$(CONFIG_KERNEL_ZSTD) += clz_ctz.o
+diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
+index 6e7f01ca53e6..47ca3264c023 100644
+--- a/arch/s390/boot/startup.c
++++ b/arch/s390/boot/startup.c
+@@ -291,8 +291,7 @@ void startup_kernel(void)
+ 
+ 	clear_bss_section();
+ 	copy_bootdata();
+-	if (IS_ENABLED(CONFIG_RELOCATABLE))
+-		handle_relocs(__kaslr_offset);
++	handle_relocs(__kaslr_offset);
+ 
+ 	if (__kaslr_offset) {
+ 		/*
 -- 
-2.38.1
+2.34.1
 
