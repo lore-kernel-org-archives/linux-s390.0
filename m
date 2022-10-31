@@ -2,212 +2,197 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DA8AFA3741
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Oct 2022 16:11:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C34BEECAAA1
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Oct 2022 18:36:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229947AbiJaQLx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Oct 2022 12:11:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39106 "EHLO
+        id S230097AbiJaSg4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Oct 2022 14:36:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229719AbiJaQLw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Oct 2022 12:11:52 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6F750DF61;
-        Mon, 31 Oct 2022 09:11:51 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7D2CF1FB;
-        Mon, 31 Oct 2022 09:11:57 -0700 (PDT)
-Received: from [10.57.38.12] (unknown [10.57.38.12])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C6E153F5A1;
-        Mon, 31 Oct 2022 09:11:48 -0700 (PDT)
-Message-ID: <e789fcbe-fa3a-0286-c0f7-361762764a3e@arm.com>
-Date:   Mon, 31 Oct 2022 16:11:43 +0000
+        with ESMTP id S229956AbiJaSgz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Oct 2022 14:36:55 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66EF213CCB
+        for <linux-s390@vger.kernel.org>; Mon, 31 Oct 2022 11:36:54 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id z14so17183333wrn.7
+        for <linux-s390@vger.kernel.org>; Mon, 31 Oct 2022 11:36:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:user-agent:message-id:in-reply-to:date:references
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=sNqF1x5hFExPPQ1p8H8ZfUJkMN/LytiJFdG0FgSo0Yc=;
+        b=Mki3cqNyLb6i/7bDr8xmcRoAI7MKB8Ubep7MvVdCAwvVAv/rvYzaNntbYk7evNSPOx
+         iZSZj+1kqC7UTT9hY3p9QxXxVMZ7rRgmk+9DY9r7FhExeFFt1VDbTR9aAf2X+JrZ0tNY
+         Tr/US88lDzmERESqdII2j74Xqtc13Nxr3puP6+gFIxszTZcUEQgT950jsRCvi08bhiKR
+         jD8ZqkKvxW/CqsLaBVsSxX0va4onlR2A9GDsiypQf+pm99b/Y+UG3WiItOZJ+Li8JVOO
+         +Y1i4xOLivYeF+DP4zPejP0GtpVAQoKKHaj+oeUXTWFGo9wGo7aYYFoFnonbrsyfX2Yj
+         K6HQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=mime-version:user-agent:message-id:in-reply-to:date:references
+         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sNqF1x5hFExPPQ1p8H8ZfUJkMN/LytiJFdG0FgSo0Yc=;
+        b=JxLjc4UGsqMyauLs2sN7TZIeb6AZQDhpv7CFm6oXJGu8NG2dGTCpik2pyMWaFXeesJ
+         kd8N3P8q3gMeg4apfFzUIygp7P0qwDHJDh4xbXtS66Ux9OOGPHwPoXiHc4uAeT7HXC0p
+         kQVbKVoF2kumpuBiJe6JZWYh/DFQjtQevcZxnsSeYumpo8wkX8lt9bkk8W4AFehwDF6Q
+         hc5YMfHlY6rNT01OE2in8+a9ITmP6ASBj8PTNZSw0ck/4ZjC3xXk5KzYjguidH1psuAC
+         3gokgHEzH6bnT97CkTI2zvCICynrPNXAxfFtPn9vzx8FhoIwvMLMRlnz4QgTWcXUQ92j
+         f6iA==
+X-Gm-Message-State: ACrzQf176N/n1o/Ku50Gv2Oj2fJ5Oe2BgdvYacmKRsfbD77CGRbtJnyr
+        uISNYxw8RGKqTlXwVAm7SfD3MQ==
+X-Google-Smtp-Source: AMsMyM6L4c0mU3rV7kcQN/uxBci0PgFY6LkbseXn4PqZrB/kcujXoiDFpfGo/UsDapmtxjnBCDkTjg==
+X-Received: by 2002:a5d:584e:0:b0:236:6f0f:9d8 with SMTP id i14-20020a5d584e000000b002366f0f09d8mr9048660wrf.701.1667241412938;
+        Mon, 31 Oct 2022 11:36:52 -0700 (PDT)
+Received: from localhost ([95.148.15.66])
+        by smtp.gmail.com with ESMTPSA id b20-20020a05600c151400b003b3307fb98fsm7781722wmg.24.2022.10.31.11.36.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Oct 2022 11:36:52 -0700 (PDT)
+From:   Punit Agrawal <punit.agrawal@bytedance.com>
+To:     Barry Song <21cnbao@gmail.com>
+Cc:     Punit Agrawal <punit.agrawal@bytedance.com>,
+        Yicong Yang <yangyicong@huawei.com>, yangyicong@hisilicon.com,
+        corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
+        linux-kernel@vger.kernel.org, darren@os.amperecomputing.com,
+        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
+        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-mm@kvack.org, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
+        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
+        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>,
+        catalin.marinas@arm.com, will@kernel.org,
+        linux-doc@vger.kernel.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+References: <20220921084302.43631-1-yangyicong@huawei.com>
+        <20220921084302.43631-3-yangyicong@huawei.com>
+        <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
+        <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
+        <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
+        <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com>
+        <87o7tx5oyx.fsf@stealth>
+        <bc44cf85-aee9-03ca-9911-dbd904a43cc8@huawei.com>
+        <87bkpw5bzm.fsf@stealth>
+        <CAGsJ_4xj2fKLOEHYC46P8ZhUPX8rw=yTNv3Zs=CPxLON6Xxvqw@mail.gmail.com>
+Date:   Mon, 31 Oct 2022 18:36:51 +0000
+In-Reply-To: <CAGsJ_4xj2fKLOEHYC46P8ZhUPX8rw=yTNv3Zs=CPxLON6Xxvqw@mail.gmail.com>
+        (Barry Song's message of "Sat, 29 Oct 2022 10:40:11 +1300")
+Message-ID: <87zgdb4z7g.fsf@stealth>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: [PATCH 2/5] iommu/s390: Add I/O TLB ops
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        iommu@lists.linux.dev, Joerg Roedel <joro@8bytes.org>,
-        Will Deacon <will@kernel.org>, Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org
-References: <20221018145132.998866-1-schnelle@linux.ibm.com>
- <20221018145132.998866-3-schnelle@linux.ibm.com>
- <7da1ab0b-e78a-2ed1-0263-e9174c3af256@linux.ibm.com>
-Content-Language: en-GB
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <7da1ab0b-e78a-2ed1-0263-e9174c3af256@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-10-28 17:03, Matthew Rosato wrote:
-> On 10/18/22 10:51 AM, Niklas Schnelle wrote:
->> Currently s390-iommu does an I/O TLB flush (RPCIT) for every update of
->> the I/O translation table explicitly. For one this is wasteful since
->> RPCIT can be skipped after a mapping operation if zdev->tlb_refresh is
->> unset. Moreover we can do a single RPCIT for a range of pages including
->> whne doing lazy unmapping.
->>
->> Thankfully both of these optimizations can be achieved by implementing
->> the IOMMU operations common code provides for the different types of I/O
->> tlb flushes:
->>
->>   * flush_iotlb_all: Flushes the I/O TLB for the entire IOVA space
->>   * iotlb_sync:  Flushes the I/O TLB for a range of pages that can be
->>     gathered up, for example to implement lazy unmapping.
->>   * iotlb_sync_map: Flushes the I/O TLB after a mapping operation
->>
->> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
->> ---
->>   drivers/iommu/s390-iommu.c | 76 ++++++++++++++++++++++++++++++++------
->>   1 file changed, 65 insertions(+), 11 deletions(-)
->>
->> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
->> index ee88e717254b..a4c2e9bc6d83 100644
->> --- a/drivers/iommu/s390-iommu.c
->> +++ b/drivers/iommu/s390-iommu.c
->> @@ -199,14 +199,72 @@ static void s390_iommu_release_device(struct device *dev)
->>   		__s390_iommu_detach_device(zdev);
->>   }
->>   
->> +static void s390_iommu_flush_iotlb_all(struct iommu_domain *domain)
->> +{
->> +	struct s390_domain *s390_domain = to_s390_domain(domain);
->> +	struct zpci_dev *zdev;
->> +	unsigned long flags;
->> +	int rc;
->> +
->> +	spin_lock_irqsave(&s390_domain->list_lock, flags);
->> +	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
->> +		rc = zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
->> +					zdev->end_dma - zdev->start_dma + 1);
->> +		if (rc)
->> +			break;
->> +	}
->> +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
->> +}
->> +
->> +static void s390_iommu_iotlb_sync(struct iommu_domain *domain,
->> +				  struct iommu_iotlb_gather *gather)
->> +{
->> +	struct s390_domain *s390_domain = to_s390_domain(domain);
->> +	size_t size = gather->end - gather->start + 1;
->> +	struct zpci_dev *zdev;
->> +	unsigned long flags;
->> +	int rc;
->> +
->> +	/* If gather was never added to there is nothing to flush */
->> +	if (gather->start == ULONG_MAX)
->> +		return;
-> 
-> Hmm, this seems a little awkward in that it depends on the init value in iommu_iotlb_gather_init never changing.  I don't see any other iommu drivers doing this -- Is there no other way to tell there's nothing to flush?
-> 
-> If we really need to do this, maybe some shared #define in iommu.h that is used in iommu_iotlb_gather_init and here?
+Barry Song <21cnbao@gmail.com> writes:
 
-If you can trust yourselves to never gather a single byte (which by 
-construction should be impossible), "!gather->end" is perhaps a tiny bit 
-more robust (and consistent with iommu_iotlb_gather_is_disjoint()), 
-although given the way that iommu_iotlb_gather_add_*() work I don't 
-think either initial value has much chance of changing in practice, 
-short of some larger refactoring that would likely have to touch all the 
-users anyway. If you still want to be as foolproof as possible, using 
-"gather->start > gather->end" would represent the most general form of 
-the initial conditions.
+> On Sat, Oct 29, 2022 at 2:11 AM Punit Agrawal
+> <punit.agrawal@bytedance.com> wrote:
+>>
+>> Yicong Yang <yangyicong@huawei.com> writes:
+>>
+>> > On 2022/10/27 22:19, Punit Agrawal wrote:
+>> >>
+>> >> [ Apologies for chiming in late in the conversation ]
+>> >>
+>> >> Anshuman Khandual <anshuman.khandual@arm.com> writes:
+>> >>
+>> >>> On 9/28/22 05:53, Barry Song wrote:
+>> >>>> On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
+>> >>>>>
+>> >>>>> On 2022/9/27 14:16, Anshuman Khandual wrote:
+>> >>>>>> [...]
+>> >>>>>>
+>> >>>>>> On 9/21/22 14:13, Yicong Yang wrote:
+>> >>>>>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+>> >>>>>>> +{
+>> >>>>>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
+>> >>>>>>> +    if (num_online_cpus() <= 4)
+>> >>>>>>
+>> >>>>>> It would be great to have some more inputs from others, whether 4 (which should
+>> >>>>>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
+>> >>>>>> is optimal for an wide range of arm64 platforms.
+>> >>>>>>
+>> >>>>
+>> >>>> I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
+>> >>>> with 5,6,7
+>> >>>> cores.
+>> >>>> I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
+>> >>>> this patch.
+>> >>>>
+>> >>>> so it seems safe to have
+>> >>>> if (num_online_cpus()  < 8)
+>> >>>>
+>> >>>>>
+>> >>>>> Do you prefer this macro to be static or make it configurable through kconfig then
+>> >>>>> different platforms can make choice based on their own situations? It maybe hard to
+>> >>>>> test on all the arm64 platforms.
+>> >>>>
+>> >>>> Maybe we can have this default enabled on machines with 8 and more cpus and
+>> >>>> provide a tlbflush_batched = on or off to allow users enable or
+>> >>>> disable it according
+>> >>>> to their hardware and products. Similar example: rodata=on or off.
+>> >>>
+>> >>> No, sounds bit excessive. Kernel command line options should not be added
+>> >>> for every possible run time switch options.
+>> >>>
+>> >>>>
+>> >>>> Hi Anshuman, Will,  Catalin, Andrew,
+>> >>>> what do you think about this approach?
+>> >>>>
+>> >>>> BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
+>> >>>> https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+>> >>>>
+>> >>>> I do believe we need it based on the expensive cost of tlb shootdown in arm64
+>> >>>> even by hardware broadcast.
+>> >>>
+>> >>> Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
+>> >>> with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
+>> >>
+>> >> When running the test program in the commit in a VM, I saw benefits from
+>> >> the patches at all sizes from 2, 4, 8, 32 vcpus. On the test machine,
+>> >> ptep_clear_flush() went from ~1% in the unpatched version to not showing
+>> >> up.
+>> >>
+>> >
+>> > Maybe you're booting VM on a server with more than 32 cores and Barry tested
+>> > on his 4 CPUs embedded platform. I guess a 4 CPU VM is not fully equivalent to
+>> > a 4 CPU real machine as the tbli and dsb in the VM may influence the host
+>> > as well.
+>>
+>> Yeah, I also wondered about this.
+>>
+>> I was able to test on a 6-core RK3399 based system - there the
+>> ptep_clear_flush() was only 0.10% of the overall execution time. The
+>> hardware seems to do a pretty good job of keeping the TLB flushing
+>> overhead low.
 
-FWIW, SMMUv3 does also check for an empty range, but using 
-gather->pgsize that is only relevant with add_page(). The other gather 
-users seem happy to go ahead and just issue whatever wacky invalidation 
-command those initial values end up looking like. I think an empty sync 
-should really only happen in unexpected conditions like an unmap 
-failing, so it shouldn't be a case that deserves a great deal of 
-optimisation effort.
+I found a problem with my measurements (missing volatile). Correcting
+that increased the overhead somewhat - more below.
 
-Thanks,
-Robin.
+> RK3399 has Dual-core ARM Cortex-A72 MPCore processor and
+> Quad-core ARM Cortex-A53 MPCore processor. you are probably
+> going to see different overhead of ptep_clear_flush() when you
+> bind the micro-benchmark on different cores.
 
->> +
->> +	spin_lock_irqsave(&s390_domain->list_lock, flags);
->> +	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
->> +		rc = zpci_refresh_trans((u64)zdev->fh << 32, gather->start,
->> +					size);
->> +		if (rc)
->> +			break;
->> +	}
->> +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
->> +}
->> +
->> +static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
->> +				      unsigned long iova, size_t size)
->> +{
->> +	struct s390_domain *s390_domain = to_s390_domain(domain);
->> +	struct zpci_dev *zdev;
->> +	unsigned long flags;
->> +	int rc;
->> +
->> +	spin_lock_irqsave(&s390_domain->list_lock, flags);
->> +	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
->> +		if (!zdev->tlb_refresh)
->> +			continue;
->> +		rc = zpci_refresh_trans((u64)zdev->fh << 32,
->> +					iova, size);
->> +		if (rc)
->> +			break;
->> +	}
->> +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
->> +}
->> +
->>   static int s390_iommu_update_trans(struct s390_domain *s390_domain,
->>   				   phys_addr_t pa, dma_addr_t dma_addr,
->>   				   unsigned long nr_pages, int flags)
->>   {
->>   	phys_addr_t page_addr = pa & PAGE_MASK;
->> -	dma_addr_t start_dma_addr = dma_addr;
->>   	unsigned long irq_flags, i;
->> -	struct zpci_dev *zdev;
->>   	unsigned long *entry;
->>   	int rc = 0;
->>   
->> @@ -225,15 +283,6 @@ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
->>   		dma_addr += PAGE_SIZE;
->>   	}
->>   
->> -	spin_lock(&s390_domain->list_lock);
->> -	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
->> -		rc = zpci_refresh_trans((u64)zdev->fh << 32,
->> -					start_dma_addr, nr_pages * PAGE_SIZE);
->> -		if (rc)
->> -			break;
->> -	}
->> -	spin_unlock(&s390_domain->list_lock);
->> -
->>   undo_cpu_trans:
->>   	if (rc && ((flags & ZPCI_PTE_VALID_MASK) == ZPCI_PTE_VALID)) {
->>   		flags = ZPCI_PTE_INVALID;
->> @@ -340,6 +389,8 @@ static size_t s390_iommu_unmap_pages(struct iommu_domain *domain,
->>   	if (rc)
->>   		return 0;
->>   
->> +	iommu_iotlb_gather_add_range(gather, iova, size);
->> +
->>   	return size;
->>   }
->>   
->> @@ -384,6 +435,9 @@ static const struct iommu_ops s390_iommu_ops = {
->>   		.detach_dev	= s390_iommu_detach_device,
->>   		.map_pages	= s390_iommu_map_pages,
->>   		.unmap_pages	= s390_iommu_unmap_pages,
->> +		.flush_iotlb_all = s390_iommu_flush_iotlb_all,
->> +		.iotlb_sync      = s390_iommu_iotlb_sync,
->> +		.iotlb_sync_map  = s390_iommu_iotlb_sync_map,
->>   		.iova_to_phys	= s390_iommu_iova_to_phys,
->>   		.free		= s390_domain_free,
->>   	}
-> 
+Indeed - binding the code on the A53 shows half the overhead from
+ptep_clear_flush() compared to the A72.
+
+On the A53 -
+
+    $ perf report --stdio -i perf.vanilla.a53.data | grep ptep_clear_flush
+         0.63%  pageout  [kernel.kallsyms]  [k] ptep_clear_flush
+
+On the A72
+
+    $ perf report --stdio -i perf.vanilla.a72.data | grep ptep_clear_flush
+         1.34%  pageout  [kernel.kallsyms]      [k] ptep_clear_flush
+
+
+[...]
+
