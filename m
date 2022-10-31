@@ -2,197 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C34BEECAAA1
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Oct 2022 18:36:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F097BFA3741
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Oct 2022 22:46:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230097AbiJaSg4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Oct 2022 14:36:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35208 "EHLO
+        id S229875AbiJaWq3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Oct 2022 18:46:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229956AbiJaSgz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Oct 2022 14:36:55 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66EF213CCB
-        for <linux-s390@vger.kernel.org>; Mon, 31 Oct 2022 11:36:54 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id z14so17183333wrn.7
-        for <linux-s390@vger.kernel.org>; Mon, 31 Oct 2022 11:36:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:user-agent:message-id:in-reply-to:date:references
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=sNqF1x5hFExPPQ1p8H8ZfUJkMN/LytiJFdG0FgSo0Yc=;
-        b=Mki3cqNyLb6i/7bDr8xmcRoAI7MKB8Ubep7MvVdCAwvVAv/rvYzaNntbYk7evNSPOx
-         iZSZj+1kqC7UTT9hY3p9QxXxVMZ7rRgmk+9DY9r7FhExeFFt1VDbTR9aAf2X+JrZ0tNY
-         Tr/US88lDzmERESqdII2j74Xqtc13Nxr3puP6+gFIxszTZcUEQgT950jsRCvi08bhiKR
-         jD8ZqkKvxW/CqsLaBVsSxX0va4onlR2A9GDsiypQf+pm99b/Y+UG3WiItOZJ+Li8JVOO
-         +Y1i4xOLivYeF+DP4zPejP0GtpVAQoKKHaj+oeUXTWFGo9wGo7aYYFoFnonbrsyfX2Yj
-         K6HQ==
+        with ESMTP id S229546AbiJaWq2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Oct 2022 18:46:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4F9F12AD5
+        for <linux-s390@vger.kernel.org>; Mon, 31 Oct 2022 15:45:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667256331;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VcWeOKGAq8wttzU4CxXOEF2dDnjMMLoZymWv1KKckJE=;
+        b=X9XHBielS8ISbbbdT95tzpmYmVdBVNjNiDHwNWcTaIF4A38wBSg7V3JlyIXW85ZjzbuirV
+        BtUrJNElbANRWW6kOmrWmR8tBtdUlA5Yyv3UpFNzbl0bn9BaqwMa15hVbyZK5qws2j5A+9
+        prgy8WCe47Ru7B6A3LTiMJDOskV2L4M=
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
+ [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-503-o5kkJsxJNPiVNMh-J7vHOg-1; Mon, 31 Oct 2022 18:45:30 -0400
+X-MC-Unique: o5kkJsxJNPiVNMh-J7vHOg-1
+Received: by mail-il1-f198.google.com with SMTP id w13-20020a056e021c8d00b00300ad5b16a0so3251767ill.7
+        for <linux-s390@vger.kernel.org>; Mon, 31 Oct 2022 15:45:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=mime-version:user-agent:message-id:in-reply-to:date:references
-         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=sNqF1x5hFExPPQ1p8H8ZfUJkMN/LytiJFdG0FgSo0Yc=;
-        b=JxLjc4UGsqMyauLs2sN7TZIeb6AZQDhpv7CFm6oXJGu8NG2dGTCpik2pyMWaFXeesJ
-         kd8N3P8q3gMeg4apfFzUIygp7P0qwDHJDh4xbXtS66Ux9OOGPHwPoXiHc4uAeT7HXC0p
-         kQVbKVoF2kumpuBiJe6JZWYh/DFQjtQevcZxnsSeYumpo8wkX8lt9bkk8W4AFehwDF6Q
-         hc5YMfHlY6rNT01OE2in8+a9ITmP6ASBj8PTNZSw0ck/4ZjC3xXk5KzYjguidH1psuAC
-         3gokgHEzH6bnT97CkTI2zvCICynrPNXAxfFtPn9vzx8FhoIwvMLMRlnz4QgTWcXUQ92j
-         f6iA==
-X-Gm-Message-State: ACrzQf176N/n1o/Ku50Gv2Oj2fJ5Oe2BgdvYacmKRsfbD77CGRbtJnyr
-        uISNYxw8RGKqTlXwVAm7SfD3MQ==
-X-Google-Smtp-Source: AMsMyM6L4c0mU3rV7kcQN/uxBci0PgFY6LkbseXn4PqZrB/kcujXoiDFpfGo/UsDapmtxjnBCDkTjg==
-X-Received: by 2002:a5d:584e:0:b0:236:6f0f:9d8 with SMTP id i14-20020a5d584e000000b002366f0f09d8mr9048660wrf.701.1667241412938;
-        Mon, 31 Oct 2022 11:36:52 -0700 (PDT)
-Received: from localhost ([95.148.15.66])
-        by smtp.gmail.com with ESMTPSA id b20-20020a05600c151400b003b3307fb98fsm7781722wmg.24.2022.10.31.11.36.52
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VcWeOKGAq8wttzU4CxXOEF2dDnjMMLoZymWv1KKckJE=;
+        b=iF28HO2toFv3AxpgN3n9axgFXWxsRGKMrGRTCdL+YBjTCKhUiX2DhQvO26U4aGezpc
+         x743T3VMnBtxjSWZLubkpH1X47xLCRhrAHK01HTfAjwZpp3Wlb2DRQlKZG1xM+xUDbtE
+         dLqhkPNJikPzDdzRyof1vHqiOy2CDZPMP5VoHNkTFsY37P41f5A6Emcc+4xaZEh8bW/F
+         spn9hwJ9NPKj2YiFx7plTOx604PEeTqDYGEOS4YQf4amg9Zgjph9l3uBxaCbFognj+Kc
+         D6FrCy+xhE/MaVuYWyuW5OAe+Fio3aibd6NIYv2I0fwrxervOLu/ud6EFlCUdMHUVCFa
+         SXiA==
+X-Gm-Message-State: ACrzQf0WBN1ZIpitSygerglVJb9ZV4W5lXH94g2ucKKgXU9JHDQgzfWd
+        UQ7yj5Gy1XrI+BlNys/l89YB9+WSnNgWLOOPP3GT2x0jUD1uJlvqXQFYLDxMuwlKtgDkK4draeF
+        0VeY2uvljeRWxJXqRHOyFeA==
+X-Received: by 2002:a6b:ba41:0:b0:6bd:1970:16ac with SMTP id k62-20020a6bba41000000b006bd197016acmr8720511iof.15.1667256329601;
+        Mon, 31 Oct 2022 15:45:29 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4VfhsMAuyXCH5HPHtMnIJqQGlZT/T/OmjKoluwi54wXJ63m+zcNwWVSXkyLmiQm1Q3/6FVkw==
+X-Received: by 2002:a6b:ba41:0:b0:6bd:1970:16ac with SMTP id k62-20020a6bba41000000b006bd197016acmr8720475iof.15.1667256329251;
+        Mon, 31 Oct 2022 15:45:29 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id t20-20020a02b194000000b003738c0a80b4sm3202099jah.144.2022.10.31.15.45.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Oct 2022 11:36:52 -0700 (PDT)
-From:   Punit Agrawal <punit.agrawal@bytedance.com>
-To:     Barry Song <21cnbao@gmail.com>
-Cc:     Punit Agrawal <punit.agrawal@bytedance.com>,
-        Yicong Yang <yangyicong@huawei.com>, yangyicong@hisilicon.com,
-        corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
-        linux-kernel@vger.kernel.org, darren@os.amperecomputing.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-mm@kvack.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, akpm@linux-foundation.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        wangkefeng.wang@huawei.com, xhao@linux.alibaba.com,
-        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>,
-        catalin.marinas@arm.com, will@kernel.org,
-        linux-doc@vger.kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: Re: [PATCH v4 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-References: <20220921084302.43631-1-yangyicong@huawei.com>
-        <20220921084302.43631-3-yangyicong@huawei.com>
-        <168eac93-a6ee-0b2e-12bb-4222eff24561@arm.com>
-        <8e391962-4e3a-5a56-64b4-78e8637e3b8c@huawei.com>
-        <CAGsJ_4z=dZbrAUD9jczT08S3qi_ep-h+EK35UfayVk1S+Cnp2A@mail.gmail.com>
-        <ecd161db-b290-7997-a81e-a0a00bd1c599@arm.com>
-        <87o7tx5oyx.fsf@stealth>
-        <bc44cf85-aee9-03ca-9911-dbd904a43cc8@huawei.com>
-        <87bkpw5bzm.fsf@stealth>
-        <CAGsJ_4xj2fKLOEHYC46P8ZhUPX8rw=yTNv3Zs=CPxLON6Xxvqw@mail.gmail.com>
-Date:   Mon, 31 Oct 2022 18:36:51 +0000
-In-Reply-To: <CAGsJ_4xj2fKLOEHYC46P8ZhUPX8rw=yTNv3Zs=CPxLON6Xxvqw@mail.gmail.com>
-        (Barry Song's message of "Sat, 29 Oct 2022 10:40:11 +1300")
-Message-ID: <87zgdb4z7g.fsf@stealth>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        Mon, 31 Oct 2022 15:45:28 -0700 (PDT)
+Date:   Mon, 31 Oct 2022 16:45:26 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@gmail.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org, iommu@lists.linux.dev,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>
+Subject: Re: [PATCH 04/10] vfio: Move storage of allow_unsafe_interrupts to
+ vfio_main.c
+Message-ID: <20221031164526.0712e456.alex.williamson@redhat.com>
+In-Reply-To: <Y1wiCc33Jh5QY+1f@nvidia.com>
+References: <0-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
+        <4-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
+        <20221026152442.4855c5de.alex.williamson@redhat.com>
+        <Y1wiCc33Jh5QY+1f@nvidia.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Barry Song <21cnbao@gmail.com> writes:
+On Fri, 28 Oct 2022 15:40:09 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> On Sat, Oct 29, 2022 at 2:11 AM Punit Agrawal
-> <punit.agrawal@bytedance.com> wrote:
->>
->> Yicong Yang <yangyicong@huawei.com> writes:
->>
->> > On 2022/10/27 22:19, Punit Agrawal wrote:
->> >>
->> >> [ Apologies for chiming in late in the conversation ]
->> >>
->> >> Anshuman Khandual <anshuman.khandual@arm.com> writes:
->> >>
->> >>> On 9/28/22 05:53, Barry Song wrote:
->> >>>> On Tue, Sep 27, 2022 at 10:15 PM Yicong Yang <yangyicong@huawei.com> wrote:
->> >>>>>
->> >>>>> On 2022/9/27 14:16, Anshuman Khandual wrote:
->> >>>>>> [...]
->> >>>>>>
->> >>>>>> On 9/21/22 14:13, Yicong Yang wrote:
->> >>>>>>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
->> >>>>>>> +{
->> >>>>>>> +    /* for small systems with small number of CPUs, TLB shootdown is cheap */
->> >>>>>>> +    if (num_online_cpus() <= 4)
->> >>>>>>
->> >>>>>> It would be great to have some more inputs from others, whether 4 (which should
->> >>>>>> to be codified into a macro e.g ARM64_NR_CPU_DEFERRED_TLB, or something similar)
->> >>>>>> is optimal for an wide range of arm64 platforms.
->> >>>>>>
->> >>>>
->> >>>> I have tested it on a 4-cpus and 8-cpus machine. but i have no machine
->> >>>> with 5,6,7
->> >>>> cores.
->> >>>> I saw improvement on 8-cpus machines and I found 4-cpus machines don't need
->> >>>> this patch.
->> >>>>
->> >>>> so it seems safe to have
->> >>>> if (num_online_cpus()  < 8)
->> >>>>
->> >>>>>
->> >>>>> Do you prefer this macro to be static or make it configurable through kconfig then
->> >>>>> different platforms can make choice based on their own situations? It maybe hard to
->> >>>>> test on all the arm64 platforms.
->> >>>>
->> >>>> Maybe we can have this default enabled on machines with 8 and more cpus and
->> >>>> provide a tlbflush_batched = on or off to allow users enable or
->> >>>> disable it according
->> >>>> to their hardware and products. Similar example: rodata=on or off.
->> >>>
->> >>> No, sounds bit excessive. Kernel command line options should not be added
->> >>> for every possible run time switch options.
->> >>>
->> >>>>
->> >>>> Hi Anshuman, Will,  Catalin, Andrew,
->> >>>> what do you think about this approach?
->> >>>>
->> >>>> BTW, haoxin mentioned another important user scenarios for tlb bach on arm64:
->> >>>> https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
->> >>>>
->> >>>> I do believe we need it based on the expensive cost of tlb shootdown in arm64
->> >>>> even by hardware broadcast.
->> >>>
->> >>> Alright, for now could we enable ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH selectively
->> >>> with CONFIG_EXPERT and for num_online_cpus()  > 8 ?
->> >>
->> >> When running the test program in the commit in a VM, I saw benefits from
->> >> the patches at all sizes from 2, 4, 8, 32 vcpus. On the test machine,
->> >> ptep_clear_flush() went from ~1% in the unpatched version to not showing
->> >> up.
->> >>
->> >
->> > Maybe you're booting VM on a server with more than 32 cores and Barry tested
->> > on his 4 CPUs embedded platform. I guess a 4 CPU VM is not fully equivalent to
->> > a 4 CPU real machine as the tbli and dsb in the VM may influence the host
->> > as well.
->>
->> Yeah, I also wondered about this.
->>
->> I was able to test on a 6-core RK3399 based system - there the
->> ptep_clear_flush() was only 0.10% of the overall execution time. The
->> hardware seems to do a pretty good job of keeping the TLB flushing
->> overhead low.
+> On Wed, Oct 26, 2022 at 03:24:42PM -0600, Alex Williamson wrote:
+> > On Tue, 25 Oct 2022 15:17:10 -0300
+> > Jason Gunthorpe <jgg@nvidia.com> wrote:
+> >   
+> > > This legacy module knob has become uAPI, when set on the vfio_iommu_type1
+> > > it disables some security protections in the iommu drivers. Move the
+> > > storage for this knob to vfio_main.c so that iommufd can access it too.  
+> > 
+> > I don't really understand this, we're changing the behavior of the
+> > iommufd_device_attach() operation based on the modules options of
+> > vfio_iommu_type1,   
+> 
+> The specific reason it was done is that we had a misconfigured test VM
+> in the farm that needed it, and that VM has since been fixed. But it
+> did highlight we should try to preserve this in some way.
+> 
+> > which may not be loaded or even compiled into the
+> > kernel.  Our compatibility story falls apart when VFIO_CONTAINER is not
+> > set, iommufd sneaks in to usurp /dev/vfio/vfio, and the user's module
+> > options for type1 go unprocessed.  
+> 
+> There are two aspects here, trying to preseve the
+> allow_unsafe_interrupts knob as it is already as some ABI in the best
+> way we can.
+> 
+> And the second is how do we make this work in the new world where
+> there may be no type 1 module at all. This patch is not trying to
+> address that topic. I am expecting a range of small adjustments before
+> VFIO_CONTAINER=n becomes really fully viable.
+> 
+> > I hate to suggest that type1 becomes a module that does nothing more
+> > than maintain consistency of this variable when the full type1 isn't
+> > available, but is that what we need to do?  
+> 
+> It is one idea, it depends how literal you want to be on "module
+> parameters are ABI". IMHO it is a weak form of ABI and the need of
+> this paramter in particular is not that common in modern times, AFAIK.
+> 
+> So perhaps we just also expose it through vfio.ko and expect people to
+> migrate. That would give a window were both options are available.
 
-I found a problem with my measurements (missing volatile). Correcting
-that increased the overhead somewhat - more below.
+That might be best.  Ultimately this is an opt-out of a feature that
+has security implications, so I'd rather error on the side of requiring
+the user to re-assert that opt-out.  It seems the potential good in
+eliminating stale or unnecessary options outweighs any weak claims of
+preserving an ABI for a module that's no longer in service.
 
-> RK3399 has Dual-core ARM Cortex-A72 MPCore processor and
-> Quad-core ARM Cortex-A53 MPCore processor. you are probably
-> going to see different overhead of ptep_clear_flush() when you
-> bind the micro-benchmark on different cores.
+However, I'd question whether vfio is the right place for that new
+module option.  As proposed, vfio is only passing it through to
+iommufd, where an error related to lack of the hardware feature is
+masked behind an -EPERM by the time it gets back to vfio, making any
+sort of advisory to the user about the module option convoluted.  It
+seems like iommufd should own the option to opt-out universally, not
+just through the vfio use case.  Thanks,
 
-Indeed - binding the code on the A53 shows half the overhead from
-ptep_clear_flush() compared to the A72.
-
-On the A53 -
-
-    $ perf report --stdio -i perf.vanilla.a53.data | grep ptep_clear_flush
-         0.63%  pageout  [kernel.kallsyms]  [k] ptep_clear_flush
-
-On the A72
-
-    $ perf report --stdio -i perf.vanilla.a72.data | grep ptep_clear_flush
-         1.34%  pageout  [kernel.kallsyms]      [k] ptep_clear_flush
-
-
-[...]
+Alex
 
