@@ -2,181 +2,272 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 409D5C433FE
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Nov 2022 04:21:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAD75C433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Nov 2022 07:22:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229544AbiKAEVa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Nov 2022 00:21:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53744 "EHLO
+        id S229475AbiKAHWu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Nov 2022 03:22:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbiKAEV1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Nov 2022 00:21:27 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2051.outbound.protection.outlook.com [40.107.92.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D204B14D3D;
-        Mon, 31 Oct 2022 21:21:26 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BLHh/JGx+RLtaCKG50AvLq2JFy7iSIK61diOkJm2V382O06RxK1ioU/zM0UWasZDJZHNH4p5wc9J7pajbO01K35SQu2mRXup0RBw5ocHG3xF9kUyOJLI/w/uiH0+lPIH2fgA2TkfmD4wvYHMh8nj6LoAb33rS0+9kmT5GX3xcltgg0KaRY1DIRDG2Nli6daBGp8pVpC2t53hAwnXtEPCnWVeex6uGFbxCCX7DVPQjIOcRbLSW7j18wO9o/bCpcRDGzxdWPMl2nxQBPNh7bwulzrduUHuLU2+P6pu0dqmjfu+XwvvHJe9derw6k80xf5HrGHHDQJYJWOWZDO2k9DHEw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yh2mFQ+0Cpb5uIGt58jitZB5flsuF1WBGKMrMp7OPsk=;
- b=YdXFblUtCn3N4OPDq+7FzWGjID8plxI1icuaTr7YiN3MfVHugASEoiDnNef/eYiWabM4lt3flDQSfB+JvL5aTgfnrM8iAOpHDEW2ZYHKkBe+A+nnMF9BkMOt5NZbjPmyLAE0338R2eKeKi3GBcttckpahOspcL09YDJHGH5OZs4dU6HGtBJA9OxXiVRbBYQkduNwDKpwsKJagqHvHU3Paw2F/ptffQF9rykoovcdbZuKrFxLLzGxDjed+a2bZq6FpZw2M7sdBapCoWaGQ7a1wsVTuYICFtsr5Pmy3IHa38frzrYJKgowWis/oatWUaIh30jBxNnBJKW160zVHoWuNw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=intel.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yh2mFQ+0Cpb5uIGt58jitZB5flsuF1WBGKMrMp7OPsk=;
- b=m2ryeP5dnAiz2or1B+kuWRl1FZ4EuYazKOwagWjRFbR38Z68kH3VH7V3AgNpffI++VaI/GVrXXPnnOI2i5qWIuYvSIM00H8ujggwGgYvc3Qv2z7xKfsiTMdzFiBKyxzw7ut4XGkff7D6pOF8jiQNHom7VADVG/nWxNiMB3bGtv7Sl4yfBoDKiACq5vGWDZwcu6rQAH9D0LM3X9pEJWmN9qO0Of5IjlIQ0yjYKFGRTqxGlWhgAwPR9Rj9q2Jcs1+vgkxbrM740dLQNKOQHA9YBWKpDPjJqw3RomJyLKbMuZN6I1hIbTfQsTuFkk6/kIl/YKxAT3o+Yt91n3pwhTLJFg==
-Received: from MW4P223CA0003.NAMP223.PROD.OUTLOOK.COM (2603:10b6:303:80::8) by
- SA1PR12MB6945.namprd12.prod.outlook.com (2603:10b6:806:24c::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5769.19; Tue, 1 Nov
- 2022 04:21:24 +0000
-Received: from CO1NAM11FT017.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:80:cafe::ee) by MW4P223CA0003.outlook.office365.com
- (2603:10b6:303:80::8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5769.16 via Frontend
- Transport; Tue, 1 Nov 2022 04:21:24 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- CO1NAM11FT017.mail.protection.outlook.com (10.13.175.108) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5769.14 via Frontend Transport; Tue, 1 Nov 2022 04:21:24 +0000
-Received: from rnnvmail202.nvidia.com (10.129.68.7) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26; Mon, 31 Oct
- 2022 21:21:13 -0700
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail202.nvidia.com
- (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29; Mon, 31 Oct
- 2022 21:21:12 -0700
-Received: from Asurada-Nvidia (10.127.8.14) by mail.nvidia.com (10.129.68.8)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29 via Frontend
- Transport; Mon, 31 Oct 2022 21:21:10 -0700
-Date:   Mon, 31 Oct 2022 21:21:08 -0700
-From:   Nicolin Chen <nicolinc@nvidia.com>
-To:     Yi Liu <yi.l.liu@intel.com>, Jason Gunthorpe <jgg@nvidia.com>
-CC:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@gmail.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        <dri-devel@lists.freedesktop.org>,
-        Eric Auger <eric.auger@redhat.com>,
-        "Eric Farman" <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        <intel-gfx@lists.freedesktop.org>,
-        <intel-gvt-dev@lists.freedesktop.org>, <iommu@lists.linux.dev>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        "Jason Herne" <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>, <kvm@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>,
-        Longfang Liu <liulongfang@huawei.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        "Halil Pasic" <pasic@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        "Rodrigo Vivi" <rodrigo.vivi@intel.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH 00/10] Connect VFIO to IOMMUFD
-Message-ID: <Y2CetBTVV1EkvDkg@Asurada-Nvidia>
-References: <0-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
- <39eb11ed-dbf2-822a-dc79-5b70a49c430b@intel.com>
- <Y1+9IB+DI9v+nD0P@nvidia.com>
- <d8a0352e-9e1d-5b01-7616-dccc73a172a6@intel.com>
- <Y2BZHZXJwxF5C4a8@nvidia.com>
- <1ba21eb6-5050-d9ba-d988-a939bf6c821b@intel.com>
+        with ESMTP id S229457AbiKAHWt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Nov 2022 03:22:49 -0400
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C5B14029;
+        Tue,  1 Nov 2022 00:22:47 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R671e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VTebUcP_1667287362;
+Received: from 30.221.145.108(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VTebUcP_1667287362)
+          by smtp.aliyun-inc.com;
+          Tue, 01 Nov 2022 15:22:44 +0800
+Message-ID: <1615836b-3087-2467-262e-f402ec521716@linux.alibaba.com>
+Date:   Tue, 1 Nov 2022 15:22:41 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <1ba21eb6-5050-d9ba-d988-a939bf6c821b@intel.com>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1NAM11FT017:EE_|SA1PR12MB6945:EE_
-X-MS-Office365-Filtering-Correlation-Id: ddc92288-8ce6-418e-d395-08dabbc0899a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: akU3VYuHU7cF9OpLKVqZiXZxayYNvJJ7drCffCXEuWSE9r+vbXbKoW9MSGPQDDf0l2jyDVLSOPVQHiLy5QhDUNJ9HwlRgbftt7N2OHN0xUivRV2Fad/j9bA85gRUdJ76Kbewh/QQ/gjyIvD6+XN9dN5FqOQ5UCXcz8rAUzzMHWzsFCeTMmghkOiKo+hrt5OIbqAyeNkImGeX9uOycUmw028xiOZTMO4H5C5t1WnKIeL0Ag085xChlF0+mS2bYnB2/7qr+bcjiKLDldGq8hyBNL2pKb2d6N/RvE5PWBbuGUtZiT5l2ZLPYX7v/tRlNeXfDEhj6pnb0tDEjmhIqygc7cr2qbucq9QzsxMcLkqnSCu0jJuytpitJghjHifjSzb2zAIbRwEPFa4aRa5tWo8kWuEcTzaohwj81D3UPtkbMYlNXvZDv7m6/hBLExileujL/LSmG7Y8Phaz4RJc0vB5LL1ttQ2iI8WmvviETHbWso3b8bPt9FDygyxlunyct7edfrFhiucGBso5oYt7QIHRgKGhzl7sT7GCiCHyqnilmM0b67NJP0s2gGtRJTgWIjlDyMj3gxkVdsCfvDYKDtLQSR3aWjVIDVmzdW4gfcpuINXsKsKrcpe/hvbaRh+Nmpec/M63vMEnXWI+ji5RSCWf2XiCwlN4mBTMOcSkpIHqhJfvKlGRm6e1CNHnz/Kjw7IrfdQOVRiCYeUZOWP8TdWyPdwEkV8NEvZOVq56jC0DhStPDYKK7+h0sJLoOCiT1qUG8D04PF9KEiYv4/I9Od1iCw==
-X-Forefront-Antispam-Report: CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230022)(4636009)(396003)(39860400002)(346002)(136003)(376002)(451199015)(36840700001)(46966006)(40470700004)(40460700003)(2906002)(5660300002)(7406005)(7636003)(82740400003)(7416002)(426003)(83380400001)(47076005)(336012)(86362001)(356005)(110136005)(186003)(6636002)(36860700001)(478600001)(54906003)(55016003)(40480700001)(8676002)(316002)(70586007)(8936002)(4326008)(9686003)(26005)(53546011)(33716001)(70206006)(41300700001)(82310400005);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Nov 2022 04:21:24.2149
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: ddc92288-8ce6-418e-d395-08dabbc0899a
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT017.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB6945
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.13.0
+Subject: Re: [PATCH net-next v4 00/10] optimize the parallelism of SMC-R
+ connections
+Content-Language: en-US
+To:     Jan Karcher <jaka@linux.ibm.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1666529042-40828-1-git-send-email-alibuda@linux.alibaba.com>
+ <95feb2a1-d17a-6233-d3d0-eaebf26d2284@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <95feb2a1-d17a-6233-d3d0-eaebf26d2284@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 01, 2022 at 11:04:38AM +0800, Yi Liu wrote:
-> On 2022/11/1 07:24, Jason Gunthorpe wrote:
-> > On Mon, Oct 31, 2022 at 08:25:39PM +0800, Yi Liu wrote:
-> > > > There is something wrong with the test suite that it isn't covering
-> > > > the above, I'm going to look into that today.
-> > > 
-> > > sounds to be the cause. I didn't see any significant change in vfio_main.c
-> > > that may fail gvt. So should the iommufd changes. Then we will re-run the
-> > > test after your update.:-)
-> > 
-> > I updated the github with all the changes made so far, it is worth
-> > trying again!
+
+Hi Jan,
+
+Our team conducted some code reviews over this, but unfortunately no obvious problems were found. Hence
+we are waiting for Tony Lu's virtual SMC-D device to test, which is expected to come in this week.  Before that,
+I wonder if your tests are running separately on separate PATCH? If so, I would like to please you to test
+the first PATCH and the second PATCH together. I doubt that the problem repaired by the second PATCH
+is the cause of this issues.
+
+Best Wishes.
+D. Wythe
+
+
+On 10/24/22 9:11 PM, Jan Karcher wrote:
+> Hi D. Wythe,
 > 
-> gvt is still failing with below call trace in host side. vfio_unpin_pages()
-> is still in problem. Any idea on it?
-
-> [  206.464318] WARNING: CPU: 9 PID: 3362 at
-> drivers/iommu/iommufd/device.c:591 iommufd_access_pin_pages+0x337/0x360
-
-Judging from this WARNING, and since gvt (mdev) needs pin_pages(),
-I assume this might be a fix, though Jason's latest change for the
-iova_alignment seems to be added for CONFIG_IOMMUFD_TEST only.
-
-------
-diff --git a/drivers/vfio/iommufd.c b/drivers/vfio/iommufd.c
-index 72a289c5f8c9..185075528d5e 100644
---- a/drivers/vfio/iommufd.c
-+++ b/drivers/vfio/iommufd.c
-@@ -120,6 +120,7 @@ static void vfio_emulated_unmap(void *data, unsigned long iova,
- }
- 
- static const struct iommufd_access_ops vfio_user_ops = {
-+	.needs_pin_pages = 1,
- 	.unmap = vfio_emulated_unmap,
- };
- 
-------
-
-Perhaps you can try it first to see if we can test the rest part of
-the routine for now, till Jason acks tomorrow.
-
-Thanks
-Nic
+> I re-run the tests with your fix.
+> SMC-R works fine now. For SMC-D we still have the following problem. It is kind of the same as i reported in v2 but even weirder:
+> 
+> smc stats:
+> 
+> t8345011
+> SMC-D Connections Summary
+>    Total connections handled          2465
+> SMC-R Connections Summary
+>    Total connections handled           232
+> 
+> t8345010
+> SMC-D Connections Summary
+>    Total connections handled          2290
+> SMC-R Connections Summary
+>    Total connections handled           231
+> 
+> 
+> smc linkgroups:
+> 
+> t8345011
+> [root@t8345011 ~]# smcr linkgroup
+> LG-ID    LG-Role  LG-Type  VLAN  #Conns  PNET-ID
+> 00000400 SERV     SYM         0       0  NET25
+> [root@t8345011 ~]# smcd linkgroup
+> LG-ID    VLAN  #Conns  PNET-ID
+> 00000300    0      16  NET25
+> 
+> t8345010
+> [root@t8345010 tela-kernel]# smcr linkgroup
+> LG-ID    LG-Role  LG-Type  VLAN  #Conns  PNET-ID
+> 00000400 CLNT     SYM         0       0  NET25
+> [root@t8345010 tela-kernel]# smcd linkgroup
+> LG-ID    VLAN  #Conns  PNET-ID
+> 00000300    0       1  NET25
+> 
+> 
+> smcss:
+> 
+> t8345011
+> [root@t8345011 ~]# smcss
+> State          UID   Inode   Local Address           Peer Address     Intf Mode
+> 
+> t8345010
+> [root@t8345010 tela-kernel]# smcss
+> State          UID   Inode   Local Address           Peer Address     Intf Mode
+> 
+> 
+> lsmod:
+> 
+> t8345011
+> [root@t8345011 ~]# lsmod | grep smc
+> smc                   225280  18 ism,smc_diag
+> t8345010
+> [root@t8345010 tela-kernel]# lsmod | grep smc
+> smc                   225280  3 ism,smc_diag
+> 
+> Also smc_dbg and netstat do not show any more information on this problem. We only see in the dmesg that the code seems to build up SMC-R linkgroups even tho we are running the SMC-D tests.
+> NOTE: we disabled the syncookies for the tests.
+> 
+> dmesg:
+> 
+> t8345011
+> smc-tests: test_smcapp_torture_test started
+> kernel: TCP: request_sock_TCP: Possible SYN flooding on port 22465. Dropping request.  Check SNMP counters.
+> kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000401, peerid 00000401, ibdev mlx5_0, ibport 1
+> kernel: smc: SMC-R lg 00000400 net 1 state changed: SINGLE, pnetid NET25
+> kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000402, peerid 00000402, ibdev mlx5_1, ibport 1
+> kernel: smc: SMC-R lg 00000400 net 1 state changed: SYMMETRIC, pnetid NET25
+> 
+> t8345010
+> smc-tests: test_smcapp_torture_test started
+> kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000401, peerid 00000401, ibdev mlx5_0, ibport 1
+> kernel: smc: SMC-R lg 00000400 net 1 state changed: SINGLE, pnetid NET25
+> kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000402, peerid 00000402, ibdev mlx5_1, ibport 1
+> kernel: smc: SMC-R lg 00000400 net 1 state changed: SYMMETRIC, pnetid NET25
+> 
+> If this output does not help and if you want us to look deeper into it feel free to let us know and we can debug further.
+> 
+> On 23/10/2022 14:43, D.Wythe wrote:
+>> From: "D.Wythe" <alibuda@linux.alibaba.com>
+>>
+>> This patch set attempts to optimize the parallelism of SMC-R connections,
+>> mainly to reduce unnecessary blocking on locks, and to fix exceptions that
+>> occur after thoses optimization.
+>>
+>> According to Off-CPU graph, SMC worker's off-CPU as that:
+>>
+>> smc_close_passive_work                  (1.09%)
+>>          smcr_buf_unuse                  (1.08%)
+>>                  smc_llc_flow_initiate   (1.02%)
+>>
+>> smc_listen_work                         (48.17%)
+>>          __mutex_lock.isra.11            (47.96%)
+>>
+>>
+>> An ideal SMC-R connection process should only block on the IO events
+>> of the network, but it's quite clear that the SMC-R connection now is
+>> queued on the lock most of the time.
+>>
+>> The goal of this patchset is to achieve our ideal situation where
+>> network IO events are blocked for the majority of the connection lifetime.
+>>
+>> There are three big locks here:
+>>
+>> 1. smc_client_lgr_pending & smc_server_lgr_pending
+>>
+>> 2. llc_conf_mutex
+>>
+>> 3. rmbs_lock & sndbufs_lock
+>>
+>> And an implementation issue:
+>>
+>> 1. confirm/delete rkey msg can't be sent concurrently while
+>> protocol allows indeed.
+>>
+>> Unfortunately,The above problems together affect the parallelism of
+>> SMC-R connection. If any of them are not solved. our goal cannot
+>> be achieved.
+>>
+>> After this patch set, we can get a quite ideal off-CPU graph as
+>> following:
+>>
+>> smc_close_passive_work                                  (41.58%)
+>>          smcr_buf_unuse                                  (41.57%)
+>>                  smc_llc_do_delete_rkey                  (41.57%)
+>>
+>> smc_listen_work                                         (39.10%)
+>>          smc_clc_wait_msg                                (13.18%)
+>>                  tcp_recvmsg_locked                      (13.18)
+>>          smc_listen_find_device                          (25.87%)
+>>                  smcr_lgr_reg_rmbs                       (25.87%)
+>>                          smc_llc_do_confirm_rkey         (25.87%)
+>>
+>> We can see that most of the waiting times are waiting for network IO
+>> events. This also has a certain performance improvement on our
+>> short-lived conenction wrk/nginx benchmark test:
+>>
+>> +--------------+------+------+-------+--------+------+--------+
+>> |conns/qps     |c4    | c8   |  c16  |  c32   | c64  |  c200  |
+>> +--------------+------+------+-------+--------+------+--------+
+>> |SMC-R before  |9.7k  | 10k  |  10k  |  9.9k  | 9.1k |  8.9k  |
+>> +--------------+------+------+-------+--------+------+--------+
+>> |SMC-R now     |13k   | 19k  |  18k  |  16k   | 15k  |  12k   |
+>> +--------------+------+------+-------+--------+------+--------+
+>> |TCP           |15k   | 35k  |  51k  |  80k   | 100k |  162k  |
+>> +--------------+------+------+-------+--------+------+--------+
+>>
+>> The reason why the benefit is not obvious after the number of connections
+>> has increased dues to workqueue. If we try to change workqueue to UNBOUND,
+>> we can obtain at least 4-5 times performance improvement, reach up to half
+>> of TCP. However, this is not an elegant solution, the optimization of it
+>> will be much more complicated. But in any case, we will submit relevant
+>> optimization patches as soon as possible.
+>>
+>> Please note that the premise here is that the lock related problem
+>> must be solved first, otherwise, no matter how we optimize the workqueue,
+>> there won't be much improvement.
+>>
+>> Because there are a lot of related changes to the code, if you have
+>> any questions or suggestions, please let me know.
+>>
+>> Thanks
+>> D. Wythe
+>>
+>> v1 -> v2:
+>>
+>> 1. Fix panic in SMC-D scenario
+>> 2. Fix lnkc related hashfn calculation exception, caused by operator
+>> priority
+>> 3. Only wake up one connection if the lnk is not active
+>> 4. Delete obsolete unlock logic in smc_listen_work()
+>> 5. PATCH format, do Reverse Christmas tree
+>> 6. PATCH format, change all xxx_lnk_xxx function to xxx_link_xxx
+>> 7. PATCH format, add correct fix tag for the patches for fixes.
+>> 8. PATCH format, fix some spelling error
+>> 9. PATCH format, rename slow to do_slow
+>>
+>> v2 -> v3:
+>>
+>> 1. add SMC-D support, remove the concept of link cluster since SMC-D has
+>> no link at all. Replace it by lgr decision maker, who provides suggestions
+>> to SMC-D and SMC-R on whether to create new link group.
+>>
+>> 2. Fix the corruption problem described by PATCH 'fix application
+>> data exception' on SMC-D.
+>>
+>> v3 -> v4:
+>>
+>> 1. Fix panic caused by uninitialization map.
+>>
+>> D. Wythe (10):
+>>    net/smc: remove locks smc_client_lgr_pending and
+>>      smc_server_lgr_pending
+>>    net/smc: fix SMC_CLC_DECL_ERR_REGRMB without smc_server_lgr_pending
+>>    net/smc: allow confirm/delete rkey response deliver multiplex
+>>    net/smc: make SMC_LLC_FLOW_RKEY run concurrently
+>>    net/smc: llc_conf_mutex refactor, replace it with rw_semaphore
+>>    net/smc: use read semaphores to reduce unnecessary blocking in
+>>      smc_buf_create() & smcr_buf_unuse()
+>>    net/smc: reduce unnecessary blocking in smcr_lgr_reg_rmbs()
+>>    net/smc: replace mutex rmbs_lock and sndbufs_lock with rw_semaphore
+>>    net/smc: Fix potential panic dues to unprotected
+>>      smc_llc_srv_add_link()
+>>    net/smc: fix application data exception
+>>
+>>   net/smc/af_smc.c   |  70 ++++----
+>>   net/smc/smc_core.c | 478 +++++++++++++++++++++++++++++++++++++++++++++++------
+>>   net/smc/smc_core.h |  36 +++-
+>>   net/smc/smc_llc.c  | 277 ++++++++++++++++++++++---------
+>>   net/smc/smc_llc.h  |   6 +
+>>   net/smc/smc_wr.c   |  10 --
+>>   net/smc/smc_wr.h   |  10 ++
+>>   7 files changed, 712 insertions(+), 175 deletions(-)
+>>
