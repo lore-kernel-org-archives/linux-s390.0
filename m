@@ -2,102 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 756AAFA373D
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Nov 2022 09:42:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46D6FFA373D
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Nov 2022 11:00:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230481AbiKAJl7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Nov 2022 05:41:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47550 "EHLO
+        id S229877AbiKALA2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Nov 2022 07:00:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230483AbiKAJl0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Nov 2022 05:41:26 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FEC21A211;
-        Tue,  1 Nov 2022 02:40:48 -0700 (PDT)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4N1lKk3JrZzpW4d;
-        Tue,  1 Nov 2022 17:37:14 +0800 (CST)
-Received: from dggpemm500013.china.huawei.com (7.185.36.172) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 1 Nov 2022 17:40:40 +0800
-Received: from ubuntu1804.huawei.com (10.67.175.36) by
- dggpemm500013.china.huawei.com (7.185.36.172) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 1 Nov 2022 17:40:40 +0800
-From:   Chen Zhongjin <chenzhongjin@huawei.com>
-To:     <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <netdev@vger.kernel.org>
-CC:     <kgraul@linux.ibm.com>, <wenjia@linux.ibm.com>,
-        <jaka@linux.ibm.com>, <davem@davemloft.net>, <edumazet@google.com>,
-        <kuba@kernel.org>, <pabeni@redhat.com>, <guvenc@linux.ibm.com>,
-        <chenzhongjin@huawei.com>
-Subject: [PATCH] net/smc: Fix possible leaked pernet namespace in smc_init()
-Date:   Tue, 1 Nov 2022 17:37:22 +0800
-Message-ID: <20221101093722.127223-1-chenzhongjin@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S230037AbiKALAX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Nov 2022 07:00:23 -0400
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF4BE18E01;
+        Tue,  1 Nov 2022 04:00:21 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0VThdbr7_1667300417;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VThdbr7_1667300417)
+          by smtp.aliyun-inc.com;
+          Tue, 01 Nov 2022 19:00:19 +0800
+Date:   Tue, 1 Nov 2022 19:00:14 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Chen Zhongjin <chenzhongjin@huawei.com>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
+        jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, guvenc@linux.ibm.com
+Subject: Re: [PATCH] net/smc: Fix possible leaked pernet namespace in
+ smc_init()
+Message-ID: <Y2D8PvHrKtpjTdJ1@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20221101093722.127223-1-chenzhongjin@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.175.36]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemm500013.china.huawei.com (7.185.36.172)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221101093722.127223-1-chenzhongjin@huawei.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In smc_init(), register_pernet_subsys(&smc_net_stat_ops) is called
-without any error handling.
-If it fails, registering of &smc_net_ops won't be reverted.
-And if smc_nl_init() fails, &smc_net_stat_ops itself won't be reverted.
+On Tue, Nov 01, 2022 at 05:37:22PM +0800, Chen Zhongjin wrote:
+> In smc_init(), register_pernet_subsys(&smc_net_stat_ops) is called
+> without any error handling.
+> If it fails, registering of &smc_net_ops won't be reverted.
+> And if smc_nl_init() fails, &smc_net_stat_ops itself won't be reverted.
+> 
+> This leaves wild ops in subsystem linkedlist and when another module
+> tries to call register_pernet_operations() it triggers page fault:
+> 
+> BUG: unable to handle page fault for address: fffffbfff81b964c
+> RIP: 0010:register_pernet_operations+0x1b9/0x5f0
+> Call Trace:
+>   <TASK>
+>   register_pernet_subsys+0x29/0x40
+>   ebtables_init+0x58/0x1000 [ebtables]
+>   ...
+> 
+> Fixes: 194730a9beb5 ("net/smc: Make SMC statistics network namespace aware")
+> Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
 
-This leaves wild ops in subsystem linkedlist and when another module
-tries to call register_pernet_operations() it triggers page fault:
+This patch looks good to me. 
 
-BUG: unable to handle page fault for address: fffffbfff81b964c
-RIP: 0010:register_pernet_operations+0x1b9/0x5f0
-Call Trace:
-  <TASK>
-  register_pernet_subsys+0x29/0x40
-  ebtables_init+0x58/0x1000 [ebtables]
-  ...
+The subject of this patch should be in net, the prefix tag is missed.
 
-Fixes: 194730a9beb5 ("net/smc: Make SMC statistics network namespace aware")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
----
- net/smc/af_smc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 3ccbf3c201cd..e12d4fa5aece 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -3380,14 +3380,14 @@ static int __init smc_init(void)
- 
- 	rc = register_pernet_subsys(&smc_net_stat_ops);
- 	if (rc)
--		return rc;
-+		goto out_pernet_subsys;
- 
- 	smc_ism_init();
- 	smc_clc_init();
- 
- 	rc = smc_nl_init();
- 	if (rc)
--		goto out_pernet_subsys;
-+		goto out_pernet_subsys_stat;
- 
- 	rc = smc_pnet_init();
- 	if (rc)
-@@ -3480,6 +3480,8 @@ static int __init smc_init(void)
- 	smc_pnet_exit();
- out_nl:
- 	smc_nl_exit();
-+out_pernet_subsys_stat:
-+	unregister_pernet_subsys(&smc_net_stat_ops);
- out_pernet_subsys:
- 	unregister_pernet_subsys(&smc_net_ops);
- 
--- 
-2.17.1
-
+> ---
+>  net/smc/af_smc.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 3ccbf3c201cd..e12d4fa5aece 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -3380,14 +3380,14 @@ static int __init smc_init(void)
+>  
+>  	rc = register_pernet_subsys(&smc_net_stat_ops);
+>  	if (rc)
+> -		return rc;
+> +		goto out_pernet_subsys;
+>  
+>  	smc_ism_init();
+>  	smc_clc_init();
+>  
+>  	rc = smc_nl_init();
+>  	if (rc)
+> -		goto out_pernet_subsys;
+> +		goto out_pernet_subsys_stat;
+>  
+>  	rc = smc_pnet_init();
+>  	if (rc)
+> @@ -3480,6 +3480,8 @@ static int __init smc_init(void)
+>  	smc_pnet_exit();
+>  out_nl:
+>  	smc_nl_exit();
+> +out_pernet_subsys_stat:
+> +	unregister_pernet_subsys(&smc_net_stat_ops);
+>  out_pernet_subsys:
+>  	unregister_pernet_subsys(&smc_net_ops);
+>  
+> -- 
+> 2.17.1
