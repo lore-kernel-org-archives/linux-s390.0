@@ -2,103 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16912C43219
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Nov 2022 17:47:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E82EBC433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Nov 2022 21:23:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230349AbiKARrT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Nov 2022 13:47:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44274 "EHLO
+        id S230132AbiKAVXH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Nov 2022 17:23:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229562AbiKARrS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Nov 2022 13:47:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514231D0D3;
-        Tue,  1 Nov 2022 10:47:17 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0AF6616D8;
-        Tue,  1 Nov 2022 17:47:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CD53C433D6;
-        Tue,  1 Nov 2022 17:47:05 +0000 (UTC)
-Date:   Tue, 1 Nov 2022 17:47:01 +0000
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        linux-fsdevel@vger.kernel.org,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S230165AbiKAVXG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Nov 2022 17:23:06 -0400
+X-Greylist: delayed 452 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 01 Nov 2022 14:23:05 PDT
+Received: from smtp.smtpout.orange.fr (smtp-15.smtpout.orange.fr [80.12.242.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 21E60334
+        for <linux-s390@vger.kernel.org>; Tue,  1 Nov 2022 14:23:05 -0700 (PDT)
+Received: from pop-os.home ([86.243.100.34])
+        by smtp.orange.fr with ESMTPA
+        id pyanoKD2rsfCIpybZoWfLb; Tue, 01 Nov 2022 22:15:30 +0100
+X-ME-Helo: pop-os.home
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Tue, 01 Nov 2022 22:15:30 +0100
+X-ME-IP: 86.243.100.34
+From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>
-Subject: Re: [PATCH] mm: remove kern_addr_valid() completely
-Message-ID: <Y2FblZlz2LIGh5qH@arm.com>
-References: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
+        Sven Schnelle <svens@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        linux-s390@vger.kernel.org
+Subject: [PATCH 26/30] s390/ipl: Use kstrtobool() instead of strtobool()
+Date:   Tue,  1 Nov 2022 22:14:14 +0100
+Message-Id: <7766dac5969021bf7432e8c4f038db8afc996b8a.1667336095.git.christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <cover.1667336095.git.christophe.jaillet@wanadoo.fr>
+References: <cover.1667336095.git.christophe.jaillet@wanadoo.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221018074014.185687-1-wangkefeng.wang@huawei.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 18, 2022 at 03:40:14PM +0800, Kefeng Wang wrote:
-> Most architectures(except arm64/x86/sparc) simply return 1 for
-> kern_addr_valid(), which is only used in read_kcore(), and it
-> calls copy_from_kernel_nofault() which could check whether the
-> address is a valid kernel address, so no need kern_addr_valid(),
-> let's remove unneeded kern_addr_valid() completely.
-> 
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+strtobool() is the same as kstrtobool().
+However, the latter is more used within the kernel.
 
-For arm64:
+In order to remove strtobool() and slightly simplify kstrtox.h, switch to
+the other function name.
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+While at it, include the corresponding header file (<linux/kstrtox.h>)
+
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+This patch is part of a serie that axes all usages of strtobool().
+Each patch can be applied independently from the other ones.
+
+The last patch of the serie removes the definition of strtobool().
+
+You may not be in copy of the cover letter. So, if needed, it is available
+at [1].
+
+
+This patch has NOT been compile tested.
+
+
+[1]: https://lore.kernel.org/all/cover.1667336095.git.christophe.jaillet@wanadoo.fr/
+---
+ arch/s390/kernel/ipl.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+index 325cbf69ebbd..cdd575d7a91a 100644
+--- a/arch/s390/kernel/ipl.c
++++ b/arch/s390/kernel/ipl.c
+@@ -12,6 +12,7 @@
+ #include <linux/init.h>
+ #include <linux/device.h>
+ #include <linux/delay.h>
++#include <linux/kstrtox.h>
+ #include <linux/panic_notifier.h>
+ #include <linux/reboot.h>
+ #include <linux/ctype.h>
+@@ -779,7 +780,7 @@ static ssize_t reipl_fcp_clear_store(struct kobject *kobj,
+ 				     struct kobj_attribute *attr,
+ 				     const char *buf, size_t len)
+ {
+-	if (strtobool(buf, &reipl_fcp_clear) < 0)
++	if (kstrtobool(buf, &reipl_fcp_clear) < 0)
+ 		return -EINVAL;
+ 	return len;
+ }
+@@ -899,7 +900,7 @@ static ssize_t reipl_nvme_clear_store(struct kobject *kobj,
+ 				      struct kobj_attribute *attr,
+ 				      const char *buf, size_t len)
+ {
+-	if (strtobool(buf, &reipl_nvme_clear) < 0)
++	if (kstrtobool(buf, &reipl_nvme_clear) < 0)
+ 		return -EINVAL;
+ 	return len;
+ }
+@@ -952,7 +953,7 @@ static ssize_t reipl_ccw_clear_store(struct kobject *kobj,
+ 				     struct kobj_attribute *attr,
+ 				     const char *buf, size_t len)
+ {
+-	if (strtobool(buf, &reipl_ccw_clear) < 0)
++	if (kstrtobool(buf, &reipl_ccw_clear) < 0)
+ 		return -EINVAL;
+ 	return len;
+ }
+-- 
+2.34.1
+
