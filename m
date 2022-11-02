@@ -2,360 +2,162 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A4D4C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 13:55:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD9DBC433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 14:13:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230187AbiKBNzt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 09:55:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46482 "EHLO
+        id S229700AbiKBONB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 10:13:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbiKBNzs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 09:55:48 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F29E29CB2;
-        Wed,  2 Nov 2022 06:55:44 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A2DJtkc008907;
-        Wed, 2 Nov 2022 13:55:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=/Z7RC9gudXnplqLOJpkRm/cVzWIY4sbl/YKHBiRa1Xk=;
- b=nZnE1xt2v6d+TTvEbWj4iBLr0cVOzrrCxADqp+9mOFAWhN58IHAAk7+vn+6Z/w3547AQ
- 4xD32nJiSHSvGb+ULHkQHDWLuLHualCBacIc7Y4/V65ygkWt9uEoc903Ry51AFYHJ6xi
- Tzhb11yyasJdDubhT+KUTkQNAZYsx6SVHheQRHczT2axUE2OvK31jrvRiM2Iai0BREHy
- tu4+/8gZrU/eNjeEe38gaDs6qNC4ppyIn9X43Iq/mkDKxevSnsfOrgAyTU8MJ7hCTqpk
- kS7qmVuevGe/hBCRJYWS4yPwYwcsaXpiCAXiIBFKQ9s/vuTdUX6he+ZKBoxeagA2HsXT MA== 
+        with ESMTP id S229531AbiKBOM7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 10:12:59 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7824B22B16;
+        Wed,  2 Nov 2022 07:12:57 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A2Dqc0j008745;
+        Wed, 2 Nov 2022 14:12:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=35nE7o15c9riT5mLxghtC7oxViP9L6ZfHhdvEYODxLM=;
+ b=SlEayUNUlqFz784oCyvTtczjBdNqH67uOoBWijkPAxYmaA2oi0QZrwojcdbz1m59dOuJ
+ P4Mi47hD4dE0VGLg4Z/eMOaO7Jp7E61GhdpanVdvQfA722BxcSIeteSLaKByHdfo0Kkg
+ Vpyg8a6Y7DDQPsTKajfiImHP2M3JsVwnG/3ZMZRpDcRvNRS0wMi0K9uFs0/02lBkR5EK
+ e3IwCPykKJ2aHf8Zomm9U5cxvEYJ9jRSDXdB/R8Dhf9derW/w9n+Klxjt1YK8rVWh2On
+ ReR3Bo0hc+q/kHuFQlVDfoHbSyQenFCms2bTP93WgxvJBPOTGL9EGuviBDYW12VWDp7I ig== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kkqxwmkuc-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kks22jjtq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Nov 2022 13:55:37 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A2CAsUx009173;
-        Wed, 2 Nov 2022 13:55:36 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kkqxwmktd-1
+        Wed, 02 Nov 2022 14:12:43 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A2DEIWY010237;
+        Wed, 2 Nov 2022 14:12:43 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kks22jjsq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Nov 2022 13:55:36 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A2DpfLo020000;
-        Wed, 2 Nov 2022 13:55:35 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma01dal.us.ibm.com with ESMTP id 3kgutasshj-1
+        Wed, 02 Nov 2022 14:12:43 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A2E6bq1008788;
+        Wed, 2 Nov 2022 14:12:41 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06fra.de.ibm.com with ESMTP id 3kguejd6fv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Nov 2022 13:55:35 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com ([9.208.128.117])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A2DtXRt63439286
+        Wed, 02 Nov 2022 14:12:41 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A2ECcLZ27787858
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Nov 2022 13:55:34 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 554B058067;
-        Wed,  2 Nov 2022 13:55:33 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B5AD858059;
-        Wed,  2 Nov 2022 13:55:31 +0000 (GMT)
-Received: from [9.163.9.174] (unknown [9.163.9.174])
-        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  2 Nov 2022 13:55:31 +0000 (GMT)
-Message-ID: <3526d73b-a0cf-e9eb-383b-2ad917f3bcc2@linux.ibm.com>
-Date:   Wed, 2 Nov 2022 14:55:30 +0100
+        Wed, 2 Nov 2022 14:12:38 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 58260A405B;
+        Wed,  2 Nov 2022 14:12:38 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B4528A4060;
+        Wed,  2 Nov 2022 14:12:37 +0000 (GMT)
+Received: from osiris (unknown [9.145.56.93])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed,  2 Nov 2022 14:12:37 +0000 (GMT)
+Date:   Wed, 2 Nov 2022 15:12:36 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v2 1/9] s390/uaccess: Add storage key checked cmpxchg
+ access to user space
+Message-ID: <Y2J61LWSV+HolIeT@osiris>
+References: <20221012205609.2811294-1-scgl@linux.ibm.com>
+ <20221012205609.2811294-2-scgl@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.4.1
-Subject: Re: [PATCH net-next v4 00/10] optimize the parallelism of SMC-R
- connections
-To:     "D. Wythe" <alibuda@linux.alibaba.com>,
-        Jan Karcher <jaka@linux.ibm.com>, kgraul@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1666529042-40828-1-git-send-email-alibuda@linux.alibaba.com>
- <95feb2a1-d17a-6233-d3d0-eaebf26d2284@linux.ibm.com>
- <1615836b-3087-2467-262e-f402ec521716@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1615836b-3087-2467-262e-f402ec521716@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221012205609.2811294-2-scgl@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oOHqIfjq0sWec8ObU8-fK3oKG44LVwk5
-X-Proofpoint-GUID: wQuwTYwq3y-gzjhSf5OAckg9FeiwQ9m8
+X-Proofpoint-GUID: vEqvPEkNOiMjLF4A4AXRnLajCt2hxpmZ
+X-Proofpoint-ORIG-GUID: eMFw4JuDxVV5yzho1KrLvvsVObKo68QS
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-02_10,2022-11-02_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- impostorscore=0 mlxscore=0 priorityscore=1501 suspectscore=0 phishscore=0
- adultscore=0 lowpriorityscore=0 clxscore=1011 bulkscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211020085
+ definitions=2022-11-02_09,2022-11-02_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 mlxscore=0 phishscore=0 clxscore=1015 malwarescore=0
+ lowpriorityscore=0 impostorscore=0 bulkscore=0 suspectscore=0
+ mlxlogscore=999 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2210170000 definitions=main-2211020090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi Janis,
 
+On Wed, Oct 12, 2022 at 10:56:01PM +0200, Janis Schoetterl-Glausch wrote:
+> Add cmpxchg functionality similar to that in cmpxchg.h except that the
+> target is a user space address and that the address' storage key is
+> matched with the access_key argument in order to honor key-controlled
+> protection.
+> The access is performed by changing to the secondary-spaces mode and
+> setting the PSW key for the duration of the compare and swap.
+> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> ---
+> 
+> 
+> Possible variations:
+>   * check the assumptions made in cmpxchg_user_key_size and error out
+>   * call functions called by copy_to_user
+>      * access_ok? is a nop
+>      * should_fail_usercopy?
+>      * instrument_copy_to_user? doesn't make sense IMO
+>   * don't be overly strict in cmpxchg_user_key
+> 
+> 
+>  arch/s390/include/asm/uaccess.h | 189 ++++++++++++++++++++++++++++++++
+>  1 file changed, 189 insertions(+)
 
-On 01.11.22 08:22, D. Wythe wrote:
-> 
-> Hi Jan,
-> 
-> Our team conducted some code reviews over this, but unfortunately no 
-> obvious problems were found. Hence
-> we are waiting for Tony Lu's virtual SMC-D device to test, which is 
-> expected to come in this week.  Before that,
-> I wonder if your tests are running separately on separate PATCH? If so, 
-> I would like to please you to test
-> the first PATCH and the second PATCH together. I doubt that the problem 
-> repaired by the second PATCH
-> is the cause of this issues.
-> 
-> Best Wishes.
-> D. Wythe
-> 
+So finally I send the uaccess/cmpxchg patches in reply to this mail.
+Sorry for the long delay!
 
-Hi D. Wythe,
+The first three patches are not required for the functionality you need,
+but given that I always stress that the code should be consistent I include
+them anyway.
 
-We did test the series of the patches as a whole. That would be great if 
-you could use Tony's virtual device to test SMC-D. By the way, I'll put 
-your patches in our CI, let's see if it can find something.
+The changes are probably quite obvious:
 
-Best,
-Wenjia
-> 
-> On 10/24/22 9:11 PM, Jan Karcher wrote:
->> Hi D. Wythe,
->>
->> I re-run the tests with your fix.
->> SMC-R works fine now. For SMC-D we still have the following problem. 
->> It is kind of the same as i reported in v2 but even weirder:
->>
->> smc stats:
->>
->> t8345011
->> SMC-D Connections Summary
->>    Total connections handled          2465
->> SMC-R Connections Summary
->>    Total connections handled           232
->>
->> t8345010
->> SMC-D Connections Summary
->>    Total connections handled          2290
->> SMC-R Connections Summary
->>    Total connections handled           231
->>
->>
->> smc linkgroups:
->>
->> t8345011
->> [root@t8345011 ~]# smcr linkgroup
->> LG-ID    LG-Role  LG-Type  VLAN  #Conns  PNET-ID
->> 00000400 SERV     SYM         0       0  NET25
->> [root@t8345011 ~]# smcd linkgroup
->> LG-ID    VLAN  #Conns  PNET-ID
->> 00000300    0      16  NET25
->>
->> t8345010
->> [root@t8345010 tela-kernel]# smcr linkgroup
->> LG-ID    LG-Role  LG-Type  VLAN  #Conns  PNET-ID
->> 00000400 CLNT     SYM         0       0  NET25
->> [root@t8345010 tela-kernel]# smcd linkgroup
->> LG-ID    VLAN  #Conns  PNET-ID
->> 00000300    0       1  NET25
->>
->>
->> smcss:
->>
->> t8345011
->> [root@t8345011 ~]# smcss
->> State          UID   Inode   Local Address           Peer Address     
->> Intf Mode
->>
->> t8345010
->> [root@t8345010 tela-kernel]# smcss
->> State          UID   Inode   Local Address           Peer Address     
->> Intf Mode
->>
->>
->> lsmod:
->>
->> t8345011
->> [root@t8345011 ~]# lsmod | grep smc
->> smc                   225280  18 ism,smc_diag
->> t8345010
->> [root@t8345010 tela-kernel]# lsmod | grep smc
->> smc                   225280  3 ism,smc_diag
->>
->> Also smc_dbg and netstat do not show any more information on this 
->> problem. We only see in the dmesg that the code seems to build up 
->> SMC-R linkgroups even tho we are running the SMC-D tests.
->> NOTE: we disabled the syncookies for the tests.
->>
->> dmesg:
->>
->> t8345011
->> smc-tests: test_smcapp_torture_test started
->> kernel: TCP: request_sock_TCP: Possible SYN flooding on port 22465. 
->> Dropping request.  Check SNMP counters.
->> kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000401, peerid 
->> 00000401, ibdev mlx5_0, ibport 1
->> kernel: smc: SMC-R lg 00000400 net 1 state changed: SINGLE, pnetid NET25
->> kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000402, peerid 
->> 00000402, ibdev mlx5_1, ibport 1
->> kernel: smc: SMC-R lg 00000400 net 1 state changed: SYMMETRIC, pnetid 
->> NET25
->>
->> t8345010
->> smc-tests: test_smcapp_torture_test started
->> kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000401, peerid 
->> 00000401, ibdev mlx5_0, ibport 1
->> kernel: smc: SMC-R lg 00000400 net 1 state changed: SINGLE, pnetid NET25
->> kernel: smc: SMC-R lg 00000400 net 1 link added: id 00000402, peerid 
->> 00000402, ibdev mlx5_1, ibport 1
->> kernel: smc: SMC-R lg 00000400 net 1 state changed: SYMMETRIC, pnetid 
->> NET25
->>
->> If this output does not help and if you want us to look deeper into it 
->> feel free to let us know and we can debug further.
->>
->> On 23/10/2022 14:43, D.Wythe wrote:
->>> From: "D.Wythe" <alibuda@linux.alibaba.com>
->>>
->>> This patch set attempts to optimize the parallelism of SMC-R 
->>> connections,
->>> mainly to reduce unnecessary blocking on locks, and to fix exceptions 
->>> that
->>> occur after thoses optimization.
->>>
->>> According to Off-CPU graph, SMC worker's off-CPU as that:
->>>
->>> smc_close_passive_work                  (1.09%)
->>>          smcr_buf_unuse                  (1.08%)
->>>                  smc_llc_flow_initiate   (1.02%)
->>>
->>> smc_listen_work                         (48.17%)
->>>          __mutex_lock.isra.11            (47.96%)
->>>
->>>
->>> An ideal SMC-R connection process should only block on the IO events
->>> of the network, but it's quite clear that the SMC-R connection now is
->>> queued on the lock most of the time.
->>>
->>> The goal of this patchset is to achieve our ideal situation where
->>> network IO events are blocked for the majority of the connection 
->>> lifetime.
->>>
->>> There are three big locks here:
->>>
->>> 1. smc_client_lgr_pending & smc_server_lgr_pending
->>>
->>> 2. llc_conf_mutex
->>>
->>> 3. rmbs_lock & sndbufs_lock
->>>
->>> And an implementation issue:
->>>
->>> 1. confirm/delete rkey msg can't be sent concurrently while
->>> protocol allows indeed.
->>>
->>> Unfortunately,The above problems together affect the parallelism of
->>> SMC-R connection. If any of them are not solved. our goal cannot
->>> be achieved.
->>>
->>> After this patch set, we can get a quite ideal off-CPU graph as
->>> following:
->>>
->>> smc_close_passive_work                                  (41.58%)
->>>          smcr_buf_unuse                                  (41.57%)
->>>                  smc_llc_do_delete_rkey                  (41.57%)
->>>
->>> smc_listen_work                                         (39.10%)
->>>          smc_clc_wait_msg                                (13.18%)
->>>                  tcp_recvmsg_locked                      (13.18)
->>>          smc_listen_find_device                          (25.87%)
->>>                  smcr_lgr_reg_rmbs                       (25.87%)
->>>                          smc_llc_do_confirm_rkey         (25.87%)
->>>
->>> We can see that most of the waiting times are waiting for network IO
->>> events. This also has a certain performance improvement on our
->>> short-lived conenction wrk/nginx benchmark test:
->>>
->>> +--------------+------+------+-------+--------+------+--------+
->>> |conns/qps     |c4    | c8   |  c16  |  c32   | c64  |  c200  |
->>> +--------------+------+------+-------+--------+------+--------+
->>> |SMC-R before  |9.7k  | 10k  |  10k  |  9.9k  | 9.1k |  8.9k  |
->>> +--------------+------+------+-------+--------+------+--------+
->>> |SMC-R now     |13k   | 19k  |  18k  |  16k   | 15k  |  12k   |
->>> +--------------+------+------+-------+--------+------+--------+
->>> |TCP           |15k   | 35k  |  51k  |  80k   | 100k |  162k  |
->>> +--------------+------+------+-------+--------+------+--------+
->>>
->>> The reason why the benefit is not obvious after the number of 
->>> connections
->>> has increased dues to workqueue. If we try to change workqueue to 
->>> UNBOUND,
->>> we can obtain at least 4-5 times performance improvement, reach up to 
->>> half
->>> of TCP. However, this is not an elegant solution, the optimization of it
->>> will be much more complicated. But in any case, we will submit relevant
->>> optimization patches as soon as possible.
->>>
->>> Please note that the premise here is that the lock related problem
->>> must be solved first, otherwise, no matter how we optimize the 
->>> workqueue,
->>> there won't be much improvement.
->>>
->>> Because there are a lot of related changes to the code, if you have
->>> any questions or suggestions, please let me know.
->>>
->>> Thanks
->>> D. Wythe
->>>
->>> v1 -> v2:
->>>
->>> 1. Fix panic in SMC-D scenario
->>> 2. Fix lnkc related hashfn calculation exception, caused by operator
->>> priority
->>> 3. Only wake up one connection if the lnk is not active
->>> 4. Delete obsolete unlock logic in smc_listen_work()
->>> 5. PATCH format, do Reverse Christmas tree
->>> 6. PATCH format, change all xxx_lnk_xxx function to xxx_link_xxx
->>> 7. PATCH format, add correct fix tag for the patches for fixes.
->>> 8. PATCH format, fix some spelling error
->>> 9. PATCH format, rename slow to do_slow
->>>
->>> v2 -> v3:
->>>
->>> 1. add SMC-D support, remove the concept of link cluster since SMC-D has
->>> no link at all. Replace it by lgr decision maker, who provides 
->>> suggestions
->>> to SMC-D and SMC-R on whether to create new link group.
->>>
->>> 2. Fix the corruption problem described by PATCH 'fix application
->>> data exception' on SMC-D.
->>>
->>> v3 -> v4:
->>>
->>> 1. Fix panic caused by uninitialization map.
->>>
->>> D. Wythe (10):
->>>    net/smc: remove locks smc_client_lgr_pending and
->>>      smc_server_lgr_pending
->>>    net/smc: fix SMC_CLC_DECL_ERR_REGRMB without smc_server_lgr_pending
->>>    net/smc: allow confirm/delete rkey response deliver multiplex
->>>    net/smc: make SMC_LLC_FLOW_RKEY run concurrently
->>>    net/smc: llc_conf_mutex refactor, replace it with rw_semaphore
->>>    net/smc: use read semaphores to reduce unnecessary blocking in
->>>      smc_buf_create() & smcr_buf_unuse()
->>>    net/smc: reduce unnecessary blocking in smcr_lgr_reg_rmbs()
->>>    net/smc: replace mutex rmbs_lock and sndbufs_lock with rw_semaphore
->>>    net/smc: Fix potential panic dues to unprotected
->>>      smc_llc_srv_add_link()
->>>    net/smc: fix application data exception
->>>
->>>   net/smc/af_smc.c   |  70 ++++----
->>>   net/smc/smc_core.c | 478 
->>> +++++++++++++++++++++++++++++++++++++++++++++++------
->>>   net/smc/smc_core.h |  36 +++-
->>>   net/smc/smc_llc.c  | 277 ++++++++++++++++++++++---------
->>>   net/smc/smc_llc.h  |   6 +
->>>   net/smc/smc_wr.c   |  10 --
->>>   net/smc/smc_wr.h   |  10 ++
->>>   7 files changed, 712 insertions(+), 175 deletions(-)
->>>
+- Keep uaccess cmpxchg code more or less identical to regular cmpxchg
+  code. I wasn't able to come up with a readable code base which could be
+  used for both variants.
+
+- Users may only use the cmpxchg_user_key() macro - _not_ the inline
+  function, which is an internal API. This will require that you need to
+  add a switch statement and couple of casts within the KVM code, but
+  shouldn't have much of an impact on the generated code.
+
+- Cause link error for non-integral sizes, similar to other uaccess
+  functions.
+
+- cmpxchg_user_key() has now a simple return value: 0 or -EFAULT, and
+  writes the old value to a location provided by a pointer. This is quite
+  similar to the futex code. Users must compare the old and expected value
+  to figure out if something was exchanged. Note that this is in most cases
+  more efficient than extracting the condition code from the PSW with ipm,
+  since nowadays we have instructions like compare and branch relative on
+  condition, etc.
+
+- Couple of other minor changes which I forgot.
+
+Code is untested (of course :) ). Please give it a try and let me know if
+this is good enough for your purposes.
+
+I also did not limit the number of retries for the one and two byte
+scenarion. Before doing that we need to have proof that there really is a
+problem. Maybe Nico or you will give this a try.
+
+Thanks,
+Heiko
