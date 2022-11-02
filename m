@@ -2,59 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6461C433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E532EC4167D
 	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 23:22:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231274AbiKBXV5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 19:21:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33974 "EHLO
+        id S231300AbiKBXWA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 19:22:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231312AbiKBXUb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 19:20:31 -0400
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D76958D
-        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 16:19:54 -0700 (PDT)
-Received: by mail-pj1-x104a.google.com with SMTP id q1-20020a17090aa00100b002139a592adbso2499584pjp.1
-        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 16:19:54 -0700 (PDT)
+        with ESMTP id S231328AbiKBXUe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 19:20:34 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D0AD646C
+        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 16:19:52 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id l188-20020a2525c5000000b006cbcff0ab41so394731ybl.4
+        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 16:19:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=yE/4Y9j/oYhrNnppN3pBbrFR3yZQeQID1rXlzF1UIrs=;
-        b=ay8cPyDCIqaMfo0DK1yGgX9Wb9Bl9/1fVHbdhv2aAy1cj0+xuZ97OrHcZUeV1cFb37
-         6xEzJJ8+vktqwJnTtuH1USFvq8dlhSmN+zODY90fpIycgDYl660YnoWyBjRJ4shxmyzm
-         eiIMz6ZQ5l1bjRGivO4fA9kceUx/9ETkzTfr9tWJ9HyO6sppdHxDi6fl6UdHy8ptqT6P
-         DK4l+CKIMpqMLCpZJAWwhuO/obSacLjdsxWR0MNI7G5lNuNRlHspSUm1vSdSmF25/DFv
-         q5eNxeOVs/atfRGxPMYHZj9KnffzNZveBs/Mh+BUBe8auRPPWp99Q7jjD7exn9MfTR0m
-         9eDg==
+        bh=jjwuYM33wa0dwVWFlLHKwYhVaHzm2FgiCKOfn+QDNQ4=;
+        b=Fhq9PEIX8LJQUbJ64jTN1JvSF4aDYgMhxvOWYGX1iAWoV/lvAdG5LOXuNivkfQWmaN
+         XoYRELj0iLXTcGUgDHg9R/bhGsJRvY0Qx7IEF0y4w7dFOPQtmSUB+O6PUVY8/MhozQfF
+         AX6SYnVZgv9nJGu4JJBc65UftCLAjC1MJHk1aUCf2yILUXt8A+rMwOgyzW8jvMWXgkl0
+         LgkleUhB3pCNMAS+BVFzOjuYh6vlw9PADZ2etUZ8fiuYZCiK9hkRPf6dczcVLTjo6nqb
+         SNGwaGeIsaxofOZxTFjiZYanOv3dUMmT9VRhi3xCUQ51Z2IYrlwrIcc2Hbem0XHCdIi2
+         UM4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=yE/4Y9j/oYhrNnppN3pBbrFR3yZQeQID1rXlzF1UIrs=;
-        b=OTfwPDZDecbqCcMq1IZnH1k/JpXSoW2q7MmPkzMPtDDygEMBuMm+x0b5WzIpyreIGP
-         c1vByioquQWpsyGXWoMAbc3kR4VcJXlPoLeQi0H0FzpliOW1QYXNydXaFWW2GvJ6QIZl
-         DQLAObUYSWal+Gzf61V456k7gPRoyvkJN1BBUe5ay9TuiwTgMJGUznLJHMOBNWrVWK8a
-         frBZhM/gKYSVbeDQkIbShKQH1Gbi9tQOzNlbhgXTU8EuSxoESUx0j4nBIhLKJ+/FvvQo
-         Ii/258BVNdTasXfU5T7nf8e5LNmatA110TXEZ/89hunO5+O65WL1gqcXo2Ct4IqOyqG+
-         RRiQ==
-X-Gm-Message-State: ACrzQf1rL9jCX9498zctRp5PVvH4eTtQnaabxG3wSRfubS6UOkMU58n/
-        zId0w42TgQrM/nbrbzO8+zVq/V03+9M=
-X-Google-Smtp-Source: AMsMyM5/m9Qv5qe0i9jmB6ZTvP1qiSAaI3rCUeMWt3X4Tz8UOP4pahzgtmW58pUMKKKCCfw0sH3ElrsKh+M=
+        bh=jjwuYM33wa0dwVWFlLHKwYhVaHzm2FgiCKOfn+QDNQ4=;
+        b=0lbSPaQAKypdz+j9me1pqEHXv0RLb14McaIsOhFGso3GI7Rwwlx13c4Tw/ddI/lvd1
+         5r3IT5PO4sbgmn3IllzHlQ9ErWcKZdDxmlR45CDNPEt3OG1x3cooSz3rki0Do9iG+ztM
+         sJ2t09Fg2rAs46iZ9rLORh+ZOiAdhoT5f0ms9PVzWYfr3DPWMTtUnaEwEt98gQLDF9mg
+         j9IHsRgNH2MLlMh+vvan53Rc0llIE4vjCK2sYuT8+zn3MPWOZ3lJX1811riuDxOEahkx
+         mDQaKwO+X1Samyv3FNNTDXTuCpYoeqZg1Woz7YKu+cak8wHLUODpoOoMHM4FR7ZXwV/R
+         xzMw==
+X-Gm-Message-State: ACrzQf2UOpuWvSldQQuRpZHrkgELFzZR/yx3OtRI0OPT69w72vuUK3BJ
+        gvT3+bLmgEMrqDO80A2gS1kUKhg+ox4=
+X-Google-Smtp-Source: AMsMyM6G8+cpsdlQ24WmBjSm0uN0SQ0FUjj6LFQ9PdnISN+9XlJSF9tKC3IM7fcpwDmLrOspg5L0a2rB188=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a62:d412:0:b0:56c:6f25:8b12 with SMTP id
- a18-20020a62d412000000b0056c6f258b12mr27322827pfh.60.1667431181026; Wed, 02
- Nov 2022 16:19:41 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a25:e695:0:b0:6cb:895b:5a35 with SMTP id
+ d143-20020a25e695000000b006cb895b5a35mr25441755ybh.573.1667431179587; Wed, 02
+ Nov 2022 16:19:39 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed,  2 Nov 2022 23:18:43 +0000
+Date:   Wed,  2 Nov 2022 23:18:42 +0000
 In-Reply-To: <20221102231911.3107438-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221102231911.3107438-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Message-ID: <20221102231911.3107438-17-seanjc@google.com>
-Subject: [PATCH 16/44] KVM: arm64: Unregister perf callbacks if hypervisor
- finalization fails
+Message-ID: <20221102231911.3107438-16-seanjc@google.com>
+Subject: [PATCH 15/44] KVM: arm64: Free hypervisor allocations if vector slot
+ init fails
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -92,60 +92,55 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Undo everything done by init_subsystems() if a later initialization step
-fails, i.e. unregister perf callbacks in addition to unregistering the
-power management notifier.
+Teardown hypervisor mode if vector slot setup fails in order to avoid
+leaking any allocations done by init_hyp_mode().
 
-Fixes: bfa79a805454 ("KVM: arm64: Elevate hypervisor mappings creation at EL2")
+Fixes: b881cdce77b4 ("KVM: arm64: Allocate hyp vectors statically")
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/arm64/kvm/arm.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/arm.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index 73644def7780..f400a8c029dd 100644
+index 0c328af064dd..73644def7780 100644
 --- a/arch/arm64/kvm/arm.c
 +++ b/arch/arm64/kvm/arm.c
-@@ -1839,12 +1839,21 @@ static int init_subsystems(void)
- 	kvm_register_perf_callbacks(NULL);
- 
- out:
+@@ -2232,18 +2232,18 @@ int kvm_arch_init(void *opaque)
+ 	err = kvm_init_vector_slots();
+ 	if (err) {
+ 		kvm_err("Cannot initialise vector slots\n");
+-		goto out_err;
+-	}
+-
+-	err = init_subsystems();
+-	if (err)
+ 		goto out_hyp;
++	}
++
++	err = init_subsystems();
 +	if (err)
-+		hyp_cpu_pm_exit();
-+
- 	if (err || !is_protected_kvm_enabled())
- 		on_each_cpu(_kvm_arch_hardware_disable, NULL, 1);
- 
- 	return err;
- }
- 
-+static void teardown_subsystems(void)
-+{
-+	kvm_unregister_perf_callbacks();
-+	hyp_cpu_pm_exit();
-+}
-+
- static void teardown_hyp_mode(void)
- {
- 	int cpu;
-@@ -2237,7 +2246,7 @@ int kvm_arch_init(void *opaque)
- 
- 	err = init_subsystems();
- 	if (err)
--		goto out_subs;
-+		goto out_hyp;
++		goto out_subs;
  
  	if (!in_hyp_mode) {
  		err = finalize_hyp_mode();
-@@ -2258,7 +2267,7 @@ int kvm_arch_init(void *opaque)
+ 		if (err) {
+ 			kvm_err("Failed to finalize Hyp protection\n");
+-			goto out_hyp;
++			goto out_subs;
+ 		}
+ 	}
+ 
+@@ -2257,8 +2257,9 @@ int kvm_arch_init(void *opaque)
+ 
  	return 0;
  
- out_subs:
--	hyp_cpu_pm_exit();
-+	teardown_subsystems();
- out_hyp:
+-out_hyp:
++out_subs:
+ 	hyp_cpu_pm_exit();
++out_hyp:
  	if (!in_hyp_mode)
  		teardown_hyp_mode();
+ out_err:
 -- 
 2.38.1.431.g37b22c650d-goog
 
