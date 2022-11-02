@@ -2,241 +2,281 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 133C9C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 20:02:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FC8FC43219
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 23:19:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230452AbiKBUCJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 16:02:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37678 "EHLO
+        id S229875AbiKBXTT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 19:19:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230454AbiKBUBr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 16:01:47 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B3F51036;
-        Wed,  2 Nov 2022 13:01:44 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A2IGRv4010825;
-        Wed, 2 Nov 2022 20:00:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=ZEYHGwsVZ9i/ZMrlW5q0nkckbHNYGw87m2YtJ0AKGxQ=;
- b=SXQ6VNpBNqZccLcMEzpdnny3NQLI105hgcR4DrBs/B//53X3no+zl9A0Jm012IoyLGY1
- DS8OdPIG20oiGDEfEVCCzw0JgLjbWQVRdzOo4WynVDVw4LSgpZwCb7j5GAHd7rmybdIB
- gJ2eWJ6nEKpZyw6fZlzCL1OfckGzioarDT/G+QHBAmEpzISRk45wptQbib2lDBXvXtML
- pgOtAtrRdR2MdaSe5xBdrQHLlEGnElo9HmxpjJs+5FjYjn4UtP3vqbhtC5cj3Ww1ouGO
- GAtAgve4864DPAmw/vj9KowwwHBPmiE5Od3nB2zr6rO9699u2mbtE1MvzUI4VxYbbYoX vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kkvbydnfq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Nov 2022 20:00:51 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A2Jeqvv013125;
-        Wed, 2 Nov 2022 20:00:50 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kkvbydneg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Nov 2022 20:00:50 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A2JolxS021521;
-        Wed, 2 Nov 2022 20:00:49 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma04dal.us.ibm.com with ESMTP id 3kgutabwbh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Nov 2022 20:00:49 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com ([9.208.128.112])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A2K0lv166650482
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Nov 2022 20:00:47 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CCF7258054;
-        Wed,  2 Nov 2022 20:00:46 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0E5B458070;
-        Wed,  2 Nov 2022 20:00:43 +0000 (GMT)
-Received: from [9.160.116.108] (unknown [9.160.116.108])
-        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  2 Nov 2022 20:00:42 +0000 (GMT)
-Message-ID: <431304f4-cbe9-6453-cd3a-0843972ca368@linux.ibm.com>
-Date:   Wed, 2 Nov 2022 16:00:42 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH v2 1/7] vfio/ccw: create a parent struct
-Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>
-Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        with ESMTP id S230072AbiKBXTR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 19:19:17 -0400
+Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C511D21AE
+        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 16:19:15 -0700 (PDT)
+Received: by mail-pg1-x54a.google.com with SMTP id p18-20020a63e652000000b0046b27534651so82342pgj.17
+        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 16:19:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:reply-to:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=v+0QB2AcjXWwXQFe0Sl30YwZEOHl7lG2VkKFom8MCIE=;
+        b=aw3MvDnhjGhzU1N6s+Vpw6sc746Hsx1nkI0d46VmBcJKGrP/BJLyU4nszyhTbJdoTf
+         oofi962rp1gcsq9xO3VFhTcWtZK6/xQ/3tFYJ9+Uj+Dk2GcKrDL4HigNkzsIFpy3Q79n
+         /wG/NMqz1oBz2i5EST1RhC8Hi5hVLUf4USV0ge1OT5BhXgXcS8ylDR+K4VXPhApjhIG3
+         OlaKTmjuVOgoRP+QcCoTz+8mzEp4DSP7dVJWGcJ12El2CQ1hCL3jRjRnd2iT2XfA+oCo
+         nSPZrAZE9Fwc/n2HoWbhBJay4U0cc48uC3MWJYPi8Mq7p0wuNGF3sCDpmc1GQ081YOYu
+         gnFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:reply-to
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=v+0QB2AcjXWwXQFe0Sl30YwZEOHl7lG2VkKFom8MCIE=;
+        b=j/I3X4DA1rp7QxBojfnAy1EKsejzbrRLBmP8ImLNff9I0+7vKoWDgcPfTiUUUrMtJJ
+         ZVdyd3Zcv/S44ozI0t+RQtsz8/AGmvig+BhLdirRjbTJNiAs4AiDSyVbLS/Ub/oUf87o
+         s7Gk1/k1jlLDhQUulK8AJ9KQW1K+Drxxub8KS5hc+qi8ZlQM/9SQKj6/uTPqvkjuCh6G
+         dh1Cwqw2MKU+NtorZQjVm60W0He5UlQGK3aDgeK/Vr0mHcNcr2tUy0iMuF+Hja4Ia0Jw
+         ALsft8unQ5piS+7ihttxUbKidL6log3q9KyPHTMN5bzUbyVXKVjj5B9zXnjKm6xJdvRY
+         LHmg==
+X-Gm-Message-State: ACrzQf2nco1btXcmnPus8yt3vagJEMh+Ie/z4NaYdidzWoRsWvqtDB2+
+        /ieI5X3y95RvwtRkqSFzbUG8iDjao7c=
+X-Google-Smtp-Source: AMsMyM7HWZzp0WdXRiToVUsPaCC4IFhAkimeV47TR3c6KmefAfOorOpJlBK9HTJEVktIVE8qzHY5o99pP4Q=
+X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
+ (user=seanjc job=sendgmr) by 2002:a17:902:ef52:b0:17c:f072:95bc with SMTP id
+ e18-20020a170902ef5200b0017cf07295bcmr26742303plx.28.1667431155303; Wed, 02
+ Nov 2022 16:19:15 -0700 (PDT)
+Reply-To: Sean Christopherson <seanjc@google.com>
+Date:   Wed,  2 Nov 2022 23:18:27 +0000
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
+Message-ID: <20221102231911.3107438-1-seanjc@google.com>
+Subject: [PATCH 00/44] KVM: Rework kvm_init() and hardware enabling
+From:   Sean Christopherson <seanjc@google.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-References: <20221102150152.2521475-1-farman@linux.ibm.com>
- <20221102150152.2521475-2-farman@linux.ibm.com>
- <df037cd2e564acaa14c5a3358fd3386df29ad61e.camel@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <df037cd2e564acaa14c5a3358fd3386df29ad61e.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3fpTBz1LZ22r3buesVDvJ_LOREDV8ITb
-X-Proofpoint-ORIG-GUID: 5kUYJ_dzxBTVeb9OuF-AJbfKjVSjRI8Q
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-02_14,2022-11-02_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
- priorityscore=1501 spamscore=0 malwarescore=0 adultscore=0
- lowpriorityscore=0 suspectscore=0 clxscore=1015 mlxscore=0 impostorscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211020128
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc:     James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Atish Patra <atishp@atishpatra.org>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Isaku Yamahata <isaku.yamahata@intel.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Chao Gao <chao.gao@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Yuan Yao <yuan.yao@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/2/22 3:29 PM, Eric Farman wrote:
-> On Wed, 2022-11-02 at 16:01 +0100, Eric Farman wrote:
->> Move the stuff associated with the mdev parent (and thus the
->> subchannel struct) into its own struct, and leave the rest in
->> the existing private structure.
->>
->> The subchannel will point to the parent, and the parent will point
->> to the private, for the areas where one or both are needed. Further
->> separation of these structs will follow.
->>
->> Signed-off-by: Eric Farman <farman@linux.ibm.com>
->> ---
->>  drivers/s390/cio/vfio_ccw_drv.c     | 96 ++++++++++++++++++++++++---
->> --
->>  drivers/s390/cio/vfio_ccw_ops.c     |  8 ++-
->>  drivers/s390/cio/vfio_ccw_private.h | 20 ++++--
->>  3 files changed, 100 insertions(+), 24 deletions(-)
->>
->> diff --git a/drivers/s390/cio/vfio_ccw_drv.c
->> b/drivers/s390/cio/vfio_ccw_drv.c
->> index 7f5402fe857a..06022fb37b9d 100644
->> --- a/drivers/s390/cio/vfio_ccw_drv.c
->> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+Non-x86 folks, please test on hardware when possible.  I made a _lot_ of
+mistakes when moving code around.  Thankfully, x86 was the trickiest code
+to deal with, and I'm fairly confident that I found all the bugs I
+introduced via testing.  But the number of mistakes I made and found on
+x86 makes me more than a bit worried that I screwed something up in other
+arch code.
 
-...
+This is a continuation of Chao's series to do x86 CPU compatibility checks
+during virtualization hardware enabling[1], and of Isaku's series to try
+and clean up the hardware enabling paths so that x86 (Intel specifically)
+can temporarily enable hardware during module initialization without
+causing undue pain for other architectures[2].  It also includes one patch
+from another mini-series from Isaku that provides the less controversial
+patches[3].
 
->>  static int vfio_ccw_sch_probe(struct subchannel *sch)
->>  {
->>         struct pmcw *pmcw = &sch->schib.pmcw;
->>         struct vfio_ccw_private *private;
->> +       struct vfio_ccw_parent *parent;
->>         int ret = -ENOMEM;
->>  
->>         if (pmcw->qf) {
->> @@ -213,41 +246,62 @@ static int vfio_ccw_sch_probe(struct subchannel
->> *sch)
->>                 return -ENODEV;
->>         }
->>  
->> +       parent = kzalloc(sizeof(*parent), GFP_KERNEL);
->> +       if (IS_ERR(parent))
->> +               return PTR_ERR(parent);
->> +
->> +       dev_set_name(&parent->dev, "parent");
->> +       parent->dev.parent = &sch->dev;
->> +       parent->dev.release = &vfio_ccw_free_parent;
->> +       ret = device_register(&parent->dev);
->> +       if (ret)
->> +               goto out_free;
->> +
->>         private = vfio_ccw_alloc_private(sch);
->> -       if (IS_ERR(private))
->> +       if (IS_ERR(private)) {
->> +               put_device(&parent->dev);
-> 
-> This should've been device_unregister. (I could rearrange the code a
-> bit to avoid the mix of returns/gotos around here, but since the whole
-> series is trying to separate these two structs that seems unnecessary.)
-> 
->>                 return PTR_ERR(private);
->> +       }
->>  
->> -       dev_set_drvdata(&sch->dev, private);
->> +       dev_set_drvdata(&sch->dev, parent);
->> +       dev_set_drvdata(&parent->dev, private);
->>  
->> -       private->mdev_type.sysfs_name = "io";
->> -       private->mdev_type.pretty_name = "I/O subchannel (Non-QDIO)";
->> -       private->mdev_types[0] = &private->mdev_type;
->> -       ret = mdev_register_parent(&private->parent, &sch->dev,
->> +       parent->mdev_type.sysfs_name = "io";
->> +       parent->mdev_type.pretty_name = "I/O subchannel (Non-QDIO)";
->> +       parent->mdev_types[0] = &parent->mdev_type;
->> +       ret = mdev_register_parent(&parent->parent, &sch->dev,
->>                                    &vfio_ccw_mdev_driver,
->> -                                  private->mdev_types, 1);
->> +                                  parent->mdev_types, 1);
->>         if (ret)
->> -               goto out_free;
->> +               goto out_unreg;
->>  
->>         VFIO_CCW_MSG_EVENT(4, "bound to subchannel %x.%x.%04x\n",
->>                            sch->schid.cssid, sch->schid.ssid,
->>                            sch->schid.sch_no);
->>         return 0;
->>  
->> +out_unreg:
->> +       device_unregister(&parent->dev);
->>  out_free:
->> +       dev_set_drvdata(&parent->dev, NULL);
->>         dev_set_drvdata(&sch->dev, NULL);
->>         vfio_ccw_free_private(private);
->> +       put_device(&parent->dev);
-> 
-> While this...
-> 
->>         return ret;
->>  }
->>  
->>  static void vfio_ccw_sch_remove(struct subchannel *sch)
->>  {
->> -       struct vfio_ccw_private *private = dev_get_drvdata(&sch-
->>> dev);
->> +       struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
->> +       struct vfio_ccw_private *private = dev_get_drvdata(&parent-
->>> dev);
->>  
->> -       mdev_unregister_parent(&private->parent);
->> +       mdev_unregister_parent(&parent->parent);
->>  
->> +       device_unregister(&parent->dev);
->>         dev_set_drvdata(&sch->dev, NULL);
->>  
->>         vfio_ccw_free_private(private);
->> +       put_device(&parent->dev);
-> 
-> ...and this shouldn't even be there. Sorry for the brain fog.
-> 
+The main theme of this series is to kill off kvm_arch_init(),
+kvm_arch_hardware_(un)setup(), and kvm_arch_check_processor_compat(), which
+all originated in x86 code from way back when, and needlessly complicate
+both common KVM code and architecture code.  E.g. many architectures don't
+mark functions/data as __init/__ro_after_init purely because kvm_init()
+isn't marked __init to support x86's separate vendor modules.
 
-Thanks, with these changes I no longer see refcount underflows.  I'll continue reviewing with those changes presumed for v3.
+The idea/hope is that with those hooks gone (moved to arch code), it will
+be easier for x86 (and other architectures) to modify their module init
+sequences as needed without having to fight common KVM code.  E.g. I'm
+hoping that ARM can build on this to simplify its hardware enabling logic,
+especially the pKVM side of things.
+
+There are bug fixes throughout this series.  They are more scattered than
+I would usually prefer, but getting the sequencing correct was a gigantic
+pain for many of the x86 fixes due to needing to fix common code in order
+for the x86 fix to have any meaning.  And while the bugs are often fatal,
+they aren't all that interesting for most users as they either require a
+malicious admin or broken hardware, i.e. aren't likely to be encountered
+by the vast majority of KVM users.  So unless someone _really_ wants a
+particular fix isolated for backporting, I'm not planning on shuffling
+patches.
+
+Tested on x86.  Lightly tested on arm64.  Compile tested only on all other
+architectures.
+
+[1] https://lore.kernel.org/all/20220216031528.92558-1-chao.gao@intel.com
+[2] https://lore.kernel.org/all/cover.1663869838.git.isaku.yamahata@intel.com
+[3] https://lore.kernel.org/all/cover.1667369456.git.isaku.yamahata@intel.com
+
+Chao Gao (3):
+  KVM: x86: Do compatibility checks when onlining CPU
+  KVM: Rename and move CPUHP_AP_KVM_STARTING to ONLINE section
+  KVM: Disable CPU hotplug during hardware enabling
+
+Isaku Yamahata (3):
+  KVM: Drop kvm_count_lock and instead protect kvm_usage_count with
+    kvm_lock
+  KVM: Remove on_each_cpu(hardware_disable_nolock) in kvm_exit()
+  KVM: Make hardware_enable_failed a local variable in the "enable all"
+    path
+
+Marc Zyngier (1):
+  KVM: arm64: Simplify the CPUHP logic
+
+Sean Christopherson (37):
+  KVM: Register /dev/kvm as the _very_ last thing during initialization
+  KVM: Initialize IRQ FD after arch hardware setup
+  KVM: Allocate cpus_hardware_enabled after arch hardware setup
+  KVM: Teardown VFIO ops earlier in kvm_exit()
+  KVM: s390: Unwind kvm_arch_init() piece-by-piece() if a step fails
+  KVM: s390: Move hardware setup/unsetup to init/exit
+  KVM: x86: Do timer initialization after XCR0 configuration
+  KVM: x86: Move hardware setup/unsetup to init/exit
+  KVM: Drop arch hardware (un)setup hooks
+  KVM: VMX: Clean up eVMCS enabling if KVM initialization fails
+  KVM: x86: Move guts of kvm_arch_init() to standalone helper
+  KVM: VMX: Do _all_ initialization before exposing /dev/kvm to
+    userspace
+  KVM: x86: Serialize vendor module initialization (hardware setup)
+  KVM: arm64: Free hypervisor allocations if vector slot init fails
+  KVM: arm64: Unregister perf callbacks if hypervisor finalization fails
+  KVM: arm64: Do arm/arch initialiation without bouncing through
+    kvm_init()
+  KVM: arm64: Mark kvm_arm_init() and its unique descendants as __init
+  KVM: MIPS: Hardcode callbacks to hardware virtualization extensions
+  KVM: MIPS: Setup VZ emulation? directly from kvm_mips_init()
+  KVM: MIPS: Register die notifier prior to kvm_init()
+  KVM: RISC-V: Do arch init directly in riscv_kvm_init()
+  KVM: RISC-V: Tag init functions and data with __init, __ro_after_init
+  KVM: PPC: Move processor compatibility check to module init
+  KVM: s390: Do s390 specific init without bouncing through kvm_init()
+  KVM: s390: Mark __kvm_s390_init() and its descendants as __init
+  KVM: Drop kvm_arch_{init,exit}() hooks
+  KVM: VMX: Make VMCS configuration/capabilities structs read-only after
+    init
+  KVM: x86: Do CPU compatibility checks in x86 code
+  KVM: Drop kvm_arch_check_processor_compat() hook
+  KVM: x86: Use KBUILD_MODNAME to specify vendor module name
+  KVM: x86: Unify pr_fmt to use module name for all KVM modules
+  KVM: x86: Do VMX/SVM support checks directly in vendor code
+  KVM: VMX: Shuffle support checks and hardware enabling code around
+  KVM: SVM: Check for SVM support in CPU compatibility checks
+  KVM: Use a per-CPU variable to track which CPUs have enabled
+    virtualization
+  KVM: Register syscore (suspend/resume) ops early in kvm_init()
+  KVM: Opt out of generic hardware enabling on s390 and PPC
+
+ Documentation/virt/kvm/locking.rst  |  18 +-
+ arch/arm64/include/asm/kvm_host.h   |  15 +-
+ arch/arm64/include/asm/kvm_mmu.h    |   4 +-
+ arch/arm64/kvm/Kconfig              |   1 +
+ arch/arm64/kvm/arch_timer.c         |  29 +-
+ arch/arm64/kvm/arm.c                |  93 +++---
+ arch/arm64/kvm/mmu.c                |  12 +-
+ arch/arm64/kvm/reset.c              |   8 +-
+ arch/arm64/kvm/sys_regs.c           |   6 +-
+ arch/arm64/kvm/vgic/vgic-init.c     |  19 +-
+ arch/arm64/kvm/vmid.c               |   6 +-
+ arch/mips/include/asm/kvm_host.h    |   3 +-
+ arch/mips/kvm/Kconfig               |   1 +
+ arch/mips/kvm/Makefile              |   2 +-
+ arch/mips/kvm/callback.c            |  14 -
+ arch/mips/kvm/mips.c                |  34 +--
+ arch/mips/kvm/vz.c                  |   7 +-
+ arch/powerpc/include/asm/kvm_host.h |   3 -
+ arch/powerpc/include/asm/kvm_ppc.h  |   1 -
+ arch/powerpc/kvm/book3s.c           |  12 +-
+ arch/powerpc/kvm/e500.c             |   6 +-
+ arch/powerpc/kvm/e500mc.c           |   6 +-
+ arch/powerpc/kvm/powerpc.c          |  20 --
+ arch/riscv/include/asm/kvm_host.h   |   7 +-
+ arch/riscv/kvm/Kconfig              |   1 +
+ arch/riscv/kvm/main.c               |  23 +-
+ arch/riscv/kvm/mmu.c                |  12 +-
+ arch/riscv/kvm/vmid.c               |   4 +-
+ arch/s390/include/asm/kvm_host.h    |   1 -
+ arch/s390/kvm/interrupt.c           |   2 +-
+ arch/s390/kvm/kvm-s390.c            |  84 +++---
+ arch/s390/kvm/kvm-s390.h            |   2 +-
+ arch/s390/kvm/pci.c                 |   2 +-
+ arch/s390/kvm/pci.h                 |   2 +-
+ arch/x86/include/asm/kvm_host.h     |   7 +-
+ arch/x86/kvm/Kconfig                |   1 +
+ arch/x86/kvm/cpuid.c                |   1 +
+ arch/x86/kvm/debugfs.c              |   2 +
+ arch/x86/kvm/emulate.c              |   1 +
+ arch/x86/kvm/hyperv.c               |   1 +
+ arch/x86/kvm/i8254.c                |   4 +-
+ arch/x86/kvm/i8259.c                |   4 +-
+ arch/x86/kvm/ioapic.c               |   1 +
+ arch/x86/kvm/irq.c                  |   1 +
+ arch/x86/kvm/irq_comm.c             |   7 +-
+ arch/x86/kvm/kvm_onhyperv.c         |   1 +
+ arch/x86/kvm/lapic.c                |   8 +-
+ arch/x86/kvm/mmu/mmu.c              |   6 +-
+ arch/x86/kvm/mmu/page_track.c       |   1 +
+ arch/x86/kvm/mmu/spte.c             |   4 +-
+ arch/x86/kvm/mmu/spte.h             |   4 +-
+ arch/x86/kvm/mmu/tdp_iter.c         |   1 +
+ arch/x86/kvm/mmu/tdp_mmu.c          |   1 +
+ arch/x86/kvm/mtrr.c                 |   1 +
+ arch/x86/kvm/pmu.c                  |   1 +
+ arch/x86/kvm/smm.c                  |   1 +
+ arch/x86/kvm/svm/avic.c             |   2 +-
+ arch/x86/kvm/svm/nested.c           |   2 +-
+ arch/x86/kvm/svm/pmu.c              |   2 +
+ arch/x86/kvm/svm/sev.c              |   1 +
+ arch/x86/kvm/svm/svm.c              |  90 +++---
+ arch/x86/kvm/svm/svm_onhyperv.c     |   1 +
+ arch/x86/kvm/svm/svm_onhyperv.h     |   4 +-
+ arch/x86/kvm/vmx/capabilities.h     |   4 +-
+ arch/x86/kvm/vmx/evmcs.c            |   1 +
+ arch/x86/kvm/vmx/evmcs.h            |   4 +-
+ arch/x86/kvm/vmx/nested.c           |   3 +-
+ arch/x86/kvm/vmx/pmu_intel.c        |   5 +-
+ arch/x86/kvm/vmx/posted_intr.c      |   2 +
+ arch/x86/kvm/vmx/sgx.c              |   5 +-
+ arch/x86/kvm/vmx/vmcs12.c           |   1 +
+ arch/x86/kvm/vmx/vmx.c              | 438 +++++++++++++++-------------
+ arch/x86/kvm/vmx/vmx_ops.h          |   4 +-
+ arch/x86/kvm/x86.c                  | 252 +++++++++-------
+ arch/x86/kvm/xen.c                  |   1 +
+ include/kvm/arm_arch_timer.h        |   6 +-
+ include/kvm/arm_vgic.h              |   4 +
+ include/linux/cpuhotplug.h          |   5 +-
+ include/linux/kvm_host.h            |  13 +-
+ virt/kvm/Kconfig                    |   3 +
+ virt/kvm/kvm_main.c                 | 302 ++++++++++---------
+ 81 files changed, 861 insertions(+), 813 deletions(-)
+ delete mode 100644 arch/mips/kvm/callback.c
+
+
+base-commit: d5af637323dd156bad071a3f8fc0d7166cca1276
+-- 
+2.38.1.431.g37b22c650d-goog
 
