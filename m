@@ -2,59 +2,58 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9350FC4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 23:24:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7435BC433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 23:24:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231464AbiKBXYm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 19:24:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33104 "EHLO
+        id S231269AbiKBXYv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 19:24:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231393AbiKBXX6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 19:23:58 -0400
-Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6955DB87D
-        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 16:20:16 -0700 (PDT)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-36ba0287319so1065697b3.3
-        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 16:20:16 -0700 (PDT)
+        with ESMTP id S231274AbiKBXYG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 19:24:06 -0400
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE679CE09
+        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 16:20:19 -0700 (PDT)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-36fde8f2cdcso456197b3.23
+        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 16:20:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=mKnEtQX0QH/ggk+Ht36/d+63ROqx6WCYCltiz+Zzjv4=;
-        b=SdQ/LsY4NGnVE1yE06OYtnoYVCRmFREHfZbDy+hy/qKLprusJ3oD9C3Z6OVRKqQrnE
-         CInFERbmx9ZRnFYiATYzBK74mPS4+cAZJ+5ijRabgzbKKerJGVt8ZZlmJzt5Hj/aV0PA
-         EGW/7VotUp9NojxVblVL/QpJZuKvGxyCajSBZEMqVRwQDUQw2wRSv4vj1QT6bcpnpc9t
-         e4rP+2f3gLSJ/JJRtgPX3AbV2Tyauor4ctFIQiYJWU548K+/wXsudAS9Uik/E0jRBxNq
-         qFZGa2xPRMU89uQ30BChflY3hdbUkhWTUyAN3U9JeOyLGBy95xzkfXnGKk726vF8pKbF
-         n5DQ==
+        bh=xdi2HIR5lDsLzEB1UZrukxTClMK6e7wt2nFiWo5gXdY=;
+        b=sb/k/6YChcjl+a9VYlAXhWYOgQyjQV32YX7EFiw9qqpx/WWSDY3oo2CdFxdxpN5cQ+
+         bsen7KFdwbaDgiY7tE/ARuN34CNUQVNfQj40KonMSYzWyRevQJIJ8ucvWSt+5e0xldbM
+         dG1h+yI8VvXovjZl23qRN2G1h0VDtyVIK/a8wCZyDk3med1nNg8la66zBWDcMMULCuHG
+         GgMxZJTuhnm9Kg3Kf6izcH6H9MKXIo5IEEs5iURRrxNb+NCxH6KXLxeRheLVzOIs5Da0
+         /j3GVJG8PRl/KZMyimVoe+5FEyijlgyVWBHJWpAL02rmgy07fT/EQi1GCc1WFNc58HpZ
+         GW3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=mKnEtQX0QH/ggk+Ht36/d+63ROqx6WCYCltiz+Zzjv4=;
-        b=GxpZepdGL82xIDcLhMZGHTrrkpuKgxYKiON5D0SiVG6nCzRDoA+q2TACOwrw5DcgPN
-         LXSKlXzgSTg+7C9zCKB+Jaa+Fn0hh4KiOYtEN2syxMWYc0AUzRdv4iTavJVzz+tB8599
-         WjJ3pwpj9Oe25Ias7uJlgal1sH6DVZKBvHFCUCGwjKxkSj8uSamqyR/Q+VUqvs3+hK7W
-         nRMi9RbLtPSObaJQEXMxN4NlkITSqCSUZaynFEASmSYB7s43duPNdacu2RZvJzAvoS8Y
-         7qCPRN92089QKYqdJVXbSUMW2Yd7fLZ4YSPVBtwtUPOM+eUHRYMztOq6Nnv5rKPUVq+8
-         YYVw==
-X-Gm-Message-State: ACrzQf3dOZjqyOd8CWGFNCOPe6mEOWMB78OrvjCkpXJo8maexDxulZKO
-        T5CLDO3wjPdf+DiNJ2PyARsoH1yXdA0=
-X-Google-Smtp-Source: AMsMyM58olcArAfGw4eM2juSx6NG/cSk/6KUdGGsxOwq8NmV4ZhdhKDU4RNI0GuMTLVYYG9b0/LsdP0LTpo=
+        bh=xdi2HIR5lDsLzEB1UZrukxTClMK6e7wt2nFiWo5gXdY=;
+        b=isOWAQ9f6YwihgpiOhPb7yi0RFyIVh+oaE90zlwp78yFbgv0tw4drywfmbcZTZ+W3z
+         2Gu+7gmG1NojPbXijLRTd2yUPYK9WdRU2+kldrWJJfxygOG7Qs+DTydmWWc6xrbLoTNs
+         TursFVrlUay7GLl1BGDVWndId8wwjaUAesj4wPSOSQLxMy0B85KIeN5fwDkSExBzuEOg
+         JeHA0ve//X4FiRy70xudpTp746iHyxKAsS1pCCB9fANBDalKZf4gWU1IqdF/ARwBAcUx
+         VofF8dYHD1qhP65frPUS8hTbPXQwIi+YFiBAQx5FhjYzgWkbR4PRDQg/FeZmNKtY5JZA
+         wTKw==
+X-Gm-Message-State: ACrzQf0emOFjEFpltB3weGpxdkKs3ITMmkId9dsPnL+xpBtS9o6g0s0K
+        Rd+z8eLtlt3AP3/WGvOVX2l1WGS5mt8=
+X-Google-Smtp-Source: AMsMyM7e+TGdJRwAqNyPJfnKmxSn80oz3hoXq+YWtTdlfH8WIBioJcR7xPecdYC8HpWoY/uUAUWZTvNWC7g=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a25:c615:0:b0:6c9:f71a:f95d with SMTP id
- k21-20020a25c615000000b006c9f71af95dmr26436245ybf.411.1667431202255; Wed, 02
- Nov 2022 16:20:02 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a5b:443:0:b0:6bc:e3d1:8990 with SMTP id
+ s3-20020a5b0443000000b006bce3d18990mr28148778ybp.191.1667431207141; Wed, 02
+ Nov 2022 16:20:07 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed,  2 Nov 2022 23:18:55 +0000
+Date:   Wed,  2 Nov 2022 23:18:58 +0000
 In-Reply-To: <20221102231911.3107438-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221102231911.3107438-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Message-ID: <20221102231911.3107438-29-seanjc@google.com>
-Subject: [PATCH 28/44] KVM: VMX: Make VMCS configuration/capabilities structs
- read-only after init
+Message-ID: <20221102231911.3107438-32-seanjc@google.com>
+Subject: [PATCH 31/44] KVM: x86: Use KBUILD_MODNAME to specify vendor module name
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -92,51 +91,46 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Tag vmcs_config and vmx_capability structs as __init, the canonical
-configuration is generated during hardware_setup() and must never be
-modified after that point.
+Use KBUILD_MODNAME to specify the vendor module name instead of manually
+writing out the name to make it a bit more obvious that the name isn't
+completely arbitrary.  A future patch will also use KBUILD_MODNAME to
+define pr_fmt, at which point using KBUILD_MODNAME for kvm_x86_ops.name
+further reinforces the intended usage of kvm_x86_ops.name.
+
+No functional change intended.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/x86/kvm/vmx/capabilities.h | 4 ++--
- arch/x86/kvm/vmx/vmx.c          | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kvm/svm/svm.c | 2 +-
+ arch/x86/kvm/vmx/vmx.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/capabilities.h b/arch/x86/kvm/vmx/capabilities.h
-index 87c4e46daf37..2aaa0fd53d08 100644
---- a/arch/x86/kvm/vmx/capabilities.h
-+++ b/arch/x86/kvm/vmx/capabilities.h
-@@ -68,13 +68,13 @@ struct vmcs_config {
- 	u64 misc;
- 	struct nested_vmx_msrs nested;
- };
--extern struct vmcs_config vmcs_config;
-+extern struct vmcs_config vmcs_config __ro_after_init;
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 99c1ac2d9c84..13457aa68112 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -4737,7 +4737,7 @@ static int svm_vm_init(struct kvm *kvm)
+ }
  
- struct vmx_capability {
- 	u32 ept;
- 	u32 vpid;
- };
--extern struct vmx_capability vmx_capability;
-+extern struct vmx_capability vmx_capability __ro_after_init;
+ static struct kvm_x86_ops svm_x86_ops __initdata = {
+-	.name = "kvm_amd",
++	.name = KBUILD_MODNAME,
  
- static inline bool cpu_has_vmx_basic_inout(void)
- {
+ 	.hardware_unsetup = svm_hardware_unsetup,
+ 	.hardware_enable = svm_hardware_enable,
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 6adb60485839..81690fce0eb1 100644
+index 25e28d368274..a563c9756e36 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -489,8 +489,8 @@ static DEFINE_PER_CPU(struct list_head, loaded_vmcss_on_cpu);
- static DECLARE_BITMAP(vmx_vpid_bitmap, VMX_NR_VPIDS);
- static DEFINE_SPINLOCK(vmx_vpid_lock);
+@@ -8074,7 +8074,7 @@ static void vmx_vm_destroy(struct kvm *kvm)
+ }
  
--struct vmcs_config vmcs_config;
--struct vmx_capability vmx_capability;
-+struct vmcs_config vmcs_config __ro_after_init;
-+struct vmx_capability vmx_capability __ro_after_init;
+ static struct kvm_x86_ops vmx_x86_ops __initdata = {
+-	.name = "kvm_intel",
++	.name = KBUILD_MODNAME,
  
- #define VMX_SEGMENT_FIELD(seg)					\
- 	[VCPU_SREG_##seg] = {                                   \
+ 	.hardware_unsetup = vmx_hardware_unsetup,
+ 
 -- 
 2.38.1.431.g37b22c650d-goog
 
