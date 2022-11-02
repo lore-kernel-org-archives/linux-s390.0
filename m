@@ -2,58 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 245CAC43217
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 23:22:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02C78C43217
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 23:23:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231285AbiKBXWz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 19:22:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33904 "EHLO
+        id S230150AbiKBXXJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 19:23:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231190AbiKBXVy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 19:21:54 -0400
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 061982624
-        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 16:20:05 -0700 (PDT)
-Received: by mail-pj1-x104a.google.com with SMTP id lx3-20020a17090b4b0300b002137705324eso2991791pjb.1
-        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 16:20:05 -0700 (PDT)
+        with ESMTP id S230337AbiKBXVx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 19:21:53 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482BE2612
+        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 16:20:02 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id h67-20020a252146000000b006ccc4702068so359963ybh.12
+        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 16:20:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=gDhPLBi4i5H6cHaf8a2jrjVYop+4Ek8Lw09caIJYwao=;
-        b=TuudOMSXAL7adsZOBmgYh538VYcYhWF5nhP0M4YVJQfWwg0r4dUZ36mJ33yxVd2Fh8
-         AhcLUX3yIkB9ibk1KInatQW3m5g/Xb1UjUv/pTYWyo/nNdUKM/jwJQkQp9VPPXPIpTse
-         emwOM/6/Ktd+5NIL8TVzYVk2VxBsALjv/ypuxQqcHFi3jRRp2B55ZXqSfMnLEtC/HxSc
-         stovQRZYEuaPtf2QjvJsPbzEyMHUcGd/vQxkSYwoxM9lz3prJOeJu1qYoXRdsdqvf9E7
-         tjo5AfcasIg3m/lx8wa0nQ72JaxhhT6f9hdOGOiYZcTNcwLRRLBhpjRIkPPAdq+gGp5w
-         JrtA==
+        bh=0o+EzHHK0qEKuJS4nAvuf1qFUtMYU5Pn7Tw+MdMbo24=;
+        b=EIb+S3KjwEE+ZmqC6GbVJJy8amB++eLjJ+/jiG87MMc/wFbRU0kx0J4wCKJ8j6nNjs
+         za+Fdn/Zmx7Nwq0npY2wSE6K/65mKpituGYshWgszbXujsa2C4LOGKYmBrXWAMqsHhZk
+         dzAug91CI+xQams4Ntwr0hTe4dRBZOSfAhxxeRSz8D7gTCIm4bWh+wmhFWuITQJ5GWZI
+         p8Ppdaut1HKYwQiz88BhbW052nrk95os7SRI+oqJvvM8DT8p9187Bsm3Ibwh0slRJL7C
+         GuHqGcSZ+hhn6XS4bRu2tYDaytkFylv9nYI38h0KA40gF/Dhf137+j/nMwytxcCY0bIV
+         yxuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=gDhPLBi4i5H6cHaf8a2jrjVYop+4Ek8Lw09caIJYwao=;
-        b=ZBf5cVgSkBI1BjvfZehrs05VETaBiaLz8+iKsV9kESTYIVy9lLj1zZ1NWcQDQAjpK6
-         VMh2qxZBtBAks0qkAY6u41EcsdNvkBvK2z6duMrF8Yqurjt8vkqA65Tk5/i8s3jfhjMV
-         7Z/mFtIYb2cX9gZrduY9yoLid89vxviVjo8pUO2JFLdWi2bME8iR6OPqXORpUfX0U5Hh
-         qni8l00vbcaZi9ackviK25hkWjv/TUVBHWyseQ0zKhFNvYvEQ7m4hQTipU3/5/DDFGv6
-         sTHwZfZcNgZ9oxT2jdLXI0FNlqhDUz1oucKIHaDLnVgFqylU1tzQjl96SS4YDwDxQBRU
-         Zxfg==
-X-Gm-Message-State: ACrzQf0etE0gC+I/6iboENzOBLLjBZCYBo0nmoberWwzDWzPWC9c3w8b
-        U+rr4uLXnN4GXAKb8KnnNcp/LjbBQQ0=
-X-Google-Smtp-Source: AMsMyM669E+APVVp8ZI0Da0e6lyqKNtrGNrgTK1Ki9ihR88cZjll+Sj6vtq7kMOQqNwb+vtNMKGRhrCtVeU=
+        bh=0o+EzHHK0qEKuJS4nAvuf1qFUtMYU5Pn7Tw+MdMbo24=;
+        b=jiCYr4THq+v9hY0yvBizy2p7HaFTFjZlSFx2VDmS811CQRMqrkAZU5EeHFC8ShviuK
+         FjHdCr+BfyhEog6vQbPjg99mep9N/1LtE/k0JJMkWpF/XrT1XAThcZKAIBaUOrDUA2J+
+         oG/FLZrzjby8Kub1oEfCvEQdPr8v2kyOECMVx2AnOnN2sZm4JU77MZH9oWSEiBo0viZ8
+         ax7I97Ty2SBRepIeGKZjTSpKShpovCdwYpLV3MAq7lWvi4xTbofdzxhWjZWIV+lI9cPV
+         Mi59B1LpntPHoNKl6io6RZvK5QOr0lLELTNC7F1UmPSjpa3tI5ZMBkt+/7xHpvXmvSCm
+         3+cA==
+X-Gm-Message-State: ACrzQf3Yb3VVAzkuLHv+SijEUq4bc8/wt3YgDPCqrcCeRVPnkUhRDZTa
+        PqbNPdY5Fj56vI7VtGLXfW8Urzz4rWo=
+X-Google-Smtp-Source: AMsMyM4BtppDJKgcriXyYQiJchXeoNkFVVMupwaiPk8mRMPwi+bT/3boEB5+2TF1+6y9viZ/we/mwFmDxqY=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:902:f28b:b0:186:b069:63fc with SMTP id
- k11-20020a170902f28b00b00186b06963fcmr27593726plc.38.1667431187773; Wed, 02
- Nov 2022 16:19:47 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a81:3984:0:b0:370:7d9b:7a6d with SMTP id
+ g126-20020a813984000000b003707d9b7a6dmr13100947ywa.274.1667431186021; Wed, 02
+ Nov 2022 16:19:46 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed,  2 Nov 2022 23:18:47 +0000
+Date:   Wed,  2 Nov 2022 23:18:46 +0000
 In-Reply-To: <20221102231911.3107438-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221102231911.3107438-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Message-ID: <20221102231911.3107438-21-seanjc@google.com>
-Subject: [PATCH 20/44] KVM: MIPS: Setup VZ emulation? directly from kvm_mips_init()
+Message-ID: <20221102231911.3107438-20-seanjc@google.com>
+Subject: [PATCH 19/44] KVM: MIPS: Hardcode callbacks to hardware
+ virtualization extensions
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -91,45 +92,124 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Invoke kvm_mips_emulation_init() directly from kvm_mips_init() instead
-of bouncing through kvm_init()=>kvm_arch_init().  Functionally, this is
-a glorified nop as invoking kvm_arch_init() is the very first action
-performed by kvm_init().
+Now that KVM no longer supports trap-and-emulate (see commit 45c7e8af4a5e
+"MIPS: Remove KVM_TE support"), hardcode the MIPS callbacks to the
+virtualization callbacks.
 
-Emptying kvm_arch_init() will allow dropping the hook entirely once all
-architecture implementations are nops.
+Harcoding the callbacks eliminates the technically-unnecessary check on
+non-NULL kvm_mips_callbacks in kvm_arch_init().  MIPS has never supported
+multiple in-tree modules, i.e. barring an out-of-tree module, where
+copying and renaming kvm.ko counts as "out-of-tree", KVM could never
+encounter a non-NULL set of callbacks during module init.
 
-No functional change intended.
+The callback check is also subtly broken, as it is not thread safe,
+i.e. if there were multiple modules, loading both concurrently would
+create a race between checking and setting kvm_mips_callbacks.
+
+Given that out-of-tree shenanigans are not the kernel's responsibility,
+hardcode the callbacks to simplify the code.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/mips/kvm/mips.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/mips/include/asm/kvm_host.h |  2 +-
+ arch/mips/kvm/Makefile           |  2 +-
+ arch/mips/kvm/callback.c         | 14 --------------
+ arch/mips/kvm/mips.c             |  9 ++-------
+ arch/mips/kvm/vz.c               |  7 ++++---
+ 5 files changed, 8 insertions(+), 26 deletions(-)
+ delete mode 100644 arch/mips/kvm/callback.c
 
+diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
+index 28f0ba97db71..2803c9c21ef9 100644
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -758,7 +758,7 @@ struct kvm_mips_callbacks {
+ 	void (*vcpu_reenter)(struct kvm_vcpu *vcpu);
+ };
+ extern struct kvm_mips_callbacks *kvm_mips_callbacks;
+-int kvm_mips_emulation_init(struct kvm_mips_callbacks **install_callbacks);
++int kvm_mips_emulation_init(void);
+ 
+ /* Debug: dump vcpu state */
+ int kvm_arch_vcpu_dump_regs(struct kvm_vcpu *vcpu);
+diff --git a/arch/mips/kvm/Makefile b/arch/mips/kvm/Makefile
+index 21ff75bcdbc4..805aeea2166e 100644
+--- a/arch/mips/kvm/Makefile
++++ b/arch/mips/kvm/Makefile
+@@ -17,4 +17,4 @@ kvm-$(CONFIG_CPU_LOONGSON64) += loongson_ipi.o
+ 
+ kvm-y		+= vz.o
+ obj-$(CONFIG_KVM)	+= kvm.o
+-obj-y			+= callback.o tlb.o
++obj-y			+= tlb.o
+diff --git a/arch/mips/kvm/callback.c b/arch/mips/kvm/callback.c
+deleted file mode 100644
+index d88aa2173fb0..000000000000
+--- a/arch/mips/kvm/callback.c
++++ /dev/null
+@@ -1,14 +0,0 @@
+-/*
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
+- *
+- * Copyright (C) 2012  MIPS Technologies, Inc.  All rights reserved.
+- * Authors: Yann Le Du <ledu@kymasys.com>
+- */
+-
+-#include <linux/export.h>
+-#include <linux/kvm_host.h>
+-
+-struct kvm_mips_callbacks *kvm_mips_callbacks;
+-EXPORT_SYMBOL_GPL(kvm_mips_callbacks);
 diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-index f0a6c245d1ff..75681281e2df 100644
+index af29490d9740..f0a6c245d1ff 100644
 --- a/arch/mips/kvm/mips.c
 +++ b/arch/mips/kvm/mips.c
-@@ -1012,7 +1012,7 @@ long kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
+@@ -1012,17 +1012,12 @@ long kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
  
  int kvm_arch_init(void *opaque)
  {
--	return kvm_mips_emulation_init();
-+	return 0;
+-	if (kvm_mips_callbacks) {
+-		kvm_err("kvm: module already exists\n");
+-		return -EEXIST;
+-	}
+-
+-	return kvm_mips_emulation_init(&kvm_mips_callbacks);
++	return kvm_mips_emulation_init();
  }
  
  void kvm_arch_exit(void)
-@@ -1636,6 +1636,10 @@ static int __init kvm_mips_init(void)
- 	if (ret)
- 		return ret;
- 
-+	ret = kvm_mips_emulation_init();
-+	if (ret)
-+		return ret;
+ {
+-	kvm_mips_callbacks = NULL;
 +
- 	ret = kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
+ }
  
- 	if (ret)
+ int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
+diff --git a/arch/mips/kvm/vz.c b/arch/mips/kvm/vz.c
+index c706f5890a05..dafab003ea0d 100644
+--- a/arch/mips/kvm/vz.c
++++ b/arch/mips/kvm/vz.c
+@@ -3304,7 +3304,10 @@ static struct kvm_mips_callbacks kvm_vz_callbacks = {
+ 	.vcpu_reenter = kvm_vz_vcpu_reenter,
+ };
+ 
+-int kvm_mips_emulation_init(struct kvm_mips_callbacks **install_callbacks)
++/* FIXME: Get rid of the callbacks now that trap-and-emulate is gone. */
++struct kvm_mips_callbacks *kvm_mips_callbacks = &kvm_vz_callbacks;
++
++int kvm_mips_emulation_init(void)
+ {
+ 	if (!cpu_has_vz)
+ 		return -ENODEV;
+@@ -3318,7 +3321,5 @@ int kvm_mips_emulation_init(struct kvm_mips_callbacks **install_callbacks)
+ 		return -ENODEV;
+ 
+ 	pr_info("Starting KVM with MIPS VZ extensions\n");
+-
+-	*install_callbacks = &kvm_vz_callbacks;
+ 	return 0;
+ }
 -- 
 2.38.1.431.g37b22c650d-goog
 
