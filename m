@@ -2,112 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E035C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 18:44:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 952DEC4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 19:10:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231319AbiKBSoJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 14:44:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39116 "EHLO
+        id S230431AbiKBTKN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 15:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231262AbiKBSoI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 14:44:08 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E281E2CDC5;
-        Wed,  2 Nov 2022 11:44:07 -0700 (PDT)
-Received: from zn.tnic (p200300ea9733e741329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:9733:e741:329c:23ff:fea6:a903])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 72DBB1EC0430;
-        Wed,  2 Nov 2022 19:44:06 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1667414646;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=iOr/2V0DoRyu5jKtmDX0XiBrZE84Kn1Pob6d6OL2TAQ=;
-        b=P8xIFXf059+smEe6r5YZYLEbBvKhvHMQlCDMpFuQpPIyUL+0Na11Qye0LmeFzVkyGcJ0Ue
-        fIrCmtMkvbI9pekV7eZIq4LZ2B96yVhn3hhIe318CHOxpV0wNqptu2eHkXK4/tBD234sAI
-        ZmyjnjRhdV4j8e7O51OrF3B1uOD5hfo=
-Date:   Wed, 2 Nov 2022 19:44:02 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Andrew Jones <ajones@ventanamicro.com>
-Cc:     Yury Norov <yury.norov@gmail.com>, x86@kernel.org,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        openrisc@lists.librecores.org,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT" 
-        <linuxppc-dev@lists.ozlabs.org>,
+        with ESMTP id S231839AbiKBTJ6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 15:09:58 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2448FFAE5
+        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 12:09:51 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id p21so13621326plr.7
+        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 12:09:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=rceJbOCflyPx+m+jp0CiAofr11KjGzc/BosMfyINF6Q=;
+        b=nTYtdAKQoQK2ASSwLeh5CjtoKDvCTGPFgwhrrlZGkl2cUuG0T1larCOBHjiCgaxcl3
+         mR5tmneD4Ly087+iJQrS+9FP1EuHQvmT50wZQm/dGpkkC7/4t0AOPCgKmEPjs3N90ViO
+         ZDcJ6MKXWBsJMUwgYDBLNZZT7WVhJVj5MbCXU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rceJbOCflyPx+m+jp0CiAofr11KjGzc/BosMfyINF6Q=;
+        b=RLfFSyXgg1xfk6thql5lKRl/OjhqWCIbGD9vMhqvVBIcCBnFtke6mfbOHY2p4RD1YX
+         unRTubcQ6hO3PHaD90opvun/sf7GAPvP1HQf4riz3VYXKprR2Xn5llKQig57ZAJmwY5z
+         JmnIZuQXELRXUcSSi/gL+Aukmkm2mF3AhoKNnIHgDe9lKkiq79xNquBkn8Gzdl8FFlhl
+         S2PYiFTK1K6JcKupsfb3fjgly/PWkCB7utN5A0cSOajoIXCRO8dNb/zfXgalLIWd0q3i
+         TOXHFiaKqoZWlQQOJETLur02s2M6l26IdksmlU+3xSUxJpoR6AMnTQRnhUMgNDg2KpCd
+         Aqgg==
+X-Gm-Message-State: ACrzQf1zF6cvFox+LmZDAGcCMmiRZxmO7s83yrj8C4V211j+LhPDH5j7
+        AHk4Tvnsns3w0R69UUnz7w6lWH53gUomRQ==
+X-Google-Smtp-Source: AMsMyM5iaPa8jHtaXe8TTihPGNBmjZOrJkjawt950HiY8oyo6JC1DPwtgOaOwWhqRWTHHvmX+izChA==
+X-Received: by 2002:a17:903:1303:b0:186:969d:97cf with SMTP id iy3-20020a170903130300b00186969d97cfmr25743179plb.17.1667416190610;
+        Wed, 02 Nov 2022 12:09:50 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id f3-20020a170902ce8300b001782a6fbcacsm8698407plg.101.2022.11.02.12.09.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Nov 2022 12:09:50 -0700 (PDT)
+Date:   Wed, 2 Nov 2022 12:09:49 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
-Message-ID: <Y2K6clNJBn0SbWU+@zn.tnic>
-References: <20221014155845.1986223-1-ajones@ventanamicro.com>
- <20221014155845.1986223-3-ajones@ventanamicro.com>
- <20221028074828.b66uuqqfbrnjdtab@kamzik>
- <Y1vrMMtRwb0Lekl0@yury-laptop>
- <Y1vvMlwf/4EA/8WW@zn.tnic>
- <CAAH8bW_DkvPCH0-q2Bfe0OJ72r63mRM3GP7NKOFrhe3zMO2gbQ@mail.gmail.com>
- <Y1v+Ed6mRN9gisJS@zn.tnic>
- <20221031080604.6xei6c4e3ckhsvmy@kamzik>
- <Y1+OUawGJDjh4DOJ@zn.tnic>
- <20221031100327.r7tswmpszvs5ot5n@kamzik>
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>,
+        Sami Tolvanen <samitolvanen@google.com>, llvm@lists.linux.dev,
+        linux-kernel@vger.kernel.org, patches@lists.linux.dev
+Subject: Re: [PATCH 1/3] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+Message-ID: <202211021209.276A8BA@keescook>
+References: <20221102163252.49175-1-nathan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221031100327.r7tswmpszvs5ot5n@kamzik>
+In-Reply-To: <20221102163252.49175-1-nathan@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 31, 2022 at 11:03:27AM +0100, Andrew Jones wrote:
-> Currently (after the revert of 78e5a3399421)
+On Wed, Nov 02, 2022 at 09:32:50AM -0700, Nathan Chancellor wrote:
+> With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+> indirect call targets are validated against the expected function
+> pointer prototype to make sure the call target is valid to help mitigate
+> ROP attacks. If they are not identical, there is a failure at run time,
+> which manifests as either a kernel panic or thread getting killed. A
+> proposed warning in clang aims to catch these at compile time, which
+> reveals:
+> 
+>   drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+>           .ndo_start_xmit         = ctcm_tx,
+>                                     ^~~~~~~
+>   drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+>           .ndo_start_xmit         = ctcmpc_tx,
+>                                     ^~~~~~~~~
+> 
+> ->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+> 'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
+> match the prototype's to resolve the warning and potential CFI failure,
+> should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
+> 
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 
-After the revert?
-
-That commit is still in the latest Linus tree.
-
-> with DEBUG_PER_CPU_MAPS we'll get a warning splat when the cpu is
-> outside the range [-1, nr_cpu_ids)
-
-Yah, that range makes sense.
-
-> and cpumask_next() will call find_next_bit() with the input plus one anyway.
-> find_next_bit() doesn't explicity document what happens when an input is
-> outside the range, but it currently returns the bitmap size without any
-> side effects, which means cpumask_next() will return nr_cpu_ids.
-
-That is good to have in the commit message.
-
-> show_cpuinfo() doesn't try to show anything in that case and stops its
-> loop, or, IOW, things work fine now with an input of nr_cpu_ids - 1. But,
-> show_cpuinfo() is just getting away with a violated cpumask_next()
-> contract, which 78e5a3399421 exposed. How about a new commit message like
-> this
-
-You're making it sound more complex than it is. All you wanna say is:
-
-"Filter out invalid cpumask_next() inputs by checking its first argument
-against nr_cpu_ids because cpumask_next() will call find_next_bit() with
-the input plus one but the valid range for n is [-1, nr_cpu_ids)."
-
-But that thing with the revert above needs to be clarified first.
-
-Thx.
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Kees Cook
