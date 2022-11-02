@@ -2,330 +2,251 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 149D0C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 17:38:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F88EC43219
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 18:31:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230510AbiKBRij (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 13:38:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35760 "EHLO
+        id S230115AbiKBSbo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 14:31:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231345AbiKBRi1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 13:38:27 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0272E9F1;
-        Wed,  2 Nov 2022 10:38:20 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A2GkWwa016761;
-        Wed, 2 Nov 2022 17:37:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=POyXG4IlPm7jFx0Q3uWwEGhl5QQ7jk6OxguwZ8ZA4tY=;
- b=s8a8jqhsF3HQPAMYsT7L5qFRWtZxgtttvcU6nISmwAZ5ayhpcZo8hVwaOQNTney41B5Y
- YyCt1Hgm88yPxMt25ksaZHtuD8BMpsS/vvuNGp6644VD2KOjqWwVdMn4zRl0MbUi2ofz
- fjh5xcvb4jktiesw/kRO1TYiw85+QQs9vLiy3Q0w7jgx4W9cEEY7BlhJ1SZesNkbK3kA
- beT4JGJr1vpKuJeM+SpEK6LYDor+goWr8CFIelH45vnE+yiLyxt61788GlUcYfnXHFOa
- SS67aRGGOLZ+vC66Nj1aVbxoaO/0IRIS7pspv7wa3V8RtOk2lTL9ZjrWBC1nRz7NTJqH 4Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kktn0dwgv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Nov 2022 17:37:03 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A2FijWj003373;
-        Wed, 2 Nov 2022 17:37:02 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kktn0dwfx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Nov 2022 17:37:02 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A2HaOsU023671;
-        Wed, 2 Nov 2022 17:37:00 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma03wdc.us.ibm.com with ESMTP id 3kgut9v73u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Nov 2022 17:37:00 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com ([9.208.128.115])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A2HaxKn63767026
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Nov 2022 17:37:00 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 420F95803F;
-        Wed,  2 Nov 2022 17:36:59 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7CFF858067;
-        Wed,  2 Nov 2022 17:36:55 +0000 (GMT)
-Received: from [9.160.188.120] (unknown [9.160.188.120])
-        by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  2 Nov 2022 17:36:55 +0000 (GMT)
-Message-ID: <4a39ccf9-4201-47eb-fb4a-94a9b8b29312@linux.ibm.com>
-Date:   Wed, 2 Nov 2022 13:36:54 -0400
+        with ESMTP id S230086AbiKBSbo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 14:31:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325EB116C
+        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 11:30:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667413845;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=DOAMp7M3Dm3mqYAl0WmtrSxJ5fQ0T+HY063YNavNlMw=;
+        b=S1strUKhgw4DnPhfNYvcMpXYtyJbmr01vvqg56f0aULQQVEV8mRoAVF3f95yd1bxxQH8RD
+        SgJ6zdUhUwUwXnU9t6hEL60GGshRJ0zqJe7cM0pLl7iIYO2OwQq2q8KsQpLgC3WVcCan9i
+        TS2DmpZF57J9gOZNF5RcMenS7P4q3ws=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-398-hxhfnVBFPXW25GwREUbNbQ-1; Wed, 02 Nov 2022 14:30:42 -0400
+X-MC-Unique: hxhfnVBFPXW25GwREUbNbQ-1
+Received: by mail-qt1-f197.google.com with SMTP id i13-20020ac8764d000000b003a4ec8693dcso12820202qtr.14
+        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 11:30:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=DOAMp7M3Dm3mqYAl0WmtrSxJ5fQ0T+HY063YNavNlMw=;
+        b=b5/xem8n7V4TIPw08g1nBietVJLqm8xymILVpI52gvbVmwwJxloQH/7HM7xqxvQdpl
+         seTzCalNYOFfSfnieO4Ld3CL/7ZEgk7BY/zb68UfkihqcWDJzk3ds6z8Cz5wJhsF2wZC
+         nuKCmuTSdAQSRL87DAdUkEyacuVF3lczmNba64TC3GcJie4j0BwhMtCnFgL7qjbPag3A
+         +P2LjJDBMZpcU5WAAPZawwbj5vglQy+S/5Pou9uC3JvP/5y4/dyXyX2kc+78o3CDjpa+
+         GPP8eoMM4nGUXwjslGXLCgUyUkpal8ydou9tUzDar/P1B93VO0bX/7xba17+AzXwnDTz
+         HH1Q==
+X-Gm-Message-State: ACrzQf1mjx1FctO5nLPXjDOYPNgjpuBaKcdfCTZarsB1JuUhoecRqIla
+        yG0HJrYMfMX+V0eUV+ZxPbga+bp/w1cRlB2qNP6WU01OZB2lYwDd3zc5Zdr66+58BG8yCNiubYC
+        M7mmz3j9jAGpDZ0JF8VDCiA==
+X-Received: by 2002:ac8:7d8c:0:b0:39c:f4b6:f02f with SMTP id c12-20020ac87d8c000000b0039cf4b6f02fmr20509019qtd.252.1667413840484;
+        Wed, 02 Nov 2022 11:30:40 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4avLCdiC1e+YjDgGOUynVvkPGro1QBzGCbIXRErpBO4pdwyJNVuMKcAEHPTKixBfYKlupYaQ==
+X-Received: by 2002:ac8:7d8c:0:b0:39c:f4b6:f02f with SMTP id c12-20020ac87d8c000000b0039cf4b6f02fmr20508984qtd.252.1667413840179;
+        Wed, 02 Nov 2022 11:30:40 -0700 (PDT)
+Received: from vschneid.remote.csb ([149.71.65.94])
+        by smtp.gmail.com with ESMTPSA id s16-20020a05620a29d000b006cec8001bf4sm9133847qkp.26.2022.11.02.11.30.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Nov 2022 11:30:39 -0700 (PDT)
+From:   Valentin Schneider <vschneid@redhat.com>
+To:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org
+Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [RFC PATCH v2 0/8] Generic IPI sending tracepoint
+Date:   Wed,  2 Nov 2022 18:29:41 +0000
+Message-Id: <20221102182949.3119584-1-vschneid@redhat.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v2 7/7] vfio: Remove vfio_free_device
-Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>
-Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-References: <20221102150152.2521475-1-farman@linux.ibm.com>
- <20221102150152.2521475-8-farman@linux.ibm.com>
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20221102150152.2521475-8-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5KNPJY1ojqecQcp7Ux1-t0mABaq5DMaH
-X-Proofpoint-ORIG-GUID: hHPReoa9HfHIQdJ1gnG2bgJ3zM36pog3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-02_13,2022-11-02_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
- mlxscore=0 malwarescore=0 adultscore=0 mlxlogscore=999 phishscore=0
- suspectscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211020114
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com> : vfio_ap part
+Background
+==========
 
-On 11/2/22 11:01 AM, Eric Farman wrote:
-> With the "mess" sorted out, we should be able to inline the
-> vfio_free_device call introduced by commit cb9ff3f3b84c
-> ("vfio: Add helpers for unifying vfio_device life cycle")
-> and remove them from driver release callbacks.
->
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> ---
->   drivers/gpu/drm/i915/gvt/kvmgt.c      |  1 -
->   drivers/s390/cio/vfio_ccw_ops.c       |  2 --
->   drivers/s390/crypto/vfio_ap_ops.c     |  6 ------
->   drivers/vfio/fsl-mc/vfio_fsl_mc.c     |  1 -
->   drivers/vfio/pci/vfio_pci_core.c      |  1 -
->   drivers/vfio/platform/vfio_amba.c     |  1 -
->   drivers/vfio/platform/vfio_platform.c |  1 -
->   drivers/vfio/vfio_main.c              | 22 ++++------------------
->   include/linux/vfio.h                  |  1 -
->   samples/vfio-mdev/mbochs.c            |  1 -
->   samples/vfio-mdev/mdpy.c              |  1 -
->   samples/vfio-mdev/mtty.c              |  1 -
->   12 files changed, 4 insertions(+), 35 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> index 7a45e5360caf..eee6805e67de 100644
-> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> @@ -1461,7 +1461,6 @@ static void intel_vgpu_release_dev(struct vfio_device *vfio_dev)
->   	struct intel_vgpu *vgpu = vfio_dev_to_vgpu(vfio_dev);
->   
->   	intel_gvt_destroy_vgpu(vgpu);
-> -	vfio_free_device(vfio_dev);
->   }
->   
->   static const struct vfio_device_ops intel_vgpu_dev_ops = {
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index 1155f8bcedd9..598a3814d428 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -143,8 +143,6 @@ static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
->   	kmem_cache_free(vfio_ccw_io_region, private->io_region);
->   	kfree(private->cp.guest_cp);
->   	mutex_destroy(&private->io_mutex);
-> -
-> -	vfio_free_device(vdev);
->   }
->   
->   static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 0b4cc8c597ae..f108c0f14712 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -765,11 +765,6 @@ static void vfio_ap_mdev_unlink_fr_queues(struct ap_matrix_mdev *matrix_mdev)
->   	}
->   }
->   
-> -static void vfio_ap_mdev_release_dev(struct vfio_device *vdev)
-> -{
-> -	vfio_free_device(vdev);
-> -}
-> -
->   static void vfio_ap_mdev_remove(struct mdev_device *mdev)
->   {
->   	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(&mdev->dev);
-> @@ -1784,7 +1779,6 @@ static const struct attribute_group vfio_queue_attr_group = {
->   
->   static const struct vfio_device_ops vfio_ap_matrix_dev_ops = {
->   	.init = vfio_ap_mdev_init_dev,
-> -	.release = vfio_ap_mdev_release_dev,
->   	.open_device = vfio_ap_mdev_open_device,
->   	.close_device = vfio_ap_mdev_close_device,
->   	.ioctl = vfio_ap_mdev_ioctl,
-> diff --git a/drivers/vfio/fsl-mc/vfio_fsl_mc.c b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
-> index b16874e913e4..7b8889f55007 100644
-> --- a/drivers/vfio/fsl-mc/vfio_fsl_mc.c
-> +++ b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
-> @@ -568,7 +568,6 @@ static void vfio_fsl_mc_release_dev(struct vfio_device *core_vdev)
->   
->   	vfio_fsl_uninit_device(vdev);
->   	mutex_destroy(&vdev->igate);
-> -	vfio_free_device(core_vdev);
->   }
->   
->   static int vfio_fsl_mc_remove(struct fsl_mc_device *mc_dev)
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index badc9d828cac..9be2d5be5d95 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -2109,7 +2109,6 @@ void vfio_pci_core_release_dev(struct vfio_device *core_vdev)
->   	mutex_destroy(&vdev->vma_lock);
->   	kfree(vdev->region);
->   	kfree(vdev->pm_save);
-> -	vfio_free_device(core_vdev);
->   }
->   EXPORT_SYMBOL_GPL(vfio_pci_core_release_dev);
->   
-> diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
-> index eaea63e5294c..18faf2678b99 100644
-> --- a/drivers/vfio/platform/vfio_amba.c
-> +++ b/drivers/vfio/platform/vfio_amba.c
-> @@ -95,7 +95,6 @@ static void vfio_amba_release_dev(struct vfio_device *core_vdev)
->   
->   	vfio_platform_release_common(vdev);
->   	kfree(vdev->name);
-> -	vfio_free_device(core_vdev);
->   }
->   
->   static void vfio_amba_remove(struct amba_device *adev)
-> diff --git a/drivers/vfio/platform/vfio_platform.c b/drivers/vfio/platform/vfio_platform.c
-> index 82cedcebfd90..9910451dc341 100644
-> --- a/drivers/vfio/platform/vfio_platform.c
-> +++ b/drivers/vfio/platform/vfio_platform.c
-> @@ -83,7 +83,6 @@ static void vfio_platform_release_dev(struct vfio_device *core_vdev)
->   		container_of(core_vdev, struct vfio_platform_device, vdev);
->   
->   	vfio_platform_release_common(vdev);
-> -	vfio_free_device(core_vdev);
->   }
->   
->   static int vfio_platform_remove(struct platform_device *pdev)
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index 2901b8ad5be9..9835757e2bee 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -339,13 +339,10 @@ static void vfio_device_release(struct device *dev)
->   	vfio_release_device_set(device);
->   	ida_free(&vfio.device_ida, device->index);
->   
-> -	/*
-> -	 * kvfree() cannot be done here due to a life cycle mess in
-> -	 * vfio-ccw. Before the ccw part is fixed all drivers are
-> -	 * required to support @release and call vfio_free_device()
-> -	 * from there.
-> -	 */
-> -	device->ops->release(device);
-> +	if (device->ops->release)
-> +		device->ops->release(device);
-> +
-> +	kvfree(device);
->   }
->   
->   static int vfio_init_device(struct vfio_device *device, struct device *dev,
-> @@ -424,17 +421,6 @@ static int vfio_init_device(struct vfio_device *device, struct device *dev,
->   	return ret;
->   }
->   
-> -/*
-> - * The helper called by driver @release callback to free the device
-> - * structure. Drivers which don't have private data to clean can
-> - * simply use this helper as its @release.
-> - */
-> -void vfio_free_device(struct vfio_device *device)
-> -{
-> -	kvfree(device);
-> -}
-> -EXPORT_SYMBOL_GPL(vfio_free_device);
-> -
->   static struct vfio_group *vfio_noiommu_group_alloc(struct device *dev,
->   		enum vfio_group_type type)
->   {
-> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-> index ba809268a48e..e7480154825e 100644
-> --- a/include/linux/vfio.h
-> +++ b/include/linux/vfio.h
-> @@ -176,7 +176,6 @@ struct vfio_device *_vfio_alloc_device(size_t size, struct device *dev,
->   					dev, ops),				\
->   		     struct dev_struct, member)
->   
-> -void vfio_free_device(struct vfio_device *device);
->   static inline void vfio_put_device(struct vfio_device *device)
->   {
->   	put_device(&device->device);
-> diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-> index 117a8d799f71..8b5a3a778a25 100644
-> --- a/samples/vfio-mdev/mbochs.c
-> +++ b/samples/vfio-mdev/mbochs.c
-> @@ -594,7 +594,6 @@ static void mbochs_release_dev(struct vfio_device *vdev)
->   	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
->   	kfree(mdev_state->pages);
->   	kfree(mdev_state->vconfig);
-> -	vfio_free_device(vdev);
->   }
->   
->   static void mbochs_remove(struct mdev_device *mdev)
-> diff --git a/samples/vfio-mdev/mdpy.c b/samples/vfio-mdev/mdpy.c
-> index 946e8cfde6fd..721fb06c6413 100644
-> --- a/samples/vfio-mdev/mdpy.c
-> +++ b/samples/vfio-mdev/mdpy.c
-> @@ -283,7 +283,6 @@ static void mdpy_release_dev(struct vfio_device *vdev)
->   
->   	vfree(mdev_state->memblk);
->   	kfree(mdev_state->vconfig);
-> -	vfio_free_device(vdev);
->   }
->   
->   static void mdpy_remove(struct mdev_device *mdev)
-> diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
-> index e72085fc1376..3c2a421b9b69 100644
-> --- a/samples/vfio-mdev/mtty.c
-> +++ b/samples/vfio-mdev/mtty.c
-> @@ -784,7 +784,6 @@ static void mtty_release_dev(struct vfio_device *vdev)
->   
->   	atomic_add(mdev_state->nr_ports, &mdev_avail_ports);
->   	kfree(mdev_state->vconfig);
-> -	vfio_free_device(vdev);
->   }
->   
->   static void mtty_remove(struct mdev_device *mdev)
+Detecting IPI *reception* is relatively easy, e.g. using
+trace_irq_handler_{entry,exit} or even just function-trace
+flush_smp_call_function_queue() for SMP calls.  
+
+Figuring out their *origin*, is trickier as there is no generic tracepoint tied
+to e.g. smp_call_function():
+
+o AFAIA x86 has no tracepoint tied to sending IPIs, only receiving them
+  (cf. trace_call_function{_single}_entry()).
+o arm/arm64 do have trace_ipi_raise(), which gives us the target cpus but also a
+  mostly useless string (smp_calls will all be "Function call interrupts").
+o Other architectures don't seem to have any IPI-sending related tracepoint.  
+
+I believe one reason those tracepoints used by arm/arm64 ended up as they were
+is because these archs used to handle IPIs differently from regular interrupts
+(the IRQ driver would directly invoke an IPI-handling routine), which meant they 
+never showed up in trace_irq_handler_{entry, exit}. The trace_ipi_{entry,exit}
+tracepoints gave a way to trace IPI reception but those have become redundant as
+of: 
+
+      56afcd3dbd19 ("ARM: Allow IPIs to be handled as normal interrupts")
+      d3afc7f12987 ("arm64: Allow IPIs to be handled as normal interrupts")
+
+which gave IPIs a "proper" handler function used through
+generic_handle_domain_irq(), which makes them show up via
+trace_irq_handler_{entry, exit}.
+
+Changing stuff up
+=================
+
+Per the above, it would make sense to reshuffle trace_ipi_raise() and move it
+into generic code. This also came up during Daniel's talk on Osnoise at the CPU
+isolation MC of LPC 2022 [1]. 
+
+Now, to be useful, such a tracepoint needs to export:
+o targeted CPU(s)
+o calling context
+
+The only way to get the calling context with trace_ipi_raise() is to trigger a
+stack dump, e.g. $(trace-cmd -e ipi* -T echo 42).
+
+This is instead introducing a new tracepoint which exports the relevant context
+(callsite, and requested callback for when the callsite isn't helpful), and is
+usable by all architectures as it sits in generic code. 
+
+Another thing worth mentioning is that depending on the callsite, the _RET_IP_
+fed to the tracepoint is not always useful - generic_exec_single() doesn't tell
+you much about the actual callback being sent via IPI, which is why the new
+tracepoint also has a @callback argument.
+
+Patches
+=======
+
+o Patch 1 is included for convenience and will most likely be merged
+  independently. FYI I have libtraceevent patches [2] to improve the
+  pretty-printing of cpumasks using the new type, which look like:
+  <...>-3322  [021]   560.402583: ipi_send_cpumask:     cpumask=14,17,21 callsite=on_each_cpu_cond_mask+0x40 callback=flush_tlb_func+0x0
+  <...>-187   [010]   562.590584: ipi_send_cpumask:     cpumask=0-23 callsite=on_each_cpu_cond_mask+0x40 callback=do_sync_core+0x0
+
+o Patches 2-6 spread out the tracepoint accross relevant sites.
+o Patch 8 is trying to be smart about tracing the callback associated with the
+  IPI.
+
+This results in having IPI trace events for:
+
+o smp_call_function*()
+o smp_send_reschedule()
+o irq_work_queue*()
+o standalone uses of __smp_call_single_queue()
+
+This is incomplete, just looking at arm64 there's more IPI types that aren't
+covered: 
+
+  IPI_CPU_STOP,
+  IPI_CPU_CRASH_STOP,
+  IPI_TIMER,
+  IPI_WAKEUP,
+
+... But it feels like a good starting point.
+
+Links
+=====
+
+[1]: https://youtu.be/5gT57y4OzBM?t=14234
+[2]: https://lore.kernel.org/all/20221018151630.1513535-1-vschneid@redhat.com/
+
+Revisions
+=========
+
+v1 -> v2
+++++++++
+
+o Ditched single-CPU tracepoint
+o Changed tracepoint signature to include callback
+o Changed tracepoint callsite field to void *; the parameter is still UL to save
+  up on casts due to using _RET_IP_.
+o Fixed linking failures due to not exporting smp_send_reschedule()
+
+Steven Rostedt (Google) (1):
+  tracing: Add __cpumask to denote a trace event field that is a
+    cpumask_t
+
+Valentin Schneider (7):
+  trace: Add trace_ipi_send_cpumask()
+  sched, smp: Trace IPIs sent via send_call_function_single_ipi()
+  smp: Trace IPIs sent via arch_send_call_function_ipi_mask()
+  irq_work: Trace self-IPIs sent via arch_irq_work_raise()
+  treewide: Trace IPIs sent via smp_send_reschedule()
+  smp: reword smp call IPI comment
+  sched, smp: Trace smp callback causing an IPI
+
+ arch/alpha/kernel/smp.c                      |  2 +-
+ arch/arc/kernel/smp.c                        |  2 +-
+ arch/arm/kernel/smp.c                        |  5 +-
+ arch/arm64/kernel/smp.c                      |  3 +-
+ arch/csky/kernel/smp.c                       |  2 +-
+ arch/hexagon/kernel/smp.c                    |  2 +-
+ arch/ia64/kernel/smp.c                       |  4 +-
+ arch/loongarch/include/asm/smp.h             |  2 +-
+ arch/mips/include/asm/smp.h                  |  2 +-
+ arch/openrisc/kernel/smp.c                   |  2 +-
+ arch/parisc/kernel/smp.c                     |  4 +-
+ arch/powerpc/kernel/smp.c                    |  4 +-
+ arch/powerpc/kvm/book3s_hv.c                 |  1 +
+ arch/riscv/kernel/smp.c                      |  4 +-
+ arch/s390/kernel/smp.c                       |  2 +-
+ arch/sh/kernel/smp.c                         |  2 +-
+ arch/sparc/kernel/smp_32.c                   |  2 +-
+ arch/sparc/kernel/smp_64.c                   |  2 +-
+ arch/x86/include/asm/smp.h                   |  2 +-
+ arch/x86/kvm/svm/svm.c                       |  1 +
+ arch/x86/kvm/x86.c                           |  1 +
+ arch/xtensa/kernel/smp.c                     |  2 +-
+ include/linux/smp.h                          |  2 +-
+ include/trace/bpf_probe.h                    |  6 ++
+ include/trace/events/ipi.h                   | 22 +++++++
+ include/trace/perf.h                         |  6 ++
+ include/trace/stages/stage1_struct_define.h  |  6 ++
+ include/trace/stages/stage2_data_offsets.h   |  6 ++
+ include/trace/stages/stage3_trace_output.h   |  6 ++
+ include/trace/stages/stage4_event_fields.h   |  6 ++
+ include/trace/stages/stage5_get_offsets.h    |  6 ++
+ include/trace/stages/stage6_event_callback.h | 20 ++++++
+ include/trace/stages/stage7_class_define.h   |  2 +
+ kernel/irq_work.c                            | 16 ++++-
+ kernel/sched/core.c                          | 34 +++++++---
+ kernel/sched/smp.h                           |  1 +
+ kernel/smp.c                                 | 66 ++++++++++++++++++--
+ samples/trace_events/trace-events-sample.c   |  2 +-
+ samples/trace_events/trace-events-sample.h   | 34 +++++++---
+ 39 files changed, 241 insertions(+), 53 deletions(-)
+
+--
+2.31.1
+
