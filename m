@@ -2,462 +2,275 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 728FDC4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 07:28:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB604C433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 10:51:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230364AbiKBH2O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 03:28:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52676 "EHLO
+        id S229561AbiKBKvh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 06:51:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230363AbiKBH2M (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 03:28:12 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA33425280;
-        Wed,  2 Nov 2022 00:28:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1667374089; x=1698910089;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=+HVCk4WQMC3PK8Xa0uiOI25nycQ5Wi522b2c5Pb+w1Y=;
-  b=F+JWBYRmZAkm8oj8s5EBsp4s0jMgGN6tTywdNnXVdAItShlQEjSHQfLh
-   9uhzDJM2sng68j23d7Ph61SMSXkE4zJlnH0wLy42thWspvvNDRnNjFdY+
-   BIdVzGXmwLgdjnlq4yIl+vELHt93YTJDpxpFtl8JwxAuEaIQ3mdl3A5hp
-   swV/MJ4LAKR7YtXVjjzTaorC4g9DnsbkXc+kFGsaSxMxcew6Fl6hNMlZq
-   UjuiHPFYqG3aYG2GqlhjsWul5oO4JooFdjSpWVsqIuG1sa9//kj+tKDrA
-   1ULLfM4tUVLcIkrDYDbNJuV6I6V5123A3ZyMuiKOr7Ra2OQ4cOLlwRHMT
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10518"; a="289050035"
-X-IronPort-AV: E=Sophos;i="5.95,232,1661842800"; 
-   d="scan'208";a="289050035"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Nov 2022 00:28:09 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10518"; a="636684005"
-X-IronPort-AV: E=Sophos;i="5.95,232,1661842800"; 
-   d="scan'208";a="636684005"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by fmsmga007.fm.intel.com with ESMTP; 02 Nov 2022 00:28:07 -0700
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Wed, 2 Nov 2022 00:28:03 -0700
-Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31 via Frontend Transport; Wed, 2 Nov 2022 00:28:03 -0700
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (104.47.59.168)
- by edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2375.31; Wed, 2 Nov 2022 00:28:02 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oU50II7Itbc5SklvF4+tl65hjrjHIDoXyMQmKrLk7Y/Ho9ya03oCpy/c5+4pHomVyCwyhsIVXkYV25gpdho/9ClnAEoMMyrLRXoQgcmKFlk+BsMraGoB0Nw1Ndrj8C2+TIkMoIUFalO1QeEjEGbtW/PK7KUyFJtYSdqfeeoP9hJrrrhacbuG28EIXa4tV4I1MAIJUAQLrjf+aPl3k1u8wJdhxwGFJS0NXg82+fV03KHb0MHMS20c8rjTDG0xbiq1WsLvL+7B2qMh4K3Lo6/WFb/flCgtF6IzUbUvPGopmiCSKHw9NWbF53Y8Q4g1DCLk4/0aB5gMT6O75jagJoG3JQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MAO3UiDf7T4/nZL2yrRBuuwu3ExDRxJcTQG+cWUvZq8=;
- b=W1l0U4q73xsW4+D3hSE3igaZy0rty+CI9W1TSyWkqcZqwUeq9z/7AnM+8ikMkXrVDS7Zjic+bu5XgEeLCpNPNopePue746bZr8k9y9kqGITfdnqx+wprooJh7G0UFGzUt12yrr2rt50mmJn4lQLpB0f0uYtfoq209kXP43clDIdjO+xNM8j2vkHf66ZNgXw5tEZFepo3AtqQHgY8Jy86n3gqEww0xZth5aWzUcb6smD9mw5o6RfVcw7FkB7gDvNmwHaJNzWEsJBHK9xjY36XW+cCa24wecrmNyyEc57X8nW/h6U4zezbOa6NMhiGZzU72Ti8z9kfLmRp3xmgrQeCeg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by DM4PR11MB5344.namprd11.prod.outlook.com (2603:10b6:5:393::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.22; Wed, 2 Nov
- 2022 07:27:56 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::37e3:9536:43ed:2ecf]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::37e3:9536:43ed:2ecf%5]) with mapi id 15.20.5769.016; Wed, 2 Nov 2022
- 07:27:56 +0000
-Message-ID: <58917b42-bfdd-c352-4b20-68ff135f968e@intel.com>
-Date:   Wed, 2 Nov 2022 15:28:20 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Firefox/91.0 Thunderbird/91.11.0
-Subject: Re: [PATCH 06/10] vfio-iommufd: Allow iommufd to be used in place of
- a container fd
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@gmail.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        <dri-devel@lists.freedesktop.org>,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        "Harald Freudenberger" <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        <intel-gfx@lists.freedesktop.org>,
-        <intel-gvt-dev@lists.freedesktop.org>, <iommu@lists.linux.dev>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        "Joonas Lahtinen" <joonas.lahtinen@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>, <kvm@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>,
-        Longfang Liu <liulongfang@huawei.com>,
-        "Matthew Rosato" <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-CC:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>
-References: <6-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
-From:   Yi Liu <yi.l.liu@intel.com>
-In-Reply-To: <6-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+        with ESMTP id S229537AbiKBKvg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 06:51:36 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFBA1403C;
+        Wed,  2 Nov 2022 03:51:35 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A2AeBUW012255;
+        Wed, 2 Nov 2022 10:51:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Kyw/sn6JnGZPdpoMSon99r5WGNuNqqYx+UyXssV+cUk=;
+ b=okCH4kaPULuwYpwG0sjn+CXNcHowtL8cBZxcQ7aKFhINkIVvAQaqYSThL0FjhZ4ohZSi
+ j3/U/Ckdh6+dVPathhBBDsNglaNKGMyw+w/W1Fk0oe9heUEeEm6x0gyj3lgVzt1sFHeV
+ Lkug1XDsHcLtNu9XUgYOw8dTDmzVmMhK1NmC9UNVOEMPNsUiqFbq2A3pTIXfOfBIXaS1
+ Gbb/QEOmiYtEhPnszd3rAabC5tNrfN8k5uAaKdXO2AAFsbvJL1AcM9T/SoD7XbPDLBt6
+ xLqYcG1yWJuhabbMlnbVHnOpDajotqqieAkewqXfLc2qVeQs73MDfPqT0eUYVpwcLQzU /g== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kkppg8mma-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Nov 2022 10:51:17 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A2AZS7p004402;
+        Wed, 2 Nov 2022 10:51:15 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04fra.de.ibm.com with ESMTP id 3kgut8vx6f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Nov 2022 10:51:15 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A2ApBNg4063920
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 2 Nov 2022 10:51:11 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BC62542042;
+        Wed,  2 Nov 2022 10:51:11 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 473EF4203F;
+        Wed,  2 Nov 2022 10:51:11 +0000 (GMT)
+Received: from oc-nschnelle.boeblingen.de.ibm.com (unknown [9.155.199.46])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  2 Nov 2022 10:51:11 +0000 (GMT)
+Message-ID: <a56e99d67e3fe75acc1c133875ab64ff0eed69b2.camel@linux.ibm.com>
+Subject: Re: [PATCH 2/5] iommu/s390: Add I/O TLB ops
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Robin Murphy <robin.murphy@arm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org
+Date:   Wed, 02 Nov 2022 11:51:11 +0100
+In-Reply-To: <e789fcbe-fa3a-0286-c0f7-361762764a3e@arm.com>
+References: <20221018145132.998866-1-schnelle@linux.ibm.com>
+         <20221018145132.998866-3-schnelle@linux.ibm.com>
+         <7da1ab0b-e78a-2ed1-0263-e9174c3af256@linux.ibm.com>
+         <e789fcbe-fa3a-0286-c0f7-361762764a3e@arm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SI2PR01CA0050.apcprd01.prod.exchangelabs.com
- (2603:1096:4:193::21) To DS0PR11MB7529.namprd11.prod.outlook.com
- (2603:10b6:8:141::20)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR11MB7529:EE_|DM4PR11MB5344:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3f26afd5-a8cd-41e9-7908-08dabca3c294
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Mo+bAOq8oe+0A9nEaV35rzicGgTuUSmknRdLHLTgTThLliNBJUXjsoAAc2R/2R6+ktWkxxs4fEJN5STd0JKaqC1qiJYYoW79yeO4djKnqvxFpflr6wcXQ7IMGVYYwA6Jl8vocElEI44jT2+HgPnpDwQHZuocJgW+77Jx3h8M0bAsjCKGIp/zVFhzvkUJF9tZyWwzyoa8M/r7L05+sBBU+otsSzts/eAa9d2swaYC0OEhO5s5WQIeFzlIy8MLZPHfCBbT7VguybyK7RTUvfA0l0+epFttVHIIoZPAfs20y3baaxQJ4GCebo5ONzbcge3oBL0WIu4x+cBVwR54mqsnVN0U58OPYO1W0/6YWxsouoFtnw2jjv1s2q41BdhVpFaXAGd+aeU104A8WnJcHg38ZxMH+YpJKkz11YAbmNnkkAwsoEm7zW4MESMiu+MnmdAvJHAGO3DOCASndSF3zmqAayVkY12MGNF8VnvNBeRT7R7c33VmONJxqZv3zx5QEcNHOT6mtn1TlwQertJFiQOx264PF5UipwS0Qo9P5DvT5qXOuXpUqtYvisoZJ565mCW+jdOi7zZ4qPLx9Nact/55jh90Mw4Oe7JUYJP5g8vHP+h5eS/85ryty4175neUJc+3xrYTGB/nFG5mmkYSKqk787vX0z35dsenGiIy4SOjHjSFMVtXr48e6ixcOx+O3jsNHWkFIiE5l1+MscT9uXv9JezRh3TNwaWw863bOE3ez27RBKLmlPxxi6351N2v9zYYWwPWqrrMJW/jdCnsFW7JU/T/6rcms7X1wfL+N5WG877haDbBTks3PeRDIJWiAvg/
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(396003)(39860400002)(136003)(376002)(366004)(346002)(451199015)(31696002)(921005)(86362001)(36756003)(82960400001)(38100700002)(31686004)(6666004)(8676002)(316002)(53546011)(66476007)(66556008)(66946007)(54906003)(6506007)(6486002)(478600001)(6636002)(110136005)(2616005)(186003)(8936002)(7406005)(7416002)(5660300002)(83380400001)(2906002)(6512007)(26005)(41300700001)(4326008)(45980500001)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UG52S2MvRTBpWHRuSGVGeGxWUytHdDdwUnIyZW5qT3ZidE1wbkJ0citMMlJY?=
- =?utf-8?B?bmV2SHowOTF6czlNcTRFRUlwQlZIejFPcHFSZHJ5Y01VZ1grbXhLUzhQblFS?=
- =?utf-8?B?cnlLeVBVbnUxSFFCWnVhbGswdllaU0J4dW5VWkZTNndrUndDaDVkZmZ3VTR1?=
- =?utf-8?B?eUttLzE3Ty84N0lXcDRGSkxobVp1NUoxaks3b2w5S0VzN1I4dFJhU29QRC9O?=
- =?utf-8?B?eXp5Y2pnUkxkV05QUTF3cFFIUkJUdzlSdnkzWElOUHEzdW5Ka28zeS9ucE9W?=
- =?utf-8?B?bitZUzZ0dWF2UmpFZk0zSHlEQm5NN1AwSERoaGxZVzBOekdKeGNJL0JURVM5?=
- =?utf-8?B?WXFMRWNpOHM4eisyK0pJT1lORXlRbVVtUFF0RkU1SC9qblgwWjdOZGc1UEVZ?=
- =?utf-8?B?S1FFK1ljdktEcW1ac0haeCtscWxRKzhBQXEybHRPOVl5K2V0Y2hQRE1YSWR0?=
- =?utf-8?B?UGt4VXBYS2pGTTFkRFJPZEhHZi9MVVlTdDUwdE53K2hLalQrZ2IxRGhKUlJ1?=
- =?utf-8?B?aWtnUVR4K3JzaHJYKzNKMGZhZ3dHWm5KWFhtV0dtQUNJZEdKWTROZGxKOEw2?=
- =?utf-8?B?ZXd2UzZpT2JPYlRkRUVKVEZFaTVjRU9meDN0a3dDbE41QjRMQW8xbkhtcXVl?=
- =?utf-8?B?d2lpNnhWcjBZUGpkVFB4QTBiRnpLcTBxUHkwSTNnQVVsb0QzaHBkbzFDNStO?=
- =?utf-8?B?cDBVTkl6dk9lU3B3Sjd6UDZFQ0Vwd2Zyc0RiSmlYZlYzVUlQbnJXcStjM3Rn?=
- =?utf-8?B?TFlYZ1VBelBZZTl5Nkp1bzFIWkIzaGhGckw1OTVWTE0reU9GMFJCbHRnQSsz?=
- =?utf-8?B?cEZjUGZMVDZ1L1lOb1VDQlRHcG9zRTMyTFJkZ0djZXNLN2JIWHNNQTczK1ls?=
- =?utf-8?B?cXNBUFd3cm1yZGkzajJSTkpWZzYwMEJpWGlycGF0d2o4TkRISk1TWEJVNTRl?=
- =?utf-8?B?RzFEVG1BdzhpRHRKd1kvZ2IzYTJ1SitpcUNCOWg0M2FnWjhmcVRzcUVOM0Z5?=
- =?utf-8?B?eEhWd2xQNzl3eURscERlajdEMmZmL1Z2UEhhb25MN1hEeHNzZEJqN0Y1L2NS?=
- =?utf-8?B?N0o1OXVaMG1sb0dLNWU1a0JhWno2enorMFRVUWdxZm1GNDM1d0Y3aGhERGxG?=
- =?utf-8?B?b29XYnIycEJVWW9TR1JuZkdGVnh3YWdDMHVRa2dIcnY4b0hmdU5ILzAxbDh3?=
- =?utf-8?B?ZmFIcGxGbFhIZ1ZUbi82U0JlcGJ2bVgzUHNXQ05XR21BaGpEOWJRYVNGekRB?=
- =?utf-8?B?clhHNldMVVQrcWo5SmU5YWNxV3d3cVVTQkJLUG9YbHdBSXdVaFJYekRIZWp5?=
- =?utf-8?B?WkN1R2hHT1dQZndaTy9LdUU1Q3NXWDVLNVhwWjZYb1VWNjVQZEtLbUMzT2xD?=
- =?utf-8?B?RGZOUFJqdXFYVXFnZXFYTFFYSm9leFZvWTJlQ1hwYW1UVW1YMzlQeHZxVmhL?=
- =?utf-8?B?MkkxS2JXZEVINlJrZWMzWGYrRjBPZ1d4bEhDWWxQU1VxWVc5ZEFLd3FXMG8v?=
- =?utf-8?B?L3hOOWNJcHE3Zm4vN1pRSnIvMThWckhzZ201c294b0FMcmoxUzNMUS9MK2do?=
- =?utf-8?B?V0hJMjNaOWxnUnB6RHpnRWhNQ2hsazVOc2hOTnl1YkVvNTFmY2xZaUhta1ps?=
- =?utf-8?B?bXJ6V0xSM1I2MWg1WHEyN3poZ3M2STFSaU1yRVhwNzJtUjBaejVPV0pVbWxI?=
- =?utf-8?B?MEhPdXRPckdiY3l4RkhHZ08wVWlzcWhKRFVzckVXTlVWNjZYZlZTbkdBMWhx?=
- =?utf-8?B?a1EvVHprTmtUb0FoWDA3OEo2WDlac2d5bG1RemRQQnpUc1BKVzdoejh2Rnor?=
- =?utf-8?B?QitrSTYrZGdQS1V5cUc0NURkWmVGRENHMExVMWVNNmxXM1g1Y012aTRRRHln?=
- =?utf-8?B?Q01UYkxOMmJnM2haSUc3L05DcnJic1A4T1AvZ0RZejhPRWtrVWgrSDVUOTJJ?=
- =?utf-8?B?UlJEcXNaQ0xwa3ZXZWQ2YnRLOFlZMjVLM3BJb3h0Q04wUStHeUJlS3hwRDgr?=
- =?utf-8?B?dzVXQ1c5MVdyUW9JMkI5SEdja2JzRnJPTndtMVlyb3VLMlFSZEF6N0RyNkRL?=
- =?utf-8?B?YkdiK3J0MGtQV0x1RXdIUHZYbGFqWTVmRVpKaUJ4akZBcEY0d1dRZGR2ZEFr?=
- =?utf-8?Q?F2mGvVQVu+N1HGKYbnmAFdaLh?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3f26afd5-a8cd-41e9-7908-08dabca3c294
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Nov 2022 07:27:56.0765
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: n/JmQgJzvan35zuO/74DwPF37a5CkC4T1Kp12fpm84oqvtf3okzKa9csw5ZZIYLl9OpmYjB5Imt+TtCkxTZ/xg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB5344
-X-OriginatorOrg: intel.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: isr3l8R_vAYmoyxsRxAvStKK8-5wOmSN
+X-Proofpoint-ORIG-GUID: isr3l8R_vAYmoyxsRxAvStKK8-5wOmSN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-02_06,2022-11-02_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1015 bulkscore=0
+ adultscore=0 mlxscore=0 spamscore=0 mlxlogscore=999 impostorscore=0
+ suspectscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2210170000 definitions=main-2211020064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/10/26 02:50, Jason Gunthorpe wrote:
-> This makes VFIO_GROUP_SET_CONTAINER accept both a vfio container FD and an
-> iommufd.
+On Mon, 2022-10-31 at 16:11 +0000, Robin Murphy wrote:
+> On 2022-10-28 17:03, Matthew Rosato wrote:
+> > On 10/18/22 10:51 AM, Niklas Schnelle wrote:
+> > > Currently s390-iommu does an I/O TLB flush (RPCIT) for every update of
+> > > the I/O translation table explicitly. For one this is wasteful since
+> > > RPCIT can be skipped after a mapping operation if zdev->tlb_refresh is
+> > > unset. Moreover we can do a single RPCIT for a range of pages including
+> > > whne doing lazy unmapping.
+> > > 
+> > > Thankfully both of these optimizations can be achieved by implementing
+> > > the IOMMU operations common code provides for the different types of I/O
+> > > tlb flushes:
+> > > 
+> > >   * flush_iotlb_all: Flushes the I/O TLB for the entire IOVA space
+> > >   * iotlb_sync:  Flushes the I/O TLB for a range of pages that can be
+> > >     gathered up, for example to implement lazy unmapping.
+> > >   * iotlb_sync_map: Flushes the I/O TLB after a mapping operation
+> > > 
+> > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > ---
+> > >   drivers/iommu/s390-iommu.c | 76 ++++++++++++++++++++++++++++++++------
+> > >   1 file changed, 65 insertions(+), 11 deletions(-)
+> > > 
+> > > diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+> > > index ee88e717254b..a4c2e9bc6d83 100644
+> > > --- a/drivers/iommu/s390-iommu.c
+> > > +++ b/drivers/iommu/s390-iommu.c
+> > > @@ -199,14 +199,72 @@ static void s390_iommu_release_device(struct device *dev)
+> > >   		__s390_iommu_detach_device(zdev);
+> > >   }
+> > >   
+> > > +static void s390_iommu_flush_iotlb_all(struct iommu_domain *domain)
+> > > +{
+> > > +	struct s390_domain *s390_domain = to_s390_domain(domain);
+> > > +	struct zpci_dev *zdev;
+> > > +	unsigned long flags;
+> > > +	int rc;
+> > > +
+> > > +	spin_lock_irqsave(&s390_domain->list_lock, flags);
+> > > +	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
+> > > +		rc = zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
+> > > +					zdev->end_dma - zdev->start_dma + 1);
+> > > +		if (rc)
+> > > +			break;
+> > > +	}
+> > > +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> > > +}
+> > > +
+> > > +static void s390_iommu_iotlb_sync(struct iommu_domain *domain,
+> > > +				  struct iommu_iotlb_gather *gather)
+> > > +{
+> > > +	struct s390_domain *s390_domain = to_s390_domain(domain);
+> > > +	size_t size = gather->end - gather->start + 1;
+> > > +	struct zpci_dev *zdev;
+> > > +	unsigned long flags;
+> > > +	int rc;
+> > > +
+> > > +	/* If gather was never added to there is nothing to flush */
+> > > +	if (gather->start == ULONG_MAX)
+> > > +		return;
+> > 
+> > Hmm, this seems a little awkward in that it depends on the init value in iommu_iotlb_gather_init never changing.  I don't see any other iommu drivers doing this -- Is there no other way to tell there's nothing to flush?
+> > 
+> > If we really need to do this, maybe some shared #define in iommu.h that is used in iommu_iotlb_gather_init and here?
 > 
-> In iommufd mode an IOAS will exist after the SET_CONTAINER, but it will
-> not be attached to any groups.
+> If you can trust yourselves to never gather a single byte (which by 
+> construction should be impossible), "!gather->end" is perhaps a tiny bit 
+> more robust (and consistent with iommu_iotlb_gather_is_disjoint()), 
+> although given the way that iommu_iotlb_gather_add_*() work I don't 
+> think either initial value has much chance of changing in practice, 
+> short of some larger refactoring that would likely have to touch all the 
+> users anyway. If you still want to be as foolproof as possible, using 
+> "gather->start > gather->end" would represent the most general form of 
+> the initial conditions.
+> 
+> FWIW, SMMUv3 does also check for an empty range, but using 
+> gather->pgsize that is only relevant with add_page(). The other gather 
+> users seem happy to go ahead and just issue whatever wacky invalidation 
+> command those initial values end up looking like. I think an empty sync 
+> should really only happen in unexpected conditions like an unmap 
+> failing, so it shouldn't be a case that deserves a great deal of 
+> optimisation effort.
+> 
+> Thanks,
+> Robin.
+> 
 
-is there any special reason that we cannot attach the IOAS in the SET
-container phase or SET_IOMMU phase?
+Yeah I agree this should only happen when unmap failed. I think I added
+this when I was playing around with adding an intermediate flush
+similar to what amd_iommu_iotlb_gather_add_page() does, only that in
+some intermediate stages I could end up with nothing left to flush.
+That whole optimization did turn out not to help and I removed it
+again. I think even if it's only for the error case now, I'd like to
+keep it though. This makes sure we don't get weirdly sized flushes in
+the error case. I'll use '!gather->end' to be consistent with
+iommu_iotlb_gather_is_disjoint() as you suggested.
 
-> 
->  From a VFIO perspective this means that the VFIO_GROUP_GET_STATUS and
-> VFIO_GROUP_FLAGS_VIABLE works subtly differently. With the container FD
-> the iommu_group_claim_dma_owner() is done during SET_CONTAINER but for
-> IOMMFD this is done during VFIO_GROUP_GET_DEVICE_FD. Meaning that
+Speaking of that AMD optimization, I'm actually not sure that it does
+the right thing for AMD either. The way I read the code, it does more
+but only contiguous TLB flushes in virtualized mode and at least for us
+this turned out detrimental. Also the comment, at least to me, makes it
+sound as if they were trying for fewer flushes but it's worded a bit
+confusingly so not sure.
 
-s/IOMMFD/IOMMUFD
+Thanks,
+Niklas
 
-> VFIO_GROUP_FLAGS_VIABLE could be set but GET_DEVICE_FD will fail due to
-> viability.
-> 
-> As GET_DEVICE_FD can fail for many reasons already this is not expected to
-> be a meaningful difference.
-> 
-> Reorganize the tests for if the group has an assigned container or iommu
-> into a vfio_group_has_iommu() function and consolidate all the duplicated
-> WARN_ON's etc related to this.
-> 
-> Call container functions only if a container is actually present on the
-> group.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->   drivers/vfio/Kconfig     |  1 +
->   drivers/vfio/container.c |  7 ++--
->   drivers/vfio/vfio.h      |  2 ++
->   drivers/vfio/vfio_main.c | 76 ++++++++++++++++++++++++++++++++--------
->   4 files changed, 69 insertions(+), 17 deletions(-)
-> 
-> diff --git a/drivers/vfio/Kconfig b/drivers/vfio/Kconfig
-> index 86c381ceb9a1e9..1118d322eec97d 100644
-> --- a/drivers/vfio/Kconfig
-> +++ b/drivers/vfio/Kconfig
-> @@ -2,6 +2,7 @@
->   menuconfig VFIO
->   	tristate "VFIO Non-Privileged userspace driver framework"
->   	select IOMMU_API
-> +	depends on IOMMUFD || !IOMMUFD
->   	select VFIO_IOMMU_TYPE1 if MMU && (X86 || S390 || ARM || ARM64)
->   	select INTERVAL_TREE
->   	help
-> diff --git a/drivers/vfio/container.c b/drivers/vfio/container.c
-> index d97747dfb05d02..8772dad6808539 100644
-> --- a/drivers/vfio/container.c
-> +++ b/drivers/vfio/container.c
-> @@ -516,8 +516,11 @@ int vfio_group_use_container(struct vfio_group *group)
->   {
->   	lockdep_assert_held(&group->group_lock);
->   
-> -	if (!group->container || !group->container->iommu_driver ||
-> -	    WARN_ON(!group->container_users))
-> +	/*
-> +	 * The container fd has been assigned with VFIO_GROUP_SET_CONTAINER but
-> +	 * VFIO_SET_IOMMU hasn't been done yet.
-> +	 */
-> +	if (!group->container->iommu_driver)
->   		return -EINVAL;
->   
->   	if (group->type == VFIO_NO_IOMMU && !capable(CAP_SYS_RAWIO))
-> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index 247590334e14b0..985e13d52989ca 100644
-> --- a/drivers/vfio/vfio.h
-> +++ b/drivers/vfio/vfio.h
-> @@ -10,6 +10,7 @@
->   #include <linux/cdev.h>
->   #include <linux/module.h>
->   
-> +struct iommufd_ctx;
->   struct iommu_group;
->   struct vfio_device;
->   struct vfio_container;
-> @@ -60,6 +61,7 @@ struct vfio_group {
->   	struct kvm			*kvm;
->   	struct file			*opened_file;
->   	struct blocking_notifier_head	notifier;
-> +	struct iommufd_ctx		*iommufd;
->   };
->   
->   /* events for the backend driver notify callback */
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index a8d1fbfcc3ddad..cf0ea744de931e 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -35,6 +35,7 @@
->   #include <linux/pm_runtime.h>
->   #include <linux/interval_tree.h>
->   #include <linux/iova_bitmap.h>
-> +#include <linux/iommufd.h>
->   #include "vfio.h"
->   
->   #define DRIVER_VERSION	"0.3"
-> @@ -665,6 +666,16 @@ EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
->   /*
->    * VFIO Group fd, /dev/vfio/$GROUP
->    */
-> +static bool vfio_group_has_iommu(struct vfio_group *group)
-> +{
-> +	lockdep_assert_held(&group->group_lock);
-> +	if (!group->container)
-> +		WARN_ON(group->container_users);
-> +	else
-> +		WARN_ON(!group->container_users);
-> +	return group->container || group->iommufd;
-> +}
-> +
->   /*
->    * VFIO_GROUP_UNSET_CONTAINER should fail if there are other users or
->    * if there was no container to unset.  Since the ioctl is called on
-> @@ -676,15 +687,21 @@ static int vfio_group_ioctl_unset_container(struct vfio_group *group)
->   	int ret = 0;
->   
->   	mutex_lock(&group->group_lock);
-> -	if (!group->container) {
-> +	if (!vfio_group_has_iommu(group)) {
->   		ret = -EINVAL;
->   		goto out_unlock;
->   	}
-> -	if (group->container_users != 1) {
-> -		ret = -EBUSY;
-> -		goto out_unlock;
-> +	if (group->container) {
-> +		if (group->container_users != 1) {
-> +			ret = -EBUSY;
-> +			goto out_unlock;
-> +		}
-> +		vfio_group_detach_container(group);
-> +	}
-> +	if (group->iommufd) {
-> +		iommufd_ctx_put(group->iommufd);
-> +		group->iommufd = NULL;
->   	}
-> -	vfio_group_detach_container(group);
->   
->   out_unlock:
->   	mutex_unlock(&group->group_lock);
-> @@ -695,6 +712,7 @@ static int vfio_group_ioctl_set_container(struct vfio_group *group,
->   					  int __user *arg)
->   {
->   	struct vfio_container *container;
-> +	struct iommufd_ctx *iommufd;
->   	struct fd f;
->   	int ret;
->   	int fd;
-> @@ -707,7 +725,7 @@ static int vfio_group_ioctl_set_container(struct vfio_group *group,
->   		return -EBADF;
->   
->   	mutex_lock(&group->group_lock);
-> -	if (group->container || WARN_ON(group->container_users)) {
-> +	if (vfio_group_has_iommu(group)) {
->   		ret = -EINVAL;
->   		goto out_unlock;
->   	}
-> @@ -717,12 +735,23 @@ static int vfio_group_ioctl_set_container(struct vfio_group *group,
->   	}
->   
->   	container = vfio_container_from_file(f.file);
-> -	ret = -EINVAL;
->   	if (container) {
->   		ret = vfio_container_attach_group(container, group);
->   		goto out_unlock;
->   	}
->   
-> +	iommufd = iommufd_ctx_from_file(f.file);
-> +	if (!IS_ERR(iommufd)) {
-> +		u32 ioas_id;
-> +
-> +		group->iommufd = iommufd;
-> +		ret = iommufd_vfio_compat_ioas_id(iommufd, &ioas_id);
-> +		goto out_unlock;
-> +	}
-> +
-> +	/* The FD passed is not recognized. */
-> +	ret = -EBADF;
-> +
->   out_unlock:
->   	mutex_unlock(&group->group_lock);
->   	fdput(f);
-> @@ -752,9 +781,16 @@ static int vfio_device_first_open(struct vfio_device *device)
->   	 * it during close_device.
->   	 */
->   	mutex_lock(&device->group->group_lock);
-> -	ret = vfio_group_use_container(device->group);
-> -	if (ret)
-> +	if (!vfio_group_has_iommu(device->group)) {
-> +		ret = -EINVAL;
->   		goto err_module_put;
-> +	}
-> +
-> +	if (device->group->container) {
-> +		ret = vfio_group_use_container(device->group);
-> +		if (ret)
-> +			goto err_module_put;
-> +	}
->   
->   	device->kvm = device->group->kvm;
->   	if (device->ops->open_device) {
-> @@ -762,14 +798,16 @@ static int vfio_device_first_open(struct vfio_device *device)
->   		if (ret)
->   			goto err_container;
->   	}
-> -	vfio_device_container_register(device);
-> +	if (device->group->container)
-> +		vfio_device_container_register(device);
->   	mutex_unlock(&device->group->group_lock);
->   	return 0;
->   
->   err_container:
-> -	vfio_group_unuse_container(device->group);
-> -err_module_put:
-> +	if (device->group->container)
-> +		vfio_group_unuse_container(device->group);
->   	device->kvm = NULL;
-> +err_module_put:
->   	mutex_unlock(&device->group->group_lock);
->   	module_put(device->dev->driver->owner);
->   	return ret;
-> @@ -780,11 +818,13 @@ static void vfio_device_last_close(struct vfio_device *device)
->   	lockdep_assert_held(&device->dev_set->lock);
->   
->   	mutex_lock(&device->group->group_lock);
-> -	vfio_device_container_unregister(device);
-> +	if (device->group->container)
-> +		vfio_device_container_unregister(device);
->   	if (device->ops->close_device)
->   		device->ops->close_device(device);
->   	device->kvm = NULL;
-> -	vfio_group_unuse_container(device->group);
-> +	if (device->group->container)
-> +		vfio_group_unuse_container(device->group);
->   	mutex_unlock(&device->group->group_lock);
->   	module_put(device->dev->driver->owner);
->   }
-> @@ -900,7 +940,7 @@ static int vfio_group_ioctl_get_status(struct vfio_group *group,
->   		return -ENODEV;
->   	}
->   
-> -	if (group->container)
-> +	if (group->container || group->iommufd)
->   		status.flags |= VFIO_GROUP_FLAGS_CONTAINER_SET |
->   				VFIO_GROUP_FLAGS_VIABLE;
->   	else if (!iommu_group_dma_owner_claimed(group->iommu_group))
-> @@ -983,6 +1023,10 @@ static int vfio_group_fops_release(struct inode *inode, struct file *filep)
->   	WARN_ON(group->notifier.head);
->   	if (group->container)
->   		vfio_group_detach_container(group);
-> +	if (group->iommufd) {
-> +		iommufd_ctx_put(group->iommufd);
-> +		group->iommufd = NULL;
-> +	}
->   	group->opened_file = NULL;
->   	mutex_unlock(&group->group_lock);
->   	return 0;
-> @@ -1879,6 +1923,8 @@ static void __exit vfio_cleanup(void)
->   module_init(vfio_init);
->   module_exit(vfio_cleanup);
->   
-> +MODULE_IMPORT_NS(IOMMUFD);
-> +MODULE_IMPORT_NS(IOMMUFD_VFIO);
->   MODULE_VERSION(DRIVER_VERSION);
->   MODULE_LICENSE("GPL v2");
->   MODULE_AUTHOR(DRIVER_AUTHOR);
+> > > +
+> > > +	spin_lock_irqsave(&s390_domain->list_lock, flags);
+> > > +	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
+> > > +		rc = zpci_refresh_trans((u64)zdev->fh << 32, gather->start,
+> > > +					size);
+> > > +		if (rc)
+> > > +			break;
+> > > +	}
+> > > +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> > > +}
+> > > +
+> > > +static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
+> > > +				      unsigned long iova, size_t size)
+> > > +{
+> > > +	struct s390_domain *s390_domain = to_s390_domain(domain);
+> > > +	struct zpci_dev *zdev;
+> > > +	unsigned long flags;
+> > > +	int rc;
+> > > +
+> > > +	spin_lock_irqsave(&s390_domain->list_lock, flags);
+> > > +	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
+> > > +		if (!zdev->tlb_refresh)
+> > > +			continue;
+> > > +		rc = zpci_refresh_trans((u64)zdev->fh << 32,
+> > > +					iova, size);
+> > > +		if (rc)
+> > > +			break;
+> > > +	}
+> > > +	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> > > +}
+> > > +
+> > >   static int s390_iommu_update_trans(struct s390_domain *s390_domain,
+> > >   				   phys_addr_t pa, dma_addr_t dma_addr,
+> > >   				   unsigned long nr_pages, int flags)
+> > >   {
+> > >   	phys_addr_t page_addr = pa & PAGE_MASK;
+> > > -	dma_addr_t start_dma_addr = dma_addr;
+> > >   	unsigned long irq_flags, i;
+> > > -	struct zpci_dev *zdev;
+> > >   	unsigned long *entry;
+> > >   	int rc = 0;
+> > >   
+> > > @@ -225,15 +283,6 @@ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
+> > >   		dma_addr += PAGE_SIZE;
+> > >   	}
+> > >   
+> > > -	spin_lock(&s390_domain->list_lock);
+> > > -	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
+> > > -		rc = zpci_refresh_trans((u64)zdev->fh << 32,
+> > > -					start_dma_addr, nr_pages * PAGE_SIZE);
+> > > -		if (rc)
+> > > -			break;
+> > > -	}
+> > > -	spin_unlock(&s390_domain->list_lock);
+> > > -
+> > >   undo_cpu_trans:
+> > >   	if (rc && ((flags & ZPCI_PTE_VALID_MASK) == ZPCI_PTE_VALID)) {
+> > >   		flags = ZPCI_PTE_INVALID;
+> > > @@ -340,6 +389,8 @@ static size_t s390_iommu_unmap_pages(struct iommu_domain *domain,
+> > >   	if (rc)
+> > >   		return 0;
+> > >   
+> > > +	iommu_iotlb_gather_add_range(gather, iova, size);
+> > > +
+> > >   	return size;
+> > >   }
+> > >   
+> > > @@ -384,6 +435,9 @@ static const struct iommu_ops s390_iommu_ops = {
+> > >   		.detach_dev	= s390_iommu_detach_device,
+> > >   		.map_pages	= s390_iommu_map_pages,
+> > >   		.unmap_pages	= s390_iommu_unmap_pages,
+> > > +		.flush_iotlb_all = s390_iommu_flush_iotlb_all,
+> > > +		.iotlb_sync      = s390_iommu_iotlb_sync,
+> > > +		.iotlb_sync_map  = s390_iommu_iotlb_sync_map,
+> > >   		.iova_to_phys	= s390_iommu_iova_to_phys,
+> > >   		.free		= s390_domain_free,
+> > >   	}
 
--- 
-Regards,
-Yi Liu
+
