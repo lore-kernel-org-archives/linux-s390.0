@@ -2,59 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00DE3C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 23:22:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FD33C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 23:22:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230222AbiKBXWk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 19:22:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32858 "EHLO
+        id S230402AbiKBXWl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 19:22:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230267AbiKBXUq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 19:20:46 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67370AE58
-        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 16:19:56 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id 69-20020a250548000000b006cc9d755afaso343987ybf.16
-        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 16:19:56 -0700 (PDT)
+        with ESMTP id S231136AbiKBXVV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 19:21:21 -0400
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D6925EE
+        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 16:20:00 -0700 (PDT)
+Received: by mail-pl1-x64a.google.com with SMTP id o7-20020a170902d4c700b001868cdac9adso220292plg.13
+        for <linux-s390@vger.kernel.org>; Wed, 02 Nov 2022 16:20:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=CzSf5zn0WCjHNHnOQoVFnBDZCb0UJEWJAWP5e8x7mpU=;
-        b=qayOPbuABiIuhyUyS81pM4aIXP0zbbDCyOAoStlcDM54io6H46scG/b+AOJZ083vkp
-         7VUQSDA3F1PV+eczWk9jhX07na0Ee5Y/y96fcuWnjX0SDylBmMM507BoItRwczIvX47w
-         quWZbFbuSFsnuRxvRxHTWN2VK6E9IoRaN3Rn0730zHfCEZF81HBccJpL9kyZIy1KxZA/
-         662DkzEQNlhCKGQQORLsI62wqsjL9SN7t5eET3UjVYfrxzuz8jEkm9iuoDgYatGUaOSX
-         hwFfEfHx7Y5bc5lWLW7ELIceyIhTn7UMBpI42o+ooA3Zs7kMfZ0227v/cGHQHHsdYmrl
-         HIHw==
+        bh=uJmhpw8S0ZJe1korKO0Alzy3kQF9fynwAwKCnYNFX40=;
+        b=JnRgUSD0VggKXw/X9miDz1L3bgH+7mzY/qBVsb5VPbIqmo/8WeJSfMDN7s0MJEsDWW
+         IRrPt/ToQ9aREu208mWZmMz1wetPkwYgf7IkAjrUcvtpFHAcmrr1qkSMKgs8JHWtzrGZ
+         CHKKRoWYQvrBDmpX8T6vEgqjXxa1oMEELJfC4uPpMrdsTRFF7B9BQGgk3RRywWf9CUd+
+         YLc0zH7aX+0nNPyig5EK1utGqDt+vrndZrbBL2NZ9YbvaBy8rkt2oL5tESiQuPEwWBFN
+         PCgcr9djcU/1XGcy/YUbMM9m0Qx3ARLp/JlsJFUy/Hid5zzJd25c9nohDUhNnjEJNLr/
+         C+cg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=CzSf5zn0WCjHNHnOQoVFnBDZCb0UJEWJAWP5e8x7mpU=;
-        b=D5TbFmCp/NZHu554HCHIaqGAOkDnsxO1thLHmhgnUrmvJb/fZoGbxB1FBklbYVeLjO
-         b0zpDpGaYtbP9lPOKfHYA5DRo7eIpuVBaaDwaD5MZi59UbK+M25bkkd7MYrsWJfsvPU/
-         ogX+6Vqeq9Zhqr+6cz4yU8rbuBTPrCcqdPjDe/gzn2M7/JwNbveKaD8H8XITTPViyeEO
-         cCYapJdjjLujzwbNcPbMxPH3dNzwJThrpN/ID8Go27ryBGEeg5J5R9XF9NyOZRYRcNJN
-         cZri08HPMzaIKDVBRh7a6xRS9o5UzEfOvI7H2WDqVRkxWhEiHtGfj8gC0nLKk8c6fb1f
-         I3MQ==
-X-Gm-Message-State: ACrzQf2L2JV45NGIbdCl95E9KeGM9AxKchhJonyC2RP9cgakOm9funIF
-        m1oJFkruGzYUp+1Rn0cLL9P+opll/so=
-X-Google-Smtp-Source: AMsMyM5QAC+6uL9KNRnm9M5TXJQCSY2aBJVNt4dTDVzjRpTyYTEDmCTYsEFvvoqsJQdz2eHBvIeRC0Fos4c=
+        bh=uJmhpw8S0ZJe1korKO0Alzy3kQF9fynwAwKCnYNFX40=;
+        b=2zezQRA3iXEO8E6VBUymanA8+BRKv3bKHwq4dZtpjnKYbPhIpsExZ/rxQ8tI/ywBBS
+         Jp3EKmb6vh1VvIrnrIZwPK+AVKzHQk7KJD/slPzqLno+lOrjz3xY/hrYYJbcceTIxUOC
+         vuxjtUIZkXGEiBtoGA5gCiZg0IqaZ4If+Dc5MehBcajfVRU/mop9MLysB60ldygl4Kar
+         3WmbJNT6iI31Hx5gtR3GshcpqWE1q4bLWY+gaEzYSLAWwkpVRFwH6EGkeitJhO50yd+w
+         OAC1R6L5PFa/HUAdxQc0RrKcg2f6IkC8fjU5ZGrE3m2wgVIUfXwfXxrGYn8yi9cXoolB
+         gxsQ==
+X-Gm-Message-State: ACrzQf0qztOKKc2Y4sOW8Pv7BBDW60gF/ruTtDHfTqO//3he2npWmd+U
+        FGofFZ35HfNKH7sfRh/tB6DDIeH37SI=
+X-Google-Smtp-Source: AMsMyM7DRNBTagVfD6kGqI2BAaQl/o7kEqezBzwKjlyGRtlql5fIuL96+MD52HpfKwQzi2Xg1ufnbhnLvRo=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a81:2544:0:b0:360:c270:15a1 with SMTP id
- l65-20020a812544000000b00360c27015a1mr24717446ywl.67.1667431196650; Wed, 02
- Nov 2022 16:19:56 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a05:6a00:1a0e:b0:547:1cf9:40e8 with SMTP id
+ g14-20020a056a001a0e00b005471cf940e8mr27409341pfv.82.1667431184428; Wed, 02
+ Nov 2022 16:19:44 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Wed,  2 Nov 2022 23:18:52 +0000
+Date:   Wed,  2 Nov 2022 23:18:45 +0000
 In-Reply-To: <20221102231911.3107438-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20221102231911.3107438-1-seanjc@google.com>
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Message-ID: <20221102231911.3107438-26-seanjc@google.com>
-Subject: [PATCH 25/44] KVM: s390: Do s390 specific init without bouncing
- through kvm_init()
+Message-ID: <20221102231911.3107438-19-seanjc@google.com>
+Subject: [PATCH 18/44] KVM: arm64: Mark kvm_arm_init() and its unique
+ descendants as __init
 From:   Sean Christopherson <seanjc@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -92,95 +92,396 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Move the guts of kvm_arch_init() into a new helper, __kvm_s390_init(),
-and invoke the new helper directly from kvm_s390_init() instead of
-bouncing through kvm_init().  Invoking kvm_arch_init() is the very
-first action performed by kvm_init(), i.e. this is a glorified nop.
+Tag kvm_arm_init() and its unique helper as __init, and tag data that is
+only ever modified under the kvm_arm_init() umbrella as read-only after
+init.
 
-Moving setup to __kvm_s390_init() will allow tagging more functions as
-__init, and emptying kvm_arch_init() will allow dropping the hook
-entirely once all architecture implementations are nops.
-
-No functional change intended.
+Opportunistically name the boolean param in kvm_timer_hyp_init()'s
+prototype to match its definition.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/s390/kvm/kvm-s390.c | 29 +++++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/kvm_host.h | 14 ++++++-------
+ arch/arm64/include/asm/kvm_mmu.h  |  4 ++--
+ arch/arm64/kvm/arch_timer.c       |  2 +-
+ arch/arm64/kvm/arm.c              | 34 +++++++++++++++----------------
+ arch/arm64/kvm/mmu.c              | 12 +++++------
+ arch/arm64/kvm/reset.c            |  8 ++++----
+ arch/arm64/kvm/sys_regs.c         |  6 +++---
+ arch/arm64/kvm/vmid.c             |  6 +++---
+ include/kvm/arm_arch_timer.h      |  2 +-
+ 9 files changed, 44 insertions(+), 44 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 7fcd2d3b3558..e1c9980aae78 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -461,7 +461,7 @@ static void kvm_s390_cpu_feat_init(void)
- 	 */
+diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+index 5d5a887e63a5..4863fe356be1 100644
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -66,8 +66,8 @@ enum kvm_mode kvm_get_mode(void);
+ 
+ DECLARE_STATIC_KEY_FALSE(userspace_irqchip_in_use);
+ 
+-extern unsigned int kvm_sve_max_vl;
+-int kvm_arm_init_sve(void);
++extern unsigned int __ro_after_init kvm_sve_max_vl;
++int __init kvm_arm_init_sve(void);
+ 
+ u32 __attribute_const__ kvm_target_cpu(void);
+ int kvm_reset_vcpu(struct kvm_vcpu *vcpu);
+@@ -793,7 +793,7 @@ int kvm_handle_cp10_id(struct kvm_vcpu *vcpu);
+ 
+ void kvm_reset_sys_regs(struct kvm_vcpu *vcpu);
+ 
+-int kvm_sys_reg_table_init(void);
++int __init kvm_sys_reg_table_init(void);
+ 
+ /* MMIO helpers */
+ void kvm_mmio_write_buf(void *buf, unsigned int len, unsigned long data);
+@@ -824,9 +824,9 @@ int kvm_arm_pvtime_get_attr(struct kvm_vcpu *vcpu,
+ int kvm_arm_pvtime_has_attr(struct kvm_vcpu *vcpu,
+ 			    struct kvm_device_attr *attr);
+ 
+-extern unsigned int kvm_arm_vmid_bits;
+-int kvm_arm_vmid_alloc_init(void);
+-void kvm_arm_vmid_alloc_free(void);
++extern unsigned int __ro_after_init kvm_arm_vmid_bits;
++int __init kvm_arm_vmid_alloc_init(void);
++void __init kvm_arm_vmid_alloc_free(void);
+ void kvm_arm_vmid_update(struct kvm_vmid *kvm_vmid);
+ void kvm_arm_vmid_clear_active(void);
+ 
+@@ -909,7 +909,7 @@ static inline void kvm_clr_pmu_events(u32 clr) {}
+ void kvm_vcpu_load_sysregs_vhe(struct kvm_vcpu *vcpu);
+ void kvm_vcpu_put_sysregs_vhe(struct kvm_vcpu *vcpu);
+ 
+-int kvm_set_ipa_limit(void);
++int __init kvm_set_ipa_limit(void);
+ 
+ #define __KVM_HAVE_ARCH_VM_ALLOC
+ struct kvm *kvm_arch_alloc_vm(void);
+diff --git a/arch/arm64/include/asm/kvm_mmu.h b/arch/arm64/include/asm/kvm_mmu.h
+index 7784081088e7..ced5b0028933 100644
+--- a/arch/arm64/include/asm/kvm_mmu.h
++++ b/arch/arm64/include/asm/kvm_mmu.h
+@@ -163,7 +163,7 @@ int create_hyp_io_mappings(phys_addr_t phys_addr, size_t size,
+ 			   void __iomem **haddr);
+ int create_hyp_exec_mappings(phys_addr_t phys_addr, size_t size,
+ 			     void **haddr);
+-void free_hyp_pgds(void);
++void __init free_hyp_pgds(void);
+ 
+ void stage2_unmap_vm(struct kvm *kvm);
+ int kvm_init_stage2_mmu(struct kvm *kvm, struct kvm_s2_mmu *mmu);
+@@ -175,7 +175,7 @@ int kvm_handle_guest_abort(struct kvm_vcpu *vcpu);
+ 
+ phys_addr_t kvm_mmu_get_httbr(void);
+ phys_addr_t kvm_get_idmap_vector(void);
+-int kvm_mmu_init(u32 *hyp_va_bits);
++int __init kvm_mmu_init(u32 *hyp_va_bits);
+ 
+ static inline void *__kvm_vector_slot2addr(void *base,
+ 					   enum arm64_hyp_spectre_vector slot)
+diff --git a/arch/arm64/kvm/arch_timer.c b/arch/arm64/kvm/arch_timer.c
+index 33fca1a691a5..23346585a294 100644
+--- a/arch/arm64/kvm/arch_timer.c
++++ b/arch/arm64/kvm/arch_timer.c
+@@ -1113,7 +1113,7 @@ static int kvm_irq_init(struct arch_timer_kvm_info *info)
+ 	return 0;
  }
  
--int kvm_arch_init(void *opaque)
-+static int __kvm_s390_init(void)
+-int kvm_timer_hyp_init(bool has_gic)
++int __init kvm_timer_hyp_init(bool has_gic)
  {
- 	int rc = -ENOMEM;
- 
-@@ -519,7 +519,7 @@ int kvm_arch_init(void *opaque)
- 	return rc;
+ 	struct arch_timer_kvm_info *info;
+ 	int err;
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index bfa2dcd3db11..6e0061eac627 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -1513,7 +1513,7 @@ static int kvm_init_vector_slots(void)
+ 	return 0;
  }
  
--void kvm_arch_exit(void)
-+static void __kvm_s390_exit(void)
+-static void cpu_prepare_hyp_mode(int cpu)
++static void __init cpu_prepare_hyp_mode(int cpu)
  {
- 	gmap_unregister_pte_notifier(&gmap_notifier);
- 	gmap_unregister_pte_notifier(&vsie_gmap_notifier);
-@@ -533,6 +533,16 @@ void kvm_arch_exit(void)
- 	debug_unregister(kvm_s390_dbf_uv);
- }
+ 	struct kvm_nvhe_init_params *params = per_cpu_ptr_nvhe_sym(kvm_init_params, cpu);
+ 	unsigned long tcr;
+@@ -1739,26 +1739,26 @@ static struct notifier_block hyp_init_cpu_pm_nb = {
+ 	.notifier_call = hyp_init_cpu_pm_notifier,
+ };
  
-+int kvm_arch_init(void *opaque)
-+{
-+	return 0;
-+}
-+
-+void kvm_arch_exit(void)
-+{
-+
-+}
-+
- /* Section: device related */
- long kvm_arch_dev_ioctl(struct file *filp,
- 			unsigned int ioctl, unsigned long arg)
-@@ -5634,7 +5644,7 @@ static inline unsigned long nonhyp_mask(int i)
- 
- static int __init kvm_s390_init(void)
+-static void hyp_cpu_pm_init(void)
++static void __init hyp_cpu_pm_init(void)
  {
--	int i;
-+	int i, r;
- 
- 	if (!sclp.has_sief2) {
- 		pr_info("SIE is not available\n");
-@@ -5650,12 +5660,23 @@ static int __init kvm_s390_init(void)
- 		kvm_s390_fac_base[i] |=
- 			stfle_fac_list[i] & nonhyp_mask(i);
- 
--	return kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
-+	r = __kvm_s390_init();
-+	if (r)
-+		return r;
-+
-+	r = kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
-+	if (r) {
-+		__kvm_s390_exit();
-+		return r;
-+	}
-+	return 0;
+ 	if (!is_protected_kvm_enabled())
+ 		cpu_pm_register_notifier(&hyp_init_cpu_pm_nb);
  }
- 
- static void __exit kvm_s390_exit(void)
+-static void hyp_cpu_pm_exit(void)
++static void __init hyp_cpu_pm_exit(void)
  {
- 	kvm_exit();
-+
-+	__kvm_s390_exit();
+ 	if (!is_protected_kvm_enabled())
+ 		cpu_pm_unregister_notifier(&hyp_init_cpu_pm_nb);
+ }
+ #else
+-static inline void hyp_cpu_pm_init(void)
++static inline void __init hyp_cpu_pm_init(void)
+ {
+ }
+-static inline void hyp_cpu_pm_exit(void)
++static inline void __init hyp_cpu_pm_exit(void)
+ {
+ }
+ #endif
+ 
+-static void init_cpu_logical_map(void)
++static void __init init_cpu_logical_map(void)
+ {
+ 	unsigned int cpu;
+ 
+@@ -1775,7 +1775,7 @@ static void init_cpu_logical_map(void)
+ #define init_psci_0_1_impl_state(config, what)	\
+ 	config.psci_0_1_ ## what ## _implemented = psci_ops.what
+ 
+-static bool init_psci_relay(void)
++static bool __init init_psci_relay(void)
+ {
+ 	/*
+ 	 * If PSCI has not been initialized, protected KVM cannot install
+@@ -1798,7 +1798,7 @@ static bool init_psci_relay(void)
+ 	return true;
  }
  
- module_init(kvm_s390_init);
+-static int init_subsystems(void)
++static int __init init_subsystems(void)
+ {
+ 	int err = 0;
+ 
+@@ -1848,13 +1848,13 @@ static int init_subsystems(void)
+ 	return err;
+ }
+ 
+-static void teardown_subsystems(void)
++static void __init teardown_subsystems(void)
+ {
+ 	kvm_unregister_perf_callbacks();
+ 	hyp_cpu_pm_exit();
+ }
+ 
+-static void teardown_hyp_mode(void)
++static void __init teardown_hyp_mode(void)
+ {
+ 	int cpu;
+ 
+@@ -1865,7 +1865,7 @@ static void teardown_hyp_mode(void)
+ 	}
+ }
+ 
+-static int do_pkvm_init(u32 hyp_va_bits)
++static int __init do_pkvm_init(u32 hyp_va_bits)
+ {
+ 	void *per_cpu_base = kvm_ksym_ref(kvm_arm_hyp_percpu_base);
+ 	int ret;
+@@ -1887,7 +1887,7 @@ static int do_pkvm_init(u32 hyp_va_bits)
+ 	return ret;
+ }
+ 
+-static int kvm_hyp_init_protection(u32 hyp_va_bits)
++static int __init kvm_hyp_init_protection(u32 hyp_va_bits)
+ {
+ 	void *addr = phys_to_virt(hyp_mem_base);
+ 	int ret;
+@@ -1917,7 +1917,7 @@ static int kvm_hyp_init_protection(u32 hyp_va_bits)
+ /**
+  * Inits Hyp-mode on all online CPUs
+  */
+-static int init_hyp_mode(void)
++static int __init init_hyp_mode(void)
+ {
+ 	u32 hyp_va_bits;
+ 	int cpu;
+@@ -2099,7 +2099,7 @@ static int init_hyp_mode(void)
+ 	return err;
+ }
+ 
+-static void _kvm_host_prot_finalize(void *arg)
++static void __init _kvm_host_prot_finalize(void *arg)
+ {
+ 	int *err = arg;
+ 
+@@ -2107,7 +2107,7 @@ static void _kvm_host_prot_finalize(void *arg)
+ 		WRITE_ONCE(*err, -EINVAL);
+ }
+ 
+-static int pkvm_drop_host_privileges(void)
++static int __init pkvm_drop_host_privileges(void)
+ {
+ 	int ret = 0;
+ 
+@@ -2120,7 +2120,7 @@ static int pkvm_drop_host_privileges(void)
+ 	return ret;
+ }
+ 
+-static int finalize_hyp_mode(void)
++static int __init finalize_hyp_mode(void)
+ {
+ 	if (!is_protected_kvm_enabled())
+ 		return 0;
+@@ -2190,7 +2190,7 @@ void kvm_arch_irq_bypass_start(struct irq_bypass_consumer *cons)
+ /**
+  * Initialize Hyp-mode and memory mappings on all CPUs.
+  */
+-int kvm_arm_init(void)
++static __init int kvm_arm_init(void)
+ {
+ 	int err;
+ 	bool in_hyp_mode;
+diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
+index 60ee3d9f01f8..4633664adb11 100644
+--- a/arch/arm64/kvm/mmu.c
++++ b/arch/arm64/kvm/mmu.c
+@@ -25,11 +25,11 @@
+ static struct kvm_pgtable *hyp_pgtable;
+ static DEFINE_MUTEX(kvm_hyp_pgd_mutex);
+ 
+-static unsigned long hyp_idmap_start;
+-static unsigned long hyp_idmap_end;
+-static phys_addr_t hyp_idmap_vector;
++static unsigned long __ro_after_init hyp_idmap_start;
++static unsigned long __ro_after_init hyp_idmap_end;
++static phys_addr_t __ro_after_init hyp_idmap_vector;
+ 
+-static unsigned long io_map_base;
++static unsigned long __ro_after_init io_map_base;
+ 
+ static phys_addr_t stage2_range_addr_end(phys_addr_t addr, phys_addr_t end)
+ {
+@@ -261,7 +261,7 @@ static void stage2_flush_vm(struct kvm *kvm)
+ /**
+  * free_hyp_pgds - free Hyp-mode page tables
+  */
+-void free_hyp_pgds(void)
++void __init free_hyp_pgds(void)
+ {
+ 	mutex_lock(&kvm_hyp_pgd_mutex);
+ 	if (hyp_pgtable) {
+@@ -1615,7 +1615,7 @@ static struct kvm_pgtable_mm_ops kvm_hyp_mm_ops = {
+ 	.virt_to_phys		= kvm_host_pa,
+ };
+ 
+-int kvm_mmu_init(u32 *hyp_va_bits)
++int __init kvm_mmu_init(u32 *hyp_va_bits)
+ {
+ 	int err;
+ 
+diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+index 5ae18472205a..dd58a8629a2e 100644
+--- a/arch/arm64/kvm/reset.c
++++ b/arch/arm64/kvm/reset.c
+@@ -30,7 +30,7 @@
+ #include <asm/virt.h>
+ 
+ /* Maximum phys_shift supported for any VM on this host */
+-static u32 kvm_ipa_limit;
++static u32 __ro_after_init kvm_ipa_limit;
+ 
+ /*
+  * ARMv8 Reset Values
+@@ -41,9 +41,9 @@ static u32 kvm_ipa_limit;
+ #define VCPU_RESET_PSTATE_SVC	(PSR_AA32_MODE_SVC | PSR_AA32_A_BIT | \
+ 				 PSR_AA32_I_BIT | PSR_AA32_F_BIT)
+ 
+-unsigned int kvm_sve_max_vl;
++unsigned int __ro_after_init kvm_sve_max_vl;
+ 
+-int kvm_arm_init_sve(void)
++int __init kvm_arm_init_sve(void)
+ {
+ 	if (system_supports_sve()) {
+ 		kvm_sve_max_vl = sve_max_virtualisable_vl();
+@@ -352,7 +352,7 @@ u32 get_kvm_ipa_limit(void)
+ 	return kvm_ipa_limit;
+ }
+ 
+-int kvm_set_ipa_limit(void)
++int __init kvm_set_ipa_limit(void)
+ {
+ 	unsigned int parange;
+ 	u64 mmfr0;
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index f4a7c5abcbca..0359f57c2c44 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -82,7 +82,7 @@ void vcpu_write_sys_reg(struct kvm_vcpu *vcpu, u64 val, int reg)
+ }
+ 
+ /* 3 bits per cache level, as per CLIDR, but non-existent caches always 0 */
+-static u32 cache_levels;
++static u32 __ro_after_init cache_levels;
+ 
+ /* CSSELR values; used to index KVM_REG_ARM_DEMUX_ID_CCSIDR */
+ #define CSSELR_MAX 14
+@@ -2620,7 +2620,7 @@ static void get_ctr_el0(struct kvm_vcpu *v, const struct sys_reg_desc *r)
+ }
+ 
+ /* ->val is filled in by kvm_sys_reg_table_init() */
+-static struct sys_reg_desc invariant_sys_regs[] = {
++static struct sys_reg_desc invariant_sys_regs[] __ro_after_init = {
+ 	{ SYS_DESC(SYS_MIDR_EL1), NULL, get_midr_el1 },
+ 	{ SYS_DESC(SYS_REVIDR_EL1), NULL, get_revidr_el1 },
+ 	{ SYS_DESC(SYS_CLIDR_EL1), NULL, get_clidr_el1 },
+@@ -2944,7 +2944,7 @@ int kvm_arm_copy_sys_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
+ 	return write_demux_regids(uindices);
+ }
+ 
+-int kvm_sys_reg_table_init(void)
++int __init kvm_sys_reg_table_init(void)
+ {
+ 	bool valid = true;
+ 	unsigned int i;
+diff --git a/arch/arm64/kvm/vmid.c b/arch/arm64/kvm/vmid.c
+index d78ae63d7c15..08978d0672e7 100644
+--- a/arch/arm64/kvm/vmid.c
++++ b/arch/arm64/kvm/vmid.c
+@@ -16,7 +16,7 @@
+ #include <asm/kvm_asm.h>
+ #include <asm/kvm_mmu.h>
+ 
+-unsigned int kvm_arm_vmid_bits;
++unsigned int __ro_after_init kvm_arm_vmid_bits;
+ static DEFINE_RAW_SPINLOCK(cpu_vmid_lock);
+ 
+ static atomic64_t vmid_generation;
+@@ -172,7 +172,7 @@ void kvm_arm_vmid_update(struct kvm_vmid *kvm_vmid)
+ /*
+  * Initialize the VMID allocator
+  */
+-int kvm_arm_vmid_alloc_init(void)
++int __init kvm_arm_vmid_alloc_init(void)
+ {
+ 	kvm_arm_vmid_bits = kvm_get_vmid_bits();
+ 
+@@ -190,7 +190,7 @@ int kvm_arm_vmid_alloc_init(void)
+ 	return 0;
+ }
+ 
+-void kvm_arm_vmid_alloc_free(void)
++void __init kvm_arm_vmid_alloc_free(void)
+ {
+ 	kfree(vmid_map);
+ }
+diff --git a/include/kvm/arm_arch_timer.h b/include/kvm/arm_arch_timer.h
+index 1638418f72dd..71916de7c6c4 100644
+--- a/include/kvm/arm_arch_timer.h
++++ b/include/kvm/arm_arch_timer.h
+@@ -60,7 +60,7 @@ struct arch_timer_cpu {
+ 	bool			enabled;
+ };
+ 
+-int kvm_timer_hyp_init(bool);
++int __init kvm_timer_hyp_init(bool has_gic);
+ int kvm_timer_enable(struct kvm_vcpu *vcpu);
+ int kvm_timer_vcpu_reset(struct kvm_vcpu *vcpu);
+ void kvm_timer_vcpu_init(struct kvm_vcpu *vcpu);
 -- 
 2.38.1.431.g37b22c650d-goog
 
