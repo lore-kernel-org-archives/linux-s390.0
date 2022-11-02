@@ -2,113 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 537F3C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 15:34:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D3D8C433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Nov 2022 16:38:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230329AbiKBPe6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Nov 2022 11:34:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49706 "EHLO
+        id S231705AbiKBQiR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Nov 2022 12:38:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230363AbiKBPez (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 11:34:55 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71AD027CC4
-        for <linux-s390@vger.kernel.org>; Wed,  2 Nov 2022 08:33:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667403228;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=OypQqLWai0VaMJwiQgOKKG3cobC5fKhMwKsuUswxphk=;
-        b=ghWxT5HkyzLicyrWMOxgvIDPiPH9Fe4dgi08TCH7sDE3aKxPrefUewCMVisSjn4nIkcP+F
-        AUGA9i6/RbGPH+FpfxmzX403LN+vNSqCGq4tSeRH1ANYIe9pAwwe2AuKv77X22Fd2NcC+0
-        dFfXcu3ARuYQNYTIg6WJTDuOrGIPbEE=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-210-ywcGUWlbNua3SadPps_K9w-1; Wed, 02 Nov 2022 11:33:42 -0400
-X-MC-Unique: ywcGUWlbNua3SadPps_K9w-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S231721AbiKBQh4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Nov 2022 12:37:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0C431DE1;
+        Wed,  2 Nov 2022 09:33:01 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2C0D91C0A589;
-        Wed,  2 Nov 2022 15:33:36 +0000 (UTC)
-Received: from localhost (unknown [10.39.194.37])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 917E71121339;
-        Wed,  2 Nov 2022 15:33:35 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>
-Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDA8761A56;
+        Wed,  2 Nov 2022 16:33:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C573C433C1;
+        Wed,  2 Nov 2022 16:32:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667406780;
+        bh=X6xqT5Q+gVJ0fSUPZGCRiXKotwL6OxS8B+0WmVkabE4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OVWh4pJER+b69tT/lzefyIZrWEZ5hg0SPIMfoJWLTsR9bJbMocFw4sqplf61P4ZTG
+         o0V14tacLjtPAz4u8ic5H5OYNRr6xxm9P20i1jPDXC+ksocQi2J3QBCWd4sDxKgBg0
+         VSJdSVkI3PdRgsbebmf06LtHYSYZp5+9xrZZv9Jzyp3gl9erOAQeAWCQmZlSBsqREX
+         /8nR88FXpSezKRBWnpTKSweTw9QSu8EbYBP2a8ECv/uS6eBr74jBY+kk0ttipIKWWH
+         QJU/7XSrni5lMQ0YbkB2WKjJqEEBbkX+xnETcMD/8JXHgKGEXUt0OhU0rYuTyMPWy5
+         308C7CV67PCgA==
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: Re: [PATCH v2 7/7] vfio: Remove vfio_free_device
-In-Reply-To: <20221102150152.2521475-8-farman@linux.ibm.com>
-Organization: Red Hat GmbH
-References: <20221102150152.2521475-1-farman@linux.ibm.com>
- <20221102150152.2521475-8-farman@linux.ibm.com>
-User-Agent: Notmuch/0.37 (https://notmuchmail.org)
-Date:   Wed, 02 Nov 2022 16:33:34 +0100
-Message-ID: <87pme5s75d.fsf@redhat.com>
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>, Kees Cook <keescook@chromium.org>,
+        Sami Tolvanen <samitolvanen@google.com>, llvm@lists.linux.dev,
+        linux-kernel@vger.kernel.org, patches@lists.linux.dev,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 1/3] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+Date:   Wed,  2 Nov 2022 09:32:50 -0700
+Message-Id: <20221102163252.49175-1-nathan@kernel.org>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 02 2022, Eric Farman <farman@linux.ibm.com> wrote:
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-> With the "mess" sorted out, we should be able to inline the
-> vfio_free_device call introduced by commit cb9ff3f3b84c
-> ("vfio: Add helpers for unifying vfio_device life cycle")
-> and remove them from driver release callbacks.
->
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> ---
->  drivers/gpu/drm/i915/gvt/kvmgt.c      |  1 -
->  drivers/s390/cio/vfio_ccw_ops.c       |  2 --
->  drivers/s390/crypto/vfio_ap_ops.c     |  6 ------
->  drivers/vfio/fsl-mc/vfio_fsl_mc.c     |  1 -
->  drivers/vfio/pci/vfio_pci_core.c      |  1 -
->  drivers/vfio/platform/vfio_amba.c     |  1 -
->  drivers/vfio/platform/vfio_platform.c |  1 -
->  drivers/vfio/vfio_main.c              | 22 ++++------------------
->  include/linux/vfio.h                  |  1 -
->  samples/vfio-mdev/mbochs.c            |  1 -
->  samples/vfio-mdev/mdpy.c              |  1 -
->  samples/vfio-mdev/mtty.c              |  1 -
->  12 files changed, 4 insertions(+), 35 deletions(-)
+  drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcm_tx,
+                                    ^~~~~~~
+  drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcmpc_tx,
+                                    ^~~~~~~~~
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
+match the prototype's to resolve the warning and potential CFI failure,
+should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ drivers/s390/net/ctcm_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 37b551bd43bf..4eea7d0285c1 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -834,7 +834,7 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
+  *               the generic network layer.
+  */
+ /* first merge version - leaving both functions separated */
+-static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct ctcm_priv *priv = dev->ml_priv;
+ 
+@@ -877,7 +877,7 @@ static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+ }
+ 
+ /* unmerged MPC variant of ctcm_tx */
+-static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	int len = 0;
+ 	struct ctcm_priv *priv = dev->ml_priv;
+
+base-commit: 9abf2313adc1ca1b6180c508c25f22f9395cc780
+-- 
+2.38.1
 
