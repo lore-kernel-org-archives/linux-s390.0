@@ -2,171 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62658C4332F
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 08:23:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 242A6C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 11:06:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbiKCIXk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 04:23:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36898 "EHLO
+        id S229485AbiKCLGp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 07:06:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229579AbiKCIXh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 04:23:37 -0400
-Received: from FRA01-PR2-obe.outbound.protection.outlook.com (mail-eopbgr120044.outbound.protection.outlook.com [40.107.12.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3131725FB;
-        Thu,  3 Nov 2022 01:23:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IZU2emPI21X56j+m6UdT6nLeaD7Le6VgmEZsyKpeTCEvmhQ7AaIc7pYlUoWLpdnxqiAHuPgwadpO32/E6HD7xmxEeNW+8X0QOAlkkhJiM4vmkjXA1+96+yt60WJxdTHJ6XiMbfjDU1oMQVKVDyNXwiaZnRgt8MITbOmfWcogS8//KBN3QueDarI7c82tcnjGjh/Wzn8R/TyRaWMVtIQVKGHKSl0iCIY52CkLX+lV26Mq9zRDF1wJ2D4hKb+oHZw1Lrs1hdgQAmJYAUlqIFZmlyA6E00mTws5vvqfbohzx/Nd7T3w7kKYlWsVB1GrZXnNcRSTZGFOaVIsk21ToWrM8Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=APEKHbChxUjJMeLp6MMRqHsAe2hCI+a37xkT6yBmNkU=;
- b=Aeg2uM8fzGWb9KNe/cxfAjGJzafpytAGuvR2fLn8X1CPxQSe/PuQjYjMdFjn3hOaq0kfCYMfCtQ/HVui9Qvr0c3Qf3NG1hkMfybzNO0AToOeNsoruDIoAEUz7BBI4K/xTVX6+DIy8bW4AQxthdLxMAOCQBogrIp8OQSA/u3FS1nSx1yKepo/pPeraLA4bp33+sVcVWkgxD1At/7LISy9dUFM7H3TE3fTlS4yXvTVr1GkFRwRNnN0yvT9gIiVK/WS9Z34sYRM+uHbX+TMzMnfKNUx/JBz6tqAVnhBhh42cVRPctNrTZv/MKzzTZzDhVaqXE0vrnu8a7iX5JTYRCfjQg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=csgroup.eu; dmarc=pass action=none header.from=csgroup.eu;
- dkim=pass header.d=csgroup.eu; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=APEKHbChxUjJMeLp6MMRqHsAe2hCI+a37xkT6yBmNkU=;
- b=3GTjVLY3VIisxDQQCbCyAG1gM9jFo8IkgTcEvpEKysRtmqxnNBDt6gz9qcqh7oFqebUij3VuOVoTIGkZcaG+UtE7s/7Te9qTwVxZfPeYrQJuyAOvbOpf4EDTW+fB1AbpyI4H3Wbf103p+Rv8fVP8NhpyOdb6WucVAVKCg6QeyxoQpNfvQYybZFfyP2tq2VabFIeL2QjUq+QUiyVBtG7+aDRHXcto/eyL9afYkaoKGYqX/1yWlmBULDtsNg3lkd1FM18fGqrreoudC2QBrUbdhzU/lFvuX/fGw1iyIsjsohx8kt770NyHgYFQo9Qm41MqBWHGxQzHiY4dgMQr1HIkyg==
-Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
- by MR1P264MB3092.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:3d::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.22; Thu, 3 Nov
- 2022 08:23:33 +0000
-Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
- ([fe80::8bbc:32cb:956d:88e8]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
- ([fe80::8bbc:32cb:956d:88e8%2]) with mapi id 15.20.5769.021; Thu, 3 Nov 2022
- 08:23:33 +0000
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v2] random: do not include <asm/archrandom.h> from
- random.h
-Thread-Topic: [PATCH v2] random: do not include <asm/archrandom.h> from
- random.h
-Thread-Index: AQHY6zmAUeP7ex9RRUCbb7d9veBz8q4s5KeA
-Date:   Thu, 3 Nov 2022 08:23:33 +0000
-Message-ID: <128fa0ae-38aa-30f3-cc23-bcd2f55a71a6@csgroup.eu>
-References: <20221029010857.161574-1-Jason@zx2c4.com>
-In-Reply-To: <20221029010857.161574-1-Jason@zx2c4.com>
-Accept-Language: fr-FR, en-US
+        with ESMTP id S229379AbiKCLGn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 07:06:43 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A08B11807;
+        Thu,  3 Nov 2022 04:06:41 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A3AxHvx020904;
+        Thu, 3 Nov 2022 11:06:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=D5ZJYJJzdmKl6VKB1x+ZsgHobgWwnL9dR8vjBV6faE8=;
+ b=lwgcEoDimMaI/xjA3zAtyfRzYiwcWmF/SHFWieBDo4vO14JVA3ghlS7mJlmb0B858FJe
+ aAYRk/tOSoE8NgKMTa85XRbk1On0blIySGHM62lJf4RgLsaUZSX9GmBO4N0Rcg5qWiHk
+ jQS5vfX7bdJ0dXGmz9+4h/S2CyaYFe9q8e67cW7TL6nZaH6/QKyr7AQ9fku83Y3rZ8B8
+ 8VoWK8kFD2FsKIm4yGuIwqyFc6UYFnljwNfB8XlanhuIlsXz/HaYsABZxgZWqi9z/KRG
+ 4/foEBbGBqGHeBEg7NzaUWhwQrXkiZYwCOqpjEv2t9tU+FXQtL7X385DGJ9eDkMwlQ/z +A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3km6pgtr2t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 11:06:31 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A3A6ZAn030604;
+        Thu, 3 Nov 2022 11:06:30 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3km6pgtr21-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 11:06:30 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A3B5AX7004419;
+        Thu, 3 Nov 2022 11:06:28 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3kgut98kg6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 11:06:28 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A3B6PI754460900
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 3 Nov 2022 11:06:25 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4DA5B52077;
+        Thu,  3 Nov 2022 11:06:25 +0000 (GMT)
+Received: from [9.155.206.12] (unknown [9.155.206.12])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C7A2A52076;
+        Thu,  3 Nov 2022 11:06:24 +0000 (GMT)
+Message-ID: <c7f5b3db-76f8-2772-b2cd-355f0c4c55b1@linux.ibm.com>
+Date:   Thu, 3 Nov 2022 12:06:24 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.4.1
+Subject: Re: [PATCH 1/3] s390/ctcm: Fix return type of ctc{mp,}m_tx()
 Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=csgroup.eu;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: MRZP264MB2988:EE_|MR1P264MB3092:EE_
-x-ms-office365-filtering-correlation-id: 0a893dd6-e3a1-4e7d-12f1-08dabd74b243
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Q0hpinkvfPqToe44q7TEGUEzGepmZ/xZE1Ib/aYy2gBatlPnTDO8mfELAARxArQ7XzM4R1HOeA/fJURjDq2/zhkYVjlzkVXjGNWxoBxm9JqguUXvtIBNRzA7NbWgHNV9MjXvqgvRhT2cKWCwgRS8DqosWId4hEwG+DaMFj5oIBjFPOeZImloSOrwL7HiQ4AnRahtLiutwDWcvHlAoF2qN8Ee3ctSDDYP3Ks5xO8S4CuSzk/kGxNg6FDwg69ryj6x1BgArVqmHyI4L4pDMHKz6xdr3hJTuaQbP3AFzvDNiSRxMc20yVEaPOEUTjBMCLu0dXkoYFK+EJFyPTZVpzMg9fYuhpB+KQKjmOGAAAX3q/1tBGtOXR5TEgSJFZGilj2NJATLWH8iRB+EbxNGnAG3FN6pSBjs0Y/33kSyd7STjUcNGH57JVJHMlgBIBPaVLJdGRbf+tAeGLQreZvCXcO3065yysHz/Ov1s8pSvHcS8kJ4wSvfn40ehxXk1AsRHEVrcWJ/49R67vOj6srtaY4gENZOHItJTZPCegB+3g0QQfr7eUUGZ4MLDlGyVX9UEk4/hUP/rmV1rdTXEGENnlqa99TX6di8NsUb4crNGkBes4oGUkUlfA2DqvlX+vPtrZcS59yOLCiwSTH33Z/eoYQB+DxDdPT5dmvVykAUETheOWptWCk86vTYphCVOaxjAbjQfu5WaNilPP35j1eiYcApdu/TNzPxxIUGo/LPpVR3pqHqezDioJZ+c+1muO3MUpOwkOHWVzB2UWepdkOto7WZ0h/b9HOVkcICSbq6HVsSWKZ5ayeD/0Ikv56nn/iN/uKSsMOTXLfWKWiKwkBIFgDQ8w==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39850400004)(136003)(346002)(366004)(396003)(376002)(451199015)(41300700001)(36756003)(76116006)(66556008)(66446008)(91956017)(4326008)(44832011)(64756008)(2906002)(8676002)(8936002)(66476007)(6506007)(6512007)(26005)(5660300002)(83380400001)(186003)(2616005)(478600001)(6486002)(54906003)(110136005)(316002)(86362001)(31696002)(66946007)(122000001)(38070700005)(71200400001)(31686004)(38100700002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?dEtVYVdUV01PSGVYQ3NaUWVGZG4xZU0zLzFMQWFyTCtneFpmbi80RHl0MjJk?=
- =?utf-8?B?b2s2UXBOTWxRVjdDRGc0b0J2bE9IRkEwcW9rTzhHL0RyVFdQeC9LRlNjRnAy?=
- =?utf-8?B?MmZIVHZvYnQ0VHhoQzNGWTVYZ3FqZy9yUGdEZktmQUw5OTVDdmNFbk5teVdq?=
- =?utf-8?B?dHZtQzY3REpXYjNQZDNsL1JDbUI0YW00NmI5c2lxdXpjak9VOHNTYXV6ckd4?=
- =?utf-8?B?RVVjK0xqaXpmaWliSDFBUFYwR1MrTHBCYlo2ajMxaGVsSUFmcHlrd0F0bTFn?=
- =?utf-8?B?RWdXSmlDYmEvYXRVM0ZLTUh0dDJFOUZpWlFwNnUvanJBUXIxSmllczJzOFJ4?=
- =?utf-8?B?aDR6VFVPT1ZmVXZaUWRCZU1yM1U4cWZQQ1dvZ1pYdzFoUnVUQXpMS0JzSHcy?=
- =?utf-8?B?SUNsbGhjdit6ZkNvT1A4b3l0MkxPbDVTL2VIVlBTL04xUUtBUHRWUm12cnhX?=
- =?utf-8?B?dmx5c2UxeVdpSGdFaHpWN3MxcmNBeWFwR2YrZWJhd2VHUFdDY21EckMvbGFN?=
- =?utf-8?B?emJxL3JoNkNJK3BmVmJjZHRjVktOamJocGgrZWVlSW9BNS8wMHhScUt5bUhm?=
- =?utf-8?B?MnUvSWV2UUNldFhXWGJmQ0FmR296bEU3TTdLUVhNRWFHZy9rdlBtVWJHK1Yy?=
- =?utf-8?B?RmRtUjRwd2l1eWVQSTI5WUdWd3h1T1VwVHJKMG8wRjBxaVd2eGNvQ1JoMWt1?=
- =?utf-8?B?M0lCRTg5bTV2RlhsRHVHZFFXb2ExNmtCNVZMakljTzh2dklWT2tGOGoxNW80?=
- =?utf-8?B?V1NEaWFISkVIdTREejVZekZuZFUvVU0wQmpTeEU2K3Byd3RwV3NrOG5PNXB4?=
- =?utf-8?B?cFJuL3V3UHRMVWQrRFZhMUg2Z2tScEdHRWgrK2hmMjh0ZncwWklZbUZWZmVt?=
- =?utf-8?B?MTkwVmxrR0VhWFpZeEhxWVdHWGs1TXB6RW5Sa1MxMlEvbExIcWhnSnBvNzVU?=
- =?utf-8?B?YWRnTno3L2ltcm5BdkYzcnpvUUJSVGdQdlMzcHRkeHUyaWV2NE5hbmN1VlM3?=
- =?utf-8?B?Wm1nY3NKS3ZXWDZyUkk2NGhEUG9US1BDWWFTbVh4L3VyUlhhV3pxdlh5MXlr?=
- =?utf-8?B?RWlTS0I0UGd6L05wRU1ZdXJkNHcrdHN3RkZtV0ZkcWJHUmNDRXZ5dzZKSlNX?=
- =?utf-8?B?RGp0aVV0dVdxNi9xZHNJQ1RlZVh0YzlKck5HTGthUHlFZFhHOXp0QVFLNElT?=
- =?utf-8?B?dHNpblRzYjNvM08vQ1dqY2tPQ2F5d1hFeVRnMEhxRnpLaWFLeFNKNkEzeUhG?=
- =?utf-8?B?V2pMT0NhcHFMejBZTDA3dG9LTXJxVUJQcXkweVNHSXI1UFd3RldPVFljZHRo?=
- =?utf-8?B?MERreWgzeGp4S3NsZ1EyKzJ1RlB1d0Y2VHloUzlQclJhakJVRTNOc1c3eDV6?=
- =?utf-8?B?ZkRxdjRncFZlNWU5LzdRd1h4bHg0OFJ1citHNWZaTlFCa1p3UkRZU0R1blZx?=
- =?utf-8?B?UzUwRmRWZFUyL2FYV3VGZmhWMkJ5MTFxNWw4SkR4SHhxOW5RcXQramZPWmdO?=
- =?utf-8?B?VnMrZE1Md2ZFVVU2WlVYSkE5VUVaVjJLb3RzcnJyWU5LQnJZUTJmRWhJVnVM?=
- =?utf-8?B?S1lhVldnekQ5a1N5aTlQQ0hpQ2d6aGNrWGtHL21hNk5vR2RDT0lPUFFkWG5m?=
- =?utf-8?B?bWtObFEwZWxTZlFZQ2Urc1hjSFgwRE43OThXdUtVMXRlNERpK0srR2pMb083?=
- =?utf-8?B?cEpZY2dtMUxpQlBxK1BlaFFjU3FHV3BKQUhRQ0NVSGc0MnRSSWxlNVVkOFZs?=
- =?utf-8?B?UXhmZTlzRnFicXhQNHNOSWdzRlFOUS9pVXZCS0trYUJnZWJUNnpITkQ0a25E?=
- =?utf-8?B?OHpoRWRTQi9FejJvRmNuUTZjazhXcXFDdklYY3dZUnI1bHhUd2VoaHNYV0gr?=
- =?utf-8?B?Wnd6MXJrUm9lbm55R3duRGIrclp2aW91UCs5WlJQd3U4Vlp6dHVCTHY2elBu?=
- =?utf-8?B?Q2NSY3dGcng4YUs2aFVuQXlpTCs5cjNpNEovQmpFNzMwZ1NlN3RvYVVUWWxl?=
- =?utf-8?B?U1d4MDVxNVVSZlpDaUt4MHZOQW5oRUhQY1ZCdGRwQmNkNFY0cUNjaGZVSGpn?=
- =?utf-8?B?c0xNRmsrRnArcEZ2SEdNSkx5NGtsdzI0T2t0Z09yUGtvcWF1UExTempUNTdt?=
- =?utf-8?B?WnZLSGxHelhsZWJleUlMUi9kQXhhRzdNbTFNcVQvYnNPUGJYU05vWGxoY3JJ?=
- =?utf-8?Q?G3rAaSL4ZQJZQX7LqXPb0Ew=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <B93540857C6B7D48856FBB5F95B34267@FRAP264.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+To:     Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Cc:     Wenjia Zhang <wenjia@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>,
+        Sami Tolvanen <samitolvanen@google.com>, llvm@lists.linux.dev,
+        linux-kernel@vger.kernel.org, patches@lists.linux.dev
+References: <20221102163252.49175-1-nathan@kernel.org>
+ <202211021209.276A8BA@keescook>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <202211021209.276A8BA@keescook>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: iq7UUNIrJuydhwvZ29r6r-zMkTvVR5Kx
+X-Proofpoint-GUID: 48HCB_04PtbYHLC3D9-pEU7WJvQCjLA5
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-OriginatorOrg: csgroup.eu
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0a893dd6-e3a1-4e7d-12f1-08dabd74b243
-X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Nov 2022 08:23:33.0786
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: pVh4IDGMw1rjptnNokEwxvLg+MsnyRYfvcELkNpBjLTnvWWUUJkHa/teJx/BPMOBG7CO4Le+K5nKAsyWlDC1ZmDPoayylYWMHBh/AHT5ugQ=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MR1P264MB3092
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-03_02,2022-11-03_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 priorityscore=1501 phishscore=0 spamscore=0
+ impostorscore=0 mlxlogscore=999 mlxscore=0 malwarescore=0 adultscore=0
+ suspectscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211030076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-DQoNCkxlIDI5LzEwLzIwMjIgw6AgMDM6MDgsIEphc29uIEEuIERvbmVuZmVsZCBhIMOpY3JpdMKg
-Og0KPiBUaGUgPGFzbS9hcmNocmFuZG9tLmg+IGhlYWRlciBpcyBhIHJhbmRvbS5jIHByaXZhdGUg
-ZGV0YWlsLCBub3QNCj4gc29tZXRoaW5nIHRvIGJlIGNhbGxlZCBieSBvdGhlciBjb2RlLiBBcyBz
-dWNoLCBkb24ndCBtYWtlIGl0DQo+IGF1dG9tYXRpY2FsbHkgYXZhaWxhYmxlIGJ5IHdheSBvZiBy
-YW5kb20uaC4NCj4gDQo+IENjOiBNaWNoYWVsIEVsbGVybWFuIDxtcGVAZWxsZXJtYW4uaWQuYXU+
-DQo+IENjOiBIZWlrbyBDYXJzdGVucyA8aGNhQGxpbnV4LmlibS5jb20+DQo+IENjOiBsaW51eHBw
-Yy1kZXZAbGlzdHMub3psYWJzLm9yZw0KPiBDYzogbGludXgtczM5MEB2Z2VyLmtlcm5lbC5vcmcN
-Cj4gU2lnbmVkLW9mZi1ieTogSmFzb24gQS4gRG9uZW5mZWxkIDxKYXNvbkB6eDJjNC5jb20+DQoN
-CkZvciBwb3dlcnBjLA0KDQpSZXZpZXdlZC1ieTogQ2hyaXN0b3BoZSBMZXJveSA8Y2hyaXN0b3Bo
-ZS5sZXJveUBjc2dyb3VwLmV1Pg0KDQo+IC0tLQ0KPiAgIGFyY2gvcG93ZXJwYy9rZXJuZWwvc2V0
-dXAtY29tbW9uLmMgfCAxICsNCj4gICBhcmNoL3MzOTAva2VybmVsL3NldHVwLmMgICAgICAgICAg
-IHwgMSArDQo+ICAgZHJpdmVycy9jaGFyL3JhbmRvbS5jICAgICAgICAgICAgICB8IDEgKw0KPiAg
-IGluY2x1ZGUvbGludXgvcmFuZG9tLmggICAgICAgICAgICAgfCAyIC0tDQo+ICAgNCBmaWxlcyBj
-aGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0
-IGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9zZXR1cC1jb21tb24uYyBiL2FyY2gvcG93ZXJwYy9rZXJu
-ZWwvc2V0dXAtY29tbW9uLmMNCj4gaW5kZXggNmQwNDE5OTNhNDVkLi45YjEwZTU3MDQwYzYgMTAw
-NjQ0DQo+IC0tLSBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvc2V0dXAtY29tbW9uLmMNCj4gKysrIGIv
-YXJjaC9wb3dlcnBjL2tlcm5lbC9zZXR1cC1jb21tb24uYw0KPiBAQCAtNTksNiArNTksNyBAQA0K
-PiAgICNpbmNsdWRlIDxhc20veG1vbi5oPg0KPiAgICNpbmNsdWRlIDxhc20vY3B1dGhyZWFkcy5o
-Pg0KPiAgICNpbmNsdWRlIDxtbS9tbXVfZGVjbC5oPg0KPiArI2luY2x1ZGUgPGFzbS9hcmNocmFu
-ZG9tLmg+DQo+ICAgI2luY2x1ZGUgPGFzbS9mYWR1bXAuaD4NCj4gICAjaW5jbHVkZSA8YXNtL3Vk
-YmcuaD4NCj4gICAjaW5jbHVkZSA8YXNtL2h1Z2V0bGIuaD4NCj4gZGlmZiAtLWdpdCBhL2FyY2gv
-czM5MC9rZXJuZWwvc2V0dXAuYyBiL2FyY2gvczM5MC9rZXJuZWwvc2V0dXAuYw0KPiBpbmRleCBh
-YjE5ZGRiMDlkNjUuLmI1M2E0NTczNWE1ZCAxMDA2NDQNCj4gLS0tIGEvYXJjaC9zMzkwL2tlcm5l
-bC9zZXR1cC5jDQo+ICsrKyBiL2FyY2gvczM5MC9rZXJuZWwvc2V0dXAuYw0KPiBAQCAtNTIsNiAr
-NTIsNyBAQA0KPiAgICNpbmNsdWRlIDxsaW51eC9odWdldGxiLmg+DQo+ICAgI2luY2x1ZGUgPGxp
-bnV4L2ttZW1sZWFrLmg+DQo+ICAgDQo+ICsjaW5jbHVkZSA8YXNtL2FyY2hyYW5kb20uaD4NCj4g
-ICAjaW5jbHVkZSA8YXNtL2Jvb3RfZGF0YS5oPg0KPiAgICNpbmNsdWRlIDxhc20vaXBsLmg+DQo+
-ICAgI2luY2x1ZGUgPGFzbS9mYWNpbGl0eS5oPg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9jaGFy
-L3JhbmRvbS5jIGIvZHJpdmVycy9jaGFyL3JhbmRvbS5jDQo+IGluZGV4IGUzY2Y0ZjUxZWQ1OC4u
-YTdhZmQxN2RiMDc1IDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2NoYXIvcmFuZG9tLmMNCj4gKysr
-IGIvZHJpdmVycy9jaGFyL3JhbmRvbS5jDQo+IEBAIC01NSw2ICs1NSw3IEBADQo+ICAgI2luY2x1
-ZGUgPGxpbnV4L3NpcGhhc2guaD4NCj4gICAjaW5jbHVkZSA8Y3J5cHRvL2NoYWNoYS5oPg0KPiAg
-ICNpbmNsdWRlIDxjcnlwdG8vYmxha2Uycy5oPg0KPiArI2luY2x1ZGUgPGFzbS9hcmNocmFuZG9t
-Lmg+DQo+ICAgI2luY2x1ZGUgPGFzbS9wcm9jZXNzb3IuaD4NCj4gICAjaW5jbHVkZSA8YXNtL2ly
-cS5oPg0KPiAgICNpbmNsdWRlIDxhc20vaXJxX3JlZ3MuaD4NCj4gZGlmZiAtLWdpdCBhL2luY2x1
-ZGUvbGludXgvcmFuZG9tLmggYi9pbmNsdWRlL2xpbnV4L3JhbmRvbS5oDQo+IGluZGV4IDJiZGQz
-YWRkMzQwMC4uNDdlN2NmMTI2ZThmIDEwMDY0NA0KPiAtLS0gYS9pbmNsdWRlL2xpbnV4L3JhbmRv
-bS5oDQo+ICsrKyBiL2luY2x1ZGUvbGludXgvcmFuZG9tLmgNCj4gQEAgLTE1MSw4ICsxNTEsNiBA
-QCBkZWNsYXJlX2dldF9yYW5kb21fdmFyX3dhaXQobG9uZywgdW5zaWduZWQgbG9uZykNCj4gICAg
-Ki8NCj4gICAjaW5jbHVkZSA8bGludXgvcHJhbmRvbS5oPg0KPiAgIA0KPiAtI2luY2x1ZGUgPGFz
-bS9hcmNocmFuZG9tLmg+DQo+IC0NCj4gICAjaWZkZWYgQ09ORklHX1NNUA0KPiAgIGludCByYW5k
-b21fcHJlcGFyZV9jcHUodW5zaWduZWQgaW50IGNwdSk7DQo+ICAgaW50IHJhbmRvbV9vbmxpbmVf
-Y3B1KHVuc2lnbmVkIGludCBjcHUpOw==
+
+
+On 02.11.22 20:09, Kees Cook wrote:
+> On Wed, Nov 02, 2022 at 09:32:50AM -0700, Nathan Chancellor wrote:
+>> With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+>> indirect call targets are validated against the expected function
+>> pointer prototype to make sure the call target is valid to help mitigate
+>> ROP attacks. If they are not identical, there is a failure at run time,
+>> which manifests as either a kernel panic or thread getting killed. A
+>> proposed warning in clang aims to catch these at compile time, which
+>> reveals:
+>>
+>>   drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+>>           .ndo_start_xmit         = ctcm_tx,
+>>                                     ^~~~~~~
+>>   drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+>>           .ndo_start_xmit         = ctcmpc_tx,
+>>                                     ^~~~~~~~~
+>>
+>> ->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+>> 'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
+>> match the prototype's to resolve the warning and potential CFI failure,
+>> should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
+>>
+>> Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+>> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> 
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> 
+
+Could you please also remove the corresponding comments:
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 37b551bd43bf..14200548704a 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -825,13 +825,6 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
+ /*
+  * Start transmission of a packet.
+  * Called from generic network device layer.
+- *
+- *  skb                Pointer to buffer containing the packet.
+- *  dev                Pointer to interface struct.
+- *
+- * returns 0 if packet consumed, !0 if packet rejected.
+- *         Note: If we return !0, then the packet is free'd by
+- *               the generic network layer.
+  */
+ /* first merge version - leaving both functions separated */
+ static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
