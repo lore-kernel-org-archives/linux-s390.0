@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF3E7C433FE
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 17:02:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F940C4167D
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 17:02:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231627AbiKCRCV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 13:02:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57826 "EHLO
+        id S231800AbiKCRCW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 13:02:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231956AbiKCRB6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 13:01:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB9C9396;
-        Thu,  3 Nov 2022 10:01:57 -0700 (PDT)
+        with ESMTP id S231849AbiKCRBx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 13:01:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D51CB396;
+        Thu,  3 Nov 2022 10:01:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5CE1B82962;
-        Thu,  3 Nov 2022 17:01:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54C8DC433D7;
-        Thu,  3 Nov 2022 17:01:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 719A161F87;
+        Thu,  3 Nov 2022 17:01:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D78D1C433D7;
+        Thu,  3 Nov 2022 17:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667494915;
-        bh=D6/fRtPSM2LL/1pNEu7S9mDvRcvLO6bXEXGfxKCxLfk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMDIuoDVdszuwgtpet7Zhut7+sLQ3lCO+sIwchaG0nneXIBaKXTtNveI6/Ed4b2Pt
-         dcsH02Dfwofx3dgr6jxvcTPCCZjiS7qJGFcBa7gdRajTjVyL1dpFbLZqrqjKUgA8Vk
-         qnPsDUOxD1tl1JsrA73L4wCeH/fVZVPpecXhCXR8j0RNb2dwlfpsL288P3+FHFWIgw
-         wN4rACbk21wqlBUqmyJI/4GKab1pyUhx8u3zGw3NlgUOQVRuqiaaPoHyTuVA8x87KD
-         nkQt1apI4lSBd0jku12nocowT0xOsKZy5cYO560fkLb6ttyU/3iIHOcyGOjn1zjhxU
-         efVmAj/18PjJg==
+        s=k20201202; t=1667494911;
+        bh=Ayl0uMDQLjbJW7HCHCKMEYKRRMbofKS7PhzsOSwmDk0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=SUvqFdxcftHNWUAWw3dMM1PZETx6pz6Tfjvf4PVSCtSdHo7FLBnENF9vCdx+5kQgJ
+         gZBfl7sOEfZA9dpToAGOJ9GepoHcDJ8H7SJowBqOR08qOl12zVXLRg8fbpoG7Fy/XX
+         ZBchd/NuvSFoFISyB7zdE2yxxw2oiXgPDHIovpT5ZfAArsNfM4lOHiwD+LY/pD+noV
+         TtkcoDqEvhUft8VDoHVdPxlv23EHKGEICdRSFI5PJSFVIR48hGo5/SjadQFubD+32I
+         b01hoNn7eSmALD9CgzHvOGaVlIql8gdPgJMREvLB9lQvs44IV987nfcM4LTmPVVHEj
+         INkM9jDEZn7Gw==
 From:   Nathan Chancellor <nathan@kernel.org>
 To:     Alexandra Winter <wintera@linux.ibm.com>,
         Wenjia Zhang <wenjia@linux.ibm.com>
@@ -45,12 +45,10 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Sami Tolvanen <samitolvanen@google.com>, llvm@lists.linux.dev,
         linux-kernel@vger.kernel.org, patches@lists.linux.dev,
         Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH v2 3/3] s390/lcs: Fix return type of lcs_start_xmit()
-Date:   Thu,  3 Nov 2022 10:01:30 -0700
-Message-Id: <20221103170130.1727408-3-nathan@kernel.org>
+Subject: [PATCH v2 1/3] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+Date:   Thu,  3 Nov 2022 10:01:28 -0700
+Message-Id: <20221103170130.1727408-1-nathan@kernel.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221103170130.1727408-1-nathan@kernel.org>
-References: <20221103170130.1727408-1-nathan@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -65,17 +63,20 @@ which manifests as either a kernel panic or thread getting killed. A
 proposed warning in clang aims to catch these at compile time, which
 reveals:
 
-  drivers/s390/net/lcs.c:2090:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = lcs_start_xmit,
-                                    ^~~~~~~~~~~~~~
-  drivers/s390/net/lcs.c:2097:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = lcs_start_xmit,
-                                    ^~~~~~~~~~~~~~
+  drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcm_tx,
+                                    ^~~~~~~
+  drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcmpc_tx,
+                                    ^~~~~~~~~
 
 ->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of lcs_start_xmit() to
+'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
 match the prototype's to resolve the warning and potential CFI failure,
 should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
+
+Additionally, while in the area, remove a comment block that is no
+longer relevant.
 
 Link: https://github.com/ClangBuiltLinux/linux/issues/1750
 Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
@@ -84,39 +85,45 @@ Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 ---
 v2:
   - Pick up tags from Alexandra and Kees.
-  - Adjust indentation of modified lines, as they can fit within the
-    line limit (Alexandra).
-v1: https://lore.kernel.org/20221102163252.49175-3-nathan@kernel.org/
+  - Remove comment block above ctcm_tx() (Alexandra).
+v1: https://lore.kernel.org/20221102163252.49175-1-nathan@kernel.org/
 ---
- drivers/s390/net/lcs.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/s390/net/ctcm_main.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
-index 84c8981317b4..38f312664ce7 100644
---- a/drivers/s390/net/lcs.c
-+++ b/drivers/s390/net/lcs.c
-@@ -1519,9 +1519,8 @@ lcs_txbuffer_cb(struct lcs_channel *channel, struct lcs_buffer *buffer)
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 37b551bd43bf..bdfab9ea0046 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -825,16 +825,9 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
  /*
-  * Packet transmit function called by network stack
+  * Start transmission of a packet.
+  * Called from generic network device layer.
+- *
+- *  skb		Pointer to buffer containing the packet.
+- *  dev		Pointer to interface struct.
+- *
+- * returns 0 if packet consumed, !0 if packet rejected.
+- *         Note: If we return !0, then the packet is free'd by
+- *               the generic network layer.
   */
--static int
--__lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
--		 struct net_device *dev)
-+static netdev_tx_t __lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
-+				    struct net_device *dev)
+ /* first merge version - leaving both functions separated */
+-static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcm_tx(struct sk_buff *skb, struct net_device *dev)
  {
- 	struct lcs_header *header;
- 	int rc = NETDEV_TX_OK;
-@@ -1582,8 +1581,7 @@ __lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
- 	return rc;
+ 	struct ctcm_priv *priv = dev->ml_priv;
+ 
+@@ -877,7 +870,7 @@ static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
  }
  
--static int
--lcs_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t lcs_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ /* unmerged MPC variant of ctcm_tx */
+-static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
  {
- 	struct lcs_card *card;
- 	int rc;
+ 	int len = 0;
+ 	struct ctcm_priv *priv = dev->ml_priv;
+
+base-commit: 9abf2313adc1ca1b6180c508c25f22f9395cc780
 -- 
 2.38.1
 
