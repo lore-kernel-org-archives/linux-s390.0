@@ -2,103 +2,160 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B1F3C4332F
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 23:18:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72C1DC433FE
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 23:22:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231144AbiKCXSa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 19:18:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49748 "EHLO
+        id S229600AbiKCXWd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 19:22:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230005AbiKCXS3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 19:18:29 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17465B491
-        for <linux-s390@vger.kernel.org>; Thu,  3 Nov 2022 16:18:28 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id b2so9245240eja.6
-        for <linux-s390@vger.kernel.org>; Thu, 03 Nov 2022 16:18:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=6nFukTkOw1gbW4oWy1dnnjZjTg02KMsHFw8GpjXtUYU=;
-        b=geRfAiNqwqJECVjVtpvPh5ybjpsHLeWnh1QnALVgXWTQjFlb/Z0cQvQQ4/yQG4qQ8W
-         NGbCmycbKo2k+riXNNdGIP4FXw2D2PKAZ68ecs2Gtq2Maj+ZMlrHLaV5DnH2sI8Tnqsh
-         /Pd1th7/joC6KAYBLTaldAkqAMhJg1EitLf+TIKPllOfzF/Hsr1zAoKEAGihqSZOuFJg
-         ZVNh6RIRYq3wmRyKf/HMfnBrtmLxiVan0NL/rHwzsowOMiWYsI7yUv4WGzI+9LkXKjRp
-         vhCxhturzIsbZOtfnQ8RVpiSvbUz52uk5u/yxLAe0ch/8gBBBYOKOhLMKpqC3vtvFJP8
-         asgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=6nFukTkOw1gbW4oWy1dnnjZjTg02KMsHFw8GpjXtUYU=;
-        b=E7zsE7bqveMR8sXEE0+I5E1KobXa8Hpx6mEeBwP5h1JAI4n2DFCUDB4vOfvOQ3BBqo
-         s7jcpj3GRtzZI9raqbtCb5dJKHgrnq71D9eHdG4BZ/K8+AjaWtnO45YU5GUWTaJfRn2T
-         3uysQIEPK1TY22qODxY0O6rmYRyTaEs4rFE0pfMQ1xKJHckJOqaop+TlzP2y82Nqb58W
-         o4BkTZC4FK0FGYRHOAdAKFiSLA8OmA5PxTXSyCSTsrwUGPW1OpEjBWDHMrqVQwMKdkVC
-         Bg9/u7rkzQMPvhqEKVzgAc4ZpwtGdaXtOHxYVLd/+ayGi3Uk+0jY3mVOT24mjLAga8+P
-         fZdw==
-X-Gm-Message-State: ACrzQf12ynYM70CuDfC3EdrEfvkBb1jXWCZMc5bX+KLRGG547Nl0xNxM
-        vHg/Bm5cmnDddlx5x8Qd6mGtBZG/aO/HyuqyOApHAA==
-X-Google-Smtp-Source: AMsMyM6hsn6YVhgFd5QkS0dns+dZWnGy8H25gQirK3LwhxHjBI+5T14PQQIwPtGB4ESce7EVy5loikiB2S+qGFbmHic=
-X-Received: by 2002:a17:906:3f89:b0:7ae:35c9:f098 with SMTP id
- b9-20020a1709063f8900b007ae35c9f098mr53045ejj.303.1667517506498; Thu, 03 Nov
- 2022 16:18:26 -0700 (PDT)
+        with ESMTP id S229587AbiKCXWc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 19:22:32 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 392F995A3;
+        Thu,  3 Nov 2022 16:22:32 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A3MfvSt013713;
+        Thu, 3 Nov 2022 23:22:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=H7/0dxTRsY+BvOv7mnTdafwbpTIq0fx1293cZ4rn3Es=;
+ b=ppZOBId8j+HiGvBdI6Xi60SGXrr4CmWep799g2XPrCWg4fWGuOGnOTBgnhdRXTb1+5sn
+ Tz1+R3j56n6tUGAB4bnXoATTBf8rAXP2K8DBwJALDIjV7ZcUsycYSHdth2YvpZbhX8d/
+ 3cPdn7RuZ7ri3wRfTb3I7TMOK+Fr9AVeY8VNW25PG3X0bZGzekqrN6CA2HxsPyIK/D7q
+ 32pxoDj6pSPNJZI+UIA+/7IyjOnxIXNHlV5VPgkZh+y+zL/WCneiH3Yg+A2QihjHQipH
+ YaKMtlu3VXDEz6zqOn3RfG3UsbwIY2p8gsl96EuWm03eo1FTItay+32J4zwSoZCzNaU0 Yw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmphcs8b8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 23:22:25 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A3NMO0m014764;
+        Thu, 3 Nov 2022 23:22:24 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmphcs8aw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 23:22:24 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A3NKsKh022775;
+        Thu, 3 Nov 2022 23:22:23 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma02dal.us.ibm.com with ESMTP id 3kgutawq2g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 23:22:22 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com ([9.208.128.112])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A3NMLZD7995984
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 3 Nov 2022 23:22:21 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E84E458066;
+        Thu,  3 Nov 2022 23:22:20 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4826F5805D;
+        Thu,  3 Nov 2022 23:22:13 +0000 (GMT)
+Received: from [9.65.206.126] (unknown [9.65.206.126])
+        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  3 Nov 2022 23:22:13 +0000 (GMT)
+Message-ID: <19ded86a-9574-23d7-8bbc-7dd94c95c144@linux.ibm.com>
+Date:   Thu, 3 Nov 2022 19:22:11 -0400
 MIME-Version: 1.0
-References: <20221102163252.49175-1-nathan@kernel.org> <Y2LJmr8gE2I7gOP5@osiris>
- <202211021259.9169F5CBE@keescook>
-In-Reply-To: <202211021259.9169F5CBE@keescook>
-From:   Sami Tolvanen <samitolvanen@google.com>
-Date:   Thu, 3 Nov 2022 16:17:50 -0700
-Message-ID: <CABCJKud+RJKeiPypej+s8bW506m7xCY97NLm7EkLzUp8fZiBPQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] s390/ctcm: Fix return type of ctc{mp,}m_tx()
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH v2 4/7] vfio/ccw: move private to mdev lifecycle
+Content-Language: en-US
+To:     Eric Farman <farman@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>
+Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tom Rix <trix@redhat.com>, llvm@lists.linux.dev,
-        linux-kernel@vger.kernel.org, patches@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+References: <20221102150152.2521475-1-farman@linux.ibm.com>
+ <20221102150152.2521475-5-farman@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20221102150152.2521475-5-farman@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: x5N-d4cZNnBUWP-lDMwXiz7A-m9H4abG
+X-Proofpoint-ORIG-GUID: 4Cg71VdChMUA4LvQ86_qecf-7JOz8pHU
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-03_04,2022-11-03_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ lowpriorityscore=0 phishscore=0 mlxlogscore=999 suspectscore=0
+ malwarescore=0 spamscore=0 bulkscore=0 priorityscore=1501 clxscore=1015
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211030158
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 2, 2022 at 1:01 PM Kees Cook <keescook@chromium.org> wrote:
->
-> On Wed, Nov 02, 2022 at 08:48:42PM +0100, Heiko Carstens wrote:
-> > On Wed, Nov 02, 2022 at 09:32:50AM -0700, Nathan Chancellor wrote:
-> > > should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
-> >
-> > Yes, s390 should select that :)
-> >
-> > But, is there any switch or option I need to set when compiling clang,
-> > so it knows about the kcfi sanitizer?
-> >
-> > I get:
-> > clang-16: error: unsupported option '-fsanitize=kcfi' for target 's390x-ibm-linux'
-> >
-> > > clang --version
-> > clang version 16.0.0 (https://github.com/llvm/llvm-project.git e02110e2ab4dd71b276e887483f0e6e286d243ed)
->
-> You'll need the "generic arch support": https://reviews.llvm.org/D135411
-> which is _almost_ landed. Testing would be welcome, for sure!
->
-> Sami, do you have any notes on what common things were needed to get
-> arm64 and x86_64 booting under kCFI? My only oh-so-helpful notes are
-> "keep CFI away from early boot code". :P
+On 11/2/22 11:01 AM, Eric Farman wrote:
+> Now that the mdev parent data is split out into its own struct,
+> it is safe to move the remaining private data to follow the
+> mdev probe/remove lifecycle. The mdev parent data will remain
+> where it is, and follow the subchannel and the css driver
+> interfaces.
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c     | 15 +--------------
+>  drivers/s390/cio/vfio_ccw_ops.c     | 26 +++++++++++++-------------
+>  drivers/s390/cio/vfio_ccw_private.h |  2 ++
+>  3 files changed, 16 insertions(+), 27 deletions(-)
+> 
 
-You don't need to keep CFI away from early boot code, but bringing
-this up in qemu+gdb initially is probably the best way forward. We
-also had plenty of type mismatches in syscall wrappers in the
-currently supported architectures, so that's another thing to watch
-out for once your kernel boots far enough to start init.
+...
 
-Sami
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+> index eb0b8cc210bb..e45d4acb109b 100644
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -100,15 +100,20 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+>  {
+>  	struct subchannel *sch = to_subchannel(mdev->dev.parent);
+>  	struct vfio_ccw_parent *parent = dev_get_drvdata(&sch->dev);
+> -	struct vfio_ccw_private *private = dev_get_drvdata(&parent->dev);
+> +	struct vfio_ccw_private *private;
+>  	int ret;
+>  
+> -	if (private->state == VFIO_CCW_STATE_NOT_OPER)
+> -		return -ENODEV;
+> +	private = kzalloc(sizeof(*private), GFP_KERNEL);
+> +	if (!private)
+> +		return -ENOMEM;
+
+Ha, looks like you time traveled and took my advice :)
+
+In fact it looks like some of my other comments from patch 1 get cleaned up here too -- but would still be good to make those changes in patch 1 for completeness/bisect.
+
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+
