@@ -2,157 +2,221 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 439FAC433FE
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 12:59:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B61BEC4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 13:22:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229666AbiKCM7u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 08:59:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40946 "EHLO
+        id S231664AbiKCNWS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 09:22:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229764AbiKCM7t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 08:59:49 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565FB12745
-        for <linux-s390@vger.kernel.org>; Thu,  3 Nov 2022 05:59:48 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id t4so1072931wmj.5
-        for <linux-s390@vger.kernel.org>; Thu, 03 Nov 2022 05:59:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=IxRwrgpGcbayuw2J5RAtTHB/3ysPD12k+PHRaeFxlKQ=;
-        b=GwwrRjkkygx3kA4xo0QuwS+Ne2RINsFO3eCQp6cQ9Ourq60bUc4Bt5AgAPDbQAon6l
-         gYwG/q+U+4m65imNxHxEtv/wguv7zVx1FdM6bBSupRiKHQqcJvzgQCj/pXBAzObzeey2
-         eIWJHLQuwXCd9OYAJulehF09iAhGGabS+GZ77jdsbOlVSgmaGBS8wMdeEM0HU+61DYEc
-         XSM998DKTGw19ogYfqk8LePf/GDY1Q9OaYCfMoPhWyy6X91NirqfboJUiqUVN8Bntsr0
-         J4JjRNE0fAbRqdAi3Z8tdryQsJpUsCFo5O3S6BnzL7FXthHoIBTqW543UoTxkVoKFyC9
-         j5SA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=IxRwrgpGcbayuw2J5RAtTHB/3ysPD12k+PHRaeFxlKQ=;
-        b=p3MC0j4g2yhZIzUEYIJBOphRsgIxVysVXJ8g9K7mKVRCOd0qsWJxv5p17M0grVHSdw
-         EtteDHtHiF41/ZiJs0yZ0H5xVSaea/5OMgiBQiHFeDWrKm5beWAGlXk7KaRAu72T99F7
-         YVEDzG3YhRf0sYXh246hj+8iqCQLnAfGRZZSoCWICqjQkhjzYLkwJh9WeqvM8oadfobV
-         1Mpgx0XXnO3Xy5LKDxzb48dRG8dT3O2RM2+WcdptWD4eiKSVirkf1t52L+0umXT+K+aq
-         3CV/zcxxOFp4iMk31XXaOYU1PV9PvjGQ+MvPalY6JXENWZjdn9N0NA57cXFUdWM4yEX6
-         3d5A==
-X-Gm-Message-State: ACrzQf3ZctPwspN/agcDLNFSVLwR8krJUjNOPf8Jc5K5AQcAe5LpldHR
-        HLaFoOvh7SZ293SwcJ/tnLQNCg==
-X-Google-Smtp-Source: AMsMyM4gXpjfMh9GUNM/WaSq7jLD61jpWhHWyPIsDO5O97VJQvdfk1Gffqv1EV4246udjYvGZYs8Pg==
-X-Received: by 2002:a05:600c:3b1d:b0:3c6:ff0d:6a60 with SMTP id m29-20020a05600c3b1d00b003c6ff0d6a60mr19364166wms.183.1667480386818;
-        Thu, 03 Nov 2022 05:59:46 -0700 (PDT)
-Received: from localhost (2001-1ae9-1c2-4c00-748-2a9a-a2a6-1362.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:748:2a9a:a2a6:1362])
-        by smtp.gmail.com with ESMTPSA id bg36-20020a05600c3ca400b003cf774c31a0sm5977531wmb.16.2022.11.03.05.59.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Nov 2022 05:59:46 -0700 (PDT)
-Date:   Thu, 3 Nov 2022 13:59:45 +0100
-From:   Andrew Jones <ajones@ventanamicro.com>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     Yury Norov <yury.norov@gmail.com>, x86@kernel.org,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
+        with ESMTP id S231725AbiKCNWP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 09:22:15 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DABC13EA3;
+        Thu,  3 Nov 2022 06:22:14 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A3CJrRq005056;
+        Thu, 3 Nov 2022 13:21:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=aFkGVTo1XJsI6iGGvAkxQhjQYKM9aG4FMgppl4Mi3V4=;
+ b=oJ1AASijW3z94yCNGRZiFICP24fGSesVBCEC8Xqh2VdcOSvNxBynHuTHaQTYP/QuJhIZ
+ NxmeS6rFalfFqEImPhHnqx7l9m0DRnvCkPUBJEJD82t6dDaoo74fFkT92fc23c1D2lHW
+ z3uDhJrunZQbC1UjLKk4TC5rJ1OSHSJJw8YRacyK/Fc/6hpMYwSVOCBV4liDhrkRX+s3
+ 4vcis021UkJZus/SW5ZDm+zV40sIbdWd/kkCVxmMhKqN9jOyylEeC6toF69LcrW9uRf0
+ uYVKNSAlaqCYvq0CZRK55lKcF6VETT9NWK/9cu1NIH0e/BdZ3BvQqVhZ5qiRT66SJqWa IQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmcabmsme-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 13:21:27 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A3AtXV6006838;
+        Thu, 3 Nov 2022 13:21:26 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmcabmsjq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 13:21:25 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A3D5ZwC024560;
+        Thu, 3 Nov 2022 13:21:23 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3kgut8pkgt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 13:21:23 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A3DLJlt63635926
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 3 Nov 2022 13:21:19 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB3664C04A;
+        Thu,  3 Nov 2022 13:21:19 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C63864C044;
+        Thu,  3 Nov 2022 13:21:18 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.56])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  3 Nov 2022 13:21:18 +0000 (GMT)
+Date:   Thu, 3 Nov 2022 14:21:17 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
         Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
         Albert Ou <aou@eecs.berkeley.edu>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        openrisc@lists.librecores.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Atish Patra <atishp@atishpatra.org>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Isaku Yamahata <isaku.yamahata@intel.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
-Message-ID: <20221103125945.lrr5oxxmylwpam53@kamzik>
-References: <20221014155845.1986223-3-ajones@ventanamicro.com>
- <20221028074828.b66uuqqfbrnjdtab@kamzik>
- <Y1vrMMtRwb0Lekl0@yury-laptop>
- <Y1vvMlwf/4EA/8WW@zn.tnic>
- <CAAH8bW_DkvPCH0-q2Bfe0OJ72r63mRM3GP7NKOFrhe3zMO2gbQ@mail.gmail.com>
- <Y1v+Ed6mRN9gisJS@zn.tnic>
- <20221031080604.6xei6c4e3ckhsvmy@kamzik>
- <Y1+OUawGJDjh4DOJ@zn.tnic>
- <20221031100327.r7tswmpszvs5ot5n@kamzik>
- <Y2K6clNJBn0SbWU+@zn.tnic>
+        Chao Gao <chao.gao@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Yuan Yao <yuan.yao@intel.com>
+Subject: Re: [PATCH 25/44] KVM: s390: Do s390 specific init without bouncing
+ through kvm_init()
+Message-ID: <20221103142117.4e27c80c@p-imbrenda>
+In-Reply-To: <20221103134415.5b277ce9@p-imbrenda>
+References: <20221102231911.3107438-1-seanjc@google.com>
+        <20221102231911.3107438-26-seanjc@google.com>
+        <20221103134415.5b277ce9@p-imbrenda>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y2K6clNJBn0SbWU+@zn.tnic>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: qBPHBsV6cFHEd8MUfp3luW546x7XEBtX
+X-Proofpoint-GUID: PZHd2NjudsBQn9w2kOd6Znv6byrMRJIu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-03_04,2022-11-03_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ phishscore=0 impostorscore=0 adultscore=0 mlxscore=0 mlxlogscore=826
+ spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211030090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 02, 2022 at 07:44:02PM +0100, Borislav Petkov wrote:
-> On Mon, Oct 31, 2022 at 11:03:27AM +0100, Andrew Jones wrote:
-> > Currently (after the revert of 78e5a3399421)
-> 
-> After the revert?
-> 
-> That commit is still in the latest Linus tree.
+On Thu, 3 Nov 2022 13:44:15 +0100
+Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
 
-The revert commit is 80493877d7d0 ("Revert "cpumask: fix checking valid
-cpu range".")
+> On Wed,  2 Nov 2022 23:18:52 +0000
+> Sean Christopherson <seanjc@google.com> wrote:
+> 
+> > Move the guts of kvm_arch_init() into a new helper, __kvm_s390_init(),
+> > and invoke the new helper directly from kvm_s390_init() instead of
+> > bouncing through kvm_init().  Invoking kvm_arch_init() is the very
+> > first action performed by kvm_init(), i.e. this is a glorified nop.
+> > 
+> > Moving setup to __kvm_s390_init() will allow tagging more functions as
+> > __init, and emptying kvm_arch_init() will allow dropping the hook
+> > entirely once all architecture implementations are nops.
+> > 
+> > No functional change intended.
+> > 
+> > Signed-off-by: Sean Christopherson <seanjc@google.com>
+> > ---
+> >  arch/s390/kvm/kvm-s390.c | 29 +++++++++++++++++++++++++----
+> >  1 file changed, 25 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> > index 7fcd2d3b3558..e1c9980aae78 100644
+> > --- a/arch/s390/kvm/kvm-s390.c
+> > +++ b/arch/s390/kvm/kvm-s390.c
+> > @@ -461,7 +461,7 @@ static void kvm_s390_cpu_feat_init(void)
+> >  	 */
+> >  }
+> >  
+> > -int kvm_arch_init(void *opaque)
+> > +static int __kvm_s390_init(void)
+> >  {
+> >  	int rc = -ENOMEM;
+> >  
+> > @@ -519,7 +519,7 @@ int kvm_arch_init(void *opaque)
+> >  	return rc;
+> >  }
+> >  
+> > -void kvm_arch_exit(void)
+> > +static void __kvm_s390_exit(void)
+> >  {
+> >  	gmap_unregister_pte_notifier(&gmap_notifier);
+> >  	gmap_unregister_pte_notifier(&vsie_gmap_notifier);
+> > @@ -533,6 +533,16 @@ void kvm_arch_exit(void)
+> >  	debug_unregister(kvm_s390_dbf_uv);
+> >  }
+> >  
+> > +int kvm_arch_init(void *opaque)
+> > +{
+> > +	return 0;
+> > +}
+> > +
+> > +void kvm_arch_exit(void)
+> > +{
+> > +
+> > +}
+> > +  
+> 
+> I wonder at this point if it's possible to define kvm_arch_init and
+> kvm_arch_exit directly in kvm_main.c with __weak
+
+ah, nevermind, you get rid of them completely in the next patch
 
 > 
-> > with DEBUG_PER_CPU_MAPS we'll get a warning splat when the cpu is
-> > outside the range [-1, nr_cpu_ids)
+> >  /* Section: device related */
+> >  long kvm_arch_dev_ioctl(struct file *filp,
+> >  			unsigned int ioctl, unsigned long arg)
+> > @@ -5634,7 +5644,7 @@ static inline unsigned long nonhyp_mask(int i)
+> >  
+> >  static int __init kvm_s390_init(void)
+> >  {
+> > -	int i;
+> > +	int i, r;
+> >  
+> >  	if (!sclp.has_sief2) {
+> >  		pr_info("SIE is not available\n");
+> > @@ -5650,12 +5660,23 @@ static int __init kvm_s390_init(void)
+> >  		kvm_s390_fac_base[i] |=
+> >  			stfle_fac_list[i] & nonhyp_mask(i);
+> >  
+> > -	return kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
+> > +	r = __kvm_s390_init();
+> > +	if (r)
+> > +		return r;
+> > +
+> > +	r = kvm_init(NULL, sizeof(struct kvm_vcpu), 0, THIS_MODULE);
+> > +	if (r) {
+> > +		__kvm_s390_exit();
+> > +		return r;
+> > +	}
+> > +	return 0;
+> >  }
+> >  
+> >  static void __exit kvm_s390_exit(void)
+> >  {
+> >  	kvm_exit();
+> > +
+> > +	__kvm_s390_exit();
+> >  }
+> >  
+> >  module_init(kvm_s390_init);  
 > 
-> Yah, that range makes sense.
-> 
-> > and cpumask_next() will call find_next_bit() with the input plus one anyway.
-> > find_next_bit() doesn't explicity document what happens when an input is
-> > outside the range, but it currently returns the bitmap size without any
-> > side effects, which means cpumask_next() will return nr_cpu_ids.
-> 
-> That is good to have in the commit message.
-> 
-> > show_cpuinfo() doesn't try to show anything in that case and stops its
-> > loop, or, IOW, things work fine now with an input of nr_cpu_ids - 1. But,
-> > show_cpuinfo() is just getting away with a violated cpumask_next()
-> > contract, which 78e5a3399421 exposed. How about a new commit message like
-> > this
-> 
-> You're making it sound more complex than it is. All you wanna say is:
-> 
-> "Filter out invalid cpumask_next() inputs by checking its first argument
-> against nr_cpu_ids because cpumask_next() will call find_next_bit() with
-> the input plus one but the valid range for n is [-1, nr_cpu_ids)."
 
-The patch I'm proposing ensures cpumask_next()'s range, which is actually
-[-1, nr_cpus_ids - 1), isn't violated. Violating that range will generate
-the warning for kernels which have commit 78e5a3399421 ("cpumask: fix
-checking valid cpu range"), but not its revert.
-
-Since 78e5a3399421 has been reverted, the value of this proposed fix is
-less, and indeed the warning may even go away completely for these types
-of cpumask calls[1]. However, it seems reasonable for callers to implement
-their own checks until the cpumask API has documented what they should
-expect.
-
-[1] https://lore.kernel.org/all/CAHk-=wihz-GXx66MmEyaADgS1fQE_LDcB9wrHAmkvXkd8nx9tA@mail.gmail.com/
-
-> 
-> But that thing with the revert above needs to be clarified first.
-
-I'll send a v4 with another stab at the commit message.
-
-Thanks,
-drew
-
-> 
-> Thx.
-> 
-> -- 
-> Regards/Gruss,
->     Boris.
-> 
-> https://people.kernel.org/tglx/notes-about-netiquette
