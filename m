@@ -2,69 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BBDDC4332F
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 14:41:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AD08C433FE
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 15:02:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbiKCOlU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 10:41:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57994 "EHLO
+        id S231736AbiKCPCS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 11:02:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229595AbiKCOlT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 10:41:19 -0400
-Received: from mail.8bytes.org (mail.8bytes.org [IPv6:2a01:238:42d9:3f00:e505:6202:4f0c:f051])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AB60117897;
-        Thu,  3 Nov 2022 07:41:18 -0700 (PDT)
-Received: from 8bytes.org (p5b00664c.dip0.t-ipconnect.de [91.0.102.76])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        with ESMTP id S231684AbiKCPCS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 11:02:18 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A1A192BC;
+        Thu,  3 Nov 2022 08:02:17 -0700 (PDT)
+Received: from zn.tnic (p200300ea9733e7e7329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:9733:e7e7:329c:23ff:fea6:a903])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.8bytes.org (Postfix) with ESMTPSA id A1ADE260071;
-        Thu,  3 Nov 2022 15:41:17 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-        s=default; t=1667486478;
-        bh=Zoh7PjkniCROsKV5e1IiT69/vOGMxEKbV1MJXsNEcR4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VR7CW32QpMxjsIds88tibL5y1SMHxk/hOdswx0uKA+olVQnPSbbasN7FIv4UDtr6i
-         lRic9te3uZzh/rwt/9xJNT6eDciU9thwOLWqnqv3cmAGqPOoJijch+PcXNOcxK2Pst
-         dAef872cSW8/0+8q/FZdOQUUNUV77RbgQD2LsZgczOMDQBO917JDl+at1UefULUfd7
-         QXsKCoMpV+vbTJkI+iMnJTGNkX6DHuTlAmOvqSmQMP/6ui4KhVhKSPqaEZRYvNt6UN
-         606xja22rU243M20WUVf1zKtcUx4mxHH4N0gHF8JTFkZkhXp6+xB3BVbeQY0gETaLa
-         EgE36aa05f7Nw==
-Date:   Thu, 3 Nov 2022 15:41:16 +0100
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>
-Subject: Re: [PATCH v8 0/6] iommu/s390: Fixes related to attach and aperture
- handling
-Message-ID: <Y2PTDOHjwvy+IjGg@8bytes.org>
-References: <20221025115657.1666860-1-schnelle@linux.ibm.com>
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E2C1D1EC0528;
+        Thu,  3 Nov 2022 16:02:15 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1667487736;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=5zOKDwJu4FB0xil2b5a/FPJvsZt45ByyRxSMQsaaDR8=;
+        b=QSTgD6Ncd3yLcOSJYmXGo3EY1DApfHw02ztOKs7k0PAMuO15QSqsfMgfLs99GK7c8D6O5M
+        EIOEJproe4r8R5EXjhGGomlU7hRESTU4jQUJYXGQ2n64qCj7A3JMaFvsauSzmA31U5bm9T
+        1HVpbEVPWdzipSAdtoW/ML7JHqLy6kc=
+Date:   Thu, 3 Nov 2022 16:02:12 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Andrew Jones <ajones@ventanamicro.com>
+Cc:     Yury Norov <yury.norov@gmail.com>, x86@kernel.org,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        openrisc@lists.librecores.org,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT" 
+        <linuxppc-dev@lists.ozlabs.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
+Message-ID: <Y2PX9GfxWYh6+XGT@zn.tnic>
+References: <20221028074828.b66uuqqfbrnjdtab@kamzik>
+ <Y1vrMMtRwb0Lekl0@yury-laptop>
+ <Y1vvMlwf/4EA/8WW@zn.tnic>
+ <CAAH8bW_DkvPCH0-q2Bfe0OJ72r63mRM3GP7NKOFrhe3zMO2gbQ@mail.gmail.com>
+ <Y1v+Ed6mRN9gisJS@zn.tnic>
+ <20221031080604.6xei6c4e3ckhsvmy@kamzik>
+ <Y1+OUawGJDjh4DOJ@zn.tnic>
+ <20221031100327.r7tswmpszvs5ot5n@kamzik>
+ <Y2K6clNJBn0SbWU+@zn.tnic>
+ <20221103125945.lrr5oxxmylwpam53@kamzik>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20221025115657.1666860-1-schnelle@linux.ibm.com>
+In-Reply-To: <20221103125945.lrr5oxxmylwpam53@kamzik>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 25, 2022 at 01:56:51PM +0200, Niklas Schnelle wrote:
-> Niklas Schnelle (6):
->   iommu/s390: Fix duplicate domain attachments
->   iommu/s390: Get rid of s390_domain_device
->   iommu/s390: Fix potential s390_domain aperture shrinking
->   iommu/s390: Fix incorrect aperture check
->   iommu/s390: Fix incorrect pgsize_bitmap
->   iommu/s390: Implement map_pages()/unmap_pages() instead of
->     map()/unmap()
+On Thu, Nov 03, 2022 at 01:59:45PM +0100, Andrew Jones wrote:
+> The patch I'm proposing ensures cpumask_next()'s range, which is actually
+> [-1, nr_cpus_ids - 1),
 
-Applied, thanks.
+Lemme make sure I understand it correctly: on the upper boundary, if you
+supply for n the value nr_cpu_ids - 2, then it will return potentially
+the last bit if the mask is set, i.e., the one at position (nr_cpu_ids - 1).
+
+If you supply nr_cpus_ids - 1, then it'll return nr_cpu_ids to signal no
+further bits set.
+
+Yes, no?
+
+> I'll send a v4 with another stab at the commit message.
+
+Yes, and it is still an unreadable mess: "A kernel compiled with commit
+... but not its revert... " Nope.
+
+First make sure cpumask_next()'s valid accepted range has been settled
+upon, has been explicitly documented in a comment above it and then I'll
+take a patch that fixes whatever is there to fix.
+
+Callers should not have to filter values before passing them in - the
+function either returns an error or returns the next bit in the mask.
+
+This thing:
+
+	if (*pos == nr_cpu_ids)
+
+but then to pass in pos - 1:
+
+	*pos = cpumask_next(*pos - 1
+
+looks to me like the interface needs more cooking.
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
