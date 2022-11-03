@@ -2,157 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2C3CC433FE
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 15:28:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38735C433FE
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 15:29:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231366AbiKCP2N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 11:28:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37894 "EHLO
+        id S232173AbiKCP3e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 11:29:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232182AbiKCP1n (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 11:27:43 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339221B9CB;
-        Thu,  3 Nov 2022 08:27:41 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A3F8ll6022285;
-        Thu, 3 Nov 2022 15:27:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=6wCipEvp9ampmbBGbfyYVCsuiKJVysmr33s+ba/f0TY=;
- b=kkdLZKt/C8bEnxBfn7+WFcjR9KsLMTHsA32/mFHkLI/Kpp7bSjbt+HXmHprWCGdi7E0d
- TAZUAcL9abbpc+JZjvatlgh3zxkz8qmbdrphFAmwJPr9jDUWakpevwyRV0hMBnNqySHu
- prpaG8OdU3AyYJ0WuN0IUaQziJssoT3F7PgnucBp6iId6HUXJ5DNB6uVKOWHTiygyptQ
- HDPCT+wfZ02M9sNp/pVVSe/ZJ3bKU2qY4yTwKsaSum0bjqE1KIipKJXw3LkUcidlh+YT
- WWAODkiR9Vx6v6ELllkGGy8A03zLYoVBVzN0TZNhdCVW21kB/vsblzgikRKm3dYDkC3f gQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmf9r2td1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Nov 2022 15:27:33 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A3FA7fm030157;
-        Thu, 3 Nov 2022 15:27:32 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmf9r2tbt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Nov 2022 15:27:32 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A3F5eI3014295;
-        Thu, 3 Nov 2022 15:27:30 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04fra.de.ibm.com with ESMTP id 3kgut8xqrh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Nov 2022 15:27:30 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A3FRR0C6226564
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 3 Nov 2022 15:27:27 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7F85AE04D;
-        Thu,  3 Nov 2022 15:27:26 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 76D29AE045;
-        Thu,  3 Nov 2022 15:27:26 +0000 (GMT)
-Received: from [9.152.224.241] (unknown [9.152.224.241])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  3 Nov 2022 15:27:26 +0000 (GMT)
-Message-ID: <7c5f70bd-c7a5-cf43-8ce9-f97dbba59a15@linux.ibm.com>
-Date:   Thu, 3 Nov 2022 16:27:26 +0100
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.4.1
-Subject: Re: [PATCH 3/3] s390/lcs: Fix return type of lcs_start_xmit()
-Content-Language: en-US
-To:     Nathan Chancellor <nathan@kernel.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tom Rix <trix@redhat.com>, Kees Cook <keescook@chromium.org>,
-        Sami Tolvanen <samitolvanen@google.com>, llvm@lists.linux.dev,
-        linux-kernel@vger.kernel.org, patches@lists.linux.dev
-References: <20221102163252.49175-1-nathan@kernel.org>
- <20221102163252.49175-3-nathan@kernel.org>
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20221102163252.49175-3-nathan@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0JkxIsgOHNAoaozpH7FELDEopzUm619D
-X-Proofpoint-ORIG-GUID: UgUdqCnUmOghft52R9yJJ-fHv2FECiVd
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S232246AbiKCP24 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 11:28:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C647B1B9F6
+        for <linux-s390@vger.kernel.org>; Thu,  3 Nov 2022 08:27:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667489273;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xCSLioTknXwq+ek9x4fiuIn1LdVr/LliQOq4IIs2CLE=;
+        b=UlUeIPFghiiYsdAzdI7QI8/Es18nEexMjJc8+7ol0CpkKuFPaj2Js5ERkKmDlrN/j1uD9+
+        rVW7cDqusq3FABPutxi70/v6hNPNT4fxABLh0BKyzhhyhlP0Ct1Su+AFqMQA8HcmaIrZzC
+        IPwN0Oq5I3Q6xS6svsiMUtUvV90ZQN4=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-259-ORPvjMvhO2O-W52SqD3--g-1; Thu, 03 Nov 2022 11:27:52 -0400
+X-MC-Unique: ORPvjMvhO2O-W52SqD3--g-1
+Received: by mail-ej1-f69.google.com with SMTP id dt6-20020a170907728600b007adc3ab275aso1501174ejc.20
+        for <linux-s390@vger.kernel.org>; Thu, 03 Nov 2022 08:27:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=xCSLioTknXwq+ek9x4fiuIn1LdVr/LliQOq4IIs2CLE=;
+        b=dFJzvezArdmF1OeTfTezBiSp6rozFN4dDQ5UTANx8QblEWOXlPMYOIxIF0EHtnrXfk
+         2sPhhzQA28CGh99WV3pkqh177c+kSzm0MQkCLIzKVrNcR2TcrxohzAJlvExAOUo+D8bt
+         1fiaN0lix/kdG9dRsfZJEw4QK6uFg71y6gWDPZejkGYBN3J5EzS1R87zLK+s9/q+tb2g
+         KIpBEYQBcrpzru91cbVsk8ZV69DLC7YwOaDf8yxeNVdnBPmjGPWtyZpm5aG0DG2/jDxQ
+         K1R5iGiFQYmHDAie5sbuVWueNYiy0XID2BHx1hqHEESRUo/HZq9j06WmEabB9/FK9pt9
+         B4CQ==
+X-Gm-Message-State: ACrzQf2ZMnMw7O/GnkO+2mX963i4DkcjxbIpqj/0EHJp2xLetjO6W2g6
+        X7rQZKJH6Z2UqkE5enk5BIHMR3llsAgM3yRkW3C+bp4IbbU7tSxmBEjFXzvt5OsQiEg3zCLuLeF
+        CuMSjxYplxG1NsiJrdkbSsw==
+X-Received: by 2002:a17:907:2dab:b0:78d:fc4b:7e31 with SMTP id gt43-20020a1709072dab00b0078dfc4b7e31mr28147776ejc.531.1667489270834;
+        Thu, 03 Nov 2022 08:27:50 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7u9a9PiI+1WXKEKW1T9dxImTSTFhIKArq6MPRri6hHxMVLdP9Ji+9iwit/AYCn6duMyFkDdg==
+X-Received: by 2002:a17:907:2dab:b0:78d:fc4b:7e31 with SMTP id gt43-20020a1709072dab00b0078dfc4b7e31mr28147732ejc.531.1667489270591;
+        Thu, 03 Nov 2022 08:27:50 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:1c09:f536:3de6:228c? ([2001:b07:6468:f312:1c09:f536:3de6:228c])
+        by smtp.googlemail.com with ESMTPSA id 15-20020a508e4f000000b00463bc1ddc76sm657729edx.28.2022.11.03.08.27.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 03 Nov 2022 08:27:49 -0700 (PDT)
+Message-ID: <82df23f2-b049-8bee-8bb8-608645b918d8@redhat.com>
+Date:   Thu, 3 Nov 2022 16:27:47 +0100
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-03_04,2022-11-03_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 bulkscore=0 impostorscore=0 spamscore=0
- mlxscore=0 priorityscore=1501 mlxlogscore=999 suspectscore=0 phishscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211030101
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH 00/44] KVM: Rework kvm_init() and hardware enabling
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc:     James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Atish Patra <atishp@atishpatra.org>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Isaku Yamahata <isaku.yamahata@intel.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Chao Gao <chao.gao@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Yuan Yao <yuan.yao@intel.com>
+References: <20221102231911.3107438-1-seanjc@google.com>
+ <b37267a9-c0b4-9841-71af-d8eab9baeb60@linux.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <b37267a9-c0b4-9841-71af-d8eab9baeb60@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 02.11.22 17:32, Nathan Chancellor wrote:
-> With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-> indirect call targets are validated against the expected function
-> pointer prototype to make sure the call target is valid to help mitigate
-> ROP attacks. If they are not identical, there is a failure at run time,
-> which manifests as either a kernel panic or thread getting killed. A
-> proposed warning in clang aims to catch these at compile time, which
-> reveals:
+On 11/3/22 13:08, Christian Borntraeger wrote:
+>> There are bug fixes throughout this series.  They are more scattered than
+>> I would usually prefer, but getting the sequencing correct was a gigantic
+>> pain for many of the x86 fixes due to needing to fix common code in order
+>> for the x86 fix to have any meaning.  And while the bugs are often fatal,
+>> they aren't all that interesting for most users as they either require a
+>> malicious admin or broken hardware, i.e. aren't likely to be encountered
+>> by the vast majority of KVM users.  So unless someone _really_ wants a
+>> particular fix isolated for backporting, I'm not planning on shuffling
+>> patches.
+>>
+>> Tested on x86.  Lightly tested on arm64.  Compile tested only on all 
+>> other architectures.
 > 
->   drivers/s390/net/lcs.c:2090:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
->           .ndo_start_xmit         = lcs_start_xmit,
->                                     ^~~~~~~~~~~~~~
->   drivers/s390/net/lcs.c:2097:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
->           .ndo_start_xmit         = lcs_start_xmit,
->                                     ^~~~~~~~~~~~~~
-> 
-> ->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-> 'netdev_tx_t', not 'int'. Adjust the return type of lcs_start_xmit() to
-> match the prototype's to resolve the warning and potential CFI failure,
-> should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
-> 
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> ---
->  drivers/s390/net/lcs.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
-> index 84c8981317b4..4cbb9802bf22 100644
-> --- a/drivers/s390/net/lcs.c
-> +++ b/drivers/s390/net/lcs.c
-> @@ -1519,7 +1519,7 @@ lcs_txbuffer_cb(struct lcs_channel *channel, struct lcs_buffer *buffer)
->  /*
->   * Packet transmit function called by network stack
->   */
-> -static int
-> +static netdev_tx_t
->  __lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
->  		 struct net_device *dev)
->  {
-> @@ -1582,7 +1582,7 @@ __lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
->  	return rc;
->  }
->  
-> -static int
-> +static netdev_tx_t
->  lcs_start_xmit(struct sk_buff *skb, struct net_device *dev)
->  {
->  	struct lcs_card *card;
+> Some sniff tests seem to work ok on s390.
 
-Thanks a lot for the fix.
-Could you please also fix the indentation of these lines?
-With that:
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Thanks.  There are just a couple nits, and MIPS/PPC/RISC-V have very 
+small changes.  Feel free to send me a pull request once Marc acks.
 
+Paolo
 
