@@ -2,116 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 467EAC433FE
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 16:50:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE255C43217
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 17:02:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231315AbiKCQuH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 12:50:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46206 "EHLO
+        id S231375AbiKCRCU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 13:02:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231991AbiKCQtv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 12:49:51 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF3832739;
-        Thu,  3 Nov 2022 09:49:11 -0700 (PDT)
-Received: from zn.tnic (p200300ea9733e7e7329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:9733:e7e7:329c:23ff:fea6:a903])
+        with ESMTP id S231941AbiKCRBz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 13:01:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF571143;
+        Thu,  3 Nov 2022 10:01:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E3F291EC04F0;
-        Thu,  3 Nov 2022 17:49:09 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1667494150;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=2ASRoXT4dNz3rsz3g7wk4DQzgAno9/V5MAy7ltfZSS0=;
-        b=GEBGVYysxzMU6LGJTmZd7M+/R/6mbCD6zp4ZSzgggbaUSAV0SVqDm2Gc6AAhFjue3w91tt
-        IAhvE9D7fZ+NRgIf5TsYL8evNAQClXdM104Vgktn6WclPvN36r3al1OF9AVLqkFvz+Oj+i
-        92QAmiYx47vWftNfKrMeen4/XGStEic=
-Date:   Thu, 3 Nov 2022 17:49:06 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     yury.norov@gmail.com
-Cc:     x86@kernel.org, linux-riscv <linux-riscv@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        openrisc@lists.librecores.org,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D27F61F87;
+        Thu,  3 Nov 2022 17:01:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2C85C433B5;
+        Thu,  3 Nov 2022 17:01:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667494913;
+        bh=f6y6m1EnUKwUsyjzfNr41VDZUX99wh7+ivnefKR1ZII=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=IvELajK622CDtEFS3+Ndom/QAcrk2LdjDsIKm24NObJTK2STWaEF4arbw04pLNHCI
+         YoG29onc7BA/p6VUkguQljzIoQ6N3IppFAGDiFFro5n8rICMp0V619jM6mjpHJONlr
+         H/K4uGzHzHh+uyJ7dusvQBwQEofJaWE1qVWEGXzc3aAWHfASCXjPapjURUL6JyH1Pv
+         xe9Ai/oWFSeNaDl3YdbeQiPRcdBW8qRWztLuBGGKMo2vV9FX0uf1z/1WkJW+cRgwBc
+         +IKFm/7vzni39ewblgUJWogi4H0rO0edEFA+aIOQoRoXy0zx32gon1dapt8/7/9bSA
+         JC/AvS7uXIC8w==
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
-Message-ID: <Y2PxAiJ1yNzcUSgs@zn.tnic>
-References: <CAAH8bW_DkvPCH0-q2Bfe0OJ72r63mRM3GP7NKOFrhe3zMO2gbQ@mail.gmail.com>
- <Y1v+Ed6mRN9gisJS@zn.tnic>
- <20221031080604.6xei6c4e3ckhsvmy@kamzik>
- <Y1+OUawGJDjh4DOJ@zn.tnic>
- <20221031100327.r7tswmpszvs5ot5n@kamzik>
- <Y2K6clNJBn0SbWU+@zn.tnic>
- <20221103125945.lrr5oxxmylwpam53@kamzik>
- <Y2PX9GfxWYh6+XGT@zn.tnic>
- <20221103153404.uh77nrdkowrxj6cr@kamzik>
- <Y2PsvvOWVs9ZLBsp@yury-laptop>
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>, Kees Cook <keescook@chromium.org>,
+        Sami Tolvanen <samitolvanen@google.com>, llvm@lists.linux.dev,
+        linux-kernel@vger.kernel.org, patches@lists.linux.dev,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH v2 2/3] s390/netiucv: Fix return type of netiucv_tx()
+Date:   Thu,  3 Nov 2022 10:01:29 -0700
+Message-Id: <20221103170130.1727408-2-nathan@kernel.org>
+X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221103170130.1727408-1-nathan@kernel.org>
+References: <20221103170130.1727408-1-nathan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Y2PsvvOWVs9ZLBsp@yury-laptop>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 03, 2022 at 09:30:54AM -0700, yury.norov@gmail.com wrote:a
-> Callers should pass sane arguments into internal functions if they
-> expect sane output.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-What internal function? It's in a global header.
+  drivers/s390/net/netiucv.c:1854:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = netiucv_tx,
+                                    ^~~~~~~~~~
 
-> The API not exported to userspace shouldn't sanity-check all inputs
-> arguments.
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of netiucv_tx() to
+match the prototype's to resolve the warning and potential CFI failure,
+should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
 
-That doesn't have anything to do with userspace at all.
+Additionally, while in the area, remove a comment block that is no
+longer relevant.
 
-APIs exported to the rest of the kernel should very well check their
-inputs. Otherwise they're not APIs - just some random functions which
-are visible to the compiler.
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+v2:
+  - Pick up tags from Alexandra and Kees.
+  - Remove comment block above netiucv_tx() (Alexandra).
+v1: https://lore.kernel.org/20221102163252.49175-2-nathan@kernel.org/
+---
+ drivers/s390/net/netiucv.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-> So, the portable code shouldn't expect from cpumasks more than
-> documentation said: for a _valid_ offset cpumask_next() returns next
-> set bit or >= nr_cpu_ids.
-
-Lemme quote from my previous mail:
-
-"First make sure cpumask_next()'s valid accepted range has been settled
-upon, has been explicitly documented"
-
-So where is that valid range documented?
-
-> cpumask_check() has been broken for years. Attempting to fix it faced
-> so much resistance, that I had to revert the patch.
-
-The suggestion on that thread made sense: you first fix the callers and
-then the interface. Just like any other "broken" kernel API.
-
-Nothing's stopping you from fixing it properly - it'll just take a while
-and if it is such a widely used interface, you probably should come up
-with a strategy first how to fix it without impacting current use.
-
-Interfaces and their in-kernel users get refactored constantly.
-
-Thx.
-
+diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+index 65aa0a96c21d..66076cada8ae 100644
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -1248,15 +1248,8 @@ static int netiucv_close(struct net_device *dev)
+ /*
+  * Start transmission of a packet.
+  * Called from generic network device layer.
+- *
+- * @param skb Pointer to buffer containing the packet.
+- * @param dev Pointer to interface struct.
+- *
+- * @return 0 if packet consumed, !0 if packet rejected.
+- *         Note: If we return !0, then the packet is free'd by
+- *               the generic network layer.
+  */
+-static int netiucv_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t netiucv_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct netiucv_priv *privptr = netdev_priv(dev);
+ 	int rc;
 -- 
-Regards/Gruss,
-    Boris.
+2.38.1
 
-https://people.kernel.org/tglx/notes-about-netiquette
