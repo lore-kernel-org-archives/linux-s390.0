@@ -2,196 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44039C43217
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 21:57:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A175C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 22:34:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229708AbiKCV5M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 17:57:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59448 "EHLO
+        id S231244AbiKCWeR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 18:34:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230297AbiKCV5L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 17:57:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0DB1222A7
-        for <linux-s390@vger.kernel.org>; Thu,  3 Nov 2022 14:56:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667512576;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=d+gPBLcj3yfcNxg3iZDolr/DLSZRZsYZJ+BZEPDd0k8=;
-        b=DpyiiCjoutuz5IZr2y51EINmY9i02n84pK3ZdkXXhu5UoJX5VLMSze9+aSzfQFTwbFzkr1
-        0nrAsIj/xWzAzYkxjUllbNsCKobuWkS20gosbB+4bY59cNNGwe3gu6fIanQEWIDUN6yYiL
-        et36X0d2KlFNK7wLzG+Df0ZhqM1p+8c=
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
- [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-251-EhjULkQMNNWjlutwbsQ5FA-1; Thu, 03 Nov 2022 17:56:15 -0400
-X-MC-Unique: EhjULkQMNNWjlutwbsQ5FA-1
-Received: by mail-io1-f72.google.com with SMTP id j17-20020a5d93d1000000b006bcdc6b49cbso1897307ioo.22
-        for <linux-s390@vger.kernel.org>; Thu, 03 Nov 2022 14:56:15 -0700 (PDT)
+        with ESMTP id S230473AbiKCWeP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 18:34:15 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E7D20185
+        for <linux-s390@vger.kernel.org>; Thu,  3 Nov 2022 15:34:14 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id f5-20020a17090a4a8500b002131bb59d61so6323777pjh.1
+        for <linux-s390@vger.kernel.org>; Thu, 03 Nov 2022 15:34:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ldFAJy69ux+7z8nNCEANq8kYxugZwXEN2GoxlipQK+E=;
+        b=mkCIQ7bnuqf5rnZcP6hp5JREtMJ78/S1f1OWtkJaTeRse5OVZRNDMID1AYpz+jBJzg
+         eTpW9c3Fpt1GJSjywJBWRecDimPLsqOLfN7Nt46XLz4VoW6wiMtnGP3QRSBmWb2Jy2Ue
+         XIrU3j6Zv6WjRE+wBsl7MInjLBoh0ETGKk290BPhyym2xqAHPTTSp2piVfBSnA5Xqpa6
+         3LkVfTkbpSA7y+3xQukW44oEvhoV3ll0HshYQg8WmMixLpenp+usLAkNlELtK9JmVVTO
+         f4CyPp1jxX+2aW0ZdvzjRbMLb0KbcueA1rrAX1kSu3aGK0UrE4ad6SuEvUCcApyckgBR
+         ztmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=d+gPBLcj3yfcNxg3iZDolr/DLSZRZsYZJ+BZEPDd0k8=;
-        b=mXNn0eLdo3dccAS8zXyxJHHtBINnfrXU4hust16IxpYcbUuqqlat8S2ss4r9R+HO/y
-         +9oL2gc+X5gS6oUFtWeetT20o9iIhnY+C7rba/JJJBscrhT8PwrrJatcHm/f1c61gKPd
-         TXl9Y4AQ5U35jJOG5ZjQXbDl6TzRmsLKWbvRyF5BHTQcBJmjog2Sd6kiBYdXEmgJmvFT
-         +2WqtVzNwjuY4ZruE+SI8F1W2W3hHGj8sB+sS+660FFbo9fcDK7eixvhwWdGsf6xdsyE
-         +g8YyfF/sctaYlZCbohBAGj0HP4bMOYsoGjKkXRnX8Dv3T9YXlcM45MLAbBSNYn36ymN
-         yKkg==
-X-Gm-Message-State: ACrzQf2l3kQkqheMvjZ2tPgtlDxm46oZYHpU65IvgpEzFnvHY50BBTjo
-        HngB2D3yAKksBb7XE8DrN0vXuItZZYA39mKzDl32OKK9Ds/+ic2CIMkp13+r3zfzh2//wh/CCfX
-        /pbNuDKPiMV1sil++sO4/qg==
-X-Received: by 2002:a05:6602:2c09:b0:694:51c4:8282 with SMTP id w9-20020a0566022c0900b0069451c48282mr20182360iov.203.1667512574941;
-        Thu, 03 Nov 2022 14:56:14 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6XXTGY/jAs7DgmNTFtcqCXPtF5Oitv5ZjT7vsZBKLSnzosYzEC5JgzfurqOGyquHSILSbftA==
-X-Received: by 2002:a05:6602:2c09:b0:694:51c4:8282 with SMTP id w9-20020a0566022c0900b0069451c48282mr20182338iov.203.1667512574697;
-        Thu, 03 Nov 2022 14:56:14 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id z27-20020a05663822bb00b00371caa7ef7csm598363jas.2.2022.11.03.14.56.13
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ldFAJy69ux+7z8nNCEANq8kYxugZwXEN2GoxlipQK+E=;
+        b=OzdFeVh3BewBJ+vquU7vmOBq6Oe+Pq4zrJC4aiTJg5+5H/2pD5/ldvRO3+WYC+DECm
+         57JsdrMD5b89L0vlPZviOIbB1HVCWHQq7hQd9hT9c0+eQ0C98UAcTq3DRK1+eic99RHX
+         UmiwMH8MgySTo4T71Bcs8IUvwFMwZXhN+JJn7lDn4JdJvjRT6zUzs6PWic633HyrbjdA
+         jW/ksOd/jeK6qVY4Q8CYpqI+NZKdj2NbTkW9qJv67Ud1s4TRNDb4rsqH8JS9hmwDaVLS
+         iGPggz3yg/d33rWYzsB7NA3/vPVKRqgX11qbfDmc27pIRqFW2cKqYDTUDIrigP2Bb0yW
+         vQiw==
+X-Gm-Message-State: ACrzQf3/dhHdbJ0RR/xVHjj5vo6Er7Fg6PtV2+TnhXJ1a2/F4BUAh0Dt
+        DDcIl0XcprMGj0JaGA6M1zP+Yw==
+X-Google-Smtp-Source: AMsMyM4x/1h/4H3vdmKr9CnvGb6Osipgsi8YDrhqpMcYmjYNzerzqYc2UHi5AhKhfTxXN1DVaborYg==
+X-Received: by 2002:a17:90a:6045:b0:212:fe9a:5792 with SMTP id h5-20020a17090a604500b00212fe9a5792mr49415367pjm.178.1667514854306;
+        Thu, 03 Nov 2022 15:34:14 -0700 (PDT)
+Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
+        by smtp.gmail.com with ESMTPSA id u10-20020a170902e80a00b00186ad73e2d5sm1151929plg.208.2022.11.03.15.34.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Nov 2022 14:56:14 -0700 (PDT)
-Date:   Thu, 3 Nov 2022 15:56:11 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thu, 03 Nov 2022 15:34:13 -0700 (PDT)
+Date:   Thu, 3 Nov 2022 22:34:10 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Isaku Yamahata <isaku.yamahata@gmail.com>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH v2 0/7] vfio-ccw parent rework
-Message-ID: <20221103155611.0008075f.alex.williamson@redhat.com>
-In-Reply-To: <20221102150152.2521475-1-farman@linux.ibm.com>
-References: <20221102150152.2521475-1-farman@linux.ibm.com>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Atish Patra <atishp@atishpatra.org>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Isaku Yamahata <isaku.yamahata@intel.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Chao Gao <chao.gao@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Yuan Yao <yuan.yao@intel.com>
+Subject: Re: [PATCH 36/44] KVM: x86: Do compatibility checks when onlining CPU
+Message-ID: <Y2RB4qT02EkhMjPL@google.com>
+References: <20221102231911.3107438-1-seanjc@google.com>
+ <20221102231911.3107438-37-seanjc@google.com>
+ <20221103210402.GB1063309@ls.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221103210402.GB1063309@ls.amr.corp.intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed,  2 Nov 2022 16:01:45 +0100
-Eric Farman <farman@linux.ibm.com> wrote:
+On Thu, Nov 03, 2022, Isaku Yamahata wrote:
+> On Wed, Nov 02, 2022 at 11:19:03PM +0000,
+> Sean Christopherson <seanjc@google.com> wrote:
+> > diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+> > index f223c845ed6e..c99222b71fcc 100644
+> > --- a/arch/x86/include/asm/kvm_host.h
+> > +++ b/arch/x86/include/asm/kvm_host.h
+> > @@ -1666,7 +1666,7 @@ struct kvm_x86_nested_ops {
+> >  };
+> >  
+> >  struct kvm_x86_init_ops {
+> > -	int (*check_processor_compatibility)(void);
+> > +	int (*check_processor_compatibility)(int cpu);
+> 
+> Is this cpu argument used only for error message to include cpu number
+> with avoiding repeating raw_smp_processor_id() in pr_err()?
 
-> Hi all,
-> 
-> Here is an update to the vfio-ccw lifecycle changes that have been discussed
-> in various forms over the past year [1][2] or so, and which I dusted off
-> recently.
-> 
-> Patches 1-5 rework the behavior of the vfio-ccw driver's private struct.
-> In summary, the mdev pieces are split out of vfio_ccw_private and into a
-> new vfio_ccw_parent struct that will continue to follow today's lifecycle.
-> The remainder (bulk) of the private struct moves to follow the mdev
-> probe/remove pair. There's opportunity for further separation of the
-> things in the private struct, which would simplify some of the vfio-ccw
-> code, but it got too hairy as I started that. Once vfio-ccw is no longer
-> considered unique, those cleanups can happen at our leisure. 
-> 
-> Patch 6 removes the trickery where vfio-ccw uses vfio_init_device instead of
-> vfio_alloc_device, and thus removes vfio_init_device from the outside world.
-> 
-> Patch 7 removes vfio_free_device from vfio-ccw and the other drivers (hello,
-> CC list!), letting it be handled by vfio_device_release directly.
+Yep.
 
-Looks like another spin is pending, but the vfio core and collateral
-changes in 6 and 7 look good to me.  Would this go in through the vfio
-or s390 tree?  I'd be happy to merge or provide a branch, depending on
-the route.
+> The actual check is done on the current executing cpu.
+> 
+> If cpu != raw_smp_processor_id(), cpu is wrong. Although the function is called
+> in non-preemptive context, it's a bit confusing. So voting to remove it and
+> to use.
 
-For 6 & 7:
-Acked-by: Alex Williamson <alex.williamson@redhat.com>
-
-Thanks,
-Alex
-
-
-> Looking forward to the feedback.
-> 
-> Thanks,
-> Eric
-> 
-> [1] https://lore.kernel.org/kvm/0-v3-57c1502c62fd+2190-ccw_mdev_jgg@nvidia.com/
-> [2] https://lore.kernel.org/kvm/20220602171948.2790690-1-farman@linux.ibm.com/
-> 
-> v1->v2:
->  - Rebase to 6.1-rc3
->  - Patch 1:
->    [EF] s/device_initialize/device_register/ and associated adjustments
->    [MR] Add WARN_ON(!private) in vfio_ccw_sch_quiesce()
->    [MR] Move struct vfio_ccw_parent to _private.h, instead of standalone file
->  - Patch 2:
->    [MR] Added r-b (Thank you!)
->  - Patch 3:
->    [MR] Update commit message to point to introduction of private->release_comp
->    [MR] Replace the remnants of vfio_ccw_alloc_private with a straight kzalloc
->    [MR] Added r-b (Thank you!)
->  - Patch 5:
->    [KT] Added r-b (Thank you!)
->  - Patch 6:
->    [JG] Make vfio_init_device static
->    [KT] Added r-b (Thank you!)
->  - Patch 7:
->    [JG, KT] Added r-b (Thank you!)
-> v1: https://lore.kernel.org/kvm/20221019162135.798901-1-farman@linux.ibm.com/
-> 
-> Eric Farman (7):
->   vfio/ccw: create a parent struct
->   vfio/ccw: remove private->sch
->   vfio/ccw: move private initialization to callback
->   vfio/ccw: move private to mdev lifecycle
->   vfio/ccw: remove release completion
->   vfio/ccw: replace vfio_init_device with _alloc_
->   vfio: Remove vfio_free_device
-> 
->  drivers/gpu/drm/i915/gvt/kvmgt.c      |   1 -
->  drivers/s390/cio/vfio_ccw_chp.c       |   5 +-
->  drivers/s390/cio/vfio_ccw_drv.c       | 174 +++++++++++---------------
->  drivers/s390/cio/vfio_ccw_fsm.c       |  27 ++--
->  drivers/s390/cio/vfio_ccw_ops.c       | 107 +++++++++++-----
->  drivers/s390/cio/vfio_ccw_private.h   |  37 ++++--
->  drivers/s390/crypto/vfio_ap_ops.c     |   6 -
->  drivers/vfio/fsl-mc/vfio_fsl_mc.c     |   1 -
->  drivers/vfio/pci/vfio_pci_core.c      |   1 -
->  drivers/vfio/platform/vfio_amba.c     |   1 -
->  drivers/vfio/platform/vfio_platform.c |   1 -
->  drivers/vfio/vfio_main.c              |  32 ++---
->  include/linux/vfio.h                  |   3 -
->  samples/vfio-mdev/mbochs.c            |   1 -
->  samples/vfio-mdev/mdpy.c              |   1 -
->  samples/vfio-mdev/mtty.c              |   1 -
->  16 files changed, 197 insertions(+), 202 deletions(-)
-> 
-
+What if I rename the param is this_cpu?  I 100% agree the argument is confusing
+as-is, but forcing all the helpers to manually grab the cpu is quite annoying.
