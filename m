@@ -2,119 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02623C4332F
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 17:31:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59C57C43217
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 17:45:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229694AbiKCRbe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 13:31:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49000 "EHLO
+        id S231559AbiKCRo6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 13:44:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229634AbiKCRbd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 13:31:33 -0400
-Received: from mail-oa1-x32.google.com (mail-oa1-x32.google.com [IPv6:2001:4860:4864:20::32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83BF5FF6;
-        Thu,  3 Nov 2022 10:31:32 -0700 (PDT)
-Received: by mail-oa1-x32.google.com with SMTP id 586e51a60fabf-12c8312131fso2966008fac.4;
-        Thu, 03 Nov 2022 10:31:32 -0700 (PDT)
+        with ESMTP id S231387AbiKCRo6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 13:44:58 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA3421AF17
+        for <linux-s390@vger.kernel.org>; Thu,  3 Nov 2022 10:44:56 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id k5so2344545pjo.5
+        for <linux-s390@vger.kernel.org>; Thu, 03 Nov 2022 10:44:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=google.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=HvZ5+E5qu4GOYga/FqvgfxEG1c0dU8d73zf2fP+htGs=;
-        b=iPqtLSq3l2qHplG860uNDrfYq9b0lZFbxHP6kSO5WcDFeNj74LgawQ3XHbriQnJzId
-         91YDCFJ926vJ7L1jeQcvLnKN5IicgY26QvhLOUAx6NfuqsczuDo2+p95tiUE3Y3d3p8R
-         Wb3AVYnqzTL0X7haZY7BTZ+oilwvxbeF6lVkgFNf8aMcvJgkuEefwy01BOsLK5VvAvzw
-         YLeXvyd9tsE28Dp154l4LlczkE6gYboihsErhJGgG+F9jOSH92X0IzDV0rfpYNgoQqIc
-         gaqjq4mqtFEpLgO3pJNfAld17zV9i0u6xe8AK0ilXIHLGax8f5r/eP0/Q0saTHwnR/aB
-         J0ug==
+        bh=cK19xZ8r/JxZ6zrZk59CGRO4XALiFfw/k+DEo690ifc=;
+        b=AMXkMgBJe864E9ylH4eLhcV4DnnmpnUZQciwStcW/fWfVy8vl8xbyLHXqWoh/4n8QF
+         bRAhsfNtOcglKLMhK6Nb/v5AF7HvdYNYuPv80cwXOHPX5E9n4f4rIwmSH2XAdpFIqhuj
+         sSsx/7sAKHM3fmeDS7xyNpoxOPMcbkwOVVWM5XBPQcjHKuBxYoH5JxFh6oDyEgClSLr4
+         VePL27iqi0rk5/s+JivkXFUi7OtMXJLNacJQMnJ3M4obYSjfplMj8jxI5D4RNhWTNCit
+         VmDRgbq4Pt+ph415Zp0hH77zR2JN9eVpsj1xI6CTZrVgir1QKlQnpGg6QTPI6wKdJ0ls
+         3hyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HvZ5+E5qu4GOYga/FqvgfxEG1c0dU8d73zf2fP+htGs=;
-        b=2cKtd/CKZt6gL9rIAC1FRLVoogtvi9oWGn2U8dOKSDqZs5a88HIdFUYhygw1Xjt3ah
-         KEzmKoua6HHaVi1MP6VmTLSPKj+nvBRSjHJzVcdaN2eaAPaBPwQXQ+/4l8wmw0fqrzLg
-         lHiLpZ4+s4/S3jNAPdi6CD1YWGrVW2eiwp2cl2dxT/YOLkBCQq2VfG293JQRj1y0m4uv
-         8IMyyBYBTzSRQWuKX7ecdDBnJLGbUPQAijrEuQsToekstgAbn9pCA1N1dtznc2tz1N8O
-         oAKafZbXxWune2K+68cOA3PrKjnnMzcPxo0ltDMfHRFbT1Nm2jDhIZnXJhFgmpA/7BL1
-         Cmmg==
-X-Gm-Message-State: ACrzQf0bJK6RXHxiVWv92/jqUkgEz4MBqB3MdDgNFQl/ggkYzu2Gfx6D
-        wVgDN6LnkM+4I1aG4K69ehA=
-X-Google-Smtp-Source: AMsMyM6fJYEOKNxJ1D+xB246uqRaGV2DX2E0qNo3z76RYRYleK2EIFTcmwXSUrFyVWM6R7buKJ49fQ==
-X-Received: by 2002:a05:6870:31c5:b0:13d:a04a:6ecf with SMTP id x5-20020a05687031c500b0013da04a6ecfmr1655565oac.101.1667496692226;
-        Thu, 03 Nov 2022 10:31:32 -0700 (PDT)
-Received: from localhost ([12.97.180.36])
-        by smtp.gmail.com with ESMTPSA id r13-20020a4a964d000000b00425806a20f5sm430333ooi.3.2022.11.03.10.31.31
+        bh=cK19xZ8r/JxZ6zrZk59CGRO4XALiFfw/k+DEo690ifc=;
+        b=VFksL3sNQ8u+SwtRj/vE/f8udMmL+AhgrG/vsnvC8B8YTigv3YdCeLcqCnqRcvWMZR
+         xAqkJ28rwWwK6kWGtorxpUaqiMFvhhJLI7+P16VpVtixxwTyhOif0SKY+E32yVBnmc+Y
+         qtocRpJpHA8QXTMuuWTzDF+vSwGHNFdqo/6GiHneBOk85yQ9VTHLZ2lVII8VKnLclM1y
+         VlXopKL3CPlEVFd11JPVzc/fIoAxJ4wqNPqbG7lEFTwCgOoqjRA7D5jgN3bl/u5JoOkT
+         j+m/9Ioqg6mvAy+Of6keFdviyrWil1doIpY8X9Dva2YdQ1VHPCBklfCRySMm2DW5nhfS
+         ZxHw==
+X-Gm-Message-State: ACrzQf2+bCxCpocKd3Ghb0aQUZwMp9Z9TLWvW3hW2FpfCbjdIkreqg56
+        qBbjPPD1WL8gSmqmeGgUjy2gTA==
+X-Google-Smtp-Source: AMsMyM7Vi7ErqJmqrzHt1bwsO7Jfw+kVc4w4lCdxf/cK5b8KZHYV39XlOvASF4Eye8GSeC7ZJ2rbFQ==
+X-Received: by 2002:a17:90a:d24d:b0:213:d3e4:677a with SMTP id o13-20020a17090ad24d00b00213d3e4677amr24629292pjw.101.1667497496277;
+        Thu, 03 Nov 2022 10:44:56 -0700 (PDT)
+Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
+        by smtp.gmail.com with ESMTPSA id i7-20020a17090332c700b00178aaf6247bsm1004862plr.21.2022.11.03.10.44.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Nov 2022 10:31:31 -0700 (PDT)
-Date:   Thu, 3 Nov 2022 10:31:30 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     x86@kernel.org, linux-riscv <linux-riscv@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
+        Thu, 03 Nov 2022 10:44:55 -0700 (PDT)
+Date:   Thu, 3 Nov 2022 17:44:51 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Marc Zyngier <maz@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
         Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
         Albert Ou <aou@eecs.berkeley.edu>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        openrisc@lists.librecores.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Atish Patra <atishp@atishpatra.org>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Isaku Yamahata <isaku.yamahata@intel.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] x86: Fix /proc/cpuinfo cpumask warning
-Message-ID: <Y2P68sfCJMvhKmhj@yury-laptop>
-References: <Y1v+Ed6mRN9gisJS@zn.tnic>
- <20221031080604.6xei6c4e3ckhsvmy@kamzik>
- <Y1+OUawGJDjh4DOJ@zn.tnic>
- <20221031100327.r7tswmpszvs5ot5n@kamzik>
- <Y2K6clNJBn0SbWU+@zn.tnic>
- <20221103125945.lrr5oxxmylwpam53@kamzik>
- <Y2PX9GfxWYh6+XGT@zn.tnic>
- <20221103153404.uh77nrdkowrxj6cr@kamzik>
- <Y2PsvvOWVs9ZLBsp@yury-laptop>
- <Y2PxAiJ1yNzcUSgs@zn.tnic>
+        Chao Gao <chao.gao@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Yuan Yao <yuan.yao@intel.com>
+Subject: Re: [PATCH 36/44] KVM: x86: Do compatibility checks when onlining CPU
+Message-ID: <Y2P+E+631c0TNcK7@google.com>
+References: <20221102231911.3107438-1-seanjc@google.com>
+ <20221102231911.3107438-37-seanjc@google.com>
+ <23bfd709-f99a-5a74-e4b9-1381b88453f1@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y2PxAiJ1yNzcUSgs@zn.tnic>
+In-Reply-To: <23bfd709-f99a-5a74-e4b9-1381b88453f1@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 03, 2022 at 05:49:06PM +0100, Borislav Petkov wrote:
-> On Thu, Nov 03, 2022 at 09:30:54AM -0700, yury.norov@gmail.com wrote:a
-> > Callers should pass sane arguments into internal functions if they
-> > expect sane output.
+On Thu, Nov 03, 2022, Paolo Bonzini wrote:
+> On 11/3/22 00:19, Sean Christopherson wrote:
+> > From: Chao Gao<chao.gao@intel.com>
+> > 
+> > Do compatibility checks when enabling hardware to effectively add
+> > compatibility checks when onlining a CPU.  Abort enabling, i.e. the
+> > online process, if the (hotplugged) CPU is incompatible with the known
+> > good setup.
 > 
-> What internal function? It's in a global header.
-> 
-> > The API not exported to userspace shouldn't sanity-check all inputs
-> > arguments.
-> 
-> That doesn't have anything to do with userspace at all.
-> 
-> APIs exported to the rest of the kernel should very well check their
-> inputs. Otherwise they're not APIs - just some random functions which
-> are visible to the compiler.
+> This paragraph is not true with this patch being before "KVM: Rename and
+> move CPUHP_AP_KVM_STARTING to ONLINE section".
 
-Let's take for example cpu_llc_shared_mask() added by you in
-arch/x86/include/asm/smp.h recently:
+Argh, good eyes.  Getting the ordering correct in this series has been quite the
+struggle.  Assuming there are no subtle dependencies between x86 and common KVM,
+the ordering should be something like this:
 
-  static inline struct cpumask *cpu_llc_shared_mask(int cpu)
-  {
-         return per_cpu(cpu_llc_shared_map, cpu);
-  }
-
-It's in a global header and available to the rest of the kernel, just as
-well. How does it check its input? Maybe I lost something important in
-per_cpu() internals, but at the first glance, there's no any protection
-against -1, nr_cpu_ids, and other out-of-range arguments.
+  KVM: Opt out of generic hardware enabling on s390 and PPC
+  KVM: Register syscore (suspend/resume) ops early in kvm_init()
+  KVM: x86: Do compatibility checks when onlining CPU
+  KVM: SVM: Check for SVM support in CPU compatibility checks
+  KVM: VMX: Shuffle support checks and hardware enabling code around
+  KVM: x86: Do VMX/SVM support checks directly in vendor code
+  KVM: x86: Unify pr_fmt to use module name for all KVM modules
+  KVM: x86: Use KBUILD_MODNAME to specify vendor module name
+  KVM: Make hardware_enable_failed a local variable in the "enable all" path
+  KVM: Use a per-CPU variable to track which CPUs have enabled virtualization
+  KVM: Remove on_each_cpu(hardware_disable_nolock) in kvm_exit()
+  KVM: Drop kvm_count_lock and instead protect kvm_usage_count with kvm_lock
+  KVM: Disable CPU hotplug during hardware enabling
+  KVM: Rename and move CPUHP_AP_KVM_STARTING to ONLINE section
+  KVM: Drop kvm_arch_check_processor_compat() hook
