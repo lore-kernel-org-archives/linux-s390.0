@@ -2,265 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD0D7C43217
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 15:24:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 780EFC433FE
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Nov 2022 15:27:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232037AbiKCPYO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Nov 2022 11:24:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33172 "EHLO
+        id S231739AbiKCP1D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Nov 2022 11:27:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229598AbiKCPYN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 11:24:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940EBD5A
-        for <linux-s390@vger.kernel.org>; Thu,  3 Nov 2022 08:23:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667488999;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ex9w6AF29xEwpNLs+Jj1aaojn2ZZjhH0ZX9iUoTOfgc=;
-        b=JYIcN4Qvut2ueP8N4RFbgV0SYq5S8nvRybbNe2ttD9jexTpnOj2XngkrGJD88PEFd9PSiO
-        khIJaLvEJXZECQvfBP2WCcEPF4mGZDl/ojdIeFDtnqLr+D9EM85KqMhDa91FrMO3n72YH3
-        QJLdpwtvDAncQDbMJaVB0ruJZizXNQ0=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-488-TKdQ7slgPeCCrnhFPQKQqA-1; Thu, 03 Nov 2022 11:23:18 -0400
-X-MC-Unique: TKdQ7slgPeCCrnhFPQKQqA-1
-Received: by mail-ej1-f69.google.com with SMTP id hp16-20020a1709073e1000b007adf5a83df7so1490768ejc.1
-        for <linux-s390@vger.kernel.org>; Thu, 03 Nov 2022 08:23:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ex9w6AF29xEwpNLs+Jj1aaojn2ZZjhH0ZX9iUoTOfgc=;
-        b=E9W3v+dVs//v2WKXdf+y5pboFllwTAoOJXYw3MaSN7qckYWvRBlEABUeNWn+tp/wOW
-         E9gpJ99lHPxvxlCryzHuviTbd1gr6YJOV1p8DwBP0eKnrPl3n2Scz9zl0aDJ28HwJob2
-         yVbaITWyxSXrtr3FNlHTjogXAG0gMFDrhBZbq1BY3qV33kM9AEINsieJPjJCsV2ownkJ
-         GSf2NOC+1iZ9sQmlO6WpT6Pr/WFFl6XA99kz7M5YVZQtrLGkcs9TZlpBqywOm63vv4Aj
-         iGjGD+K2+bDcp4hdBns0AQKGRap1KvzQB350m7DPEwyWsCcjKN76ZdMAnPEZMlfYcE5z
-         0dIw==
-X-Gm-Message-State: ACrzQf1AZ7NgrLbSU6ayNq/5eFnohPBpQnsW7XrL/xbIKwk4ALT+k5qN
-        x2jGCoTBlmq4jPDhHTfWbcZ1q7q56rG1yoVclMwEOAg2txRyOqJU/wwlp1k8VM9ByhpBkpoV0WY
-        XDUgARRz21MyUWBm5L6SewA==
-X-Received: by 2002:a17:907:8a07:b0:7ad:e111:9f1f with SMTP id sc7-20020a1709078a0700b007ade1119f1fmr18706624ejc.748.1667488996687;
-        Thu, 03 Nov 2022 08:23:16 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7w/ZtXgKJ7V+2Z8oeupCi1g9Jll17Pmqv+y4uPqlw3EJEEB8/pAd5jt1iBgMRagb/0UlEDkg==
-X-Received: by 2002:a17:907:8a07:b0:7ad:e111:9f1f with SMTP id sc7-20020a1709078a0700b007ade1119f1fmr18706603ejc.748.1667488996425;
-        Thu, 03 Nov 2022 08:23:16 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:1c09:f536:3de6:228c? ([2001:b07:6468:f312:1c09:f536:3de6:228c])
-        by smtp.googlemail.com with ESMTPSA id 9-20020a170906218900b007a9c3831409sm596520eju.137.2022.11.03.08.23.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 03 Nov 2022 08:23:15 -0700 (PDT)
-Message-ID: <7b6ce80e-7f1f-11cd-8bde-8d8fa9fd7e1d@redhat.com>
-Date:   Thu, 3 Nov 2022 16:23:12 +0100
+        with ESMTP id S232192AbiKCP0v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Nov 2022 11:26:51 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B4D1BE89;
+        Thu,  3 Nov 2022 08:26:38 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A3FI9qj032103;
+        Thu, 3 Nov 2022 15:26:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=qZs/1Mht4kBzO4JzaoAy3buNdmAe6nA5ETR3flBHNyc=;
+ b=OfJaqMUMKHat9xgcOJDjvssg4NsGIH8mvb+OjvfEA/hocR6mau0ALGWw42j+FAU875B+
+ LAmYZQn45IJ7DPOW1EEUa8BE35sPBHMeLedEtj3XQr9YyyxklFyvirmM28/B4ttR4SOk
+ vC76FRCtQgq6WGJyZkNHaoebiwl0Xbi4t03MuUt8yLPyDvDH3uUKpD/GBJEmbgCrgwy1
+ PUKa9WdNZ8hoJl0U79gZaQ84Ym9z9YWes4jvhA4Y0Eocda+dV+C2p+9kcQDuBdMEovnc
+ X83IHbWu+MCfw0OMIvwMlUBbFXTDqG4iBtWUhr55AYf75jdcLDRsa62rfruiTql1Mvk6 1w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmemwkvqg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 15:26:37 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A3FKGmj003973;
+        Thu, 3 Nov 2022 15:26:37 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmemwkvps-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 15:26:37 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A3F65Ih002097;
+        Thu, 3 Nov 2022 15:26:35 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kguej1194-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Nov 2022 15:26:35 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A3FR8xc47841770
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 3 Nov 2022 15:27:08 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0081D4C044;
+        Thu,  3 Nov 2022 15:26:32 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 850044C040;
+        Thu,  3 Nov 2022 15:26:31 +0000 (GMT)
+Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com (unknown [9.152.222.245])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  3 Nov 2022 15:26:31 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, svens@linux.ibm.com
+Subject: [PATCH v3 0/1] KVM: s390: vsie: clarifications on setting the APCB
+Date:   Thu,  3 Nov 2022 16:26:30 +0100
+Message-Id: <20221103152631.17393-1-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH 39/44] KVM: Drop kvm_count_lock and instead protect
- kvm_usage_count with kvm_lock
-Content-Language: en-US
-To:     Sean Christopherson <seanjc@google.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Anup Patel <anup@brainfault.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        Atish Patra <atishp@atishpatra.org>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
-        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Isaku Yamahata <isaku.yamahata@intel.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Chao Gao <chao.gao@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Yuan Yao <yuan.yao@intel.com>
-References: <20221102231911.3107438-1-seanjc@google.com>
- <20221102231911.3107438-40-seanjc@google.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20221102231911.3107438-40-seanjc@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 0bdX_N3QkLLdQA8EtCHtq6BLENzyFYXj
+X-Proofpoint-GUID: G_ubcIFwY1OsmCkoFzK9iQb3GpFJU81j
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-03_04,2022-11-03_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ impostorscore=0 adultscore=0 bulkscore=0 priorityscore=1501 clxscore=1015
+ spamscore=0 lowpriorityscore=0 mlxlogscore=570 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211030101
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/3/22 00:19, Sean Christopherson wrote:
-> +- kvm_lock is taken outside kvm->mmu_lock
+Hi,
 
-Not surprising since one is a mutex and one is an rwlock. :)  You can 
-drop this hunk as well as the "Opportunistically update KVM's locking 
-documentation" sentence in the commit message.
+This is a v3 of the previously called:
+[PATCH] KVM: s390: vsie: fix crycb virtual vs physical usage
+and 
+[PATCH v2 0/1] KVM: s390: vsie: clarifications on setting the APCB
 
->   - vcpu->mutex is taken outside kvm->arch.hyperv.hv_lock
->   
->   - kvm->arch.mmu_lock is an rwlock.  kvm->arch.tdp_mmu_pages_lock and
-> @@ -216,15 +220,11 @@ time it will be set using the Dirty tracking mechanism described above.
->   :Type:		mutex
->   :Arch:		any
->   :Protects:	- vm_list
-> -
-> -``kvm_count_lock``
-> -^^^^^^^^^^^^^^^^^^
-> -
-> -:Type:		raw_spinlock_t
-> -:Arch:		any
-> -:Protects:	- hardware virtualization enable/disable
-> -:Comment:	'raw' because hardware enabling/disabling must be atomic /wrt
-> -		migration.
-> +		- kvm_usage_count
-> +		- hardware virtualization enable/disable
-> +		- module probing (x86 only)
+Changes:
 
-What do you mean exactly by "module probing"?  Is it anything else than 
-what is serialized by vendor_module_lock?
+1->2 After David's comment that the patch has not to do with
+     virtual vs physical, I reworked the commit message.
 
-Paolo
+2->3 rename crycb_o crycb_gpa and apcb_o apcb_gpa
+     gpa = Guest Physical Address 
 
-> +:Comment:	KVM also disables CPU hotplug via cpus_read_lock() during
-> +		enable/disable.
->   
->   ``kvm->mn_invalidate_lock``
->   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 4e765ef9f4bd..c8d92e6c3922 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -100,7 +100,6 @@ EXPORT_SYMBOL_GPL(halt_poll_ns_shrink);
->    */
->   
->   DEFINE_MUTEX(kvm_lock);
-> -static DEFINE_RAW_SPINLOCK(kvm_count_lock);
->   LIST_HEAD(vm_list);
->   
->   static cpumask_var_t cpus_hardware_enabled;
-> @@ -5028,9 +5027,10 @@ static void hardware_enable_nolock(void *junk)
->   
->   static int kvm_online_cpu(unsigned int cpu)
->   {
-> +	unsigned long flags;
->   	int ret = 0;
->   
-> -	raw_spin_lock(&kvm_count_lock);
-> +	mutex_lock(&kvm_lock);
->   	/*
->   	 * Abort the CPU online process if hardware virtualization cannot
->   	 * be enabled. Otherwise running VMs would encounter unrecoverable
-> @@ -5039,13 +5039,16 @@ static int kvm_online_cpu(unsigned int cpu)
->   	if (kvm_usage_count) {
->   		WARN_ON_ONCE(atomic_read(&hardware_enable_failed));
->   
-> +		local_irq_save(flags);
->   		hardware_enable_nolock(NULL);
-> +		local_irq_restore(flags);
-> +
->   		if (atomic_read(&hardware_enable_failed)) {
->   			atomic_set(&hardware_enable_failed, 0);
->   			ret = -EIO;
->   		}
->   	}
-> -	raw_spin_unlock(&kvm_count_lock);
-> +	mutex_unlock(&kvm_lock);
->   	return ret;
->   }
->   
-> @@ -5061,10 +5064,13 @@ static void hardware_disable_nolock(void *junk)
->   
->   static int kvm_offline_cpu(unsigned int cpu)
->   {
-> -	raw_spin_lock(&kvm_count_lock);
-> -	if (kvm_usage_count)
-> +	mutex_lock(&kvm_lock);
-> +	if (kvm_usage_count) {
-> +		preempt_disable();
->   		hardware_disable_nolock(NULL);
-> -	raw_spin_unlock(&kvm_count_lock);
-> +		preempt_enable();
-> +	}
-> +	mutex_unlock(&kvm_lock);
->   	return 0;
->   }
->   
-> @@ -5079,9 +5085,11 @@ static void hardware_disable_all_nolock(void)
->   
->   static void hardware_disable_all(void)
->   {
-> -	raw_spin_lock(&kvm_count_lock);
-> +	cpus_read_lock();
-> +	mutex_lock(&kvm_lock);
->   	hardware_disable_all_nolock();
-> -	raw_spin_unlock(&kvm_count_lock);
-> +	mutex_unlock(&kvm_lock);
-> +	cpus_read_unlock();
->   }
->   
->   static int hardware_enable_all(void)
-> @@ -5097,7 +5105,7 @@ static int hardware_enable_all(void)
->   	 * Disable CPU hotplug to prevent scenarios where KVM sees
->   	 */
->   	cpus_read_lock();
-> -	raw_spin_lock(&kvm_count_lock);
-> +	mutex_lock(&kvm_lock);
->   
->   	kvm_usage_count++;
->   	if (kvm_usage_count == 1) {
-> @@ -5110,7 +5118,7 @@ static int hardware_enable_all(void)
->   		}
->   	}
->   
-> -	raw_spin_unlock(&kvm_count_lock);
-> +	mutex_unlock(&kvm_lock);
->   	cpus_read_unlock();
->   
->   	return r;
-> @@ -5716,6 +5724,15 @@ static void kvm_init_debug(void)
->   
->   static int kvm_suspend(void)
->   {
-> +	/*
-> +	 * Secondary CPUs and CPU hotplug are disabled across the suspend/resume
-> +	 * callbacks, i.e. no need to acquire kvm_lock to ensure the usage count
-> +	 * is stable.  Assert that kvm_lock is not held as a paranoid sanity
-> +	 * check that the system isn't suspended when KVM is enabling hardware.
-> +	 */
-> +	lockdep_assert_not_held(&kvm_lock);
-> +	lockdep_assert_irqs_disabled();
-> +
->   	if (kvm_usage_count)
->   		hardware_disable_nolock(NULL);
->   	return 0;
-> @@ -5723,10 +5740,11 @@ static int kvm_suspend(void)
->   
->   static void kvm_resume(void)
->   {
-> -	if (kvm_usage_count) {
-> -		lockdep_assert_not_held(&kvm_count_lock);
-> +	lockdep_assert_not_held(&kvm_lock);
-> +	lockdep_assert_irqs_disabled();
-> +
-> +	if (kvm_usage_count)
->   		hardware_enable_nolock(NULL);
-> -	}
->   }
->   
->   static struct syscore_ops kvm_syscore_ops = {
+I resent the patch because I think that even the previous
+version is not really buggy, this new version brings clarity.
+
+Regards,
+Pierre
+
+
+Pierre Morel (1):
+  KVM: s390: vsie: clarifications on setting the APCB
+
+ arch/s390/kvm/vsie.c | 50 +++++++++++++++++++++++++-------------------
+ 1 file changed, 29 insertions(+), 21 deletions(-)
+
+-- 
+2.31.1
 
