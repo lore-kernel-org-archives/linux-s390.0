@@ -2,93 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B8B7C4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 14:37:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 633F6C433FE
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 15:40:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230127AbiKDOh1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Nov 2022 10:37:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53396 "EHLO
+        id S232712AbiKDPkn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Nov 2022 11:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232288AbiKDOhB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 10:37:01 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63F432B9D;
-        Fri,  4 Nov 2022 07:34:12 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A4DAlnn023752;
-        Fri, 4 Nov 2022 14:34:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=aBeC4NCXkA3s6DXqP+TwBnJxjDQUnPTlKhNwpr0fMwE=;
- b=WrOIRGnvGnVJpRf97ZntvrVRe/fD3xZs7lGeLy92h3xv/V9dhhrnY9RZsCsZQyqH0Kd8
- fIobPUYfxZTv1NqI37ATxjDLonLAdaQw4dv7bioooUHLMdby/HKXdzKHJBYYS9FM9/yz
- BpLhW1m10AzhyghsWnwCj5ZMC7Tc9vKTd46tb1woIczWJyOFVW3g+SZ4vJYsS4JJc0nk
- 4ABw/JGNvw0LJmKtAGwvGSycGD3EKWxIWRTJIHHOYMQ9wx8nLrtycpiS3qG1tLTrfHJ0
- hP9oqh35zk53rqJrZkDcNQBJpVfJx+6DSSFmgIwYghCPGR8yQHkCHGMyNUK1poVR2CdA Wg== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmpjfhbdg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Nov 2022 14:34:11 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A4EL19N016468;
-        Fri, 4 Nov 2022 14:34:09 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma02fra.de.ibm.com with ESMTP id 3kme349879-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Nov 2022 14:34:09 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A4EY7Oe5112508
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 4 Nov 2022 14:34:07 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 78EE75204E;
-        Fri,  4 Nov 2022 14:34:07 +0000 (GMT)
-Received: from osiris (unknown [9.145.59.57])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 479E25204F;
-        Fri,  4 Nov 2022 14:34:07 +0000 (GMT)
-Date:   Fri, 4 Nov 2022 15:34:05 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] random: do not include <asm/archrandom.h> from
- random.h
-Message-ID: <Y2Ui3fr7pwKGJzM3@osiris>
-References: <20221029010857.161574-1-Jason@zx2c4.com>
- <20221103121740.6684-1-Jason@zx2c4.com>
+        with ESMTP id S232702AbiKDPkl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 11:40:41 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90ACB31F81
+        for <linux-s390@vger.kernel.org>; Fri,  4 Nov 2022 08:40:40 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id 78so4664178pgb.13
+        for <linux-s390@vger.kernel.org>; Fri, 04 Nov 2022 08:40:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=aFlTeUJ4nQplolWHip6FrS/j8TYR0+QbDmRZAFvu7G8=;
+        b=slnKaxTVWka5uyvV8ksftk1iXtqkYG7wonGPtAtNy/P6RP4ZnWhdbZSV/6seXnMCof
+         dnF6JUiRfV2oVCETco2jEIOQzRouLfUDiH7vxFD2orQpNLxCcfMVtLr6ntSOZeUo+8A4
+         1WMtzeSAIQ00ZBggEzItHUadG+pi52a6RW5LTbSCWNWQHjLySk/BPh9TembQq8ly6ISW
+         XBS14fXfAOCGbRuWccsHUKA4no5JdNrqlAYc2mDDTkISHx1kXdJjDDClXTXp09r2HKHF
+         4YYshPvOotdfKVbVnw4u/+IsxQ4NAMvmIrkrc7+c9m8NGZEp/7DC/KTLI5ge39pksAS0
+         M2/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=aFlTeUJ4nQplolWHip6FrS/j8TYR0+QbDmRZAFvu7G8=;
+        b=i8Lh02YsZDtXNjvNyUhsmZ3bYX7LeaamHbocsnX1Zg8sxvaCEceNuCULRxHOizV71B
+         Gxi2hZDo95budK/7RyQEmRu8+AJDJrjCAtY4OhhG52SAjQ7ndaqrTqQYC6ONW1q7lB5i
+         hIhole0KM0eAKPeJ9G1Gndrn7NgxcApgjEVOSMme30XHSR19BZYzhqBiJ5o7sTe53Qjp
+         8yZMTnJvjzuDSerThuX5N6pCuJGcTRY34YhmrAB1LdCVNMbqP0iClXy2dKyyslJXfI3/
+         P4nv9b4IAqjcwa5GbrS5urtLgfqoVfEux2Bn8vwAcOuyXVuPU7zfGrwfIrDwFL42IuXn
+         qbHQ==
+X-Gm-Message-State: ACrzQf1nQf7eRXhUTkfWGaVTwkDNn0YTgIx0144vGOEZmZ21v1AaTDTB
+        scZE7fyEnBo5gPZMSi9W0SLAqg==
+X-Google-Smtp-Source: AMsMyM5MdI5VKNUr37j2LDfWFXfSalVZ70lqDfROHdw5vEhrWbzDEJP2xBkjkN31VBShKB5D+mx4vA==
+X-Received: by 2002:a62:1a8d:0:b0:544:1309:19f3 with SMTP id a135-20020a621a8d000000b00544130919f3mr36549720pfa.37.1667576439875;
+        Fri, 04 Nov 2022 08:40:39 -0700 (PDT)
+Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
+        by smtp.gmail.com with ESMTPSA id y133-20020a62ce8b000000b00565cbad9616sm2905778pfg.6.2022.11.04.08.40.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Nov 2022 08:40:39 -0700 (PDT)
+Date:   Fri, 4 Nov 2022 15:40:36 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Marc Zyngier <maz@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Atish Patra <atishp@atishpatra.org>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Isaku Yamahata <isaku.yamahata@intel.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Chao Gao <chao.gao@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Yuan Yao <yuan.yao@intel.com>
+Subject: Re: [PATCH 33/44] KVM: x86: Do VMX/SVM support checks directly in
+ vendor code
+Message-ID: <Y2UydNBFR3e2DAe7@google.com>
+References: <20221102231911.3107438-1-seanjc@google.com>
+ <20221102231911.3107438-34-seanjc@google.com>
+ <bfa98587-3b36-3834-a4b9-585a0e0aa56a@redhat.com>
+ <Y2QJ2TuyZImbFFvi@google.com>
+ <c29e7d40-ddb9-def0-f944-a921a05a4bb2@redhat.com>
+ <Y2QPSK1/6esl61wQ@google.com>
+ <6c71fcca-c17f-5979-e15e-afcf08899064@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221103121740.6684-1-Jason@zx2c4.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: AwH_zitacjeviaQQd7lDRyCgpevLYE-H
-X-Proofpoint-ORIG-GUID: AwH_zitacjeviaQQd7lDRyCgpevLYE-H
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-04_09,2022-11-03_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0 bulkscore=0
- mlxlogscore=666 phishscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211040095
+In-Reply-To: <6c71fcca-c17f-5979-e15e-afcf08899064@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 03, 2022 at 01:17:40PM +0100, Jason A. Donenfeld wrote:
-> The <asm/archrandom.h> header is a random.c private detail, not
-> something to be called by other code. As such, don't make it
-> automatically available by way of random.h.
+On Fri, Nov 04, 2022, Paolo Bonzini wrote:
+> On 11/3/22 19:58, Sean Christopherson wrote:
+> > 
+> > diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+> > index 3e508f239098..ebe617ab0b37 100644
+> > --- a/arch/x86/kernel/cpu/common.c
+> > +++ b/arch/x86/kernel/cpu/common.c
+> > @@ -191,6 +191,8 @@ static void default_init(struct cpuinfo_x86 *c)
+> >                          strcpy(c->x86_model_id, "386");
+> >          }
+> >   #endif
+> > +
+> > +       clear_cpu_cap(c, X86_FEATURE_MSR_IA32_FEAT_CTL);
+> >   }
+> >   static const struct cpu_dev default_cpu = {
 > 
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> ---
->  arch/powerpc/kernel/setup-common.c | 1 +
->  arch/s390/kernel/setup.c           | 1 +
->  drivers/char/hw_random/s390-trng.c | 1 +
->  drivers/char/random.c              | 1 +
->  include/linux/random.h             | 2 --
->  5 files changed, 4 insertions(+), 2 deletions(-)
+> Not needed I think?  default_init does not call init_ia32_feat_ctl.
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+cpuid_deps is only processed by do_clear_cpu_cap(), so unless there's an explicit
+"clear" action, the dependencies will not be updated.  It kinda makes sense since
+hardware-based features shouldn't end up with scenarios where a dependent feature
+exists but the base feature does not (barring bad KVM setups :-) ).
+
+That said, this seems like a bug waiting to happen, and unless I'm missing something
+it's quite straightforward to process all dependencies during setup.  Time to find
+out if Boris and co. agree :-)
+
+diff --git a/arch/x86/include/asm/cpufeature.h b/arch/x86/include/asm/cpufeature.h
+index 1a85e1fb0922..c4408d03b180 100644
+--- a/arch/x86/include/asm/cpufeature.h
++++ b/arch/x86/include/asm/cpufeature.h
+@@ -147,6 +147,7 @@ extern const char * const x86_bug_flags[NBUGINTS*32];
+ 
+ extern void setup_clear_cpu_cap(unsigned int bit);
+ extern void clear_cpu_cap(struct cpuinfo_x86 *c, unsigned int bit);
++extern void apply_cpuid_deps(struct cpuinfo_x86 *c);
+ 
+ #define setup_force_cpu_cap(bit) do { \
+        set_cpu_cap(&boot_cpu_data, bit);       \
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index 3e508f239098..28ce31dadd7f 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1884,6 +1884,8 @@ static void identify_cpu(struct cpuinfo_x86 *c)
+                        c->x86_capability[i] |= boot_cpu_data.x86_capability[i];
+        }
+ 
++       apply_cpuid_deps(c);
++
+        ppin_init(c);
+ 
+        /* Init Machine Check Exception if available. */
+diff --git a/arch/x86/kernel/cpu/cpuid-deps.c b/arch/x86/kernel/cpu/cpuid-deps.c
+index c881bcafba7d..7e91e97973ca 100644
+--- a/arch/x86/kernel/cpu/cpuid-deps.c
++++ b/arch/x86/kernel/cpu/cpuid-deps.c
+@@ -138,3 +138,13 @@ void setup_clear_cpu_cap(unsigned int feature)
+ {
+        do_clear_cpu_cap(NULL, feature);
+ }
++
++void apply_cpuid_deps(struct cpuinfo_x86 *c)
++{
++       const struct cpuid_dep *d;
++
++       for (d = cpuid_deps; d->feature; d++) {
++               if (!cpu_has(c, d->feature))
++                       clear_cpu_cap(c, d->feature);
++       }
++}
+
