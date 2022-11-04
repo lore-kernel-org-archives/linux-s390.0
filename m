@@ -2,63 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 801B7C4167B
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 14:21:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92EA2C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 14:21:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232179AbiKDOVI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Nov 2022 10:21:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34290 "EHLO
+        id S232183AbiKDOVJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Nov 2022 10:21:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231969AbiKDOUn (ORCPT
+        with ESMTP id S232169AbiKDOUn (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 10:20:43 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A1D303D3;
-        Fri,  4 Nov 2022 07:20:24 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A4CaC3i006709;
-        Fri, 4 Nov 2022 14:20:16 GMT
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467A3303E2;
+        Fri,  4 Nov 2022 07:20:26 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A4E4XWO005516;
+        Fri, 4 Nov 2022 14:20:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=ILMRUOvQXPFhPBf7n56KRUH6EhIvdWz8Dx5vWaJ+nKo=;
- b=D/EUo99Uzn/lEGDuJC34gH3cVarpgXpO7/6cWgBBO989X89934gnWcfudZqV2lqBqJ2S
- U6KmP/py2YvjITioFjBn71h++6HKjLbp6sn8yJwNLJweXuLe9jlsfXMqGv+rxQSxi4nt
- rNHlHygEIGw9TBtvZ+ySob6P9QdWESyxxDzxTV140XNNmnu+dUAFrzfd3Xnmve4XVU6m
- HbCPrAsibBs+I7I0gQtEOMF34XOoW0oc44qVU0yvSTpprahF3JMvQszkO+9+l8mznoKV
- wrYey4BReQnjuMCcq+wlGsEp5+F0tDnPqaPSIebTM/YPaRBM9TWtZRpnPdHTQQATsT7E 0w== 
+ bh=u2qa6ERpZEYGvcViUXBFQA5KzlLAnzNQ2UYyKzSxAmM=;
+ b=LGmjJtceremLPyvFBfnSuS83aIGF8xLYtWobqPqVDsV+zszUZPMYlUCdUu/TKALrQsXq
+ IOCJs5MOQTvOIBjJIYAtnUbLkCxzdKzLzbImSu16AOav9PWsCKKJRbwlD22Pq13ngaSJ
+ F+e1W5T+ipUheTIINv/wrL9ORRjS/hXVOXIrxc/SvIRQvEy5vqMpRbEjekwiJdPPwsAM
+ /8BYWY0vMCyvKfENYEIVIM9EYtB5i/BSt+oLKgccEPRk6IUTCFFuvFNGaJhA1E82ks0s
+ wtnLLb9vhUjEBkMl0zyw48AGsUm3mZF4Um7iGFAgDORhMuvoK74oewHSMGAjvnryrAKr rg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmphfs6yc-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmpjfgvms-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 04 Nov 2022 14:20:16 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A4ChrcA039562;
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A4EDrGe013906;
         Fri, 4 Nov 2022 14:20:15 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmphfs6wk-1
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmpjfgvjm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 04 Nov 2022 14:20:15 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A4EK7MK001431;
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A4E6ip1012139;
         Fri, 4 Nov 2022 14:20:12 GMT
 Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3kgut92h6y-1
+        by ppma04ams.nl.ibm.com with ESMTP id 3kgut9aft6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 04 Nov 2022 14:20:12 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A4EKkMR37749036
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A4EKk2F38535428
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Fri, 4 Nov 2022 14:20:46 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 471CD11C04C;
+        by IMSVA (Postfix) with ESMTP id 8CC2611C04C;
         Fri,  4 Nov 2022 14:20:09 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2050511C04A;
+        by IMSVA (Postfix) with ESMTP id 70BD411C050;
         Fri,  4 Nov 2022 14:20:09 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
         Fri,  4 Nov 2022 14:20:09 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id CAECEE0884; Fri,  4 Nov 2022 15:20:08 +0100 (CET)
+        id D8564E20F8; Fri,  4 Nov 2022 15:20:08 +0100 (CET)
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Alex Williamson <alex.williamson@redhat.com>,
@@ -93,243 +93,184 @@ Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v3 3/7] vfio/ccw: move private initialization to callback
-Date:   Fri,  4 Nov 2022 15:20:03 +0100
-Message-Id: <20221104142007.1314999-4-farman@linux.ibm.com>
+Subject: [PATCH v3 6/7] vfio/ccw: replace vfio_init_device with _alloc_
+Date:   Fri,  4 Nov 2022 15:20:06 +0100
+Message-Id: <20221104142007.1314999-7-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221104142007.1314999-1-farman@linux.ibm.com>
 References: <20221104142007.1314999-1-farman@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: T87s7w5w4fbNbX2QJWSEn5sTeUzlhq2n
-X-Proofpoint-ORIG-GUID: yvXeEmzgF2e_bxfYCrPHuhC-Fk1jGGmp
+X-Proofpoint-GUID: gB75UaYicdL8zraN-qzIe1lisdC4Ou_z
+X-Proofpoint-ORIG-GUID: ow7W-l35Yy4FAAoiUYL83e0J0MRoYVZM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-04_09,2022-11-03_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- mlxscore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=999
- malwarescore=0 bulkscore=0 impostorscore=0 phishscore=0 priorityscore=1501
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0 bulkscore=0
+ mlxlogscore=999 phishscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2210170000 definitions=main-2211040093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There's already a device initialization callback that is used to
-initialize the release completion workaround that was introduced
-by commit ebb72b765fb49 ("vfio/ccw: Use the new device life cycle
-helpers").
-
-Move the other elements of the vfio_ccw_private struct that
-require distinct initialization over to that routine.
-
-With that done, the vfio_ccw_alloc_private routine only does a
-kzalloc, so fold it inline.
+Now that we have a reasonable separation of structs that follow
+the subchannel and mdev lifecycles, there's no reason we can't
+call the official vfio_alloc_device routine for our private data,
+and behave like everyone else.
 
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Acked-by: Alex Williamson <alex.williamson@redhat.com>
 Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c     | 74 ++++-------------------------
- drivers/s390/cio/vfio_ccw_ops.c     | 43 +++++++++++++++++
- drivers/s390/cio/vfio_ccw_private.h |  7 ++-
- 3 files changed, 58 insertions(+), 66 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c     | 18 ------------------
+ drivers/s390/cio/vfio_ccw_ops.c     | 28 ++++++++++++++++++----------
+ drivers/s390/cio/vfio_ccw_private.h |  2 --
+ drivers/vfio/vfio_main.c            | 10 +++++-----
+ include/linux/vfio.h                |  2 --
+ 5 files changed, 23 insertions(+), 37 deletions(-)
 
 diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 2c680a556383..fbc26338ceab 100644
+index 9fbd1b27a1ac..c2a65808605a 100644
 --- a/drivers/s390/cio/vfio_ccw_drv.c
 +++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -23,10 +23,10 @@
- #include "vfio_ccw_private.h"
- 
- struct workqueue_struct *vfio_ccw_work_q;
--static struct kmem_cache *vfio_ccw_io_region;
--static struct kmem_cache *vfio_ccw_cmd_region;
--static struct kmem_cache *vfio_ccw_schib_region;
--static struct kmem_cache *vfio_ccw_crw_region;
-+struct kmem_cache *vfio_ccw_io_region;
-+struct kmem_cache *vfio_ccw_cmd_region;
-+struct kmem_cache *vfio_ccw_schib_region;
-+struct kmem_cache *vfio_ccw_crw_region;
- 
- debug_info_t *vfio_ccw_debug_msg_id;
- debug_info_t *vfio_ccw_debug_trace_id;
-@@ -79,7 +79,7 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 	return ret;
- }
- 
--static void vfio_ccw_sch_io_todo(struct work_struct *work)
-+void vfio_ccw_sch_io_todo(struct work_struct *work)
- {
- 	struct vfio_ccw_private *private;
- 	struct irb *irb;
-@@ -115,7 +115,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		eventfd_signal(private->io_trigger, 1);
- }
- 
--static void vfio_ccw_crw_todo(struct work_struct *work)
-+void vfio_ccw_crw_todo(struct work_struct *work)
- {
- 	struct vfio_ccw_private *private;
- 
-@@ -152,62 +152,6 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
+@@ -152,24 +152,6 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
  	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
  }
  
--static struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch)
+-void vfio_ccw_free_private(struct vfio_ccw_private *private)
 -{
--	struct vfio_ccw_private *private;
+-	struct vfio_ccw_crw *crw, *temp;
 -
--	private = kzalloc(sizeof(*private), GFP_KERNEL);
--	if (!private)
--		return ERR_PTR(-ENOMEM);
+-	list_for_each_entry_safe(crw, temp, &private->crw, next) {
+-		list_del(&crw->next);
+-		kfree(crw);
+-	}
 -
--	mutex_init(&private->io_mutex);
--	private->state = VFIO_CCW_STATE_STANDBY;
--	INIT_LIST_HEAD(&private->crw);
--	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
--	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
--
--	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
--				       GFP_KERNEL);
--	if (!private->cp.guest_cp)
--		goto out_free_private;
--
--	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
--					       GFP_KERNEL | GFP_DMA);
--	if (!private->io_region)
--		goto out_free_cp;
--
--	private->cmd_region = kmem_cache_zalloc(vfio_ccw_cmd_region,
--						GFP_KERNEL | GFP_DMA);
--	if (!private->cmd_region)
--		goto out_free_io;
--
--	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
--						  GFP_KERNEL | GFP_DMA);
--
--	if (!private->schib_region)
--		goto out_free_cmd;
--
--	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
--						GFP_KERNEL | GFP_DMA);
--
--	if (!private->crw_region)
--		goto out_free_schib;
--	return private;
--
--out_free_schib:
+-	kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
 -	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
--out_free_cmd:
 -	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
--out_free_io:
 -	kmem_cache_free(vfio_ccw_io_region, private->io_region);
--out_free_cp:
 -	kfree(private->cp.guest_cp);
--out_free_private:
 -	mutex_destroy(&private->io_mutex);
 -	kfree(private);
--	return ERR_PTR(-ENOMEM);
 -}
 -
- static void vfio_ccw_free_private(struct vfio_ccw_private *private)
+ static void vfio_ccw_free_parent(struct device *dev)
  {
- 	struct vfio_ccw_crw *crw, *temp;
-@@ -257,10 +201,10 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_free;
- 
--	private = vfio_ccw_alloc_private(sch);
--	if (IS_ERR(private)) {
-+	private = kzalloc(sizeof(*private), GFP_KERNEL);
-+	if (!private) {
- 		device_unregister(&parent->dev);
--		return PTR_ERR(private);
-+		return -ENOMEM;
- 	}
- 
- 	dev_set_drvdata(&sch->dev, parent);
+ 	struct vfio_ccw_parent *parent = container_of(dev, struct vfio_ccw_parent, dev);
 diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 79c50cb7dcb8..eb0b8cc210bb 100644
+index 8a929a9cf3c6..1155f8bcedd9 100644
 --- a/drivers/s390/cio/vfio_ccw_ops.c
 +++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -49,8 +49,51 @@ static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
+@@ -102,15 +102,10 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+ 	struct vfio_ccw_private *private;
+ 	int ret;
+ 
+-	private = kzalloc(sizeof(*private), GFP_KERNEL);
+-	if (!private)
+-		return -ENOMEM;
+-
+-	ret = vfio_init_device(&private->vdev, &mdev->dev, &vfio_ccw_dev_ops);
+-	if (ret) {
+-		kfree(private);
+-		return ret;
+-	}
++	private = vfio_alloc_device(vfio_ccw_private, vdev, &mdev->dev,
++				    &vfio_ccw_dev_ops);
++	if (IS_ERR(private))
++		return PTR_ERR(private);
+ 
+ 	dev_set_drvdata(&parent->dev, private);
+ 
+@@ -135,8 +130,21 @@ static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
+ {
  	struct vfio_ccw_private *private =
  		container_of(vdev, struct vfio_ccw_private, vdev);
- 
-+	mutex_init(&private->io_mutex);
-+	private->state = VFIO_CCW_STATE_STANDBY;
-+	INIT_LIST_HEAD(&private->crw);
-+	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
-+	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
- 	init_completion(&private->release_comp);
++	struct vfio_ccw_crw *crw, *temp;
 +
-+	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
-+				       GFP_KERNEL);
-+	if (!private->cp.guest_cp)
-+		goto out_free_private;
++	list_for_each_entry_safe(crw, temp, &private->crw, next) {
++		list_del(&crw->next);
++		kfree(crw);
++	}
 +
-+	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
-+					       GFP_KERNEL | GFP_DMA);
-+	if (!private->io_region)
-+		goto out_free_cp;
-+
-+	private->cmd_region = kmem_cache_zalloc(vfio_ccw_cmd_region,
-+						GFP_KERNEL | GFP_DMA);
-+	if (!private->cmd_region)
-+		goto out_free_io;
-+
-+	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
-+						  GFP_KERNEL | GFP_DMA);
-+	if (!private->schib_region)
-+		goto out_free_cmd;
-+
-+	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
-+						GFP_KERNEL | GFP_DMA);
-+	if (!private->crw_region)
-+		goto out_free_schib;
-+
- 	return 0;
-+
-+out_free_schib:
++	kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
 +	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
-+out_free_cmd:
 +	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
-+out_free_io:
 +	kmem_cache_free(vfio_ccw_io_region, private->io_region);
-+out_free_cp:
 +	kfree(private->cp.guest_cp);
-+out_free_private:
 +	mutex_destroy(&private->io_mutex);
-+	return -ENOMEM;
+ 
+-	vfio_ccw_free_private(private);
++	vfio_free_device(vdev);
  }
  
- static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
 diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index b28af2f63963..55d636225cff 100644
+index 2278fd38d34e..b441ae6700fd 100644
 --- a/drivers/s390/cio/vfio_ccw_private.h
 +++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -131,6 +131,8 @@ struct vfio_ccw_private {
- } __aligned(8);
+@@ -131,8 +131,6 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch);
+ void vfio_ccw_sch_io_todo(struct work_struct *work);
+ void vfio_ccw_crw_todo(struct work_struct *work);
  
- int vfio_ccw_sch_quiesce(struct subchannel *sch);
-+void vfio_ccw_sch_io_todo(struct work_struct *work);
-+void vfio_ccw_crw_todo(struct work_struct *work);
- 
+-void vfio_ccw_free_private(struct vfio_ccw_private *private);
+-
  extern struct mdev_driver vfio_ccw_mdev_driver;
  
-@@ -178,7 +180,10 @@ static inline void vfio_ccw_fsm_event(struct vfio_ccw_private *private,
+ /*
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index 2d168793d4e1..2901b8ad5be9 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -348,6 +348,9 @@ static void vfio_device_release(struct device *dev)
+ 	device->ops->release(device);
  }
  
- extern struct workqueue_struct *vfio_ccw_work_q;
--
-+extern struct kmem_cache *vfio_ccw_io_region;
-+extern struct kmem_cache *vfio_ccw_cmd_region;
-+extern struct kmem_cache *vfio_ccw_schib_region;
-+extern struct kmem_cache *vfio_ccw_crw_region;
++static int vfio_init_device(struct vfio_device *device, struct device *dev,
++			    const struct vfio_device_ops *ops);
++
+ /*
+  * Allocate and initialize vfio_device so it can be registered to vfio
+  * core.
+@@ -386,11 +389,9 @@ EXPORT_SYMBOL_GPL(_vfio_alloc_device);
  
- /* s390 debug feature, similar to base cio */
- extern debug_info_t *vfio_ccw_debug_msg_id;
+ /*
+  * Initialize a vfio_device so it can be registered to vfio core.
+- *
+- * Only vfio-ccw driver should call this interface.
+  */
+-int vfio_init_device(struct vfio_device *device, struct device *dev,
+-		     const struct vfio_device_ops *ops)
++static int vfio_init_device(struct vfio_device *device, struct device *dev,
++			    const struct vfio_device_ops *ops)
+ {
+ 	int ret;
+ 
+@@ -422,7 +423,6 @@ int vfio_init_device(struct vfio_device *device, struct device *dev,
+ 	ida_free(&vfio.device_ida, device->index);
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(vfio_init_device);
+ 
+ /*
+  * The helper called by driver @release callback to free the device
+diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+index e7cebeb875dd..ba809268a48e 100644
+--- a/include/linux/vfio.h
++++ b/include/linux/vfio.h
+@@ -176,8 +176,6 @@ struct vfio_device *_vfio_alloc_device(size_t size, struct device *dev,
+ 					dev, ops),				\
+ 		     struct dev_struct, member)
+ 
+-int vfio_init_device(struct vfio_device *device, struct device *dev,
+-		     const struct vfio_device_ops *ops);
+ void vfio_free_device(struct vfio_device *device);
+ static inline void vfio_put_device(struct vfio_device *device)
+ {
 -- 
 2.34.1
 
