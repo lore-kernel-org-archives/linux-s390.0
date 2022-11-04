@@ -2,145 +2,183 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 984CEC4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 08:03:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91F65C433FE
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 12:24:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbiKDIDo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Nov 2022 04:03:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40714 "EHLO
+        id S230240AbiKDMYD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Nov 2022 08:24:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229708AbiKDIDn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 04:03:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 710CB26566
-        for <linux-s390@vger.kernel.org>; Fri,  4 Nov 2022 01:02:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667548958;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QJu1Z+r/Jj1Q22H/Z28kMZfifRbtSqoNatlqDbaYr8M=;
-        b=Ht881+Jlk5g+JMhSSLNDUJyiPl1UFMFDxFF9LzjwLU9xxQgu9oKJvvXsOJj+Pzlzgrs21E
-        J6OWFWTWg6jrvcXwWk8vnmUSA/DI3Gv4bwgJ5W2BUCe0SyMptQeSs7A7RaSLTJfhITqF2S
-        C16Sm+gvNoncb4hATdNLsdRfOpIH/fg=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-562-BtFbEohzNtq-PZI0neVv-w-1; Fri, 04 Nov 2022 04:02:37 -0400
-X-MC-Unique: BtFbEohzNtq-PZI0neVv-w-1
-Received: by mail-ej1-f72.google.com with SMTP id sh31-20020a1709076e9f00b007ae32b7eb51so748577ejc.9
-        for <linux-s390@vger.kernel.org>; Fri, 04 Nov 2022 01:02:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QJu1Z+r/Jj1Q22H/Z28kMZfifRbtSqoNatlqDbaYr8M=;
-        b=wgPK0MUPjuRqM5Z/d0osuqn/ACP6JlxWQ6Nl1dLLB1T531EdKxphSR+o+tAEP3OXpl
-         uGAbXcInel/Dp4e64CBlaVzpEo1GhScY7+k/dEmjdJB3pZWtqZgBtKE+qEHFSUu8ELLr
-         01/4lckHJ5Zr4CAqzOOXIjAojtwq7S63GO9vimKLnIzskLBeUpj0RuIUkBZw/ar38BIg
-         0oc3hXUXFMPrRJ15JWVM+kZubGNY/+WjiT+t9XO5SB5MhvLbJXkTRJUIdq3BZaZUHUMk
-         AJHddzT8qHPJCGXZRg7x61KsOqjzQCvLIlacVS9aPydJTeTeHzQmcES6BGmyYOq8V1sv
-         1Qrw==
-X-Gm-Message-State: ACrzQf3U02MOM+tpTmONEW/LN/3Vsvwl3bU26DiGR/JQwYTm8hCMyOfu
-        HP4rb4Zav43VRaBrCuSOJwb8clvDsbPgGcbOhxRVvMii8wY7nHBI5uN2qo4FQjPR/woch+RLbhT
-        jw1gJiB5zyB23X1VUE2TM3A==
-X-Received: by 2002:a17:907:1dda:b0:7a6:8ffc:7dc with SMTP id og26-20020a1709071dda00b007a68ffc07dcmr33676993ejc.163.1667548955852;
-        Fri, 04 Nov 2022 01:02:35 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM5ZNqKb/aQP9ibAQb8G5uHFxFpKasjpH84kkwoGMwJiLbxjg9Lh2wolUrwViafofx0ss1frxA==
-X-Received: by 2002:a17:907:1dda:b0:7a6:8ffc:7dc with SMTP id og26-20020a1709071dda00b007a68ffc07dcmr33676971ejc.163.1667548955613;
-        Fri, 04 Nov 2022 01:02:35 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:4783:a68:c1ee:15c5? ([2001:b07:6468:f312:4783:a68:c1ee:15c5])
-        by smtp.googlemail.com with ESMTPSA id tz14-20020a170907c78e00b0078ddb518a90sm1433630ejc.223.2022.11.04.01.02.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Nov 2022 01:02:34 -0700 (PDT)
-Message-ID: <6c71fcca-c17f-5979-e15e-afcf08899064@redhat.com>
-Date:   Fri, 4 Nov 2022 09:02:32 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH 33/44] KVM: x86: Do VMX/SVM support checks directly in
- vendor code
-Content-Language: en-US
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     Marc Zyngier <maz@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Anup Patel <anup@brainfault.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
+        with ESMTP id S230079AbiKDMYC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 08:24:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1D1A2034F;
+        Fri,  4 Nov 2022 05:24:01 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A4C61tZ015880;
+        Fri, 4 Nov 2022 12:23:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=PwQ1Q0ZosR1g7PpBBp8cCx7OiB3HdSRlnPe7+yKMtAs=;
+ b=sdek4q0Y6aGebL3YXsqiufuN6mavKD42MTtzjmxo0snDAG/la+P4Qd9Q96pad7eYpS+Z
+ NsSgptzsq5b+kQK/bvAFtckd2g7x0Ck+vQVSSBkiN9tWoDabJMTYQrmTJZyMk+pOTVaj
+ jgrKZ592g5i1prm/n9+Ty3Q9tUVFzU2rOd3cyr/2sCbwBVzMPcbiY6lMQ1WflXScbDLS
+ C5N4oMtElrNvFYunJVXY7Ac8dHVkhlVmRmyuf5K7+LPmSrv0jm/qbdPBQ0Eo/zftfwsC
+ I24DQaYVGqzyOi4mUqG8COP+YUKXm8w6tLy8LM+1ZjDzlMmHE3TNhtJhoVQdQXrFuKWw AA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kn24612e8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 04 Nov 2022 12:23:46 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A4C6DMV017947;
+        Fri, 4 Nov 2022 12:23:45 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kn24612dd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 04 Nov 2022 12:23:45 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A4CKscH014734;
+        Fri, 4 Nov 2022 12:23:44 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma02dal.us.ibm.com with ESMTP id 3kgutb20e8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 04 Nov 2022 12:23:44 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com ([9.208.128.116])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A4CNgsW31326572
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 4 Nov 2022 12:23:43 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4AFF658054;
+        Fri,  4 Nov 2022 12:23:42 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4486C5805E;
+        Fri,  4 Nov 2022 12:23:38 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.65.225.56])
+        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  4 Nov 2022 12:23:38 +0000 (GMT)
+Message-ID: <611fd3a62596226e78af36909618ae65df615428.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 0/7] vfio-ccw parent rework
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        Atish Patra <atishp@atishpatra.org>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
-        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Isaku Yamahata <isaku.yamahata@intel.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Chao Gao <chao.gao@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Yuan Yao <yuan.yao@intel.com>
-References: <20221102231911.3107438-1-seanjc@google.com>
- <20221102231911.3107438-34-seanjc@google.com>
- <bfa98587-3b36-3834-a4b9-585a0e0aa56a@redhat.com>
- <Y2QJ2TuyZImbFFvi@google.com>
- <c29e7d40-ddb9-def0-f944-a921a05a4bb2@redhat.com>
- <Y2QPSK1/6esl61wQ@google.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <Y2QPSK1/6esl61wQ@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Date:   Fri, 04 Nov 2022 08:23:37 -0400
+In-Reply-To: <a408e8c7-6bd6-80de-5e59-815cb62fe29c@linux.ibm.com>
+References: <20221102150152.2521475-1-farman@linux.ibm.com>
+         <20221103155611.0008075f.alex.williamson@redhat.com>
+         <a408e8c7-6bd6-80de-5e59-815cb62fe29c@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
+MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: CxcqPhpEQvuznc5i6jCT3LsyQXd7zf7o
+X-Proofpoint-GUID: uW7VwR3E5qlArM97JsMblIX0nESJX9vh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-04_07,2022-11-03_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 spamscore=0 priorityscore=1501 malwarescore=0 mlxlogscore=999
+ clxscore=1015 adultscore=0 impostorscore=0 suspectscore=0 phishscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211040081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/3/22 19:58, Sean Christopherson wrote:
-> 
-> diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-> index 3e508f239098..ebe617ab0b37 100644
-> --- a/arch/x86/kernel/cpu/common.c
-> +++ b/arch/x86/kernel/cpu/common.c
-> @@ -191,6 +191,8 @@ static void default_init(struct cpuinfo_x86 *c)
->                          strcpy(c->x86_model_id, "386");
->          }
->   #endif
-> +
-> +       clear_cpu_cap(c, X86_FEATURE_MSR_IA32_FEAT_CTL);
->   }
->   
->   static const struct cpu_dev default_cpu = {
+On Thu, 2022-11-03 at 19:43 -0400, Matthew Rosato wrote:
+> On 11/3/22 5:56 PM, Alex Williamson wrote:
+> > On Wed,=C2=A0 2 Nov 2022 16:01:45 +0100
+> > Eric Farman <farman@linux.ibm.com> wrote:
+> >=20
+> > > Hi all,
+> > >=20
+> > > Here is an update to the vfio-ccw lifecycle changes that have
+> > > been discussed
+> > > in various forms over the past year [1][2] or so, and which I
+> > > dusted off
+> > > recently.
+> > >=20
+> > > Patches 1-5 rework the behavior of the vfio-ccw driver's private
+> > > struct.
+> > > In summary, the mdev pieces are split out of vfio_ccw_private and
+> > > into a
+> > > new vfio_ccw_parent struct that will continue to follow today's
+> > > lifecycle.
+> > > The remainder (bulk) of the private struct moves to follow the
+> > > mdev
+> > > probe/remove pair. There's opportunity for further separation of
+> > > the
+> > > things in the private struct, which would simplify some of the
+> > > vfio-ccw
+> > > code, but it got too hairy as I started that. Once vfio-ccw is no
+> > > longer
+> > > considered unique, those cleanups can happen at our leisure.=20
+> > >=20
+> > > Patch 6 removes the trickery where vfio-ccw uses vfio_init_device
+> > > instead of
+> > > vfio_alloc_device, and thus removes vfio_init_device from the
+> > > outside world.
+> > >=20
+> > > Patch 7 removes vfio_free_device from vfio-ccw and the other
+> > > drivers (hello,
+> > > CC list!), letting it be handled by vfio_device_release directly.
+> >=20
+> > Looks like another spin is pending, but the vfio core and
+> > collateral
+> > changes in 6 and 7 look good to me.=C2=A0 Would this go in through the
+> > vfio
+> > or s390 tree?=C2=A0 I'd be happy to merge or provide a branch, dependin=
+g
+> > on
+> > the route.
+> >=20
+> > For 6 & 7:
+> > Acked-by: Alex Williamson <alex.williamson@redhat.com>
+> >=20
+> > Thanks,
+> > Alex
+>=20
+> LGTM with those few comments addressed -- @Eric please send a v3 and
+> I think it's ready.
 
-Not needed I think?  default_init does not call init_ia32_feat_ctl.
+Will do that now; thanks Matt.
 
-> diff --git a/arch/x86/kernel/cpu/cpuid-deps.c b/arch/x86/kernel/cpu/cpuid-deps.c
-> index c881bcafba7d..3a7ae67f5a5e 100644
-> --- a/arch/x86/kernel/cpu/cpuid-deps.c
-> +++ b/arch/x86/kernel/cpu/cpuid-deps.c
-> @@ -72,6 +72,8 @@ static const struct cpuid_dep cpuid_deps[] = {
->          { X86_FEATURE_AVX512_FP16,              X86_FEATURE_AVX512BW  },
->          { X86_FEATURE_ENQCMD,                   X86_FEATURE_XSAVES    },
->          { X86_FEATURE_PER_THREAD_MBA,           X86_FEATURE_MBA       },
-> +       { X86_FEATURE_VMX,                      X86_FEATURE_MSR_IA32_FEAT_CTL         },
-> +       { X86_FEATURE_SGX,                      X86_FEATURE_MSR_IA32_FEAT_CTL         },
->          { X86_FEATURE_SGX_LC,                   X86_FEATURE_SGX       },
->          { X86_FEATURE_SGX1,                     X86_FEATURE_SGX       },
->          { X86_FEATURE_SGX2,                     X86_FEATURE_SGX1      },
-> 
+>=20
+> I would suggest vfio tree to reduce the chance of conflicts; this
+> touches various vfio drivers (and main) with the last patches while
+> the s390 hits are at least all contained to the vfio-ccw driver code.
+>=20
 
-Yes, good idea.
-
-Paolo
-
+Agreed. Thanks to you both.
