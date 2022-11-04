@@ -2,191 +2,93 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EE38C433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 14:21:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B8B7C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 14:37:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231710AbiKDOVT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Nov 2022 10:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34814 "EHLO
+        id S230127AbiKDOh1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Nov 2022 10:37:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232060AbiKDOUo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 10:20:44 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A98D24F2D;
-        Fri,  4 Nov 2022 07:20:28 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A4Dx14F000805;
-        Fri, 4 Nov 2022 14:20:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=O4kbJCo545JNCCzGRfFDf8COPGbqLJhpugw/67u4xHU=;
- b=TqQDT2b0agFaw/q3w6DfVrWu8zVAbfUhE2YEAKwE9SlPaF3OWUF2rhuG9K5/0Tb4LO5u
- RzMM2LCifliQQi+nmRj8MJqwhIIfuO9df4pkwyrQzyUTz1cHGe52jB1cNR3O3KBASU4X
- Jz1eYwA0vswwy5r9+Ag0rphqA7IBsCH8L6Yk7+zDuLwqzpbsjnZ00ypmrzpauisHn913
- cwSGWogYl/JbfIT0qz484RM5oiaVn3GKdbKNFquE/Lw+hw957kiJp1PodYEQDvbtjDEi
- 3twxvuVhBqwdwc4G0Y4Wyohi+RGNkIM/UsSgxEM3bnOF1LD621AAOcfKNZ6/qUOVc8Vk qA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kn2464yw4-1
+        with ESMTP id S232288AbiKDOhB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 10:37:01 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63F432B9D;
+        Fri,  4 Nov 2022 07:34:12 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A4DAlnn023752;
+        Fri, 4 Nov 2022 14:34:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=aBeC4NCXkA3s6DXqP+TwBnJxjDQUnPTlKhNwpr0fMwE=;
+ b=WrOIRGnvGnVJpRf97ZntvrVRe/fD3xZs7lGeLy92h3xv/V9dhhrnY9RZsCsZQyqH0Kd8
+ fIobPUYfxZTv1NqI37ATxjDLonLAdaQw4dv7bioooUHLMdby/HKXdzKHJBYYS9FM9/yz
+ BpLhW1m10AzhyghsWnwCj5ZMC7Tc9vKTd46tb1woIczWJyOFVW3g+SZ4vJYsS4JJc0nk
+ 4ABw/JGNvw0LJmKtAGwvGSycGD3EKWxIWRTJIHHOYMQ9wx8nLrtycpiS3qG1tLTrfHJ0
+ hP9oqh35zk53rqJrZkDcNQBJpVfJx+6DSSFmgIwYghCPGR8yQHkCHGMyNUK1poVR2CdA Wg== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kmpjfhbdg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Nov 2022 14:20:16 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A4C6Vv0020354;
-        Fri, 4 Nov 2022 14:20:15 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kn2464yu9-1
+        Fri, 04 Nov 2022 14:34:11 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A4EL19N016468;
+        Fri, 4 Nov 2022 14:34:09 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma02fra.de.ibm.com with ESMTP id 3kme349879-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Nov 2022 14:20:15 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A4E5Z5k020074;
-        Fri, 4 Nov 2022 14:20:13 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3kguej2gtm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Nov 2022 14:20:12 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A4EK9Lb6226548
+        Fri, 04 Nov 2022 14:34:09 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A4EY7Oe5112508
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 4 Nov 2022 14:20:09 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 852644C046;
-        Fri,  4 Nov 2022 14:20:09 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C8394C040;
-        Fri,  4 Nov 2022 14:20:09 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri,  4 Nov 2022 14:20:09 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id D3E91E1F99; Fri,  4 Nov 2022 15:20:08 +0100 (CET)
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>
-Cc:     Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Abhishek Sahu <abhsahu@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v3 5/7] vfio/ccw: remove release completion
-Date:   Fri,  4 Nov 2022 15:20:05 +0100
-Message-Id: <20221104142007.1314999-6-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221104142007.1314999-1-farman@linux.ibm.com>
-References: <20221104142007.1314999-1-farman@linux.ibm.com>
+        Fri, 4 Nov 2022 14:34:07 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 78EE75204E;
+        Fri,  4 Nov 2022 14:34:07 +0000 (GMT)
+Received: from osiris (unknown [9.145.59.57])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 479E25204F;
+        Fri,  4 Nov 2022 14:34:07 +0000 (GMT)
+Date:   Fri, 4 Nov 2022 15:34:05 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] random: do not include <asm/archrandom.h> from
+ random.h
+Message-ID: <Y2Ui3fr7pwKGJzM3@osiris>
+References: <20221029010857.161574-1-Jason@zx2c4.com>
+ <20221103121740.6684-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221103121740.6684-1-Jason@zx2c4.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: UZWJ-c4UUu6jORJ2hNkyRtZNJWAajV8c
-X-Proofpoint-GUID: fHEaxu9BxaKZHjkXw-QPgtVu46SBGqye
+X-Proofpoint-GUID: AwH_zitacjeviaQQd7lDRyCgpevLYE-H
+X-Proofpoint-ORIG-GUID: AwH_zitacjeviaQQd7lDRyCgpevLYE-H
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-04_09,2022-11-03_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 spamscore=0 priorityscore=1501 malwarescore=0 mlxlogscore=999
- clxscore=1015 adultscore=0 impostorscore=0 suspectscore=0 phishscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211040093
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 mlxscore=0 suspectscore=0 adultscore=0 bulkscore=0
+ mlxlogscore=666 phishscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211040095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There's enough separation between the parent and private structs now,
-that it is fine to remove the release completion hack.
+On Thu, Nov 03, 2022 at 01:17:40PM +0100, Jason A. Donenfeld wrote:
+> The <asm/archrandom.h> header is a random.c private detail, not
+> something to be called by other code. As such, don't make it
+> automatically available by way of random.h.
+> 
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  arch/powerpc/kernel/setup-common.c | 1 +
+>  arch/s390/kernel/setup.c           | 1 +
+>  drivers/char/hw_random/s390-trng.c | 1 +
+>  drivers/char/random.c              | 1 +
+>  include/linux/random.h             | 2 --
+>  5 files changed, 4 insertions(+), 2 deletions(-)
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_ops.c     | 14 +-------------
- drivers/s390/cio/vfio_ccw_private.h |  3 ---
- 2 files changed, 1 insertion(+), 16 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index e45d4acb109b..8a929a9cf3c6 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -54,7 +54,6 @@ static int vfio_ccw_mdev_init_dev(struct vfio_device *vdev)
- 	INIT_LIST_HEAD(&private->crw);
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
- 	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
--	init_completion(&private->release_comp);
- 
- 	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
- 				       GFP_KERNEL);
-@@ -137,7 +136,7 @@ static void vfio_ccw_mdev_release_dev(struct vfio_device *vdev)
- 	struct vfio_ccw_private *private =
- 		container_of(vdev, struct vfio_ccw_private, vdev);
- 
--	complete(&private->release_comp);
-+	vfio_ccw_free_private(private);
- }
- 
- static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
-@@ -155,17 +154,6 @@ static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
- 
- 	dev_set_drvdata(&parent->dev, NULL);
- 	vfio_put_device(&private->vdev);
--	/*
--	 * Wait for all active references on mdev are released so it
--	 * is safe to defer kfree() to a later point.
--	 *
--	 * TODO: the clean fix is to split parent/mdev info from ccw
--	 * private structure so each can be managed in its own life
--	 * cycle.
--	 */
--	wait_for_completion(&private->release_comp);
--
--	vfio_ccw_free_private(private);
- }
- 
- static int vfio_ccw_mdev_open_device(struct vfio_device *vdev)
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 747aba5f5272..2278fd38d34e 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -102,7 +102,6 @@ struct vfio_ccw_parent {
-  * @req_trigger: eventfd ctx for signaling userspace to return device
-  * @io_work: work for deferral process of I/O handling
-  * @crw_work: work for deferral process of CRW handling
-- * @release_comp: synchronization helper for vfio device release
-  */
- struct vfio_ccw_private {
- 	struct vfio_device vdev;
-@@ -126,8 +125,6 @@ struct vfio_ccw_private {
- 	struct eventfd_ctx	*req_trigger;
- 	struct work_struct	io_work;
- 	struct work_struct	crw_work;
--
--	struct completion	release_comp;
- } __aligned(8);
- 
- int vfio_ccw_sch_quiesce(struct subchannel *sch);
--- 
-2.34.1
-
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
