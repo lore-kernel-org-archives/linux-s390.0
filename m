@@ -2,44 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDA4DC433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 06:23:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDB0BC4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 07:17:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231621AbiKDGXd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Nov 2022 02:23:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51508 "EHLO
+        id S230491AbiKDHR4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Nov 2022 03:17:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231649AbiKDGXM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 02:23:12 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 723022B27D;
-        Thu,  3 Nov 2022 23:22:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1667542954; x=1699078954;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=dpPYB6O0Iym/jBFRwx8/3NauFKj5Z5IV2Uq06/9dUi0=;
-  b=HJHNOlLDKYROR5BFNk9a+3WW+ijpbZ3KmOtJ2aJMjsiosPXAalu56m4q
-   6LR7o2JrZkWwA1riwxun8wHI8vOH8oGn/BS2kmDfUFqDe+rdDJCMqP86y
-   i1J00fSb39auoR6enGJcwZVk9EgHWpnVlt8YovuvWMFcSr9zE8Vmp/uR8
-   eOo849xNtIjGyIt18IME4btaR4p3qy/VJMSRQjPIpz6jAN+HeMiBBoJbs
-   i7lYEDUxk7ecsij4xLoAQLJI7NdXPtE9TuuoB16eW/9mHYth3hEzmWAMW
-   zVJT2TVrsR56jSR4oFCjfZ+XwryBJ7BDTIJh7SjOKcDhkzbKH7nEu6lOt
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10520"; a="311630024"
-X-IronPort-AV: E=Sophos;i="5.96,136,1665471600"; 
-   d="scan'208";a="311630024"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2022 23:22:31 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10520"; a="698531026"
-X-IronPort-AV: E=Sophos;i="5.96,136,1665471600"; 
-   d="scan'208";a="698531026"
-Received: from yy-desk-7060.sh.intel.com (HELO localhost) ([10.239.159.76])
-  by fmsmga008.fm.intel.com with ESMTP; 03 Nov 2022 23:22:23 -0700
-Date:   Fri, 4 Nov 2022 14:22:23 +0800
-From:   Yuan Yao <yuan.yao@linux.intel.com>
+        with ESMTP id S229804AbiKDHRx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 03:17:53 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0127A28714;
+        Fri,  4 Nov 2022 00:17:52 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id v4-20020a17090a088400b00212cb0ed97eso3904973pjc.5;
+        Fri, 04 Nov 2022 00:17:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=W23pabEUt9UT3m96J/wXQrFDRtY2GakEItww0qjsSlg=;
+        b=BBZsjNO1j2I9XyaCh+1C/QplBxwDB5vhB+H7e4gqHEmyQuF09JOrwCCVKtCrWle/V9
+         chEyO5+47qEl+CAwKw4HczIJoOXA4u45YQ4pFc+tm1m/PYd7/pDyPWWmGXcEaYOG5WOG
+         km826IeGruUsR1J8w/qHNbzrKwDEGoOOeidLlN+lT1AI7WAXrqVt3wu+X7a7S3qChiiQ
+         +PoxgUS5+oRknQ7tcAC7hLCL+ws/LhR0FvDQv4v+gajs4KG64mX3ZIq6NdgF0X7pw0TH
+         Nqp2Puq0UKysdQS/Q19gKjy2epUVXKYiN5tLrpvE0wCKlIsupCTYYxKngeigPBT/YDAE
+         4rUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=W23pabEUt9UT3m96J/wXQrFDRtY2GakEItww0qjsSlg=;
+        b=i7RYwZkJh7el2fzEmQtu+OeR2MopawT89Bspi1L9gLfOjPXG7Q6bcuzRu0v8XAz18K
+         q+04VMiQgZ/rtfVlIJuWtbPX5AcGtMaXw4D7wqsbUzxKG9xaaAxM/s1qSInWjft8T6oU
+         p7Nxlv+xEIjKSBDD/R1pdwXeePlqOuD8as9VCL3Y33GrCSa/OF1TJocnk/aYsiziydke
+         flXQJW7Grm8+JAvTSQlOrZktepKLrfdsxMC/5bF89k3hWPJAKWV0KeiVDD5x1qqT4yKN
+         7WLGJ7JkHSgOn9rZw3x+Bsq6Mr4lGJbzxwtQmjS5MTNIwnKy8tNby4z07J5dk/ZSFQ5m
+         rtvg==
+X-Gm-Message-State: ACrzQf3fp1HthmBtmfMo3M3WqRd4KrO5wikGXM64Nsfn/AtwDI+qko1M
+        OZHkeCESzgbABxA4I5cmyvZCeUehALxlbQ==
+X-Google-Smtp-Source: AMsMyM590YqBBuU8ntwjS0byOPhDdbEQtOmQylRukKVmf0RiQ9hBMt6zvQhScFlRTTpMvabF9XrhuA==
+X-Received: by 2002:a17:902:6542:b0:187:27fa:eef1 with SMTP id d2-20020a170902654200b0018727faeef1mr22696721pln.2.1667546271367;
+        Fri, 04 Nov 2022 00:17:51 -0700 (PDT)
+Received: from localhost ([192.55.54.55])
+        by smtp.gmail.com with ESMTPSA id m5-20020a170902db0500b001708c4ebbaesm1787361plx.309.2022.11.04.00.17.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Nov 2022 00:17:50 -0700 (PDT)
+Date:   Fri, 4 Nov 2022 00:17:49 -0700
+From:   Isaku Yamahata <isaku.yamahata@gmail.com>
 To:     Sean Christopherson <seanjc@google.com>
 Cc:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -70,223 +80,150 @@ Cc:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Chao Gao <chao.gao@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Yuan Yao <yuan.yao@intel.com>
-Subject: Re: [PATCH 08/44] KVM: x86: Move hardware setup/unsetup to init/exit
-Message-ID: <20221104062223.7kcrbt66mlmqxk7f@yy-desk-7060>
+        Yuan Yao <yuan.yao@intel.com>, isaku.yamahata@gmail.com
+Subject: Re: [PATCH 00/44] KVM: Rework kvm_init() and hardware enabling
+Message-ID: <20221104071749.GC1063309@ls.amr.corp.intel.com>
 References: <20221102231911.3107438-1-seanjc@google.com>
- <20221102231911.3107438-9-seanjc@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20221102231911.3107438-9-seanjc@google.com>
-User-Agent: NeoMutt/20171215
+In-Reply-To: <20221102231911.3107438-1-seanjc@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 02, 2022 at 11:18:35PM +0000, Sean Christopherson wrote:
-> Now that kvm_arch_hardware_setup() is called immediately after
-> kvm_arch_init(), fold the guts of kvm_arch_hardware_(un)setup() into
-> kvm_arch_{init,exit}() as a step towards dropping one of the hooks.
->
-> To avoid having to unwind various setup, e.g registration of several
-> notifiers, slot in the vendor hardware setup before the registration of
-> said notifiers and callbacks.  Introducing a functional change while
-> moving code is less than ideal, but the alternative is adding a pile of
-> unwinding code, which is much more error prone, e.g. several attempts to
-> move the setup code verbatim all introduced bugs.
->
-> Add a comment to document that kvm_ops_update() is effectively the point
-> of no return, e.g. it sets the kvm_x86_ops.hardware_enable canary and so
-> needs to be unwound.
->
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-> ---
->  arch/x86/kvm/x86.c | 121 +++++++++++++++++++++++----------------------
->  1 file changed, 63 insertions(+), 58 deletions(-)
->
-> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index 9a7702b1c563..80ee580a9cd4 100644
-> --- a/arch/x86/kvm/x86.c
-> +++ b/arch/x86/kvm/x86.c
-> @@ -9252,6 +9252,24 @@ static struct notifier_block pvclock_gtod_notifier = {
->  };
->  #endif
->
-> +static inline void kvm_ops_update(struct kvm_x86_init_ops *ops)
-> +{
-> +	memcpy(&kvm_x86_ops, ops->runtime_ops, sizeof(kvm_x86_ops));
-> +
-> +#define __KVM_X86_OP(func) \
-> +	static_call_update(kvm_x86_##func, kvm_x86_ops.func);
-> +#define KVM_X86_OP(func) \
-> +	WARN_ON(!kvm_x86_ops.func); __KVM_X86_OP(func)
-> +#define KVM_X86_OP_OPTIONAL __KVM_X86_OP
-> +#define KVM_X86_OP_OPTIONAL_RET0(func) \
-> +	static_call_update(kvm_x86_##func, (void *)kvm_x86_ops.func ? : \
-> +					   (void *)__static_call_return0);
-> +#include <asm/kvm-x86-ops.h>
-> +#undef __KVM_X86_OP
-> +
-> +	kvm_pmu_ops_update(ops->pmu_ops);
-> +}
-> +
->  int kvm_arch_init(void *opaque)
->  {
->  	struct kvm_x86_init_ops *ops = opaque;
-> @@ -9325,6 +9343,24 @@ int kvm_arch_init(void *opaque)
->  		kvm_caps.supported_xcr0 = host_xcr0 & KVM_SUPPORTED_XCR0;
->  	}
->
-> +	rdmsrl_safe(MSR_EFER, &host_efer);
-> +
-> +	if (boot_cpu_has(X86_FEATURE_XSAVES))
-> +		rdmsrl(MSR_IA32_XSS, host_xss);
-> +
-> +	kvm_init_pmu_capability();
-> +
-> +	r = ops->hardware_setup();
-> +	if (r != 0)
-> +		goto out_mmu_exit;
+On Wed, Nov 02, 2022 at 11:18:27PM +0000,
+Sean Christopherson <seanjc@google.com> wrote:
 
-The failure case of ops->hardware_setup() is unwound
-by kvm_arch_exit() before this patch, do we need to
-keep that old behavior ?
+> Non-x86 folks, please test on hardware when possible.  I made a _lot_ of
+> mistakes when moving code around.  Thankfully, x86 was the trickiest code
+> to deal with, and I'm fairly confident that I found all the bugs I
+> introduced via testing.  But the number of mistakes I made and found on
+> x86 makes me more than a bit worried that I screwed something up in other
+> arch code.
+> 
+> This is a continuation of Chao's series to do x86 CPU compatibility checks
+> during virtualization hardware enabling[1], and of Isaku's series to try
+> and clean up the hardware enabling paths so that x86 (Intel specifically)
+> can temporarily enable hardware during module initialization without
+> causing undue pain for other architectures[2].  It also includes one patch
+> from another mini-series from Isaku that provides the less controversial
+> patches[3].
+> 
+> The main theme of this series is to kill off kvm_arch_init(),
+> kvm_arch_hardware_(un)setup(), and kvm_arch_check_processor_compat(), which
+> all originated in x86 code from way back when, and needlessly complicate
+> both common KVM code and architecture code.  E.g. many architectures don't
+> mark functions/data as __init/__ro_after_init purely because kvm_init()
+> isn't marked __init to support x86's separate vendor modules.
+> 
+> The idea/hope is that with those hooks gone (moved to arch code), it will
+> be easier for x86 (and other architectures) to modify their module init
+> sequences as needed without having to fight common KVM code.  E.g. I'm
+> hoping that ARM can build on this to simplify its hardware enabling logic,
+> especially the pKVM side of things.
+> 
+> There are bug fixes throughout this series.  They are more scattered than
+> I would usually prefer, but getting the sequencing correct was a gigantic
+> pain for many of the x86 fixes due to needing to fix common code in order
+> for the x86 fix to have any meaning.  And while the bugs are often fatal,
+> they aren't all that interesting for most users as they either require a
+> malicious admin or broken hardware, i.e. aren't likely to be encountered
+> by the vast majority of KVM users.  So unless someone _really_ wants a
+> particular fix isolated for backporting, I'm not planning on shuffling
+> patches.
+> 
+> Tested on x86.  Lightly tested on arm64.  Compile tested only on all other
+> architectures.
 
-> +
-> +	/*
-> +	 * Point of no return!  DO NOT add error paths below this point unless
-> +	 * absolutely necessary, as most operations from this point forward
-> +	 * require unwinding.
-> +	 */
-> +	kvm_ops_update(ops);
-> +
->  	kvm_timer_init();
->
->  	if (pi_inject_timer == -1)
-> @@ -9336,8 +9372,32 @@ int kvm_arch_init(void *opaque)
->  		set_hv_tscchange_cb(kvm_hyperv_tsc_notifier);
->  #endif
->
-> +	kvm_register_perf_callbacks(ops->handle_intel_pt_intr);
-> +
-> +	if (!kvm_cpu_cap_has(X86_FEATURE_XSAVES))
-> +		kvm_caps.supported_xss = 0;
-> +
-> +#define __kvm_cpu_cap_has(UNUSED_, f) kvm_cpu_cap_has(f)
-> +	cr4_reserved_bits = __cr4_reserved_bits(__kvm_cpu_cap_has, UNUSED_);
-> +#undef __kvm_cpu_cap_has
-> +
-> +	if (kvm_caps.has_tsc_control) {
-> +		/*
-> +		 * Make sure the user can only configure tsc_khz values that
-> +		 * fit into a signed integer.
-> +		 * A min value is not calculated because it will always
-> +		 * be 1 on all machines.
-> +		 */
-> +		u64 max = min(0x7fffffffULL,
-> +			      __scale_tsc(kvm_caps.max_tsc_scaling_ratio, tsc_khz));
-> +		kvm_caps.max_guest_tsc_khz = max;
-> +	}
-> +	kvm_caps.default_tsc_scaling_ratio = 1ULL << kvm_caps.tsc_scaling_ratio_frac_bits;
-> +	kvm_init_msr_list();
->  	return 0;
->
-> +out_mmu_exit:
-> +	kvm_mmu_vendor_module_exit();
->  out_free_percpu:
->  	free_percpu(user_return_msrs);
->  out_free_x86_emulator_cache:
-> @@ -9347,6 +9407,8 @@ int kvm_arch_init(void *opaque)
->
->  void kvm_arch_exit(void)
->  {
-> +	kvm_unregister_perf_callbacks();
-> +
->  #ifdef CONFIG_X86_64
->  	if (hypervisor_is_type(X86_HYPER_MS_HYPERV))
->  		clear_hv_tscchange_cb();
-> @@ -9362,6 +9424,7 @@ void kvm_arch_exit(void)
->  	irq_work_sync(&pvclock_irq_work);
->  	cancel_work_sync(&pvclock_gtod_work);
->  #endif
-> +	static_call(kvm_x86_hardware_unsetup)();
->  	kvm_x86_ops.hardware_enable = NULL;
->  	kvm_mmu_vendor_module_exit();
->  	free_percpu(user_return_msrs);
-> @@ -11922,72 +11985,14 @@ void kvm_arch_hardware_disable(void)
->  	drop_user_return_notifiers();
->  }
->
-> -static inline void kvm_ops_update(struct kvm_x86_init_ops *ops)
-> -{
-> -	memcpy(&kvm_x86_ops, ops->runtime_ops, sizeof(kvm_x86_ops));
-> -
-> -#define __KVM_X86_OP(func) \
-> -	static_call_update(kvm_x86_##func, kvm_x86_ops.func);
-> -#define KVM_X86_OP(func) \
-> -	WARN_ON(!kvm_x86_ops.func); __KVM_X86_OP(func)
-> -#define KVM_X86_OP_OPTIONAL __KVM_X86_OP
-> -#define KVM_X86_OP_OPTIONAL_RET0(func) \
-> -	static_call_update(kvm_x86_##func, (void *)kvm_x86_ops.func ? : \
-> -					   (void *)__static_call_return0);
-> -#include <asm/kvm-x86-ops.h>
-> -#undef __KVM_X86_OP
-> -
-> -	kvm_pmu_ops_update(ops->pmu_ops);
-> -}
-> -
->  int kvm_arch_hardware_setup(void *opaque)
->  {
-> -	struct kvm_x86_init_ops *ops = opaque;
-> -	int r;
-> -
-> -	rdmsrl_safe(MSR_EFER, &host_efer);
-> -
-> -	if (boot_cpu_has(X86_FEATURE_XSAVES))
-> -		rdmsrl(MSR_IA32_XSS, host_xss);
-> -
-> -	kvm_init_pmu_capability();
-> -
-> -	r = ops->hardware_setup();
-> -	if (r != 0)
-> -		return r;
-> -
-> -	kvm_ops_update(ops);
-> -
-> -	kvm_register_perf_callbacks(ops->handle_intel_pt_intr);
-> -
-> -	if (!kvm_cpu_cap_has(X86_FEATURE_XSAVES))
-> -		kvm_caps.supported_xss = 0;
-> -
-> -#define __kvm_cpu_cap_has(UNUSED_, f) kvm_cpu_cap_has(f)
-> -	cr4_reserved_bits = __cr4_reserved_bits(__kvm_cpu_cap_has, UNUSED_);
-> -#undef __kvm_cpu_cap_has
-> -
-> -	if (kvm_caps.has_tsc_control) {
-> -		/*
-> -		 * Make sure the user can only configure tsc_khz values that
-> -		 * fit into a signed integer.
-> -		 * A min value is not calculated because it will always
-> -		 * be 1 on all machines.
-> -		 */
-> -		u64 max = min(0x7fffffffULL,
-> -			      __scale_tsc(kvm_caps.max_tsc_scaling_ratio, tsc_khz));
-> -		kvm_caps.max_guest_tsc_khz = max;
-> -	}
-> -	kvm_caps.default_tsc_scaling_ratio = 1ULL << kvm_caps.tsc_scaling_ratio_frac_bits;
-> -	kvm_init_msr_list();
->  	return 0;
->  }
->
->  void kvm_arch_hardware_unsetup(void)
->  {
-> -	kvm_unregister_perf_callbacks();
->
-> -	static_call(kvm_x86_hardware_unsetup)();
->  }
->
->  int kvm_arch_check_processor_compat(void *opaque)
-> --
-> 2.38.1.431.g37b22c650d-goog
->
+Thanks for the patch series. I the rebased TDX KVM patch series and it worked.
+Since cpu offline needs to be rejected in some cases(To keep at least one cpu
+on a package), arch hook for cpu offline is needed.
+I can keep it in TDX KVM patch series.
+
+diff --git a/arch/x86/include/asm/kvm-x86-ops.h b/arch/x86/include/asm/kvm-x86-ops.h
+index 23c0f4bc63f1..ef7bcb845d42 100644
+--- a/arch/x86/include/asm/kvm-x86-ops.h
++++ b/arch/x86/include/asm/kvm-x86-ops.h
+@@ -17,6 +17,7 @@ BUILD_BUG_ON(1)
+ KVM_X86_OP(hardware_enable)
+ KVM_X86_OP(hardware_disable)
+ KVM_X86_OP(hardware_unsetup)
++KVM_X86_OP_OPTIONAL_RET0(offline_cpu)
+ KVM_X86_OP(has_emulated_msr)
+ KVM_X86_OP(vcpu_after_set_cpuid)
+ KVM_X86_OP(is_vm_type_supported)
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 496c7c6eaff9..c420409aa96f 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1468,6 +1468,7 @@ struct kvm_x86_ops {
+ 	int (*hardware_enable)(void);
+ 	void (*hardware_disable)(void);
+ 	void (*hardware_unsetup)(void);
++	int (*offline_cpu)(void);
+ 	bool (*has_emulated_msr)(struct kvm *kvm, u32 index);
+ 	void (*vcpu_after_set_cpuid)(struct kvm_vcpu *vcpu);
+ 
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 2ed5a017f7bc..17c5d6a76c93 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -12039,6 +12039,11 @@ void kvm_arch_hardware_disable(void)
+ 	drop_user_return_notifiers();
+ }
+ 
++int kvm_arch_offline_cpu(unsigned int cpu)
++{
++	return static_call(kvm_x86_offline_cpu)();
++}
++
+ bool kvm_vcpu_is_reset_bsp(struct kvm_vcpu *vcpu)
+ {
+ 	return vcpu->kvm->arch.bsp_vcpu_id == vcpu->vcpu_id;
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 620489b9aa93..4df79443fd11 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -1460,6 +1460,7 @@ static inline void kvm_create_vcpu_debugfs(struct kvm_vcpu *vcpu) {}
+ int kvm_arch_hardware_enable(void);
+ void kvm_arch_hardware_disable(void);
+ #endif
++int kvm_arch_offline_cpu(unsigned int cpu);
+ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu);
+ bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu);
+ int kvm_arch_vcpu_should_kick(struct kvm_vcpu *vcpu);
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index f6b6dcedaa0a..f770fdc662d0 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -5396,16 +5396,24 @@ static void hardware_disable_nolock(void *junk)
+ 	__this_cpu_write(hardware_enabled, false);
+ }
+ 
++__weak int kvm_arch_offline_cpu(unsigned int cpu)
++{
++	return 0;
++}
++
+ static int kvm_offline_cpu(unsigned int cpu)
+ {
++	int r = 0;
++
+ 	mutex_lock(&kvm_lock);
+-	if (kvm_usage_count) {
++	r = kvm_arch_offline_cpu(cpu);
++	if (!r && kvm_usage_count) {
+ 		preempt_disable();
+ 		hardware_disable_nolock(NULL);
+ 		preempt_enable();
+ 	}
+ 	mutex_unlock(&kvm_lock);
+-	return 0;
++	return r;
+ }
+ 
+ static void hardware_disable_all_nolock(void)
+
+-- 
+Isaku Yamahata <isaku.yamahata@gmail.com>
