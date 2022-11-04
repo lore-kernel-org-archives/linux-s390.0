@@ -2,170 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12CC3C433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 19:45:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 694B2C4167B
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 19:51:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229547AbiKDTpq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Nov 2022 15:45:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41232 "EHLO
+        id S229445AbiKDTvE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Nov 2022 15:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbiKDTpp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 15:45:45 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2066.outbound.protection.outlook.com [40.107.92.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FC9727FE6;
-        Fri,  4 Nov 2022 12:45:44 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Wt3FPkGX9Vhc2zfRec9vT1bSaFTLrDKiqgJWjeTymsfKt6DFNPDMwf0NBwQbQt2bhUV7aLF1JsWPn7Yf7iryQsRgq/z5/t/roGb/dH/+mhdv9S5chNoWVkX4ME8YqeZqsn7EOa9wnpqFQE2phv75rynufq7bI2U/0iLJMw/MznZkdVvslg4wu9f7NxTOwsPQdK05G43XrPgH07QJB/xOQtNnuxArxa1U3HCurFPfu9ypsGkVO0N5sxbdnyK9XqkJ4HwKrbesUkTullRKbPhN68XKAHh3GNy3b78PUGQ8GVro+KihOOoyQxL6c4wiDqBcWhzW4Ueb8j6u0+jZD+nvyg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nMsgtloaSivQXkQieds3UF2nyUsE+Se6+LRuOwqxZJg=;
- b=BJU55+sw3YSwaNxlr711NHS0c2aOFTx6kpHzUUEK7nu6MowNMTRV6TzQ8BtklVfi+piMUPK2a2qhL7AwqCxgPtF3tNK0xp80SBdf821+W2QlfuwAC84sr1UUuSbr64Rq+K6aqePeN6d1FG6WvFP3inro2CFjyqhSLGnobFAAEkHP2232xm6iNHq/LQbrt68boqJOZkLofQQX5So0H0Kwg1TQYW+nDKHEKytru3NSEE4SXWFtA3tHGEiFqlxpYg8iXNnn8zzLhi3R/KbEGOuJx17dE/kmIx8UK1TErZhJw/1XJkE0/AvC2qDULSLTGVaPkGk9iYlXlgtFNAjkG2vAsg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nMsgtloaSivQXkQieds3UF2nyUsE+Se6+LRuOwqxZJg=;
- b=JupPbwpntvpC/P+lIjGXyjukLGKyHZyDDQYotdTqxw/yN3whBOYMzfp8HWZ6TzCY/ojLp3keoZCJekkAsgHuIl+r2CDaK4wSTAD2Pz9IKjkS62bGYlFD7C4FX/GzSUxyO7Gg6n8Pdhl3jSTj3lGUAOXmkeJ5+YJxv5YAZeDyqlVdgx8tMddiitcaQ/NUslx5cM3roDNep8RothKTDCnWjZbpuXqlGx3RzlIQD7421ycEAVVUZlhFbyLSfX+VUgs9oIkESfRBA8RHTQV0Klls89yS1HKBKyxM+/3GNEiP2TITSKAVR3i0maCqV4o4RK115IBhTSQEpSb3TOpn6Oyslg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by PH7PR12MB5832.namprd12.prod.outlook.com (2603:10b6:510:1d7::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5769.19; Fri, 4 Nov
- 2022 19:45:40 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de%6]) with mapi id 15.20.5769.015; Fri, 4 Nov 2022
- 19:45:40 +0000
-Date:   Fri, 4 Nov 2022 16:45:39 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@gmail.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Longfang Liu <liulongfang@huawei.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: Re: [PATCH 05/10] vfio: Use IOMMU_CAP_ENFORCE_CACHE_COHERENCY for
- vfio_file_enforced_coherent()
-Message-ID: <Y2Vr47n3cqEWSxEA@nvidia.com>
-References: <0-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
- <5-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
- <BN9PR11MB52766FB4EFCFB2197ACDC1F98C369@BN9PR11MB5276.namprd11.prod.outlook.com>
- <Y2EQb6mSTKOvASlp@nvidia.com>
- <BN9PR11MB5276BC7EA64C4D4441DE9CB08C389@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB5276BC7EA64C4D4441DE9CB08C389@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-ClientProxiedBy: BL1PR13CA0075.namprd13.prod.outlook.com
- (2603:10b6:208:2b8::20) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S229748AbiKDTvD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 15:51:03 -0400
+Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB641C92B
+        for <linux-s390@vger.kernel.org>; Fri,  4 Nov 2022 12:51:02 -0700 (PDT)
+Received: by mail-qt1-x831.google.com with SMTP id l2so3645304qtq.11
+        for <linux-s390@vger.kernel.org>; Fri, 04 Nov 2022 12:51:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=x16jINQR4q6R4H/0ehn+NSarZW0ZiXtTfCfHHiaRLp4=;
+        b=bIdKEWgR5UZIy0TJaruQujMahMwynr4PVMnDcU4kBitHBNo7q073JbrYzG65FbHP7Y
+         mbM9hFjlLlwQAouSAl9oSuR5cXI0K/JQyyZwmKs1co0JGtwjHN72PIS9n6MKeTRWxT7Z
+         cCPuFkDzNQGR2KqOHNVW0/FBQA0CMharaPptg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=x16jINQR4q6R4H/0ehn+NSarZW0ZiXtTfCfHHiaRLp4=;
+        b=LFbc+lythgwfG05+CQJK+bkpnhThB2Si6J/kECHjvKGSbEvr/Kdt54qP+EzCq0kcqk
+         FREEDq/7Tz4WP1Xoil2AaqbnxNWB7aiti7paysb3p5g2z4D85sjuQZHNy4ZPO12fCxSO
+         npdZXkt1wtt1mwAlAVkwnn8a2k2oBGUZaQt7GEp7bTbbHW5bCoa0WPQQaRFvY5qQNbE/
+         LstbLZwp0fXbckoj97z9KYJCDUECeiqJJ6xukN6yxpcYWsI4/LB7Y1v1mj+CU20W+/Pf
+         LG8Pv/jGO3VjVgVUD8eDDLLVyYJkzLv5d2l+YQg1cKsD4XMsz3H0HaTlvaDoI47FCNHp
+         0npA==
+X-Gm-Message-State: ACrzQf0ptYPVMvGS6D3TeJDZOWb/uVBAvldY6srBL1tDbvapw8zYqo5x
+        NMXhs0SIx5weXTcJYi2clfhciX6og/MIhQ==
+X-Google-Smtp-Source: AMsMyM7KzHWg6K42XGeFl5hVB7+ZJh1sYfRTV6JtEoorHa3LpuPjq27DR16W9yHlEienP5UeVdp3WA==
+X-Received: by 2002:ac8:59c3:0:b0:3a5:43b0:6a5b with SMTP id f3-20020ac859c3000000b003a543b06a5bmr14462741qtf.61.1667591461164;
+        Fri, 04 Nov 2022 12:51:01 -0700 (PDT)
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com. [209.85.128.173])
+        by smtp.gmail.com with ESMTPSA id bx12-20020a05622a090c00b0039c7b9522ecsm152351qtb.35.2022.11.04.12.50.59
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Nov 2022 12:50:59 -0700 (PDT)
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-3691e040abaso52867137b3.9
+        for <linux-s390@vger.kernel.org>; Fri, 04 Nov 2022 12:50:59 -0700 (PDT)
+X-Received: by 2002:a0d:ef07:0:b0:373:5257:f897 with SMTP id
+ y7-20020a0def07000000b003735257f897mr16823922ywe.401.1667591459021; Fri, 04
+ Nov 2022 12:50:59 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|PH7PR12MB5832:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4980ff9f-49b5-496d-e308-08dabe9d272d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: m5csXMhjlxUCn6QO/CfNc84+VP9Uovhv4TuaYz0feTf4NIzccmOA3ETZJkBx40Aazo+0gMaEl5aKDenNA1sy+brwnrIqs5QgKkhpOnONPU+jYon10d9JAwm8HvAIOJhoL5On5PhaY0zWj1koQ6hh2cU2ErhTmOL0pu4ZNXbXY8WGPaFBCxc2FuG/JXiebzloAt1KEotqCoC/08V4l0ptmHY3fIehmK0TKdvZDwbh/El6oMOCkENu9s8tUFqXC+VVF8ipDz+m5/Mx15S78pIA+a/+94F4n68SplVQXBAnSLyyBJvKSZapLAtJehRtnufkUZiTJj3nsAgBTT2Z7cR1xznaEO1g/yd74MxW2Crg5TzjCAKYN2t7K1bBwHoH8wSwEbSDIRjk0mjZNJ6vnhaks13h6GwxfUzspEZZ6d6IXX3li/raD71vlnALTpN7gD1y8aYmLrbEt2EUNeImE1MyFAhCgdC20/o7pG7rrT0GCsU8CrH9QKkHOujpqmPcMiN+69RZIApIvwxSXM1Su3ija4DVmlV7GuoJCkZr3HRjY5IN8GCkoMvjIcpxBGvh77LLtmOAZvKv93TNfG6Y8QhZNlLMxUtBcKCmZf0L5zE7I/ENg8naCdDccSCpILh0x9EvxSOaiJsSixswpllN2WESgpA7EcZgj177o5k4IJOsAjhB9aiqJlMLEmuPDzYjDdjQ9r3bucqxwI5n2XCrZsbnKA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(346002)(376002)(136003)(396003)(366004)(39860400002)(451199015)(6486002)(54906003)(66476007)(6916009)(26005)(186003)(5660300002)(8676002)(86362001)(316002)(36756003)(7416002)(7406005)(6512007)(66556008)(6506007)(478600001)(2616005)(8936002)(41300700001)(38100700002)(4326008)(4744005)(2906002)(66946007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?hirQfcX7RNHv4TVjZHMhh94iGL8keU7Db+2UUPhy5hBSZzJk6dDdWSy+G0Gz?=
- =?us-ascii?Q?4FPiWxDOnGASrzDjPcHYiA4Dn2XsWZYmLc7zm5FQ6OjPJh5JD0TXMqcs9tU7?=
- =?us-ascii?Q?wFbE3HvPlz1rW2ddFt9Fef6aFlT29txAqoLlmxnC9m1gaUlNeDHEreR+BB/Y?=
- =?us-ascii?Q?kBVrvC+2AfnJBMvlg27YoktKPRpRNRpHtFNor2V65RGws1/Y5gmS9nFGMdMf?=
- =?us-ascii?Q?VbJ1HLELzvB3A/T1VL6KrZ270l5CdLfzwlX8eFmZ/bDipBbZMhd0rA9/+W4a?=
- =?us-ascii?Q?oDVV2bx803rVEF7aNQyU661vvsG29SyGzDEFHEhtZ1eHJcaqpFCuW1NmFD/4?=
- =?us-ascii?Q?QYjBCOcWrxcV8Q1boEkTVEN4as8Vx9g7fsO2iOZ9HcW/yDmqHApLByK+NzmL?=
- =?us-ascii?Q?slvNN5KUC6jFha4RLDFmjhlbQdTFf7JxoGhl71S6p0q07z3yWRaS6FzMusap?=
- =?us-ascii?Q?Ru7yGhU3eoyTjNeGh4vaN5PmzdzTHqDJqyZyGzC2m6hmPLSWTgxGuU1phz13?=
- =?us-ascii?Q?jVsLRNJox8A18vTzE+G0kyMkVGp5hKFC3hsGj6avwCc48Zqy4NxwbgoY4v/q?=
- =?us-ascii?Q?Lz+hW/ZIDSOCcscqEpe+EgHPI313pIuV3Hrz8vYg20wONVW3C4OuuhqySYSd?=
- =?us-ascii?Q?62tFY8tmlqTe2CjtjcJ7NWHgVxrdzGFDJzYGFIj/A6doqMI32yfy+TeSohLW?=
- =?us-ascii?Q?dOCv1uRdpVASi3j5+/YW/PTXIzKL4QUafdKqRscFSgs3N9qYstawsgeFohq5?=
- =?us-ascii?Q?7GphEpBieFfYe1hdZ6cjMDWaj8+m0r3DakzKOK8rJ2DPK+eeQ7/JucSlnzZP?=
- =?us-ascii?Q?sdD1N0XJLGISXlyeoP4jENke6vcvp3Os5jaBoZK0yK3KONmhVmXLHeOJi3Re?=
- =?us-ascii?Q?j8Lg77QY9+wvRQFCHXyqnfSqV6B1NenzLJw57QUqLToFwXq/FsgUKnd4MdZb?=
- =?us-ascii?Q?zunG//psprkFn5pXv0RQZE2aVipaXXg/qEo4nHo24Irj3lYqFUT0lBgq8LPM?=
- =?us-ascii?Q?95UyagzYDUJUugAYDG+pV6yf8ox9cdkdh5Oh7Quimucex2Y+YnUI4S4Z20g1?=
- =?us-ascii?Q?YyM6QPE90HDiYI8Ult9ms0BX6lNLsGlQmDQyNUXgTjMP25i0gE11x7Svyi/E?=
- =?us-ascii?Q?t6Zt8qkMFsxFilxkJGNdgGKBBrjdfObOaUN1kY9beTRvaoGa5myNeuJtkDtO?=
- =?us-ascii?Q?bPZInN4XeFo15kwKXdJwj3cK45VoR8VjYqmRjJDLOsJFjfxW3fL0x/jU0aRO?=
- =?us-ascii?Q?Rg7NB101QsaNl6FzgpSrwlxIbp/z1Ntr9Vg7aGQKoQkGrtibtAR/jKS6Hh8e?=
- =?us-ascii?Q?kBpi3Z6dsBJAPfTFX80c4jbjlM+3U0Or1c94uSls6nRi8nf9aKdmScHs5WNZ?=
- =?us-ascii?Q?m0ND1p8wq6/+J9Toe8s6Ez0nOLiCkARDlrpXJzvS/7IHobfICyMgGZT8o/06?=
- =?us-ascii?Q?dH80N0IwhxHJHdARSLNW63K0tAnyI3nV8G+LBN4aTt+FZhoDZxGx6ZnYqtPh?=
- =?us-ascii?Q?J1QmnZcq9iujfef9Ns0OosDIyNoRl6m9b/eEV5rc+0x+1K0K/vWy3+DfmAKy?=
- =?us-ascii?Q?Zpsg6+49Q/iBVJ0xkU0=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4980ff9f-49b5-496d-e308-08dabe9d272d
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Nov 2022 19:45:40.6088
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ACZyvLH0jN5oWLX5EfmH4mPPFqeoyRC0nWF+oxOCFJ9SBdv/K7FFwZ3O4XYzGp1B
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5832
+References: <20221104054053.431922658@goodmis.org> <20221104192232.GA2520396@roeck-us.net>
+ <20221104154209.21b26782@rorschach.local.home>
+In-Reply-To: <20221104154209.21b26782@rorschach.local.home>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 4 Nov 2022 12:50:42 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wge9uWV2i9PR6x7va4ZbPdX5+rg7Ep1UNH_nYdd9rD-uw@mail.gmail.com>
+Message-ID: <CAHk-=wge9uWV2i9PR6x7va4ZbPdX5+rg7Ep1UNH_nYdd9rD-uw@mail.gmail.com>
+Subject: Re: [RFC][PATCH v3 00/33] timers: Use timer_shutdown*() before
+ freeing timers
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Anna-Maria Gleixner <anna-maria@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>, rcu@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux-edac@vger.kernel.org,
+        cgroups@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-acpi@vger.kernel.org,
+        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org,
+        linux-pm@vger.kernel.org, drbd-dev@lists.linbit.com,
+        linux-bluetooth@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org, intel-gfx@lists.freedesktop.org,
+        linux-input@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-leds@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
+        linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
+        linux-ext4@vger.kernel.org, linux-nilfs@vger.kernel.org,
+        bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org,
+        coreteam@netfilter.org, lvs-devel@vger.kernel.org,
+        linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net, alsa-devel@alsa-project.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 03, 2022 at 04:38:16AM +0000, Tian, Kevin wrote:
-> > From: Jason Gunthorpe <jgg@nvidia.com>
-> > Sent: Tuesday, November 1, 2022 8:26 PM
-> > And this:
-> > 
-> > 	/*
-> > 	 * If the device does not have
-> > IOMMU_CAP_ENFORCE_CACHE_COHERENCY then
-> > 	 * any domain later attached to it will also not support it. If the cap
-> > 	 * is set then the iommu_domain eventually attached to the
-> > device/group
-> > 	 * must must use a domain with enforce_cache_coherency().
-> > 	 */
-> 
-> duplicated 'must'
+On Fri, Nov 4, 2022 at 12:42 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> Linus, should I also add any patches that has already been acked by the
+> respective maintainer?
 
-Done
+No, I'd prefer to keep only the ones that are 100% unambiguously not
+changing any semantics.
 
-Jason
+              Linus
