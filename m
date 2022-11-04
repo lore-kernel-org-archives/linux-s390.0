@@ -2,158 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D4E0C433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 05:37:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF6B0C433FE
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Nov 2022 05:48:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230297AbiKDFh5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Nov 2022 01:37:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48972 "EHLO
+        id S230294AbiKDFsv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Nov 2022 01:48:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230003AbiKDFh4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 01:37:56 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C5827FD5;
-        Thu,  3 Nov 2022 22:37:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1667540274; x=1699076274;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=EgmtsBqJVK3JbLONjG56zRgFCzcOwywt2/xTnCkOP1Y=;
-  b=RRsqVmeFV1jdWym2d/I+Kc9LjXpsQQlKhLAOZVCDQxfjGNhGTwTvv5Dq
-   oENIPmIdC9RWNBMANhk8/4BkB7cx/usEvNcjvXEHJiN49nMgBKdvTnq/M
-   8x1ht8HlyB+DYQ0xJg36bhoKX8fkXHvlmPpt7zqpYJw/InLqK+3BffjM/
-   vlV1bvNUgnH5n6eE2Z2byVu7fWSmbq2hw776McV4ezWkYYr3v3jrYqsL8
-   qSsUTpFiD0KpRUGMHF4By711gZcuO/mS+XYbduSeo43EtIsuNSER2sxiW
-   Dt9aEsSQ4YhqwToPklubLr8rGdZacR3iz38o+yHQJMjAmSmwg1fU8MloG
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10520"; a="336584917"
-X-IronPort-AV: E=Sophos;i="5.96,136,1665471600"; 
-   d="scan'208";a="336584917"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2022 22:37:54 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10520"; a="666249074"
-X-IronPort-AV: E=Sophos;i="5.96,136,1665471600"; 
-   d="scan'208";a="666249074"
-Received: from yy-desk-7060.sh.intel.com (HELO localhost) ([10.239.159.76])
-  by orsmga008.jf.intel.com with ESMTP; 03 Nov 2022 22:37:46 -0700
-Date:   Fri, 4 Nov 2022 13:37:45 +0800
-From:   Yuan Yao <yuan.yao@linux.intel.com>
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Anup Patel <anup@brainfault.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        Atish Patra <atishp@atishpatra.org>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
-        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Isaku Yamahata <isaku.yamahata@intel.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Chao Gao <chao.gao@intel.com>,
+        with ESMTP id S229900AbiKDFst (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Nov 2022 01:48:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C81F28E03;
+        Thu,  3 Nov 2022 22:48:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83B4C620B6;
+        Fri,  4 Nov 2022 05:48:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B57C433D7;
+        Fri,  4 Nov 2022 05:48:45 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.96)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1oqpZo-0070yv-1J;
+        Fri, 04 Nov 2022 01:49:12 -0400
+Message-ID: <20221104054912.243707160@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Fri, 04 Nov 2022 01:40:55 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Yuan Yao <yuan.yao@intel.com>
-Subject: Re: [PATCH 03/44] KVM: Allocate cpus_hardware_enabled after arch
- hardware setup
-Message-ID: <20221104053745.qvi35kflf2i2ifgs@yy-desk-7060>
-References: <20221102231911.3107438-1-seanjc@google.com>
- <20221102231911.3107438-4-seanjc@google.com>
+        Stephen Boyd <sboyd@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Anna-Maria Gleixner <anna-maria@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [RFC][PATCH v3 02/33] timers: s390/cmm: Use timer_shutdown_sync() before freeing timer
+References: <20221104054053.431922658@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221102231911.3107438-4-seanjc@google.com>
-User-Agent: NeoMutt/20171215
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 02, 2022 at 11:18:30PM +0000, Sean Christopherson wrote:
-> Allocate cpus_hardware_enabled after arch hardware setup so that arch
-> "init" and "hardware setup" are called back-to-back and thus can be
-> combined in a future patch.  cpus_hardware_enabled is never used before
-> kvm_create_vm(), i.e. doesn't have a dependency with hardware setup and
-> only needs to be allocated before /dev/kvm is exposed to userspace.
->
-> Free the object before the arch hooks are invoked to maintain symmetry,
-> and so that arch code can move away from the hooks without having to
-> worry about ordering changes.
->
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-> ---
->  virt/kvm/kvm_main.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
->
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index e0424af52acc..8b7534cc953b 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -5843,15 +5843,15 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
->  	if (r)
->  		return r;
->
-> +	r = kvm_arch_hardware_setup(opaque);
-> +	if (r < 0)
-> +		goto err_hw_setup;
-> +
->  	if (!zalloc_cpumask_var(&cpus_hardware_enabled, GFP_KERNEL)) {
->  		r = -ENOMEM;
->  		goto err_hw_enabled;
->  	}
->
-> -	r = kvm_arch_hardware_setup(opaque);
-> -	if (r < 0)
-> -		goto out_free_1;
-> -
->  	c.ret = &r;
->  	c.opaque = opaque;
->  	for_each_online_cpu(cpu) {
-> @@ -5937,10 +5937,10 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
->  	unregister_reboot_notifier(&kvm_reboot_notifier);
->  	cpuhp_remove_state_nocalls(CPUHP_AP_KVM_STARTING);
->  out_free_2:
-> -	kvm_arch_hardware_unsetup();
-> -out_free_1:
->  	free_cpumask_var(cpus_hardware_enabled);
->  err_hw_enabled:
-> +	kvm_arch_hardware_unsetup();
-> +err_hw_setup:
->  	kvm_arch_exit();
->  	return r;
->  }
-> @@ -5967,9 +5967,9 @@ void kvm_exit(void)
->  	cpuhp_remove_state_nocalls(CPUHP_AP_KVM_STARTING);
->  	on_each_cpu(hardware_disable_nolock, NULL, 1);
->  	kvm_irqfd_exit();
-> +	free_cpumask_var(cpus_hardware_enabled);
->  	kvm_arch_hardware_unsetup();
->  	kvm_arch_exit();
-> -	free_cpumask_var(cpus_hardware_enabled);
->  	kvm_vfio_ops_exit();
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-Looks good to me.
+Before a timer is freed, timer_shutdown_sync() must be called.
 
-Reviewed-by: Yuan Yao <yuan.yao@intel.com>
+Link: https://lore.kernel.org/all/20220407161745.7d6754b3@gandalf.local.home/
 
->  }
->  EXPORT_SYMBOL_GPL(kvm_exit);
-> --
-> 2.38.1.431.g37b22c650d-goog
->
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+---
+ arch/s390/mm/cmm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
+index 9141ed4c52e9..1a0a8aa43ac6 100644
+--- a/arch/s390/mm/cmm.c
++++ b/arch/s390/mm/cmm.c
+@@ -419,7 +419,7 @@ static int __init cmm_init(void)
+ #endif
+ 	unregister_sysctl_table(cmm_sysctl_header);
+ out_sysctl:
+-	del_timer_sync(&cmm_timer);
++	timer_shutdown_sync(&cmm_timer);
+ 	return rc;
+ }
+ module_init(cmm_init);
+@@ -432,7 +432,7 @@ static void __exit cmm_exit(void)
+ #endif
+ 	unregister_oom_notifier(&cmm_oom_nb);
+ 	kthread_stop(cmm_thread_ptr);
+-	del_timer_sync(&cmm_timer);
++	timer_shutdown_sync(&cmm_timer);
+ 	cmm_free_pages(cmm_pages, &cmm_pages, &cmm_page_list);
+ 	cmm_free_pages(cmm_timed_pages, &cmm_timed_pages, &cmm_timed_page_list);
+ }
+-- 
+2.35.1
