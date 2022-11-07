@@ -2,124 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9473C43217
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 09:44:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA355C43217
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 10:59:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231830AbiKGJoG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Nov 2022 04:44:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37730 "EHLO
+        id S231642AbiKGK7L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Nov 2022 05:59:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231810AbiKGJoC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 04:44:02 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD4713E1A;
-        Mon,  7 Nov 2022 01:44:00 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A784emu008616;
-        Mon, 7 Nov 2022 09:44:00 GMT
+        with ESMTP id S231737AbiKGK6u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 05:58:50 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D14FACD;
+        Mon,  7 Nov 2022 02:58:49 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A79RJoT031559;
+        Mon, 7 Nov 2022 10:58:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=6Q5qpTDHhRVei6uKryPLFEL8h18FwawYjLmVI7rjbi8=;
- b=Uh1F4oVJQXpna1EQKfKeGjy3VAckobMsGHFCDtgNnbQAseqRy5MTvFBmpQaBPZL+yb2/
- pD1Vk5DYOi42EP3C4t+Ql3oTS9Tmfl9p0nWN3anvXSIewsgmSwE2ECJ5PD8j2lyk96Di
- m8PoeLmg+el6lhC5kIpXX/HZZd2G43uBL5U1pwmuYEI7ds7rkVAgPygTbHstBuBTyCTf
- P6fX9afMQEssV6+XNKwfFjZO/gU6XyAKb98kvPM4I3qNpadQxUOJUdkczrhuyy7OXs0E
- 5MYtX+3RAXXAnLJPzZLpbaCd8sPKLxETYWv9fS+ac/STeo8gA2FmCeFcnx7IIihNWR8L 6Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kpx6c2mnw-1
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=mLQgHqgxLW4IBDzDlUE3URrpBRkD+w3wy+BnMK5/nJM=;
+ b=RDgQcAR7ZuqPKpiaQ9s/ExcHCE39ZcgNepo4pS0PWvpepBdH8pT7IGPfdh0a3xTR3BYc
+ Pp5qj/DRvAK0U8+2rJVAgzhGQBdRH8P9vU94nGEDqd/usklhC/C+IAb9MM7EQl0/Ewoz
+ Fy1HZ5JpMyObbn3fLcPaao+hVkIKH0QSUH30jaArXuD9r6o55XZzpXk21Uk6vP/k7V3Q
+ Ojr9Oop3Hn/mYkBC9LHpGiAd7Jy8TE95S+UgEeWa7ZlbCnugMJoDPwxc1gROTG/GROus
+ 2NvLk7yKOM7IzF5azo4nsJ7zyzMRZc734zh6wePALOWVb2XBsZOOHyb0p3nGqxDTe+I1 rg== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1gky4f5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 09:43:59 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A79UFd3000394;
-        Mon, 7 Nov 2022 09:43:59 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kpx6c2mmu-1
+        Mon, 07 Nov 2022 10:58:48 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A7AoKKU017002;
+        Mon, 7 Nov 2022 10:58:46 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3kngp5hs2r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 09:43:59 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A79ZwJY007110;
-        Mon, 7 Nov 2022 09:43:57 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3kngncacpy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 09:43:56 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A79iV5C50594098
+        Mon, 07 Nov 2022 10:58:46 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A7AwhBo65405414
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Nov 2022 09:44:31 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C7E5D4C044;
-        Mon,  7 Nov 2022 09:43:53 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 444374C04E;
-        Mon,  7 Nov 2022 09:43:53 +0000 (GMT)
-Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.94.163])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Nov 2022 09:43:53 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     pbonzini@redhat.com
-Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [GIT PULL 2/2] KVM: s390: pci: Fix allocation size of aift kzdev elements
-Date:   Mon,  7 Nov 2022 10:43:29 +0100
-Message-Id: <20221107094329.81054-3-frankja@linux.ibm.com>
+        Mon, 7 Nov 2022 10:58:43 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A75315204E;
+        Mon,  7 Nov 2022 10:58:43 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 627315204F;
+        Mon,  7 Nov 2022 10:58:43 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v1] s390/mm: fix virtual-physical address confusion for swiotlb
+Date:   Mon,  7 Nov 2022 11:58:43 +0100
+Message-Id: <20221107105843.6641-1-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.37.3
-In-Reply-To: <20221107094329.81054-1-frankja@linux.ibm.com>
-References: <20221107094329.81054-1-frankja@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: c3-SxatJa-XdrK8ZwYTnb8_55OYBwTEG
-X-Proofpoint-ORIG-GUID: hh9psIlcgeHQn_0HogwJgobc063_0n7Q
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 43Ez8trfHkwAbl8Eu9zN5X4uMdrI0iS5
+X-Proofpoint-GUID: 43Ez8trfHkwAbl8Eu9zN5X4uMdrI0iS5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-07_02,2022-11-03_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 lowpriorityscore=0 spamscore=0 impostorscore=0
- mlxlogscore=785 bulkscore=0 clxscore=1015 suspectscore=0 malwarescore=0
- mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211070080
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ lowpriorityscore=0 mlxscore=0 mlxlogscore=874 suspectscore=0 clxscore=1015
+ priorityscore=1501 malwarescore=0 impostorscore=0 phishscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211070084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+swiotlb passes virtual addresses to set_memory_encrypted() and
+set_memory_decrypted(), but uv_remove_shared() and uv_set_shared()
+expect physical addresses. This currently works, because virtual
+and physical addresses are the same.
 
-The 'kzdev' field of struct 'zpci_aift' is an array of pointers to
-'kvm_zdev' structs. Allocate the proper size accordingly.
+Add virt_to_phys() to resolve the virtual-physical confusion.
 
-Reported by Coccinelle:
-  WARNING: Use correct pointer type argument for sizeof
-
-Fixes: 98b1d33dac5f ("KVM: s390: pci: do initial setup for AEN interpretation")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221026013234.960859-1-rafaelmendsr@gmail.com
-Message-Id: <20221026013234.960859-1-rafaelmendsr@gmail.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 ---
- arch/s390/kvm/pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/mm/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index c50c1645c0ae..ded1af2ddae9 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -126,7 +126,7 @@ int kvm_s390_pci_aen_init(u8 nisc)
- 		return -EPERM;
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 97d66a3e60fb..8b652654064e 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -146,7 +146,7 @@ int set_memory_encrypted(unsigned long addr, int numpages)
  
- 	mutex_lock(&aift->aift_lock);
--	aift->kzdev = kcalloc(ZPCI_NR_DEVICES, sizeof(struct kvm_zdev),
-+	aift->kzdev = kcalloc(ZPCI_NR_DEVICES, sizeof(struct kvm_zdev *),
- 			      GFP_KERNEL);
- 	if (!aift->kzdev) {
- 		rc = -ENOMEM;
+ 	/* make specified pages unshared, (swiotlb, dma_free) */
+ 	for (i = 0; i < numpages; ++i) {
+-		uv_remove_shared(addr);
++		uv_remove_shared(virt_to_phys((void *)addr));
+ 		addr += PAGE_SIZE;
+ 	}
+ 	return 0;
+@@ -157,7 +157,7 @@ int set_memory_decrypted(unsigned long addr, int numpages)
+ 	int i;
+ 	/* make specified pages shared (swiotlb, dma_alloca) */
+ 	for (i = 0; i < numpages; ++i) {
+-		uv_set_shared(addr);
++		uv_set_shared(virt_to_phys((void *)addr));
+ 		addr += PAGE_SIZE;
+ 	}
+ 	return 0;
 -- 
 2.37.3
 
