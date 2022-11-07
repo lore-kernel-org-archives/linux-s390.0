@@ -2,63 +2,64 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC235C41535
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 18:02:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71F0FC4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 18:03:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232449AbiKGSC3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Nov 2022 13:02:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38696 "EHLO
+        id S233046AbiKGSDY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Nov 2022 13:03:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233114AbiKGSB6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 13:01:58 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2129155BA;
-        Mon,  7 Nov 2022 09:57:59 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A7GWJ3q025033;
-        Mon, 7 Nov 2022 17:56:58 GMT
+        with ESMTP id S233272AbiKGSCQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 13:02:16 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627CB24940;
+        Mon,  7 Nov 2022 09:58:59 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A7GWQkp031956;
+        Mon, 7 Nov 2022 17:58:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=f/VyMxldYSSF3j2oK7NPGa3PSNeBgbkNFvcSuG+2vx0=;
- b=S/OmHIKl6xk3e5DTWJwBRHY4lzU49Rc8ZGVwoj57UADrowOK07/esILhX51XvfJdOMXr
- mGyQ+AfwLDXvZLh6Y9AXiwN7sJ7f03jvlfn8cP2lyWNruJtWNqei483yk5/BJuN/WUE4
- +gww4sppA6zPjXCHUAJaLGlfBRtvSFJfa/dLDmf24cRnkgeaih1LzugmsJlZ7fMHhd5A
- ac8WW8nmTO1n8QaI/YhrR898ZaXXwP3xILX1k0Zz4zJaLt+cgarxEXI7olJSehWyz89k
- 7VgnIOaxNZTBYMVZSWT0rjhsgcdrdPWr4gKgulZ3e0kr7jg6dJBNUiMelAsjUsixhgYP XQ== 
+ bh=OtmPuK3MWiLF586NtC+bldTUVNylNT/bGGgI5w0Fq9c=;
+ b=tEaZDi2UHVX11QxU6UoEIMv071RQMm9iqzjbdP5Zkbmm9BqKuFi1RARRCA9nYbgxAoa5
+ LOIQNR+SswnfIuNoa1HMjKsNBt4OnLxi0/2E2+VmXRtCqkUygEMq2N+VM+W4r+av+7Qh
+ ruaENJhnppcGZdv4eWE7ba9gmRthNw3sMIYRmbVwvdpPZ68qWe9/0lFLjj7uoAhcrS9Z
+ nR5VOjceXevf9rwoR1BkKyBTWi1EsjrcE5+7s5By+wPbnA8uKDJdnIaiNUwQBGYVIh18
+ LtpZyga9eCegesTY+EHPFLs2v1ho0G1FQXTfewe5Pi2Td4kszHEI0kpl5Ecq9Yr8/VZq yA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1gmcfya-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1f755gc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 17:56:58 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A7GfRN3013181;
-        Mon, 7 Nov 2022 17:56:57 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1gmcfxr-1
+        Mon, 07 Nov 2022 17:58:26 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A7HbWEb003255;
+        Mon, 7 Nov 2022 17:58:25 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1f755fr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 17:56:57 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A7Hpg97017981;
-        Mon, 7 Nov 2022 17:56:56 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma03wdc.us.ibm.com with ESMTP id 3kngs717x9-1
+        Mon, 07 Nov 2022 17:58:25 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A7HoTaR015449;
+        Mon, 7 Nov 2022 17:58:24 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma01wdc.us.ibm.com with ESMTP id 3kngs3s8sd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 17:56:56 +0000
-Received: from smtpav02.dal12v.mail.ibm.com ([9.208.128.128])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A7Huq9X25494124
+        Mon, 07 Nov 2022 17:58:24 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com ([9.208.128.114])
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A7HwMq33277472
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Nov 2022 17:56:53 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CC5055805E;
-        Mon,  7 Nov 2022 17:56:54 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B470A5805F;
-        Mon,  7 Nov 2022 17:56:51 +0000 (GMT)
+        Mon, 7 Nov 2022 17:58:23 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7EA165805F;
+        Mon,  7 Nov 2022 17:58:22 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E17745805C;
+        Mon,  7 Nov 2022 17:58:17 +0000 (GMT)
 Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.65.225.56])
-        by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Nov 2022 17:56:51 +0000 (GMT)
-Message-ID: <5e44854b2781a0be6fae5c82645ac64ef9b5dccf.camel@linux.ibm.com>
-Subject: Re: [PATCH 04/44] KVM: Teardown VFIO ops earlier in kvm_exit()
+        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  7 Nov 2022 17:58:17 +0000 (GMT)
+Message-ID: <9d5a57634244c268d20ac640e055cc0befd8a881.camel@linux.ibm.com>
+Subject: Re: [PATCH 06/44] KVM: s390: Move hardware setup/unsetup to
+ init/exit
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
@@ -91,52 +92,39 @@ Cc:     James Morse <james.morse@arm.com>,
         Chao Gao <chao.gao@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Yuan Yao <yuan.yao@intel.com>
-Date:   Mon, 07 Nov 2022 12:56:51 -0500
-In-Reply-To: <20221102231911.3107438-5-seanjc@google.com>
+Date:   Mon, 07 Nov 2022 12:58:17 -0500
+In-Reply-To: <20221102231911.3107438-7-seanjc@google.com>
 References: <20221102231911.3107438-1-seanjc@google.com>
-         <20221102231911.3107438-5-seanjc@google.com>
+         <20221102231911.3107438-7-seanjc@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lZlTwgd7mrqbECRxIjDdrL-RNnawny2B
-X-Proofpoint-GUID: bMDCUJB8k6cbTpkwMsak__06bTu4RXWC
+X-Proofpoint-ORIG-GUID: PPn9NNx-sO4I-vjSF70Y0K8sCUEkIPXR
+X-Proofpoint-GUID: xEDs-39vU-yJC_i-RzSPUb6Jd0sKq-pE
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-07_08,2022-11-07_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- lowpriorityscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 clxscore=1011
- priorityscore=1501 malwarescore=0 impostorscore=0 phishscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 phishscore=0 adultscore=0 bulkscore=0 mlxlogscore=999
+ impostorscore=0 suspectscore=0 priorityscore=1501 mlxscore=0 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2210170000 definitions=main-2211070140
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On Wed, 2022-11-02 at 23:18 +0000, Sean Christopherson wrote:
-> Move the call to kvm_vfio_ops_exit() further up kvm_exit() to try and
-> bring some amount of symmetry to the setup order in kvm_init(), and
-> more
-> importantly so that the arch hooks are invoked dead last by
-> kvm_exit().
-> This will allow arch code to move away from the arch hooks without
-> any
-> change in ordering between arch code and common code in kvm_exit().
+> Now that kvm_arch_hardware_setup() is called immediately after
+> kvm_arch_init(), fold the guts of kvm_arch_hardware_(un)setup() into
+> kvm_arch_{init,exit}() as a step towards dropping one of the hooks.
 >=20
-> That kvm_vfio_ops_exit() is called last appears to be 100%
-> arbitrary.=C2=A0 It
-> was bolted on after the fact by commit 571ee1b68598 ("kvm: vfio: fix
-> unregister kvm_device_ops of vfio").=C2=A0 The nullified
-> kvm_device_ops_table
-> is also local to kvm_main.c and is used only when there are active
-> VMs,
-> so unless arch code is doing something truly bizarre, nullifying the
-> table earlier in kvm_exit() is little more than a nop.
+> No functional change intended.
 >=20
 > Signed-off-by: Sean Christopherson <seanjc@google.com>
 > ---
-> =C2=A0virt/kvm/kvm_main.c | 2 +-
-> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
+> =C2=A0arch/s390/kvm/kvm-s390.c | 23 +++++++++++++----------
+> =C2=A01 file changed, 13 insertions(+), 10 deletions(-)
 
 Reviewed-by: Eric Farman <farman@linux.ibm.com>
