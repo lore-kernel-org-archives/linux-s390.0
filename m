@@ -2,63 +2,64 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CDC1C4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 18:22:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 261DDC433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 18:22:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232613AbiKGSWq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Nov 2022 13:22:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38734 "EHLO
+        id S232712AbiKGSW5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Nov 2022 13:22:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231946AbiKGSWk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 13:22:40 -0500
+        with ESMTP id S232494AbiKGSWy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 13:22:54 -0500
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A8FB56;
-        Mon,  7 Nov 2022 10:22:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6107A1B1C6;
+        Mon,  7 Nov 2022 10:22:52 -0800 (PST)
 Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A7IBq2u003348;
-        Mon, 7 Nov 2022 18:22:12 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A7IHnXe003378;
+        Mon, 7 Nov 2022 18:22:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=DdfWgA9vouqG75fSo60uN652MOW4sllCxUOKeP3RfcQ=;
- b=eebFqKmEkCdsVhVRi/XbOsQdRoLwq4ZqlPHzBEH8C4MPmOdN3J6x8ZbxV5zTXLIgDm15
- qQMOH8r09V5AhYha+kX4r724Ee4Rs17OS5mdepLKgsCtM6E+cKKeEzVbWBSKtzUU4YY/
- aol74r7eqOMb3RVogdjXRRpLoaEf7XKjZLctN4O010ACm93+mKOIeOp847ulP5z3lJdS
- a6r/G22054YYfe1JEjnORfLH3epvLYpdmC1s98grcGDpk1fzOzBAhj8oDY55/damEQhE
- H/H/yzX12ifeRs3++3u3YxAL0OCP8U9NqLLbLLjBZeOyB0VpgKfGjSVo9Axrk8+wTTm8 9Q== 
+ bh=ZuH7o3e1bTbqF+x/vFxtjEWKRRIInbJqe4eNJNa0mb8=;
+ b=ju7oucrH6Wp8iBVMxTmB6zAqvCw5YC+Uz7+ezSttCHZ8sxH5CWUu8XcZDONE680ltY18
+ IM0/sU73Ux/BfEYs2jpjh/I9DGAs7CeQgxtnwDe0q0OC2l6txXGHl+ii6qvFMBe5LJHn
+ xvP9Fdts1GQVXda4zUeOWS20cLGW++8Rjn4VbpDidij1biZGQ9wYJ6QmZ1QKVxQAvzVL
+ kEsRyFS+Cs/8s6a2TvHL3qC59PCKR1kEj1kES2YRh2guwZnT239IkfuhFri5PcBlb2Zc
+ gNdgvxDVS5jfSMiDjUQWZOLmInbeGJHVf/3yrd5m8sqajqV1nNPploHPbvQ8vPv6UuCt Yw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1uuwfut-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1uuwg4d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 18:22:12 +0000
+        Mon, 07 Nov 2022 18:22:28 +0000
 Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A7Gap89020063;
-        Mon, 7 Nov 2022 18:22:11 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1uuwfu3-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A7HQmcs001764;
+        Mon, 7 Nov 2022 18:22:27 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1uuwg3j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 18:22:11 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A7IL2m0022680;
-        Mon, 7 Nov 2022 18:22:10 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma02dal.us.ibm.com with ESMTP id 3kngnd5nhx-1
+        Mon, 07 Nov 2022 18:22:27 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A7IMEBr024052;
+        Mon, 7 Nov 2022 18:22:25 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma01dal.us.ibm.com with ESMTP id 3kngsxwpkr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 18:22:10 +0000
+        Mon, 07 Nov 2022 18:22:25 +0000
 Received: from smtpav04.wdc07v.mail.ibm.com ([9.208.128.116])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A7IM8k714090930
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A7IMOUX22217242
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Nov 2022 18:22:09 GMT
+        Mon, 7 Nov 2022 18:22:24 GMT
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D47C358062;
-        Mon,  7 Nov 2022 18:22:07 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DCA1258050;
+        Mon,  7 Nov 2022 18:22:23 +0000 (GMT)
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1A18E5805F;
-        Mon,  7 Nov 2022 18:22:04 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CD03058062;
+        Mon,  7 Nov 2022 18:22:19 +0000 (GMT)
 Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.65.225.56])
         by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Nov 2022 18:22:03 +0000 (GMT)
-Message-ID: <1166ac40ae848d81e7fa7aeec056c91079d768d4.camel@linux.ibm.com>
-Subject: Re: [PATCH 09/44] KVM: Drop arch hardware (un)setup hooks
+        Mon,  7 Nov 2022 18:22:19 +0000 (GMT)
+Message-ID: <fb45be96446d9d66272eafe284863f80bac8af45.camel@linux.ibm.com>
+Subject: Re: [PATCH 26/44] KVM: s390: Mark __kvm_s390_init() and its
+ descendants as __init
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
@@ -91,22 +92,22 @@ Cc:     James Morse <james.morse@arm.com>,
         Chao Gao <chao.gao@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Yuan Yao <yuan.yao@intel.com>
-Date:   Mon, 07 Nov 2022 13:22:03 -0500
-In-Reply-To: <20221102231911.3107438-10-seanjc@google.com>
+Date:   Mon, 07 Nov 2022 13:22:19 -0500
+In-Reply-To: <20221102231911.3107438-27-seanjc@google.com>
 References: <20221102231911.3107438-1-seanjc@google.com>
-         <20221102231911.3107438-10-seanjc@google.com>
+         <20221102231911.3107438-27-seanjc@google.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: otjvlxlCigjzwqXdeFPxNBxJt_I7IxRm
-X-Proofpoint-ORIG-GUID: dd3fkNzioIT2BrJda-qHcffczlDpzuYb
+X-Proofpoint-GUID: _6IU7V4dMFctPdA56pgQtBe5YtzLgS6A
+X-Proofpoint-ORIG-GUID: V82sdblhujvxGzoxMA2V1e4qIeYYLGgb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-07_08,2022-11-07_02,2022-06-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- mlxlogscore=888 clxscore=1015 impostorscore=0 malwarescore=0
+ mlxlogscore=908 clxscore=1015 impostorscore=0 malwarescore=0
  lowpriorityscore=0 mlxscore=0 adultscore=0 spamscore=0 phishscore=0
  priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2210170000 definitions=main-2211070144
@@ -114,24 +115,20 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-T24gV2VkLCAyMDIyLTExLTAyIGF0IDIzOjE4ICswMDAwLCBTZWFuIENocmlzdG9waGVyc29uIHdy
-b3RlOgo+IERyb3Aga3ZtX2FyY2hfaGFyZHdhcmVfc2V0dXAoKSBhbmQga3ZtX2FyY2hfaGFyZHdh
-cmVfdW5zZXR1cCgpIG5vdwo+IHRoYXQKPiBhbGwgaW1wbGVtZW50YXRpb25zIGFyZSBub3BzLgo+
-IAo+IE5vIGZ1bmN0aW9uYWwgY2hhbmdlIGludGVuZGVkLgo+IAo+IFNpZ25lZC1vZmYtYnk6IFNl
-YW4gQ2hyaXN0b3BoZXJzb24gPHNlYW5qY0Bnb29nbGUuY29tPgo+IC0tLQo+IMKgYXJjaC9hcm02
-NC9pbmNsdWRlL2FzbS9rdm1faG9zdC5owqDCoCB8wqAgMSAtCj4gwqBhcmNoL2FybTY0L2t2bS9h
-cm0uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgNSAtLS0tLQo+IMKgYXJjaC9t
-aXBzL2luY2x1ZGUvYXNtL2t2bV9ob3N0LmjCoMKgwqAgfMKgIDEgLQo+IMKgYXJjaC9taXBzL2t2
-bS9taXBzLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDUgLS0tLS0KPiDCoGFy
-Y2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9rdm1faG9zdC5oIHzCoCAxIC0KPiDCoGFyY2gvcG93ZXJw
-Yy9rdm0vcG93ZXJwYy5jwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA1IC0tLS0tCj4gwqBhcmNoL3Jp
-c2N2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmjCoMKgIHzCoCAxIC0KPiDCoGFyY2gvcmlzY3Yva3Zt
-L21haW4uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDUgLS0tLS0KPiDCoGFyY2gv
-czM5MC9rdm0va3ZtLXMzOTAuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfCAxMCAtLS0tLS0tLS0t
-Cj4gwqBhcmNoL3g4Ni9rdm0veDg2LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IHwgMTAgLS0tLS0tLS0tLQo+IMKgaW5jbHVkZS9saW51eC9rdm1faG9zdC5owqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoCB8wqAgMiAtLQo+IMKgdmlydC9rdm0va3ZtX21haW4uY8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA3IC0tLS0tLS0KPiDCoDEyIGZpbGVzIGNoYW5nZWQsIDUz
-IGRlbGV0aW9ucygtKQoKUmV2aWV3ZWQtYnk6IEVyaWMgRmFybWFuIDxmYXJtYW5AbGludXguaWJt
-LmNvbT4JIyBzMzkwCg==
+On Wed, 2022-11-02 at 23:18 +0000, Sean Christopherson wrote:
+> Tag __kvm_s390_init() and its unique helpers as __init.=C2=A0 These
+> functions
+> are only ever called during module_init(), but could not be tagged
+> accordingly while they were invoked from the common kvm_arch_init(),
+> which is not __init because of x86.
+>=20
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> ---
+> =C2=A0arch/s390/kvm/interrupt.c | 2 +-
+> =C2=A0arch/s390/kvm/kvm-s390.c=C2=A0 | 4 ++--
+> =C2=A0arch/s390/kvm/kvm-s390.h=C2=A0 | 2 +-
+> =C2=A0arch/s390/kvm/pci.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 2 +-
+> =C2=A0arch/s390/kvm/pci.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 2 +-
+> =C2=A05 files changed, 6 insertions(+), 6 deletions(-)
 
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
