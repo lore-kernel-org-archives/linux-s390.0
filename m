@@ -2,65 +2,56 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C5D2C4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 19:10:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81146C433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 21:46:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232501AbiKGTJf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Nov 2022 14:09:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45332 "EHLO
+        id S232414AbiKGVqi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Nov 2022 16:46:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232908AbiKGTJ1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 14:09:27 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BEF524953;
-        Mon,  7 Nov 2022 11:09:26 -0800 (PST)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A7IMGET008477;
-        Mon, 7 Nov 2022 19:08:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=8yB1T9kkcj6JZp4TFm1A7hnrKTeQoKKGrd8tbPdyOEs=;
- b=mPK9o5wVItAdUCHHrTW+8HPUpMJmXCn685NlXKeVscLMgyHN4njk8bVPEIHZQPcPLZqK
- Ztz8RCrPoADtS/PrmmIEoIPAMygo0OG+ehIy/Xh5qIWr83a/qhrmNPRWHT7LucYzuM6v
- GRY8EZO5Yi9cBmIGqjDcuXfelRLAZTOy12d0YJGmmFC79SKpFsiYDDpFKy4ciSN4pXgq
- ZH3CiU5g+v8IvCRrWHCXajaSzXembp+poMANK9d6PkKxLctLIG6WcGSnTwltbKhrZ/q9
- fu9tqSDViuxcUkN+0hEHKxNVgqwvD3l/8QHsqgCbXQ/CCD24BS1R0u7ACKjl2l8sEdL4 +A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1vspb26-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 19:08:57 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A7IgUpc024059;
-        Mon, 7 Nov 2022 19:08:56 GMT
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp1vspb1g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 19:08:56 +0000
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A7J6ZLd012249;
-        Mon, 7 Nov 2022 19:08:55 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma01wdc.us.ibm.com with ESMTP id 3kngs3smh7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 19:08:55 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com ([9.208.128.114])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A7J8sh916712426
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Nov 2022 19:08:54 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 26BC558068;
-        Mon,  7 Nov 2022 19:08:54 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 430D958060;
-        Mon,  7 Nov 2022 19:08:50 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.65.225.56])
-        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Nov 2022 19:08:50 +0000 (GMT)
-Message-ID: <13c194d02d02a0e2adc006c724809b63c11f1e80.camel@linux.ibm.com>
-Subject: Re: [PATCH 30/44] KVM: Drop kvm_arch_check_processor_compat() hook
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Sean Christopherson <seanjc@google.com>,
+        with ESMTP id S233029AbiKGVqh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 16:46:37 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB29727B3B;
+        Mon,  7 Nov 2022 13:46:36 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id v4-20020a17090a088400b00212cb0ed97eso11555319pjc.5;
+        Mon, 07 Nov 2022 13:46:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=9On9UDwN9+FMOJXKCMZYipbKJoIjLKP2XZ3U7kBuoB0=;
+        b=GL+2Bxv6ry2q2tVdZRODeD97j7WTZ0CqlPqVG3cOZfSQ2lPpNfGbSsDDWxIi7pHIp0
+         4gPpC/0UyTeXngfMw/90jVGCYvfydu4VVDIBdRhsclgKtmxCEiA9BP4R87XQG30smBdC
+         1/LRsqd/o2s4hFf8dQGeyUXxQVNajfdobkSuQnz0LYFbUg3nN2WjiofwzLBJS7P0QSlq
+         3E2aD8E0qfRqk/z6hwmiW9lLNW6MmCIaXMhDFh5+LVoso6k/SENsDAmWDZa1hpQYz//Q
+         JF3KaJnULb3SlFFzyr0MclyB75dQs6HtyFHyOI25a5zATM3F+OUwHUTUTEkKDNPpwCyo
+         BpOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9On9UDwN9+FMOJXKCMZYipbKJoIjLKP2XZ3U7kBuoB0=;
+        b=FJyU5gVhqx8C6BF91TQJtgUBwKjQYbDfq1f/A4hWR/E7Tr666sl+HDaXW/wivkt/Qv
+         ufS3rSfx/z2Qv3mD5o+us1bnzBkn6V3aUfVeWdQvQdS2WALhTLiW0+jItDz3imq8s4sH
+         FGqtjcrwtZGdTAPkYoOCit3Du090u43jnjNqRtp/vQqpUjNR69sejB/6+GD0j1cwg/nc
+         h+UPQhfhgWdriQi3id9Fn/GVt1nZ5/0Ld50NReEei+RnARDXFNkkParyzb7TmXKkqabH
+         AEZoOlZTCNpd49rxdxE0ZmD4k1H6g6kRSXdJnsCIttjJdb6XDbxmWGck61ZkhmsL15xb
+         0gYQ==
+X-Gm-Message-State: ACrzQf1SXzal/VpUH8GGuPWuhvHvtkU9C5gKlIh40U1BN4TYEsODTarA
+        uGcW05z5ikqLH+Ud37fP/yE=
+X-Google-Smtp-Source: AMsMyM5nI4bmuY9lD4XinO2gz+Xc6KHSLBRiOXpXoSFa21NNV37M1qdfO6ImmoOBa63VChvhPC/Cjg==
+X-Received: by 2002:a17:90b:1d12:b0:20c:8edd:59a3 with SMTP id on18-20020a17090b1d1200b0020c8edd59a3mr52739175pjb.222.1667857596321;
+        Mon, 07 Nov 2022 13:46:36 -0800 (PST)
+Received: from localhost ([192.55.54.55])
+        by smtp.gmail.com with ESMTPSA id i126-20020a626d84000000b0056c0b98617esm4981650pfc.0.2022.11.07.13.46.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Nov 2022 13:46:35 -0800 (PST)
+Date:   Mon, 7 Nov 2022 13:46:34 -0800
+From:   Isaku Yamahata <isaku.yamahata@gmail.com>
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     Isaku Yamahata <isaku.yamahata@gmail.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Marc Zyngier <maz@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
@@ -73,8 +64,9 @@ To:     Sean Christopherson <seanjc@google.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     James Morse <james.morse@arm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        James Morse <james.morse@arm.com>,
         Alexandru Elisei <alexandru.elisei@arm.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         Oliver Upton <oliver.upton@linux.dev>,
@@ -91,54 +83,86 @@ Cc:     James Morse <james.morse@arm.com>,
         Chao Gao <chao.gao@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Yuan Yao <yuan.yao@intel.com>
-Date:   Mon, 07 Nov 2022 14:08:47 -0500
-In-Reply-To: <20221102231911.3107438-31-seanjc@google.com>
+Subject: Re: [PATCH 00/44] KVM: Rework kvm_init() and hardware enabling
+Message-ID: <20221107214634.GE1063309@ls.amr.corp.intel.com>
 References: <20221102231911.3107438-1-seanjc@google.com>
-         <20221102231911.3107438-31-seanjc@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
+ <20221104071749.GC1063309@ls.amr.corp.intel.com>
+ <Y2V1oslbw24/2Opd@google.com>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RHHp999uHGQe6ZCvMSlBReRcUeSiiV8m
-X-Proofpoint-GUID: DuaePqxTnOnEid3ZLdZuErIqRkSISZr5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-07_09,2022-11-07_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=793
- phishscore=0 impostorscore=0 lowpriorityscore=0 mlxscore=0 malwarescore=0
- bulkscore=0 spamscore=0 adultscore=0 suspectscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211070152
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Y2V1oslbw24/2Opd@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-11-02 at 23:18 +0000, Sean Christopherson wrote:
-> Drop kvm_arch_check_processor_compat() and its support code now that
-> all
-> architecture implementations are nops.
->=20
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-> ---
-> =C2=A0arch/arm64/kvm/arm.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 7 =
-+------
-> =C2=A0arch/mips/kvm/mips.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 7 =
-+------
-> =C2=A0arch/powerpc/kvm/book3s.c=C2=A0 |=C2=A0 2 +-
-> =C2=A0arch/powerpc/kvm/e500.c=C2=A0=C2=A0=C2=A0 |=C2=A0 2 +-
-> =C2=A0arch/powerpc/kvm/e500mc.c=C2=A0 |=C2=A0 2 +-
-> =C2=A0arch/powerpc/kvm/powerpc.c |=C2=A0 5 -----
-> =C2=A0arch/riscv/kvm/main.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 7 +----=
---
-> =C2=A0arch/s390/kvm/kvm-s390.c=C2=A0=C2=A0 |=C2=A0 7 +------
-> =C2=A0arch/x86/kvm/svm/svm.c=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 4 ++--
-> =C2=A0arch/x86/kvm/vmx/vmx.c=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 4 ++--
-> =C2=A0arch/x86/kvm/x86.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
-|=C2=A0 5 -----
-> =C2=A0include/linux/kvm_host.h=C2=A0=C2=A0 |=C2=A0 4 +---
-> =C2=A0virt/kvm/kvm_main.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 24 =
-+-----------------------
-> =C2=A013 files changed, 13 insertions(+), 67 deletions(-)
+On Fri, Nov 04, 2022 at 08:27:14PM +0000,
+Sean Christopherson <seanjc@google.com> wrote:
 
-Reviewed-by: Eric Farman <farman@linux.ibm.com>	# s390
+> On Fri, Nov 04, 2022, Isaku Yamahata wrote:
+> > Thanks for the patch series. I the rebased TDX KVM patch series and it worked.
+> > Since cpu offline needs to be rejected in some cases(To keep at least one cpu
+> > on a package), arch hook for cpu offline is needed.
+> 
+> I hate to bring this up because I doubt there's a real use case for SUSPEND with
+> TDX, but the CPU offline path isn't just for true offlining of CPUs.  When the
+> system enters SUSPEND, only the initiating CPU goes through kvm_suspend()+kvm_resume(),
+> all responding CPUs go through CPU offline+online.  I.e. disallowing all CPUs from
+> going "offline" will prevent suspending the system.
+
+The current TDX KVM implementation disallows CPU package from offline only when
+TDs are running.  If no TD is running, CPU offline is allowed.  So before
+SUSPEND, TDs need to be killed via systemd or something.  After killing TDs, the
+system can enter into SUSPEND state.
+
+
+> I don't see anything in the TDX series or the specs that suggests suspend+resume
+> is disallowed when TDX is enabled, so blocking that seems just as wrong as
+> preventing software from soft-offlining CPUs.
+
+When it comes to SUSPEND, it means suspend-to-idle, ACPI S1, S3, or S4.
+suspend-to-idle doesn't require CPU offline.
+
+Although CPU related spec doesn't mention about S3, the ACPI spec says
+
+  7.4.2.2 System _S1 State (Sleeping with Processor Context Maintained)
+  The processor-complex context is maintained.
+
+  7.4.2.4 System _S3 State or 7.4.2.5 System _S4 State
+  The processor-complex context is not maintained.
+
+It's safe to say the processor context related to TDX is complex, I think.
+Let me summarize the situation. What do you think?
+
+- While no TD running:
+  No additional limitation on CPU offline.
+
+- On TD creation:
+  If any of whole cpu package is software offlined, TD creation fails.
+  Alternative: forcibly online necessary CPUs, create TD, and offline CPUs
+
+- TD running:
+  Although it's not required to keep all CPU packages online, keep CPU package
+  from offlining for TD destruction.
+
+- TD destruction:
+  If any of whole cpu package is software offlined, TD destruction fails.
+  The current implementation prevents any cpu package from offlinining during
+  TD running.
+  Alternative:
+  - forcibly online necessary CPUs, destruct TD, and offline CPUs again and
+    allow CPU package to offline
+  - Stash TDX resources somewhere. When cpu packages are onlined, free those
+    release.
+
+- On SUSPEND:
+  TODO: Allow CPU offline if S1 is requested.
+  - suspend-to-idle: nothing to do because cpu offline isn't required
+  - ACPI S1: Need to allow offline CPUs.  This can be implemented by referencing
+    suspend_state_t pm_suspend_target_state is PM_SUSPEND_TO_STANBY.
+  - ACPI S3/S4: refuse cpu offline.  The system needs to kill all TDs before
+    starting SUSPEND process. This is what is implemented.
+
+Thanks,
+-- 
+Isaku Yamahata <isaku.yamahata@gmail.com>
