@@ -2,124 +2,86 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AF57C4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 11:22:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C79AC4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Nov 2022 11:30:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230466AbiKGLWH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Nov 2022 06:22:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41618 "EHLO
+        id S231420AbiKGLaV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Nov 2022 06:30:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230406AbiKGLWF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 06:22:05 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BBA15816;
-        Mon,  7 Nov 2022 03:22:05 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A7A3QgB025207;
-        Mon, 7 Nov 2022 11:22:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=942OhUkpK4u5+VWDLhDefC0103nb8+LOWq28jshjl/E=;
- b=Lm0pwSagYtMZsRx41//Mw0KjVjMN9MEFwnWc7tNTugjrun2Z0Lh1M0GoACkg/B2toUc+
- 0OLV5NeVShtbEzM8W1rkBJe+oUbuUGpB2TuQbuyjfROP6pplEsJus9M/1BOBuXIQAXqf
- 4lzvpyEsndtC1unZLaJxngcEn7XlAA1InrTq8KuE+zmaDJuObnWQqNEWaFosWipoxTcU
- u9hoRhqnkThMb+r2M26wocFvjCmd7V96CiJsc1wbvabpFW+UzPr9U5hRwbtjsKzAukYr
- TVuOS1PyKO8F1ePUaagflRTXCK37RWtOvcRwnGvrmXvUvJy6gYLVN8MlvvsVdwaJ2LYr pg== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kp8bf0k1q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 11:22:04 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A7BJgDE006450;
-        Mon, 7 Nov 2022 11:22:02 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3kngpsss60-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 11:22:02 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A7BLxIm65602026
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Nov 2022 11:21:59 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 144B2A4053;
-        Mon,  7 Nov 2022 11:21:59 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C50FAA4051;
-        Mon,  7 Nov 2022 11:21:58 +0000 (GMT)
-Received: from [9.171.47.43] (unknown [9.171.47.43])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Nov 2022 11:21:58 +0000 (GMT)
-Message-ID: <86aa57d3-e92e-4846-8676-cb2f93dcf59c@linux.ibm.com>
-Date:   Mon, 7 Nov 2022 12:21:58 +0100
+        with ESMTP id S229659AbiKGLaU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Nov 2022 06:30:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F860F3D;
+        Mon,  7 Nov 2022 03:30:18 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59F83B8101F;
+        Mon,  7 Nov 2022 11:30:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id E7564C433D7;
+        Mon,  7 Nov 2022 11:30:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667820616;
+        bh=cb5dwF1IkVJGTe7DJ/2CzobyMHYTx1Umgpq8tkUo5gg=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=fctU8VtyolVdVacrOmVTViNNfTvD18i913KCEdGAPe+oFAn8E9NNd6N0CNdHqxMid
+         9hEE7yUBTiDemhThutRDgauAD5EfUaU+EPnOf3uE7Vyqy8Su4H/ofWS/Bzu2CbDJ3N
+         GVX1tg1dTF34tDFUbiZdylq/aTP9yLXMHCbqkM9vdMaOVT6xqE0PlQofCw6yglsSKH
+         lRPlppywZwhAaY9WudtVoBXGKDiKt5lbmKZM85b9X344jUPEpPRg4c3Ah2EVUY6gX7
+         Gha9XdBmnl/zkDb9am1IIhBRTQ41VNdmrGSAgu/8yELjliCzOFnxuIvGElaQ43h+WN
+         LgjJjGQA0lS9A==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id CA490C41671;
+        Mon,  7 Nov 2022 11:30:15 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: [PATCH v1] s390/mm: fix virtual-physical address confusion for
- swiotlb
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20221107105843.6641-1-nrb@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20221107105843.6641-1-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5iGouIc4uVm6XBqf1K3q_gPQ1_8bmmEQ
-X-Proofpoint-ORIG-GUID: 5iGouIc4uVm6XBqf1K3q_gPQ1_8bmmEQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-07_04,2022-11-03_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 suspectscore=0 adultscore=0 lowpriorityscore=0
- mlxlogscore=999 bulkscore=0 spamscore=0 malwarescore=0 phishscore=0
- mlxscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211070092
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2 1/3] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <166782061582.15100.14489619331442535139.git-patchwork-notify@kernel.org>
+Date:   Mon, 07 Nov 2022 11:30:15 +0000
+References: <20221103170130.1727408-1-nathan@kernel.org>
+In-Reply-To: <20221103170130.1727408-1-nathan@kernel.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        ndesaulniers@google.com, trix@redhat.com, keescook@chromium.org,
+        samitolvanen@google.com, llvm@lists.linux.dev,
+        linux-kernel@vger.kernel.org, patches@lists.linux.dev
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 07.11.22 um 11:58 schrieb Nico Boehr:
-> swiotlb passes virtual addresses to set_memory_encrypted() and
-> set_memory_decrypted(), but uv_remove_shared() and uv_set_shared()
-> expect physical addresses. This currently works, because virtual
-> and physical addresses are the same.
-> 
-> Add virt_to_phys() to resolve the virtual-physical confusion.
-> 
-> Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Hello:
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+This series was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
 
-I am asking myself if we should rename addr to vaddr to make this more obvious.
-(Other users of these functions do use vaddr as well).
-
-> ---
->   arch/s390/mm/init.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
+On Thu,  3 Nov 2022 10:01:28 -0700 you wrote:
+> With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+> indirect call targets are validated against the expected function
+> pointer prototype to make sure the call target is valid to help mitigate
+> ROP attacks. If they are not identical, there is a failure at run time,
+> which manifests as either a kernel panic or thread getting killed. A
+> proposed warning in clang aims to catch these at compile time, which
+> reveals:
 > 
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index 97d66a3e60fb..8b652654064e 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -146,7 +146,7 @@ int set_memory_encrypted(unsigned long addr, int numpages)
->   
->   	/* make specified pages unshared, (swiotlb, dma_free) */
->   	for (i = 0; i < numpages; ++i) {
-> -		uv_remove_shared(addr);
-> +		uv_remove_shared(virt_to_phys((void *)addr));
->   		addr += PAGE_SIZE;
->   	}
->   	return 0;
-> @@ -157,7 +157,7 @@ int set_memory_decrypted(unsigned long addr, int numpages)
->   	int i;
->   	/* make specified pages shared (swiotlb, dma_alloca) */
->   	for (i = 0; i < numpages; ++i) {
-> -		uv_set_shared(addr);
-> +		uv_set_shared(virt_to_phys((void *)addr));
->   		addr += PAGE_SIZE;
->   	}
->   	return 0;
+> [...]
+
+Here is the summary with links:
+  - [v2,1/3] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+    https://git.kernel.org/netdev/net-next/c/aa5bf80c3c06
+  - [v2,2/3] s390/netiucv: Fix return type of netiucv_tx()
+    https://git.kernel.org/netdev/net-next/c/88d86d18d7cf
+  - [v2,3/3] s390/lcs: Fix return type of lcs_start_xmit()
+    https://git.kernel.org/netdev/net-next/c/bb16db839365
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
