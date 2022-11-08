@@ -2,184 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6403C433FE
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Nov 2022 14:37:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 372CEC4332F
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Nov 2022 14:53:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233521AbiKHOhh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Nov 2022 09:37:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45252 "EHLO
+        id S234189AbiKHOxs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Nov 2022 09:53:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233214AbiKHOhf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Nov 2022 09:37:35 -0500
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1anam02on2089.outbound.protection.outlook.com [40.107.96.89])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC642D2EE;
-        Tue,  8 Nov 2022 06:37:34 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=H78ugKF5QhuzxPhlcGESkvCafj1TE/oNsEX0PzAetRm2QEq23kNkw2Y6qVRQwbxHqFf0N3kV0HP4vt6mpsrWxwvAxkcKnJg7oI/mwzjQaiZXeBYk5CkVWb9sKpoqYPtx1yW+Lf4fLTMBntFHSR6SMc4g3nCxhpmGcJnZnTuDEUweovXfUMbyrY75p4aZOlxipyCA8IwGB7af7iQygz8DWq9IZ5CXm+0DDOPeXPMi8Dh2rsM4tt7MNZisLybnLf2iPmOtBxzkOz9yh7n/4ICukvXWqGEPsaoWpPi31G731V7Myvt7QvS9bjH84tk96GtusruFihQ/51HKQmtlirAAfw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KM2FCplru/Lyn/4i91UoUNSKfnCfPNXzNZJECD7asOM=;
- b=LDyKOOCbc5FN+4IF2BfJ2uoZp5I23O29fLDlTPAgr89YhdZAb1bhAsKTGSWT2jAkcXdq65r0r+RO5Ao1vNnCU6We9MKKNfAaFvf/TOwBQi83SIzppQ9mUOr6cSWk+By1m5cT02KJGa8NVXMvdue22KPttlMyY5s24RwpFGRrxyGEF5BEymGq2kTJ2EkXsy8C8kJ6GeQtD55BkfhUfOnezGumgWvtpV+76MZfJ7RNnzKFscr5K956+5BprHSLtrT/rD9L6ABM5WCjIrPJG+X49WndTAWa85DCUVMNqHXlIiiOXZMJLNKU+mBncwiqlV8J1ZFgMPK2iLQUcKp+hqUSaQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KM2FCplru/Lyn/4i91UoUNSKfnCfPNXzNZJECD7asOM=;
- b=pBesr2C3tOAfuTu1AhvoVLA023IgL6uBjA2UWbazwRbs04LAuSQ0NVXtOTJnB+GE2RZqkDjsMsoL7BgxYgGsm96iacECA7mzKDdWEMbRi5ggO20i+rEMd+RNCbmPetF5ZLWVYyIGrtF7c9AUt98se9JiLVBR/CYTy6EP9z7Ev7X+9ckKeFqqmnJ6vk2mfhcajQZ8LgJ+xCONth4ZS6DrpEYQCzRv4Dme3Ix+M6m4ARWn9vfdrbFO5lpZ2KgiWJYmd/hKekyF6i/0CESSNoyqYuhfXmb4rQPEudvKs8SCkNw7h2bzQQq5zKGQeWDj2j5hxcSSD56YYDdm1BfhyYABmQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by BL3PR12MB6451.namprd12.prod.outlook.com (2603:10b6:208:3ba::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.24; Tue, 8 Nov
- 2022 14:37:33 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de%6]) with mapi id 15.20.5791.026; Tue, 8 Nov 2022
- 14:37:33 +0000
-Date:   Tue, 8 Nov 2022 10:37:31 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        linux-s390@vger.kernel.org, iommu@lists.linux.dev,
-        Kevin Tian <kevin.tian@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        kvm@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>
-Subject: Re: S390 testing for IOMMUFD
-Message-ID: <Y2ppq9oeKZzk5F6h@nvidia.com>
-References: <0-v4-0de2f6c78ed0+9d1-iommufd_jgg@nvidia.com>
- <Y2msLjrbvG5XPeNm@nvidia.com>
- <c32829c8-1259-7441-f6df-04f44a39ab2f@linux.ibm.com>
- <Y2pffsdWwnfjrTbv@nvidia.com>
- <67dafaf27cc029ffde1f7c474c2fd17907958d5a.camel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <67dafaf27cc029ffde1f7c474c2fd17907958d5a.camel@linux.ibm.com>
-X-ClientProxiedBy: MN2PR04CA0025.namprd04.prod.outlook.com
- (2603:10b6:208:d4::38) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S234191AbiKHOxo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Nov 2022 09:53:44 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88AE1B74;
+        Tue,  8 Nov 2022 06:53:43 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A8EhLxb032609;
+        Tue, 8 Nov 2022 14:53:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=h4W95olN0LycfTNL87vNH5nWJi0C3cCQd2t4GI1g3Ao=;
+ b=HXOF/1pDIF80rRy1TtN8PLLvr90qthPe9yUfiFnMtICQyre1DwduAMQi01fNc4NKdF1v
+ EBvmqnocX0yL+iIagp5jCYy44HjCjrUDiZMqr1AH7eNSWqUdxAA+AxnwbaxDl40gP2qN
+ pX7LphOTSWz6R0wns8Jza4Ub+tMxLo3qgd1Q40bli0phRsI0+Z7tVFLAna1MuO6PWEA6
+ 5tXp2Q9SGiLmwrTb91Mrf8wwdhzzGrbLP5Re//Kbji/4IwQWDzQYhN1lyN2ugvXKJmVJ
+ lsNGWn7bQ107OXSEOBljUxTmqohOR9sl04LQL0kf38Dvi2+lI+jnImRLKypv2cz1WXTr SQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kqs4egcu7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Nov 2022 14:53:41 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A8EjrHd010071;
+        Tue, 8 Nov 2022 14:53:41 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kqs4egctd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Nov 2022 14:53:40 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A8EqKLF010058;
+        Tue, 8 Nov 2022 14:53:39 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kngnccan6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Nov 2022 14:53:39 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A8ErZIn4915718
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 8 Nov 2022 14:53:35 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A5251AE04D;
+        Tue,  8 Nov 2022 14:53:35 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 152E8AE045;
+        Tue,  8 Nov 2022 14:53:32 +0000 (GMT)
+Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.211.104.47])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue,  8 Nov 2022 14:53:31 +0000 (GMT)
+Date:   Tue, 8 Nov 2022 15:53:27 +0100
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH 26/30] s390/ipl: Use kstrtobool() instead of strtobool()
+Message-ID: <Y2ptZwUFdpR3Hxlm@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
+References: <cover.1667336095.git.christophe.jaillet@wanadoo.fr>
+ <7766dac5969021bf7432e8c4f038db8afc996b8a.1667336095.git.christophe.jaillet@wanadoo.fr>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BL3PR12MB6451:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0c0b78c8-e5eb-4074-a3cb-08dac196c56a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 4HG0BpFIyr++Q59oo9dwOI+SmxR/OBkxdY/ZhHuOGwnlV/IEyQT36OBnZZ0KTQEdbhI7mVhdmoHwqGagOIqnlRs608zBIR2G+fN4ixRNuUGrf9VDSzxa9l6qmE0RUZMkKLggYauYQzgegbRHhNdctAF+//2Nf3FS4L5p4ax0JAK6QOuCn8XRBzK7LV4psHbsPtcWsIZsiBPna+4gDbMaxGl1DxPYUzCyJ883X5XZCefmV7HLB2QzTJwftvgEVctPTIE+xKbu7nespDcAbX//Q1JvP+Osie9XHvslCYpBBDh+HR9eOA50mhyFTbX4OC/M4I8I7CmFHIayKZe4X/yoSlQ8bx4+JFJtCtIhqvf+4I/9p7/2l/DjhFs8irDGM//U3qMxpJO0QqS4gMR0TNj3ENp4AU7c08iagKeHpJY2YHyMlr5zPFOuSs58T32A3aIcHBrLBooKcXRVjZBxWMt3XvprRBQg8/OmOD0kse24G7Q2++d/1sRnaMwS/LeP9H9Clpbykq5u/d4RV7V3Ak/BeTEPiDlyxFiilpcv8y1X6UUTe3YmiwSvACeC1ODyIJamRWPQ8xWj5Bf+LbS3O3kG3RGkxBDA75J5yWqIx5uIkBwAYWY7LYMx2Rd+oAXQAXbYUXT4Q/xVqvgLT2uCCH9BQaBrzzmPUYSR0JD8y1qWDAo2gJVxCrEi/orw6Eb3KVbdcO/rc+lDE5ByPbP09CEEGQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(396003)(136003)(376002)(346002)(39860400002)(451199015)(36756003)(86362001)(38100700002)(7416002)(8936002)(66556008)(83380400001)(26005)(2906002)(107886003)(6512007)(6506007)(41300700001)(316002)(186003)(66476007)(6486002)(66946007)(5660300002)(6916009)(2616005)(478600001)(54906003)(8676002)(4326008);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NGNnTlpnZ25vSGkyY2kvNVRlR2JoUDcwR1lTUEdzbVc0Mnh6YXhrb3VNdGJW?=
- =?utf-8?B?ZjB1dkpaQ0g2UThZa04vRlBwdWxZRExFaXhGbnZoNXJWd1pIZ2c3MWNLZ0o0?=
- =?utf-8?B?N3lxOFJkMHlzRXZoVTdiR2dXRGsvTFlvcHRLbnJkZ0J4WGgyaUVCNU13TU1Z?=
- =?utf-8?B?K1F4ZGVqMWVLY3RySW96NGlRYjRQNktKQTFpeE02bmFteC9wRFByclpza21Y?=
- =?utf-8?B?RDRuVGNVQkdKSEFRMnRGMkMxaHR4Z1JPZnZjaUEzMlVoWnY0MlRJdHM1bEFh?=
- =?utf-8?B?ZVZGTDNKaGtBVXVaWWFkNFVuSTRpMmdRMFpBcGVkOXRnVWVYU0lPL0lUbGJK?=
- =?utf-8?B?MHgySkM0eFdqdDBtUFN3WHZuQUR5eHkrTUVzckM1U0hhSDEzcmw2WXdBano1?=
- =?utf-8?B?dWxBMFhENXE4dXBSTHQvWE05WTI3WjE1ZXQxd0ZWUzNSQXQ4TU12SVVscHdE?=
- =?utf-8?B?YXUwRXZybHNxRzBvUjd5LytYNExhMllablNzYm10UkFKeVVQeXhYbDRnOXF3?=
- =?utf-8?B?eEEzeDVxbUVTemR6TmR1WmNwSUsrK3JGbHR2Tk10anJKZDBFL09Ha2FVQ3NX?=
- =?utf-8?B?ZHF3NVdRUExpKzN2eWxHMmJiVGk1N0VQOHZXKzFhZWJRc2QzUGUxWGpzQnRV?=
- =?utf-8?B?UXViMGNYZTRwT0xzU2U2Y2M5M3pxZkN0UTYwOFBIRzhLc0ZFUkxlQ2dObmJR?=
- =?utf-8?B?dmRKZDJXWndESDdDaWdSVThIejR6VVZoTTZSQmFQUkdUR0VxZzNZdUJubkx4?=
- =?utf-8?B?ZCt1T2dmQTRvWkg3U0lTeHNMajZLYUJxSGQ2RW40TnhrNGxLRnd6Nittb1Ro?=
- =?utf-8?B?VHNRZEw5emtOZkdLaCtpMXJFclk0NzgwRHczMjA3NmkvMUNnRjhuaWh3ZEdm?=
- =?utf-8?B?YVVKVzBSMlhsaWV1bEJaWUZ6RHdmMlhteUlWci9IaStNVmNYdmhpZm1pRk5B?=
- =?utf-8?B?YmtQV2lwNHkxUVJKdmRIMDlsc0VxMDcweFlHSWZ2cWJQRW5JcVRlR25TcmUv?=
- =?utf-8?B?dGhkWkZCZFNveG9KWmxvZVh1SGlNbm5PWEJpMndjWHNsRWV1eStUUDVzZ0Na?=
- =?utf-8?B?MmFFV0p4eHl1Y0cvbG42L1lEdzhkSStTaHR2b3Zrb1IyaW8wR0J2aDZwN0Fx?=
- =?utf-8?B?b3NlUTZ4MHRoL05FRVJOMWdKVlF2NHM1UUJERkZhNnk1K1RMcUhwTmZsVk5C?=
- =?utf-8?B?RnpoYXFJN3JSaFBrT1hIRllKQ05lME9QK2FMajBQRjF1MmZrd09UbHhySzBh?=
- =?utf-8?B?R2Y5aFdRNllrR0YyZlN4SDdvK3VqU3lSbjNMOTE2Ly8vcGNjK2pNRlBtSzhs?=
- =?utf-8?B?eVFmQzBXR004bStKTzNQR0lnWjdaZkd0NDdvc3F2VmIvbi9RWG84TExvWVRr?=
- =?utf-8?B?Zkd0ZGk5cU9HRzNQN1FwNXdEZU00NVZBdnM0OFE2b2hLSVp4bDJhME1ySHpi?=
- =?utf-8?B?MUZpaHVyZWc2bktaL2NYeVVyVzhuU1NESjVTbkFSUC9wamVHekZ1MktDUlQw?=
- =?utf-8?B?ZHhYc09FTEdDMHVHQ3hYR3FQUzRtRFZzL2toQUcveG14MEo2SUtTaG5JTWhZ?=
- =?utf-8?B?QitMNzJHOUlBcisyV1FUb0t1bkx2QU5CNVNuSTIwdUo0bVQ2TnUzOGtsUEQ3?=
- =?utf-8?B?b2tDYm1FSDB0VjdLV00wR2pTSEo0M0xxTVVheFJtMUxrQmRSQ1BpRGs5dk1q?=
- =?utf-8?B?cTZVR0ZEeS9aWk5HMTJLMGtKbGR2dSs4TE1MZm1IWG16a2ppVE4rVjB2Q2dC?=
- =?utf-8?B?K3o2NHh0ZGN4L2c5TEpNOE9LWDlyNEFIRWk4N2JCaTI1OW42R1A1dEJrSGxF?=
- =?utf-8?B?MzdGK01sMlNTNUt6U09rMStrTHNIQy8wMFg3SHZtZ1UrY21UL2Erd2dVTDFD?=
- =?utf-8?B?RVV6V1hMUUxTa3NBdkY4U0ZpckNvOGEwQzlza0J3dzk2cjlpc1pBK3IrN3I3?=
- =?utf-8?B?MFMyMTlZMDhjZHM2WFZZNjd6eHFENEtaYjNsS2pub1djUXVMa0tJcjkxUDZa?=
- =?utf-8?B?Zktma2VHdFJsdXJrUURoMGxiQVR6MWtpNEFrejlnWk1rY2QwNXNCTUlBWWlR?=
- =?utf-8?B?c0VvWU1lSEJoWjIveEJKNHpVSS9YVUpUNVQvNlhnUXN6bkc2a0YxNThLallV?=
- =?utf-8?Q?Wmu0=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0c0b78c8-e5eb-4074-a3cb-08dac196c56a
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Nov 2022 14:37:32.9434
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: gne8O0KfArKsEyUZ1q5m9t9C0aAMAKr1LQ/cwi7c6k/S8Z1vnvPZ27TJZhxsLKDA
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6451
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7766dac5969021bf7432e8c4f038db8afc996b8a.1667336095.git.christophe.jaillet@wanadoo.fr>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -DM1x5yhenxVOr4HlphkT1EWcTX0Lfu1
+X-Proofpoint-ORIG-GUID: Po9WtIPhNzLNhdW9EYvJM1NifDKc-mne
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-07_11,2022-11-08_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
+ spamscore=0 bulkscore=0 lowpriorityscore=0 mlxlogscore=643 impostorscore=0
+ priorityscore=1501 mlxscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211080087
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 08, 2022 at 09:19:17AM -0500, Eric Farman wrote:
-> On Tue, 2022-11-08 at 09:54 -0400, Jason Gunthorpe wrote:
-> > On Tue, Nov 08, 2022 at 08:50:53AM -0500, Matthew Rosato wrote:
-> > 
-> > > FWIW, vfio-pci via s390 is working fine so far, though I'll put it
-> > > through more paces over the next few weeks and report if I find
-> > > anything.
-> > 
-> > OK great
-> > 
-> > > As far as mdev drivers...  
-> > > 
-> > > -ccw: Sounds like Eric is already aware there is an issue and is
-> > > investigating (I see errors as well).
+On Tue, Nov 01, 2022 at 10:14:14PM +0100, Christophe JAILLET wrote:
+> strtobool() is the same as kstrtobool().
+> However, the latter is more used within the kernel.
 > 
-> I -think- the problem for -ccw is that the new vfio_pin_pages requires
-> the input addresses to be page-aligned, and while most of ours are, the
-> first one in any given transaction may not be. We never bothered to
-> mask off the addresses since it was handled for us, and we needed to
-> keep the offsets anyway.
+> In order to remove strtobool() and slightly simplify kstrtox.h, switch to
+> the other function name.
 > 
-> By happenstance, I had some code that would do the masking ourselves
-> (for an unrelated reason); I'll see if I can get that fit on top and if
-> it helps matters. After coffee.
+> While at it, include the corresponding header file (<linux/kstrtox.h>)
+> 
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-Oh, yes, that makes alot of sense.
-
-Ah, if that is how VFIO worked we could match it like below:
-
- EXPORT_SYMBOL_NS_GPL(iommufd_access_unpin_pages, IOMMUFD);
- 
- static bool iopt_area_contig_is_aligned(struct iopt_area_contig_iter *iter,
--                                       bool first)
-+                                       bool first, unsigned long first_iova)
- {
--       if (iopt_area_start_byte(iter->area, iter->cur_iova) % PAGE_SIZE)
-+       unsigned long start_offset = first ? (first_iova % PAGE_SIZE) : 0;
-+
-+       if ((iopt_area_start_byte(iter->area, iter->cur_iova) % PAGE_SIZE) !=
-+           start_offset)
-                return false;
- 
-        if (!iopt_area_contig_done(iter) &&
-@@ -607,7 +610,7 @@ int iommufd_access_pin_pages(struct iommufd_access *access, unsigned long iova,
-                        iopt_area_iova_to_index(area, iter.cur_iova);
- 
-                if (area->prevent_access ||
--                   !iopt_area_contig_is_aligned(&iter, first)) {
-+                   !iopt_area_contig_is_aligned(&iter, first, iova)) {
-                        rc = -EINVAL;
-                        goto err_remove;
-                }
-
-Jason
+Applied, thanks!
