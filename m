@@ -2,104 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0F9EC4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Nov 2022 22:31:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1AF6C433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Nov 2022 22:56:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230229AbiKHWbF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Nov 2022 17:31:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58848 "EHLO
+        id S229691AbiKHW4Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Nov 2022 17:56:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230249AbiKHWad (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Nov 2022 17:30:33 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C401712D3C
-        for <linux-s390@vger.kernel.org>; Tue,  8 Nov 2022 14:28:40 -0800 (PST)
+        with ESMTP id S229546AbiKHW4X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Nov 2022 17:56:23 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C6432CC9D
+        for <linux-s390@vger.kernel.org>; Tue,  8 Nov 2022 14:55:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667946520;
+        s=mimecast20190719; t=1667948125;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=pAwH+5JDvufKDL3NMoeBuf7w8Ln38eP9Ts8frUc7hNk=;
-        b=cyAKLLwxSVSFq17txFP1oVhSjX1UGqtSxaDpoX5XobucL7C+fLt3zSsB5ecw8cw9Ppsrlr
-        P3MJIe54z5BdrLvgYItP+DLOjLHMIIGk8zr7SPFEMfKERIGLtSHolDgH3wAViU3Tmlgvnn
-        iOd9L7bzCFerA6V/XESuxi4n8/6S0qc=
-Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
- [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=Xn5djSvharmtEQx57zviUCQbtnk4lTlyXhCimRZ02/A=;
+        b=QELcHzStoSs5OnQEqVkUj4ukidFVFJWjLn80MflGNX9VPrh8sV1S/+564be0zPsKEh1+od
+        sigHArURQjml41hjlgvAtNLtKZiK3oeUm/OaWVwjvMCmwvVTrYSCJEcZhGkwEe4VzIzg66
+        HGaG4AJnlt9EQ7JnPUqVvE2kdRYbO7Q=
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
+ [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-311-qYcRt4pkM3q1T-Wx_6ci2Q-1; Tue, 08 Nov 2022 17:28:38 -0500
-X-MC-Unique: qYcRt4pkM3q1T-Wx_6ci2Q-1
-Received: by mail-il1-f198.google.com with SMTP id q10-20020a056e0220ea00b00300f474693aso9260360ilv.23
-        for <linux-s390@vger.kernel.org>; Tue, 08 Nov 2022 14:28:38 -0800 (PST)
+ us-mta-574-qfiN-M-dNaaMy-kEN4z-aQ-1; Tue, 08 Nov 2022 17:55:24 -0500
+X-MC-Unique: qfiN-M-dNaaMy-kEN4z-aQ-1
+Received: by mail-il1-f197.google.com with SMTP id w13-20020a056e021c8d00b00300ad5b16a0so12050101ill.7
+        for <linux-s390@vger.kernel.org>; Tue, 08 Nov 2022 14:55:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pAwH+5JDvufKDL3NMoeBuf7w8Ln38eP9Ts8frUc7hNk=;
-        b=4h4XTjPritOn1pl+Rd7DKYOz9KCkhvcHYJpcKrmXy0scPOeQg+GFCxNN6b0jjxLdZg
-         Cabefnl1VHc9uj1PFQNbN44C+X+Kd405JpkWGnJI8sKCh/KrGG1NTsdFj8Db4Z1EE+e4
-         icZLdP0ZG4J5b591e6qn03Tx9LHbadoXSBMv0GHre6UZLiFgB0povV/NbgWa6+Ba5kOa
-         G11wnoRPjJ8Ydr1hQj8DV8sNqwZBec23sH+pfUFjvUgx2kFzaFEZJVWwMtQwuUIyCV/E
-         bzvQeto7vBtJtvOKLH+sHEqo3NQy+AYDc6gXWeQzmJgpeHzWPpunOX4nj5b1JDD/g4pZ
-         TVPw==
-X-Gm-Message-State: ACrzQf1D0fs4oHBj/CjvEWK/pLX5mtoBwgr3MbAPvirPrKj3czxvjnF3
-        Ma2EUrF9Xh0gd9TXhFYHjaske4pI7Ht2GOIP/bEt16cYU5k0yBaCDhcG9AtR7zA1VR631Z5j5iX
-        hi+FnaZ0L/dANBseZAr8oNw==
-X-Received: by 2002:a05:6638:3e1b:b0:373:9526:ff23 with SMTP id co27-20020a0566383e1b00b003739526ff23mr1059559jab.25.1667946515337;
-        Tue, 08 Nov 2022 14:28:35 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM7qQUvxc2/UNOHomsJy1dPTa1Nkgqu6DzA5Et+Lrzoib29h+Bm9PbubEw1u6deu68awl9vxhQ==
-X-Received: by 2002:a05:6638:3e1b:b0:373:9526:ff23 with SMTP id co27-20020a0566383e1b00b003739526ff23mr1059545jab.25.1667946515058;
-        Tue, 08 Nov 2022 14:28:35 -0800 (PST)
+        bh=Xn5djSvharmtEQx57zviUCQbtnk4lTlyXhCimRZ02/A=;
+        b=G9/wmwVyonsk21j9Ss2FVzRapsm1Ce8YamscKU15zq9ltvupgePkmShRwXqvLIsbzT
+         trgdMtanwUm0HRgT3qnLS3Bcdh/ehqSU6w3V0/FoJUBfcPktgPqHPuE6o8Tq9DcIE/DO
+         ssV70t9NCmKapTTFCWtefKomVVTgjUHah/v0lfo2Zvp/qFb8Fz9gUQqB6rjelytt6qKv
+         RWsDMJ0cGanqN7zpsq1PufC5t6qgA3Tc4B1k7HwDC54KN/yZf7bIikwFMKZqLq4TEUiu
+         CekXagLNqVtrOZrg3KheXcKx8b0UBxwVT27LX4lm43La0ni5hacB62aDorwd7Nv92XRg
+         LI4Q==
+X-Gm-Message-State: ACrzQf2Nqyo2S8kT3PoLQiE84K2wNz2zd4D4w6V+3jmnVCYkHa/ReRUv
+        wbX5uIO9GN2OYX0jfIMmiC7eKUFavj3NqURsj+s+0eDnLsqvKFLtNOAY27yyF3moaKdt1gETAY9
+        9DvAtfJwnE+PfEztaywL33Q==
+X-Received: by 2002:a92:c90b:0:b0:300:9b70:1954 with SMTP id t11-20020a92c90b000000b003009b701954mr1157719ilp.52.1667948123558;
+        Tue, 08 Nov 2022 14:55:23 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM7inYgp9d81Al2F/3Q/QRh1DvH49c8xJ7dAOPW8yrTtfbiNXukEmtMY97bMKALlOwtV8gl6cQ==
+X-Received: by 2002:a92:c90b:0:b0:300:9b70:1954 with SMTP id t11-20020a92c90b000000b003009b701954mr1157706ilp.52.1667948123238;
+        Tue, 08 Nov 2022 14:55:23 -0800 (PST)
 Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id k9-20020a026609000000b003753b6452f9sm4039228jac.35.2022.11.08.14.28.33
+        by smtp.gmail.com with ESMTPSA id o15-20020a02a1cf000000b00374fa5b600csm4208110jah.0.2022.11.08.14.55.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Nov 2022 14:28:34 -0800 (PST)
-Date:   Tue, 8 Nov 2022 15:28:31 -0700
+        Tue, 08 Nov 2022 14:55:22 -0800 (PST)
+Date:   Tue, 8 Nov 2022 15:55:20 -0700
 From:   Alex Williamson <alex.williamson@redhat.com>
 To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@gmail.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
+Cc:     kvm@vger.kernel.org, Kevin Tian <kevin.tian@intel.com>,
         dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Longfang Liu <liulongfang@huawei.com>,
+        linux-s390@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Will Deacon <will@kernel.org>, Joerg Roedel <joro@8bytes.org>,
+        Halil Pasic <pasic@linux.ibm.com>, iommu@lists.linux.dev,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org, Zhi Wang <zhi.a.wang@intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
         Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, iommu@lists.linux.dev,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
         Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: Re: [PATCH v2 10/11] vfio: Make vfio_container optionally compiled
-Message-ID: <20221108152831.1a2ed3df.alex.williamson@redhat.com>
-In-Reply-To: <10-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
-References: <0-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
-        <10-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
+        Robin Murphy <robin.murphy@arm.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>
+Subject: Re: [PATCH 04/10] vfio: Move storage of allow_unsafe_interrupts to
+ vfio_main.c
+Message-ID: <20221108155520.4429c2e5.alex.williamson@redhat.com>
+In-Reply-To: <Y2lSZwNT8f/RMoZf@nvidia.com>
+References: <0-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
+        <4-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
+        <20221026152442.4855c5de.alex.williamson@redhat.com>
+        <Y1wiCc33Jh5QY+1f@nvidia.com>
+        <20221031164526.0712e456.alex.williamson@redhat.com>
+        <Y2kF75zVD581UeR2@nvidia.com>
+        <20221107081853.18727337.alex.williamson@redhat.com>
+        <Y2klGAUEUwpjWHw6@nvidia.com>
+        <20221107110508.7f02abf4.alex.williamson@redhat.com>
+        <Y2lSZwNT8f/RMoZf@nvidia.com>
 X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -108,81 +110,98 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon,  7 Nov 2022 20:52:54 -0400
+On Mon, 7 Nov 2022 14:45:59 -0400
 Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> Add a kconfig CONFIG_VFIO_CONTAINER that controls compiling the container
-> code. If 'n' then only iommufd will provide the container service. All the
-> support for vfio iommu drivers, including type1, will not be built.
+> On Mon, Nov 07, 2022 at 11:05:08AM -0700, Alex Williamson wrote:
 > 
-> This allows a compilation check that no inappropriate dependencies between
-> the device/group and container have been created.
+> > After further consideration... I don't think the option on vfio-main
+> > makes sense, basically for the same reason that the original option
+> > existed on the IOMMU backend rather than vfio-core.  The option
+> > describes a means to relax a specific aspect of IOMMU isolation, which
+> > makes more sense to expose via the IOMMU provider, imo.  For example,
+> > vfio-main cannot generate an equivalent error message as provided in
+> > type1 today, it's too far removed from the IOMMU feature support.  
 > 
-> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/vfio/Kconfig  | 35 +++++++++++++++--------
->  drivers/vfio/Makefile |  4 +--
->  drivers/vfio/vfio.h   | 65 +++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 91 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/vfio/Kconfig b/drivers/vfio/Kconfig
-> index 1118d322eec97d..286c1663bd7564 100644
-> --- a/drivers/vfio/Kconfig
-> +++ b/drivers/vfio/Kconfig
-> @@ -3,8 +3,8 @@ menuconfig VFIO
->  	tristate "VFIO Non-Privileged userspace driver framework"
->  	select IOMMU_API
->  	depends on IOMMUFD || !IOMMUFD
-> -	select VFIO_IOMMU_TYPE1 if MMU && (X86 || S390 || ARM || ARM64)
->  	select INTERVAL_TREE
-> +	select VFIO_CONTAINER if IOMMUFD=n
->  	help
->  	  VFIO provides a framework for secure userspace device drivers.
->  	  See Documentation/driver-api/vfio.rst for more details.
-> @@ -12,6 +12,18 @@ menuconfig VFIO
->  	  If you don't know what to do here, say N.
->  
->  if VFIO
-> +config VFIO_CONTAINER
-> +	bool "Support for the VFIO container /dev/vfio/vfio"
-> +	select VFIO_IOMMU_TYPE1 if MMU && (X86 || S390 || ARM || ARM64)
-> +	default y
-> +	help
-> +	  The VFIO container is the classic interface to VFIO for establishing
-> +	  IOMMU mappings. If N is selected here then IOMMUFD must be used to
-> +	  manage the mappings.
-> +
-> +	  Unless testing IOMMUFD say Y here.
-> +
-> +if VFIO_CONTAINER
->  config VFIO_IOMMU_TYPE1
->  	tristate
->  	default n
-> @@ -21,16 +33,6 @@ config VFIO_IOMMU_SPAPR_TCE
->  	depends on SPAPR_TCE_IOMMU
->  	default VFIO
->  
-> -config VFIO_SPAPR_EEH
-> -	tristate
-> -	depends on EEH && VFIO_IOMMU_SPAPR_TCE
-> -	default VFIO
-> -
-> -config VFIO_VIRQFD
-> -	tristate
-> -	select EVENTFD
-> -	default n
-> -
->  config VFIO_NOIOMMU
->  	bool "VFIO No-IOMMU support"
->  	help
+> vfio-main can do it, we just have to be strict that the EPERM code is
+> always going to be this case.
 
+This doesn't seem very practical.
 
-Perhaps this should have been obvious, but I'm realizing that
-vfio-noiommu mode is completely missing without VFIO_CONTAINER, which
-seems a barrier to deprecating VFIO_CONTAINER and perhaps makes it a
-question whether IOMMUFD should really be taking over /dev/vfio/vfio.
-No-iommu mode has users.  Thanks,
+> > > > If vdpa doesn't allow full device access such that it can guarantee
+> > > > that a device cannot generate a DMA that can spoof MSI, then it
+> > > > sounds like the flag we pass when attaching a device to iommfd
+> > > > should to reflect this difference in usage.    
+> > > 
+> > > VDPA allows arbitary DMA just like VFIO. At most VDPA limits the MMIO
+> > > touches.  
+> >
+> > So why exactly isn't this an issue for VDPA?  Are we just burying our
+> > head in the sand that such platforms exists and can still be useful
+> > given the appropriate risk vs reward trade-off?  
+> 
+> Simply that nobody has asked for it, and might never ask for it. This
+> is all support for old platforms, and there just doesn't seem to be a
+> "real" use case for very new (and actually rare) NIC hardware stuck
+> into ancient platforms with this security problem.
+
+vIOMMU support for interrupt remapping is relatively new, the nesting
+case is important as well.
+
+> So I'd rather leave this in the past than carry forward a security
+> exception as some ongoing 1st class thing.
+> 
+> > > and IMHO we don't actually want to enable this more
+> > > widely. So I don't want to see a global kernel wide flag at this point
+> > > until we get reason to make more than just VFIO insecure.  
+> > 
+> > But this brings into question the entire existence of the opt-in.  Do
+> > we agree that there are valid use cases for such an option?  
+> 
+> I think it is something VFIO has historically allowed and I think we
+> can continue to allow it, but I don't think we should encourage its
+> use or encourage it to propogate to wider areas given that the
+> legitimate use cases are focused on fairly old hardware at this point.
+> 
+> So, I'd rather wait for someone to ask for it, and explain why they
+> need to use a combination of stuff where we need to have a true global
+> option.
+> 
+> > Unlike things like ACS overrides, lack of interrupt isolation really
+> > requires a malicious actor.  We're not going to inadvertently overlap
+> > DMA to interrupt addresses like we might to a non-isolated MMIO ranges.
+> > Therefore an admin can make a reasonable determination relative to the
+> > extent to which the userspace is trusted.  This is not unlike opt-outs
+> > to CPU vulnerability mitigation imo, there are use cases where the
+> > performance or functionality is more important than the isolation.
+> > Hand waving this away as a vfio-unique insecurity is a bad precedent
+> > for iommufd.  
+> 
+> I agree with this, which is why I think it should come from the actual
+> user facing subsystem not be a system wide flag. The "is userspace
+> trusted" for VFIO may be quite different than from VDPA or whatever
+> else comes next.
+> 
+> I'd be much more comfortable with this as a system wide iommufd flag
+> if we also tied it to do some demonstration of privilege - eg a
+> requirement to open iommufd with CAP_SYS_RAWIO for instance.
+
+Which is not compatible to existing use cases, which is also why we
+can't invent some way to allow some applications to run without CPU
+mitigations, while requiring it for others as a baseline.
+
+> That is the usual protocol for these kinds of insecurities..
+
+Hmm, is it?
+
+> I think right now we can leave this as-is and we can wait for some
+> more information to decide how best to proceed.
+
+It's certainly not acceptable in the latest proposal, iommufd consumes
+an option set by another module and when that module goes away, so does
+any claim of compatibility.  The code becomes dead and the feature not
+present.  The option doesn't belong on the vfio module.  Do we need a
+vfio-iommufd module to host it?  Thanks,
 
 Alex
 
