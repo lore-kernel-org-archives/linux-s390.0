@@ -2,144 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8734EC43217
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Nov 2022 12:50:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA92AC433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Nov 2022 13:51:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234242AbiKHMur (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Nov 2022 07:50:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
+        id S234728AbiKHNve (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Nov 2022 08:51:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234229AbiKHMuq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Nov 2022 07:50:46 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46713B38;
-        Tue,  8 Nov 2022 04:50:46 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A8BN9G4020165;
-        Tue, 8 Nov 2022 12:50:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=xpbVy2Xdw6dkaofnePr8pEsAXDgp1oFsAnah/EYilNQ=;
- b=qVUSesUO+uOU3HhWOdcPJjNuZ7hnpwreWqHnmz2y7qGFdeDI4hACGZsIVhdslPwjsu9K
- vLxrN1Ro5IKqupOGyu9cFtCqfyl+3IogDz/8JIJ6h8texWYZ/efLWIV2T5eyx6idNaW3
- 3Gfg2JfBzOIn3hIe5jIh9TBfi+B7q5w4uP+FWr9OmON+ZxmTSQ/gWF+yohwNwHSX4feO
- Gma+UKOq5RdvC40VRZaHQhG70TDMfwk3ooCFuAvsk5wZqKGZEI3ZS+4n13/XoMf+fL6q
- KKzApeNQ39DO8Y7UFaj0AZLuonVgKno42x1rt4CWJ3PLGBnbxjpw5eO7SbK//vlAhx06 2Q== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kqkhkyenj-1
+        with ESMTP id S234675AbiKHNvW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Nov 2022 08:51:22 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 980B560EB5;
+        Tue,  8 Nov 2022 05:51:16 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A8D16Za009658;
+        Tue, 8 Nov 2022 13:50:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=uP4Y/yDPhOKJEQ20tkHx+KIyFrfiSyOWW4zDghEM2sE=;
+ b=aRLjotHNafp95Gsum6cYuNf+Oevtc+NnovQSOlDI4CEtr92RxWdd76xlBrcogzCRqfjz
+ GT6DWnfOQoevEsEuxB6CBWS8QiN9JOGU9V0J0sYcAeXg4WaszOSA/SdgO+/QAISXmFPo
+ F2mWAnaM7dcPTDPGjcgt+uWMpyhneziBtFHeRRDzb40QL97JQkiid10ceeDD0UiccAo+
+ 946VIHYI61JWMSQTpp+B2/HTZwPm+bT8UCVhwmVJ83PfbfsDqFumjfSsK+zIIkx/s5Vd
+ F5Thz/FmibhrJeG+Tt5LxFa8XSBt/MO+ELDaUI4NDLHYM5vvkPS7CJiZi0ujwU/rqw14 sg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kqcpvv36r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Nov 2022 12:50:45 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A8Cb9Uq000992;
-        Tue, 8 Nov 2022 12:50:43 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3kngncc5ht-1
+        Tue, 08 Nov 2022 13:50:59 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A8DO3Mc021918;
+        Tue, 8 Nov 2022 13:50:58 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kqcpvv367-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Nov 2022 12:50:43 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A8Coef327853404
+        Tue, 08 Nov 2022 13:50:58 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A8DZ3aU010374;
+        Tue, 8 Nov 2022 13:50:57 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma04dal.us.ibm.com with ESMTP id 3kngmt4gyf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Nov 2022 13:50:57 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com ([9.208.128.115])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A8DouQN25035066
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Nov 2022 12:50:40 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 456F652051;
-        Tue,  8 Nov 2022 12:50:40 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.56])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CEB245204E;
-        Tue,  8 Nov 2022 12:50:39 +0000 (GMT)
-Date:   Tue, 8 Nov 2022 13:50:38 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        pasic@linux.ibm.com, akrowiak@linux.ibm.com, jjherne@linux.ibm.com,
-        mimu@linux.ibm.com, vneethv@linux.ibm.com, oberpar@linux.ibm.com
-Subject: Re: [PATCH v1] KVM: s390: GISA: sort out physical vs virtual
- pointers usage
-Message-ID: <20221108135038.4b6300e4@p-imbrenda>
-In-Reply-To: <20221107085727.1533792-1-nrb@linux.ibm.com>
-References: <20221107085727.1533792-1-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        Tue, 8 Nov 2022 13:50:56 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E7DA958066;
+        Tue,  8 Nov 2022 13:50:55 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5EEB85804E;
+        Tue,  8 Nov 2022 13:50:54 +0000 (GMT)
+Received: from [9.160.191.98] (unknown [9.160.191.98])
+        by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  8 Nov 2022 13:50:54 +0000 (GMT)
+Message-ID: <c32829c8-1259-7441-f6df-04f44a39ab2f@linux.ibm.com>
+Date:   Tue, 8 Nov 2022 08:50:53 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: S390 testing for IOMMUFD
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     iommu@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        kvm@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>
+References: <0-v4-0de2f6c78ed0+9d1-iommufd_jgg@nvidia.com>
+ <Y2msLjrbvG5XPeNm@nvidia.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <Y2msLjrbvG5XPeNm@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: vIFSmw-PDeLZZJpO7tDT-ac6xEyn5GHH
-X-Proofpoint-GUID: vIFSmw-PDeLZZJpO7tDT-ac6xEyn5GHH
+X-Proofpoint-ORIG-GUID: ahw-AsG31tlN-zoB6D2ZMeo0NyX1xL31
+X-Proofpoint-GUID: Tr2Yi4qgkWOi-Zoke6xbIdACyFsGLLRG
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-07_11,2022-11-08_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- phishscore=0 mlxlogscore=999 adultscore=0 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 clxscore=1015 spamscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211080072
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 adultscore=0 malwarescore=0 mlxlogscore=999 spamscore=0
+ mlxscore=0 impostorscore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211080080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon,  7 Nov 2022 09:57:27 +0100
-Nico Boehr <nrb@linux.ibm.com> wrote:
-
-> Fix virtual vs physical address confusion (which currently are the same).
+On 11/7/22 8:09 PM, Jason Gunthorpe wrote:
+> On Mon, Nov 07, 2022 at 08:48:53PM -0400, Jason Gunthorpe wrote:
+>> [
+>> This has been in linux-next for a little while now, and we've completed
+>> the syzkaller run. 1300 hours of CPU time have been invested since the
+>> last report with no improvement in coverage or new detections. syzkaller
+>> coverage reached 69%(75%), and review of the misses show substantial
+>> amounts are WARN_ON's and other debugging which are not expected to be
+>> covered.
+>> ]
+>>
+>> iommufd is the user API to control the IOMMU subsystem as it relates to
+>> managing IO page tables that point at user space memory.
 > 
-> In chsc_sgib(), do the virtual-physical conversion in the caller since
-> the caller needs to make sure it is a 31-bit address and zero has a
-> special meaning (disassociating the GIB).
+> [chop cc list]
 > 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  arch/s390/kvm/interrupt.c | 11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
+> s390 mdev maintainers,
 > 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index ab569faf0df2..ae018217eac8 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -3104,9 +3104,9 @@ static enum hrtimer_restart gisa_vcpu_kicker(struct hrtimer *timer)
->  static void process_gib_alert_list(void)
->  {
->  	struct kvm_s390_gisa_interrupt *gi;
-> +	u32 final, gisa_phys, origin = 0UL;
->  	struct kvm_s390_gisa *gisa;
->  	struct kvm *kvm;
-> -	u32 final, origin = 0UL;
->  
->  	do {
->  		/*
-> @@ -3132,9 +3132,10 @@ static void process_gib_alert_list(void)
->  		 * interruptions asap.
->  		 */
->  		while (origin & GISA_ADDR_MASK) {
-> -			gisa = (struct kvm_s390_gisa *)(u64)origin;
-> +			gisa_phys = origin;
-> +			gisa = phys_to_virt(gisa_phys);
->  			origin = gisa->next_alert;
-> -			gisa->next_alert = (u32)(u64)gisa;
-> +			gisa->next_alert = gisa_phys;
->  			kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
->  			gi = &kvm->arch.gisa_int;
->  			if (hrtimer_active(&gi->timer))
-> @@ -3418,6 +3419,7 @@ void kvm_s390_gib_destroy(void)
->  
->  int kvm_s390_gib_init(u8 nisc)
->  {
-> +	u32 gib_origin;
->  	int rc = 0;
->  
->  	if (!css_general_characteristics.aiv) {
-> @@ -3439,7 +3441,8 @@ int kvm_s390_gib_init(u8 nisc)
->  	}
->  
->  	gib->nisc = nisc;
-> -	if (chsc_sgib((u32)(u64)gib)) {
-> +	gib_origin = virt_to_phys(gib);
-> +	if (chsc_sgib(gib_origin)) {
->  		pr_err("Associating the GIB with the AIV facility failed\n");
->  		free_page((unsigned long)gib);
->  		gib = NULL;
+> Can I ask your help to test this with the two S390 mdev drivers? Now
+> that gvt is passing and we've covered alot of the QA ground it is a
+> good time to run it.
+> 
+> Take the branch from here:
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/jgg/iommufd.git/log/?h=for-next
+> 
+> And build the kernel with 
+> 
+> CONFIG_VFIO_CONTAINER=n
+> CONFIG_IOMMUFD=y
+> CONFIG_IOMMUFD_VFIO_CONTAINER=y
+> 
+> And your existing stuff should work with iommufd providing the iommu
+> support to vfio. There will be a dmesg confirming this.
+> 
+> Let me know if there are any problems!
+
+FWIW, vfio-pci via s390 is working fine so far, though I'll put it through more paces over the next few weeks and report if I find anything.
+
+As far as mdev drivers...  
+
+-ccw: Sounds like Eric is already aware there is an issue and is investigating (I see errors as well).
+
+-ap: I see the exact same issue that Christian mentioned...  I'll talk to Tony & Jason about it.
+
+> 
+> If I recall there was some desire from the S390 platform team to start
+> building on iommufd to create some vIOMMU acceleration for S390
+> guests, this is a necessary first step.
+
+There's probably something here for -ccw in the future, but you might be thinking of s390 vfio-pci e.g. to implement the in-kernel handling of nested mappings on s390 -- yep, work in in progress here, not ready for sharing yet but I have been most recently basing my work on top of the nesting series https://github.com/yiliu1765/iommufd/tree/iommufd-v6.0-rc3-nesting
+
+Matt
+
 
