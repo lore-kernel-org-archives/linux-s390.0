@@ -2,200 +2,186 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FE6FC4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Nov 2022 17:51:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97685C4332F
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Nov 2022 19:18:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234732AbiKHRvy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Nov 2022 12:51:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49560 "EHLO
+        id S229909AbiKHTSt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Nov 2022 14:18:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234733AbiKHRvx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Nov 2022 12:51:53 -0500
-Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2042.outbound.protection.outlook.com [40.107.102.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8D163A7;
-        Tue,  8 Nov 2022 09:51:52 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=elx04t+rXbHvbm3Q9PkfhZ2VQaY7+kELOybfJVQFN44h/ZjHBbKTYiZOR9Twttkk04yyI4vRyRzKKl/TetMgdyXoyJjp8z28sLsUFvQtB+lL+FasIuFr85lBO7eY8Vm0gOK5tQC3BjcEnty3nKdTq3iExx5LmzXUiGKzk8U2vW6rRGJZf9+J0+mTKC3OX6N6tj9kueZbkwElQM7hlRKCJysZJ/0mSfDAweK42qNaASJQrTYmqqrUxPYQpNS0XqLZN4kHANJcoBixsvlJyrKqRqGcxNH9RKOGnP8QLcKibGUZxBbmYmyV6B9jgks6Ihybbuvt9QVQwYCFC5g2oUwrfQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=eup9rFMzKQfKJTvb9VmNsZopT1xUXV1ZjlUHUQaZL/Q=;
- b=EbVppb9/X1Onq/auQjrZOU2I3yMS5hvHfXvlU+iRx4+Cm0RYXkM4b+27IvqkH8qe7vZn+SvAFj0rjAqXH7XdV2IToX4zZUsShbpeMQ26sOmrosBxRKkiDoYGHQQETIJ1g6FftvWr4H0ZkITxjbhsgZqcuSCWrbZpDL6fz3N5g6bDxYM9yhsuxoFjzaDZcHonbxXc2Xb9WQwDUvdLPmVYTD5vNzYiKoyOmw8SA8EK2XISZKaUGPb1YCQmw1AmTZ5UBI32ihQanwDcpS/Ieu7lBY5l/yOdASI66ekluUOdnABAheD3iiOd5Nr9b6ps90FgO9JS63a1XAOot96N/dTLBA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=eup9rFMzKQfKJTvb9VmNsZopT1xUXV1ZjlUHUQaZL/Q=;
- b=IKPeiBjFxPZ/9kyC+1hooirDCmXjrLqjDKtryb23KiDmvmw4i2WCmhN+V9qFc219tuaIzp9+r745f7Y2wJ6sPaAtMok6XDpqjGFaWVnsB6xek4RbhwART9HRvKnXVCBMT4hX7kvuJz0yJqiYrKBlcZfGql7G6jkcltGIuZgy+gfQNUuYQOk7LgUY+mYpUhFl350T30Oa6nttQ2ZRZ9Nl1dgvmERN9eDdXUdlzCSLnwt8sassDOwEWQR5Pk8a1kFuW6zcug4Ib2gcBNokelzrEaBTSMDnGlKtp9A5ZfxuU9+8SkOYeYtzjR6xgA9hCTJtk+WGQD9U3ZyUQXtYCXF7Ew==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by PH7PR12MB6788.namprd12.prod.outlook.com (2603:10b6:510:1ae::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.26; Tue, 8 Nov
- 2022 17:51:51 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de%6]) with mapi id 15.20.5791.026; Tue, 8 Nov 2022
- 17:51:51 +0000
-Date:   Tue, 8 Nov 2022 13:51:49 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-Cc:     Nicolin Chen <nicolinc@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@gmail.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, iommu@lists.linux.dev,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH v2 07/11] vfio-iommufd: Support iommufd for physical VFIO
- devices
-Message-ID: <Y2qXNcqXtAVkmXGN@nvidia.com>
-References: <0-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
- <7-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
- <Y2ny84qOFQhtYVPF@Asurada-Nvidia>
- <78d1994d-f6ac-7d1e-7d00-4a98c309bc5b@intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <78d1994d-f6ac-7d1e-7d00-4a98c309bc5b@intel.com>
-X-ClientProxiedBy: MN2PR22CA0007.namprd22.prod.outlook.com
- (2603:10b6:208:238::12) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S229877AbiKHTSo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Nov 2022 14:18:44 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BC9175A9;
+        Tue,  8 Nov 2022 11:18:32 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A8JDR2Q024441;
+        Tue, 8 Nov 2022 19:18:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=y8j7WZTnEnj/qW2WCDBnYQXSr6VTyWeRPWnO/pLHYy4=;
+ b=arXGuHyGro1BNdkYe5U42aVMAurAnsLqmXhdGjhtKH3gyuN2eBxzGyPR6SDGUV0hV565
+ rEYLkkGty8J6jGBdHbvzVl2f36qIcNyEVXcYR4EEWdmxfX681Tp6gX/aecOxQhpmI3AJ
+ GuiW1deIh3vXKJnMFpgzSXFb0MZkUjlV/4YqOk4W/q5cudZTTNQDMrgMlkLliYpL+0BJ
+ l7r9uXx7bYS9snIpBoDirKRzbUf9qoPkKkeVpZ12f9QAqpPdNdMII8u9FOmQ5A6Kq+hW
+ Nl1ID6hpvwnD9kmWaF4OvU2igrsCDR8IiBO8IZScKtxddSdDmiUneUf8H4q8IqP1lOWM YQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kqw2ur43s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Nov 2022 19:18:16 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A8JEV7k027404;
+        Tue, 8 Nov 2022 19:18:16 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kqw2ur43h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Nov 2022 19:18:16 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A8J6O6c015955;
+        Tue, 8 Nov 2022 19:18:15 GMT
+Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
+        by ppma04wdc.us.ibm.com with ESMTP id 3kngptrgda-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Nov 2022 19:18:15 +0000
+Received: from smtpav02.dal12v.mail.ibm.com ([9.208.128.128])
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A8JICXt11928284
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 8 Nov 2022 19:18:13 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F36A15806D;
+        Tue,  8 Nov 2022 19:18:13 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ADE2658065;
+        Tue,  8 Nov 2022 19:18:12 +0000 (GMT)
+Received: from [9.160.191.98] (unknown [9.160.191.98])
+        by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  8 Nov 2022 19:18:12 +0000 (GMT)
+Message-ID: <f2f8b63c-ecc7-7413-7134-089d30ba8e7d@linux.ibm.com>
+Date:   Tue, 8 Nov 2022 14:18:12 -0500
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|PH7PR12MB6788:EE_
-X-MS-Office365-Filtering-Correlation-Id: 812d566f-1430-4e67-e69c-08dac1b1ea33
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 58wqHKSzYR1XwmhcdL2p8C16ZgeDX3w3RpilNRt9uEIfJ1DLqmAKy7FcdaJlTjJpWgq+PfSbif8hXhn41f6kt1J8iu6nZA2oR9Dx0pW+oLqjj44xB5JItQ+oU/7HptpDG1RGAOdIwUylAt0cT1hmhAere/fs82F0ofFpN9YioKsCAYUGzcdvUv/N7jACsW+KvEDVijW/x5YC6l9SYjPAJMQ9bVRSm/kqk5PgVvt8lzglGTCIH4DmidzBBt1TAwYmK44R86NiPyagu4jbml2cQDQCXEGwplYHdPBH0teEezASTRd8Kj2Woem48i+CBXoNb+RqBd+YzbLj8Vaek9GA4K2FzerUfVQQlhjvT1TjQxOoEz7vWQplNz+Ij+UE24R2oYEjXcER5YzXvGuTB2rSgXlRaWkF3EhoukBschrJxFXXm7RkqHsFPyMvl3PeJ2FKZC28QW6wHNq0Rk+OiGGrMEtYl2Inb2mJQ52+6ZrIJ+jARvnuhuEMeL08G0EJMd+2KDQaiA/SMd2WmmzVgX7P88tnPEfB/U+Z9MuDueYojkh0K9lLtYA3spe+m16+VsyyvQxeylUboaPqDr5xwC0b/s6AunqEnR19f8Q6+kxXTMLdlYphkoEGbU7uzIlHs5+ham9W8lBxxQG5jCFliCq1KaVMt0+NQjERyMDR6daDzRC4lXvql3N5Zvb4MHQYxKW8OqlrbU0fb5Cfnw1whHjVJw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(136003)(346002)(376002)(396003)(366004)(451199015)(38100700002)(83380400001)(186003)(6512007)(26005)(5660300002)(2616005)(53546011)(8676002)(6506007)(7416002)(7406005)(2906002)(54906003)(6916009)(8936002)(6486002)(66946007)(478600001)(316002)(4326008)(41300700001)(66476007)(36756003)(66556008)(86362001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Au6d6FCruT4ciygenZlTHEV+7fyoU/gXSFvhoXHm7AOsPR34TstMkzJVtoNt?=
- =?us-ascii?Q?7BLyvNlCfJs79HR38AE8AJ5M3RT8TgpG+jeIK6xSTrQweILcOQTSGU/PexE9?=
- =?us-ascii?Q?ojkj50ni4dJJkb2NUGcrvZmb7wC23Uq3LtFsHMOUNuE4XfI3Npc+XH1zFvyS?=
- =?us-ascii?Q?wTMtblKh33cgU91gQPg3BgqAAuw11MerWUTZOEWZZmC9bFKXbNuR/Hks2sm0?=
- =?us-ascii?Q?l3/+wk4ndiQPOWm5AvrxizPeXzNay9KflPjZArjaVIARQU9kdnargjujPcdq?=
- =?us-ascii?Q?hppAv6EY1zzF1FBrfXKGJqqpPoSDcTTy2UFwp3+f6PfHMUsAheCFrufXY9lG?=
- =?us-ascii?Q?tcXBXXYHKyRs4xS2pm28GKViceyesefNr62nMmlMT8L0KIAFiL+Q58jNhb6g?=
- =?us-ascii?Q?zmqhme2ASou1VMBpbZpxxnlnkhPD5fUVme7XFA8mi3Loc4/8W25HEDmbOvcs?=
- =?us-ascii?Q?jREVLQXec8I4+WaDrjfGoX2o6+sJXa8enJtH0ms5SJG8mkzqxxIzvzOvCQjw?=
- =?us-ascii?Q?YyITSUnA5Js8YyAZhawuXL4XAC3p+sZTav99iSp0I7N1DiagcsxarSFb/ycI?=
- =?us-ascii?Q?j+oEV0GIlC6n+isuwxJmlVwp/Yexj4QnSqrC7dagYyF/HO50wsz+hFe1/Kqy?=
- =?us-ascii?Q?wIDTg4+jVhRAe8oYvL2CcXlfNWJ3u2yiLsYjf6oYNRco/lU3pcYpemxRZ6Z/?=
- =?us-ascii?Q?XZJWkzvL/CV1FwH4eysPOmpTHDSRn86uIp25lmX3WdwhZNurh1V1xI72HBYj?=
- =?us-ascii?Q?ysRPYS522dyTmZ87yzRn9S+oF9zTLS5w9oeC8LZ/DiZCO1PjQMlS835X7FAa?=
- =?us-ascii?Q?NSCxlVrerZyakAqMzgrFzpLBxmv2T9WJCDCciWtCBoinTaf/sTx9SJRvllZE?=
- =?us-ascii?Q?ur57in3h+a3/BwUNyXOrYde5GQrDc3nXIdPfkviMpVYZDfUsdHGdC34ry6t/?=
- =?us-ascii?Q?/MiMNgtOhgBMeUnVJ6dJFswMOUYpdkYH8WA8uBBKEyZzTVbggwODoWfGYOpM?=
- =?us-ascii?Q?6nZl5csJTsGpqN/fT5U2KeJYKZWuKWI7CjLUR6MlcRtjiZbEe69EgL70HhDq?=
- =?us-ascii?Q?RlNGoYP7g5B4x1+FjK5nCXA5Y22ZWCyrrLDUAEhBWHXIJB3OwpFgU64KK97j?=
- =?us-ascii?Q?7KFFCkOUir8ldUv5ryG8zWNmnEOd1wcHHBSoHcIS4lf0hjj+F5SEEZKZIZ1X?=
- =?us-ascii?Q?bVpNSNzxzhBdIc3OZH65ELyQvDYqzUSN6cFG/r2+yfSQuoFhOKA3ZSVaECBv?=
- =?us-ascii?Q?kH06KBBmwYrfQptFUvTjrqCz7ZFhqTKUs/CMVZxDBcysw49L9hlnRbZ6izry?=
- =?us-ascii?Q?Zh+n95MfGA0L358UcSweH3NkcfBMlgmRYmtI5iKzStZV1V1pjjlJhJ/R/6N1?=
- =?us-ascii?Q?sro1PHelswXGeMT9qjTjamUy9ik6uR+udBJkJSYvIqGvLFpo7f9PB6Akc4Pc?=
- =?us-ascii?Q?pUQsNuVndqo9H3u785D9S3xUKbLfQep15IHIevcrmC3F6rwlAyLYmCcdSH+U?=
- =?us-ascii?Q?b+TToA4n5/6hzJFcieub0z6xbJUilO7ZF1byJCFPFWwsJafsmXQvFTXUE9d1?=
- =?us-ascii?Q?W8Nm8ieLDmFruhtPMac=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 812d566f-1430-4e67-e69c-08dac1b1ea33
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Nov 2022 17:51:51.1488
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 56I7kIBay8Elgs+yjXTb9ms586bnf20/CtBz5ETeLmG1jne4sNcieHL5M12ndthv
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6788
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: S390 testing for IOMMUFD
+Content-Language: en-US
+To:     Eric Farman <farman@linux.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org,
+        iommu@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        kvm@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>
+References: <0-v4-0de2f6c78ed0+9d1-iommufd_jgg@nvidia.com>
+ <Y2msLjrbvG5XPeNm@nvidia.com>
+ <c32829c8-1259-7441-f6df-04f44a39ab2f@linux.ibm.com>
+ <Y2pffsdWwnfjrTbv@nvidia.com>
+ <67dafaf27cc029ffde1f7c474c2fd17907958d5a.camel@linux.ibm.com>
+ <Y2ppq9oeKZzk5F6h@nvidia.com>
+ <ce7bfc8b7efccf0fc35f89d3c79992dfba511b3a.camel@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <ce7bfc8b7efccf0fc35f89d3c79992dfba511b3a.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: MvG2WmSAJR_0TMf1RIUdf8bSPHVow40K
+X-Proofpoint-ORIG-GUID: 85j1czU6AYqD9zysLlrdvY7IS1gx9pYT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-07_11,2022-11-08_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 lowpriorityscore=0 malwarescore=0 mlxlogscore=999
+ adultscore=0 spamscore=0 impostorscore=0 phishscore=0 bulkscore=0
+ mlxscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211080121
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 08, 2022 at 03:41:25PM +0800, Yi Liu wrote:
-> On 2022/11/8 14:10, Nicolin Chen wrote:
-> > On Mon, Nov 07, 2022 at 08:52:51PM -0400, Jason Gunthorpe wrote:
-> > 
-> > > @@ -795,6 +800,10 @@ static int vfio_device_first_open(struct vfio_device *device)
-> > >   		ret = vfio_group_use_container(device->group);
-> > >   		if (ret)
-> > >   			goto err_module_put;
-> > > +	} else if (device->group->iommufd) {
-> > > +		ret = vfio_iommufd_bind(device, device->group->iommufd);
-> > 
-> > Here we check device->group->iommufd...
-> > 
-> > > +		if (ret)
-> > > +			goto err_module_put;
-> > >   	}
-> > >   	device->kvm = device->group->kvm;
-> > > @@ -812,6 +821,7 @@ static int vfio_device_first_open(struct vfio_device *device)
-> > >   	device->kvm = NULL;
-> > >   	if (device->group->container)
-> > >   		vfio_group_unuse_container(device->group);
-> > > +	vfio_iommufd_unbind(device);
-> > 
-> > ...yet, missing here, which could result in kernel oops.
-> > 
-> > Should probably add something similar:
-> > +	if (device->group->iommufd)
-> > +		vfio_iommufd_unbind(device);
-> > 
-> > Or should check !vdev->iommufd_device inside the ->unbind.
+On 11/8/22 10:29 AM, Eric Farman wrote:
+> On Tue, 2022-11-08 at 10:37 -0400, Jason Gunthorpe wrote:
+>> On Tue, Nov 08, 2022 at 09:19:17AM -0500, Eric Farman wrote:
+>>> On Tue, 2022-11-08 at 09:54 -0400, Jason Gunthorpe wrote:
+>>>> On Tue, Nov 08, 2022 at 08:50:53AM -0500, Matthew Rosato wrote:
+>>>>
+>>>>> FWIW, vfio-pci via s390 is working fine so far, though I'll put
+>>>>> it
+>>>>> through more paces over the next few weeks and report if I find
+>>>>> anything.
+>>>>
+>>>> OK great
+>>>>
+>>>>> As far as mdev drivers...  
+>>>>>
+>>>>> -ccw: Sounds like Eric is already aware there is an issue and
+>>>>> is
+>>>>> investigating (I see errors as well).
+>>>
+>>> I -think- the problem for -ccw is that the new vfio_pin_pages
+>>> requires
+>>> the input addresses to be page-aligned, and while most of ours are,
+>>> the
+>>> first one in any given transaction may not be. We never bothered to
+>>> mask off the addresses since it was handled for us, and we needed
+>>> to
+>>> keep the offsets anyway.
+>>>
+>>> By happenstance, I had some code that would do the masking
+>>> ourselves
+>>> (for an unrelated reason); I'll see if I can get that fit on top
+>>> and if
+>>> it helps matters. After coffee.
+>>
+>> Oh, yes, that makes alot of sense.
+>>
+>> Ah, if that is how VFIO worked we could match it like below:
 > 
-> this check was in prior version, but removed in this version. any
-> special reason? Jason?
+> That's a start. The pin appears to have worked, but the unpin fails at
+> the bottom of iommufd_access_unpin_pages:
+> 
+> WARN_ON(!iopt_area_contig_done(&iter));
+> 
 
-Oooh, this makes more sense - Kevin pointed out the check was wrong:
+Update on why -ap is failing -- I see vfio_pin_pages requests from vfio_ap_irq_enable that are failing on -EINVAL -- input is not page-aligned, just like what vfio-ccw was hitting.
 
-> > +void vfio_iommufd_unbind(struct vfio_device *vdev)
-> > +{
-> > +	lockdep_assert_held(&vdev->dev_set->lock);
-> > +
-> > +	if (!vdev->iommufd_device)
-> > +		return;
+I just tried a quick hack to force these to page-aligned requests and with that the vfio-ap tests I'm running start passing again.  So I think a proper fix in the iommufd code for this will also fix vfio-ap (we will test of course)
 
-> there is no iommufd_device in the emulated path...
+>>
+>>  EXPORT_SYMBOL_NS_GPL(iommufd_access_unpin_pages, IOMMUFD);
+>>  
+>>  static bool iopt_area_contig_is_aligned(struct iopt_area_contig_iter
+>> *iter,
+>> -                                       bool first)
+>> +                                       bool first, unsigned long
+>> first_iova)
+>>  {
+>> -       if (iopt_area_start_byte(iter->area, iter->cur_iova) %
+>> PAGE_SIZE)
+>> +       unsigned long start_offset = first ? (first_iova % PAGE_SIZE)
+>> : 0;
+>> +
+>> +       if ((iopt_area_start_byte(iter->area, iter->cur_iova) %
+>> PAGE_SIZE) !=
+>> +           start_offset)
+>>                 return false;
+>>  
+>>         if (!iopt_area_contig_done(iter) &&
+>> @@ -607,7 +610,7 @@ int iommufd_access_pin_pages(struct
+>> iommufd_access *access, unsigned long iova,
+>>                         iopt_area_iova_to_index(area, iter.cur_iova);
+>>  
+>>                 if (area->prevent_access ||
+>> -                   !iopt_area_contig_is_aligned(&iter, first)) {
+>> +                   !iopt_area_contig_is_aligned(&iter, first, iova))
+>> {
+>>                         rc = -EINVAL;
+>>                         goto err_remove;
+>>                 }
+>>
+>> Jason
+> 
 
-And he is right, so I dropped it. But really the check was just
-misspelled, it was supposed to be "device->group->iommufd" because the
-caller assumed it.
-
-Still, I think the right way to fix it is to lift the check as we
-don't touch group->iommufd in iommufd.c
-
-Thanks,
-Jason
