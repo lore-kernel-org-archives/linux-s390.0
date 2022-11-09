@@ -2,199 +2,131 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13121C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 13:11:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E53CC433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 14:29:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230144AbiKINLf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Nov 2022 08:11:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
+        id S231238AbiKIO3Z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Nov 2022 09:29:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229716AbiKINLd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 08:11:33 -0500
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2058.outbound.protection.outlook.com [40.107.244.58])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B5BC201B5;
-        Wed,  9 Nov 2022 05:11:33 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LM5vvOe7G3Hsv5aHQHXJ0Q3e1ljowc9Dv7v4OuPeVaUNUpNZsEOoQEY/+usCfZL43MmWyoaeWpzDydR2YtM6exbJuEPCdn4JjDwAKcTNMUSIQem6r9I14E5I9XG2Yw2Riyu+k1NCB2UPortH3+icG5ou0z7Tbhvy6wvcNRBEneHqvnAbH5URYAGtqESWe54S6knvCsG9Z0JB8i1w7rc8ynvOvVdAMrQAhY4fbMaKggfhZIu5Yntgxzboq1366Ma0tMfiRN8j8CH4elT8z8MKlfV6VGN1VzjMT3LTd9Ssvg12DcXS7DMWXdhaUhXAJZtTOqGWHnWoHM78g2xkdjB2jw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2Ygj82IuGYoSFK5CoQxaZ+CzO4f47Y+oU/2AXgyocPs=;
- b=l55yde8AxKMooiv5dp79TMs7ty5ZNdgj+wGatkC4PvMgbiAi8Izsb8/tNGoMqzUREPtpISoJbw5iKQFUNlMU2jRRZo7YaImyMqtjfvRA4ylRzbIpSGvGYhuiSsBB9Yflo01gvjySTb0jSUrthkMJ529bn2Y76xYh0yFDfGs9vzD9pT3Mxfd3rXPR6UZtTHGSfXEdGEFOuz/C5vUF6OD701vmm6ermrjvDib+HekrJES1x36ZU2/YEauWzUEAKD3frneai1boNJSxYhkZMyuSZgdb12KGCPkCtteAXinc7j1B9noK+HN4JOomwyRTWMQnhqawvq4/AxVxC3cKzgew5A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2Ygj82IuGYoSFK5CoQxaZ+CzO4f47Y+oU/2AXgyocPs=;
- b=WW26OYoVRXWuwP4XMP2wQwsbX3IPcR6vS8mVpK9UUtU6y/tQ6Hb2Nhq4XDYnGoe2todFP+i+50k+6CjY+b0u7IfiwGBg2EOveDV2/7MV7+I30t6iP23P+l0pzK1lueNtms3QA50owOiOXHE8CM+lX00a88vVa6G+OBRmLK5EbGETWlITT24CSLAUivI0ER8gt2LPFH12dio/4huniLJXqBot9VBKOYfZCCcQ0nQoL3aDfd3T0MNPMOD0PbT6U+AWrwiYO8xbfk6pqjqsZuiq8h7Baw3wn02/ZcfMVfQpQ1CU4unEXIV74WbQ29gjhNBfgEdcLU7lEquAr0kwRjWvBA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by CH3PR12MB7642.namprd12.prod.outlook.com (2603:10b6:610:14a::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.22; Wed, 9 Nov
- 2022 13:11:24 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de%7]) with mapi id 15.20.5791.027; Wed, 9 Nov 2022
- 13:11:23 +0000
-Date:   Wed, 9 Nov 2022 09:11:22 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Longfang Liu <liulongfang@huawei.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Will Deacon <will@kernel.org>, Joerg Roedel <joro@8bytes.org>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
+        with ESMTP id S231269AbiKIO3Y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 09:29:24 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED10DAE6D;
+        Wed,  9 Nov 2022 06:29:23 -0800 (PST)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A9EH0YO017321;
+        Wed, 9 Nov 2022 14:29:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=5X7c70HwpdKGqwrRi8VHe8cooQgIi0KkuKnzwyodgvM=;
+ b=AztfFATKJ9gBhJ2s3YPOSWJEjrUYaVqCeX2HaB7lRE4uM8NSob0wet0cuaTk7LjMMd49
+ 5Lundsa1bo+igHKlRN+TYxSs/e42pGop9KY5xhYv2mn95GCdTeKWrKECEyMIKiEcnP5o
+ 59y1dEBoPt+7FN/QOT5tkAupvuej5SrVa+4CN+yZihmTVH18eKtwPqtVGgNQtPiHWjrb
+ Ufh6xbAOG9p4D393M8baLqCVYz5+cmY2O9iT6fLyJGSwPnIDIH3JP17YOoPKPT/qAuGi
+ Yx5IrRiCva1k+6CR3PgdImmgp0GQkeGNwoXrnmkDvbDJUUHCMXBMNQ9W601ZiYar+1Lj Xg== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3krdu2raj3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Nov 2022 14:29:10 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A9ELLcj013876;
+        Wed, 9 Nov 2022 14:29:07 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3kngqddsb2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Nov 2022 14:29:07 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A9ET4Pi2163334
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 9 Nov 2022 14:29:04 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 967E5A4040;
+        Wed,  9 Nov 2022 14:29:04 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 26448A404D;
+        Wed,  9 Nov 2022 14:29:04 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  9 Nov 2022 14:29:04 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
         Robin Murphy <robin.murphy@arm.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH 04/10] vfio: Move storage of allow_unsafe_interrupts to
- vfio_main.c
-Message-ID: <Y2um+i8+H4z4/qR9@nvidia.com>
-References: <Y1wiCc33Jh5QY+1f@nvidia.com>
- <20221031164526.0712e456.alex.williamson@redhat.com>
- <Y2kF75zVD581UeR2@nvidia.com>
- <20221107081853.18727337.alex.williamson@redhat.com>
- <Y2klGAUEUwpjWHw6@nvidia.com>
- <20221107110508.7f02abf4.alex.williamson@redhat.com>
- <Y2lSZwNT8f/RMoZf@nvidia.com>
- <20221108155520.4429c2e5.alex.williamson@redhat.com>
- <Y2r80RgytKpPtK58@nvidia.com>
- <BN9PR11MB5276121DEB01705B9A25D1208C3E9@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB5276121DEB01705B9A25D1208C3E9@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-ClientProxiedBy: BLAP220CA0001.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:208:32c::6) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/5] iommu/s390: Further improvements
+Date:   Wed,  9 Nov 2022 15:28:58 +0100
+Message-Id: <20221109142903.4080275-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 7NYYePf_vI1X_VvKDgz3RyRoILvutN1J
+X-Proofpoint-GUID: 7NYYePf_vI1X_VvKDgz3RyRoILvutN1J
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CH3PR12MB7642:EE_
-X-MS-Office365-Filtering-Correlation-Id: a8e29c7f-a584-433a-c35a-08dac253e6ad
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: aJwIWOxkRlB0nP2kbs2TPsTo9N52EK8WbRLzbZlXRn3Z0CIde7pDhLP506BM3qHbOrm5inbcCwyPjgVwyVWpw2RRi/Q2ftREjAAaZnwl/Ef9dt8ov8qxyLNiedXmBiJal01jB9LQRmufY0OAUo3o5pofZxfAMgmrdQwc2pyEMauQG/YxjclaWKdQRzrMaAGoBn6MEbhAhKw5mjpwJSIHnqleh3ny5udrL2BDiFE7BhiPQP0t+Qjf2fdCWAF3I9vVrDI8Qg3K8TZHta43OqdKZazS7BmrSA+JTfdAmd37ri4iXdhp/6E0LX4JlscAqwYsneAcwGc1xRKUb2v0Qnl3+HqB6piLjG27F2g7r7+f9FjTlCjzNhzE+b2kbO6xrR7B6/H/5Z8pkJSzDuFeUPAGeZZDpOLIwdCnNP/7HchqLhvbGDE7kTH+caZSSzpgL2n83UXLRDxico79pzhr9DzLH3t96H9jc8BwM7hvZmAWLG/KBy+1DDnUhKez6gHNRB4xkGW598IGldVYzghaafthvwm6Zj/L5r+cP8yADEFCgrTcm7ekGHic56Dl5sCAE7iPPJCj9Kl6jt8/Mc8khESdzOGioIuKaRziFb9SviQmINFurRAcmSwSVBbOYleA5nUX7T+VOD806RwMnps+SLcUBL/i2TIwsyVdGAPtkZTFEjqPwtuFt3SwD2eOoHTLkR5RjpeMzUStTY0avYcsrNs8Cw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(136003)(376002)(396003)(366004)(346002)(451199015)(54906003)(66476007)(4326008)(66946007)(7416002)(5660300002)(7406005)(6916009)(66556008)(83380400001)(478600001)(8676002)(41300700001)(86362001)(8936002)(6506007)(38100700002)(6512007)(316002)(26005)(186003)(2616005)(6486002)(36756003)(2906002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?GWUB3CM+lXEr2Y7rGLiqLcmbka5BlLdXpyhCwUm/VAXUO09pP5ArBJzL4Wgi?=
- =?us-ascii?Q?emhrlmURPcr/NHVAXLo7wisn/CW8IXtmyL2FJgP85lfknX9Pnx4j5Tu06ZNv?=
- =?us-ascii?Q?oTGOIdKOEBMb0ExyU6lYrBNrjCjYeVZRy+zMcL5ZHQftm3BZ/5Ei3t6939SM?=
- =?us-ascii?Q?mAlwpAHNyZEjcJ9kUBnzITErUB6T+uKsVC5BS0AX7DpLnp1VGKYDqGWIPGTx?=
- =?us-ascii?Q?Dg9yq34I9mlwY5oV1D/b6za8VYMgh2grZZWqXhKMkVPXYw6vrqvnC5Ev+At0?=
- =?us-ascii?Q?a4CTvj4Dc+Y80WQo9nng5LBe+Rt5d9tG8+unpb50L//2IHu0iV96fRkwLjhL?=
- =?us-ascii?Q?mVf7bk4IYrqsDALfwidnMylpIbubNQtCwKQDx2vl/DNimxHh2MsVbvUtNyzW?=
- =?us-ascii?Q?hWAOy+mZgxtJnoY7fVToPKEubBppSQjiGPbdST01X5XrncyXQO7hL9gGiZBu?=
- =?us-ascii?Q?nwuqFFs6o2HwoX/WwZUGXgQ9Acvn9LsjBGN2OLY/UUdtq7oSX9uj7OBgAYXE?=
- =?us-ascii?Q?3aZg+F3BCb5pfY0i7YAsx2eIHlUrcss354yFUBmKBd4CJI+NjNuUzsZMX4/i?=
- =?us-ascii?Q?TTO3h4BnvLhDCdbOnMAPuuvCjcrisYYCWY01QVqJE+XaBdwuFjoKyU3kxxcE?=
- =?us-ascii?Q?8OOpevMt2H5pQr6+ZklfcYTeQPor84cVrTaYDTGE3FxgPy7sHDkMQ/uQ4mXc?=
- =?us-ascii?Q?zLcw13mk2Lz4aULHjtexYAkFdxU9UQXsXVfiSFGYv6Uz6BXukxNq2Aqvj3wM?=
- =?us-ascii?Q?VtdwS3HN7Rt8CYYwuWbR6phRXvHm5c6m6r5+ft5JP325f/ZqRsVl8yH9kZVQ?=
- =?us-ascii?Q?I4I3+NqNx2CS77W0SBLl971PTO18vnrSdEqItH4fMpMOJBtyEPLqTgShQHVV?=
- =?us-ascii?Q?YONEsiV38xS8Vkq08s+22p3C12c/K40OpN1GhGrFISf4R4PFo+K1m/fTx1zv?=
- =?us-ascii?Q?onFov+7FCWFKK6ctxMD2TQF4jZ1H7P9kucBzPUPgWDsZPg6WUOOqYKg6UxSj?=
- =?us-ascii?Q?C5eH5ssZS7LunqvcxcYwlihJrvauulb5+5OkkhtwICyU2c9AZR+AbRixghMI?=
- =?us-ascii?Q?RPgzMHCketWcUkIIFmLxzuKu7YyCcEhChZJJMRuImXsdV5KJUboxakn95hOF?=
- =?us-ascii?Q?BSLve4L8GhTneJupgIjPwzEPyhkn1N7T/h17NfOGvYvxp1WCAS7JveflJwfh?=
- =?us-ascii?Q?j37HyPuTzclviTic9uIIk6Ha3OBvIwm5hqRJ83c8XluSWo8T3f+uWrkXpdRi?=
- =?us-ascii?Q?ZULeHC+ve6a+9ZVAlXgBdfOrGS3ZF3QlYFu73c/n2BBO06gi7xveq0B4o4JS?=
- =?us-ascii?Q?dvkO81O8bx+80NeYLJyXkr7SrOywMGjPqFsmH3qKvZI2ZqteWYiH+9PjD3fU?=
- =?us-ascii?Q?TKq7EFGX9JNDiLVJwrV6tmYUlJ1XOVAPlrMNVLRJX2yddKSv7EHpXj3OuEN8?=
- =?us-ascii?Q?vloChrespNUauTFaN90mxm/sH4jRtxp61XCLe1CVZ+/4RYJlZ52eoJWsbMBu?=
- =?us-ascii?Q?E8PL9/986MqNU9PFtaUCVie4ybjITwRewErIhOkJZexRAlSI6uW2t3w/8rFI?=
- =?us-ascii?Q?P+tV1dBdu4qdQKZfxZI=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a8e29c7f-a584-433a-c35a-08dac253e6ad
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Nov 2022 13:11:23.6924
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: w27My2HLJr11ntt6XGSEzL0ORHIn72LOk0UACgIhd9+aigN2PmMOhcVnYmIpV+ED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB7642
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-09_06,2022-11-09_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ bulkscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=652
+ suspectscore=0 clxscore=1015 priorityscore=1501 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211090107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 09, 2022 at 03:21:29AM +0000, Tian, Kevin wrote:
-> > From: Jason Gunthorpe <jgg@nvidia.com>
-> > Sent: Wednesday, November 9, 2022 9:05 AM
-> > 
-> > On Tue, Nov 08, 2022 at 03:55:20PM -0700, Alex Williamson wrote:
-> > 
-> > > > > So why exactly isn't this an issue for VDPA?  Are we just burying our
-> > > > > head in the sand that such platforms exists and can still be useful
-> > > > > given the appropriate risk vs reward trade-off?
-> > > >
-> > > > Simply that nobody has asked for it, and might never ask for it. This
-> > > > is all support for old platforms, and there just doesn't seem to be a
-> > > > "real" use case for very new (and actually rare) NIC hardware stuck
-> > > > into ancient platforms with this security problem.
-> > >
-> > > vIOMMU support for interrupt remapping is relatively new, the nesting
-> > > case is important as well.
-> > 
-> > This is where we got hit. In the end we fixed the qemu..
-> 
-> but the point is that old qemu could have a much longer lifespan than
-> old platforms then when running newer kernel which supports vdpa
-> on old qemu the same tradeoff consideration is then not vfio
-> specific...
+Hi All,
 
-I think we are reaching into incredible hypotheticals here. We don't
-know of any real uses cases where a very new VDPA capable device would
-be assinged into a VM using an old qemu and the entire system is
-expected to work. What we are seeing is people using this stuff are
-making highly engineered systems and will meet the constraints.
+This series of patches improves the s390 IOMMU driver. These improvements help
+existing IOMMU users, mainly vfio-pci, but at the same time are also in
+preparation of converting s390 to use the common DMA API implementation in
+drivers/iommu/dma-iommu.c instead of its platform specific DMA API in
+arch/s390/pci/pci_dma.c that sidesteps the IOMMU driver to control the same
+hardware interface directly.
 
-Today VDPA doesn't support allow_unsafe_interrupts, and I don't see a
-compelling reason to change that.
+Among the included changes patch 1 improves the robustness of switching IOMMU
+domains and patch 2 adds the I/O TLB operations necessary for the DMA API
+conversion. Patches 3, 4, and 5 aim to improve performance with patch 5 being
+the most intrusive by removing the I/O translation table lock and using atomic
+updates instead.
 
-The threshold for introducing a kernel security hole should be much
-higher than "someone could possibly do this".
+This series is based on the s390 branch of Joerg's IOMMU tree[0] that includes
+the latest s390 IOMMU fixes. It is available for easy testing in the
+iommu_improve_v2 branch with signed tag s390_iommu_improve_v2 of my
+git.kernel.org tree[1].
 
-> If all agree that VFIO_CONTAINER=n is a process to evolve, does it make
-> more sense to remove this patch from this series i.e. let it buried in
-> VFIO_CONTAINER=y for now? Then resolve it in a follow up patch if
-> no consensus can be made quickly at this point.
+Best regards,
+Niklas Schnelle
 
-This is worse, it would make iommufd completely unusable in situations
-where we need allow_unsafe_interrupts. If we belive that is important
-we should keep this patch so existing systems on kernels with
-VFIO_CONTAINER=y continue to work after libvirt/qemu are upgraded to
-iommufd.
+Changes sinve v1:
+- If an IOTLB flush fails for one device don't skip the flush for other devices.
+  This is also needed when RCU readers try to flush a detached device. (Jason)
+- Free a domain's IOMMU translation table via call_rcu() (Jason)
 
-Jason
+[0] https://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git/log/?h=s390
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
+
+Niklas Schnelle (5):
+  iommu/s390: Make attach succeed even if the device is in error state
+  iommu/s390: Add I/O TLB ops
+  iommu/s390: Use RCU to allow concurrent domain_list iteration
+  iommu/s390: Optimize IOMMU table walking
+  s390/pci: use lock-free I/O translation updates
+
+ arch/s390/include/asm/pci.h |   4 +-
+ arch/s390/kvm/pci.c         |   6 +-
+ arch/s390/pci/pci.c         |  13 +--
+ arch/s390/pci/pci_dma.c     |  77 +++++++++------
+ drivers/iommu/s390-iommu.c  | 184 ++++++++++++++++++++++++------------
+ 5 files changed, 185 insertions(+), 99 deletions(-)
+
+-- 
+2.34.1
+
