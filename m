@@ -2,188 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 771FBC4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 14:49:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24B1FC43219
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 15:46:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230392AbiKIOt1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Nov 2022 09:49:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57270 "EHLO
+        id S231497AbiKIPqo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Nov 2022 10:46:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229590AbiKIOt0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 09:49:26 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34D9116C;
-        Wed,  9 Nov 2022 06:49:25 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A9EdGA9026409;
-        Wed, 9 Nov 2022 14:49:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : from : to : cc : references : in-reply-to : content-type :
+        with ESMTP id S230215AbiKIPqm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 10:46:42 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6F0DEB7;
+        Wed,  9 Nov 2022 07:46:41 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A9EdHsn028267;
+        Wed, 9 Nov 2022 15:46:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=ni/BG7gnOiqmRl9kheWYoxiUHrqf0PqdIfCsUfmenQ0=;
- b=HPLJ6dfc5ctDIWPoNKoFU16g9vul+tO3IISY4yDQ0lPsYmdAzvYgvzznr+qB9cTb+CDT
- rpfqCHGki7BwPLC39OwRwNE2oJnu2LQOFlYsHuXqw7CtL6tgjHbMCaesof/uT2EaBgPI
- HVluPdDjWmpOakiavPHCjgVKI1r8U3yqN2zTGBxPeg+VGbZHAG5PKaBCNTw/2khVmECU
- ta4mN8sZ++7vd47A5x5pc9A2CJuUW/AeDMODqMJNf8qdfIB3cEDLgkImfKTeRHVLJWxs
- 3PEfqUqvns3jOtn0paDSdjebrJ1Cxfxpa+EB4Smn8vuREefRM0BD4v5oQ80snKpRNJ0l Sg== 
+ bh=EZ0sOkfiGY8CgKlokrcp3SQeALJ0FaezVHTq/beLwGQ=;
+ b=bPgRgkb7TINU8VGeQQnmEPEGikaykA8iWAKLKch0fb81TjcajHSU3zMlruJnC9c4o/++
+ QDjLLV6xfsFGlIiUYt+xOMKXjYVaAJ4rfwetHmeXkdm/OheIgTPr3zU3GzoFs8bix4sS
+ 9WVH1QsNLyWaCXaa6iArsSfoAPPqBtU5AbjxjUoy14qK+eLZ0LVhh7Z53DOYxYZ9g5qD
+ uNv92ea0Iyk7K5kMydV6kk2vEYlTgt5DTTcZ0EHMPtGXBhw/ll3LerOHq7PJ9x+9SPoA
+ y53MkmAbTFdXB63NWawRO5nC0AQBN4AD2/ezolBVBIPrgpxQThUOe0wE9U/kcoqyiNB0 Rg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3krdtd10n3-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kre2p27a3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Nov 2022 14:49:06 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A9EdL6l027041;
-        Wed, 9 Nov 2022 14:49:05 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3krdtd10mj-1
+        Wed, 09 Nov 2022 15:46:36 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A9FDtvu014773;
+        Wed, 9 Nov 2022 15:46:36 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kre2p2798-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Nov 2022 14:49:05 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A9Ea0Jj009869;
-        Wed, 9 Nov 2022 14:49:04 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma03wdc.us.ibm.com with ESMTP id 3kngs7e9ph-1
+        Wed, 09 Nov 2022 15:46:36 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A9FZb6U024687;
+        Wed, 9 Nov 2022 15:46:34 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3kngpgmafc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Nov 2022 14:49:04 +0000
-Received: from smtpav05.dal12v.mail.ibm.com ([9.208.128.132])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A9En7Q47602746
+        Wed, 09 Nov 2022 15:46:34 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A9FkUtl66847144
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 9 Nov 2022 14:49:07 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 285CD58052;
-        Wed,  9 Nov 2022 14:49:03 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EF1BE5804C;
-        Wed,  9 Nov 2022 14:49:01 +0000 (GMT)
-Received: from [9.160.53.158] (unknown [9.160.53.158])
-        by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  9 Nov 2022 14:49:01 +0000 (GMT)
-Message-ID: <73dd6b0e-35c7-bb5d-b392-a9de012d4f92@linux.ibm.com>
-Date:   Wed, 9 Nov 2022 09:49:01 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: S390 testing for IOMMUFD
-Content-Language: en-US
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     iommu@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        kvm@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>
-References: <0-v4-0de2f6c78ed0+9d1-iommufd_jgg@nvidia.com>
- <Y2msLjrbvG5XPeNm@nvidia.com>
- <fbb84105-cc6e-59bd-b09c-0ea4353d7605@linux.ibm.com>
- <d814e245-2255-15ce-cf3d-65788aa61689@linux.ibm.com>
-In-Reply-To: <d814e245-2255-15ce-cf3d-65788aa61689@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Wed, 9 Nov 2022 15:46:30 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D61D1AE045;
+        Wed,  9 Nov 2022 15:46:30 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3543BAE04D;
+        Wed,  9 Nov 2022 15:46:30 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.11.163])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  9 Nov 2022 15:46:30 +0000 (GMT)
+Message-ID: <f604b6038c4a8bad5123e1f1f14b15c2190f28e9.camel@linux.ibm.com>
+Subject: Re: [PATCH 5/5] s390/uaccess: add cmpxchg_user_key()
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Date:   Wed, 09 Nov 2022 16:46:29 +0100
+In-Reply-To: <Y2J8axs+bcQ2dO/l@osiris>
+References: <20221012205609.2811294-1-scgl@linux.ibm.com>
+         <20221012205609.2811294-2-scgl@linux.ibm.com> <Y2J61LWSV+HolIeT@osiris>
+         <Y2J8axs+bcQ2dO/l@osiris>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: vFMHgU3Okx5cKYLnBTGlNT2ab1WWRkFn
-X-Proofpoint-GUID: Nx0QGFwXOP3HzOJOKKP58wxdf8oGkskU
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-GUID: kdTWoOuNNTaNFlFLjCcIF8aWD-O4MHwg
+X-Proofpoint-ORIG-GUID: zDpiIq4JxHXEugod73xKPawjZRoSUFSA
+Content-Transfer-Encoding: 7bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-09_06,2022-11-09_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- lowpriorityscore=0 phishscore=0 mlxlogscore=999 mlxscore=0 malwarescore=0
- clxscore=1015 priorityscore=1501 bulkscore=0 impostorscore=0
- suspectscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2210170000 definitions=main-2211090110
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ adultscore=0 phishscore=0 priorityscore=1501 mlxlogscore=673 clxscore=1011
+ malwarescore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211090118
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, 2022-11-02 at 15:19 +0100, Heiko Carstens wrote:
+> Add cmpxchg_user_key() which allows to execute a compare and exchange
+> on a user space address. This allows also to specify a storage key
+> which makes sure that key-controlled protection is considered.
+> 
+> This is based on a patch written by Janis Schoetterl-Glausch.
+> 
+> Link: https://lore.kernel.org/all/20220930210751.225873-2-scgl@linux.ibm.com
+> Cc: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/uaccess.h | 183 ++++++++++++++++++++++++++++++++
+>  1 file changed, 183 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+> index f7038b800cc3..9bbdecb80e06 100644
+> --- a/arch/s390/include/asm/uaccess.h
+> +++ b/arch/s390/include/asm/uaccess.h
+> @@ -390,4 +390,187 @@ do {									\
+>  		goto err_label;						\
+>  } while (0)
+>  
+> +void __cmpxchg_user_key_called_with_bad_pointer(void);
+> +
+> +static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+> +					      __uint128_t old, __uint128_t new,
+> +					      unsigned long key, int size)
+> +{
+> +	int rc = 0;
+> +
+> +	switch (size) {
+> +	case 1: {
+> +		unsigned int prev, tmp, shift;
+> +
+> +		shift = (3 ^ (address & 3)) << 3;
+> +		address ^= address & 3;
+> +		asm volatile(
+> +			"	spka	0(%[key])\n"
+> +			"	sacf	256\n"
+> +			"0:	l	%[prev],%[address]\n"
+> +			"1:	nr	%[prev],%[mask]\n"
+> +			"	lr	%[tmp],%[prev]\n"
+> +			"	or	%[prev],%[old]\n"
+> +			"	or	%[tmp],%[new]\n"
+> +			"2:	cs	%[prev],%[tmp],%[address]\n"
+> +			"3:	jnl	4f\n"
+> +			"	xr	%[tmp],%[prev]\n"
+> +			"	nr	%[tmp],%[mask]\n"
 
-On 11/8/22 9:04 AM, Anthony Krowiak wrote:
->
-> On 11/8/22 5:12 AM, Christian Borntraeger wrote:
->>
->>
->> Am 08.11.22 um 02:09 schrieb Jason Gunthorpe:
->>> On Mon, Nov 07, 2022 at 08:48:53PM -0400, Jason Gunthorpe wrote:
->>>> [
->>>> This has been in linux-next for a little while now, and we've 
->>>> completed
->>>> the syzkaller run. 1300 hours of CPU time have been invested since the
->>>> last report with no improvement in coverage or new detections. 
->>>> syzkaller
->>>> coverage reached 69%(75%), and review of the misses show substantial
->>>> amounts are WARN_ON's and other debugging which are not expected to be
->>>> covered.
->>>> ]
->>>>
->>>> iommufd is the user API to control the IOMMU subsystem as it 
->>>> relates to
->>>> managing IO page tables that point at user space memory.
->>>
->>> [chop cc list]
->>>
->>> s390 mdev maintainers,
->>>
->>> Can I ask your help to test this with the two S390 mdev drivers? Now
->>> that gvt is passing and we've covered alot of the QA ground it is a
->>> good time to run it.
->>>
->>> Take the branch from here:
->>>
->>> https://git.kernel.org/pub/scm/linux/kernel/git/jgg/iommufd.git/log/?h=for-next 
->>>
->>
->>>
->>> And build the kernel with
->>>
->>> CONFIG_VFIO_CONTAINER=n
->>> CONFIG_IOMMUFD=y
->>> CONFIG_IOMMUFD_VFIO_CONTAINER=y
->>>
->>> And your existing stuff should work with iommufd providing the iommu
->>> support to vfio. There will be a dmesg confirming this.
->>
->> Gave it a quick spin with vfio_ap:
->> [  401.679199] vfio_ap_mdev b01a7c33-9696-48b2-9a98-050e8e17c69a: 
->> Adding to iommu group 1
->> [  402.085386] iommufd: IOMMUFD is providing /dev/vfio/vfio, not VFIO.
->>
->> Some tests seem to work, but others dont (running into timeouts). I 
->> need to look
->> into that (or ideally Tony will have a look, FWIW 
->> tests.test_vfio_ap.VfioAPAssignMdevToGuestTest
->> fails for me.
->
->
-> I'm looking into it.
+Are you only entertaining cosmetic changes to cmpxchg.h?
+The loop condition being imprecise seems non-ideal.
 
+> +			"	jnz	1b\n"
+> +			"4:	sacf	768\n"
+> +			"	spka	%[default_key]\n"
+> +			EX_TABLE_UA_LOAD_REG(0b, 4b, %[rc], %[prev])
+> +			EX_TABLE_UA_LOAD_REG(1b, 4b, %[rc], %[prev])
+> +			EX_TABLE_UA_LOAD_REG(2b, 4b, %[rc], %[prev])
+> +			EX_TABLE_UA_LOAD_REG(3b, 4b, %[rc], %[prev])
+> +			: [rc] "+&d" (rc),
+> +			  [prev] "=&d" (prev),
+> +			  [tmp] "=&d" (tmp),
+> +			  [address] "+Q" (*(int *)address)
+> +			: [old] "d" (((unsigned int)old & 0xff) << shift),
+> +			  [new] "d" (((unsigned int)new & 0xff) << shift),
+> +			  [mask] "d" (~(0xff << shift)),
+> +			  [key] "a" (key),
 
-I cloned the 
-https://lore.kernel.org/kvm/Y2q3nFXwOk9jul5u@nvidia.com/T/#m76a9c609c5ccd1494c05c6f598f9c8e75b7c9888 
-repo and ran the vfio_ap test cases. The tests ran without encountering 
-the errors related to the vfio_pin_pages() function, but I did see two 
-tests fail attempting to run crypto tests on the guest. I also saw a 
-WARN_ON stack trace in the dmesg output indicating a timeout occurred 
-trying to verify the completion of a queue reset. The reset problem has 
-reared its ugly head in our CI, so this may be a good thing as it will 
-allow me to debug why its happening.
+Why did you get rid of the << 4 shift?
+That's inconsistent with the other uaccess functions that take an access key.
 
+> +			  [default_key] "J" (PAGE_DEFAULT_KEY)
+> +			: "memory", "cc");
+> +		*(unsigned char *)uval = prev >> shift;
+> +		return rc;
+> +	}
 
->
->
->>
->>
->> The same kernel tree with defconfig (instead of 
->> CONFIG_IOMMUFD_VFIO_CONTAINER=y) works fine.
->>>
->>> Let me know if there are any problems!
->>>
->>> If I recall there was some desire from the S390 platform team to start
->>> building on iommufd to create some vIOMMU acceleration for S390
->>> guests, this is a necessary first step.
->>>
->>> Thanks,
->>> Jason
+[...]
