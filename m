@@ -2,54 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B8DCC4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2777C43217
 	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 14:29:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231368AbiKIO30 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Nov 2022 09:29:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42608 "EHLO
+        id S231375AbiKIO31 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Nov 2022 09:29:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231204AbiKIO3Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 09:29:24 -0500
+        with ESMTP id S231343AbiKIO30 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 09:29:26 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4B110D2;
-        Wed,  9 Nov 2022 06:29:23 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A9ELUJo032113;
-        Wed, 9 Nov 2022 14:29:11 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8793418384;
+        Wed,  9 Nov 2022 06:29:25 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A9DxYLZ006660;
+        Wed, 9 Nov 2022 14:29:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=HK5YMddnDvqd/bZDE7MU98+xJJ5Z4s1xsKhTNKbl0qQ=;
- b=JMFJLXehiQOpgZWnnKNpZIRGhVwUN8evLh2vbRFlE0SN1PqfUwIxAabPpSmelSLEmVX1
- UzOafTwVUUEKGAzemNSoAdEZa/ENOcDScECTNf9qZlkiNYG6ZsPkwOkNyt2wVq1MmFJ2
- whHg5oBCzHUPS1WlrzXOEgjBE0O2D3QtZ8fe6bVrqLGF0Qq2dVU33c0XbaBnXO4U0w90
- xxS6za/w3seXvuh7YCJtwel2V82R+cCC5IimSvxodQKEqvxirZPbHj5Yh0MHhMjUeJLj
- LsSG+V0VVaiqMkvEyp2714knBLGSW7/Ba55FaeF93QwNdFOFlMJR012/aU/gpnY5bP17 TA== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3krdw0g5yp-1
+ bh=izBFDgbVKHNBefeE4boPFsbeLvNsC62xJH5EVEQLiiA=;
+ b=QhMXisSfxp57kiOxT9hu41X9u4QUzFLS8mc9nNPI1kXijWBwfeOvTjhTDQtt/zls5Z4E
+ TJV6nRrDTEWrquu4YYYwf88g86aM2I8r+iJmyI9I5SySf9HliOwJ1J9N481U4/bPorv/
+ LFqhDsSvWAscGebIbP12Aac8sZSxSxmu+rCw+wnsCKjPNfsa+vqzoimCUphj4ILsIAni
+ q/98kV98s0/C/EVEOKEpcAxK6n8lp7fNIRlylVpmEtmz6f7zMPBt9OeK68r8zeyd1ubQ
+ 0J7KrLGholQJnM6O0W06Y6nJmiyVkSBNPmI77tuIvDHlnYo2Eh+W5yWGokBSD9d3FLdY 5Q== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3krdjprye2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Nov 2022 14:29:10 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A9ELLck013876;
-        Wed, 9 Nov 2022 14:29:08 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3kngqddsb3-1
+        Wed, 09 Nov 2022 14:29:12 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A9EJtsV021709;
+        Wed, 9 Nov 2022 14:29:09 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3krcbr03jv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Nov 2022 14:29:08 +0000
+        Wed, 09 Nov 2022 14:29:09 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A9ET5DW2949794
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A9ET6jO38470044
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 9 Nov 2022 14:29:05 GMT
+        Wed, 9 Nov 2022 14:29:06 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1DB11A4040;
+        by IMSVA (Postfix) with ESMTP id 19E1EA404D;
+        Wed,  9 Nov 2022 14:29:06 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A2CD4A4040;
         Wed,  9 Nov 2022 14:29:05 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A24DAA4053;
-        Wed,  9 Nov 2022 14:29:04 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  9 Nov 2022 14:29:04 +0000 (GMT)
+        Wed,  9 Nov 2022 14:29:05 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
         Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
@@ -61,203 +61,203 @@ Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
         hca@linux.ibm.com, gor@linux.ibm.com,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/5] iommu/s390: Make attach succeed even if the device is in error state
-Date:   Wed,  9 Nov 2022 15:28:59 +0100
-Message-Id: <20221109142903.4080275-2-schnelle@linux.ibm.com>
+Subject: [PATCH v2 3/5] iommu/s390: Use RCU to allow concurrent domain_list iteration
+Date:   Wed,  9 Nov 2022 15:29:01 +0100
+Message-Id: <20221109142903.4080275-4-schnelle@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221109142903.4080275-1-schnelle@linux.ibm.com>
 References: <20221109142903.4080275-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Aekzp2NvoY9E3rUQitHJqoNwjME_XNoR
-X-Proofpoint-GUID: Aekzp2NvoY9E3rUQitHJqoNwjME_XNoR
+X-Proofpoint-ORIG-GUID: q_F5OMFiaz7D4I5FizMLr-E7pL5dVz2x
+X-Proofpoint-GUID: q_F5OMFiaz7D4I5FizMLr-E7pL5dVz2x
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-09_06,2022-11-09_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 spamscore=0 phishscore=0 clxscore=1015 mlxlogscore=999
- suspectscore=0 priorityscore=1501 impostorscore=0 mlxscore=0 adultscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211090107
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
+ malwarescore=0 adultscore=0 spamscore=0 mlxlogscore=999 suspectscore=0
+ priorityscore=1501 mlxscore=0 bulkscore=0 phishscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211090107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If a zPCI device is in the error state while switching IOMMU domains
-zpci_register_ioat() will fail and we would end up with the device not
-attached to any domain. In this state since zdev->dma_table == NULL
-a reset via zpci_hot_reset_device() would wrongfully re-initialize the
-device for DMA API usage using zpci_dma_init_device(). As automatic
-recovery is currently disabled while attached to an IOMMU domain this
-only affects slot resets triggered through other means but will affect
-automatic recovery once we switch to using dma-iommu.
-
-Additionally with that switch common code expects attaching to the
-default domain to always work so zpci_register_ioat() should only fail
-if there is no chance to recover anyway, e.g. if the device has been
-unplugged.
-
-Improve the robustness of attach by specifically looking at the status
-returned by zpci_mod_fc() to determine if the device is unavailable and
-in this case simply ignore the error. Once the device is reset
-zpci_hot_reset_device() will then correctly set the domain's DMA
-translation tables.
+The s390_domain->devices list is only added to when new devices are
+attached but is iterated through in read-only fashion for every mapping
+operation as well as for I/O TLB flushes and thus in performance
+critical code causing contention on the s390_domain->list_lock.
+Fortunately such a read-mostly linked list is a standard use case for
+RCU. This change closely follows the example fpr RCU protected list
+given in Documentation/RCU/listRCU.rst.
 
 Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- arch/s390/include/asm/pci.h |  2 +-
- arch/s390/kvm/pci.c         |  6 ++++--
- arch/s390/pci/pci.c         | 11 ++++++-----
- arch/s390/pci/pci_dma.c     |  3 ++-
- drivers/iommu/s390-iommu.c  |  9 +++++++--
- 5 files changed, 20 insertions(+), 11 deletions(-)
+v1->v2:
+- Free domain tables via call_rcu() (Jason)
+
+ arch/s390/include/asm/pci.h |  1 +
+ arch/s390/pci/pci.c         |  2 +-
+ drivers/iommu/s390-iommu.c  | 44 +++++++++++++++++++++++--------------
+ 3 files changed, 29 insertions(+), 18 deletions(-)
 
 diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 15f8714ca9b7..07361e2fd8c5 100644
+index 07361e2fd8c5..e4c3e4e04d30 100644
 --- a/arch/s390/include/asm/pci.h
 +++ b/arch/s390/include/asm/pci.h
-@@ -221,7 +221,7 @@ void zpci_device_reserved(struct zpci_dev *zdev);
- bool zpci_is_device_configured(struct zpci_dev *zdev);
+@@ -119,6 +119,7 @@ struct zpci_dev {
+ 	struct list_head entry;		/* list of all zpci_devices, needed for hotplug, etc. */
+ 	struct list_head iommu_list;
+ 	struct kref kref;
++	struct rcu_head rcu;
+ 	struct hotplug_slot hotplug_slot;
  
- int zpci_hot_reset_device(struct zpci_dev *zdev);
--int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64);
-+int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64, u8 *);
- int zpci_unregister_ioat(struct zpci_dev *, u8);
- void zpci_remove_reserved_devices(void);
- void zpci_update_fh(struct zpci_dev *zdev, u32 fh);
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index c50c1645c0ae..03964c0e1fdf 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -434,6 +434,7 @@ static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
- static int kvm_s390_pci_register_kvm(void *opaque, struct kvm *kvm)
- {
- 	struct zpci_dev *zdev = opaque;
-+	u8 status;
- 	int rc;
- 
- 	if (!zdev)
-@@ -486,7 +487,7 @@ static int kvm_s390_pci_register_kvm(void *opaque, struct kvm *kvm)
- 
- 	/* Re-register the IOMMU that was already created */
- 	rc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
--				virt_to_phys(zdev->dma_table));
-+				virt_to_phys(zdev->dma_table), &status);
- 	if (rc)
- 		goto clear_gisa;
- 
-@@ -516,6 +517,7 @@ static void kvm_s390_pci_unregister_kvm(void *opaque)
- {
- 	struct zpci_dev *zdev = opaque;
- 	struct kvm *kvm;
-+	u8 status;
- 
- 	if (!zdev)
- 		return;
-@@ -554,7 +556,7 @@ static void kvm_s390_pci_unregister_kvm(void *opaque)
- 
- 	/* Re-register the IOMMU that was already created */
- 	zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
--			   virt_to_phys(zdev->dma_table));
-+			   virt_to_phys(zdev->dma_table), &status);
- 
- out:
- 	spin_lock(&kvm->arch.kzdev_list_lock);
+ 	enum zpci_state state;
 diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 73cdc5539384..a703dcd94a68 100644
+index a703dcd94a68..ef38b1514c77 100644
 --- a/arch/s390/pci/pci.c
 +++ b/arch/s390/pci/pci.c
-@@ -116,20 +116,20 @@ EXPORT_SYMBOL_GPL(pci_proc_domain);
- 
- /* Modify PCI: Register I/O address translation parameters */
- int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
--		       u64 base, u64 limit, u64 iota)
-+		       u64 base, u64 limit, u64 iota, u8 *status)
- {
- 	u64 req = ZPCI_CREATE_REQ(zdev->fh, dmaas, ZPCI_MOD_FC_REG_IOAT);
- 	struct zpci_fib fib = {0};
--	u8 cc, status;
-+	u8 cc;
- 
- 	WARN_ON_ONCE(iota & 0x3fff);
- 	fib.pba = base;
- 	fib.pal = limit;
- 	fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
- 	fib.gd = zdev->gisa;
--	cc = zpci_mod_fc(req, &fib, &status);
-+	cc = zpci_mod_fc(req, &fib, status);
- 	if (cc)
--		zpci_dbg(3, "reg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
-+		zpci_dbg(3, "reg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, *status);
- 	return cc;
+@@ -996,7 +996,7 @@ void zpci_release_device(struct kref *kref)
+ 		break;
+ 	}
+ 	zpci_dbg(3, "rem fid:%x\n", zdev->fid);
+-	kfree(zdev);
++	kfree_rcu(zdev, rcu);
  }
- EXPORT_SYMBOL_GPL(zpci_register_ioat);
-@@ -764,6 +764,7 @@ EXPORT_SYMBOL_GPL(zpci_disable_device);
-  */
- int zpci_hot_reset_device(struct zpci_dev *zdev)
- {
-+	u8 status;
- 	int rc;
  
- 	zpci_dbg(3, "rst fid:%x, fh:%x\n", zdev->fid, zdev->fh);
-@@ -787,7 +788,7 @@ int zpci_hot_reset_device(struct zpci_dev *zdev)
- 
- 	if (zdev->dma_table)
- 		rc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
--					virt_to_phys(zdev->dma_table));
-+					virt_to_phys(zdev->dma_table), &status);
- 	else
- 		rc = zpci_dma_init_device(zdev);
- 	if (rc) {
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index 227cf0a62800..dee825ee7305 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -547,6 +547,7 @@ static void s390_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
- 	
- int zpci_dma_init_device(struct zpci_dev *zdev)
- {
-+	u8 status;
- 	int rc;
- 
- 	/*
-@@ -598,7 +599,7 @@ int zpci_dma_init_device(struct zpci_dev *zdev)
- 
- 	}
- 	if (zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
--			       virt_to_phys(zdev->dma_table))) {
-+			       virt_to_phys(zdev->dma_table), &status)) {
- 		rc = -EIO;
- 		goto free_bitmap;
- 	}
+ int zpci_report_error(struct pci_dev *pdev,
 diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 7fb512bece9a..e2c886bc4376 100644
+index 9771bce86e94..cf5dcbcea4e0 100644
 --- a/drivers/iommu/s390-iommu.c
 +++ b/drivers/iommu/s390-iommu.c
-@@ -98,6 +98,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+@@ -10,6 +10,8 @@
+ #include <linux/iommu.h>
+ #include <linux/iommu-helper.h>
+ #include <linux/sizes.h>
++#include <linux/rculist.h>
++#include <linux/rcupdate.h>
+ #include <asm/pci_dma.h>
+ 
+ static const struct iommu_ops s390_iommu_ops;
+@@ -20,6 +22,7 @@ struct s390_domain {
+ 	unsigned long		*dma_table;
+ 	spinlock_t		dma_table_lock;
+ 	spinlock_t		list_lock;
++	struct rcu_head		rcu;
+ };
+ 
+ static struct s390_domain *to_s390_domain(struct iommu_domain *dom)
+@@ -61,18 +64,28 @@ static struct iommu_domain *s390_domain_alloc(unsigned domain_type)
+ 
+ 	spin_lock_init(&s390_domain->dma_table_lock);
+ 	spin_lock_init(&s390_domain->list_lock);
+-	INIT_LIST_HEAD(&s390_domain->devices);
++	INIT_LIST_HEAD_RCU(&s390_domain->devices);
+ 
+ 	return &s390_domain->domain;
+ }
+ 
++static void s390_iommu_rcu_free_domain(struct rcu_head *head)
++{
++	struct s390_domain *s390_domain = container_of(head, struct s390_domain, rcu);
++
++	dma_cleanup_tables(s390_domain->dma_table);
++	kfree(s390_domain);
++}
++
+ static void s390_domain_free(struct iommu_domain *domain)
+ {
  	struct s390_domain *s390_domain = to_s390_domain(domain);
- 	struct zpci_dev *zdev = to_zpci_dev(dev);
- 	unsigned long flags;
-+	u8 status;
- 	int cc;
  
- 	if (!zdev)
-@@ -113,8 +114,12 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
- 		zpci_dma_exit_device(zdev);
++	rcu_read_lock();
+ 	WARN_ON(!list_empty(&s390_domain->devices));
+-	dma_cleanup_tables(s390_domain->dma_table);
+-	kfree(s390_domain);
++	rcu_read_unlock();
++
++	call_rcu(&s390_domain->rcu, s390_iommu_rcu_free_domain);
+ }
  
- 	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
--				virt_to_phys(s390_domain->dma_table));
--	if (cc)
-+				virt_to_phys(s390_domain->dma_table), &status);
-+	/*
-+	 * If the device is undergoing error recovery the reset code
-+	 * will re-establish the new domain.
-+	 */
-+	if (cc && status != ZPCI_PCI_ST_FUNC_NOT_AVAIL)
- 		return -EIO;
- 	zdev->dma_table = s390_domain->dma_table;
+ static void __s390_iommu_detach_device(struct zpci_dev *zdev)
+@@ -84,7 +97,7 @@ static void __s390_iommu_detach_device(struct zpci_dev *zdev)
+ 		return;
  
+ 	spin_lock_irqsave(&s390_domain->list_lock, flags);
+-	list_del_init(&zdev->iommu_list);
++	list_del_rcu(&zdev->iommu_list);
+ 	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+ 
+ 	zpci_unregister_ioat(zdev, 0);
+@@ -127,7 +140,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+ 	zdev->s390_domain = s390_domain;
+ 
+ 	spin_lock_irqsave(&s390_domain->list_lock, flags);
+-	list_add(&zdev->iommu_list, &s390_domain->devices);
++	list_add_rcu(&zdev->iommu_list, &s390_domain->devices);
+ 	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+ 
+ 	return 0;
+@@ -203,14 +216,13 @@ static void s390_iommu_flush_iotlb_all(struct iommu_domain *domain)
+ {
+ 	struct s390_domain *s390_domain = to_s390_domain(domain);
+ 	struct zpci_dev *zdev;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&s390_domain->list_lock, flags);
+-	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
++	rcu_read_lock();
++	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
+ 		zpci_refresh_trans((u64)zdev->fh << 32, zdev->start_dma,
+ 				   zdev->end_dma - zdev->start_dma + 1);
+ 	}
+-	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
++	rcu_read_unlock();
+ }
+ 
+ static void s390_iommu_iotlb_sync(struct iommu_domain *domain,
+@@ -219,18 +231,17 @@ static void s390_iommu_iotlb_sync(struct iommu_domain *domain,
+ 	struct s390_domain *s390_domain = to_s390_domain(domain);
+ 	size_t size = gather->end - gather->start + 1;
+ 	struct zpci_dev *zdev;
+-	unsigned long flags;
+ 
+ 	/* If gather was never added to there is nothing to flush */
+ 	if (!gather->end)
+ 		return;
+ 
+-	spin_lock_irqsave(&s390_domain->list_lock, flags);
+-	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
++	rcu_read_lock();
++	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
+ 		zpci_refresh_trans((u64)zdev->fh << 32, gather->start,
+ 				   size);
+ 	}
+-	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
++	rcu_read_unlock();
+ }
+ 
+ static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
+@@ -238,16 +249,15 @@ static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
+ {
+ 	struct s390_domain *s390_domain = to_s390_domain(domain);
+ 	struct zpci_dev *zdev;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&s390_domain->list_lock, flags);
+-	list_for_each_entry(zdev, &s390_domain->devices, iommu_list) {
++	rcu_read_lock();
++	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
+ 		if (!zdev->tlb_refresh)
+ 			continue;
+ 		zpci_refresh_trans((u64)zdev->fh << 32,
+ 				   iova, size);
+ 	}
+-	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
++	rcu_read_unlock();
+ }
+ 
+ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
 -- 
 2.34.1
 
