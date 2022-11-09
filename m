@@ -2,201 +2,203 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DDE0C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 18:29:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31F53C433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 19:10:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230146AbiKIS3Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Nov 2022 13:29:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52704 "EHLO
+        id S231294AbiKITKg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Nov 2022 14:10:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229691AbiKIS3X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 13:29:23 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB3FA388E
-        for <linux-s390@vger.kernel.org>; Wed,  9 Nov 2022 10:28:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668018507;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mt9wA9NJ8erhcq3hDeHIo3uLVdgY+wacj95T/avg+94=;
-        b=U02B9GKsXf2MQVNL1bpH7yiu0rBaQ6YqECKnSEIZyyip4tYU/fccJsGfi09odIslmhySEO
-        UBXTzrEe93O3HYXH9CmUXKxHqa8t568UVJFj3Lze9PTKpCpclxv+itezLwq4+lQK5BHrsI
-        gXHlik7nFp0r81h/XK9d5EECh+tydLk=
-Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
- [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-303-CRm34Y1AP46JEhQsHQp42Q-1; Wed, 09 Nov 2022 13:28:26 -0500
-X-MC-Unique: CRm34Y1AP46JEhQsHQp42Q-1
-Received: by mail-il1-f198.google.com with SMTP id d19-20020a056e020c1300b00300b5a12c44so14171587ile.15
-        for <linux-s390@vger.kernel.org>; Wed, 09 Nov 2022 10:28:26 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mt9wA9NJ8erhcq3hDeHIo3uLVdgY+wacj95T/avg+94=;
-        b=yoGebc46ffzWCGZJbwwyquJRNsPf2m6VMq1fGLFABuQlmAOrNRzB/M46D8ZugxjrPu
-         Xr4EiJr1sU4SODoJJIOR/C7JOpY+X/SN2MtO5ZbjiGdpNqGiTCSMrQ7xRF/7jLupUQiw
-         NCLfI4Enrx3/GuUdJxB8TwIDXxbOM9dvh8XCFqq5JLFsDat8a+RXsrxXXE/ASdwzKh5L
-         Doh6dXOUUUI8cIinN7uO3ZXQlkmVJGpm8ZjmfTDE842HTlBEMoGfbjWPg8wMl6mTIm17
-         IDXx0r1TQhLYUkAklunvFSOIR+RU5NUzrnhPxMSmUXCXvZIyO6mhaZGZGEe4k2B27Twd
-         j8NA==
-X-Gm-Message-State: ACrzQf3m2c9Q8x7OKj3ekZ7C11j/KypF9skYecXbmZXhelHsUWwUiLXa
-        oezAagigka3iRaGdQENOwH9OECwazJlswNW/zFdg/DS/vKOvcZbiDnnAB54YkITLYehQIGFi1p+
-        V+BzmpqwI70eVTcElAYNj8A==
-X-Received: by 2002:a05:6602:1218:b0:6ca:5fd2:f8e1 with SMTP id y24-20020a056602121800b006ca5fd2f8e1mr2102263iot.118.1668018505748;
-        Wed, 09 Nov 2022 10:28:25 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM7eUfyPf7jZTqBn46xsn3j0EDMn1ZQ6U+esr6/ILDBLlfe7a8Y4zkj42s7VYGmSVWZgP6Q5SA==
-X-Received: by 2002:a05:6602:1218:b0:6ca:5fd2:f8e1 with SMTP id y24-20020a056602121800b006ca5fd2f8e1mr2102238iot.118.1668018505479;
-        Wed, 09 Nov 2022 10:28:25 -0800 (PST)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id b3-20020a92c143000000b002f165ceb09bsm5105515ilh.64.2022.11.09.10.28.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Nov 2022 10:28:24 -0800 (PST)
-Date:   Wed, 9 Nov 2022 11:28:22 -0700
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     kvm@vger.kernel.org, Kevin Tian <kevin.tian@intel.com>,
-        dri-devel@lists.freedesktop.org,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Longfang Liu <liulongfang@huawei.com>,
-        linux-s390@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Will Deacon <will@kernel.org>, Joerg Roedel <joro@8bytes.org>,
-        Halil Pasic <pasic@linux.ibm.com>, iommu@lists.linux.dev,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org, Zhi Wang <zhi.a.wang@intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        intel-gvt-dev@lists.freedesktop.org,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
+        with ESMTP id S231350AbiKITKe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 14:10:34 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04CDC2A736;
+        Wed,  9 Nov 2022 11:10:33 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A9GhW27030002;
+        Wed, 9 Nov 2022 19:10:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : from : to : cc : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=T/k3epjw4Qf8FbpJ6SymwJg2MM/DlmejbLOvCB2BWhk=;
+ b=nEL7bm5e1wwEttZbvbIQalZPxpLALPT2eqSWdTw8cl8oqnFf+pGYCVzMladGWWMb4Qgx
+ NAWLVMS5cH4pICSgJS0/jVwSpQK+jOWxU6HRjLUVEmXA/OuLktlUzW35BUaG00ooskQ3
+ cWFWTU4nVoOgdwys2pyTA1dtcX526h+eNZlEVpa69oA0BG448JBqbVhoSd1sz9ShxPmB
+ Euevwe/g24G4FxfPd4Gy7Nlj/2lD/ARFpLk1SPld7VnKnNj7BDMWAzDVzcxvfkIfu3c5
+ UZwT2UqG6MaZW0jwYDdEjAuE2C7FTMYY488grJtv9cByni+MavoJBD6KF2T4srOcDdKB RA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3krfym3mr3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Nov 2022 19:10:01 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A9IoWet029044;
+        Wed, 9 Nov 2022 19:10:00 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3krfym3mqf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Nov 2022 19:10:00 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A9J6E4e006536;
+        Wed, 9 Nov 2022 19:09:59 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma01dal.us.ibm.com with ESMTP id 3kngsyfd8s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Nov 2022 19:09:59 +0000
+Received: from smtpav05.dal12v.mail.ibm.com ([9.208.128.132])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A9J9xjH58917126
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 9 Nov 2022 19:09:59 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 775DD5804C;
+        Wed,  9 Nov 2022 19:09:57 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4C3E358052;
+        Wed,  9 Nov 2022 19:09:56 +0000 (GMT)
+Received: from [9.160.53.158] (unknown [9.160.53.158])
+        by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  9 Nov 2022 19:09:56 +0000 (GMT)
+Message-ID: <0869c784-14f2-9d7d-6cbb-d47ee713bbc1@linux.ibm.com>
+Date:   Wed, 9 Nov 2022 14:09:55 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: S390 testing for IOMMUFD
+Content-Language: en-US
+From:   Anthony Krowiak <akrowiak@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Cornelia Huck <cohuck@redhat.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH 04/10] vfio: Move storage of allow_unsafe_interrupts to
- vfio_main.c
-Message-ID: <20221109112822.7a8c5f7a.alex.williamson@redhat.com>
-In-Reply-To: <Y2r80RgytKpPtK58@nvidia.com>
-References: <4-v1-4991695894d8+211-vfio_iommufd_jgg@nvidia.com>
-        <20221026152442.4855c5de.alex.williamson@redhat.com>
-        <Y1wiCc33Jh5QY+1f@nvidia.com>
-        <20221031164526.0712e456.alex.williamson@redhat.com>
-        <Y2kF75zVD581UeR2@nvidia.com>
-        <20221107081853.18727337.alex.williamson@redhat.com>
-        <Y2klGAUEUwpjWHw6@nvidia.com>
-        <20221107110508.7f02abf4.alex.williamson@redhat.com>
-        <Y2lSZwNT8f/RMoZf@nvidia.com>
-        <20221108155520.4429c2e5.alex.williamson@redhat.com>
-        <Y2r80RgytKpPtK58@nvidia.com>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     iommu@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        kvm@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>
+References: <0-v4-0de2f6c78ed0+9d1-iommufd_jgg@nvidia.com>
+ <Y2msLjrbvG5XPeNm@nvidia.com>
+ <fbb84105-cc6e-59bd-b09c-0ea4353d7605@linux.ibm.com>
+ <d814e245-2255-15ce-cf3d-65788aa61689@linux.ibm.com>
+ <73dd6b0e-35c7-bb5d-b392-a9de012d4f92@linux.ibm.com>
+In-Reply-To: <73dd6b0e-35c7-bb5d-b392-a9de012d4f92@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: QKRSSwBg2vaGArDz1D7dd19gEfxyQ74W
+X-Proofpoint-ORIG-GUID: n8KUgoBS1D1y3NEPKUDRJwXRSzwLASjY
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-09_06,2022-11-09_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ malwarescore=0 clxscore=1015 impostorscore=0 adultscore=0
+ lowpriorityscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0
+ phishscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211090144
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 8 Nov 2022 21:05:21 -0400
-Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> On Tue, Nov 08, 2022 at 03:55:20PM -0700, Alex Williamson wrote:
-> 
-> > > > So why exactly isn't this an issue for VDPA?  Are we just burying our
-> > > > head in the sand that such platforms exists and can still be useful
-> > > > given the appropriate risk vs reward trade-off?    
-> > > 
-> > > Simply that nobody has asked for it, and might never ask for it. This
-> > > is all support for old platforms, and there just doesn't seem to be a
-> > > "real" use case for very new (and actually rare) NIC hardware stuck
-> > > into ancient platforms with this security problem.  
-> > 
-> > vIOMMU support for interrupt remapping is relatively new, the nesting
-> > case is important as well.  
-> 
-> This is where we got hit. In the end we fixed the qemu..
-> 
-> > > I'd be much more comfortable with this as a system wide iommufd flag
-> > > if we also tied it to do some demonstration of privilege - eg a
-> > > requirement to open iommufd with CAP_SYS_RAWIO for instance.  
-> > 
-> > Which is not compatible to existing use cases, which is also why we
-> > can't invent some way to allow some applications to run without CPU
-> > mitigations, while requiring it for others as a baseline.  
-> 
-> Isn't it? Didn't we learn that libvirt runs as root and will open and
-> pass the iommufd as root?
+On 11/9/22 9:49 AM, Anthony Krowiak wrote:
+>
+> On 11/8/22 9:04 AM, Anthony Krowiak wrote:
+>>
+>> On 11/8/22 5:12 AM, Christian Borntraeger wrote:
+>>>
+>>>
+>>> Am 08.11.22 um 02:09 schrieb Jason Gunthorpe:
+>>>> On Mon, Nov 07, 2022 at 08:48:53PM -0400, Jason Gunthorpe wrote:
+>>>>> [
+>>>>> This has been in linux-next for a little while now, and we've 
+>>>>> completed
+>>>>> the syzkaller run. 1300 hours of CPU time have been invested since 
+>>>>> the
+>>>>> last report with no improvement in coverage or new detections. 
+>>>>> syzkaller
+>>>>> coverage reached 69%(75%), and review of the misses show substantial
+>>>>> amounts are WARN_ON's and other debugging which are not expected 
+>>>>> to be
+>>>>> covered.
+>>>>> ]
+>>>>>
+>>>>> iommufd is the user API to control the IOMMU subsystem as it 
+>>>>> relates to
+>>>>> managing IO page tables that point at user space memory.
+>>>>
+>>>> [chop cc list]
+>>>>
+>>>> s390 mdev maintainers,
+>>>>
+>>>> Can I ask your help to test this with the two S390 mdev drivers? Now
+>>>> that gvt is passing and we've covered alot of the QA ground it is a
+>>>> good time to run it.
+>>>>
+>>>> Take the branch from here:
+>>>>
+>>>> https://git.kernel.org/pub/scm/linux/kernel/git/jgg/iommufd.git/log/?h=for-next 
+>>>>
+>>>
+>>>>
+>>>> And build the kernel with
+>>>>
+>>>> CONFIG_VFIO_CONTAINER=n
+>>>> CONFIG_IOMMUFD=y
+>>>> CONFIG_IOMMUFD_VFIO_CONTAINER=y
+>>>>
+>>>> And your existing stuff should work with iommufd providing the iommu
+>>>> support to vfio. There will be a dmesg confirming this.
+>>>
+>>> Gave it a quick spin with vfio_ap:
+>>> [  401.679199] vfio_ap_mdev b01a7c33-9696-48b2-9a98-050e8e17c69a: 
+>>> Adding to iommu group 1
+>>> [  402.085386] iommufd: IOMMUFD is providing /dev/vfio/vfio, not VFIO.
+>>>
+>>> Some tests seem to work, but others dont (running into timeouts). I 
+>>> need to look
+>>> into that (or ideally Tony will have a look, FWIW 
+>>> tests.test_vfio_ap.VfioAPAssignMdevToGuestTest
+>>> fails for me.
+>>
+>>
+>> I'm looking into it.
+>
+>
+> I cloned the 
+> https://lore.kernel.org/kvm/Y2q3nFXwOk9jul5u@nvidia.com/T/#m76a9c609c5ccd1494c05c6f598f9c8e75b7c9888 
+> repo and ran the vfio_ap test cases. The tests ran without 
+> encountering the errors related to the vfio_pin_pages() function, but 
+> I did see two tests fail attempting to run crypto tests on the guest. 
+> I also saw a WARN_ON stack trace in the dmesg output indicating a 
+> timeout occurred trying to verify the completion of a queue reset. The 
+> reset problem has reared its ugly head in our CI, so this may be a 
+> good thing as it will allow me to debug why its happening.
 
-We're jumping ahead to native iommufd support here, what happens when
-VFIO_CONTAINER=n and it's QEMU opening the fds, with only file access
-privileges?
 
-> > > That is the usual protocol for these kinds of insecurities..  
-> > 
-> > Hmm, is it?  
-> 
-> I think so. At least you should have something to shut down an
-> insecure feature in kernel lockdown modes. CAP_SYS_RAWIO is a simple
-> way to do it.
+The problems I encountered were due to using a set of regression tests 
+that were not vanilla. They contained some changes I made to try to 
+improve performance of the tests. After restoring the vanilla regression 
+tests, I was able to successfully execute the tests without any problems 
+or errors with Jason's vfio_ap_(un)pin_pages patch installed, so that 
+looks good to me.
 
-How are CPU vulnerabilities handled in lockdown mode, do apps require
-certain capabilities to run fast vs safe, or do we simply disallow
-unsafe globally in lockdown?  I think we have a lot more leniency to
-ignore/disallow flags that enable global insecurities when any sort of
-lockdown is imposed.
 
-> > > I think right now we can leave this as-is and we can wait for some
-> > > more information to decide how best to proceed.  
-> > 
-> > It's certainly not acceptable in the latest proposal, iommufd consumes
-> > an option set by another module and when that module goes away, so does
-> > any claim of compatibility.  The code becomes dead and the feature not
-> > present.  The option doesn't belong on the vfio module.  Do we need a
-> > vfio-iommufd module to host it?  Thanks,  
-> 
-> I don't know, as I said in the other email, these little things need
-> work and discussion to resolve. We need to recheck the security stuff
-> against the 2022 kernel where things have changed. We don't need to do
-> it all right now.
-> 
-> People who want allow_unsafe_interrupts to work will simply not set
-> VFIO_CONTAINER=n at this time. Same with P2P, vfio-no-iommu and any
-> other gaps we haven't discovered.
-> 
-> vfio-iommufd seems like overkill, I think your first suggestion to put
-> in vfio.ko was more practical.
-
-Convenient perhaps, but architecturally the wrong place for it.
-
-> My only doubt is if we should make it system wide for everything - and
-> I'm just a bit uncomfortable with that from a security POV. But maybe
-> I don't quite know exactly what the risks are.
-
-There's a paper about these sorts of attacks here[1].  As I noted
-earlier, a non-malicious DMA targeting an address that would trigger an
-interrupt is extremely unlikely, and the resulting vulnerability is
-largely more of a denial of service, IIRC.  It would certainly be
-strongly dis-recommended in any scenario where the userspace drivers
-are untrusted, such as a cloud hosting provider, but there are
-certainly other scenarios where either the guest or userspace drivers
-are also under the control of the hosting provider and this is not such
-a concern.  Thanks,
-
-Alex
-
-[1]https://invisiblethingslab.com/resources/2011/Software%20Attacks%20on%20Intel%20VT-d.pdf
-
+>
+>
+>>
+>>
+>>>
+>>>
+>>> The same kernel tree with defconfig (instead of 
+>>> CONFIG_IOMMUFD_VFIO_CONTAINER=y) works fine.
+>>>>
+>>>> Let me know if there are any problems!
+>>>>
+>>>> If I recall there was some desire from the S390 platform team to start
+>>>> building on iommufd to create some vIOMMU acceleration for S390
+>>>> guests, this is a necessary first step.
+>>>>
+>>>> Thanks,
+>>>> Jason
