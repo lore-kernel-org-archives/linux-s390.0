@@ -2,52 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51803C4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 17:00:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8AA0C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 17:19:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231254AbiKIRAu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Nov 2022 12:00:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59952 "EHLO
+        id S231582AbiKIRTP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Nov 2022 12:19:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231304AbiKIRAc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 12:00:32 -0500
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2057.outbound.protection.outlook.com [40.107.93.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C542827DCB;
-        Wed,  9 Nov 2022 08:57:08 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FtadcU5EnhqlSM03YlANsz/PlSLLdB9E9HTy2/1o/Y4O9W3MAyuhyXt4GKaBOYDJbCpzvSFyll+eroF4hjzhFdavSVW2QfT0V6KI4Dtx+lx6CrmVFVC/Ky4BR+yyIsKe8nP5G9Zw6Xfstn3RAmq+2wBMJkWkUzy9BiqMqexcUOsGhC/y8pd7K8I40taMO/+M+sw7H8FCkUjer25XTJrWWGyv85OpS7j7k4M8ptxOxKOdG2i4AIsaY2rCxahSrTLjD0d+WpKb322grDNA1kDB9zn/Nt3XENgX53B2en4tLnc9PGl4aUV5/ORkS3xWoRjt/WiJXcMpZ3lNdunxp31ueg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2NaILbdXEOUsBgsNonZBm14hn+tHEOCDDpQia64xEog=;
- b=KB9Iz1TtL8OrHifxlw4ERF5vdt0mJVFoZ4E4Y4Fgy0m7efSJ9WzF6inKBJJ9c/ZKTiMkM8CDAPsp+HxERz7t+Lqw690Saq4QdvlsqGok0YLE8OtxIrmAkDnFduJNMa/Leq6n0C7ExiN6IOiZpY7W5+CxtuPtPRfy6FWNXU7YdzJDbcxSzRV+GnMaTWPdKaYkjWTz6yb8keEyKjMY1nSQ+HhkJFCSwFN0GYun0KRgbaqh9yL1orrJu1C4jQJvIKdXCpikQHG1Q6W96cjCll6+3uv2iIttEs7rP0eTKqMhbLQiyeGD1g9bDtzkXU6lUgYiIi04uuqhLViBQw3eFDh0rA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2NaILbdXEOUsBgsNonZBm14hn+tHEOCDDpQia64xEog=;
- b=j6ANuyolkuznK/XlaWIISOgqMELbm8UdBBCHUvtrf0CyUah0B5gl2vlVl4iLjwdkS1vjqptRfT6Se97ID+uvwnJK1mV9sXNMD00mLkO05bJNLm7f2r7akSnMP+dPpk6HpIG/2RIjl+BnQ7b4TaagXjZIl6/+rH6uO54J37x27N6RmJ6P+CCj4se6pP04E0uUNOQrnO1cNgxq/QjE20tJ4zky0xQXSd+MFpnpti4XisKZu9zXzLJiVjrEV+Dh74jPYyc4MIIvjdHOa8I8JnGiY3q5YvWo0TPasT35QbW1NY5OPU9EFP0A2YhB2pT1O4JknCA+/hLXmHuCHgYxsKPoTQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by MW4PR12MB7143.namprd12.prod.outlook.com (2603:10b6:303:222::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.26; Wed, 9 Nov
- 2022 16:57:07 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de%7]) with mapi id 15.20.5791.027; Wed, 9 Nov 2022
- 16:57:07 +0000
-Date:   Wed, 9 Nov 2022 12:57:05 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Yi Liu <yi.l.liu@intel.com>
-Cc:     Nicolin Chen <nicolinc@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        with ESMTP id S231476AbiKIRTO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 12:19:14 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25AE5209BD
+        for <linux-s390@vger.kernel.org>; Wed,  9 Nov 2022 09:18:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1668014294;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xnXgn16clICsmrV6UyAUvoxroMB/57yAi6UKnX9zn/8=;
+        b=WndcJS31A/P1ODA6rTNvkj8ScMzPivQmeCG6ltyPMuPO1g1swQy+xgmfyc8m8Zz2ZYqiMY
+        ZamY13c6wvzFLt/XVdu232RdK3iv4UdrxV8m2NXNjELaIAabZonkYufPMCv/CH1/k39iXz
+        2JcrNuO1py88L9Pyi31Gxyu1TY8uSY0=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-237-dbtjKq6FM7--BfZsWllvCg-1; Wed, 09 Nov 2022 12:18:13 -0500
+X-MC-Unique: dbtjKq6FM7--BfZsWllvCg-1
+Received: by mail-io1-f71.google.com with SMTP id x23-20020a6b6a17000000b006d9ca4e35edso6953621iog.9
+        for <linux-s390@vger.kernel.org>; Wed, 09 Nov 2022 09:18:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xnXgn16clICsmrV6UyAUvoxroMB/57yAi6UKnX9zn/8=;
+        b=eLc97Yl2rdI7UPBa1FHdg0J5aB81VHX915qNyYcJFF4/MQAFpBXA00PQ0qvel3XmR/
+         Vvd1e8Tfoh9YEb3TXyMmcMIebeMO2SCr39zLvCpwLeZCD/gWBO+h1r5LH6i+g5ka27Rp
+         5/3hBqGusFzu3XVkrXrSnshEusdNYXkAS1N7XjL3y9cMj42bIltB994PoQSpYga5XowK
+         VUsm+ijVsEKuAWXr7aig/sR0qLccudHNqydobOZNw3OFi9X1pQoiSnZidx8wvSRkirh9
+         hRsG4tn8QAYqGpZVfltNUA8/+fgvSHKeOq2SMdagSmzW9KgpUHesgcJxSx91logdA9Ju
+         n/Ew==
+X-Gm-Message-State: ACrzQf3DW4LHBBuorpPNSVZGGolnAILI7+d3Uex6cZkjmh+5kNaZJchF
+        v6e1IkDC/WZXQnN2u4rtAG0W+6vT9bKwPPYA5mfhElV/NmNDoVL9OA5E7ytB0PprU4Hb+GPWq9f
+        WBBWBLeF/P36CxCurDxq9Dg==
+X-Received: by 2002:a6b:e208:0:b0:6d7:b1a7:c220 with SMTP id z8-20020a6be208000000b006d7b1a7c220mr1771058ioc.7.1668014292520;
+        Wed, 09 Nov 2022 09:18:12 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM6F677E3Z9Fik/IZx4pkrsVOrB6N7Pz805qwA6pjiuY0YCpqNr/AQzfBn6PMq3gQd7YTPJ/wA==
+X-Received: by 2002:a6b:e208:0:b0:6d7:b1a7:c220 with SMTP id z8-20020a6be208000000b006d7b1a7c220mr1771033ioc.7.1668014292281;
+        Wed, 09 Nov 2022 09:18:12 -0800 (PST)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id i12-20020a056e02152c00b00300e6efca96sm5020565ilu.55.2022.11.09.09.18.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Nov 2022 09:18:11 -0800 (PST)
+Date:   Wed, 9 Nov 2022 10:18:09 -0700
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         David Airlie <airlied@gmail.com>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Cornelia Huck <cohuck@redhat.com>,
         Daniel Vetter <daniel@ffwll.ch>,
@@ -79,93 +92,84 @@ Cc:     Nicolin Chen <nicolinc@nvidia.com>,
         Yishai Hadas <yishaih@nvidia.com>,
         Zhenyu Wang <zhenyuw@linux.intel.com>,
         Zhi Wang <zhi.a.wang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH v2 00/11] Connect VFIO to IOMMUFD
-Message-ID: <Y2vb4fuPZdYKR1M1@nvidia.com>
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>
+Subject: Re: [PATCH v2 10/11] vfio: Make vfio_container optionally compiled
+Message-ID: <20221109101809.2ff08303.alex.williamson@redhat.com>
+In-Reply-To: <Y2r6YnhuR3SxslL6@nvidia.com>
 References: <0-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
- <Y2ofNKmmAIMGYLFK@Asurada-Nvidia>
- <9b2bb9f2-fc82-dd01-84ff-c2fe45e1a48a@intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9b2bb9f2-fc82-dd01-84ff-c2fe45e1a48a@intel.com>
-X-ClientProxiedBy: BLAPR03CA0153.namprd03.prod.outlook.com
- (2603:10b6:208:32f::19) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        <10-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
+        <20221108152831.1a2ed3df.alex.williamson@redhat.com>
+        <Y2r6YnhuR3SxslL6@nvidia.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MW4PR12MB7143:EE_
-X-MS-Office365-Filtering-Correlation-Id: bbe8dbb5-d659-4a0f-2354-08dac2736f07
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: KgF/iJOs5C2a6kNcwF+9DBygzi70STP4NqzQgxyqrtKqdoSDxl8njbVCNzHG0OB2TKVOs9SZ+RCVqsS3sse8D3JJFwBuYSqZ655xFfKKPoTQubzYw11cJi5rqSr1Vqn8ToseRherARxr4tgc/oWPf/wZU70TGuOhUCJac/tsKmm002T3u9CL8RXXhvgFc/D1FcaJseukddw6peV78AOKwwf9uDXoH+WvboZtXQnqIzHS5etBKQ49UJ6StayYs4YQpvu7rqDaIFZEjikwf86fl36PYGMXtYtwPSB6ri8KljPz4IjT7UxD0OBx5Y5J/Sdx3i3QgA88xzsjVx4MqDzuFt5AVneK0DNzX+B01KHiVtCmg8qFYfuIBX2TrS+z2QDuofNvn2M8KTykmJdBCCV/A3h2rl+uU2wlA6Ka8piDrmLH+novLipkL3mHzmKBwRoP3qH1Ye+ZcjNECtuXJCpsDqFYMo3Zd3tb2y2ik/CTgO+ffQfmspWtdaYRr5o7WPBg/i8mfp2wXCSO1gLiFtuhAfZqCHZLfC1u2b24tWMXK5vfX/QPOOLM1cL7HNgyoASXBN+RrlmbQSQpzOwNN4ahN6RH840AzxOdUS/HXzG2SUPTk9P3nh6FlSJynHPjO78LHIUaDDegCEhoNs+SZwe+G8YwPjF4xlfrw4w0BDUMAlTfvfbgplbcx7Zl4ateC2tdlM5rYfW2oV/zVfF086mQp6LKlz81ypB76jFTrf/y3SDBS8qty6DxjQwoLbqJOLRbUOnd3M5i3EXjRmPDoj2giBeE2TzbgI9gwfSwJLFc6hs=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(346002)(136003)(376002)(366004)(39860400002)(451199015)(966005)(6486002)(478600001)(54906003)(2906002)(6916009)(8676002)(7416002)(53546011)(7406005)(5660300002)(2616005)(6506007)(4326008)(36756003)(66476007)(66946007)(41300700001)(38100700002)(316002)(83380400001)(186003)(66556008)(86362001)(6512007)(26005)(8936002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?EUojz8Xd3pjGCpkinGs14AdtuYzr1axK+4SzlfLnQh1bvrciciH0B/QIRCi1?=
- =?us-ascii?Q?YD+M9UQYKDG8WTnTCfYDGp4E/Xocm5I7I7+YrudwC952jlQK5SMIDH2ReNxc?=
- =?us-ascii?Q?f6ETsyqKEpb8Qe5q0pCQeNjrNJBWBcsCfVZi1XNUj/pugTIEG9/WiN1D9/sf?=
- =?us-ascii?Q?NRsrrtJaTH0Kb5eX3KL8cg7c4FZqIiqYUn6s25bGTCa6am9BwxB4FN24rUkj?=
- =?us-ascii?Q?TAkYNS5JV42lmXDsSZ/ULQSKzcKfMr/pj/5oxTYQKuixoyRZ9Ud6aW3r5b7v?=
- =?us-ascii?Q?3q7f8h4qlAZ9Xqd9sNpRJJ1nnmlv9kg/gk1bfY0lTayz+aTVBPcJGF892I4P?=
- =?us-ascii?Q?D17rOB/b3lLECpHKVnAhZ4qA2qSoOxgXMr9DJKYmxvsmlVc8nt/LYMxHYWu/?=
- =?us-ascii?Q?mH65j0ELvrxtWCIHghgtOmtNb9xOrzN1oSvXe+M6wJDGNiVuwvGDSLuNXZDH?=
- =?us-ascii?Q?m1bCezK+lMkWnxGjad+7XBiZF+IoTkiJpFFdv/y/J4YsB+w4ASeyH7oddcfM?=
- =?us-ascii?Q?zIlJ9z2PmZy9LKG7j31SEDrRh9ErhpnqRXaoFrsqY0Mb2T4mCLKpj9Vm/Mhx?=
- =?us-ascii?Q?kg9JZ8BwGyv6aKaZha9S6R44G+Ruk1gY1hRsKqwMf1O4lRReoJ3r1kBY40b3?=
- =?us-ascii?Q?eTEL9yfKwmDSIlFrHG5O9WYoxVaHgs6NyY/i7mbGiay7K9mE4ji0637IMv4W?=
- =?us-ascii?Q?46lLUlftep7oxfBz0X3hZeI9Ihhdc+wGlNkZULfndcgD85av7YE/9YXpikmD?=
- =?us-ascii?Q?1tdq8G+bgpN3nqhy/6F2njZB/2ujCXJHX4hynxT3IU4oDBwWPCTRYK52LpO7?=
- =?us-ascii?Q?FOMBjkow/aNoyb40q0jR4Iq8dwswrQCjdz+ruBi6iSLiLofZg1N6O5/2PR2Z?=
- =?us-ascii?Q?iaD4TTENRglEliJc3MeCd7JbNo6SQNct5AHquuwO0z53TB26cJF1UGJmJebm?=
- =?us-ascii?Q?OSiqQdXnzrz/yF6TFAVEq4yAsieoRG4T5Wifjul9OK9MPtjKq75gCCofpIS1?=
- =?us-ascii?Q?pqJyVAuZdyrJStJPLSx/LeKQNfLKBbroj8hBKwKYnZtIFHv3CSf9G+SUIUdq?=
- =?us-ascii?Q?0BFc5ugCW/lgYLI2gQCfLyAeWWzm08Ft1ig/rx8J95XKiQuuaDLb0104EygW?=
- =?us-ascii?Q?7aAB7O8/SdQdrCu0FKdsltOUG5Ckq7BmAs04xHGMh7Z5zcT1L6mPjLXzq5W9?=
- =?us-ascii?Q?njq4ooY65s8+25KOYUh7O7OQI34reyn9bSyyElbaKqZTMpM8qouEKkA3dZVc?=
- =?us-ascii?Q?3XBZw7PWMN/xi9XNMLw3rf8yAU/ztLpsG7x8x7R6QiocSctuBa7dy/lRnqa1?=
- =?us-ascii?Q?jI4nRJhDgp4vPMx+Ahs+Au9SWRXZKx027pIFPARv+qS1M/vV/wRaXve+KlS5?=
- =?us-ascii?Q?RVkPUl+sTyRCI0JSaZNJwJLtbUF0uW5SZuRMep/SgVKIh95YE4/Bo0uRuZ4F?=
- =?us-ascii?Q?Pl3X59fRczM2qxymG0c/lr1OaZIv6gUMDFQqn9AKu8p78Nvd7fY06PoNl0HI?=
- =?us-ascii?Q?9wtbeMp+hpdBpIerdoJCuwqmb+Nkap0mhdX1l+3KOnO+39UsZ6hGtEsLlwfE?=
- =?us-ascii?Q?yWBNAVQNDgKVIZZr0aw=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bbe8dbb5-d659-4a0f-2354-08dac2736f07
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Nov 2022 16:57:06.8456
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Vk5H97gK13RTf2AhDkDIssQzkTPbzkIr9zHSVIeIyvCKteANM7ZqWlyVrswpVBZd
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7143
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 08, 2022 at 11:18:03PM +0800, Yi Liu wrote:
-> On 2022/11/8 17:19, Nicolin Chen wrote:
-> > On Mon, Nov 07, 2022 at 08:52:44PM -0400, Jason Gunthorpe wrote:
-> > 
-> > > This is on github: https://github.com/jgunthorpe/linux/commits/vfio_iommufd
-> > [...]
-> > > v2:
-> > >   - Rebase to v6.1-rc3, v4 iommufd series
-> > >   - Fixup comments and commit messages from list remarks
-> > >   - Fix leaking of the iommufd for mdevs
-> > >   - New patch to fix vfio modaliases when vfio container is disabled
-> > >   - Add a dmesg once when the iommufd provided /dev/vfio/vfio is opened
-> > >     to signal that iommufd is providing this
-> > 
-> > I've redone my previous sanity tests. Except those reported bugs,
-> > things look fine. Once we fix those issues, GVT and other modules
-> > can run some more stressful tests, I think.
+On Tue, 8 Nov 2022 20:54:58 -0400
+Jason Gunthorpe <jgg@nvidia.com> wrote:
+
+> On Tue, Nov 08, 2022 at 03:28:31PM -0700, Alex Williamson wrote:
 > 
-> our side is also starting test (gvt, nic passthrough) this version. need to
-> wait a while for the result.
+> > Perhaps this should have been obvious, but I'm realizing that
+> > vfio-noiommu mode is completely missing without VFIO_CONTAINER, which
+> > seems a barrier to deprecating VFIO_CONTAINER and perhaps makes it a  
+> 
+> Yes, it is the same as the allow_unsafe_interrupts - it is something
+> that currently goes missing if you turn off VFIO_CONTAINER.
+> 
+> This seems straightforward enough to resolve in a followup, we mostly
+> just need someone with an existing no-iommu application to test
+> compatability against. Keeping it working with the device cdev will
+> also be a bit interesting. If you have or know about some application
+> I can try to make a patch.
 
-I've updated the branches with the two functional fixes discussed on
-the list plus all the doc updates.
+DPDK supports no-iommu mode.
 
-Thanks,
-Jason
+> > question whether IOMMUFD should really be taking over /dev/vfio/vfio.
+> > No-iommu mode has users.    
+> 
+> I view VFIO_CONTAINER=n as a process. An aspiration we can work
+> toward.
+> 
+> At this point there are few places that might want to use it. Android
+> perhaps, for example. It is also useful for testing. One of the main
+> values is you can switch the options and feed the kernel into an
+> existing test environment and see what happens. This is how we are
+> able to quickly get s390 mdev testing, for instance.
+> 
+> We are not going to get to a widely useful VFIO_CONTAINER=n if we
+> don't have a target that people can test against and evaluate what
+> compatability gaps may exist.
+> 
+> So, everytime we find something like this - let's think about how can
+> we make iommufd compatibility handle it and not jump straight to
+> giving up :)
+> 
+> I'm kind of thinking v6.4 might be a reasonable kernel target when we
+> might have closed off enough things.
+
+I agree that it's very useful for testing, I'm certainly not suggesting
+to give up, but I'm not sure where no-iommu lives when iommufd owns
+/dev/vfio/vfio.  Given the unsafe interrupts discussion, it doesn't
+seem like the type of thing that would be a priority for iommufd.
+
+We're on a path where vfio accepts an iommufd as a container, and
+ultimately iommufd becomes the container provider, supplanting the
+IOMMU driver registration aspect of vfio.  I absolutely want type1 and
+spapr backends to get replaced by iommufd, but reluctance to support
+aspects of vfio "legacy" behavior doesn't give me warm fuzzies about a
+wholesale hand-off of the container to a different subsystem, for
+example vs an iommufd shim spoofing type1 support.
+
+Unfortunately we no longer have a CONFIG_EXPERIMENTAL option to hide
+behind for disabling VFIO_CONTAINER, so regardless of our intentions
+that a transition is some time off, it may become an issue sooner than
+we expect.  Thanks,
+
+Alex
+
