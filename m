@@ -2,129 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE4E6C4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 22:20:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79CF5C43217
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Nov 2022 22:24:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230072AbiKIWUg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Nov 2022 17:20:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36182 "EHLO
+        id S231984AbiKIWYn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Nov 2022 17:24:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbiKIWUf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 17:20:35 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F7B612AE0;
-        Wed,  9 Nov 2022 14:20:34 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A9L9c57028228;
-        Wed, 9 Nov 2022 22:20:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=SP2GELv+bIPt9nnhexmy2PzgEFQ9K/ZPGyYruB7rewU=;
- b=tPojm5E28bvxZgZGJLmWBhiE7WLm/0hsoAZqL/zc4iwsHgL3DqQpfW3f6i+Vlm/YM8Id
- T4X1CqZv1hhhX9e91pTdDiPUp3EADV3A0VBZS9s8vsJeEnp0+F6GNxv86N8O0Aa4k+fU
- 4tq/oGHPFu8VVY0AFUW5wZ0r/swWEMyQjM4M3CiMG5c9F7W6lSmmeZQ0kR1zF413Ox7x
- 0+K/YrXmf3D03vu+3H2HyAnQLtQ1auJM+ZXYT2zPWn/Ggidfpu6G5b9tMMV1RFHE0GSS
- rUrPCqLNrCg2nTxDNeUrqd0siBgHv8qlMQk1/T6K4CG2joA9A+hFm3ma4bvgCgdRxjt2 Lg== 
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3krhy1mqy6-1
+        with ESMTP id S231835AbiKIWYm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Nov 2022 17:24:42 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C63140C1;
+        Wed,  9 Nov 2022 14:24:41 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A9Kuqct000960;
+        Wed, 9 Nov 2022 22:24:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=OXK2rflp5rKV+rHWMnZiJD3myzm6Ph+64qqnZ6aXot8=;
+ b=ePA9ac7n7ndS86zvofrKBK46O2F6Crd9IxMaYo8pamZ40ObP/AExxjnefystbq3NU7Us
+ ilsfqcbb+T71jyq9zyArOLMgD99lneToJH2QiRN+MVioi6qRlkuCohFJV5JEvpuNEZFc
+ JjU8G5wtNQI5clOiKaRTXL5CuRaVWDBDZ0yu4KF8t7Kx8LmD+93Nv/KsN+L8rIbihVrf
+ We+pumeIsFGnlxA6FJhsVY28uFrpK3VHJ3hq+luj2fqorkuHzx7hymspLEb1WFoc7oWu
+ CyyAs+iDxgq2duQocmkd60w0TEHd4pxt1rC8H9qWShSCXIsE6QFrRHxsvAR5tzhliLwE uw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3krfgv14eh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Nov 2022 22:20:33 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A9MK9HW007236;
-        Wed, 9 Nov 2022 22:20:32 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma01dal.us.ibm.com with ESMTP id 3kngsygkpj-1
+        Wed, 09 Nov 2022 22:24:32 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A9Lqe2E028847;
+        Wed, 9 Nov 2022 22:24:32 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3krfgv14dp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Nov 2022 22:20:32 +0000
-Received: from smtpav03.dal12v.mail.ibm.com ([9.208.128.129])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A9MKWsG67043612
+        Wed, 09 Nov 2022 22:24:31 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A9MKhZQ004854;
+        Wed, 9 Nov 2022 22:24:29 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 3kngqgeb24-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Nov 2022 22:24:29 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A9MOQAB65405368
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 9 Nov 2022 22:20:32 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E30A58060;
-        Wed,  9 Nov 2022 22:20:30 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 86DEC5803F;
-        Wed,  9 Nov 2022 22:20:29 +0000 (GMT)
-Received: from [9.160.191.98] (unknown [9.160.191.98])
-        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  9 Nov 2022 22:20:29 +0000 (GMT)
-Message-ID: <c9e7229e-a88d-2185-bb6b-a94e9dac7b7a@linux.ibm.com>
-Date:   Wed, 9 Nov 2022 17:20:29 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: [PATCH 1/2] vfio-ccw: sort out physical vs virtual pointers usage
-Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        Wed, 9 Nov 2022 22:24:26 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2D7FDA4054;
+        Wed,  9 Nov 2022 22:24:26 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E94AA405F;
+        Wed,  9 Nov 2022 22:24:25 +0000 (GMT)
+Received: from osiris (unknown [9.145.168.231])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed,  9 Nov 2022 22:24:25 +0000 (GMT)
+Date:   Wed, 9 Nov 2022 23:24:24 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-References: <20221109202157.1050545-1-farman@linux.ibm.com>
- <20221109202157.1050545-2-farman@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20221109202157.1050545-2-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH 5/5] s390/uaccess: add cmpxchg_user_key()
+Message-ID: <Y2womHanaMzETfwU@osiris>
+References: <20221012205609.2811294-1-scgl@linux.ibm.com>
+ <20221012205609.2811294-2-scgl@linux.ibm.com>
+ <Y2J61LWSV+HolIeT@osiris>
+ <Y2J8axs+bcQ2dO/l@osiris>
+ <f604b6038c4a8bad5123e1f1f14b15c2190f28e9.camel@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f604b6038c4a8bad5123e1f1f14b15c2190f28e9.camel@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: sRu-cN22UO0xq5tjL_PIp-NrCBkts_mT
-X-Proofpoint-GUID: sRu-cN22UO0xq5tjL_PIp-NrCBkts_mT
+X-Proofpoint-GUID: 3lV4qHHsjdqfHjgEzB8DO73hOaXXctYa
+X-Proofpoint-ORIG-GUID: xPEyVc6oijzPJ_nU3OIvfGBZasFkAUT3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-09_06,2022-11-09_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- mlxscore=0 malwarescore=0 priorityscore=1501 bulkscore=0 phishscore=0
- mlxlogscore=999 suspectscore=0 lowpriorityscore=0 spamscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211090166
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
+ mlxlogscore=783 clxscore=1015 spamscore=0 phishscore=0 bulkscore=0
+ impostorscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211090166
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/9/22 3:21 PM, Eric Farman wrote:
-> From: Alexander Gordeev <agordeev@linux.ibm.com>
+On Wed, Nov 09, 2022 at 04:46:29PM +0100, Janis Schoetterl-Glausch wrote:
+> On Wed, 2022-11-02 at 15:19 +0100, Heiko Carstens wrote:
+> > +	case 1: {
+> > +		unsigned int prev, tmp, shift;
+> > +
+> > +		shift = (3 ^ (address & 3)) << 3;
+> > +		address ^= address & 3;
+> > +		asm volatile(
+> > +			"	spka	0(%[key])\n"
+> > +			"	sacf	256\n"
+> > +			"0:	l	%[prev],%[address]\n"
+> > +			"1:	nr	%[prev],%[mask]\n"
+> > +			"	lr	%[tmp],%[prev]\n"
+> > +			"	or	%[prev],%[old]\n"
+> > +			"	or	%[tmp],%[new]\n"
+> > +			"2:	cs	%[prev],%[tmp],%[address]\n"
+> > +			"3:	jnl	4f\n"
+> > +			"	xr	%[tmp],%[prev]\n"
+> > +			"	nr	%[tmp],%[mask]\n"
 > 
-> The ORB is a construct that is sent to the real hardware,
-> so should contain a physical address in its interrupt
-> parameter field. Let's clarify that.
+> Are you only entertaining cosmetic changes to cmpxchg.h?
+
+I fail to parse what you are trying to say. Please elaborate.
+
+> The loop condition being imprecise seems non-ideal.
+
+What exactly is imprecise?
+
+> > +			  [key] "a" (key),
 > 
-> Note: this currently doesn't fix a real bug, since virtual
-> addresses are identical to physical ones.
-> 
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> [EF: Updated commit message]
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->  drivers/s390/cio/vfio_ccw_fsm.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-> index a59c758869f8..0a5e8b4a6743 100644
-> --- a/drivers/s390/cio/vfio_ccw_fsm.c
-> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
-> @@ -29,7 +29,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
->  
->  	spin_lock_irqsave(sch->lock, flags);
->  
-> -	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
-> +	orb = cp_get_orb(&private->cp, (u32)virt_to_phys(sch), sch->lpm);
+> Why did you get rid of the << 4 shift?
+> That's inconsistent with the other uaccess functions that take an access key.
 
-Nit: I think it would make more sense to do the virt_to_phys inside cp_get_orb at the time we place the address in the orb (since that's what gets sent to hardware), rather than requiring all callers of cp_get_orb to pass a physical address.  I realize there is only 1 caller today.
-
-Nit++: Can we make the patch subjects match?  vfio/ccw or vfio-ccw
-
-Either way:
-
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-
->  	if (!orb) {
->  		ret = -EIO;
->  		goto out;
-
+That's not only inconsistent, but also a bug.
+Thank you for pointing this out. Will be fixed.
