@@ -2,202 +2,183 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9B0EC4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Nov 2022 19:19:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD156C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Nov 2022 20:18:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230452AbiKJTTQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Nov 2022 14:19:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58594 "EHLO
+        id S231776AbiKJUSL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Nov 2022 15:18:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229757AbiKJTTO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Nov 2022 14:19:14 -0500
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2059.outbound.protection.outlook.com [40.107.220.59])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B9FC7655;
-        Thu, 10 Nov 2022 11:19:14 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cWzUGtpJgTF7wR04g9NYSt56Ylw3f6BP+g4rZK4p0xVtUJKsEgW/zNj+pyHKLXvuaRHuH4rDwQfa6qYhYM9uH3F2ND7mscZ6CLCzesnKRmwfVN3MDJHyoLLvvoLJosDNQ1KNzbfiyzIvxMjFVTjGtKOhIebUd2Gxc86eOa+oEuKSoM/bA3XFRAO3rQPcIpQfrNeZYkyl+CWFksWVF/FMvYGTQoPky1zW9QsRyAO70fBvVjvusEmfHoGu9/YNxXrRyVUgNZnyMR6NyoZKFe0YjC8WesO7t+lTIKhXzhETa9sioZQWeDxAiWgoKNy7J3WxRtcN5LqC8xE4/gMN7ftdjQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=aTBjqopfkP2iYv3rIuTb2Aw1BThon7runQkBpsK9mA0=;
- b=SvvWF+zG/a3NVSPw39ImlhRK0lsEGN6XlUr11GZnjF3098lMIq5Bzx+Vmnljob7z+6QLygkF0SouilnNqD+20VEGyjsVGcxGtmP/qR0wDr/QYJPLf0eLEotPQos7iMGh9tRzdRFITrGM7fnpn+TkC25fG+KFsiOW2VrtowJ/7WIWRlW7denjrleGG957lgoYbDBposhjHWzITj50pAvNwHdILfaO03q/8QwtgDFwdfitVLFj15pegxmjhNty333q5K2r/oqHHyXC/zjJiA5xnjg7wSRkRuKSFi1kazxJXNux6iZMKX6xoE20xkxAl087aB7s1wHaIDBtNBAT5kk3XQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aTBjqopfkP2iYv3rIuTb2Aw1BThon7runQkBpsK9mA0=;
- b=Wh+FFSZh4gg1/VsEhaf+4fPwGA9POxfU4Yh9aPyu/FA+Nd1N76qk1Zn7epLyNK9GVaZhQhT8tSqTrlWl7S9mfR+eHwoj8xclm9ZqjtJ2gahIWJpPfevA0RTk1al4WtzcshduMmpKGlZzkwwJeMEOUibEltjNoqZYdlNDW+MqXeaHk4rS5Tqaa4Af8iJel35sRw+LHR5pn+/V8qZ2sU0QQ1uki270CbybUo/jD9hExHTxF1yI1uoGg4/4hA0oEQwxxVtW9DSjQ109YQ5snV2LZOtv5YhpZxmaMs8d6qVEuQF9fKmYCzkr6UNvnvLoZNTdtG7kz4EamrjmA7X7JMqOQA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by SJ1PR12MB6052.namprd12.prod.outlook.com (2603:10b6:a03:489::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.26; Thu, 10 Nov
- 2022 19:19:09 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::7a81:a4e4:bb9c:d1de%7]) with mapi id 15.20.5791.027; Thu, 10 Nov 2022
- 19:19:09 +0000
-Date:   Thu, 10 Nov 2022 15:19:08 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     kvm@vger.kernel.org, Kevin Tian <kevin.tian@intel.com>,
-        dri-devel@lists.freedesktop.org,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Longfang Liu <liulongfang@huawei.com>,
-        linux-s390@vger.kernel.org, Yi Liu <yi.l.liu@intel.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Will Deacon <will@kernel.org>, Joerg Roedel <joro@8bytes.org>,
-        Halil Pasic <pasic@linux.ibm.com>, iommu@lists.linux.dev,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org, Zhi Wang <zhi.a.wang@intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        intel-gvt-dev@lists.freedesktop.org,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
+        with ESMTP id S231883AbiKJUR4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Nov 2022 15:17:56 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8107A43841
+        for <linux-s390@vger.kernel.org>; Thu, 10 Nov 2022 12:16:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1668111412;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uVnV2DDw0Jhdp1QeqoFk0F1Z/gE4Ln1RaOhIXeyW3wU=;
+        b=eb7m06FVuj56TbnRfCdCA0z5gmAE6iMC25Tma95NHHqVm8hmx1Y4+0bC3PDF6YiqXZnPZN
+        zkwVDIOLxVYTjcq0WXAH/i4Xtlb00KM2pEAUzQXSo95hbs57JKFPY2K6GxKkFeDaZBv++y
+        tZwWb13a7N1cZJ1gFBScv6x4W+dytmE=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-221-n05bB0_-PNGce8aSv2TmNg-1; Thu, 10 Nov 2022 15:16:51 -0500
+X-MC-Unique: n05bB0_-PNGce8aSv2TmNg-1
+Received: by mail-io1-f70.google.com with SMTP id n23-20020a056602341700b00689fc6dbfd6so1773933ioz.8
+        for <linux-s390@vger.kernel.org>; Thu, 10 Nov 2022 12:16:51 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=uVnV2DDw0Jhdp1QeqoFk0F1Z/gE4Ln1RaOhIXeyW3wU=;
+        b=ynoVh6oXl1s6deH0jGQH+kf0Ztw327cncX6tu1cvt6YwiwBWSB7HqoONIXwsFtW1c2
+         4Z5xae17ol7y1v/AHzEsh/AUMr1sKYen148pZFEvzJPgvLF77Ue6mOIcgYwjPKRKpjGn
+         GymGjO4uUnTQIgCxpdLO3ho5PdOPRltq1H6EfkF0KzNQYhTlXMR2uXMhLOLKo9kefqHG
+         N+2IQ7Tm8cqnbPGZ0gBux731BDKGidSuvTJrpyTxDQOG42Sxt3A+9FPcMmSOOQHE3dJz
+         eAbPVv+Pxr6VLjUSXmpuWotXCEEGodLFFnCUKm+I6kij0pNIK11iV2SaZKymhrBo1LNb
+         PxHw==
+X-Gm-Message-State: ACrzQf0pRCteN2kNitBZ7mttCxj8MeADAk/BR8aKHbZ7Lf7TM1xI/MTA
+        QfdAWA7/JCcufWip7JTvG380cq8RdXxPIbuB5OhX6Ki2TYf7EM9CN+wQAeulTdgLpx94y8tvs5z
+        1eH9fOBf9UQFVrWK/X/NG+A==
+X-Received: by 2002:a92:d70b:0:b0:2f9:516b:25f3 with SMTP id m11-20020a92d70b000000b002f9516b25f3mr3482772iln.156.1668111410912;
+        Thu, 10 Nov 2022 12:16:50 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM7kmGLkxawxZSF0r3BGM7XEMkdaMXz0cdBNGYH99+jL5O4ssCKnWMKVWwzHqb43uql1tb9xRA==
+X-Received: by 2002:a92:d70b:0:b0:2f9:516b:25f3 with SMTP id m11-20020a92d70b000000b002f9516b25f3mr3482749iln.156.1668111410617;
+        Thu, 10 Nov 2022 12:16:50 -0800 (PST)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id i7-20020a0566022c8700b006bbea9f45cesm25981iow.38.2022.11.10.12.16.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Nov 2022 12:16:49 -0800 (PST)
+Date:   Thu, 10 Nov 2022 13:16:32 -0700
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Cornelia Huck <cohuck@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH 04/10] vfio: Move storage of allow_unsafe_interrupts to
- vfio_main.c
-Message-ID: <Y21OrMoVW/x84qkX@nvidia.com>
-References: <Y1wiCc33Jh5QY+1f@nvidia.com>
- <20221031164526.0712e456.alex.williamson@redhat.com>
- <Y2kF75zVD581UeR2@nvidia.com>
- <20221107081853.18727337.alex.williamson@redhat.com>
- <Y2klGAUEUwpjWHw6@nvidia.com>
- <20221107110508.7f02abf4.alex.williamson@redhat.com>
- <Y2lSZwNT8f/RMoZf@nvidia.com>
- <20221108155520.4429c2e5.alex.williamson@redhat.com>
- <Y2r80RgytKpPtK58@nvidia.com>
- <20221109112822.7a8c5f7a.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221109112822.7a8c5f7a.alex.williamson@redhat.com>
-X-ClientProxiedBy: BLAPR03CA0168.namprd03.prod.outlook.com
- (2603:10b6:208:32f::6) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Abhishek Sahu <abhsahu@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH v3 0/7] vfio-ccw parent rework
+Message-ID: <20221110131632.4e00f87d.alex.williamson@redhat.com>
+In-Reply-To: <20221104142007.1314999-1-farman@linux.ibm.com>
+References: <20221104142007.1314999-1-farman@linux.ibm.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|SJ1PR12MB6052:EE_
-X-MS-Office365-Filtering-Correlation-Id: 12268162-4f3d-416d-90f8-08dac3507141
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: RQQRDG37XMLx2c3C9YMUdn5HG0jmhWQgodFg+Sc7JCdMfJc8VT1yusnkYHjyrcOIdF9PzlgIZpZojC1KJiCzYTt8xroWx0XF8RST1O73gI//QwC0bRt/L3H3uHQXVaSh1DLaLp8/QQd+QXd43dGmyZjSUkwfLTqPwtnWXV0htdQpu85Qj6QALUcQee5jHgr9flr3Zc6+FSbqHtIf6CI2CbzsS4R+6oEHaLiFa15Ig5G1cFCtiBcJwBS1A8qSE79FuN7ZKkEKdsnnuio5C+UojqxsjTTV2SKb2ASsXDNo7K57RSi//uEA48zEoOAvMQICu59EVESgCtjl+2ctBm8zETyEDgiz58ySPgeJqWb4xjP+MrtGQgPp8Uv7hAeCzuQdAWunat/RGc7QKt2qhg2o7Kao67ekI2VnxkbgQv1NuZMVJHasVTfMStwEnG3P7+TzJJfLZy6CkR3RinWmk6v6NIMjAUxa7QmTqAfZIr3GDZvArzo7ag+7MfyWxXKlgW5MRDK++upxSDKiwsREG5Jqxn25htDK1/p3mkhLxPFjQXxO8XniTyqjGZRf6wm7pJJ9ipMurjPd8ou419yji9UhwR8daR2VKBtl/6/AjOZkneeurwSij1NTh5MqKQTMKplNw55m75kT18J3vBRfe1kHGq2A0jvoN0pixKq68SZM2YAUhpQZ373iT8FGl/oDYEFa4KUruU1O9TggtrovWS7UnQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(396003)(39860400002)(376002)(366004)(346002)(451199015)(41300700001)(2906002)(54906003)(66946007)(4326008)(6916009)(8676002)(316002)(66476007)(66556008)(6486002)(36756003)(38100700002)(7416002)(8936002)(186003)(478600001)(83380400001)(6512007)(7406005)(26005)(5660300002)(6506007)(86362001)(2616005);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?EPc3QBCu5Z3+C63oUEZZ+2TSUPcspMygtP/4Y3AiHrovjwc5hL7bd2YMYAbc?=
- =?us-ascii?Q?h7er+Ewfk/gme0fr0KhVsb55T+SxlAyPyH/zGMT1nlM1fYDJ9mM8TFlgsTIb?=
- =?us-ascii?Q?ceVVLCBtlEp/XCwSgmt8DRuQlFqPHXiNTIAnWOp7DIuAqpqOeUMWIQbz6Kdl?=
- =?us-ascii?Q?DXOsN4Dos05rCux/feY4MKT9U7aykNlM7T3UETQw2Z+t4GRvNmdF2/2ONz7v?=
- =?us-ascii?Q?Y2OfI/oCEh5h7EH+FWGkZtivx6jdchVMJfGhAf02ytWnC+LzPyOertlqZxQz?=
- =?us-ascii?Q?UQpL+75GRkdTBGuFwo3NpFL4+X7A7zyk7X07qVZdtJpqlPM4T9ZVzJLoObKf?=
- =?us-ascii?Q?uTlhGcHI3vn28DtcLCvnQSrWa3ZujPzjwc93uuUtCiOg15sCmQV6OjsS6fOF?=
- =?us-ascii?Q?CiKDQGwG2F4BYfQi7wtFMNZJ9Ylvo4rNU0RFqM5f1QwdJE2jt9bw1vrOXtyA?=
- =?us-ascii?Q?fxcJPmLabw511lXwCJ7I/UahJOHSkH5L289AxmnVyl1gxVhxV8o2yqAxF6EA?=
- =?us-ascii?Q?q6KZM+KHXGk4yMaB3f17Lxa+AFKrtPd0yYYtL2UCqE6BcH+9ytMBec+nTqtZ?=
- =?us-ascii?Q?gLFSmjWE9FXNWsQd2XMFAw/y/Fe+o0rnmOotMfzPE+mBAgyLh+8N6rtt0h8x?=
- =?us-ascii?Q?+PIvtMNyg8o0EsoO/QT5hHCF9B8raFXC/p6mh9z3Rh1NAEELHysDjR2+YdtR?=
- =?us-ascii?Q?c+lDUSmGWrJ/Onz5jqG6b6KRbMU2COHYYc5j1HbCaicb3jBZcxX7jfDZYsO1?=
- =?us-ascii?Q?5YRyEfWPFf+diqLYYMdL6dR7cKdPykgRenCSPq/rHQ6e0MxqZEYyMMt5dfBg?=
- =?us-ascii?Q?uRdXAP41avbEkG/nKzBPkBUpn0NVXO72P2CKP5gWuxCNypDg8+Kf5RZ5r+KK?=
- =?us-ascii?Q?Ol0iMb7ZhtqKW9fBnihxQlyKnRNwfjALjOWIAhDv+7TfqoEJGl2fjxFytrfC?=
- =?us-ascii?Q?jtRseIkH1S9HPBGGuhmWtqGUKX2WhfXHgBsL0OFBTO2Ye0IKYSSiI3wrlhLJ?=
- =?us-ascii?Q?wxu/jyEpviEADe8O6wGVWwYqfg/X/MsMkIlmHtAGdwgTxKm5eneb7+eN9Kxz?=
- =?us-ascii?Q?Vy/2+FnTHqEuksddwbe7qv8GDcf9sihddYiVmXrO3WALfs8QXAo4jPJIj6O2?=
- =?us-ascii?Q?l6DCz/UGZ4TEIzICngGvgLIZY1fJRpLouZD3F06oB/YOyt8fWyvJ5hnxG3xL?=
- =?us-ascii?Q?fuh54yJAtPASxOjQrdE7IGwu/4pLE+W6U8Dc8CFMkRZL7SjGLeRhigLMu/9g?=
- =?us-ascii?Q?JPHO1//tK9bu/+rr/2W+IXNMLD2V9Pp1d8PqMwb73FHmMyl2iIHF7bsAxkfy?=
- =?us-ascii?Q?oKzQC/GUTfBgH5KKjUOOXAPHwMevDLS9EzQZgH4HaTVdv6GCYVkQKEzkPwgh?=
- =?us-ascii?Q?5gK4mliuXfzRgP7Uph8RXZsJaWrI3imUJ/SBD2M02p5QUQWVhjHug35osPpW?=
- =?us-ascii?Q?lhg/caMsseTwAxe2x4DDKRU6ASBL2WJfnk704xXKNDfqaDXCa3H7s3ElN+9R?=
- =?us-ascii?Q?3Sp7nsnNdVCJUyY6BUsyIcU7wnNJPKRn53C4jzzOyQ1R6abvN2CfwRRDeIax?=
- =?us-ascii?Q?olO3N1a5VEkwcGJ2LuY=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 12268162-4f3d-416d-90f8-08dac3507141
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2022 19:19:09.5031
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: KhIS4XsQ1mYSxKJe1cs0owUJGnvDFtl0EEw55K40eHW8SZ/qUDrZA8OeY+ktEGdR
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6052
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 09, 2022 at 11:28:22AM -0700, Alex Williamson wrote:
-> > > > I'd be much more comfortable with this as a system wide iommufd flag
-> > > > if we also tied it to do some demonstration of privilege - eg a
-> > > > requirement to open iommufd with CAP_SYS_RAWIO for instance.  
-> > > 
-> > > Which is not compatible to existing use cases, which is also why we
-> > > can't invent some way to allow some applications to run without CPU
-> > > mitigations, while requiring it for others as a baseline.  
-> > 
-> > Isn't it? Didn't we learn that libvirt runs as root and will open and
-> > pass the iommufd as root?
+On Fri,  4 Nov 2022 15:20:00 +0100
+Eric Farman <farman@linux.ibm.com> wrote:
+
+> Hi Alex,
 > 
-> We're jumping ahead to native iommufd support here, what happens when
-> VFIO_CONTAINER=n and it's QEMU opening the fds, with only file access
-> privileges?
-
-Yes, but I am thinking aloud about how to best to do this in native
-iommufd modes.
-
-> > I think so. At least you should have something to shut down an
-> > insecure feature in kernel lockdown modes. CAP_SYS_RAWIO is a simple
-> > way to do it.
+> Here's the (last?) update to the vfio-ccw lifecycle changes that I've sent
+> recently, and were previously discussed at various points [1][2].
 > 
-> How are CPU vulnerabilities handled in lockdown mode, do apps require
-> certain capabilities to run fast vs safe, or do we simply disallow
-> unsafe globally in lockdown?  I think we have a lot more leniency to
-> ignore/disallow flags that enable global insecurities when any sort of
-> lockdown is imposed.
-
-The CPU things are all information leaks from the kernel to
-userspace. lockdown is about preserving kernel operating integrity -
-eg preventing modification of hijacking of the running kernel.
-
-So, like you say below, this is kind of in between, it is not
-information leakage, and it is is hopefully not an integrity issue.
-
-Being more of a DOS maybe it is fine under the lockdown scenarios. At
-least I am happier to hear that.
-
-> > vfio-iommufd seems like overkill, I think your first suggestion to put
-> > in vfio.ko was more practical.
+> Patches 1-5 rework the behavior of the vfio-ccw driver's private struct.
+> In summary, the mdev pieces are split out of vfio_ccw_private and into a
+> new vfio_ccw_parent struct that will continue to follow today's lifecycle.
+> The remainder (bulk) of the private struct moves to follow the mdev
+> probe/remove pair. There's opportunity for further separation of the
+> things in the private struct, which would simplify some of the vfio-ccw
+> code, but it got too hairy as I started that. Once vfio-ccw is no longer
+> considered unique, those cleanups can happen at our leisure. 
 > 
-> Convenient perhaps, but architecturally the wrong place for it.
+> Patch 6 removes the trickery where vfio-ccw uses vfio_init_device instead of
+> vfio_alloc_device, and thus removes vfio_init_device from the outside world.
+> 
+> Patch 7 removes vfio_free_device from vfio-ccw and the other drivers (hello,
+> CC list!), letting it be handled by vfio_device_release directly.
+> 
+> I believe this covers everything in this space; let me know if not!
+> 
+> Thanks,
+> Eric
+> 
+> [1] https://lore.kernel.org/kvm/0-v3-57c1502c62fd+2190-ccw_mdev_jgg@nvidia.com/
+> [2] https://lore.kernel.org/kvm/20220602171948.2790690-1-farman@linux.ibm.com/
+> 
+> v2->v3:
+>  - [MR] Added r-b to remaining patches (Thank you!)
+>  - Patch 1:
+>    [gfx checkpatch] Whitespace
+>    [EF] Remove put_device(&parent->dev)
+>    [MR] Fix error exit when alloc of parent fails
+>    [MR] Check for !private on sch_probe error path
+>  - Patch 3:
+>    [EF] Fix error exit when alloc of private fails
+>  - Patch 6:
+>    [AW] Added ack (Thank you!)
+>  - Patch 7:
+>    [CH, AK] Added r-b (Thank you!)
+>    [AW] Added ack (Thank you!)
+> v2: https://lore.kernel.org/kvm/20221102150152.2521475-1-farman@linux.ibm.com/
+> v1: https://lore.kernel.org/kvm/20221019162135.798901-1-farman@linux.ibm.com/
+> 
+> Eric Farman (7):
+>   vfio/ccw: create a parent struct
+>   vfio/ccw: remove private->sch
+>   vfio/ccw: move private initialization to callback
+>   vfio/ccw: move private to mdev lifecycle
+>   vfio/ccw: remove release completion
+>   vfio/ccw: replace vfio_init_device with _alloc_
+>   vfio: Remove vfio_free_device
+> 
+>  drivers/gpu/drm/i915/gvt/kvmgt.c      |   1 -
+>  drivers/s390/cio/vfio_ccw_chp.c       |   5 +-
+>  drivers/s390/cio/vfio_ccw_drv.c       | 173 +++++++++++---------------
+>  drivers/s390/cio/vfio_ccw_fsm.c       |  27 ++--
+>  drivers/s390/cio/vfio_ccw_ops.c       | 107 +++++++++++-----
+>  drivers/s390/cio/vfio_ccw_private.h   |  37 ++++--
+>  drivers/s390/crypto/vfio_ap_ops.c     |   6 -
+>  drivers/vfio/fsl-mc/vfio_fsl_mc.c     |   1 -
+>  drivers/vfio/pci/vfio_pci_core.c      |   1 -
+>  drivers/vfio/platform/vfio_amba.c     |   1 -
+>  drivers/vfio/platform/vfio_platform.c |   1 -
+>  drivers/vfio/vfio_main.c              |  32 ++---
+>  include/linux/vfio.h                  |   3 -
+>  samples/vfio-mdev/mbochs.c            |   1 -
+>  samples/vfio-mdev/mdpy.c              |   1 -
+>  samples/vfio-mdev/mtty.c              |   1 -
+>  16 files changed, 196 insertions(+), 202 deletions(-)
+> 
 
-Ah, that is pretty subjective. If the architecture is that the iommufd
-user subsystem opts-in to this insecurity then it is an OK place
+Applied to vfio next branch for v6.2.  Thanks,
 
-If it is that iommufd sets it globaly for the whole system it is the
-wrong place.
+Alex
 
-We could also talk about a per-vfio_device sysfs to control this? Then
-we can make the sysfs only appear for vfio_devices using the
-iommu_domain part of iommufd/vfio. That has a nice sort of compat
-shape as we can make the existing module option default the sysfs to
-insecure
-
-Jason
