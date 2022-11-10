@@ -2,110 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 626EAC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Nov 2022 16:26:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFABCC43217
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Nov 2022 16:50:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231300AbiKJQ0L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Nov 2022 11:26:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54162 "EHLO
+        id S232740AbiKJQu2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Nov 2022 11:50:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231173AbiKJQ0K (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Nov 2022 11:26:10 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D465825C3;
-        Thu, 10 Nov 2022 08:26:07 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2AAGL0dr029582;
-        Thu, 10 Nov 2022 16:26:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- from : to : subject : message-id : date; s=pp1;
- bh=Dl/BQn5di1weH8247M3VQ1V7JMpNt4G77isK85OjyLY=;
- b=kXar1UVAUBc2FFf+EUalpOr33xQ0TCYj/nXTzQJ5aZlaYOGFRQUBFTmQWTF9MuHqJ+bt
- 9akEJ0HKou20TGrBVA5fc/5ZxVfPWY65wwuXe00tH6Yz+v838FSp7sixlt7rmV7riSyB
- 8SNgjv+JopMWayXpOvGSH7O/MJzpFXk7B9cGR8IH7Qq0v9znO0CLTMpY+xXxHzhmtVnN
- HQE82MFVR9qi30HPuNUrXcAjCJ88DsPli25Y1cxFcHgpqhkYEjilQz/fq8C5JAAOPUZc
- b4rHNht3SmNTFRWBI1JMtWdnex+oZSCM4crRbF+xQj4+QQ5R8N3uEuNFLrcsqhBVVFA8 iQ== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ks4r9g4rh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Nov 2022 16:26:07 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AAG5Jkd009696;
-        Thu, 10 Nov 2022 16:26:04 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04ams.nl.ibm.com with ESMTP id 3kngqdfgeq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Nov 2022 16:26:04 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AAGQ1IK47972734
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 10 Nov 2022 16:26:01 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 337E94C04E;
-        Thu, 10 Nov 2022 16:26:01 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0DB464C046;
-        Thu, 10 Nov 2022 16:26:01 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.73.80])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 10 Nov 2022 16:26:00 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <906322b1c53dfef15d8f5141f7af15a480dc434e.camel@linux.ibm.com>
-References: <20221109202157.1050545-1-farman@linux.ibm.com> <20221109202157.1050545-2-farman@linux.ibm.com> <166807228813.13521.7185648742806016994@t14-nrb> <906322b1c53dfef15d8f5141f7af15a480dc434e.camel@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
+        with ESMTP id S232426AbiKJQuI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Nov 2022 11:50:08 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEA23BE32
+        for <linux-s390@vger.kernel.org>; Thu, 10 Nov 2022 08:49:34 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id q1-20020a17090a750100b002139ec1e999so2055038pjk.1
+        for <linux-s390@vger.kernel.org>; Thu, 10 Nov 2022 08:49:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=rPjVc+C4keVB9JNeySRKdiTbUPe13351AhOJe9TtZf8=;
+        b=OOR4bwRUplBbyMMh2BEwu+86VP3qxijSJnezQ7clymoLz9HUcLonm3WyVFc88kB5fY
+         O/E+L3vna3lCH6PwuGGALEpEbdqf//FCQPJXnQH0fruVZmuKpiXxpksMlHLNli5FBIVk
+         yHcqF3ftlcFWSWpaRO18yKIRlZ4MLKYwLTrjNA/qL4cv528Rj8wkmrotYw4AfXaxmJus
+         pcCX78Uh4a0+xqNPkY5yiRwsOaQfBATcwvX2XL8kq2aQkn5xXT0ESqE2s4sWnkM2XUP1
+         lN0YUhWFEsDiU77d2rUZObTRDQeLPD96HT9QdyztVtB+kfc9jl7KnKnrsPBskzRSRVH/
+         XRTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rPjVc+C4keVB9JNeySRKdiTbUPe13351AhOJe9TtZf8=;
+        b=5/3EGJhsgIsWcTRrC1W0Ksyt9U0C9vQEBXI9fuf4UJaRcqSBOywhJUNEEtDEm6Tx6c
+         /FLugN2uwuLtE/3zswX3xuo2dackxhOy2PgHfdEUQO1ButjiPMyz/+PucrV8kffzVSPY
+         LrT++1n9w9tImn7t4awFRt2wC6rWK5ucWx2AWcKUNr8co+amZQ4zCEppGrgaAMIrcY6E
+         RGAHlo7ih8JsMiQjVVOBG4Ln5EPAJuBnB4E8+95MbK0sZgUkQYartLv0MiKYW6r30UV3
+         1Q75uzM8ucf7YAsC4Wvuvfx6SUE2wChWMouS0ocFDycXHuTHEAGJO+ev3J1PbsztJ475
+         7mPQ==
+X-Gm-Message-State: ACrzQf2aqK2ZMk1xJq+LCsS8/+Hdie5eyETFEm9mDShO0AVRb5ZC6FPp
+        ogD6bVQU5TSkEuCx1tLYiX9RMA==
+X-Google-Smtp-Source: AMsMyM7nQN/gdgW0z481CkQ/WjHrrL4d++/kzaSXhuKO9UuGt09a3AowKSZBoBJ0HDICWxNrCbdrGA==
+X-Received: by 2002:a17:902:d50c:b0:187:460:bf9c with SMTP id b12-20020a170902d50c00b001870460bf9cmr65545589plg.4.1668098974180;
+        Thu, 10 Nov 2022 08:49:34 -0800 (PST)
+Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
+        by smtp.gmail.com with ESMTPSA id c3-20020a17090a020300b00205d85cfb30sm3288107pjc.20.2022.11.10.08.49.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Nov 2022 08:49:33 -0800 (PST)
+Date:   Thu, 10 Nov 2022 16:49:29 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Robert Hoo <robert.hu@linux.intel.com>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, Marc Zyngier <maz@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Anup Patel <anup@brainfault.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
         Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>
-Subject: Re: [PATCH 1/2] vfio-ccw: sort out physical vs virtual pointers usage
-Message-ID: <166809756075.13521.5286042686355083254@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Thu, 10 Nov 2022 17:26:00 +0100
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HbIvAnJen1110r54WiDyqni24hvT7d4e
-X-Proofpoint-ORIG-GUID: HbIvAnJen1110r54WiDyqni24hvT7d4e
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-10_10,2022-11-09_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- lowpriorityscore=0 phishscore=0 adultscore=0 mlxlogscore=429
- suspectscore=0 impostorscore=0 clxscore=1015 bulkscore=0
- priorityscore=1501 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2210170000 definitions=main-2211100112
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Atish Patra <atishp@atishpatra.org>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Isaku Yamahata <isaku.yamahata@intel.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Chao Gao <chao.gao@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Yuan Yao <yuan.yao@intel.com>
+Subject: Re: [PATCH 37/44] KVM: Rename and move CPUHP_AP_KVM_STARTING to
+ ONLINE section
+Message-ID: <Y20rmaU14rZFFCZI@google.com>
+References: <20221102231911.3107438-1-seanjc@google.com>
+ <20221102231911.3107438-38-seanjc@google.com>
+ <301a8a33a5cbe5b4fd3efe03b05bb8410a46e9f5.camel@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <301a8a33a5cbe5b4fd3efe03b05bb8410a46e9f5.camel@linux.intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Eric Farman (2022-11-10 15:28:51)
-[...]
-> > So the hardware actually doesn't care what kind of address this is.
-> > Rather, the
-> > CIO driver expects the intparam to be a physical address - probably
-> > so it fits
-> > 32 bits -, see do_cio_interrupt.
->=20
-> Right, it doesn't even need to be an address; we could write 0xdeadbeef
-> if we wanted, so long as that could be decoded by the driver on the
-> interrupt side. I really just wanted to point out that it was sent to
-> the channel, not that the channel (or anything else on the hardware
-> side) used it. What about this?
->=20
->    The ORB's interrupt parameter field is stored unmodified into the
->    interruption code when an I/O interrupt occurs. As this reflects
->    a real device, let's store the physical address of the subchannel
->    struct so it can be used when processing an interrupt.
+On Thu, Nov 10, 2022, Robert Hoo wrote:
+> > -static int kvm_starting_cpu(unsigned int cpu)
+> > +static int kvm_online_cpu(unsigned int cpu)
+> >  {
+> > +	int ret = 0;
+> > +
+> >  	raw_spin_lock(&kvm_count_lock);
+> > -	if (kvm_usage_count)
+> > +	/*
+> > +	 * Abort the CPU online process if hardware virtualization
+> > cannot
+> > +	 * be enabled. Otherwise running VMs would encounter
+> > unrecoverable
+> > +	 * errors when scheduled to this CPU.
+> > +	 */
+> > +	if (kvm_usage_count) {
+> > +		WARN_ON_ONCE(atomic_read(&hardware_enable_failed));
+> > +
+> >  		hardware_enable_nolock(NULL);
+> > +		if (atomic_read(&hardware_enable_failed)) {
+> > +			atomic_set(&hardware_enable_failed, 0);
+> 
+> I see other places using this hardware_enable_failed with atomic_inc(),
+> should here use atomic_dec() instead of straightly set to 0?
 
-Sounds good to me.
+Meh, both options are flawed.  E.g. if hardware_enable_failed was left dangling
+(the WARN above), then atomic_dec() won't remedy the problem and KVM will reject
+onlining CPUs indefinitely.  Forcing the atomic back to '0' will remedy that
+particular issue, but could lead to problems if there are other bugs.
 
-With this fixed:
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> Though here is embraced by spin_lock, hardware_enable_nolock() can be
+> invoked in other places in parallel?
+
+Only because of a KVM bug, which gets fixed in the next patch:
+
+  KVM: Disable CPU hotplug during hardware enabling
