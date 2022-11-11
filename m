@@ -2,327 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D433C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Nov 2022 06:38:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DF84C4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Nov 2022 10:18:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231300AbiKKGih (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Nov 2022 01:38:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60340 "EHLO
+        id S233461AbiKKKSJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Nov 2022 05:18:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230075AbiKKGif (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Nov 2022 01:38:35 -0500
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 932C29FE5;
-        Thu, 10 Nov 2022 22:38:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1668148713; x=1699684713;
-  h=message-id:date:subject:from:to:cc:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=KaWbtnvZ+zxNSi9PVLvfwTNQ0HLob92A+f1nZOAgtrU=;
-  b=JuxO6iEkJSdsb9+VBeAriDAujJ6CJyQGmSN5Mq7udWe0eeuq8IFusPqR
-   Rz3qQvkXlHqjLRzyd0sL4zYU7tJ+SIvtGu7ucbRLIbYQVui+Wl5/SxCJm
-   TlWU6vWpoID2zvePePdE6aPg60BeTZsGbrG3h0UDSz45rnRQzRoL1MJ+z
-   rWMtXokb0Hz0kegKcke6q3OjO2z1KcOAX6xs6kHIfjPHFO8CJS+HCL0jP
-   RVZIuNuhGJ8u4dURoJaDX3zWCucrTld2x4GbQ2AK18+u9UE8RcjrpzzMf
-   5qR6/wNRRFVMeYEk3/Oqpi1AIekXqF51oQ0x1IOQ+wJ/oQF7Zl7WmnN+i
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10527"; a="309162889"
-X-IronPort-AV: E=Sophos;i="5.96,156,1665471600"; 
-   d="scan'208";a="309162889"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2022 22:38:32 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10527"; a="882662859"
-X-IronPort-AV: E=Sophos;i="5.96,156,1665471600"; 
-   d="scan'208";a="882662859"
-Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
-  by fmsmga006.fm.intel.com with ESMTP; 10 Nov 2022 22:38:31 -0800
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Thu, 10 Nov 2022 22:38:30 -0800
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Thu, 10 Nov 2022 22:38:30 -0800
-Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31 via Frontend Transport; Thu, 10 Nov 2022 22:38:30 -0800
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.168)
- by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2375.31; Thu, 10 Nov 2022 22:38:29 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ggME3cLaOufVe/9aZhl5vpvJSN6ysTHXKZXGFNRHxa3+Rtg49Rl7rgicfISlupbHLy4eEYmTTrYsRoM5h8PTd1C9jh4qJIGLWbJiccV/F9/LancTbB9eMeLWkFnSOAGH6omZIwhjymUYhnvKtocJpU9NMZjT9LIHGF5wLv2MNMH5CBrhCeiWYz9XEgIqNdyJI+3rUJ/6U4GE/KA0h+Tefzv/tQeKjxJRZrxcTSrJ7zx1YJ2OnGNPRXm5lCC5j0vIA18dH7/XX0kaOZ5liV5mIQf/JPV7yIqRPnuUYFhFNA7xuh7WHdDHmu8OwSsVJNY4FYy5On1ndrdRz3FGr9xDow==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2w/PXhDdgYjxBXCqJWfWznbRscTOmlSyqhsDF2Vqo+A=;
- b=Pgf+F74q10JUL4xkPWuVcGhcEm3pXPjog13dXK2B7SlvQ/E7I3LDwn1YSaOSxBTHNjHOOmJ5/1oRuiaw8UB2m/Xr9r4eTvc7OcUvXOkXPaMy65MerPhZitBdNjFfxWWYUBl9CZE61Q3gXiwMKJpMfBJFqNtnVOIPTvk51NQq/gEnBwFAZ/AC2m8W9fGdw3TPNhSqClG2r5JW4vdPhfenGqgC29d5y09ZhBa1Az0AU91lrKT0qMF5wrDWQ6RXgbEz8MQey9oa/92OoMKfO1h1n9+yQxi+wfr5OsudyIuy1tvSkKW8l6Ru+rtejqO/pvmvbPRPsydDWOrZx32m1yIC+g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
- by CH0PR11MB5562.namprd11.prod.outlook.com (2603:10b6:610:d5::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5813.13; Fri, 11 Nov
- 2022 06:38:26 +0000
-Received: from DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::ad39:e00a:a7cb:4ada]) by DS0PR11MB7529.namprd11.prod.outlook.com
- ([fe80::ad39:e00a:a7cb:4ada%7]) with mapi id 15.20.5791.026; Fri, 11 Nov 2022
- 06:38:26 +0000
-Message-ID: <9a91b6c1-b4b1-21cf-8f6b-79a27f58d71f@intel.com>
-Date:   Fri, 11 Nov 2022 14:38:51 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Firefox/91.0 Thunderbird/91.11.0
-Subject: Re: [PATCH v2 11/11] iommufd: Allow iommufd to supply /dev/vfio/vfio
-Content-Language: en-US
-From:   Yi Liu <yi.l.liu@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@gmail.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        <dri-devel@lists.freedesktop.org>,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        "Harald Freudenberger" <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        <intel-gfx@lists.freedesktop.org>,
-        <intel-gvt-dev@lists.freedesktop.org>, <iommu@lists.linux.dev>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        "Joonas Lahtinen" <joonas.lahtinen@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>, <kvm@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>,
-        Longfang Liu <liulongfang@huawei.com>,
-        "Matthew Rosato" <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        "Shameer Kolothum" <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Zhi Wang" <zhi.a.wang@intel.com>
-CC:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Nicolin Chen <nicolinc@nvidia.com>
-References: <11-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
- <9a47347a-c4b2-e589-c54f-b193d105c4ca@intel.com>
-In-Reply-To: <9a47347a-c4b2-e589-c54f-b193d105c4ca@intel.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SG2P153CA0047.APCP153.PROD.OUTLOOK.COM (2603:1096:4:c6::16)
- To DS0PR11MB7529.namprd11.prod.outlook.com (2603:10b6:8:141::20)
+        with ESMTP id S233533AbiKKKRO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Nov 2022 05:17:14 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C0171F24
+        for <linux-s390@vger.kernel.org>; Fri, 11 Nov 2022 02:17:12 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id w14so5836202wru.8
+        for <linux-s390@vger.kernel.org>; Fri, 11 Nov 2022 02:17:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:user-agent:message-id:in-reply-to:date:references
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BH/APi1a0PoKAJZknP8AkAonpu9TnXBBnNUq+HUkcwM=;
+        b=4oOscMH7jU6ury8coe6FqLy7zK1XZNinWBvFR7izLUhT8UO+Uf7A34vnnALOX+0uZw
+         6u0BzpFG7Xf65rlpJuAvjMgTNhVx/gSKcxgRlSDN2zH7W+6LI6BnNcuT8FnlleBan74e
+         U+nnWKJgynFDrs5h1v4LHjxM1v+N8pvPWTcuhFJiAYBmZcFqEaaRiyqBxAjt+VLKVj27
+         ymKqo1xHrZ7qEJ3SsTyk8ixNapD9K4j74hbbeGy2nwxMGfxLNJInz1YB3DFYiKEqav4a
+         oeGBzhxJPbF4jd3XpyzDJKvMeI1dC4S63nsd7WzmmwS7/SrtVuS1+i59tvEjxRd8GW0+
+         CSgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=mime-version:user-agent:message-id:in-reply-to:date:references
+         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BH/APi1a0PoKAJZknP8AkAonpu9TnXBBnNUq+HUkcwM=;
+        b=JNsxNpyK79jsdIIYaKygPnF9M0fdLgwFAieGjc3uocY4ztbM4dKqOBbziWpjcRvG0a
+         ZMUmVK4GLRbpbS9ZU5O4BSTTAqfuBcIalzZqUvPBGxlZfhtcHzrtmsBNJnLfhzHtqNBb
+         tjPakIlqOTr2kuZp2MwyI+4Owwi27VQL2QIJIKwyNTWYTN0nrd348e0FCAU8IVgYB+/H
+         4ucrNDKJau/UqQ5Qbs+5uzuQHO10JDodu/gTX2U/h9DFyQGnhJumSwKfYiSIMp+HMdue
+         BeQ1c8AubTkXEhU2m6mNNCDIhKxVIKGR8t7LGEXSroAP6TyNuyYHdKXmxA6aC2c4e6Lh
+         EOgQ==
+X-Gm-Message-State: ANoB5pkZibVUnVsjiPKTIZNEx3DKmCywUiBUSk9FpUV2Ho7TpeiP2qy1
+        Vb0RIJUWmY5jU8Ve+ln8Lkqd8w==
+X-Google-Smtp-Source: AA0mqf4pSdxpuNsvbAiQ/VPT4Uicb2yIOEyOj0DptBJEnqY46AvxjvE1jv4RoOcak7HL0HGEg3fM1Q==
+X-Received: by 2002:a05:6000:18cc:b0:236:6d79:b312 with SMTP id w12-20020a05600018cc00b002366d79b312mr805921wrq.699.1668161831083;
+        Fri, 11 Nov 2022 02:17:11 -0800 (PST)
+Received: from localhost ([95.148.15.66])
+        by smtp.gmail.com with ESMTPSA id h8-20020a05600c2ca800b003b4a699ce8esm8500043wmc.6.2022.11.11.02.17.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Nov 2022 02:17:10 -0800 (PST)
+From:   Punit Agrawal <punit.agrawal@bytedance.com>
+To:     Yicong Yang <yangyicong@huawei.com>
+Cc:     <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
+        <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
+        <catalin.marinas@arm.com>, <will@kernel.org>,
+        <anshuman.khandual@arm.com>, <linux-doc@vger.kernel.org>,
+        <corbet@lwn.net>, <peterz@infradead.org>, <arnd@arndb.de>,
+        <punit.agrawal@bytedance.com>, <linux-kernel@vger.kernel.org>,
+        <darren@os.amperecomputing.com>, <yangyicong@hisilicon.com>,
+        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
+        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
+        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
+        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
+        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
+        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
+        <prime.zeng@hisilicon.com>
+Subject: Re: [External] [PATCH v5 0/2] arm64: support batched/deferred tlb
+ shootdown during page reclamation
+References: <20221028081255.19157-1-yangyicong@huawei.com>
+Date:   Fri, 11 Nov 2022 10:17:09 +0000
+In-Reply-To: <20221028081255.19157-1-yangyicong@huawei.com> (Yicong Yang's
+        message of "Fri, 28 Oct 2022 16:12:53 +0800")
+Message-ID: <87pmdtztga.fsf@stealth>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR11MB7529:EE_|CH0PR11MB5562:EE_
-X-MS-Office365-Filtering-Correlation-Id: 186c556f-dfd7-444f-f2a1-08dac3af5660
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: VWHEHkVKPd7jypnz9LF2pyw3tfVkmhFtuBKfLOloQ8D82Hy8QaSPrfGcPOPnfgI2yhsBY2wixbGrH1Cm0EQNp7LAa32DzFtO5Fj6agxli9TSSA8kJ4vfAOngM5KcVHQLT1siHVjlbDBAUfbiuCLNBoSaUrkfhDZ3gAyRRZu1V2kHy0BZts6PbbV4Lsasgib1h811SnN44Cbo2ekG5SoFLwA9MPjjgdlTwBghMh81My60vQyfm6PAywz48Y4qqgNwKUFSwBupNMQ+GaHoRAlziriI9iBtUvemiOYiXWXhzSlzCOCvNZ7aXtuVtLGPVEN94bXfxqnmIxlbYLySgnGwIeqsfgPQ+hN2a9oUnQLWRt86MEWomv4xfb3KmwcfBFN73bjVg3hfE6T/wW/SpnsJcLR1PYYdrVI0We6UlHhrbHrHgoUzU7HnTJ3c5Lok/GYs8dhwRjTJ30kF+WVYwj4Z75vdiyw0MD4RgQW0dDJtEj6J9KlHtKltoC2NXK4vQ0cloqwaJexEyn4jJhu5jgjHu/5kxGf8hTm9SP0w8N8NajuuI1E8pAr9rxmNiIXYkm3IIuW7aCRD5wRVRqg/sOICNuAKCN6dNzxjREzogJFIeT0dSM3a+CSNahQZHzc9Ou/BTOmxy4Sn2asCHe+CVUs9IZevdzgpV4pHazXyaTs1DSwe+chspJusp0qRGI3tem13phZeyan2jiC1FCEo/AKtxY6QDeeTGkfjCXK2qnN+qREyqIXjvlnUFkbGkJx35zcZwUwIaWBPDFmpxVJs/ftp1FyAGz/SHWngSU7ifq6MZMIOk6GheOxqBpC2sAx5DpCq
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7529.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(346002)(366004)(136003)(39860400002)(376002)(396003)(451199015)(4326008)(26005)(8676002)(6512007)(36756003)(66476007)(66556008)(66946007)(41300700001)(31696002)(54906003)(6636002)(110136005)(316002)(86362001)(53546011)(6486002)(6506007)(186003)(478600001)(83380400001)(5660300002)(2906002)(7416002)(7406005)(2616005)(8936002)(82960400001)(6666004)(921005)(38100700002)(31686004)(43740500002)(45980500001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NW5ObmtsSGs0bnBVZDgrZm9wUC9JN1EyRUdqdWYyY1Rjb2pSTlk3SG90bFNJ?=
- =?utf-8?B?c280MnoyYnNiaDU1eXJ0Y2doYWhhRzIvWVZUeFVKK3NzMlZPQXhaNHRVMEVE?=
- =?utf-8?B?M2FNRXQrSjNIUkdRWHQvTmlKLzl3dkptL1g3aDNLeElwVEFPZ0podkxCU0p6?=
- =?utf-8?B?N3ZJa3J6ckdBMzJVZlFDZkZqRDhKNXo0clZWWDJIZFVmNjBSc010dHZtL0hz?=
- =?utf-8?B?cjd5NTRXYmpPbmdLaTMzcERGSTcvbklOanFiNWdLS1k3OXRpTy9rV0hNM3BR?=
- =?utf-8?B?NitVRWlHRzlJdXZEemZTTXpmalNkSjlJU3gwYkVUZFJaNjFFMXZWQUpLVFpI?=
- =?utf-8?B?RmRwR0c4ZzlzeUhTUVhjTVliWkxEbzZzbUFZYU5td2JBaXVnTnlyYkx6OG1I?=
- =?utf-8?B?ZkFROFV1SjlhRkVjK21pbGI4Wk5FYitrSlZURGQwdVBkOTFZeG9mbkFVUktz?=
- =?utf-8?B?czFWb0xqUDlCdTYzNWpscE56RXZpQVJBanE3L2RqVytYUTREY1pQQnQvQllv?=
- =?utf-8?B?WmVIbHBMM2lZaDJ5RTZYTEVvbTNTeEN4bkFoRXk2MmhRS21mcGs4UmlXTHJH?=
- =?utf-8?B?b1IyTmlFeG83Rmx0MThRL3lreGhzekljOTZFTmQ3b2JYRVVrZTl2WXRTNVRk?=
- =?utf-8?B?ZjRWYWc1dEhMdWxHdzRYaitpcmRoK3p3dzZFb1dLano2VDIrR3lSYU1XVkM3?=
- =?utf-8?B?YmhvME51NGUzM2NIYWRaRjhWODdNdVZhSWpFUWFPZ2lpU0FoeVZLUVRnakhX?=
- =?utf-8?B?MFNSVUc1UFV0Wm1Kd1JZYmNIYU9MZ1YvVlcxSHM1QkJydGNkOVEvM1JKVFE5?=
- =?utf-8?B?bm1GV2RKK2hEbkdRUkZ6WC9Xa2paL3BLbXY5WklGa3BYMk9yMW9LWkQ1dzBk?=
- =?utf-8?B?S3VUUU5qMDI4bmhDK29pWFBRVk1obWpTTjRDRGhWajZnZ0ZtY09NNkpadHZY?=
- =?utf-8?B?ZDBTdWM4ZFl0M2xWZkVVcGhYV3ozZmZxQVcvZkRRcEE1cTFldGtBdFJrUU52?=
- =?utf-8?B?dlQ2NmhOVi8rUXVZNVdLN1FUd042SzE4N2gvd1FQRjVJOUtjRks3b0c0VDBP?=
- =?utf-8?B?QzRubGRXTFpWZXkzWkdEYTlaSncxdXRHamRWOHBCQVpnQnBnNVZaVGVjT0Iw?=
- =?utf-8?B?MkI4clpuV3kzN0d3V2I1VE9sZm1lSjQreU9WYnlUQnZkN1AzaUlUcndBVnJI?=
- =?utf-8?B?OEVzcmFPT1N4WTlrWHRINHF0bGczYW00TWlMaWw4ODRNVEZsTllQVU5vQXBB?=
- =?utf-8?B?M1dLQnlzQnplR2JMWGNwd3RocWNCZW5KVGY1dXlhSzB4Q21GaGg4Z2FyWGFI?=
- =?utf-8?B?TGF5amhWeXdxV0JnbXhnai9hZDMvdGpjN2s0aVVLRjNxS2RlTS84RXVDUXFj?=
- =?utf-8?B?TVJSV1VkV3paVDE2WWtGcWZWZS95K2xhVnl2ZU1Zd200UU0rT1g1N2xqOXdK?=
- =?utf-8?B?dHRnc1hFVFF5RmZWVUdtTzBrcE1yTkRwT3RJTzJVKzZvTkRsVkVlMDRxMlVq?=
- =?utf-8?B?dzVTc3dMOGxydExmQ1Z1MCtBRjhPU29mQTg5RVFnenFWczVXYVBBYXAyZVdR?=
- =?utf-8?B?NHZlQjBSM0w5WTFveWpYWE5CM0FGSzlmVTkwbHBZYk1LY3NMNVNLUWppdlFY?=
- =?utf-8?B?OFJnT2NYVWp1ZDhpT20wNWhiYi9MT245RjVqYzVtVjY4N1dBTysrejMzZlND?=
- =?utf-8?B?d3BUQ3ZDR0VEb2J0aE9HS0hJczh2Uzl5bU9lKzR3RU0waXdibVVWaXJRZHlw?=
- =?utf-8?B?ZTVMSFJIRERKWjVJcmVMOGovMnpzREVQYWRxT24wWHdwMFJoMlVMMGlueTJJ?=
- =?utf-8?B?NzhKUjkwNDU4RXhLemRJUkUxaWhacUxyWWUzWWdFTFI4ZW5EUkhSandzcHJr?=
- =?utf-8?B?bEtGTUoveUdjREMzZzV1ejdyNnBmTk5hZm5GbHViZDFzMkRWajdXcmRXS2JX?=
- =?utf-8?B?REpZNlBOQXM0MzdoTGhkNmdnZGY5a05CMWsyWWJTbmNNOXhSQk9WNHk3bTA5?=
- =?utf-8?B?REcwcWJuT0ZZMkx1QlVUQlVFQ1RFUDRGWmJiWUJIR0NCbmZIY2FEOFRIeVZk?=
- =?utf-8?B?L3QyVEVVcjQvRSs3VGNjUkFJcE1KMzRmcC9UR2JRbEhQaE1vdEhvRWpaUnI4?=
- =?utf-8?Q?FVLcgzHKxqQdaJ+9CFfkqL+ms?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 186c556f-dfd7-444f-f2a1-08dac3af5660
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7529.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Nov 2022 06:38:26.6452
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Jw3NZ2FTx/2mLHAqJdTMYF+gLPzCQIBsNliBk/HfM30xLSKXJmWBQ4esh6sVDiAOk3E+Ply+1GgPCl2CgdotRg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR11MB5562
-X-OriginatorOrg: intel.com
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/11/11 12:16, Yi Liu wrote:
-> 
-> 
-> On 2022/11/8 08:52, Jason Gunthorpe wrote:
->> If the VFIO container is compiled out, give a kconfig option for iommufd
->> to provide the miscdev node with the same name and permissions as vfio
->> uses.
->>
->> The compatibility node supports the same ioctls as VFIO and automatically
->> enables the VFIO compatible pinned page accounting mode.
->>
->> Tested-by: Nicolin Chen <nicolinc@nvidia.com>
->> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
->> ---
->>   drivers/iommu/iommufd/Kconfig | 12 ++++++++++++
->>   drivers/iommu/iommufd/main.c  | 36 +++++++++++++++++++++++++++++++++++
->>   2 files changed, 48 insertions(+)
->>
->> diff --git a/drivers/iommu/iommufd/Kconfig b/drivers/iommu/iommufd/Kconfig
->> index 399a2edeaef6de..f387f803dc6f7f 100644
->> --- a/drivers/iommu/iommufd/Kconfig
->> +++ b/drivers/iommu/iommufd/Kconfig
->> @@ -12,6 +12,18 @@ config IOMMUFD
->>         If you don't know what to do here, say N.
->>   if IOMMUFD
->> +config IOMMUFD_VFIO_CONTAINER
->> +    bool "IOMMUFD provides the VFIO container /dev/vfio/vfio"
->> +    depends on VFIO && !VFIO_CONTAINER
->> +    default VFIO && !VFIO_CONTAINER
->> +    help
->> +      IOMMUFD will provide /dev/vfio/vfio instead of VFIO. This relies on
->> +      IOMMUFD providing compatibility emulation to give the same ioctls.
->> +      It provides an option to build a kernel with legacy VFIO components
->> +      removed.
->> +
->> +      Unless testing IOMMUFD say N here.
->> +
->>   config IOMMUFD_TEST
->>       bool "IOMMU Userspace API Test support"
->>       depends on RUNTIME_TESTING_MENU
->> diff --git a/drivers/iommu/iommufd/main.c b/drivers/iommu/iommufd/main.c
->> index ab3fa05f38505d..1eeb326f74f005 100644
->> --- a/drivers/iommu/iommufd/main.c
->> +++ b/drivers/iommu/iommufd/main.c
->> @@ -18,6 +18,7 @@
->>   #include <uapi/linux/iommufd.h>
->>   #include <linux/iommufd.h>
->> +#include "io_pagetable.h"
->>   #include "iommufd_private.h"
->>   #include "iommufd_test.h"
->> @@ -25,6 +26,7 @@ struct iommufd_object_ops {
->>       void (*destroy)(struct iommufd_object *obj);
->>   };
->>   static const struct iommufd_object_ops iommufd_object_ops[];
->> +static struct miscdevice vfio_misc_dev;
->>   struct iommufd_object *_iommufd_object_alloc(struct iommufd_ctx *ictx,
->>                            size_t size,
->> @@ -170,6 +172,16 @@ static int iommufd_fops_open(struct inode *inode, 
->> struct file *filp)
->>       if (!ictx)
->>           return -ENOMEM;
->> +    /*
->> +     * For compatibility with VFIO when /dev/vfio/vfio is opened we default
->> +     * to the same rlimit accounting as vfio uses.
->> +     */
->> +    if (IS_ENABLED(CONFIG_IOMMUFD_VFIO_CONTAINER) &&
->> +        filp->private_data == &vfio_misc_dev) {
->> +        ictx->account_mode = IOPT_PAGES_ACCOUNT_MM;
->> +        pr_info_once("IOMMUFD is providing /dev/vfio/vfio, not VFIO.\n");
->> +    }
->> +
->>       xa_init_flags(&ictx->objects, XA_FLAGS_ALLOC1 | XA_FLAGS_ACCOUNT);
->>       ictx->file = filp;
->>       filp->private_data = ictx;
->> @@ -395,6 +407,15 @@ static struct miscdevice iommu_misc_dev = {
->>       .mode = 0660,
->>   };
->> +
->> +static struct miscdevice vfio_misc_dev = {
->> +    .minor = VFIO_MINOR,
->> +    .name = "vfio",
->> +    .fops = &iommufd_fops,
->> +    .nodename = "vfio/vfio",
->> +    .mode = 0666,
->> +};
->> +
->>   static int __init iommufd_init(void)
->>   {
->>       int ret;
->> @@ -402,18 +423,33 @@ static int __init iommufd_init(void)
->>       ret = misc_register(&iommu_misc_dev);
->>       if (ret)
->>           return ret;
->> +
->> +    if (IS_ENABLED(CONFIG_IOMMUFD_VFIO_CONTAINER)) {
->> +        ret = misc_register(&vfio_misc_dev);
->> +        if (ret)
->> +            goto err_misc;
->> +    }
->>       iommufd_test_init();
->>       return 0;
->> +err_misc:
->> +    misc_deregister(&iommu_misc_dev);
->> +    return ret;
->>   }
->>   static void __exit iommufd_exit(void)
->>   {
->>       iommufd_test_exit();
->> +    if (IS_ENABLED(CONFIG_IOMMUFD_VFIO_CONTAINER))
->> +        misc_deregister(&vfio_misc_dev);
->>       misc_deregister(&iommu_misc_dev);
->>   }
->>   module_init(iommufd_init);
->>   module_exit(iommufd_exit);
->> +#if IS_ENABLED(CONFIG_IOMMUFD_VFIO_CONTAINER)
->> +MODULE_ALIAS_MISCDEV(VFIO_MINOR);
->> +MODULE_ALIAS("devname:vfio/vfio");
-> 
-> will this line also result in systemd to create this devnodes at boot
-> based on the module info even if the IOMMUFD_VFIO_CONTAINER is not
-> configured?
+Yicong Yang <yangyicong@huawei.com> writes:
 
-stale comment. it's already under if IS_ENABLED(CONFIG_IOMMUFD_VFIO_CONTAINER).
+> From: Yicong Yang <yangyicong@hisilicon.com>
+>
+> Though ARM64 has the hardware to do tlb shootdown, the hardware
+> broadcasting is not free.
+> A simplest micro benchmark shows even on snapdragon 888 with only
+> 8 cores, the overhead for ptep_clear_flush is huge even for paging
+> out one page mapped by only one process:
+> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+>
+> While pages are mapped by multiple processes or HW has more CPUs,
+> the cost should become even higher due to the bad scalability of
+> tlb shootdown.
+>
+> The same benchmark can result in 16.99% CPU consumption on ARM64
+> server with around 100 cores according to Yicong's test on patch
+> 4/4.
+>
+> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+> 1. only send tlbi instructions in the first stage -
+> 	arch_tlbbatch_add_mm()
+> 2. wait for the completion of tlbi by dsb while doing tlbbatch
+> 	sync in arch_tlbbatch_flush()
+> Testing on snapdragon shows the overhead of ptep_clear_flush
+> is removed by the patchset. The micro benchmark becomes 5% faster
+> even for one page mapped by single process on snapdragon 888.
+>
+> With this support we're possible to do more optimization for memory
+> reclamation and migration[*].
 
-looks good to me.
+I applied the patches on v6.1-rc4 and was able to see the drop in
+ptep_clear_flush() in the perf report when running the test program from
+Patch 2. The tests were done on a rk3399 based system with benefits
+visible when running the tests on either of the clusters. 
 
-Reviewed-by: Yi Liu <yi.l.liu@intel.com>
+So, for the series,
 
->> +#endif
->>   MODULE_DESCRIPTION("I/O Address Space Management for passthrough 
->> devices");
->>   MODULE_LICENSE("GPL");
-> 
+Tested-by: Punit Agrawal <punit.agrawal@bytedance.com>
 
--- 
-Regards,
-Yi Liu
+Thanks,
+Punit
+
+[...]
+
