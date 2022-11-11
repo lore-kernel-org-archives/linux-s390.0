@@ -2,124 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DF84C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Nov 2022 10:18:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96579C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Nov 2022 13:00:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233461AbiKKKSJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Nov 2022 05:18:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54086 "EHLO
+        id S233114AbiKKNAI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Nov 2022 08:00:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233533AbiKKKRO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Nov 2022 05:17:14 -0500
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C0171F24
-        for <linux-s390@vger.kernel.org>; Fri, 11 Nov 2022 02:17:12 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id w14so5836202wru.8
-        for <linux-s390@vger.kernel.org>; Fri, 11 Nov 2022 02:17:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:user-agent:message-id:in-reply-to:date:references
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=BH/APi1a0PoKAJZknP8AkAonpu9TnXBBnNUq+HUkcwM=;
-        b=4oOscMH7jU6ury8coe6FqLy7zK1XZNinWBvFR7izLUhT8UO+Uf7A34vnnALOX+0uZw
-         6u0BzpFG7Xf65rlpJuAvjMgTNhVx/gSKcxgRlSDN2zH7W+6LI6BnNcuT8FnlleBan74e
-         U+nnWKJgynFDrs5h1v4LHjxM1v+N8pvPWTcuhFJiAYBmZcFqEaaRiyqBxAjt+VLKVj27
-         ymKqo1xHrZ7qEJ3SsTyk8ixNapD9K4j74hbbeGy2nwxMGfxLNJInz1YB3DFYiKEqav4a
-         oeGBzhxJPbF4jd3XpyzDJKvMeI1dC4S63nsd7WzmmwS7/SrtVuS1+i59tvEjxRd8GW0+
-         CSgg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=mime-version:user-agent:message-id:in-reply-to:date:references
-         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BH/APi1a0PoKAJZknP8AkAonpu9TnXBBnNUq+HUkcwM=;
-        b=JNsxNpyK79jsdIIYaKygPnF9M0fdLgwFAieGjc3uocY4ztbM4dKqOBbziWpjcRvG0a
-         ZMUmVK4GLRbpbS9ZU5O4BSTTAqfuBcIalzZqUvPBGxlZfhtcHzrtmsBNJnLfhzHtqNBb
-         tjPakIlqOTr2kuZp2MwyI+4Owwi27VQL2QIJIKwyNTWYTN0nrd348e0FCAU8IVgYB+/H
-         4ucrNDKJau/UqQ5Qbs+5uzuQHO10JDodu/gTX2U/h9DFyQGnhJumSwKfYiSIMp+HMdue
-         BeQ1c8AubTkXEhU2m6mNNCDIhKxVIKGR8t7LGEXSroAP6TyNuyYHdKXmxA6aC2c4e6Lh
-         EOgQ==
-X-Gm-Message-State: ANoB5pkZibVUnVsjiPKTIZNEx3DKmCywUiBUSk9FpUV2Ho7TpeiP2qy1
-        Vb0RIJUWmY5jU8Ve+ln8Lkqd8w==
-X-Google-Smtp-Source: AA0mqf4pSdxpuNsvbAiQ/VPT4Uicb2yIOEyOj0DptBJEnqY46AvxjvE1jv4RoOcak7HL0HGEg3fM1Q==
-X-Received: by 2002:a05:6000:18cc:b0:236:6d79:b312 with SMTP id w12-20020a05600018cc00b002366d79b312mr805921wrq.699.1668161831083;
-        Fri, 11 Nov 2022 02:17:11 -0800 (PST)
-Received: from localhost ([95.148.15.66])
-        by smtp.gmail.com with ESMTPSA id h8-20020a05600c2ca800b003b4a699ce8esm8500043wmc.6.2022.11.11.02.17.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Nov 2022 02:17:10 -0800 (PST)
-From:   Punit Agrawal <punit.agrawal@bytedance.com>
-To:     Yicong Yang <yangyicong@huawei.com>
-Cc:     <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
-        <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
-        <catalin.marinas@arm.com>, <will@kernel.org>,
-        <anshuman.khandual@arm.com>, <linux-doc@vger.kernel.org>,
-        <corbet@lwn.net>, <peterz@infradead.org>, <arnd@arndb.de>,
-        <punit.agrawal@bytedance.com>, <linux-kernel@vger.kernel.org>,
-        <darren@os.amperecomputing.com>, <yangyicong@hisilicon.com>,
-        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
-        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
-        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
-        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
-        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
-        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
-        <prime.zeng@hisilicon.com>
-Subject: Re: [External] [PATCH v5 0/2] arm64: support batched/deferred tlb
- shootdown during page reclamation
-References: <20221028081255.19157-1-yangyicong@huawei.com>
-Date:   Fri, 11 Nov 2022 10:17:09 +0000
-In-Reply-To: <20221028081255.19157-1-yangyicong@huawei.com> (Yicong Yang's
-        message of "Fri, 28 Oct 2022 16:12:53 +0800")
-Message-ID: <87pmdtztga.fsf@stealth>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S233256AbiKKNAH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Nov 2022 08:00:07 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 911AC3F067;
+        Fri, 11 Nov 2022 05:00:06 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2ABCAF7t012952;
+        Fri, 11 Nov 2022 13:00:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=dEUwqWDMJHr6G6XY0tzdAf8PwS50KhhgaSiQ0wwz/2s=;
+ b=S0BBG8vLfxa/qpiI6xIf2yUCavnSTqemgoRx1ARh1nyY6MAwxg/Hq+AduaheNID/wrW+
+ lJlYTzFQt70j9ia37YQrjWmIN/f+72bQvKLfwcx2NpO1uQfFfeCN3s0dcGFLoU1U4QU6
+ 2+JLDjjsVsdsZ8srAOF9+ZH8nvgGU6pGTE0mFjUZk2H3psW5eg6TOqwtcivKvo4MuNQo
+ VlpO8SUIP7f2GDNT36HLQDnHy0TjEk987xutb8uLV1P6FOxXll6phY8PRtW5HNTOJQ+7
+ vxgq87wKwCbPqqTafGjLywlHGV/zQwsBPMIsk6M0pFYdaBP8DzR2/xnH1BraVUIFqY/U Kw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ksnkt1xgg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Nov 2022 13:00:06 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ABCoPTe020970;
+        Fri, 11 Nov 2022 13:00:05 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ksnkt1xe4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Nov 2022 13:00:05 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ABCqTvD024946;
+        Fri, 11 Nov 2022 13:00:03 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3kngqggrjm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Nov 2022 13:00:03 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ABCxxLF34406768
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 11 Nov 2022 12:59:59 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C89DB52050;
+        Fri, 11 Nov 2022 12:59:59 +0000 (GMT)
+Received: from [9.171.11.51] (unknown [9.171.11.51])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 65B4E5204F;
+        Fri, 11 Nov 2022 12:59:59 +0000 (GMT)
+Message-ID: <7b57f8ee-b296-06e4-75e2-cef8eb018719@linux.ibm.com>
+Date:   Fri, 11 Nov 2022 13:59:59 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: [PATCH][next] s390/dasd: Fix spelling mistake "Ivalid" ->
+ "Invalid"
+Content-Language: en-US
+To:     Colin Ian King <colin.i.king@gmail.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20220923132103.2486724-1-colin.i.king@gmail.com>
+From:   Stefan Haberland <sth@linux.ibm.com>
+In-Reply-To: <20220923132103.2486724-1-colin.i.king@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VBfY4wbMSIGYagy3cerF2HKmO_tJC0wL
+X-Proofpoint-ORIG-GUID: E7gBr_Z6DsQJP6qeFv6SApj5Fj38B3ge
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-11_06,2022-11-11_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 suspectscore=0 impostorscore=0 phishscore=0 mlxscore=0
+ clxscore=1011 mlxlogscore=799 spamscore=0 bulkscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211110084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Yicong Yang <yangyicong@huawei.com> writes:
-
-> From: Yicong Yang <yangyicong@hisilicon.com>
+Am 23.09.22 um 15:21 schrieb Colin Ian King:
+> There is a spelling mistake in a pr_warn message. Fix it.
 >
-> Though ARM64 has the hardware to do tlb shootdown, the hardware
-> broadcasting is not free.
-> A simplest micro benchmark shows even on snapdragon 888 with only
-> 8 cores, the overhead for ptep_clear_flush is huge even for paging
-> out one page mapped by only one process:
-> 5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
->
-> While pages are mapped by multiple processes or HW has more CPUs,
-> the cost should become even higher due to the bad scalability of
-> tlb shootdown.
->
-> The same benchmark can result in 16.99% CPU consumption on ARM64
-> server with around 100 cores according to Yicong's test on patch
-> 4/4.
->
-> This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
-> 1. only send tlbi instructions in the first stage -
-> 	arch_tlbbatch_add_mm()
-> 2. wait for the completion of tlbi by dsb while doing tlbbatch
-> 	sync in arch_tlbbatch_flush()
-> Testing on snapdragon shows the overhead of ptep_clear_flush
-> is removed by the patchset. The micro benchmark becomes 5% faster
-> even for one page mapped by single process on snapdragon 888.
->
-> With this support we're possible to do more optimization for memory
-> reclamation and migration[*].
+> Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+> ---
 
-I applied the patches on v6.1-rc4 and was able to see the drop in
-ptep_clear_flush() in the perf report when running the test program from
-Patch 2. The tests were done on a rk3399 based system with benefits
-visible when running the tests on either of the clusters. 
-
-So, for the series,
-
-Tested-by: Punit Agrawal <punit.agrawal@bytedance.com>
-
-Thanks,
-Punit
-
-[...]
+applied, thanks
 
