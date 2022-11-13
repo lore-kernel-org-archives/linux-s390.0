@@ -2,65 +2,57 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3924C4332F
-	for <linux-s390@archiver.kernel.org>; Sat, 12 Nov 2022 18:47:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AF11C433FE
+	for <linux-s390@archiver.kernel.org>; Sun, 13 Nov 2022 09:24:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234747AbiKLSr6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 12 Nov 2022 13:47:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49442 "EHLO
+        id S233543AbiKMJYO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 13 Nov 2022 04:24:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230257AbiKLSr5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 12 Nov 2022 13:47:57 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 432C21570C
-        for <linux-s390@vger.kernel.org>; Sat, 12 Nov 2022 10:47:56 -0800 (PST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1668278873;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=CbukfNTOkvuyVF/BaGF0anCAeWGlGVb87Bp6YJX/2SA=;
-        b=zA1+SFSPOj5ecQviKKukJElzZ7jjLXP3gW8FUQZ/Pf4TC98UNS2PQ2JaRA/zk3SVzBTtbz
-        Io2bVpvZnOgU5AfEAlXx/cW/u1n5yxKwYeRgX3P4OXJrbUdECm9hqts6TkbFMJtW6M540N
-        cejO4alpXpsV4K7veXxabcbOeO/cWuGm4MK4S6XQGAkKz9oiErZ0fR1Oids+jkfFkMli6G
-        yD+WAwYlm16jtywihjuV0ciaAOp8t4/4L6ZHqpa/ounKBaK+dufM7Li1/jtTHLelH5I9fI
-        DV391xWI4RriyxIs70Yg0/lEfziHBEtHYtcRl1uOnLwF3D/Hituw6ug14FpHdA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1668278873;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=CbukfNTOkvuyVF/BaGF0anCAeWGlGVb87Bp6YJX/2SA=;
-        b=vylsEhJClr2J7on6xZaphqNWGlh5qxtjcuFkK7VexW3hjXd0geo1Aa4EDru2ciZ4It33Na
-        WWQ8PXAzneIaviBA==
-To:     linux-s390@vger.kernel.org
-Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: [PATCH] s390/pci: Use irq_data_get_msi_desc()
-Date:   Sat, 12 Nov 2022 19:47:52 +0100
-Message-ID: <8735aoui07.ffs@tglx>
+        with ESMTP id S233029AbiKMJYN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Nov 2022 04:24:13 -0500
+Received: from jari.cn (unknown [218.92.28.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E20F912D01;
+        Sun, 13 Nov 2022 01:24:12 -0800 (PST)
+Received: by ajax-webmail-localhost.localdomain (Coremail) ; Sun, 13 Nov
+ 2022 17:19:17 +0800 (GMT+08:00)
+X-Originating-IP: [182.148.14.167]
+Date:   Sun, 13 Nov 2022 17:19:17 +0800 (GMT+08:00)
+X-CM-HeaderCharset: UTF-8
+From:   wangkailong@jari.cn
+To:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        imbrenda@linux.ibm.com, thuth@redhat.com
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] KVM: s390: fix array_size.cocci warning
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version XT6.0.1 build 20210329(c53f3fee)
+ Copyright (c) 2002-2022 www.mailtech.cn
+ mispb-4e503810-ca60-4ec8-a188-7102c18937cf-zhkzyfz.cn
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 MIME-Version: 1.0
-Content-Type: text/plain
+Message-ID: <56879380.12c.1847049393b.Coremail.wangkailong@jari.cn>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID: AQAAfwCXn+CVtnBjXxoDAA--.54W
+X-CM-SenderInfo: 5zdqwypdlo00nj6mt2flof0/1tbiAQAEB2FEYx0DfwAQs1
+X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VW7Jw
+        CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
+        daVFxhVjvjDU=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-No point in doing another lookup of irq_data, it's already provided as
-an argument.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
----
- arch/s390/pci/pci_irq.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/arch/s390/pci/pci_irq.c
-+++ b/arch/s390/pci/pci_irq.c
-@@ -132,7 +132,7 @@ static int zpci_clear_irq(struct zpci_de
- static int zpci_set_irq_affinity(struct irq_data *data, const struct cpumask *dest,
- 				 bool force)
- {
--	struct msi_desc *entry = irq_get_msi_desc(data->irq);
-+	struct msi_desc *entry = irq_data_get_msi_desc(data);
- 	struct msi_msg msg = entry->msg;
- 	int cpu_addr = smp_cpu_get_cpu_address(cpumask_first(dest));
- 
+Rml4IGZvbGxvd2luZyBjb2NjaWNoZWNrIHdhcm5pbmc6CgphcmNoL3MzOTAvdG9vbHMvZ2VuX2Zh
+Y2lsaXRpZXMuYzoxNTE6MzctMzg6IFdBUk5JTkc6IFVzZSBBUlJBWV9TSVpFCgpTaWduZWQtb2Zm
+LWJ5OiBLYWlMb25nIFdhbmcgPHdhbmdrYWlsb25nQGphcmkuY24+Ci0tLQogYXJjaC9zMzkwL3Rv
+b2xzL2dlbl9mYWNpbGl0aWVzLmMgfCAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24o
+KyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9hcmNoL3MzOTAvdG9vbHMvZ2VuX2ZhY2ls
+aXRpZXMuYyBiL2FyY2gvczM5MC90b29scy9nZW5fZmFjaWxpdGllcy5jCmluZGV4IGNiMGFmZjVj
+MDE4Ny4uZjYwN2U1MDkyZjhkIDEwMDY0NAotLS0gYS9hcmNoL3MzOTAvdG9vbHMvZ2VuX2ZhY2ls
+aXRpZXMuYworKysgYi9hcmNoL3MzOTAvdG9vbHMvZ2VuX2ZhY2lsaXRpZXMuYwpAQCAtMTQ4LDcg
+KzE0OCw3IEBAIHN0YXRpYyB2b2lkIHByaW50X2ZhY2lsaXR5X2xpc3RzKHZvaWQpCiB7CiAJdW5z
+aWduZWQgaW50IGk7CiAKLQlmb3IgKGkgPSAwOyBpIDwgc2l6ZW9mKGZhY2lsaXR5X2RlZnMpIC8g
+c2l6ZW9mKGZhY2lsaXR5X2RlZnNbMF0pOyBpKyspCisJZm9yIChpID0gMDsgaSA8IEFSUkFZX1NJ
+WkUoZmFjaWxpdHlfZGVmcyk7IGkrKykKIAkJcHJpbnRfZmFjaWxpdHlfbGlzdCgmZmFjaWxpdHlf
+ZGVmc1tpXSk7CiB9CiAKLS0gCjIuMjUuMQo=
