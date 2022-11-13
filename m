@@ -2,140 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C624DC4321E
-	for <linux-s390@archiver.kernel.org>; Sun, 13 Nov 2022 16:37:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FC7EC43217
+	for <linux-s390@archiver.kernel.org>; Sun, 13 Nov 2022 18:20:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235471AbiKMQgx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 13 Nov 2022 11:36:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59554 "EHLO
+        id S235014AbiKMSUa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 13 Nov 2022 13:20:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235446AbiKMQgb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Nov 2022 11:36:31 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D841311A25;
-        Sun, 13 Nov 2022 08:36:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=bm9iJk+kVC/i+ZASfRIM102pV+AxG+Ji6MRA8D8G/hY=; b=D+OjBUBfCQQK7BJwONwAEfMW1V
-        8jRN6GgBR+VrL0tS3XZiRQ9Izl/KLvRdOZNqOKO2oIvVjbiEGO1c1mbTInhWzw5wANb8webd1H6p5
-        4/cHh9i8I5M7GvWwpaoJptq5AjmQRt8Uvmx0I5RXPXAGTwzpOau/gcI90NjYFBjagiMm2ZQ5k22MD
-        7he1X8jQVE3y/TPsjx6SSpehg1Wx7QAkYIJ9T/fxBFt3LhOvqAFBSPxj82bVviM8XSUfaM+n1JJeB
-        F3Tse+cErMM0s3ZTGzoBDhUF3xq2vcmDdNxALOObw3iQy8FqQtrGg2svEfAxxHzAdX4NFzYvz8ba/
-        OKZme3wA==;
-Received: from 213-225-8-167.nat.highway.a1.net ([213.225.8.167] helo=localhost)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ouFxr-00CLdm-QM; Sun, 13 Nov 2022 16:36:12 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Robin Murphy <robin.murphy@arm.com>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-rdma@vger.kernel.org,
-        iommu@lists.linux.dev, linux-media@vger.kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH 7/7] dma-mapping: reject __GFP_COMP in dma_alloc_attrs
-Date:   Sun, 13 Nov 2022 17:35:35 +0100
-Message-Id: <20221113163535.884299-8-hch@lst.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20221113163535.884299-1-hch@lst.de>
-References: <20221113163535.884299-1-hch@lst.de>
+        with ESMTP id S232799AbiKMSU3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Nov 2022 13:20:29 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 344FF255;
+        Sun, 13 Nov 2022 10:20:29 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.5) with ESMTP id 2ADIGS83009191;
+        Sun, 13 Nov 2022 18:20:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=EYCIkaYzDxwuZXC3UHhvzR3SuHH7w40UTQ1Xugj8ahY=;
+ b=Rotm8+wtBJ+je6vfvL6pES/0Lk0vdZC/iNW/l3dP21K2ogLZgS7aXMiUonQLTXo0VmJ7
+ qa95W1smRrMY6g95NdJVIc+/PhOlC/Emo9HIhr3cUmORqllJmyPzOGAkP4MIZ8E/9UUM
+ MUjjkuRO3SPLqVa31xGM+e7jxfU8gCccZlXfXVtuOh/ICEn+0HVnoiHW0l4xyCIq4N1Q
+ zb6Gc/b1aCER9G1GZ8unERo6M8ggp+Ra8XWc2lrxzzx/AQ1pMMNqismRN2vp2wSFofHD
+ UhpUnknpvjN1z1Hp6616MLzecACiOYWLryDJgjtYJUYS/mUJBD3okxP8mzSQgHorv0FA fA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ku5qe820x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 13 Nov 2022 18:20:25 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ADIKPqZ020536;
+        Sun, 13 Nov 2022 18:20:25 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ku5qe8200-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 13 Nov 2022 18:20:24 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ADI7crI026412;
+        Sun, 13 Nov 2022 18:20:22 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 3kt348sjy0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 13 Nov 2022 18:20:22 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ADIEPOb15860198
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 13 Nov 2022 18:14:25 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 19BC3AE051;
+        Sun, 13 Nov 2022 18:20:19 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75BA1AE045;
+        Sun, 13 Nov 2022 18:20:18 +0000 (GMT)
+Received: from osiris (unknown [9.145.44.108])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sun, 13 Nov 2022 18:20:18 +0000 (GMT)
+Date:   Sun, 13 Nov 2022 19:20:17 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH 5/5] s390/uaccess: add cmpxchg_user_key()
+Message-ID: <Y3E1YdKzSItZOKWW@osiris>
+References: <20221012205609.2811294-1-scgl@linux.ibm.com>
+ <20221012205609.2811294-2-scgl@linux.ibm.com>
+ <Y2J61LWSV+HolIeT@osiris>
+ <Y2J8axs+bcQ2dO/l@osiris>
+ <f604b6038c4a8bad5123e1f1f14b15c2190f28e9.camel@linux.ibm.com>
+ <Y2womHanaMzETfwU@osiris>
+ <31fcea80f54c5f53012489f29ebedba775672919.camel@linux.ibm.com>
+ <Y2zhNhFjIJPKJao8@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y2zhNhFjIJPKJao8@osiris>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: _xiOF1Jsu-3d-DSHhSjh8yCQj6PQO7jn
+X-Proofpoint-ORIG-GUID: ghWzfo4_mknh7pGsI72MDn6dEfYiWgTH
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-13_12,2022-11-11_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 adultscore=0 mlxscore=0 bulkscore=0 impostorscore=0
+ clxscore=1015 mlxlogscore=728 priorityscore=1501 suspectscore=0
+ malwarescore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2210170000 definitions=main-2211130121
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-DMA allocations can never be turned back into a page pointer, so
-requesting compound pages doesn't make sense and it can't even be
-supported at all by various backends.
+On Thu, Nov 10, 2022 at 12:32:06PM +0100, Heiko Carstens wrote:
+> > That's why I asked about cmpxchg.h. If you don't want non-cosmetic changes to the existing
+> > cmpxchg function and consistency of the new key checked function, then obviously the loop
+> > condition needs to be the same.
+> 
+> Such a change is fine of course, even though compare-and-swap for one and
+> two byte patterns don't really matter. I would appreciate if you could send
+> one or two patches on-top of this series which adds the improved logic to
+> (now) both variants.
+> 
+> And, since the question will come up anyway: as soon as we agreed on a
+> complete patch series, I think we should go for a features branch on s390's
+> kernel.org tree which would contain the first five patches sent by me plus
+> potential addon patches provided by you.
+> This tree can then be pulled in by the kvms390 tree where your kvm specific
+> patches can then be applied on top.
 
-Reject __GFP_COMP with a warning in dma_alloc_attrs, and stop clearing
-the flag in the arm dma ops and dma-iommu.
+FWIW, pushed a non-stable work-in-progress branch to
+git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git wip/cmpxchg_user_key
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/arm/mm/dma-mapping.c | 17 -----------------
- drivers/iommu/dma-iommu.c |  3 ---
- kernel/dma/mapping.c      |  8 ++++++++
- 3 files changed, 8 insertions(+), 20 deletions(-)
-
-diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
-index d7909091cf977..c135f6e37a00c 100644
---- a/arch/arm/mm/dma-mapping.c
-+++ b/arch/arm/mm/dma-mapping.c
-@@ -564,14 +564,6 @@ static void *__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
- 	if (mask < 0xffffffffULL)
- 		gfp |= GFP_DMA;
- 
--	/*
--	 * Following is a work-around (a.k.a. hack) to prevent pages
--	 * with __GFP_COMP being passed to split_page() which cannot
--	 * handle them.  The real problem is that this flag probably
--	 * should be 0 on ARM as it is not supported on this
--	 * platform; see CONFIG_HUGETLBFS.
--	 */
--	gfp &= ~(__GFP_COMP);
- 	args.gfp = gfp;
- 
- 	*handle = DMA_MAPPING_ERROR;
-@@ -1093,15 +1085,6 @@ static void *arm_iommu_alloc_attrs(struct device *dev, size_t size,
- 		return __iommu_alloc_simple(dev, size, gfp, handle,
- 					    coherent_flag, attrs);
- 
--	/*
--	 * Following is a work-around (a.k.a. hack) to prevent pages
--	 * with __GFP_COMP being passed to split_page() which cannot
--	 * handle them.  The real problem is that this flag probably
--	 * should be 0 on ARM as it is not supported on this
--	 * platform; see CONFIG_HUGETLBFS.
--	 */
--	gfp &= ~(__GFP_COMP);
--
- 	pages = __iommu_alloc_buffer(dev, size, gfp, attrs, coherent_flag);
- 	if (!pages)
- 		return NULL;
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 9297b741f5e80..f798c44e09033 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -744,9 +744,6 @@ static struct page **__iommu_dma_alloc_pages(struct device *dev,
- 	/* IOMMU can map any pages, so himem can also be used here */
- 	gfp |= __GFP_NOWARN | __GFP_HIGHMEM;
- 
--	/* It makes no sense to muck about with huge pages */
--	gfp &= ~__GFP_COMP;
--
- 	while (count) {
- 		struct page *page = NULL;
- 		unsigned int order_size;
-diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
-index 33437d6206445..c026a5a5e0466 100644
---- a/kernel/dma/mapping.c
-+++ b/kernel/dma/mapping.c
-@@ -498,6 +498,14 @@ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
- 
- 	WARN_ON_ONCE(!dev->coherent_dma_mask);
- 
-+	/*
-+	 * DMA allocations can never be turned back into a page pointer, so
-+	 * requesting compound pages doesn't make sense (and can't even be
-+	 * supported at all by various backends).
-+	 */
-+	if (WARN_ON_ONCE(flag & __GFP_COMP))
-+		return NULL;
-+
- 	if (dma_alloc_from_dev_coherent(dev, size, dma_handle, &cpu_addr))
- 		return cpu_addr;
- 
--- 
-2.30.2
-
+This includes also an updated patch, which fixes the missing shift of
+the access key.
