@@ -2,57 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AF11C433FE
-	for <linux-s390@archiver.kernel.org>; Sun, 13 Nov 2022 09:24:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 295C7C4332F
+	for <linux-s390@archiver.kernel.org>; Sun, 13 Nov 2022 16:36:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233543AbiKMJYO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 13 Nov 2022 04:24:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54980 "EHLO
+        id S235399AbiKMQgA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 13 Nov 2022 11:36:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233029AbiKMJYN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Nov 2022 04:24:13 -0500
-Received: from jari.cn (unknown [218.92.28.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E20F912D01;
-        Sun, 13 Nov 2022 01:24:12 -0800 (PST)
-Received: by ajax-webmail-localhost.localdomain (Coremail) ; Sun, 13 Nov
- 2022 17:19:17 +0800 (GMT+08:00)
-X-Originating-IP: [182.148.14.167]
-Date:   Sun, 13 Nov 2022 17:19:17 +0800 (GMT+08:00)
-X-CM-HeaderCharset: UTF-8
-From:   wangkailong@jari.cn
-To:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        imbrenda@linux.ibm.com, thuth@redhat.com
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] KVM: s390: fix array_size.cocci warning
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version XT6.0.1 build 20210329(c53f3fee)
- Copyright (c) 2002-2022 www.mailtech.cn
- mispb-4e503810-ca60-4ec8-a188-7102c18937cf-zhkzyfz.cn
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+        with ESMTP id S235380AbiKMQf7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Nov 2022 11:35:59 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3317510FCF;
+        Sun, 13 Nov 2022 08:35:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=QmrATxoWw4i+ZCEet0QcrcoeounoBlCDdVUnFfxBeEE=; b=t5j7lXGJ7y4k7mshKGThP6/oMi
+        PZD5z8vzrJKInWEJS4o8ibNxZiBKoCq226HnMrLpXIidMD9P2aHEZeZmUGoy5rH4j5ndBBQ9aD9x0
+        4vcmIw7caELmyeuHlHqh+IXIushQHrso5BEN7RojMe/GxKraazPWw4GAs2rI9iZFLXGtag+W/kRGT
+        DtraYp58Tzl37x5w7RJKHitxhUygtt0kYRry70+CnVBhmY6rNXj8W3qXpO7jcZ3SIPm80b201dV5J
+        EieadWtmFHV/T7JuVFxN7h280v67rKSYAjdrGOMPrT6A5pqNqlTALgBPVOkb/WUk3itkWgqMhzXJH
+        vYQjJamw==;
+Received: from 213-225-8-167.nat.highway.a1.net ([213.225.8.167] helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1ouFxR-00CLSB-JY; Sun, 13 Nov 2022 16:35:46 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-rdma@vger.kernel.org,
+        iommu@lists.linux.dev, linux-media@vger.kernel.org,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: [PATCH 1/7] media: videobuf-dma-contig: use dma_mmap_coherent
+Date:   Sun, 13 Nov 2022 17:35:29 +0100
+Message-Id: <20221113163535.884299-2-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20221113163535.884299-1-hch@lst.de>
+References: <20221113163535.884299-1-hch@lst.de>
 MIME-Version: 1.0
-Message-ID: <56879380.12c.1847049393b.Coremail.wangkailong@jari.cn>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID: AQAAfwCXn+CVtnBjXxoDAA--.54W
-X-CM-SenderInfo: 5zdqwypdlo00nj6mt2flof0/1tbiAQAEB2FEYx0DfwAQs1
-X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VW7Jw
-        CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
-        daVFxhVjvjDU=
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Rml4IGZvbGxvd2luZyBjb2NjaWNoZWNrIHdhcm5pbmc6CgphcmNoL3MzOTAvdG9vbHMvZ2VuX2Zh
-Y2lsaXRpZXMuYzoxNTE6MzctMzg6IFdBUk5JTkc6IFVzZSBBUlJBWV9TSVpFCgpTaWduZWQtb2Zm
-LWJ5OiBLYWlMb25nIFdhbmcgPHdhbmdrYWlsb25nQGphcmkuY24+Ci0tLQogYXJjaC9zMzkwL3Rv
-b2xzL2dlbl9mYWNpbGl0aWVzLmMgfCAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24o
-KyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9hcmNoL3MzOTAvdG9vbHMvZ2VuX2ZhY2ls
-aXRpZXMuYyBiL2FyY2gvczM5MC90b29scy9nZW5fZmFjaWxpdGllcy5jCmluZGV4IGNiMGFmZjVj
-MDE4Ny4uZjYwN2U1MDkyZjhkIDEwMDY0NAotLS0gYS9hcmNoL3MzOTAvdG9vbHMvZ2VuX2ZhY2ls
-aXRpZXMuYworKysgYi9hcmNoL3MzOTAvdG9vbHMvZ2VuX2ZhY2lsaXRpZXMuYwpAQCAtMTQ4LDcg
-KzE0OCw3IEBAIHN0YXRpYyB2b2lkIHByaW50X2ZhY2lsaXR5X2xpc3RzKHZvaWQpCiB7CiAJdW5z
-aWduZWQgaW50IGk7CiAKLQlmb3IgKGkgPSAwOyBpIDwgc2l6ZW9mKGZhY2lsaXR5X2RlZnMpIC8g
-c2l6ZW9mKGZhY2lsaXR5X2RlZnNbMF0pOyBpKyspCisJZm9yIChpID0gMDsgaSA8IEFSUkFZX1NJ
-WkUoZmFjaWxpdHlfZGVmcyk7IGkrKykKIAkJcHJpbnRfZmFjaWxpdHlfbGlzdCgmZmFjaWxpdHlf
-ZGVmc1tpXSk7CiB9CiAKLS0gCjIuMjUuMQo=
+dma_alloc_coherent does not return a physical address, but a DMA address,
+which might be remapped or have an offset.  Passing the DMA address to
+vm_iomap_memory is thus broken.
+
+Use the proper dma_mmap_coherent helper instead, and stop passing
+__GFP_COMP to dma_alloc_coherent, as the memory management inside the
+DMA allocator is hidden from the callers and does not require it.
+
+With this the gfp_t argument to __videobuf_dc_alloc can be removed and
+hard coded to GFP_KERNEL.
+
+Fixes: a8f3c203e19b ("[media] videobuf-dma-contig: add cache support")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/media/v4l2-core/videobuf-dma-contig.c | 22 +++++++------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/media/v4l2-core/videobuf-dma-contig.c b/drivers/media/v4l2-core/videobuf-dma-contig.c
+index 52312ce2ba056..f2c4393595574 100644
+--- a/drivers/media/v4l2-core/videobuf-dma-contig.c
++++ b/drivers/media/v4l2-core/videobuf-dma-contig.c
+@@ -36,12 +36,11 @@ struct videobuf_dma_contig_memory {
+ 
+ static int __videobuf_dc_alloc(struct device *dev,
+ 			       struct videobuf_dma_contig_memory *mem,
+-			       unsigned long size, gfp_t flags)
++			       unsigned long size)
+ {
+ 	mem->size = size;
+-	mem->vaddr = dma_alloc_coherent(dev, mem->size,
+-					&mem->dma_handle, flags);
+-
++	mem->vaddr = dma_alloc_coherent(dev, mem->size, &mem->dma_handle,
++					GFP_KERNEL);
+ 	if (!mem->vaddr) {
+ 		dev_err(dev, "memory alloc size %ld failed\n", mem->size);
+ 		return -ENOMEM;
+@@ -258,8 +257,7 @@ static int __videobuf_iolock(struct videobuf_queue *q,
+ 			return videobuf_dma_contig_user_get(mem, vb);
+ 
+ 		/* allocate memory for the read() method */
+-		if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(vb->size),
+-					GFP_KERNEL))
++		if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(vb->size)))
+ 			return -ENOMEM;
+ 		break;
+ 	case V4L2_MEMORY_OVERLAY:
+@@ -295,22 +293,18 @@ static int __videobuf_mmap_mapper(struct videobuf_queue *q,
+ 	BUG_ON(!mem);
+ 	MAGIC_CHECK(mem->magic, MAGIC_DC_MEM);
+ 
+-	if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(buf->bsize),
+-				GFP_KERNEL | __GFP_COMP))
++	if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(buf->bsize)))
+ 		goto error;
+ 
+-	/* Try to remap memory */
+-	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-
+ 	/* the "vm_pgoff" is just used in v4l2 to find the
+ 	 * corresponding buffer data structure which is allocated
+ 	 * earlier and it does not mean the offset from the physical
+ 	 * buffer start address as usual. So set it to 0 to pass
+-	 * the sanity check in vm_iomap_memory().
++	 * the sanity check in dma_mmap_coherent().
+ 	 */
+ 	vma->vm_pgoff = 0;
+-
+-	retval = vm_iomap_memory(vma, mem->dma_handle, mem->size);
++	retval = dma_mmap_coherent(q->dev, vma, mem->vaddr, mem->dma_handle,
++				   mem->size);
+ 	if (retval) {
+ 		dev_err(q->dev, "mmap: remap failed with error %d. ",
+ 			retval);
+-- 
+2.30.2
+
