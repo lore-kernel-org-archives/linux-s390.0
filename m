@@ -2,369 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E876C4321E
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Nov 2022 08:00:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3ADEC4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Nov 2022 08:11:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235902AbiKNIA3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Nov 2022 03:00:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52940 "EHLO
+        id S236178AbiKNIL5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Nov 2022 03:11:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235540AbiKNIA2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 03:00:28 -0500
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE350B3;
-        Mon, 14 Nov 2022 00:00:26 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xhao@linux.alibaba.com;NM=1;PH=DS;RN=32;SR=0;TI=SMTPD_---0VUjZSxU_1668412818;
-Received: from 30.240.96.240(mailfrom:xhao@linux.alibaba.com fp:SMTPD_---0VUjZSxU_1668412818)
-          by smtp.aliyun-inc.com;
-          Mon, 14 Nov 2022 16:00:20 +0800
-Message-ID: <9b6e1098-3d0a-d01c-ede2-344730a9450e@linux.alibaba.com>
-Date:   Mon, 14 Nov 2022 16:00:17 +0800
+        with ESMTP id S236155AbiKNIL4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 03:11:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17373193E2;
+        Mon, 14 Nov 2022 00:11:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A69D260EED;
+        Mon, 14 Nov 2022 08:11:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3893EC433D6;
+        Mon, 14 Nov 2022 08:11:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1668413515;
+        bh=mpJwu8UPciVMvP4x1nO/f/d0FY4YaLljifKODSIp6Fo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=k33TWUYSnJeJJSqCSK3BK1qBtMxZcviktUaz1E62W4dNSUSNiuH0BnICAe2VnJwkr
+         FNOrwgfUUfn04YPTZWuG2Brc2/2Kv9vEvb3/8v3JhkATlyBzq5V1Cc+d+mkM/n9Ht8
+         sOXZo0nRCudqaHPxM6nNkk7jH8o8G8rRRQsQHgdP/ddk9Oh5tzG0si68G350HklqNg
+         +F7Wb7tc9+mxb9JvX3yUo2LE/EVvs/p8wwXi59+xXFK7uSkHLvop1nTf694uRV5u1k
+         at3vjj2xvE66J8AllakgkYKHls7+q1XFybccu4tkkwy3fA1YW4dwgpv14lYCJLk9YI
+         oyu8ssz65EQug==
+Date:   Mon, 14 Nov 2022 10:11:50 +0200
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Robin Murphy <robin.murphy@arm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-rdma@vger.kernel.org,
+        iommu@lists.linux.dev, linux-media@vger.kernel.org,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH 7/7] dma-mapping: reject __GFP_COMP in dma_alloc_attrs
+Message-ID: <Y3H4RobK/pmDd3xG@unreal>
+References: <20221113163535.884299-1-hch@lst.de>
+ <20221113163535.884299-8-hch@lst.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.4.1
-Subject: Re: [PATCH v5 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To:     Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, catalin.marinas@arm.com, will@kernel.org,
-        anshuman.khandual@arm.com, linux-doc@vger.kernel.org
-Cc:     corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
-        punit.agrawal@bytedance.com, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        Barry Song <21cnbao@gmail.com>, wangkefeng.wang@huawei.com,
-        prime.zeng@hisilicon.com, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-References: <20221028081255.19157-1-yangyicong@huawei.com>
- <20221028081255.19157-3-yangyicong@huawei.com>
-From:   haoxin <xhao@linux.alibaba.com>
-In-Reply-To: <20221028081255.19157-3-yangyicong@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221113163535.884299-8-hch@lst.de>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-在 2022/10/28 下午4:12, Yicong Yang 写道:
-> From: Barry Song <v-songbaohua@oppo.com>
->
-> on x86, batched and deferred tlb shootdown has lead to 90%
-> performance increase on tlb shootdown. on arm64, HW can do
-> tlb shootdown without software IPI. But sync tlbi is still
-> quite expensive.
->
-> Even running a simplest program which requires swapout can
-> prove this is true,
->   #include <sys/types.h>
->   #include <unistd.h>
->   #include <sys/mman.h>
->   #include <string.h>
->
->   int main()
->   {
->   #define SIZE (1 * 1024 * 1024)
->           volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
->                                            MAP_SHARED | MAP_ANONYMOUS, -1, 0);
->
->           memset(p, 0x88, SIZE);
->
->           for (int k = 0; k < 10000; k++) {
->                   /* swap in */
->                   for (int i = 0; i < SIZE; i += 4096) {
->                           (void)p[i];
->                   }
->
->                   /* swap out */
->                   madvise(p, SIZE, MADV_PAGEOUT);
->           }
->   }
->
-> Perf result on snapdragon 888 with 8 cores by using zRAM
-> as the swap block device.
->
->   ~ # perf record taskset -c 4 ./a.out
->   [ perf record: Woken up 10 times to write data ]
->   [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
->   ~ # perf report
->   # To display the perf.data header info, please use --header/--header-only options.
->   # To display the perf.data header info, please use --header/--header-only options.
->   #
->   #
->   # Total Lost Samples: 0
->   #
->   # Samples: 60K of event 'cycles'
->   # Event count (approx.): 35706225414
->   #
->   # Overhead  Command  Shared Object      Symbol
->   # ........  .......  .................  .............................................................................
->   #
->      21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
->       8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
->       6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
->       6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
->       5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
->       3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
->       3.49%  a.out    [kernel.kallsyms]  [k] memset64
->       1.63%  a.out    [kernel.kallsyms]  [k] clear_page
->       1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
->       1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
->       1.23%  a.out    [kernel.kallsyms]  [k] xas_load
->       1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
->
-> ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
-> swapping in/out a page mapped by only one process. If the
-> page is mapped by multiple processes, typically, like more
-> than 100 on a phone, the overhead would be much higher as
-> we have to run tlb flush 100 times for one single page.
-> Plus, tlb flush overhead will increase with the number
-> of CPU cores due to the bad scalability of tlb shootdown
-> in HW, so those ARM64 servers should expect much higher
-> overhead.
->
-> Further perf annonate shows 95% cpu time of ptep_clear_flush
-> is actually used by the final dsb() to wait for the completion
-> of tlb flush. This provides us a very good chance to leverage
-> the existing batched tlb in kernel. The minimum modification
-> is that we only send async tlbi in the first stage and we send
-> dsb while we have to sync in the second stage.
->
-> With the above simplest micro benchmark, collapsed time to
-> finish the program decreases around 5%.
->
-> Typical collapsed time w/o patch:
->   ~ # time taskset -c 4 ./a.out
->   0.21user 14.34system 0:14.69elapsed
-> w/ patch:
->   ~ # time taskset -c 4 ./a.out
->   0.22user 13.45system 0:13.80elapsed
->
-> Also, Yicong Yang added the following observation.
-> 	Tested with benchmark in the commit on Kunpeng920 arm64 server,
-> 	observed an improvement around 12.5% with command
-> 	`time ./swap_bench`.
-> 		w/o		w/
-> 	real	0m13.460s	0m11.771s
-> 	user	0m0.248s	0m0.279s
-> 	sys	0m12.039s	0m11.458s
->
-> 	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
-> 	which has been eliminated by this patch:
->
-> 	[root@localhost yang]# perf record -- ./swap_bench && perf report
-> 	[...]
-> 	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
->
-> It is tested on 4,8,128 CPU platforms and shows to be beneficial on
-> large systems but may not have improvement on small systems like on
-> a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
-> on CONFIG_EXPERT for this stage and only make this enabled on systems
-> with more than 8 CPUs. User can modify this threshold according to
-> their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
->
-> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: Nadav Amit <namit@vmware.com>
-> Cc: Mel Gorman <mgorman@suse.de>
-> Tested-by: Yicong Yang <yangyicong@hisilicon.com>
-> Tested-by: Xin Hao <xhao@linux.alibaba.com>
-> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+On Sun, Nov 13, 2022 at 05:35:35PM +0100, Christoph Hellwig wrote:
+> DMA allocations can never be turned back into a page pointer, so
+> requesting compound pages doesn't make sense and it can't even be
+> supported at all by various backends.
+> 
+> Reject __GFP_COMP with a warning in dma_alloc_attrs, and stop clearing
+> the flag in the arm dma ops and dma-iommu.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 > ---
->   .../features/vm/TLB/arch-support.txt          |  2 +-
->   arch/arm64/Kconfig                            |  6 +++
->   arch/arm64/include/asm/tlbbatch.h             | 12 +++++
->   arch/arm64/include/asm/tlbflush.h             | 46 ++++++++++++++++++-
->   arch/x86/include/asm/tlbflush.h               |  3 +-
->   mm/rmap.c                                     | 10 ++--
->   6 files changed, 71 insertions(+), 8 deletions(-)
->   create mode 100644 arch/arm64/include/asm/tlbbatch.h
->
-> diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
-> index 039e4e91ada3..2caf815d7c6c 100644
-> --- a/Documentation/features/vm/TLB/arch-support.txt
-> +++ b/Documentation/features/vm/TLB/arch-support.txt
-> @@ -9,7 +9,7 @@
->       |       alpha: | TODO |
->       |         arc: | TODO |
->       |         arm: | TODO |
-> -    |       arm64: | N/A  |
-> +    |       arm64: |  ok  |
->       |        csky: | TODO |
->       |     hexagon: | TODO |
->       |        ia64: | TODO |
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index 505c8a1ccbe0..72975e82c7d7 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -93,6 +93,7 @@ config ARM64
->   	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
->   	select ARCH_SUPPORTS_NUMA_BALANCING
->   	select ARCH_SUPPORTS_PAGE_TABLE_CHECK
-> +	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH if EXPERT
->   	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
->   	select ARCH_WANT_DEFAULT_BPF_JIT
->   	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
-> @@ -268,6 +269,11 @@ config ARM64_CONT_PMD_SHIFT
->   	default 5 if ARM64_16K_PAGES
->   	default 4
->   
-> +config ARM64_NR_CPUS_FOR_BATCHED_TLB
-> +	int "Threshold to enable batched TLB flush"
-> +	default 8
-> +	depends on ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-> +
->   config ARCH_MMAP_RND_BITS_MIN
->   	default 14 if ARM64_64K_PAGES
->   	default 16 if ARM64_16K_PAGES
-> diff --git a/arch/arm64/include/asm/tlbbatch.h b/arch/arm64/include/asm/tlbbatch.h
-> new file mode 100644
-> index 000000000000..fedb0b87b8db
-> --- /dev/null
-> +++ b/arch/arm64/include/asm/tlbbatch.h
-> @@ -0,0 +1,12 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _ARCH_ARM64_TLBBATCH_H
-> +#define _ARCH_ARM64_TLBBATCH_H
-> +
-> +struct arch_tlbflush_unmap_batch {
+>  arch/arm/mm/dma-mapping.c | 17 -----------------
+>  drivers/iommu/dma-iommu.c |  3 ---
+>  kernel/dma/mapping.c      |  8 ++++++++
+>  3 files changed, 8 insertions(+), 20 deletions(-)
+> 
+> diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
+> index d7909091cf977..c135f6e37a00c 100644
+> --- a/arch/arm/mm/dma-mapping.c
+> +++ b/arch/arm/mm/dma-mapping.c
+> @@ -564,14 +564,6 @@ static void *__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
+>  	if (mask < 0xffffffffULL)
+>  		gfp |= GFP_DMA;
+>  
+> -	/*
+> -	 * Following is a work-around (a.k.a. hack) to prevent pages
+> -	 * with __GFP_COMP being passed to split_page() which cannot
+> -	 * handle them.  The real problem is that this flag probably
+> -	 * should be 0 on ARM as it is not supported on this
+> -	 * platform; see CONFIG_HUGETLBFS.
+> -	 */
+> -	gfp &= ~(__GFP_COMP);
+>  	args.gfp = gfp;
+>  
+>  	*handle = DMA_MAPPING_ERROR;
+> @@ -1093,15 +1085,6 @@ static void *arm_iommu_alloc_attrs(struct device *dev, size_t size,
+>  		return __iommu_alloc_simple(dev, size, gfp, handle,
+>  					    coherent_flag, attrs);
+>  
+> -	/*
+> -	 * Following is a work-around (a.k.a. hack) to prevent pages
+> -	 * with __GFP_COMP being passed to split_page() which cannot
+> -	 * handle them.  The real problem is that this flag probably
+> -	 * should be 0 on ARM as it is not supported on this
+> -	 * platform; see CONFIG_HUGETLBFS.
+> -	 */
+> -	gfp &= ~(__GFP_COMP);
+> -
+>  	pages = __iommu_alloc_buffer(dev, size, gfp, attrs, coherent_flag);
+>  	if (!pages)
+>  		return NULL;
+> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+> index 9297b741f5e80..f798c44e09033 100644
+> --- a/drivers/iommu/dma-iommu.c
+> +++ b/drivers/iommu/dma-iommu.c
+> @@ -744,9 +744,6 @@ static struct page **__iommu_dma_alloc_pages(struct device *dev,
+>  	/* IOMMU can map any pages, so himem can also be used here */
+>  	gfp |= __GFP_NOWARN | __GFP_HIGHMEM;
+>  
+> -	/* It makes no sense to muck about with huge pages */
+> -	gfp &= ~__GFP_COMP;
+> -
+>  	while (count) {
+>  		struct page *page = NULL;
+>  		unsigned int order_size;
+> diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
+> index 33437d6206445..c026a5a5e0466 100644
+> --- a/kernel/dma/mapping.c
+> +++ b/kernel/dma/mapping.c
+> @@ -498,6 +498,14 @@ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
+>  
+>  	WARN_ON_ONCE(!dev->coherent_dma_mask);
+>  
 > +	/*
-> +	 * For arm64, HW can do tlb shootdown, so we don't
-> +	 * need to record cpumask for sending IPI
+> +	 * DMA allocations can never be turned back into a page pointer, so
+> +	 * requesting compound pages doesn't make sense (and can't even be
+> +	 * supported at all by various backends).
 > +	 */
-> +};
+> +	if (WARN_ON_ONCE(flag & __GFP_COMP))
+> +		return NULL;
+
+In RDMA patches, you wrote that GFP_USER is not legal flag either. So it
+is better to WARN here for everything that is not allowed.
+
 > +
-> +#endif /* _ARCH_ARM64_TLBBATCH_H */
-> diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
-> index 412a3b9a3c25..b21cdeb57a18 100644
-> --- a/arch/arm64/include/asm/tlbflush.h
-> +++ b/arch/arm64/include/asm/tlbflush.h
-> @@ -254,17 +254,23 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
->   	dsb(ish);
->   }
->   
-> -static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-> +static inline void __flush_tlb_page_nosync(struct mm_struct *mm,
->   					 unsigned long uaddr)
->   {
->   	unsigned long addr;
->   
->   	dsb(ishst);
-> -	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-> +	addr = __TLBI_VADDR(uaddr, ASID(mm));
->   	__tlbi(vale1is, addr);
->   	__tlbi_user(vale1is, addr);
->   }
->   
-> +static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-> +					 unsigned long uaddr)
-> +{
-> +	return __flush_tlb_page_nosync(vma->vm_mm, uaddr);
-> +}
-> +
->   static inline void flush_tlb_page(struct vm_area_struct *vma,
->   				  unsigned long uaddr)
->   {
-> @@ -272,6 +278,42 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
->   	dsb(ish);
->   }
->   
-> +#ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-> +
-> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> +{
-> +	/*
-> +	 * TLB batched flush is proved to be beneficial for systems with large
-> +	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
-> +	 * is cheap on small systems which may not need this feature. So use
-> +	 * a threshold for enabling this to avoid potential side effects on
-> +	 * these platforms.
-> +	 */
-> +	if (num_online_cpus() <= CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
-> +		return false;
-> +
-> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
-> +	if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
-Maybe there need a comment  why set  ARM64_WORKAROUND_REPEAT_TLBI it 
-should return false?
-> +		return false;
-> +#endif
-> +
-> +	return true;
-> +}
-> +
-> +static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
-> +					struct mm_struct *mm,
-> +					unsigned long uaddr)
-> +{
-> +	__flush_tlb_page_nosync(mm, uaddr);
-> +}
-> +
-> +static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
-> +{
-> +	dsb(ish);
-> +}
-> +
-> +#endif /* CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH */
-> +
->   /*
->    * This is meant to avoid soft lock-ups on large TLB flushing ranges and not
->    * necessarily a performance improvement.
-> diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-> index 8a497d902c16..5bd78ae55cd4 100644
-> --- a/arch/x86/include/asm/tlbflush.h
-> +++ b/arch/x86/include/asm/tlbflush.h
-> @@ -264,7 +264,8 @@ static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
->   }
->   
->   static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
-> -					struct mm_struct *mm)
-> +					struct mm_struct *mm,
-> +					unsigned long uaddr)
->   {
->   	inc_mm_tlb_gen(mm);
->   	cpumask_or(&batch->cpumask, &batch->cpumask, mm_cpumask(mm));
-> diff --git a/mm/rmap.c b/mm/rmap.c
-> index a9ab10bc0144..a1b408ff44e5 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -640,12 +640,13 @@ void try_to_unmap_flush_dirty(void)
->   #define TLB_FLUSH_BATCH_PENDING_LARGE			\
->   	(TLB_FLUSH_BATCH_PENDING_MASK / 2)
->   
-> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
-> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
-> +				      unsigned long uaddr)
->   {
->   	struct tlbflush_unmap_batch *tlb_ubc = &current->tlb_ubc;
->   	int batch, nbatch;
->   
-> -	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm);
-> +	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm, uaddr);
->   	tlb_ubc->flush_required = true;
->   
->   	/*
-> @@ -723,7 +724,8 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
->   	}
->   }
->   #else
-> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
-> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
-> +				      unsigned long uaddr)
->   {
->   }
->   
-> @@ -1596,7 +1598,7 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
->   				 */
->   				pteval = ptep_get_and_clear(mm, address, pvmw.pte);
->   
-> -				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
-> +				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval), address);
->   			} else {
->   				pteval = ptep_clear_flush(vma, address, pvmw.pte);
->   			}
+>  	if (dma_alloc_from_dev_coherent(dev, size, dma_handle, &cpu_addr))
+>  		return cpu_addr;
+>  
+> -- 
+> 2.30.2
+> 
