@@ -2,122 +2,147 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD2F4C43217
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Nov 2022 15:05:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3E57C4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Nov 2022 15:22:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236063AbiKNPFl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Nov 2022 10:05:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37310 "EHLO
+        id S235625AbiKNPWv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Nov 2022 10:22:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236719AbiKNPFh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 10:05:37 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F6EC76F;
-        Mon, 14 Nov 2022 07:05:36 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.5) with ESMTP id 2AEEUWf9029835;
-        Mon, 14 Nov 2022 15:05:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=+zyGdkQWdcyIjzp89HFMXe6CybXo50kxaaLaVakCuI0=;
- b=Sv6UiOOJxVYJOu+m8/owsBZs7YFY78HiXnfADCWy5sRPgzrZPkUxlC+lu84W3VbO0kiA
- SSR4b9kzrAzldMX1L0aMYayhSI0u/MeAgw3WjgzsmkLIB9LPCS2tubud1xztcrRW0fsL
- MNrNafVv//cV35xPKVmOvIcb/jEmOAUS5Sw1STaEDH0J2yBLkRMbDDiBEhoPwn7CTXwX
- xL28L9GFyWrarUtuK7P3bd1lLxHirEb5sYGNba/e/bz/3mJGdfsIY/ECLbcrjZSsen24
- 4dx9kr5FwnVFIQDM93+URcR4dmNnrhc3yPRxY6bG/d/AxbbUlibtHIk2FfcIqBg7uQ3o hw== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kuqghgyyp-1
+        with ESMTP id S234078AbiKNPWu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 10:22:50 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53D751FCEB;
+        Mon, 14 Nov 2022 07:22:49 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.5) with ESMTP id 2AEFHMr7005097;
+        Mon, 14 Nov 2022 15:21:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=/Z1ovYZEh50gAU/VDhHQTeJLnVQKYU8Bz/YxvyJhsrc=;
+ b=BtXFdoq8w/tLgRG9MgZvfmbltvdE8NU9syTmC0EeARe6GIWyMYcZ3T6QwtEKNKIJReV1
+ cBrkuxBg5fb0Q+4mmDS1rbVu6uKE8udpbz4IUnQVwPFrQ3wwpQa1vh8hMwxNZLdtGnIT
+ e0sCx/U2Aqo43RkDj7tlVp8pCCf3diigWlT2yCYdbYqnyjtwlh6yFTUmvdo84G4EURbi
+ focoEW/DIGmVMVYIlPiv4e7v0+1SJJxlJBoUUk4HtTWwFqG7UQRZJLyF8TdPPLOpoviO
+ J9fP8HBBwk54zHx+/PuNTPZDdVWfYahBO7ubdoaY42EkZp0Bg0O+oTCv/M5mumlQO0iT yw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kur6e82bj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Nov 2022 15:05:24 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AEEpkPE020586;
-        Mon, 14 Nov 2022 15:05:21 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3kt348tr59-1
+        Mon, 14 Nov 2022 15:21:57 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AEFHmUD006072;
+        Mon, 14 Nov 2022 15:21:56 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kur6e82b2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Nov 2022 15:05:21 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AEF5I5C721446
+        Mon, 14 Nov 2022 15:21:56 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AEFLH0S002920;
+        Mon, 14 Nov 2022 15:21:55 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma03dal.us.ibm.com with ESMTP id 3kt349j2m7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Nov 2022 15:21:55 +0000
+Received: from smtpav04.dal12v.mail.ibm.com ([9.208.128.131])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AEFLw7b62980488
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 14 Nov 2022 15:05:18 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E1F3F52050;
-        Mon, 14 Nov 2022 15:05:17 +0000 (GMT)
-Received: from dilbert4 (unknown [9.171.35.254])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4079952052;
-        Mon, 14 Nov 2022 15:05:17 +0000 (GMT)
-Message-ID: <ac2dcfd820fafd19bab1c910c57044e28951b226.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 1/5] iommu/s390: Make attach succeed even if the
- device is in error state
-From:   Gerd Bayer <gbayer@linux.ibm.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Mon, 14 Nov 2022 15:21:58 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7585658052;
+        Mon, 14 Nov 2022 15:21:53 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 67AA95805A;
+        Mon, 14 Nov 2022 15:21:50 +0000 (GMT)
+Received: from [9.160.3.49] (unknown [9.160.3.49])
+        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 14 Nov 2022 15:21:50 +0000 (GMT)
+Message-ID: <5ab00688-aa61-171c-13b4-e9aea7a6a09d@linux.ibm.com>
+Date:   Mon, 14 Nov 2022 10:21:50 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: [PATCH v2 00/11] Connect VFIO to IOMMUFD
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@gmail.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org, iommu@lists.linux.dev,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
         Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Date:   Mon, 14 Nov 2022 16:05:16 +0100
-In-Reply-To: <20221109142903.4080275-2-schnelle@linux.ibm.com>
-References: <20221109142903.4080275-1-schnelle@linux.ibm.com>
-         <20221109142903.4080275-2-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>
+References: <0-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
+ <f54c2a93-539f-4520-0561-fbe5cea7772f@linux.ibm.com>
+ <Y3JPZwEHjGDU4Oyq@nvidia.com>
+ <2890d53a-2437-c74c-2082-1ee29414878f@linux.ibm.com>
+ <Y3JXwd4sZJfm/Il2@nvidia.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <Y3JXwd4sZJfm/Il2@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xJfY_mkfbpynnxDzAnVw4AvibllUb-N6
-X-Proofpoint-ORIG-GUID: xJfY_mkfbpynnxDzAnVw4AvibllUb-N6
+X-Proofpoint-ORIG-GUID: GAIJeCod5S4Fb_X4JFlyEbCg5Huv7a9e
+X-Proofpoint-GUID: 8gBKnPNxv1dolpQF6DJK7SrP9tixHzI1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-14_12,2022-11-11_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- mlxlogscore=538 lowpriorityscore=0 clxscore=1011 mlxscore=0 adultscore=0
- impostorscore=0 priorityscore=1501 malwarescore=0 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ lowpriorityscore=0 impostorscore=0 mlxlogscore=999 mlxscore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 adultscore=0 malwarescore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2210170000 definitions=main-2211140107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Niklas,
+On 11/14/22 9:59 AM, Jason Gunthorpe wrote:
+> On Mon, Nov 14, 2022 at 09:55:21AM -0500, Matthew Rosato wrote:
+>>>> AFAICT there is no equivalent means to specify
+>>>> vfio_iommu_type1.dma_entry_limit when using iommufd; looks like
+>>>> we'll just always get the default 65535.
+>>>
+>>> No, there is no arbitary limit on iommufd
+>>
+>> Yeah, that's what I suspected.  But FWIW, userspace checks the
+>> advertised limit via VFIO_IOMMU_GET_INFO /
+>> VFIO_IOMMU_TYPE1_INFO_DMA_AVAIL, and this is still being advertised
+>> as 65535 when using iommufd.  I don't think there is a defined way
+>> to return 'ignore this value'.
+> 
+> Is something using this? Should we make it much bigger?
 
-really just a nit...
+Yes, s390 when doing lazy unmapping likes to use larger amounts of concurrent DMA, so there can be cases where we want to raise this limit.
 
-On Wed, 2022-11-09 at 15:28 +0100, Niklas Schnelle wrote:
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index 7fb512bece9a..e2c886bc4376 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -98,6 +98,7 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  	struct s390_domain *s390_domain = to_s390_domain(domain);
->  	struct zpci_dev *zdev = to_zpci_dev(dev);
->  	unsigned long flags;
-> +	u8 status;
->  	int cc;
->  
->  	if (!zdev)
-> @@ -113,8 +114,12 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
->  		zpci_dma_exit_device(zdev);
->  
->  	cc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> -				virt_to_phys(s390_domain->dma_table));
-> -	if (cc)
-> +				virt_to_phys(s390_domain->dma_table), &status);
-> +	/*
-> +	 * If the device is undergoing error recovery the reset code
-> +	 * will re-establish the new domain.
-> +	 */
-> +	if (cc && status != ZPCI_PCI_ST_FUNC_NOT_AVAIL)
-Operator precedence does "the right thing", but would a more explicit parenthesis 
-around (status != ZPCI_PCI_ST_FUNC_NOT_AVAIL) help or hurt here?
-
->  		return -EIO;
->  	zdev->dma_table = s390_domain->dma_table;
-
-Thank you,
-Gerd
+The initial value of 65535 is already pretty arbitrary (U16_MAX) -- If iommufd is doing its own management and this value becomes deprecated in this scenario, and we can't set it to a magic value that says 'ignore me' then maybe it just makes sense for now to set it arbitrarily larger when using iommufd e.g. U32_MAX?
 
