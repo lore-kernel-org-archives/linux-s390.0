@@ -2,109 +2,190 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA7A5C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Nov 2022 14:19:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1438C4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Nov 2022 14:23:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236844AbiKNOTm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Nov 2022 09:19:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59580 "EHLO
+        id S236275AbiKNOXm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Nov 2022 09:23:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237020AbiKNOTd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 09:19:33 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8BBA72656C;
-        Mon, 14 Nov 2022 06:19:31 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 71CAB23A;
-        Mon, 14 Nov 2022 06:19:37 -0800 (PST)
-Received: from [192.168.0.110] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 61C753F73D;
-        Mon, 14 Nov 2022 06:19:21 -0800 (PST)
-Message-ID: <40f1b5ad-2165-bb81-1ff5-89786373fa14@arm.com>
-Date:   Mon, 14 Nov 2022 19:49:13 +0530
+        with ESMTP id S236456AbiKNOXk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 09:23:40 -0500
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2062.outbound.protection.outlook.com [40.107.223.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DEDD6173;
+        Mon, 14 Nov 2022 06:23:38 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jHqkuchDTBQGkmn1geW0k1PHuZIF9FBHPsn+o7B7EPybCRa9XZ+FmjBnpBM06Phm/yb2at3ktcTPbFuBgDja7AmUhUMo6ftZk8BEAkdu9EEaJUPyYdptEFniIhS8r5wO9NprOnhUi6kZKM95349rFv37SPHkuyIcvHihZohOS7RBcF223Y6+9ySc5GgSVrg4r1Xlk2oJ2Fi2VXpj9aKMUZDFnjxeaW5FGiT9qT5g/IQnOnC10LOVrSVaS6eIeNxxfQYaTMuc/UTEbTF52RlEBfXhXfOobV9oANWAxrdz+Tbuo3hY6axQQsOHtkIXfR+bC30LzgOAE/XkKiHiXsHO5g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=KOflxrAuFEFahPkY/8FItOR1D/JtKkWgHb56I4RIqPo=;
+ b=kbiuT5Nry+nqmuopNwUdMnosO1W+YrbeV2wG5FWdYhcFRPMiNgEZEuj44NzcTtu3vMRxrvVT36AGiJCXVIzgNIHIfxIkh2WPKNel97GSI+mEargS2ZIQLRcr/E/B0C2mYoXY8Q0WUpIPBh9+ic6+3Fa2OrBd06aeaKsVE9gE3xlPA6jUkRdXoI1UC9lk9O4HIy4YogXEIl18u+ubqCGzSkb3aXMV7qTWq3x1+mp0Ig1XgpYIcQmcT6Ywf2t+owInVcLTJM4l9wtPNY4iYh77dvNijhvHJ/L8PMIFrFbkNFoyWzV2d7NLc37DTkk8DzcezzebuKrbVRXuF5mG/98cCQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=KOflxrAuFEFahPkY/8FItOR1D/JtKkWgHb56I4RIqPo=;
+ b=cw3bAUux4zLhRk+mEgyQnmCVFvh7XzNliDlw9D7tJ/Hvv1L0f1p84nWnFYBsXpwF5POnGIDOsOBZl3G44iAgx67/YUQceeLbukvz1QQ4hwhSRHD0jjAmaEqgvzTPaIbLcpB3SU/+ErTyUTAH57jJSR3Ez+4FOZ5Pq4mXLuZwk3ur/cAf/H9y4OlmlvPBn7+r7jfBPKkcd7Par+HeWGWR30MGeFMgMzfvBjWy3giEFginXH8/4wnBCWwr+B0dzvhINIh1NzY+oFA/Q4Lwd2NjBRNNrVYOkF7Hvfs/a/sISC1hNC9q5hv8hncJXKI2Fm1rWimbq1XgyTPySwc/g5ov4w==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by PH7PR12MB5710.namprd12.prod.outlook.com (2603:10b6:510:1e1::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5813.17; Mon, 14 Nov
+ 2022 14:23:36 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a%7]) with mapi id 15.20.5813.017; Mon, 14 Nov 2022
+ 14:23:36 +0000
+Date:   Mon, 14 Nov 2022 10:23:35 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@gmail.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org, iommu@lists.linux.dev,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>
+Subject: Re: [PATCH v2 00/11] Connect VFIO to IOMMUFD
+Message-ID: <Y3JPZwEHjGDU4Oyq@nvidia.com>
+References: <0-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
+ <f54c2a93-539f-4520-0561-fbe5cea7772f@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f54c2a93-539f-4520-0561-fbe5cea7772f@linux.ibm.com>
+X-ClientProxiedBy: MN2PR11CA0001.namprd11.prod.outlook.com
+ (2603:10b6:208:23b::6) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH v5 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Content-Language: en-US
-To:     Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, catalin.marinas@arm.com, will@kernel.org,
-        linux-doc@vger.kernel.org
-Cc:     yangyicong@hisilicon.com, corbet@lwn.net, peterz@infradead.org,
-        arnd@arndb.de, punit.agrawal@bytedance.com,
-        linux-kernel@vger.kernel.org, darren@os.amperecomputing.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        Barry Song <21cnbao@gmail.com>, wangkefeng.wang@huawei.com,
-        xhao@linux.alibaba.com, prime.zeng@hisilicon.com,
-        Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-References: <20221028081255.19157-1-yangyicong@huawei.com>
- <20221028081255.19157-3-yangyicong@huawei.com>
- <86fbdc8c-0dcb-9b8f-d843-63460d8b1d6a@arm.com>
- <9982dac0-9f2e-112a-d440-467c8e8f8aa4@huawei.com>
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <9982dac0-9f2e-112a-d440-467c8e8f8aa4@huawei.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|PH7PR12MB5710:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1f406f3c-90b0-400c-5e10-08dac64bd146
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: V7u/C852C+L5RwoCbs4t51+j0dyRmUI7oIRPKCadvkricy3+kfPopRAZ4f7LNxtqi4ihXFzzhD8R8kNCI+ZUQEdhn/4Qk3PcaGRL/1nABVmxnl78xKTcpDeMDi24BMmObaKy6r9fyY0Py1adbc+0NyfiGlaqEKEWSjF3tpgmxMgcqRpfDx+1LNhw2Sco7kC8xkBJaQrCfO3YiTuToGElSMSRgbuSnnUtgGWieC8L8/ea8ujkBtAFL7i76eTkae7rLfdJAD/W3HvP6pIxKHAbvGjWWlR+lgLDS0NbCIM2oipDizELpRRZWfc8sjgdAH9oaLS1YKnjDq4Nnxdxz204GmoNMN3Wc4H6yagHvpcoKnPw9oLnzTZSbCgB1flgLyJBdQsVWDoh72Z2kSggTY73Ws1YyEvWYSNHKnTb2zLEfnZovXkPd33P/ipW82DPWzsuQnG/RH3Mwhzz1taYNV1+xhwl4imVn3BxgABKbeJ3s1Rs6bCQV7njq2q+2V6DV2pjoylfIwVfzeiJzk6fznGNr1fSHRg6AaZd4tT1Ev+0jk9zreJT6f/ikfjsRrBcPgTGQZZy3zo7WJ4EX1I0izJ5qaIdNpudutINpEzEM0adD/B0O98uh00ZJxIxVPv30xJCM5iYt/xf0EYibVyU9OynDS+YdV4NPmBVVE9c42/t7dvZTfdil/nV5GpQIGyPuUh6zETa8a7/4eNZT+y6UGMPBw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(376002)(396003)(136003)(366004)(346002)(451199015)(2906002)(41300700001)(8936002)(2616005)(5660300002)(186003)(86362001)(7406005)(7416002)(36756003)(6506007)(8676002)(66556008)(4326008)(66946007)(66476007)(54906003)(316002)(6916009)(6512007)(478600001)(83380400001)(26005)(38100700002)(53546011)(6486002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?3kTfEnHqvnK24X1cG5nriTcNOlNAORG48kj85yyd/gf0++C7+ppPskW2n3N5?=
+ =?us-ascii?Q?RLb0Sn7hEgbgf521jALZjMpglceM3+Jbzi8JyoW7i4E1zURhOZEonbP86jPl?=
+ =?us-ascii?Q?osUyFYjsRxg2TSHdZ14bqDuWEx4G2A+sE+LiieDQzDMnFmwfgxHeGFkEqN4j?=
+ =?us-ascii?Q?Z2vVyrhOQiRlIjElJ0tLMHeGXtWzjLZg4iRvE36ZtH3CORR0mi4G6B2yR9WV?=
+ =?us-ascii?Q?1x1+DpADITwMBt7yQ8nWkrEhygAasJVu6wNIH7PluQbKmlJaIvNy+PW9q9Mr?=
+ =?us-ascii?Q?yhHx+4nNqmlOqWlnJrSVF4uZjGa6R5EONQ0Xt414CdM5fSW0Xpu5e6fLBKYD?=
+ =?us-ascii?Q?BxIBiBtsGF0QcpdSIKbNexUxzHK2q268pFwxcniRI6wda1qApngi1Se092lk?=
+ =?us-ascii?Q?ObdNMVknkm/DE0lSKvdPcp1oCeB1pYj8yZh4YEV5VOGXS/po5/n9EHTRwMdT?=
+ =?us-ascii?Q?ALJWasncY69d893FkYBznFGNBJltwA30ehsBhUZOn4t3st61j0d/j3tJgQZD?=
+ =?us-ascii?Q?wgOnPRTFTbWugoefRNOH6iiZ3QAy3PokdhRcHXu4Toxq5Wh2zLyqqXFSYq+R?=
+ =?us-ascii?Q?NtULuKNzP0AxF0mFBKU63SWloJpRu+AgupkYrBLVD8oNN8KuWUiBMgqSxRVY?=
+ =?us-ascii?Q?L7ykEsty25z6WAylF7RbJz0cGaq2EbR+0Q6tA4uEFNyabd9gF1hDmXgOGpUF?=
+ =?us-ascii?Q?1JoH0PxfAiIU1vqi7NnAUmfLc1O0ycxhbTFT46J3OYztglWGgKsoRDAPYCqX?=
+ =?us-ascii?Q?InCz8S1QZ+sN3d8uhisM85oNxUvU0Slw4i9mc6n+D8E4Zx+hgNGCoX8wN+4P?=
+ =?us-ascii?Q?mL3gQge28HcWAX5j4xbEnES6pe4rpMlPXfzxkUCrPGqOg9tIkowiGPugUfRz?=
+ =?us-ascii?Q?eNIGmgK0sfWcShmpXNMtLIIYEp3jTn6nXRpax4+MG4LKkmzCoMgnyGAMgpSk?=
+ =?us-ascii?Q?SsCZITDpX/jLbM5oe4OWimi712nVjXHrj/UvfMeQle7Z8+TLG9G2FjSvUrV4?=
+ =?us-ascii?Q?OjwVuWspWf6E0XwAm5mEt6MoOwOCfSpUKbxD/461WI8/Sg0XufoaP+m56YoV?=
+ =?us-ascii?Q?b5oZxJP6AwygbyKHNoDwarmhEEw41Jl2NYCPrJVKrubspVnksHVGhc23RdaW?=
+ =?us-ascii?Q?29hoORvsaFHjmjDw1R7f1iUTp+pf8cbQK57D05EXuvw0trN1Ljueb3MIwv9T?=
+ =?us-ascii?Q?BwyBvzJzQHxlXRbHhakKJ55+8qjVGnxrfo19sHT2l28hcO5DUCfVYy3GKPOe?=
+ =?us-ascii?Q?AJ2JkNpFKNcRgQJjGSvDRju+PHK1wNiSQ0Rn4BSCnUn0Zum2YmlPrfs6sVlx?=
+ =?us-ascii?Q?z3zt23qNK9SM+0CZCMHFh1QkjkddqJNICEPPXRGyQWHS9LTF+3otMYVrn6En?=
+ =?us-ascii?Q?3BT2l71/aFIUREHvsy8fLCgkIrukH67NzMj9Sh7XKagmQzykp4qTDipJhY2t?=
+ =?us-ascii?Q?QlFMzg8U8wKPyA5x53oP7fSJ9YX5nh+T7hkwl38HfzBwBRltly5+WqO6SFEG?=
+ =?us-ascii?Q?I9AVbl849SsZEzPOcFzV2cfhitBnZvJUK6F6iQWTpb+/yhBSR9Ey2dXxhQxl?=
+ =?us-ascii?Q?1T9Obnh4DDLjP0i4SSA=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1f406f3c-90b0-400c-5e10-08dac64bd146
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Nov 2022 14:23:36.4273
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: FyOpqxz+5Q6mS9tDQnYf81m1x6u6K/uNRTSmzLrKRcbHSSGYjHEJInjA3MsBxHcR
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5710
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 11/14/22 14:16, Yicong Yang wrote:
-> On 2022/11/14 11:29, Anshuman Khandual wrote:
->>
->> On 10/28/22 13:42, Yicong Yang wrote:
->>> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
->>> +{
->>> +	/*
->>> +	 * TLB batched flush is proved to be beneficial for systems with large
->>> +	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
->>> +	 * is cheap on small systems which may not need this feature. So use
->>> +	 * a threshold for enabling this to avoid potential side effects on
->>> +	 * these platforms.
->>> +	 */
->>> +	if (num_online_cpus() <= CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
->>> +		return false;
->>> +
->>> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
->>> +	if (unlikely(this_cpu_has_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
->>> +		return false;
->>> +#endif
->> should_defer_flush() is immediately followed by set_tlb_ubc_flush_pending() which calls
->> arch_tlbbatch_add_mm(), triggering the actual TLBI flush via __flush_tlb_page_nosync().
->> It should be okay to check capability with this_cpu_has_cap() as the entire call chain
->> here is executed on the same cpu. But just wondering if cpus_have_const_cap() would be
->> simpler, consistent, and also cost effective ?
->>
-> ok. Checked cpus_have_const_cap() I think it matches your words.
+On Thu, Nov 10, 2022 at 10:01:13PM -0500, Matthew Rosato wrote:
+> On 11/7/22 7:52 PM, Jason Gunthorpe wrote:
+> > This series provides an alternative container layer for VFIO implemented
+> > using iommufd. This is optional, if CONFIG_IOMMUFD is not set then it will
+> > not be compiled in.
+> > 
+> > At this point iommufd can be injected by passing in a iommfd FD to
+> > VFIO_GROUP_SET_CONTAINER which will use the VFIO compat layer in iommufd
+> > to obtain the compat IOAS and then connect up all the VFIO drivers as
+> > appropriate.
+> > 
+> > This is temporary stopping point, a following series will provide a way to
+> > directly open a VFIO device FD and directly connect it to IOMMUFD using
+> > native ioctls that can expose the IOMMUFD features like hwpt, future
+> > vPASID and dynamic attachment.
+> > 
+> > This series, in compat mode, has passed all the qemu tests we have
+> > available, including the test suites for the Intel GVT mdev. Aside from
+> > the temporary limitation with P2P memory this is belived to be fully
+> > compatible with VFIO.
 > 
->> Regardless, a comment is needed before the #ifdef block explaining why it does not make
->> sense to defer/batch when __tlbi()/__tlbi_user() implementation will execute 'dsb(ish)'
->> between two TLBI instructions to workaround the errata.
->>
-> The workaround for the errata mentioned the affected platforms need the tlbi+dsb to be done
-> twice, so I'm not sure if we defer the final dsb will cause any problem so I think the judgement
-> here is used for safety. I have no such platform to test if it's ok to defer the last dsb.
+> AFAICT there is no equivalent means to specify
+> vfio_iommu_type1.dma_entry_limit when using iommufd; looks like
+> we'll just always get the default 65535.
 
-We should not defer TLB flush on such systems, as ensured by the above test and 'false'
-return afterwards. The only question is whether this decision should be taken at a CPU
-level (which is affected by the errata) or the whole system level.
+No, there is no arbitary limit on iommufd
 
-What is required now
+> Was this because you envision the limit being not applicable for
+> iommufd (limits will be enforced via either means and eventually we
+> won't want to ) or was it an oversight?
 
-- Replace this_cpu_has_cap() with cpus_have_const_cap ?
-- Add the following comment before the #ifdef check
+The limit here is primarily about limiting userspace abuse of the
+interface.
 
-/*
- * TLB flush deferral is not required on systems, which are affected with
- * ARM64_WORKAROUND_REPEAT_TLBI, as __tlbi()/__tlbi_user() implementation
- * will have two consecutive TLBI instructions with a dsb(ish) in between
- * defeating the purpose (i.e save overall 'dsb ish' cost).
- */
+iommufd is using GFP_KERNEL_ACCOUNT which shifts the responsiblity to
+cgroups, which is similar to how KVM works.
+
+So, for a VM sandbox you'd set a cgroup limit and if a hostile
+userspace in the sanbox decides to try to OOM the system it will hit
+that limit, regardless of which kernel APIs it tries to abuse.
+
+This work is not entirely complete as we also need the iommu driver to
+use GFP_KERNEL_ACCOUNT for allocations connected to the iommu_domain,
+particularly for allocations of the IO page tables themselves - which
+can be quite big.
+
+Jason
