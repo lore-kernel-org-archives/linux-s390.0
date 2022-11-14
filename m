@@ -2,101 +2,67 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5568DC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Nov 2022 09:06:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52131C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Nov 2022 09:18:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236749AbiKNJGM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Nov 2022 04:06:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47692 "EHLO
+        id S235826AbiKNJST (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Nov 2022 04:18:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236913AbiKNJFw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 04:05:52 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 808F51D66F;
-        Mon, 14 Nov 2022 01:04:39 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 19B291FD67;
-        Mon, 14 Nov 2022 09:04:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1668416678; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        with ESMTP id S235816AbiKNJSR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 04:18:17 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48F5B1DDDC
+        for <linux-s390@vger.kernel.org>; Mon, 14 Nov 2022 01:18:14 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1668417492;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=qYeyMGzPpWeJjemOhgQTqv3gXdbN1HV6WuzeSdghX/w=;
-        b=YE8YpyZ139VQeNK68TlYpnZ25AsIpwxeaayX1shw2BLDESgrmTvnKy7KsOLoovwmZBfSwj
-        feMoKYc76x8HYSZ+pvUN+xmQZPf09XVjndfDwC301JINk5rEiybUHATWKeqGyjEEiBHLXG
-        fJHUXRrpHHEd1U3ub5JGJMJKODHR4yM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1668416678;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        bh=p+VxRIxfB6hlYwFIqHI7yAuHOJEZicLTE0JKAZwLc7w=;
+        b=2AnzchggBXrmq/2mCMPhLcDMs6W5tK4SB3E58TO5H873cyPEktF1R099BMQSzvnntxCiMg
+        0YEsPKGRN1WIETzPsm43J8Jbnoliv/PM6Mm4YWqih5YyttN6S/lHW9Kv58Bwm3hCa0xqA7
+        ULLwc4hXhuDLeY32hDgno+ldrlE5EY7vRWR8CRpKawTNyr8AUeiuNcqXUIpkZopa6+HZHz
+        aYioN7Nb6RhakmcBXIXT9GnC9OHIW4r7jlc3YkohU/+qMG2VsVQcVNFsiO76KkugKb0L71
+        zLtEx9wBkNRLAJy7rZxih6Ukh00cC7AmjIUJSt9nTmltFdgEe5gdvzySusytOA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1668417492;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=qYeyMGzPpWeJjemOhgQTqv3gXdbN1HV6WuzeSdghX/w=;
-        b=Llx/kP6o5oi7w9LY9pE3+/vMOmMFKljhPvJvgNrLZwx0lxnO0V03LM2WxQjWChbMOB9Zo+
-        9l/BHoMLUwQN+PBg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id C727613A8C;
-        Mon, 14 Nov 2022 09:04:37 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id CAa7L6UEcmPcMwAAMHmgww
-        (envelope-from <tiwai@suse.de>); Mon, 14 Nov 2022 09:04:37 +0000
-Date:   Mon, 14 Nov 2022 10:04:37 +0100
-Message-ID: <87leod52l6.wl-tiwai@suse.de>
-From:   Takashi Iwai <tiwai@suse.de>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rdma@vger.kernel.org,
-        iommu@lists.linux.dev, linux-media@vger.kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: Re: [PATCH 6/7] ALSA: memalloc: don't pass bogus GFP_ flags to dma_alloc_*
-In-Reply-To: <20221113163535.884299-7-hch@lst.de>
-References: <20221113163535.884299-1-hch@lst.de>
-        <20221113163535.884299-7-hch@lst.de>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
+        bh=p+VxRIxfB6hlYwFIqHI7yAuHOJEZicLTE0JKAZwLc7w=;
+        b=GVns1NPRC4wRYC+m3gPbAbTawYJimaU1HnmMV8zZMA1aj/uyEA+js1Twa03MhFMLohwuxs
+        sgQfYy337emHF7AA==
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH] s390/pci: Use irq_data_get_msi_desc()
+In-Reply-To: <b7ec3c33bb8e356fe29f3433002cb31f8013be74.camel@linux.ibm.com>
+References: <8735aoui07.ffs@tglx>
+ <b7ec3c33bb8e356fe29f3433002cb31f8013be74.camel@linux.ibm.com>
+Date:   Mon, 14 Nov 2022 10:18:11 +0100
+Message-ID: <87mt8tsxm4.ffs@tglx>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, 13 Nov 2022 17:35:34 +0100,
-Christoph Hellwig wrote:
-> 
-> dma_alloc_coherent/dma_alloc_wc is an opaque allocator that only uses
-> the GFP_ flags for allocation context control.  Don't pass __GFP_COMP
-> which makes no sense for an allocation that can't in any way be
-> converted to a page pointer.
+On Mon, Nov 14 2022 at 09:55, Niklas Schnelle wrote:
+> On Sat, 2022-11-12 at 19:47 +0100, Thomas Gleixner wrote:
+> That said it must be noted that this function is only called when using
+> directed PCI IRQs which is a hardware feature that has not made it to
+> any released hardware. Nevertheless no point int doing things more
+> complicated than necessary even for that case.
+>
+> If there are no objections I'll apply this to our internal tree and it
+> will then go upstream via the s390 tree.
 
-The addition of __GFP_COMP there was really old, it was Hugh's commit
-f3d48f0373c1 at 2005:
-    [PATCH] unpaged: fix sound Bad page states
+Sure. It has no dependencies. I just stumbled over it when doing a tree
+wide inspection of (PCI)MSI code.
 
-It mentions something about sparc32/64.  I hope this isn't relevant
-any longer (honestly I have no idea about that).
+Thanks,
 
-> Note that for dma_alloc_noncoherent and dma_alloc_noncontigous in
-> combination with the DMA mmap helpers __GFP_COMP looks sketchy as well,
-> so I would suggest to drop that as well after a careful audit.
-
-Yeah, that's a cargo-cult copy&paste from the old idiom.
-Should be killed altogether.
-
-
-Thanks!
-
-Takashi
+        tglx
