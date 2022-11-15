@@ -2,124 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8682C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Nov 2022 06:44:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E5F2C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Nov 2022 08:42:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232388AbiKOGo4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Nov 2022 01:44:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58280 "EHLO
+        id S232879AbiKOImu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Nov 2022 03:42:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230520AbiKOGoz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Nov 2022 01:44:55 -0500
-Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D958C1836F;
-        Mon, 14 Nov 2022 22:44:53 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R271e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=xhao@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0VUsFbJs_1668494685;
-Received: from 30.240.98.93(mailfrom:xhao@linux.alibaba.com fp:SMTPD_---0VUsFbJs_1668494685)
-          by smtp.aliyun-inc.com;
-          Tue, 15 Nov 2022 14:44:48 +0800
-Message-ID: <ffdf1eb1-c188-b161-0e70-cad6f64c6c46@linux.alibaba.com>
-Date:   Tue, 15 Nov 2022 14:44:44 +0800
+        with ESMTP id S232816AbiKOImp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Nov 2022 03:42:45 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA5B140B3;
+        Tue, 15 Nov 2022 00:42:44 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AF8e2b7016507;
+        Tue, 15 Nov 2022 08:42:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=AxfTlUSKDKgzTGxKC2vg1IAdhEC+Nz0PvMbt/LdbZqk=;
+ b=SftsNggrF0YZjql4kYd2bF4bwn7iYTKmT+8EMAk8im2d9/oecCGGUtmxx/PeBhLRbMjk
+ PfRc7qY/nSPY2l9Ct188ZCIls2x8269wAtRTttjJBBaleMCw1LwBumdlhe9KNMKjuE5I
+ r4genSdaFeMm+/4wXBqQEV7SI72KyjqJB6zd1GglJbeG/yWpoOUof5zEqdEZ3yNFNNn6
+ 66eqHZdkbvI2gT4klLsYFNTF/E2TEguzgxgrc/fg8mBZo7/WpC11qRgwNptR2x8lKS7E
+ Y3t/oHBT1npZmO90on+vGB5SEbUEVJUFvI4Wj+JqubTzWR4vKOKUe/gXK5Z677vbIokG pw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kv7f881n6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Nov 2022 08:42:43 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AF8eETK017447;
+        Tue, 15 Nov 2022 08:42:43 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kv7f881mq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Nov 2022 08:42:43 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AF8Zntn032489;
+        Tue, 15 Nov 2022 08:42:41 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3kt3492xgk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Nov 2022 08:42:40 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AF8gbx61704694
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Nov 2022 08:42:37 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 949A9A405F;
+        Tue, 15 Nov 2022 08:42:37 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 26A09A405B;
+        Tue, 15 Nov 2022 08:42:37 +0000 (GMT)
+Received: from [9.171.74.64] (unknown [9.171.74.64])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Nov 2022 08:42:37 +0000 (GMT)
+Message-ID: <d9d73722-f1f5-3ba9-e9f5-538ee4f4ba2e@linux.ibm.com>
+Date:   Tue, 15 Nov 2022 09:42:36 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.4.1
-Subject: Re: [PATCH v6 1/2] mm/tlbbatch: Introduce
- arch_tlbbatch_should_defer()
-To:     Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, catalin.marinas@arm.com, will@kernel.org,
-        anshuman.khandual@arm.com, linux-doc@vger.kernel.org
-Cc:     corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
-        punit.agrawal@bytedance.com, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        Barry Song <21cnbao@gmail.com>, wangkefeng.wang@huawei.com,
-        prime.zeng@hisilicon.com,
-        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
-        Barry Song <baohua@kernel.org>
-References: <20221115031425.44640-1-yangyicong@huawei.com>
- <20221115031425.44640-2-yangyicong@huawei.com>
-From:   haoxin <xhao@linux.alibaba.com>
-In-Reply-To: <20221115031425.44640-2-yangyicong@huawei.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: [PATCH v16 0/6] KVM: s390: pv: implement lazy destroy for reboot
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, thuth@redhat.com, david@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        scgl@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com
+References: <20221111170632.77622-1-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20221111170632.77622-1-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9naloPUGpkJo60TRCQomBLb-eJJdilWU
+X-Proofpoint-ORIG-GUID: 3M_XFSOX-aPVB799sh7uUNtn4NcWO0jW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-15_04,2022-11-11_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1011
+ malwarescore=0 spamscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0
+ mlxlogscore=816 impostorscore=0 bulkscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211150058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 11/11/22 18:06, Claudio Imbrenda wrote:
+> Previously, when a protected VM was rebooted or when it was shut down,
+> its memory was made unprotected, and then the protected VM itself was
+> destroyed. Looping over the whole address space can take some time,
+> considering the overhead of the various Ultravisor Calls (UVCs). This
+> means that a reboot or a shutdown would take a potentially long amount
+> of time, depending on the amount of used memory.
+> 
 
-在 2022/11/15 上午11:14, Yicong Yang 写道:
-> From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
->
-> The entire scheme of deferred TLB flush in reclaim path rests on the
-> fact that the cost to refill TLB entries is less than flushing out
-> individual entries by sending IPI to remote CPUs. But architecture
-> can have different ways to evaluate that. Hence apart from checking
-> TTU_BATCH_FLUSH in the TTU flags, rest of the decision should be
-> architecture specific.
->
-> Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-> [https://lore.kernel.org/linuxppc-dev/20171101101735.2318-2-khandual@linux.vnet.ibm.com/]
-> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-> [Rebase and fix incorrect return value type]
-> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> Reviewed-by: Barry Song <baohua@kernel.org>
-> Tested-by: Punit Agrawal <punit.agrawal@bytedance.com>
-> ---
->   arch/x86/include/asm/tlbflush.h | 12 ++++++++++++
->   mm/rmap.c                       |  9 +--------
->   2 files changed, 13 insertions(+), 8 deletions(-)
->
-> diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-> index cda3118f3b27..8a497d902c16 100644
-> --- a/arch/x86/include/asm/tlbflush.h
-> +++ b/arch/x86/include/asm/tlbflush.h
-> @@ -240,6 +240,18 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
->   	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
->   }
->   
-> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> +{
-> +	bool should_defer = false;
-> +
-> +	/* If remote CPUs need to be flushed then defer batch the flush */
-> +	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
-> +		should_defer = true;
-> +	put_cpu();
-> +
-> +	return should_defer;
-> +}
-> +
->   static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
->   {
->   	/*
-> diff --git a/mm/rmap.c b/mm/rmap.c
-> index 2ec925e5fa6a..a9ab10bc0144 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -685,17 +685,10 @@ static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
->    */
->   static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
->   {
-> -	bool should_defer = false;
-> -
->   	if (!(flags & TTU_BATCH_FLUSH))
->   		return false;
->   
-> -	/* If remote CPUs need to be flushed then defer batch the flush */
-> -	if (cpumask_any_but(mm_cpumask(mm), get_cpu()) < nr_cpu_ids)
-> -		should_defer = true;
-> -	put_cpu();
-> -
-> -	return should_defer;
-> +	return arch_tlbbatch_should_defer(mm);
->   }
->   
-LGTM, thanks
+Well, this was a journey :)
 
-Reviewed-by: Xin Hao <xhao@linux.alibaba.com>
->   /*
+Thanks, picked
