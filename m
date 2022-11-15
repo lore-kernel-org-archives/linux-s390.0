@@ -2,314 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C954C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Nov 2022 09:31:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E966C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Nov 2022 09:46:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229681AbiKOJbS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Nov 2022 04:31:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55156 "EHLO
+        id S238055AbiKOJqj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Nov 2022 04:46:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229485AbiKOJbR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Nov 2022 04:31:17 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED22EE34
-        for <linux-s390@vger.kernel.org>; Tue, 15 Nov 2022 01:30:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668504619;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=PI4QkJgg5xRejZYnaDkrohoS+PcA0MTFv2A75peo2zg=;
-        b=aa7iI5Lq4Rmc3VrPX4X35FoV8oMPTYrA9nhnHxaPCy0DA9ijQqa0y8mpM4y7h2IBWBYtsU
-        5tEDotMjAhoi/mMl4mqDqjKwpbzghxt9KKzsTVRX7wZlGOY5P1MvY+hVjcVs9Bv8YzA7Qk
-        R4ZQr1fF44q2/NO45xVwJxBWOZGMPew=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-533-VZsPRLAUPyatsh0JS8FF5Q-1; Tue, 15 Nov 2022 04:30:18 -0500
-X-MC-Unique: VZsPRLAUPyatsh0JS8FF5Q-1
-Received: by mail-ej1-f72.google.com with SMTP id nc4-20020a1709071c0400b0078a5ceb571bso6892800ejc.4
-        for <linux-s390@vger.kernel.org>; Tue, 15 Nov 2022 01:30:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PI4QkJgg5xRejZYnaDkrohoS+PcA0MTFv2A75peo2zg=;
-        b=hnHjQyK6Woesk53iIGGkd3bzFFEgRUBTf/cxKkpI9Kl5JDhOa9g/xCIcTtdqFkDuNI
-         LBQAi0aN/utOD2e+/LL5JL/C/Nn5S9VBh/3zkaZwpJd2jfqOjlVAnPhKXi27/fjZSGEq
-         lBOuGO32YkBrRt9uA11MLdhXe0FmieqqWRe+8oTfLofEr3Uqf+Gp+M/N/tQGOl2LY+cE
-         zKtbTMkgW1Cf3F0PcvF/OgYzJj+5oQOUIlD2rsNUw8RxsuRWZeDgjePTJPIpUGcKs8Pv
-         fJUOlKUuu7jbwe//NSrIYtDAoAuxCVuHqPFrwzJ/ZvCk6Br/aG8vixoGCqJanyUwefP3
-         caXQ==
-X-Gm-Message-State: ANoB5pmcrbN/gaVL6t6M0pU583Pw9AVef5DeB7kslFlxY8sVU8+VrTQ0
-        Bv9wLymSfkB6ua/I5mbU5LlyjbP4E+CaWkoaa9nZGKHR4g+BMki3oytJDOdb2zfnbIhnikj4joN
-        fF3Bj2iYmWeM2M9MAdQjt6Q==
-X-Received: by 2002:a50:fe13:0:b0:461:565e:8779 with SMTP id f19-20020a50fe13000000b00461565e8779mr14489164edt.387.1668504617476;
-        Tue, 15 Nov 2022 01:30:17 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf5Zsa4CnM7XTxV75wUJGjjLzRgPV7NQ4412B1eIJSCcezAuycjNE+mpvlda5nQMKDxwK/vVkA==
-X-Received: by 2002:a50:fe13:0:b0:461:565e:8779 with SMTP id f19-20020a50fe13000000b00461565e8779mr14489153edt.387.1668504617196;
-        Tue, 15 Nov 2022 01:30:17 -0800 (PST)
-Received: from fedora (nat-2.ign.cz. [91.219.240.2])
-        by smtp.gmail.com with ESMTPSA id ew13-20020a056402538d00b004642b35f89esm5950875edb.9.2022.11.15.01.30.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Nov 2022 01:30:16 -0800 (PST)
-From:   Vitaly Kuznetsov <vkuznets@redhat.com>
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        Atish Patra <atishp@atishpatra.org>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
-        kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Isaku Yamahata <isaku.yamahata@intel.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Chao Gao <chao.gao@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Yuan Yao <yuan.yao@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Anup Patel <anup@brainfault.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>
-Subject: Re: [PATCH 10/44] KVM: VMX: Clean up eVMCS enabling if KVM
- initialization fails
-In-Reply-To: <Y22nrQ7aziK0NMOE@google.com>
-References: <20221102231911.3107438-1-seanjc@google.com>
- <20221102231911.3107438-11-seanjc@google.com>
- <87mt98qfi2.fsf@ovpn-194-252.brq.redhat.com> <Y22nrQ7aziK0NMOE@google.com>
-Date:   Tue, 15 Nov 2022 10:30:14 +0100
-Message-ID: <87sfikmuop.fsf@redhat.com>
+        with ESMTP id S238074AbiKOJqM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Nov 2022 04:46:12 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F00E21FF8E
+        for <linux-s390@vger.kernel.org>; Tue, 15 Nov 2022 01:46:10 -0800 (PST)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AF9Bl9a007524;
+        Tue, 15 Nov 2022 09:45:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
+ from : to : cc : subject : reply-to : in-reply-to : references :
+ message-id : content-type : content-transfer-encoding; s=pp1;
+ bh=tRTUQ2tqwK9GjSbiy/onksTNa+EXYk8z12+lFyngXws=;
+ b=OclBLJxKBFL9cqhmXsYCXN2bZQgDNHdr7JUF8ZH9KoP3ZGa5ju+gYj3ti+ZE1EtvlSwB
+ yws9Qm85e/z1p8cI9KiY0jo3/03VB1pYKHIijmijJABzIZ3z54kckgqJJiePaE/Saymc
+ 3ELDAHGypQasvQooW0WESamXGtEkbxy0tWIkWsCaHN1iKLOkQrLhljSpNVaMSFezW5Y6
+ xa3kUneFWPlbcePrYQAcWoQJVPo3r0xMr780SRowefCHeOJSfAydjVg2mdbDpMdRhuwX
+ 80DnBmi2ZpfwC9w1sNgbyyvtTZqEz7L72ST4llHEGlNKBcZSK1/c79ixo9nWfDL2TKLu 0Q== 
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kv7x1h3e2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Nov 2022 09:45:59 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AF9aUcP032187;
+        Tue, 15 Nov 2022 09:45:58 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma01dal.us.ibm.com with ESMTP id 3kt349g8yn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Nov 2022 09:45:58 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com ([9.208.128.113])
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AF9ju4L4784862
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Nov 2022 09:45:57 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 885C958059;
+        Tue, 15 Nov 2022 09:45:56 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CA2A95805B;
+        Tue, 15 Nov 2022 09:45:55 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.10.229.42])
+        by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Nov 2022 09:45:55 +0000 (GMT)
 MIME-Version: 1.0
-Content-Type: text/plain
+Date:   Tue, 15 Nov 2022 10:45:55 +0100
+From:   Harald Freudenberger <freude@linux.ibm.com>
+To:     Wei Yongjun <weiyongjun@huaweicloud.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH] s390/ap: fix memory leak in ap_init_qci_info()
+Reply-To: freude@linux.ibm.com
+In-Reply-To: <20221114110830.542246-1-weiyongjun@huaweicloud.com>
+References: <20221114110830.542246-1-weiyongjun@huaweicloud.com>
+User-Agent: Roundcube Webmail/1.4.13
+Message-ID: <5a73bccdfd2a3210dba0495a77a9ec1e@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Nv5FomgZeK921d9K24h2tkc22gVYwEpX
+X-Proofpoint-GUID: Nv5FomgZeK921d9K24h2tkc22gVYwEpX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-15_04,2022-11-15_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
+ mlxscore=0 malwarescore=0 phishscore=0 spamscore=0 mlxlogscore=999
+ lowpriorityscore=0 bulkscore=0 suspectscore=0 priorityscore=1501
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211150067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Sean Christopherson <seanjc@google.com> writes:
-
-> On Thu, Nov 03, 2022, Vitaly Kuznetsov wrote:
->> Sean Christopherson <seanjc@google.com> writes:
->> > +	/*
->> > +	 * Reset everything to support using non-enlightened VMCS access later
->> > +	 * (e.g. when we reload the module with enlightened_vmcs=0)
->> > +	 */
->> > +	for_each_online_cpu(cpu) {
->> > +		vp_ap =	hv_get_vp_assist_page(cpu);
->> > +
->> > +		if (!vp_ap)
->> > +			continue;
->> > +
->> > +		vp_ap->nested_control.features.directhypercall = 0;
->> > +		vp_ap->current_nested_vmcs = 0;
->> > +		vp_ap->enlighten_vmentry = 0;
->> > +	}
->> 
->> Unrelated to your patch but while looking at this code I got curious
->> about why don't we need a protection against CPU offlining here. Turns
->> out that even when we offline a CPU, its VP assist page remains
->> allocated (see hv_cpu_die()), we just write '0' to the MSR and thus
->
-> Heh, "die".  Hyper-V is quite dramatic.
->
->> accessing the page is safe. The consequent hv_cpu_init(), however, does
->> not restore VP assist page when it's already allocated:
->> 
->> # rdmsr -p 24 0x40000073
->> 10212f001
->> # echo 0 > /sys/devices/system/cpu/cpu24/online 
->> # echo 1 > /sys/devices/system/cpu/cpu24/online 
->> # rdmsr -p 24 0x40000073
->> 0
->> 
->> The culprit is commit e5d9b714fe402 ("x86/hyperv: fix root partition
->> faults when writing to VP assist page MSR"). A patch is inbound.
->> 
->> 'hv_root_partition' case is different though. We do memunmap() and reset
->> VP assist page to zero so it is theoretically possible we're going to
->> clash. Unless I'm missing some obvious reason why module unload can't
->> coincide with CPU offlining, we may be better off surrounding this with
->> cpus_read_lock()/cpus_read_unlock(). 
->
-> I finally see what you're concerned about.  If a CPU goes offline and its assist
-> page is unmapped, zeroing out the nested/eVMCS stuff will fault.
->
-> I think the real problem is that the purging of the eVMCS is in the wrong place.
-> Move the clearing to vmx_hardware_disable() and then the CPU hotplug bug goes
-> away once KVM disables hotplug during hardware enabling/disable later in the series.
-> There's no need to wait until module exit, e.g. it's not like it costs much to
-> clear a few variables, and IIUC the state is used only when KVM is actively using
-> VMX/eVMCS.
->
-> However, I believe there's a second bug.  KVM's CPU online hook is called before
-> Hyper-V's online hook (CPUHP_AP_ONLINE_DYN).  Before this series, which moves KVM's
-> hook from STARTING to ONLINE, KVM's hook is waaaay before Hyper-V's.  That means
-> that hv_cpu_init()'s allocation of the VP assist page will come _after_ KVM's
-> check in vmx_hardware_enable()
->
-> 	/*
-> 	 * This can happen if we hot-added a CPU but failed to allocate
-> 	 * VP assist page for it.
-> 	 */
-> 	if (static_branch_unlikely(&enable_evmcs) &&
-> 	    !hv_get_vp_assist_page(cpu))
-> 		return -EFAULT;
->
-> I.e. CPU hotplug will never work if KVM is running VMs as a Hyper-V guest.  I bet
-> you can repro by doing a SUSPEND+RESUME.
->
-> Can you try to see if that's actually a bug?  If so, the only sane fix seems to
-> be to add a dedicated ONLINE action for Hyper-V.  
-
-It seems we can't get away without a dedicated stage for Hyper-V anyway,
-e.g. see our discussion with Michael:
-
-https://lore.kernel.org/linux-hyperv/878rkqr7ku.fsf@ovpn-192-136.brq.redhat.com/
-
-All these issues are more or less "theoretical" as there's no real CPU
-hotplug on Hyper-V/Azure. Yes, it is possible to trigger problems by
-doing CPU offline/online but I don't see how this may come handy outside
-of testing envs.
-
-> Per patch
->
->   KVM: Rename and move CPUHP_AP_KVM_STARTING to ONLINE section
->
-> from this series, CPUHP_AP_KVM_ONLINE needs to be before CPUHP_AP_SCHED_WAIT_EMPTY
-> to ensure there are no tasks, i.e. no vCPUs, running on the to-be-unplugged CPU.
->
-> Back to the original bug, proposed fix is below.  The other advantage of moving
-> the reset to hardware disabling is that the "cleanup" is just disabling the static
-> key, and at that point can simply be deleted as there's no need to disable the
-> static key when kvm-intel is unloaded since kvm-intel owns the key.  I.e. this
-> patch (that we're replying to) would get replaced with a patch to delete the
-> disabling of the static key.
->
-
-From a quick glance looks good to me, I'll try to find some time to work
-on this issue. I will likely end up proposing a dedicated CPU hotplug
-stage for Hyper-V (which needs to happen before KVM's
-CPUHP_AP_KVM_ONLINE on CPU hotplug and after on unplug) anyway.
-
-Thanks for looking into this!
-
-> --
-> From: Sean Christopherson <seanjc@google.com>
-> Date: Thu, 10 Nov 2022 17:28:08 -0800
-> Subject: [PATCH] KVM: VMX: Reset eVMCS controls in VP assist page during
->  hardware disabling
->
-> Reset the eVMCS controls in the per-CPU VP assist page during hardware
-> disabling instead of waiting until kvm-intel's module exit.  The controls
-> are activated if and only if KVM creates a VM, i.e. don't need to be
-> reset if hardware is never enabled.
->
-> Doing the reset during hardware disabling will naturally fix a potential
-> NULL pointer deref bug once KVM disables CPU hotplug while enabling and
-> disabling hardware (which is necessary to fix a variety of bugs).  If the
-> kernel is running as the root partition, the VP assist page is unmapped
-> during CPU hot unplug, and so KVM's clearing of the eVMCS controls needs
-> to occur with CPU hot(un)plug disabled, otherwise KVM could attempt to
-> write to a CPU's VP assist page after it's unmapped.
->
-> Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
+On 2022-11-14 12:08, Wei Yongjun wrote:
+> From: Wei Yongjun <weiyongjun1@huawei.com>
+> 
+> If kzalloc() for 'ap_qci_info_old' failed, 'ap_qci_info' shold be
+> freed before return. Otherwise it is a memory leak.
+> 
+> Fixes: 283915850a44 ("s390/ap: notify drivers on config changed and
+> scan complete callbacks")
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 > ---
->  arch/x86/kvm/vmx/vmx.c | 50 +++++++++++++++++++++++++-----------------
->  1 file changed, 30 insertions(+), 20 deletions(-)
->
-> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-> index aca88524fd1e..ae13aa3e8a1d 100644
-> --- a/arch/x86/kvm/vmx/vmx.c
-> +++ b/arch/x86/kvm/vmx/vmx.c
-> @@ -552,6 +552,33 @@ static int hv_enable_direct_tlbflush(struct kvm_vcpu *vcpu)
->  	return 0;
->  }
->  
-> +static void hv_reset_evmcs(void)
-> +{
-> +	struct hv_vp_assist_page *vp_ap;
-> +
-> +	if (!static_branch_unlikely(&enable_evmcs))
-> +		return;
-> +
-> +	/*
-> +	 * KVM should enable eVMCS if and only if all CPUs have a VP assist
-> +	 * page, and should reject CPU onlining if eVMCS is enabled the CPU
-> +	 * doesn't have a VP assist page allocated.
-> +	 */
-> +	vp_ap = hv_get_vp_assist_page(smp_processor_id());
-> +	if (WARN_ON_ONCE(!vp_ap))
-> +		return;
-> +
-> +	/*
-> +	 * Reset everything to support using non-enlightened VMCS access later
-> +	 * (e.g. when we reload the module with enlightened_vmcs=0)
-> +	 */
-> +	vp_ap->nested_control.features.directhypercall = 0;
-> +	vp_ap->current_nested_vmcs = 0;
-> +	vp_ap->enlighten_vmentry = 0;
-> +}
-> +
-> +#else /* IS_ENABLED(CONFIG_HYPERV) */
-> +static void hv_reset_evmcs(void) {}
->  #endif /* IS_ENABLED(CONFIG_HYPERV) */
->  
->  /*
-> @@ -2497,6 +2524,8 @@ static void vmx_hardware_disable(void)
->  	if (cpu_vmxoff())
->  		kvm_spurious_fault();
->  
-> +	hv_reset_evmcs();
-> +
->  	intel_pt_handle_vmx(0);
->  }
->  
-> @@ -8463,27 +8492,8 @@ static void vmx_exit(void)
->  	kvm_exit();
->  
->  #if IS_ENABLED(CONFIG_HYPERV)
-> -	if (static_branch_unlikely(&enable_evmcs)) {
-> -		int cpu;
-> -		struct hv_vp_assist_page *vp_ap;
-> -		/*
-> -		 * Reset everything to support using non-enlightened VMCS
-> -		 * access later (e.g. when we reload the module with
-> -		 * enlightened_vmcs=0)
-> -		 */
-> -		for_each_online_cpu(cpu) {
-> -			vp_ap =	hv_get_vp_assist_page(cpu);
-> -
-> -			if (!vp_ap)
-> -				continue;
-> -
-> -			vp_ap->nested_control.features.directhypercall = 0;
-> -			vp_ap->current_nested_vmcs = 0;
-> -			vp_ap->enlighten_vmentry = 0;
-> -		}
-> -
-> +	if (static_branch_unlikely(&enable_evmcs))
->  		static_branch_disable(&enable_evmcs);
-> -	}
->  #endif
->  	vmx_cleanup_l1d_flush();
->  
->
-> base-commit: 5f47ba6894477dfbdc5416467a25fb7acb47d404
-
--- 
-Vitaly
-
+>  drivers/s390/crypto/ap_bus.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/crypto/ap_bus.c 
+> b/drivers/s390/crypto/ap_bus.c
+> index 59ac98f2bd27..6cbc5e5d2a0e 100644
+> --- a/drivers/s390/crypto/ap_bus.c
+> +++ b/drivers/s390/crypto/ap_bus.c
+> @@ -233,8 +233,10 @@ static void __init ap_init_qci_info(void)
+>  	if (!ap_qci_info)
+>  		return;
+>  	ap_qci_info_old = kzalloc(sizeof(*ap_qci_info_old), GFP_KERNEL);
+> -	if (!ap_qci_info_old)
+> +	if (!ap_qci_info_old) {
+> +		kfree(ap_qci_info);
+>  		return;
+> +	}
+>  	if (ap_fetch_qci_info(ap_qci_info) != 0) {
+>  		kfree(ap_qci_info);
+>  		kfree(ap_qci_info_old);
+Thanks, I picked this and pushed it into the s390 subsystem repo.
+Will be visible in the Linus' tree with the next merge window.
