@@ -2,164 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A087CC433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Nov 2022 01:17:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF916C43217
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Nov 2022 03:15:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236120AbiKOBRn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Nov 2022 20:17:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59928 "EHLO
+        id S232297AbiKODPi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Nov 2022 22:15:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235981AbiKOBR2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 20:17:28 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B48315FE4;
-        Mon, 14 Nov 2022 17:17:27 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AF144Em011372;
-        Tue, 15 Nov 2022 01:17:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=v5qxHwZRSrEklg/Y29DH5jcZrOETt0IZmMrBfAAu1uo=;
- b=j2duxABM1EDylhhv6JusTSHWzMM/i/16Yd11mUx9/9rD20+6LkwQ8wzd1tEBiMDPoLOA
- K+XuU5Q0kNTJbpNsxQoECmfc1ofk1h87TnVa6ch6Tmvlt2d9tC6ZFzm+uvemgGOs0q7Y
- +V3I2Fx/666sTUU+Eprb5uful5OsKwvaPjvd6g1rU0N0j4a2ebncyMenLxju0oT8nO7Z
- g5EIg6wO0DLOvJh/9KYnbX7j/OkHcRdhukd1Lv6018XiWdxG9SJARMXsK8PxosGLwhTW
- mXMASPxbL+hQ0EG7iXpXw6KbE486T8vP60IH+2I6vktGBw+zxFi1jqPdqfOPl61gFMl7 Xg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kv0sg886d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Nov 2022 01:17:04 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AF14mhU013878;
-        Tue, 15 Nov 2022 01:17:04 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kv0sg885y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Nov 2022 01:17:04 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AF16UOF023719;
-        Tue, 15 Nov 2022 01:17:02 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma01dal.us.ibm.com with ESMTP id 3kt349dft8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Nov 2022 01:17:02 +0000
-Received: from smtpav04.dal12v.mail.ibm.com ([9.208.128.131])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AF1H23x8585858
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Nov 2022 01:17:02 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9010A58052;
-        Tue, 15 Nov 2022 01:17:00 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 91EA25804E;
-        Tue, 15 Nov 2022 01:16:57 +0000 (GMT)
-Received: from [9.160.3.49] (unknown [9.160.3.49])
-        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 15 Nov 2022 01:16:57 +0000 (GMT)
-Message-ID: <41c38082-bdc6-4df0-6fc3-8c8fe307dfa4@linux.ibm.com>
-Date:   Mon, 14 Nov 2022 20:16:57 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: [PATCH v2 00/11] Connect VFIO to IOMMUFD
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>, Yi Liu <yi.l.liu@intel.com>
-Cc:     Nicolin Chen <nicolinc@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@gmail.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org, iommu@lists.linux.dev,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-References: <0-v2-65016290f146+33e-vfio_iommufd_jgg@nvidia.com>
- <Y2ofNKmmAIMGYLFK@Asurada-Nvidia>
- <9b2bb9f2-fc82-dd01-84ff-c2fe45e1a48a@intel.com>
- <Y2vb4fuPZdYKR1M1@nvidia.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <Y2vb4fuPZdYKR1M1@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XhP4FCrn3gfeRfda6c43jYijtyrx4oqp
-X-Proofpoint-ORIG-GUID: cKSFtegJBR8Bg-fuisl7smJ4mDwyk76N
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S229806AbiKODPh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Nov 2022 22:15:37 -0500
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 366AF1094;
+        Mon, 14 Nov 2022 19:15:36 -0800 (PST)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.54])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NBBBT51qWzmVb2;
+        Tue, 15 Nov 2022 11:15:13 +0800 (CST)
+Received: from localhost.localdomain (10.67.164.66) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Tue, 15 Nov 2022 11:15:34 +0800
+From:   Yicong Yang <yangyicong@huawei.com>
+To:     <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
+        <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
+        <catalin.marinas@arm.com>, <will@kernel.org>,
+        <anshuman.khandual@arm.com>, <linux-doc@vger.kernel.org>
+CC:     <corbet@lwn.net>, <peterz@infradead.org>, <arnd@arndb.de>,
+        <punit.agrawal@bytedance.com>, <linux-kernel@vger.kernel.org>,
+        <darren@os.amperecomputing.com>, <yangyicong@hisilicon.com>,
+        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
+        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
+        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
+        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
+        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
+        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
+        <prime.zeng@hisilicon.com>
+Subject: [PATCH v6 0/2] arm64: support batched/deferred tlb shootdown during page reclamation
+Date:   Tue, 15 Nov 2022 11:14:23 +0800
+Message-ID: <20221115031425.44640-1-yangyicong@huawei.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-14_15,2022-11-11_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 suspectscore=0 bulkscore=0 mlxlogscore=999 spamscore=0
- lowpriorityscore=0 adultscore=0 clxscore=1015 priorityscore=1501
- phishscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211150006
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.164.66]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/9/22 11:57 AM, Jason Gunthorpe wrote:
-> On Tue, Nov 08, 2022 at 11:18:03PM +0800, Yi Liu wrote:
->> On 2022/11/8 17:19, Nicolin Chen wrote:
->>> On Mon, Nov 07, 2022 at 08:52:44PM -0400, Jason Gunthorpe wrote:
->>>
->>>> This is on github: https://github.com/jgunthorpe/linux/commits/vfio_iommufd
->>> [...]
->>>> v2:
->>>>   - Rebase to v6.1-rc3, v4 iommufd series
->>>>   - Fixup comments and commit messages from list remarks
->>>>   - Fix leaking of the iommufd for mdevs
->>>>   - New patch to fix vfio modaliases when vfio container is disabled
->>>>   - Add a dmesg once when the iommufd provided /dev/vfio/vfio is opened
->>>>     to signal that iommufd is providing this
->>>
->>> I've redone my previous sanity tests. Except those reported bugs,
->>> things look fine. Once we fix those issues, GVT and other modules
->>> can run some more stressful tests, I think.
->>
->> our side is also starting test (gvt, nic passthrough) this version. need to
->> wait a while for the result.
-> 
-> I've updated the branches with the two functional fixes discussed on
-> the list plus all the doc updates.
-> 
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-For s390, tested vfio-pci against some data mover workloads using QEMU on s390x with CONFIG_VFIO_CONTAINER=y and =n using zPCI interpretation assists (over ism/SMC-D, mlx5 and NVMe) and without zPCI interpretation assists (over mlx5 and NVMe) - will continue testing with more aggressive workloads.  
-(I did not run with CONFIG_IOMMUFD_TEST other than when building the selftest, but I see you mentioned this to Yi -- I'll incorporate that setting into future runs.)
+Though ARM64 has the hardware to do tlb shootdown, the hardware
+broadcasting is not free.
+A simplest micro benchmark shows even on snapdragon 888 with only
+8 cores, the overhead for ptep_clear_flush is huge even for paging
+out one page mapped by only one process:
+5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
 
-Ran the self-tests on s390 in LPAR and within a QEMU guest -- all tests pass (used 1M hugepages)
+While pages are mapped by multiple processes or HW has more CPUs,
+the cost should become even higher due to the bad scalability of
+tlb shootdown.
 
-Did light regression testing of vfio-ap and vfio-ccw on s390x with CONFIG_VFIO_CONTAINER=y and =n.
+The same benchmark can result in 16.99% CPU consumption on ARM64
+server with around 100 cores according to Yicong's test on patch
+4/4.
 
-Didn't see it in your branch yet, but also verified the proposed change to iommufd_fill_cap_dma_avail (.avail = U32_MAX) would work as expected.
+This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+1. only send tlbi instructions in the first stage -
+	arch_tlbbatch_add_mm()
+2. wait for the completion of tlbi by dsb while doing tlbbatch
+	sync in arch_tlbbatch_flush()
+Testing on snapdragon shows the overhead of ptep_clear_flush
+is removed by the patchset. The micro benchmark becomes 5% faster
+even for one page mapped by single process on snapdragon 888.
 
-Tested-by: Matthew Rosato <mjrosato@linux.ibm.com> 
+With this support we're possible to do more optimization for memory
+reclamation and migration[*].
 
+[*] https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+
+-v6:
+1. comment we don't defer TLB flush on platforms affected by ARM64_WORKAROUND_REPEAT_TLBI
+2. use cpus_have_const_cap() instead of this_cpu_has_cap()
+3. add tags from Punit, Thanks.
+4. default enable the feature when cpus >= 8 rather than > 8, since the original
+   improvement is observed on snapdragon 888 with 8 cores.
+Link: https://lore.kernel.org/lkml/20221028081255.19157-1-yangyicong@huawei.com/
+
+-v5:
+1. Make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends on EXPERT for this stage on arm64.
+2. Make a threshold of CPU numbers for enabling batched TLP flush on arm64
+Link: https://lore.kernel.org/linux-arm-kernel/20220921084302.43631-1-yangyicong@huawei.com/T/
+
+-v4:
+1. Add tags from Kefeng and Anshuman, Thanks.
+2. Limit the TLB batch/defer on systems with >4 CPUs, per Anshuman
+3. Merge previous Patch 1,2-3 into one, per Anshuman
+Link: https://lore.kernel.org/linux-mm/20220822082120.8347-1-yangyicong@huawei.com/
+
+-v3:
+1. Declare arch's tlbbatch defer support by arch_tlbbatch_should_defer() instead
+   of ARCH_HAS_MM_CPUMASK, per Barry and Kefeng
+2. Add Tested-by from Xin Hao
+Link: https://lore.kernel.org/linux-mm/20220711034615.482895-1-21cnbao@gmail.com/
+
+-v2:
+1. Collected Yicong's test result on kunpeng920 ARM64 server;
+2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
+   according to the comments of Peter Zijlstra and Dave Hansen
+3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
+   is empty according to the comments of Nadav Amit
+
+Thanks, Peter, Dave and Nadav for your testing or reviewing
+, and comments.
+
+-v1:
+https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
+
+Anshuman Khandual (1):
+  mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
+
+Barry Song (1):
+  arm64: support batched/deferred tlb shootdown during page reclamation
+
+ .../features/vm/TLB/arch-support.txt          |  2 +-
+ arch/arm64/Kconfig                            |  6 +++
+ arch/arm64/include/asm/tlbbatch.h             | 12 +++++
+ arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
+ arch/x86/include/asm/tlbflush.h               | 15 +++++-
+ mm/rmap.c                                     | 19 +++----
+ 6 files changed, 90 insertions(+), 16 deletions(-)
+ create mode 100644 arch/arm64/include/asm/tlbbatch.h
+
+-- 
+2.24.0
 
