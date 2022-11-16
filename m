@@ -2,108 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFD36C43219
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 01:51:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46B65C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 01:56:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229669AbiKPBvD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Nov 2022 20:51:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59226 "EHLO
+        id S231548AbiKPB4T (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Nov 2022 20:56:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbiKPBvD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Nov 2022 20:51:03 -0500
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0719225E9D;
-        Tue, 15 Nov 2022 17:51:01 -0800 (PST)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4NBmGP6h74z15Mgc;
-        Wed, 16 Nov 2022 09:50:37 +0800 (CST)
-Received: from [10.67.102.169] (10.67.102.169) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Wed, 16 Nov 2022 09:50:58 +0800
-CC:     <yangyicong@hisilicon.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux-MM <linux-mm@kvack.org>,
+        with ESMTP id S230435AbiKPB4S (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Nov 2022 20:56:18 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A38226AEF
+        for <linux-s390@vger.kernel.org>; Tue, 15 Nov 2022 17:56:17 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id d20so15075532plr.10
+        for <linux-s390@vger.kernel.org>; Tue, 15 Nov 2022 17:56:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=KVMI/nFFiiWGPsODZP4uTO9+eDXKExXBhUQy4MPYB78=;
+        b=ZkhmtpyvuQjtpiKcSTwV4FQaNI1BndPmVfYwRbI4kyGyIBWLGYAK9adsViZh/yHJ7x
+         GuxgtogV7PtxaPytplYxo+Klt0B/2ry2vtbUojn3VI5CZqcW98TXvlxs8G1FSU2NCLPG
+         osV9xc1d2y7cg0+wNaz5Nf0N26qzO6pIP5sDWfotE89nSnvse7sYp7t8PQ00S927CjrN
+         Mt9iItQr7ceVWaHS8qhCiI1BYymChnkKt5hyJqGOY0FEweE8dtCPm+eSBErPLu7yhTm8
+         o9dFADTr9ZdWsubEfckpwD5DI+8OZmAD6JfaYPF77XPfSWF6ATOhEkaqdt7s4F4xOEiQ
+         xj8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=KVMI/nFFiiWGPsODZP4uTO9+eDXKExXBhUQy4MPYB78=;
+        b=iwODntTjl6McVzi8cyB7Q/Kfqx6jInPoWYE0AyBbC3Kt/WlFAoDGwMk2NLhfVW0FnZ
+         ae3BqPgFi1Sei2B4ykCgJ7U3+eChbyfDt+O8nCyoI4wF1gtykQm1Tdyh928Dn1Jx6TmG
+         AdU0CYfpyE8IqRPDfzadw5LhFC0zpEzxC/ASkjMLAEDT0lXtt6WNDRcF57ZCRUJpuvf3
+         mlUJnvVayciig3SSnkLeN648Wj80v7OVtoXg3oyzLJiZXpPEO5Zp2M6JPlv5si5AR09z
+         mkfDu6J1rNpkadEyPPaHq7P5JvdkkkOQHO4HxfvNfppdmZiPAZON48YHhW8Jd3N2PB6e
+         iWsA==
+X-Gm-Message-State: ANoB5plio6RkRErKTLoVOEfiASMdukjoRbt4bXgR4JPhdHoFsC3ewSD7
+        ezp5dWekoj/khNAf/7FoxE2DqA==
+X-Google-Smtp-Source: AA0mqf6H0QJ9u7lmf5OzgdM3vacJIFtJ+zbl369j6MJCYNSFKT6kmzTaZY88ji+zMgthkUAHrSJWdg==
+X-Received: by 2002:a17:90a:5883:b0:218:f84:3f98 with SMTP id j3-20020a17090a588300b002180f843f98mr1206419pji.238.1668563776878;
+        Tue, 15 Nov 2022 17:56:16 -0800 (PST)
+Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
+        by smtp.gmail.com with ESMTPSA id z25-20020aa79499000000b0056ca3569a66sm9483483pfk.129.2022.11.15.17.56.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Nov 2022 17:56:16 -0800 (PST)
+Date:   Wed, 16 Nov 2022 01:56:12 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     "Huang, Kai" <kai.huang@intel.com>
+Cc:     "imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>,
+        "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "vkuznets@redhat.com" <vkuznets@redhat.com>,
+        "farman@linux.ibm.com" <farman@linux.ibm.com>,
+        "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
+        "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>,
+        "palmer@dabbelt.com" <palmer@dabbelt.com>,
+        "maz@kernel.org" <maz@kernel.org>,
+        "anup@brainfault.org" <anup@brainfault.org>,
+        "pbonzini@redhat.com" <pbonzini@redhat.com>,
+        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "aleksandar.qemu.devel@gmail.com" <aleksandar.qemu.devel@gmail.com>,
+        "frankja@linux.ibm.com" <frankja@linux.ibm.com>,
+        "oliver.upton@linux.dev" <oliver.upton@linux.dev>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "Yao, Yuan" <yuan.yao@intel.com>,
+        "farosas@linux.ibm.com" <farosas@linux.ibm.com>,
+        "david@redhat.com" <david@redhat.com>,
+        "james.morse@arm.com" <james.morse@arm.com>,
+        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
+        "alexandru.elisei@arm.com" <alexandru.elisei@arm.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "Yamahata, Isaku" <isaku.yamahata@intel.com>,
+        "kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
+        "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>,
+        "kvm-riscv@lists.infradead.org" <kvm-riscv@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
         "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>, X86 ML <x86@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "punit.agrawal@bytedance.com" <punit.agrawal@bytedance.com>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        "darren@os.amperecomputing.com" <darren@os.amperecomputing.com>,
-        "huzhanyuan@oppo.com" <huzhanyuan@oppo.com>,
-        "lipeifeng@oppo.com" <lipeifeng@oppo.com>,
-        "zhangshiming@oppo.com" <zhangshiming@oppo.com>,
-        "guojian@oppo.com" <guojian@oppo.com>,
-        "realmz6@gmail.com" <realmz6@gmail.com>,
+        <linux-arm-kernel@lists.infradead.org>,
         "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Barry Song <21cnbao@gmail.com>,
-        "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>,
-        haoxin <xhao@linux.alibaba.com>,
-        "prime.zeng@hisilicon.com" <prime.zeng@hisilicon.com>,
-        Barry Song <v-songbaohua@oppo.com>,
-        Mel Gorman <mgorman@suse.de>
-Subject: Re: [PATCH v6 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-To:     Nadav Amit <namit@vmware.com>
-References: <20221115031425.44640-1-yangyicong@huawei.com>
- <20221115031425.44640-3-yangyicong@huawei.com>
- <0D3A45FE-5367-40CD-A035-37F6EE98B25E@vmware.com>
-From:   Yicong Yang <yangyicong@huawei.com>
-Message-ID: <91e4804d-cb99-fd22-dafd-2f418f5c7ba9@huawei.com>
-Date:   Wed, 16 Nov 2022 09:50:58 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+        "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>,
+        "Gao, Chao" <chao.gao@intel.com>,
+        "atishp@atishpatra.org" <atishp@atishpatra.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>
+Subject: Re: [PATCH 33/44] KVM: x86: Do VMX/SVM support checks directly in
+ vendor code
+Message-ID: <Y3RDPOerOIf6SwI0@google.com>
+References: <20221102231911.3107438-1-seanjc@google.com>
+ <20221102231911.3107438-34-seanjc@google.com>
+ <95c3cce88560024566f3b4b0061ca7e62a8a4286.camel@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <0D3A45FE-5367-40CD-A035-37F6EE98B25E@vmware.com>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.102.169]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
+In-Reply-To: <95c3cce88560024566f3b4b0061ca7e62a8a4286.camel@intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/11/16 7:38, Nadav Amit wrote:
-> On Nov 14, 2022, at 7:14 PM, Yicong Yang <yangyicong@huawei.com> wrote:
+On Tue, Nov 15, 2022, Huang, Kai wrote:
+> On Wed, 2022-11-02 at 23:19 +0000, Sean Christopherson wrote:
+> > +static bool __init kvm_is_vmx_supported(void)
+> > +{
+> > +	if (!cpu_has_vmx()) {
+> > +		pr_err("CPU doesn't support VMX\n");
+> > +		return false;
+> > +	}
+> > +
+> > +	if (!boot_cpu_has(X86_FEATURE_MSR_IA32_FEAT_CTL) ||
+> > +	    !boot_cpu_has(X86_FEATURE_VMX)) {
+> > +		pr_err("VMX not enabled in MSR_IA32_FEAT_CTL\n");
+> > +		return false;
+> > +	}
+> > +
+> > +	return true;
+> > +}
+> > +
+> >  static int __init vmx_check_processor_compat(void)
+> >  {
+> >  	struct vmcs_config vmcs_conf;
+> >  	struct vmx_capability vmx_cap;
+> >  
+> > -	if (!this_cpu_has(X86_FEATURE_MSR_IA32_FEAT_CTL) ||
+> > -	    !this_cpu_has(X86_FEATURE_VMX)) {
+> > -		pr_err("VMX is disabled on CPU %d\n", smp_processor_id());
+> > +	if (!kvm_is_vmx_supported())
+> >  		return -EIO;
+> > -	}
+> >  
 > 
->> diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
->> index 8a497d902c16..5bd78ae55cd4 100644
->> --- a/arch/x86/include/asm/tlbflush.h
->> +++ b/arch/x86/include/asm/tlbflush.h
->> @@ -264,7 +264,8 @@ static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
->> }
->>
->> static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
->> -					struct mm_struct *mm)
->> +					struct mm_struct *mm,
->> +					unsigned long uaddr)
-> 
-> Logic-wise it looks fine. I notice the â€œv6", and it should not be blocking,
-> but I would note that the name "arch_tlbbatch_add_mm()â€ does not make much
-> sense once the function also takes an address.
-> 
+> Looks there's a functional change here -- the old code checks local cpu's
+> feature bits but the new code always checks bsp's feature bits.  Should have no
+> problem I think, though.
 
-ok the add_mm should still apply to x86 since the address is not used, but not for arm64.
-
-> It couldâ€™ve been something like arch_set_tlb_ubc_flush_pending() but thatâ€™s
-> too long. Iâ€™m not very good with naming, but the current name is not great.
-> 
-
-What about arch_tlbbatch_add_pending()? Considering the x86 is pending the flush operation
-while arm64 is pending the sychronization operation, arch_tlbbatch_add_pending() should
-make sense to both.
-
-Thanks.
-
+Ouch.  The bad check will defeat the purpose of doing compat checks.  Nice catch!
