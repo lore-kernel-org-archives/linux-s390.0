@@ -2,57 +2,165 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4764EC4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 15:45:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DA0BC4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 15:52:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232990AbiKPPpV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Nov 2022 10:45:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56772 "EHLO
+        id S233452AbiKPPwg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Nov 2022 10:52:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233247AbiKPPpQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Nov 2022 10:45:16 -0500
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5411B1139;
-        Wed, 16 Nov 2022 07:45:12 -0800 (PST)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id B04AC68AA6; Wed, 16 Nov 2022 16:45:07 +0100 (CET)
-Date:   Wed, 16 Nov 2022 16:45:07 +0100
-From:   Christoph Hellwig <hch@lst.de>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Dean Luick <dean.luick@cornelisnetworks.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org, linux-rdma@vger.kernel.org,
-        iommu@lists.linux.dev, linux-media@vger.kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: Re: [PATCH 2/7] RDMA/hfi1: don't pass bogus GFP_ flags to
- dma_alloc_coherent
-Message-ID: <20221116154507.GB18491@lst.de>
-References: <20221113163535.884299-1-hch@lst.de> <20221113163535.884299-3-hch@lst.de> <c7c6eb30-4b54-01f7-9651-07deac3662bf@cornelisnetworks.com> <be8ca3f9-b7f7-5402-0cfc-47b9985e007b@arm.com>
+        with ESMTP id S233490AbiKPPwd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Nov 2022 10:52:33 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A26A853EE6
+        for <linux-s390@vger.kernel.org>; Wed, 16 Nov 2022 07:52:31 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id b1-20020a17090a7ac100b00213fde52d49so2786031pjl.3
+        for <linux-s390@vger.kernel.org>; Wed, 16 Nov 2022 07:52:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=coErVjWyqhzO9EuKB5XSmlh7IJj5NvKWNvG7xdrbhC4=;
+        b=Axl8RQ6KDdRrT9Z9C/Q7WDP07ILGsJIsXvmq6hEH7xYRxr1KYM7WfFS4wN+lhhZ4fX
+         c4Jtlogr7Ros9vXyyEFv/zFAE8+4peFtT7kH9mbNBRnzYJ/2b8sYrYCafzb/t5b9hh4H
+         MzZxnel8UMmtPU7lGv2FYN+iMfYeZiXKTt6kJLjx0bmpPltUoJ0RtRfd1Ec/nG1HLpUR
+         NvlX1cr6oDpawENjKiQcMRdisM4zgyG2koLhhizlhvLd74nRufWrbXHhbtX0zrVof0Oh
+         3EiecDo5X1cIJiERj7KVmypmulB3/lI1LWoLIDeuu1zT2CC/G2udJFJRosnSOWJ19zuG
+         AhsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=coErVjWyqhzO9EuKB5XSmlh7IJj5NvKWNvG7xdrbhC4=;
+        b=zHnhe5QPjXf355CPMie8Haliyc3MYlxvqK/44CF25ewXG0VyXXbTR/3gLoltAomx6R
+         7Esa0hp3eJQsqEs7EZ5Bmv11nIKR3HUqY7kpG3napaueVc+3CJb4+6ygKdu3+JN5k9Up
+         SI89F8y9fwmeIIIQpOOi4RULdc9pwuM7sPgeve8sltPnkU3gHi9dia44XhN9U8Npx/HA
+         VBDQF33rr48l3hZjnCc9JSi1An43doej9KqUeZFNLZahMlma84pKcl2uLJk1OPNl8VIO
+         EAKRE8JxK9yt+T8gBUlTSnmzw3sYFXTQa+8dRrpClCUhMtRXednZc8S3+gc0gWWXpo93
+         TYzg==
+X-Gm-Message-State: ANoB5plQVVBecQlejdfckaN5MmFmhpfRuYnXnA6cvJtcBtArvSluN5FL
+        UjMB2APoWURTi7/xUGZg/AFGjw==
+X-Google-Smtp-Source: AA0mqf7dFwkFbcATwoaCt8aciY1qylOnTaB4gr/nPlKa0OFTmbzR8xQHyljgxnYchchnXSvQiHP/Xg==
+X-Received: by 2002:a17:902:6944:b0:188:640f:f401 with SMTP id k4-20020a170902694400b00188640ff401mr9754670plt.44.1668613950911;
+        Wed, 16 Nov 2022 07:52:30 -0800 (PST)
+Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
+        by smtp.gmail.com with ESMTPSA id b14-20020a170902650e00b00177e5d83d3esm12341507plk.88.2022.11.16.07.52.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Nov 2022 07:52:30 -0800 (PST)
+Date:   Wed, 16 Nov 2022 15:52:26 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     "Huang, Kai" <kai.huang@intel.com>
+Cc:     "imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>,
+        "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
+        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
+        "vkuznets@redhat.com" <vkuznets@redhat.com>,
+        "farman@linux.ibm.com" <farman@linux.ibm.com>,
+        "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
+        "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>,
+        "palmer@dabbelt.com" <palmer@dabbelt.com>,
+        "maz@kernel.org" <maz@kernel.org>,
+        "anup@brainfault.org" <anup@brainfault.org>,
+        "pbonzini@redhat.com" <pbonzini@redhat.com>,
+        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "aleksandar.qemu.devel@gmail.com" <aleksandar.qemu.devel@gmail.com>,
+        "frankja@linux.ibm.com" <frankja@linux.ibm.com>,
+        "oliver.upton@linux.dev" <oliver.upton@linux.dev>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "Yao, Yuan" <yuan.yao@intel.com>,
+        "farosas@linux.ibm.com" <farosas@linux.ibm.com>,
+        "david@redhat.com" <david@redhat.com>,
+        "james.morse@arm.com" <james.morse@arm.com>,
+        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
+        "alexandru.elisei@arm.com" <alexandru.elisei@arm.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "Yamahata, Isaku" <isaku.yamahata@intel.com>,
+        "kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
+        "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>,
+        "kvm-riscv@lists.infradead.org" <kvm-riscv@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>,
+        "Gao, Chao" <chao.gao@intel.com>,
+        "atishp@atishpatra.org" <atishp@atishpatra.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>
+Subject: Re: [PATCH 13/44] KVM: x86: Serialize vendor module initialization
+ (hardware setup)
+Message-ID: <Y3UHOg7E0iRFpjml@google.com>
+References: <20221102231911.3107438-1-seanjc@google.com>
+ <20221102231911.3107438-14-seanjc@google.com>
+ <e8e3b4c7bf3bd733c626618b57f9bf2f1835770e.camel@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <be8ca3f9-b7f7-5402-0cfc-47b9985e007b@arm.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+In-Reply-To: <e8e3b4c7bf3bd733c626618b57f9bf2f1835770e.camel@intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 16, 2022 at 03:15:10PM +0000, Robin Murphy wrote:
-> Coherent DMA buffers are allocated by a kernel driver or subsystem for the 
-> use of a device managed by that driver or subsystem, and thus they 
-> fundamentally belong to the kernel as proxy for the device. Any coherent 
-> DMA buffer may be mapped to userspace with the dma_mmap_*() interfaces, but 
-> they're never a "userspace allocation" in that sense.
+On Wed, Nov 16, 2022, Huang, Kai wrote:
+> On Wed, 2022-11-02 at 23:18 +0000, Sean Christopherson wrote:
+> > Acquire a new mutex, vendor_module_lock, in kvm_x86_vendor_init() while
+> > doing hardware setup to ensure that concurrent calls are fully serialized.
+> > KVM rejects attempts to load vendor modules if a different module has
+> > already been loaded, but doesn't handle the case where multiple vendor
+> > modules are loaded at the same time, and module_init() doesn't run under
+> > the global module_mutex.
+> > 
+> > Note, in practice, this is likely a benign bug as no platform exists that
+> > supports both SVM and VMX, i.e. barring a weird VM setup, one of the
+> > vendor modules is guaranteed to fail a support check before modifying
+> > common KVM state.
+> > 
+> > Alternatively, KVM could perform an atomic CMPXCHG on .hardware_enable,
+> > but that comes with its own ugliness as it would require setting
+> > .hardware_enable before success is guaranteed, e.g. attempting to load
+> > the "wrong" could result in spurious failure to load the "right" module.
+> > 
+> > Introduce a new mutex as using kvm_lock is extremely deadlock prone due
+> > to kvm_lock being taken under cpus_write_lock(), and in the future, under
+> > under cpus_read_lock().  Any operation that takes cpus_read_lock() while
+> > holding kvm_lock would potentially deadlock, e.g. kvm_timer_init() takes
+> > cpus_read_lock() to register a callback.  In theory, KVM could avoid
+> > such problematic paths, i.e. do less setup under kvm_lock, but avoiding
+> > all calls to cpus_read_lock() is subtly difficult and thus fragile.  E.g.
+> > updating static calls also acquires cpus_read_lock().
+> > 
+> > Inverting the lock ordering, i.e. always taking kvm_lock outside
+> > cpus_read_lock(), is not a viable option, e.g. kvm_online_cpu() takes
+> > kvm_lock and is called under cpus_write_lock().
+> 
+> "kvm_online_cpu() takes kvm_lock and is called under cpus_write_lock()" hasn't
+> happened yet.
 
-Exactly.  I could not find a place to map the buffers to userspace,
-so if it does that without using the proper interfaces we need to fix
-that as well.  Dean, can you point me to the mmap code?
+Doh, right.  Thanks!
+
+> > The lockdep splat below is dependent on future patches to take
+> > cpus_read_lock() in hardware_enable_all(), but as above, deadlock is
+> > already is already possible.
+> 
+> IIUC kvm_lock by design is supposed to protect vm_list, thus IMHO naturally it
+> doesn't fit to protect multiple vendor module loading.
+
+A different way to look at it is that kvm_lock protects anything that is global to
+all of KVM, and it just so happens that lists and counters of VMs are the only
+such resources (lumping in the usage in vm_uevent_notify_change() and the future
+usage to protect kvm_usage_count).
+
+> Looks above argument is good enough.  I am not sure  whether we need additional
+> justification which comes from future patches. :)
+
+To try to prevent someone from trying to eliminate the "extra" lock, like this
+series does for kvm_count_lock.  Hopefully future someones that want to clean up
+the code do a git blame to understand why the lock was introduced and don't waste
+their time running into the same issues (or worse, don't run into the issues and
+break KVM).
+
+> Also, do you also want to update Documentation/virt/kvm/locking.rst" in this
+> patch?
+
+Hmm, yeah.  That'd also be a good place to document why kvm_lock isn't used.
