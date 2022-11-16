@@ -2,124 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA884C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 18:37:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1087C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 19:37:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234261AbiKPShn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Nov 2022 13:37:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40474 "EHLO
+        id S234348AbiKPThH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Nov 2022 14:37:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239236AbiKPShj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Nov 2022 13:37:39 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BD91F5B5B0;
-        Wed, 16 Nov 2022 10:37:38 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C141E1477;
-        Wed, 16 Nov 2022 10:37:44 -0800 (PST)
-Received: from [10.57.70.190] (unknown [10.57.70.190])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EE3123F587;
-        Wed, 16 Nov 2022 10:37:35 -0800 (PST)
-Message-ID: <29d11541-8c11-4c3e-db76-a982751e61e6@arm.com>
-Date:   Wed, 16 Nov 2022 18:37:10 +0000
+        with ESMTP id S233774AbiKPThA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Nov 2022 14:37:00 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A53DCC;
+        Wed, 16 Nov 2022 11:36:59 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AGJMW4D029970;
+        Wed, 16 Nov 2022 19:36:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=DH6SSOEc4QFO33yxxehih3j5s7PtpOkQskyPJnQBR5A=;
+ b=TQmEIzVllm8hp7+JycZE4usx2fsWNV+7/3rZd6+AH1zW1kZuoNJNy8CnyxiJrB7H4+RM
+ 2fPGZDhVAfzSzYzAmRdEc2z29vlMZqHSh9zL7JuW8Blu6Ijz/ka5g054jrYQKuQUFLIt
+ JeAoF7i+Fv+Vne9AcD1r114+C8wLqijSx856Yt9oOkvloa5gzIs+WGXTxObc7JF12MTt
+ wQK3CcU+4RN3u6dKdDcX34LyNmnEzFlQyeHJu/MXPZkSbxQ2jC9NOtvcpXKYEHRwbC6r
+ 5MU9dmwwxFg8fh3Wc5BbthfeCqBYqNRQZhX5vBRzNK4D5l7vT9OwwfaVv5JSQE+wYmRG Iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kw5qx0nn2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 19:36:53 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AGJU71F017579;
+        Wed, 16 Nov 2022 19:36:53 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kw5qx0nm2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 19:36:52 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AGJammc018205;
+        Wed, 16 Nov 2022 19:36:51 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kt2rjef2a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 19:36:50 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AGJbRUd47972712
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Nov 2022 19:37:27 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BE8F642041;
+        Wed, 16 Nov 2022 19:36:47 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 117184203F;
+        Wed, 16 Nov 2022 19:36:47 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.74.24])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 16 Nov 2022 19:36:46 +0000 (GMT)
+Message-ID: <8708073bdd4c90dbc25ee3711afc59585bc0d740.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 1/9] s390/uaccess: Add storage key checked cmpxchg
+ access to user space
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Date:   Wed, 16 Nov 2022 20:36:46 +0100
+In-Reply-To: <Y2J61LWSV+HolIeT@osiris>
+References: <20221012205609.2811294-1-scgl@linux.ibm.com>
+         <20221012205609.2811294-2-scgl@linux.ibm.com> <Y2J61LWSV+HolIeT@osiris>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: [PATCH 2/7] RDMA/hfi1: don't pass bogus GFP_ flags to
- dma_alloc_coherent
-Content-Language: en-GB
-To:     Dean Luick <dean.luick@cornelisnetworks.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Russell King <linux@armlinux.org.uk>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-rdma@vger.kernel.org,
-        iommu@lists.linux.dev, linux-media@vger.kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        alsa-devel@alsa-project.org
-References: <20221113163535.884299-1-hch@lst.de>
- <20221113163535.884299-3-hch@lst.de>
- <c7c6eb30-4b54-01f7-9651-07deac3662bf@cornelisnetworks.com>
- <be8ca3f9-b7f7-5402-0cfc-47b9985e007b@arm.com>
- <87b12755-15d6-1064-1559-8951c1252eaa@cornelisnetworks.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <87b12755-15d6-1064-1559-8951c1252eaa@cornelisnetworks.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8rNDyfkwXGqzGyWgjQrvZc4GBkeCgvZO
+X-Proofpoint-ORIG-GUID: -2soOmSqiw_9D_UyFiUzwkIk_ugHFxkv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-16_03,2022-11-16_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ suspectscore=0 impostorscore=0 bulkscore=0 clxscore=1015
+ priorityscore=1501 spamscore=0 mlxlogscore=999 adultscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211160134
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022-11-16 16:21, Dean Luick wrote:
-> On 11/16/2022 9:15 AM, Robin Murphy wrote:
->> On 2022-11-16 14:40, Dean Luick wrote:
->>> On 11/13/2022 10:35 AM, Christoph Hellwig wrote:
->>>> dma_alloc_coherent is an opaque allocator that only uses the GFP_ flags
->>>> for allocation context control.  Don't pass GFP_USER which doesn't make
->>>> sense for a kernel DMA allocation or __GFP_COMP which makes no sense
->>>> for an allocation that can't in any way be converted to a page pointer.
->>>>
->>>> Signed-off-by: Christoph Hellwig <hch@lst.de>
->>>> ---
->>>>    drivers/infiniband/hw/hfi1/init.c | 21 +++------------------
->>>>    1 file changed, 3 insertions(+), 18 deletions(-)
->>>>
->>>> diff --git a/drivers/infiniband/hw/hfi1/init.c b/drivers/infiniband/hw/hfi1/init.c
->>>> index 436372b314312..24c0f0d257fc9 100644
->>>> --- a/drivers/infiniband/hw/hfi1/init.c
->>>> +++ b/drivers/infiniband/hw/hfi1/init.c
->>>> @@ -1761,17 +1761,11 @@ int hfi1_create_rcvhdrq(struct hfi1_devdata *dd, struct hfi1_ctxtdata *rcd)
->>>>         unsigned amt;
->>>>
->>>>         if (!rcd->rcvhdrq) {
->>>> -             gfp_t gfp_flags;
->>>> -
->>>>                 amt = rcvhdrq_size(rcd);
->>>>
->>>> -             if (rcd->ctxt < dd->first_dyn_alloc_ctxt || rcd->is_vnic)
->>>> -                     gfp_flags = GFP_KERNEL;
->>>> -             else
->>>> -                     gfp_flags = GFP_USER;
->>>>                 rcd->rcvhdrq = dma_alloc_coherent(&dd->pcidev->dev, amt,
->>>>                                                   &rcd->rcvhdrq_dma,
->>>> -                                               gfp_flags | __GFP_COMP);
->>>> +                                               GFP_KERNEL);
->>>
->>> A user context receive header queue may be mapped into user space.  Is that not the use case for GFP_USER?  The above conditional is what decides.
->>>
->>> Why do you think GFP_USER should be removed here?
->>
->> Coherent DMA buffers are allocated by a kernel driver or subsystem for the use of a device managed by that driver or subsystem, and thus they fundamentally belong to the kernel as proxy for the device. Any coherent DMA buffer may be mapped to userspace with the dma_mmap_*() interfaces, but they're never a "userspace allocation" in that sense.
+On Wed, 2022-11-02 at 15:12 +0100, Heiko Carstens wrote:
 > 
-> My (seemingly dated) understanding is that GFP_USER is for kernel allocations that may be mapped into user space.  The description of GFP_USER in gfp_types.h enforces my understanding.  Is my uderstanding no longer correct?  If not, then what is the point of GFP_USER?  Is GFP_USER now mostly an artifact?  Should its description be updated?
+[...]
 
-I think there's a subtle distinction between userspace memory which may 
-be shared with DMA, and DMA memory which may be shared with userspace. 
-My reading is that GFP_USER (vs. GFP_HIGHUSER or GFP_HIGHUSER_MOVABLE) 
-matters for the former case, where you might use alloc_pages(), but 
-intend to come back and do dma_map_single() at some point afterwards. 
-For dma_alloc_coherent(), it's clearly always a DMA allocation from the 
-off, so whether it might also end up mmap()ed into one or more processes 
-later doesn't really have much practical impact.
+> I also did not limit the number of retries for the one and two byte
+> scenarion. Before doing that we need to have proof that there really is a
+> problem. Maybe Nico or you will give this a try.
 
-> Presently, the difference between GFP_KERNEL and GFP_USER is __GFP_HARDWALL.  This enforces cpuset allocation policy. If HARDWALL is not set, the allocator will back off to the nearest memory ancestor if needed.  The back off seems like a reasonable general policy.  I do have one concern that may be hypothetical: if GFP_KERNEL is used and a buffer is silently pushed out of the expected cpuset, this can lead to mysterious slowdowns.
+I wrote a memop selftest testcase where the main thread uses the one byte cmpxchg
+while n vcpus flip adjacent bits. The time the test case runs increases superlinearly with n.
+With 248 vcpus, 1000 one byte cmpxchgs take 25s.
+I'm not sure how meaningful the test is since the worst case would be if the threads hammering
+the word would run on a cpu dedicated to them.
 
-Note that NUMA-aware dma_alloc_coherent() implementations do try to 
-place the buffer close to the device (since typically over its lifetime 
-it may be accessed by any CPU, but not any other device), therefore not 
-being bound by process restrictions is arguably right for that. If a 
-process is bound to a different node than a device it's trying to use 
-then *something's* going to have to eat the cross-node latency either 
-way. I suppose one could argue that GFP_USER might make sense when it's 
-known that the device is only ever going to use this buffer for work on 
-behalf of the current process, and thus it could be accounted to the 
-process instead of the kernel, but that seems incredibly niche and 
-likely to be far outweighed by people just using it wrong.
+In any case, why not err on the side of caution and limit the iterations?
+I'll send an rfc patch.
+> 
+> Thanks,
+> Heiko
 
-Thanks,
-Robin.
