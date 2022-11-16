@@ -2,61 +2,43 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 685BFC433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 17:50:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA884C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 18:37:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233358AbiKPRuH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Nov 2022 12:50:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33814 "EHLO
+        id S234261AbiKPShn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Nov 2022 13:37:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238910AbiKPRt7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Nov 2022 12:49:59 -0500
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2098.outbound.protection.outlook.com [40.107.212.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CEC660E9E;
-        Wed, 16 Nov 2022 09:49:58 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LfvlupamU2Rx6w/iydZtxGugHLZbi9Vd+/DXYvewhTqYMPZyeu9VY+xbf9ELBtVizoAnwNYQSbF9r3DtMgxVwJTgCGtmaMwJhsUfordNfbPMGvyHb9Z4msYRJbpg89f+XoXB0ZE2Dioajx1EVQjI/XZcFBGkzedxylP7JP0CnWi6R7BeZgYbRbEVWUs1XDZdztKWRKpbdU7DHpm4Oro9dMK5zFIiEUjbgoolAtSLK8Z+Fij5EbbBckxAFxjtDy5qbsc6y3Am8BMeFxLm0bSSNffGlidiOnFuMVvQUTztnNmCjV1uiYbGtsNJ1WGd6TBUq+fbXIK+RSHnnFqsYmQVeQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ZbWfYMceu15BKWlDqM63CTvXdtZVKHF8yk60E2SsBr0=;
- b=TyrXp/SvoKcHb6aonjFz4KAaG+WOUhxNiD/gYyaU/HJQybLR1Ui3GuY89ObYUIssUyGmgSNLi8Zrq9AmjX7y+bD38mZEh8ScQOqTydV7P8loTf9H13ue8aedZLAQxt82eEm7FStI689OEl9lfeEipt9F2QU8XjlYiWozvjdglWgnFYhqTS+NY2V7ptbQLMD1KCUlwbRBL/DCUDHLa6PypwBfs4q+YbA7IeVMoUV9kQN1d8WzhKPmsWvrVs9sMZHlZ0bhfgru9XYBWECISCdUsv2bgbtKYdFSrTTtnEzbLePfuG8aQymUB97gp+hLSz5FaqxL5nsYzramLE5TgXUEhQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cornelisnetworks.com; dmarc=pass action=none
- header.from=cornelisnetworks.com; dkim=pass header.d=cornelisnetworks.com;
- arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cornelisnetworks.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ZbWfYMceu15BKWlDqM63CTvXdtZVKHF8yk60E2SsBr0=;
- b=eRZwai0ZFDVfN54Y24Kfw7Kdvs/5ifNJ42lbY/M3WyHfxm0h80WJng2MsFnXdvtiYiKIPMu2Ngilw6mC7zS2CpcOK0ad2YqX8DiN7F5Sc9Xtz+41WwQY7n+YKVGFY2R0PPHeGmiVddsRVeSV9+8r1/+FnEtcvZsC0ng6VUqIVZJvuJ7aEMfyV2MarcVUb9TNPTotofXMSLHQsp/3NyQ/5aMnVmH4gj73CErw2Fqvt0gDIDnmifooJwVgmnWpY3QKSywghU1kIaeoG2Kks5sXL651f1F6ZzL2jvWJv7FWz+CnGpQhfbxscEALzb7lfSwUrAficpL2r7Ns89hZGSb33Q==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=cornelisnetworks.com;
-Received: from BL0PR01MB4131.prod.exchangelabs.com (2603:10b6:208:42::20) by
- SN6PR01MB5248.prod.exchangelabs.com (2603:10b6:805:d1::19) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5813.17; Wed, 16 Nov 2022 17:49:54 +0000
-Received: from BL0PR01MB4131.prod.exchangelabs.com
- ([fe80::619b:37fc:f005:109b]) by BL0PR01MB4131.prod.exchangelabs.com
- ([fe80::619b:37fc:f005:109b%4]) with mapi id 15.20.5813.019; Wed, 16 Nov 2022
- 17:49:54 +0000
-Message-ID: <2c60c692-58d7-d06d-826e-ea49bb1eca13@cornelisnetworks.com>
-Date:   Wed, 16 Nov 2022 11:49:21 -0600
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
+        with ESMTP id S239236AbiKPShj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Nov 2022 13:37:39 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BD91F5B5B0;
+        Wed, 16 Nov 2022 10:37:38 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C141E1477;
+        Wed, 16 Nov 2022 10:37:44 -0800 (PST)
+Received: from [10.57.70.190] (unknown [10.57.70.190])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EE3123F587;
+        Wed, 16 Nov 2022 10:37:35 -0800 (PST)
+Message-ID: <29d11541-8c11-4c3e-db76-a982751e61e6@arm.com>
+Date:   Wed, 16 Nov 2022 18:37:10 +0000
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
 Subject: Re: [PATCH 2/7] RDMA/hfi1: don't pass bogus GFP_ flags to
  dma_alloc_coherent
-Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>, Robin Murphy <robin.murphy@arm.com>
-Cc:     Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+Content-Language: en-GB
+To:     Dean Luick <dean.luick@cornelisnetworks.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Alexandra Winter <wintera@linux.ibm.com>,
         Wenjia Zhang <wenjia@linux.ibm.com>,
         Marek Szyprowski <m.szyprowski@samsung.com>,
         Jaroslav Kysela <perex@perex.cz>,
         Takashi Iwai <tiwai@suse.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org, linux-rdma@vger.kernel.org,
+        Russell King <linux@armlinux.org.uk>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-rdma@vger.kernel.org,
         iommu@lists.linux.dev, linux-media@vger.kernel.org,
         netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         alsa-devel@alsa-project.org
@@ -64,96 +46,80 @@ References: <20221113163535.884299-1-hch@lst.de>
  <20221113163535.884299-3-hch@lst.de>
  <c7c6eb30-4b54-01f7-9651-07deac3662bf@cornelisnetworks.com>
  <be8ca3f9-b7f7-5402-0cfc-47b9985e007b@arm.com>
- <20221116154507.GB18491@lst.de>
-From:   Dean Luick <dean.luick@cornelisnetworks.com>
-In-Reply-To: <20221116154507.GB18491@lst.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-ClientProxiedBy: CH0PR04CA0093.namprd04.prod.outlook.com
- (2603:10b6:610:75::8) To BL0PR01MB4131.prod.exchangelabs.com
- (2603:10b6:208:42::20)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL0PR01MB4131:EE_|SN6PR01MB5248:EE_
-X-MS-Office365-Filtering-Correlation-Id: 33e3400e-ea22-452b-cd07-08dac7faf7a8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: I/FqSD1vxtghMTJgL9Y26aVrAiTDE36ZoX6d1B2zNGUoAOGu58wH9zyQYgvxf+4ZLNAdB3YRmeGPlQ0hQq6moj4F4YWCXFAY3q0iDlvX7Fibty3zLqW699s68aLIh/g176hjwfEzd/XD8gbnfXYKe9eNbg11Yue56vOkf8DWFrVPxTEncJPrdVRec9CUBkA16W9pkGp08muO+IUl/PFKEpSK1ymOORXNiW2yszwvFoFyVsOyJBscZ9wlWn6lJCuy/fuHAe/h5bI1S6XGX2vFEx59pJ4N7A++DQn2LSsQvxNtQDArWQk0oELSrfEMuYrcLLAh972emzHZuiXGdLchv+uv+kz1MjWgsa2kMRq6C9O4ud1nukO9pk9rriX8BxsJ+e3CF8xK1Gx+5htEOM67qz1c2QcMzv56MYd6y9nGr96TC80QI28aKreo0wBQmVQvCaXhTChRsknW/BkrnUPyKmK0tGjVYvtOfKPp9g2lrMEQNIp5slJcbAmy9YXZwiSOh/lCD2spAVUUjruIGWkZHa9+80DSdrW8ifMQ0MyXyQmJ76gz8PigoRv6WxmOWIZ10uwq2IclQ5T27/aPlRRqqQbMY62ywiSzE5OuKA50qXZvwcCvqHLXyBqsFn38xmVQlD7NGzUkf+4GWmHIhnGrEs86/1BtDCU5p+W2Dc781bVIxm9/lRn5veg9qcZsVR5k2OBhV4QUY/g/Qa4nhYnvHt3cdDsG1shKtMyBQaEUm0l/yfXEgBXH/3nvQ70w5yQK
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR01MB4131.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(376002)(346002)(39840400004)(136003)(396003)(451199015)(2906002)(31686004)(66556008)(8676002)(66946007)(66476007)(2616005)(41300700001)(36756003)(31696002)(86362001)(316002)(38100700002)(6506007)(4326008)(83380400001)(110136005)(186003)(6512007)(5660300002)(8936002)(44832011)(54906003)(6486002)(478600001)(53546011)(6666004)(7416002)(26005)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cmptTU5HZnFNVWVtQ3VDd2JiZHFVajRQTGJrN3RnSDE5Vi9zNEE5Vmc1U1lM?=
- =?utf-8?B?anBsdFVEd2N0LzluYVlqSWVCVTRuMlEyQkNaaUhzSmI0ZWRtQkV1YnZObStz?=
- =?utf-8?B?ZU5udFN6TnlqV3Z3cUJpRDBBVzlyODh4MFpTTlo4eUp6UnI2eDBzT005Tmp6?=
- =?utf-8?B?eC9HUWJMQnJuTG1MTUZCaTNxenI3eTVVWWZ6Rjl6L25mUTY0NU0xb01vdTho?=
- =?utf-8?B?YXZKK0gyUVM5RG5MdlZYc0dCSE5lQUtxVXV6YW5ZdzlGUTJFelFrZXNZcGlh?=
- =?utf-8?B?ajlGK0wrc1FtZmhjSTJpMG4xZmNkWVhlYXBjbDJ6Sk9DVEo2SmVKUUk3clZ1?=
- =?utf-8?B?SmJWTlY0TFRNZklEalFuTXBhbUJ2Yndzb1NnOVA0a2dWcDNuaXUwbkFUTlZ6?=
- =?utf-8?B?MkZlV3ZwK2dpaXRaa08wWEllTnRhRFN5N0dDcmdZdit0VkRQcVFFQzFVRTd5?=
- =?utf-8?B?OUFDSzdxTjgxWmJiaVZzeXhIM2w3SlBBbTVnTERrc0N5YW1TaTRFOTljanc3?=
- =?utf-8?B?MHdBbmJaeDVnMEt1a01hdXBpOE9OQ0N5ZEl1QzI0dGI1K3ZlU0Y3WHhiekxs?=
- =?utf-8?B?RjE3aDk5TldyQkQvVmFnamdtMGEzSTd2aHR5bDhMUDUrZ0F3azMyRlR0Zm8y?=
- =?utf-8?B?STNraHVUbkVsbXJlemxkUk1MQ3R3NEtDZ1BBMDU2Qm9XQkE5SlBXbGQ1aURP?=
- =?utf-8?B?TlBmZnRCWG9UMm5BajY4UUFscWhFOGFVWDB2OVpvWE1UNlBrVVRmMzJPMC96?=
- =?utf-8?B?dUFJcnY5ZUdUVC9nOUFMSGVpSHJySVFuRlZ1eGhuUGFhZm9BY054UnpxdUlz?=
- =?utf-8?B?VndTM2ZaSWhQYTd1NkhJc2E0amZuZ1JIelQvYXdPdE5uWEt1UWthdWRzNGNw?=
- =?utf-8?B?Mm52U3VrVnhWR1g1cVlqb3N0Y1l0TmF1SFovY2dVd3hXTldwaUxNQ0pWbVB4?=
- =?utf-8?B?bWQ4NWM3ZXJpZzlJZElOTThJcS94VFJudDN3SXR1ZjlhQWlWUHBmUVVnUWVr?=
- =?utf-8?B?UFhJNG5VVzRpM0JKemZLTE1KTWxidWlpV0RKQ1NGUGd5NyszWWpaN3ZQMjNs?=
- =?utf-8?B?ZGZ5ak9Ua1dCUzV5RnJiSzdoZVdpT1VlNW1kc2JXMDNIaVBEVzN3U3djQ3c1?=
- =?utf-8?B?bC9WTytHQU9WUGtVRmYydDlsVnZZdFZ3eXdCQjdyOUNPdTZ1MzlKeitpRWJL?=
- =?utf-8?B?TndRL09VSVZtZTFrelJOUytFZDJHTzEzU0lTalNma1BOQXRrZnJpZTNuNTF0?=
- =?utf-8?B?amRWQ1ZBMGRrVnJKTU94U25qZm5qdXJMSkFFUVM1RUhVVEJvWFduQU1rYlU2?=
- =?utf-8?B?YVFkbUpJT3FOLzVqTlpTbEhDM1U5Z3FpcHE1TTlLNjhQMkgrQ3VYbDh2QVRQ?=
- =?utf-8?B?bDBiT0tKR1JFR3ZDNkpwU25tWjQxVnk2TXRIaVJvV1JLSTh3SkVFTWN3UVRC?=
- =?utf-8?B?aTRxdUVnQjVvY3F0c08xZEsrMkVVcUVpK01pMDRWVFBxMUdEaFFwbEpvdnJT?=
- =?utf-8?B?bWZDNzNtazdjcGFhbkh3UHkyMW9ETTJ4MzVDa0hXcmVVNEVkdHUwRDE1R2Jz?=
- =?utf-8?B?TmlsSjc5WTM3SXhhZnliY2hySTA0YllwTG1ZSVVrVkc1ZHdmZ1lJZWFSNjFy?=
- =?utf-8?B?dFRlOU52eHhJdFBoS2JwN05yV2hhR2NKQ0t2Q2lZUjF2czNidHQvZ3cvQ2xk?=
- =?utf-8?B?R21iQ1U5OUZ2K01iR2NLQjNzbm5uUG0rMVl4cE1Bc2M0QnM0cmcwYVBkQU9m?=
- =?utf-8?B?dEJlVlZ1VzUyRVVPblFselBQOXVMRmdtMHdXTTJRc3lESkVScVlhU0tmUG5T?=
- =?utf-8?B?WjFZb1VRbjJUNjhnSjdxK2pTNnIvbVkzNGFnak82am9hNkdaNGN5UTB4RlJM?=
- =?utf-8?B?V3FCZDkxZEtFQThVZk9qOGlsbmsrWjJwNUhVM2FFdzZJSnU2S2lBcHVZc0Jq?=
- =?utf-8?B?cVFWUklHU3BFUGRSV2txRE84YkIrcXV5K2w2NVBVNVROYWwrNUFxb0JIekds?=
- =?utf-8?B?Ump5TEJVZWVZWTZVbkZiSmFDOXNIY3pJYzl6SjVwZVNFUjV2TVFtT24vSFVy?=
- =?utf-8?B?aG5rOVdwcFVEWEd0VFdweWsxcDNpeTJiMW9xY2EvTHFPQWxwNlNyanAxSlgw?=
- =?utf-8?B?ZmNDbmRsZXBrSDNhV0JCTTM0NWY3RHZhZExRa0RIdmVKQS9wMFJxQjh2TDlj?=
- =?utf-8?B?N1E9PQ==?=
-X-OriginatorOrg: cornelisnetworks.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 33e3400e-ea22-452b-cd07-08dac7faf7a8
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR01MB4131.prod.exchangelabs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Nov 2022 17:49:54.2757
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4dbdb7da-74ee-4b45-8747-ef5ce5ebe68a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: jNKbPQLs0VMtzLVXcwchdYHN5xj3r15rggON2IKSlyrJooKsTDLaG85RgX1lcqgzoCbfzjXUWzVR+RT80rdHhPwE3s7vz7UG4IVRAyJTBoE=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR01MB5248
+ <87b12755-15d6-1064-1559-8951c1252eaa@cornelisnetworks.com>
+From:   Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <87b12755-15d6-1064-1559-8951c1252eaa@cornelisnetworks.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/16/2022 9:45 AM, Christoph Hellwig wrote:
-> On Wed, Nov 16, 2022 at 03:15:10PM +0000, Robin Murphy wrote:
->> Coherent DMA buffers are allocated by a kernel driver or subsystem for t=
-he
->> use of a device managed by that driver or subsystem, and thus they
->> fundamentally belong to the kernel as proxy for the device. Any coherent
->> DMA buffer may be mapped to userspace with the dma_mmap_*() interfaces, =
-but
->> they're never a "userspace allocation" in that sense.
->
-> Exactly.  I could not find a place to map the buffers to userspace,
-> so if it does that without using the proper interfaces we need to fix
-> that as well.  Dean, can you point me to the mmap code?
+On 2022-11-16 16:21, Dean Luick wrote:
+> On 11/16/2022 9:15 AM, Robin Murphy wrote:
+>> On 2022-11-16 14:40, Dean Luick wrote:
+>>> On 11/13/2022 10:35 AM, Christoph Hellwig wrote:
+>>>> dma_alloc_coherent is an opaque allocator that only uses the GFP_ flags
+>>>> for allocation context control.  Don't pass GFP_USER which doesn't make
+>>>> sense for a kernel DMA allocation or __GFP_COMP which makes no sense
+>>>> for an allocation that can't in any way be converted to a page pointer.
+>>>>
+>>>> Signed-off-by: Christoph Hellwig <hch@lst.de>
+>>>> ---
+>>>>    drivers/infiniband/hw/hfi1/init.c | 21 +++------------------
+>>>>    1 file changed, 3 insertions(+), 18 deletions(-)
+>>>>
+>>>> diff --git a/drivers/infiniband/hw/hfi1/init.c b/drivers/infiniband/hw/hfi1/init.c
+>>>> index 436372b314312..24c0f0d257fc9 100644
+>>>> --- a/drivers/infiniband/hw/hfi1/init.c
+>>>> +++ b/drivers/infiniband/hw/hfi1/init.c
+>>>> @@ -1761,17 +1761,11 @@ int hfi1_create_rcvhdrq(struct hfi1_devdata *dd, struct hfi1_ctxtdata *rcd)
+>>>>         unsigned amt;
+>>>>
+>>>>         if (!rcd->rcvhdrq) {
+>>>> -             gfp_t gfp_flags;
+>>>> -
+>>>>                 amt = rcvhdrq_size(rcd);
+>>>>
+>>>> -             if (rcd->ctxt < dd->first_dyn_alloc_ctxt || rcd->is_vnic)
+>>>> -                     gfp_flags = GFP_KERNEL;
+>>>> -             else
+>>>> -                     gfp_flags = GFP_USER;
+>>>>                 rcd->rcvhdrq = dma_alloc_coherent(&dd->pcidev->dev, amt,
+>>>>                                                   &rcd->rcvhdrq_dma,
+>>>> -                                               gfp_flags | __GFP_COMP);
+>>>> +                                               GFP_KERNEL);
+>>>
+>>> A user context receive header queue may be mapped into user space.  Is that not the use case for GFP_USER?  The above conditional is what decides.
+>>>
+>>> Why do you think GFP_USER should be removed here?
+>>
+>> Coherent DMA buffers are allocated by a kernel driver or subsystem for the use of a device managed by that driver or subsystem, and thus they fundamentally belong to the kernel as proxy for the device. Any coherent DMA buffer may be mapped to userspace with the dma_mmap_*() interfaces, but they're never a "userspace allocation" in that sense.
+> 
+> My (seemingly dated) understanding is that GFP_USER is for kernel allocations that may be mapped into user space.  The description of GFP_USER in gfp_types.h enforces my understanding.  Is my uderstanding no longer correct?  If not, then what is the point of GFP_USER?  Is GFP_USER now mostly an artifact?  Should its description be updated?
 
-See hfi1_file_mmap(), cases RCV_HDRQ and RCV_EGRBUF, for the two items you =
-changed in hfi1.  Both directly use remap_pfn_range(), which is probably th=
-e original approved call, but now is now buried deep within dma_mmap_*().  =
-As you say - these should be updated.  That said, the eager buffer mapping =
-will stitch together multiple eager buffers into a single user map/vma.  I =
-don't see how to do that with the dma_mmap_*() interface.
+I think there's a subtle distinction between userspace memory which may 
+be shared with DMA, and DMA memory which may be shared with userspace. 
+My reading is that GFP_USER (vs. GFP_HIGHUSER or GFP_HIGHUSER_MOVABLE) 
+matters for the former case, where you might use alloc_pages(), but 
+intend to come back and do dma_map_single() at some point afterwards. 
+For dma_alloc_coherent(), it's clearly always a DMA allocation from the 
+off, so whether it might also end up mmap()ed into one or more processes 
+later doesn't really have much practical impact.
 
--Dean
-External recipient
+> Presently, the difference between GFP_KERNEL and GFP_USER is __GFP_HARDWALL.  This enforces cpuset allocation policy. If HARDWALL is not set, the allocator will back off to the nearest memory ancestor if needed.  The back off seems like a reasonable general policy.  I do have one concern that may be hypothetical: if GFP_KERNEL is used and a buffer is silently pushed out of the expected cpuset, this can lead to mysterious slowdowns.
+
+Note that NUMA-aware dma_alloc_coherent() implementations do try to 
+place the buffer close to the device (since typically over its lifetime 
+it may be accessed by any CPU, but not any other device), therefore not 
+being bound by process restrictions is arguably right for that. If a 
+process is bound to a different node than a device it's trying to use 
+then *something's* going to have to eat the cross-node latency either 
+way. I suppose one could argue that GFP_USER might make sense when it's 
+known that the device is only ever going to use this buffer for work on 
+behalf of the current process, and thus it could be accounted to the 
+process instead of the kernel, but that seems incredibly niche and 
+likely to be far outweighed by people just using it wrong.
+
+Thanks,
+Robin.
