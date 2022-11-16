@@ -2,51 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F13EDC433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 17:17:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52DF2C43219
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Nov 2022 17:17:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234848AbiKPRRo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Nov 2022 12:17:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34184 "EHLO
+        id S234892AbiKPRRp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Nov 2022 12:17:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234304AbiKPRRk (ORCPT
+        with ESMTP id S234309AbiKPRRk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Nov 2022 12:17:40 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A1625B591;
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6C15B5B6;
         Wed, 16 Nov 2022 09:17:25 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AGGg24V031453;
-        Wed, 16 Nov 2022 17:17:06 GMT
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AGGK3qt037051;
+        Wed, 16 Nov 2022 17:17:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=tvO5QRhnZQNwwKCc2yWc5VgfQdhcmKr/lkbJbaWChko=;
- b=G57pzugsozEV35YcVL6LNsPFWKSHx4/WhveKRFpulayy74ZY2OriAJ3LPTbipmuf0uG/
- Nz4YpAxRS8X8IhFbO1yK1ZIWusLa3fzdqjyPfbd/RMjyooUKbdknjRPeZS1v1PCTgBq8
- q+ouHeR419B2EpmfO9UyRPt76p5lYQir0zBXZhpFvBaNCNgjVvZ6Mwi42G08/9jRpwEk
- VrV6spQfX97ET6QmaF5NjJQtl6lMTWdP+fM1kdW7bw+HizZQfQBjo7MaRDZOmDIan56M
- XfbGLSY7BoTpFrxrPLWOMx3ny4b/mW34x5O0/nfbwJjKp4GFQ1PNyntj52z5NiGB5Rtl WQ== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kw3m50w66-1
+ bh=XLl9jwPWrKUEGMxUqZ8ZOHMSN21/G6zNljyYvTYvI4o=;
+ b=tAc//YkJSEKv5CGActK615FcZZw9K9CaK2oDBl3c87TwlRDXvzXEDV0bHVK+2ocapbya
+ ynvurXvGYw+ZvGcB6Vp3XdSZCRyYZqIDqpa/3bRdIimhm0OFHCfnM+z5qVjDSHiADEL9
+ eCa6Ypipx4Ho1EidNSzFQggwG5NyYaqspShHMnBrqUpmao8idHqRF9wHbyVNlTyf3hoo
+ c8MT3TGspZmaPp0JdkubkN9FuynTTHEg17vgE1ZxobEIeKflQthkvZl1rpEve3n/7RUI
+ ZG/OdufgYAfX1qbSHnz5DSuiZxC90PJr2m/KbeKQ5g5zCrKALvYcLaPPgVAsZ3WnrLpa SQ== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kw39s1pr7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Nov 2022 17:17:05 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AGH4kwp006968;
-        Wed, 16 Nov 2022 17:17:04 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3kt3494qum-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Nov 2022 17:17:03 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AGHH02G60490164
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Nov 2022 17:17:02 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AGH6k8I009477;
         Wed, 16 Nov 2022 17:17:00 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3kt348xawm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 17:17:00 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AGHHbju39518624
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Nov 2022 17:17:37 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D40D552054;
-        Wed, 16 Nov 2022 17:17:00 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 92C4A5204E;
+        Wed, 16 Nov 2022 17:16:57 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 54A0D52050;
-        Wed, 16 Nov 2022 17:17:00 +0000 (GMT)
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 09A0D52050;
+        Wed, 16 Nov 2022 17:16:57 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Gerd Bayer <gbayer@linux.ibm.com>, iommu@lists.linux.dev,
@@ -59,111 +59,60 @@ Cc:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, linux-kernel@vger.kernel.org,
         Julian Ruess <julianr@linux.ibm.com>
-Subject: [PATCH v2 7/7] iommu/s390: flush queued IOVAs on RPCIT out of resource indication
-Date:   Wed, 16 Nov 2022 18:16:56 +0100
-Message-Id: <20221116171656.4128212-8-schnelle@linux.ibm.com>
+Subject: [PATCH v2 1/7] s390/ism: Set DMA coherent mask
+Date:   Wed, 16 Nov 2022 18:16:50 +0100
+Message-Id: <20221116171656.4128212-2-schnelle@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221116171656.4128212-1-schnelle@linux.ibm.com>
 References: <20221116171656.4128212-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3urLWCGZdldKrrByunqB7bPZQSfeAO4S
-X-Proofpoint-ORIG-GUID: 3urLWCGZdldKrrByunqB7bPZQSfeAO4S
+X-Proofpoint-ORIG-GUID: l7jEHWgblB2GeUGu6m8stahNtk2oHL6n
+X-Proofpoint-GUID: l7jEHWgblB2GeUGu6m8stahNtk2oHL6n
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-16_03,2022-11-16_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 priorityscore=1501 suspectscore=0
- mlxlogscore=999 phishscore=0 malwarescore=0 spamscore=0 adultscore=0
- bulkscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2210170000 definitions=main-2211160119
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
+ phishscore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
+ impostorscore=0 mlxscore=0 suspectscore=0 bulkscore=0 priorityscore=1501
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211160119
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When RPCIT indicates that the underlying hypervisor has run out of
-resources it often means that its IOVA space is exhausted and IOVAs need
-to be freed before new ones can be created. By triggering a flush of the
-IOVA queue we can get the queued IOVAs freed and also get the new
-mapping established during the global flush.
+A future change will convert the DMA API implementation from the
+architecture specific arch/s390/pci/pci_dma.c to using the common code
+drivers/iommu/dma-iommu.c which the utilizes the same IOMMU hardware
+through the s390-iommu driver. Unlike the s390 specific DMA API this
+requires devices to correctly call set the coherent mask to be allowed
+to use IOVAs >2^32 in dma_alloc_coherent(). This was however not done
+for ISM devices. ISM requires such addresses since currently the DMA
+aperture for PCI devices starts at 2^32 and all calls to
+dma_alloc_coherent() would thus fail.
 
 Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- drivers/iommu/dma-iommu.c  | 14 +++++++++-----
- drivers/iommu/dma-iommu.h  |  1 +
- drivers/iommu/s390-iommu.c |  7 +++++--
- 3 files changed, 15 insertions(+), 7 deletions(-)
+v1 -> v2:
+- Use dma_set_mask_and_coherent() (Christoph Hellwig)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 3801cdf11aa8..54e7f63fd0d9 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -188,19 +188,23 @@ static void fq_flush_single(struct iommu_dma_cookie *cookie)
- 	spin_unlock_irqrestore(&fq->lock, flags);
- }
+ drivers/s390/net/ism_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index d34bb6ec1490..da8a549b5965 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -556,7 +556,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (ret)
+ 		goto err_disable;
  
--static void fq_flush_timeout(struct timer_list *t)
-+void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie)
- {
--	struct iommu_dma_cookie *cookie = from_timer(cookie, t, fq_timer);
--
--	atomic_set(&cookie->fq_timer_on, 0);
- 	fq_flush_iotlb(cookie);
--
- 	if (cookie->fq_domain->type == IOMMU_DOMAIN_DMA_FQ)
- 		fq_flush_percpu(cookie);
- 	else
- 		fq_flush_single(cookie);
- }
+-	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
++	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+ 	if (ret)
+ 		goto err_resource;
  
-+static void fq_flush_timeout(struct timer_list *t)
-+{
-+	struct iommu_dma_cookie *cookie = from_timer(cookie, t, fq_timer);
-+
-+	atomic_set(&cookie->fq_timer_on, 0);
-+	iommu_dma_flush_fq(cookie);
-+}
-+
- static void queue_iova(struct iommu_dma_cookie *cookie,
- 		unsigned long pfn, unsigned long pages,
- 		struct list_head *freelist)
-diff --git a/drivers/iommu/dma-iommu.h b/drivers/iommu/dma-iommu.h
-index 942790009292..cac06030aa26 100644
---- a/drivers/iommu/dma-iommu.h
-+++ b/drivers/iommu/dma-iommu.h
-@@ -13,6 +13,7 @@ int iommu_get_dma_cookie(struct iommu_domain *domain);
- void iommu_put_dma_cookie(struct iommu_domain *domain);
- 
- int iommu_dma_init_fq(struct iommu_domain *domain);
-+void iommu_dma_flush_fq(struct iommu_dma_cookie *cookie);
- 
- void iommu_dma_get_resv_regions(struct device *dev, struct list_head *list);
- 
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 087bb2acff30..9c2782c4043e 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -538,14 +538,17 @@ static void s390_iommu_iotlb_sync_map(struct iommu_domain *domain,
- {
- 	struct s390_domain *s390_domain = to_s390_domain(domain);
- 	struct zpci_dev *zdev;
-+	int rc;
- 
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(zdev, &s390_domain->devices, iommu_list) {
- 		if (!zdev->tlb_refresh)
- 			continue;
- 		atomic64_inc(&s390_domain->ctrs.sync_map_rpcits);
--		zpci_refresh_trans((u64)zdev->fh << 32,
--				   iova, size);
-+		rc = zpci_refresh_trans((u64)zdev->fh << 32,
-+					iova, size);
-+		if (rc == -ENOMEM)
-+			iommu_dma_flush_fq(domain->iova_cookie);
- 	}
- 	rcu_read_unlock();
- }
 -- 
 2.34.1
 
