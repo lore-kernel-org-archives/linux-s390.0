@@ -2,218 +2,343 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10DC3C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 10:07:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C04DC43219
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 14:13:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbiKQKH4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Nov 2022 05:07:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49020 "EHLO
+        id S240139AbiKQONV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Nov 2022 09:13:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234757AbiKQKHz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 05:07:55 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5E9231;
-        Thu, 17 Nov 2022 02:07:54 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHA4ZR0021905;
-        Thu, 17 Nov 2022 10:07:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=JaCIDDpk7BYV0nNmKdadv18At5+yJDw3IEaveKy6i2M=;
- b=Tpn4xNkl0eK4LaxL17ZMT2L6dKosgxWirY4t1rVQRy3/no0e++afuawoAHXcl+Ot/HcW
- mmyYyfWClO36goWKC2LsDjYtImEsxjKt/leBUpUUUXg8StZ3DTM+lPitgHJCx+gh99cl
- aL7KPA5h8obuGGyJokcAseCUjmee/FM3fxIpVMgjRHUKbrwgAzrfUFVZDYsKTWa77MMs
- SsQxsRHpE/BuZ9KD1JJViMvirqEIcrY2mbrydLv2cXd9KB+fOmt8z5VC7l20NBh8ATgb
- /X5MiGdAyTu2EUEXJIO1I3dxbRAS4zXUvcOzWDXdFYAVkaIFF4h23R3dJtvDOjhq/pj/ 5g== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwjvtgc1d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 10:07:53 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHA4bim017472;
-        Thu, 17 Nov 2022 10:07:50 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3kt348yc6r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 10:07:50 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHA7lEV1049124
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 10:07:47 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 43A15A405B;
-        Thu, 17 Nov 2022 10:07:47 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E8860A4054;
-        Thu, 17 Nov 2022 10:07:46 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 17 Nov 2022 10:07:46 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [RFC PATCH] s390/uaccess: Limit number of retries for cmpxchg_user_key
-Date:   Thu, 17 Nov 2022 11:07:45 +0100
-Message-Id: <20221117100745.3253896-1-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <8708073bdd4c90dbc25ee3711afc59585bc0d740.camel@linux.ibm.com>
-References: <8708073bdd4c90dbc25ee3711afc59585bc0d740.camel@linux.ibm.com>
+        with ESMTP id S234421AbiKQONT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 09:13:19 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CBF06204F;
+        Thu, 17 Nov 2022 06:13:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=MW5+NnO2Tu8NlwdFq3hDFtaofKcS5eP2XdeVQ9JCU3g=; b=AbnKE5Jc6O+H3xaGhMYqGrC3y9
+        YVacd7j962DPg4af6H/+3simUiSgbuK/6G4zOl6bRYUYuLlrfnrdtOe9kgHbyzTTSHzpcEqu7qPv4
+        i/tQVeVWKIRgJXbg5hWxJebKtN2EOimPdIUqJ5UPTvtVLIe3VOu+NAxDi+ao2G6T7X7leU6AgOQe+
+        EVJz3gbkA7CnSkui7IjODrAPkhoYTvJzucvlcmObLasetIt9Y4UcnCmj1L8efJmwNseYneU9uObMI
+        C3+2NforbJUN9mRB2v294ooOYsk2XW5dJTDvRy1Ypp9Befi7H88f/EarR5pfO0ONSMvNsDK5hGMyP
+        m8CTMzhg==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1ovfd5-001hCk-C8; Thu, 17 Nov 2022 14:12:35 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 81A68300220;
+        Thu, 17 Nov 2022 15:12:32 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 6829C207D6247; Thu, 17 Nov 2022 15:12:32 +0100 (CET)
+Date:   Thu, 17 Nov 2022 15:12:32 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Valentin Schneider <vschneid@redhat.com>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [RFC PATCH v2 8/8] sched, smp: Trace smp callback causing an IPI
+Message-ID: <Y3ZBUMteJysc1/lA@hirez.programming.kicks-ass.net>
+References: <20221102182949.3119584-1-vschneid@redhat.com>
+ <20221102183336.3120536-7-vschneid@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tIXt1GMRcWCOyb7J6xZz-3RaWGVE-grR
-X-Proofpoint-ORIG-GUID: tIXt1GMRcWCOyb7J6xZz-3RaWGVE-grR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-17_06,2022-11-16_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- malwarescore=0 phishscore=0 spamscore=0 priorityscore=1501 impostorscore=0
- suspectscore=0 mlxlogscore=999 adultscore=0 mlxscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211170077
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221102183336.3120536-7-vschneid@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-cmpxchg_user_key for byte and short values is implemented via a one word
-cmpxchg loop. Give up trying to perform the cmpxchg if it fails too
-often because of contention on the cache line. This ensures that the
-thread cannot become stuck in the kernel.
+On Wed, Nov 02, 2022 at 06:33:36PM +0000, Valentin Schneider wrote:
+> The newly-introduced ipi_send_cpumask tracepoint has a "callback" parameter
+> which so far has only been fed with NULL.
+> 
+> While CSD_TYPE_SYNC/ASYNC and CSD_TYPE_IRQ_WORK share a similar backing
+> struct layout (meaning their callback func can be accessed without caring
+> about the actual CSD type), CSD_TYPE_TTWU doesn't even have a function
+> attached to its struct. This means we need to check the type of a CSD
+> before eventually dereferencing its associated callback.
+> 
+> This isn't as trivial as it sounds: the CSD type is stored in
+> __call_single_node.u_flags, which get cleared right before the callback is
+> executed via csd_unlock(). This implies checking the CSD type before it is
+> enqueued on the call_single_queue, as the target CPU's queue can be flushed
+> before we get to sending an IPI.
+> 
+> Furthermore, send_call_function_single_ipi() only has a CPU parameter, and
+> would need to have an additional argument to trickle down the invoked
+> function. This is somewhat silly, as the extra argument will always be
+> pushed down to the function even when nothing is being traced, which is
+> unnecessary overhead.
+> 
+> Two options present themselves:
+> a) Create copies of send_call_function_{single_ipi, ipi_mask}() that take
+>    an extra argument used for tracing, so that codepaths remain unchanged
+>    when tracing isn't in effect (a sort of manual -fipa-sra).
+> 
+> b) Stash the CSD func in somewhere as a side effect that
+>    the portion of send_call_function_{single_ipi, ipi_mask}() under the
+>    tracepoint's static key can fetch.
+> 
+> a) creates redundant code, and b) is quite fragile due to requiring extra
+> care for "reentrant" functions (async SMP calls).
+> 
+> This implements a).
+> 
+> Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+> ---
+>  kernel/irq_work.c   |  2 ++
+>  kernel/sched/core.c | 35 ++++++++++++++++++++++++-----------
+>  kernel/sched/smp.h  |  1 +
+>  kernel/smp.c        | 42 ++++++++++++++++++++++++++++++++++++++----
+>  4 files changed, 65 insertions(+), 15 deletions(-)
+> 
+> diff --git a/kernel/irq_work.c b/kernel/irq_work.c
+> index aec38c294ce68..fcfa75c4a5daf 100644
+> --- a/kernel/irq_work.c
+> +++ b/kernel/irq_work.c
+> @@ -24,6 +24,8 @@
+>  
+>  #include <trace/events/ipi.h>
+>  
+> +#include "sched/smp.h"
+> +
+>  static DEFINE_PER_CPU(struct llist_head, raised_list);
+>  static DEFINE_PER_CPU(struct llist_head, lazy_list);
+>  static DEFINE_PER_CPU(struct task_struct *, irq_workd);
+> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> index 02181f8072b5f..41196ca67e913 100644
+> --- a/kernel/sched/core.c
+> +++ b/kernel/sched/core.c
+> @@ -3743,17 +3743,30 @@ void sched_ttwu_pending(void *arg)
+>  	rq_unlock_irqrestore(rq, &rf);
+>  }
+>  
+> -void send_call_function_single_ipi(int cpu)
+> -{
+> -	struct rq *rq = cpu_rq(cpu);
+> -
+> -	if (!set_nr_if_polling(rq->idle)) {
+> -		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);
+> -		arch_send_call_function_single_ipi(cpu);
+> -	} else {
+> -		trace_sched_wake_idle_without_ipi(cpu);
+> -	}
+> -}
+> +/*
+> + * We want a variant that traces the function causing the IPI to be sent, but
+> + * we don't want the extra argument to cause unnecessary overhead when tracing
+> + * isn't happening.
+> + */
+> +#define GEN_CFSI(suffix, IPI_EXP, ...)						\
+> +void send_call_function_single_ipi##suffix(__VA_ARGS__)				\
+> +{										\
+> +	struct rq *rq = cpu_rq(cpu);						\
+> +										\
+> +	if (!set_nr_if_polling(rq->idle)) {					\
+> +		IPI_EXP;							\
+> +		arch_send_call_function_single_ipi(cpu);			\
+> +	} else {								\
+> +		trace_sched_wake_idle_without_ipi(cpu);				\
+> +	}									\
+> +}
+> +
+> +GEN_CFSI(/* nop */,
+> +	 /* nop */,
+> +	 int cpu)
+> +GEN_CFSI(_trace,
+> +	 trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func),
+> +	 int cpu, smp_call_func_t func)
+>  
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+*yuck*
+
+How about something like so?
+
 ---
-
-
-128 might seem like a small number, but it actually seems to be plenty.
-I could not get it to return EAGAIN with MAX_LOOP being 8 while 248
-vcpus/threads are hammering the same word.
-This could mean that we don't actually need to limit the number of
-retries, but then, I didn't simulate the absolute worst case, where
-the competing threads are running on dedicated cpus.
-
-
- arch/s390/include/asm/uaccess.h | 35 +++++++++++++++++++++++----------
- 1 file changed, 25 insertions(+), 10 deletions(-)
-
-diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
-index d028ee59e941..f2d3a4e27963 100644
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -392,6 +392,8 @@ do {									\
+--- a/kernel/irq_work.c
++++ b/kernel/irq_work.c
+@@ -24,6 +24,8 @@
  
- void __cmpxchg_user_key_called_with_bad_pointer(void);
+ #include <trace/events/ipi.h>
  
-+#define CMPXCHG_USER_KEY_MAX_LOOPS 128
++#include "sched/smp.h"
 +
- static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
- 					      __uint128_t old, __uint128_t new,
- 					      unsigned long key, int size)
-@@ -400,7 +402,7 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+ static DEFINE_PER_CPU(struct llist_head, raised_list);
+ static DEFINE_PER_CPU(struct llist_head, lazy_list);
+ static DEFINE_PER_CPU(struct task_struct *, irq_workd);
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -3763,16 +3763,17 @@ void sched_ttwu_pending(void *arg)
+ 	rq_unlock_irqrestore(rq, &rf);
+ }
  
- 	switch (size) {
- 	case 1: {
--		unsigned int prev, shift, mask, _old, _new;
-+		unsigned int prev, shift, mask, _old, _new, count;
+-void send_call_function_single_ipi(int cpu)
++bool send_call_function_single_ipi(int cpu)
+ {
+ 	struct rq *rq = cpu_rq(cpu);
  
- 		shift = (3 ^ (address & 3)) << 3;
- 		address ^= address & 3;
-@@ -410,6 +412,7 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
- 		asm volatile(
- 			"	spka	0(%[key])\n"
- 			"	sacf	256\n"
-+			"	llill	%[count],%[max_loops]\n"
- 			"0:	l	%[prev],%[address]\n"
- 			"1:	nr	%[prev],%[mask]\n"
- 			"	xilf	%[mask],0xffffffff\n"
-@@ -421,7 +424,8 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
- 			"	xr	%[tmp],%[prev]\n"
- 			"	xr	%[new],%[tmp]\n"
- 			"	nr	%[tmp],%[mask]\n"
--			"	jz	2b\n"
-+			"	jnz	5f\n"
-+			"	brct	%[count],2b\n"
- 			"5:	sacf	768\n"
- 			"	spka	%[default_key]\n"
- 			EX_TABLE_UA_LOAD_REG(0b, 5b, %[rc], %[prev])
-@@ -433,15 +437,19 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
- 			  [address] "+Q" (*(int *)address),
- 			  [tmp] "+&d" (_old),
- 			  [new] "+&d" (_new),
--			  [mask] "+&d" (mask)
--			: [key] "a" (key << 4),
--			  [default_key] "J" (PAGE_DEFAULT_KEY)
-+			  [mask] "+&d" (mask),
-+			  [count] "=a" (count)
-+			: [key] "%[count]" (key << 4),
-+			  [default_key] "J" (PAGE_DEFAULT_KEY),
-+			  [max_loops] "J" (CMPXCHG_USER_KEY_MAX_LOOPS)
- 			: "memory", "cc");
- 		*(unsigned char *)uval = prev >> shift;
-+		if (!count)
-+			rc = -EAGAIN;
- 		return rc;
+ 	if (!set_nr_if_polling(rq->idle)) {
+-		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);
+ 		arch_send_call_function_single_ipi(cpu);
+-	} else {
+-		trace_sched_wake_idle_without_ipi(cpu);
++		return true;
  	}
- 	case 2: {
--		unsigned int prev, shift, mask, _old, _new;
-+		unsigned int prev, shift, mask, _old, _new, count;
++
++	trace_sched_wake_idle_without_ipi(cpu);
++	return false;
+ }
  
- 		shift = (2 ^ (address & 2)) << 3;
- 		address ^= address & 2;
-@@ -451,6 +459,7 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
- 		asm volatile(
- 			"	spka	0(%[key])\n"
- 			"	sacf	256\n"
-+			"	llill	%[count],%[max_loops]\n"
- 			"0:	l	%[prev],%[address]\n"
- 			"1:	nr	%[prev],%[mask]\n"
- 			"	xilf	%[mask],0xffffffff\n"
-@@ -462,7 +471,8 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
- 			"	xr	%[tmp],%[prev]\n"
- 			"	xr	%[new],%[tmp]\n"
- 			"	nr	%[tmp],%[mask]\n"
--			"	jz	2b\n"
-+			"	jnz	5f\n"
-+			"	brct	%[count],2b\n"
- 			"5:	sacf	768\n"
- 			"	spka	%[default_key]\n"
- 			EX_TABLE_UA_LOAD_REG(0b, 5b, %[rc], %[prev])
-@@ -474,11 +484,15 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
- 			  [address] "+Q" (*(int *)address),
- 			  [tmp] "+&d" (_old),
- 			  [new] "+&d" (_new),
--			  [mask] "+&d" (mask)
--			: [key] "a" (key << 4),
--			  [default_key] "J" (PAGE_DEFAULT_KEY)
-+			  [mask] "+&d" (mask),
-+			  [count] "=a" (count)
-+			: [key] "%[count]" (key << 4),
-+			  [default_key] "J" (PAGE_DEFAULT_KEY),
-+			  [max_loops] "J" (CMPXCHG_USER_KEY_MAX_LOOPS)
- 			: "memory", "cc");
- 		*(unsigned short *)uval = prev >> shift;
-+		if (!count)
-+			rc = -EAGAIN;
- 		return rc;
+ /*
+--- a/kernel/sched/smp.h
++++ b/kernel/sched/smp.h
+@@ -6,7 +6,7 @@
+ 
+ extern void sched_ttwu_pending(void *arg);
+ 
+-extern void send_call_function_single_ipi(int cpu);
++extern bool send_call_function_single_ipi(int cpu);
+ 
+ #ifdef CONFIG_SMP
+ extern void flush_smp_call_function_queue(void);
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -163,7 +163,6 @@ void __init call_function_init(void)
+ static inline void
+ send_call_function_ipi_mask(const struct cpumask *mask)
+ {
+-	trace_ipi_send_cpumask(mask, _RET_IP_, func);
+ 	arch_send_call_function_ipi_mask(mask);
+ }
+ 
+@@ -438,11 +437,16 @@ static void __smp_call_single_queue_debu
+ 	struct cfd_seq_local *seq = this_cpu_ptr(&cfd_seq_local);
+ 	struct call_function_data *cfd = this_cpu_ptr(&cfd_data);
+ 	struct cfd_percpu *pcpu = per_cpu_ptr(cfd->pcpu, cpu);
++	struct __call_single_data *csd;
++
++	csd = container_of(node, call_single_data_t, node.llist);
++	WARN_ON_ONCE(!(CSD_TYPE(csd) & (CSD_TYPE_SYNC | CSD_TYPE_ASYNC)));
+ 
+ 	cfd_seq_store(pcpu->seq_queue, this_cpu, cpu, CFD_SEQ_QUEUE);
+ 	if (llist_add(node, &per_cpu(call_single_queue, cpu))) {
+ 		cfd_seq_store(pcpu->seq_ipi, this_cpu, cpu, CFD_SEQ_IPI);
+ 		cfd_seq_store(seq->ping, this_cpu, cpu, CFD_SEQ_PING);
++		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, csd->func);
+ 		send_call_function_single_ipi(cpu);
+ 		cfd_seq_store(seq->pinged, this_cpu, cpu, CFD_SEQ_PINGED);
+ 	} else {
+@@ -487,6 +491,27 @@ static __always_inline void csd_unlock(s
+ 
+ static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
+ 
++static __always_inline
++bool raw_smp_call_single_queue(int cpu, struct llist_node *node)
++{
++	/*
++	 * The list addition should be visible to the target CPU when it pops
++	 * the head of the list to pull the entry off it in the IPI handler
++	 * because of normal cache coherency rules implied by the underlying
++	 * llist ops.
++	 *
++	 * If IPIs can go out of order to the cache coherency protocol
++	 * in an architecture, sufficient synchronisation should be added
++	 * to arch code to make it appear to obey cache coherency WRT
++	 * locking and barrier primitives. Generic code isn't really
++	 * equipped to do the right thing...
++	 */
++	if (llist_add(node, &per_cpu(call_single_queue, cpu)))
++		return send_call_function_single_ipi(cpu);
++
++	return false;
++}
++
+ void __smp_call_single_queue(int cpu, struct llist_node *node)
+ {
+ #ifdef CONFIG_CSD_LOCK_WAIT_DEBUG
+@@ -503,19 +528,28 @@ void __smp_call_single_queue(int cpu, st
+ #endif
+ 
+ 	/*
+-	 * The list addition should be visible to the target CPU when it pops
+-	 * the head of the list to pull the entry off it in the IPI handler
+-	 * because of normal cache coherency rules implied by the underlying
+-	 * llist ops.
+-	 *
+-	 * If IPIs can go out of order to the cache coherency protocol
+-	 * in an architecture, sufficient synchronisation should be added
+-	 * to arch code to make it appear to obey cache coherency WRT
+-	 * locking and barrier primitives. Generic code isn't really
+-	 * equipped to do the right thing...
+-	 */
+-	if (llist_add(node, &per_cpu(call_single_queue, cpu)))
+-		send_call_function_single_ipi(cpu);
++	 * We have to check the type of the CSD before queueing it, because
++	 * once queued it can have its flags cleared by
++	 *   flush_smp_call_function_queue()
++	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
++	 * executes migration_cpu_stop() on the remote CPU).
++	 */
++	if (trace_ipi_send_cpumask_enabled()) {
++		call_single_data_t *csd;
++		smp_call_func_t func;
++
++		csd = container_of(node, call_single_data_t, node.llist);
++
++		func = sched_ttwu_pending;
++		if (CSD_TYPE(csd) != CSD_TYPE_TTWU)
++			func = csd->func;
++
++		if (raw_smp_call_single_queue(cpu, node))
++			trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func);
++		return;
++	}
++
++	raw_smp_call_single_queue(cpu, node);
+ }
+ 
+ /*
+@@ -983,10 +1017,13 @@ static void smp_call_function_many_cond(
+ 		 * number of CPUs might be zero due to concurrent changes to the
+ 		 * provided mask.
+ 		 */
+-		if (nr_cpus == 1)
++		if (nr_cpus == 1) {
++			trace_ipi_send_cpumask(cpumask_of(last_cpu), _RET_IP_, func);
+ 			send_call_function_single_ipi(last_cpu);
+-		else if (likely(nr_cpus > 1))
+-			send_call_function_ipi_mask(cfd->cpumask_ipi);
++		} else if (likely(nr_cpus > 1)) {
++			trace_ipi_send_cpumask(mask, _RET_IP_, func);
++			send_call_function_ipi_mask(mask);
++		}
+ 
+ 		cfd_seq_store(this_cpu_ptr(&cfd_seq_local)->pinged, this_cpu, CFD_SEQ_NOCPU, CFD_SEQ_PINGED);
  	}
- 	case 4:	{
-@@ -568,6 +582,7 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
-  *
-  * Return:     0: cmpxchg executed
-  *	       -EFAULT: an exception happened when trying to access *@ptr
-+ *             -EAGAIN: maxed out number of retries (byte and short only)
-  */
- #define cmpxchg_user_key(ptr, uval, old, new, key)			\
- ({									\
-
-base-commit: b23ddf9d5a30f64a1a51a85f0d9e2553210b21a2
-prerequisite-patch-id: c5cdc3ce7cdffc18c5e56abfb657c84141fb623a
--- 
-2.34.1
-
