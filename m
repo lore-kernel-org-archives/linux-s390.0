@@ -2,135 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE211C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 17:56:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9A87C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 18:19:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235068AbiKQR4U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Nov 2022 12:56:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40062 "EHLO
+        id S239809AbiKQSTm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Nov 2022 13:19:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240329AbiKQR4K (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 12:56:10 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0119D82203;
-        Thu, 17 Nov 2022 09:56:08 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHHKhJQ020659;
-        Thu, 17 Nov 2022 17:56:07 GMT
+        with ESMTP id S238962AbiKQSTl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 13:19:41 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DB32C13A;
+        Thu, 17 Nov 2022 10:19:39 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHHDL5p011515;
+        Thu, 17 Nov 2022 18:19:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=9hO88NdYDKs7FuUbkEqfKzDgmaeOXCOSpvoEOiM7LRs=;
- b=mXcrW83Bb/CYKSAogDrnLaJ43Lhoe1XrQsC4lRNWL9LWDdJ7cBv6s2r46YkMmvytObtJ
- Sbwik8XhkuS5Eb0voQ7P7hT6kZ7ehN4scOR2ZDf3XX5hcHVnMyKqFjALk85jX7DnBkmJ
- gMQvymUxOydQnmOoBVkYMEO9dtRtzzQ2tdgiSx0mLDD9Xe5vzhz1IuaeipVptbNmXvk7
- HnAT53D8lUi7H8Urd4Pn8UGEJqz62tUKNQfivrZqk404exnA8u8f7vWNX2lIutEFtm0e
- aatazz6fidTHnTEWCjzbcLJQD458dsfnGtwM76FFJ8k1nU5OaeX35k3cEwd8wQ5NLwyZ Pw== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwqguv32p-1
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=PnCHO8g/GAQ/rf4fFCGrPAgXoqy0R+mFNfmTOXAovDM=;
+ b=oX+gdjyTpN6rkOiSFyFJPg5syMQCqf3QZic6D8wv/IX9kPtJw9FlJ8MEaytc6HfGshEG
+ XmdnSKv2mBcZnAFVGK8Sqqgh8If6ZmezQo0CuAOt9DlCeN4teirK+x8DPTq2HScz/rfP
+ xxEyBdqMjIA3Hu3FlLP5Y4v7OqOJ5b6J7Kf1V0qUj0jhyeJ+tIGV+C50fSeXM9Xql0Rk
+ QIApta7A/x2bVnl1VfxAH90/P32HWre1SZkbCQEvz5N54PTXHVI5sz0Uoun68Qtc8wPW
+ 4Q5R2syQAWan1yvRmA/AFcFFUE87RrrlYtxYVhG2H6IqjIzFvl1BzCjvP0E6NGe2JLkt wQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kws5q9j90-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 17:56:07 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHHp9B5029507;
-        Thu, 17 Nov 2022 17:56:05 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3kt348yw29-1
+        Thu, 17 Nov 2022 18:19:38 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHI6mN6008712;
+        Thu, 17 Nov 2022 18:19:36 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kt2rjfvxg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 17:56:05 +0000
+        Thu, 17 Nov 2022 18:19:36 +0000
 Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHHu2Hx32309788
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHIJXSk62259656
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 17:56:02 GMT
+        Thu, 17 Nov 2022 18:19:33 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A315C52052;
-        Thu, 17 Nov 2022 17:56:02 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.145.29.204])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 17C1E5204F;
-        Thu, 17 Nov 2022 17:56:02 +0000 (GMT)
-Date:   Thu, 17 Nov 2022 18:55:57 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Nico Boehr <nrb@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, akrowiak@linux.ibm.com,
-        jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, borntraeger@linux.ibm.com,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v1] s390/vfio-ap: GISA: sort out physical vs virtual
- pointers usage
-Message-ID: <20221117185557.40932450.pasic@linux.ibm.com>
-In-Reply-To: <20221117110143.6892e7e8@p-imbrenda>
-References: <20221108152610.735205-1-nrb@linux.ibm.com>
-        <659501fc-0ddc-2db6-cdcb-4990d5c46817@linux.ibm.com>
-        <166867501356.12564.3855578681315731621@t14-nrb.local>
-        <20221117110143.6892e7e8@p-imbrenda>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        by IMSVA (Postfix) with ESMTP id D1EE152050;
+        Thu, 17 Nov 2022 18:19:33 +0000 (GMT)
+Received: from osiris (unknown [9.145.178.212])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 84B2B5204E;
+        Thu, 17 Nov 2022 18:19:33 +0000 (GMT)
+Date:   Thu, 17 Nov 2022 19:19:32 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: cmpxchg: Make loop condition for 1,2 byte cases
+ precise
+Message-ID: <Y3Z7NA7eGV2SiRAb@osiris>
+References: <Y2zhNhFjIJPKJao8@osiris>
+ <20221116144711.3811011-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221116144711.3811011-1-scgl@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: OeIFd2GkmSaA0joDuFafhx29U_AyhW1s
-X-Proofpoint-ORIG-GUID: OeIFd2GkmSaA0joDuFafhx29U_AyhW1s
+X-Proofpoint-ORIG-GUID: Fxd4wSsq4xG7WBaBBx5LWT4agSTjMHe6
+X-Proofpoint-GUID: Fxd4wSsq4xG7WBaBBx5LWT4agSTjMHe6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-17_06,2022-11-17_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- clxscore=1011 impostorscore=0 bulkscore=0 spamscore=0 phishscore=0
- suspectscore=0 mlxlogscore=999 adultscore=0 malwarescore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211170127
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 adultscore=0 impostorscore=0 bulkscore=0 phishscore=0
+ priorityscore=1501 clxscore=1015 mlxscore=0 malwarescore=0 spamscore=0
+ mlxlogscore=711 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211170131
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 17 Nov 2022 11:01:43 +0100
-Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
-
-> On Thu, 17 Nov 2022 09:50:14 +0100
-> Nico Boehr <nrb@linux.ibm.com> wrote:
+On Wed, Nov 16, 2022 at 03:47:11PM +0100, Janis Schoetterl-Glausch wrote:
+> The cmpxchg implementation for 1 and 2 bytes consists of a 4 byte
+> cmpxchg loop. Currently, the decision to retry is imprecise, looping if
+> bits outside the target byte(s) change instead of retrying until the
+> target byte(s) differ from the old value.
+> E.g. if an attempt to exchange (prev_left_0 old_bytes prev_right_0) is
+> made and it fails because the word at the address is
+> (prev_left_1 x prev_right_1) where both x != old_bytes and one of the
+> prev_*_1 values differs from the respective prev_*_0 value, the cmpxchg
+> is retried, even if by a semantic equivalent to a normal cmpxchg, the
+> exchange would fail.
+> Instead exit the loop if x != old_bytes and retry otherwise.
 > 
-> > Quoting Janosch Frank (2022-11-15 09:56:52)  
-> > > On 11/8/22 16:26, Nico Boehr wrote:    
-> > > > Fix virtual vs physical address confusion (which currently are the same)
-> > > > for the GISA when enabling the IRQ.
-> > > > 
-> > > > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> > > > ---
-> > > >   drivers/s390/crypto/vfio_ap_ops.c | 2 +-
-> > > >   1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > 
-> > > > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> > > > index 0b4cc8c597ae..20859cabbced 100644
-> > > > --- a/drivers/s390/crypto/vfio_ap_ops.c
-> > > > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> > > > @@ -429,7 +429,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
-> > > >   
-> > > >       aqic_gisa.isc = nisc;
-> > > >       aqic_gisa.ir = 1;
-> > > > -     aqic_gisa.gisa = (uint64_t)gisa >> 4;
-> > > > +     aqic_gisa.gisa = (uint64_t)virt_to_phys(gisa) >> 4;    
-> > > 
-> > > I'd suggest doing s/uint64_t/u64/ or s/uint64_t/unsigned long/ but I'm 
-> > > wondering if (u32)(u64) would be more appropriate anyway.    
-> > 
-> > The gisa origin is a unsigned int, hence you are right, uint64_t is odd.
-
-The reason for the cast was that gisa is a pointer, but we needed to do
-integer arithmetic on the address of the object pointed to by the
-pointer. It happens so that the pointer must point to a piece of memory
-that is 31 bit addressable in host real address space, but for getting
-the address from a pointer, casting to the unsigned integral type
-with-wise corresponds to the pointer is IMHO sensible regardless of
-that information.
-
->But since virt_to_phys() returns unsigned long, the cast to uint64_t is
-> now useless.
-> > 
-> > My suggestion is to remove the cast alltogether.  
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> ---
 > 
-> I agree to remove it
+> 
+> Unfortunately the diff got blown up quite a bit, even tho the asm
+> changes are not that complex. This is mostly because of in arguments
+> becoming (in)out arguments.
+> 
+> I don't think all the '&' constraints are necessary, but I don't see how
+> they could affect code generation.
 
-Right: that cast makes no sense any more. And with that change:
+For cmpxchg() it wouldn't make any difference. For cmpxchg_user_key()
+it might lead to a small improvement, since the register that is
+allocated for the key variable might be reused. But I haven't looked
+into that in detail. None of the early clobbers is necessary anymore
+after your changes, but let's leave it as it is.
 
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> I don't see why we would need the memory clobber, however.
 
+The memory clobber (aka memory barrier) is necessary because it may be
+used to implement e.g. some custom locking. For that it is required
+the compiler does reorder read or write accesses behind/before the
+inline assembly.
+
+> I tested the cmpxchg_user_key changes via the kvm memop selftest that is
+> part of the KVM cmpxchg memop series.
+> I looked for an existing way to test the cmpxchg changes, but didn't
+> find anything.
+
+Yeah, guess having a test for this would be a nice to have :)
+
+>  arch/s390/include/asm/cmpxchg.h | 60 ++++++++++++++-----------
+>  arch/s390/include/asm/uaccess.h | 80 ++++++++++++++++++---------------
+>  2 files changed, 78 insertions(+), 62 deletions(-)
+
+The patch looks good - applied to the wip/cmpxchg_user_key branch.
