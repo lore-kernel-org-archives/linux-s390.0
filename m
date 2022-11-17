@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EB3DC43219
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 22:19:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2D01C4167E
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 22:19:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240499AbiKQWTm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Nov 2022 17:19:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54822 "EHLO
+        id S240764AbiKQWTx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Nov 2022 17:19:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240629AbiKQWTD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 17:19:03 -0500
+        with ESMTP id S240756AbiKQWTE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 17:19:04 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA6F786EC;
-        Thu, 17 Nov 2022 14:18:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210D0898DF;
+        Thu, 17 Nov 2022 14:18:21 -0800 (PST)
 Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHLRYZm026984;
-        Thu, 17 Nov 2022 22:18:14 GMT
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHKJFWE017098;
+        Thu, 17 Nov 2022 22:18:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=bRsMyRo7qbgJh304THbYg9Jy/rlIw7N2YlCaunhJyX0=;
- b=BMMeekXoD2xcRvH331I9CTorUBzv3lt+YSQNue5jTrJcPZGlbTqgLcnXW4Ls9u73N2mM
- nVrytXy0Jj2AluhSmUWG6AOssbaR50QgZN5p3tAEXPmg9H9ru4waxk6GUjr2Mf8+/YJu
- g2oG9Bgh/w4wMBa7gIKcEASeJLPweOFW0MdFrYEntuFiGTMeak8PE2yxSjruQMjEwYGE
- I8L5hZcwqg0GN4TlX2RrGxAhQt2J3evvVJ5ionSDdEhDyPzvTNjE3DgvgeLEwez0JPVm
- vSFlUfaPMCC38v05O51WuK7A27h+TExK5OtgFhzN2CKBJ/Nre+UFB4tCaN1T12hrYcg3 Lg== 
+ bh=sHUjgjhOAywP8JDZaVAcyOW+ko+erzXrRUbyNarhcws=;
+ b=a7mAfOxYDEerpsknj1I5Lz3YmXeYmuGNCioqFpuVcwBl17skQd4gu/FMNCF14P4aUBVb
+ dtrVMXaXMPd7c+CNnepzaAQ162y1T6zLl1gjpnO5WmVdHlvbZLw4NuUCb7v35mSLGD1H
+ t5Ddt8rfXx6I/b/ILy91qg7ErvjaRmfzbZS6aRUS9x20/o0wwgFUDO+SXGPj/BYKh97E
+ MDGPQ0f/6zUO4wvCpxOBTZa6SN38mEXPhnKjDxMV2FeTN5JUgLeHUBGWIl6djnLGGFjE
+ wfeGRSqxjikebjJAZiQ435wKvS9jXhJfIzfZL5dY5rOQpQNFwFpunhhisk0hkQQsdv8L AA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwuvytkgn-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwuvytkj9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Nov 2022 22:18:17 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AHM7MLa007614;
+        Thu, 17 Nov 2022 22:18:16 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwuvytkha-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Nov 2022 22:18:16 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHM5smW005757;
+        Thu, 17 Nov 2022 22:18:14 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma02fra.de.ibm.com with ESMTP id 3kwppt0ah5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 17 Nov 2022 22:18:14 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AHLm1db001434;
-        Thu, 17 Nov 2022 22:18:13 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwuvytkfj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 22:18:13 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHM5aVn017689;
-        Thu, 17 Nov 2022 22:18:11 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06fra.de.ibm.com with ESMTP id 3kwte4g42p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 22:18:11 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHMI8ZE39256372
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHMIBSk19202428
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 22:18:08 GMT
+        Thu, 17 Nov 2022 22:18:11 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 084E3A404D;
-        Thu, 17 Nov 2022 22:18:08 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7AF63A404D;
+        Thu, 17 Nov 2022 22:18:11 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7F2B2A4057;
-        Thu, 17 Nov 2022 22:18:07 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E9A5DA4051;
+        Thu, 17 Nov 2022 22:18:10 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 17 Nov 2022 22:18:07 +0000 (GMT)
+        Thu, 17 Nov 2022 22:18:10 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
@@ -72,23 +72,23 @@ Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Shuah Khan <shuah@kernel.org>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v3 3/9] KVM: s390: selftest: memop: Pass mop_desc via pointer
-Date:   Thu, 17 Nov 2022 23:17:52 +0100
-Message-Id: <20221117221758.66326-4-scgl@linux.ibm.com>
+        Nico Boehr <nrb@linux.ibm.com>
+Subject: [PATCH v3 9/9] KVM: s390: selftest: memop: Fix wrong address being used in test
+Date:   Thu, 17 Nov 2022 23:17:58 +0100
+Message-Id: <20221117221758.66326-10-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221117221758.66326-1-scgl@linux.ibm.com>
 References: <20221117221758.66326-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NjUP1-moDtk1dVe6EQ3cp0d7Dpb9bo_d
-X-Proofpoint-GUID: -cxq1OJfbGFvLs0c7n_27_Osc5VKl6GN
+X-Proofpoint-ORIG-GUID: 4CyiGEf4NgZGbbpvgXXp-GVLfFpZLJS1
+X-Proofpoint-GUID: 5zIL0dkQwF5yFde70705OXy6QnPnAowR
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-17_06,2022-11-17_01,2022-06-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 malwarescore=0 mlxscore=0 mlxlogscore=999 spamscore=0
+ lowpriorityscore=0 malwarescore=0 mlxscore=0 mlxlogscore=938 spamscore=0
  impostorscore=0 phishscore=0 suspectscore=0 adultscore=0 clxscore=1015
  bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2210170000 definitions=main-2211170157
@@ -96,102 +96,31 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The struct is quite large, so this seems nicer.
+The guest code sets the key for mem1 only. In order to provoke a
+protection exception the test codes needs to address mem1.
 
 Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 ---
- tools/testing/selftests/kvm/s390x/memop.c | 44 +++++++++++------------
- 1 file changed, 22 insertions(+), 22 deletions(-)
+ tools/testing/selftests/kvm/s390x/memop.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-index 9113696d5178..69869c7e2ab1 100644
+index a4dc8d93d672..50a20dc74eb9 100644
 --- a/tools/testing/selftests/kvm/s390x/memop.c
 +++ b/tools/testing/selftests/kvm/s390x/memop.c
-@@ -48,53 +48,53 @@ struct mop_desc {
- 	uint8_t key;
- };
+@@ -756,9 +756,9 @@ static void test_errors_key(void)
  
--static struct kvm_s390_mem_op ksmo_from_desc(struct mop_desc desc)
-+static struct kvm_s390_mem_op ksmo_from_desc(const struct mop_desc *desc)
- {
- 	struct kvm_s390_mem_op ksmo = {
--		.gaddr = (uintptr_t)desc.gaddr,
--		.size = desc.size,
--		.buf = ((uintptr_t)desc.buf),
-+		.gaddr = (uintptr_t)desc->gaddr,
-+		.size = desc->size,
-+		.buf = ((uintptr_t)desc->buf),
- 		.reserved = "ignored_ignored_ignored_ignored"
- 	};
+ 	/* vm/vcpu, mismatching keys, fetch protection in effect */
+ 	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, WRITE, mem1, t.size, GADDR_V(mem1), KEY(2));
+-	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, READ, mem2, t.size, GADDR_V(mem2), KEY(2));
++	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, READ, mem2, t.size, GADDR_V(mem1), KEY(2));
+ 	CHECK_N_DO(ERR_PROT_MOP, t.vm, ABSOLUTE, WRITE, mem1, t.size, GADDR_V(mem1), KEY(2));
+-	CHECK_N_DO(ERR_PROT_MOP, t.vm, ABSOLUTE, READ, mem2, t.size, GADDR_V(mem2), KEY(2));
++	CHECK_N_DO(ERR_PROT_MOP, t.vm, ABSOLUTE, READ, mem2, t.size, GADDR_V(mem1), KEY(2));
  
--	switch (desc.target) {
-+	switch (desc->target) {
- 	case LOGICAL:
--		if (desc.mode == READ)
-+		if (desc->mode == READ)
- 			ksmo.op = KVM_S390_MEMOP_LOGICAL_READ;
--		if (desc.mode == WRITE)
-+		if (desc->mode == WRITE)
- 			ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
- 		break;
- 	case SIDA:
--		if (desc.mode == READ)
-+		if (desc->mode == READ)
- 			ksmo.op = KVM_S390_MEMOP_SIDA_READ;
--		if (desc.mode == WRITE)
-+		if (desc->mode == WRITE)
- 			ksmo.op = KVM_S390_MEMOP_SIDA_WRITE;
- 		break;
- 	case ABSOLUTE:
--		if (desc.mode == READ)
-+		if (desc->mode == READ)
- 			ksmo.op = KVM_S390_MEMOP_ABSOLUTE_READ;
--		if (desc.mode == WRITE)
-+		if (desc->mode == WRITE)
- 			ksmo.op = KVM_S390_MEMOP_ABSOLUTE_WRITE;
- 		break;
- 	case INVALID:
- 		ksmo.op = -1;
- 	}
--	if (desc.f_check)
-+	if (desc->f_check)
- 		ksmo.flags |= KVM_S390_MEMOP_F_CHECK_ONLY;
--	if (desc.f_inject)
-+	if (desc->f_inject)
- 		ksmo.flags |= KVM_S390_MEMOP_F_INJECT_EXCEPTION;
--	if (desc._set_flags)
--		ksmo.flags = desc.set_flags;
--	if (desc.f_key) {
-+	if (desc->_set_flags)
-+		ksmo.flags = desc->set_flags;
-+	if (desc->f_key) {
- 		ksmo.flags |= KVM_S390_MEMOP_F_SKEY_PROTECTION;
--		ksmo.key = desc.key;
-+		ksmo.key = desc->key;
- 	}
--	if (desc._ar)
--		ksmo.ar = desc.ar;
-+	if (desc->_ar)
-+		ksmo.ar = desc->ar;
- 	else
- 		ksmo.ar = 0;
--	if (desc._sida_offset)
--		ksmo.sida_offset = desc.sida_offset;
-+	if (desc->_sida_offset)
-+		ksmo.sida_offset = desc->sida_offset;
- 
- 	return ksmo;
+ 	kvm_vm_free(t.kvm_vm);
  }
-@@ -183,7 +183,7 @@ static int err_memop_ioctl(struct test_info info, struct kvm_s390_mem_op *ksmo)
- 		else								\
- 			__desc.gaddr = __desc.gaddr_v;				\
- 	}									\
--	__ksmo = ksmo_from_desc(__desc);					\
-+	__ksmo = ksmo_from_desc(&__desc);					\
- 	print_memop(__info.vcpu, &__ksmo);					\
- 	err##memop_ioctl(__info, &__ksmo);					\
- })
 -- 
 2.34.1
 
