@@ -2,111 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CE2CC4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 08:50:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D237C4321E
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 09:08:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239384AbiKQIuW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Nov 2022 03:50:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50532 "EHLO
+        id S239726AbiKQJI5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Nov 2022 04:08:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239162AbiKQIuV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 03:50:21 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF42E25D5;
-        Thu, 17 Nov 2022 00:50:20 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AH8j2FI026832;
-        Thu, 17 Nov 2022 08:50:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : to :
- subject : cc : from : message-id : date; s=pp1;
- bh=vmQXI57gHIQ9CSzeNYfVDBiCH73tb2dcHnpplp4XpZk=;
- b=O1RGWY/x7UNzEZ4X1zBOWPPqT2NMBx+MaXCeWgZCFU66cWiY/JPK3672IqO8pqrflzIE
- uwsyZz/qZRjodM1KINYjxThQFCEIUhvGEtawnXRdBFgTQ/eS0eapYu1PiN2iRV+Fl0PH
- GfB7j5iN/n234FaHfAUKU/0s8ulgOQfafBbo97nVPI3ip0GjUPLJkg83aA0UR3AenS4I
- qw5A7147R0BfYpMq56bVzqY0wlrkLL0MatBUBZ5ZkgDg4r4oLTaSDBwtqYJKQ3uWQCRT
- uLx9Ku0yFO66WHl3g6G1VdGxtQ7Azq8dMmxvJG8XoEzb5eF+rMBB8ZHP+KRPp8JwehEN zQ== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwhqjr3d7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 08:50:20 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AH8oIld005917;
-        Thu, 17 Nov 2022 08:50:18 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma01fra.de.ibm.com with ESMTP id 3ktbd9n4j0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 08:50:17 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AH8oEXI31523450
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 08:50:14 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AADDA11C054;
-        Thu, 17 Nov 2022 08:50:14 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 83D2311C04C;
-        Thu, 17 Nov 2022 08:50:14 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.65.30])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 17 Nov 2022 08:50:14 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S239719AbiKQJIy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 04:08:54 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 377142126A;
+        Thu, 17 Nov 2022 01:08:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=aQk2rEVdOyLC8MBnXpxdsdOtZKvioHnImfV1oOS2Xtg=; b=I3xClU65IacOMLf2bWeSauP7FF
+        FV50Hi48EBk2WK6Yehcm6XtdcO6hf4dsN2DMpSf1Q8J+ZcUcJOT8oIO1945EQRsvfdc4JvICopd0l
+        Ui4r6qLsEQxO7P9sxXUeh9gS9sZqkCJSKZK2ctS17TuNst0NjO4G5IjBK7pt6TA2UoyWMLe7JrlZ4
+        3rVanZNI9MF1KBvk8SzTNZKx8hjhh1qDV56hj7OC6Wv8JNJ6ypUqg8KZLLfwkKn7jGczcYvLbevRx
+        fdi5hL+kowpdqhlUAfa1HbfNoACRcwrRe8SG0NXXobWd3RkjDM5DSjIiSED2Yxip/fi/HuoFKOMRj
+        0mZtwn6g==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1ovasi-000qMs-De; Thu, 17 Nov 2022 09:08:24 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D7E6F30002E;
+        Thu, 17 Nov 2022 10:08:15 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id C282320B670CB; Thu, 17 Nov 2022 10:08:15 +0100 (CET)
+Date:   Thu, 17 Nov 2022 10:08:15 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Valentin Schneider <vschneid@redhat.com>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [RFC PATCH v2 4/8] smp: Trace IPIs sent via
+ arch_send_call_function_ipi_mask()
+Message-ID: <Y3X5/65o8127DgZl@hirez.programming.kicks-ass.net>
+References: <20221102182949.3119584-1-vschneid@redhat.com>
+ <20221102183336.3120536-3-vschneid@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <659501fc-0ddc-2db6-cdcb-4990d5c46817@linux.ibm.com>
-References: <20221108152610.735205-1-nrb@linux.ibm.com> <659501fc-0ddc-2db6-cdcb-4990d5c46817@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, akrowiak@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com
-Subject: Re: [PATCH v1] s390/vfio-ap: GISA: sort out physical vs virtual pointers usage
-Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        borntraeger@linux.ibm.com, imbrenda@linux.ibm.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <166867501356.12564.3855578681315731621@t14-nrb.local>
-User-Agent: alot/0.8.1
-Date:   Thu, 17 Nov 2022 09:50:14 +0100
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oIFPGSO8tr3kOyzo4fz4Zdpt2MRVmpsN
-X-Proofpoint-GUID: oIFPGSO8tr3kOyzo4fz4Zdpt2MRVmpsN
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-17_04,2022-11-16_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
- lowpriorityscore=0 mlxscore=0 spamscore=0 mlxlogscore=999 suspectscore=0
- impostorscore=0 priorityscore=1501 clxscore=1015 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211170064
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221102183336.3120536-3-vschneid@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2022-11-15 09:56:52)
-> On 11/8/22 16:26, Nico Boehr wrote:
-> > Fix virtual vs physical address confusion (which currently are the same)
-> > for the GISA when enabling the IRQ.
-> >=20
-> > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> > ---
-> >   drivers/s390/crypto/vfio_ap_ops.c | 2 +-
-> >   1 file changed, 1 insertion(+), 1 deletion(-)
-> >=20
-> > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vf=
-io_ap_ops.c
-> > index 0b4cc8c597ae..20859cabbced 100644
-> > --- a/drivers/s390/crypto/vfio_ap_ops.c
-> > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> > @@ -429,7 +429,7 @@ static struct ap_queue_status vfio_ap_irq_enable(st=
-ruct vfio_ap_queue *q,
-> >  =20
-> >       aqic_gisa.isc =3D nisc;
-> >       aqic_gisa.ir =3D 1;
-> > -     aqic_gisa.gisa =3D (uint64_t)gisa >> 4;
-> > +     aqic_gisa.gisa =3D (uint64_t)virt_to_phys(gisa) >> 4;
->=20
-> I'd suggest doing s/uint64_t/u64/ or s/uint64_t/unsigned long/ but I'm=20
-> wondering if (u32)(u64) would be more appropriate anyway.
+On Wed, Nov 02, 2022 at 06:33:32PM +0000, Valentin Schneider wrote:
+> This simply wraps around the arch function and prepends it with a
+> tracepoint, similar to send_call_function_single_ipi().
+> 
+> Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+> ---
+>  kernel/smp.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+> 
+> diff --git a/kernel/smp.c b/kernel/smp.c
+> index e2ca1e2f31274..c4d561cf50d45 100644
+> --- a/kernel/smp.c
+> +++ b/kernel/smp.c
+> @@ -160,6 +160,13 @@ void __init call_function_init(void)
+>  	smpcfd_prepare_cpu(smp_processor_id());
+>  }
+>  
+> +static inline void
 
-The gisa origin is a unsigned int, hence you are right, uint64_t is odd. Bu=
-t since virt_to_phys() returns unsigned long, the cast to uint64_t is now u=
-seless.
+Given the use of _RET_IP_, I would strongly recommend you use
+__always_inline.
 
-My suggestion is to remove the cast alltogether.
+> +send_call_function_ipi_mask(const struct cpumask *mask)
+> +{
+> +	trace_ipi_send_cpumask(mask, _RET_IP_, func);
+
+What's func?
+
+> +	arch_send_call_function_ipi_mask(mask);
+> +}
