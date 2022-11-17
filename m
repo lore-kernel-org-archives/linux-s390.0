@@ -2,100 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9584FC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 01:55:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F6D5C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 08:27:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232097AbiKQBze (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Nov 2022 20:55:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48004 "EHLO
+        id S239257AbiKQI1q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Nov 2022 03:27:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231840AbiKQBzd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Nov 2022 20:55:33 -0500
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B3AB60E8B;
-        Wed, 16 Nov 2022 17:55:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1668650132; x=1700186132;
-  h=message-id:date:mime-version:cc:to:references:from:
-   subject:in-reply-to:content-transfer-encoding;
-  bh=uuP5q8gUlbvgaw8quTq8oqXHFLQt2Yhg3IPq6GPh/j8=;
-  b=ChmhzHvxTU3g8tGyFOqlsWV5x056Vhppal3M6uYw/PTjuq+Av4AjCZtL
-   +S6qxTwQZfllKvgFn7r3lGYlhtbvqrVrYKmjR9NZSoHstvoLa6CUSdsTx
-   wnDKEUpBYzjUDP3er6DUSFSeWfCaXFM3yJS40Yl/gLB/CCVmLCodEo602
-   vNhoUw+ypvnhteV7DbskKZvYEcsfmRO+qtR4je4jeQ1HYrj0hOmJDB1vs
-   R/qBJ11YNZoEoaz3DAV1cKwYj5kdAfU27L8nkGaVKm5RK9FYw9P+fMfkX
-   WVcuTN0m9oGOBMo57+oi5nf2EqeA+yOjC5eZ9eDqf9HlzqfDLK3hNBasj
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10533"; a="300256615"
-X-IronPort-AV: E=Sophos;i="5.96,169,1665471600"; 
-   d="scan'208";a="300256615"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2022 17:55:32 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10533"; a="764562079"
-X-IronPort-AV: E=Sophos;i="5.96,169,1665471600"; 
-   d="scan'208";a="764562079"
-Received: from blu2-mobl3.ccr.corp.intel.com (HELO [10.254.210.247]) ([10.254.210.247])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2022 17:55:27 -0800
-Message-ID: <33eea9bd-e101-4836-19e8-d4b191b78b00@linux.intel.com>
-Date:   Thu, 17 Nov 2022 09:55:25 +0800
+        with ESMTP id S229939AbiKQI1p (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 03:27:45 -0500
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29BAB6DCF8;
+        Thu, 17 Nov 2022 00:27:44 -0800 (PST)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4NCY1j2wS2zRpJn;
+        Thu, 17 Nov 2022 16:27:21 +0800 (CST)
+Received: from localhost.localdomain (10.67.164.66) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Thu, 17 Nov 2022 16:27:42 +0800
+From:   Yicong Yang <yangyicong@huawei.com>
+To:     <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
+        <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
+        <catalin.marinas@arm.com>, <will@kernel.org>,
+        <anshuman.khandual@arm.com>, <linux-doc@vger.kernel.org>
+CC:     <corbet@lwn.net>, <peterz@infradead.org>, <arnd@arndb.de>,
+        <punit.agrawal@bytedance.com>, <linux-kernel@vger.kernel.org>,
+        <darren@os.amperecomputing.com>, <yangyicong@hisilicon.com>,
+        <huzhanyuan@oppo.com>, <lipeifeng@oppo.com>,
+        <zhangshiming@oppo.com>, <guojian@oppo.com>, <realmz6@gmail.com>,
+        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
+        <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
+        <linux-s390@vger.kernel.org>, Barry Song <21cnbao@gmail.com>,
+        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
+        <prime.zeng@hisilicon.com>
+Subject: [PATCH v7 0/2] arm64: support batched/deferred tlb shootdown during page reclamation
+Date:   Thu, 17 Nov 2022 16:26:46 +0800
+Message-ID: <20221117082648.47526-1-yangyicong@huawei.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Cc:     baolu.lu@linux.intel.com, Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, linux-kernel@vger.kernel.org,
-        Julian Ruess <julianr@linux.ibm.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, iommu@lists.linux.dev,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>
-References: <20221116171656.4128212-1-schnelle@linux.ibm.com>
- <20221116171656.4128212-5-schnelle@linux.ibm.com>
-Content-Language: en-US
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH v2 4/7] iommu: Let iommu.strict override
- ops->def_domain_type
-In-Reply-To: <20221116171656.4128212-5-schnelle@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.164.66]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/11/17 1:16, Niklas Schnelle wrote:
-> When iommu.strict=1 is set or iommu_set_dma_strict() was called we
-> should use IOMMU_DOMAIN_DMA irrespective of ops->def_domain_type.
-> 
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
->   drivers/iommu/iommu.c | 3 +++
->   1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> index 65a3b3d886dc..d9bf94d198df 100644
-> --- a/drivers/iommu/iommu.c
-> +++ b/drivers/iommu/iommu.c
-> @@ -1562,6 +1562,9 @@ static int iommu_get_def_domain_type(struct device *dev)
->   {
->   	const struct iommu_ops *ops = dev_iommu_ops(dev);
->   
-> +	if (iommu_dma_strict)
-> +		return IOMMU_DOMAIN_DMA;
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-If any quirky device must work in IOMMU identity mapping mode, this
-might introduce functional regression. At least for VT-d platforms, some
-devices do require IOMMU identity mapping mode for functionality.
+Though ARM64 has the hardware to do tlb shootdown, the hardware
+broadcasting is not free.
+A simplest micro benchmark shows even on snapdragon 888 with only
+8 cores, the overhead for ptep_clear_flush is huge even for paging
+out one page mapped by only one process:
+5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
 
-> +
->   	if (dev_is_pci(dev) && to_pci_dev(dev)->untrusted)
->   		return IOMMU_DOMAIN_DMA;
->   
+While pages are mapped by multiple processes or HW has more CPUs,
+the cost should become even higher due to the bad scalability of
+tlb shootdown.
 
-Best regards,
-baolu
+The same benchmark can result in 16.99% CPU consumption on ARM64
+server with around 100 cores according to Yicong's test on patch
+4/4.
+
+This patchset leverages the existing BATCHED_UNMAP_TLB_FLUSH by
+1. only send tlbi instructions in the first stage -
+	arch_tlbbatch_add_mm()
+2. wait for the completion of tlbi by dsb while doing tlbbatch
+	sync in arch_tlbbatch_flush()
+Testing on snapdragon shows the overhead of ptep_clear_flush
+is removed by the patchset. The micro benchmark becomes 5% faster
+even for one page mapped by single process on snapdragon 888.
+
+With this support we're possible to do more optimization for memory
+reclamation and migration[*].
+
+[*] https://lore.kernel.org/lkml/393d6318-aa38-01ed-6ad8-f9eac89bf0fc@linux.alibaba.com/
+
+-v7:
+1. rename arch_tlbbatch_add_mm() to arch_tlbbatch_add_pending() as suggested, since it
+   takes an extra address for arm64, per Nadav and Anshuman. Also mentioned in the commit.
+2. add tags from Xin Hao, thanks.
+Link: https://lore.kernel.org/lkml/20221115031425.44640-1-yangyicong@huawei.com/
+
+-v6:
+1. comment we don't defer TLB flush on platforms affected by ARM64_WORKAROUND_REPEAT_TLBI
+2. use cpus_have_const_cap() instead of this_cpu_has_cap()
+3. add tags from Punit, Thanks.
+4. default enable the feature when cpus >= 8 rather than > 8, since the original
+   improvement is observed on snapdragon 888 with 8 cores.
+Link: https://lore.kernel.org/lkml/20221028081255.19157-1-yangyicong@huawei.com/
+
+-v5:
+1. Make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends on EXPERT for this stage on arm64.
+2. Make a threshold of CPU numbers for enabling batched TLP flush on arm64
+Link: https://lore.kernel.org/linux-arm-kernel/20220921084302.43631-1-yangyicong@huawei.com/T/
+
+-v4:
+1. Add tags from Kefeng and Anshuman, Thanks.
+2. Limit the TLB batch/defer on systems with >4 CPUs, per Anshuman
+3. Merge previous Patch 1,2-3 into one, per Anshuman
+Link: https://lore.kernel.org/linux-mm/20220822082120.8347-1-yangyicong@huawei.com/
+
+-v3:
+1. Declare arch's tlbbatch defer support by arch_tlbbatch_should_defer() instead
+   of ARCH_HAS_MM_CPUMASK, per Barry and Kefeng
+2. Add Tested-by from Xin Hao
+Link: https://lore.kernel.org/linux-mm/20220711034615.482895-1-21cnbao@gmail.com/
+
+-v2:
+1. Collected Yicong's test result on kunpeng920 ARM64 server;
+2. Removed the redundant vma parameter in arch_tlbbatch_add_mm()
+   according to the comments of Peter Zijlstra and Dave Hansen
+3. Added ARCH_HAS_MM_CPUMASK rather than checking if mm_cpumask
+   is empty according to the comments of Nadav Amit
+
+Thanks, Peter, Dave and Nadav for your testing or reviewing
+, and comments.
+
+-v1:
+https://lore.kernel.org/lkml/20220707125242.425242-1-21cnbao@gmail.com/
+
+Anshuman Khandual (1):
+  mm/tlbbatch: Introduce arch_tlbbatch_should_defer()
+
+Barry Song (1):
+  arm64: support batched/deferred tlb shootdown during page reclamation
+
+ .../features/vm/TLB/arch-support.txt          |  2 +-
+ arch/arm64/Kconfig                            |  6 +++
+ arch/arm64/include/asm/tlbbatch.h             | 12 +++++
+ arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
+ arch/x86/include/asm/tlbflush.h               | 17 +++++-
+ include/linux/mm_types_task.h                 |  4 +-
+ mm/rmap.c                                     | 19 +++----
+ 7 files changed, 93 insertions(+), 19 deletions(-)
+ create mode 100644 arch/arm64/include/asm/tlbbatch.h
+
+-- 
+2.24.0
+
