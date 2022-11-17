@@ -2,111 +2,266 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD742C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 18:28:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86857C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 22:19:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240496AbiKQS2o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Nov 2022 13:28:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
+        id S240850AbiKQWTb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Nov 2022 17:19:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240288AbiKQS2n (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 13:28:43 -0500
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA22697F5;
-        Thu, 17 Nov 2022 10:28:39 -0800 (PST)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHGxX39019741;
-        Thu, 17 Nov 2022 18:28:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=corp-2022-7-12;
- bh=+4owGTGRmhSdZ2ecuhihdvRvYEiDoPPqpPmps9xlO8Q=;
- b=xYbBQP0r1w/fxFVrLmeD3SdyXjLjMyaqqU0BWZJ3hvKr2DFTodWyXNa6Xz3IM9zHth13
- VOZw93FGS7md4oO2DvUaoQxJVI+3iG8kNCtTrd2/elF71YTlG8SkWesm3PHeRdfAp1db
- LVbNsEeLBxq0zxpSd7k7mw6WoiPvU4JPU7KFIgLya84b3f67+Ltg47I/9UpQWqJsEcNX
- fXFtE++S6vteZC0w/xg/kxNSSIoeT72cYIEp/cba2xksQsogBUqioorcnjIIl6Xo9xwp
- JSoxqo8Btld62y5n1wO3dm5rd/qanpDH34aXpjAlJn5IHwC1CNmXSNjsSrcoWb2/iH9U 4g== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3kwryb896r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 18:28:38 +0000
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 2AHH95ct008712;
-        Thu, 17 Nov 2022 18:28:37 GMT
+        with ESMTP id S240750AbiKQWTD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 17:19:03 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECAC7898CC;
+        Thu, 17 Nov 2022 14:18:18 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHKJDjI017077;
+        Thu, 17 Nov 2022 22:18:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=/XhINSq1e3XYEU5qk1rUhAoA2/fuRtG2tXiTV5Dx8JY=;
+ b=hl9dqJOMtcO+BnBF6WstqQrULG5pgBUkEsfNCwvw8vwchb9Pf9LXcViQaYbuM/FrfXo9
+ XQY7kSrCuDEA3eVE5QMNaR2MMftHkrn4WkIPJ0LRNzsMcy+n3qZbcivjWfvNm/Xiu4qz
+ ZJzlifD9alddMcjpkQh/G9iP/DQ3j+VDiO+AR6cOhi2TV8de1zDqWopBydc1GQMOP9+T
+ sdXlLN0cRW9iukMKxXyYgj+9u/W40ZZn91Q+FdshR42Rc0wjSqDzRaLuRCgDLy13K4Ty
+ KtT+LFKvijZk0JdF7hBQJhc37toxRITAyfwEDgxCFngTY0RyKKRZuHYJb6XrC75q/fUY WQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3kt1xft5q4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 18:28:37 +0000
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AHISano025586;
-        Thu, 17 Nov 2022 18:28:36 GMT
-Received: from ca-mkp.mkp.ca.oracle.com (ca-mkp.ca.oracle.com [10.156.108.201])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3kt1xft5pj-1;
-        Thu, 17 Nov 2022 18:28:36 +0000
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-To:     Steffen Maier <maier@linux.ibm.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-scsi@vger.kernel.org,
-        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Fedor Loshakov <loshakov@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
-Subject: Re: [PATCH] zfcp: fix double free of fsf request when qdio send fails
-Date:   Thu, 17 Nov 2022 13:28:31 -0500
-Message-Id: <166870940540.1572108.9327933975941507142.b4-ty@oracle.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <979f6e6019d15f91ba56182f1aaf68d61bf37fc6.1668595505.git.bblock@linux.ibm.com>
-References: <979f6e6019d15f91ba56182f1aaf68d61bf37fc6.1668595505.git.bblock@linux.ibm.com>
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwuvytkh0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Nov 2022 22:18:14 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AHMEarD003122;
+        Thu, 17 Nov 2022 22:18:14 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwuvytkg9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Nov 2022 22:18:14 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHM5NUJ017625;
+        Thu, 17 Nov 2022 22:18:12 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3kwte4g42r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Nov 2022 22:18:12 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHMInEf18678192
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 17 Nov 2022 22:18:49 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 181CEA4040;
+        Thu, 17 Nov 2022 22:18:09 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 969F8A4055;
+        Thu, 17 Nov 2022 22:18:08 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 17 Nov 2022 22:18:08 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: [PATCH v3 5/9] KVM: s390: selftest: memop: Move testlist into main
+Date:   Thu, 17 Nov 2022 23:17:54 +0100
+Message-Id: <20221117221758.66326-6-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20221117221758.66326-1-scgl@linux.ibm.com>
+References: <20221117221758.66326-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zlzQWmDNHFCxrRE52POlpNabk8O5nWif
+X-Proofpoint-GUID: c6WZUzd8d9pLeaS7P3zSDqQLqk20AlWy
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-17_06,2022-11-17_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=906 bulkscore=0 mlxscore=0
- phishscore=0 suspectscore=0 spamscore=0 adultscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211170133
-X-Proofpoint-ORIG-GUID: CYHgXcS4xGL3TriDD0Sz5eB3oTjB5vwp
-X-Proofpoint-GUID: CYHgXcS4xGL3TriDD0Sz5eB3oTjB5vwp
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 mlxscore=0 mlxlogscore=999 spamscore=0
+ impostorscore=0 phishscore=0 suspectscore=0 adultscore=0 clxscore=1015
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211170157
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 16 Nov 2022 11:50:37 +0100, Benjamin Block wrote:
+This allows checking if the necessary requirements for a test case are
+met via an arbitrary expression. In particular, it is easy to check if
+certain bits are set in the memop extension capability.
 
-> We used to use the wrong type of integer in `zfcp_fsf_req_send()` to
-> cache the FSF request ID when sending a new FSF request. This is used in
-> case the sending fails and we need to remove the request from our
-> internal hash table again (so we don't keep an invalid reference and use
-> it when we free the request again).
-> 
-> In `zfcp_fsf_req_send()` we used to cache the ID as `int` (signed and 32
-> bit wide), but the rest of the zfcp code (and the firmware
-> specification) handles the ID as `unsigned long`/`u64` (unsigned and 64
-> bit wide [s390x ELF ABI]).
->     For one this has the obvious problem that when the ID grows past 32
-> bit (this can happen reasonably fast) it is truncated to 32 bit when
-> storing it in the cache variable and so doesn't match the original ID
-> anymore.
->     The second less obvious problem is that even when the original ID
-> has not yet grown past 32 bit, as soon as the 32nd bit is set in the
-> original ID (0x80000000 = 2'147'483'648) we will have a mismatch when we
-> cast it back to `unsigned long`. As the cached variable is of a signed
-> type, the compiler will choose a sign-extending instruction to
-> load the 32 bit variable into a 64 bit register (e.g.:
-> `lgf %r11,188(%r15)`). So once we pass the cached variable into
-> `zfcp_reqlist_find_rm()` to remove the request again all the leading
-> zeros will be flipped to ones to extend the sign and won't match the
-> original ID anymore (this has been observed in practice).
-> 
-> [...]
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+---
+ tools/testing/selftests/kvm/s390x/memop.c | 132 +++++++++++-----------
+ 1 file changed, 66 insertions(+), 66 deletions(-)
 
-Applied to 6.1/scsi-fixes, thanks!
-
-[1/1] zfcp: fix double free of fsf request when qdio send fails
-      https://git.kernel.org/mkp/scsi/c/0954256e970e
-
+diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+index 286185a59238..10f34c629cac 100644
+--- a/tools/testing/selftests/kvm/s390x/memop.c
++++ b/tools/testing/selftests/kvm/s390x/memop.c
+@@ -690,87 +690,87 @@ static void test_errors(void)
+ 	kvm_vm_free(t.kvm_vm);
+ }
+ 
+-struct testdef {
+-	const char *name;
+-	void (*test)(void);
+-	int extension;
+-} testlist[] = {
+-	{
+-		.name = "simple copy",
+-		.test = test_copy,
+-	},
+-	{
+-		.name = "generic error checks",
+-		.test = test_errors,
+-	},
+-	{
+-		.name = "copy with storage keys",
+-		.test = test_copy_key,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "copy with key storage protection override",
+-		.test = test_copy_key_storage_prot_override,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "copy with key fetch protection",
+-		.test = test_copy_key_fetch_prot,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "copy with key fetch protection override",
+-		.test = test_copy_key_fetch_prot_override,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "error checks with key",
+-		.test = test_errors_key,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "termination",
+-		.test = test_termination,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "error checks with key storage protection override",
+-		.test = test_errors_key_storage_prot_override,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "error checks without key fetch prot override",
+-		.test = test_errors_key_fetch_prot_override_not_enabled,
+-		.extension = 1,
+-	},
+-	{
+-		.name = "error checks with key fetch prot override",
+-		.test = test_errors_key_fetch_prot_override_enabled,
+-		.extension = 1,
+-	},
+-};
+ 
+ int main(int argc, char *argv[])
+ {
+ 	int extension_cap, idx;
+ 
++	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
+ 	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_MEM_OP));
++	extension_cap = kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
+ 
+-	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
++	struct testdef {
++		const char *name;
++		void (*test)(void);
++		bool requirements_met;
++	} testlist[] = {
++		{
++			.name = "simple copy",
++			.test = test_copy,
++			.requirements_met = true,
++		},
++		{
++			.name = "generic error checks",
++			.test = test_errors,
++			.requirements_met = true,
++		},
++		{
++			.name = "copy with storage keys",
++			.test = test_copy_key,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "copy with key storage protection override",
++			.test = test_copy_key_storage_prot_override,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "copy with key fetch protection",
++			.test = test_copy_key_fetch_prot,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "copy with key fetch protection override",
++			.test = test_copy_key_fetch_prot_override,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "error checks with key",
++			.test = test_errors_key,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "termination",
++			.test = test_termination,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "error checks with key storage protection override",
++			.test = test_errors_key_storage_prot_override,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "error checks without key fetch prot override",
++			.test = test_errors_key_fetch_prot_override_not_enabled,
++			.requirements_met = extension_cap > 0,
++		},
++		{
++			.name = "error checks with key fetch prot override",
++			.test = test_errors_key_fetch_prot_override_enabled,
++			.requirements_met = extension_cap > 0,
++		},
++	};
+ 
+ 	ksft_print_header();
+-
+ 	ksft_set_plan(ARRAY_SIZE(testlist));
+ 
+-	extension_cap = kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
+ 	for (idx = 0; idx < ARRAY_SIZE(testlist); idx++) {
+-		if (extension_cap >= testlist[idx].extension) {
++		if (testlist[idx].requirements_met) {
+ 			testlist[idx].test();
+ 			ksft_test_result_pass("%s\n", testlist[idx].name);
+ 		} else {
+-			ksft_test_result_skip("%s - extension level %d not supported\n",
+-					      testlist[idx].name,
+-					      testlist[idx].extension);
++			ksft_test_result_skip("%s - requirements not met (kernel has extension cap %#x\n)",
++					      testlist[idx].name, extension_cap);
+ 		}
+ 	}
+ 
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+2.34.1
+
