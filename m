@@ -2,133 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F23A9C43217
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 15:21:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE211C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 17:56:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240679AbiKQPVG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Nov 2022 10:21:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39302 "EHLO
+        id S235068AbiKQR4U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Nov 2022 12:56:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234051AbiKQPUO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 10:20:14 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D21FAF0
-        for <linux-s390@vger.kernel.org>; Thu, 17 Nov 2022 07:16:20 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id u8-20020a17090a5e4800b002106dcdd4a0so5722817pji.1
-        for <linux-s390@vger.kernel.org>; Thu, 17 Nov 2022 07:16:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Geqy1MGLbG4CNNhTg6ig5gMw4IRIu2ApDkqg8kUu6fE=;
-        b=im3ECY8irru0d2J3PmRkK1oS6XMYGDmkKrSKiLpQr6kggh65U519LacoANhp99/wDs
-         yHeOZt/b6IK2ihlol7f0Ba2me3bs0cr3TxYhTcQThAifpYqs8dB3p/8NK2dEXBDay90O
-         bW6pXrP7B14I1MNWa+NfggtZKbyTz1rnHhMsVYBCQiIPWqcakktYyuja6CoTLxQtkpfs
-         JsqTKBMeEN72FgBWe/ihbCXP9h1x9TEb9ulziUgPn3ZIyNK23YQtGzg65j8/As9Xyk7K
-         3+HVs34s1miAiKC8ZfgoVMv73WwF3DJWJcQDYskZpYkejUuTFt6cPMAw/xSDBCQyvpM1
-         B6Kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Geqy1MGLbG4CNNhTg6ig5gMw4IRIu2ApDkqg8kUu6fE=;
-        b=q2HYAlMI9JAZgjdM4Ht8s1H/bE8m1jz590e92ViJz+ahoEp4wj02P42cLo+eJrB2aI
-         uTikXOIm3o5Sla1bMDnpO9un12VPjbVFYWOj6AZGEzReaEHEKdIt7UcDdj5nPBrLj23B
-         /5cWni0Hp+XvVsXMrRdeJmiLZp/hl5sjLr838EdVre+Ok11Pvp0KJ1KJFKIDBwMIxPx0
-         OTip/h1fxj4BRcF2bOnhZ3emelNFQmITxeAq16wZncxGOTheK/zfvGSwLPRAt8X5ChML
-         DkZ3zxWQrJUnVrpuRpKOk/B1wDJAAEPEA/E/hYwpE2+c/fCXmUwNqyesRjyJBKkF1hH/
-         JtEw==
-X-Gm-Message-State: ANoB5pnqF15/uk4C6Jq+X42VmEQg0coTlarnsAPXybaNApNbdLjtTiqU
-        7MnxQ+04MoprVjw8g0XBYDduFA==
-X-Google-Smtp-Source: AA0mqf5Drbj5GGUy8zNXmPljMG8UuEFTPTHf+YuwVXyWlSocFeljs1OjIQ+Ab7mWXZMNXetmsxdGbQ==
-X-Received: by 2002:a17:90a:6b84:b0:20a:cbb0:3c9b with SMTP id w4-20020a17090a6b8400b0020acbb03c9bmr3280802pjj.81.1668698179289;
-        Thu, 17 Nov 2022 07:16:19 -0800 (PST)
-Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
-        by smtp.gmail.com with ESMTPSA id r12-20020a63e50c000000b00476dc914262sm1135777pgh.1.2022.11.17.07.16.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Nov 2022 07:16:18 -0800 (PST)
-Date:   Thu, 17 Nov 2022 15:16:15 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     "Huang, Kai" <kai.huang@intel.com>
-Cc:     "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "Yao, Yuan" <yuan.yao@intel.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "kvm-riscv@lists.infradead.org" <kvm-riscv@lists.infradead.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "Yamahata, Isaku" <isaku.yamahata@intel.com>,
-        "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>,
-        "pbonzini@redhat.com" <pbonzini@redhat.com>,
-        "david@redhat.com" <david@redhat.com>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
-        "oliver.upton@linux.dev" <oliver.upton@linux.dev>,
-        "farosas@linux.ibm.com" <farosas@linux.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "palmer@dabbelt.com" <palmer@dabbelt.com>,
-        "chenhuacai@kernel.org" <chenhuacai@kernel.org>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
-        "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
-        "alexandru.elisei@arm.com" <alexandru.elisei@arm.com>,
-        "vkuznets@redhat.com" <vkuznets@redhat.com>,
-        "maz@kernel.org" <maz@kernel.org>,
-        "anup@brainfault.org" <anup@brainfault.org>,
-        "frankja@linux.ibm.com" <frankja@linux.ibm.com>,
-        "aleksandar.qemu.devel@gmail.com" <aleksandar.qemu.devel@gmail.com>,
-        "james.morse@arm.com" <james.morse@arm.com>,
-        "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>,
-        "farman@linux.ibm.com" <farman@linux.ibm.com>,
-        "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "atishp@atishpatra.org" <atishp@atishpatra.org>,
-        "imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>,
-        "Gao, Chao" <chao.gao@intel.com>
-Subject: Re: [PATCH 38/44] KVM: Disable CPU hotplug during hardware enabling
-Message-ID: <Y3ZQP3C1f8pk199t@google.com>
-References: <20221102231911.3107438-1-seanjc@google.com>
- <20221102231911.3107438-39-seanjc@google.com>
- <88e920944de70e7d69a98f74005b49c59b5aaa3b.camel@intel.com>
- <b198fe971cecd301f0c7c66028cfd71dd7ba7e62.camel@intel.com>
- <Y3PzhANShVlTXVg1@google.com>
- <95ca433349eca601bdd2b16d70f59ba8e56d8e3f.camel@intel.com>
- <Y3UZtoIidMyE8qVz@google.com>
- <7fb66c497b6c41049167b05c63267cbc301b1c20.camel@intel.com>
+        with ESMTP id S240329AbiKQR4K (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 12:56:10 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0119D82203;
+        Thu, 17 Nov 2022 09:56:08 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHHKhJQ020659;
+        Thu, 17 Nov 2022 17:56:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=9hO88NdYDKs7FuUbkEqfKzDgmaeOXCOSpvoEOiM7LRs=;
+ b=mXcrW83Bb/CYKSAogDrnLaJ43Lhoe1XrQsC4lRNWL9LWDdJ7cBv6s2r46YkMmvytObtJ
+ Sbwik8XhkuS5Eb0voQ7P7hT6kZ7ehN4scOR2ZDf3XX5hcHVnMyKqFjALk85jX7DnBkmJ
+ gMQvymUxOydQnmOoBVkYMEO9dtRtzzQ2tdgiSx0mLDD9Xe5vzhz1IuaeipVptbNmXvk7
+ HnAT53D8lUi7H8Urd4Pn8UGEJqz62tUKNQfivrZqk404exnA8u8f7vWNX2lIutEFtm0e
+ aatazz6fidTHnTEWCjzbcLJQD458dsfnGtwM76FFJ8k1nU5OaeX35k3cEwd8wQ5NLwyZ Pw== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwqguv32p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Nov 2022 17:56:07 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHHp9B5029507;
+        Thu, 17 Nov 2022 17:56:05 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3kt348yw29-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Nov 2022 17:56:05 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHHu2Hx32309788
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 17 Nov 2022 17:56:02 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A315C52052;
+        Thu, 17 Nov 2022 17:56:02 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.145.29.204])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 17C1E5204F;
+        Thu, 17 Nov 2022 17:56:02 +0000 (GMT)
+Date:   Thu, 17 Nov 2022 18:55:57 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Nico Boehr <nrb@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>, akrowiak@linux.ibm.com,
+        jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, borntraeger@linux.ibm.com,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v1] s390/vfio-ap: GISA: sort out physical vs virtual
+ pointers usage
+Message-ID: <20221117185557.40932450.pasic@linux.ibm.com>
+In-Reply-To: <20221117110143.6892e7e8@p-imbrenda>
+References: <20221108152610.735205-1-nrb@linux.ibm.com>
+        <659501fc-0ddc-2db6-cdcb-4990d5c46817@linux.ibm.com>
+        <166867501356.12564.3855578681315731621@t14-nrb.local>
+        <20221117110143.6892e7e8@p-imbrenda>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7fb66c497b6c41049167b05c63267cbc301b1c20.camel@intel.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: OeIFd2GkmSaA0joDuFafhx29U_AyhW1s
+X-Proofpoint-ORIG-GUID: OeIFd2GkmSaA0joDuFafhx29U_AyhW1s
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-17_06,2022-11-17_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ clxscore=1011 impostorscore=0 bulkscore=0 spamscore=0 phishscore=0
+ suspectscore=0 mlxlogscore=999 adultscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211170127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 17, 2022, Huang, Kai wrote:
-> On Wed, 2022-11-16 at 17:11 +0000, Sean Christopherson wrote:
-> > static int kvm_x86_check_processor_compatibility(void)
-> > {
-> >         int cpu = smp_processor_id();
-> >         struct cpuinfo_x86 *c = &cpu_data(cpu);
-> > 
-> >         /*
-> >          * Compatibility checks are done when loading KVM and when enabling
-> >          * hardware, e.g. during CPU hotplug, to ensure all online CPUs are
-> >          * compatible, i.e. KVM should never perform a compatibility check on
-> >          * an offline CPU.
-> >          */
-> >         WARN_ON(!cpu_online(cpu));
+On Thu, 17 Nov 2022 11:01:43 +0100
+Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
+
+> On Thu, 17 Nov 2022 09:50:14 +0100
+> Nico Boehr <nrb@linux.ibm.com> wrote:
 > 
-> Looks good to me.  Perhaps this also can be removed, though.
+> > Quoting Janosch Frank (2022-11-15 09:56:52)  
+> > > On 11/8/22 16:26, Nico Boehr wrote:    
+> > > > Fix virtual vs physical address confusion (which currently are the same)
+> > > > for the GISA when enabling the IRQ.
+> > > > 
+> > > > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> > > > ---
+> > > >   drivers/s390/crypto/vfio_ap_ops.c | 2 +-
+> > > >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> > > > index 0b4cc8c597ae..20859cabbced 100644
+> > > > --- a/drivers/s390/crypto/vfio_ap_ops.c
+> > > > +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> > > > @@ -429,7 +429,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+> > > >   
+> > > >       aqic_gisa.isc = nisc;
+> > > >       aqic_gisa.ir = 1;
+> > > > -     aqic_gisa.gisa = (uint64_t)gisa >> 4;
+> > > > +     aqic_gisa.gisa = (uint64_t)virt_to_phys(gisa) >> 4;    
+> > > 
+> > > I'd suggest doing s/uint64_t/u64/ or s/uint64_t/unsigned long/ but I'm 
+> > > wondering if (u32)(u64) would be more appropriate anyway.    
+> > 
+> > The gisa origin is a unsigned int, hence you are right, uint64_t is odd.
 
-Hmm, it's a bit superfluous, but I think it could fire if KVM messed up CPU
-hotplug again, e.g. if the for_each_online_cpu() => IPI raced with CPU unplug.
+The reason for the cast was that gisa is a pointer, but we needed to do
+integer arithmetic on the address of the object pointed to by the
+pointer. It happens so that the pointer must point to a piece of memory
+that is 31 bit addressable in host real address space, but for getting
+the address from a pointer, casting to the unsigned integral type
+with-wise corresponds to the pointer is IMHO sensible regardless of
+that information.
 
-> And IMHO the removing of WARN_ON(!irq_disabled()) should be folded to the patch
-> "[PATCH 37/44] KVM: Rename and move CPUHP_AP_KVM_STARTING to ONLINE section". 
-> Because moving from STARTING section to ONLINE section changes the IRQ status
-> when the compatibility check is called.
+>But since virt_to_phys() returns unsigned long, the cast to uint64_t is
+> now useless.
+> > 
+> > My suggestion is to remove the cast alltogether.  
+> 
+> I agree to remove it
 
-Yep, that's what I have coded up, just smushed it all together here.
+Right: that cast makes no sense any more. And with that change:
+
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+
