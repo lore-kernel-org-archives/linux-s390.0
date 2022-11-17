@@ -2,117 +2,218 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E212AC4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 10:02:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10DC3C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 10:07:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234522AbiKQKCw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Nov 2022 05:02:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
+        id S234797AbiKQKH4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Nov 2022 05:07:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233225AbiKQKCv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 05:02:51 -0500
+        with ESMTP id S234757AbiKQKHz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 05:07:55 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E814C389B;
-        Thu, 17 Nov 2022 02:02:50 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHA0esf029082;
-        Thu, 17 Nov 2022 10:02:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=dN57SuLEydviquPBemJzc7K+HvoVyGQNNX5axWPmy0I=;
- b=ZbNEQSG6mS1l4X8BRkoSSWeTzN9keZ/NQv787RS3LFKwRL6f5BusBtniaRUmrX7qWMmB
- Y8cmKydUJj47oAOiwgGoD7GVIXNDvFseXSAdxZI+Ml+74pYIjovuDRTSzUVnv3fI+Ex9
- mITx9PoFKJv6RaIczvuD1q861aArkED4/ovhhazqoUjvzz6C28ncydkctV3wwb5bSiEY
- GJvPRNA0WFJvaPrTkmJicNu2896N/VHeDurNGFetwREoZ76LO53yRxf9WncrttjoZaBI
- wIHtN1US7W+UTMTQk8cc6QVtA/F7iTRKOj23kIpQ2VL0cBK3JJEfZP2+qdN8X+2TYinD Nw== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwjtwg6tp-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5E9231;
+        Thu, 17 Nov 2022 02:07:54 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHA4ZR0021905;
+        Thu, 17 Nov 2022 10:07:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=JaCIDDpk7BYV0nNmKdadv18At5+yJDw3IEaveKy6i2M=;
+ b=Tpn4xNkl0eK4LaxL17ZMT2L6dKosgxWirY4t1rVQRy3/no0e++afuawoAHXcl+Ot/HcW
+ mmyYyfWClO36goWKC2LsDjYtImEsxjKt/leBUpUUUXg8StZ3DTM+lPitgHJCx+gh99cl
+ aL7KPA5h8obuGGyJokcAseCUjmee/FM3fxIpVMgjRHUKbrwgAzrfUFVZDYsKTWa77MMs
+ SsQxsRHpE/BuZ9KD1JJViMvirqEIcrY2mbrydLv2cXd9KB+fOmt8z5VC7l20NBh8ATgb
+ /X5MiGdAyTu2EUEXJIO1I3dxbRAS4zXUvcOzWDXdFYAVkaIFF4h23R3dJtvDOjhq/pj/ 5g== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwjvtgc1d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 10:02:48 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AH9r2Wb031391;
-        Thu, 17 Nov 2022 10:01:49 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3kt2rjfb76-1
+        Thu, 17 Nov 2022 10:07:53 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHA4bim017472;
+        Thu, 17 Nov 2022 10:07:50 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3kt348yc6r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 10:01:49 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHA1kO529557124
+        Thu, 17 Nov 2022 10:07:50 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHA7lEV1049124
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 10:01:46 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 02E0742042;
-        Thu, 17 Nov 2022 10:01:46 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AD6BF4203F;
-        Thu, 17 Nov 2022 10:01:45 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.56])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 17 Nov 2022 10:01:45 +0000 (GMT)
-Date:   Thu, 17 Nov 2022 11:01:43 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     Janosch Frank <frankja@linux.ibm.com>, akrowiak@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        borntraeger@linux.ibm.com
-Subject: Re: [PATCH v1] s390/vfio-ap: GISA: sort out physical vs virtual
- pointers usage
-Message-ID: <20221117110143.6892e7e8@p-imbrenda>
-In-Reply-To: <166867501356.12564.3855578681315731621@t14-nrb.local>
-References: <20221108152610.735205-1-nrb@linux.ibm.com>
-        <659501fc-0ddc-2db6-cdcb-4990d5c46817@linux.ibm.com>
-        <166867501356.12564.3855578681315731621@t14-nrb.local>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        Thu, 17 Nov 2022 10:07:47 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 43A15A405B;
+        Thu, 17 Nov 2022 10:07:47 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E8860A4054;
+        Thu, 17 Nov 2022 10:07:46 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 17 Nov 2022 10:07:46 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [RFC PATCH] s390/uaccess: Limit number of retries for cmpxchg_user_key
+Date:   Thu, 17 Nov 2022 11:07:45 +0100
+Message-Id: <20221117100745.3253896-1-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <8708073bdd4c90dbc25ee3711afc59585bc0d740.camel@linux.ibm.com>
+References: <8708073bdd4c90dbc25ee3711afc59585bc0d740.camel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bIQlYfkO39qddXBOqiltyG92_mpxnZpi
-X-Proofpoint-ORIG-GUID: bIQlYfkO39qddXBOqiltyG92_mpxnZpi
+X-Proofpoint-GUID: tIXt1GMRcWCOyb7J6xZz-3RaWGVE-grR
+X-Proofpoint-ORIG-GUID: tIXt1GMRcWCOyb7J6xZz-3RaWGVE-grR
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-17_05,2022-11-16_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- mlxlogscore=999 malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0
- mlxscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211170072
+ definitions=2022-11-17_06,2022-11-16_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
+ malwarescore=0 phishscore=0 spamscore=0 priorityscore=1501 impostorscore=0
+ suspectscore=0 mlxlogscore=999 adultscore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211170077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 17 Nov 2022 09:50:14 +0100
-Nico Boehr <nrb@linux.ibm.com> wrote:
+cmpxchg_user_key for byte and short values is implemented via a one word
+cmpxchg loop. Give up trying to perform the cmpxchg if it fails too
+often because of contention on the cache line. This ensures that the
+thread cannot become stuck in the kernel.
 
-> Quoting Janosch Frank (2022-11-15 09:56:52)
-> > On 11/8/22 16:26, Nico Boehr wrote:  
-> > > Fix virtual vs physical address confusion (which currently are the same)
-> > > for the GISA when enabling the IRQ.
-> > > 
-> > > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> > > ---
-> > >   drivers/s390/crypto/vfio_ap_ops.c | 2 +-
-> > >   1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> > > index 0b4cc8c597ae..20859cabbced 100644
-> > > --- a/drivers/s390/crypto/vfio_ap_ops.c
-> > > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> > > @@ -429,7 +429,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
-> > >   
-> > >       aqic_gisa.isc = nisc;
-> > >       aqic_gisa.ir = 1;
-> > > -     aqic_gisa.gisa = (uint64_t)gisa >> 4;
-> > > +     aqic_gisa.gisa = (uint64_t)virt_to_phys(gisa) >> 4;  
-> > 
-> > I'd suggest doing s/uint64_t/u64/ or s/uint64_t/unsigned long/ but I'm 
-> > wondering if (u32)(u64) would be more appropriate anyway.  
-> 
-> The gisa origin is a unsigned int, hence you are right, uint64_t is odd. But since virt_to_phys() returns unsigned long, the cast to uint64_t is now useless.
-> 
-> My suggestion is to remove the cast alltogether.
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+---
 
-I agree to remove it
+
+128 might seem like a small number, but it actually seems to be plenty.
+I could not get it to return EAGAIN with MAX_LOOP being 8 while 248
+vcpus/threads are hammering the same word.
+This could mean that we don't actually need to limit the number of
+retries, but then, I didn't simulate the absolute worst case, where
+the competing threads are running on dedicated cpus.
+
+
+ arch/s390/include/asm/uaccess.h | 35 +++++++++++++++++++++++----------
+ 1 file changed, 25 insertions(+), 10 deletions(-)
+
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index d028ee59e941..f2d3a4e27963 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -392,6 +392,8 @@ do {									\
+ 
+ void __cmpxchg_user_key_called_with_bad_pointer(void);
+ 
++#define CMPXCHG_USER_KEY_MAX_LOOPS 128
++
+ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+ 					      __uint128_t old, __uint128_t new,
+ 					      unsigned long key, int size)
+@@ -400,7 +402,7 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+ 
+ 	switch (size) {
+ 	case 1: {
+-		unsigned int prev, shift, mask, _old, _new;
++		unsigned int prev, shift, mask, _old, _new, count;
+ 
+ 		shift = (3 ^ (address & 3)) << 3;
+ 		address ^= address & 3;
+@@ -410,6 +412,7 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+ 		asm volatile(
+ 			"	spka	0(%[key])\n"
+ 			"	sacf	256\n"
++			"	llill	%[count],%[max_loops]\n"
+ 			"0:	l	%[prev],%[address]\n"
+ 			"1:	nr	%[prev],%[mask]\n"
+ 			"	xilf	%[mask],0xffffffff\n"
+@@ -421,7 +424,8 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+ 			"	xr	%[tmp],%[prev]\n"
+ 			"	xr	%[new],%[tmp]\n"
+ 			"	nr	%[tmp],%[mask]\n"
+-			"	jz	2b\n"
++			"	jnz	5f\n"
++			"	brct	%[count],2b\n"
+ 			"5:	sacf	768\n"
+ 			"	spka	%[default_key]\n"
+ 			EX_TABLE_UA_LOAD_REG(0b, 5b, %[rc], %[prev])
+@@ -433,15 +437,19 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+ 			  [address] "+Q" (*(int *)address),
+ 			  [tmp] "+&d" (_old),
+ 			  [new] "+&d" (_new),
+-			  [mask] "+&d" (mask)
+-			: [key] "a" (key << 4),
+-			  [default_key] "J" (PAGE_DEFAULT_KEY)
++			  [mask] "+&d" (mask),
++			  [count] "=a" (count)
++			: [key] "%[count]" (key << 4),
++			  [default_key] "J" (PAGE_DEFAULT_KEY),
++			  [max_loops] "J" (CMPXCHG_USER_KEY_MAX_LOOPS)
+ 			: "memory", "cc");
+ 		*(unsigned char *)uval = prev >> shift;
++		if (!count)
++			rc = -EAGAIN;
+ 		return rc;
+ 	}
+ 	case 2: {
+-		unsigned int prev, shift, mask, _old, _new;
++		unsigned int prev, shift, mask, _old, _new, count;
+ 
+ 		shift = (2 ^ (address & 2)) << 3;
+ 		address ^= address & 2;
+@@ -451,6 +459,7 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+ 		asm volatile(
+ 			"	spka	0(%[key])\n"
+ 			"	sacf	256\n"
++			"	llill	%[count],%[max_loops]\n"
+ 			"0:	l	%[prev],%[address]\n"
+ 			"1:	nr	%[prev],%[mask]\n"
+ 			"	xilf	%[mask],0xffffffff\n"
+@@ -462,7 +471,8 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+ 			"	xr	%[tmp],%[prev]\n"
+ 			"	xr	%[new],%[tmp]\n"
+ 			"	nr	%[tmp],%[mask]\n"
+-			"	jz	2b\n"
++			"	jnz	5f\n"
++			"	brct	%[count],2b\n"
+ 			"5:	sacf	768\n"
+ 			"	spka	%[default_key]\n"
+ 			EX_TABLE_UA_LOAD_REG(0b, 5b, %[rc], %[prev])
+@@ -474,11 +484,15 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+ 			  [address] "+Q" (*(int *)address),
+ 			  [tmp] "+&d" (_old),
+ 			  [new] "+&d" (_new),
+-			  [mask] "+&d" (mask)
+-			: [key] "a" (key << 4),
+-			  [default_key] "J" (PAGE_DEFAULT_KEY)
++			  [mask] "+&d" (mask),
++			  [count] "=a" (count)
++			: [key] "%[count]" (key << 4),
++			  [default_key] "J" (PAGE_DEFAULT_KEY),
++			  [max_loops] "J" (CMPXCHG_USER_KEY_MAX_LOOPS)
+ 			: "memory", "cc");
+ 		*(unsigned short *)uval = prev >> shift;
++		if (!count)
++			rc = -EAGAIN;
+ 		return rc;
+ 	}
+ 	case 4:	{
+@@ -568,6 +582,7 @@ static __always_inline int __cmpxchg_user_key(unsigned long address, void *uval,
+  *
+  * Return:     0: cmpxchg executed
+  *	       -EFAULT: an exception happened when trying to access *@ptr
++ *             -EAGAIN: maxed out number of retries (byte and short only)
+  */
+ #define cmpxchg_user_key(ptr, uval, old, new, key)			\
+ ({									\
+
+base-commit: b23ddf9d5a30f64a1a51a85f0d9e2553210b21a2
+prerequisite-patch-id: c5cdc3ce7cdffc18c5e56abfb657c84141fb623a
+-- 
+2.34.1
+
