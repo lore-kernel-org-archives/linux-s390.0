@@ -2,107 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE128C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 18:20:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD742C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Nov 2022 18:28:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238962AbiKQSUf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Nov 2022 13:20:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56806 "EHLO
+        id S240496AbiKQS2o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Nov 2022 13:28:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234955AbiKQSUe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 13:20:34 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31639326EB;
-        Thu, 17 Nov 2022 10:20:34 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHHJuZr008783;
-        Thu, 17 Nov 2022 18:20:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=mw2i4kx5jvaD2ldRh8hGaXGexA85BqxrfKVl/LJGc8s=;
- b=OvDLG+ksZcyPNiy4aot5ey5i8EJRfcds3ZYHXIyWzsWocDCHF+E8xF64RVSeXL3PuQU/
- W4wkx65C/u7Dwhy+g006L9P1zUiaGGoqCtJEODXBSjj2JCVS/zNIG2Jn9wHkaud+5PsF
- GHXg2+m9FUaVT1ChOMrz7H4kDJsbxSQhlrtq3XC8zbmf+8YMxh3WdUrbTtWx1LqxlyfL
- usiK1a+uiMLmTT4KChgysPulUcgR6bwg5JZFquMxdEpD5y2hJdx0oN5Khuv6bcWX5aQZ
- HfDuxosoqN22sTEwt8zIMz/tIrptThIX1OPZ3hehu+dEDsYDb+Bq76dh3/3TqEFfqtiw Dg== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kws8wse3s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 18:20:33 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHIKAhK001106;
-        Thu, 17 Nov 2022 18:20:31 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 3ktbd9nmx5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 18:20:31 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHIKSx92359924
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 18:20:28 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 02FE14C052;
-        Thu, 17 Nov 2022 18:20:28 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A18264C04E;
-        Thu, 17 Nov 2022 18:20:27 +0000 (GMT)
-Received: from osiris (unknown [9.145.178.212])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 17 Nov 2022 18:20:27 +0000 (GMT)
-Date:   Thu, 17 Nov 2022 19:20:26 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] s390/uaccess: Limit number of retries for
- cmpxchg_user_key
-Message-ID: <Y3Z7aq/yqz3WQVsw@osiris>
-References: <8708073bdd4c90dbc25ee3711afc59585bc0d740.camel@linux.ibm.com>
- <20221117100745.3253896-1-scgl@linux.ibm.com>
+        with ESMTP id S240288AbiKQS2n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 13:28:43 -0500
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA22697F5;
+        Thu, 17 Nov 2022 10:28:39 -0800 (PST)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHGxX39019741;
+        Thu, 17 Nov 2022 18:28:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2022-7-12;
+ bh=+4owGTGRmhSdZ2ecuhihdvRvYEiDoPPqpPmps9xlO8Q=;
+ b=xYbBQP0r1w/fxFVrLmeD3SdyXjLjMyaqqU0BWZJ3hvKr2DFTodWyXNa6Xz3IM9zHth13
+ VOZw93FGS7md4oO2DvUaoQxJVI+3iG8kNCtTrd2/elF71YTlG8SkWesm3PHeRdfAp1db
+ LVbNsEeLBxq0zxpSd7k7mw6WoiPvU4JPU7KFIgLya84b3f67+Ltg47I/9UpQWqJsEcNX
+ fXFtE++S6vteZC0w/xg/kxNSSIoeT72cYIEp/cba2xksQsogBUqioorcnjIIl6Xo9xwp
+ JSoxqo8Btld62y5n1wO3dm5rd/qanpDH34aXpjAlJn5IHwC1CNmXSNjsSrcoWb2/iH9U 4g== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3kwryb896r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 17 Nov 2022 18:28:38 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 2AHH95ct008712;
+        Thu, 17 Nov 2022 18:28:37 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3kt1xft5q4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 17 Nov 2022 18:28:37 +0000
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AHISano025586;
+        Thu, 17 Nov 2022 18:28:36 GMT
+Received: from ca-mkp.mkp.ca.oracle.com (ca-mkp.ca.oracle.com [10.156.108.201])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3kt1xft5pj-1;
+        Thu, 17 Nov 2022 18:28:36 +0000
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     Steffen Maier <maier@linux.ibm.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>
+Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-scsi@vger.kernel.org,
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Fedor Loshakov <loshakov@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH] zfcp: fix double free of fsf request when qdio send fails
+Date:   Thu, 17 Nov 2022 13:28:31 -0500
+Message-Id: <166870940540.1572108.9327933975941507142.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <979f6e6019d15f91ba56182f1aaf68d61bf37fc6.1668595505.git.bblock@linux.ibm.com>
+References: <979f6e6019d15f91ba56182f1aaf68d61bf37fc6.1668595505.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221117100745.3253896-1-scgl@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KG1e98z3MCBjf_5i7YbxmQWEPpJTDFiY
-X-Proofpoint-ORIG-GUID: KG1e98z3MCBjf_5i7YbxmQWEPpJTDFiY
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-17_06,2022-11-17_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- spamscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 mlxscore=0
- priorityscore=1501 phishscore=0 malwarescore=0 bulkscore=0 mlxlogscore=981
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=906 bulkscore=0 mlxscore=0
+ phishscore=0 suspectscore=0 spamscore=0 adultscore=0 malwarescore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211170131
+ definitions=main-2211170133
+X-Proofpoint-ORIG-GUID: CYHgXcS4xGL3TriDD0Sz5eB3oTjB5vwp
+X-Proofpoint-GUID: CYHgXcS4xGL3TriDD0Sz5eB3oTjB5vwp
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 17, 2022 at 11:07:45AM +0100, Janis Schoetterl-Glausch wrote:
-> cmpxchg_user_key for byte and short values is implemented via a one word
-> cmpxchg loop. Give up trying to perform the cmpxchg if it fails too
-> often because of contention on the cache line. This ensures that the
-> thread cannot become stuck in the kernel.
-> 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> ---
-> 
-> 
-> 128 might seem like a small number, but it actually seems to be plenty.
-> I could not get it to return EAGAIN with MAX_LOOP being 8 while 248
-> vcpus/threads are hammering the same word.
-> This could mean that we don't actually need to limit the number of
-> retries, but then, I didn't simulate the absolute worst case, where
-> the competing threads are running on dedicated cpus.
-> 
-> 
->  arch/s390/include/asm/uaccess.h | 35 +++++++++++++++++++++++----------
->  1 file changed, 25 insertions(+), 10 deletions(-)
+On Wed, 16 Nov 2022 11:50:37 +0100, Benjamin Block wrote:
 
-Looks good, also applied to wip/cmpxchg_user_branch.
+> We used to use the wrong type of integer in `zfcp_fsf_req_send()` to
+> cache the FSF request ID when sending a new FSF request. This is used in
+> case the sending fails and we need to remove the request from our
+> internal hash table again (so we don't keep an invalid reference and use
+> it when we free the request again).
+> 
+> In `zfcp_fsf_req_send()` we used to cache the ID as `int` (signed and 32
+> bit wide), but the rest of the zfcp code (and the firmware
+> specification) handles the ID as `unsigned long`/`u64` (unsigned and 64
+> bit wide [s390x ELF ABI]).
+>     For one this has the obvious problem that when the ID grows past 32
+> bit (this can happen reasonably fast) it is truncated to 32 bit when
+> storing it in the cache variable and so doesn't match the original ID
+> anymore.
+>     The second less obvious problem is that even when the original ID
+> has not yet grown past 32 bit, as soon as the 32nd bit is set in the
+> original ID (0x80000000 = 2'147'483'648) we will have a mismatch when we
+> cast it back to `unsigned long`. As the cached variable is of a signed
+> type, the compiler will choose a sign-extending instruction to
+> load the 32 bit variable into a 64 bit register (e.g.:
+> `lgf %r11,188(%r15)`). So once we pass the cached variable into
+> `zfcp_reqlist_find_rm()` to remove the request again all the leading
+> zeros will be flipped to ones to extend the sign and won't match the
+> original ID anymore (this has been observed in practice).
+> 
+> [...]
 
-Thanks!
+Applied to 6.1/scsi-fixes, thanks!
+
+[1/1] zfcp: fix double free of fsf request when qdio send fails
+      https://git.kernel.org/mkp/scsi/c/0954256e970e
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
