@@ -2,122 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AFFAC4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Nov 2022 09:14:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F0B6C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Nov 2022 10:04:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241805AbiKRJN6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Nov 2022 04:13:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32804 "EHLO
+        id S241626AbiKRKEn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Nov 2022 05:04:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235275AbiKRJN4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 04:13:56 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB7385FF0;
-        Fri, 18 Nov 2022 01:13:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=mwt73Igv1Cbi6CXwxAPKd0Pr+R9hvpBvRt03pYQ3bys=; b=ab3Y1GXh5hZN4kYCUal3zeuK3Q
-        7SRG1cvzhO7eKodvFDYyuRae96G8g5PWd/XWhtSWcEI5MUsYEab5Ovzc8ze8gBOk9y9y/n4/VG6QA
-        kxoDu7O/fG1a2giqiMnnG8GWp7V1BxUra+Jgp+oiupx2occO6L51vWUZQgeu4+7U3imdC7NUUUJ2N
-        J5VaNoVksNMD06l+gxDbRhfwA3keSj0mXPL1+LX088MVxqFi6HWwWMGwF0jamw9uSp14pYO1PV0sb
-        dSKJCydBYVIQlrwj2um9MWjTnI+ZTo1PEgHrvF9BZHJpiPATdBDwJ3bT9CqtMVsKHp/fep69BWHYQ
-        1FAlMbCA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ovxQb-00287L-Gd; Fri, 18 Nov 2022 09:12:54 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 78E20300487;
-        Fri, 18 Nov 2022 10:12:43 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 5E8232C316131; Fri, 18 Nov 2022 10:12:43 +0100 (CET)
-Date:   Fri, 18 Nov 2022 10:12:43 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Valentin Schneider <vschneid@redhat.com>
-Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Marcelo Tosatti <mtosatti@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Guo Ren <guoren@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [RFC PATCH v2 8/8] sched, smp: Trace smp callback causing an IPI
-Message-ID: <Y3dMiyFn6TG1s5g3@hirez.programming.kicks-ass.net>
-References: <20221102182949.3119584-1-vschneid@redhat.com>
- <20221102183336.3120536-7-vschneid@redhat.com>
- <Y3ZBUMteJysc1/lA@hirez.programming.kicks-ass.net>
- <xhsmhfsehy706.mognet@vschneid.remote.csb>
+        with ESMTP id S234664AbiKRKEh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 05:04:37 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C983DCE2D;
+        Fri, 18 Nov 2022 02:04:36 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AI8PSNu011084;
+        Fri, 18 Nov 2022 10:04:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=QxKdtcxPvRSoRIcsXpSEVgrRz/pQqipIs/LnErBKEKg=;
+ b=JVRYUISQf1jnuVvLZM83jFvP/zrmil0a8GljEl1ltCg0BrZPgaxvVwKsF42R/vufI/yO
+ JoUDS5gvoh8uIncd7JSthqsfBkfWTTaf9d73RCi0MN5Xb7PvIj5swW2JC5zDuxztaS2G
+ jQmGJhEAgXMKll+4C5OYXre8tRY/4FvkoLAui5u87oYMk7ASCe1I5KYMo6nLRhKWeAkj
+ P1CdzsNOL9XqDfvJP5Fy9zVGVKflvNtZo0teuHFxVimpMOwJ76wlLmAKbgkwuyp6DXBy
+ DuIiFkWYjFc32rIiCyriTkmBCRYTQZHFtBRe+NdIRqY8fRiVCesm1nJzPBArgCZqmFpo 6A== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kx6hd243h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Nov 2022 10:04:35 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AI9og75005190;
+        Fri, 18 Nov 2022 10:04:33 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kwu4ygra2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Nov 2022 10:04:33 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AI9wQuZ14746056
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 18 Nov 2022 09:58:26 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 851E5A4040;
+        Fri, 18 Nov 2022 10:04:30 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2FF44A404D;
+        Fri, 18 Nov 2022 10:04:30 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 18 Nov 2022 10:04:30 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     pasic@linux.ibm.com, akrowiak@linux.ibm.com, jjherne@linux.ibm.com
+Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Subject: [PATCH v2] s390/vfio-ap: GISA: sort out physical vs virtual pointers usage
+Date:   Fri, 18 Nov 2022 11:04:29 +0100
+Message-Id: <20221118100429.70453-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <xhsmhfsehy706.mognet@vschneid.remote.csb>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: AzEArjAWd49AaHKPuV1V51kRze2D6lXi
+X-Proofpoint-ORIG-GUID: AzEArjAWd49AaHKPuV1V51kRze2D6lXi
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-17_06,2022-11-17_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ bulkscore=0 suspectscore=0 malwarescore=0 clxscore=1015 mlxscore=0
+ adultscore=0 impostorscore=0 mlxlogscore=999 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211180057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 17, 2022 at 02:45:29PM +0000, Valentin Schneider wrote:
+Fix virtual vs physical address confusion (which currently are the same)
+for the GISA when enabling the IRQ.
 
-> > +	if (trace_ipi_send_cpumask_enabled()) {
-> > +		call_single_data_t *csd;
-> > +		smp_call_func_t func;
-> > +
-> > +		csd = container_of(node, call_single_data_t, node.llist);
-> > +
-> > +		func = sched_ttwu_pending;
-> > +		if (CSD_TYPE(csd) != CSD_TYPE_TTWU)
-> > +			func = csd->func;
-> > +
-> > +		if (raw_smp_call_single_queue(cpu, node))
-> > +			trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func);
-> 
-> So I went with the tracepoint being placed *before* the actual IPI gets
-> sent to have a somewhat sane ordering between trace_ipi_send_cpumask() and
-> e.g. trace_call_function_single_entry().
-> 
-> Packaging the call_single_queue logic makes the code less horrible, but it
-> does mix up the event ordering...
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+---
+v1->v2:
+* remove useless cast
 
-Keeps em sharp ;-)
+ drivers/s390/crypto/vfio_ap_ops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> > +		return;
-> > +	}
-> > +
-> > +	raw_smp_call_single_queue(cpu, node);
-> >  }
-> >
-> >  /*
-> > @@ -983,10 +1017,13 @@ static void smp_call_function_many_cond(
-> >                * number of CPUs might be zero due to concurrent changes to the
-> >                * provided mask.
-> >                */
-> > -		if (nr_cpus == 1)
-> > +		if (nr_cpus == 1) {
-> > +			trace_ipi_send_cpumask(cpumask_of(last_cpu), _RET_IP_, func);
-> >                       send_call_function_single_ipi(last_cpu);
-> 
-> This'll yield an IPI event even if no IPI is sent due to the idle task
-> polling, no?
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 0b4cc8c597ae..205a00105858 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -429,7 +429,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+ 
+ 	aqic_gisa.isc = nisc;
+ 	aqic_gisa.ir = 1;
+-	aqic_gisa.gisa = (uint64_t)gisa >> 4;
++	aqic_gisa.gisa = virt_to_phys(gisa) >> 4;
+ 
+ 	status = ap_aqic(q->apqn, aqic_gisa, h_nib);
+ 	switch (status.response_code) {
+-- 
+2.37.3
 
-Oh, right..
