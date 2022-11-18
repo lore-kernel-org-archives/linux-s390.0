@@ -2,130 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF322C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Nov 2022 15:15:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32E77C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Nov 2022 15:37:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241331AbiKRPP2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Nov 2022 10:15:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42532 "EHLO
+        id S242016AbiKRPhn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Nov 2022 10:37:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235290AbiKRPP1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 10:15:27 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2D4393;
-        Fri, 18 Nov 2022 07:15:26 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AIEBR5f001483;
-        Fri, 18 Nov 2022 15:15:21 GMT
+        with ESMTP id S241768AbiKRPhm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 10:37:42 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49BE05BD43;
+        Fri, 18 Nov 2022 07:37:41 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AIE7Vjn004828;
+        Fri, 18 Nov 2022 15:37:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=3QixmXZRUsYz8QUYFuFVYj9VtTztT/o6h9bsXT5zTXA=;
- b=RB9196RxjYMYVOKr6YClxtNg2jZWRC8pGSOwmBW33RlhcgVtbCPtdLBMLGHuDlriG/0+
- jxOEewL3uMUDmtWT+awEAUw1JiZ/iJAqpyxfrFtZHF7gBMR4NG9Q/IBnD+La3yZ0I3/b
- aMinLON2N+WN8/4FN1UAtdZQqKWAJxlmoOJOi+rcSxueIyGYKtSfbvSLeUgrEFDs5g72
- GEtAuG9ctDFHuRi7grZmHpIbe/om8UVr5QGkGZ3IBdttY/3RI9RX+ugvDUP9xDSGRVmX
- pYeZA1wZjHcezSlLK4GwwOA8kUdbJAwgysV7eIG25I4Vr2wp341hj0Oljhbf/OUvBMV1 7w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kx6e7hktp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Nov 2022 15:15:21 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AIEmKQ6030274;
-        Fri, 18 Nov 2022 15:15:21 GMT
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=LJjueMsxaMQsANjbbq1IvowlPbGA5ZyiwUeFPz7qduo=;
+ b=kOEs+4Sl0YP+dO9Tr+gomsrvOTh9PZZpPl4QeLpqrwiIvM+zNQ2q1KnhS4SRSUJZCWDi
+ /eqNSx1zdFqpT+WlOAZgLPaexbD+X8R7XNaoiidOTfbfrHMYV486nHQZnUmEtfPU18IZ
+ nn1ku6vKpeE3u7turF1tLVOCZT82BkbuoYjkJ37CFdl+iHXkZp9qIrLXHnq3vFe6SZNN
+ BZWQc8cHgPnByX0xiclYrATgRb2xt/vTr116N+xSIyt0NlwOOjsDHyR6G9nEQU4zZRxH
+ 7mi085/+8FO+JcSHND0kqCyJsqVg4ViNr9TIiMcakUcUjQv6mceeLLyXD+QMo3gm3ypy Nw== 
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kx6e7hksx-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kx9jjw3nx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Nov 2022 15:15:21 +0000
+        Fri, 18 Nov 2022 15:37:39 +0000
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AIF9H6n022224;
-        Fri, 18 Nov 2022 15:15:19 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3kwu4yh2np-1
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AIFbGiD011525;
+        Fri, 18 Nov 2022 15:37:36 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3kwu4yh39q-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Nov 2022 15:15:19 +0000
+        Fri, 18 Nov 2022 15:37:35 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AIFFuXS36962600
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AIFbWNA64487698
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Nov 2022 15:15:56 GMT
+        Fri, 18 Nov 2022 15:37:32 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1F9214C046;
-        Fri, 18 Nov 2022 15:15:16 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id D801F4C046;
+        Fri, 18 Nov 2022 15:37:32 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 760F94C040;
-        Fri, 18 Nov 2022 15:15:15 +0000 (GMT)
-Received: from osiris (unknown [9.145.17.66])
+        by IMSVA (Postfix) with ESMTP id A65594C040;
+        Fri, 18 Nov 2022 15:37:32 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 18 Nov 2022 15:15:15 +0000 (GMT)
-Date:   Fri, 18 Nov 2022 16:15:14 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v3 1/9] KVM: s390: Extend MEM_OP ioctl by storage key
- checked cmpxchg
-Message-ID: <Y3ehgt9rDIltfp2C@osiris>
-References: <20221117221758.66326-1-scgl@linux.ibm.com>
- <20221117221758.66326-2-scgl@linux.ibm.com>
- <Y3dalbP5yb2gflA9@osiris>
- <90f07edc-238f-b3d0-80d2-f4b4573f12ad@redhat.com>
+        Fri, 18 Nov 2022 15:37:32 +0000 (GMT)
+Date:   Fri, 18 Nov 2022 16:37:31 +0100
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [GIT PULL] s390 updates for 6.1-rc6
+Message-ID: <Y3emu4epRB+EcdoM@tuxmaker.boeblingen.de.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <90f07edc-238f-b3d0-80d2-f4b4573f12ad@redhat.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: cI6jH_0A4VBCDYfop7B3gShbwa2VViey
-X-Proofpoint-GUID: IE8C0bfBv8bbrp7wGVU2pyK4nlSSDxqX
+X-Proofpoint-ORIG-GUID: G1iTzKDkQJ5IuIe3Uyp_-EL68Wh2riSp
+X-Proofpoint-GUID: G1iTzKDkQJ5IuIe3Uyp_-EL68Wh2riSp
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-18_02,2022-11-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- impostorscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=779
- adultscore=0 clxscore=1011 spamscore=0 malwarescore=0 lowpriorityscore=0
- mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 clxscore=1015 mlxlogscore=999 bulkscore=0
+ suspectscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0
+ adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2210170000 definitions=main-2211180088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Nov 18, 2022 at 03:37:26PM +0100, Thomas Huth wrote:
-> > > diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-> > > index 0d5d4419139a..1f36be5493e6 100644
-> > > --- a/include/uapi/linux/kvm.h
-> > > +++ b/include/uapi/linux/kvm.h
-> > > @@ -588,6 +588,8 @@ struct kvm_s390_mem_op {
-> > >   		struct {
-> > >   			__u8 ar;	/* the access register number */
-> > >   			__u8 key;	/* access key, ignored if flag unset */
-> > > +			__u8 pad1[6];	/* ignored */
-> > > +			__u64 old_p;	/* ignored if flag unset */
-> > 
-> > Just one comment: the suffix "_p" for pointer is quite unusual within
-> > the kernel. This also would be the first of its kind within kvm.h.
-> > Usually there is either no suffix or "_addr".
-> > So for consistency reasons I would suggest to change this to one of
-> > the common variants.
-> > 
-> > The code itself looks good from my point of view, even though for the
-> > sake of simplicity I would have put the complete sign/zero extended
-> > 128 bit old value into the structure, instead of having a pointer to
-> > the value.
-> 
-> See
-> https://lore.kernel.org/kvm/37197cfe-d109-332f-089b-266d7e8e23f8@redhat.com/
-> ... it would break the "IOW" definition of the ioctl. It can be done, but
-> that confuses tools like valgrind, as far as I know. So I think the idea
-> with the pointer is better in this case.
+Hello Linus,
 
-Ah right, I forgot about that. Then let's do it this way.
+please pull s390 changes for 6.1-rc6.
+
+Thank you,
+Alexander
+
+The following changes since commit 30d17fac6aaedb40d111bb159f4b35525637ea78:
+
+  scripts/min-tool-version.sh: raise minimum clang version to 15.0.0 for s390 (2022-10-31 13:34:56 +0100)
+
+are available in the Git repository at e3c11025bcd2142a61abe5806b2f86a0e78118df:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-5
+
+for you to fetch changes up to :
+
+  s390: avoid using global register for current_stack_pointer (2022-11-04 12:06:47 +0100)
+
+----------------------------------------------------------------
+s390 updates for 6.1-rc6
+
+- Fix deadlock in discontiguous saved segments (DCSS) block device
+  driver. When adding a disk and scanning partitions the scan would
+  not break out early without a missed flag.
+
+- Avoid using global register variable for current_stack_pointer
+  due to an old bug in gcc versions prior to gcc-8.4. Due to this
+  bug a broken code is generated, which leads to stack corruptions.
+
+----------------------------------------------------------------
+Gerald Schaefer (1):
+  s390/dcssblk: fix deadlock when adding a DCSS
+
+Vasily Gorbik (1):
+  s390: avoid using global register for current_stack_pointer
+
+ arch/s390/include/asm/processor.h | 11 ++++++++++-
+ drivers/s390/block/dcssblk.c      |  1 +
+ 2 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index 87be3e855bf7..c907f747d2a0 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -199,7 +199,16 @@ unsigned long __get_wchan(struct task_struct *p);
+ /* Has task runtime instrumentation enabled ? */
+ #define is_ri_task(tsk) (!!(tsk)->thread.ri_cb)
+ 
+-register unsigned long current_stack_pointer asm("r15");
++/* avoid using global register due to gcc bug in versions < 8.4 */
++#define current_stack_pointer (__current_stack_pointer())
++
++static __always_inline unsigned long __current_stack_pointer(void)
++{
++	unsigned long sp;
++
++	asm volatile("lgr %0,15" : "=d" (sp));
++	return sp;
++}
+ 
+ static __always_inline unsigned short stap(void)
+ {
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 93b80da60277..b392b9f5482e 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -636,6 +636,7 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
+ 	dev_info->gd->minors = DCSSBLK_MINORS_PER_DISK;
+ 	dev_info->gd->fops = &dcssblk_devops;
+ 	dev_info->gd->private_data = dev_info;
++	dev_info->gd->flags |= GENHD_FL_NO_PART;
+ 	blk_queue_logical_block_size(dev_info->gd->queue, 4096);
+ 	blk_queue_flag_set(QUEUE_FLAG_DAX, dev_info->gd->queue);
+ 
