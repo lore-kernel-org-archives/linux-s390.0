@@ -2,110 +2,131 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00964C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Nov 2022 15:57:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9406BC4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Nov 2022 16:43:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235310AbiKRP53 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Nov 2022 10:57:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33084 "EHLO
+        id S242230AbiKRQnn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Nov 2022 11:43:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234447AbiKRP52 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 10:57:28 -0500
+        with ESMTP id S242172AbiKRQnl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 11:43:41 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E08208C48D
-        for <linux-s390@vger.kernel.org>; Fri, 18 Nov 2022 07:56:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0796B93CD3
+        for <linux-s390@vger.kernel.org>; Fri, 18 Nov 2022 08:42:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668786993;
+        s=mimecast20190719; t=1668789759;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ttcW/rTHlQzNT+/Ls7pIym1RVV80wz0SllrC7rwVQ0I=;
-        b=Ufx+iI2DT0FgN5cAzZwy3H8V3ytbToSVgFE0aVXW0593lqLco9vL8jCRfdScjbVfZ3U3bR
-        r0O43ewFWQVVgOJKruUJCuiqnyfj3dASP1tEwfgoM789PzUc6SY99txMGND8WlLvbnsP0h
-        KeZ/gvktuWBpWat3g4YSd0auOmblZmU=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=iCeupirs0oRwfAYdrtKDNR33oxtw0kRHF9WhmcxURbs=;
+        b=GipMlCWkfb+V2x5o/tgGRU9w4p0tdNI13TeFFNdOr+JVkdECvJaLQf8VNms7thvkKpH5zE
+        5g5kuKg+9KpkGfkpcbVwgenGKd0eWqwyGitQEqx4FkjtGoQ75CXt+ajHZrc3Djs248nwZ9
+        KZ0dJGRGEoVsjiR0zYgZCToGUJ9YQGU=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-54-CX0NSgI0OWiiT2Kia5JyPg-1; Fri, 18 Nov 2022 10:56:31 -0500
-X-MC-Unique: CX0NSgI0OWiiT2Kia5JyPg-1
-Received: by mail-wr1-f69.google.com with SMTP id q2-20020adfab02000000b00241b8f7efc5so1574906wrc.19
-        for <linux-s390@vger.kernel.org>; Fri, 18 Nov 2022 07:56:31 -0800 (PST)
+ us-mta-594-nUocTP6eNgOsTBdWjfjaDw-1; Fri, 18 Nov 2022 11:42:38 -0500
+X-MC-Unique: nUocTP6eNgOsTBdWjfjaDw-1
+Received: by mail-ed1-f69.google.com with SMTP id z15-20020a05640240cf00b00461b253c220so3267761edb.3
+        for <linux-s390@vger.kernel.org>; Fri, 18 Nov 2022 08:42:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ttcW/rTHlQzNT+/Ls7pIym1RVV80wz0SllrC7rwVQ0I=;
-        b=LSX7AQXNwXBf17aYB17jTekshab5PPnfynfnTyVSGhZi8KNwLRct/O3IFqE0oHBQ6q
-         u5VPUKcphdmx7S0mUaBqlvZsfvISETk3Gj50gKxdSO6jx59Ar0w1ymM0eng/Cy7UlaPT
-         WOMNX5/Ou+OveY1nrIDh3eO97L4Rr+cLMQd33Y2VSsQ3WqfLeGK+pV7xbF+s/2osv9F+
-         JIiJoW4KNdfud5d6D6SkCT5hF50bEYole1+AOQqQiG47Vx8XUhPQy3nH3qh7fK8e5e0v
-         4xE64NZzRUJVjtgsdNXkLKSNd0XVlK3mTPbUywtjUsgF562KgP0GYoMhLTVpviY2avRY
-         us5A==
-X-Gm-Message-State: ANoB5pkaM8YXIB//vOIOAAl2wMHImBJJrcFv7YZqE8Zr9OPuY0aDNceH
-        HXEqoH1Uy6PS8CKRgGN37TIFrQQq4jisd8+3xUo8kn+A1ZvRjgm5EHdYdDNxnSgHbbVjV3cSJuJ
-        RuZQ5zt/wxcgOSgHup3klcA==
-X-Received: by 2002:a5d:65ca:0:b0:236:8322:4be9 with SMTP id e10-20020a5d65ca000000b0023683224be9mr4655989wrw.171.1668786990627;
-        Fri, 18 Nov 2022 07:56:30 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf58mrK6oiHpi4faJvPVWUqYvGFYBoXQhcAxwtKY/EG4WxmJJRZvPL83uAm+5Q05Js1Mu2Iusg==
-X-Received: by 2002:a5d:65ca:0:b0:236:8322:4be9 with SMTP id e10-20020a5d65ca000000b0023683224be9mr4655980wrw.171.1668786990434;
-        Fri, 18 Nov 2022 07:56:30 -0800 (PST)
-Received: from [192.168.8.100] (tmo-113-203.customers.d1-online.com. [80.187.113.203])
-        by smtp.gmail.com with ESMTPSA id bg21-20020a05600c3c9500b003b497138093sm5529105wmb.47.2022.11.18.07.56.29
+        bh=iCeupirs0oRwfAYdrtKDNR33oxtw0kRHF9WhmcxURbs=;
+        b=4o7Q9T81BrQ8gxn2YYj06cwBqZtzRhoDEqZUKgE7p1TuqpeDloLoLmxLhAR37ZJcVn
+         K2aRa0E1Ki++UlxHa81T59rO9XOpG4q5p4N7RBxmc+Dy4IXiNjMJgo0Yb162jRs2r7P7
+         KNcBWcM5E5UiBu+k8Fqx1BxtB0ZyhXHvtG19f1o39uWcwm8NVOQaD7esInXIqy9sX/VN
+         nkYeBKBDHxNkT439JrD0AGEsz2rcs+7Xn6FVVdBKOPFKyE5+o6t1nr9qeMgG31Mk51fJ
+         8sVkQCe6Pvf5i2UsSYxzyFI6OAdBpZQBFWERVKzSxlNEoro/UOBE6wV9dWlqtWtxkEkg
+         VkPA==
+X-Gm-Message-State: ANoB5pldCnhO26pBf3yXM/H4zSePXsuXjYDVgQJxOT/Gh+gIj7OptkRy
+        XkashXoEeHgZtUZlufm1E/5ftXEuBAvQz60XLe0FY9WjL2DMu27+ANpDyYTjz0j+RRV67rlKiZj
+        7ld3CxxYILvgGfVKvIdzVuw==
+X-Received: by 2002:aa7:d4cf:0:b0:461:a9ce:5408 with SMTP id t15-20020aa7d4cf000000b00461a9ce5408mr6997414edr.201.1668789757506;
+        Fri, 18 Nov 2022 08:42:37 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf5TaV9WywAgyEkJUjIKk83rbFXBQR8khfDHnlKNNSiUU8k8aohx0CjQn5lly7hEq5+W3BWrVw==
+X-Received: by 2002:aa7:d4cf:0:b0:461:a9ce:5408 with SMTP id t15-20020aa7d4cf000000b00461a9ce5408mr6997376edr.201.1668789757207;
+        Fri, 18 Nov 2022 08:42:37 -0800 (PST)
+Received: from [192.168.0.46] (host-95-248-159-81.retail.telecomitalia.it. [95.248.159.81])
+        by smtp.gmail.com with ESMTPSA id b10-20020a1709063caa00b0073d83f80b05sm1912134ejh.94.2022.11.18.08.42.35
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Nov 2022 07:56:29 -0800 (PST)
-Message-ID: <5407a498-2f29-e17d-949b-a9cf43eaa01e@redhat.com>
-Date:   Fri, 18 Nov 2022 16:56:28 +0100
+        Fri, 18 Nov 2022 08:42:36 -0800 (PST)
+Message-ID: <1ab5082c-bec5-53f2-501b-f15f7e8edbd9@redhat.com>
+Date:   Fri, 18 Nov 2022 17:42:34 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [PATCH] KVM: s390: remove unused gisa_clear_ipm_gisc() function
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: [RFC PATCH v2 8/8] sched, smp: Trace smp callback causing an IPI
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Valentin Schneider <vschneid@redhat.com>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+References: <20221102182949.3119584-1-vschneid@redhat.com>
+ <20221102183336.3120536-7-vschneid@redhat.com>
+ <Y3ZBUMteJysc1/lA@hirez.programming.kicks-ass.net>
+ <xhsmhfsehy706.mognet@vschneid.remote.csb>
+ <Y3dMiyFn6TG1s5g3@hirez.programming.kicks-ass.net>
 Content-Language: en-US
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20221118151133.2974602-1-hca@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20221118151133.2974602-1-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From:   Daniel Bristot de Oliveira <bristot@redhat.com>
+In-Reply-To: <Y3dMiyFn6TG1s5g3@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 18/11/2022 16.11, Heiko Carstens wrote:
-> clang warns about an unused function:
-> arch/s390/kvm/interrupt.c:317:20:
->    error: unused function 'gisa_clear_ipm_gisc' [-Werror,-Wunused-function]
-> static inline void gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+On 11/18/22 10:12, Peter Zijlstra wrote:
+> On Thu, Nov 17, 2022 at 02:45:29PM +0000, Valentin Schneider wrote:
 > 
-> Remove gisa_clear_ipm_gisc(), since it is unused and get rid of this
-> warning.
+>>> +	if (trace_ipi_send_cpumask_enabled()) {
+>>> +		call_single_data_t *csd;
+>>> +		smp_call_func_t func;
+>>> +
+>>> +		csd = container_of(node, call_single_data_t, node.llist);
+>>> +
+>>> +		func = sched_ttwu_pending;
+>>> +		if (CSD_TYPE(csd) != CSD_TYPE_TTWU)
+>>> +			func = csd->func;
+>>> +
+>>> +		if (raw_smp_call_single_queue(cpu, node))
+>>> +			trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func);
+>> So I went with the tracepoint being placed *before* the actual IPI gets
+>> sent to have a somewhat sane ordering between trace_ipi_send_cpumask() and
+>> e.g. trace_call_function_single_entry().
+>>
+>> Packaging the call_single_queue logic makes the code less horrible, but it
+>> does mix up the event ordering...
+> Keeps em sharp ;-)
 > 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->   arch/s390/kvm/interrupt.c | 5 -----
->   1 file changed, 5 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index ab569faf0df2..1dae78deddf2 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -314,11 +314,6 @@ static inline u8 gisa_get_ipm(struct kvm_s390_gisa *gisa)
->   	return READ_ONCE(gisa->ipm);
->   }
->   
-> -static inline void gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
-> -{
-> -	clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
-> -}
 
-Unused since its introduction in commit d77e64141e322.
+Having the trace before the IPI avoids the (non ideal) case where the trace stops because of
+an IPI execution before we have trace about who sent it... :-(.
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+-- Daniel
 
