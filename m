@@ -2,100 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3858CC43219
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Nov 2022 01:51:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AFFAC4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Nov 2022 09:14:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234053AbiKRBvH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Nov 2022 20:51:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59824 "EHLO
+        id S241805AbiKRJN6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Nov 2022 04:13:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234942AbiKRBvB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Nov 2022 20:51:01 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25BBD1E71A;
-        Thu, 17 Nov 2022 17:51:01 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id q1-20020a17090a750100b002139ec1e999so3724698pjk.1;
-        Thu, 17 Nov 2022 17:51:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=NBS4FEaFHTKXaYFv2EZVW4mDEjeLzjqY4+noYhxCMC0=;
-        b=PQJiGp8FtrzmlUizG+g1ph5MA8h5OzMv5uAA3sI+jLjxaM8z5Bw7stVBixImIawU/j
-         qDwCW44gKY4EL2t6MknTpgzfBadhflgt1nuMyf0GuXvWzQaBiyTXiqOBpfwrHgoGX8JU
-         hDs9EaawGpzWaKK/uH62CvcAoBpNcVNNRGmt3yQ8IuiwyafwrDt6JUWcD5j5RIm2i+Li
-         LWxo3PVbAm/xX9oILh2qYCC9dr5VWZ7CLmpmr7cGc9ad6Fbylw30fR1/AgQHpdMRFKR8
-         2fZT1ARENMBLGt3WhX7OPsYObaBpZXosDwQtvBb+POv6xgkKMnbDS2MIgGDDnDNZNV9m
-         /WYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=NBS4FEaFHTKXaYFv2EZVW4mDEjeLzjqY4+noYhxCMC0=;
-        b=KmkcAV6ScOb1GmAEM/1vuIpwMAy8IE0V5hDoY6sfCHPvpl2Xnk7LXyAnVS3sUL7VD9
-         70ymaFZhHt9GzyIPFOhZ9ZM3zGa7hFPxF3BmLf2sBCrp9TIbDGlcJdz4M8tHKmfQIToA
-         WxrWUY6FZ/OBcs6hBVjqH++ySQJSiQswqWd0wiitrFAhv/TATNiWzL6IR9JqmDZ6KkpT
-         zOA6oN4qw9deC898uigcSiQiTXFcfBZjgQqQsfemwvrJbHDPNL9iEV9HYdSMsb1k2BUr
-         zrKsbxxUiFS27r+avVnWcgQcCtoUBWhH12EgTkJbRNcMcs9+aMCX0ueBE/klG7Wy3k3F
-         RfqQ==
-X-Gm-Message-State: ANoB5pml2RSsHgN86oBBAG3YauLs+VAMBXtBl6i5ibA3vveNknCAcINa
-        vqts/xjBOZmBlPn9aF2/Z+c=
-X-Google-Smtp-Source: AA0mqf7UJgdPd4BUn/uEbwTZdqKfI8L6J8nUK3uXEaa7odzb6UBilqbNmtt/Uj6H4wDYtK/+YNamhg==
-X-Received: by 2002:a17:902:a508:b0:17c:7aaa:c67d with SMTP id s8-20020a170902a50800b0017c7aaac67dmr5225945plq.171.1668736260670;
-        Thu, 17 Nov 2022 17:51:00 -0800 (PST)
-Received: from [192.168.43.80] (subs02-180-214-232-20.three.co.id. [180.214.232.20])
-        by smtp.gmail.com with ESMTPSA id h15-20020aa796cf000000b00560bb4a57f7sm1865320pfq.179.2022.11.17.17.50.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Nov 2022 17:51:00 -0800 (PST)
-Message-ID: <73ecf737-c523-b4ab-f11f-431bb5fb2c37@gmail.com>
-Date:   Fri, 18 Nov 2022 08:50:54 +0700
+        with ESMTP id S235275AbiKRJN4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 04:13:56 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB7385FF0;
+        Fri, 18 Nov 2022 01:13:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=mwt73Igv1Cbi6CXwxAPKd0Pr+R9hvpBvRt03pYQ3bys=; b=ab3Y1GXh5hZN4kYCUal3zeuK3Q
+        7SRG1cvzhO7eKodvFDYyuRae96G8g5PWd/XWhtSWcEI5MUsYEab5Ovzc8ze8gBOk9y9y/n4/VG6QA
+        kxoDu7O/fG1a2giqiMnnG8GWp7V1BxUra+Jgp+oiupx2occO6L51vWUZQgeu4+7U3imdC7NUUUJ2N
+        J5VaNoVksNMD06l+gxDbRhfwA3keSj0mXPL1+LX088MVxqFi6HWwWMGwF0jamw9uSp14pYO1PV0sb
+        dSKJCydBYVIQlrwj2um9MWjTnI+ZTo1PEgHrvF9BZHJpiPATdBDwJ3bT9CqtMVsKHp/fep69BWHYQ
+        1FAlMbCA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1ovxQb-00287L-Gd; Fri, 18 Nov 2022 09:12:54 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 78E20300487;
+        Fri, 18 Nov 2022 10:12:43 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 5E8232C316131; Fri, 18 Nov 2022 10:12:43 +0100 (CET)
+Date:   Fri, 18 Nov 2022 10:12:43 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Valentin Schneider <vschneid@redhat.com>
+Cc:     linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Guo Ren <guoren@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [RFC PATCH v2 8/8] sched, smp: Trace smp callback causing an IPI
+Message-ID: <Y3dMiyFn6TG1s5g3@hirez.programming.kicks-ass.net>
+References: <20221102182949.3119584-1-vschneid@redhat.com>
+ <20221102183336.3120536-7-vschneid@redhat.com>
+ <Y3ZBUMteJysc1/lA@hirez.programming.kicks-ass.net>
+ <xhsmhfsehy706.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH v3 2/9] Documentation: KVM: s390: Describe
- KVM_S390_MEMOP_F_CMPXCHG
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-References: <20221117221758.66326-1-scgl@linux.ibm.com>
- <20221117221758.66326-3-scgl@linux.ibm.com>
-Content-Language: en-US
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <20221117221758.66326-3-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <xhsmhfsehy706.mognet@vschneid.remote.csb>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/18/22 05:17, Janis Schoetterl-Glausch wrote:
-> +For write accesses, the KVM_S390_MEMOP_F_CMPXCHG might be supported.
-> +In this case, instead of doing an unconditional write, the access occurs only
-> +if the target location contains the "size" byte long value pointed to by
-> +"old_p". This is performed as an atomic cmpxchg. "size" must be a power of two
-> +up to and including 16.
-> +The value at the target location is written to the location "old_p" points to.
-> +If the exchange did not take place because the target value doesn't match the
-> +old value KVM_S390_MEMOP_R_NO_XCHG is returned.
-> +The KVM_S390_MEMOP_F_CMPXCHG flag is supported if KVM_CAP_S390_MEM_OP_EXTENSION
-> +has bit 1 (i.e. bit with value 2) set.
->  
+On Thu, Nov 17, 2022 at 02:45:29PM +0000, Valentin Schneider wrote:
 
-Is KVM_S390_MEMOP_F_CMPXCHG supported with conditions (as you implied)?
+> > +	if (trace_ipi_send_cpumask_enabled()) {
+> > +		call_single_data_t *csd;
+> > +		smp_call_func_t func;
+> > +
+> > +		csd = container_of(node, call_single_data_t, node.llist);
+> > +
+> > +		func = sched_ttwu_pending;
+> > +		if (CSD_TYPE(csd) != CSD_TYPE_TTWU)
+> > +			func = csd->func;
+> > +
+> > +		if (raw_smp_call_single_queue(cpu, node))
+> > +			trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func);
+> 
+> So I went with the tracepoint being placed *before* the actual IPI gets
+> sent to have a somewhat sane ordering between trace_ipi_send_cpumask() and
+> e.g. trace_call_function_single_entry().
+> 
+> Packaging the call_single_queue logic makes the code less horrible, but it
+> does mix up the event ordering...
 
--- 
-An old man doll... just what I always wanted! - Clara
+Keeps em sharp ;-)
 
+> > +		return;
+> > +	}
+> > +
+> > +	raw_smp_call_single_queue(cpu, node);
+> >  }
+> >
+> >  /*
+> > @@ -983,10 +1017,13 @@ static void smp_call_function_many_cond(
+> >                * number of CPUs might be zero due to concurrent changes to the
+> >                * provided mask.
+> >                */
+> > -		if (nr_cpus == 1)
+> > +		if (nr_cpus == 1) {
+> > +			trace_ipi_send_cpumask(cpumask_of(last_cpu), _RET_IP_, func);
+> >                       send_call_function_single_ipi(last_cpu);
+> 
+> This'll yield an IPI event even if no IPI is sent due to the idle task
+> polling, no?
+
+Oh, right..
