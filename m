@@ -2,50 +2,49 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09006C4332F
-	for <linux-s390@archiver.kernel.org>; Sat, 19 Nov 2022 02:12:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90334C433FE
+	for <linux-s390@archiver.kernel.org>; Sat, 19 Nov 2022 02:15:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233638AbiKSCMv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Nov 2022 21:12:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45554 "EHLO
+        id S234462AbiKSCPH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Nov 2022 21:15:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233729AbiKSCMJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 21:12:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA50E6DFD9;
-        Fri, 18 Nov 2022 18:11:50 -0800 (PST)
+        with ESMTP id S234513AbiKSCNd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 21:13:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C80897A34D;
+        Fri, 18 Nov 2022 18:12:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67ACE62837;
-        Sat, 19 Nov 2022 02:11:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB214C433C1;
-        Sat, 19 Nov 2022 02:11:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73B89B8267A;
+        Sat, 19 Nov 2022 02:12:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42F72C433D7;
+        Sat, 19 Nov 2022 02:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668823909;
-        bh=HPphypBY4uY1rIxKcDmNvQVVeBl6fF5vcgXCR0pBTHA=;
+        s=k20201202; t=1668823944;
+        bh=Wc8JEWRI+UfRM1v9tLXWAGKl8UQcagNCtNbszPlvVhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUnuLJb74izBogHC2QClyVmxVdlNnfLAdVFAhEOjQrI/BMa+/+RDQPaoTOf9gMR8d
-         VxD4ug8gC0zgZEQmiRapFSJl0claTaKukJHq9dE5zGU9aJaLE9KOsBbhNFgOCTJ3Pz
-         qGVcLckk3SRYFQs4XtWIcqy7dMxIhke9q25sy184bh/l8/VQKg/hA1qE8bKS0lTxqC
-         8ILDnDoMYHjsCRcTwh6SNgyrfrkfaVGFF3+iSiRyUL/sPMXrNr2RCkBaci/ImR/q2a
-         eceQ9/dW7YM/GWHplKuh0/1Sw5AM78aADsR/Vd9/s8lMS2h856K1XZZlHYTuZ6aWIX
-         JDmF4CF/R4gMA==
+        b=bK79vHdhDCmbsaONXmXU1CGQk88EOZe/syLrY8bspQoUzSOTCIOzH/bOG89ZH7jVH
+         ZUQdaPLbrrA4KiMk2+rzkN0owLQj7CCJEkfABOzw4o5lgVMU29zbznT6tVjrrMAR6Z
+         MB/E3VPDRcltlozE9fNvMupVuAG2zczdaf55cI11hglKCqnaxhjGFyIDqslA2ejeOf
+         4/1GUThNbtJFyzsZlcWUTx4l2iyUjcJnoQbE/OMBAPO/PdwJDgE7en1d+kDCSImQt/
+         Pkry8jT7/yaAnOh0BtspjhUI2TYHdt/u6RzMICjE1IQx0s+gYB0R4EM/rexmPcmB7k
+         XBOloBsFP2a6Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harald Freudenberger <freude@linux.ibm.com>,
-        =?UTF-8?q?J=C3=BCrgen=20Christ?= <jchrist@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
-        agordeev@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 11/44] s390/zcrypt: fix warning about field-spanning write
-Date:   Fri, 18 Nov 2022 21:10:51 -0500
-Message-Id: <20221119021124.1773699-11-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
+        oberpar@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 29/44] s390: always build relocatable kernel
+Date:   Fri, 18 Nov 2022 21:11:09 -0500
+Message-Id: <20221119021124.1773699-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
 References: <20221119021124.1773699-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,82 +52,111 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit b43088f30db1a7bff61c8486238c195c77788d6d ]
+[ Upstream commit 80ddf5ce1c9291cb175d52ed1227134ad48c47ee ]
 
-This patch fixes the warning
+Nathan Chancellor reported several link errors on s390 with
+CONFIG_RELOCATABLE disabled, after binutils commit 906f69cf65da ("IBM
+zSystems: Issue error for *DBL relocs on misaligned symbols"). The binutils
+commit reveals potential miscompiles that might have happened already
+before with linker script defined symbols at odd addresses.
 
-memcpy: detected field-spanning write (size 60) of single field "to" at drivers/s390/crypto/zcrypt_api.h:173 (size 2)
-WARNING: CPU: 1 PID: 2114 at drivers/s390/crypto/zcrypt_api.h:173 prep_ep11_ap_msg+0x2c6/0x2e0 [zcrypt]
+A similar bug was recently fixed in the kernel with commit c9305b6c1f52
+("s390: fix nospec table alignments").
 
-The code has been rewritten to use a union in combination
-with a flex array to clearly state which part of the buffer
-the payload is to be copied in via z_copy_from_user
-function (which may call memcpy() in case of in-kernel calls).
+See https://github.com/ClangBuiltLinux/linux/issues/1747 for an analysis
+from Ulich Weigand.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Suggested-by: Jürgen Christ <jchrist@linux.ibm.com>
-Reviewed-by: Jürgen Christ <jchrist@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Therefore always build a relocatable kernel to avoid this problem. There is
+hardly any use-case for non-relocatable kernels, so this shouldn't be
+controversial.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1747
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20221030182202.2062705-1-hca@linux.ibm.com
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/zcrypt_msgtype6.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ arch/s390/Kconfig        | 6 +++---
+ arch/s390/Makefile       | 2 --
+ arch/s390/boot/Makefile  | 3 +--
+ arch/s390/boot/startup.c | 3 +--
+ 4 files changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-index 8fb34b8eeb18..5ad251477593 100644
---- a/drivers/s390/crypto/zcrypt_msgtype6.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-@@ -342,7 +342,10 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
- 	};
- 	struct {
- 		struct type6_hdr hdr;
--		struct CPRBX cprbx;
-+		union {
-+			struct CPRBX cprbx;
-+			DECLARE_FLEX_ARRAY(u8, userdata);
-+		};
- 	} __packed * msg = ap_msg->msg;
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 318fce77601d..de575af02ffe 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -568,8 +568,7 @@ config EXPOLINE_FULL
+ endchoice
  
- 	int rcblen = CEIL4(xcrb->request_control_blk_length);
-@@ -403,7 +406,8 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
- 	msg->hdr.fromcardlen2 = xcrb->reply_data_length;
+ config RELOCATABLE
+-	bool "Build a relocatable kernel"
+-	default y
++	def_bool y
+ 	help
+ 	  This builds a kernel image that retains relocation information
+ 	  so it can be loaded at an arbitrary address.
+@@ -578,10 +577,11 @@ config RELOCATABLE
+ 	  bootup process.
+ 	  The relocations make the kernel image about 15% larger (compressed
+ 	  10%), but are discarded at runtime.
++	  Note: this option exists only for documentation purposes, please do
++	  not remove it.
  
- 	/* prepare CPRB */
--	if (z_copy_from_user(userspace, &msg->cprbx, xcrb->request_control_blk_addr,
-+	if (z_copy_from_user(userspace, msg->userdata,
-+			     xcrb->request_control_blk_addr,
- 			     xcrb->request_control_blk_length))
- 		return -EFAULT;
- 	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
-@@ -469,9 +473,14 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(bool userspace, struct ap_message *ap
+ config RANDOMIZE_BASE
+ 	bool "Randomize the address of the kernel image (KASLR)"
+-	depends on RELOCATABLE
+ 	default y
+ 	help
+ 	  In support of Kernel Address Space Layout Randomization (KASLR),
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index 4cb5d17e7ead..47bec926d6c0 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -14,10 +14,8 @@ KBUILD_AFLAGS_MODULE += -fPIC
+ KBUILD_CFLAGS_MODULE += -fPIC
+ KBUILD_AFLAGS	+= -m64
+ KBUILD_CFLAGS	+= -m64
+-ifeq ($(CONFIG_RELOCATABLE),y)
+ KBUILD_CFLAGS	+= -fPIE
+ LDFLAGS_vmlinux	:= -pie
+-endif
+ aflags_dwarf	:= -Wa,-gdwarf-2
+ KBUILD_AFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -D__ASSEMBLY__
+ ifndef CONFIG_AS_IS_LLVM
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index 883357a211a3..d52c3e2e16bc 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -37,9 +37,8 @@ CFLAGS_sclp_early_core.o += -I$(srctree)/drivers/s390/char
  
- 	struct {
- 		struct type6_hdr hdr;
--		struct ep11_cprb cprbx;
--		unsigned char	pld_tag;	/* fixed value 0x30 */
--		unsigned char	pld_lenfmt;	/* payload length format */
-+		union {
-+			struct {
-+				struct ep11_cprb cprbx;
-+				unsigned char pld_tag;    /* fixed value 0x30 */
-+				unsigned char pld_lenfmt; /* length format */
-+			} __packed;
-+			DECLARE_FLEX_ARRAY(u8, userdata);
-+		};
- 	} __packed * msg = ap_msg->msg;
+ obj-y	:= head.o als.o startup.o mem_detect.o ipl_parm.o ipl_report.o
+ obj-y	+= string.o ebcdic.o sclp_early_core.o mem.o ipl_vmparm.o cmdline.o
+-obj-y	+= version.o pgm_check_info.o ctype.o ipl_data.o
++obj-y	+= version.o pgm_check_info.o ctype.o ipl_data.o machine_kexec_reloc.o
+ obj-$(findstring y, $(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) $(CONFIG_PGSTE))	+= uv.o
+-obj-$(CONFIG_RELOCATABLE)	+= machine_kexec_reloc.o
+ obj-$(CONFIG_RANDOMIZE_BASE)	+= kaslr.o
+ obj-y	+= $(if $(CONFIG_KERNEL_UNCOMPRESSED),,decompressor.o) info.o
+ obj-$(CONFIG_KERNEL_ZSTD) += clz_ctz.o
+diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
+index bc48fe82d949..e5026e1d277f 100644
+--- a/arch/s390/boot/startup.c
++++ b/arch/s390/boot/startup.c
+@@ -285,8 +285,7 @@ void startup_kernel(void)
  
- 	struct pld_hdr {
-@@ -500,7 +509,7 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(bool userspace, struct ap_message *ap
- 	msg->hdr.fromcardlen1 = xcrb->resp_len;
+ 	clear_bss_section();
+ 	copy_bootdata();
+-	if (IS_ENABLED(CONFIG_RELOCATABLE))
+-		handle_relocs(__kaslr_offset);
++	handle_relocs(__kaslr_offset);
  
- 	/* Import CPRB data from the ioctl input parameter */
--	if (z_copy_from_user(userspace, &msg->cprbx.cprb_len,
-+	if (z_copy_from_user(userspace, msg->userdata,
- 			     (char __force __user *)xcrb->req, xcrb->req_len)) {
- 		return -EFAULT;
- 	}
+ 	if (__kaslr_offset) {
+ 		/*
 -- 
 2.35.1
 
