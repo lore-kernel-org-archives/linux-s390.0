@@ -2,69 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18760C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Nov 2022 20:32:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09006C4332F
+	for <linux-s390@archiver.kernel.org>; Sat, 19 Nov 2022 02:12:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231488AbiKRUck (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Nov 2022 15:32:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35842 "EHLO
+        id S233638AbiKSCMv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Nov 2022 21:12:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231376AbiKRUcj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 15:32:39 -0500
+        with ESMTP id S233729AbiKSCMJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Nov 2022 21:12:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E781313D52;
-        Fri, 18 Nov 2022 12:32:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA50E6DFD9;
+        Fri, 18 Nov 2022 18:11:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 875126275C;
-        Fri, 18 Nov 2022 20:32:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id E8C61C433C1;
-        Fri, 18 Nov 2022 20:32:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67ACE62837;
+        Sat, 19 Nov 2022 02:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB214C433C1;
+        Sat, 19 Nov 2022 02:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668803557;
-        bh=lgV459q3szkOpQDpA5oQQ2cstfhBSeE+WxaG8DPqOs0=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=TCCQCxv9Dkbx+I/v+8Vqeei8dauptQlfOscp2t50fhxNkBPcNEx1IdPiEYXKP/G1f
-         vO1sUj7LC6DqrGp6ObyNk2115TjJEbbYAt0ujx3YvbZZz+bZhu3U3IeYLGiJjaczMx
-         u89kqK0plH/bVsKSnwc0WkaiZdO1c/rUyxkhoSXC1hcuUxXsY3HgT/3d9/a4Fzwml0
-         bxJfoDan0Gr4Og51l/m7mhAqnFAkdH7D0i+kGirLZk9Z4F+HIfQ30LO6eMr7Sh0enF
-         XnzRG3Ha+aQKAZPpw6kyntD4pBkLZkKgPLRS/dYQQnluagMAuQ6UIZDGd1/igihQej
-         ypqo7UD9c7MOw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id D7AB5E270F6;
-        Fri, 18 Nov 2022 20:32:37 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 6.1-rc6
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <Y3emu4epRB+EcdoM@tuxmaker.boeblingen.de.ibm.com>
-References: <Y3emu4epRB+EcdoM@tuxmaker.boeblingen.de.ibm.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Y3emu4epRB+EcdoM@tuxmaker.boeblingen.de.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-5
-X-PR-Tracked-Commit-Id: e3c11025bcd2142a61abe5806b2f86a0e78118df
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: ab290eaddc4c41b237b9a366fa6a5527be890b84
-Message-Id: <166880355787.16518.17412967600304618884.pr-tracker-bot@kernel.org>
-Date:   Fri, 18 Nov 2022 20:32:37 +0000
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
+        s=k20201202; t=1668823909;
+        bh=HPphypBY4uY1rIxKcDmNvQVVeBl6fF5vcgXCR0pBTHA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VUnuLJb74izBogHC2QClyVmxVdlNnfLAdVFAhEOjQrI/BMa+/+RDQPaoTOf9gMR8d
+         VxD4ug8gC0zgZEQmiRapFSJl0claTaKukJHq9dE5zGU9aJaLE9KOsBbhNFgOCTJ3Pz
+         qGVcLckk3SRYFQs4XtWIcqy7dMxIhke9q25sy184bh/l8/VQKg/hA1qE8bKS0lTxqC
+         8ILDnDoMYHjsCRcTwh6SNgyrfrkfaVGFF3+iSiRyUL/sPMXrNr2RCkBaci/ImR/q2a
+         eceQ9/dW7YM/GWHplKuh0/1Sw5AM78aADsR/Vd9/s8lMS2h856K1XZZlHYTuZ6aWIX
+         JDmF4CF/R4gMA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Harald Freudenberger <freude@linux.ibm.com>,
+        =?UTF-8?q?J=C3=BCrgen=20Christ?= <jchrist@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
+        agordeev@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 11/44] s390/zcrypt: fix warning about field-spanning write
+Date:   Fri, 18 Nov 2022 21:10:51 -0500
+Message-Id: <20221119021124.1773699-11-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
+References: <20221119021124.1773699-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Fri, 18 Nov 2022 16:37:31 +0100:
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.1-5
+[ Upstream commit b43088f30db1a7bff61c8486238c195c77788d6d ]
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/ab290eaddc4c41b237b9a366fa6a5527be890b84
+This patch fixes the warning
 
-Thank you!
+memcpy: detected field-spanning write (size 60) of single field "to" at drivers/s390/crypto/zcrypt_api.h:173 (size 2)
+WARNING: CPU: 1 PID: 2114 at drivers/s390/crypto/zcrypt_api.h:173 prep_ep11_ap_msg+0x2c6/0x2e0 [zcrypt]
 
+The code has been rewritten to use a union in combination
+with a flex array to clearly state which part of the buffer
+the payload is to be copied in via z_copy_from_user
+function (which may call memcpy() in case of in-kernel calls).
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Suggested-by: Jürgen Christ <jchrist@linux.ibm.com>
+Reviewed-by: Jürgen Christ <jchrist@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/crypto/zcrypt_msgtype6.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
+index 8fb34b8eeb18..5ad251477593 100644
+--- a/drivers/s390/crypto/zcrypt_msgtype6.c
++++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+@@ -342,7 +342,10 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
+ 	};
+ 	struct {
+ 		struct type6_hdr hdr;
+-		struct CPRBX cprbx;
++		union {
++			struct CPRBX cprbx;
++			DECLARE_FLEX_ARRAY(u8, userdata);
++		};
+ 	} __packed * msg = ap_msg->msg;
+ 
+ 	int rcblen = CEIL4(xcrb->request_control_blk_length);
+@@ -403,7 +406,8 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
+ 	msg->hdr.fromcardlen2 = xcrb->reply_data_length;
+ 
+ 	/* prepare CPRB */
+-	if (z_copy_from_user(userspace, &msg->cprbx, xcrb->request_control_blk_addr,
++	if (z_copy_from_user(userspace, msg->userdata,
++			     xcrb->request_control_blk_addr,
+ 			     xcrb->request_control_blk_length))
+ 		return -EFAULT;
+ 	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
+@@ -469,9 +473,14 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(bool userspace, struct ap_message *ap
+ 
+ 	struct {
+ 		struct type6_hdr hdr;
+-		struct ep11_cprb cprbx;
+-		unsigned char	pld_tag;	/* fixed value 0x30 */
+-		unsigned char	pld_lenfmt;	/* payload length format */
++		union {
++			struct {
++				struct ep11_cprb cprbx;
++				unsigned char pld_tag;    /* fixed value 0x30 */
++				unsigned char pld_lenfmt; /* length format */
++			} __packed;
++			DECLARE_FLEX_ARRAY(u8, userdata);
++		};
+ 	} __packed * msg = ap_msg->msg;
+ 
+ 	struct pld_hdr {
+@@ -500,7 +509,7 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(bool userspace, struct ap_message *ap
+ 	msg->hdr.fromcardlen1 = xcrb->resp_len;
+ 
+ 	/* Import CPRB data from the ioctl input parameter */
+-	if (z_copy_from_user(userspace, &msg->cprbx.cprb_len,
++	if (z_copy_from_user(userspace, msg->userdata,
+ 			     (char __force __user *)xcrb->req, xcrb->req_len)) {
+ 		return -EFAULT;
+ 	}
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.35.1
+
