@@ -2,118 +2,167 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6F23C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Nov 2022 17:44:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F07DBC433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Nov 2022 21:41:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229968AbiKURo4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Nov 2022 12:44:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36188 "EHLO
+        id S231846AbiKUVlr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Nov 2022 16:41:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229947AbiKURoy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Nov 2022 12:44:54 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B69D57B69;
-        Mon, 21 Nov 2022 09:44:53 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ALGRk5O009093;
-        Mon, 21 Nov 2022 17:44:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=ukJQU3ge+0DPRLprFDZHYtYJstKqpOQqUzG3RJjtDKY=;
- b=ixEiCQiYXm1KcrgavtnovwwXO9e5t1vx+QhfnYaM8GfzTdhTsxuDgMhIxdwaPOu5ozan
- n4wSZ+9QOC76qrUVsB5dlnU/uLuzTPu/55XCtsKdrExq4SDqclCHDYTFVxGdFjCjRaL0
- BfCJlkH524K1DqbqMZuKUbUrzViRb7AbS2WB5LgMW0t9s/S+tJ1NhAEn9Bp4o67SAFLO
- fSzkTQUJAT8lqm3UurPnU9snLHu7g8txCJrNXabjEGsAF/vs7wlmFmu+rI+76Smkscq3
- 1xcwM3sH+aMRFazXGNRRgFwv5D4WJiyq7BKAMCf5pvRvjqbeVjJpC5KPpmRUbmyRTpWk Gg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0cvg1s22-1
+        with ESMTP id S231795AbiKUVlV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Nov 2022 16:41:21 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9326D48E2;
+        Mon, 21 Nov 2022 13:41:07 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ALJS3c8038645;
+        Mon, 21 Nov 2022 21:41:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=GDjHS/K3Z+SJD4wIe0+OC40o7dp3d5xRTKCLxnRWZzk=;
+ b=PrFcgpUIG7eYy8SbisfUjikdbTbkNtOZb92Xr1olVCAQCectbkp3JUFXJOeRijgAg3+G
+ +QRO5G8czq4f8SddecvkNzK/EOezP+t+ZrhYUfcaDzm7jTLhB3vuBfYw17bAlNjdTX8k
+ LTSibxpw+3bA4g8ahS6OSHYj2svkKk2Jx+Vs/MswR1VBgbmul2WqkDzvZZY4+KyAqzrl
+ 6HqxhHoqoZFvgDsd9ZWF1lgyCXZOkR/N3Ap47BdpE9nwcGUIpVFEqQ/8VQ9HbowX3arm
+ 6fs5Q1+Bqjb31ChLfzE6ssW4kQzdm7xMAiTArlF6RG+o7DtUoyrKzauDrEll/gVamiWU ag== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0fguav31-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Nov 2022 17:44:49 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ALGf38E024879;
-        Mon, 21 Nov 2022 17:44:48 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0cvg1s1j-1
+        Mon, 21 Nov 2022 21:41:06 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ALLbNmQ025154;
+        Mon, 21 Nov 2022 21:41:05 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03fra.de.ibm.com with ESMTP id 3kxps92d0e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Nov 2022 17:44:48 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ALHbVKr030934;
-        Mon, 21 Nov 2022 17:44:46 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3kxps8j7st-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Nov 2022 17:44:46 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ALHjNI644958096
+        Mon, 21 Nov 2022 21:41:04 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ALLYo8e50725288
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Nov 2022 17:45:24 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 18493AE051;
-        Mon, 21 Nov 2022 17:44:43 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5871BAE045;
-        Mon, 21 Nov 2022 17:44:42 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.52.183])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 21 Nov 2022 17:44:42 +0000 (GMT)
-Message-ID: <e56e2c58477626dbdc6d4ddcd806459e7ce93b28.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 2/9] Documentation: KVM: s390: Describe
- KVM_S390_MEMOP_F_CMPXCHG
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Bagas Sanjaya <bagasdotme@gmail.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        Mon, 21 Nov 2022 21:34:50 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB4C4A404D;
+        Mon, 21 Nov 2022 21:41:01 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A984CA4040;
+        Mon, 21 Nov 2022 21:41:01 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 21 Nov 2022 21:41:01 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+        id 6A5CCE033F; Mon, 21 Nov 2022 22:41:01 +0100 (CET)
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-Date:   Mon, 21 Nov 2022 18:44:42 +0100
-In-Reply-To: <73ecf737-c523-b4ab-f11f-431bb5fb2c37@gmail.com>
-References: <20221117221758.66326-1-scgl@linux.ibm.com>
-         <20221117221758.66326-3-scgl@linux.ibm.com>
-         <73ecf737-c523-b4ab-f11f-431bb5fb2c37@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v1 02/16] vfio/ccw: simplify the cp_get_orb interface
+Date:   Mon, 21 Nov 2022 22:40:42 +0100
+Message-Id: <20221121214056.1187700-3-farman@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20221121214056.1187700-1-farman@linux.ibm.com>
+References: <20221121214056.1187700-1-farman@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xcZfCWc2vgaEHtwQ26s-Mj0whSdSWr9i
-X-Proofpoint-ORIG-GUID: olU0MKShioiM4yJlr6NsYzJVdYNWNhc0
+X-Proofpoint-GUID: CYl9QnTY8NQLsaQ-RvaPCd8h4ejoo85w
+X-Proofpoint-ORIG-GUID: CYl9QnTY8NQLsaQ-RvaPCd8h4ejoo85w
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-21_14,2022-11-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 phishscore=0 malwarescore=0 impostorscore=0 mlxscore=0
- clxscore=1015 priorityscore=1501 suspectscore=0 spamscore=0
- mlxlogscore=765 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2210170000 definitions=main-2211210132
+ definitions=2022-11-21_17,2022-11-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1015
+ mlxscore=0 spamscore=0 lowpriorityscore=0 priorityscore=1501
+ impostorscore=0 phishscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ mlxlogscore=752 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211210158
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 2022-11-18 at 08:50 +0700, Bagas Sanjaya wrote:
-> On 11/18/22 05:17, Janis Schoetterl-Glausch wrote:
-> > +For write accesses, the KVM_S390_MEMOP_F_CMPXCHG might be supported.
-> > +In this case, instead of doing an unconditional write, the access occurs only
-> > +if the target location contains the "size" byte long value pointed to by
-> > +"old_p". This is performed as an atomic cmpxchg. "size" must be a power of two
-> > +up to and including 16.
-> > +The value at the target location is written to the location "old_p" points to.
-> > +If the exchange did not take place because the target value doesn't match the
-> > +old value KVM_S390_MEMOP_R_NO_XCHG is returned.
-> > +The KVM_S390_MEMOP_F_CMPXCHG flag is supported if KVM_CAP_S390_MEM_OP_EXTENSION
-> > +has bit 1 (i.e. bit with value 2) set.
-> >  
-> 
-> Is KVM_S390_MEMOP_F_CMPXCHG supported with conditions (as you implied)?
-> 
-I'm afraid I don't quite understand the question.
-It is supported if the capability says it is, i.e. if bit 1 is set.
+There's no need to send in both the address of the subchannel
+struct, and an element within it, to populate the ORB.
+
+Pass the whole pointer and let cp_get_orb() take the pieces
+that are needed.
+
+Suggested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c  | 9 ++++-----
+ drivers/s390/cio/vfio_ccw_cp.h  | 2 +-
+ drivers/s390/cio/vfio_ccw_fsm.c | 2 +-
+ 3 files changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 9e6df1f2fbee..a0060ef1119e 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -816,14 +816,13 @@ int cp_prefetch(struct channel_program *cp)
+ /**
+  * cp_get_orb() - get the orb of the channel program
+  * @cp: channel_program on which to perform the operation
+- * @intparm: new intparm for the returned orb
+- * @lpm: candidate value of the logical-path mask for the returned orb
++ * @sch: subchannel the operation will be performed against
+  *
+  * This function returns the address of the updated orb of the channel
+  * program. Channel I/O device drivers could use this orb to issue a
+  * ssch.
+  */
+-union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm)
++union orb *cp_get_orb(struct channel_program *cp, struct subchannel *sch)
+ {
+ 	union orb *orb;
+ 	struct ccwchain *chain;
+@@ -835,12 +834,12 @@ union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm)
+ 
+ 	orb = &cp->orb;
+ 
+-	orb->cmd.intparm = intparm;
++	orb->cmd.intparm = (u32)virt_to_phys(sch);
+ 	orb->cmd.fmt = 1;
+ 	orb->cmd.key = PAGE_DEFAULT_KEY >> 4;
+ 
+ 	if (orb->cmd.lpm == 0)
+-		orb->cmd.lpm = lpm;
++		orb->cmd.lpm = sch->lpm;
+ 
+ 	chain = list_first_entry(&cp->ccwchain_list, struct ccwchain, next);
+ 	cpa = chain->ch_ccw;
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
+index 16138a654fdd..fc31eb699807 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -43,7 +43,7 @@ struct channel_program {
+ int cp_init(struct channel_program *cp, union orb *orb);
+ void cp_free(struct channel_program *cp);
+ int cp_prefetch(struct channel_program *cp);
+-union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm);
++union orb *cp_get_orb(struct channel_program *cp, struct subchannel *sch);
+ void cp_update_scsw(struct channel_program *cp, union scsw *scsw);
+ bool cp_iova_pinned(struct channel_program *cp, u64 iova, u64 length);
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index 2784a4e4d2be..757b73141246 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -27,7 +27,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+ 
+ 	spin_lock_irqsave(sch->lock, flags);
+ 
+-	orb = cp_get_orb(&private->cp, (u32)virt_to_phys(sch), sch->lpm);
++	orb = cp_get_orb(&private->cp, sch);
+ 	if (!orb) {
+ 		ret = -EIO;
+ 		goto out;
+-- 
+2.34.1
+
