@@ -2,56 +2,56 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F0ACC4167E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABBA4C352A1
 	for <linux-s390@archiver.kernel.org>; Mon, 21 Nov 2022 21:42:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231985AbiKUVmB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Nov 2022 16:42:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59500 "EHLO
+        id S231966AbiKUVmA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Nov 2022 16:42:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231634AbiKUVli (ORCPT
+        with ESMTP id S231726AbiKUVli (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Nov 2022 16:41:38 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98058DB876;
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E2A1DB85E;
         Mon, 21 Nov 2022 13:41:08 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ALLLYmr003915;
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ALLRY0N023134;
         Mon, 21 Nov 2022 21:41:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=kN3Dkxy6fN9jTRkiIbybticlbZ22gn/WkCFZcZpeXe8=;
- b=OccvBHcNcxoSVZPfBLLLX+tnV46JuHte7Bm/TH6nReyp1CvNKn2y4otD4EIwwd4oIeZd
- 9xMq5/9TPf2+sSlnyBKb8dO+wu4yGg7fnV52JmEbhT4ZfkrImVs36/xD0B4bLLJO/F3s
- JkoAFecUhftQKbqZc2TKM3e7RQBuSy64f5hf3lJl7R8wnslJsQq6SpscNwnkfdqbTDAL
- SCJb/zeI1ImoCSfiww64N36+Nvcr8iOhJtpkH8vYDPfyoz0yko/9h4mELhdz1RyxoKsa
- Xq1a7jcVq+veJnXFXSPDhBn+1a6KfeiCwXoi5hPq6NvJ9Tn2QoklF4UMfMB7GSDcKaC5 Qw== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0cnxyav5-1
+ bh=yLjvMIxS6ztk/SZxNph4GGZktVfD7uEXPWM9MM2KKh8=;
+ b=lGhleW57+uKMz7qfV6xfyY9reiy77GbACxNL82PXQKLLYR/e6Rdq5lcL6z/KpK3VClwh
+ kxXxS4mP+HYYNrR8Yxy97+jcn7xw9w6i+Jb7eZ68ivdgge6B2Szd4sDgIvyt1IP4YJ+F
+ zUyT2Vvo4upAl22fWMj7KfEZHILQHuRs8H51Nbuf+2B+kWjzhsoSS4LUoDDlofIn8nEq
+ T3Fk5VsfA4jHGSN5eUstDieDwNPBoPmzawUci6K2PNqccLH6j95m0N0b2iwUlZPgfaNc
+ ViVsl4Eh1OEHs1wQOtYxVwadL1mNV44SaUOsLRdDUJ2rj56IdKea2cpfmz0fgGCZoOae wA== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0h910c85-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 21 Nov 2022 21:41:07 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ALLaYBW014937;
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ALLZuEx020785;
         Mon, 21 Nov 2022 21:41:05 GMT
 Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma01fra.de.ibm.com with ESMTP id 3kxps92cr4-1
+        by ppma06fra.de.ibm.com with ESMTP id 3kxpdj2d8r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 21 Nov 2022 21:41:05 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ALLf2W366453840
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ALLf2eW55771614
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Mon, 21 Nov 2022 21:41:02 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0A29F4C050;
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4B022AE04D;
         Mon, 21 Nov 2022 21:41:02 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EC5D14C046;
-        Mon, 21 Nov 2022 21:41:01 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 39288AE045;
+        Mon, 21 Nov 2022 21:41:02 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 21 Nov 2022 21:41:01 +0000 (GMT)
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 21 Nov 2022 21:41:02 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id 7C9C5E081E; Mon, 21 Nov 2022 22:41:01 +0100 (CET)
+        id 956F3E08E3; Mon, 21 Nov 2022 22:41:01 +0100 (CET)
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Halil Pasic <pasic@linux.ibm.com>
@@ -64,103 +64,74 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
         linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v1 08/16] vfio/ccw: pass page count to page_array struct
-Date:   Mon, 21 Nov 2022 22:40:48 +0100
-Message-Id: <20221121214056.1187700-9-farman@linux.ibm.com>
+Subject: [PATCH v1 16/16] vfio/ccw: remove old IDA format restrictions
+Date:   Mon, 21 Nov 2022 22:40:56 +0100
+Message-Id: <20221121214056.1187700-17-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221121214056.1187700-1-farman@linux.ibm.com>
 References: <20221121214056.1187700-1-farman@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MINkycb_cqL0eINQIW3C-aJcTvubJZeC
-X-Proofpoint-GUID: MINkycb_cqL0eINQIW3C-aJcTvubJZeC
+X-Proofpoint-GUID: CmYICqLT7l4aIQp3HrNK_ZEsAs9DncxO
+X-Proofpoint-ORIG-GUID: CmYICqLT7l4aIQp3HrNK_ZEsAs9DncxO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-21_17,2022-11-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- lowpriorityscore=0 spamscore=0 suspectscore=0 bulkscore=0 malwarescore=0
- adultscore=0 clxscore=1015 mlxscore=0 priorityscore=1501 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211210158
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 mlxscore=0 adultscore=0 bulkscore=0 malwarescore=0
+ clxscore=1015 spamscore=0 suspectscore=0 phishscore=0 priorityscore=1501
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211210158
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The allocation of our page_array struct calculates the number
-of 4K pages that would be needed to hold a certain number of
-bytes. But, since the number of pages that will be pinned is
-also calculated by the length of the IDAL, this logic is
-unnecessary. Let's pass that information in directly, and
-avoid the math within the allocator.
-
-Also, let's make this two allocations instead of one,
-to make it apparent what's happening within here.
+By this point, all the pieces are in place to properly support
+a 2K Format-2 IDAL, and to convert a guest Format-1 IDAL to
+the 2K Format-2 variety. Let's remove the fence that prohibits
+them, and allow a guest to submit them if desired.
 
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ Documentation/s390/vfio-ccw.rst | 4 ++--
+ drivers/s390/cio/vfio_ccw_cp.c  | 8 --------
+ 2 files changed, 2 insertions(+), 10 deletions(-)
 
+diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
+index ea928a3806f4..53375dc86213 100644
+--- a/Documentation/s390/vfio-ccw.rst
++++ b/Documentation/s390/vfio-ccw.rst
+@@ -219,8 +219,8 @@ values may occur:
+   The operation was successful.
+ 
+ ``-EOPNOTSUPP``
+-  The orb specified transport mode or an unidentified IDAW format, or the
+-  scsw specified a function other than the start function.
++  The ORB specified transport mode, or the
++  SCSW specified a function other than the start function.
+ 
+ ``-EIO``
+   A request was issued while the device was not in a state ready to accept
 diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 4b6b5f9dc92d..66e890441163 100644
+index 3829c346583c..60e972042979 100644
 --- a/drivers/s390/cio/vfio_ccw_cp.c
 +++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -43,7 +43,7 @@ struct ccwchain {
-  * page_array_alloc() - alloc memory for page array
-  * @pa: page_array on which to perform the operation
-  * @iova: target guest physical address
-- * @len: number of bytes that should be pinned from @iova
-+ * @len: number of pages that should be pinned from @iova
-  *
-  * Attempt to allocate memory for page array.
-  *
-@@ -63,18 +63,20 @@ static int page_array_alloc(struct page_array *pa, u64 iova, unsigned int len)
- 	if (pa->pa_nr || pa->pa_iova)
- 		return -EINVAL;
+@@ -372,14 +372,6 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+ 	do {
+ 		cnt++;
  
--	pa->pa_nr = ((iova & ~PAGE_MASK) + len + (PAGE_SIZE - 1)) >> PAGE_SHIFT;
--	if (!pa->pa_nr)
-+	if (!len)
- 		return -EINVAL;
- 
--	pa->pa_iova = kcalloc(pa->pa_nr,
--			      sizeof(*pa->pa_iova) + sizeof(*pa->pa_page),
--			      GFP_KERNEL);
--	if (unlikely(!pa->pa_iova)) {
--		pa->pa_nr = 0;
-+	pa->pa_nr = len;
-+
-+	pa->pa_iova = kcalloc(len, sizeof(*pa->pa_iova), GFP_KERNEL);
-+	if (!pa->pa_iova)
-+		return -ENOMEM;
-+
-+	pa->pa_page = kcalloc(len, sizeof(*pa->pa_page), GFP_KERNEL);
-+	if (!pa->pa_page) {
-+		kfree(pa->pa_iova);
- 		return -ENOMEM;
- 	}
--	pa->pa_page = (struct page **)&pa->pa_iova[pa->pa_nr];
- 
- 	pa->pa_iova[0] = iova;
- 	pa->pa_page[0] = NULL;
-@@ -167,6 +169,7 @@ static int page_array_pin(struct page_array *pa, struct vfio_device *vdev)
- static void page_array_unpin_free(struct page_array *pa, struct vfio_device *vdev)
- {
- 	page_array_unpin(pa, vdev, pa->pa_nr);
-+	kfree(pa->pa_page);
- 	kfree(pa->pa_iova);
- }
- 
-@@ -545,7 +548,7 @@ static int ccwchain_fetch_ccw(struct ccw1 *ccw,
- 	 * required for the data transfer, since we only only support
- 	 * 4K IDAWs today.
- 	 */
--	ret = page_array_alloc(pa, iova, bytes);
-+	ret = page_array_alloc(pa, iova, idaw_nr);
- 	if (ret < 0)
- 		goto out_free_idaws;
- 
+-		/*
+-		 * As we don't want to fail direct addressing even if the
+-		 * orb specified one of the unsupported formats, we defer
+-		 * checking for IDAWs in unsupported formats to here.
+-		 */
+-		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
+-			return -EOPNOTSUPP;
+-
+ 		/*
+ 		 * We want to keep counting if the current CCW has the
+ 		 * command-chaining flag enabled, or if it is a TIC CCW
 -- 
 2.34.1
 
