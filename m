@@ -2,175 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E6E6C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Nov 2022 13:11:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CC60C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Nov 2022 15:15:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232791AbiKVNLD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Nov 2022 08:11:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40266 "EHLO
+        id S232800AbiKVPPh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Nov 2022 10:15:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232656AbiKVNK4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Nov 2022 08:10:56 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C18E2645;
-        Tue, 22 Nov 2022 05:10:55 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AMAgXdu013705;
-        Tue, 22 Nov 2022 13:10:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=hQ3fVymP4HFlZ5VZh4VL4SoYVcWFpM4fBoyY3KbIllw=;
- b=fCQdtovJW9AM2EGOqGXskr2oOyevGuf1X8WxtrvDicgUlW2gFUCQfkq9b1cyg1GwYNr/
- qxsOepoe6u1g8rdoqmmSzxQcglFix+nuhsmTsb0yLZSHNXLfJ98uKKgwcxK+kRofDYdD
- uRy6qNCiwUZ4j0J0x5s/BFy/GAiqtwvI6TFXWDGCwz4OAgs2KDOFg4K0dE6qZJkYfJHc
- PlwFpTpdxL2iIgbjLJKxpzvlJ/SWa2XIMpZLCjktV8+sqltSwGNK6xzYEbfXKuSlw6Bc
- G51a6o4Hqg94Hs/OeZmafcxSqwYtcs8TX0qkfbH8lU/bsnc4kZWSZwwkJSgPuj15hUs3 0g== 
+        with ESMTP id S232779AbiKVPPg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Nov 2022 10:15:36 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6643C6FA;
+        Tue, 22 Nov 2022 07:15:35 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AMEX8k6015368;
+        Tue, 22 Nov 2022 15:15:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=rhBffdYPdTlauIRdEqJ7HG27aUNvBoJ3ie8MoayMT0A=;
+ b=Wzi0acL257X8dP/rxKmZmg57Y+ydh0es7VHIINK7/7cFxyJd7CIpXs4ncHfO6JjPpa2z
+ KxdbbeHYIU//WczBldj/Ak0evZQvSELJEKEDAsee8heHL/49xXM8t0za2xj6AIDeMLC1
+ aflp/o42v5+IfxGOPKimLJd5pVdFRseXvdlTcs2WUAVWCCeZkW57sQK2HMJhW5pmj7Dj
+ 96RCz+TBEd21bZBvSnHkczCatnGJ/avSWdmi/5qX91RL/QxD0maOravzZ7XqXUg8Qs9J
+ fznNFslcDKUoJ540AsQs7NBiqipTIUKj/nIa7DZ4bNoCpHcSFPZLZ7W59eWQFW91YwEL aw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0tqaq3av-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0x7ywpq1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Nov 2022 13:10:49 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AMCgFQt022109;
-        Tue, 22 Nov 2022 13:10:49 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0tqaq38w-1
+        Tue, 22 Nov 2022 15:15:12 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AMCMT7p024785;
+        Tue, 22 Nov 2022 15:15:11 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0x7ywpp4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Nov 2022 13:10:49 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AMD6OaT000661;
-        Tue, 22 Nov 2022 13:10:46 GMT
+        Tue, 22 Nov 2022 15:15:11 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AMF5AFb014275;
+        Tue, 22 Nov 2022 15:15:09 GMT
 Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3kxps934ns-1
+        by ppma04ams.nl.ibm.com with ESMTP id 3kxps8vdww-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Nov 2022 13:10:46 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AMDBNIT42926526
+        Tue, 22 Nov 2022 15:15:09 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AMFFlAI51511710
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 22 Nov 2022 13:11:23 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C4804AE04D;
-        Tue, 22 Nov 2022 13:10:42 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 18530AE045;
-        Tue, 22 Nov 2022 13:10:42 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.10.123])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 22 Nov 2022 13:10:42 +0000 (GMT)
-Message-ID: <e735fa2cde6e9c92dda134634cb3d67b64b23fe9.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 2/9] Documentation: KVM: s390: Describe
- KVM_S390_MEMOP_F_CMPXCHG
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Tue, 22 Nov 2022 15:15:47 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7C9F2A4040;
+        Tue, 22 Nov 2022 15:15:06 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C13F9A4051;
+        Tue, 22 Nov 2022 15:15:05 +0000 (GMT)
+Received: from localhost (unknown [9.171.79.173])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 22 Nov 2022 15:15:05 +0000 (GMT)
+Date:   Tue, 22 Nov 2022 16:15:04 +0100
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Coiby Xu <coxu@redhat.com>
+Cc:     kexec@lists.infradead.org, Matthew Garrett <mjg59@srcf.ucam.org>,
+        Jiri Bohac <jbohac@suse.cz>,
+        David Howells <dhowells@redhat.com>,
+        Philipp Rudo <prudo@redhat.com>, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>
-Date:   Tue, 22 Nov 2022 14:10:41 +0100
-In-Reply-To: <f96b50e2-24ac-4016-d3f1-ffc375516e7c@redhat.com>
-References: <20221117221758.66326-1-scgl@linux.ibm.com>
-         <20221117221758.66326-3-scgl@linux.ibm.com>
-         <f96b50e2-24ac-4016-d3f1-ffc375516e7c@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        James Morris <jmorris@namei.org>,
+        Matthew Garrett <mjg59@google.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>
+Subject: Re: [PATCH] lockdown: s390: kexec_file: don't skip signature
+ verification when not secure IPLed
+Message-ID: <your-ad-here.call-01669130104-ext-3635@work.hours>
+References: <20221121072715.836323-1-coxu@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20221121072715.836323-1-coxu@redhat.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: eXYljfTqPOrYrIkozEPhxBDypaqjOjXw
-X-Proofpoint-ORIG-GUID: MH03WnBZBvlQkASGvVvGlFEGTrL5rQwE
+X-Proofpoint-GUID: Xmuclpu3WEszRI2qNbRBVQlm7RMy6X6b
+X-Proofpoint-ORIG-GUID: hqOy_mHrsET4QwN4av8WH--pPNhPAy8G
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-22_06,2022-11-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 mlxlogscore=763 mlxscore=0 priorityscore=1501
- spamscore=0 impostorscore=0 phishscore=0 malwarescore=0 adultscore=0
- bulkscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211220096
+ definitions=2022-11-22_09,2022-11-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ malwarescore=0 mlxscore=0 mlxlogscore=999 spamscore=0 phishscore=0
+ bulkscore=0 suspectscore=0 priorityscore=1501 clxscore=1011
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211220113
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-11-22 at 08:47 +0100, Thomas Huth wrote:
-> On 17/11/2022 23.17, Janis Schoetterl-Glausch wrote:
-> > Describe the semantics of the new KVM_S390_MEMOP_F_CMPXCHG flag for
-> > absolute vm write memops which allows user space to perform (storage key
-> > checked) cmpxchg operations on guest memory.
-> > 
-> > Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> > ---
-> ...
-> >   Supported flags:
-> >     * ``KVM_S390_MEMOP_F_CHECK_ONLY``
-> >     * ``KVM_S390_MEMOP_F_SKEY_PROTECTION``
-> > +  * ``KVM_S390_MEMOP_F_CMPXCHG``
-> > +
-> > +The semantics of the flags common with logical acesses are as for logical
-> > +accesses.
-> > +
-> > +For write accesses, the KVM_S390_MEMOP_F_CMPXCHG might be supported.
-> 
-> I'd maybe merge this with the last sentence:
-> 
-> For write accesses, the KVM_S390_MEMOP_F_CMPXCHG flag is supported if 
-> KVM_CAP_S390_MEM_OP_EXTENSION has bit 1 (i.e. bit with value 2) set.
+On Mon, Nov 21, 2022 at 03:27:15PM +0800, Coiby Xu wrote:
+> --- a/arch/s390/kernel/machine_kexec_file.c
+> +++ b/arch/s390/kernel/machine_kexec_file.c
+> @@ -33,10 +33,6 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
+>  	unsigned long sig_len;
+>  	int ret;
+>  
+> -	/* Skip signature verification when not secure IPLed. */
+> -	if (!ipl_secure_flag)
+> -		return 0;
 
-Ok.
-> 
-> ... and speaking of that, I wonder whether it's maybe a good idea to 
-> introduce some #defines for bit 1 / value 2, to avoid the confusion ?
+Looking at s390_verify_sig() especially before commit 0828c4a39be5
+("kexec, KEYS, s390: Make use of built-in and secondary keyring for
+signature verification") I think this condition actually expresses
+2 things:
+1. the firmware is secure IPL capable and secure IPL keys are
+   provided and present in platform keyring.
+2. secure IPL is enabled.
 
-Not sure, I don't feel it's too complicated. Where would you define it?
-Next to the mem_op struct? KVM_S390_MEMOP_EXTENSION_CAP_CMPXCHG?
-> 
-> > +In this case, instead of doing an unconditional write, the access occurs only
-> > +if the target location contains the "size" byte long value pointed to by
-> > +"old_p". This is performed as an atomic cmpxchg.
-> 
-> I had to read the first sentence twice to understand it ... maybe it's 
-> easier to understand if you move the "size" part to the second sentence:
-> 
-> In this case, instead of doing an unconditional write, the access occurs 
-> only if the target location contains value pointed to by "old_p". This is 
-> performed as an atomic cmpxchg with the length specified by the "size" 
-> parameter.
-> 
-> ?
-
-Ok.
-> 
-> > "size" must be a power of two
-> > +up to and including 16.
-> > +The value at the target location is written to the location "old_p" points to.
-> 
-> IMHO something like this would be better:
-> 
-> The value at the target location is replaced with the value from the 
-> location that "old_p" points to.
-
-I'm trying to say the opposite :).
-I went with this:
-
-If the exchange did not take place because the target value doesn't match the
-old value, KVM_S390_MEMOP_R_NO_XCHG is returned.
-In this case the value "old_addr" points to is replaced by the target value.
-> 
-> > +If the exchange did not take place because the target value doesn't match the
-> > +old value KVM_S390_MEMOP_R_NO_XCHG is returned.
-> > +The KVM_S390_MEMOP_F_CMPXCHG flag is supported if KVM_CAP_S390_MEM_OP_EXTENSION
-> > +has bit 1 (i.e. bit with value 2) set.
-> 
->   Thomas
-> 
-> PS: Please take my suggestions with a grain of salt ... I'm not a native 
-> speaker either.
-> 
-
+Wouldn't this change have implications for machines with older firmware
+which doesn't support secure IPL? In this case platform keyring won't
+have any secure IPL keys (since firmware doesn't provide them)
+and any properly signed kernels will be rejected for kexec in this
+function. Unless secure IPL keys are also present in built-in or secondary
+keyring (which is possible after commit 0828c4a39be5) - is that what
+distributions normally do?
