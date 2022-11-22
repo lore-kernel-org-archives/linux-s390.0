@@ -2,68 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98ED8C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Nov 2022 07:53:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CC21C43219
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Nov 2022 09:34:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232618AbiKVHxr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Nov 2022 02:53:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34470 "EHLO
+        id S232402AbiKVJeQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Nov 2022 04:34:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232563AbiKVHxp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Nov 2022 02:53:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B9CBBC0B
-        for <linux-s390@vger.kernel.org>; Mon, 21 Nov 2022 23:52:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669103564;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Rifkp7obcWWXPx9xWSCjpQuWQ7gvbRTBtiWo8m0gkU0=;
-        b=Jm21awnX4dzz7gWFAblruH4ez1kou6VMVhaAro5k+difkiJ6yvImiIzQ365RUqoNlbXSI6
-        Xkv390ccHrG/+rBOepDXyp2nDI9st7B+KqS1t9WtfWXDeEzfTPW/AMxnHrlrt5JFGYKQ7m
-        AMQBPGVNC+Lnoy1ZKBsLSh0axVSK16A=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-183-czYawcw-Pyawv7_lUsVtqw-1; Tue, 22 Nov 2022 02:52:42 -0500
-X-MC-Unique: czYawcw-Pyawv7_lUsVtqw-1
-Received: by mail-wm1-f69.google.com with SMTP id ay19-20020a05600c1e1300b003cf758f1617so10615118wmb.5
-        for <linux-s390@vger.kernel.org>; Mon, 21 Nov 2022 23:52:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Rifkp7obcWWXPx9xWSCjpQuWQ7gvbRTBtiWo8m0gkU0=;
-        b=vZVRKlHWiC2VqfH/qlzBvABsojYYzjDxQaq4QFYTHYlfoDzCEHZ7Zmv59LQG7TTEtI
-         Xg09VgaOWe7+gZpZ0Y50bK4PYlLuPPMYKFmcyrJHN2mq03OLVWYvT8/1EViG1rI9Vogr
-         QuqvmKnaPpws9hmLtSScfvFx35Q8tFyByoAvyB51A3ooLorCVu6j2/L6LZX0rJpHJ7BU
-         5nOVrGgaXWEMTiPO614niWr7BxgucYBtU486FxIAzXnks7asoQhyeGat06M/42bSexL+
-         eDPUM+ASfpOXsoA6hEc5tPudYN16wVgj2x34bkM8zwKg2tZuhBZD7ENYp+NCIvok0Ryb
-         8u8A==
-X-Gm-Message-State: ANoB5plvWXlphpZilSM6aGpgj1F0J14wJtqVLXAvyAQWxR6CIHqYr+h2
-        VbigURHRqiGu8Y/w77Iwpjmr5OmATbfJpaILrtAulWTS+82laRb/aHwUoDt7VDgN7rq6B1AxDWi
-        zt7l4hm1jRoHZmYRSdSvFgw==
-X-Received: by 2002:adf:fb46:0:b0:22e:2d49:7d3d with SMTP id c6-20020adffb46000000b0022e2d497d3dmr2580792wrs.505.1669103561383;
-        Mon, 21 Nov 2022 23:52:41 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6dCyiCr/pA3VX12HcFTwn/lzvVTWMeppWH7T0RHoLOGqWKUNNg5K+8qhkBYZB35FlJdUiQ9w==
-X-Received: by 2002:adf:fb46:0:b0:22e:2d49:7d3d with SMTP id c6-20020adffb46000000b0022e2d497d3dmr2580781wrs.505.1669103561123;
-        Mon, 21 Nov 2022 23:52:41 -0800 (PST)
-Received: from [192.168.0.5] (ip-109-43-176-72.web.vodafone.de. [109.43.176.72])
-        by smtp.gmail.com with ESMTPSA id b14-20020a5d4d8e000000b0022cbf4cda62sm15603451wru.27.2022.11.21.23.52.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Nov 2022 23:52:40 -0800 (PST)
-Message-ID: <c801611e-61db-73d2-2ff1-cd06350215b2@redhat.com>
-Date:   Tue, 22 Nov 2022 08:52:38 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
+        with ESMTP id S231923AbiKVJeP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Nov 2022 04:34:15 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92C6644C;
+        Tue, 22 Nov 2022 01:34:14 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AM8d916028851;
+        Tue, 22 Nov 2022 09:34:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=waIgJpgjNqSFfMmI93mxxF++m/jo6IpqkSlWNClHgSI=;
+ b=J5AwhQNsQb2eid9FLXbarvCI7GIrmGZVFvU1tm6IHAGMYdHTIxBRjLH7SrfyWf2lvBi4
+ V/N4Wula+o25rreYd+AKYmaBzKVBHcTT7UnaQK7S20DG6IA2IwoR83n9t65zhIkaez7n
+ BHe9QKynsxh9NTZI/3TKA1QTfVIJzHVOvM7URNkfic+TL2j0VgH1uxU1+OAVi+Yw/nQ+
+ XDnG00DZM6avfhCoDSqVjSpr9qm0YEQdP9MgqoaX4Kd7DTq1ubmDQ5AZjQ0QolhWQBPP
+ Oe20NfXNWCbIFK8nVX8h+Mc6quao+WF7dlW54WMP0eYHdRJj0oTgkQ3P/BfOe+FTqhMf rA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0rhdcwem-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Nov 2022 09:34:09 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AM7mVF9009259;
+        Tue, 22 Nov 2022 09:34:09 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0rhdcwdt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Nov 2022 09:34:08 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AM9LU7R031077;
+        Tue, 22 Nov 2022 09:34:07 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3kxps92vuj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Nov 2022 09:34:06 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AM9Y3tq6423140
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 22 Nov 2022 09:34:03 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7BE30A4059;
+        Tue, 22 Nov 2022 09:34:03 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C97D3A4051;
+        Tue, 22 Nov 2022 09:34:02 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.44.213])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 22 Nov 2022 09:34:02 +0000 (GMT)
+Message-ID: <71d10db8151c3b78d84a252a688e2892448eaa95.camel@linux.ibm.com>
 Subject: Re: [PATCH v3 5/9] KVM: s390: selftest: memop: Move testlist into
  main
-Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
@@ -77,166 +75,115 @@ Cc:     David Hildenbrand <david@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Shuah Khan <shuah@kernel.org>,
         Sven Schnelle <svens@linux.ibm.com>
+Date:   Tue, 22 Nov 2022 10:34:02 +0100
+In-Reply-To: <c801611e-61db-73d2-2ff1-cd06350215b2@redhat.com>
 References: <20221117221758.66326-1-scgl@linux.ibm.com>
- <20221117221758.66326-6-scgl@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20221117221758.66326-6-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+         <20221117221758.66326-6-scgl@linux.ibm.com>
+         <c801611e-61db-73d2-2ff1-cd06350215b2@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: TE8dwqfOiCUvqpW2CEZMTngHlClnv3fj
+X-Proofpoint-GUID: ZUply-oT0HlAwhb8_mCmPxmc8BeHrB4S
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-22_04,2022-11-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 impostorscore=0 mlxscore=0 priorityscore=1501
+ mlxlogscore=999 clxscore=1015 adultscore=0 phishscore=0 spamscore=0
+ bulkscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211220070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 17/11/2022 23.17, Janis Schoetterl-Glausch wrote:
-> This allows checking if the necessary requirements for a test case are
-> met via an arbitrary expression. In particular, it is easy to check if
-> certain bits are set in the memop extension capability.
+On Tue, 2022-11-22 at 08:52 +0100, Thomas Huth wrote:
+> On 17/11/2022 23.17, Janis Schoetterl-Glausch wrote:
+> > This allows checking if the necessary requirements for a test case are
+> > met via an arbitrary expression. In particular, it is easy to check if
+> > certain bits are set in the memop extension capability.
+> > 
+> > Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> > ---
+> >   tools/testing/selftests/kvm/s390x/memop.c | 132 +++++++++++-----------
+> >   1 file changed, 66 insertions(+), 66 deletions(-)
+> > 
+> > diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+> > index 286185a59238..10f34c629cac 100644
+> > --- a/tools/testing/selftests/kvm/s390x/memop.c
+> > +++ b/tools/testing/selftests/kvm/s390x/memop.c
+> > @@ -690,87 +690,87 @@ static void test_errors(void)
+> >   	kvm_vm_free(t.kvm_vm);
+> >   }
+> >   
+[...]
+> > 
+> > +	} testlist[] = {
+> > +		{
+> > +			.name = "simple copy",
+> > +			.test = test_copy,
+> > +			.requirements_met = true,
+> > +		},
+> > +		{
+> > +			.name = "generic error checks",
+> > +			.test = test_errors,
+> > +			.requirements_met = true,
+> > +		},
+> > +		{
+> > +			.name = "copy with storage keys",
+> > +			.test = test_copy_key,
+> > +			.requirements_met = extension_cap > 0,
+> > +		},
+> > +		{
+> > +			.name = "copy with key storage protection override",
+> > +			.test = test_copy_key_storage_prot_override,
+> > +			.requirements_met = extension_cap > 0,
+> > +		},
+> > +		{
+> > +			.name = "copy with key fetch protection",
+> > +			.test = test_copy_key_fetch_prot,
+> > +			.requirements_met = extension_cap > 0,
+> > +		},
+> > +		{
+> > +			.name = "copy with key fetch protection override",
+> > +			.test = test_copy_key_fetch_prot_override,
+> > +			.requirements_met = extension_cap > 0,
+> > +		},
+> > +		{
+> > +			.name = "error checks with key",
+> > +			.test = test_errors_key,
+> > +			.requirements_met = extension_cap > 0,
+> > +		},
+> > +		{
+> > +			.name = "termination",
+> > +			.test = test_termination,
+> > +			.requirements_met = extension_cap > 0,
+> > +		},
+> > +		{
+> > +			.name = "error checks with key storage protection override",
+> > +			.test = test_errors_key_storage_prot_override,
+> > +			.requirements_met = extension_cap > 0,
+> > +		},
+> > +		{
+> > +			.name = "error checks without key fetch prot override",
+> > +			.test = test_errors_key_fetch_prot_override_not_enabled,
+> > +			.requirements_met = extension_cap > 0,
+> > +		},
+> > +		{
+> > +			.name = "error checks with key fetch prot override",
+> > +			.test = test_errors_key_fetch_prot_override_enabled,
+> > +			.requirements_met = extension_cap > 0,
 > 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> ---
->   tools/testing/selftests/kvm/s390x/memop.c | 132 +++++++++++-----------
->   1 file changed, 66 insertions(+), 66 deletions(-)
+> I wonder whether it would rather make sense to check for "extension_cap & 1" 
+> instead of "extension_cap > 0" ?
+
+The cap should always have been a bitmap, but unfortunately I didn't initially
+define it as one, the storage key extension must be supported if the cap > 0.
+So the test reflects that and may catch an error in the future.
 > 
-> diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-> index 286185a59238..10f34c629cac 100644
-> --- a/tools/testing/selftests/kvm/s390x/memop.c
-> +++ b/tools/testing/selftests/kvm/s390x/memop.c
-> @@ -690,87 +690,87 @@ static void test_errors(void)
->   	kvm_vm_free(t.kvm_vm);
->   }
->   
-> -struct testdef {
-> -	const char *name;
-> -	void (*test)(void);
-> -	int extension;
-> -} testlist[] = {
-> -	{
-> -		.name = "simple copy",
-> -		.test = test_copy,
-> -	},
-> -	{
-> -		.name = "generic error checks",
-> -		.test = test_errors,
-> -	},
-> -	{
-> -		.name = "copy with storage keys",
-> -		.test = test_copy_key,
-> -		.extension = 1,
-> -	},
-> -	{
-> -		.name = "copy with key storage protection override",
-> -		.test = test_copy_key_storage_prot_override,
-> -		.extension = 1,
-> -	},
-> -	{
-> -		.name = "copy with key fetch protection",
-> -		.test = test_copy_key_fetch_prot,
-> -		.extension = 1,
-> -	},
-> -	{
-> -		.name = "copy with key fetch protection override",
-> -		.test = test_copy_key_fetch_prot_override,
-> -		.extension = 1,
-> -	},
-> -	{
-> -		.name = "error checks with key",
-> -		.test = test_errors_key,
-> -		.extension = 1,
-> -	},
-> -	{
-> -		.name = "termination",
-> -		.test = test_termination,
-> -		.extension = 1,
-> -	},
-> -	{
-> -		.name = "error checks with key storage protection override",
-> -		.test = test_errors_key_storage_prot_override,
-> -		.extension = 1,
-> -	},
-> -	{
-> -		.name = "error checks without key fetch prot override",
-> -		.test = test_errors_key_fetch_prot_override_not_enabled,
-> -		.extension = 1,
-> -	},
-> -	{
-> -		.name = "error checks with key fetch prot override",
-> -		.test = test_errors_key_fetch_prot_override_enabled,
-> -		.extension = 1,
-> -	},
-> -};
->   
->   int main(int argc, char *argv[])
->   {
->   	int extension_cap, idx;
->   
-> +	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
->   	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_MEM_OP));
-> +	extension_cap = kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
->   
-> -	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
-> +	struct testdef {
-> +		const char *name;
-> +		void (*test)(void);
-> +		bool requirements_met;
-> +	} testlist[] = {
-> +		{
-> +			.name = "simple copy",
-> +			.test = test_copy,
-> +			.requirements_met = true,
-> +		},
-> +		{
-> +			.name = "generic error checks",
-> +			.test = test_errors,
-> +			.requirements_met = true,
-> +		},
-> +		{
-> +			.name = "copy with storage keys",
-> +			.test = test_copy_key,
-> +			.requirements_met = extension_cap > 0,
-> +		},
-> +		{
-> +			.name = "copy with key storage protection override",
-> +			.test = test_copy_key_storage_prot_override,
-> +			.requirements_met = extension_cap > 0,
-> +		},
-> +		{
-> +			.name = "copy with key fetch protection",
-> +			.test = test_copy_key_fetch_prot,
-> +			.requirements_met = extension_cap > 0,
-> +		},
-> +		{
-> +			.name = "copy with key fetch protection override",
-> +			.test = test_copy_key_fetch_prot_override,
-> +			.requirements_met = extension_cap > 0,
-> +		},
-> +		{
-> +			.name = "error checks with key",
-> +			.test = test_errors_key,
-> +			.requirements_met = extension_cap > 0,
-> +		},
-> +		{
-> +			.name = "termination",
-> +			.test = test_termination,
-> +			.requirements_met = extension_cap > 0,
-> +		},
-> +		{
-> +			.name = "error checks with key storage protection override",
-> +			.test = test_errors_key_storage_prot_override,
-> +			.requirements_met = extension_cap > 0,
-> +		},
-> +		{
-> +			.name = "error checks without key fetch prot override",
-> +			.test = test_errors_key_fetch_prot_override_not_enabled,
-> +			.requirements_met = extension_cap > 0,
-> +		},
-> +		{
-> +			.name = "error checks with key fetch prot override",
-> +			.test = test_errors_key_fetch_prot_override_enabled,
-> +			.requirements_met = extension_cap > 0,
-
-I wonder whether it would rather make sense to check for "extension_cap & 1" 
-instead of "extension_cap > 0" ?
-
-Anyway:
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-
+> Anyway:
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> 
+Thanks!
