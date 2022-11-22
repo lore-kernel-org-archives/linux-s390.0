@@ -2,171 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 732D9C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Nov 2022 21:42:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89D6AC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Nov 2022 01:41:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231937AbiKUVl7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Nov 2022 16:41:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59466 "EHLO
+        id S232350AbiKVBlP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Nov 2022 20:41:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231322AbiKUVlh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Nov 2022 16:41:37 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8E9DB84F;
-        Mon, 21 Nov 2022 13:41:08 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ALKvM38019106;
-        Mon, 21 Nov 2022 21:41:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=9Yo9Wb+Bh1VTFY/32N+EVHu3Tfjlja6KFhgrETl5x/w=;
- b=ObVl4fJd56+1U2VddxQvEm5EM2rQBgw1bf+IDlBMCIdvS8eCBLlCcEadKIT86kPU+0NT
- 6k7cIcmTh9HXwpiFU39u05dipTUvTEDb/3hJGet3un4eLGc9+Cx7TlH7+7Wkw3kR0W7b
- c1TJd5sMFg2cAFsjrOXRTwc+sSVBttUmN9ylO/BzWyAANEIMP3zisEwf3VhsPrIC7Eu7
- TZuL/EBSfOrreUkZbtfgI/knZMzfxpctweHdw5evQMPUmRcBGiMNhd8iu5uup5yMLlau
- ZNn01n9A+YdNCwkz8m64WsfUnU3UpvymywgGTEjpFd9DsD8+Gc2ahjZZfXL7D/aKobMQ Mg== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0gtus6qr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Nov 2022 21:41:07 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ALLbG0W023812;
-        Mon, 21 Nov 2022 21:41:05 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3kxpdhu80h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Nov 2022 21:41:05 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ALLf2Kt60686740
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Nov 2022 21:41:02 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0E9BE42047;
-        Mon, 21 Nov 2022 21:41:02 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F129E42042;
-        Mon, 21 Nov 2022 21:41:01 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 21 Nov 2022 21:41:01 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id 88444E08BB; Mon, 21 Nov 2022 22:41:01 +0100 (CET)
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S232351AbiKVBlK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Nov 2022 20:41:10 -0500
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2052.outbound.protection.outlook.com [40.107.220.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D97CE2218;
+        Mon, 21 Nov 2022 17:41:09 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ANfyWAGi5mJlDHmcj5HMcXkycC672y7SrPTiwG0oLqRNfwxu32xuDl2ak6R8UKXXYZhJUW4K7zWoa14Wa7LusJvPvYqmEykGexl1gdtmNecHNE7hgvFnuKetBaGtJxIEwOVz11d7Pv7RiR/j/f1lB2hrTh5hBV8274FS9KUdU1RBSmeAphoCMEeHTwkl0PEJ9W51JGR2Uksi2sXh2kFyvc44r71/0OiQUDifDsVujvMOhWb9RHcNv5TX8Hbf+baozdEX5hmOD6SC6qB4V2x8xkvopYITZnBXehE2/mESQ/VgSXhPo2aBjCPQ0Lj6h90LJTGMtrSYkrCL7c4ThTaIpA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wANtQZ8QXfrJjwWQfd/uIzPHSS+6n+kcWeSAxC0i7bQ=;
+ b=amLaG2jQHNg5W9qr2EC0xSmCn+PYIZVHKPS5Ht0LzAe3tU386zN7UvSfOFMfRrKau0NEcR603eYMg98IAk7rqihbIYfVz2f7Doqx9SJtSplPf6dMAFFjcAfh5fNLpDBdPiJjoKGpG5IlF8avRKUBC6tfRUHR4+2wSKWXOLR1Gt6fN+LSmEJlvLuXOzXRJdkxsM0+8jKLTa+4z/fe8L5Yv6oxCyVIdsxOq8+FLubrtq0Jr/UzYLS9ESGpfFugBc5JsklHLKJbFVIrgFUuxxqnqtscJ201Abemd2V9uQXtLodz0WBUakvRtK9xWq2y5AUvcMULCcZJfCYwJPMOkK24Qw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wANtQZ8QXfrJjwWQfd/uIzPHSS+6n+kcWeSAxC0i7bQ=;
+ b=cVj2tW3lBTfFU7CW7U7bIXGPJHWtEi/11bHfMEMcY3OcpRu9PBpuiqM+sQWXZLw86PqLLkj2fTNFWYxO9v2UQvBwdWwGzUwr7EgnCT+oXnRLAV7cIBvkBvg69bfPOsERa5X7XeukA12CDCCu3/PMdOoXdzbKwhRdUZo9gE47aCLNguKkJgNI/MLeSEK/WONJXs8AR2pRVTIimX0Q6aBfWlFkpNgRP1vykWXSPI8oVULGoE3PrCIW6qY6umVoyNXXkczDAPghXMbcoESCvYUZCfoOIzz44mAwGKGMre4fStoFTe02jUjhxeCCZPGZU7+R9cH/iwvUjlMWmNfsjYT42A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by BN9PR12MB5260.namprd12.prod.outlook.com (2603:10b6:408:101::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5834.15; Tue, 22 Nov
+ 2022 01:41:08 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::f8b0:df13:5f8d:12a%9]) with mapi id 15.20.5834.015; Tue, 22 Nov 2022
+ 01:41:07 +0000
+Date:   Mon, 21 Nov 2022 21:41:06 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Vineeth Vijayan <vneethv@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v1 12/16] vfio/ccw: calculate number of IDAWs regardless of format
-Date:   Mon, 21 Nov 2022 22:40:52 +0100
-Message-Id: <20221121214056.1187700-13-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221121214056.1187700-1-farman@linux.ibm.com>
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH v1 05/16] vfio/ccw: replace copy_from_iova with
+ vfio_dma_rw
+Message-ID: <Y3wosiTNk8ZB+56G@nvidia.com>
 References: <20221121214056.1187700-1-farman@linux.ibm.com>
+ <20221121214056.1187700-6-farman@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221121214056.1187700-6-farman@linux.ibm.com>
+X-ClientProxiedBy: BL1PR13CA0329.namprd13.prod.outlook.com
+ (2603:10b6:208:2c1::34) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1uTsEK_IvFsYUbvfLlZtohoCrHKk0vHI
-X-Proofpoint-GUID: 1uTsEK_IvFsYUbvfLlZtohoCrHKk0vHI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-21_16,2022-11-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
- mlxscore=0 malwarescore=0 mlxlogscore=747 bulkscore=0 priorityscore=1501
- impostorscore=0 adultscore=0 spamscore=0 suspectscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211210158
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BN9PR12MB5260:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5070244e-f14b-469b-7808-08dacc2aa05f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Q0G7SUmsCPYm5KqpIykj1SvOE11OalHBWmXOnhjFKhxyFWBagGQ8Bj5VGJa7lJak6v+Usn8frEEWSnZYjSWHf46Zkiww50qlJ/FSXy2SBrl7mwVCOXr1QS2M2Y/KKhpawny3AiALMz8OA/VhSTzNfWI3fcNOs+LEkLYcSXjCR7aCHkKU7JQBFQSNXtCzm9gghEvcO4W8BQGfdI0XnBqOtJtLWhbwqAspZ8AInJx5t1bSe3k7j9wfXFfxEQO0pyP7S1DJ69HQAjanUHzB4Jxxtg2bfc8ZKpiUrRqe0Rmsxg76y2hQC5CVtquOp8zlU7f4JPuXqdpgwRsXB61opqd/721J5LQPLnG5AaffsSD2fKXGwxAxLMk5ZmMVew85JxGvC7xwpktMJ2Kyw7e1L8hoZkpBO2wVkZOZ43ZNTmBo76A418PY3hGxKHVbdpd4YUA76tG+zQouRfRxxSmgFHRGJfHJ0mvpKDcAo1POev7/FdsuqzWgXmE4y6+Lr3+2TYVQID7R+tc6F831hkQzq/3RpZEi+GRVSxtZzqqK43iNjmz1FMPtbgL7G4GXcp3XziCh6EDTEGh8zkS7yA/rallrIZvVN4g5h2gYRuIM3kKsaonLdPby7RL30KFsfatjejH9zAKfU+0Jthfr+CMoNmyuLDnR8b0k369+0O6oZBD5m1AWgMIUNvPYKwTxL1ji+c/CkdObnCsxzMVu8zfFDqjD7d/VgG7irb+G75lyfC2hPyljZnr0pEChNaGRuwYWWkMWBxSouOTMVj8HyF1zxbt1Iw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(366004)(39860400002)(136003)(396003)(346002)(451199015)(86362001)(36756003)(186003)(4326008)(2616005)(66946007)(8676002)(8936002)(66556008)(41300700001)(7416002)(5660300002)(316002)(66476007)(966005)(4744005)(6506007)(6512007)(26005)(478600001)(54906003)(6486002)(6916009)(38100700002)(83380400001)(2906002)(67856001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?8jjRXJ4UUe7SfHYtjYuP813JWBU0/7y0YsJx5Oq/puTf3Q2uTVW8c8AUmxVy?=
+ =?us-ascii?Q?7a7ZMiF/TMxyJqy2lvn6356vA753XExTPsUgwPcLJXDWCyT3kSvDdQrdMdle?=
+ =?us-ascii?Q?Ep+5YnjrB1a6NCboFFHmSUcVxoJidLgaMPud7iH7Mw+qN6zMX2dGLipE5zvh?=
+ =?us-ascii?Q?DYhG9w9xv2CdoMMBpd9qzISj/qVgPhTI0dGpmWnMp+gOQgyGEIrXKng2qXpl?=
+ =?us-ascii?Q?AU7uQILXTGFV4X7mogbbkj9P4dEwj/Mxl6cqNE1wepT0uxEXcc/LJtkYqfHT?=
+ =?us-ascii?Q?vvj9EadtiD/GTxGdZCJItzFzD9fldU+LU4+Rgg/ZfRTuCY1tVGtyvn/Cq5XX?=
+ =?us-ascii?Q?HNjuiTvDIpkNNzJ1j4yuAhdsvIVrgS5d9GeYCpFZfYkrVQM8P2Pn45LOdaCj?=
+ =?us-ascii?Q?aJY0SRQFg4aCdbBdx7V+qI1wyANU6dNAz9n3BxwJwQK3fOHnzmtf1/qvMnYT?=
+ =?us-ascii?Q?W2CZGbNSKIsGrCrKHGDmG5cqQnrPWkbnnD8Oc7HH81AL5Z8cx1hXLEifF59R?=
+ =?us-ascii?Q?JmcXqlszVVek9RxTBASVHvQQcXhXHQU5BrUWyqa/V8MdgnWcoB6yQg8Sk0Pi?=
+ =?us-ascii?Q?YUmYYa70j9+BWWiq2OABsqJY/tRs6N8EPTJJQ3peD1Wf37g5a/NixuHKNHrw?=
+ =?us-ascii?Q?kbY39EX/FfLGZ47VdpoDq/ZWn/ZpFFjR1eO4KuzbHx9RLxt9R/9X5iG7ZGh8?=
+ =?us-ascii?Q?O64YCecd//VLsHn+xBUeuHeSZ6df5qU0huSX9tPQBcWjmISlo8Rgya5qa7el?=
+ =?us-ascii?Q?zoxyG90l0lS6sValUlBdzITLa8eZlIT8qeij+MZqaaJK+Y9fSP1KaKKAf1Jy?=
+ =?us-ascii?Q?0XM3jkQppparG1lWalcOWitq34s2gDHrWTIQeh7jonwTL2qRwmRA5nj+w8fR?=
+ =?us-ascii?Q?O2yu2ev5gJI8N9dbR4u9kCMSng10sLYAXIQr+SUIDnbccii27BaX2XYH/O3l?=
+ =?us-ascii?Q?aJYBSIARHpsP6WUoGamcRUc7PZFgzt6HrDua5XpFoPnBunazUS3S2JE5DNxk?=
+ =?us-ascii?Q?HGMcAPYHmkyPfCH3IsQQ5YUi5ufhzZBEjAF902s0AVtuDEpe6Bde9AtNGLFo?=
+ =?us-ascii?Q?3/smh+IU+Anv5+m0Jc1lGX48dDOYeDsYvHSCYwsb6Z/HI2W/1PAKbgopniZc?=
+ =?us-ascii?Q?GeXmD/yD34/lhI757SQXxf0VpaUxs42o0J2EJ749PDa/7GxyKl7yM401GPMd?=
+ =?us-ascii?Q?ZlVhFSXZ39sk5LeC0Aza5ySnt9ZS/sANexKK6bVZQWQfhVFdrumbJYb6Iaxl?=
+ =?us-ascii?Q?1nLuXOsRTGcvsyh24LRb5GmyRi++KcM2Dtl6HWlH1OYpVHnddhhi7esLmfuZ?=
+ =?us-ascii?Q?ngaV3liZob01MFQARoTYgRzRLQh+8WvCmx5C4R+HwYdU44t6w00rflibI8h9?=
+ =?us-ascii?Q?ha5/HVY34RWyrnqC4JWvwHQUicHt47MQ3QlSaCitZceFhUTI0HxVIQwn39i6?=
+ =?us-ascii?Q?KxKBLXypyKwJsOIY/Dg1raZw9M9dhWBNwgAoZ4u+rnrXCMbq8Uc6V3/N8MSq?=
+ =?us-ascii?Q?q6m7a2QhM/grdU95/P3hY0eZLtju9p//1gu3Er9uawe5ln033pmBwfGFkavB?=
+ =?us-ascii?Q?XDFSrcFLTMkBWqzZUes=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5070244e-f14b-469b-7808-08dacc2aa05f
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2022 01:41:07.9055
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: +yGXYXR5BP1iVJk+qABNB7PUvNSwf0mNRcfWGoyfvuBiesiL0i4L+j/7Khv4jqiH
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5260
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The idal_nr_words() routine works well for 4K IDAWs, but lost its
-ability to handle the old 2K formats with the removal of 31-bit
-builds in commit 5a79859ae0f3 ("s390: remove 31 bit support").
+On Mon, Nov 21, 2022 at 10:40:45PM +0100, Eric Farman wrote:
+> It was suggested [1] that we replace the old copy_from_iova() routine
+> (which pins a page, does a memcpy, and unpins the page) with the
+> newer vfio_dma_rw() interface.
+> 
+> This has a modest improvement in the overall time spent through the
+> fsm_io_request() path, and simplifies some of the code to boot.
+> 
+> [1] https://lore.kernel.org/r/20220706170553.GK693670@nvidia.com/
+> 
+> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_cp.c | 56 +++-------------------------------
+>  1 file changed, 5 insertions(+), 51 deletions(-)
 
-Since there's nothing preventing a guest from generating this IDAW
-format, let's re-introduce the math for them and use both when
-calculating the number of IDAWs based on the bits specified in
-the ORB.
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
- arch/s390/include/asm/idals.h  | 12 ++++++++++++
- drivers/s390/cio/vfio_ccw_cp.c | 17 ++++++++++++++++-
- 2 files changed, 28 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/include/asm/idals.h b/arch/s390/include/asm/idals.h
-index 40eae2c08d61..0a05a893aedb 100644
---- a/arch/s390/include/asm/idals.h
-+++ b/arch/s390/include/asm/idals.h
-@@ -23,6 +23,9 @@
- #define IDA_SIZE_LOG 12 /* 11 for 2k , 12 for 4k */
- #define IDA_BLOCK_SIZE (1L<<IDA_SIZE_LOG)
- 
-+#define IDA_2K_SIZE_LOG 11
-+#define IDA_2K_BLOCK_SIZE (1L << IDA_2K_SIZE_LOG)
-+
- /*
-  * Test if an address/length pair needs an idal list.
-  */
-@@ -42,6 +45,15 @@ static inline unsigned int idal_nr_words(void *vaddr, unsigned int length)
- 		(IDA_BLOCK_SIZE-1)) >> IDA_SIZE_LOG;
- }
- 
-+/*
-+ * Return the number of 2K IDA words needed for an address/length pair.
-+ */
-+static inline unsigned int idal_2k_nr_words(void *vaddr, unsigned int length)
-+{
-+	return ((__pa(vaddr) & (IDA_2K_BLOCK_SIZE-1)) + length +
-+		(IDA_2K_BLOCK_SIZE-1)) >> IDA_2K_SIZE_LOG;
-+}
-+
- /*
-  * Create the list of idal words for an address/length pair.
-  */
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 53246f4f95f7..6839e7195182 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -502,6 +502,13 @@ static int ccwchain_fetch_tic(struct ccw1 *ccw,
-  *
-  * @ccw: The Channel Command Word being translated
-  * @cp: Channel Program being processed
-+ *
-+ * The ORB is examined, since it specifies what IDAWs could actually be
-+ * used by any CCW in the channel program, regardless of whether or not
-+ * the CCW actually does. An ORB that does not specify Format-2-IDAW
-+ * Control could still contain a CCW with an IDAL, which would be
-+ * Format-1 and thus only move 2K with each IDAW. Thus all CCWs within
-+ * the channel program must follow the same size requirements.
-  */
- static int ccw_count_idaws(struct ccw1 *ccw,
- 			   struct channel_program *cp)
-@@ -529,7 +536,15 @@ static int ccw_count_idaws(struct ccw1 *ccw,
- 		iova = ccw->cda;
- 	}
- 
--	return idal_nr_words((void *)iova, bytes);
-+	/* Format-1 IDAWs operate on 2K each */
-+	if (!cp->orb.cmd.c64)
-+		return idal_2k_nr_words((void *)iova, bytes);
-+
-+	/* Format-2 IDAWs operate on either 2K or 4K */
-+	if (cp->orb.cmd.i2k)
-+		return idal_2k_nr_words((void *)iova, bytes);
-+	else
-+		return idal_nr_words((void *)iova, bytes);
- }
- 
- static int ccwchain_fetch_ccw(struct ccw1 *ccw,
--- 
-2.34.1
-
+Jason
