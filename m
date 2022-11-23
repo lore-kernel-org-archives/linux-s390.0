@@ -2,411 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50BB8C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 14:09:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB50CC4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 15:55:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237085AbiKWOJx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Nov 2022 09:09:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58680 "EHLO
+        id S238964AbiKWPzr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Nov 2022 10:55:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238611AbiKWOJd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 09:09:33 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 56C6513E19;
-        Wed, 23 Nov 2022 06:08:17 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 815761FB;
-        Wed, 23 Nov 2022 06:08:23 -0800 (PST)
-Received: from [192.168.0.110] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F21F13F73B;
-        Wed, 23 Nov 2022 06:08:06 -0800 (PST)
-Message-ID: <16e3ac80-1d13-60f1-666b-a74fab92b7a6@arm.com>
-Date:   Wed, 23 Nov 2022 19:37:50 +0530
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH v7 2/2] arm64: support batched/deferred tlb shootdown
- during page reclamation
-Content-Language: en-US
-To:     Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, catalin.marinas@arm.com, will@kernel.org,
-        linux-doc@vger.kernel.org
-Cc:     corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
-        punit.agrawal@bytedance.com, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        Barry Song <21cnbao@gmail.com>, wangkefeng.wang@huawei.com,
-        xhao@linux.alibaba.com, prime.zeng@hisilicon.com,
-        Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-References: <20221117082648.47526-1-yangyicong@huawei.com>
- <20221117082648.47526-3-yangyicong@huawei.com>
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <20221117082648.47526-3-yangyicong@huawei.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S237411AbiKWPzW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 10:55:22 -0500
+Received: from out199-2.us.a.mail.aliyun.com (out199-2.us.a.mail.aliyun.com [47.90.199.2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 544AE79E10;
+        Wed, 23 Nov 2022 07:55:01 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VVXZuFA_1669218890;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VVXZuFA_1669218890)
+          by smtp.aliyun-inc.com;
+          Wed, 23 Nov 2022 23:54:57 +0800
+From:   "D.Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net-next v5 00/10] optimize the parallelism of SMC-R connections
+Date:   Wed, 23 Nov 2022 23:54:40 +0800
+Message-Id: <1669218890-115854-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: "D.Wythe" <alibuda@linux.alibaba.com>
+
+This patch set attempts to optimize the parallelism of SMC-R connections,
+mainly to reduce unnecessary blocking on locks, and to fix exceptions that
+occur after thoses optimization.
+
+According to Off-CPU graph, SMC worker's off-CPU as that:
+
+smc_close_passive_work                  (1.09%)
+        smcr_buf_unuse                  (1.08%)
+                smc_llc_flow_initiate   (1.02%)
+
+smc_listen_work                         (48.17%)
+        __mutex_lock.isra.11            (47.96%)
 
 
-On 11/17/22 13:56, Yicong Yang wrote:
-> From: Barry Song <v-songbaohua@oppo.com>
-> 
-> on x86, batched and deferred tlb shootdown has lead to 90%
-> performance increase on tlb shootdown. on arm64, HW can do
-> tlb shootdown without software IPI. But sync tlbi is still
-> quite expensive.
-> 
-> Even running a simplest program which requires swapout can
-> prove this is true,
->  #include <sys/types.h>
->  #include <unistd.h>
->  #include <sys/mman.h>
->  #include <string.h>
-> 
->  int main()
->  {
->  #define SIZE (1 * 1024 * 1024)
->          volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
->                                           MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-> 
->          memset(p, 0x88, SIZE);
-> 
->          for (int k = 0; k < 10000; k++) {
->                  /* swap in */
->                  for (int i = 0; i < SIZE; i += 4096) {
->                          (void)p[i];
->                  }
-> 
->                  /* swap out */
->                  madvise(p, SIZE, MADV_PAGEOUT);
->          }
->  }
-> 
-> Perf result on snapdragon 888 with 8 cores by using zRAM
-> as the swap block device.
-> 
->  ~ # perf record taskset -c 4 ./a.out
->  [ perf record: Woken up 10 times to write data ]
->  [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
->  ~ # perf report
->  # To display the perf.data header info, please use --header/--header-only options.
->  # To display the perf.data header info, please use --header/--header-only options.
->  #
->  #
->  # Total Lost Samples: 0
->  #
->  # Samples: 60K of event 'cycles'
->  # Event count (approx.): 35706225414
->  #
->  # Overhead  Command  Shared Object      Symbol
->  # ........  .......  .................  .............................................................................
->  #
->     21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
->      8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
->      6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
->      6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
->      5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
->      3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
->      3.49%  a.out    [kernel.kallsyms]  [k] memset64
->      1.63%  a.out    [kernel.kallsyms]  [k] clear_page
->      1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
->      1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
->      1.23%  a.out    [kernel.kallsyms]  [k] xas_load
->      1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
-> 
-> ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
-> swapping in/out a page mapped by only one process. If the
-> page is mapped by multiple processes, typically, like more
-> than 100 on a phone, the overhead would be much higher as
-> we have to run tlb flush 100 times for one single page.
-> Plus, tlb flush overhead will increase with the number
-> of CPU cores due to the bad scalability of tlb shootdown
-> in HW, so those ARM64 servers should expect much higher
-> overhead.
-> 
-> Further perf annonate shows 95% cpu time of ptep_clear_flush
-> is actually used by the final dsb() to wait for the completion
-> of tlb flush. This provides us a very good chance to leverage
-> the existing batched tlb in kernel. The minimum modification
-> is that we only send async tlbi in the first stage and we send
-> dsb while we have to sync in the second stage.
-> 
-> With the above simplest micro benchmark, collapsed time to
-> finish the program decreases around 5%.
-> 
-> Typical collapsed time w/o patch:
->  ~ # time taskset -c 4 ./a.out
->  0.21user 14.34system 0:14.69elapsed
-> w/ patch:
->  ~ # time taskset -c 4 ./a.out
->  0.22user 13.45system 0:13.80elapsed
-> 
-> Also, Yicong Yang added the following observation.
-> 	Tested with benchmark in the commit on Kunpeng920 arm64 server,
-> 	observed an improvement around 12.5% with command
-> 	`time ./swap_bench`.
-> 		w/o		w/
-> 	real	0m13.460s	0m11.771s
-> 	user	0m0.248s	0m0.279s
-> 	sys	0m12.039s	0m11.458s
-> 
-> 	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
-> 	which has been eliminated by this patch:
-> 
-> 	[root@localhost yang]# perf record -- ./swap_bench && perf report
-> 	[...]
-> 	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
-> 
-> It is tested on 4,8,128 CPU platforms and shows to be beneficial on
-> large systems but may not have improvement on small systems like on
-> a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
-> on CONFIG_EXPERT for this stage and make this disabled on systems
-> with less than 8 CPUs. User can modify this threshold according to
-> their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
-> 
-> This patch extends arch_tlbbatch_add_mm() to take an address of the
-> target page to support the feature on arm64. Also rename it to
-> arch_tlbbatch_add_pending() to better match its function since we
-> don't need to handle the mm on arm64 and add_mm is not proper.
-> add_pending will make sense to both as on x86 we're pending the
-> TLB flush operations while on arm64 we're pending the synchronize
-> operations.
-> 
-> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: Nadav Amit <namit@vmware.com>
-> Cc: Mel Gorman <mgorman@suse.de>
-> Tested-by: Yicong Yang <yangyicong@hisilicon.com>
-> Tested-by: Xin Hao <xhao@linux.alibaba.com>
-> Tested-by: Punit Agrawal <punit.agrawal@bytedance.com>
-> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
-> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> Reviewed-by: Xin Hao <xhao@linux.alibaba.com>
-> ---
+An ideal SMC-R connection process should only block on the IO events
+of the network, but it's quite clear that the SMC-R connection now is
+queued on the lock most of the time.
 
-LGTM, FWIW.
+The goal of this patchset is to achieve our ideal situation where
+network IO events are blocked for the majority of the connection lifetime.
 
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+There are three big locks here:
 
->  .../features/vm/TLB/arch-support.txt          |  2 +-
->  arch/arm64/Kconfig                            |  6 +++
->  arch/arm64/include/asm/tlbbatch.h             | 12 +++++
->  arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
->  arch/x86/include/asm/tlbflush.h               |  5 +-
->  include/linux/mm_types_task.h                 |  4 +-
->  mm/rmap.c                                     | 10 ++--
->  7 files changed, 80 insertions(+), 11 deletions(-)
->  create mode 100644 arch/arm64/include/asm/tlbbatch.h
-> 
-> diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
-> index 039e4e91ada3..2caf815d7c6c 100644
-> --- a/Documentation/features/vm/TLB/arch-support.txt
-> +++ b/Documentation/features/vm/TLB/arch-support.txt
-> @@ -9,7 +9,7 @@
->      |       alpha: | TODO |
->      |         arc: | TODO |
->      |         arm: | TODO |
-> -    |       arm64: | N/A  |
-> +    |       arm64: |  ok  |
->      |        csky: | TODO |
->      |     hexagon: | TODO |
->      |        ia64: | TODO |
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index 505c8a1ccbe0..72975e82c7d7 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -93,6 +93,7 @@ config ARM64
->  	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
->  	select ARCH_SUPPORTS_NUMA_BALANCING
->  	select ARCH_SUPPORTS_PAGE_TABLE_CHECK
-> +	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH if EXPERT
->  	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
->  	select ARCH_WANT_DEFAULT_BPF_JIT
->  	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
-> @@ -268,6 +269,11 @@ config ARM64_CONT_PMD_SHIFT
->  	default 5 if ARM64_16K_PAGES
->  	default 4
->  
-> +config ARM64_NR_CPUS_FOR_BATCHED_TLB
-> +	int "Threshold to enable batched TLB flush"
-> +	default 8
-> +	depends on ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-> +
->  config ARCH_MMAP_RND_BITS_MIN
->  	default 14 if ARM64_64K_PAGES
->  	default 16 if ARM64_16K_PAGES
-> diff --git a/arch/arm64/include/asm/tlbbatch.h b/arch/arm64/include/asm/tlbbatch.h
-> new file mode 100644
-> index 000000000000..fedb0b87b8db
-> --- /dev/null
-> +++ b/arch/arm64/include/asm/tlbbatch.h
-> @@ -0,0 +1,12 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _ARCH_ARM64_TLBBATCH_H
-> +#define _ARCH_ARM64_TLBBATCH_H
-> +
-> +struct arch_tlbflush_unmap_batch {
-> +	/*
-> +	 * For arm64, HW can do tlb shootdown, so we don't
-> +	 * need to record cpumask for sending IPI
-> +	 */
-> +};
-> +
-> +#endif /* _ARCH_ARM64_TLBBATCH_H */
-> diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
-> index 412a3b9a3c25..41a763cf8c1b 100644
-> --- a/arch/arm64/include/asm/tlbflush.h
-> +++ b/arch/arm64/include/asm/tlbflush.h
-> @@ -254,17 +254,23 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
->  	dsb(ish);
->  }
->  
-> -static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-> +static inline void __flush_tlb_page_nosync(struct mm_struct *mm,
->  					 unsigned long uaddr)
->  {
->  	unsigned long addr;
->  
->  	dsb(ishst);
-> -	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-> +	addr = __TLBI_VADDR(uaddr, ASID(mm));
->  	__tlbi(vale1is, addr);
->  	__tlbi_user(vale1is, addr);
->  }
->  
-> +static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
-> +					 unsigned long uaddr)
-> +{
-> +	return __flush_tlb_page_nosync(vma->vm_mm, uaddr);
-> +}
-> +
->  static inline void flush_tlb_page(struct vm_area_struct *vma,
->  				  unsigned long uaddr)
->  {
-> @@ -272,6 +278,48 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
->  	dsb(ish);
->  }
->  
-> +#ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
-> +
-> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
-> +{
-> +	/*
-> +	 * TLB batched flush is proved to be beneficial for systems with large
-> +	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
-> +	 * is cheap on small systems which may not need this feature. So use
-> +	 * a threshold for enabling this to avoid potential side effects on
-> +	 * these platforms.
-> +	 */
-> +	if (num_online_cpus() < CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
-> +		return false;
-> +
-> +	/*
-> +	 * TLB flush deferral is not required on systems, which are affected with
-> +	 * ARM64_WORKAROUND_REPEAT_TLBI, as __tlbi()/__tlbi_user() implementation
-> +	 * will have two consecutive TLBI instructions with a dsb(ish) in between
-> +	 * defeating the purpose (i.e save overall 'dsb ish' cost).
-> +	 */
-> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
-> +	if (unlikely(cpus_have_const_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
-> +		return false;
-> +#endif
-> +
-> +	return true;
-> +}
-> +
-> +static inline void arch_tlbbatch_add_pending(struct arch_tlbflush_unmap_batch *batch,
-> +					     struct mm_struct *mm,
-> +					     unsigned long uaddr)
-> +{
-> +	__flush_tlb_page_nosync(mm, uaddr);
-> +}
-> +
-> +static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
-> +{
-> +	dsb(ish);
-> +}
-> +
-> +#endif /* CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH */
-> +
->  /*
->   * This is meant to avoid soft lock-ups on large TLB flushing ranges and not
->   * necessarily a performance improvement.
-> diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-> index 8a497d902c16..15cada9635c1 100644
-> --- a/arch/x86/include/asm/tlbflush.h
-> +++ b/arch/x86/include/asm/tlbflush.h
-> @@ -263,8 +263,9 @@ static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
->  	return atomic64_inc_return(&mm->context.tlb_gen);
->  }
->  
-> -static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
-> -					struct mm_struct *mm)
-> +static inline void arch_tlbbatch_add_pending(struct arch_tlbflush_unmap_batch *batch,
-> +					     struct mm_struct *mm,
-> +					     unsigned long uaddr)
->  {
->  	inc_mm_tlb_gen(mm);
->  	cpumask_or(&batch->cpumask, &batch->cpumask, mm_cpumask(mm));
-> diff --git a/include/linux/mm_types_task.h b/include/linux/mm_types_task.h
-> index 0bb4b6da9993..b98098e81390 100644
-> --- a/include/linux/mm_types_task.h
-> +++ b/include/linux/mm_types_task.h
-> @@ -65,8 +65,8 @@ struct tlbflush_unmap_batch {
->  #ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
->  	/*
->  	 * The arch code makes the following promise: generic code can modify a
-> -	 * PTE, then call arch_tlbbatch_add_mm() (which internally provides all
-> -	 * needed barriers), then call arch_tlbbatch_flush(), and the entries
-> +	 * PTE, then call arch_tlbbatch_add_pending() (which internally provides
-> +	 * all needed barriers), then call arch_tlbbatch_flush(), and the entries
->  	 * will be flushed on all CPUs by the time that arch_tlbbatch_flush()
->  	 * returns.
->  	 */
-> diff --git a/mm/rmap.c b/mm/rmap.c
-> index a9ab10bc0144..603912aa3f19 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -640,12 +640,13 @@ void try_to_unmap_flush_dirty(void)
->  #define TLB_FLUSH_BATCH_PENDING_LARGE			\
->  	(TLB_FLUSH_BATCH_PENDING_MASK / 2)
->  
-> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
-> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
-> +				      unsigned long uaddr)
->  {
->  	struct tlbflush_unmap_batch *tlb_ubc = &current->tlb_ubc;
->  	int batch, nbatch;
->  
-> -	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm);
-> +	arch_tlbbatch_add_pending(&tlb_ubc->arch, mm, uaddr);
->  	tlb_ubc->flush_required = true;
->  
->  	/*
-> @@ -723,7 +724,8 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
->  	}
->  }
->  #else
-> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
-> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
-> +				      unsigned long uaddr)
->  {
->  }
->  
-> @@ -1596,7 +1598,7 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
->  				 */
->  				pteval = ptep_get_and_clear(mm, address, pvmw.pte);
->  
-> -				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
-> +				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval), address);
->  			} else {
->  				pteval = ptep_clear_flush(vma, address, pvmw.pte);
->  			}
+1. smc_client_lgr_pending & smc_server_lgr_pending
+
+2. llc_conf_mutex
+
+3. rmbs_lock & sndbufs_lock
+
+And an implementation issue:
+
+1. confirm/delete rkey msg can't be sent concurrently while
+protocol allows indeed.
+
+Unfortunately,The above problems together affect the parallelism of
+SMC-R connection. If any of them are not solved. our goal cannot
+be achieved.
+
+After this patch set, we can get a quite ideal off-CPU graph as
+following:
+
+smc_close_passive_work                                  (41.58%)
+        smcr_buf_unuse                                  (41.57%)
+                smc_llc_do_delete_rkey                  (41.57%)
+
+smc_listen_work                                         (39.10%)
+        smc_clc_wait_msg                                (13.18%)
+                tcp_recvmsg_locked                      (13.18)
+        smc_listen_find_device                          (25.87%)
+                smcr_lgr_reg_rmbs                       (25.87%)
+                        smc_llc_do_confirm_rkey         (25.87%)
+
+We can see that most of the waiting times are waiting for network IO
+events. This also has a certain performance improvement on our
+short-lived conenction wrk/nginx benchmark test:
+
++--------------+------+------+-------+--------+------+--------+
+|conns/qps     |c4    | c8   |  c16  |  c32   | c64  |  c200  |
++--------------+------+------+-------+--------+------+--------+
+|SMC-R before  |9.7k  | 10k  |  10k  |  9.9k  | 9.1k |  8.9k  |
++--------------+------+------+-------+--------+------+--------+
+|SMC-R now     |13k   | 19k  |  18k  |  16k   | 15k  |  12k   |
++--------------+------+------+-------+--------+------+--------+
+|TCP           |15k   | 35k  |  51k  |  80k   | 100k |  162k  |
++--------------+------+------+-------+--------+------+--------+
+
+The reason why the benefit is not obvious after the number of connections
+has increased dues to workqueue. If we try to change workqueue to UNBOUND,
+we can obtain at least 4-5 times performance improvement, reach up to half
+of TCP. However, this is not an elegant solution, the optimization of it
+will be much more complicated. But in any case, we will submit relevant
+optimization patches as soon as possible.
+
+Please note that the premise here is that the lock related problem
+must be solved first, otherwise, no matter how we optimize the workqueue,
+there won't be much improvement.
+
+Because there are a lot of related changes to the code, if you have
+any questions or suggestions, please let me know.
+
+Thanks
+D. Wythe
+
+v1 -> v2:
+
+1. Fix panic in SMC-D scenario
+2. Fix lnkc related hashfn calculation exception, caused by operator
+priority
+3. Only wake up one connection if the lnk is not active
+4. Delete obsolete unlock logic in smc_listen_work()
+5. PATCH format, do Reverse Christmas tree
+6. PATCH format, change all xxx_lnk_xxx function to xxx_link_xxx 
+7. PATCH format, add correct fix tag for the patches for fixes.
+8. PATCH format, fix some spelling error
+9. PATCH format, rename slow to do_slow
+
+v2 -> v3:
+
+1. add SMC-D support, remove the concept of link cluster since SMC-D has
+no link at all. Replace it by lgr decision maker, who provides suggestions
+to SMC-D and SMC-R on whether to create new link group.
+
+2. Fix the corruption problem described by PATCH 'fix application
+data exception' on SMC-D.
+
+v3 -> v4:
+
+1. Fix panic caused by uninitialization map.
+
+v4 -> v5:
+
+1. Make SMC-D buf creation be serial to avoid Potential error
+2. Add a flag to synchronize the success of the first contact
+with the ready of the link group, including SMC-D and SMC-R.
+3. Fixed possible reference count leak in smc_llc_flow_start(). 
+4. reorder the patch, make bugfix PATCH be ahead.
+
+D. Wythe (10):
+  net/smc: Fix potential panic dues to unprotected
+    smc_llc_srv_add_link()
+  net/smc: fix application data exception
+  net/smc: fix SMC_CLC_DECL_ERR_REGRMB without smc_server_lgr_pending
+  net/smc: remove locks smc_client_lgr_pending and
+    smc_server_lgr_pending
+  net/smc: allow confirm/delete rkey response deliver multiplex
+  net/smc: make SMC_LLC_FLOW_RKEY run concurrently
+  net/smc: llc_conf_mutex refactor, replace it with rw_semaphore
+  net/smc: use read semaphores to reduce unnecessary blocking in
+    smc_buf_create() & smcr_buf_unuse()
+  net/smc: reduce unnecessary blocking in smcr_lgr_reg_rmbs()
+  net/smc: replace mutex rmbs_lock and sndbufs_lock with rw_semaphore
+
+ net/smc/af_smc.c   |  74 ++++----
+ net/smc/smc_core.c | 541 +++++++++++++++++++++++++++++++++++++++++++++++------
+ net/smc/smc_core.h |  53 +++++-
+ net/smc/smc_llc.c  | 285 ++++++++++++++++++++--------
+ net/smc/smc_llc.h  |   6 +
+ net/smc/smc_wr.c   |  10 -
+ net/smc/smc_wr.h   |  10 +
+ 7 files changed, 801 insertions(+), 178 deletions(-)
+
+-- 
+1.8.3.1
+
