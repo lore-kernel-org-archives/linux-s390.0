@@ -2,23 +2,23 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA79EC4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 11:53:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8C83C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 12:08:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236424AbiKWLxr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Nov 2022 06:53:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60622 "EHLO
+        id S236177AbiKWMIA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Nov 2022 07:08:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235849AbiKWLxq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 06:53:46 -0500
-Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 715DBC65;
-        Wed, 23 Nov 2022 03:53:44 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VVX3GtB_1669204421;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VVX3GtB_1669204421)
+        with ESMTP id S236000AbiKWMH7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 07:07:59 -0500
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29D7427B12;
+        Wed, 23 Nov 2022 04:07:55 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R381e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VVWxwnT_1669205271;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VVWxwnT_1669205271)
           by smtp.aliyun-inc.com;
-          Wed, 23 Nov 2022 19:53:42 +0800
-Date:   Wed, 23 Nov 2022 19:53:40 +0800
+          Wed, 23 Nov 2022 20:07:52 +0800
+Date:   Wed, 23 Nov 2022 20:07:50 +0800
 From:   Tony Lu <tonylu@linux.alibaba.com>
 To:     Jan Karcher <jaka@linux.ibm.com>
 Cc:     David Miller <davem@davemloft.net>,
@@ -29,195 +29,117 @@ Cc:     David Miller <davem@davemloft.net>,
         Thorsten Winkler <twinkler@linux.ibm.com>,
         Stefan Raspl <raspl@linux.ibm.com>,
         Karsten Graul <kgraul@linux.ibm.com>
-Subject: Re: [PATCH net] net/smc: Fix expected buffersizes and sync logic
-Message-ID: <Y34JxFWBdUxvLQb4@TonyMac-Alibaba>
+Subject: Re: [PATCH net-next] net/smc: Unbind smc control from tcp control
+Message-ID: <Y34NFlco13Y3LpOc@TonyMac-Alibaba>
 Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20221123104907.14624-1-jaka@linux.ibm.com>
+References: <20221123105830.17167-1-jaka@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221123104907.14624-1-jaka@linux.ibm.com>
+In-Reply-To: <20221123105830.17167-1-jaka@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 23, 2022 at 11:49:07AM +0100, Jan Karcher wrote:
-> The fixed commit changed the expected behavior of buffersizes
-> set by the user using the setsockopt mechanism.
-> Before the fixed patch the logic for determining the buffersizes used
-> was the following:
+On Wed, Nov 23, 2022 at 11:58:30AM +0100, Jan Karcher wrote:
+> In the past SMC used the values of tcp_{w|r}mem to create the send
+> buffer and RMB. We now have our own sysctl knobs to tune them without
+> influencing the TCP default.
 > 
-> default  = net.ipv4.tcp_{w|r}mem[1]
-> sockopt  = the setsockopt mechanism
-> val      = the value assigned in default or via setsockopt
-> sk_buf   = short for sk_{snd|rcv}buf
-> real_buf = the real size of the buffer (sk_buf_size in __smc_buf_create)
+> This patch removes the dependency on the TCP control by providing our
+> own initial values which aim for a low memory footprint.
 > 
->   exposed   | net/core/sock.c  |    af_smc.c    |  smc_core.c
->             |                  |                |
-> +---------+ |                  | +------------+ | +-------------------+
-> | default |----------------------| sk_buf=val |---| real_buf=sk_buf/2 |
-> +---------+ |                  | +------------+ | +-------------------+
->             |                  |                |    ^
->             |                  |                |    |
-> +---------+ | +--------------+ |                |    |
-> | sockopt |---| sk_buf=val*2 |-----------------------|
-> +---------+ | +--------------+ |                |
->             |                  |                |
+> Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
+> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> ---
+>  Documentation/networking/smc-sysctl.rst |  4 ++--
+>  net/smc/smc_core.h                      |  6 ++++--
+>  net/smc/smc_sysctl.c                    | 10 ++++++----
+>  3 files changed, 12 insertions(+), 8 deletions(-)
 > 
-> The fixed patch introduced a dedicated sysctl for smc
-> and removed the /2 in smc_core.c resulting in the following flow:
-> 
-> default  = net.smc.{w|r}mem (which defaults to net.ipv4.tcp_{w|r}mem[1])
-> sockopt  = the setsockopt mechanism
-> val      = the value assigned in default or via setsockopt
-> sk_buf   = short for sk_{snd|rcv}buf
-> real_buf = the real size of the buffer (sk_buf_size in __smc_buf_create)
-> 
->   exposed   | net/core/sock.c  |    af_smc.c    |  smc_core.c
->             |                  |                |
-> +---------+ |                  | +------------+ | +-----------------+
-> | default |----------------------| sk_buf=val |---| real_buf=sk_buf |
-> +---------+ |                  | +------------+ | +-----------------+
->             |                  |                |    ^
->             |                  |                |    |
-> +---------+ | +--------------+ |                |    |
-> | sockopt |---| sk_buf=val*2 |-----------------------|
-> +---------+ | +--------------+ |                |
->             |                  |                |
-> 
-> This would result in double of memory used for existing configurations
-> that are using setsockopt.
+> diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
+> index 6d8acdbe9be1..a1c634d3690a 100644
+> --- a/Documentation/networking/smc-sysctl.rst
+> +++ b/Documentation/networking/smc-sysctl.rst
+> @@ -44,7 +44,7 @@ smcr_testlink_time - INTEGER
+>  
+>  wmem - INTEGER
+>  	Initial size of send buffer used by SMC sockets.
+> -	The default value inherits from net.ipv4.tcp_wmem[1].
+> +	The default value aims for a small memory footprint and is set to 16KiB.
+>  
+>  	The minimum value is 16KiB and there is no hard limit for max value, but
+>  	only allowed 512KiB for SMC-R and 1MiB for SMC-D.
+> @@ -53,7 +53,7 @@ wmem - INTEGER
+>  
+>  rmem - INTEGER
+>  	Initial size of receive buffer (RMB) used by SMC sockets.
+> -	The default value inherits from net.ipv4.tcp_rmem[1].
+> +	The default value aims for a small memory footprint and is set to 64KiB.
+>  
+>  	The minimum value is 16KiB and there is no hard limit for max value, but
+>  	only allowed 512KiB for SMC-R and 1MiB for SMC-D.
+> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+> index 285f9bd8e232..67c3937f341d 100644
+> --- a/net/smc/smc_core.h
+> +++ b/net/smc/smc_core.h
+> @@ -206,8 +206,10 @@ struct smc_rtoken {				/* address/key of remote RMB */
+>  	u32			rkey;
+>  };
+>  
+> -#define SMC_BUF_MIN_SIZE	16384	/* minimum size of an RMB */
 
-Firstly, thanks for your detailed diagrams :-)
+Hi Jan,
 
-And the original decision to use user-provided values rather than
-value/2 to follow the instructions of the socket manual [1].
+This patch inspired me that the min value of RMB and sndbuffer is 16KiB,
+it means that every connection costs 32KiB at least. It's still a large
+size for small environments, such as virtual machines or containers.
 
-  SO_RCVBUF
-         Sets or gets the maximum socket receive buffer in bytes.
-         The kernel doubles this value (to allow space for
-         bookkeeping overhead) when it is set using setsockopt(2),
-         and this doubled value is returned by getsockopt(2).  The
-         default value is set by the
-         /proc/sys/net/core/rmem_default file, and the maximum
-         allowed value is set by the /proc/sys/net/core/rmem_max
-         file.  The minimum (doubled) value for this option is 256.
+Also we have tested some cases with smaller buffer size (4KiB, with
+hacked code), it also shows good performance compared with larger buffer
+size.
 
-[1] https://man7.org/linux/man-pages/man7/socket.7.html
-
-The user of SMC should know that setsockopt() with SO_{RCV|SND}BUF will
-double the values in kernel, and getsockopt() will return the doubled
-values. So that they should use half of the values which are passed to
-setsockopt(). The original patch tries to make things easier in SMC and
-let user-space to handle them following the socket manual.
-
-> SMC historically decided to use the explicit value given by the user
-> to allocate the memory. This is why we used the /2 in smc_core.c.
-> That logic was not applied to the default value.
-
-Yep, let back to the patch which introduced smc_{w|r}mem knobs, it's a
-trade-off to follow original logic of SMC, or follow the socket manual.
-We decides to follow the instruction of manuals in the end.
+So I am wondering that we could reduce the min value of RMB/send buffer,
+such as 4KiB.
 
 Cheers,
 Tony Lu
 
-> Since we now have our own sysctl, which is also exposed to the user,
-> we should sync the logic in a way that both values are the real value
-> used by our code and shown by smc_stats. To achieve this this patch
-> changes the behavior to:
-> 
-> default  = net.smc.{w|r}mem (which defaults to net.ipv4.tcp_{w|r}mem[1])
-> sockopt  = the setsockopt mechanism
-> val      = the value assigned in default or via setsockopt
-> sk_buf   = short for sk_{snd|rcv}buf
-> real_buf = the real size of the buffer (sk_buf_size in __smc_buf_create)
-> 
->   exposed   | net/core/sock.c  |    af_smc.c     |  smc_core.c
->             |                  |                 |
-> +---------+ |                  | +-------------+ | +-----------------+
-> | default |----------------------| sk_buf=val*2|---|real_buf=sk_buf/2|
-> +---------+ |                  | +-------------+ | +-----------------+
->             |                  |                 |    ^
->             |                  |                 |    |
-> +---------+ | +--------------+ |                 |    |
-> | sockopt |---| sk_buf=val*2 |------------------------|
-> +---------+ | +--------------+ |                 |
->             |                  |                 |
-> 
-> This way both paths follow the same pattern and the expected behavior
-> is re-established.
-> 
-> Fixes: 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock and make them tunable")
-> Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
-> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> ---
->  net/smc/af_smc.c   | 9 +++++++--
->  net/smc/smc_core.c | 8 ++++----
->  2 files changed, 11 insertions(+), 6 deletions(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 036532cf39aa..a8c84e7bac99 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -366,6 +366,7 @@ static void smc_destruct(struct sock *sk)
->  static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
->  				   int protocol)
->  {
-> +	int buffersize_without_overhead;
->  	struct smc_sock *smc;
->  	struct proto *prot;
->  	struct sock *sk;
-> @@ -379,8 +380,12 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
->  	sk->sk_state = SMC_INIT;
->  	sk->sk_destruct = smc_destruct;
->  	sk->sk_protocol = protocol;
-> -	WRITE_ONCE(sk->sk_sndbuf, READ_ONCE(net->smc.sysctl_wmem));
-> -	WRITE_ONCE(sk->sk_rcvbuf, READ_ONCE(net->smc.sysctl_rmem));
-> +	buffersize_without_overhead =
-> +		min_t(int, READ_ONCE(net->smc.sysctl_wmem), INT_MAX / 2);
-> +	WRITE_ONCE(sk->sk_sndbuf, buffersize_without_overhead * 2);
-> +	buffersize_without_overhead =
-> +		min_t(int, READ_ONCE(net->smc.sysctl_rmem), INT_MAX / 2);
-> +	WRITE_ONCE(sk->sk_rcvbuf, buffersize_without_overhead * 2);
->  	smc = smc_sk(sk);
->  	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
->  	INIT_WORK(&smc->connect_work, smc_connect_work);
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 00fb352c2765..36850a2ae167 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -2314,10 +2314,10 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+> -#define SMC_RMBE_SIZES		16	/* number of distinct RMBE sizes */
+> +#define SMC_SNDBUF_INIT_SIZE 16384 /* initial size of send buffer */
+> +#define SMC_RCVBUF_INIT_SIZE 65536 /* initial size of receive buffer */
+> +#define SMC_BUF_MIN_SIZE	 16384	/* minimum size of an RMB */
+> +#define SMC_RMBE_SIZES		 16	/* number of distinct RMBE sizes */
+>  /* theoretically, the RFC states that largest size would be 512K,
+>   * i.e. compressed 5 and thus 6 sizes (0..5), despite
+>   * struct smc_clc_msg_accept_confirm.rmbe_size being a 4 bit value (0..15)
+> diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+> index b6f79fabb9d3..a63aa79d4856 100644
+> --- a/net/smc/smc_sysctl.c
+> +++ b/net/smc/smc_sysctl.c
+> @@ -19,8 +19,10 @@
+>  #include "smc_llc.h"
+>  #include "smc_sysctl.h"
 >  
->  	if (is_rmb)
->  		/* use socket recv buffer size (w/o overhead) as start value */
-> -		sk_buf_size = smc->sk.sk_rcvbuf;
-> +		sk_buf_size = smc->sk.sk_rcvbuf / 2;
->  	else
->  		/* use socket send buffer size (w/o overhead) as start value */
-> -		sk_buf_size = smc->sk.sk_sndbuf;
-> +		sk_buf_size = smc->sk.sk_sndbuf / 2;
+> -static int min_sndbuf = SMC_BUF_MIN_SIZE;
+> -static int min_rcvbuf = SMC_BUF_MIN_SIZE;
+> +static int initial_sndbuf	= SMC_SNDBUF_INIT_SIZE;
+> +static int initial_rcvbuf	= SMC_RCVBUF_INIT_SIZE;
+> +static int min_sndbuf		= SMC_BUF_MIN_SIZE;
+> +static int min_rcvbuf		= SMC_BUF_MIN_SIZE;
 >  
->  	for (bufsize_short = smc_compress_bufsize(sk_buf_size, is_smcd, is_rmb);
->  	     bufsize_short >= 0; bufsize_short--) {
-> @@ -2376,7 +2376,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
->  	if (is_rmb) {
->  		conn->rmb_desc = buf_desc;
->  		conn->rmbe_size_short = bufsize_short;
-> -		smc->sk.sk_rcvbuf = bufsize;
-> +		smc->sk.sk_rcvbuf = bufsize * 2;
->  		atomic_set(&conn->bytes_to_rcv, 0);
->  		conn->rmbe_update_limit =
->  			smc_rmb_wnd_update_limit(buf_desc->len);
-> @@ -2384,7 +2384,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
->  			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
->  	} else {
->  		conn->sndbuf_desc = buf_desc;
-> -		smc->sk.sk_sndbuf = bufsize;
-> +		smc->sk.sk_sndbuf = bufsize * 2;
->  		atomic_set(&conn->sndbuf_space, bufsize);
->  	}
+>  static struct ctl_table smc_table[] = {
+>  	{
+> @@ -88,8 +90,8 @@ int __net_init smc_sysctl_net_init(struct net *net)
+>  	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
+>  	net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
+>  	net->smc.sysctl_smcr_testlink_time = SMC_LLC_TESTLINK_DEFAULT_TIME;
+> -	WRITE_ONCE(net->smc.sysctl_wmem, READ_ONCE(net->ipv4.sysctl_tcp_wmem[1]));
+> -	WRITE_ONCE(net->smc.sysctl_rmem, READ_ONCE(net->ipv4.sysctl_tcp_rmem[1]));
+> +	WRITE_ONCE(net->smc.sysctl_wmem, initial_sndbuf);
+> +	WRITE_ONCE(net->smc.sysctl_rmem, initial_rcvbuf);
+>  
 >  	return 0;
+>  
 > -- 
 > 2.34.1
