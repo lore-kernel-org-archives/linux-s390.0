@@ -2,93 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABDDAC4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 11:06:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25DC7C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 11:15:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237614AbiKWLGq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Nov 2022 06:06:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39482 "EHLO
+        id S236514AbiKWLP6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Nov 2022 06:15:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237261AbiKWLGO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 06:06:14 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8575A452;
-        Wed, 23 Nov 2022 03:05:34 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AN8piZc010125;
-        Wed, 23 Nov 2022 11:05:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : to :
- cc : from : subject : message-id : date; s=pp1;
- bh=Ovz0e0d2ZQhEPCB6ZGhl052KXYXZxWbDJZVG1txikLk=;
- b=VlhNMxiBT+ei1tStZlTbdOoEY76Sp1DjgQgywrun1Yy8fI3xIwrWioj4dPTIwpuLF2TC
- p7jc6TgJ/+mbzk7/fZNqnvuNAPkOYFDVxc2M+h8waBdUMPTi529xqrZsLXmb483X81N1
- yigxoC1GCMvCYxDphu7CoMA3V/XMj4K4wcjSUnqSh6IHls5/Bq0vMpRVUys0sHGOdO0A
- FGLTuSgWQCx6khbiavudwKqQ+/r5XITAvt1EtIdLagjy/+DiAl46XL9JotljuJO6fnhz
- Ph+a+xWFX6izZYyllVxhmQXKf5+m4/x5mTxs6Vd6pKTYE6aHNWOuQ7xzGdiLfG7sPhOk OA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m10bma4x8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Nov 2022 11:05:34 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ANB1Bcq015949;
-        Wed, 23 Nov 2022 11:05:33 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m10bma4w0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Nov 2022 11:05:33 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ANAoX3B030829;
-        Wed, 23 Nov 2022 11:05:31 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma01fra.de.ibm.com with ESMTP id 3kxps9432c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Nov 2022 11:05:31 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ANB5S6c39453258
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Nov 2022 11:05:28 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 03204AE087;
-        Wed, 23 Nov 2022 11:05:28 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DB4A7AE08B;
-        Wed, 23 Nov 2022 11:05:27 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.46.182])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Nov 2022 11:05:27 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S235505AbiKWLPg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 06:15:36 -0500
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED8510CEA2;
+        Wed, 23 Nov 2022 03:13:52 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R551e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VVWuMiC_1669202028;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VVWuMiC_1669202028)
+          by smtp.aliyun-inc.com;
+          Wed, 23 Nov 2022 19:13:50 +0800
+Date:   Wed, 23 Nov 2022 19:13:47 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Jan Karcher <jaka@linux.ibm.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>
+Subject: Re: [PATCH net-next] net/smc: Unbind smc control from tcp control
+Message-ID: <Y34Aa3MXGqyd+nlQ@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20221123105830.17167-1-jaka@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20221123084656.19864-5-frankja@linux.ibm.com>
-References: <20221123084656.19864-1-frankja@linux.ibm.com> <20221123084656.19864-5-frankja@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, thuth@redhat.com, seiden@linux.ibm.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH 4/5] s390x: Clear first stack frame and end backtrace early
-Message-ID: <166920152649.14080.16975145154131817069@t14-nrb.local>
-User-Agent: alot/0.8.1
-Date:   Wed, 23 Nov 2022 12:05:27 +0100
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: K5Tvps2at9dsv0zqjzKEk39C-zQ9oY3c
-X-Proofpoint-GUID: lnc3NsMINAOnzmu9LFLcFQMeXZ1MBzB5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-23_06,2022-11-23_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 impostorscore=0 suspectscore=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 phishscore=0 spamscore=0 mlxscore=0
- adultscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2210170000 definitions=main-2211230083
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221123105830.17167-1-jaka@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2022-11-23 09:46:55)
-> When setting the first stack frame to 0, we can check for a 0
-> backchain pointer when doing backtraces to know when to stop.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+On Wed, Nov 23, 2022 at 11:58:30AM +0100, Jan Karcher wrote:
+> In the past SMC used the values of tcp_{w|r}mem to create the send
+> buffer and RMB. We now have our own sysctl knobs to tune them without
+> influencing the TCP default.
+> 
+> This patch removes the dependency on the TCP control by providing our
+> own initial values which aim for a low memory footprint.
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
++1, before introducing sysctl knobs of SMC, we were going to get rid of
+TCP and have SMC own values. Now this does it, So I very much agree with
+this.
+
+> 
+> Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
+> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> ---
+>  Documentation/networking/smc-sysctl.rst |  4 ++--
+>  net/smc/smc_core.h                      |  6 ++++--
+>  net/smc/smc_sysctl.c                    | 10 ++++++----
+>  3 files changed, 12 insertions(+), 8 deletions(-)
+> 
+> diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
+> index 6d8acdbe9be1..a1c634d3690a 100644
+> --- a/Documentation/networking/smc-sysctl.rst
+> +++ b/Documentation/networking/smc-sysctl.rst
+> @@ -44,7 +44,7 @@ smcr_testlink_time - INTEGER
+>  
+>  wmem - INTEGER
+>  	Initial size of send buffer used by SMC sockets.
+> -	The default value inherits from net.ipv4.tcp_wmem[1].
+> +	The default value aims for a small memory footprint and is set to 16KiB.
+>  
+>  	The minimum value is 16KiB and there is no hard limit for max value, but
+>  	only allowed 512KiB for SMC-R and 1MiB for SMC-D.
+> @@ -53,7 +53,7 @@ wmem - INTEGER
+>  
+>  rmem - INTEGER
+>  	Initial size of receive buffer (RMB) used by SMC sockets.
+> -	The default value inherits from net.ipv4.tcp_rmem[1].
+> +	The default value aims for a small memory footprint and is set to 64KiB.
+>  
+>  	The minimum value is 16KiB and there is no hard limit for max value, but
+>  	only allowed 512KiB for SMC-R and 1MiB for SMC-D.
+> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+> index 285f9bd8e232..67c3937f341d 100644
+> --- a/net/smc/smc_core.h
+> +++ b/net/smc/smc_core.h
+> @@ -206,8 +206,10 @@ struct smc_rtoken {				/* address/key of remote RMB */
+>  	u32			rkey;
+>  };
+>  
+> -#define SMC_BUF_MIN_SIZE	16384	/* minimum size of an RMB */
+> -#define SMC_RMBE_SIZES		16	/* number of distinct RMBE sizes */
+> +#define SMC_SNDBUF_INIT_SIZE 16384 /* initial size of send buffer */
+> +#define SMC_RCVBUF_INIT_SIZE 65536 /* initial size of receive buffer */
+> +#define SMC_BUF_MIN_SIZE	 16384	/* minimum size of an RMB */
+> +#define SMC_RMBE_SIZES		 16	/* number of distinct RMBE sizes */
+>  /* theoretically, the RFC states that largest size would be 512K,
+>   * i.e. compressed 5 and thus 6 sizes (0..5), despite
+>   * struct smc_clc_msg_accept_confirm.rmbe_size being a 4 bit value (0..15)
+> diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+> index b6f79fabb9d3..a63aa79d4856 100644
+> --- a/net/smc/smc_sysctl.c
+> +++ b/net/smc/smc_sysctl.c
+> @@ -19,8 +19,10 @@
+>  #include "smc_llc.h"
+>  #include "smc_sysctl.h"
+>  
+> -static int min_sndbuf = SMC_BUF_MIN_SIZE;
+> -static int min_rcvbuf = SMC_BUF_MIN_SIZE;
+> +static int initial_sndbuf	= SMC_SNDBUF_INIT_SIZE;
+> +static int initial_rcvbuf	= SMC_RCVBUF_INIT_SIZE;
+> +static int min_sndbuf		= SMC_BUF_MIN_SIZE;
+> +static int min_rcvbuf		= SMC_BUF_MIN_SIZE;
+>  
+>  static struct ctl_table smc_table[] = {
+>  	{
+> @@ -88,8 +90,8 @@ int __net_init smc_sysctl_net_init(struct net *net)
+>  	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
+>  	net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
+>  	net->smc.sysctl_smcr_testlink_time = SMC_LLC_TESTLINK_DEFAULT_TIME;
+> -	WRITE_ONCE(net->smc.sysctl_wmem, READ_ONCE(net->ipv4.sysctl_tcp_wmem[1]));
+> -	WRITE_ONCE(net->smc.sysctl_rmem, READ_ONCE(net->ipv4.sysctl_tcp_rmem[1]));
+> +	WRITE_ONCE(net->smc.sysctl_wmem, initial_sndbuf);
+> +	WRITE_ONCE(net->smc.sysctl_rmem, initial_rcvbuf);
+
+Maybe we can use SMC_{SND|RCV}BUF_INIT_SIZE macro directly, instead of
+new variables.
+
+Cheers,
+Tony Lu
+
+>  
+>  	return 0;
+>  
+> -- 
+> 2.34.1
