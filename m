@@ -2,86 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 833F2C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 09:15:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 403D3C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 09:41:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237317AbiKWJPl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Nov 2022 04:15:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56436 "EHLO
+        id S238038AbiKWJlx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Nov 2022 04:41:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237309AbiKWJPg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 04:15:36 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C8F8107E6C
-        for <linux-s390@vger.kernel.org>; Wed, 23 Nov 2022 01:14:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669194872;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UvEl3fDoKyc28+1/KYocb8VdTUoV1lUU4X5wm9R8a5I=;
-        b=Iuz8q11cTjukjkag51CuuozgXPgefN6Pe7g+17EinkbtR3WpANX1kMJTr89uF9PWxgEaY3
-        hVIDb/oR56B+FORW4pRiP2Jt6owX8KQx0quujYAULVTFt0UmuxOz5QWNkhGxLR9BoEaL1y
-        y5A+yf20LPLUoszyG4te1kF5XoE3qMU=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-25-lez9nmbiMT6fWFB04gvCew-1; Wed, 23 Nov 2022 04:14:30 -0500
-X-MC-Unique: lez9nmbiMT6fWFB04gvCew-1
-Received: by mail-wm1-f70.google.com with SMTP id l42-20020a05600c1d2a00b003cf8e70c1ecso791322wms.4
-        for <linux-s390@vger.kernel.org>; Wed, 23 Nov 2022 01:14:30 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=UvEl3fDoKyc28+1/KYocb8VdTUoV1lUU4X5wm9R8a5I=;
-        b=1rhh8+qq/nRr19Du8JJHxsYba8pzUEH032lIEmK4VqhKFygG6StevA/UGJGvOOUKMA
-         MY/6HVZqA5ASPh/baW42LkFHfhnQobewh6ZVHFZwB6wGvQp08mVHO2ZsDsMdQPZeUQK6
-         C/olAafEmYugtoGu/NYxjPCqpXkW0JW0WA6+VMmYEjPRFw43xS97WtLOFlnbDL05pW+8
-         oTObONTnpC4G33ZoFjahHef7DfaVz03aU5oMwdyeruOm78RRSwgfAXJuN9Z0esMvYSsS
-         arIlqxMMna4qzm2jE7mb7zW0eFsYdYXDSgOEJKI4nawCD9DzfRjCkRdxZDCZDMXvJAlP
-         YggQ==
-X-Gm-Message-State: ANoB5pmgrqcLi7z3MJDpXuQGvLP+/UbetRKV7+i+CNTMA7YrqBGxmQ3D
-        pbzjNqvJ6na2WVu+phR1TVRpHJa6KQKWTdKDQ+gwrRd4+g1PNWnNz3x4T36S0KrZCZGj+JE2yoj
-        boit1BjY12XmPYeyJ3t1GxQ==
-X-Received: by 2002:a5d:6ac7:0:b0:241:bf95:c9a2 with SMTP id u7-20020a5d6ac7000000b00241bf95c9a2mr14122122wrw.387.1669194869292;
-        Wed, 23 Nov 2022 01:14:29 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf5MbHICR3Vo7tZWlDRW+kpPz2bfMNB9rm1UeiE7Bw09D38KnYbwhuerQkfLvPUQegukdeU0MA==
-X-Received: by 2002:a5d:6ac7:0:b0:241:bf95:c9a2 with SMTP id u7-20020a5d6ac7000000b00241bf95c9a2mr14122101wrw.387.1669194868937;
-        Wed, 23 Nov 2022 01:14:28 -0800 (PST)
-Received: from ?IPV6:2003:cb:c704:9f00:a98d:4026:7c44:40fd? (p200300cbc7049f00a98d40267c4440fd.dip0.t-ipconnect.de. [2003:cb:c704:9f00:a98d:4026:7c44:40fd])
-        by smtp.gmail.com with ESMTPSA id z3-20020a5d4c83000000b00241e4bff85asm3407560wrs.100.2022.11.23.01.14.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Nov 2022 01:14:28 -0800 (PST)
-Message-ID: <5899e17f-f048-d248-e5ac-be6cd5a8b7a4@redhat.com>
-Date:   Wed, 23 Nov 2022 10:14:27 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: [PATCH] KVM: s390: vsie: Fix the initialization of the epoch
- extension (epdx) field
-Content-Language: en-US
-To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        with ESMTP id S237981AbiKWJld (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 04:41:33 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89284FC716;
+        Wed, 23 Nov 2022 01:39:08 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AN7Peo3010134;
+        Wed, 23 Nov 2022 09:39:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=G7MppZwrAD9hv1WL9YxVrbxXR61NAceyba4rmUIFQno=;
+ b=jHsvQkoX6LuIDBgOgy7q0OMsLn30SY4BFfXVxlTN975u0YwdZ7+6OBgHdXJ23F6rZIp8
+ +pIU1xHQOQkKw9J5U14Mga+ZLQuwzcgh1sAZjRu4eGWn71naCSEV60D4RVnE/50IVizt
+ QKjdEh8eWJ5cYgMoHnOQB7igFw3pY0Du+SDDe1uRHzVCcRC5yjIJe4G2AMPmZWHQBMye
+ kyup1GF2faYENS0Q3qk9v2GTGdWDOmxO4IxGQ3PsY2sKcbF2HuIbu5/F3AY0zqB7cz2i
+ D2ruoIhJkv5cN2rWYPvqKQi9JiNiWISwLkWfbd6/FehbCDS+QkhFGjzzUBVx5BVB6xYY Ig== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m10w5pwp9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 09:39:07 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AN9MK8c013102;
+        Wed, 23 Nov 2022 09:39:06 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m10w5pwn9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 09:39:06 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AN9YkdD021747;
+        Wed, 23 Nov 2022 09:39:04 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3kxps8wfew-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 09:39:04 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AN9d1rv63177088
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Nov 2022 09:39:01 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6308142042;
+        Wed, 23 Nov 2022 09:39:01 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1B27442041;
+        Wed, 23 Nov 2022 09:39:01 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.56])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Nov 2022 09:39:01 +0000 (GMT)
+Date:   Wed, 23 Nov 2022 10:38:59 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>
+Cc:     kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
         "Collin L. Walling" <walling@linux.ibm.com>,
         Jason J Herne <jjherne@linux.ibm.com>
-References: <20221123090833.292938-1-thuth@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
+Subject: Re: [PATCH] KVM: s390: vsie: Fix the initialization of the epoch
+ extension (epdx) field
+Message-ID: <20221123103859.1d861c44@p-imbrenda>
 In-Reply-To: <20221123090833.292938-1-thuth@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+References: <20221123090833.292938-1-thuth@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VB7N-UmU2w5V8YnsGnJfOrH4quVoW2GC
+X-Proofpoint-ORIG-GUID: mmYlp7Uaw75Lq2JRuQlR7jx7IdMePVU_
 Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-23_04,2022-11-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ bulkscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0 suspectscore=0
+ impostorscore=0 priorityscore=1501 spamscore=0 phishscore=0
+ mlxlogscore=994 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211230071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 23.11.22 10:08, Thomas Huth wrote:
+On Wed, 23 Nov 2022 10:08:33 +0100
+Thomas Huth <thuth@redhat.com> wrote:
+
 > We recently experienced some weird huge time jumps in nested guests when
 > rebooting them in certain cases. After adding some debug code to the epoch
 > handling in vsie.c (thanks to David Hildenbrand for the idea!), it was
@@ -94,33 +107,30 @@ On 23.11.22 10:08, Thomas Huth wrote:
 > Link: https://bugzilla.redhat.com/show_bug.cgi?id=2140899
 > Fixes: 8fa1696ea781 ("KVM: s390: Multiple Epoch Facility support")
 > Signed-off-by: Thomas Huth <thuth@redhat.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
 > ---
->   arch/s390/kvm/vsie.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
+>  arch/s390/kvm/vsie.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
 > diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
 > index 94138f8f0c1c..ace2541ababd 100644
 > --- a/arch/s390/kvm/vsie.c
 > +++ b/arch/s390/kvm/vsie.c
 > @@ -546,8 +546,10 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->   	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_CEI))
->   		scb_s->eca |= scb_o->eca & ECA_CEI;
->   	/* Epoch Extension */
+>  	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_CEI))
+>  		scb_s->eca |= scb_o->eca & ECA_CEI;
+>  	/* Epoch Extension */
 > -	if (test_kvm_facility(vcpu->kvm, 139))
 > +	if (test_kvm_facility(vcpu->kvm, 139)) {
->   		scb_s->ecd |= scb_o->ecd & ECD_MEF;
+>  		scb_s->ecd |= scb_o->ecd & ECD_MEF;
 > +		scb_s->epdx = scb_o->epdx;
+
+looks quite straightforward
+
 > +	}
->   
->   	/* etoken */
->   	if (test_kvm_facility(vcpu->kvm, 156))
-
-Nice,
-
-Acked-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
+>  
+>  	/* etoken */
+>  	if (test_kvm_facility(vcpu->kvm, 156))
 
