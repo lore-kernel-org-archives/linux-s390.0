@@ -2,232 +2,255 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E54FC433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 13:28:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FD38C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 13:29:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237549AbiKWN25 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Nov 2022 08:28:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32798 "EHLO
+        id S235892AbiKWN3F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Nov 2022 08:29:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236200AbiKWN2P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 08:28:15 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87BFE098;
-        Wed, 23 Nov 2022 05:07:44 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ANBDWM9029481;
-        Wed, 23 Nov 2022 13:07:44 GMT
+        with ESMTP id S237189AbiKWN23 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 08:28:29 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2D6112AE5;
+        Wed, 23 Nov 2022 05:07:46 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ANB619i034162;
+        Wed, 23 Nov 2022 13:07:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=UpeM83Nyfeedx92a9CK9WQeo+2YuYhwIHLCyxc/JTko=;
- b=r8M/J8N4T5VIC8CnvOP8KES9L9m/GvelE4CZt886kOiXWWAyqDd928pYbLBga/RSq3w9
- aLqeRvrqW18DE7WzwKLNTN+gLbJ1j1TB8Q25nQVQRbmnRtLIgVRsd978SWCA9L67VmPf
- myEru7b/No7ntr0MZbc12uLwljrWePiFQGn+aCbc1eWN2OH+eIgEj+6TuRZkIhwFl2LI
- N5ohRJ+kgyIN7H/Xz7+ru9j8rhCXkk7PH+/oI0wm2PXO2fXFSXdvkUQzcSlhwqCvIBYa
- KWYax73Lq7XIaqEkDts5eBrapgcXKXvhJj3wXfiwx1yvpFy5tS68XV5p8VbrTb8INMpm zQ== 
+ bh=+taBR1hvFuCQil/WOtzGtQE2ijdDnZrf4aF1gGoVGHs=;
+ b=GBWrK7bleTD1gl2bMYjIc9uwm9Z9nxX9jtYsfenvayztg6ySH8EBWtW6tGkyLFL5sYy7
+ 5NSWOQCv+qbM+hM5vS3oMHdzKeFbepkIiuTZexPaVJIu1ZZkDPn6ZKTp7FQVokjcNfmm
+ /DkPu2OFdQpx07iddVZCAtRdMmgddqydZSGzV+EcSAus4nWiAvxE3YNA8F2ku/kZ9ipl
+ RW7XPUZdERzH0JRLS/tXrHSsdeIi9MKd6kv/lQIiLLHdN+K3w1XwL4SKNoyjUOdrasqz
+ rM0Z4jvZxz6IjPFSDER8UHRGVWph6B7Dj/x8HY10Z/QNb9rUG0/0dqDY7XKzwyySRABm 8g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m100sx6xd-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0x1da3hr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Nov 2022 13:07:43 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ANBo7Ul025441;
+        Wed, 23 Nov 2022 13:07:45 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ANCmGwS016151;
+        Wed, 23 Nov 2022 13:07:45 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0x1da3gw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 13:07:45 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AND6emI004628;
         Wed, 23 Nov 2022 13:07:43 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m100sx6wk-1
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3kxps946st-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 23 Nov 2022 13:07:43 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AND5H7W009565;
-        Wed, 23 Nov 2022 13:07:41 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3kxpdhwrtc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Nov 2022 13:07:41 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AND7c3b35521270
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AND8LjN48300414
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Nov 2022 13:07:38 GMT
+        Wed, 23 Nov 2022 13:08:21 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C621A405F;
-        Wed, 23 Nov 2022 13:07:38 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 124B5A405C;
+        Wed, 23 Nov 2022 13:07:40 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2A718A405B;
-        Wed, 23 Nov 2022 13:07:38 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C5D30A4054;
+        Wed, 23 Nov 2022 13:07:39 +0000 (GMT)
 Received: from p-imbrenda (unknown [9.152.224.56])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Nov 2022 13:07:38 +0000 (GMT)
-Date:   Wed, 23 Nov 2022 14:01:18 +0100
+        Wed, 23 Nov 2022 13:07:39 +0000 (GMT)
+Date:   Wed, 23 Nov 2022 13:45:23 +0100
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     Janosch Frank <frankja@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
         thuth@redhat.com, seiden@linux.ibm.com, nrb@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH 5/5] lib: s390x: Handle debug prints for
- SIE exceptions correctly
-Message-ID: <20221123140118.25114940@p-imbrenda>
-In-Reply-To: <20221123084656.19864-6-frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 1/5] s390x: Add a linker script to
+ assembly snippets
+Message-ID: <20221123134523.5af2b5ab@p-imbrenda>
+In-Reply-To: <20221123084656.19864-2-frankja@linux.ibm.com>
 References: <20221123084656.19864-1-frankja@linux.ibm.com>
-        <20221123084656.19864-6-frankja@linux.ibm.com>
+        <20221123084656.19864-2-frankja@linux.ibm.com>
 Organization: IBM
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Ka7sFnv4pWgyM00-IxyK6p_TG9Gp0xPe
-X-Proofpoint-ORIG-GUID: 0E2yiOZXOfbiDzBZzj0jfRBbQzh-u_Hl
+X-Proofpoint-GUID: VHIUI7TdKQkhLKLvbua2QUQ0hhxUmAei
+X-Proofpoint-ORIG-GUID: f8OAfI_T4QmobjKf8GLoY6gS5b7_MGrP
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-23_06,2022-11-23_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- mlxlogscore=971 adultscore=0 lowpriorityscore=0 priorityscore=1501
- impostorscore=0 spamscore=0 clxscore=1015 bulkscore=0 malwarescore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ adultscore=0 spamscore=0 impostorscore=0 clxscore=1015 bulkscore=0
+ malwarescore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=999
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2210170000 definitions=main-2211230097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 23 Nov 2022 08:46:56 +0000
+On Wed, 23 Nov 2022 08:46:52 +0000
 Janosch Frank <frankja@linux.ibm.com> wrote:
 
-> When we leave SIE due to an exception, we'll still have guest values
-> in registers 0 - 13 and that's not clearly portraied in our debug
-> prints. So let's fix that.
-
-wouldn't it be cleaner to restore the registers in the interrupt
-handler? (I thought we were already doing it)
-
+> A linker script has a few benefits:
+> - Random data doesn't end up in the binary breaking tests
+> - We can easily define a lowcore and load the snippet from 0x0 instead
+> of 0x4000 which makes asm snippets behave like c snippets
+> - We can easily define an invalid PGM new PSW to ensure an exit on a
+> guest PGM
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+
+looks good in general, but I have a few questions
+
 > ---
->  lib/s390x/interrupt.c | 46 ++++++++++++++++++++++++++++++++++++++-----
->  lib/s390x/sie.h       |  2 ++
->  s390x/cpu.S           |  6 ++++--
->  3 files changed, 47 insertions(+), 7 deletions(-)
+>  lib/s390x/snippet.h         |  3 +--
+>  s390x/Makefile              |  5 +++--
+>  s390x/mvpg-sie.c            |  2 +-
+>  s390x/pv-diags.c            |  6 +++---
+>  s390x/snippets/asm/flat.lds | 43 +++++++++++++++++++++++++++++++++++++
+>  5 files changed, 51 insertions(+), 8 deletions(-)
+>  create mode 100644 s390x/snippets/asm/flat.lds
 > 
-> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> index dadb7415..ff47c2c2 100644
-> --- a/lib/s390x/interrupt.c
-> +++ b/lib/s390x/interrupt.c
-> @@ -9,6 +9,7 @@
->   */
->  #include <libcflat.h>
->  #include <asm/barrier.h>
-> +#include <asm/asm-offsets.h>
->  #include <sclp.h>
->  #include <interrupt.h>
->  #include <sie.h>
-> @@ -188,9 +189,12 @@ static void print_storage_exception_information(void)
->  	}
->  }
+> diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet.h
+> index b17b2a4c..57045994 100644
+> --- a/lib/s390x/snippet.h
+> +++ b/lib/s390x/snippet.h
+> @@ -32,8 +32,7 @@
 >  
-> -static void print_int_regs(struct stack_frame_int *stack)
-> +static void print_int_regs(struct stack_frame_int *stack, bool sie)
->  {
-> +	struct kvm_s390_sie_block *sblk;
-> +
->  	printf("\n");
-> +	printf("%s\n", sie ? "Guest registers:" : "Host registers:");
->  	printf("GPRS:\n");
->  	printf("%016lx %016lx %016lx %016lx\n",
->  	       stack->grs1[0], stack->grs1[1], stack->grs0[0], stack->grs0[1]);
-> @@ -198,24 +202,56 @@ static void print_int_regs(struct stack_frame_int *stack)
->  	       stack->grs0[2], stack->grs0[3], stack->grs0[4], stack->grs0[5]);
->  	printf("%016lx %016lx %016lx %016lx\n",
->  	       stack->grs0[6], stack->grs0[7], stack->grs0[8], stack->grs0[9]);
-> -	printf("%016lx %016lx %016lx %016lx\n",
-> -	       stack->grs0[10], stack->grs0[11], stack->grs0[12], stack->grs0[13]);
-> +
-> +	if (sie) {
-> +		sblk = (struct kvm_s390_sie_block *)stack->grs0[12];
-> +		printf("%016lx %016lx %016lx %016lx\n",
-> +		       stack->grs0[10], stack->grs0[11], sblk->gg14, sblk->gg15);
-> +	} else {
-> +		printf("%016lx %016lx %016lx %016lx\n",
-> +		       stack->grs0[10], stack->grs0[11], stack->grs0[12], stack->grs0[13]);
-> +	}
-> +
->  	printf("\n");
->  }
+>  #define SNIPPET_PV_TWEAK0	0x42UL
+>  #define SNIPPET_PV_TWEAK1	0UL
+> -#define SNIPPET_OFF_C		0
+> -#define SNIPPET_OFF_ASM		0x4000
+> +#define SNIPPET_UNPACK_OFF	0
 >  
->  static void print_pgm_info(struct stack_frame_int *stack)
 >  
->  {
-> -	bool in_sie;
-> +	bool in_sie, in_sie_gregs;
-> +	struct vm_save_area *vregs;
+>  /*
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index bf1504f9..bb0f9eb8 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -135,7 +135,8 @@ $(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
+>  	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
 >  
->  	in_sie = (lowcore.pgm_old_psw.addr >= (uintptr_t)sie_entry &&
->  		  lowcore.pgm_old_psw.addr <= (uintptr_t)sie_exit);
-> +	in_sie_gregs = (lowcore.pgm_old_psw.addr >= (uintptr_t)sie_entry_gregs &&
-> +			lowcore.pgm_old_psw.addr <= (uintptr_t)sie_exit_gregs);
+>  $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o
+> -	$(OBJCOPY) -O binary -j ".rodata" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $(patsubst %.gbin,%.o,$@) $@
+> +	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/snippets/asm/flat.lds $(patsubst %.gbin,%.o,$@)
+
+I think you can simply use $< instead of the patsubst expression
+
+> +	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
+>  	truncate -s '%4096' $@
 >  
->  	printf("\n");
->  	printf("Unexpected program interrupt %s: %#x on cpu %d at %#lx, ilen %d\n",
->  	       in_sie ? "in SIE" : "",
->  	       lowcore.pgm_int_code, stap(), lowcore.pgm_old_psw.addr, lowcore.pgm_int_id);
-> -	print_int_regs(stack);
-> +
-> +	/*
-> +	 * If we fall out of SIE before loading the host registers,
-> +	 * then we need to do it here so we print the host registers
-> +	 * and not the guest registers.
-> +	 *
-> +	 * Back tracing is actually not a problem since SIE restores gr15.
-> +	 */
-> +	if (in_sie_gregs) {
-> +		print_int_regs(stack, true);
-> +		vregs = *((struct vm_save_area **)(stack->grs0[13] + __SF_SIE_SAVEAREA));
-> +
+>  $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
+> @@ -144,7 +145,7 @@ $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
+>  	truncate -s '%4096' $@
+>  
+>  $(SNIPPET_DIR)/asm/%.hdr: $(SNIPPET_DIR)/asm/%.gbin $(HOST_KEY_DOCUMENT)
+> -	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x4000,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+> +	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+>  
+>  $(SNIPPET_DIR)/c/%.hdr: $(SNIPPET_DIR)/c/%.gbin $(HOST_KEY_DOCUMENT)
+>  	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
+> index 46a2edb6..99f4859b 100644
+> --- a/s390x/mvpg-sie.c
+> +++ b/s390x/mvpg-sie.c
+> @@ -87,7 +87,7 @@ static void setup_guest(void)
+>  
+>  	snippet_setup_guest(&vm, false);
+>  	snippet_init(&vm, SNIPPET_NAME_START(c, mvpg_snippet),
+> -		     SNIPPET_LEN(c, mvpg_snippet), SNIPPET_OFF_C);
+> +		     SNIPPET_LEN(c, mvpg_snippet), SNIPPET_UNPACK_OFF);
+>  
+>  	/* Enable MVPG interpretation as we want to test KVM and not ourselves */
+>  	vm.sblk->eca = ECA_MVPGI;
+> diff --git a/s390x/pv-diags.c b/s390x/pv-diags.c
+> index 9ced68c7..5165937a 100644
+> --- a/s390x/pv-diags.c
+> +++ b/s390x/pv-diags.c
+> @@ -28,7 +28,7 @@ static void test_diag_500(void)
+>  
+>  	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_500),
+>  			SNIPPET_HDR_START(asm, snippet_pv_diag_500),
+> -			size_gbin, size_hdr, SNIPPET_OFF_ASM);
+> +			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
+>  
+>  	sie(&vm);
+>  	report(vm.sblk->icptcode == ICPT_PV_INSTR && vm.sblk->ipa == 0x8302 &&
+> @@ -83,7 +83,7 @@ static void test_diag_288(void)
+>  
+>  	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_288),
+>  			SNIPPET_HDR_START(asm, snippet_pv_diag_288),
+> -			size_gbin, size_hdr, SNIPPET_OFF_ASM);
+> +			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
+>  
+>  	sie(&vm);
+>  	report(vm.sblk->icptcode == ICPT_PV_INSTR && vm.sblk->ipa == 0x8302 &&
+> @@ -124,7 +124,7 @@ static void test_diag_yield(void)
+>  
+>  	snippet_pv_init(&vm, SNIPPET_NAME_START(asm, snippet_pv_diag_yield),
+>  			SNIPPET_HDR_START(asm, snippet_pv_diag_yield),
+> -			size_gbin, size_hdr, SNIPPET_OFF_ASM);
+> +			size_gbin, size_hdr, SNIPPET_UNPACK_OFF);
+>  
+>  	/* 0x44 */
+>  	report_prefix_push("0x44");
+> diff --git a/s390x/snippets/asm/flat.lds b/s390x/snippets/asm/flat.lds
+> new file mode 100644
+> index 00000000..366d2d78
+> --- /dev/null
+> +++ b/s390x/snippets/asm/flat.lds
+> @@ -0,0 +1,43 @@
+> +SECTIONS
+> +{
+> +	.lowcore : {
 > +		/*
-> +		 * The grs are not linear on the interrupt stack frame.
-> +		 * We copy 0 and 1 here and 2 - 15 with the memcopy below.
+> +		 * Initial short psw for disk boot, with 31 bit addressing for
+> +		 * non z/Arch environment compatibility and the instruction
+> +		 * address 0x4000.
 > +		 */
-> +		stack->grs1[0] = vregs->host.grs[0];
-> +		stack->grs1[1] = vregs->host.grs[1];
-> +		/*  2 - 15 */
-> +		memcpy(stack->grs0, &vregs->host.grs[2], sizeof(stack->grs0) - 8);
+> +		. = 0;
+> +		 LONG(0x00080000)
+> +		 LONG(0x80004000)
+> +		 /* Restart new PSW for booting via PSW restart. */
+> +		 . = 0x1a0;
+> +		 QUAD(0x0000000180000000)
+> +		 QUAD(0x0000000000004000)
+> +		 /*
+> +		  * Invalid PGM new PSW so we hopefully get a code 8
+> +		  * intercept on a PGM
+> +		  */
+> +		 . = 0x1d0;
+> +		 QUAD(0x0008000000000000)
+> +		 QUAD(0x0000000000000001)
 > +	}
-> +	print_int_regs(stack, false);
->  	dump_stack();
->  
->  	/* Dump stack doesn't end with a \n so we add it here instead */
-> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
-> index a27a8401..147cb0f2 100644
-> --- a/lib/s390x/sie.h
-> +++ b/lib/s390x/sie.h
-> @@ -273,6 +273,8 @@ struct vm {
->  
->  extern void sie_entry(void);
->  extern void sie_exit(void);
-> +extern void sie_entry_gregs(void);
-> +extern void sie_exit_gregs(void);
->  extern void sie64a(struct kvm_s390_sie_block *sblk, struct vm_save_area *save_area);
->  void sie(struct vm *vm);
->  void sie_expect_validity(struct vm *vm);
-> diff --git a/s390x/cpu.S b/s390x/cpu.S
-> index 45bd551a..9155b044 100644
-> --- a/s390x/cpu.S
-> +++ b/s390x/cpu.S
-> @@ -82,7 +82,8 @@ sie64a:
->  	# Store scb and save_area pointer into stack frame
->  	stg	%r2,__SF_SIE_CONTROL(%r15)	# save control block pointer
->  	stg	%r3,__SF_SIE_SAVEAREA(%r15)	# save guest register save area
-> -
-> +.globl sie_entry_gregs
-> +sie_entry_gregs:
->  	# Load guest's gprs, fprs and fpc
->  	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
->  	ld	\i, \i * 8 + SIE_SAVEAREA_GUEST_FPRS(%r3)
-> @@ -121,7 +122,8 @@ sie_exit:
->  	.endr
->  	lfpc	SIE_SAVEAREA_HOST_FPC(%r14)
->  	lmg	%r0,%r14,SIE_SAVEAREA_HOST_GRS(%r14)	# restore kernel registers
-> -
-> +.globl sie_exit_gregs
-> +sie_exit_gregs:
->  	br	%r14
->  
->  	.align	8
+> +	. = 0x4000;
+> +	.text : {
+> +		*(.text)
+> +		*(.text.*)
+> +	}
+> +	. = ALIGN(64K);
+
+any reason to align to 64k? (instead of e.g. 4k)
+
+> +	etext = .;
+> +	. = ALIGN(16);
+
+do you need the ALIGN? I would think we are already aligned here
+
+> +	.data : {
+> +		*(.data)
+> +		*(.data.rel*)
+> +	}
+> +	. = ALIGN(16);
+> +	.rodata : { *(.rodata) *(.rodata.*) }
+> +	. = ALIGN(16);
+> +	__bss_start = .;
+> +	.bss : { *(.bss) }
+> +	__bss_end = .;
+> +	. = ALIGN(64K);
+
+same question as above regarding 64k
+
+> +}
 
