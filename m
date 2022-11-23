@@ -2,144 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8C83C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 12:08:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDCF0C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 13:28:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236177AbiKWMIA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Nov 2022 07:08:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45608 "EHLO
+        id S236131AbiKWN2t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Nov 2022 08:28:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236000AbiKWMH7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 07:07:59 -0500
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29D7427B12;
-        Wed, 23 Nov 2022 04:07:55 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R381e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VVWxwnT_1669205271;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VVWxwnT_1669205271)
-          by smtp.aliyun-inc.com;
-          Wed, 23 Nov 2022 20:07:52 +0800
-Date:   Wed, 23 Nov 2022 20:07:50 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Jan Karcher <jaka@linux.ibm.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>
-Subject: Re: [PATCH net-next] net/smc: Unbind smc control from tcp control
-Message-ID: <Y34NFlco13Y3LpOc@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20221123105830.17167-1-jaka@linux.ibm.com>
+        with ESMTP id S237087AbiKWN2P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 08:28:15 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59993BE27;
+        Wed, 23 Nov 2022 05:07:43 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AND2HNq034037;
+        Wed, 23 Nov 2022 13:07:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=dpzs+D9sp2IPvqiFiyCNfqHgrhQ8nIlbGtoIbOkojJI=;
+ b=efcvpbcXVvvHIyjr24qUWh+oAo7ZFJnQ7csz24PqQZ9OwX3CCa+OnVltloVgIfA+nXMd
+ 6Vb9Vlx0oM7kVx/3c6gRVLRImQyJtrXI40jFNE+I5OlGRdTgYMRZc4IH+g2j0kN3U777
+ 00IaGTpfuo/u3295cLZbdY6erN7hApXfbglh7SIK4uLYGZvQ3Xrn9BnGGknPTFe3NLDB
+ ZETyQx3h2KIfDKUeF7gdJ+6j60xMkVnT1X7ygIGkXMsMVweSrRvE5G0tFTz+L7CKiRI9
+ u1nEkd1FCpcsRW8v1rqRHXFNghKHxJmNtP+OZH93zDYABLFDP3ncvj0x9UsjaSp09NbU RQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0x1da3fx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 13:07:42 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ANCBQdR037010;
+        Wed, 23 Nov 2022 13:07:42 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0x1da3f5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 13:07:41 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AND4pML024068;
+        Wed, 23 Nov 2022 13:07:40 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 3kxps8wrev-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 13:07:40 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AND7ajL61604328
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Nov 2022 13:07:36 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BE303A405C;
+        Wed, 23 Nov 2022 13:07:36 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7D14CA4054;
+        Wed, 23 Nov 2022 13:07:36 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.56])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Nov 2022 13:07:36 +0000 (GMT)
+Date:   Wed, 23 Nov 2022 13:46:30 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, seiden@linux.ibm.com, nrb@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH 3/5] lib: s390x: sie: Set guest memory
+ pointer
+Message-ID: <20221123134630.0f67da2d@p-imbrenda>
+In-Reply-To: <20221123084656.19864-4-frankja@linux.ibm.com>
+References: <20221123084656.19864-1-frankja@linux.ibm.com>
+        <20221123084656.19864-4-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221123105830.17167-1-jaka@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: sX9e5eifb51jJqdlQOFnc4xe8TizbP9P
+X-Proofpoint-ORIG-GUID: P8dkmnYYfoDnyBHdsZynxkbPARVkritU
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-23_06,2022-11-23_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ adultscore=0 spamscore=0 impostorscore=0 clxscore=1015 bulkscore=0
+ malwarescore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=999
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211230097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 23, 2022 at 11:58:30AM +0100, Jan Karcher wrote:
-> In the past SMC used the values of tcp_{w|r}mem to create the send
-> buffer and RMB. We now have our own sysctl knobs to tune them without
-> influencing the TCP default.
+On Wed, 23 Nov 2022 08:46:54 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
+> Seems like it was introduced but never set. It's nicer to have a
+> pointer than to cast the MSO of a VM.
 > 
-> This patch removes the dependency on the TCP control by providing our
-> own initial values which aim for a low memory footprint.
-> 
-> Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
-> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
 > ---
->  Documentation/networking/smc-sysctl.rst |  4 ++--
->  net/smc/smc_core.h                      |  6 ++++--
->  net/smc/smc_sysctl.c                    | 10 ++++++----
->  3 files changed, 12 insertions(+), 8 deletions(-)
+>  lib/s390x/sie.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
-> index 6d8acdbe9be1..a1c634d3690a 100644
-> --- a/Documentation/networking/smc-sysctl.rst
-> +++ b/Documentation/networking/smc-sysctl.rst
-> @@ -44,7 +44,7 @@ smcr_testlink_time - INTEGER
+> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+> index a71985b6..9241b4b4 100644
+> --- a/lib/s390x/sie.c
+> +++ b/lib/s390x/sie.c
+> @@ -93,6 +93,7 @@ void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t guest_mem_len)
 >  
->  wmem - INTEGER
->  	Initial size of send buffer used by SMC sockets.
-> -	The default value inherits from net.ipv4.tcp_wmem[1].
-> +	The default value aims for a small memory footprint and is set to 16KiB.
->  
->  	The minimum value is 16KiB and there is no hard limit for max value, but
->  	only allowed 512KiB for SMC-R and 1MiB for SMC-D.
-> @@ -53,7 +53,7 @@ wmem - INTEGER
->  
->  rmem - INTEGER
->  	Initial size of receive buffer (RMB) used by SMC sockets.
-> -	The default value inherits from net.ipv4.tcp_rmem[1].
-> +	The default value aims for a small memory footprint and is set to 64KiB.
->  
->  	The minimum value is 16KiB and there is no hard limit for max value, but
->  	only allowed 512KiB for SMC-R and 1MiB for SMC-D.
-> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-> index 285f9bd8e232..67c3937f341d 100644
-> --- a/net/smc/smc_core.h
-> +++ b/net/smc/smc_core.h
-> @@ -206,8 +206,10 @@ struct smc_rtoken {				/* address/key of remote RMB */
->  	u32			rkey;
->  };
->  
-> -#define SMC_BUF_MIN_SIZE	16384	/* minimum size of an RMB */
+>  	/* Guest memory chunks are always 1MB */
+>  	assert(!(guest_mem_len & ~HPAGE_MASK));
+> +	vm->guest_mem = (uint8_t *)guest_mem;
+>  	/* For non-PV guests we re-use the host's ASCE for ease of use */
+>  	vm->save_area.guest.asce = stctg(1);
+>  	/* Currently MSO/MSL is the easiest option */
 
-Hi Jan,
-
-This patch inspired me that the min value of RMB and sndbuffer is 16KiB,
-it means that every connection costs 32KiB at least. It's still a large
-size for small environments, such as virtual machines or containers.
-
-Also we have tested some cases with smaller buffer size (4KiB, with
-hacked code), it also shows good performance compared with larger buffer
-size.
-
-So I am wondering that we could reduce the min value of RMB/send buffer,
-such as 4KiB.
-
-Cheers,
-Tony Lu
-
-> -#define SMC_RMBE_SIZES		16	/* number of distinct RMBE sizes */
-> +#define SMC_SNDBUF_INIT_SIZE 16384 /* initial size of send buffer */
-> +#define SMC_RCVBUF_INIT_SIZE 65536 /* initial size of receive buffer */
-> +#define SMC_BUF_MIN_SIZE	 16384	/* minimum size of an RMB */
-> +#define SMC_RMBE_SIZES		 16	/* number of distinct RMBE sizes */
->  /* theoretically, the RFC states that largest size would be 512K,
->   * i.e. compressed 5 and thus 6 sizes (0..5), despite
->   * struct smc_clc_msg_accept_confirm.rmbe_size being a 4 bit value (0..15)
-> diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
-> index b6f79fabb9d3..a63aa79d4856 100644
-> --- a/net/smc/smc_sysctl.c
-> +++ b/net/smc/smc_sysctl.c
-> @@ -19,8 +19,10 @@
->  #include "smc_llc.h"
->  #include "smc_sysctl.h"
->  
-> -static int min_sndbuf = SMC_BUF_MIN_SIZE;
-> -static int min_rcvbuf = SMC_BUF_MIN_SIZE;
-> +static int initial_sndbuf	= SMC_SNDBUF_INIT_SIZE;
-> +static int initial_rcvbuf	= SMC_RCVBUF_INIT_SIZE;
-> +static int min_sndbuf		= SMC_BUF_MIN_SIZE;
-> +static int min_rcvbuf		= SMC_BUF_MIN_SIZE;
->  
->  static struct ctl_table smc_table[] = {
->  	{
-> @@ -88,8 +90,8 @@ int __net_init smc_sysctl_net_init(struct net *net)
->  	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
->  	net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
->  	net->smc.sysctl_smcr_testlink_time = SMC_LLC_TESTLINK_DEFAULT_TIME;
-> -	WRITE_ONCE(net->smc.sysctl_wmem, READ_ONCE(net->ipv4.sysctl_tcp_wmem[1]));
-> -	WRITE_ONCE(net->smc.sysctl_rmem, READ_ONCE(net->ipv4.sysctl_tcp_rmem[1]));
-> +	WRITE_ONCE(net->smc.sysctl_wmem, initial_sndbuf);
-> +	WRITE_ONCE(net->smc.sysctl_rmem, initial_rcvbuf);
->  
->  	return 0;
->  
-> -- 
-> 2.34.1
