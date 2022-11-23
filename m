@@ -2,116 +2,97 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99D07C46467
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 16:07:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30ED9C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 17:38:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238888AbiKWQHj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Nov 2022 11:07:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33230 "EHLO
+        id S237578AbiKWRiA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Nov 2022 12:38:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238790AbiKWQHf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 11:07:35 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C99DE6A;
-        Wed, 23 Nov 2022 08:07:30 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ANFvRwP018007;
-        Wed, 23 Nov 2022 16:07:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=i2n+yCT8g7dE+juF0JcPtVakNLBitiv+qwBSY21j/sA=;
- b=beZT5s7OqxIgGkPcSOzyFLrZwPCIhEM/Jqn6+7kDdlb6RT+hZ0CP7RNGRdsZGT9OPdr/
- bBXN/9jj21FX2YhzLRenSiBcRNgg+GHMoYfVhmD5AHZBdXwyJ6F2jGfv1yVUZc6ZKd8r
- BlojIVEgWvoDnFaCvqnLf3Efsj9CyYQ0XGkyWYek7qSpHZJYKEBktTrhZFs1vON2WZgE
- FOOrFe4KRJ/H9n90wQocAuXoY3k4GU2ojVIuBt9SQZNNwG3HorlxJMczUNGDqaH8B9z5
- vLXorG85YqRLqq0LmxDjIvpTsQpXTNdjP5ai/NpW+xcQdMx/kKrMS1qHAE54d4wyD356 VQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m10w60twk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Nov 2022 16:07:28 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ANG24s6000354;
-        Wed, 23 Nov 2022 16:07:28 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m10w60tvw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Nov 2022 16:07:28 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ANG6mwR004928;
-        Wed, 23 Nov 2022 16:07:26 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3kxps8xfhk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Nov 2022 16:07:26 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ANG7KQE52298070
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Nov 2022 16:07:20 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 45589AE06C;
-        Wed, 23 Nov 2022 16:07:20 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 32B0DAE05F;
-        Wed, 23 Nov 2022 16:07:20 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed, 23 Nov 2022 16:07:20 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-        id ECA5AE08BB; Wed, 23 Nov 2022 17:07:19 +0100 (CET)
-From:   Stefan Haberland <sth@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S236582AbiKWRh7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 12:37:59 -0500
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7EC14F197
+        for <linux-s390@vger.kernel.org>; Wed, 23 Nov 2022 09:37:56 -0800 (PST)
+Received: by mail-pf1-x435.google.com with SMTP id w129so1596157pfb.5
+        for <linux-s390@vger.kernel.org>; Wed, 23 Nov 2022 09:37:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hY04rkAqQg+LcFZFljoj2jQg2j6k6tFscaZzKB+qmQs=;
+        b=IuueqrXRu353XBYY9Qn7gvfk44k+GBw5Ss7jlJ/bF0B9vkuJIfvnODpEWxIYdYex5w
+         0o/2acYnpCXR7ss/cqC13b0NKB9I96L07TpMwS6tsvBDyooEB/uPjlvgNsn/aHLrBbYq
+         40B+Kg5YrGtMgS8QzM1Ps5PdH3ZxP0ivdNekXAgb08qOfu6IcjCDfuNs21V6K6SPN3bP
+         z4zzwFkW1U5UR2RldvN4/+VPyB8gosYH1Tcw5eB58kt2QIpTb4gtGY9irYLoHS/FuGQ1
+         hiAB3HMIuABAfm5y9UvpmY3XegzyteCdIj3tz5dNaXUCjeIlVUughFy5M0lLF9PORsy/
+         LCkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=hY04rkAqQg+LcFZFljoj2jQg2j6k6tFscaZzKB+qmQs=;
+        b=NqGHO84dW6pi77rz/qM3HAL+INIfWSisX6sr4Qj1AQGyuW5+/f6Z9Hf7r3Gi5tw23u
+         Pf11TJHbCHvuqrewfJ0flGFoPv7QQMDZYh+y4pzR78dBeo51FID88IH4rEViOT53bOF+
+         WGKc56BjE1OcgEUxRNq61Ynn1OSmmWR1VKX290v3ZNDteNYg7z7IrTxBA8B9ipIeK9N8
+         AWsZxBMb7P5R7OL9F9auH2S9D7beGma49i4+Y3Qajc0xL4mUt/NyDyfs0wLQB/u9Z1vo
+         LMhq0unsR1v9Z6IXrHNqL2PrpIzz+qaQCQ/OPVHbrGCLo1ojQyi0QzjDY0wklPIXK9ff
+         jYVw==
+X-Gm-Message-State: ANoB5pkJXbhyPm+0x4o93EoDeS4MNBhpo5P/1ovKjYAWksVt7Ad3N/Bc
+        LwyG22PJHEiJ1SQwXXaZLjc5HuJrYmLvNg==
+X-Google-Smtp-Source: AA0mqf7+MSCUgLX2sGUTAfXjtFyINTLe+nLCLeUp7NNTUBqOATQ7ZwwWBQpXuHXX6hPbjorO0hfVfA==
+X-Received: by 2002:a62:1715:0:b0:574:684c:e41e with SMTP id 21-20020a621715000000b00574684ce41emr2456342pfx.72.1669225075881;
+        Wed, 23 Nov 2022 09:37:55 -0800 (PST)
+Received: from [127.0.0.1] ([2600:380:4a4b:9d2c:aa9c:d2b:66c9:e23f])
+        by smtp.gmail.com with ESMTPSA id h15-20020a17090a130f00b00212daa68b7csm1675899pja.44.2022.11.23.09.37.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Nov 2022 09:37:55 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Stefan Haberland <sth@linux.ibm.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Colin Ian King <colin.i.king@gmail.com>
-Subject: [PATCH 4/4] s390/dasd: fix possible buffer overflow in copy_pair_show
-Date:   Wed, 23 Nov 2022 17:07:19 +0100
-Message-Id: <20221123160719.3002694-5-sth@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        Colin Ian King <colin.i.king@gmail.com>,
+        linux-s390@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-block@vger.kernel.org
 In-Reply-To: <20221123160719.3002694-1-sth@linux.ibm.com>
 References: <20221123160719.3002694-1-sth@linux.ibm.com>
+Subject: Re: [PATCH 0/4] s390/dasd: fix out of bound access and other fixes
+Message-Id: <166922507445.2259.6403259573928080506.b4-ty@kernel.dk>
+Date:   Wed, 23 Nov 2022 10:37:54 -0700
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Zy0Q1Egd2lia6b5laxw2CTUutA86pKLN
-X-Proofpoint-ORIG-GUID: uaM_BThmGqrUYeO46_Kt5IFjNA4XuB3H
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-23_08,2022-11-23_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- bulkscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0 suspectscore=0
- impostorscore=0 priorityscore=1501 spamscore=0 phishscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211230114
+X-Mailer: b4 0.11.0-dev-28747
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-dasd_copy_relation->entry[] array might be accessed out of bounds if the
-loop does not break.
+On Wed, 23 Nov 2022 17:07:15 +0100, Stefan Haberland wrote:
+> please apply the following patches that:
+> 
+>  - fix an out of bound access
+>  - fix a possible IO error on non-IBM storage
+>  - fix a typo
+>  - improve debug data for error scenarios
+> 
+> [...]
 
-Fixes: a91ff09d39f9 ("s390/dasd: add copy pair setup")
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
----
- drivers/s390/block/dasd_devmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Applied, thanks!
 
-diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
-index cb83f81da416..df17f0f9cb0f 100644
---- a/drivers/s390/block/dasd_devmap.c
-+++ b/drivers/s390/block/dasd_devmap.c
-@@ -1954,7 +1954,7 @@ dasd_copy_pair_show(struct device *dev,
- 			break;
- 		}
- 	}
--	if (!copy->entry[i].primary)
-+	if (i == DASD_CP_ENTRIES)
- 		goto out;
- 
- 	/* print all secondary */
+[1/4] s390/dasd: Fix spelling mistake "Ivalid" -> "Invalid"
+      commit: 4ba5f0c36cfdda68347269c02961cd90f8443ace
+[2/4] s390/dasd: increase printing of debug data payload
+      commit: b49e648fcca7e420c4ad670a548e19f0e8531c30
+[3/4] s390/dasd: fix no record found for raw_track_access
+      commit: 590ce6d96d6a224b470a3862c33a483d5022bfdb
+[4/4] s390/dasd: fix possible buffer overflow in copy_pair_show
+      commit: 7e8a05b47ba7200f333eefd19979eeb4d273ceec
+
+Best regards,
 -- 
-2.34.1
+Jens Axboe
+
 
