@@ -2,261 +2,411 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D511BC46467
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 13:51:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50BB8C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Nov 2022 14:09:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237898AbiKWNvD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Nov 2022 08:51:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38640 "EHLO
+        id S237085AbiKWOJx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Nov 2022 09:09:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237248AbiKWNun (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 08:50:43 -0500
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5945994A7C;
-        Wed, 23 Nov 2022 05:41:11 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VVXHTe6_1669210868;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VVXHTe6_1669210868)
-          by smtp.aliyun-inc.com;
-          Wed, 23 Nov 2022 21:41:09 +0800
-Date:   Wed, 23 Nov 2022 21:41:06 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Jan Karcher <jaka@linux.ibm.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>
-Subject: Re: [PATCH net] net/smc: Fix expected buffersizes and sync logic
-Message-ID: <Y34i8nmJIeIiFuOP@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20221123104907.14624-1-jaka@linux.ibm.com>
- <Y34JxFWBdUxvLQb4@TonyMac-Alibaba>
- <40428548-59b9-379c-857c-172db92afc0c@linux.ibm.com>
+        with ESMTP id S238611AbiKWOJd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Nov 2022 09:09:33 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 56C6513E19;
+        Wed, 23 Nov 2022 06:08:17 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 815761FB;
+        Wed, 23 Nov 2022 06:08:23 -0800 (PST)
+Received: from [192.168.0.110] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F21F13F73B;
+        Wed, 23 Nov 2022 06:08:06 -0800 (PST)
+Message-ID: <16e3ac80-1d13-60f1-666b-a74fab92b7a6@arm.com>
+Date:   Wed, 23 Nov 2022 19:37:50 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40428548-59b9-379c-857c-172db92afc0c@linux.ibm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: [PATCH v7 2/2] arm64: support batched/deferred tlb shootdown
+ during page reclamation
+Content-Language: en-US
+To:     Yicong Yang <yangyicong@huawei.com>, akpm@linux-foundation.org,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        x86@kernel.org, catalin.marinas@arm.com, will@kernel.org,
+        linux-doc@vger.kernel.org
+Cc:     corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
+        punit.agrawal@bytedance.com, linux-kernel@vger.kernel.org,
+        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
+        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
+        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        Barry Song <21cnbao@gmail.com>, wangkefeng.wang@huawei.com,
+        xhao@linux.alibaba.com, prime.zeng@hisilicon.com,
+        Barry Song <v-songbaohua@oppo.com>,
+        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
+References: <20221117082648.47526-1-yangyicong@huawei.com>
+ <20221117082648.47526-3-yangyicong@huawei.com>
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <20221117082648.47526-3-yangyicong@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 23, 2022 at 02:13:04PM +0100, Jan Karcher wrote:
-> 
-> 
-> On 23/11/2022 12:53, Tony Lu wrote:
-> > On Wed, Nov 23, 2022 at 11:49:07AM +0100, Jan Karcher wrote:
-> > > The fixed commit changed the expected behavior of buffersizes
-> > > set by the user using the setsockopt mechanism.
-> > > Before the fixed patch the logic for determining the buffersizes used
-> > > was the following:
-> > > 
-> > > default  = net.ipv4.tcp_{w|r}mem[1]
-> > > sockopt  = the setsockopt mechanism
-> > > val      = the value assigned in default or via setsockopt
-> > > sk_buf   = short for sk_{snd|rcv}buf
-> > > real_buf = the real size of the buffer (sk_buf_size in __smc_buf_create)
-> > > 
-> > >    exposed   | net/core/sock.c  |    af_smc.c    |  smc_core.c
-> > >              |                  |                |
-> > > +---------+ |                  | +------------+ | +-------------------+
-> > > | default |----------------------| sk_buf=val |---| real_buf=sk_buf/2 |
-> > > +---------+ |                  | +------------+ | +-------------------+
-> > >              |                  |                |    ^
-> > >              |                  |                |    |
-> > > +---------+ | +--------------+ |                |    |
-> > > | sockopt |---| sk_buf=val*2 |-----------------------|
-> > > +---------+ | +--------------+ |                |
-> > >              |                  |                |
-> > > 
-> > > The fixed patch introduced a dedicated sysctl for smc
-> > > and removed the /2 in smc_core.c resulting in the following flow:
-> > > 
-> > > default  = net.smc.{w|r}mem (which defaults to net.ipv4.tcp_{w|r}mem[1])
-> > > sockopt  = the setsockopt mechanism
-> > > val      = the value assigned in default or via setsockopt
-> > > sk_buf   = short for sk_{snd|rcv}buf
-> > > real_buf = the real size of the buffer (sk_buf_size in __smc_buf_create)
-> > > 
-> > >    exposed   | net/core/sock.c  |    af_smc.c    |  smc_core.c
-> > >              |                  |                |
-> > > +---------+ |                  | +------------+ | +-----------------+
-> > > | default |----------------------| sk_buf=val |---| real_buf=sk_buf |
-> > > +---------+ |                  | +------------+ | +-----------------+
-> > >              |                  |                |    ^
-> > >              |                  |                |    |
-> > > +---------+ | +--------------+ |                |    |
-> > > | sockopt |---| sk_buf=val*2 |-----------------------|
-> > > +---------+ | +--------------+ |                |
-> > >              |                  |                |
-> > > 
-> > > This would result in double of memory used for existing configurations
-> > > that are using setsockopt.
-> > 
-> > Firstly, thanks for your detailed diagrams :-)
-> > 
-> > And the original decision to use user-provided values rather than
-> > value/2 to follow the instructions of the socket manual [1].
-> > 
-> >    SO_RCVBUF
-> >           Sets or gets the maximum socket receive buffer in bytes.
-> >           The kernel doubles this value (to allow space for
-> >           bookkeeping overhead) when it is set using setsockopt(2),
-> >           and this doubled value is returned by getsockopt(2).  The
-> >           default value is set by the
-> >           /proc/sys/net/core/rmem_default file, and the maximum
-> >           allowed value is set by the /proc/sys/net/core/rmem_max
-> >           file.  The minimum (doubled) value for this option is 256.
-> > 
-> > [1] https://man7.org/linux/man-pages/man7/socket.7.html
-> > 
-> > The user of SMC should know that setsockopt() with SO_{RCV|SND}BUF will
-> 
-> I totally agree that an educated user of SMC should know about that behavior
-> if they decide to use it.
-> We do provide our users preload libraries where they can pass preferred
-> buffersizes via arguments and we handle the Sockopts for them.
-> 
-> > double the values in kernel, and getsockopt() will return the doubled
-> > values. So that they should use half of the values which are passed to
-> > setsockopt(). The original patch tries to make things easier in SMC and
-> > let user-space to handle them following the socket manual.
-> > 
-> > > SMC historically decided to use the explicit value given by the user
-> > > to allocate the memory. This is why we used the /2 in smc_core.c.
-> > > That logic was not applied to the default value.
-> > 
-> > Yep, let back to the patch which introduced smc_{w|r}mem knobs, it's a
-> > trade-off to follow original logic of SMC, or follow the socket manual.
-> > We decides to follow the instruction of manuals in the end.
-> 
-> I understand the point. I spend a lot of time trying to decide what to do.
-> 
-> Since it was an intentional decision to not follow the general socket
-> option, and we do not have anyone complaining we do not really have a reason
-> to change it.
-> Changing it means that users with existing configurations would have to
-> change their configs on an update or suddenly expect double the memory
-> consumption.
-> That's why we in the end preffered to stay with the current logic.
 
-I can't agree with you more with the points to follow the historic logic
-and not break the user-space applications.
 
-> I'm thinking that maybe - if we stay with the historic logic - we should
-> document that desicion somewhere. So that in the future, if a user that
-> expects the man page behavior, has a way to understand what SMC is doing.
-> What do oyu think?
-
-Yep, we _really_ need to document it if we change the convention.
-Actually, I spent a lot of time to find the history about the logic of
-buffer (/2 and *2) in SMC. So I'm really in favor of adding
-documentation, at least code comments to help others to understand them.
-
-Cheers,
-Tony Lu
- 
-> - Jan
+On 11/17/22 13:56, Yicong Yang wrote:
+> From: Barry Song <v-songbaohua@oppo.com>
 > 
-> > 
-> > Cheers,
-> > Tony Lu
-> > 
-> > > Since we now have our own sysctl, which is also exposed to the user,
-> > > we should sync the logic in a way that both values are the real value
-> > > used by our code and shown by smc_stats. To achieve this this patch
-> > > changes the behavior to:
-> > > 
-> > > default  = net.smc.{w|r}mem (which defaults to net.ipv4.tcp_{w|r}mem[1])
-> > > sockopt  = the setsockopt mechanism
-> > > val      = the value assigned in default or via setsockopt
-> > > sk_buf   = short for sk_{snd|rcv}buf
-> > > real_buf = the real size of the buffer (sk_buf_size in __smc_buf_create)
-> > > 
-> > >    exposed   | net/core/sock.c  |    af_smc.c     |  smc_core.c
-> > >              |                  |                 |
-> > > +---------+ |                  | +-------------+ | +-----------------+
-> > > | default |----------------------| sk_buf=val*2|---|real_buf=sk_buf/2|
-> > > +---------+ |                  | +-------------+ | +-----------------+
-> > >              |                  |                 |    ^
-> > >              |                  |                 |    |
-> > > +---------+ | +--------------+ |                 |    |
-> > > | sockopt |---| sk_buf=val*2 |------------------------|
-> > > +---------+ | +--------------+ |                 |
-> > >              |                  |                 |
-> > > 
-> > > This way both paths follow the same pattern and the expected behavior
-> > > is re-established.
-> > > 
-> > > Fixes: 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock and make them tunable")
-> > > Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
-> > > Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> > > ---
-> > >   net/smc/af_smc.c   | 9 +++++++--
-> > >   net/smc/smc_core.c | 8 ++++----
-> > >   2 files changed, 11 insertions(+), 6 deletions(-)
-> > > 
-> > > diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> > > index 036532cf39aa..a8c84e7bac99 100644
-> > > --- a/net/smc/af_smc.c
-> > > +++ b/net/smc/af_smc.c
-> > > @@ -366,6 +366,7 @@ static void smc_destruct(struct sock *sk)
-> > >   static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
-> > >   				   int protocol)
-> > >   {
-> > > +	int buffersize_without_overhead;
-> > >   	struct smc_sock *smc;
-> > >   	struct proto *prot;
-> > >   	struct sock *sk;
-> > > @@ -379,8 +380,12 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
-> > >   	sk->sk_state = SMC_INIT;
-> > >   	sk->sk_destruct = smc_destruct;
-> > >   	sk->sk_protocol = protocol;
-> > > -	WRITE_ONCE(sk->sk_sndbuf, READ_ONCE(net->smc.sysctl_wmem));
-> > > -	WRITE_ONCE(sk->sk_rcvbuf, READ_ONCE(net->smc.sysctl_rmem));
-> > > +	buffersize_without_overhead =
-> > > +		min_t(int, READ_ONCE(net->smc.sysctl_wmem), INT_MAX / 2);
-> > > +	WRITE_ONCE(sk->sk_sndbuf, buffersize_without_overhead * 2);
-> > > +	buffersize_without_overhead =
-> > > +		min_t(int, READ_ONCE(net->smc.sysctl_rmem), INT_MAX / 2);
-> > > +	WRITE_ONCE(sk->sk_rcvbuf, buffersize_without_overhead * 2);
-> > >   	smc = smc_sk(sk);
-> > >   	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
-> > >   	INIT_WORK(&smc->connect_work, smc_connect_work);
-> > > diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> > > index 00fb352c2765..36850a2ae167 100644
-> > > --- a/net/smc/smc_core.c
-> > > +++ b/net/smc/smc_core.c
-> > > @@ -2314,10 +2314,10 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
-> > >   	if (is_rmb)
-> > >   		/* use socket recv buffer size (w/o overhead) as start value */
-> > > -		sk_buf_size = smc->sk.sk_rcvbuf;
-> > > +		sk_buf_size = smc->sk.sk_rcvbuf / 2;
-> > >   	else
-> > >   		/* use socket send buffer size (w/o overhead) as start value */
-> > > -		sk_buf_size = smc->sk.sk_sndbuf;
-> > > +		sk_buf_size = smc->sk.sk_sndbuf / 2;
-> > >   	for (bufsize_short = smc_compress_bufsize(sk_buf_size, is_smcd, is_rmb);
-> > >   	     bufsize_short >= 0; bufsize_short--) {
-> > > @@ -2376,7 +2376,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
-> > >   	if (is_rmb) {
-> > >   		conn->rmb_desc = buf_desc;
-> > >   		conn->rmbe_size_short = bufsize_short;
-> > > -		smc->sk.sk_rcvbuf = bufsize;
-> > > +		smc->sk.sk_rcvbuf = bufsize * 2;
-> > >   		atomic_set(&conn->bytes_to_rcv, 0);
-> > >   		conn->rmbe_update_limit =
-> > >   			smc_rmb_wnd_update_limit(buf_desc->len);
-> > > @@ -2384,7 +2384,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
-> > >   			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
-> > >   	} else {
-> > >   		conn->sndbuf_desc = buf_desc;
-> > > -		smc->sk.sk_sndbuf = bufsize;
-> > > +		smc->sk.sk_sndbuf = bufsize * 2;
-> > >   		atomic_set(&conn->sndbuf_space, bufsize);
-> > >   	}
-> > >   	return 0;
-> > > -- 
-> > > 2.34.1
+> on x86, batched and deferred tlb shootdown has lead to 90%
+> performance increase on tlb shootdown. on arm64, HW can do
+> tlb shootdown without software IPI. But sync tlbi is still
+> quite expensive.
+> 
+> Even running a simplest program which requires swapout can
+> prove this is true,
+>  #include <sys/types.h>
+>  #include <unistd.h>
+>  #include <sys/mman.h>
+>  #include <string.h>
+> 
+>  int main()
+>  {
+>  #define SIZE (1 * 1024 * 1024)
+>          volatile unsigned char *p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
+>                                           MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+> 
+>          memset(p, 0x88, SIZE);
+> 
+>          for (int k = 0; k < 10000; k++) {
+>                  /* swap in */
+>                  for (int i = 0; i < SIZE; i += 4096) {
+>                          (void)p[i];
+>                  }
+> 
+>                  /* swap out */
+>                  madvise(p, SIZE, MADV_PAGEOUT);
+>          }
+>  }
+> 
+> Perf result on snapdragon 888 with 8 cores by using zRAM
+> as the swap block device.
+> 
+>  ~ # perf record taskset -c 4 ./a.out
+>  [ perf record: Woken up 10 times to write data ]
+>  [ perf record: Captured and wrote 2.297 MB perf.data (60084 samples) ]
+>  ~ # perf report
+>  # To display the perf.data header info, please use --header/--header-only options.
+>  # To display the perf.data header info, please use --header/--header-only options.
+>  #
+>  #
+>  # Total Lost Samples: 0
+>  #
+>  # Samples: 60K of event 'cycles'
+>  # Event count (approx.): 35706225414
+>  #
+>  # Overhead  Command  Shared Object      Symbol
+>  # ........  .......  .................  .............................................................................
+>  #
+>     21.07%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irq
+>      8.23%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock_irqrestore
+>      6.67%  a.out    [kernel.kallsyms]  [k] filemap_map_pages
+>      6.16%  a.out    [kernel.kallsyms]  [k] __zram_bvec_write
+>      5.36%  a.out    [kernel.kallsyms]  [k] ptep_clear_flush
+>      3.71%  a.out    [kernel.kallsyms]  [k] _raw_spin_lock
+>      3.49%  a.out    [kernel.kallsyms]  [k] memset64
+>      1.63%  a.out    [kernel.kallsyms]  [k] clear_page
+>      1.42%  a.out    [kernel.kallsyms]  [k] _raw_spin_unlock
+>      1.26%  a.out    [kernel.kallsyms]  [k] mod_zone_state.llvm.8525150236079521930
+>      1.23%  a.out    [kernel.kallsyms]  [k] xas_load
+>      1.15%  a.out    [kernel.kallsyms]  [k] zram_slot_lock
+> 
+> ptep_clear_flush() takes 5.36% CPU in the micro-benchmark
+> swapping in/out a page mapped by only one process. If the
+> page is mapped by multiple processes, typically, like more
+> than 100 on a phone, the overhead would be much higher as
+> we have to run tlb flush 100 times for one single page.
+> Plus, tlb flush overhead will increase with the number
+> of CPU cores due to the bad scalability of tlb shootdown
+> in HW, so those ARM64 servers should expect much higher
+> overhead.
+> 
+> Further perf annonate shows 95% cpu time of ptep_clear_flush
+> is actually used by the final dsb() to wait for the completion
+> of tlb flush. This provides us a very good chance to leverage
+> the existing batched tlb in kernel. The minimum modification
+> is that we only send async tlbi in the first stage and we send
+> dsb while we have to sync in the second stage.
+> 
+> With the above simplest micro benchmark, collapsed time to
+> finish the program decreases around 5%.
+> 
+> Typical collapsed time w/o patch:
+>  ~ # time taskset -c 4 ./a.out
+>  0.21user 14.34system 0:14.69elapsed
+> w/ patch:
+>  ~ # time taskset -c 4 ./a.out
+>  0.22user 13.45system 0:13.80elapsed
+> 
+> Also, Yicong Yang added the following observation.
+> 	Tested with benchmark in the commit on Kunpeng920 arm64 server,
+> 	observed an improvement around 12.5% with command
+> 	`time ./swap_bench`.
+> 		w/o		w/
+> 	real	0m13.460s	0m11.771s
+> 	user	0m0.248s	0m0.279s
+> 	sys	0m12.039s	0m11.458s
+> 
+> 	Originally it's noticed a 16.99% overhead of ptep_clear_flush()
+> 	which has been eliminated by this patch:
+> 
+> 	[root@localhost yang]# perf record -- ./swap_bench && perf report
+> 	[...]
+> 	16.99%  swap_bench  [kernel.kallsyms]  [k] ptep_clear_flush
+> 
+> It is tested on 4,8,128 CPU platforms and shows to be beneficial on
+> large systems but may not have improvement on small systems like on
+> a 4 CPU platform. So make ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH depends
+> on CONFIG_EXPERT for this stage and make this disabled on systems
+> with less than 8 CPUs. User can modify this threshold according to
+> their own platforms by CONFIG_NR_CPUS_FOR_BATCHED_TLB.
+> 
+> This patch extends arch_tlbbatch_add_mm() to take an address of the
+> target page to support the feature on arm64. Also rename it to
+> arch_tlbbatch_add_pending() to better match its function since we
+> don't need to handle the mm on arm64 and add_mm is not proper.
+> add_pending will make sense to both as on x86 we're pending the
+> TLB flush operations while on arm64 we're pending the synchronize
+> operations.
+> 
+> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: Nadav Amit <namit@vmware.com>
+> Cc: Mel Gorman <mgorman@suse.de>
+> Tested-by: Yicong Yang <yangyicong@hisilicon.com>
+> Tested-by: Xin Hao <xhao@linux.alibaba.com>
+> Tested-by: Punit Agrawal <punit.agrawal@bytedance.com>
+> Signed-off-by: Barry Song <v-songbaohua@oppo.com>
+> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> Reviewed-by: Xin Hao <xhao@linux.alibaba.com>
+> ---
+
+LGTM, FWIW.
+
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+
+>  .../features/vm/TLB/arch-support.txt          |  2 +-
+>  arch/arm64/Kconfig                            |  6 +++
+>  arch/arm64/include/asm/tlbbatch.h             | 12 +++++
+>  arch/arm64/include/asm/tlbflush.h             | 52 ++++++++++++++++++-
+>  arch/x86/include/asm/tlbflush.h               |  5 +-
+>  include/linux/mm_types_task.h                 |  4 +-
+>  mm/rmap.c                                     | 10 ++--
+>  7 files changed, 80 insertions(+), 11 deletions(-)
+>  create mode 100644 arch/arm64/include/asm/tlbbatch.h
+> 
+> diff --git a/Documentation/features/vm/TLB/arch-support.txt b/Documentation/features/vm/TLB/arch-support.txt
+> index 039e4e91ada3..2caf815d7c6c 100644
+> --- a/Documentation/features/vm/TLB/arch-support.txt
+> +++ b/Documentation/features/vm/TLB/arch-support.txt
+> @@ -9,7 +9,7 @@
+>      |       alpha: | TODO |
+>      |         arc: | TODO |
+>      |         arm: | TODO |
+> -    |       arm64: | N/A  |
+> +    |       arm64: |  ok  |
+>      |        csky: | TODO |
+>      |     hexagon: | TODO |
+>      |        ia64: | TODO |
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index 505c8a1ccbe0..72975e82c7d7 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -93,6 +93,7 @@ config ARM64
+>  	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
+>  	select ARCH_SUPPORTS_NUMA_BALANCING
+>  	select ARCH_SUPPORTS_PAGE_TABLE_CHECK
+> +	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH if EXPERT
+>  	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
+>  	select ARCH_WANT_DEFAULT_BPF_JIT
+>  	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
+> @@ -268,6 +269,11 @@ config ARM64_CONT_PMD_SHIFT
+>  	default 5 if ARM64_16K_PAGES
+>  	default 4
+>  
+> +config ARM64_NR_CPUS_FOR_BATCHED_TLB
+> +	int "Threshold to enable batched TLB flush"
+> +	default 8
+> +	depends on ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
+> +
+>  config ARCH_MMAP_RND_BITS_MIN
+>  	default 14 if ARM64_64K_PAGES
+>  	default 16 if ARM64_16K_PAGES
+> diff --git a/arch/arm64/include/asm/tlbbatch.h b/arch/arm64/include/asm/tlbbatch.h
+> new file mode 100644
+> index 000000000000..fedb0b87b8db
+> --- /dev/null
+> +++ b/arch/arm64/include/asm/tlbbatch.h
+> @@ -0,0 +1,12 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ARCH_ARM64_TLBBATCH_H
+> +#define _ARCH_ARM64_TLBBATCH_H
+> +
+> +struct arch_tlbflush_unmap_batch {
+> +	/*
+> +	 * For arm64, HW can do tlb shootdown, so we don't
+> +	 * need to record cpumask for sending IPI
+> +	 */
+> +};
+> +
+> +#endif /* _ARCH_ARM64_TLBBATCH_H */
+> diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
+> index 412a3b9a3c25..41a763cf8c1b 100644
+> --- a/arch/arm64/include/asm/tlbflush.h
+> +++ b/arch/arm64/include/asm/tlbflush.h
+> @@ -254,17 +254,23 @@ static inline void flush_tlb_mm(struct mm_struct *mm)
+>  	dsb(ish);
+>  }
+>  
+> -static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
+> +static inline void __flush_tlb_page_nosync(struct mm_struct *mm,
+>  					 unsigned long uaddr)
+>  {
+>  	unsigned long addr;
+>  
+>  	dsb(ishst);
+> -	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
+> +	addr = __TLBI_VADDR(uaddr, ASID(mm));
+>  	__tlbi(vale1is, addr);
+>  	__tlbi_user(vale1is, addr);
+>  }
+>  
+> +static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
+> +					 unsigned long uaddr)
+> +{
+> +	return __flush_tlb_page_nosync(vma->vm_mm, uaddr);
+> +}
+> +
+>  static inline void flush_tlb_page(struct vm_area_struct *vma,
+>  				  unsigned long uaddr)
+>  {
+> @@ -272,6 +278,48 @@ static inline void flush_tlb_page(struct vm_area_struct *vma,
+>  	dsb(ish);
+>  }
+>  
+> +#ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
+> +
+> +static inline bool arch_tlbbatch_should_defer(struct mm_struct *mm)
+> +{
+> +	/*
+> +	 * TLB batched flush is proved to be beneficial for systems with large
+> +	 * number of CPUs, especially system with more than 8 CPUs. TLB shutdown
+> +	 * is cheap on small systems which may not need this feature. So use
+> +	 * a threshold for enabling this to avoid potential side effects on
+> +	 * these platforms.
+> +	 */
+> +	if (num_online_cpus() < CONFIG_ARM64_NR_CPUS_FOR_BATCHED_TLB)
+> +		return false;
+> +
+> +	/*
+> +	 * TLB flush deferral is not required on systems, which are affected with
+> +	 * ARM64_WORKAROUND_REPEAT_TLBI, as __tlbi()/__tlbi_user() implementation
+> +	 * will have two consecutive TLBI instructions with a dsb(ish) in between
+> +	 * defeating the purpose (i.e save overall 'dsb ish' cost).
+> +	 */
+> +#ifdef CONFIG_ARM64_WORKAROUND_REPEAT_TLBI
+> +	if (unlikely(cpus_have_const_cap(ARM64_WORKAROUND_REPEAT_TLBI)))
+> +		return false;
+> +#endif
+> +
+> +	return true;
+> +}
+> +
+> +static inline void arch_tlbbatch_add_pending(struct arch_tlbflush_unmap_batch *batch,
+> +					     struct mm_struct *mm,
+> +					     unsigned long uaddr)
+> +{
+> +	__flush_tlb_page_nosync(mm, uaddr);
+> +}
+> +
+> +static inline void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
+> +{
+> +	dsb(ish);
+> +}
+> +
+> +#endif /* CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH */
+> +
+>  /*
+>   * This is meant to avoid soft lock-ups on large TLB flushing ranges and not
+>   * necessarily a performance improvement.
+> diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
+> index 8a497d902c16..15cada9635c1 100644
+> --- a/arch/x86/include/asm/tlbflush.h
+> +++ b/arch/x86/include/asm/tlbflush.h
+> @@ -263,8 +263,9 @@ static inline u64 inc_mm_tlb_gen(struct mm_struct *mm)
+>  	return atomic64_inc_return(&mm->context.tlb_gen);
+>  }
+>  
+> -static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
+> -					struct mm_struct *mm)
+> +static inline void arch_tlbbatch_add_pending(struct arch_tlbflush_unmap_batch *batch,
+> +					     struct mm_struct *mm,
+> +					     unsigned long uaddr)
+>  {
+>  	inc_mm_tlb_gen(mm);
+>  	cpumask_or(&batch->cpumask, &batch->cpumask, mm_cpumask(mm));
+> diff --git a/include/linux/mm_types_task.h b/include/linux/mm_types_task.h
+> index 0bb4b6da9993..b98098e81390 100644
+> --- a/include/linux/mm_types_task.h
+> +++ b/include/linux/mm_types_task.h
+> @@ -65,8 +65,8 @@ struct tlbflush_unmap_batch {
+>  #ifdef CONFIG_ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
+>  	/*
+>  	 * The arch code makes the following promise: generic code can modify a
+> -	 * PTE, then call arch_tlbbatch_add_mm() (which internally provides all
+> -	 * needed barriers), then call arch_tlbbatch_flush(), and the entries
+> +	 * PTE, then call arch_tlbbatch_add_pending() (which internally provides
+> +	 * all needed barriers), then call arch_tlbbatch_flush(), and the entries
+>  	 * will be flushed on all CPUs by the time that arch_tlbbatch_flush()
+>  	 * returns.
+>  	 */
+> diff --git a/mm/rmap.c b/mm/rmap.c
+> index a9ab10bc0144..603912aa3f19 100644
+> --- a/mm/rmap.c
+> +++ b/mm/rmap.c
+> @@ -640,12 +640,13 @@ void try_to_unmap_flush_dirty(void)
+>  #define TLB_FLUSH_BATCH_PENDING_LARGE			\
+>  	(TLB_FLUSH_BATCH_PENDING_MASK / 2)
+>  
+> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
+> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
+> +				      unsigned long uaddr)
+>  {
+>  	struct tlbflush_unmap_batch *tlb_ubc = &current->tlb_ubc;
+>  	int batch, nbatch;
+>  
+> -	arch_tlbbatch_add_mm(&tlb_ubc->arch, mm);
+> +	arch_tlbbatch_add_pending(&tlb_ubc->arch, mm, uaddr);
+>  	tlb_ubc->flush_required = true;
+>  
+>  	/*
+> @@ -723,7 +724,8 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
+>  	}
+>  }
+>  #else
+> -static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable)
+> +static void set_tlb_ubc_flush_pending(struct mm_struct *mm, bool writable,
+> +				      unsigned long uaddr)
+>  {
+>  }
+>  
+> @@ -1596,7 +1598,7 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
+>  				 */
+>  				pteval = ptep_get_and_clear(mm, address, pvmw.pte);
+>  
+> -				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval));
+> +				set_tlb_ubc_flush_pending(mm, pte_dirty(pteval), address);
+>  			} else {
+>  				pteval = ptep_clear_flush(vma, address, pvmw.pte);
+>  			}
